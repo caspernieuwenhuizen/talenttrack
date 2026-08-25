@@ -166,7 +166,7 @@ Set the theme on the VCT configuration tile (**Configuration → VCT → Macro-b
 
 The combined cycle — theme + conditioning phase + intensity, week by week — is surfaced read-only on the methodology library's **Periodisation** tab for the club-default calendar of the current season.
 
-A JO13-1 5-week speelwijze reference template ships as a starting point (build-up → defending → possession → defending → a neutral week). Feeding the per-week theme into VCT exercise selection is a planned follow-up; today the theme is descriptive.
+A JO13-1 5-week speelwijze reference template ships as a starting point (build-up → defending → possession → defending → a neutral week). The per-week theme is descriptive: it does not feed VCT exercise selection.
 
 ## Privacy
 

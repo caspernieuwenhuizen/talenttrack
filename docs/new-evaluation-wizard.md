@@ -9,7 +9,7 @@ order: 15
 
 # New Evaluation wizard
 
-> Operator + coach reference for the activity-first new-evaluation wizard shipped in v3.75.0 (#0072).
+> Operator and coach reference for the activity-first new-evaluation wizard.
 
 ## What it does
 
@@ -116,19 +116,19 @@ In Configuration → Lookups → Activity Types, each row has a **Rateable** che
 
 In Configuration → Evaluation Categories, top-level categories have a **Quick rate** flag (in `meta.quick_rate`). Quick-rate categories appear as a single-line row in the wizard's rating step. Non-quick categories live in the deep-rate panel (follow-up). Default seed: Technical / Tactical / Physical / Mental.
 
-## Autosave (v3.78.0)
+## Autosave
 
 Every wizard step now autosaves. As you type or change a field the wizard waits ~800ms then quietly POSTs your input to `POST /wp-json/talenttrack/v1/wizards/{slug}/draft`, which merges the patch into your `tt_wizard_drafts` row. A small status caption next to the action buttons shows the state — "Autosave ready" → "Saving…" → "Saved · 14:32".
 
 No validation runs on autosave; that's deliberate. Half-typed input is the point. Validation still runs on **Next** via the step's normal submit path. If the network drops, the caption shows "Save failed" and the next typing burst retries automatically.
 
-## Resume banner (v3.78.0)
+## Resume banner
 
 When you re-enter a wizard with a draft older than ~10 minutes (the cross-session signal), a banner at the top says *"You started this 2 hours ago. Continue where you left off, or start over?"* Click **Continue** to keep going, or **Start over** to wipe the draft and begin fresh. Same-session reloads (faster than 10 minutes) skip the banner because there's nothing to resume from.
 
-## Per-player progress at submit (v3.78.0)
+## Per-player progress at submit
 
-Review-step Submit now drives one POST per evaluation row to `POST /wp-json/talenttrack/v1/wizards/new-evaluation/insert-row`, with a progress bar and "Writing evaluation 3 of 12…" status. Same DB rows as before; the only difference is visible feedback during a 12-player batch. JS-disabled browsers fall back to the v3.75.0 PHP-only one-shot submit.
+Review-step Submit drives one POST per evaluation row to `POST /wp-json/talenttrack/v1/wizards/new-evaluation/insert-row`, with a progress bar and a "Writing evaluation 3 of 12…" status, so a twelve-player batch shows its progress rather than appearing to hang. A browser with JavaScript switched off falls back to a single PHP submit that writes the same rows.
 
 ## What's still on the roadmap
 

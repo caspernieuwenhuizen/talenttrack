@@ -42,7 +42,7 @@ Every public message sends an email to every other thread participant — except
 
 Email subject: *New message on Marcus's goal: "Improve first-touch under pressure"*. The body shows the author, a short preview, and a link back to the goal.
 
-When push notifications land (planned via `#0042`), participants with an active push subscription get push instead of email; everyone else still gets email.
+Participants with an active push subscription get a push notification instead of the email; everyone else gets the email.
 
 Admins can disable notification fan-out entirely by setting `threads.notify_on_post=0` in `tt_config`.
 
@@ -82,7 +82,7 @@ DELETE /wp-json/talenttrack/v1/threads/{type}/{id}/messages/{m}   soft-delete
 POST   /wp-json/talenttrack/v1/threads/{type}/{id}/read           explicit read marker
 ```
 
-v1 only registers `goal` as a thread type. Future epics (#0017 trial cases, #0014 scout reports, #0044 PDP conversations) will register their own.
+`goal` is the only thread type registered today. Other surfaces register their own as they gain conversations.
 
 ## What's not in v1
 
@@ -93,7 +93,7 @@ v1 only registers `goal` as a thread type. Future epics (#0017 trial cases, #001
 - **Editing past 5 minutes.** Soft-delete + repost is the workflow.
 - **Per-message hard delete.** GDPR erasure goes through the existing retention path.
 
-## On the POP page — a conversation per goal (#1754)
+## On the POP page — a conversation per goal
 
 The player's **POP** page (Dashboard › Players › *player* › POP) lists their
 learning goals as **collapsible cards**. Each card's header shows the goal

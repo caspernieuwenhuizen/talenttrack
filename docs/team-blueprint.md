@@ -28,9 +28,9 @@ Click **Create** and you land on the editor with empty slots, ready to fill.
 
 ## The editor
 
-Rebuilt v4.6.0 (#972) — clean port of the in-tree prototype at `.local-mockups/blueprint-editor/index.html`. Four regions:
+The editor has four regions:
 
-- **Action bar** above the layout — one compact bar that consolidates every top-level action (#1527). The **Formation** dropdown stays a labelled control on the left (every active template from `tt_formation_templates`). Then a row of icon-only buttons for the frequent actions — **Save** (primary), **Clear all slots**, **Coverage heatmap** toggle (squad plans only), and the **chemistry show/hide** toggle — each with a tooltip and screen-reader label. A save-state hint flashes "Saving…" between writes. Everything infrequent or destructive lives behind the **⋯ More** menu at the end of the bar (Save as…, Open / Rotate share link, the status transitions, Delete blueprint).
+- **Action bar** above the layout — one compact bar that holds every top-level action. The **Formation** dropdown stays a labelled control on the left (every active template from `tt_formation_templates`). Then a row of icon-only buttons for the frequent actions — **Save** (primary), **Clear all slots**, **Coverage heatmap** toggle (squad plans only), and the **chemistry show/hide** toggle — each with a tooltip and screen-reader label. A save-state hint flashes "Saving…" between writes. Everything infrequent or destructive lives behind the **⋯ More** menu at the end of the bar (Save as…, Open / Rotate share link, the status transitions, Delete blueprint).
 - **Roster sidebar** — title `<Team> — roster (<N>)`, then every active player on the team as a draggable row: avatar with initials + name + a meta line (position, age, kind for non-team entries). An `×N` badge appears next to the name as soon as that player sits in one or more slots on the current formation. Below the list, a **+ Add guest / custom name** button opens an inline 3-tab form (Other team / Guest / Custom — more on that below).
 - **Pitch** — the formation slots. Each position renders a numbered circle (e.g. `9` / `ST`) and a three-row stack directly underneath: **primary / secondary / tertiary** depth. The tier is encoded twice — by the digit on the left of each row AND by the row's border colour (teal / amber / grey) — so the depth chart stays readable without colour.
 - **Link chemistry headline** — `— / 100` until you start placing players, then updates after every change.
@@ -44,7 +44,7 @@ The overflow menu is a native disclosure: click (or focus + Enter / Space) the *
 - The legal **status transitions** for the current state (*Share with staff*, *Move back to draft*, *Lock*, *Reopen*).
 - **Delete blueprint** — hidden once the blueprint is locked (Reopen first).
 
-Each of these keeps its own confirmation prompt where it had one (Rotate, Delete, Clear all). Nothing changed about what the actions do — #1527 only moved them into one bar.
+Rotate, Delete and Clear all each ask for confirmation first.
 
 ### Picking a player
 
@@ -115,7 +115,7 @@ Reopen requires the same manage permission as creating a blueprint, so a head co
 
 ## Permissions
 
-- **View** — head coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board. Access follows the `team_chemistry` authorization matrix (#1922): assistant coaches and read-only observers do **not** have access.
+- **View** — head coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board. Access follows the `team_chemistry` authorization matrix: assistant coaches and read-only observers do **not** have access.
 - **Create / edit / lock / delete** — gated on `team_chemistry` **manage** authority in the matrix (head coach at team scope; head-of-academy / admin globally), resolved via `TeamChemistryAccess` so the frontend and REST agree.
 
 ## Squad plan flavour
@@ -129,7 +129,7 @@ The flavour is locked at create time.
 
 ### Tiered depth chart
 
-The match-day and squad-plan flavours **share the same editor surface** now (#953) — every position on the pitch carries the primary / secondary / tertiary stack inline. Squad-plan blueprints rely on the depth chart more heavily, but a match-day coach is free to fill tier 2 / 3 too (handy for "if A gets injured, B comes in").
+The match-day and squad-plan flavours **share the same editor surface** — every position on the pitch carries the primary / secondary / tertiary stack inline. Squad-plan blueprints rely on the depth chart more heavily, but a match-day coach is free to fill tier 2 / 3 too (handy for "if A gets injured, B comes in").
 
 The same player CAN sit in two slots or tiers on one blueprint — useful for a versatile player who's the primary at one slot and the secondary cover at another. The roster's `×N` badge keeps the picture honest.
 
@@ -154,7 +154,7 @@ Chemistry only scores the **starting XI** — i.e. the primary tier. Tier 2 and 
 
 If a slot has tier-2 or tier-3 entries but **no** tier-1 occupant, a warning strip lists the affected slots above the pitch — chemistry silently ignores those cells, so the strip makes the score drop visible. Fill tier-1 to bring them back into the score.
 
-## Comments (#0068 Phase 3)
+## Comments
 
 Every blueprint has a per-blueprint discussion thread reachable from the editor's **Comments** tab. Staff-only by design (parents on the share-link never see comments):
 
@@ -163,7 +163,7 @@ Every blueprint has a per-blueprint discussion thread reachable from the editor'
 
 System messages auto-post on status transitions (`Status changed to: shared` / `locked` / `draft`). Per-assignment swaps stay silent — they show up on the chemistry refresh.
 
-## Public share-link (#0068 Phase 4)
+## Public share-link
 
 The **Open share link** item in the action bar's **⋯ More** menu generates a URL of shape:
 
@@ -177,9 +177,9 @@ Anyone with the URL sees a read-only render: status pill + chemistry headline + 
 
 The token is an HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` keyed on the install's `wp_salt('auth')`. The seed is per-blueprint, lazily initialised to the blueprint's uuid (cryptographically random by construction); rotation replaces the seed with a fresh `wp_generate_password(16)` value.
 
-## Mobile drag-drop (#0068 Phase 4)
+## Mobile drag-drop
 
-iPads work fine with HTML5 drag-and-drop; iPhones don't. v3.109.8 ships a touch fallback:
+iPads work fine with HTML5 drag-and-drop; iPhones don't, so there is a touch fallback:
 
 - **Long-press 300ms** on a roster chip to pick it up.
 - Drag the chip onto a slot or back into the roster panel.

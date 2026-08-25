@@ -24,7 +24,7 @@ The algorithm flags. Humans decide. The PDP verdict at the end of the cycle is t
 
 ## What goes into the colour
 
-Default methodology (admin-configurable in a future release) weighs four inputs:
+The shipped methodology weighs four inputs:
 
 | Input | Weight | What it is |
 | --- | --- | --- |
@@ -33,7 +33,9 @@ Default methodology (admin-configurable in a future release) weighs four inputs:
 | Attendance | 20% | Present-rate at sessions in the last 90 days |
 | Potential | 15% | Trainer's stated belief about how high the player can reach |
 
-A behaviour rating below 3.0 floors the colour at amber, regardless of the other scores.
+A behaviour rating below the midpoint of your rating scale floors the colour at amber, regardless of the other scores.
+
+**These are defaults, not fixed rules.** An academy admin sets its own weights, its own amber and red thresholds and its own behaviour floor under **Player status methodology**, either academy-wide or per age group. The weights must add up to 100; the screen says so and refuses to save a set that doesn't. The shipped defaults above apply until an override is saved, and **Reset** puts them back.
 
 ## Where you see it
 
@@ -45,7 +47,7 @@ Coaches and HoD see the full breakdown (the four input scores + the threshold re
 
 ## Capturing the inputs
 
-- **Behaviour ratings** — the **Log behaviour** popover on the player profile hero (shipped v4.8.0), or `POST /players/{id}/behaviour-ratings` for integrations. A 1-5 score with optional notes and a related activity.
+- **Behaviour ratings** — the **Log behaviour** popover on the player profile hero, or `POST /players/{id}/behaviour-ratings` for integrations. A 1-5 score with optional notes and a related activity.
 - **Potential** — `POST /players/{id}/potential` with one of `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. HoD-only by default.
 - **Attendance + ratings** — already captured by the existing flows; the calculator reads them directly.
 

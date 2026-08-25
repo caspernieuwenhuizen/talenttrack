@@ -12,7 +12,7 @@ When you log in as a coach you land on a tile grid. Each tile opens one part of 
 
 ## Layout on desktop
 
-*(v4.37.0)* On a wide screen (1024px and up) the **Today's work** section splits into two columns. The work groups run down the left in a fixed order — **Performance → People → Planning & tactics → Development → Reference**, then any remaining groups (such as Tasks or Analytics). Your personal shortcuts gather on the right in a sticky **My work** panel: compact rows with an icon and a title, one per personal tile, that stay in view as you scroll the left column. On narrower screens everything collapses to a single column and the **My work** panel moves to the bottom. The collapsed **Setup & administration** section stays full-width below.
+On a wide screen (1024px and up) the **Today's work** section splits into two columns. The work groups run down the left in a fixed order — **Performance → People → Planning & tactics → Development → Reference**, then any remaining groups (such as Tasks or Analytics). Your personal shortcuts gather on the right in a sticky **My work** panel: compact rows with an icon and a title, one per personal tile, that stay in view as you scroll the left column. On narrower screens everything collapses to a single column and the **My work** panel moves to the bottom. The collapsed **Setup & administration** section stays full-width below.
 
 ## Tiles you'll use most
 
@@ -33,7 +33,7 @@ Add development goals for a player and track their progress.
 
 ## Planning & tactics
 
-*(v4.26.14)* The forward-looking planning and tactical tools sit in their own **Planning & tactics** group, just after Performance — separated from the day-to-day Evaluations / Activities / Goals work:
+The forward-looking planning and tactical tools sit in their own **Planning & tactics** group, just after Performance — separated from the day-to-day Evaluations / Activities / Goals work:
 
 - **Team planner** — plan the training week, principle by principle.
 - **VCT session designer** — build a training from the exercise library.
@@ -43,7 +43,7 @@ Add development goals for a player and track their progress.
 ## Analytics
 
 ### Podium
-Top-3 of every team you coach, on one screen. *(v4.26.14 — moved here from Performance into the Analytics group, alongside Reports and Player comparison.)*
+Top-3 of every team you coach, on one screen.
 
 ## Reference
 

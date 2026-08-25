@@ -15,15 +15,15 @@ If your club already runs the training schedule + games in **Spond**, TalentTrac
 
 The integration is **read-only**: Spond stays the source of truth for the schedule and RSVPs; TalentTrack stays the source of truth for evaluations, goals, attendance, and everything else.
 
-## How it works (since v3.69.0)
+## How it works
 
-Spond never published an iCal feed — the URL-pasting flow that earlier versions of TalentTrack relied on doesn't exist. Since v3.69.0, the integration uses the same internal JSON API that the official Spond mobile and web apps use. That means you log in with a real Spond account once, and TalentTrack uses that login to read events for the groups that account is a member of.
+Spond publishes no iCal feed, so there is no calendar URL to paste. The integration uses the same internal JSON API that the official Spond mobile and web apps use. That means you log in with a real Spond account once, and TalentTrack uses that login to read events for the groups that account is a member of.
 
 ## Setting it up
 
 You need **one** Spond account that's a member of every team you want to sync. Most clubs already have a dedicated coach/manager account for this. Two-factor authentication is **not** supported in v1 — disable it on this account or use a non-2FA dedicated account.
 
-1. Go to **Configuration → Spond integration** (the tile opens the frontend Spond view at `?tt_view=spond` — no wp-admin bounce since v4.57.0 / #1936).
+1. Go to **Configuration → Spond integration** (the tile opens the frontend Spond view at `?tt_view=spond`).
 2. Enter the Spond email + password and click **Save credentials**. The password is stored encrypted at rest; rotating WordPress's `AUTH_KEY` salt invalidates it and forces re-entry. When an account is already connected the page shows **Connected as &lt;email&gt;** and the password field stays blank — leave it blank to keep the stored password, or type a new one to rotate it. The stored password is never shown back.
 3. Click **Test connection** to confirm Spond accepts the login. A green message means you're set; a failed login surfaces the reason inline.
 4. For each TalentTrack team, open the team edit form (or use the new-team wizard) and pick the matching **Spond group** from the dropdown. The dropdown is populated live from the groups your account belongs to.
@@ -51,7 +51,7 @@ The sync window is **30 days back + 180 days forward** rolling, so historical ev
 - **Refresh now** button on the team edit page and per team on the Spond view for an immediate sync.
 - **WP-CLI**: `wp tt spond sync` (all teams) or `wp tt spond sync --team=<id>`.
 
-Last-sync status appears in the **Configuration → Spond integration** table — green when OK, red with the reason if a sync failed. Since v4.20.109 (#1368) the head-of-academy and admin dashboards also show a warning banner when the freshest successful sync is older than 24 hours or any linked team's last sync failed — so a broken sync surfaces where someone will actually see it, not only on this admin page.
+Last-sync status appears in the **Configuration → Spond integration** table — green when OK, red with the reason if a sync failed. The head-of-academy and admin dashboards also show a warning banner when the freshest successful sync is older than 24 hours or any linked team's last sync failed — so a broken sync surfaces where someone will actually see it, not only on this admin page.
 
 ## Privacy + security
 
@@ -94,7 +94,7 @@ If Spond ever moves its API to a new address, an operator can redirect TalentTra
 - **Per-coach Spond accounts** — one account per club.
 - **Inbound webhooks** — Spond doesn't publish them; the daily/hourly cron is the model.
 
-## Migrating from the iCal flow (pre-v3.69.0)
+## Migrating from the old iCal flow
 
 If you previously pasted iCal URLs in the team form, those URLs are nulled out automatically by migration 0052. Reconnect by entering your Spond email + password on **Configuration → Spond** and picking each team's group. Existing imported activities are kept and continue to update once a group is linked again.
 

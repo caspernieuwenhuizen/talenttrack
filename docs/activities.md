@@ -13,7 +13,7 @@ order: 30
 
 An **activity** is anything on the calendar — a training, a game, or any other event (team-building day, club meeting, …). Each activity records who attended.
 
-## The activities list (v4.7.0)
+## The activities list
 
 The **Activities** tile opens a date-bucketed card list. The buckets read top to bottom:
 
@@ -149,7 +149,7 @@ When you create an activity you pick which players are expected — the roster s
 
 Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up happens in the guided completion flow (**Complete activity** / **Continue rating**) — the planned roster is what you expected, the marked attendance is what happened. The detail view keeps a read-only attendance summary on completed activities.
 
-### Adjusting the plan (v4.71.0)
+### Adjusting the plan
 
 The plan is not frozen at creation. Edit an activity that has **not yet been completed** and you'll find a **Planned attendance** section: one row per planned player with a status you can set — **Expected**, **Not coming**, or **Maybe** — plus a free-text **note** (e.g. "texted, injured"). Save and the plan updates. The detail panel's **Edit plan** link jumps you straight there.
 
@@ -207,10 +207,10 @@ Archived activities live under the **Archived** status tab on the activities lis
 - **Restore** an activity — it returns to the active timeline exactly as it was. Opening an archived activity's own detail page now shows a **Restore** button in its header too (in place of Archive), so you can bring it back with one click without hunting through the list. An archived activity is read-only until restored — the Edit and match actions stay hidden until it is active again.
 - **Delete permanently** — an admin-only action (requires the *edit settings* capability) that removes the activity for good. This cannot be undone. If the activity still has attached records (attendance, exercises, match data), the delete is blocked and the activity stays archived — restore it or clear those records first. Archiving is the safe default; permanent deletion is the rare exception.
 
-## Principles practiced (v3.79.0)
+## Principles practiced
 
 Each activity can be tagged with one or more methodology principles so reports can ask "how often did we work on principle X this period?" The Principles practiced multiselect appears on both the public Activity edit page and the wp-admin form — pick from the principles configured under Methodology. The link is optional.
 
-## Admin guest panel (v3.79.0)
+## Admin guest panel
 
 The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync.

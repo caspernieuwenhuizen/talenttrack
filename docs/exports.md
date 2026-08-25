@@ -12,7 +12,7 @@ order: 70
 
 The **Exports** surface (`?tt_view=exports`) is the one place for the academy's bulk exporters — the whole-table / whole-season downloads, as opposed to the per-record exports (a player one-pager, a scouting-report PDF, a PDP) which stay on each record's own detail page where the relevant id is in context.
 
-## Layout (v4.26.20+)
+## Layout
 
 Exporters are grouped into purpose-based sections, and each exporter is a collapsed accordion block so the page stays scannable:
 

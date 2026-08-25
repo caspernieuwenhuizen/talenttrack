@@ -80,10 +80,10 @@ Email and push notifications that would have been triggered by the target user's
 
 ## Reviewing the log
 
-The log is queryable via the REST API at `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated on the `impersonation_log` matrix entity — Academy Admin RCD, Head of Development R). A wp-admin surface for the log is planned but not in v1; until it ships, query the REST endpoint directly with appropriate filters.
+The log is queryable via the REST API at `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated on the `impersonation_log` matrix entity — Academy Admin RCD, Head of Development R). There is no dedicated screen for the log — query the REST endpoint directly with the filters you need.
 
 ## Out of scope
 
-- A wp-admin audit surface beyond REST (planned for a follow-up).
+- A dedicated screen for the audit log — it is read over REST.
 - Cross-club impersonation in multi-tenant deployments (gated on `tt_super_admin` cap not granted by default).
 - Automatic re-authentication for 2FA installs — `wp_set_auth_cookie` skips the 2FA challenge today; a `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )` constant is reserved for clubs that need it.

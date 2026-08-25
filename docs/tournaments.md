@@ -98,7 +98,7 @@ You can **Complete** a match without explicit Kick off — the system will auto-
 
 ## Editing a completed match
 
-By default a completed match's lineup is locked. The system blocks PATCHes to its assignments unless you pass `force=1`. If you spot a mistake after marking complete, an admin can re-open via the REST API; UI surface for this is a planned follow-up.
+By default a completed match's lineup is locked. The system blocks PATCHes to its assignments unless you pass `force=1`. If you spot a mistake after marking complete, an admin can re-open the match through the REST API; there is no screen for it.
 
 ## What v1 doesn't do
 
@@ -106,7 +106,7 @@ By default a completed match's lineup is locked. The system blocks PATCHes to it
 - **Constraint solver** — no "Casper must play GK every match" or similar. Use manual overrides; the manual layer is the constraint layer in v1.
 - **Auto-weight by opponent level** — the tool shows the level, the coach picks the lineup.
 - **Uneven substitution-window splits** — periods are derived from `duration_min ÷ (windows + 1)` assuming even splits.
-- **Per-player tournament tab on the player profile** — minutes/starts/full-matches are queryable from the tournament view in v1; a per-player rollup tab is tracked as a follow-up (idea #0094).
+- **Per-player tournament tab on the player profile** — minutes/starts/full-matches are queryable from the tournament view in v1; there is no separate per-player rollup tab.
 
 ## Who can see this
 
