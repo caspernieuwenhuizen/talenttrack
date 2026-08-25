@@ -205,17 +205,17 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Player',    'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team',      'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
         // #2834 — Present keeps its percentage because it is the figure an
         // academy reports on and compares across a squad; the other four drop
         // theirs and show the count instead. A percentage of a three-activity
         // denominator is noise — "66,7% excused" is two missed sessions, and
         // "2" says that without arithmetic.
-        echo '<th style="text-align:right;">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Late',    'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Absent',  'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Excused', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Injured', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Late',    'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Absent',  'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Excused', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Injured', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         // #2185 — drill-down: the "Activities" count links to the activities
@@ -270,7 +270,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             $activities_count = (int) $r['activities'];
-            echo '<td style="text-align:right;">'; /* tt-inline-ok — right-align matches the grandfathered numeric cells in this table */
+            echo '<td class="tt-att-num">';
             if ( $activities_count > 0 ) {
                 echo '<a class="tt-att-drill" href="' . esc_url( $activities_url ) . '" aria-label="'
                     . esc_attr( sprintf(
@@ -290,7 +290,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             // lexically.
             foreach ( [ 'late', 'absent', 'excused', 'injured' ] as $state ) {
                 $n = (int) $r[ $state ];
-                echo '<td style="text-align:right;" data-sort="' . esc_attr( (string) $n ) . '">'
+                echo '<td class="tt-att-num" data-sort="' . esc_attr( (string) $n ) . '">'
                     . esc_html( number_format_i18n( $n ) ) . '</td>';
             }
             echo '</tr>';
@@ -330,12 +330,6 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             . $fraction
             . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
             . '</span>';
-    }
-
-    private static function pct( $part, $total ): string {
-        $total = (int) $total;
-        if ( $total <= 0 ) return '—';
-        return number_format_i18n( ( (int) $part / $total ) * 100, 1 ) . '%';
     }
 
     /** @return array{from:string,to:string} */

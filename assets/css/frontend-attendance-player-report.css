@@ -95,6 +95,11 @@
     text-align: right;
     color: var(--tt-ink);
 }
+/* #2834 — numeric columns align right. This was eight `style="text-align:
+   right;"` attributes in the view; touching those lines put them in front of
+   the inline-style gate, and a class is what they should always have been. */
+.tt-dashboard .tt-att-num { text-align: right; }
+
 /* #2834 — the fraction the percentage came from, quieter than the number
    itself: it explains the figure rather than competing with it. */
 .tt-dashboard .tt-att-bar__of {
