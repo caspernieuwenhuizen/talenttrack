@@ -691,7 +691,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // definition. Minutes are summed per (player, activity) in a derived
         // table FIRST so a duplicate `actual` row can't fan the JOIN out.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.id AS player_id, p.name, p.jersey_number,
+            // #2849 — `tt_players` has no `name`; it carries `first_name` and
+            // `last_name`. Selecting the column that does not exist made the
+            // whole query fail, and `get_results()` returns null on error, so
+            // every caller quietly saw an empty squad — which is what the
+            // pilot reported as "1 wedstrijd vastgelegd, 0 spelers in
+            // selectie". #2833 converged the two counts, correctly, but the
+            // contradiction had this cause underneath it.
+            "SELECT p.id AS player_id,
+                    CONCAT( p.first_name, ' ', p.last_name ) AS name,
+                    p.jersey_number,
                     COALESCE( SUM( m.match_minutes ), 0 ) AS total_minutes,
                     COUNT( CASE WHEN m.match_minutes > 0 THEN 1 END ) AS apps
                FROM (
@@ -713,8 +722,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                      GROUP BY att.player_id, att.{$att_fk}
                   ) m
                JOIN {$wpdb->prefix}tt_players p ON p.id = m.player_id AND p.archived_at IS NULL
-              GROUP BY p.id, p.name, p.jersey_number
-              ORDER BY total_minutes DESC, p.name ASC
+              GROUP BY p.id, p.first_name, p.last_name, p.jersey_number
+              ORDER BY total_minutes DESC, p.last_name ASC, p.first_name ASC
               LIMIT 60",
             $team_id, $club_id, $bd_from, $bd_to
         ) );
@@ -882,7 +891,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // Per-player average rating across all categories, over the selected
         // window.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.id AS player_id, p.name,
+            // #2849 — `tt_players` has no `name`; it carries `first_name` and
+            // `last_name`. Selecting the column that does not exist made the
+            // whole query fail, and `get_results()` returns null on error, so
+            // the report showed an empty squad on every install rather than
+            // an error anyone could act on.
+            "SELECT p.id AS player_id,
+                    CONCAT( p.first_name, ' ', p.last_name ) AS name,
                     AVG( r.rating ) AS avg_rating,
                     COUNT( DISTINCT e.id ) AS eval_count,
                     MAX( e.eval_date ) AS last_eval_date
@@ -892,8 +907,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 AND e.eval_date BETWEEN %s AND %s
           LEFT JOIN {$wpdb->prefix}tt_eval_ratings r ON r.evaluation_id = e.id
               WHERE p.team_id = %d AND p.archived_at IS NULL
-              GROUP BY p.id, p.name
-              ORDER BY avg_rating DESC, p.name ASC
+              GROUP BY p.id, p.first_name, p.last_name
+              ORDER BY avg_rating DESC, p.last_name ASC, p.first_name ASC
               LIMIT 60",
             $from, $to, $team_id
         ) );
