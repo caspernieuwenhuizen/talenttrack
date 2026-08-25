@@ -86,6 +86,29 @@ Boven de filterbalk staat op elk standaardrapport — de team-, speler- en rangl
 
 Elke chip heeft een **…**-knop die een klein venster opent: hernoem de weergave, vink **Vervang ook de filters door de nu ingestelde filters** aan om hem naar je huidige filters te laten wijzen, of verwijder hem. Hernoemen behoudt de filters; de filters vervangen behoudt de naam. Een naam die je op hetzelfde scherm al gebruikt, wordt geweigerd — dezelfde naam op een ander scherm, of bij iemand anders, mag wel. Opslaan, tonen en verwijderen lopen via de REST-API (`GET/POST /filter-presets`, `DELETE /filter-presets/{id}`), afgeschermd met de capability van het scherm waar de weergave bij hoort — `tt_view_analytics` voor deze rapporten. De oude paden `/reports/filter-presets` blijven nog één release werken. Opgeslagen weergaven zijn niet langer alleen voor rapporten: ze horen bij de gedeelde filterbalk, dus elk scherm dat daarop is gebouwd kan ze aanbieden.
 
+## De tabel Speler-aanwezigheid lezen
+
+**Aanwezig toont het percentage én de breuk erachter** — *33,3% (1/3)*. Bij drie
+activiteiten zegt een percentage op zichzelf weinig; de breuk vertelt zonder
+rekenwerk wat er werkelijk gebeurde.
+
+**Te laat, Afwezig, Afgemeld en Geblesseerd tonen het aantal**, geen percentage.
+Twee gemiste trainingen staan er als **2**. De kolommen sorteren op getal, dus 2
+komt vóór 10.
+
+## Inzoomen op de activiteiten achter een getal
+
+Zowel het aantal bij **Activiteiten** als de risicomarkering opent de
+activiteitenlijst, beperkt tot precies waaruit het getal is opgebouwd: die
+speler, die periode, dat team — **en het activiteitstype waarop het rapport
+gefilterd staat**. Filter je het rapport op *Training*, dan toont de doorklik
+trainingen en niet de hele teamkalender.
+
+De lijst zegt dat er ook bij. Boven de filterbalk staat een strook **Alleen
+getoond:** met de speler en de periode, elk met een **×** die alléén die
+beperking opheft en de rest laat staan. Team en type staan in de filterbalk
+zelf, waar je ze al ziet en kunt aanpassen.
+
 ## Inzoomen op de spelers van een team (teamrapport)
 
 In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.
@@ -173,6 +196,15 @@ speler die inmiddels gearchiveerd is, tellen niet mee in de tegel *Wedstrijden
 vastgelegd* — net zoals die speler niet meer in de selectie eronder staat. De
 tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
 verklaren is erger dan een kleiner getal.
+
+### Het relatieve getal: Minutenaandeel
+
+Deze twee rapporten antwoorden in absolute getallen, en één ding kunnen ze niet
+zeggen: welk deel van wat er werkelijk te vergeven was, elke speler kreeg.
+**Team · Minutenaandeel** doet dat wel: de eigen duur van elke gespeelde
+wedstrijd opgeteld tot een noemer, de vastgelegde minuten per speler daarover,
+en een instelbare norm — standaard 30% — die iedereen daaronder markeert. Zie
+[Minutenaandeel](minutes-share.md) voor het volledige verhaal.
 
 Gebruik het rapport **Minutencontrole** (hieronder) om te zien welke spelers bij
 welke wedstrijd minuten missen.

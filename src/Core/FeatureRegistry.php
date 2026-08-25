@@ -535,6 +535,8 @@ class FeatureRegistry {
         $report_tiles = [
             'player_minutes_played'         => __( 'Player · Minutes played', 'talenttrack' ),
             'team_minutes_distribution'     => __( 'Team · Minutes distribution', 'talenttrack' ),
+            // #2835 — share of the available minutes, against the academy target.
+            'minutes_share'                 => __( 'Team · Minutes share', 'talenttrack' ),
             'team_squad_evaluation_summary' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
             'season_summary'                => __( 'Season · Summary', 'talenttrack' ),
             'season_trial_funnel'           => __( 'Season · Trial funnel', 'talenttrack' ),

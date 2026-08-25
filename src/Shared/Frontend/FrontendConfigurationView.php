@@ -2346,6 +2346,40 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </div>
                 <?php endif; ?>
             </div>
+
+            <?php
+            // #2835 — the minimum share of the available minutes every player
+            // should reach, used by the Minutes share report. It lives on this
+            // form because it is read in the same terms as the match lengths
+            // above: those set the denominator, this sets the line drawn
+            // across it.
+            $share_target = \TT\Modules\Analytics\Reports\MinutesShareQuery::targetPct();
+            ?>
+            <div class="tt-panel">
+                <label class="tt-field" for="tt-minutes-share-target">
+                    <span class="tt-field-label"><?php esc_html_e( 'Minimum share of playing time', 'talenttrack' ); ?></span>
+                    <input
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        max="100"
+                        step="1"
+                        id="tt-minutes-share-target"
+                        class="tt-input"
+                        name="config[minutes_share_target_pct]"
+                        value="<?php echo esc_attr( (string) $share_target ); ?>"
+                        aria-describedby="tt-minutes-share-target-help"
+                    />
+                    <span class="tt-field-help" id="tt-minutes-share-target-help">
+                        <?php echo esc_html( sprintf(
+                            /* translators: %d is the default minimum share percentage. */
+                            __( 'The percentage of a team\'s played minutes every player should reach. The Minutes share report flags anyone below it. Default %d%%.', 'talenttrack' ),
+                            (int) \TT\Modules\Analytics\Reports\MinutesShareQuery::DEFAULT_TARGET_PCT
+                        ) ); ?>
+                    </span>
+                </label>
+            </div>
+
             <div class="tt-form-actions tt-mm-actions">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>

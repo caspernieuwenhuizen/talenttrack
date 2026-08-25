@@ -310,3 +310,55 @@
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);
 }
+
+/* ---- #2835 Minutes share -------------------------------------------
+   The share cell: the number, a proportional track, and — below target —
+   a glyph and the word. Colour never carries the flag alone; these reports
+   are printed and read by colour-blind coaches. Same shape as the
+   attendance report's present-% bar, whose rules live in that report's own
+   sheet. */
+
+.tt-dashboard .tt-rep-share {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    width: 100%;
+}
+.tt-dashboard .tt-rep-share__v {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 46px;
+    text-align: right;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-rep-share__track {
+    width: 84px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.tt-dashboard .tt-rep-share__track > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+}
+.tt-dashboard .tt-rep-share.is-low .tt-rep-share__track > i { background: var(--tt-danger); }
+.tt-dashboard .tt-rep-share.is-low .tt-rep-share__v { color: var(--tt-danger); }
+
+.tt-dashboard .tt-rep-share__flag {
+    display: inline-block;
+    margin-left: var(--tt-sp-2, 8px);
+    color: var(--tt-danger);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-rep-share__none { color: var(--tt-muted, #6a6d66); }
+
+/* The track is decoration once the row has to fit a phone; the number and
+   the flag are the content. */
+@media (max-width: 480px) {
+    .tt-dashboard .tt-rep-share__track { display: none; }
+}

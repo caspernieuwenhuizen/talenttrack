@@ -188,6 +188,11 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                     'date_to'   => $to,
                 ];
                 if ( $team_id > 0 ) $card_args['team_id'] = $team_id;
+                // #2834 — carry the type the report is filtered to. Without
+                // it a count of three trainings landed on a list that also
+                // held matches and meetings, and the number the coach
+                // clicked could not be reconciled with what they arrived at.
+                if ( $type_key !== '' ) $card_args['activity_type_key'] = $type_key;
                 $card_url = BackLink::appendTo( add_query_arg( $card_args, RecordLink::dashboardUrl() ) );
                 echo '<li><a class="tt-record-link tt-att-drill" href="' . esc_url( $card_url ) . '">' . esc_html( $nm ) . '</a> <span class="missed">'
                     . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
@@ -200,12 +205,17 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Player',    'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team',      'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Late %',    'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Absent %',  'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Excused %', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Injured %', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
+        // #2834 — Present keeps its percentage because it is the figure an
+        // academy reports on and compares across a squad; the other four drop
+        // theirs and show the count instead. A percentage of a three-activity
+        // denominator is noise — "66,7% excused" is two missed sessions, and
+        // "2" says that without arithmetic.
+        echo '<th class="tt-att-num">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Late',    'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Absent',  'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Excused', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Injured', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         // #2185 — drill-down: the "Activities" count links to the activities
@@ -231,6 +241,9 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 'date_to'   => $to,
             ];
             if ( $team_id > 0 ) $drill_args['team_id'] = $team_id;
+            // #2834 — and the activity type, so the list the coach lands on
+            // is the one the number was counted from.
+            if ( $type_key !== '' ) $drill_args['activity_type_key'] = $type_key;
             $activities_url = BackLink::appendTo(
                 add_query_arg( $drill_args, RecordLink::dashboardUrl() )
             );
@@ -257,7 +270,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             $activities_count = (int) $r['activities'];
-            echo '<td style="text-align:right;">'; /* tt-inline-ok — right-align matches the grandfathered numeric cells in this table */
+            echo '<td class="tt-att-num">';
             if ( $activities_count > 0 ) {
                 echo '<a class="tt-att-drill" href="' . esc_url( $activities_url ) . '" aria-label="'
                     . esc_attr( sprintf(
@@ -271,11 +284,15 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             }
             echo '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
+            echo '<td>' . self::attendanceBar( $present_pct, (int) $r['present'], (int) $r['total'] ) . '</td>';
+            // #2834 — the count, not the percentage. `data-sort` carries the
+            // number so the client-side sorter orders 2 before 10 instead of
+            // lexically.
+            foreach ( [ 'late', 'absent', 'excused', 'injured' ] as $state ) {
+                $n = (int) $r[ $state ];
+                echo '<td class="tt-att-num" data-sort="' . esc_attr( (string) $n ) . '">'
+                    . esc_html( number_format_i18n( $n ) ) . '</td>';
+            }
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -285,23 +302,34 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
      * Inline attendance bar for the Present % cell — value + a track that
      * fills proportionally, red below 70%. Returns escaped HTML.
      * Mirrors the team report's bar (#1688) for a consistent vocabulary.
+     *
+     * #2834 — the percentage now carries the fraction it came from. "33,3%"
+     * over three activities is one session attended; showing `(1/3)` beside
+     * it means a coach never has to work the denominator out, and it is the
+     * first thing anyone asks of a small sample.
      */
-    private static function attendanceBar( ?float $pct ): string {
+    private static function attendanceBar( ?float $pct, int $present = -1, int $total = -1 ): string {
         if ( $pct === null ) {
             return '<span class="tt-att-bar"><span class="v">—</span></span>';
         }
         $low = $pct < 70;
         $w   = max( 0, min( 100, (int) round( $pct ) ) );
+
+        $fraction = '';
+        if ( $present >= 0 && $total > 0 ) {
+            $fraction = '<span class="tt-att-bar__of">' . esc_html( sprintf(
+                /* translators: 1: activities attended, 2: activities counted */
+                __( '(%1$s/%2$s)', 'talenttrack' ),
+                number_format_i18n( $present ),
+                number_format_i18n( $total )
+            ) ) . '</span>';
+        }
+
         return '<span class="tt-att-bar' . ( $low ? ' is-low' : '' ) . '">'
             . '<span class="v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
+            . $fraction
             . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
             . '</span>';
-    }
-
-    private static function pct( $part, $total ): string {
-        $total = (int) $total;
-        if ( $total <= 0 ) return '—';
-        return number_format_i18n( ( (int) $part / $total ) * 100, 1 ) . '%';
     }
 
     /** @return array{from:string,to:string} */
