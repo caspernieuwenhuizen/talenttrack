@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T17:41:51+00:00\n"
+"POT-Creation-Date: 2026-08-26T17:49:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -412,7 +412,7 @@ msgstr ""
 
 # #0018 — team development sprints 2-5 (engine + UI + pairings + team-fit)
 #: src/Core/FeatureRegistry.php:149
-#: src/Modules/License/Admin/AccountPage.php:825
+#: src/Modules/License/Admin/AccountPage.php:711
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:263
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:48
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:98
@@ -469,7 +469,7 @@ msgid ""
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:198
-#: src/Modules/License/Admin/AccountPage.php:815
+#: src/Modules/License/Admin/AccountPage.php:701
 #: src/Shared/CoreSurfaceRegistration.php:954
 #: src/Shared/Frontend/FrontendComparisonView.php:68
 #: src/Shared/Frontend/FrontendComparisonView.php:69
@@ -2007,7 +2007,7 @@ msgstr "Torneo"
 
 #: src/Infrastructure/Query/LabelTranslator.php:241
 #: src/Modules/Backup/PresetRegistry.php:78
-#: src/Modules/License/FeatureMap.php:159
+#: src/Modules/License/FeatureMap.php:123
 #: src/Modules/Reports/AudienceType.php:87
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:203
 msgid "Standard"
@@ -2268,7 +2268,7 @@ msgid "Completed"
 msgstr "Completado"
 
 #: src/Infrastructure/Query/QueryHelpers.php:640
-#: src/Modules/License/Admin/AccountPage.php:814
+#: src/Modules/License/Admin/AccountPage.php:700
 msgid "Radar charts"
 msgstr ""
 
@@ -3491,7 +3491,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
-#: src/Modules/License/Admin/AccountPage.php:742
+#: src/Modules/License/Admin/AccountPage.php:628
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:196
@@ -3620,8 +3620,8 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
 #: src/Modules/DemoData/DemoCoverage.php:1252
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
-#: src/Modules/License/Admin/AccountPage.php:631
-#: src/Modules/License/Admin/AccountPage.php:754
+#: src/Modules/License/Admin/AccountPage.php:561
+#: src/Modules/License/Admin/AccountPage.php:640
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:292
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:25
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
@@ -4478,7 +4478,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1253
-#: src/Modules/License/Admin/AccountPage.php:805
+#: src/Modules/License/Admin/AccountPage.php:691
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:495
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
@@ -4869,7 +4869,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:102
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
-#: src/Modules/License/Admin/AccountPage.php:807
+#: src/Modules/License/Admin/AccountPage.php:693
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:149
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:126
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:71
@@ -4944,7 +4944,7 @@ msgstr "Actualizar"
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:377
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
-#: src/Modules/License/Admin/AccountPage.php:325
+#: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:954
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
@@ -4964,7 +4964,7 @@ msgstr "Actualizar"
 #: src/Shared/Frontend/CoachDashboardView.php:272
 #: src/Shared/Frontend/CoachForms.php:127
 #: src/Shared/Frontend/CoachForms.php:548
-#: src/Shared/Frontend/Components/FormSaveButton.php:46
+#: src/Shared/Frontend/Components/FormSaveButton.php:52
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
 #: src/Shared/Frontend/Components/SavedViews.php:110
 #: src/Shared/Frontend/Components/SavedViews.php:156
@@ -5044,11 +5044,8 @@ msgstr "Guardar"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
 #: src/Modules/Goals/Admin/GoalsPage.php:214
 #: src/Modules/Goals/Admin/GoalsPage.php:277
-#: src/Modules/License/Admin/AccountPage.php:59
-#: src/Modules/License/Admin/AccountPage.php:71
-#: src/Modules/License/Admin/AccountPage.php:943
-#: src/Modules/License/Admin/AccountPage.php:957
-#: src/Modules/License/Admin/AccountPage.php:958
+#: src/Modules/License/Admin/AccountPage.php:56
+#: src/Modules/License/Admin/AccountPage.php:68
 #: src/Modules/License/Admin/DevOverridePage.php:52
 #: src/Modules/License/Admin/DevOverridePage.php:122
 #: src/Modules/License/Admin/DevOverridePage.php:135
@@ -5355,7 +5352,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:392
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:769
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:373
-#: src/Shared/Frontend/Components/FormSaveButton.php:63
+#: src/Shared/Frontend/Components/FormSaveButton.php:69
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/Components/MediaUploader.php:169
@@ -6309,8 +6306,8 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
 #: src/Modules/DemoData/DemoCoverage.php:1254
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
-#: src/Modules/License/Admin/AccountPage.php:636
-#: src/Modules/License/Admin/AccountPage.php:804
+#: src/Modules/License/Admin/AccountPage.php:566
+#: src/Modules/License/Admin/AccountPage.php:690
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1366
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:94
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:146
@@ -6362,7 +6359,7 @@ msgstr "Evaluaciones"
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1255
 #: src/Modules/Goals/Admin/GoalsPage.php:46
-#: src/Modules/License/Admin/AccountPage.php:806
+#: src/Modules/License/Admin/AccountPage.php:692
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:259
 #: src/Modules/Reports/AudienceDefaults.php:107
@@ -7003,8 +7000,8 @@ msgstr ""
 #: src/Modules/DemoData/DemoCoverage.php:1250
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
-#: src/Modules/License/Admin/AccountPage.php:626
-#: src/Modules/License/Admin/AccountPage.php:753
+#: src/Modules/License/Admin/AccountPage.php:556
+#: src/Modules/License/Admin/AccountPage.php:639
 #: src/Modules/People/Admin/PeoplePage.php:175
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:247
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:370
@@ -7852,7 +7849,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:258
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:82
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:133
-#: src/Shared/Frontend/Components/FormSaveButton.php:48
+#: src/Shared/Frontend/Components/FormSaveButton.php:54
 #: src/Shared/Frontend/FrontendBackupsView.php:250
 #: src/Shared/Frontend/FrontendConfigurationView.php:893
 #: src/Shared/Frontend/FrontendConfigurationView.php:1081
@@ -9268,7 +9265,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
 #: src/Modules/DemoData/DemoCoverage.php:1257
-#: src/Modules/License/Admin/AccountPage.php:823
+#: src/Modules/License/Admin/AccountPage.php:709
 #: src/Shared/CoreSurfaceRegistration.php:834
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:33
@@ -9391,7 +9388,7 @@ msgid "Persona templates"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:167
-#: src/Modules/License/Admin/AccountPage.php:824
+#: src/Modules/License/Admin/AccountPage.php:710
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:24
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:27
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:30
@@ -11107,7 +11104,7 @@ msgstr "Restaurar"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:321
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1424
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1449
-#: src/Modules/License/Admin/AccountPage.php:819
+#: src/Modules/License/Admin/AccountPage.php:705
 #: src/Shared/Frontend/FrontendBackupsView.php:300
 msgid "Partial restore"
 msgstr ""
@@ -12887,7 +12884,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:399
 #: src/Modules/Development/IdeaType.php:55
-#: src/Modules/License/Admin/AccountPage.php:768
+#: src/Modules/License/Admin/AccountPage.php:654
 #: src/Shared/Frontend/FrontendModulesView.php:359
 #: src/Shared/Frontend/FrontendUsageStatsView.php:234
 msgid "Feature"
@@ -12982,7 +12979,7 @@ msgid "Last step you were on: %s."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:473
-#: src/Modules/License/Admin/AccountPage.php:487
+#: src/Modules/License/Admin/AccountPage.php:469
 msgid "Resume setup wizard"
 msgstr ""
 
@@ -13819,7 +13816,7 @@ msgid "No log entries match the current filter."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:122
-#: src/Modules/License/Admin/AccountPage.php:919
+#: src/Modules/License/Admin/AccountPage.php:804
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:251
 #: src/Shared/Frontend/DashboardShortcode.php:253
 #: src/Shared/Frontend/FrontendConfigurationView.php:509
@@ -18132,7 +18129,7 @@ msgid "Not found"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:528
-#: src/Modules/License/Admin/AccountPage.php:921
+#: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:155
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:319
@@ -19318,7 +19315,7 @@ msgstr ""
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:180
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:258
-#: src/Modules/License/Admin/AccountPage.php:194
+#: src/Modules/License/Admin/AccountPage.php:191
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:80
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:183
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
@@ -21699,11 +21696,11 @@ msgstr ""
 msgid "Hand in an assignment"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:90
+#: src/Modules/License/Admin/AccountPage.php:87
 msgid "TalentTrack — Account"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:109
+#: src/Modules/License/Admin/AccountPage.php:106
 #: src/Modules/Mfa/Wizards/SecretStep.php:110
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:141
 #: src/Shared/CoreSurfaceRegistration.php:1631
@@ -21713,22 +21710,22 @@ msgstr ""
 msgid "Account"
 msgstr "Cuenta"
 
-#: src/Modules/License/Admin/AccountPage.php:111
+#: src/Modules/License/Admin/AccountPage.php:108
 msgid "Plan & restrictions"
 msgstr ""
 
 # v3.100.1 — #0086 Workstream B Child 1 sprint 1: MFA foundation + Account tab
-#: src/Modules/License/Admin/AccountPage.php:112
+#: src/Modules/License/Admin/AccountPage.php:109
 msgid "MFA"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:138
+#: src/Modules/License/Admin/AccountPage.php:135
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:52
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:83
 msgid "You must be logged in to manage your MFA settings."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:152
+#: src/Modules/License/Admin/AccountPage.php:149
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:45
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:89
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:106
@@ -21736,7 +21733,7 @@ msgstr ""
 msgid "Two-factor authentication"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:154
+#: src/Modules/License/Admin/AccountPage.php:151
 msgid ""
 "A second factor at login — a 6-digit code from your authenticator app, plus "
 "10 single-use backup codes for the case where you lose your device. Building "
@@ -21744,124 +21741,124 @@ msgid ""
 "unchanged."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:162
+#: src/Modules/License/Admin/AccountPage.php:159
 msgid "MFA is now active on your account."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:162
+#: src/Modules/License/Admin/AccountPage.php:159
 msgid ""
 "From your next sign-in onward TalentTrack will ask for a 6-digit code from "
 "your authenticator app."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:168
+#: src/Modules/License/Admin/AccountPage.php:165
 msgid "MFA is now off."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:168
+#: src/Modules/License/Admin/AccountPage.php:165
 msgid "Re-enroll any time from this tab."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:174
+#: src/Modules/License/Admin/AccountPage.php:171
 msgid "MFA was not turned off — the confirmation checkbox was not ticked."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:186
+#: src/Modules/License/Admin/AccountPage.php:183
 msgid "Here are your new backup codes."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:186
+#: src/Modules/License/Admin/AccountPage.php:183
 msgid ""
 "Save them somewhere safe — you won't see them again on this page after you "
 "leave."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:193
+#: src/Modules/License/Admin/AccountPage.php:190
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:72
 msgid "Copy all to clipboard"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:205
+#: src/Modules/License/Admin/AccountPage.php:202
 msgid "You are enrolled in MFA."
 msgstr ""
 
 #. translators: 1: number of unused backup codes left, 2: total number of backup codes generated
-#: src/Modules/License/Admin/AccountPage.php:211
+#: src/Modules/License/Admin/AccountPage.php:208
 #, php-format
 msgid "Backup codes remaining: %1$d of %2$d."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:217
+#: src/Modules/License/Admin/AccountPage.php:214
 msgid "Running low — regenerate now."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:224
+#: src/Modules/License/Admin/AccountPage.php:221
 msgid "Manage"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:225
+#: src/Modules/License/Admin/AccountPage.php:222
 msgid ""
 "Generate a fresh batch of 10 backup codes (the old set stops working "
 "immediately), or turn MFA off entirely."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:230
+#: src/Modules/License/Admin/AccountPage.php:227
 msgid "Regenerate backup codes"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:234
-#: src/Modules/License/Admin/AccountPage.php:243
+#: src/Modules/License/Admin/AccountPage.php:231
+#: src/Modules/License/Admin/AccountPage.php:240
 msgid "Turn MFA off"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:238
+#: src/Modules/License/Admin/AccountPage.php:235
 msgid ""
 "Turning MFA off removes your secret and your backup codes. From your next "
 "sign-in onward, TalentTrack will accept just your password again."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:241
+#: src/Modules/License/Admin/AccountPage.php:238
 msgid ""
 "I understand that turning MFA off weakens the security of my TalentTrack "
 "account."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:247
+#: src/Modules/License/Admin/AccountPage.php:244
 msgid ""
 "Lost your phone? Use a backup code at the next sign-in, then come back here "
 "and regenerate the set."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:257
+#: src/Modules/License/Admin/AccountPage.php:254
 msgid "You are not yet enrolled in MFA."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:258
+#: src/Modules/License/Admin/AccountPage.php:255
 msgid ""
 "Enrollment is a 4-step wizard: a brief intro, a QR code your authenticator "
 "app scans, a quick verification of your first code, and your 10 backup codes "
 "shown once. Takes about 2 minutes."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:264
+#: src/Modules/License/Admin/AccountPage.php:261
 msgid "Start enrollment"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:267
+#: src/Modules/License/Admin/AccountPage.php:264
 msgid ""
 "Enrollment is unavailable on this install — wizards are disabled in the "
 "configuration."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:278
+#: src/Modules/License/Admin/AccountPage.php:275
 msgid "Read the security operator guide"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:299
+#: src/Modules/License/Admin/AccountPage.php:296
 msgid "Per-club enforcement (operator only)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:301
+#: src/Modules/License/Admin/AccountPage.php:298
 msgid ""
 "Pick which personas must enroll in MFA. Users whose persona is on this list "
 "will see the MFA prompt at every login (skipped only when they have a valid "
@@ -21869,19 +21866,19 @@ msgid ""
 "are redirected to the enrollment wizard at login until they finish."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:306
+#: src/Modules/License/Admin/AccountPage.php:303
 msgid "Persona enforcement saved."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:314
+#: src/Modules/License/Admin/AccountPage.php:311
 msgid "Personas required to enroll"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:330
+#: src/Modules/License/Admin/AccountPage.php:327
 msgid "Reset MFA on another user (lockout recovery)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:332
+#: src/Modules/License/Admin/AccountPage.php:329
 msgid ""
 "When a user has lost both their authenticator app and all their backup "
 "codes, this is the recovery path. Their MFA secret + remembered devices are "
@@ -21890,304 +21887,225 @@ msgid ""
 msgstr ""
 
 #. translators: %s username
-#: src/Modules/License/Admin/AccountPage.php:343
+#: src/Modules/License/Admin/AccountPage.php:340
 #, php-format
 msgid ""
 "MFA reset for %s. They will be prompted to re-enroll on their next login."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:350
+#: src/Modules/License/Admin/AccountPage.php:347
 msgid "No reset performed — pick a user and tick the confirmation box."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:373
+#: src/Modules/License/Admin/AccountPage.php:370
 msgid "Nobody is currently enrolled in MFA on this install."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:377
+#: src/Modules/License/Admin/AccountPage.php:374
 msgid "Enrolled user"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:380
+#: src/Modules/License/Admin/AccountPage.php:377
 msgid "— pick a user —"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:389
+#: src/Modules/License/Admin/AccountPage.php:386
 msgid ""
 "I have verified that this user is locked out and unable to use their "
 "authenticator app or any of their backup codes."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:392
+#: src/Modules/License/Admin/AccountPage.php:389
 msgid "Reset MFA on this user"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:400
+#: src/Modules/License/Admin/AccountPage.php:397
 msgid ""
 "You do not have access to the operator account controls. The Plan & "
 "restrictions tab is open to everyone."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:442
-msgid "Trial started."
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:443
-msgid "Trial state cleared."
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:453
+#: src/Modules/License/Admin/AccountPage.php:435
 msgid "Developer override active."
 msgstr ""
 
 #. translators: 1: tier label, 2: relative time
 #. translators: 1: tier label, 2: relative time string
-#: src/Modules/License/Admin/AccountPage.php:457
+#: src/Modules/License/Admin/AccountPage.php:439
 #: src/Modules/License/Admin/DevOverridePage.php:82
 #, php-format
 msgid "Tier forced to %1$s; expires in %2$s."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:468
-msgid "Monetization not yet configured."
+#: src/Modules/License/Admin/AccountPage.php:450
+msgid "No plan recorded for this install."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:469
+#: src/Modules/License/Admin/AccountPage.php:451
 msgid ""
-"Until the Freemius credentials are defined in wp-config.php, this install "
-"runs on the Free tier (or a trial / dev override if active). Paid plans "
-"become available once the SDK is wired up."
+"This install has not been told which plan it is on, so it runs on Free. The "
+"plan is set when the install is provisioned — contact your TalentTrack "
+"operator if that looks wrong."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:484
+#: src/Modules/License/Admin/AccountPage.php:466
 msgid "Finish setting up TalentTrack."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:485
+#: src/Modules/License/Admin/AccountPage.php:467
 msgid ""
 "The setup wizard is still in progress — pick it up where you left off any "
 "time."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:493
+#: src/Modules/License/Admin/AccountPage.php:475
 msgid "Current tier"
 msgstr ""
 
-#. translators: %s is the effective tier label
-#: src/Modules/License/Admin/AccountPage.php:500
-#, php-format
-msgid "effective: %s (read-only grace)"
-msgstr ""
-
-#. translators: %d is the number of days remaining
-#: src/Modules/License/Admin/AccountPage.php:511
-#, php-format
-msgid "Trial: %d day remaining."
-msgid_plural "Trial: %d days remaining."
-msgstr[0] "Trial: nog %d dag."
-msgstr[1] "Trial: nog %d dagen."
-
-#. translators: %d is the number of grace days remaining
-#: src/Modules/License/Admin/AccountPage.php:519
-#, php-format
-msgid ""
-"Trial ended — %d day of read-only access remaining. Upgrade to keep adding "
-"new evaluations."
-msgid_plural ""
-"Trial ended — %d days of read-only access remaining. Upgrade to keep adding "
-"new evaluations."
-msgstr[0] ""
-"Trial beëindigd — nog %d dag alleen-lezen toegang. Upgrade om nieuwe "
-"evaluaties te blijven toevoegen."
-msgstr[1] ""
-"Trial beëindigd — nog %d dagen alleen-lezen toegang. Upgrade om nieuwe "
-"evaluaties te blijven toevoegen."
-
-#: src/Modules/License/Admin/AccountPage.php:539
-msgid "Start trial"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:543
-msgid ""
-"Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team "
-"chemistry, radar charts, the lot. After 30 days you get 14 days of read-only "
-"grace; then the install drops back to Free."
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:582
-#: src/Modules/License/Admin/AccountPage.php:602
+#: src/Modules/License/Admin/AccountPage.php:512
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:586
+#: src/Modules/License/Admin/AccountPage.php:516
 msgid ""
 "You're on Standard. Pro adds the features your scouting and trial workflows "
 "depend on."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:588
+#: src/Modules/License/Admin/AccountPage.php:518
 msgid ""
 "Pro unlocks every TalentTrack feature — the ones your scouting and trial "
 "workflows depend on, plus the conveniences your coaches will ask for."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:593
+#: src/Modules/License/Admin/AccountPage.php:523
 msgid "Trial cases — full intake → decision pipeline"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:594
+#: src/Modules/License/Admin/AccountPage.php:524
 msgid "Scout access — assign players to specific scouts"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:595
+#: src/Modules/License/Admin/AccountPage.php:525
 msgid "Team chemistry pitch + blueprint editor"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:596
+#: src/Modules/License/Admin/AccountPage.php:526
 msgid "Radar charts on every player profile"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:597
+#: src/Modules/License/Admin/AccountPage.php:527
 msgid "Partial restore + bulk-undo (Standard has only manual undo)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:598
+#: src/Modules/License/Admin/AccountPage.php:528
 msgid "Scheduled reports via email (CSV / XLSX / PDF)"
 msgstr ""
 
-# v3.110.23 — Account-page upgrade button routes to dev-license override on test installs
-#: src/Modules/License/Admin/AccountPage.php:607
-msgid ""
-"Freemius checkout isn't wired on this install — the button opens the "
-"developer license-override page so you can flip the active tier locally for "
-"testing."
+#: src/Modules/License/Admin/AccountPage.php:533
+msgid "Change tier"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:611
+#: src/Modules/License/Admin/AccountPage.php:537
 msgid ""
-"Freemius checkout isn't wired up on this install yet — the button drops you "
-"on the Account tab where the upgrade flow will surface once configured."
+"This is the developer tier override — it changes the active tier on this "
+"install only, for testing."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:617
+#: src/Modules/License/Admin/AccountPage.php:541
+msgid ""
+"Plan changes are handled by your TalentTrack operator. Get in touch and your "
+"install is moved over without any downtime or data migration."
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:547
 msgid "Usage vs free-tier caps"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:620
-#: src/Modules/License/Admin/AccountPage.php:739
+#: src/Modules/License/Admin/AccountPage.php:550
+#: src/Modules/License/Admin/AccountPage.php:625
 msgid "Resource"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:621
+#: src/Modules/License/Admin/AccountPage.php:551
 #: src/Shared/Frontend/FrontendFeaturesView.php:115
 #: src/Shared/Frontend/FrontendSeasonsView.php:109
 msgid "In use"
 msgstr "En uso"
 
-#: src/Modules/License/Admin/AccountPage.php:622
+#: src/Modules/License/Admin/AccountPage.php:552
 msgid "Free cap"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:637
+#: src/Modules/License/Admin/AccountPage.php:567
 msgid "Unlimited on every tier."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:643
-msgid "Trial state"
-msgstr ""
-
-#. translators: 1: trial started date, 2: trial expires date, 3: grace until date
-#: src/Modules/License/Admin/AccountPage.php:648
-#, php-format
-msgid "Started %1$s, expires %2$s, grace ends %3$s."
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:660
-msgid "Reset trial"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:702
+#: src/Modules/License/Admin/AccountPage.php:605
 msgid ""
 "Everything that's locked or limited on your install, in one place. Caps come "
 "from the Free-tier policy; features come from the plan you're on."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:706
+#: src/Modules/License/Admin/AccountPage.php:609
 msgid "Current plan"
 msgstr ""
 
-#. translators: %d days remaining
-#: src/Modules/License/Admin/AccountPage.php:712
-#, php-format
-msgid "%d day left in trial"
-msgid_plural "%d days left in trial"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d grace days
-#: src/Modules/License/Admin/AccountPage.php:720
-#, php-format
-msgid "Grace period — %d day until features lock"
-msgid_plural "Grace period — %d days until features lock"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Modules/License/Admin/AccountPage.php:729
-msgid "Upgrade or start a trial"
+#: src/Modules/License/Admin/AccountPage.php:615
+msgid "See what Pro adds"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:735
+#: src/Modules/License/Admin/AccountPage.php:621
 msgid "Free-tier caps"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:736
-msgid "Caps apply only on the Free plan. Trial and Standard / Pro have no cap."
+#: src/Modules/License/Admin/AccountPage.php:622
+msgid "Caps apply only on the Free plan. Standard and Pro have no cap."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:740
+#: src/Modules/License/Admin/AccountPage.php:626
 #: src/Shared/Frontend/FrontendSeasonsView.php:80
 #: src/Shared/Frontend/FrontendSeasonsView.php:96
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Current"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:741
+#: src/Modules/License/Admin/AccountPage.php:627
 msgid "Limit"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:750
-msgid "No cap (paid / trial)"
+#: src/Modules/License/Admin/AccountPage.php:636
+msgid "No cap (paid plan)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:751
+#: src/Modules/License/Admin/AccountPage.php:637
 msgid "At cap — upgrade to add more"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:751
+#: src/Modules/License/Admin/AccountPage.php:637
 msgid "Within cap"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:765
+#: src/Modules/License/Admin/AccountPage.php:651
 msgid "Features by plan"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:766
+#: src/Modules/License/Admin/AccountPage.php:652
 msgid ""
 "Tick = available on that plan. Your current effective plan is highlighted."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:790
+#: src/Modules/License/Admin/AccountPage.php:676
 msgid ""
-"Caps and features update immediately when you start a trial or upgrade. The "
-"trial gives Standard for 30 days, then a 7-day grace period at Free with the "
-"full data still readable."
+"Caps and features update as soon as your plan changes. Nothing is migrated "
+"and nothing is lost — the same install carries on with more room."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:808
+#: src/Modules/License/Admin/AccountPage.php:694
 msgid "Player cards"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:809
+#: src/Modules/License/Admin/AccountPage.php:695
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:273
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
@@ -22204,31 +22122,31 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Panel"
 
-#: src/Modules/License/Admin/AccountPage.php:810
+#: src/Modules/License/Admin/AccountPage.php:696
 msgid "Local backup"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:811
+#: src/Modules/License/Admin/AccountPage.php:697
 msgid "Email backup"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:812
+#: src/Modules/License/Admin/AccountPage.php:698
 msgid "Onboarding wizard"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:813
+#: src/Modules/License/Admin/AccountPage.php:699
 msgid "Demo data generator"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:816
+#: src/Modules/License/Admin/AccountPage.php:702
 msgid "Rate cards (full)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:817
+#: src/Modules/License/Admin/AccountPage.php:703
 msgid "CSV import"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:818
+#: src/Modules/License/Admin/AccountPage.php:704
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:269
 #: src/Shared/CoreSurfaceRegistration.php:606
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:45
@@ -22238,106 +22156,103 @@ msgstr ""
 msgid "Functional roles"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:820
+#: src/Modules/License/Admin/AccountPage.php:706
 msgid "Undo bulk actions"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:821
+#: src/Modules/License/Admin/AccountPage.php:707
 msgid "Multi-academy"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:822
+#: src/Modules/License/Admin/AccountPage.php:708
 msgid "Photo-to-activity capture"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:826
+#: src/Modules/License/Admin/AccountPage.php:712
 msgid "S3 backup"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:839
+#: src/Modules/License/Admin/AccountPage.php:724
 msgid "Non-commercial test instance"
 msgstr ""
 
 #. translators: %s: PHP constant name
-#: src/Modules/License/Admin/AccountPage.php:844
+#: src/Modules/License/Admin/AccountPage.php:729
 #, php-format
 msgid ""
 "%s is set to false in talenttrack.php. Every TalentTrack feature is "
-"unlocked, free-tier caps do not apply, and the trial / upgrade UI is hidden. "
-"Trial state on disk (if any) is preserved but ignored at runtime."
+"unlocked, free-tier caps do not apply, and the plan UI is hidden."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:850
+#: src/Modules/License/Admin/AccountPage.php:735
 msgid "Switching to commercial mode"
 msgstr ""
 
 #. translators: %s: PHP constant name
-#: src/Modules/License/Admin/AccountPage.php:854
+#: src/Modules/License/Admin/AccountPage.php:739
 #, php-format
 msgid ""
-"flip %s to true in talenttrack.php and configure Freemius credentials "
-"(TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) so the upgrade flow can "
-"complete checkout. The existing License module machinery (DevOverride, "
-"TrialState, FreemiusAdapter) will then drive tier resolution and feature "
-"gating."
+"flip %s to true in talenttrack.php. Provisioning records which plan the "
+"install is on; the License module then resolves the tier from that and gates "
+"features above it."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:886
+#: src/Modules/License/Admin/AccountPage.php:771
 msgid "Admin Center phone-home"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:888
+#: src/Modules/License/Admin/AccountPage.php:773
 msgid "Install ID"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:889
-#: src/Modules/License/Admin/AccountPage.php:922
+#: src/Modules/License/Admin/AccountPage.php:774
+#: src/Modules/License/Admin/AccountPage.php:807
 msgid "Endpoint"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:890
+#: src/Modules/License/Admin/AccountPage.php:775
 msgid "Last sent"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:895
+#: src/Modules/License/Admin/AccountPage.php:780
 msgid "never (no successful send recorded yet)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:898
+#: src/Modules/License/Admin/AccountPage.php:783
 msgid "Last phoned version"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:899
+#: src/Modules/License/Admin/AccountPage.php:784
 msgid "(not yet recorded)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:901
+#: src/Modules/License/Admin/AccountPage.php:786
 msgid "Next daily cron"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:906
+#: src/Modules/License/Admin/AccountPage.php:791
 msgid ""
 "NOT scheduled — wp-cron is not registered. This is the most likely cause "
 "when an install never phones home."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:914
+#: src/Modules/License/Admin/AccountPage.php:799
 msgid "Phone-home succeeded."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:914
+#: src/Modules/License/Admin/AccountPage.php:799
 msgid "Phone-home failed."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:923
+#: src/Modules/License/Admin/AccountPage.php:808
 msgid "Body size"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:932
+#: src/Modules/License/Admin/AccountPage.php:817
 msgid "Send now"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:937
+#: src/Modules/License/Admin/AccountPage.php:822
 msgid ""
 "If \"Last sent\" is empty and \"Next daily cron\" is not scheduled, wp-cron "
 "is likely disabled (DISABLE_WP_CRON in wp-config.php) and no system cron "
@@ -22414,8 +22329,7 @@ msgstr ""
 #: src/Modules/License/Admin/UpgradeNudge.php:52
 #, php-format
 msgid ""
-"Available on %s and above. Open your account page to start a 30-day trial or "
-"upgrade."
+"Available on %s and above. Open your account page to see what the plan adds."
 msgstr ""
 
 #: src/Modules/License/Admin/UpgradeNudge.php:59
@@ -22423,7 +22337,7 @@ msgid "Open account page"
 msgstr ""
 
 #: src/Modules/License/Admin/UpgradeNudge.php:75
-#: src/Modules/License/LicenseGate.php:186
+#: src/Modules/License/LicenseGate.php:156
 #: src/Modules/Wizards/Team/ReviewStep.php:51
 msgid ""
 "You have reached the free-tier limit of 1 team. Upgrade to Standard to add "
@@ -22431,7 +22345,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/License/Admin/UpgradeNudge.php:76
-#: src/Modules/License/LicenseGate.php:187
+#: src/Modules/License/LicenseGate.php:157
 #: src/Modules/Players/PlayerCsvImporter.php:221
 #: src/Modules/Wizards/Player/ReviewStep.php:66
 msgid ""
@@ -22443,18 +22357,18 @@ msgstr ""
 msgid "Upgrade to continue"
 msgstr ""
 
-#: src/Modules/License/FeatureMap.php:158
+#: src/Modules/License/FeatureMap.php:122
 msgid "Pro"
 msgstr ""
 
-#: src/Modules/License/FeatureMap.php:160
+#: src/Modules/License/FeatureMap.php:124
 #: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:159
 msgid "Free"
 msgstr ""
 
 # v3.86.1 — license enforcement bundle (rebased onto v3.86.0)
 #. translators: %s required tier label
-#: src/Modules/License/LicenseGate.php:171
+#: src/Modules/License/LicenseGate.php:141
 #, php-format
 msgid ""
 "This feature is part of the %s plan. Upgrade your TalentTrack license to "
@@ -40706,7 +40620,7 @@ msgstr[0] "%d taak aangemaakt"
 msgstr[1] "%d taken aangemaakt"
 
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:332
-#: src/Shared/Frontend/Components/FormSaveButton.php:49
+#: src/Shared/Frontend/Components/FormSaveButton.php:55
 #: src/Shared/Frontend/Components/FrontendListTable.php:179
 msgid "Retry"
 msgstr "Reintentar"
@@ -42080,7 +41994,7 @@ msgstr ""
 msgid "Clear the %s filter"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FormSaveButton.php:47
+#: src/Shared/Frontend/Components/FormSaveButton.php:53
 #: src/Shared/Frontend/DashboardShortcode.php:232
 msgid "Saving..."
 msgstr ""
@@ -51102,6 +51016,26 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#, php-format
+#~ msgid "Trial: %d day remaining."
+#~ msgid_plural "Trial: %d days remaining."
+#~ msgstr[0] "Trial: nog %d dag."
+#~ msgstr[1] "Trial: nog %d dagen."
+
+#, php-format
+#~ msgid ""
+#~ "Trial ended — %d day of read-only access remaining. Upgrade to keep "
+#~ "adding new evaluations."
+#~ msgid_plural ""
+#~ "Trial ended — %d days of read-only access remaining. Upgrade to keep "
+#~ "adding new evaluations."
+#~ msgstr[0] ""
+#~ "Trial beëindigd — nog %d dag alleen-lezen toegang. Upgrade om nieuwe "
+#~ "evaluaties te blijven toevoegen."
+#~ msgstr[1] ""
+#~ "Trial beëindigd — nog %d dagen alleen-lezen toegang. Upgrade om nieuwe "
+#~ "evaluaties te blijven toevoegen."
 
 #, php-format
 #~ msgid "%d open task"
