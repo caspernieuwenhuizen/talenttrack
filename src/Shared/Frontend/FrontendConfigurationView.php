@@ -1638,6 +1638,22 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_manage_recycle_bin' ) ) {
             $sections['system']['tiles'][] = [ 'title' => __( 'Recycle bin', 'talenttrack' ), 'desc' => __( 'Records staged for permanent deletion. Restore them to the archive, or delete them now. Purged after the retention window.', 'talenttrack' ), 'url' => $view( 'recycle-bin' ), 'icon' => 'migrations' ];
         }
+        // #2880 — the authorization matrix shipped in #2654 with every piece
+        // of plumbing in place except a way in: no tile anywhere pointed at
+        // `?tt_view=matrix`, so the only route was typing the URL. The whole
+        // premise of #2654 was that an academy admin could fix an over-broad
+        // permission grant WITHOUT a WordPress account — and an admin who
+        // cannot find the screen is exactly where they were before it
+        // shipped. A feature that is complete and unreachable is worse than
+        // one that is unbuilt, because the board says it is done.
+        //
+        // Settings rather than a dashboard tile, matching the recycle bin
+        // above: this is an operator surface, reached deliberately, not
+        // something a coach should meet on their landing page. The cap is the
+        // same one the view re-checks.
+        if ( current_user_can( 'tt_manage_authorization' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Access control matrix', 'talenttrack' ), 'desc' => __( 'Who may read and change each kind of record, per persona. The grants behind player evaluations, notes and medical fields.', 'talenttrack' ), 'url' => $view( 'matrix' ), 'icon' => 'roles' ];
+        }
 
         // #1539 — tiles contributed via the tt_config_tile_groups filter
         // (Modules, Dashboard layouts, Custom widgets). Route them into a

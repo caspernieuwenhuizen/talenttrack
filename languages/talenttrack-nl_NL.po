@@ -55124,6 +55124,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1653
+msgid "Access control matrix"
+msgstr "Toegangsmatrix"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1653
+msgid ""
+"Who may read and change each kind of record, per persona. The grants behind "
+"player evaluations, notes and medical fields."
+msgstr ""
+"Wie welk soort gegevens mag lezen en wijzigen, per persona. De rechten achter "
+"evaluaties, notities en medische velden van spelers."
+
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
 #~ "Dit onderdeel is alleen beschikbaar voor mensen met een gekoppeld "
