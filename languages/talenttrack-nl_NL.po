@@ -55151,6 +55151,33 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/MatchExecution/MatchExecutionLayout.php:152
+msgid "Classic — one long page"
+msgstr "Klassiek — één lange pagina"
+
+#: src/Modules/MatchExecution/MatchExecutionLayout.php:153
+msgid "Sections — score pinned, tabs at the bottom"
+msgstr "Secties — stand vast, tabs onderaan"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2130
+#: src/Shared/Frontend/FrontendMySettingsView.php:420
+msgid "Live match screen"
+msgstr "Livewedstrijdscherm"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2137
+#: src/Shared/Frontend/FrontendMySettingsView.php:439
+msgid "Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls."
+msgstr "Klassiek zet alles op één lange pagina. Secties houdt de stand en de klok vast bovenaan en zet een rij tabs binnen duimbereik onderaan, zodat de bank één tik ver is in plaats van drie keer scrollen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2137
+msgid "Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls. Coaches can pick their own in My settings; this is what they get until they do."
+msgstr "Klassiek zet alles op één lange pagina. Secties houdt de stand en de klok vast bovenaan en zet een rij tabs binnen duimbereik onderaan, zodat de bank één tik ver is in plaats van drie keer scrollen. Trainers kunnen in Mijn instellingen hun eigen keuze maken; dit is wat ze krijgen tot ze dat doen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:487
+msgid "Live match layout updated. Open a match to see the change."
+msgstr "Indeling van het livewedstrijdscherm bijgewerkt. Open een wedstrijd om het verschil te zien."
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."
