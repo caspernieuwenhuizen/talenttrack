@@ -39,6 +39,20 @@ final class FormCancelHonoursBackTest extends WP_UnitTestCase {
         ], $extra ) );
     }
 
+    /**
+     * Set the hint the way PHP would.
+     *
+     * `BackLink::appendTo()` percent-encodes on the way out, and PHP decodes
+     * it again when it populates `$_GET`, so what `resolve()` actually reads
+     * is the plain URL. Pre-encoding here would hand `sanitize()` a string
+     * with no parseable host, which it rejects — and the negative tests
+     * below would then pass for the wrong reason, proving only that garbage
+     * is refused rather than that an off-site target is.
+     */
+    private function setBackHint( string $url ): void {
+        $_GET['tt_back'] = $url;
+    }
+
     /** No hint in the URL: the caller's §6 default is used. */
     public function test_without_a_back_hint_the_default_is_used(): void {
         unset( $_GET['tt_back'] );
@@ -48,7 +62,7 @@ final class FormCancelHonoursBackTest extends WP_UnitTestCase {
     /** The reported case: a captured origin wins over the hard-coded list. */
     public function test_a_valid_back_hint_wins(): void {
         $origin = home_url( '/dashboard/?tt_view=activities&id=42' );
-        $_GET['tt_back'] = rawurlencode( $origin );
+        $this->setBackHint( $origin );
 
         $html = $this->render();
 
@@ -62,7 +76,7 @@ final class FormCancelHonoursBackTest extends WP_UnitTestCase {
      * plugin into an open redirect.
      */
     public function test_an_offsite_back_hint_is_refused(): void {
-        $_GET['tt_back'] = rawurlencode( 'https://evil.example.net/phish' );
+        $this->setBackHint( 'https://evil.example.net/phish' );
 
         $html = $this->render();
 
@@ -71,14 +85,14 @@ final class FormCancelHonoursBackTest extends WP_UnitTestCase {
     }
 
     public function test_a_malformed_back_hint_is_refused(): void {
-        $_GET['tt_back'] = 'not a url at all';
+        $this->setBackHint( 'not a url at all' );
 
         $this->assertStringContainsString( 'tt_view=players', $this->render() );
     }
 
     /** The escape hatch, for a form that must always land in one place. */
     public function test_ignore_back_pins_the_default(): void {
-        $_GET['tt_back'] = rawurlencode( home_url( '/dashboard/?tt_view=activities&id=42' ) );
+        $this->setBackHint( home_url( '/dashboard/?tt_view=activities&id=42' ) );
 
         $html = $this->render( [ 'ignore_back' => true ] );
 
@@ -88,7 +102,7 @@ final class FormCancelHonoursBackTest extends WP_UnitTestCase {
 
     /** A form with no cancel_url still renders Save alone — §6 exemptions. */
     public function test_no_cancel_url_renders_save_only(): void {
-        $_GET['tt_back'] = rawurlencode( home_url( '/dashboard/?tt_view=activities&id=42' ) );
+        $this->setBackHint( home_url( '/dashboard/?tt_view=activities&id=42' ) );
 
         $html = FormSaveButton::render( [ 'label' => 'Save' ] );
 
