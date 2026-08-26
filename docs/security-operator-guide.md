@@ -12,7 +12,7 @@ order: 10
 
 This guide covers the security configuration an academy admin should set up on day one and revisit at least once a year. It does not cover the underlying authorization model — see [Access control](access-control.md) for that. It does not cover backups — see [Backups](backups.md). It covers what *you* should configure, in what order, and what to do when something goes wrong.
 
-For the public-facing security commitments TalentTrack makes (where data lives, encryption claims, breach commitments, audit cadence) see `talenttrack.app/security`.
+For the public-facing security commitments TalentTrack makes (where data lives, encryption claims, breach commitments, audit cadence) see `mediamaniacs.nl/talenttrack/security`.
 
 ## Five things to do on day one
 
@@ -169,4 +169,4 @@ Once a year, on a calendar reminder:
 
 For any security question, suspected incident, or just to ask whether something looks right: `casper@mediamaniacs.nl`. We treat security questions as priority — expect a response within one business day.
 
-The security commitments TalentTrack makes publicly — where data lives, encryption at rest and in transit, audit cadence, breach commitments — are documented at `talenttrack.app/security`. That page is for academy directors and IT teams who haven't installed TalentTrack yet; this page is for you, after install.
+The security commitments TalentTrack makes publicly — where data lives, encryption at rest and in transit, audit cadence, breach commitments — are documented at `mediamaniacs.nl/talenttrack/security`. That page is for academy directors and IT teams who haven't installed TalentTrack yet; this page is for you, after install.

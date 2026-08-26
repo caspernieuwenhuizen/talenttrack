@@ -44,7 +44,7 @@ JSON over HTTPS, signed with HMAC-SHA256.
 | `sent_at` | ISO 8601 UTC | When this payload was assembled. |
 | `site_url` | URL | Your install's `get_site_url()`. |
 | `contact_email` | email | `wp_options:admin_email` — so the operator can reach you. |
-| `freemius_license_key_hash` | sha256 hex / `null` | SHA-256 of your Freemius license key, or `null` if no Freemius license is detected. The HMAC secret does NOT depend on this field; it's informational only. |
+| `freemius_license_key_hash` | `null` | Always null. The field is retained because the v1 payload shape is locked; there is no marketplace license key on an install any more. The HMAC secret never depended on it. |
 | `plugin_version` | string | TalentTrack plugin version, e.g. `"3.65.0"`. |
 | `wp_version` | string | WordPress version. |
 | `php_version` | string | PHP version. |
@@ -62,9 +62,9 @@ JSON over HTTPS, signed with HMAC-SHA256.
 | `last_login_date` | date / `null` | Most recent `login` event date (date-only, not time). |
 | `error_counts_24h` | object | `{ "<error.class>": <count> }` — error class names from `tt_audit_log` rows whose action begins with `error.`. **Names only, never message bodies or stack traces.** |
 | `error_count_total_24h` | int | Sum of the above. |
-| `license_tier` | string / `null` | `pro` / `standard` / `free` / `null`. Null when Freemius isn't configured. |
-| `license_status` | string / `null` | `active` / `expired` / `trial` / `none` / `null`. |
-| `license_renews_at` | date / `null` | Renewal date if known. |
+| `license_tier` | string / `null` | `pro` / `standard` / `free` / `null`. The plan this install has been told it is on. Null when none has been recorded. |
+| `license_status` | `null` | Always null. Subscription status lives with the operator, not on the install. |
+| `license_renews_at` | `null` | Always null, for the same reason as `license_status`. |
 | `module_status.spond` | object / `null` | `{ configured, last_sync_status, last_sync_at, events_synced_7d }`. Null when Spond isn't installed. |
 | `module_status.comms` | object / `null` | `{ sends_7d }`. Null when Comms isn't installed. |
 | `module_status.exports` | object / `null` | `{ runs_7d }`. Null when Export isn't installed. |

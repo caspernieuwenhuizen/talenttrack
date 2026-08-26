@@ -357,6 +357,75 @@ class QueryHelpers {
         return $teams;
     }
 
+    /**
+     * #2867 — age categories that actually have teams in them, for use in
+     * **filters**.
+     *
+     * A filter narrows a list you are already looking at, so offering a
+     * category that returns nothing is offering a dead end: an academy with
+     * two teams still scrolled every category the seed shipped.
+     *
+     * This is deliberately NOT for edit or create forms. Assigning a value to
+     * a record needs the whole vocabulary — you have to be able to put the
+     * first team into a category nobody is in yet — so
+     * `get_lookup_names( 'age_group' )` stays right there.
+     *
+     * Archived and trashed teams do not keep a category alive: the filter
+     * describes what a viewer can currently browse to.
+     *
+     * `$keep` is a value to retain even when unused — pass whatever the URL
+     * currently filters on, so a bookmarked or shared link does not silently
+     * change what it shows when the last team in that category is archived.
+     *
+     * Ordering follows the `age_group` lookup, not the teams table, so the
+     * filter reads in the order the admin arranged rather than alphabetically.
+     *
+     * @return list<string>
+     */
+    public static function age_groups_in_use( string $keep = '' ): array {
+        global $wpdb;
+
+        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $used = (array) $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT t.age_group
+               FROM {$wpdb->prefix}tt_teams t
+              WHERE t.club_id = %d
+                AND t.age_group IS NOT NULL
+                AND t.age_group <> ''
+                AND {$lifecycle}",
+            CurrentClub::id()
+        ) );
+
+        $used_lc = [];
+        foreach ( $used as $u ) {
+            $used_lc[ strtolower( trim( (string) $u ) ) ] = true;
+        }
+        $keep_lc = strtolower( trim( $keep ) );
+
+        $out = [];
+        foreach ( self::get_lookup_names( 'age_group' ) as $name ) {
+            $name = (string) $name;
+            $lc   = strtolower( trim( $name ) );
+            if ( isset( $used_lc[ $lc ] ) || ( $keep_lc !== '' && $lc === $keep_lc ) ) {
+                $out[] = $name;
+            }
+        }
+
+        // A team may carry an age group that is no longer in the vocabulary
+        // (renamed, or typed before the lookup existed). Filtering it out
+        // would hide those teams behind a filter with no way to select them.
+        foreach ( $used as $u ) {
+            $u = trim( (string) $u );
+            if ( $u !== '' && ! in_array( $u, $out, true ) ) {
+                $out[] = $u;
+            }
+        }
+
+        return $out;
+    }
+
     public static function get_team( int $id ): ?object {
         global $wpdb;
         $scope = self::apply_demo_scope( 't', 'team' );

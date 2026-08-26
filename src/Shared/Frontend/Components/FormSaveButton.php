@@ -40,7 +40,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class FormSaveButton {
 
     /**
-     * @param array{label?:string, label_saving?:string, label_saved?:string, label_error?:string, variant?:string, block?:bool, id?:string, cancel_url?:string, cancel_label?:string} $args
+     * `cancel_url` is the §6 default — the record's detail page in edit mode,
+     * the list in create mode. It is what Cancel uses when the entry URL
+     * carries no `tt_back` hint; when it does, the hint wins (#2869). Pass
+     * `ignore_back => true` for the rare form that must always return to a
+     * fixed place regardless of how it was reached.
+     *
+     * @param array{label?:string, label_saving?:string, label_saved?:string, label_error?:string, variant?:string, block?:bool, id?:string, cancel_url?:string, cancel_label?:string, ignore_back?:bool} $args
      */
     public static function render( array $args = [] ): string {
         $label        = (string) ( $args['label']        ?? __( 'Save', 'talenttrack' ) );
@@ -80,6 +86,34 @@ class FormSaveButton {
 
         if ( $cancel_url === '' ) {
             return $save_html;
+        }
+
+        // #2869 — Cancel honours `tt_back` here, once, rather than at 65
+        // call sites that each have to remember to.
+        //
+        // CLAUDE.md §6 rule 5 has always said Cancel should return the user
+        // to where they came from. Four of the 65 `cancel_url` assignments in
+        // `src/` did; the other 61 hard-coded a destination. The worst were
+        // the grids opened from an activity header: the link carries
+        // `tt_back` so the grid can render its own back-pill, and Cancel then
+        // threw that same hint away and dropped the coach on the activities
+        // list, leaving them to find the activity again.
+        //
+        // The caller keeps supplying the §6 default — detail page in edit
+        // mode, list in create mode — and it is used whenever the entry URL
+        // carries no hint. Callers that already resolved `BackLink`
+        // themselves are unaffected: resolving an already-resolved target
+        // returns the same URL.
+        //
+        // `BackLink::resolve()` is the validating reader — it refuses an
+        // off-site or malformed target — so this must never read
+        // `$_GET['tt_back']` directly. Cancel is a redirect a user is
+        // invited to click, and an unvalidated one is an open redirect.
+        if ( empty( $args['ignore_back'] ) ) {
+            $back = BackLink::resolve();
+            if ( $back !== null && ! empty( $back['url'] ) ) {
+                $cancel_url = (string) $back['url'];
+            }
         }
 
         // Cancel renders BEFORE Save in DOM order so the destructive /

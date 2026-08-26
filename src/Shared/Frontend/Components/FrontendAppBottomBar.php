@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
 use TT\Modules\Authorization\PersonaResolver;
+use TT\Shared\Frontend\FocusSurfaces;
 
 /**
  * FrontendAppBottomBar (#2459) — thumb-zone navigation below 768px.
@@ -152,6 +153,13 @@ final class FrontendAppBottomBar {
     }
 
     public static function render( int $user_id, string $active_view = '', string $hub_url = '' ): void {
+        // #2933 — this surface puts its own controls in the thumb zone, so
+        // the bar would stack underneath them. Suppressed here rather than
+        // hidden in CSS: a hidden bar still ships its markup and keeps its
+        // place in the keyboard tab order. The surfaces that qualify all
+        // render the §5a breadcrumb chain, which stays their way out.
+        if ( FocusSurfaces::claims( $active_view ) ) return;
+
         $slots = self::slots( $user_id );
         if ( $slots === [] ) return;
 

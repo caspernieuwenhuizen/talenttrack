@@ -137,10 +137,10 @@ final class ContentGate {
     /**
      * The tier to compare against.
      *
-     * `effectiveTier()` rather than `tier()`, so an install in its grace
-     * period sees what a `free` install sees. Documentation for a feature
-     * that has stopped working during grace is documentation for something
-     * that is not there.
+     * `effectiveTier()` rather than `tier()`, so this follows whatever
+     * the gate is actually enforcing. Documentation for a feature that
+     * has stopped working is documentation for something that is not
+     * there.
      */
     private static function currentTier(): string {
         if ( ! class_exists( LicenseGate::class ) ) {

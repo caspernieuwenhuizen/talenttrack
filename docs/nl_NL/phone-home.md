@@ -45,7 +45,7 @@ JSON over HTTPS, ondertekend met HMAC-SHA256.
 | `sent_at` | ISO 8601 UTC | Wanneer deze payload is samengesteld. |
 | `site_url` | URL | De `get_site_url()` van je install. |
 | `contact_email` | e-mail | `wp_options:admin_email` — zodat de operator je kan bereiken. |
-| `freemius_license_key_hash` | sha256-hex / `null` | SHA-256 van je Freemius-licentiesleutel, of `null` als geen Freemius-licentie aanwezig is. Het HMAC-geheim hangt NIET van dit veld af; het is alleen informatief. |
+| `freemius_license_key_hash` | `null` | Altijd null. Het veld blijft bestaan omdat de v1-payloadvorm vastligt; een installatie heeft geen marktplaats-licentiesleutel meer. Het HMAC-geheim hing er nooit van af. |
 | `plugin_version` | string | TalentTrack-pluginversie, bv. `"3.65.0"`. |
 | `wp_version` | string | WordPress-versie. |
 | `php_version` | string | PHP-versie. |
@@ -63,9 +63,9 @@ JSON over HTTPS, ondertekend met HMAC-SHA256.
 | `last_login_date` | datum / `null` | Datum van de meest recente `login`-event (alleen datum, geen tijd). |
 | `error_counts_24h` | object | `{ "<error.class>": <aantal> }` — fout-klasse-namen uit `tt_audit_log` waarvan de action begint met `error.`. **Alleen namen, nooit message-bodies of stacktraces.** |
 | `error_count_total_24h` | int | Som van bovenstaande. |
-| `license_tier` | string / `null` | `pro` / `standard` / `free` / `null`. Null als Freemius niet is geconfigureerd. |
-| `license_status` | string / `null` | `active` / `expired` / `trial` / `none` / `null`. |
-| `license_renews_at` | datum / `null` | Verlengingsdatum indien bekend. |
+| `license_tier` | string / `null` | `pro` / `standard` / `free` / `null`. Het pakket waarvan deze installatie te horen heeft gekregen dat ze het heeft. Null als er geen is vastgelegd. |
+| `license_status` | `null` | Altijd null. De abonnementsstatus staat bij de operator, niet op de installatie. |
+| `license_renews_at` | `null` | Altijd null, om dezelfde reden als `license_status`. |
 | `module_status.spond` | object / `null` | `{ configured, last_sync_status, last_sync_at, events_synced_7d }`. Null als Spond niet is geïnstalleerd. |
 | `module_status.comms` | object / `null` | `{ sends_7d }`. Null als Comms niet is geïnstalleerd. |
 | `module_status.exports` | object / `null` | `{ runs_7d }`. Null als Export niet is geïnstalleerd. |
