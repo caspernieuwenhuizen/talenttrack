@@ -55116,6 +55116,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s: number of sub-features in this module
+#: src/Shared/Frontend/FrontendFeaturesView.php:255
+#, php-format
+msgid "%s feature"
+msgid_plural "%s features"
+msgstr[0] "%s functie"
+msgstr[1] "%s functies"
+
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
 #~ "Dit onderdeel is alleen beschikbaar voor mensen met een gekoppeld "
