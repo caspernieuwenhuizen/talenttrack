@@ -251,10 +251,22 @@
             placeholder: i18n.notes_placeholder || 'Optional context'
         });
 
-        return [
-            makeField(i18n.band_label || 'Potential band', sel),
-            makeField(i18n.notes_label || 'Notes', notes)
-        ];
+        var fields = [ makeField(i18n.band_label || 'Potential band', sel) ];
+
+        // #2876 — say when the standing band was set and by whom. A
+        // pre-selected option on its own does not tell a coach whether the
+        // judgement is current enough to be worth revising; "set on 12 March
+        // by Kevin" does. Empty for a player who has never had one set, which
+        // is also the only case where the select opens blank.
+        if (cfg.current_potential_meta) {
+            fields.push(el('p', {
+                class: 'tt-pp-field-meta',
+                text: cfg.current_potential_meta
+            }));
+        }
+
+        fields.push(makeField(i18n.notes_label || 'Notes', notes));
+        return fields;
     }
 
     function collectPotential(form) {

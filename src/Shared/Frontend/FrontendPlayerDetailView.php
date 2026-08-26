@@ -105,6 +105,45 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
+        // #2876 — this used to read `$player->potential_band`, a column
+        // `tt_players` does not have. Reading a missing property on a wpdb
+        // row is silent, so the ternary took its else branch every time and
+        // the popover opened blank for every player, whatever was on record.
+        // Potential lives in `tt_player_potential` as dated history rows;
+        // the repository that owns them is the only thing that knows the
+        // current band.
+        //
+        // Blank is not a harmless default here. A coach who cannot see what
+        // the academy currently thinks records a fresh guess instead of a
+        // revision, and every save appends a row — so the history filled with
+        // re-statements that read as changes of mind.
+        $latest_potential = ( new \TT\Modules\Players\Repositories\PlayerPotentialRepository() )
+            ->latestFor( $player_id );
+
+        $current_band = $latest_potential ? (string) $latest_potential->potential_band : '';
+        $set_at       = $latest_potential ? (string) ( $latest_potential->set_at ?? '' ) : '';
+        $set_by_id    = $latest_potential ? (int) ( $latest_potential->set_by ?? 0 ) : 0;
+        $set_by_name  = '';
+        if ( $set_by_id > 0 ) {
+            $setter = get_userdata( $set_by_id );
+            if ( $setter instanceof \WP_User ) {
+                $set_by_name = (string) $setter->display_name;
+            }
+        }
+
+        // "First team, set by Kevin in March" is a different prompt from a
+        // bare pre-selected radio — it tells the coach whether the standing
+        // judgement is current enough to be worth revising.
+        $current_potential_meta = '';
+        if ( $current_band !== '' && $set_at !== '' ) {
+            $when = mysql2date( get_option( 'date_format' ), $set_at, true );
+            $current_potential_meta = $set_by_name !== ''
+                /* translators: 1: localised date, 2: name of the person who set it */
+                ? sprintf( __( 'Set on %1$s by %2$s', 'talenttrack' ), $when, $set_by_name )
+                /* translators: %s: localised date */
+                : sprintf( __( 'Set on %s', 'talenttrack' ), $when );
+        }
+
         wp_localize_script( 'tt-frontend-player-hero-popovers', 'TTPlayerHeroPopovers', [
             'rest_url'                => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
             'rest_nonce'              => wp_create_nonce( 'wp_rest' ),
@@ -113,7 +152,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'rating_max'              => $rmax,
             'activities'              => $activities,
             'potential_bands'         => $bands,
-            'current_potential_band'  => isset( $player->potential_band ) ? (string) $player->potential_band : '',
+            'current_potential_band'  => $current_band,
+            'current_potential_meta'  => $current_potential_meta,
             'history_url'             => $history_url,
             'i18n' => [
                 'close'                => __( 'Close',                       'talenttrack' ),

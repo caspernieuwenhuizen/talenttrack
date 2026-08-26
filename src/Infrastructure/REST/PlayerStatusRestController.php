@@ -100,16 +100,43 @@ final class PlayerStatusRestController {
         if ( $player_id <= 0 || ! in_array( $band, $valid, true ) ) {
             return RestResponse::error( 'bad_input', __( 'Player and a valid potential band are required.', 'talenttrack' ), 400, [ 'allowed' => $valid ] );
         }
+        $notes = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;
+
+        // #2876 — a bare re-statement of the standing band is not a change of
+        // mind and does not belong in the history. Until the popover
+        // pre-selected the current band a coach could not see what it was, so
+        // re-submitting the same value was the normal outcome rather than a
+        // deliberate one, and the history filled with rows that looked like
+        // revisions.
+        //
+        // Same band AND no notes: accept the request and record nothing.
+        // Re-affirming a band *with* notes is a real act — "still first team,
+        // but the last six weeks have been flat" — so that still appends.
+        $repo   = new PlayerPotentialRepository();
+        $latest = $repo->latestFor( $player_id );
+        if ( $latest
+             && (string) $latest->potential_band === $band
+             && ( $notes === null || $notes === '' )
+        ) {
+            return RestResponse::success( [
+                'id'             => (int) $latest->id,
+                'potential_band' => $band,
+                'set_at'         => (string) ( $latest->set_at ?? '' ),
+                'unchanged'      => true,
+            ] );
+        }
+
         $set_at = current_time( 'mysql' );
-        $id = ( new PlayerPotentialRepository() )->create( [
+        $id = $repo->create( [
             'player_id'      => $player_id,
             'potential_band' => $band,
-            'notes'          => isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null,
+            'notes'          => $notes,
         ] );
         return RestResponse::success( [
             'id'             => $id,
             'potential_band' => $band,
             'set_at'         => $set_at,
+            'unchanged'      => false,
         ] );
     }
 
