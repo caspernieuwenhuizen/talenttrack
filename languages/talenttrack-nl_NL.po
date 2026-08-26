@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T20:44:50+00:00\n"
+"POT-Creation-Date: 2026-08-26T04:09:11+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1543,8 +1543,8 @@ msgstr "Een speler en een WordPress-gebruiker zijn allebei vereist."
 #: src/Modules/Export/Exporters/PlayerEvaluationPdfExporter.php:86
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:63
 #: src/Modules/Export/Exporters/ScoutingReportPdfExporter.php:94
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:235
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:815
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:237
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:819
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:101
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
@@ -2483,7 +2483,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:115
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:371
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:373
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:108
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:159
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:62
@@ -4236,8 +4236,8 @@ msgstr "De overgang kon niet worden voltooid."
 #: src/Infrastructure/REST/TeamsRestController.php:309
 #: src/Infrastructure/REST/TeamsRestController.php:505
 #: src/Infrastructure/REST/TeamsRestController.php:518
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:148
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:852
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
 #: src/Modules/Spond/SpondSync.php:59
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:222
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:251
@@ -5596,7 +5596,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:970
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1228
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:251
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:946
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:950
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:583
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:813
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:197
@@ -15832,7 +15832,7 @@ msgid "Forms"
 msgstr "Formulieren"
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:278
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:566
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:568
 msgid "Links"
 msgstr "Links"
 
@@ -20855,22 +20855,22 @@ msgid ""
 "Optional. Links this goal to a single football action (voetbalhandeling)."
 msgstr "Optioneel. Koppelt dit doel aan één voetbalhandeling."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:52
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:54
 msgid "Log in to print this intake."
 msgstr "Log in om deze intake te printen."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:55
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:57
 msgid "You do not have access to print this intake."
 msgstr "Je hebt geen toegang om deze intake te printen."
 
 #. translators: 1: team name, 2: season e.g. 2026/27
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:169
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:171
 #, php-format
 msgid "Seizoens-intakes — %1$s — %2$s"
 msgstr "Seizoens-intakes — %1$s — %2$s"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:178
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:256
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:180
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:258
 #: src/Modules/License/Admin/AccountPage.php:194
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:80
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:183
@@ -20893,8 +20893,8 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 msgid "Print"
 msgstr "Printen"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:179
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:257
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:181
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:259
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:83
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:784
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:186
@@ -20916,37 +20916,37 @@ msgid "Close"
 msgstr "Sluiten"
 
 #. translators: 1: player count, 2: page count
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:183
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:185
 #, php-format
 msgid "%1$d players · %2$d pages total"
 msgstr "%1$d spelers · %2$d pagina's totaal"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:191
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:193
 #, php-format
 msgid "%s — geen actieve spelers"
 msgstr "%s — geen actieve spelers"
 
 #. translators: 1: player display name, 2: season e.g. 2026/27
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:247
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:249
 #, php-format
 msgid "Goals intake — %1$s — %2$s"
 msgstr "Doelenintake — %1$s — %2$s"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:349
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:424
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:442
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:351
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:426
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:444
 #, php-format
 msgid "TalentTrack · seizoensintake %s"
 msgstr "TalentTrack · seizoensintake %s"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:350
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:425
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:443
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:352
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:427
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:445
 #, php-format
 msgid "Goals intake — %s"
 msgstr "Doelenintake — %s"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:351
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:353
 msgid ""
 "Pagina 1: speler-snapshot — lees voor het gesprek begint. Doelen volgen op "
 "pagina 2 + 3."
@@ -20954,101 +20954,101 @@ msgstr ""
 "Pagina 1: speler-snapshot — lees voor het gesprek begint. Doelen volgen op "
 "pagina 2 + 3."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:364
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:366
 msgid "Foto"
 msgstr "Foto"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:372
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:374
 msgid "Rugnummer"
 msgstr "Rugnummer"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:373
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:375
 msgid "Leeftijd · Geboortedatum"
 msgstr "Leeftijd · Geboortedatum"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:374
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:376
 msgid "Voorkeursvoet"
 msgstr "Voorkeursvoet"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:379
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:381
 msgid "Vorig seizoen"
 msgstr "Vorig seizoen"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:380
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:382
 msgid "Wedstr."
 msgstr "Wedstr."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:381
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:383
 msgid "Minuten"
 msgstr "Minuten"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:382
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:384
 msgid "Doelpunten"
 msgstr "Doelpunten"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:383
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:385
 msgid "Assists"
 msgstr "Assists"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:384
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:386
 msgid "Gem. score"
 msgstr "Gem. score"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:387
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:389
 msgid "Terugblik"
 msgstr "Terugblik"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:394
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:396
 msgid "Geen gegevens vorig seizoen."
 msgstr "Geen gegevens vorig seizoen."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:406
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:408
 msgid "Reflectie — in de eigen woorden van de speler"
 msgstr "Reflectie — in de eigen woorden van de speler"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:408
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:410
 msgid "Speler schrijft / trainer noteert:"
 msgstr "Speler schrijft / trainer noteert:"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:416
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:418
 msgid "Pagina 1 van 3 · speler-snapshot"
 msgstr "Pagina 1 van 3 · speler-snapshot"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:426
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:428
 msgid "Goals 1 + 2 · fill in during the conversation."
 msgstr "Doelen 1 + 2 · invullen tijdens het gesprek."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:434
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:436
 msgid "Pagina 2 van 3 · doelen 1 + 2"
 msgstr "Pagina 2 van 3 · doelen 1 + 2"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:444
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:446
 msgid "Doel 3 · afsluitende reflectie · ondertekening."
 msgstr "Doel 3 · afsluitende reflectie · ondertekening."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:450
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:452
 msgid "Afsluiting — één ding om mee te nemen het seizoen in"
 msgstr "Afsluiting — één ding om mee te nemen het seizoen in"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:461
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:463
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:168
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:263
 msgid "Speler"
 msgstr "Speler"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:465
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:467
 msgid "Trainer"
 msgstr "Trainer"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:469
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:471
 msgid "Datum gesprek"
 msgstr "Datum gesprek"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:476
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:478
 msgid "Reminder voor de trainer:"
 msgstr "Reminder voor de trainer:"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:477
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:479
 msgid ""
 "zet de drie doelen hierboven binnen 48 uur in TalentTrack (Speler › Doelen › "
 "+ Nieuw doel) zodat de digitale versie aan dit gesprek hangt. Gebruik de "
@@ -21060,152 +21060,152 @@ msgstr ""
 "velden \"gekoppeld spelprincipe\" en \"gekoppelde voetbalhandeling\" in de "
 "wizard zodat het digitale doel hetzelfde leest als hierboven."
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:483
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:485
 msgid "Pagina 3 van 3 · doel 3 + afronding"
 msgstr "Pagina 3 van 3 · doel 3 + afronding"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:497
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:499
 msgid "Technisch"
 msgstr "Technisch"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:498
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:500
 msgid "Tactisch"
 msgstr "Tactisch"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:499
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:501
 msgid "Fysiek"
 msgstr "Fysiek"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:500
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:502
 msgid "Mentaal"
 msgstr "Mentaal"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:505
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:507
 msgid "Doelomschrijving"
 msgstr "Doelomschrijving"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:505
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:507
 msgid "de SMART-zin die jullie samen formuleren"
 msgstr "de SMART-zin die jullie samen formuleren"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:512
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:514
 msgid "Gekoppeld(e) spelprincipe(s)"
 msgstr "Gekoppeld(e) spelprincipe(s)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:516
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:518
 msgid "bijv. AO-01, VS-03"
 msgstr "bijv. AO-01, VS-03"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:520
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:522
 msgid "Gekoppelde voetbalhandeling(en)"
 msgstr "Gekoppelde voetbalhandeling(en)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:524
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:526
 msgid "bijv. Passen, Vrijlopen"
 msgstr "bijv. Passen, Vrijlopen"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:530
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:532
 msgid "Waarom dit belangrijk is"
 msgstr "Waarom dit belangrijk is"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:536
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:538
 msgid "Hoe we dit meten"
 msgstr "Hoe we dit meten"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:544
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:546
 msgid "Eerste check-in datum"
 msgstr "Eerste check-in datum"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:548
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:550
 msgid "Eigenaar (speler / trainer / beide)"
 msgstr "Eigenaar (speler / trainer / beide)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:565
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:567
 msgid "Rechts"
 msgstr "Rechts"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:567
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:569
 msgid "Beide"
 msgstr "Beide"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:686
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:690
 msgid "in progress"
 msgstr "bezig"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:690
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:694
 msgid "Sterke punten vorig seizoen (mediaan eval)"
 msgstr "Sterke punten vorig seizoen (mediaan eval)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:691
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:695
 msgid "Ontwikkelpunten"
 msgstr "Ontwikkelpunten"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:692
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:696
 msgid "Goals from last season"
 msgstr "Doelen uit vorig seizoen"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:693
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:697
 msgid "Trainersnotities"
 msgstr "Trainersnotities"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:827
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:831
 #, php-format
 msgid "Goals intake — %1$s — choose blocks"
 msgstr "Doelenintake — %1$s — kies blokken"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:828
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:832
 #, php-format
 msgid "Speler: %1$s · Seizoen %2$s"
 msgstr "Speler: %1$s · Seizoen %2$s"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:871
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:875
 #, php-format
 msgid "Seizoens-intakes — %1$s — kies blokken"
 msgstr "Seizoens-intakes — %1$s — kies blokken"
 
 #. translators: 1: team name, 2: season, 3: player count
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:874
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:878
 #, php-format
 msgid "Team: %1$s · Seizoen %2$s · %3$d spelers"
 msgstr "Team: %1$s · Seizoen %2$s · %3$d spelers"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:898
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:902
 msgid "Snapshot (foto, stats, terugblik, reflectie)"
 msgstr "Snapshot (foto, stats, terugblik, reflectie)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:899
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:903
 msgid "Doel 1"
 msgstr "Doel 1"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:900
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:904
 msgid "Doel 2"
 msgstr "Doel 2"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:901
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:905
 msgid "Doel 3"
 msgstr "Doel 3"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:902
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:906
 msgid "Afsluiting (reflectie 1 ding om mee te nemen)"
 msgstr "Afsluiting (reflectie 1 ding om mee te nemen)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:903
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:907
 msgid "Handtekeningen (speler / trainer / datum)"
 msgstr "Handtekeningen (speler / trainer / datum)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:904
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:908
 msgid "Trainer-reminder (CTA-note)"
 msgstr "Trainer-reminder (CTA-note)"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:930
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:934
 msgid "Selecteer de blokken om te printen"
 msgstr "Selecteer de blokken om te printen"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:944
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:948
 msgid "Print geselecteerde blokken"
 msgstr "Print geselecteerde blokken"
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:945
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:949
 msgid "Print alles"
 msgstr "Print alles"
 
