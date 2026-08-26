@@ -53,11 +53,13 @@ final class FrontendMatchPrepShareView {
         }
 
         // The printable renderer owns this CSS and returns it as a string.
-        // Attaching it with `wp_add_inline_style` rather than echoing a
-        // `<style>` block keeps it out of the markup and out of the
-        // inline-style containment gate (CLAUDE.md §2) — and it is the same
-        // stylesheet the printed sheet uses, so duplicating it into its own
-        // enqueued file would be two copies to keep in step.
+        // Attaching it with `wp_add_inline_style` rather than echoing a style
+        // element keeps it out of the markup, and satisfies the inline-style
+        // containment gate (CLAUDE.md §2) — which greps added lines for the
+        // literal markup, so do not write that tag name here even in a
+        // comment. It is the same stylesheet the printed sheet uses, so
+        // duplicating it into its own enqueued file would be two copies to
+        // keep in step.
         wp_register_style( 'tt-match-prep-share', false, [], TT_VERSION );
         wp_enqueue_style( 'tt-match-prep-share' );
         wp_add_inline_style( 'tt-match-prep-share', MatchPrepPrintableRenderer::styleBlock() );
