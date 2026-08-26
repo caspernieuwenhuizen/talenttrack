@@ -45,6 +45,21 @@ opzoekt.
 Het uitschuifmenu blijft bestaan en bevat nog steeds alles, dus de balk verbergt
 niets. Het is een snelkoppeling, geen filter.
 
+**Twee schermen verbergen de balk, met opzet.** Een wedstrijd live bijhouden en
+een training draaien zetten allebei hun eigen knoppen onderaan het scherm, want
+daar zit je duim als je de telefoon met één hand langs de lijn vasthoudt. De
+navigatiebalk daar nog eens onder tonen kost zo'n 190px op een scherm van 640px
+— ruwweg de helft van wat je aan het lezen was.
+
+Op die twee schermen gaat de balk opzij. Het kruimelpad bovenaan blijft je weg
+terug, het uitschuifmenu verandert niet, en op een tablet of laptop verandert er
+helemaal niets — de balk bestaat daar sowieso niet.
+
+*Voor ontwikkelaars:* de lijst staat in `config/focus_surfaces.php`, één slug per
+regel met de reden erbij, uitgelezen via `FocusSurfaces::claims()`. Controleer
+voor je een slug toevoegt of de view op elk pad het kruimelpad rendert — dat pad
+is wat het weglaten van de balk veilig maakt in plaats van een doodlopende weg.
+
 ### Het clublogo brengt je terug
 
 Het logo en de naam van de academie linksboven zijn een link terug naar het

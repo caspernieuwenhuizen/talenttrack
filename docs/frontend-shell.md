@@ -44,6 +44,22 @@ are never placed there — they are not what anyone reaches for one-handed.
 The slide-out menu is still there and still carries everything, so the bar never
 hides anything. It is a shortcut, not a filter.
 
+**Two screens hide the bar, on purpose.** Running a live match and running a
+training session both put their own controls along the bottom of the screen,
+because that is where your thumb is when you are holding the phone one-handed at
+the side of a pitch. Showing the navigation bar underneath those controls would
+cost about 190px on a 640px screen — roughly half of what you were reading.
+
+On those two screens the bar steps aside. The breadcrumb trail at the top is
+still your way out, the slide-out menu is untouched, and on a tablet or laptop
+nothing changes at all — the bar only exists on phone-width screens in the first
+place.
+
+*Developers:* the list is `config/focus_surfaces.php`, one slug per entry with
+the reason written down, read through `FocusSurfaces::claims()`. Before adding a
+slug, check the view renders the breadcrumb chain on every path — that chain is
+what makes suppressing the bar safe rather than a dead end.
+
 ### The academy crest goes home
 
 The crest and academy name in the top-left corner are a link back to the

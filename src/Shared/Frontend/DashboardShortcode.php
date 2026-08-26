@@ -557,7 +557,13 @@ class DashboardShortcode {
 
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        echo '<div class="tt-shell" data-tt-shell>';
+        // #2933 — a surface that owns the thumb zone gets no bottom bar,
+        // so the main column must not reserve space for one either. The
+        // class is stamped here rather than computed in the sheet because
+        // only PHP knows which slug is rendering.
+        $focus = \TT\Shared\Frontend\FocusSurfaces::claims( $view );
+
+        echo '<div class="tt-shell' . ( $focus ? ' tt-shell--focus' : '' ) . '" data-tt-shell>';
         \TT\Shared\Frontend\Components\FrontendAppNav::render( get_current_user_id(), $view );
         \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerScrim();
         echo '<div class="tt-shell-main">';
