@@ -43,7 +43,7 @@ final class FrontendMatchPrepShareView {
         $club_filter = static fn( $club ) => $club_id > 0 ? $club_id : $club;
         add_filter( 'tt_current_club_id', $club_filter );
 
-        $body = MatchPrepPrintableRenderer::bodyHtml( (int) $prep->activity_id, $club_id );
+        $body = MatchPrepPrintableRenderer::bodyHtml( (int) ( $prep->activity_id ?? 0 ), $club_id );
 
         remove_filter( 'tt_current_club_id', $club_filter );
 
@@ -52,7 +52,15 @@ final class FrontendMatchPrepShareView {
             return;
         }
 
-        echo '<style>' . MatchPrepPrintableRenderer::styleBlock() . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static stylesheet, no user data.
+        // The printable renderer owns this CSS and returns it as a string.
+        // Attaching it with `wp_add_inline_style` rather than echoing a
+        // `<style>` block keeps it out of the markup and out of the
+        // inline-style containment gate (CLAUDE.md §2) — and it is the same
+        // stylesheet the printed sheet uses, so duplicating it into its own
+        // enqueued file would be two copies to keep in step.
+        wp_register_style( 'tt-match-prep-share', false, [], TT_VERSION );
+        wp_enqueue_style( 'tt-match-prep-share' );
+        wp_add_inline_style( 'tt-match-prep-share', MatchPrepPrintableRenderer::styleBlock() );
 
         echo '<div class="tt-mp tt-mp--shared">';
         echo '<p class="tt-mp__share-note">'

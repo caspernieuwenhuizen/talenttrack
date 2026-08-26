@@ -69,7 +69,7 @@ final class MatchPrepShareLink {
         $seed = (string) ( $prep->share_token_seed ?? '' );
         if ( $seed === '' ) return null;
 
-        if ( ! MatchPrepShareToken::verify( (int) $prep->id, $uuid, $seed, $token ) ) {
+        if ( ! MatchPrepShareToken::verify( (int) ( $prep->id ?? 0 ), $uuid, $seed, $token ) ) {
             return null;
         }
 
