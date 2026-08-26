@@ -55119,6 +55119,7 @@ msgid ""
 msgstr ""
 "Een beheerder van de academie kan je account onder Toegangsbeheer aan je "
 "medewerkersdossier koppelen. Tot die tijd kun je nog steeds elke cursus lezen."
+
 #~ msgid "Trial started."
 #~ msgstr "Trial gestart."
 
