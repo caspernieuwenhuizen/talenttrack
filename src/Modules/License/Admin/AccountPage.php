@@ -4,19 +4,18 @@ namespace TT\Modules\License\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\License\DevOverride;
+use TT\Modules\License\Entitlement;
 use TT\Modules\License\FeatureMap;
-use TT\Modules\License\FreemiusAdapter;
 use TT\Modules\License\FreeTierCaps;
 use TT\Modules\License\LicenseGate;
 use TT\Modules\License\LicenseMode;
-use TT\Modules\License\TrialState;
 
 /**
  * AccountPage — `TalentTrack → Account` wp-admin page.
  *
  * Two tabs:
- *   - **Account** (operator-only, `tt_edit_settings`): tier, trial /
- *     grace state, usage vs caps, trial CTAs, phone-home diagnostics.
+ *   - **Account** (operator-only, `tt_edit_settings`): tier, usage
+ *     vs caps, phone-home diagnostics.
  *   - **Plan & restrictions** (everyone, `read`): the same caps table
  *     plus a Free / Standard / Pro feature matrix. Replaces the former
  *     standalone `PlanOverviewPage` so non-operators still get a clear
@@ -40,8 +39,6 @@ class AccountPage {
     public const TAB_MFA     = 'mfa';
 
     public static function init(): void {
-        add_action( 'admin_post_tt_license_start_trial', [ self::class, 'handleStartTrial' ] );
-        add_action( 'admin_post_tt_license_reset_trial', [ self::class, 'handleResetTrial' ] );
         // v3.72.3 — manual phone-home trigger so operators can verify
         // that an install can reach the Admin Center receiver. Useful
         // when one install is silent and
@@ -401,8 +398,8 @@ class AccountPage {
             return;
         }
 
-        // v3.110.44 — non-commercial test instance: the trial /
-        // upgrade / Freemius UI is irrelevant. Render a single notice
+        // v3.110.44 — non-commercial test instance: the plan /
+        // upgrade UI is irrelevant. Render a single notice
         // explaining the mode and bail out.
         if ( ! LicenseMode::isCommercial() ) {
             self::renderTestModeNotice();
@@ -411,23 +408,16 @@ class AccountPage {
 
         $tier         = LicenseGate::tier();
         $eff_tier     = LicenseGate::effectiveTier();
-        $in_trial     = LicenseGate::isInTrial();
-        $in_grace     = LicenseGate::isInGrace();
-        $trial_days   = LicenseGate::trialDaysRemaining();
-        $grace_days   = LicenseGate::graceDaysRemaining();
-        $configured   = FreemiusAdapter::isConfigured();
         $override     = DevOverride::active();
-        $trial_data   = TrialState::read();
+        $entitled     = Entitlement::tier();
 
-        // Underlying paid tier — the operator's actual plan, ignoring
-        // any trial unlock. Used to decide which upgrade affordance to
-        // show: a Standard customer mid-trial sees Pro features through
-        // LicenseGate::tier() but their *paid* plan is still Standard,
-        // and they need a path to convert before the trial ends.
-        // DevOverride counts as the underlying tier for testing.
+        // Underlying paid tier — what this install is actually
+        // entitled to, ignoring any dev override on top. Used to
+        // decide which upgrade affordance to show. DevOverride counts
+        // as the underlying tier for testing.
         $paid_tier = $override !== null
             ? FeatureMap::normalizeTier( $override['tier'] )
-            : FreemiusAdapter::tier();
+            : ( $entitled !== null ? FeatureMap::normalizeTier( $entitled ) : FeatureMap::TIER_FREE );
         $teams_used   = FreeTierCaps::currentCount( FreeTierCaps::CAP_TEAMS );
         $players_used = FreeTierCaps::currentCount( FreeTierCaps::CAP_PLAYERS );
         $teams_cap    = FreeTierCaps::teamCap();
@@ -437,14 +427,6 @@ class AccountPage {
                 $msg = sanitize_text_field( wp_unslash( (string) $_GET['tt_msg'] ) );
                 if ( $msg === 'cap_players' || $msg === 'cap_teams' ) :
                     echo UpgradeNudge::capHit( $msg === 'cap_teams' ? 'teams' : 'players' );
-                else :
-                    $messages = [
-                        'trial_started' => __( 'Trial started.',          'talenttrack' ),
-                        'trial_reset'   => __( 'Trial state cleared.',    'talenttrack' ),
-                    ];
-                    if ( isset( $messages[ $msg ] ) ) : ?>
-                        <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $messages[ $msg ] ); ?></p></div>
-                    <?php endif;
                 endif;
             endif; ?>
 
@@ -463,10 +445,10 @@ class AccountPage {
                 </div>
             <?php endif; ?>
 
-            <?php if ( ! $configured ) : ?>
+            <?php if ( $entitled === null ) : ?>
                 <div class="notice notice-info">
-                    <p><strong><?php esc_html_e( 'Monetization not yet configured.', 'talenttrack' ); ?></strong>
-                       <?php esc_html_e( 'Until the Freemius credentials are defined in wp-config.php, this install runs on the Free tier (or a trial / dev override if active). Paid plans become available once the SDK is wired up.', 'talenttrack' ); ?>
+                    <p><strong><?php esc_html_e( 'No plan recorded for this install.', 'talenttrack' ); ?></strong>
+                       <?php esc_html_e( 'This install has not been told which plan it is on, so it runs on Free. The plan is set when the install is provisioned — contact your TalentTrack operator if that looks wrong.', 'talenttrack' ); ?>
                     </p>
                 </div>
             <?php endif; ?>
@@ -493,56 +475,14 @@ class AccountPage {
             <h2><?php esc_html_e( 'Current tier', 'talenttrack' ); ?></h2>
             <p style="font-size:18px;">
                 <strong><?php echo esc_html( FeatureMap::tierLabel( $tier ) ); ?></strong>
-                <?php if ( $tier !== $eff_tier ) : ?>
-                    <span style="color:#b32d2e;"> · <?php
-                        printf(
-                            /* translators: %s is the effective tier label */
-                            esc_html__( 'effective: %s (read-only grace)', 'talenttrack' ),
-                            esc_html( FeatureMap::tierLabel( $eff_tier ) )
-                        );
-                    ?></span>
-                <?php endif; ?>
             </p>
 
-            <?php if ( $in_trial ) : ?>
-                <p><?php
-                    printf(
-                        /* translators: %d is the number of days remaining */
-                        esc_html( _n( 'Trial: %d day remaining.', 'Trial: %d days remaining.', $trial_days, 'talenttrack' ) ),
-                        $trial_days
-                    );
-                ?></p>
-            <?php elseif ( $in_grace ) : ?>
-                <p style="color:#b32d2e;"><?php
-                    printf(
-                        /* translators: %d is the number of grace days remaining */
-                        esc_html( _n( 'Trial ended — %d day of read-only access remaining. Upgrade to keep adding new evaluations.', 'Trial ended — %d days of read-only access remaining. Upgrade to keep adding new evaluations.', $grace_days, 'talenttrack' ) ),
-                        $grace_days
-                    );
-                ?></p>
-            <?php endif; ?>
-
             <?php
-            // Action affordances. Independent of the trial/grace status
-            // notice above — a Standard customer in an active trial sees
-            // both "Trial: X days remaining" and the "Upgrade to Pro"
-            // card so they can convert their underlying Standard plan
-            // before the trial ends. Keyed off $paid_tier (the actual
-            // paid plan), not LicenseGate::tier() which would report Pro
-            // during a trial.
+            // Action affordances, keyed off $paid_tier — what the
+            // install is entitled to, not LicenseGate::tier(), which a
+            // dev override would inflate.
             ?>
-            <?php if ( $paid_tier === FeatureMap::TIER_FREE && $trial_data === null ) : ?>
-                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px;">
-                    <?php wp_nonce_field( 'tt_license_start_trial', 'tt_license_nonce' ); ?>
-                    <input type="hidden" name="action" value="tt_license_start_trial" />
-                    <button type="submit" class="button button-primary button-hero">
-                        <?php esc_html_e( 'Start trial', 'talenttrack' ); ?>
-                    </button>
-                </form>
-                <p class="description" style="margin-top:6px;">
-                    <?php esc_html_e( 'Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free.', 'talenttrack' ); ?>
-                </p>
-            <?php elseif ( $paid_tier !== FeatureMap::TIER_PRO ) : ?>
+            <?php if ( $paid_tier !== FeatureMap::TIER_PRO ) : ?>
                 <?php
                 // v3.108.5 — A7: Standard-tier installs had no visible
                 // "Upgrade to Pro" CTA; the only upgrade affordance
@@ -553,29 +493,19 @@ class AccountPage {
                 // upgrade." Adding a deliberate upgrade card here.
                 //
                 // v3.110.43 — broadened from `=== STANDARD` to
-                // `!== PRO` so Free-tier customers mid-trial (whose
-                // paid tier is Free until they pick a plan) also see
-                // the card. Without it the Account tab showed only
-                // "Trial: X days remaining" with no actionable next
-                // step. The lead-in copy is now context-aware so it
-                // doesn't claim "You're on Standard" to a Free user.
+                // `!== PRO` so Free-tier installs also see the card.
+                // The lead-in copy is context-aware so it doesn't
+                // claim "You're on Standard" to a Free user.
                 //
-                // Freemius checkout URL: when the SDK is configured
-                // it registers `?page=<plugin>-pricing` automatically.
-                // Owner-side test installs that have wired the
-                // `TT_DEV_OVERRIDE_SECRET` constant get the dev-override
-                // page instead — same button label, the operator's
-                // local password-protected tier picker — so the CTA
-                // works on those installs without Freemius. Customer
-                // installs with neither configured fall back to the
-                // Account tab so the button doesn't 404.
-                if ( $configured ) {
-                    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG . '-pricing' );
-                } elseif ( DevOverride::isAvailable() ) {
-                    $upgrade_url = admin_url( 'admin.php?page=' . DevOverridePage::SLUG );
-                } else {
-                    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG );
-                }
+                // There is no checkout in the plugin. A club's plan is
+                // set when its install is provisioned, so the only
+                // in-product affordance is the operator's own
+                // password-protected tier picker on owner installs
+                // (TT_DEV_OVERRIDE_SECRET). Everyone else is told who
+                // to ask.
+                $dev_override_url = DevOverride::isAvailable()
+                    ? admin_url( 'admin.php?page=' . DevOverridePage::SLUG )
+                    : '';
                 $is_standard = $paid_tier === FeatureMap::TIER_STANDARD;
                 ?>
                 <div class="tt-upgrade-card" style="margin-top:18px; padding:18px 20px; background:#fff8e1; border:1px solid #f0c36d; border-radius:8px; max-width:680px;">
@@ -597,18 +527,18 @@ class AccountPage {
                         <li><?php esc_html_e( 'Partial restore + bulk-undo (Standard has only manual undo)', 'talenttrack' ); ?></li>
                         <li><?php esc_html_e( 'Scheduled reports via email (CSV / XLSX / PDF)', 'talenttrack' ); ?></li>
                     </ul>
-                    <p style="margin:0;">
-                        <a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-primary button-hero">
-                            <?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?>
-                        </a>
-                    </p>
-                    <?php if ( ! $configured && DevOverride::isAvailable() ) : ?>
-                        <p class="description" style="margin:10px 0 0;">
-                            <?php esc_html_e( 'Freemius checkout isn\'t wired on this install — the button opens the developer license-override page so you can flip the active tier locally for testing.', 'talenttrack' ); ?>
+                    <?php if ( $dev_override_url !== '' ) : ?>
+                        <p style="margin:0;">
+                            <a href="<?php echo esc_url( $dev_override_url ); ?>" class="button button-primary button-hero">
+                                <?php esc_html_e( 'Change tier', 'talenttrack' ); ?>
+                            </a>
                         </p>
-                    <?php elseif ( ! $configured ) : ?>
                         <p class="description" style="margin:10px 0 0;">
-                            <?php esc_html_e( 'Freemius checkout isn\'t wired up on this install yet — the button drops you on the Account tab where the upgrade flow will surface once configured.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'This is the developer tier override — it changes the active tier on this install only, for testing.', 'talenttrack' ); ?>
+                        </p>
+                    <?php else : ?>
+                        <p class="description" style="margin:0;">
+                            <?php esc_html_e( 'Plan changes are handled by your TalentTrack operator. Get in touch and your install is moved over without any downtime or data migration.', 'talenttrack' ); ?>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -639,30 +569,6 @@ class AccountPage {
                 </tbody>
             </table>
 
-            <?php if ( $trial_data !== null ) : ?>
-                <h2 style="margin-top:32px;"><?php esc_html_e( 'Trial state', 'talenttrack' ); ?></h2>
-                <p>
-                    <?php
-                    printf(
-                        /* translators: 1: trial started date, 2: trial expires date, 3: grace until date */
-                        esc_html__( 'Started %1$s, expires %2$s, grace ends %3$s.', 'talenttrack' ),
-                        esc_html( gmdate( 'Y-m-d', $trial_data['started_at'] ) ),
-                        esc_html( gmdate( 'Y-m-d', $trial_data['expires_at'] ) ),
-                        esc_html( gmdate( 'Y-m-d', $trial_data['grace_until'] ) )
-                    );
-                    ?>
-                </p>
-                <?php if ( DevOverride::isAvailable() ) : ?>
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-                        <?php wp_nonce_field( 'tt_license_reset_trial', 'tt_license_nonce' ); ?>
-                        <input type="hidden" name="action" value="tt_license_reset_trial" />
-                        <p>
-                            <button type="submit" class="button"><?php esc_html_e( 'Reset trial', 'talenttrack' ); ?></button>
-                        </p>
-                    </form>
-                <?php endif; ?>
-            <?php endif; ?>
-
             <?php self::renderPhoneHomeDiagnostics(); ?>
         <?php
     }
@@ -671,8 +577,8 @@ class AccountPage {
      * Plan & restrictions — read-only "what's locked / what's unlocked"
      * tab. Replaces the former standalone `PlanOverviewPage` so coaches
      * and other read-only users still get a one-glance view of caps,
-     * the trial / grace state, and the per-tier feature matrix without
-     * a separate menu entry.
+     * the current plan, and the per-tier feature matrix without a
+     * separate menu entry.
      */
     private static function renderPlanTab(): void {
         // v3.110.44 — non-commercial test instance: same notice the
@@ -686,18 +592,15 @@ class AccountPage {
         $tier        = LicenseGate::tier();
         $tier_label  = FeatureMap::tierLabel( $tier );
         $effective   = LicenseGate::effectiveTier();
-        $in_trial    = LicenseGate::isInTrial();
-        $in_grace    = LicenseGate::isInGrace();
-        $trial_days  = LicenseGate::trialDaysRemaining();
-        $grace_days  = LicenseGate::graceDaysRemaining();
         $is_operator = current_user_can( self::CAP );
 
         // Underlying paid tier — see renderAccountTab() for why we
-        // distinguish from LicenseGate::tier() during a trial.
+        // distinguish this from LicenseGate::tier().
         $override    = DevOverride::active();
+        $entitled    = Entitlement::tier();
         $paid_tier   = $override !== null
             ? FeatureMap::normalizeTier( $override['tier'] )
-            : FreemiusAdapter::tier();
+            : ( $entitled !== null ? FeatureMap::normalizeTier( $entitled ) : FeatureMap::TIER_FREE );
 
         echo '<p>' . esc_html__( "Everything that's locked or limited on your install, in one place. Caps come from the Free-tier policy; features come from the plan you're on.", 'talenttrack' ) . '</p>';
 
@@ -705,35 +608,18 @@ class AccountPage {
         echo '<div class="notice" style="padding:16px; max-width:760px; margin-top:20px;">';
         echo '<h2 style="margin-top:0;">' . esc_html__( 'Current plan', 'talenttrack' ) . '</h2>';
         echo '<p style="font-size:18px; margin:0;"><strong>' . esc_html( $tier_label ) . '</strong>';
-        if ( $in_trial ) {
-            echo ' · <span style="color:#0b3d2e;">' . esc_html(
-                sprintf(
-                    /* translators: %d days remaining */
-                    _n( '%d day left in trial', '%d days left in trial', $trial_days, 'talenttrack' ),
-                    $trial_days
-                )
-            ) . '</span>';
-        } elseif ( $in_grace ) {
-            echo ' · <span style="color:#a86322;">' . esc_html(
-                sprintf(
-                    /* translators: %d grace days */
-                    _n( 'Grace period — %d day until features lock', 'Grace period — %d days until features lock', $grace_days, 'talenttrack' ),
-                    $grace_days
-                )
-            ) . '</span>';
-        }
         echo '</p>';
         if ( $is_operator && $paid_tier !== FeatureMap::TIER_PRO ) {
             $url = admin_url( 'admin.php?page=' . self::SLUG . '&tab=' . self::TAB_ACCOUNT );
             echo '<p style="margin-top:12px;"><a class="button button-primary" href="' . esc_url( $url ) . '">'
-                . esc_html__( 'Upgrade or start a trial', 'talenttrack' )
+                . esc_html__( 'See what Pro adds', 'talenttrack' )
                 . '</a></p>';
         }
         echo '</div>';
 
         // 2. Caps table
         echo '<h2 style="margin-top:32px;">' . esc_html__( 'Free-tier caps', 'talenttrack' ) . '</h2>';
-        echo '<p>' . esc_html__( 'Caps apply only on the Free plan. Trial and Standard / Pro have no cap.', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'Caps apply only on the Free plan. Standard and Pro have no cap.', 'talenttrack' ) . '</p>';
         $caps_apply = ( $effective === FeatureMap::TIER_FREE );
         echo '<table class="widefat striped" style="max-width:760px;"><thead><tr>';
         echo '<th>' . esc_html__( 'Resource', 'talenttrack' ) . '</th>';
@@ -747,7 +633,7 @@ class AccountPage {
             $at_cap  = $caps_apply && $current >= $limit;
             $colour  = $at_cap ? '#b32d2e' : ( $caps_apply && $current >= ( $limit * 0.8 ) ? '#a86322' : '#137333' );
             $status  = ! $caps_apply
-                ? __( 'No cap (paid / trial)', 'talenttrack' )
+                ? __( 'No cap (paid plan)', 'talenttrack' )
                 : ( $at_cap ? __( 'At cap — upgrade to add more', 'talenttrack' ) : __( 'Within cap', 'talenttrack' ) );
             $resource_label = $cap_type === 'teams'
                 ? __( 'Teams', 'talenttrack' )
@@ -787,7 +673,7 @@ class AccountPage {
         echo '</tbody></table>';
 
         echo '<p style="margin-top:24px; color:#5b6e75; font-size:13px;">'
-            . esc_html__( 'Caps and features update immediately when you start a trial or upgrade. The trial gives Standard for 30 days, then a 7-day grace period at Free with the full data still readable.', 'talenttrack' )
+            . esc_html__( 'Caps and features update as soon as your plan changes. Nothing is migrated and nothing is lost — the same install carries on with more room.', 'talenttrack' )
             . '</p>';
     }
 
@@ -830,8 +716,7 @@ class AccountPage {
     /**
      * v3.110.44 — render the "non-commercial test instance" notice used
      * by both the Account and Plan tabs when `TT_COMMERCIAL_MODE` is
-     * false (or undefined). Single panel, no upgrade affordances, no
-     * trial UI.
+     * false (or undefined). Single panel, no upgrade affordances.
      */
     private static function renderTestModeNotice(): void {
         ?>
@@ -841,7 +726,7 @@ class AccountPage {
                 <?php
                 printf(
                     /* translators: %s: PHP constant name */
-                    esc_html__( '%s is set to false in talenttrack.php. Every TalentTrack feature is unlocked, free-tier caps do not apply, and the trial / upgrade UI is hidden. Trial state on disk (if any) is preserved but ignored at runtime.', 'talenttrack' ),
+                    esc_html__( '%s is set to false in talenttrack.php. Every TalentTrack feature is unlocked, free-tier caps do not apply, and the plan UI is hidden.', 'talenttrack' ),
                     '<code>' . esc_html( LicenseMode::CONST_NAME ) . '</code>'
                 );
                 ?>
@@ -851,7 +736,7 @@ class AccountPage {
                 <?php
                 printf(
                     /* translators: %s: PHP constant name */
-                    esc_html__( 'flip %s to true in talenttrack.php and configure Freemius credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) so the upgrade flow can complete checkout. The existing License module machinery (DevOverride, TrialState, FreemiusAdapter) will then drive tier resolution and feature gating.', 'talenttrack' ),
+                    esc_html__( 'flip %s to true in talenttrack.php. Provisioning records which plan the install is on; the License module then resolves the tier from that and gates features above it.', 'talenttrack' ),
                     '<code>' . esc_html( LicenseMode::CONST_NAME ) . '</code>'
                 );
                 ?>
@@ -939,26 +824,4 @@ class AccountPage {
         <?php
     }
 
-    public static function handleStartTrial(): void {
-        if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
-        check_admin_referer( 'tt_license_start_trial', 'tt_license_nonce' );
-        // v3.94.1 — trial unlocks Pro, not Standard. See TrialState::start
-        // for the rationale; in short: operators expected every Pro feature
-        // (trial cases, scout access, team chemistry) to be live during the
-        // trial window. Sticking with the per-method default keeps that
-        // intent explicit at the call site.
-        TrialState::start();
-        do_action( 'tt_license_trial_started' );
-        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'trial_started' ], admin_url( 'admin.php' ) ) );
-        exit;
-    }
-
-    public static function handleResetTrial(): void {
-        if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
-        if ( ! DevOverride::isAvailable() ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
-        check_admin_referer( 'tt_license_reset_trial', 'tt_license_nonce' );
-        TrialState::reset();
-        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'trial_reset' ], admin_url( 'admin.php' ) ) );
-        exit;
-    }
 }

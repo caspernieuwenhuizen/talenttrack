@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Usage\UsageTracker;
-use TT\Modules\License\FreemiusAdapter;
+use TT\Modules\License\Entitlement;
 
 /**
  * PayloadBuilder — single source of truth for the phone-home payload
@@ -183,41 +183,40 @@ final class PayloadBuilder {
     }
 
     /**
-     * SHA-256 of the Freemius license key, or null when no license is
-     * present. v1's HMAC secret does *not* depend on this — it's
-     * informational only, used by future billing-oversight to
-     * reconcile against Freemius. The receiver accepts null.
+     * Always null since Freemius was retired — an install no longer
+     * holds a marketplace license key to hash.
+     *
+     * The field itself stays in the payload because the v1 shape is
+     * locked and exhaustive (`tests/fixtures/admin-center-payload.schema.php`);
+     * removing a key would break the receiver's contract, so it is
+     * nulled rather than dropped. The HMAC secret never depended on it.
      */
     private static function freemiusLicenseKeyHash(): ?string {
-        if ( ! class_exists( FreemiusAdapter::class ) ) return null;
-        if ( ! FreemiusAdapter::isConfigured() ) return null;
-        $key = (string) apply_filters( 'tt_freemius_license_key', '' );
-        if ( $key === '' ) return null;
-        return hash( 'sha256', $key );
+        return null;
     }
 
+    /**
+     * The tier this install is entitled to, as last answered by the
+     * control plane — null when no entitlement has been recorded. This
+     * is what the install believes it bought, which is exactly what
+     * the Admin Center wants to reconcile against.
+     */
     private static function licenseTier(): ?string {
-        if ( ! class_exists( FreemiusAdapter::class ) || ! FreemiusAdapter::isConfigured() ) {
-            return null;
-        }
-        $tier = (string) FreemiusAdapter::tier();
-        return $tier !== '' ? $tier : null;
+        if ( ! class_exists( Entitlement::class ) ) return null;
+        return Entitlement::tier();
     }
 
+    /**
+     * Subscription status and renewal date live with the control plane,
+     * not on the install. Kept in the payload for schema compatibility;
+     * the receiver already knows the answer better than we do.
+     */
     private static function licenseStatus(): ?string {
-        if ( ! class_exists( FreemiusAdapter::class ) || ! FreemiusAdapter::isConfigured() ) {
-            return null;
-        }
-        $status = (string) apply_filters( 'tt_freemius_license_status', '' );
-        return $status !== '' ? $status : null;
+        return null;
     }
 
     private static function licenseRenewsAt(): ?string {
-        if ( ! class_exists( FreemiusAdapter::class ) || ! FreemiusAdapter::isConfigured() ) {
-            return null;
-        }
-        $renews = (string) apply_filters( 'tt_freemius_license_renews_at', '' );
-        return $renews !== '' ? $renews : null;
+        return null;
     }
 
     /**

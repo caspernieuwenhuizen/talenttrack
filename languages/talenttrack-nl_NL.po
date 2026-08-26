@@ -55151,6 +55151,43 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "No plan recorded for this install."
+msgstr "Geen pakket vastgelegd voor deze installatie."
+
+msgid "This install has not been told which plan it is on, so it runs on Free. The plan is set when the install is provisioned — contact your TalentTrack operator if that looks wrong."
+msgstr "Deze installatie heeft niet te horen gekregen op welk pakket ze zit en draait daarom op Free. Het pakket wordt vastgelegd bij het inrichten — klopt dat niet, neem dan contact op met je TalentTrack-operator."
+
+msgid "Change tier"
+msgstr "Tier wijzigen"
+
+msgid "This is the developer tier override — it changes the active tier on this install only, for testing."
+msgstr "Dit is de ontwikkelaars-override — die verandert de actieve tier alleen op deze installatie, om te testen."
+
+msgid "Plan changes are handled by your TalentTrack operator. Get in touch and your install is moved over without any downtime or data migration."
+msgstr "Pakketwijzigingen regelt je TalentTrack-operator. Neem contact op en je installatie gaat over zonder downtime en zonder gegevensmigratie."
+
+msgid "See what Pro adds"
+msgstr "Bekijk wat Pro toevoegt"
+
+msgid "Caps apply only on the Free plan. Standard and Pro have no cap."
+msgstr "Limieten gelden alleen op het Free-pakket. Standard en Pro kennen geen limiet."
+
+msgid "No cap (paid plan)"
+msgstr "Geen limiet (betaald pakket)"
+
+msgid "Caps and features update as soon as your plan changes. Nothing is migrated and nothing is lost — the same install carries on with more room."
+msgstr "Limieten en functies veranderen zodra je pakket wijzigt. Er wordt niets gemigreerd en er gaat niets verloren — dezelfde installatie gaat verder met meer ruimte."
+
+msgid "%s is set to false in talenttrack.php. Every TalentTrack feature is unlocked, free-tier caps do not apply, and the plan UI is hidden."
+msgstr "%s staat op false in talenttrack.php. Elke TalentTrack-functie is ontgrendeld, de Free-limieten gelden niet en de pakket-UI is verborgen."
+
+msgid "flip %s to true in talenttrack.php. Provisioning records which plan the install is on; the License module then resolves the tier from that and gates features above it."
+msgstr "zet %s op true in talenttrack.php. Bij het inrichten wordt vastgelegd op welk pakket de installatie zit; de licentiemodule bepaalt daarmee de tier en zet functies daarboven op slot."
+
+msgid "Available on %s and above. Open your account page to see what the plan adds."
+msgstr "Beschikbaar vanaf %s. Open je accountpagina om te zien wat het pakket toevoegt."
+
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."

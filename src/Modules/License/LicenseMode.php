@@ -15,14 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * tier / trial / upgrade UI.
  *
  * When the constant is `true` the existing License-module machinery
- * kicks in — DevOverride / TrialState / FreemiusAdapter resolve the
- * effective tier, free-tier caps apply, and non-Pro features are
- * gated behind purchases.
+ * kicks in — DevOverride and the cached Entitlement resolve the
+ * effective tier, free-tier caps apply, and features above the
+ * install's tier are gated.
  *
  * The "one simple code change to commercialize" the user asked for
  * is flipping `define('TT_COMMERCIAL_MODE', false)` to `true` in
- * talenttrack.php (and configuring Freemius alongside, for actual
- * checkout to work).
+ * talenttrack.php. On a provisioned install the entitlement is
+ * written alongside it; without one the install resolves to Free.
  */
 final class LicenseMode {
 

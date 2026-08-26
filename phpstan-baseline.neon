@@ -7124,11 +7124,6 @@ parameters:
 			path: src/Modules/License/FeatureMap.php
 
 		-
-			message: "#^Constant TT_PLUGIN_DIR not found\\.$#"
-			count: 1
-			path: src/Modules/License/FreemiusAdapter.php
-
-		-
 			message: "#^Access to an undefined property object\\:\\:\\$activity_id\\.$#"
 			count: 1
 			path: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php
