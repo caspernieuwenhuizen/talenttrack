@@ -55151,6 +55151,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s: number of sub-features in this module
+#: src/Shared/Frontend/FrontendFeaturesView.php:255
+#, php-format
+msgid "%s feature"
+msgid_plural "%s features"
+msgstr[0] "%s functie"
+msgstr[1] "%s functies"
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."
