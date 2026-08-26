@@ -3,7 +3,9 @@ namespace TT\Modules\Goals\Print;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 
 /**
  * PlayerGoalIntakePrintRouter (#1064) — printable season-start
@@ -580,29 +582,26 @@ class PlayerGoalIntakePrintRouter {
 
         // Use a 12-month trailing window as a proxy for "last season".
         // Pilot installs without a formal season anchor still get
-        // meaningful numbers.
+        // meaningful numbers. The window is bounded at today: a fixture
+        // on next month's calendar is not something this player has done.
         $cutoff = gmdate( 'Y-m-d', strtotime( '-365 days' ) );
+        $today  = gmdate( 'Y-m-d' );
 
-        $apps = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(DISTINCT a.id)
-               FROM {$p}tt_attendance att
-               JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.club_id   = %d
-                AND att.status    = 'Present'
-                AND a.session_date >= %s",
-            $player_id, $club_id, $cutoff
-        ) );
-
-        $minutes = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COALESCE( SUM( att.minutes_played ), 0 )
-               FROM {$p}tt_attendance att
-               JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.club_id   = %d
-                AND a.session_date >= %s",
-            $player_id, $club_id, $cutoff
-        ) );
+        // #2864 — this used to run its own SQL: no activity-type filter, so
+        // trainings and meetings counted as matches; no archived / trashed /
+        // cancelled guard and no upper date bound, so deleted and future
+        // activities counted too; and no `record_type` filter on the minutes,
+        // so planned-roster rows were summed alongside real ones. A printed
+        // sheet read 35 matches and 300 minutes for the same player — 8.6
+        // minutes a match — and a coach opening the season-goals conversation
+        // with it could not tell which number to trust.
+        //
+        // `MinutesQuery` already owns "which matches count" for the two
+        // minutes reports. Asking it the same question here is what stops the
+        // sheet and Player · Minutes played describing different seasons.
+        $totals  = ( new MinutesQuery() )->seasonTotalsForPlayer( $player_id, $cutoff, $today );
+        $apps    = $totals['apps'];
+        $minutes = $totals['minutes'];
 
         // Goals + assists may live on evaluations.notes / dedicated
         // stat tables that aren't universal. Default to 0; pilot can
@@ -610,15 +609,20 @@ class PlayerGoalIntakePrintRouter {
         $goals   = 0;
         $assists = 0;
 
+        // #2864 — `archived_at IS NULL` alone let a trashed evaluation feed
+        // the average, so the sheet could disagree with the evaluations list
+        // that hides them. The shared clause is what the list itself uses.
+        $eval_active = ArchiveRepository::filterClause( 'active', 'e' );
+
         $avg = $wpdb->get_var( $wpdb->prepare(
             "SELECT AVG(r.rating)
                FROM {$p}tt_eval_ratings r
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
               WHERE e.player_id = %d
                 AND e.club_id   = %d
-                AND e.eval_date >= %s
-                AND e.archived_at IS NULL",
-            $player_id, $club_id, $cutoff
+                AND e.eval_date BETWEEN %s AND %s
+                AND {$eval_active}",
+            $player_id, $club_id, $cutoff, $today
         ) );
 
         return [
