@@ -127,6 +127,9 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
         echo '<th scope="col">' . esc_html__( 'Promote to', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
+        // #2868 — built once, then passed into every comparison below.
+        $age_ranks = self::ageGroupRanks();
+
         foreach ( $teams as $team ) {
             $team_id   = (int) $team->id;
             $count     = self::activeCount( $team_id );
@@ -138,9 +141,24 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
             echo '<td data-label="' . esc_attr__( 'Promote to', 'talenttrack' ) . '">';
             echo '<select name="tt_sr_target[' . esc_attr( (string) $team_id ) . ']" class="tt-sr-select">';
             echo '<option value="0">' . esc_html__( 'No promotion / stays', 'talenttrack' ) . '</option>';
+            // #2868 — the column is titled "Promote to", and it offered every
+            // other team. In a two-team academy the O14 side was offered the
+            // O13 side as somewhere to be promoted to: the only target it had
+            // was a step backwards.
+            //
+            // A target qualifies only when its age group is STRICTLY older.
+            // The oldest team gets no targets and keeps "No promotion /
+            // stays", which is the right answer for a leaving cohort — those
+            // players are handled per-player on step 2 (release / graduate).
+            //
+            // Moving a team DOWN a category is deliberately not offered here.
+            // That is a correction, not a season transition, and putting it in
+            // a control whose whole vocabulary is promotion is how one
+            // mis-click becomes a season of wrong squads.
             foreach ( $teams as $target ) {
                 $target_id = (int) $target->id;
                 if ( $target_id === $team_id ) continue;
+                if ( ! self::isOlderAgeGroup( $target, $team, $age_ranks ) ) continue;
                 $label = (string) $target->name;
                 if ( ! empty( $target->age_group ) ) {
                     $label .= ' (' . (string) $target->age_group . ')';
@@ -424,6 +442,67 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
 
     private static function activeCount( int $team_id ): int {
         return count( QueryHelpers::get_players( $team_id ) );
+    }
+
+    /**
+     * #2868 — is `$target`'s age group strictly older than `$source`'s?
+     *
+     * `age_group` is an operator-editable lookup of free text (`O13`, `JO13`,
+     * `Under 13`, …), so the string cannot be compared and a number cannot be
+     * parsed out of it reliably. The lookup's own `sort_order` is the
+     * ordering: it is what an admin already arranges on the Age groups
+     * settings page, and it survives an academy that names its categories
+     * differently from the seed.
+     *
+     * Two groups sharing a `sort_order` are treated as neither older nor
+     * younger, so neither is offered as a promotion target for the other. An
+     * unknown or empty age group on either side means no ordering can be
+     * established and no promotion is offered — better an empty dropdown than
+     * a confident wrong one on a screen that moves whole squads.
+     */
+    private static function isOlderAgeGroup( object $target, object $source, array $ranks ): bool {
+        $target_rank = self::rankOf( (string) ( $target->age_group ?? '' ), $ranks );
+        $source_rank = self::rankOf( (string) ( $source->age_group ?? '' ), $ranks );
+
+        if ( $target_rank === null || $source_rank === null ) return false;
+
+        return $target_rank > $source_rank;
+    }
+
+    /**
+     * Age-group name (lowercased) => its `sort_order`.
+     *
+     * Built once per render and passed down rather than memoised in a
+     * `static`: the comparison runs once per (team, candidate) pair, so a
+     * per-call query would be quadratic, and a process-lifetime static is
+     * exactly the kind of thing that goes stale between tests.
+     *
+     * @return array<string,int>
+     */
+    private static function ageGroupRanks(): array {
+        $ranks = [];
+        foreach ( QueryHelpers::get_lookups( 'age_group' ) as $row ) {
+            $name = strtolower( trim( (string) ( $row->name ?? '' ) ) );
+            if ( $name === '' ) continue;
+            $ranks[ $name ] = (int) ( $row->sort_order ?? 0 );
+        }
+        return $ranks;
+    }
+
+    /**
+     * Rank of an age-group name, or null when it is empty or matches no
+     * lookup row.
+     *
+     * Matched case-insensitively: team rows carry whatever was typed when the
+     * team was created, which need not match the lookup row's casing (#2863
+     * is the same class of mismatch on attendance status).
+     *
+     * @param array<string,int> $ranks
+     */
+    private static function rankOf( string $age_group, array $ranks ): ?int {
+        $age_group = strtolower( trim( $age_group ) );
+        if ( $age_group === '' ) return null;
+        return $ranks[ $age_group ] ?? null;
     }
 
     private static function defaultEffectiveDate(): string {
