@@ -45,12 +45,12 @@ final class PlayerSex {
      * an unknown value on a minor's record should degrade to "not
      * recorded" rather than reject the whole save.
      */
-    public static function sanitize( $raw ): string {
+    public static function sanitize( mixed $raw ): string {
         $value = strtolower( trim( (string) $raw ) );
         return in_array( $value, self::withCurve(), true ) ? $value : self::NONE;
     }
 
-    public static function isValid( $raw ): bool {
+    public static function isValid( mixed $raw ): bool {
         return in_array( strtolower( trim( (string) $raw ) ), self::all(), true );
     }
 

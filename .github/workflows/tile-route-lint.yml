@@ -1,0 +1,47 @@
+name: Tile route lint
+
+# #2885 — a tile registers a destination, so every tile's `view_slug` must
+# be openable: either the dispatcher has a `case '<slug>':` arm, or the tile
+# carries a `url_callback` that sends the user elsewhere.
+#
+# Third bug in the "registration and dispatcher disagree" family, after
+# #2570 (dispatcher ignored the tile's declared cap) and #2008 (tile visible
+# where the view denies). Neither of those gates asks this question.
+#
+# The `url_callback` exemption ships with the check rather than being added
+# the first time it fires: `view_slug` is a route for most tiles and only a
+# registry key for the few that supply their own URL, and a gate that did
+# not know that would fail the build on tiles that work correctly.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-tile-routes.php'
+      - '.github/workflows/tile-route-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tools/check-tile-routes.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every tile slug can be opened
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check tile routes
+        run: php tools/check-tile-routes.php
