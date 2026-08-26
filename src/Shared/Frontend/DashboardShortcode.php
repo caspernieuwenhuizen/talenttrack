@@ -1677,7 +1677,7 @@ class DashboardShortcode {
      */
     private static function dispatchKnowledgeView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
-            case 'knowledge':
+            case 'courses':
                 \TT\Modules\Knowledge\Frontend\FrontendKnowledgeLibraryView::render( $user_id, $is_admin );
                 return true;
             case 'course':

@@ -480,7 +480,7 @@ class FeatureRegistry {
                 // down as well as the tiles, so a bookmarked lesson URL
                 // stops resolving rather than rendering a surface the
                 // academy turned off.
-                'view_slugs'      => [ 'knowledge', 'course', 'lesson', 'my-learning', 'submission-review' ],
+                'view_slugs'      => [ 'courses', 'course', 'lesson', 'my-learning', 'submission-review' ],
                 'entities'        => [],
             ],
         ];

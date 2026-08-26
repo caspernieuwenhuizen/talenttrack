@@ -77,7 +77,7 @@ class FrontendMyLearningView extends FrontendViewBase {
         if ( $enrolments === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'You are not on any course yet.', 'talenttrack' ) . '</p>';
             $library_url = KnowledgeLinks::library();
-            CrossViewLink::render( 'knowledge', static function () use ( $library_url ): void {
+            CrossViewLink::render( 'courses', static function () use ( $library_url ): void {
                 echo '<p><a class="tt-btn tt-btn-primary" href="' . esc_url( $library_url ) . '">'
                     . esc_html__( 'Browse the library', 'talenttrack' ) . '</a></p>';
             } );
