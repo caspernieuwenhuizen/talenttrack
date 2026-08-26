@@ -248,8 +248,12 @@ class ModuleMetadata {
                 'category'    => self::CAT_COACHING,
             ],
             'TT\\Modules\\Knowledge\\KnowledgeModule' => [
-                'label'       => __( 'Knowledge library', 'talenttrack' ),
-                'description' => __( 'Courses and reference material for the coaching staff\'s own development.', 'talenttrack' ),
+                'label'       => __( 'Courses', 'talenttrack' ),
+                // #2883 — was "Courses and reference material". There is no
+                // reference material in there: CourseRegistry is a projection
+                // of the courses/ folder and nothing else. A card should not
+                // promise a second content type that does not exist.
+                'description' => __( 'Courses for the coaching staff\'s own development.', 'talenttrack' ),
                 'icon'        => 'docs',
                 'category'    => self::CAT_COACHING,
             ],

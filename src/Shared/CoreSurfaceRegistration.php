@@ -177,7 +177,7 @@ final class CoreSurfaceRegistration {
         $knowledge_gate = static function ( int $uid ): bool {
             return $uid > 0 && user_can( $uid, 'tt_view_knowledge' );
         };
-        $reg::register( 'knowledge', $knowledge_gate );
+        $reg::register( 'courses', $knowledge_gate );
         $reg::register( 'course', $knowledge_gate );
         $reg::register( 'lesson', $knowledge_gate );
         $reg::register( 'my-learning', $knowledge_gate );
@@ -1475,12 +1475,14 @@ final class CoreSurfaceRegistration {
 
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
-            'view_slug'    => 'knowledge',
+            'view_slug'    => 'courses',
             'group'        => $learning_group,
             'kind'         => 'work',
             'order'        => 10,
-            'label'        => __( 'Knowledge library', 'talenttrack' ),
-            'description'  => __( 'Courses for coaches: methodology, periodisation, and how this academy works.', 'talenttrack' ),
+            'label'        => __( 'Courses', 'talenttrack' ),
+            // #2883 — the old description opened with "Courses for coaches",
+            // which under a tile now labelled Courses just repeats the word.
+            'description'  => __( 'Coach education: methodology, periodisation, and how this academy works.', 'talenttrack' ),
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',

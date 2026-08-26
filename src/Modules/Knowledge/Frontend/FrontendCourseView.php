@@ -34,7 +34,7 @@ class FrontendCourseView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        $library = __( 'Knowledge library', 'talenttrack' );
+        $library = __( 'Courses', 'talenttrack' );
 
         if ( ! current_user_can( 'tt_view_knowledge' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -53,7 +53,7 @@ class FrontendCourseView extends FrontendViewBase {
         // confirms the course exists here, which is what hiding it was for.
         if ( $manifest === null || ! $verdict->isListable() ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Course not found', 'talenttrack' ), [
-                FrontendBreadcrumbs::viewCrumb( 'knowledge', $library ),
+                FrontendBreadcrumbs::viewCrumb( 'courses', $library ),
             ] );
             self::renderHeader( __( 'Course not found', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'That course is not in this library.', 'talenttrack' ) . '</p>';
@@ -63,7 +63,7 @@ class FrontendCourseView extends FrontendViewBase {
         self::enqueueAssets();
 
         FrontendBreadcrumbs::fromDashboard( $manifest->title(), [
-            FrontendBreadcrumbs::viewCrumb( 'knowledge', $library ),
+            FrontendBreadcrumbs::viewCrumb( 'courses', $library ),
         ] );
 
         RecordSpine::render( [

@@ -1,16 +1,16 @@
 ---
-title: Knowledge library
+title: Courses
 group: development
 summary: Courses for coach development, shipped as markdown and read in the app.
 audience: [admin, dev]
-views: [knowledge, course, lesson, my-learning, submission-review]
+views: [courses, course, lesson, my-learning, submission-review]
 module: TT\Modules\Knowledge\KnowledgeModule
 feature: knowledge_courses
 tier: standard
 order: 75
 ---
 
-# Knowledge library
+# Courses
 
 The knowledge library holds courses for coach development. A course ships with
 the plugin as markdown, is read in the app, tracks progress, gates lessons and
@@ -315,7 +315,7 @@ academy turned off.
 
 ### Navigation (CLAUDE.md §5)
 
-The chain is `Dashboard › Knowledge library › Course › Lesson`. The course
+The chain is `Dashboard › Courses › Course › Lesson`. The course
 crumb is the way back up to the course and the library crumb is the way back
 to the library — there is no separate back button, because that would be the
 third affordance §5a forbids.

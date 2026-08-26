@@ -55151,6 +55151,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/CoreSurfaceRegistration.php:1483
+msgid "Coach education: methodology, periodisation, and how this academy works."
+msgstr ""
+"Coachopleiding: methodiek, periodisering en hoe deze academie werkt."
+
+#: src/Shared/Modules/ModuleMetadata.php:256
+msgid "Courses for the coaching staff's own development."
+msgstr "Cursussen voor de eigen ontwikkeling van de technische staf."
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."
