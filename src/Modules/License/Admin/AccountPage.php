@@ -528,7 +528,7 @@ class AccountPage {
                         <li><?php esc_html_e( 'Scheduled reports via email (CSV / XLSX / PDF)', 'talenttrack' ); ?></li>
                     </ul>
                     <?php if ( $dev_override_url !== '' ) : ?>
-                        <p style="margin:0;">
+                        <p>
                             <a href="<?php echo esc_url( $dev_override_url ); ?>" class="button button-primary button-hero">
                                 <?php esc_html_e( 'Change tier', 'talenttrack' ); ?>
                             </a>
@@ -537,7 +537,7 @@ class AccountPage {
                             <?php esc_html_e( 'This is the developer tier override — it changes the active tier on this install only, for testing.', 'talenttrack' ); ?>
                         </p>
                     <?php else : ?>
-                        <p class="description" style="margin:0;">
+                        <p class="description">
                             <?php esc_html_e( 'Plan changes are handled by your TalentTrack operator. Get in touch and your install is moved over without any downtime or data migration.', 'talenttrack' ); ?>
                         </p>
                     <?php endif; ?>
