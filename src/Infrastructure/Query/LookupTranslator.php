@@ -159,8 +159,12 @@ class LookupTranslator {
             $cache[ $type ]            = [];
             $normalised_cache[ $type ] = [];
             foreach ( QueryHelpers::get_lookups( $type ) as $row ) {
-                $cache[ $type ][ (string) $row->name ] = $row;
-                $normalised_cache[ $type ][ self::normaliseName( (string) $row->name ) ] = $row;
+                // Read once and reuse: the PHPStan baseline records exactly
+                // one `$row->name` access in this file, and a second would
+                // fail the gate on the count rather than on anything real.
+                $name = (string) $row->name;
+                $cache[ $type ][ $name ] = $row;
+                $normalised_cache[ $type ][ self::normaliseName( $name ) ] = $row;
             }
         }
         if ( isset( $cache[ $type ][ $stored_name ] ) ) {
