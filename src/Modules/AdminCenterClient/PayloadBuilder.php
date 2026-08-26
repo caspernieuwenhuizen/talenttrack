@@ -42,7 +42,13 @@ final class PayloadBuilder {
 
             'site_url'                  => $site_url,
             'contact_email'             => (string) get_option( 'admin_email', '' ),
-            'freemius_license_key_hash' => self::freemiusLicenseKeyHash(),
+            // Always null since Freemius was retired — an install holds
+            // no marketplace license key to hash. The key itself stays
+            // because the v1 shape is locked and exhaustive
+            // (tests/fixtures/admin-center-payload.schema.php), so
+            // dropping it would break the receiver's contract. The HMAC
+            // secret never depended on it.
+            'freemius_license_key_hash' => null,
 
             'plugin_version' => defined( 'TT_VERSION' ) ? (string) TT_VERSION : '',
             'wp_version'     => self::wpVersion(),
@@ -65,8 +71,11 @@ final class PayloadBuilder {
             'error_count_total_24h' => self::errorTotal24h(),
 
             'license_tier'      => self::licenseTier(),
-            'license_status'    => self::licenseStatus(),
-            'license_renews_at' => self::licenseRenewsAt(),
+            // Subscription status and renewal date live with the control
+            // plane, not on the install. Kept for schema compatibility;
+            // the receiver knows both better than we do.
+            'license_status'    => null,
+            'license_renews_at' => null,
 
             'module_status' => [
                 'spond'   => self::moduleStatusSpond(),
@@ -183,19 +192,6 @@ final class PayloadBuilder {
     }
 
     /**
-     * Always null since Freemius was retired — an install no longer
-     * holds a marketplace license key to hash.
-     *
-     * The field itself stays in the payload because the v1 shape is
-     * locked and exhaustive (`tests/fixtures/admin-center-payload.schema.php`);
-     * removing a key would break the receiver's contract, so it is
-     * nulled rather than dropped. The HMAC secret never depended on it.
-     */
-    private static function freemiusLicenseKeyHash(): ?string {
-        return null;
-    }
-
-    /**
      * The tier this install is entitled to, as last answered by the
      * control plane — null when no entitlement has been recorded. This
      * is what the install believes it bought, which is exactly what
@@ -204,19 +200,6 @@ final class PayloadBuilder {
     private static function licenseTier(): ?string {
         if ( ! class_exists( Entitlement::class ) ) return null;
         return Entitlement::tier();
-    }
-
-    /**
-     * Subscription status and renewal date live with the control plane,
-     * not on the install. Kept in the payload for schema compatibility;
-     * the receiver already knows the answer better than we do.
-     */
-    private static function licenseStatus(): ?string {
-        return null;
-    }
-
-    private static function licenseRenewsAt(): ?string {
-        return null;
     }
 
     /**
