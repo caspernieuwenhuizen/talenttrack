@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T20:12:57+00:00\n"
+"POT-Creation-Date: 2026-08-26T20:21:07+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -26387,6 +26387,10 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:439
 msgid "Pass rate"
 msgstr "Slagingspercentage"
+
+#: src/Modules/Measurements/Growth/WhoBmiForAgeReference.php:49
+msgid "WHO 2007 (5–19 years)"
+msgstr "WHO 2007 (5–19 jaar)"
 
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php:33
 msgid "Green"
