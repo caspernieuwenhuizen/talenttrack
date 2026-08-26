@@ -1622,7 +1622,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // behaviour for free. Editing lives on the edit form (§3
             // fallback) / the completion wizard, not here — a detail view
             // must not mutate.
-            self::renderAttendanceRosterReadonly( $activity_id );
+            self::renderAttendanceRosterReadonly( $activity_id, (string) ( $session->plan_state ?? '' ) );
         } else {
             echo '<p class="tt-act-att__warn">'
                 . esc_html__( 'No attendance recorded yet.', 'talenttrack' )
@@ -1660,11 +1660,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * via LabelTranslator. Read-only by design — no inputs, no edit
      * affordance (the card head's Edit link is the edit path).
      */
-    private static function renderAttendanceRosterReadonly( int $activity_id ): void {
+    private static function renderAttendanceRosterReadonly( int $activity_id, string $plan_state = '' ): void {
         if ( $activity_id <= 0 ) return;
 
+        // #2862 — on a COMPLETED activity show the recorded roster only.
+        // The expected roster answered "who did we expect", which stops
+        // being an interesting question once the register has been taken,
+        // and listing both is what put every squad member on screen twice.
+        // On a still-planned activity the expected roster is all there is,
+        // so it stays — passing null there collapses any duplicate to one
+        // row per player rather than filtering a half that does not exist.
+        $record_type = strtolower( $plan_state ) === 'completed' ? 'actual' : null;
+
         $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listRosterAttendance( $activity_id, true );
+            ->listRosterAttendance( $activity_id, true, $record_type );
         if ( empty( $roster ) ) return;
 
         $palette = self::attendanceStatusPalette();
