@@ -58,6 +58,14 @@ Een **speler** is een individuele voetballer. Elke speler heeft:
 - Voornaam en achternaam
 - Positie(s), voorkeursvoet, rugnummer
 - Lengte, gewicht, geboortedatum
+- **Geslacht (voor groeicurves)** — optioneel, en bij elke bestaande speler
+  standaard leeg. Het wordt om één reden gevraagd: voor lengte, gewicht en BMI
+  naar leeftijd worden gepubliceerde groeicurves gebruikt, en die zijn
+  gescheiden voor jongens en meisjes. Zonder dit gegeven zijn die naar leeftijd
+  gecorrigeerde waarden niet te berekenen. Het is geen vastlegging van hoe een
+  jongere zichzelf omschrijft en hoort daar ook niet voor gebruikt te worden.
+  Leeg laten kost die speler alleen de naar leeftijd gecorrigeerde kolommen —
+  lengte, gewicht en de gewone BMI blijven gewoon werken.
 - Optionele koppeling aan een WordPress-gebruikersaccount (zodat hij/zij kan inloggen)
 - Eventuele aangepaste velden die je academie heeft geconfigureerd
 

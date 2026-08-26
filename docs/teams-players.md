@@ -58,6 +58,13 @@ A **player** is an individual footballer. Each player has:
 - First and last name
 - Position(s), preferred foot, jersey number
 - Height, weight, date of birth
+- **Sex (for growth references)** — optional, and blank by default on every
+  existing player. It is asked for one reason: age-adjusted height, weight and
+  BMI are read against published growth curves, and those curves are separate
+  for boys and girls, so without it the age-adjusted figures cannot be
+  calculated. It is not a record of how a young person describes themselves and
+  should not be used as one. Leaving it blank costs that player only the
+  age-adjusted columns — height, weight and raw BMI still read normally.
 - Optional link to a WordPress user account (so they can log in)
 - Custom fields your academy has configured
 
