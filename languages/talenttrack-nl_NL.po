@@ -55151,6 +55151,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:60
+msgid ""
+"Your login is not linked to a staff record, so course progress cannot be "
+"saved and you are not enrolled on anything yet."
+msgstr ""
+"Je account is niet gekoppeld aan een medewerkersdossier, dus je voortgang kan "
+"niet worden bewaard en je staat nog nergens voor ingeschreven."
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:62
+msgid ""
+"An academy administrator can link your login to your staff record under "
+"Access control. Until then you can still read every course."
+msgstr ""
+"Een beheerder van de academie kan je account onder Toegangsbeheer aan je "
+"medewerkersdossier koppelen. Tot die tijd kun je nog steeds elke cursus lezen."
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."

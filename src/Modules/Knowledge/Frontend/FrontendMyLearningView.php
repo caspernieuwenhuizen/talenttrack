@@ -47,9 +47,28 @@ class FrontendMyLearningView extends FrontendViewBase {
         $person_id = KnowledgePerson::forUser( $user_id );
 
         if ( $person_id <= 0 ) {
+            // #2875 — this used to state a condition and stop: "only
+            // available for people linked to a staff record". It named
+            // something that appears nowhere in the interface under that
+            // name, and left the reader unable to tell whether they had done
+            // something wrong, whether their role was excluded, or whether
+            // somebody else had to act.
+            //
+            // The course library, in this same feature, already degrades the
+            // right way — it explains the consequence and leaves the door
+            // open. Matching it, rather than inventing a third wording for
+            // the same condition.
             echo '<p class="tt-notice">'
-                . esc_html__( 'This section is only available for people linked to a staff record.', 'talenttrack' )
+                . esc_html__( 'Your login is not linked to a staff record, so course progress cannot be saved and you are not enrolled on anything yet.', 'talenttrack' )
+                . ' '
+                . esc_html__( 'An academy administrator can link your login to your staff record under Access control. Until then you can still read every course.', 'talenttrack' )
                 . '</p>';
+
+            $library_url = KnowledgeLinks::library();
+            CrossViewLink::render( 'knowledge', static function () use ( $library_url ): void {
+                echo '<p><a class="tt-btn tt-btn-primary" href="' . esc_url( $library_url ) . '">'
+                    . esc_html__( 'Browse the library', 'talenttrack' ) . '</a></p>';
+            } );
             return;
         }
 
