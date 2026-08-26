@@ -4,23 +4,19 @@ namespace TT\Modules\License;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * FeatureMap — tier → feature mapping with PHP defaults + Freemius
- * dashboard overrides.
+ * FeatureMap — tier → feature mapping.
  *
- * Two layers:
+ * **DEFAULT_MAP** below is the source of truth, and ships in code.
+ * Inheritance: pro inherits standard inherits free.
  *
- *   1. **DEFAULT_MAP** below — the source of truth that ships in code.
- *      Used when Freemius hasn't synced (cold start, offline, no
- *      account configured yet) and as the universal fallback.
- *      Inheritance: pro inherits standard inherits free.
+ * Customers cannot edit it. Changing which features sit in which tier
+ * is a release, not a runtime toggle — the runtime-override path that
+ * once synced this from a marketplace dashboard went with Freemius.
  *
- *   2. **Freemius plan-features** synced into `tt_freemius_features`
- *      option by FreemiusAdapter. When present, the synced map wins —
- *      this lets Casper change tier composition from the Freemius
- *      dashboard without releasing a plugin update.
- *
- * Customers cannot edit either layer. Edits to the synced map flow
- * exclusively from the Freemius dashboard.
+ * The map's *contents* are stale against the 2026 product — most of
+ * what shipped since v3.17.0 has no tier and therefore falls to Free.
+ * Re-drawing it is tracked separately; this class only resolves what
+ * the map says.
  *
  * Feature keys:
  *   - core_*       — always Free (basic operational features)
@@ -34,8 +30,6 @@ class FeatureMap {
     public const TIER_FREE     = 'free';
     public const TIER_STANDARD = 'standard';
     public const TIER_PRO      = 'pro';
-
-    public const SYNCED_OPTION = 'tt_freemius_features';
 
     /**
      * @var array<string, array<string,bool>>
@@ -100,21 +94,11 @@ class FeatureMap {
     ];
 
     /**
-     * Resolve whether a tier has a feature, applying inheritance and
-     * checking the Freemius-synced override before the PHP default.
+     * Resolve whether a tier has a feature, applying inheritance.
      */
     public static function tierHas( string $tier, string $feature ): bool {
         $tier = self::normalizeTier( $tier );
 
-        $synced = get_option( self::SYNCED_OPTION, '' );
-        if ( is_string( $synced ) && $synced !== '' ) {
-            $decoded = json_decode( $synced, true );
-            if ( is_array( $decoded ) && isset( $decoded[ $tier ][ $feature ] ) ) {
-                return ! empty( $decoded[ $tier ][ $feature ] );
-            }
-        }
-
-        // PHP default with inheritance.
         $effective = [];
         $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_FREE ] ?? [] );
         if ( $tier === self::TIER_STANDARD || $tier === self::TIER_PRO ) {
@@ -124,26 +108,6 @@ class FeatureMap {
             $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_PRO ] ?? [] );
         }
         return ! empty( $effective[ $feature ] );
-    }
-
-    /**
-     * Persist a synced feature matrix from Freemius.
-     *
-     * @param array<string, array<string,bool>> $matrix tier => feature => enabled
-     */
-    public static function syncFromFreemius( array $matrix ): void {
-        $clean = [];
-        foreach ( [ self::TIER_FREE, self::TIER_STANDARD, self::TIER_PRO ] as $tier ) {
-            $clean[ $tier ] = [];
-            $row = $matrix[ $tier ] ?? [];
-            if ( ! is_array( $row ) ) continue;
-            foreach ( $row as $feature => $enabled ) {
-                $key = preg_replace( '/[^a-z0-9_]/i', '', (string) $feature );
-                if ( $key === '' ) continue;
-                $clean[ $tier ][ $key ] = (bool) $enabled;
-            }
-        }
-        update_option( self::SYNCED_OPTION, wp_json_encode( $clean ), false );
     }
 
     /**

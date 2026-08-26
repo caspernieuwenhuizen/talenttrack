@@ -2135,6 +2135,26 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
 
+                <?php
+                // #2934 — how the live-match screen is laid out. Same shape
+                // as the navigation layout above: an academy default that
+                // individuals can override in My settings, with `classic`
+                // the ship value so nobody is moved mid-season.
+                $mexec_layout = \TT\Modules\MatchExecution\MatchExecutionLayout::clubDefault();
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Match day', 'talenttrack' ); ?></h4>
+                    <label class="tt-field-label" for="tt-cfg-match-execution-layout"><?php esc_html_e( 'Live match screen', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-match-execution-layout" class="tt-input" name="config[<?php echo esc_attr( \TT\Modules\MatchExecution\MatchExecutionLayout::CONFIG_KEY ); ?>]">
+                        <?php foreach ( \TT\Modules\MatchExecution\MatchExecutionLayout::labels() as $layout_value => $layout_label ) : ?>
+                            <option value="<?php echo esc_attr( $layout_value ); ?>" <?php selected( $mexec_layout, $layout_value ); ?>><?php echo esc_html( $layout_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls. Coaches can pick their own in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
                 <?php // #1488 — attendance at-risk flag threshold. ?>
                 <div class="tt-field" style="margin-top:var(--tt-sp-3);">
                     <label class="tt-field-label" for="tt-cfg-attendance-threshold"><?php esc_html_e( 'Attendance at-risk threshold', 'talenttrack' ); ?></label>

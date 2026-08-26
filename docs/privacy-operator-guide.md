@@ -10,7 +10,7 @@ order: 20
 
 > The Academy Admin's playbook for handling personal data in TalentTrack — particularly minors' data, which is most of what TalentTrack stores. Written for the person who installed TalentTrack and is responsible for its day-to-day data handling. If you're a coach, scout, or staff member, this page is not for you — see [Getting started](getting-started.md).
 
-This guide covers what an academy needs to do under EU privacy law (the GDPR) when running TalentTrack: who you tell, what you must let parents and players do, how long you keep data, what to do when someone asks you to export or erase a record. The legal commitments TalentTrack makes — sub-processor list, hosting region, retention defaults, the DPA — live at `talenttrack.app/privacy`. This page is the operator-facing how-to.
+This guide covers what an academy needs to do under EU privacy law (the GDPR) when running TalentTrack: who you tell, what you must let parents and players do, how long you keep data, what to do when someone asks you to export or erase a record. The legal commitments TalentTrack makes — sub-processor list, hosting region, retention defaults, the DPA — live at `mediamaniacs.nl/talenttrack/privacy`. This page is the operator-facing how-to.
 
 > **Disclaimer.** This guide reflects how TalentTrack is built and what the documented controls do. It is not legal advice. Your academy is the data controller; consult your own DPO or legal counsel for advice specific to your jurisdiction and structure.
 
@@ -18,11 +18,11 @@ This guide covers what an academy needs to do under EU privacy law (the GDPR) wh
 
 Your academy is the **data controller** — you decide what personal data is collected, why, and for how long. MediaManiacs (the company that ships TalentTrack) is your **data processor** — we hold the data on your behalf, only act on your instructions, and have signed a Data Processing Agreement (DPA) with you that documents this relationship. Both roles are GDPR concepts; both impose specific obligations.
 
-The DPA template lives at `talenttrack.app/privacy` for download. Most academies sign as-is. If your legal counsel needs changes, contact MediaManiacs at the email below.
+The DPA template lives at `mediamaniacs.nl/talenttrack/privacy` for download. Most academies sign as-is. If your legal counsel needs changes, contact MediaManiacs at the email below.
 
 ## What personal data TalentTrack stores
 
-A full table of every column in every `tt_*` table that contains personal data lives at `talenttrack.app/privacy`. The summary:
+A full table of every column in every `tt_*` table that contains personal data lives at `mediamaniacs.nl/talenttrack/privacy`. The summary:
 
 - **Players** (most of them minors): name, date of birth, photo, contact info, evaluation history, attendance history, goals, PDP records, journey events, scout reports, trial-case decisions, notes, evaluations of behaviour and potential.
 - **Parents**: name, email, phone, link to one or more player records.
@@ -35,7 +35,7 @@ What TalentTrack does *not* store: payment data (the Freemius integration handle
 
 1. **Inventory who has access.** Every TalentTrack user holds a WordPress role plus a TalentTrack persona. The combination decides what they see. Open `wp-admin → TalentTrack → Authorization → Compare users` and walk through every staff account, asking *should this person see what this account sees*? When the answer is "no, narrower," fix the persona assignment.
 2. **Decide retention windows for each data type.** GDPR requires personal data to be kept *no longer than necessary*. Decide today how long is "necessary" for each category — for example: active player records kept while playing + 5 years post-departure, then archive; trial-decision letters kept 7 years for audit; demo data wiped weekly; audit log kept 2 years. Document these as your academy's retention policy. TalentTrack ships defaults but the policy is yours.
-3. **Tell parents what you're collecting.** Under GDPR you must give a privacy notice to data subjects (the player, the parent for minors) explaining what data is collected and why. The privacy notice template at `talenttrack.app/privacy` is academy-ready — branch it, fill in your academy name and contact details, distribute (email, signup form, parents' portal — whatever fits how you onboard).
+3. **Tell parents what you're collecting.** Under GDPR you must give a privacy notice to data subjects (the player, the parent for minors) explaining what data is collected and why. The privacy notice template at `mediamaniacs.nl/talenttrack/privacy` is academy-ready — branch it, fill in your academy name and contact details, distribute (email, signup form, parents' portal — whatever fits how you onboard).
 
 ## When a parent or player asks for their data — subject access
 
@@ -88,7 +88,7 @@ The "indefinite" defaults are for retention safety — you don't want auto-purge
 ## When a player joins or leaves — the privacy lifecycle
 
 **Joining:**
-1. The parent (for minors) signs the academy's standard registration, which references the academy's privacy notice (template at `talenttrack.app/privacy`).
+1. The parent (for minors) signs the academy's standard registration, which references the academy's privacy notice (template at `mediamaniacs.nl/talenttrack/privacy`).
 2. The data point that lives in TalentTrack from this moment: `tt_players` row + linked `tt_player_parents` row + consent flag set. The audit log records the create event.
 3. Photo, contact details, scouting context — all entered by staff, all subject to retention policy.
 
@@ -108,10 +108,10 @@ The "indefinite" defaults are for retention safety — you don't want auto-purge
 - [ ] Review your retention policy against actual practice. If you said "5 years post-departure" but no one ever erases, document the gap and decide.
 - [ ] Spot-check the audit log for unusual subject-access patterns.
 - [ ] Confirm your academy's privacy register is current (one row per request received in the last 12 months).
-- [ ] Re-read this guide and the public privacy policy at `talenttrack.app/privacy` for any updates.
+- [ ] Re-read this guide and the public privacy policy at `mediamaniacs.nl/talenttrack/privacy` for any updates.
 
 ## Contact
 
 For privacy questions, suspected data-protection issues, or help with a subject-access / erasure request: `casper@mediamaniacs.nl`. We respond within one business day, and prioritize anything that touches a 72-hour GDPR breach-notification clock.
 
-The legal commitments TalentTrack makes publicly — sub-processor list, hosting region, the DPA template, the public privacy policy — live at `talenttrack.app/privacy`. That page is the customer-facing baseline. This page is the operator-facing how-to.
+The legal commitments TalentTrack makes publicly — sub-processor list, hosting region, the DPA template, the public privacy policy — live at `mediamaniacs.nl/talenttrack/privacy`. That page is the customer-facing baseline. This page is the operator-facing how-to.

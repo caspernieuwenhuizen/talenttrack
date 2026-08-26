@@ -12,7 +12,7 @@ order: 10
 
 Deze gids beschrijft de beveiligingsconfiguratie die je op dag één moet inrichten en minimaal eens per jaar opnieuw bekijkt. Hij behandelt niet het onderliggende rechten-model — daarvoor is er [Toegangsbeheer](access-control.md). Hij behandelt niet back-ups — daarvoor is er [Back-ups](backups.md). Hij behandelt wat *jij* moet configureren, in welke volgorde, en wat je doet als er iets misgaat.
 
-De publieke beveiligingsbeloftes van TalentTrack (waar data staat, encryptie-claims, melding-bij-incidenten, audit-cadans) staan op `talenttrack.app/security`.
+De publieke beveiligingsbeloftes van TalentTrack (waar data staat, encryptie-claims, melding-bij-incidenten, audit-cadans) staan op `mediamaniacs.nl/talenttrack/security`.
 
 ## Vijf dingen om op dag één te doen
 
@@ -169,4 +169,4 @@ Eens per jaar, op een agenda-herinnering:
 
 Voor elke beveiligingsvraag, vermoed incident of "klopt dit"-vraag: `casper@mediamaniacs.nl`. Beveiligingsvragen behandelen we als prioriteit — verwacht een reactie binnen één werkdag.
 
-De beveiligingsbeloftes die TalentTrack publiekelijk maakt — waar data staat, encryptie at-rest en in-transit, audit-cadans, melding-bij-incidenten — staan op `talenttrack.app/security`. Die pagina is voor academie-directeuren en IT-teams die TalentTrack nog niet hebben geïnstalleerd; deze pagina is voor jou, na de installatie.
+De beveiligingsbeloftes die TalentTrack publiekelijk maakt — waar data staat, encryptie at-rest en in-transit, audit-cadans, melding-bij-incidenten — staan op `mediamaniacs.nl/talenttrack/security`. Die pagina is voor academie-directeuren en IT-teams die TalentTrack nog niet hebben geïnstalleerd; deze pagina is voor jou, na de installatie.
