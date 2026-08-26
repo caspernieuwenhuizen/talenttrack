@@ -55136,14 +55136,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/CoreSurfaceRegistration.php:1483
-msgid "Coach education: methodology, periodisation, and how this academy works."
-msgstr ""
-"Coachopleiding: methodiek, periodisering en hoe deze academie werkt."
-
-#: src/Shared/Modules/ModuleMetadata.php:256
-msgid "Courses for the coaching staff's own development."
-msgstr "Cursussen voor de eigen ontwikkeling van de technische staf."
 #: src/Domain/Vocabularies/Lookups/PlayerSex.php:60
 msgid "Male"
 msgstr "Man"
@@ -55166,6 +55158,15 @@ msgstr ""
 "Wordt alleen gebruikt om de juiste groeicurve te kiezen voor lengte, gewicht "
 "en BMI naar leeftijd. Laat het leeg als je het liever niet vastlegt — al het "
 "andere blijft gewoon werken."
+
+#: src/Shared/CoreSurfaceRegistration.php:1483
+msgid "Coach education: methodology, periodisation, and how this academy works."
+msgstr ""
+"Coachopleiding: methodiek, periodisering en hoe deze academie werkt."
+
+#: src/Shared/Modules/ModuleMetadata.php:256
+msgid "Courses for the coaching staff's own development."
+msgstr "Cursussen voor de eigen ontwikkeling van de technische staf."
 
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
