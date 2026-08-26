@@ -115,11 +115,11 @@ final class PlayerStatusRestController {
         $repo   = new PlayerPotentialRepository();
         $latest = $repo->latestFor( $player_id );
         if ( $latest
-             && (string) $latest->potential_band === $band
+             && (string) ( $latest->potential_band ?? '' ) === $band
              && ( $notes === null || $notes === '' )
         ) {
             return RestResponse::success( [
-                'id'             => (int) $latest->id,
+                'id'             => (int) ( $latest->id ?? 0 ),
                 'potential_band' => $band,
                 'set_at'         => (string) ( $latest->set_at ?? '' ),
                 'unchanged'      => true,

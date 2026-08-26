@@ -120,7 +120,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $latest_potential = ( new \TT\Modules\Players\Repositories\PlayerPotentialRepository() )
             ->latestFor( $player_id );
 
-        $current_band = $latest_potential ? (string) $latest_potential->potential_band : '';
+        $current_band = $latest_potential ? (string) ( $latest_potential->potential_band ?? '' ) : '';
         $set_at       = $latest_potential ? (string) ( $latest_potential->set_at ?? '' ) : '';
         $set_by_id    = $latest_potential ? (int) ( $latest_potential->set_by ?? 0 ) : 0;
         $set_by_name  = '';
