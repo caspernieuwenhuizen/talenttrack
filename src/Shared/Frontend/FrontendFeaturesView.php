@@ -235,6 +235,35 @@ class FrontendFeaturesView extends FrontendViewBase {
         }
 
         if ( ! empty( $entry['features'] ) ) {
+            // #2890 — collapse the long ones. Sub-feature counts are wildly
+            // uneven on a real install: Reports has 21, Exports 14, and most
+            // modules none at all. Twenty-one stacked rows do not communicate
+            // breadth on a page whose job is showing it — they bury the
+            // modules a reader has to scroll past them to reach.
+            //
+            // Four is the line: it fits inside a card without dominating its
+            // row. Six collapsing (Players) is the cost of a rule that catches
+            // twenty-one; two thresholds' worth of judgement to spare one
+            // module a control saying "6 features" is not worth the extra rule.
+            //
+            // <details>/<summary> keeps it keyboard-operable with no JS. It
+            // ships closed at every width — shipping it `open` on mobile to
+            // "help" would put the wall back on the narrowest screen, which is
+            // where it hurts most.
+            $count    = count( $entry['features'] );
+            $collapse = $count > 4;
+
+            if ( $collapse ) {
+                echo '<details class="tt-feature-card__more">';
+                echo '<summary class="tt-feature-card__more-toggle">'
+                    . esc_html( sprintf(
+                        /* translators: %s: number of sub-features in this module */
+                        _n( '%s feature', '%s features', $count, 'talenttrack' ),
+                        number_format_i18n( $count )
+                    ) )
+                    . '</summary>';
+            }
+
             echo '<ul class="tt-feature-card__features">';
             foreach ( $entry['features'] as $feature ) {
                 echo '<li class="tt-feature-sub">';
@@ -251,6 +280,10 @@ class FrontendFeaturesView extends FrontendViewBase {
                 echo '</li>';
             }
             echo '</ul>';
+
+            if ( $collapse ) {
+                echo '</details>';
+            }
         }
 
         echo '</article>';

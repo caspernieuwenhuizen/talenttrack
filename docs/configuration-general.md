@@ -76,6 +76,24 @@ following this setting when you change it.
 
 Full detail in [Navigation layout (the frontend shell)](frontend-shell.md).
 
+## Match day
+
+Picks the academy-wide default layout for the live-match screen — **Classic**
+(everything on one long page) or **Sections** (the score and the clock fixed at
+the top, a row of tabs within thumb reach at the bottom, so the bench is one tap
+away instead of three scrolls). Classic is the default.
+
+Like the navigation layout above, this is the default people inherit rather than
+a lock: every coach can pick their own under *My settings → Live match screen*,
+including "use the academy default", which keeps following this setting when you
+change it.
+
+That matters more here than almost anywhere else in the product. A coach runs
+this screen one-handed, on a phone, at the side of a pitch, with a clock
+running — moving them onto an unfamiliar layout mid-season is how minutes and
+substitutions go unrecorded. Put one coach on Sections for a Saturday, see how
+it goes, then flip the academy.
+
 ## See also
 
 - [Configuration and branding](configuration-branding.md)

@@ -45,6 +45,21 @@ opzoekt.
 Het uitschuifmenu blijft bestaan en bevat nog steeds alles, dus de balk verbergt
 niets. Het is een snelkoppeling, geen filter.
 
+**Twee schermen verbergen de balk, met opzet.** Een wedstrijd live bijhouden en
+een training draaien zetten allebei hun eigen knoppen onderaan het scherm, want
+daar zit je duim als je de telefoon met één hand langs de lijn vasthoudt. De
+navigatiebalk daar nog eens onder tonen kost zo'n 190px op een scherm van 640px
+— ruwweg de helft van wat je aan het lezen was.
+
+Op die twee schermen gaat de balk opzij. Het kruimelpad bovenaan blijft je weg
+terug, het uitschuifmenu verandert niet, en op een tablet of laptop verandert er
+helemaal niets — de balk bestaat daar sowieso niet.
+
+*Voor ontwikkelaars:* de lijst staat in `config/focus_surfaces.php`, één slug per
+regel met de reden erbij, uitgelezen via `FocusSurfaces::claims()`. Controleer
+voor je een slug toevoegt of de view op elk pad het kruimelpad rendert — dat pad
+is wat het weglaten van de balk veilig maakt in plaats van een doodlopende weg.
+
 ### Het clublogo brengt je terug
 
 Het logo en de naam van de academie linksboven zijn een link terug naar het
@@ -216,14 +231,60 @@ zien, afgeleide status, filteren op rechten — dat blijft in de aanroepende vie
 en de domeinlaag. Heeft deze klasse ooit een repository nodig, dan klopt het
 ontwerp niet.
 
-Onder `classic` rendert hij niets, dus hem overnemen kan die shell niet wijzigen.
+De identiteitsstrook rendert niets onder `classic`, dus hem overnemen kan die
+shell niet wijzigen. Tabs binnen de pagina zijn de enige uitzondering — zie
+hieronder.
 
-**Over tabs.** De sleutel `tabs` wordt ondersteund en is bewust ongebruikt bij de
-eerste overnemers. De secties van teamdetail zijn per gebruiker aan en uit te
-zetten (`TeamDetailSections::forUser()`); ze naar tabs omzetten zou een functie
-overrulen waar mensen al op vertrouwen. Tabs passen bij oppervlakken waar de
-secties echt alternatieve blikken op één record zijn — een keuze per oppervlak,
-niet iets om vanuit een gedeelde component op te leggen.
+**Over tabs.** Tabs passen bij oppervlakken waar de secties echt alternatieve
+blikken op één record zijn — een keuze per oppervlak, niet iets om vanuit een
+gedeelde component op te leggen. De secties van teamdetail zijn per gebruiker aan
+en uit te zetten (`TeamDetailSections::forUser()`); ze naar tabs omzetten zou een
+functie overrulen waar mensen al op vertrouwen.
+
+Er zijn twee soorten, bepaald door welke sleutel een tab meekrijgt:
+
+| Sleutel | Rendert | Gedrag |
+| --- | --- | --- |
+| `url` | `<a href>` | navigerend — de bestemming is een paginalading |
+| `panel` | `<button role="tab">` | binnen de pagina — wisselt een paneel dat er al staat |
+
+Een strook is de ene soort of de andere. De eerste tab met `panel` maakt de hele
+strook een paneelwisselaar; overgebleven `url`-tabs worden overgeslagen. Ze
+mengen niet, omdat het toetsenbordgedrag verschilt: pijltjestoetsen lopen langs
+tabs binnen de pagina en selecteren meteen, terwijl je een rij links met Tab
+doorloopt.
+
+**Tabs binnen de pagina renderen ook onder `classic`.** De identiteitsstrook is
+shell-chroom en blijft alleen in `app`; een sectiewisselaar niet — die is de
+enige route naar de helft van de inhoud van een view, dus een oppervlak waarvan
+de secties met de shell zouden verdwijnen is stuk, niet uitgekleed.
+`FrontendTrainingPlansView` laat zien wat het oude gedrag kostte: die draagt een
+dubbele Bewerken/Klaar-actie in de kop, puur omdat de navigerende tabs onder
+`classic` verdwijnen.
+
+**Panelen zijn van de aanroeper.** De component maakt ze niet. Render elk paneel
+zelf en geef het element-id mee; het id van de tab wordt daaruit afgeleid, dus je
+benoemt er altijd maar één van het paar.
+
+```php
+RecordSpine::render( [
+    'name' => $player->name,
+    'tabs' => [
+        [ 'label' => 'Selectie', 'panel' => 'tt-panel-squad', 'active' => true ],
+        [ 'label' => 'Veld',     'panel' => 'tt-panel-pitch' ],
+    ],
+] );
+```
+
+```html
+<div id="tt-panel-squad" role="tabpanel" aria-labelledby="tt-tab-tt-panel-squad">…</div>
+<div id="tt-panel-pitch" role="tabpanel" aria-labelledby="tt-tab-tt-panel-pitch" hidden>…</div>
+```
+
+De markup klopt al zonder JavaScript: de actieve tab is geselecteerd en zijn
+paneel is het enige zonder `hidden`. `record-spine-tabs.js` legt het wisselen en
+de pijltjestoetsen erbovenop, dus een pagina die dat bestand niet laadt toont het
+standaardpaneel in plaats van niets.
 
 ### De slots van de onderbalk
 

@@ -334,6 +334,13 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         $notes             = $is_edit ? (string) ( $visit->notes ?? '' ) : '';
         $status            = $is_edit ? (string) ( $visit->status ?? ScoutingVisitStatus::PLANNED ) : ScoutingVisitStatus::PLANNED;
 
+        // #2867 classified this as a filter to narrow to categories in use.
+        // It is not one: these checkboxes record which age groups a scouting
+        // visit is *expected to cover*, on the visit's own form. Narrowing
+        // them to categories the academy already fields teams in would be
+        // backwards — a scout watching another club's U13s is very often
+        // looking at an age group this academy has no team in yet, which is
+        // the entire point of the trip. Full vocabulary stays.
         $age_groups = [];
         foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
             $age_groups[] = (string) $ag;
