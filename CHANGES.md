@@ -1,3 +1,458 @@
+# TalentTrack v4.104.0 — The persona switcher no longer takes capabilities away (#1982)
+
+Someone who holds two personas — most often a coach whose own child is in the
+academy — lost every staff capability the moment they switched the dashboard to
+their second persona. The choice is stored on the account, so the loss followed
+them across sessions, browsers and devices, and nothing on screen said why: a
+coach would simply find that player notes they wrote last week had disappeared.
+
+Authorization now resolves against every persona a user holds, and any one of
+them granting access is enough. The switcher keeps doing what its name says —
+choosing which persona the interface is dressed as. To act as another role with
+that role's permissions, Impersonation and the matrix Preview page still do
+exactly that, visibly, for as long as you leave them on.
+
+# TalentTrack v4.104.0 — Every screen now declares how it behaves on a phone (#2806)
+
+The mobile classification — which screens are built for a phone, which are
+readable on one, and which are better left for a desk — now covers every screen
+in the product. One was missing: the prospect contact-and-consent form added
+earlier in this release.
+
+Invisible in use; it is the record that lets the product decide what a phone
+visitor gets.
+
+# TalentTrack v4.104.0 — Correct a prospect's contact details and consent after logging them (#2838)
+
+A prospect could be logged and never corrected. Phone numbers change, emails get
+mistyped, and consent frequently arrives a day later by text — and a scout's only
+recourse was a message to the head of development, which is exactly the "it lives
+in WhatsApp" failure the onboarding pipeline was built to end.
+
+**Edit contact** now opens from the row menu on the Prospects overview and from
+the panel that opens when you click a card on the onboarding pipeline. It
+corrects the parent or guardian's name, email and phone, and the date consent was
+given.
+
+Consent is the half that matters. These are minors, and a consent state that
+could not be corrected asserted something about a family that may no longer have
+been true, with no way to fix it short of a database edit. Clearing the date to
+record a withdrawal is now exactly as easy as setting it to record agreement, and
+every change is written to the audit log with both the old and the new value.
+
+Only the contact block and the consent date are editable here — the player's
+name, date of birth and how they were found stay as first recorded. Adding a
+follow-up note to a prospect you have already logged is still not possible; that
+is tracked separately.
+
+# TalentTrack v4.104.0 — Attendance lists stop showing every player twice (#2862)
+
+A player's **Activities** tab repeated entries — the same training listed twice
+on the same date — and the tab's badge disagreed with the number in the card
+header. On an activity's attendance panel, a fifteen-player squad was listed
+thirty times beneath a summary that correctly read *15 / 15 aanwezig*.
+
+A player can hold two attendance records for one activity: the one the planner
+writes when the squad is picked, and the one recording what actually happened.
+The counts had already learned to ignore the first; the lists beside them never
+did.
+
+Both lists now show one entry per player per activity, preferring the recorded
+one. A completed activity's attendance panel shows the recorded roster only —
+who was expected stops being an interesting question once the register has been
+taken — while a still-planned activity continues to show the expected squad,
+because that is all there is to show.
+
+Planned activities still appear on the profile tab, which is why the lists were
+not simply filtered to recorded rows.
+
+# TalentTrack v4.104.0 — The Activities tab badge counts what the tab shows (#2862)
+
+The number on a player's **Activities** tab counted only activities they had
+already attended, while the list beneath it also showed what was coming up. A
+badge reading 14 above nineteen rows is the kind of disagreement that makes a
+coach doubt both numbers.
+
+The badge now counts exactly what the tab renders, upcoming fixtures included.
+
+Completes the fix started earlier in this release, which stopped the same list
+showing every player twice.
+
+# TalentTrack v4.104.0 — Attendance statuses stop showing half in Dutch and half in English (#2863)
+
+One column on the player profile showed *Aanwezig* on some rows and *present* on
+others. Two parts of the plugin write attendance status with different
+capitalisation — the register writes `Present`, the planned squad writes
+`present` — and only the first matched the configured vocabulary. The second
+found no match and printed the stored value as-is.
+
+Translation lookups now recognise a value regardless of its capitalisation or
+whether it uses spaces, hyphens or underscores, so a status resolves to its
+configured label wherever it appears. Status pills already worked this way; the
+rest of the plugin now does too, so which screen you are on no longer decides
+whether a value is translated.
+
+This corrects the display. Making the two writers agree on one spelling changes
+stored data and follows separately.
+
+# TalentTrack v4.104.0 — The printed goal-intake sheet counts matches and minutes correctly (#2864)
+
+The season-intake sheet a coach prints before a goals conversation was showing
+numbers that could not both be true — one sheet read 36 matches and 140 minutes,
+another 35 matches and 300 minutes, which is under nine minutes a match for a
+regular starter.
+
+It was counting every kind of activity as a match, including trainings and
+meetings, and counting deleted, cancelled and not-yet-played fixtures along with
+the real ones. The minutes were summing planned line-ups next to minutes
+actually played. Where a figure looked plausible, it was a coincidence rather
+than a sign that half of it was sound.
+
+Both figures now come from the same place the minutes reports read, so the sheet
+and **Player · Minutes played** describe the same season. The average rating on
+the sheet also stops counting evaluations that were moved to the recycle bin,
+which the evaluations list already hid.
+
+This is the sheet that goes on the table at the start of a season-goals
+conversation with a player and their parents. Numbers that contradict each other
+undermine that conversation before it starts.
+
+# TalentTrack v4.104.0 — Deleted evaluations stop feeding the team squad rating (#2865)
+
+A team profile could show a squad rating — *Selectiebeoordeling 8,3* — for a
+team whose evaluations list was empty in every state, including archived. The
+evaluations a coach had moved to the recycle bin were hidden from every list
+they could open and were still counted in the number on the team's profile.
+
+The list and the number disagreed about what "deleted" means. The list has used
+the shared recycle-bin filter since the bin shipped; this KPI still carried its
+own older check, written before the recycle bin existed, which knew about
+archiving but not about the bin. Both now ask the same question.
+
+A team whose evaluations have all been deleted shows a dash rather than a
+number, and restoring one from the recycle bin brings the rating back.
+
+# TalentTrack v4.104.0 — Editing a player no longer removes them from their team (#2866)
+
+A head of development opening a player to change something small — a jersey
+number, a date — found the **Team** field showing *— Selecteer —* rather than
+the team the player is actually in. Saving the form then took the player off
+that team, without warning and without anything on screen suggesting it would.
+
+The dropdown was built from "teams you coach", which is the right question for
+an assistant coach and the wrong one for a head of development, who oversees
+every team and coaches none. With no options, nothing could be selected, and an
+empty selection was saved as *no team*.
+
+The list now follows what the viewer is actually allowed to see: everyone with a
+club-wide view of teams gets every team, a team-scoped coach still gets their
+own, and **the player's current team is always in the list** whatever the rest
+of the rules decide. Saving a form without touching the Team field leaves the
+player where they were; deliberately choosing the blank option still takes them
+off a team, because that is how it is done.
+
+Archived teams remain out of the list.
+
+# TalentTrack v4.104.0 — Age-category filters only offer categories that have teams (#2867)
+
+The age-category dropdown on the players list offered every category the
+academy had ever configured, so a club with two teams scrolled a list where all
+but two choices returned nothing.
+
+The filter now offers only categories that actually have teams in them.
+Archived and deleted teams do not keep a category on the list, and if you are
+already filtering by a category that has just become empty it stays selectable,
+so a saved or shared link keeps showing what it showed before.
+
+Forms where you *assign* an age category — creating a team, editing one — still
+offer the full list. You have to be able to put the first team into a category
+nobody is in yet.
+
+# TalentTrack v4.104.0 — Season rollover only offers teams a squad can actually move up to (#2868)
+
+The **Promote to** column offered every other team in the academy, with no
+reference to age group. In a two-team academy that meant the older side was
+offered the younger one as somewhere to be promoted to — the only destination it
+had was a step backwards.
+
+A team is now only offered as a target when its age group is genuinely older.
+The oldest team in the academy gets no targets and keeps *No promotion / stays*,
+which is the right answer for a leaving cohort: those players are handled
+individually on the next step, as released or graduated.
+
+The ordering comes from the order age groups are arranged in settings, so an
+academy that names its categories its own way still gets sensible answers. Where
+two categories sit at the same position — a specialist group alongside an age
+band, say — neither is offered as a promotion for the other.
+
+Moving a team *down* a category is deliberately still not possible here. That is
+a correction rather than a season transition, and a screen whose whole vocabulary
+is promotion is the wrong place for it.
+
+# TalentTrack v4.104.0 — Cancel takes you back to where you came from (#2869)
+
+Pressing **Cancel** on a form sent you to a list rather than back to the record
+you had opened the form from. Opening the attendance grid from an activity and
+cancelling out of it dropped you on the activities list, leaving you to find that
+activity again — on a phone at the side of a pitch, several taps from where you
+were.
+
+Cancel now returns you to wherever you opened the form from, whenever the plugin
+knows. When it does not — you typed the address, or arrived from outside — it
+still falls back to the sensible default: the record you were editing, or the
+list you were adding to.
+
+This is handled once, in the shared form component, so every form gets it,
+including ones added later.
+
+# TalentTrack v4.104.0 — My learning is no longer offered to accounts it then refuses (#2875)
+
+The dashboard offered **My learning** to people whose login is not linked to a
+staff record, and the page then told them the section was not available to them
+— naming a "staff record", which is not a thing they can see anywhere in the
+interface, and giving no way forward. A head of development reading it could not
+tell whether they had done something wrong, whether their role was excluded, or
+whether somebody else needed to act.
+
+The tile is now hidden for accounts that cannot use it, which is how every other
+gated area of the plugin behaves.
+
+Anyone who reaches the page by other means gets a message that explains the
+consequence rather than stating a condition: progress cannot be saved, an
+academy administrator can link the login under Access control, and every course
+is still readable in the meantime — the same shape the course library already
+used for exactly this situation.
+
+The library itself is deliberately not hidden: reading a course works without a
+linked staff record — only saving progress does not.
+
+# TalentTrack v4.104.0 — Set potential opens on the band the player already has (#2876)
+
+The **Set potential** control on a player's profile opened blank every time,
+whatever the academy had on record. It was reading the band from the player row,
+where it has never been stored — potential is kept as dated history — and a
+missing value there fails quietly, so the control simply showed nothing and
+nobody was told why.
+
+Blank is not a harmless starting point for this particular judgement. A coach
+who cannot see what the academy currently thinks records a fresh opinion instead
+of a revision, and because every save adds a dated entry, a player's potential
+history filled up with restatements that read like changes of mind.
+
+The control now opens on the current band and says when it was set and by whom,
+so a coach can tell whether the standing judgement is recent enough to be worth
+revisiting. Choosing the same band again and saving no longer adds anything to
+the history — though re-affirming a band *with* a note still does, because
+"still first team, but the last six weeks have been flat" is worth recording.
+
+# TalentTrack v4.104.0 — The access control matrix is reachable from Settings (#2880)
+
+The permission matrix has been editable from the front end since it shipped, but
+nothing anywhere linked to it — the only way in was typing the address by hand.
+
+It now appears in **Settings**, under System, for the academy admins who can
+manage it. That was the point of building it: an academy admin should be able to
+correct a permission that is too broad or too narrow — the grants that decide
+who can open a player's evaluations, notes and medical fields — without needing
+a WordPress account.
+
+# TalentTrack v4.104.0 — The knowledge library is now called Courses (#2883)
+
+The coach-education surface was called two different things depending on where
+you stood. The feature switch already said **Courses**; the tile, the page title,
+the breadcrumbs and the module card said **Knowledge library**.
+
+"Library" also promised more than is there. The surface holds courses and nothing
+else, so the wrapper named a container with one kind of thing in it — and
+competed with Methodology for the same territory.
+
+It is called **Courses** everywhere now, and its address is `?tt_view=courses`.
+
+**Bookmarks to the old address will stop working.** If you have saved a link to
+the knowledge library, or sent one to a colleague, it needs updating. Links from
+inside the product all point at the new address.
+
+*My learning* and the three *Learning · …* reports keep their names — those
+describe a person's own record of study rather than the catalogue.
+
+# TalentTrack v4.104.0 — CI checks that every dashboard tile can actually be opened (#2885)
+
+A dashboard tile names a destination. Nothing checked that the destination
+exists, so a tile could be registered pointing at a screen the product does not
+route — and the board would show the feature as done.
+
+A new check fails the build when a tile's screen has neither a route nor its own
+link. Tiles that deliberately open something else, like the VCT session designer
+opening its wizard, are recognised as such rather than reported.
+
+Developer tooling; nothing in the product changes.
+
+# TalentTrack v4.104.0 — Module cards stop stretching, and long ones fold away (#2890)
+
+On the Modules and features page, every card in a row was stretched to match the
+tallest one. Because sub-feature counts are so uneven — Reports has twenty-one,
+most modules have none — a row could show one full card beside two that were
+mostly empty space, with the *Includes* line stranded at the bottom.
+
+Cards now take their own height, and a module with more than four sub-features
+shows a count you can expand rather than listing all of them. Reports no longer
+occupies most of a screen while the modules beside it go unread.
+
+Expanding works with the keyboard and needs no mouse, and the panel starts closed
+at every screen size — opening it by default on a phone would put the same wall
+back where it hurts most.
+
+# TalentTrack v4.104.0 — CI refuses a committed git conflict marker (#2891)
+
+A conflict marker once reached the main branch as a literal line of
+`docs/rest-api.md`, committed while somebody resolved a merge. It sat there for
+three days, and in the meantime every branch that touched the same file and
+pulled main failed to merge — git cannot combine a file that already contains a
+marker, so each of those had to be untangled by hand.
+
+Twenty workflows already lint this repository and none of them read file bodies,
+so nothing caught it going in. A new check now scans the whole corpus on every
+pull request and fails with the file and line number.
+
+It deliberately looks only for the `<<<<<<<` and `>>>>>>>` markers, never for a
+bare row of equals signs on its own: in Markdown that is a heading underline,
+and a seven-letter heading gets a seven-character underline, so no length test
+can tell the two apart. Git always writes all three markers together, so the
+angle brackets are enough to catch a real conflict without ever flagging prose.
+
+Developer-facing only — nothing about the product changes.
+
+# TalentTrack v4.104.0 — Share a match plan with staff who have no account (#2892)
+
+A head coach who had laid out the lineup, the goals per phase and the notes per
+player could only get that sheet to an assistant coach, an analyst or a keeper
+coach by printing it or sending a PDF — and a PDF is out of date the moment a
+starter changes.
+
+**Share plan** now produces a link. Whoever you send it to opens it and reads the
+plan without logging in and without an account on the install, and they see it as
+it stands rather than as it was when you sent it.
+
+It is read-only, kept out of search engines, and revocable: **Replace link**
+issues a new one and stops the old one working immediately, for everyone who has
+it. Worth knowing that the link itself is the key — anyone holding it can read
+the plan, so it belongs with the people who need it rather than in a group chat.
+
+The same affordance match analysis has had since it shipped, on the surface that
+needs it before the match rather than after. Sharing can be switched off for the
+academy under Modules and features, separately from match-analysis sharing.
+
+# TalentTrack v4.104.0 — A player record can record sex, for growth references (#2894)
+
+Age-adjusted height, weight and BMI are read against published growth curves,
+and those curves are separate for boys and girls. The player record had date of
+birth, height and weight but nothing about sex, so none of those age-adjusted
+figures could be calculated at all. This adds the field the **Player · BMI-for-age**
+report needs.
+
+It is deliberately narrow. The field is labelled for what it is used for, the
+help text says why it is asked, and the list is fixed at male and female because
+a growth reference publishes exactly two curves — an editable list would suggest
+the reference follows it, which it does not. This is not a record of how a young
+person describes themselves and should not be used as one.
+
+**Optional everywhere, and blank on every existing player.** Nothing is filled in
+or guessed from a name. Leaving it blank costs that player only the age-adjusted
+columns; height, weight and raw BMI still read normally.
+
+Available on the player form, the WordPress admin player page, the API, and the
+demo-data import and export, so a generated academy keeps the field on a
+round-trip.
+
+# TalentTrack v4.104.0 — Groundwork for BMI-for-age: the WHO growth reference (#2895)
+
+A raw BMI says very little about a growing child — the same figure is
+unremarkable at seventeen and high at nine. To mean anything it has to be read
+against a growth curve for the player's own age and sex.
+
+This adds that curve: the WHO 2007 reference for 5 to 19 year olds, generated
+directly from the tables WHO publishes rather than typed in by hand, together
+with the arithmetic that turns a BMI into a percentile.
+
+It also adds the part that pairs up measurements. A BMI point comes from a
+weight and a height taken within a month of each other; a weight with no recent
+height produces no point at all, rather than being combined with a height from
+last season and quietly reported as current.
+
+Nothing is visible on screen yet — the report itself follows. Recording a
+player's sex is what unlocks it, and that stays optional.
+
+# TalentTrack v4.104.0 — Privacy and security pages: documentation points at their real address (#2921)
+
+The privacy and security operator guides, the access-control reference and
+the trust-page sources referred readers to `talenttrack.app/privacy` and
+`talenttrack.app/security` for the DPA, the sub-processor list, the hosting
+region and the public privacy policy. Those pages live at
+`mediamaniacs.nl/talenttrack/privacy` and `mediamaniacs.nl/talenttrack/security`.
+Every reference now points there, in English and Dutch. Documentation only —
+no behaviour, data or query changes.
+
+# TalentTrack v4.104.0 — Plans are set by your operator, not bought in the plugin (#2923)
+
+TalentTrack no longer carries a marketplace integration or an in-app trial. Which plan an install is on is recorded when the install is provisioned; the install keeps a local copy so it keeps working normally if that record is briefly unreachable, and falls back to Free when there is none.
+
+For operators this replaces the Freemius adapter and the 30-day trial → 14-day grace state machine with a single entitlement the plugin reads and never writes. The Account page drops the "Start trial" and trial-state panels and now says what the next plan adds, with plan changes going through the operator. Every feature gate, the free-tier caps and the REST enforcement behave exactly as before.
+
+Installs running as non-commercial test instances — which is all of them today, with `TT_COMMERCIAL_MODE` false — are unaffected: every feature stays unlocked and no caps apply.
+
+# TalentTrack v4.104.0 — RecordSpine gained in-page tabs, and they survive the classic layout (#2932)
+
+The shared record spine could only render tabs that navigate: each one was a
+link, and following it reloaded the page. A surface whose sections are really
+one record seen several ways had no compliant way to switch between them
+without a round trip, and the only alternative was to hand-roll a tab strip —
+which is exactly the drift the shared component exists to prevent.
+
+A tab entry can now name a `panel` instead of a `url`. Those render as real
+tab buttons wired to panels already on the page, with arrow-key navigation and
+the correct assistive-technology roles, and switching between them costs no
+request.
+
+They also render under the classic navigation layout, where the rest of the
+spine does not. The identity strip is navigation chrome and disappearing with
+the shell is correct; a section switcher is the only way into the content
+behind it, so a screen whose sections vanished would simply be missing half of
+itself.
+
+# TalentTrack v4.104.0 — The navigation bar steps aside on the live match and training screens (#2933)
+
+Running a live match and running a training session both put their own controls
+along the bottom of the phone screen, because that is where your thumb is when
+you are holding it one-handed at the side of a pitch. The navigation bar sat
+underneath those controls and took roughly 190px of a 640px screen with it —
+about half of what you were actually reading.
+
+On those two screens the bar now steps aside. The breadcrumb trail at the top is
+still the way out, the slide-out menu is untouched, and tablets and laptops are
+unaffected, because the bar only exists on phone-width screens to begin with.
+
+Which screens qualify is written down rather than assumed: each one is listed
+with the reason it needs the space, and adding another is a one-line decision
+somebody has to make on purpose.
+
+# TalentTrack v4.104.0 — The live-match screen has two layouts, and coaches can pick their own (#2934)
+
+The live-match screen is getting a new layout: the score and the clock fixed at
+the top, a row of tabs within thumb reach at the bottom, so the bench is one tap
+away instead of three scrolls. The old single-page layout is not going anywhere
+yet, and nobody is moved onto the new one without asking.
+
+Configuration → Match day sets the academy default. My settings → Live match
+screen lets each coach pick their own, including "use the academy default",
+which keeps following the academy setting when it changes.
+
+The default stays the single-page layout, so nothing changes until somebody opts
+in. That matters more here than almost anywhere else in the product: a coach
+runs this screen one-handed, on a phone, at the side of a pitch, with a clock
+running. Moving them onto an unfamiliar layout mid-season is how minutes and
+substitutions go unrecorded. Put one coach on the new layout for a Saturday,
+see how it goes, then flip the academy.
+
 # TalentTrack v4.103.0 — Every screen now says whether it is meant for a phone (#2807)
 
 Until now the app had only ever been told about twenty-five of its screens:

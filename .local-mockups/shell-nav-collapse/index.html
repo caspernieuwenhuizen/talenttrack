@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>App shell — collapsible nav groups (4 options) · #2504</title>
+<style>
+    /* ------------------------------------------------------------------
+     * Mockup only. Colours trace the target design (dark navy sidebar);
+     * on adoption these become tokens, not the literals below.
+     * ---------------------------------------------------------------- */
+    :root {
+        --nav-bg:        #16243c;
+        --nav-bg-brand:  #121e33;
+        --nav-item:      #dfe7f2;
+        --nav-item-dim:  #9fb0c7;
+        --nav-group:     #7488a3;
+        --nav-hover:     #1e3050;
+        --nav-active:    #24395c;
+        --nav-accent:    #e8b624;
+        --nav-line:      #223554;
+        --nav-w:         260px;
+
+        --page-bg:   #eef1f5;
+        --card:      #ffffff;
+        --ink:       #0e1a14;
+        --ink-soft:  #5c6672;
+        --line:      #dde3ea;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        background: var(--page-bg);
+        color: var(--ink);
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .wrap { padding: 24px; max-width: 1600px; margin: 0 auto; }
+
+    h1 { font-size: 1.35rem; margin: 0 0 4px; }
+    .lede { color: var(--ink-soft); margin: 0 0 20px; max-width: 70ch; }
+
+    .grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1500px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .card__head { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); }
+    .card__n {
+        display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px;
+    }
+    .card__t { font-size: 1rem; font-weight: 700; margin: 0 0 4px; }
+    .card__d { font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+    .card__body { padding: 16px; background: #f7f9fb; flex: 1; }
+
+    .verdict { font-size: 0.8rem; margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; }
+    .verdict--good { background: #eaf5ee; color: #1d5b34; }
+    .verdict--warn { background: #fdf3d8; color: #6b5108; }
+
+    /* ---- the sidebar itself ---------------------------------------- */
+    .nav {
+        width: var(--nav-w);
+        max-width: 100%;
+        background: var(--nav-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        padding-bottom: 8px;
+        font-size: 14px;
+        box-shadow: 0 10px 30px rgba(10, 20, 40, .18);
+    }
+
+    .nav__brand {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 14px; background: var(--nav-bg-brand);
+    }
+    .nav__logo {
+        width: 34px; height: 34px; border-radius: 8px; flex: 0 0 auto;
+        background: var(--nav-accent); color: #121e33;
+        display: grid; place-items: center; font-weight: 800; font-size: 0.8rem;
+    }
+    .nav__club { color: #fff; font-weight: 700; font-size: 0.9rem; line-height: 1.2; }
+    .nav__season { color: var(--nav-item-dim); font-size: 0.72rem; }
+
+    .nav__scroll { padding: 10px 8px 0; }
+
+    /* group heading — shared base */
+    .g__sum {
+        display: flex; align-items: center; gap: 8px;
+        width: 100%;
+        min-height: 40px;
+        margin: 10px 0 2px;
+        padding: 0 8px;
+        background: none; border: 0;
+        color: var(--nav-group);
+        font: inherit; font-size: 0.68rem; font-weight: 700;
+        letter-spacing: .1em; text-transform: uppercase;
+        cursor: pointer; text-align: left;
+        border-radius: 7px;
+        list-style: none;
+    }
+    .g__sum::-webkit-details-marker { display: none; }
+    .g__sum:focus-visible { outline: 2px solid var(--nav-accent); outline-offset: 1px; }
+    .g__label { flex: 1 1 auto; }
+
+    .g:first-child .g__sum { margin-top: 2px; }
+
+    /* items */
+    .nav__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+    .nav__link {
+        display: flex; align-items: center; gap: 10px;
+        min-height: 40px; padding: 0 10px;
+        color: var(--nav-item); text-decoration: none;
+        border-radius: 8px; position: relative;
+    }
+    .nav__link:hover { background: var(--nav-hover); }
+    .nav__link.is-active { background: var(--nav-active); font-weight: 600; }
+    .nav__link.is-active::before {
+        content: ""; position: absolute; inset-block: 8px; inset-inline-start: 0;
+        width: 3px; border-radius: 0 3px 3px 0; background: var(--nav-accent);
+    }
+    .ico {
+        width: 18px; height: 18px; flex: 0 0 auto; border-radius: 4px;
+        border: 1.5px solid currentColor; opacity: .55;
+    }
+    .ico--round { border-radius: 50%; }
+
+    /* slide-down animation, shared by all four */
+    .g__panel { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .22s ease; }
+    .g[hidden-panel] .g__panel { grid-template-rows: 0fr; }
+    .g__panel > div { overflow: hidden; }
+    @media (prefers-reduced-motion: reduce) { .g__panel { transition: none; } }
+
+    /* ---- option A — chevron on hover/focus only --------------------- */
+    .optA .g__chev { opacity: 0; transition: opacity .15s ease, transform .18s ease; }
+    .optA .g__sum:hover, .optA .g__sum:focus-visible { background: var(--nav-hover); color: #cdd9e8; }
+    .optA .g__sum:hover .g__chev, .optA .g__sum:focus-visible .g__chev { opacity: .75; }
+
+    /* ---- option B — leading caret ----------------------------------- */
+    .optB .g__sum { padding-left: 2px; }
+    .optB .g__caret {
+        width: 16px; flex: 0 0 16px; text-align: center;
+        opacity: .6; transition: transform .18s ease;
+    }
+    .optB .g--open .g__caret { transform: rotate(90deg); }
+    .optB .g__sum:hover { color: #cdd9e8; }
+
+    /* ---- option C — count when collapsed ---------------------------- */
+    .optC .g__count {
+        font-size: 0.7rem; font-weight: 600; letter-spacing: 0;
+        color: var(--nav-item-dim); opacity: .8;
+    }
+    .optC .g--open .g__count { display: none; }
+    .optC .g__sum:hover { background: var(--nav-hover); color: #cdd9e8; }
+
+    /* ---- option D — full row, divider, always-on chevron ------------ */
+    .optD .g { border-top: 1px solid var(--nav-line); }
+    .optD .g:first-child { border-top: 0; }
+    .optD .g__sum { margin: 4px 0 2px; min-height: 44px; }
+    .optD .g__chev { opacity: .45; transition: transform .18s ease; }
+    .optD .g__sum:hover { background: var(--nav-hover); color: #cdd9e8; }
+
+    /* chevron glyph shared by A and D */
+    .g__chev {
+        width: 7px; height: 7px; flex: 0 0 auto; margin-right: 2px;
+        border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+    }
+    .g--open .g__chev { transform: rotate(-135deg); }
+
+    .foot { margin-top: 26px; font-size: 0.85rem; color: var(--ink-soft); max-width: 78ch; }
+    .foot code { background: #e6ebf1; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <h1>Collapsible nav groups — four options</h1>
+    <p class="lede">
+        Each sidebar below is live: click a group heading to fold it. All four use the same
+        slide-down transition and the same default — only the group holding the current page
+        starts open (here, <strong>Personen</strong>, matching <em>Mijn teams</em>). The colours
+        trace the target design; the only thing that differs between the four is how a group
+        says “I can fold”.
+    </p>
+
+    <div class="grid">
+
+        <!-- ============ OPTION A ============ -->
+        <div class="card">
+            <div class="card__head">
+                <span class="card__n">Option A</span>
+                <p class="card__t">Chevron on hover only</p>
+                <p class="card__d">At rest: identical to the design. The chevron fades in when you hover or keyboard-focus a heading.</p>
+            </div>
+            <div class="card__body">
+                <div class="nav optA" data-nav></div>
+                <p class="verdict verdict--good">Truest to the mockup — nothing added at rest.</p>
+                <p class="verdict verdict--warn">Nothing hints a group folds until you hover. Invisible on touch, where there is no hover at all.</p>
+            </div>
+        </div>
+
+        <!-- ============ OPTION B ============ -->
+        <div class="card">
+            <div class="card__head">
+                <span class="card__n">Option B</span>
+                <p class="card__t">Leading caret</p>
+                <p class="card__d">A small triangle left of the label, always visible, rotating when open. Reads as a foldable tree.</p>
+            </div>
+            <div class="card__body">
+                <div class="nav optB" data-nav></div>
+                <p class="verdict verdict--good">Instantly legible, works on touch, sits in the indent the labels already leave.</p>
+                <p class="verdict verdict--warn">Adds a mark to every heading, and shifts the labels right of the design's alignment.</p>
+            </div>
+        </div>
+
+        <!-- ============ OPTION C ============ -->
+        <div class="card">
+            <div class="card__head">
+                <span class="card__n">Option C</span>
+                <p class="card__t">Count when collapsed</p>
+                <p class="card__d">No chevron anywhere. A folded group shows how many destinations are tucked behind it; open groups show nothing.</p>
+            </div>
+            <div class="card__body">
+                <div class="nav optC" data-nav></div>
+                <p class="verdict verdict--good">Open groups are pixel-identical to the design, and the number tells you what you are missing, not just that something folds.</p>
+                <p class="verdict verdict--warn">A numeral is a weaker “click me” than an arrow.</p>
+            </div>
+        </div>
+
+        <!-- ============ OPTION D ============ -->
+        <div class="card">
+            <div class="card__head">
+                <span class="card__n">Option D</span>
+                <p class="card__t">Full row, divider, chevron</p>
+                <p class="card__d">The heading becomes a proper button row: hairline divider above, chevron pinned right, hover fill across the width.</p>
+            </div>
+            <div class="card__body">
+                <div class="nav optD" data-nav></div>
+                <p class="verdict verdict--good">Most obviously clickable and the biggest hit area.</p>
+                <p class="verdict verdict--warn">Heaviest of the four — the dividers and permanent chevrons pull the sidebar away from the design's light touch.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <p class="foot">
+        Shared across all four: <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> so folding works
+        with JS off and announces its own state; a 40px+ hit area on the heading;
+        <code>prefers-reduced-motion</code> honoured; and in the collapsed icon rail every group is
+        forced open, since a folded group there would hide its icons with no heading left to click.
+    </p>
+
+</div>
+
+<script>
+/* One data set, rendered four ways — so the only variable is the affordance. */
+const GROUPS = [
+    { label: 'Prestaties', items: [
+        { t: 'Evaluaties' }, { t: 'Activiteiten' }, { t: 'Doelen', round: true } ] },
+    { label: 'Personen', open: true, items: [
+        { t: 'Mijn teams', active: true, round: true }, { t: 'Mijn spelers', round: true },
+        { t: 'Stafoverzicht' } ] },
+    { label: 'Planning & tactiek', items: [
+        { t: 'Teamplanner' }, { t: 'Teamblauwdruk' }, { t: 'Teamchemie', round: true } ] },
+    { label: 'Ontwikkeling', items: [ { t: 'POP' }, { t: 'POP-planning' } ] },
+    { label: 'Analyses', items: [
+        { t: 'Rapporten' }, { t: 'Spelervergelijking' }, { t: 'Aanwezigheid' } ] },
+    { label: 'Naslag', items: [ { t: 'Methodologie' } ] }
+];
+
+function itemHtml(it) {
+    return '<li><a class="nav__link' + (it.active ? ' is-active' : '') + '" href="#">'
+         + '<span class="ico' + (it.round ? ' ico--round' : '') + '"></span>'
+         + '<span>' + it.t + '</span></a></li>';
+}
+
+function groupHtml(g, variant) {
+    const open = g.open ? ' open' : '';
+    const openCls = g.open ? ' g--open' : '';
+    let lead = '', trail = '';
+
+    if (variant === 'optB') lead = '<span class="g__caret">›</span>';
+    if (variant === 'optA' || variant === 'optD') trail = '<span class="g__chev"></span>';
+    if (variant === 'optC') trail = '<span class="g__count">' + g.items.length + '</span>';
+
+    return '<details class="g' + openCls + '"' + open + '>'
+         + '<summary class="g__sum">' + lead
+         + '<span class="g__label">' + g.label + '</span>' + trail + '</summary>'
+         + '<div class="g__panel"><div><ul class="nav__list">'
+         + g.items.map(itemHtml).join('')
+         + '</ul></div></div></details>';
+}
+
+document.querySelectorAll('[data-nav]').forEach(function (nav) {
+    const variant = ['optA','optB','optC','optD'].find(function (v) { return nav.classList.contains(v); });
+    nav.innerHTML =
+        '<div class="nav__brand">'
+      +   '<div class="nav__logo">VH</div>'
+      +   '<div><div class="nav__club">Voetbalacademie Hedel</div>'
+      +   '<div class="nav__season">Seizoen 2026/27</div></div>'
+      + '</div>'
+      + '<div class="nav__scroll">'
+      +   GROUPS.map(function (g) { return groupHtml(g, variant); }).join('')
+      + '</div>';
+
+    // Keep the open/closed class in sync so the chevron and count react.
+    nav.querySelectorAll('details.g').forEach(function (d) {
+        d.addEventListener('toggle', function () { d.classList.toggle('g--open', d.open); });
+    });
+});
+</script>
+</body>
+</html>
