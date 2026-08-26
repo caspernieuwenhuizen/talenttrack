@@ -93,6 +93,28 @@ php tools/check-docs.php                     # structural rules
 php tools/check-docs.php --base=origin/main  # adds the diff-only voice rules
 ```
 
+A second, much smaller gate runs alongside it. `conflict-marker-lint.yml` runs
+`tools/check-conflict-markers.php` on **every** PR — no path filter, because a
+marker committed in `src/` on a PR that touches no documentation would otherwise
+never be scanned:
+
+```
+php tools/check-conflict-markers.php
+```
+
+It fails when a git conflict marker has been committed as literal file content.
+That is not a cosmetic problem: git cannot three-way-merge a file that already
+contains a marker, so every later branch touching that file fails with
+`could not parse conflict hunks` until somebody removes it — which is exactly
+what `docs/rest-api.md` did for three days (#2889).
+
+It looks for `<<<<<<<` and `>>>>>>>` at the start of a line and never for a bare
+`=======` on its own. A run of equals signs under a line of text is a Markdown
+setext H1 underline, and a seven-character heading gets a seven-character
+underline, so no length test can tell the two apart. Since git always writes all
+three markers together, finding either angle marker is enough — `=======` is
+reported only as context inside a file that already tripped one.
+
 | # | Rule | Scope |
 | --- | --- | --- |
 | 1 | Front matter, or the dev-only allowlist above. No third state. | corpus |
