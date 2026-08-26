@@ -55151,6 +55151,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1653
+msgid "Access control matrix"
+msgstr "Toegangsmatrix"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1653
+msgid ""
+"Who may read and change each kind of record, per persona. The grants behind "
+"player evaluations, notes and medical fields."
+msgstr ""
+"Wie welk soort gegevens mag lezen en wijzigen, per persona. De rechten achter "
+"evaluaties, notities en medische velden van spelers."
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."
