@@ -318,7 +318,15 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-player-form';
 
-        $teams      = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        // #2866 — resolve from the viewer's scope, and always include the
+        // player's current team. A head of development coaches no team, so
+        // the old coach-assignment query returned nothing for them: the
+        // player's team was missing from the options, the select fell back to
+        // its placeholder, and saving posted `team_id = 0` and unassigned the
+        // player. Someone opening a record to fix a jersey number could
+        // remove them from their squad without being told.
+        $current_team_id = $player ? (int) ( $player->team_id ?? 0 ) : 0;
+        $teams      = QueryHelpers::get_teams_in_scope( $user_id, $is_admin, $current_team_id );
         $positions  = QueryHelpers::get_lookup_names( 'position' );
         // v3.85.5 — render-aware lookup pairs (stored => translated label).
         $foot_opts  = QueryHelpers::get_lookup_label_pairs( 'foot_option' );

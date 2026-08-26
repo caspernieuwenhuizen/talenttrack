@@ -306,6 +306,57 @@ class QueryHelpers {
         ) );
     }
 
+    /**
+     * #2866 — the teams a viewer may choose from, resolved from their actual
+     * scope rather than from a coach assignment.
+     *
+     * Ten surfaces carried `$is_admin ? get_teams() : get_teams_for_coach()`,
+     * which asks "which teams do you coach?" — the assistant-coach question.
+     * A head of development coaches none and is not a WordPress
+     * administrator, so every one of those pickers came back empty for them.
+     * On the player edit form that was not merely unhelpful: the player's own
+     * team was absent from the options, nothing was selected, and saving
+     * posted `team_id = 0` and unassigned the player.
+     *
+     * Global read on `teams` (head of development, academy admin, read-only
+     * observer) sees every team; a team-scoped grant sees their own. The
+     * `$is_admin` flag stays as a belt-and-braces first rung — a WordPress
+     * administrator is the person running the install and must never be
+     * locked out of a picker by a matrix that has not been seeded yet.
+     *
+     * `$must_include_team_id` guarantees a specific team is present whatever
+     * the scope says. Pass the record's current value on any edit form: it
+     * makes "the control silently dropped a value the viewer could not browse
+     * to" impossible, even if a scope resolver is wrong again later.
+     *
+     * @return object[]
+     */
+    public static function get_teams_in_scope( int $user_id, bool $is_admin = false, int $must_include_team_id = 0 ): array {
+        $can_see_all = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeams( $user_id, 'teams' );
+
+        $teams = $can_see_all
+            ? self::get_teams()
+            : self::get_teams_for_coach( $user_id );
+
+        if ( $must_include_team_id > 0 ) {
+            $present = false;
+            foreach ( $teams as $t ) {
+                if ( (int) ( $t->id ?? 0 ) === $must_include_team_id ) { $present = true; break; }
+            }
+            if ( ! $present ) {
+                $current = self::get_team( $must_include_team_id );
+                if ( $current !== null ) {
+                    $teams[] = $current;
+                    usort( $teams, static fn( $a, $b ): int =>
+                        strcasecmp( (string) ( $a->name ?? '' ), (string) ( $b->name ?? '' ) ) );
+                }
+            }
+        }
+
+        return $teams;
+    }
+
     public static function get_team( int $id ): ?object {
         global $wpdb;
         $scope = self::apply_demo_scope( 't', 'team' );

@@ -533,6 +533,19 @@ class PlayersRestController {
         global $wpdb;
         $data = self::extract( $r );
         $data = self::stampConsent( $data, $existing );
+
+        // #2866 — `extract()` maps a missing `team_id` to 0, which is right
+        // on create (no team chosen) and destructive on update: a partial
+        // payload would silently unassign the player from their squad.
+        //
+        // A `team_id` that is *present* is honoured whatever its value,
+        // including 0 — deliberately choosing the empty option is how a
+        // player is taken off a team, and that has to keep working. Only an
+        // absent key falls back to what is already stored.
+        if ( ! array_key_exists( 'team_id', $r->get_params() ) ) {
+            $data['team_id'] = (int) ( $existing->team_id ?? 0 );
+        }
+
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
