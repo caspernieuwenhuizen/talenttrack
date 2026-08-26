@@ -78,13 +78,20 @@ use TT\Shared\Frontend\ShellPreference;
 final class RecordSpine {
 
     /**
+     * Every key is optional in the type even though `name` is required in
+     * practice, because the component's contract is to degrade rather than
+     * fatal: a caller that hands it an empty array gets nothing rendered,
+     * and that path is tested. Declaring `name` as required would make the
+     * guard below unreachable to static analysis while leaving it very much
+     * reachable at runtime.
+     *
      * @param array{
-     *   name: string,
+     *   name?: string,
      *   photo_url?: string,
      *   initials?: string,
      *   status?: string,
      *   meta?: string,
-     *   tabs?: list<array{label: string, url?: string, panel?: string, active?: bool}>
+     *   tabs?: list<array{label?: string, url?: string, panel?: string, active?: bool}>
      * } $config
      */
     public static function render( array $config ): void {
