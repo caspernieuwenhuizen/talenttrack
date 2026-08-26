@@ -1463,6 +1463,19 @@ final class CoreSurfaceRegistration {
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',
+            // #2875 — hide, don't tease (CLAUDE.md §7). Enrolments are stored
+            // against a person, not a WordPress user, so a login with no
+            // linked staff record has nowhere to hold one and the view can
+            // only apologise. Offering the tile and then refusing is what a
+            // head of development hit: a dashboard invited them into a page
+            // that told them they did not qualify.
+            //
+            // The library tile is deliberately NOT gated this way — reading a
+            // course works fine without a person row; only progress does not.
+            'cap_callback' => static function ( int $uid ): bool {
+                if ( $uid <= 0 || ! user_can( $uid, 'tt_view_knowledge' ) ) return false;
+                return \TT\Modules\Knowledge\KnowledgePerson::forUser( $uid ) > 0;
+            },
             'feature'      => 'knowledge_courses',
         ]);
 

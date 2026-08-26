@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\MatchExecution\MatchExecutionLayout;
+
 /**
  * FrontendMySettingsView — TT-rendered account settings (#0061 round 3).
  *
@@ -148,6 +150,7 @@ class FrontendMySettingsView extends FrontendViewBase {
             </form>
 
             <?php self::renderAppearanceCard( $user_id ); ?>
+            <?php self::renderMatchLayoutCard( $user_id ); ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
             <?php self::renderMessagePreferencesCard( $user_id ); ?>
@@ -332,6 +335,56 @@ class FrontendMySettingsView extends FrontendViewBase {
     }
 
     /**
+     * Per-user live-match layout override (#2934).
+     *
+     * Its own form for the same reason the theme card is: the two are
+     * independent, and §6(a) exempts settings sub-forms from Cancel + Save
+     * so several can sit on one page.
+     *
+     * This is the affordance that makes a layout change survivable. A coach
+     * who has run twenty matches on the single-scroll layout can stay on it
+     * when the academy flips its default, and an academy can put one coach
+     * on the new layout for one Saturday before committing everyone. The
+     * navigation-layout card above makes the same argument for the shell.
+     */
+    private static function renderMatchLayoutCard( int $user_id ): void {
+        $current    = MatchExecutionLayout::userOverride( $user_id );
+        $club       = MatchExecutionLayout::clubDefault();
+        $labels     = MatchExecutionLayout::labels();
+        $club_label = $labels[ $club ] ?? $club;
+        ?>
+        <form method="post" class="tt-form tt-msettings-card">
+            <?php wp_nonce_field( 'tt_my_settings_match_layout', 'tt_my_settings_match_layout_nonce' ); ?>
+            <input type="hidden" name="tt_my_settings_action" value="update_match_layout" />
+
+            <h3><?php esc_html_e( 'Live match screen', 'talenttrack' ); ?></h3>
+
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-ms-match-layout"><?php esc_html_e( 'Layout', 'talenttrack' ); ?></label>
+                <select id="tt-ms-match-layout" name="tt_match_layout" class="tt-input">
+                    <option value="<?php echo esc_attr( MatchExecutionLayout::INHERIT ); ?>"<?php selected( $current, MatchExecutionLayout::INHERIT ); ?>>
+                        <?php
+                        /* translators: %s: the academy-wide default live-match layout name. */
+                        printf( esc_html__( 'Use the academy default (%s)', 'talenttrack' ), esc_html( $club_label ) );
+                        ?>
+                    </option>
+                    <?php foreach ( $labels as $value => $label ) : ?>
+                        <option value="<?php echo esc_attr( $value ); ?>"<?php selected( $current, $value ); ?>><?php echo esc_html( $label ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls.', 'talenttrack' ); ?>
+                </p>
+            </div>
+
+            <div class="tt-form-actions">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save layout', 'talenttrack' ); ?></button>
+            </div>
+        </form>
+        <?php
+    }
+
+    /**
      * Per-user theme override (#2512).
      *
      * Its own form rather than a second field on the layout card: the two
@@ -468,6 +521,23 @@ class FrontendMySettingsView extends FrontendViewBase {
                 sanitize_key( wp_unslash( (string) ( $_POST['tt_shell'] ?? '' ) ) )
             );
             $out['success'] = __( 'Layout updated. Reload to see the change everywhere.', 'talenttrack' );
+            return $out;
+        }
+
+        // #2934 — per-user live-match layout override. Same reasoning as
+        // the shell above: it changes only how this user's own match
+        // screen is laid out, and MatchExecutionLayout rejects any value
+        // that is not a known layout or `inherit`.
+        if ( $action === 'update_match_layout' ) {
+            if ( ! isset( $_POST['tt_my_settings_match_layout_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_match_layout_nonce'] ) ), 'tt_my_settings_match_layout' ) ) {
+                $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            MatchExecutionLayout::setUserOverride(
+                $user_id,
+                sanitize_key( wp_unslash( (string) ( $_POST['tt_match_layout'] ?? '' ) ) )
+            );
+            $out['success'] = __( 'Live match layout updated. Open a match to see the change.', 'talenttrack' );
             return $out;
         }
 

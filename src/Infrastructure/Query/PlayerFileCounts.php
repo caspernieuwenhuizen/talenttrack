@@ -32,43 +32,54 @@ final class PlayerFileCounts {
             "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
-        // v3.110.3 — restrict to completed activities. Mirrors the
-        // tab's render query (FrontendPlayerDetailView::renderActivitiesTab)
-        // so the badge and the tab list always agree on scope.
+        // v3.110.3 — mirrors the tab's render query
+        // (FrontendPlayerDetailView::renderActivitiesTab) so the badge and
+        // the tab list always agree on scope. That intent is unchanged; what
+        // changed in #2862 is that they now actually do.
         //
-        // #2521 — "completed" is the coach-set `activity_status_key`, not
-        // `plan_state` (which defaults to 'completed' on every row the
-        // planner did not create, so a still-planned session counted).
-        // #2522 — `record_type = 'actual'`: a player who is on the plan
-        // AND has a recorded row was counted twice.
-        $completed  = ActivityLifecycle::completedClause( 'a' );
+        // #2522 — a player on the plan who also has a recorded row was
+        // counted twice. DISTINCT on the activity handles that now.
+        //
         // #2862 — COUNT(DISTINCT att.activity_id), not COUNT(*). The tab
         // counts activities, and while `record_type = 'actual'` should mean
         // one row per player per activity, the badge should not be the thing
         // that discovers otherwise: a stray second recorded row would inflate
         // the number beside a list that renders one entry.
         //
-        // The badge deliberately keeps the `activity_status_key` lifecycle
-        // definition from #2521. Switching it to the `plan_state` filter the
-        // tab's list uses would make the two agree — and would reintroduce
-        // exactly what #2521 fixed, because `plan_state` defaults to
-        // 'completed' on every row the planner did not create, so
-        // still-planned sessions would count again.
+        // Decided 2026-08-26: the badge counts **what the tab renders**, not
+        // what the player attended. A number sitting on a tab is read as
+        // "how many things are in here", and a badge saying 14 above a list
+        // of 19 rows is the disagreement the pilot reported.
         //
-        // So the badge answers "activities attended" and the list also shows
-        // what is coming up. They agree on every completed activity and
-        // diverge only on upcoming ones. Whether the badge should instead
-        // count everything the tab renders is a product question, raised on
-        // the issue rather than settled quietly here.
+        // So this mirrors `ActivitiesRepository::listForPlayer()`'s filter
+        // set exactly — same plan states, same past-completed rule, same
+        // archived guard — minus its 25-row recent-window cap, because the
+        // badge is a total and the list is a window.
+        //
+        // #2521 is not being reverted, but it does need reading first. Its
+        // point was that `plan_state` defaults to 'completed' on rows the
+        // planner never created, so a plan-state filter counts still-planned
+        // sessions. That was a bug when the badge claimed to count
+        // *attendance*. It is not one now: those same rows are exactly what
+        // the list puts on screen, so counting them is what makes the two
+        // agree. The `activity_status_key` question moves to the list, which
+        // is where "should a planner-less row show as completed" actually
+        // belongs.
+        //
+        // `record_type` is deliberately absent for the same reason: the list
+        // shows planned activities, which have only an `expected` row.
+        // DISTINCT on the activity is what stops a player holding both rows
+        // counting twice.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT att.activity_id)
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
-                AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
-                AND {$completed}",
+                AND a.plan_state IN ( 'completed', 'planned', 'scheduled' )
+                AND ( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
+                      OR a.plan_state IN ( 'planned', 'scheduled' ) )",
             $player_id
         ) );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(

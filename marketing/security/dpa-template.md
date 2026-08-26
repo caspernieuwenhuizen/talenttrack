@@ -130,7 +130,7 @@ The Sub-processors listed in Annex 2 with non-EEA processing have been authorise
 
 Controller, or an independent auditor mandated by Controller, may, at Controller's expense and on reasonable prior notice, conduct an audit of Processor's compliance with this DPA, no more than once per twelve-month period (unless required by a regulatory authority or following a Personal Data breach).
 
-In addition, Processor commits to an **annual external security audit** by an independent third-party security firm. The summary findings of the most recent audit are published on Processor's security page (`talenttrack.app/security`); the full report is available to Controller under non-disclosure agreement on request.
+In addition, Processor commits to an **annual external security audit** by an independent third-party security firm. The summary findings of the most recent audit are published on Processor's security page (`mediamaniacs.nl/talenttrack/security`); the full report is available to Controller under non-disclosure agreement on request.
 
 Controller may rely on the most recent external audit report in lieu of conducting its own audit, provided the scope is reasonably equivalent.
 
@@ -226,7 +226,7 @@ Storage in a relational database hosted on Controller's chosen infrastructure; r
 
 ### Security testing
 
-- Annual external security audit by an independent third-party firm (Securify or Computest under selection at the time of writing). Summary findings published on `talenttrack.app/security` within one month of report receipt.
+- Annual external security audit by an independent third-party firm (Securify or Computest under selection at the time of writing). Summary findings published on `mediamaniacs.nl/talenttrack/security` within one month of report receipt.
 - Coordinated disclosure for any vulnerability discovered by external researchers; contact `casper@mediamaniacs.nl`.
 
 ### Encryption
