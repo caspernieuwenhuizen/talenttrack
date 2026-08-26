@@ -252,6 +252,7 @@ class Activator {
             first_name VARCHAR(255) NOT NULL,
             last_name VARCHAR(255) NOT NULL,
             date_of_birth DATE,
+            sex VARCHAR(20) NOT NULL DEFAULT '',
             nationality VARCHAR(100) DEFAULT '',
             height_cm SMALLINT UNSIGNED DEFAULT NULL,
             weight_kg SMALLINT UNSIGNED DEFAULT NULL,

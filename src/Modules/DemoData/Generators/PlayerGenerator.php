@@ -142,6 +142,16 @@ class PlayerGenerator implements GeneratorInterface {
                     'first_name'          => $fn,
                     'last_name'           => $ln,
                     'date_of_birth'       => $dob,
+                    // #2894 — demo players carry a sex so the BMI-for-age
+                    // report (#2895) has something to read on a generated
+                    // academy. Every tenth is left blank on purpose: the
+                    // blank path is the one most likely to be forgotten, and
+                    // a demo set where every record is populated hides it.
+                    'sex'                 => ( $i % 10 === 0 )
+                        ? \TT\Domain\Vocabularies\Lookups\PlayerSex::NONE
+                        : ( ( $i % 2 === 0 )
+                            ? \TT\Domain\Vocabularies\Lookups\PlayerSex::MALE
+                            : \TT\Domain\Vocabularies\Lookups\PlayerSex::FEMALE ),
                     'nationality'         => 'NL',
                     'height_cm'           => $height,
                     'weight_kg'           => $weight,
