@@ -106,6 +106,15 @@
     padding-block-end: var(--tt-shell-bar-h);
 }
 
+/*
+ * #2933 — a focus surface renders no bar, so there is nothing to reserve.
+ * Without this the surface would carry 57px of dead space at the bottom
+ * of a screen it is already counting pixels on.
+ */
+.tt-shell-app .tt-shell--focus .tt-shell-main {
+    padding-block-end: 0;
+}
+
 @media (min-width: 768px) {
     .tt-shell-app .tt-shell-bar {
         display: none;
