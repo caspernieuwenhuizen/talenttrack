@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T17:52:46+00:00\n"
+"POT-Creation-Date: 2026-08-26T18:02:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -141,10 +141,10 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:77
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:178
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:217
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:232
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:298
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:307
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:235
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:250
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:316
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:325
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:222
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:83
 #: src/Modules/Stats/Admin/PlayerCardView.php:284
@@ -1319,7 +1319,7 @@ msgstr "Unterzeichnet"
 #: src/Infrastructure/Query/LabelTranslator.php:52
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:204
 #: src/Modules/Players/Admin/PlayersPage.php:234
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:444
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:525
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:231
 msgid "Released"
 msgstr ""
@@ -1327,7 +1327,7 @@ msgstr ""
 #. translators: %s: reason
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:308
 #: src/Infrastructure/Query/LabelTranslator.php:53
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:446
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:527
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:247
 msgid "Graduated"
 msgstr ""
@@ -3504,8 +3504,8 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:412
 #: src/Modules/Players/Admin/PlayersPage.php:446
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:218
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:233
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:236
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:251
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:84
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:387
@@ -7340,7 +7340,7 @@ msgid "Pick a team or age group to see its players."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:93
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:209
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:227
 msgid "No active players on this team."
 msgstr ""
 
@@ -13028,10 +13028,10 @@ msgstr "Löschen"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:517
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:39
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:110
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:219
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:234
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:301
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:310
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:237
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:252
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:319
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:328
 #: src/Shared/Frontend/FrontendAuditLogView.php:344
 #: src/Shared/Frontend/FrontendAuditLogView.php:412
 msgid "Action"
@@ -14005,7 +14005,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:136
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
 #: src/Modules/Wizards/Team/BasicsStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:20
@@ -15431,7 +15431,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:142
 #: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:14
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:126
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:137
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:140
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1211
 msgid "Active players"
 msgstr ""
@@ -31882,7 +31882,7 @@ msgid "team_name \"%s\" does not match any existing team."
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:47
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:342
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:360
 msgid "You do not have permission to run a season rollover."
 msgstr ""
 
@@ -31897,8 +31897,8 @@ msgid "There are no teams to roll over yet. Create teams first."
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:106
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:185
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:272
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:203
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:290
 msgid "Rollover steps"
 msgstr ""
 
@@ -31919,105 +31919,105 @@ msgid "e.g. End of 2025/26 season"
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:124
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:135
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:138
 msgid "Source team"
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:127
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:138
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:141
 msgid "Promote to"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:140
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:143
 msgid "No promotion / stays"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:157
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:175
 msgid "Next: choose players"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:174
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:192
 msgid "No source teams were selected. Go back and choose at least one."
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:216
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:229
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:234
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:247
 msgid "Include"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:249
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:267
 msgid "Next: review changes"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:277
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:295
 msgid "No players were selected to change. Go back and pick at least one."
 msgstr ""
 
 #. translators: 1: promoted count, 2: released count, 3: graduated count, 4: effective date
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:286
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:304
 #, php-format
 msgid ""
 "This rollover will promote %1$d, release %2$d and graduate %3$d players, "
 "effective %4$s. Released players stay active."
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:294
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:312
 msgid ""
 "A full backup runs automatically before any change is made. If the backup "
 "fails, the rollover is aborted and nothing is changed."
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:299
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:308
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:317
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:326
 msgid "From team"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:300
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:309
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:318
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:327
 msgid "To team"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:302
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:311
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:320
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:329
 msgid "Journey event"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:331
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:349
 msgid "Confirm rollover"
 msgstr ""
 
 #. translators: 1: promoted, 2: released, 3: graduated, 4: skipped
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:380
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:398
 #, php-format
 msgid ""
 "Rollover complete: %1$d promoted, %2$d released, %3$d graduated, %4$d "
 "skipped. Released players remain active."
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:387
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:405
 msgid ""
 "Move whole squads up an age group at season end. Each player gets a dated "
 "journey event for the change. Released players are recorded but stay active "
 "— nothing is deleted or archived."
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:392
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:410
 msgid "Map teams"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:393
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:411
 msgid "Choose players"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:394
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:412
 msgid "Review & confirm"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:442
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:523
 msgid "Age group promoted"
 msgstr ""
 
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:448
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:529
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
 msgid "No change"
 msgstr ""
