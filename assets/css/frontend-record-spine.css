@@ -8,12 +8,13 @@
  * Own sheet rather than an addition to frontend-app-shell.css so this can
  * land alongside other phase-3 work without two branches editing one file.
  *
- * Scoped under `.tt-shell-app` throughout — the component emits nothing
- * under `classic`, and these rules would have nothing to match anyway, but
- * the scoping keeps the intent legible.
+ * The identity strip is scoped under `.tt-shell-app` — it is shell chrome
+ * and the component emits none of it under `classic`. The tab rules are
+ * deliberately not, because in-page tabs DO render under `classic`; see
+ * the block comment above them.
  *
- * Height budget at 360×640: ~40px with no tabs, ~92px with them. Both sit
- * comfortably inside the 30vh (192px) cap.
+ * Height budget at 360×640: ~40px with no tabs, ~92px with them, ~58px
+ * for a tabs-only strip. All sit inside the 30vh (192px) cap.
  */
 
 .tt-shell-app .tt-spine {
@@ -95,11 +96,38 @@
 }
 
 /* ---- Optional tabs ------------------------------------------------- */
-/* Unused by the initial adopters — see the class docblock for why. The
-   rules exist so a surface that genuinely has alternative views of one
-   record does not have to invent its own strip. */
+/* Two kinds share this styling: navigating tabs (<a href>) and in-page
+   tabs (<button role="tab">). See the RecordSpine docblock.
 
-.tt-shell-app .tt-spine__tabs {
+   These rules are deliberately NOT scoped to `.tt-shell-app`, unlike the
+   identity strip above. In-page tabs render under `classic` too — they
+   are the only route to the panels behind them, so a strip that vanished
+   with the shell would take half a view's content with it. Under `app`
+   the strip is inside `.tt-shell-app` anyway, so dropping the prefix
+   changes nothing there. */
+
+/* The wrapper when there is no identity strip to sit under: `classic`,
+   or an app-shell caller that passed tabs without a name. It has to
+   carry the pinning and the background itself, because `.tt-spine`'s own
+   rule above is app-only. */
+.tt-spine--tabs-only {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--tt-paper, #fff);
+    border-radius: var(--tt-radius, 8px);
+    margin: var(--tt-sp-3, 12px) 0 0;
+    box-shadow: 0 1px 0 var(--tt-line-soft, #eef0ec),
+                0 6px 12px -8px rgba(0, 0, 0, 0.18);
+}
+
+/* Without the identity row above them the tabs supply their own top
+   breathing room. */
+.tt-spine--tabs-only .tt-spine__tabs {
+    padding-block-start: 10px;
+}
+
+.tt-spine__tabs {
     display: flex;
     gap: 6px;
     padding: 0 14px 10px;
@@ -111,11 +139,11 @@
     scrollbar-width: none;
 }
 
-.tt-shell-app .tt-spine__tabs::-webkit-scrollbar {
+.tt-spine__tabs::-webkit-scrollbar {
     display: none;
 }
 
-.tt-shell-app .tt-spine__tab {
+.tt-spine__tab {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
@@ -126,20 +154,25 @@
     border-radius: 999px;
     background: var(--tt-paper, #fff);
     color: var(--tt-ink-soft, #6a6d66);
+    /* `font: inherit` and `cursor` are for the in-page kind: a <button>
+       does not inherit the page font and shows a default arrow, so
+       without these the two kinds of tab would not look alike. */
+    font: inherit;
     font-size: 13px;
+    cursor: pointer;
     text-decoration: none;
     touch-action: manipulation;
 }
 
-.tt-shell-app .tt-spine__tab:hover {
+.tt-spine__tab:hover {
     color: var(--tt-ink, #0e1a14);
 }
 
-.tt-shell-app .tt-spine__tab:active {
+.tt-spine__tab:active {
     background: var(--tt-bg-soft, #f4f6f3);
 }
 
-.tt-shell-app .tt-spine__tab.is-active {
+.tt-spine__tab.is-active {
     background: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
     color: #fff;
@@ -148,7 +181,7 @@
 
 /* Focus rings must not be clipped by the strip's horizontal overflow, and
    a tab reached by keyboard must scroll itself into view. */
-.tt-shell-app .tt-spine__tab:focus-visible {
+.tt-spine__tab:focus-visible {
     outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: -2px;
     scroll-margin-inline: 12px;

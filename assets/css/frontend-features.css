@@ -116,10 +116,19 @@
 
 /* ── Card grid ─────────────────────────────────────────────────────── */
 
+/* #2890 — `align-items: start` so each card takes its own height.
+   CSS Grid stretches row items by default, and sub-feature counts across
+   real modules are wildly uneven (Reports 21, Exports 14, most modules 0).
+   A row of Prospects / Players / Player journey therefore rendered a ~200px
+   card, a ~900px card and a ~700px card all stretched to ~900px, two of
+   them mostly empty space. The fixture used while building had 0–2 features
+   per module, which is why it never showed up: the old flat one-column list
+   had no rows to align, so uneven heights cost nothing. */
 .tt-feature-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--tt-sp-3, 12px);
+    align-items: start;
 }
 
 @media (min-width: 768px) {
@@ -186,8 +195,11 @@
     line-height: var(--tt-lh-body, 1.5);
 }
 
+/* #2890 — a plain top margin, not `auto 0 0`. The `auto` existed only to
+   pin this line to the bottom of a stretched card; with cards at their
+   natural height it does nothing but strand the line below whitespace. */
 .tt-feature-card__provides {
-    margin: auto 0 0;
+    margin: var(--tt-sp-2, 8px) 0 0;
     padding-top: var(--tt-sp-2, 8px);
     border-top: 1px solid var(--tt-line-soft, #eef0ec);
     color: var(--tt-ink-soft, #6a6d66);
@@ -201,6 +213,25 @@
 }
 
 /* ── Sub-features ──────────────────────────────────────────────────── */
+
+/* #2890 — collapse control for modules with more than four sub-features.
+   Meets the 48px touch target; the marker stays so the control reads as
+   expandable without relying on colour. */
+.tt-feature-card__more-toggle {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) 0;
+    color: var(--tt-ink, #0e1a14);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tt-feature-card__more-toggle:focus-visible {
+    outline: 2px solid var(--tt-accent, #5b8def);
+    outline-offset: 2px;
+}
 
 .tt-feature-card__features {
     display: grid;
