@@ -6,9 +6,9 @@ Source files for TalentTrack's public-facing trust artifacts. Kept under `market
 
 | File | Destination | Status |
 |---|---|---|
-| `security-page.md` | `talenttrack.app/security` | Draft — copy to website on next site update; refresh annual-review date |
-| `privacy-policy.md` | `talenttrack.app/privacy` | Draft — fill in [bracketed] fields (controller address, Last reviewed date), then publish |
-| `dpa-template.md` | PDF download from `talenttrack.app/security/dpa.pdf` | **Draft pending legal review.** Do not execute against customers until reviewed. Convert to PDF after review, preserving the Annex tables and signature block |
+| `security-page.md` | `mediamaniacs.nl/talenttrack/security` | Draft — copy to website on next site update; refresh annual-review date |
+| `privacy-policy.md` | `mediamaniacs.nl/talenttrack/privacy` | Draft — fill in [bracketed] fields (controller address, Last reviewed date), then publish |
+| `dpa-template.md` | PDF download from `mediamaniacs.nl/talenttrack/security/dpa.pdf` | **Draft pending legal review.** Do not execute against customers until reviewed. Convert to PDF after review, preserving the Annex tables and signature block |
 
 ## Update cadence
 
@@ -25,8 +25,8 @@ These six product decisions were locked during the May 2026 retrospective and in
 2. **GDPR work splits out** — subject-access export ships in #0063 (Export module) use case 10; right-to-be-forgotten erasure becomes its own future spec gating on #0083 (Reporting framework's fact registry).
 3. **No column-level encryption** in v1 — host's at-rest commitment documented instead.
 4. **DPA — standard template** with no per-customer negotiation.
-5. **Audit transparency — middle level** — annual audit, summary findings published on `talenttrack.app/security`, full report under NDA on request.
-6. **Brand — TalentTrack-branded** trust pages on `talenttrack.app/security` and `talenttrack.app/privacy`. The legal entity in the DPA is MediaManiacs.
+5. **Audit transparency — middle level** — annual audit, summary findings published on `mediamaniacs.nl/talenttrack/security`, full report under NDA on request.
+6. **Brand — TalentTrack-branded** trust pages on `mediamaniacs.nl/talenttrack/security` and `mediamaniacs.nl/talenttrack/privacy`. The legal entity in the DPA is MediaManiacs.
 
 ## Cross-references
 

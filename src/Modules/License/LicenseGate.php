@@ -8,22 +8,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  *   LicenseGate::can( 'radar_charts' )      → bool
  *   LicenseGate::tier()                     → 'free' | 'standard' | 'pro'
- *   LicenseGate::isInTrial()                → bool
- *   LicenseGate::isInGrace()                → bool
- *   LicenseGate::trialDaysRemaining()       → int
- *   LicenseGate::graceDaysRemaining()       → int
  *   LicenseGate::capsExceeded( 'players' )  → bool
  *
  * Resolution order for tier():
  *   1. Dev override (if TT_DEV_OVERRIDE_SECRET defined + active transient)
- *   2. Active TalentTrack trial      → trial's tier_during
- *   3. Freemius-reported plan        → mapped tier
- *   4. Free                          → fallback
+ *   2. Entitlement                   → what the control plane says
+ *                                       this install bought
+ *   3. Free                          → fallback
  *
- * Read-only grace state is reported separately via isInGrace(). The
- * effective tier during grace is Free (gated features hidden), but
- * the UI shows a "trial expired — upgrade to keep full access"
- * banner via the days-remaining helpers.
+ * The control plane owns entitlement; the install caches it. See
+ * `CachedEntitlement` for the TTL and grace-window semantics that
+ * keep a club working when the control plane is unreachable.
  *
  * Free-tier caps live here too — a single place to ask "is this
  * customer at their team / player limit?" The caps numbers come
@@ -46,18 +41,14 @@ class LicenseGate {
             return FeatureMap::normalizeTier( $override['tier'] );
         }
 
-        // 2. Active TalentTrack trial
-        if ( TrialState::isActive() ) {
-            return FeatureMap::normalizeTier( TrialState::tierDuring() );
+        // 2. Entitlement, as last answered by the control plane
+        $entitled = Entitlement::tier();
+        if ( $entitled !== null ) {
+            return FeatureMap::normalizeTier( $entitled );
         }
 
-        // 3. Freemius-reported plan
-        $fs_tier = FreemiusAdapter::tier();
-        if ( $fs_tier !== FeatureMap::TIER_FREE ) {
-            return $fs_tier;
-        }
-
-        // 4. Free fallback
+        // 3. Free fallback — no entitlement recorded, or the recorded
+        //    one aged past its grace window.
         return FeatureMap::TIER_FREE;
     }
 
@@ -70,28 +61,11 @@ class LicenseGate {
         return FeatureMap::tierHas( self::tier(), $feature );
     }
 
-    public static function isInTrial(): bool {
-        if ( ! LicenseMode::isCommercial() ) return false;
-        return TrialState::isActive();
-    }
-
-    public static function isInGrace(): bool {
-        if ( ! LicenseMode::isCommercial() ) return false;
-        return TrialState::isInGrace();
-    }
-
-    public static function trialDaysRemaining(): int {
-        return TrialState::trialDaysRemaining();
-    }
-
-    public static function graceDaysRemaining(): int {
-        return TrialState::graceDaysRemaining();
-    }
 
     /**
      * Whether the install is at or above its free-tier cap for the
-     * given resource type. Returns false on paid tiers (caps don't
-     * apply) and during active trial / grace.
+     * given resource type. Returns false on paid tiers — caps don't
+     * apply there.
      *
      * @param string $cap_type 'teams' | 'players'
      */
@@ -115,21 +89,17 @@ class LicenseGate {
             return false;
         }
         if ( self::tier() !== FeatureMap::TIER_FREE ) return false;
-        if ( self::isInTrial() ) return false;
-        // Grace is read-only Free, so caps DO apply — you can read existing data
-        // but can't add past the cap.
 
         return FreeTierCaps::isAtCap( $cap_type );
     }
 
     /**
-     * Tier currently enforced AFTER applying grace-state read-only
-     * downgrade. Used by gate render-paths that should hide features
-     * during grace (trial-period users get Standard; grace users get
-     * Free with an "upgrade to keep" banner).
+     * Tier currently enforced. Kept as a distinct entry point from
+     * `tier()` because callers that render feature availability ask
+     * this one, and a future non-payment read-only state would land
+     * here rather than in `tier()`.
      */
     public static function effectiveTier(): string {
-        if ( self::isInGrace() ) return FeatureMap::TIER_FREE;
         return self::tier();
     }
 
