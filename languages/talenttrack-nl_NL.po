@@ -55139,6 +55139,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: 1: localised date, 2: name of the person who set it
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:137
+#, php-format
+msgid "Set on %1$s by %2$s"
+msgstr "Ingesteld op %1$s door %2$s"
+
+#. translators: %s: localised date
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:139
+#, php-format
+msgid "Set on %s"
+msgstr "Ingesteld op %s"
+
 #~ msgid ""
 #~ "Which parts of TalentTrack are switched on for your academy. This is a "
 #~ "read-only overview — ask an administrator to change anything."
