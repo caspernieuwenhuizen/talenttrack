@@ -29,14 +29,51 @@ use TT\Shared\Frontend\ShellPreference;
  *
  * ## Tabs
  *
- * The `tabs` key is supported and unused by the initial adopters, on
- * purpose. Team detail's sections are individually toggleable per user
- * (`TeamDetailSections::forUser()`); converting them to tabs would quietly
- * override a feature people already rely on. Tabs are for surfaces whose
- * sections are genuinely alternative views of one record, and that is a
- * per-surface product call rather than something to impose from a shared
- * component. Player detail keeps its own capability-gated strip, which §5c
+ * Tabs are for surfaces whose sections are genuinely alternative views of
+ * one record, and which one qualifies is a per-surface product call rather
+ * than something to impose from a shared component. Team detail's sections
+ * are individually toggleable per user (`TeamDetailSections::forUser()`);
+ * converting them to tabs would quietly override a feature people already
+ * rely on. Player detail keeps its own capability-gated strip, which §5c
  * grandfathers.
+ *
+ * There are two kinds, and a tab entry picks one by which key it carries:
+ *
+ *   - `url`   — a **navigating** tab. Renders `<a href>`; the destination
+ *               is a page load. This is the original behaviour.
+ *   - `panel` — an **in-page** tab. Renders `<button role="tab">` bound to
+ *               a panel already on the page, switched without a request.
+ *
+ * A strip is one kind or the other; the first entry carrying `panel`
+ * makes the whole strip in-page, and `url` on the remaining entries is
+ * then ignored. Mixing is not supported because the two kinds have
+ * different keyboard contracts — arrow keys move between in-page tabs and
+ * activate them, while a row of links is walked with Tab.
+ *
+ * **In-page tabs render under `classic` too.** The identity strip stays
+ * app-only, per #2456's rollback contract — it is shell chrome. A section
+ * switcher is not: it is the only route to half a view's content, and a
+ * surface whose sections are unreachable under `classic` is broken rather
+ * than degraded. `FrontendTrainingPlansView` shows the cost of the old
+ * behaviour — it carries a duplicate Edit / Done header action purely
+ * because its navigating tabs vanish under `classic`.
+ *
+ * **Panels belong to the caller.** This component does not create them.
+ * The caller renders each panel itself and passes its element id:
+ *
+ *     RecordSpine::render( [
+ *         'name' => $player->name,
+ *         'tabs' => [
+ *             [ 'label' => 'Squad', 'panel' => 'tt-panel-squad', 'active' => true ],
+ *             [ 'label' => 'Pitch', 'panel' => 'tt-panel-pitch' ],
+ *         ],
+ *     ] );
+ *
+ *     <div id="tt-panel-squad" role="tabpanel" aria-labelledby="tt-tab-tt-panel-squad">…</div>
+ *     <div id="tt-panel-pitch" role="tabpanel" aria-labelledby="tt-tab-tt-panel-pitch" hidden>…</div>
+ *
+ * Keeping panel ownership with the caller is what stops this component
+ * needing to know anything about a record.
  */
 final class RecordSpine {
 
@@ -47,18 +84,35 @@ final class RecordSpine {
      *   initials?: string,
      *   status?: string,
      *   meta?: string,
-     *   tabs?: list<array{label: string, url: string, active?: bool}>
+     *   tabs?: list<array{label: string, url?: string, panel?: string, active?: bool}>
      * } $config
      */
     public static function render( array $config ): void {
+        $tabs    = is_array( $config['tabs'] ?? null ) ? $config['tabs'] : [];
+        $in_page = self::isInPage( $tabs );
+
+        // Under `classic` the identity strip does not render — it is app
+        // shell chrome. In-page tabs still do: they are the only route to
+        // the panels behind them.
         if ( ! ShellPreference::isApp() ) {
+            if ( $in_page ) {
+                echo '<div class="tt-spine tt-spine--tabs-only">';
+                self::renderTabs( $tabs, true );
+                echo '</div>';
+            }
             return;
         }
 
         $name = trim( (string) ( $config['name'] ?? '' ) );
         if ( $name === '' ) {
-            // Without an identity there is nothing to pin, and an empty
-            // strip would just steal vertical room.
+            // Without an identity there is nothing to pin. In-page tabs
+            // are still the way into the panels, so they survive an
+            // identity-less config the same way they survive `classic`.
+            if ( $in_page ) {
+                echo '<div class="tt-spine tt-spine--tabs-only">';
+                self::renderTabs( $tabs, true );
+                echo '</div>';
+            }
             return;
         }
 
@@ -66,7 +120,6 @@ final class RecordSpine {
         $initials = (string) ( $config['initials'] ?? self::initials( $name ) );
         $status   = (string) ( $config['status'] ?? '' );
         $meta     = (string) ( $config['meta'] ?? '' );
-        $tabs     = is_array( $config['tabs'] ?? null ) ? $config['tabs'] : [];
 
         echo '<div class="tt-spine">';
 
@@ -88,23 +141,93 @@ final class RecordSpine {
         }
         echo '</div>';
 
-        if ( $tabs !== [] ) {
-            echo '<nav class="tt-spine__tabs" aria-label="' . esc_attr__( 'Record sections', 'talenttrack' ) . '">';
-            foreach ( $tabs as $tab ) {
-                $label = (string) ( $tab['label'] ?? '' );
-                $url   = (string) ( $tab['url'] ?? '' );
-                if ( $label === '' || $url === '' ) continue;
-                $active = ! empty( $tab['active'] );
-                echo '<a class="tt-spine__tab' . ( $active ? ' is-active' : '' ) . '" '
+        self::renderTabs( $tabs, $in_page );
+
+        echo '</div>';
+    }
+
+    /**
+     * True when this strip switches panels in place rather than navigating.
+     *
+     * The first entry carrying a non-empty `panel` decides it for the whole
+     * strip — see the class docblock for why the two kinds do not mix.
+     *
+     * @param list<array<string,mixed>> $tabs
+     */
+    private static function isInPage( array $tabs ): bool {
+        foreach ( $tabs as $tab ) {
+            if ( trim( (string) ( $tab['panel'] ?? '' ) ) !== '' ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The tab strip, in whichever of the two kinds the config asked for.
+     *
+     * @param list<array<string,mixed>> $tabs
+     */
+    private static function renderTabs( array $tabs, bool $in_page ): void {
+        if ( $tabs === [] ) {
+            return;
+        }
+
+        // A tablist is not navigation — it reveals content already on the
+        // page — so the in-page kind is a <div role="tablist">, not a <nav>.
+        echo $in_page
+            ? '<div class="tt-spine__tabs" role="tablist" aria-label="' . esc_attr__( 'Record sections', 'talenttrack' ) . '" data-tt-spine-tabs>'
+            : '<nav class="tt-spine__tabs" aria-label="' . esc_attr__( 'Record sections', 'talenttrack' ) . '">';
+
+        // Roving tabindex: exactly one tab is reachable with Tab, and the
+        // arrow keys move between them from there. Without a resolved
+        // active tab the first one takes the stop, so the strip is never
+        // keyboard-unreachable because a caller forgot `active`.
+        $active_seen = false;
+        foreach ( $tabs as $tab ) {
+            if ( ! empty( $tab['active'] ) ) { $active_seen = true; break; }
+        }
+        $first = true;
+
+        foreach ( $tabs as $tab ) {
+            $label = trim( (string) ( $tab['label'] ?? '' ) );
+            if ( $label === '' ) continue;
+
+            $active = ! empty( $tab['active'] ) || ( ! $active_seen && $first );
+
+            if ( $in_page ) {
+                $panel = trim( (string) ( $tab['panel'] ?? '' ) );
+                if ( $panel === '' ) continue;
+                echo '<button type="button" class="tt-spine__tab' . ( $active ? ' is-active' : '' ) . '"'
+                    . ' role="tab"'
+                    . ' id="' . esc_attr( self::tabId( $panel ) ) . '"'
+                    . ' aria-controls="' . esc_attr( $panel ) . '"'
+                    . ' aria-selected="' . ( $active ? 'true' : 'false' ) . '"'
+                    . ' tabindex="' . ( $active ? '0' : '-1' ) . '">'
+                    . esc_html( $label )
+                    . '</button>';
+            } else {
+                $url = trim( (string) ( $tab['url'] ?? '' ) );
+                if ( $url === '' ) continue;
+                echo '<a class="tt-spine__tab' . ( ! empty( $tab['active'] ) ? ' is-active' : '' ) . '" '
                     . 'href="' . esc_url( $url ) . '"'
-                    . ( $active ? ' aria-current="page"' : '' ) . '>'
+                    . ( ! empty( $tab['active'] ) ? ' aria-current="page"' : '' ) . '>'
                     . esc_html( $label )
                     . '</a>';
             }
-            echo '</nav>';
+
+            $first = false;
         }
 
-        echo '</div>';
+        echo $in_page ? '</div>' : '</nav>';
+    }
+
+    /**
+     * The tab button's own id, derived from the panel it controls so the
+     * caller only ever has to name one of the pair.
+     */
+    public static function tabId( string $panel_id ): string {
+        return 'tt-tab-' . $panel_id;
     }
 
     /** Up to two initials, for records with no photo. */
