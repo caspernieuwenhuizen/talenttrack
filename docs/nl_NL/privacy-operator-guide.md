@@ -10,7 +10,7 @@ order: 20
 
 > Het draaiboek van de academy admin voor het omgaan met persoonsgegevens in TalentTrack — vooral met die van minderjarigen, want dat is het meeste wat TalentTrack opslaat. Geschreven voor de persoon die TalentTrack heeft geïnstalleerd en verantwoordelijk is voor de dagelijkse gegevensverwerking. Ben je coach, scout of staf? Dan is deze pagina niet voor jou — kijk dan op [Aan de slag](getting-started.md).
 
-Deze gids beschrijft wat een academie onder de Europese privacywet (de AVG / GDPR) moet doen wanneer ze TalentTrack draait: wie informeer je, wat moet je ouders en spelers laten doen, hoe lang bewaar je data, wat doe je als iemand vraagt om export of verwijdering. De juridische beloftes die TalentTrack maakt — subverwerker-lijst, hostingregio, retentie-defaults, de DPA — staan op `talenttrack.app/privacy`. Deze pagina is de operator-handleiding hoe je het in de praktijk doet.
+Deze gids beschrijft wat een academie onder de Europese privacywet (de AVG / GDPR) moet doen wanneer ze TalentTrack draait: wie informeer je, wat moet je ouders en spelers laten doen, hoe lang bewaar je data, wat doe je als iemand vraagt om export of verwijdering. De juridische beloftes die TalentTrack maakt — subverwerker-lijst, hostingregio, retentie-defaults, de DPA — staan op `mediamaniacs.nl/talenttrack/privacy`. Deze pagina is de operator-handleiding hoe je het in de praktijk doet.
 
 > **Disclaimer.** Deze gids beschrijft hoe TalentTrack is gebouwd en wat de gedocumenteerde controles doen. Geen juridisch advies. Jouw academie is de verwerkingsverantwoordelijke; raadpleeg je eigen Functionaris Gegevensbescherming of jurist voor advies dat past bij jouw jurisdictie en structuur.
 
@@ -18,11 +18,11 @@ Deze gids beschrijft wat een academie onder de Europese privacywet (de AVG / GDP
 
 Jouw academie is **verwerkingsverantwoordelijke** — jij bepaalt welke persoonsgegevens worden verzameld, waarom en voor hoe lang. MediaManiacs (het bedrijf dat TalentTrack levert) is je **verwerker** — wij houden de data namens jou bij, handelen alleen op jouw instructies, en hebben een Verwerkersovereenkomst (DPA) met jou ondertekend die deze verhouding documenteert. Beide rollen zijn AVG-begrippen; beide leggen specifieke verplichtingen op.
 
-Het DPA-template staat op `talenttrack.app/privacy` om te downloaden. De meeste academies tekenen as-is. Heeft jouw jurist aanpassingen nodig? Neem contact op met MediaManiacs op het adres onderaan.
+Het DPA-template staat op `mediamaniacs.nl/talenttrack/privacy` om te downloaden. De meeste academies tekenen as-is. Heeft jouw jurist aanpassingen nodig? Neem contact op met MediaManiacs op het adres onderaan.
 
 ## Welke persoonsgegevens TalentTrack opslaat
 
-Een volledige tabel van elke kolom in elke `tt_*`-tabel die persoonsgegevens bevat staat op `talenttrack.app/privacy`. Samenvatting:
+Een volledige tabel van elke kolom in elke `tt_*`-tabel die persoonsgegevens bevat staat op `mediamaniacs.nl/talenttrack/privacy`. Samenvatting:
 
 - **Spelers** (de meesten minderjarig): naam, geboortedatum, foto, contactgegevens, evaluatiehistorie, aanwezigheidshistorie, doelen, POP-records, journey-events, scoutrapporten, stagebeslissingen, notities, gedrag- en potentieel-evaluaties.
 - **Ouders**: naam, e-mail, telefoon, link naar één of meer speler-records.
@@ -35,7 +35,7 @@ Wat TalentTrack *niet* opslaat: betalingsgegevens (de Freemius-integratie regelt
 
 1. **Inventariseer wie waar bij kan.** Elke TalentTrack-gebruiker heeft een WordPress-rol plus een TalentTrack-persona. De combinatie bepaalt wat ze zien. Open `wp-admin → TalentTrack → Toegangsbeheer → Compare users` en loop elk staf-account langs met de vraag *moet deze persoon zien wat dit account ziet?*. Bij "nee, smaller": fix de persona-toewijzing.
 2. **Bepaal retentie-vensters per datatype.** AVG vereist dat persoonsgegevens *niet langer dan noodzakelijk* worden bewaard. Bepaal vandaag hoe lang "noodzakelijk" is per categorie — bijvoorbeeld: actieve speler-records bewaard zolang men speelt + 5 jaar na vertrek, dan archiveren; stage-beslisbrieven 7 jaar voor audit; demodata wekelijks gewist; audit-log 2 jaar. Documenteer dit als het retentie-beleid van je academie. TalentTrack levert defaults; het beleid is van jou.
-3. **Vertel ouders wat je verzamelt.** Onder AVG moet je een privacyverklaring geven aan betrokkenen (de speler, de ouder voor minderjarigen) waarin staat welke data wordt verzameld en waarom. Het privacyverklaring-template op `talenttrack.app/privacy` is academie-klaar — fork het, vul je academienaam en contactgegevens in, distribueer (e-mail, inschrijfformulier, oudersportaal — wat past bij hoe je onboardt).
+3. **Vertel ouders wat je verzamelt.** Onder AVG moet je een privacyverklaring geven aan betrokkenen (de speler, de ouder voor minderjarigen) waarin staat welke data wordt verzameld en waarom. Het privacyverklaring-template op `mediamaniacs.nl/talenttrack/privacy` is academie-klaar — fork het, vul je academienaam en contactgegevens in, distribueer (e-mail, inschrijfformulier, oudersportaal — wat past bij hoe je onboardt).
 
 ## Als een ouder of speler zijn data opvraagt — recht op inzage
 
@@ -88,7 +88,7 @@ De "onbepaald"-defaults zijn voor retentie-veiligheid — je wilt geen auto-purg
 ## Wanneer een speler toetreedt of vertrekt — de privacy-levenscyclus
 
 **Toetreden:**
-1. De ouder (voor minderjarigen) tekent de standaardregistratie van de academie, die verwijst naar de privacyverklaring van de academie (template op `talenttrack.app/privacy`).
+1. De ouder (voor minderjarigen) tekent de standaardregistratie van de academie, die verwijst naar de privacyverklaring van de academie (template op `mediamaniacs.nl/talenttrack/privacy`).
 2. Datapunt dat vanaf dat moment in TalentTrack staat: `tt_players`-rij + gekoppelde `tt_player_parents`-rij + consent-vlag gezet. De audit-log registreert het create-event.
 3. Foto, contactgegevens, scoutingcontext — allemaal door staf ingevoerd, allemaal onderhevig aan retentie-beleid.
 
@@ -108,10 +108,10 @@ De "onbepaald"-defaults zijn voor retentie-veiligheid — je wilt geen auto-purg
 - [ ] Review je retentie-beleid tegenover de praktijk. Als je hebt afgesproken "5 jaar na vertrek" maar niemand wist ooit iets: documenteer het gat en beslis.
 - [ ] Steekproef de audit-log op ongebruikelijke inzage-patronen.
 - [ ] Bevestig dat het privacyregister van je academie up-to-date is (één rij per verzoek in de afgelopen 12 maanden).
-- [ ] Lees deze gids en het publieke privacybeleid op `talenttrack.app/privacy` opnieuw voor updates.
+- [ ] Lees deze gids en het publieke privacybeleid op `mediamaniacs.nl/talenttrack/privacy` opnieuw voor updates.
 
 ## Contact
 
 Voor privacyvragen, vermoede gegevensbescherming-issues of hulp bij een inzage- / wis-verzoek: `casper@mediamaniacs.nl`. We reageren binnen één werkdag en prioriteren alles wat een 72-uurs AVG-meldplicht-klok raakt.
 
-De juridische beloftes die TalentTrack publiekelijk maakt — subverwerker-lijst, hostingregio, het DPA-template, het publieke privacybeleid — staan op `talenttrack.app/privacy`. Die pagina is de klantgerichte baseline. Deze pagina is de operator-handleiding.
+De juridische beloftes die TalentTrack publiekelijk maakt — subverwerker-lijst, hostingregio, het DPA-template, het publieke privacybeleid — staan op `mediamaniacs.nl/talenttrack/privacy`. Die pagina is de klantgerichte baseline. Deze pagina is de operator-handleiding.
