@@ -223,14 +223,57 @@ status, permission filtering — all of that stays in the calling view and the
 domain layer. If the component ever needs a repository, the design has gone
 wrong.
 
-It emits nothing under `classic`, so adopting it cannot change that shell.
+The identity strip emits nothing under `classic`, so adopting it cannot change
+that shell. In-page tabs are the one exception — see below.
 
-**On tabs.** The `tabs` key is supported and deliberately unused by the initial
-adopters. Team detail's sections are individually toggleable per user
+**On tabs.** Tabs suit surfaces whose sections are genuinely alternative views of
+one record — a per-surface product call, not something to impose from a shared
+component. Team detail's sections are individually toggleable per user
 (`TeamDetailSections::forUser()`), so converting them to tabs would quietly
-override a feature people already rely on. Tabs suit surfaces whose sections are
-genuinely alternative views of one record — a per-surface product call, not
-something to impose from a shared component.
+override a feature people already rely on.
+
+There are two kinds, chosen by which key a tab entry carries:
+
+| Key | Renders | Behaviour |
+| --- | --- | --- |
+| `url` | `<a href>` | navigating — the destination is a page load |
+| `panel` | `<button role="tab">` | in-page — switches a panel already on the page |
+
+A strip is one kind or the other. The first entry carrying `panel` makes the
+whole strip in-page, and any remaining `url` entries are skipped. They do not
+mix because the keyboard contracts differ: arrow keys move between in-page tabs
+and select as they go, while a row of links is walked with Tab.
+
+**In-page tabs render under `classic` too.** The identity strip is shell chrome
+and stays app-only; a section switcher is not — it is the only route to half a
+view's content, so a surface whose sections vanished with the shell would be
+broken rather than degraded. `FrontendTrainingPlansView` shows what the old
+behaviour cost: it carries a duplicate Edit / Done header action purely because
+its navigating tabs disappear under `classic`.
+
+**Panels belong to the caller.** The component does not create them. Render each
+panel yourself and pass its element id; the tab's own id is derived from it, so
+you only ever name one of the pair.
+
+```php
+RecordSpine::render( [
+    'name' => $player->name,
+    'tabs' => [
+        [ 'label' => 'Squad', 'panel' => 'tt-panel-squad', 'active' => true ],
+        [ 'label' => 'Pitch', 'panel' => 'tt-panel-pitch' ],
+    ],
+] );
+```
+
+```html
+<div id="tt-panel-squad" role="tabpanel" aria-labelledby="tt-tab-tt-panel-squad">…</div>
+<div id="tt-panel-pitch" role="tabpanel" aria-labelledby="tt-tab-tt-panel-pitch" hidden>…</div>
+```
+
+The markup is already correct without JavaScript: the active tab is selected and
+its panel is the one not carrying `hidden`. `record-spine-tabs.js` adds the
+switching and the arrow-key handling on top, so a page that fails to load it
+shows the default panel rather than nothing.
 
 ### The bottom bar's slots
 

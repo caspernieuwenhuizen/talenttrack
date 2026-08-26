@@ -88,8 +88,10 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
-            // #2479 — pinned record identity (RecordSpine). Own sheet for
-            // the same reason.
+            // #2479 — pinned record identity (RecordSpine) needs the app
+            // shell's tokens for the identity strip. The tab half of the
+            // same sheet is enqueued unconditionally below, because in-page
+            // tabs render under `classic` too (#2932).
             wp_enqueue_style(
                 'tt-frontend-record-spine',
                 TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
@@ -133,6 +135,27 @@ class DashboardShortcode {
                 TT_VERSION
             );
         }
+
+        // #2932 — RecordSpine's in-page tab strip. Both the sheet and the
+        // behaviour load under either shell: unlike the identity strip,
+        // which is app-shell chrome, a section switcher is the only route
+        // to the panels behind it, so it must survive `classic`. The sheet
+        // is enqueued a second time under `app` above with the shell
+        // dependency it needs there; WordPress de-duplicates by handle, so
+        // the first registration wins and this is the `classic` path.
+        wp_enqueue_style(
+            'tt-frontend-record-spine',
+            TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
+            [ 'tt-public' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-record-spine-tabs',
+            TT_PLUGIN_URL . 'assets/js/components/record-spine-tabs.js',
+            [],
+            TT_VERSION,
+            true
+        );
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         // #2517 — warm the next page on hover. Navigation stays a real page

@@ -231,14 +231,60 @@ zien, afgeleide status, filteren op rechten — dat blijft in de aanroepende vie
 en de domeinlaag. Heeft deze klasse ooit een repository nodig, dan klopt het
 ontwerp niet.
 
-Onder `classic` rendert hij niets, dus hem overnemen kan die shell niet wijzigen.
+De identiteitsstrook rendert niets onder `classic`, dus hem overnemen kan die
+shell niet wijzigen. Tabs binnen de pagina zijn de enige uitzondering — zie
+hieronder.
 
-**Over tabs.** De sleutel `tabs` wordt ondersteund en is bewust ongebruikt bij de
-eerste overnemers. De secties van teamdetail zijn per gebruiker aan en uit te
-zetten (`TeamDetailSections::forUser()`); ze naar tabs omzetten zou een functie
-overrulen waar mensen al op vertrouwen. Tabs passen bij oppervlakken waar de
-secties echt alternatieve blikken op één record zijn — een keuze per oppervlak,
-niet iets om vanuit een gedeelde component op te leggen.
+**Over tabs.** Tabs passen bij oppervlakken waar de secties echt alternatieve
+blikken op één record zijn — een keuze per oppervlak, niet iets om vanuit een
+gedeelde component op te leggen. De secties van teamdetail zijn per gebruiker aan
+en uit te zetten (`TeamDetailSections::forUser()`); ze naar tabs omzetten zou een
+functie overrulen waar mensen al op vertrouwen.
+
+Er zijn twee soorten, bepaald door welke sleutel een tab meekrijgt:
+
+| Sleutel | Rendert | Gedrag |
+| --- | --- | --- |
+| `url` | `<a href>` | navigerend — de bestemming is een paginalading |
+| `panel` | `<button role="tab">` | binnen de pagina — wisselt een paneel dat er al staat |
+
+Een strook is de ene soort of de andere. De eerste tab met `panel` maakt de hele
+strook een paneelwisselaar; overgebleven `url`-tabs worden overgeslagen. Ze
+mengen niet, omdat het toetsenbordgedrag verschilt: pijltjestoetsen lopen langs
+tabs binnen de pagina en selecteren meteen, terwijl je een rij links met Tab
+doorloopt.
+
+**Tabs binnen de pagina renderen ook onder `classic`.** De identiteitsstrook is
+shell-chroom en blijft alleen in `app`; een sectiewisselaar niet — die is de
+enige route naar de helft van de inhoud van een view, dus een oppervlak waarvan
+de secties met de shell zouden verdwijnen is stuk, niet uitgekleed.
+`FrontendTrainingPlansView` laat zien wat het oude gedrag kostte: die draagt een
+dubbele Bewerken/Klaar-actie in de kop, puur omdat de navigerende tabs onder
+`classic` verdwijnen.
+
+**Panelen zijn van de aanroeper.** De component maakt ze niet. Render elk paneel
+zelf en geef het element-id mee; het id van de tab wordt daaruit afgeleid, dus je
+benoemt er altijd maar één van het paar.
+
+```php
+RecordSpine::render( [
+    'name' => $player->name,
+    'tabs' => [
+        [ 'label' => 'Selectie', 'panel' => 'tt-panel-squad', 'active' => true ],
+        [ 'label' => 'Veld',     'panel' => 'tt-panel-pitch' ],
+    ],
+] );
+```
+
+```html
+<div id="tt-panel-squad" role="tabpanel" aria-labelledby="tt-tab-tt-panel-squad">…</div>
+<div id="tt-panel-pitch" role="tabpanel" aria-labelledby="tt-tab-tt-panel-pitch" hidden>…</div>
+```
+
+De markup klopt al zonder JavaScript: de actieve tab is geselecteerd en zijn
+paneel is het enige zonder `hidden`. `record-spine-tabs.js` legt het wisselen en
+de pijltjestoetsen erbovenop, dus een pagina die dat bestand niet laadt toont het
+standaardpaneel in plaats van niets.
 
 ### De slots van de onderbalk
 
