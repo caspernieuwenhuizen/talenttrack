@@ -1896,7 +1896,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </select>
                     <p class="tt-field-hint">
-                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section; Leon Hutten is the club design system, a black crest banner with a cyan stripe. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
                     </p>
                 </div>
 
