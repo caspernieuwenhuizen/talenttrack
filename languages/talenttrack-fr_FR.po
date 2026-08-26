@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T18:20:31+00:00\n"
+"POT-Creation-Date: 2026-08-26T18:31:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -9927,7 +9927,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
-#: src/Shared/Frontend/FrontendFeaturesView.php:268
+#: src/Shared/Frontend/FrontendFeaturesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:296
 msgid "On"
 msgstr "Activé"
@@ -9936,7 +9936,7 @@ msgstr "Activé"
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1184
-#: src/Shared/Frontend/FrontendFeaturesView.php:268
+#: src/Shared/Frontend/FrontendFeaturesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:298
 msgid "Off"
 msgstr "Désactivé"
@@ -45266,6 +45266,14 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFeaturesView.php:232
 msgid "Includes"
 msgstr ""
+
+#. translators: %s: number of sub-features in this module
+#: src/Shared/Frontend/FrontendFeaturesView.php:261
+#, php-format
+msgid "%s feature"
+msgid_plural "%s features"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85

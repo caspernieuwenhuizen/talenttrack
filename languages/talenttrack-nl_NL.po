@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T18:20:31+00:00\n"
+"POT-Creation-Date: 2026-08-26T18:31:09+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -10475,7 +10475,7 @@ msgstr "Core module — kan niet worden uitgeschakeld."
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
-#: src/Shared/Frontend/FrontendFeaturesView.php:268
+#: src/Shared/Frontend/FrontendFeaturesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:296
 msgid "On"
 msgstr "Aan"
@@ -10484,7 +10484,7 @@ msgstr "Aan"
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1184
-#: src/Shared/Frontend/FrontendFeaturesView.php:268
+#: src/Shared/Frontend/FrontendFeaturesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:298
 msgid "Off"
 msgstr "Uit"
@@ -48774,6 +48774,14 @@ msgstr "Alles wat beschikbaar is, staat aan."
 msgid "Includes"
 msgstr "Bevat"
 
+#. translators: %s: number of sub-features in this module
+#: src/Shared/Frontend/FrontendFeaturesView.php:261
+#, php-format
+msgid "%s feature"
+msgid_plural "%s features"
+msgstr[0] "%s functie"
+msgstr[1] "%s functies"
+
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:294
@@ -55115,14 +55123,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#. translators: %s: number of sub-features in this module
-#: src/Shared/Frontend/FrontendFeaturesView.php:255
-#, php-format
-msgid "%s feature"
-msgid_plural "%s features"
-msgstr[0] "%s functie"
-msgstr[1] "%s functies"
 
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
