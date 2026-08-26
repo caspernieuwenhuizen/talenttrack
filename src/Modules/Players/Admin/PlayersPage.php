@@ -354,6 +354,16 @@ class PlayersPage {
                     <tr><th><?php esc_html_e( 'Last Name', 'talenttrack' ); ?> *</th><td><input type="text" name="last_name" value="<?php echo esc_attr( $player->last_name ?? '' ); ?>" class="regular-text" required /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'last_name' ); ?>
                     <tr><th><?php esc_html_e( 'Date of Birth', 'talenttrack' ); ?></th><td><input type="date" name="date_of_birth" value="<?php echo esc_attr( $player->date_of_birth ?? '' ); ?>" /></td></tr>
+                    <?php // #2894 — same field as the frontend form, same optional-by-default rule. ?>
+                    <tr><th><?php esc_html_e( 'Sex (for growth references)', 'talenttrack' ); ?></th><td>
+                        <select name="sex">
+                            <?php foreach ( \TT\Domain\Vocabularies\Lookups\PlayerSex::options() as $sex_value => $sex_label ) : ?>
+                                <option value="<?php echo esc_attr( (string) $sex_value ); ?>" <?php selected( \TT\Domain\Vocabularies\Lookups\PlayerSex::sanitize( $player->sex ?? '' ), $sex_value ); ?>>
+                                    <?php echo esc_html( $sex_label ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_of_birth' ); ?>
                     <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><input type="text" name="nationality" value="<?php echo esc_attr( $player->nationality ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'nationality' ); ?>
@@ -516,6 +526,9 @@ class PlayersPage {
             'first_name' => isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['first_name'] ) ) : '',
             'last_name' => isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['last_name'] ) ) : '',
             'date_of_birth' => isset( $_POST['date_of_birth'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['date_of_birth'] ) ) : '',
+            // #2894 — sanitize() maps anything unrecognised to blank rather
+            // than rejecting the save.
+            'sex'           => \TT\Domain\Vocabularies\Lookups\PlayerSex::sanitize( isset( $_POST['sex'] ) ? wp_unslash( (string) $_POST['sex'] ) : '' ),
             'nationality' => isset( $_POST['nationality'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nationality'] ) ) : '',
             'height_cm' => ! empty( $_POST['height_cm'] ) ? absint( $_POST['height_cm'] ) : null,
             'weight_kg' => ! empty( $_POST['weight_kg'] ) ? absint( $_POST['weight_kg'] ) : null,

@@ -55136,6 +55136,29 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Domain/Vocabularies/Lookups/PlayerSex.php:60
+msgid "Male"
+msgstr "Man"
+
+#: src/Domain/Vocabularies/Lookups/PlayerSex.php:62
+msgid "Female"
+msgstr "Vrouw"
+
+
+#: src/Modules/Configuration/Admin/FormSlugContract.php:57
+msgid "Sex (for growth references)"
+msgstr "Geslacht (voor groeicurves)"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:381
+msgid ""
+"Used only to pick the right growth curve for age-adjusted height, weight and "
+"BMI. Leave blank if you would rather not record it — everything else still "
+"works."
+msgstr ""
+"Wordt alleen gebruikt om de juiste groeicurve te kiezen voor lengte, gewicht "
+"en BMI naar leeftijd. Laat het leeg als je het liever niet vastlegt — al het "
+"andere blijft gewoon werken."
+
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
 #~ "Dit onderdeel is alleen beschikbaar voor mensen met een gekoppeld "
