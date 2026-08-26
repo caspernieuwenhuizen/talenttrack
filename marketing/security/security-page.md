@@ -1,6 +1,6 @@
 # Security at TalentTrack
 
-> **Source for `talenttrack.app/security`.** Copy this content to the public page on the TalentTrack website. Update the *Last reviewed* date with each annual review. The operator-facing how-to lives at `docs/security-operator-guide.md` inside the plugin; the legal Data Processing Agreement template lives at `marketing/security/dpa-template.md`.
+> **Source for `mediamaniacs.nl/talenttrack/security`.** Copy this content to the public page on the TalentTrack website. Update the *Last reviewed* date with each annual review. The operator-facing how-to lives at `docs/security-operator-guide.md` inside the plugin; the legal Data Processing Agreement template lives at `marketing/security/dpa-template.md`.
 
 > **Last reviewed:** [date of last annual review]
 
@@ -11,7 +11,7 @@ TalentTrack stores personal data about minors. We treat security as the precondi
 TalentTrack is self-hosted on the WordPress install your academy operates. Each academy's data lives on the academy's own hosting account — TalentTrack does not centrally store or proxy customer data through MediaManiacs. Practically:
 
 - Your `tt_*` tables sit in the same database your WordPress site uses. The hosting provider you chose controls where that database physically resides.
-- The recommended hosting choice for European academies is a provider with EU-only data residency (e.g. WP Engine EU, Kinsta EU, Cloudways with an EU region). MediaManiacs publishes a hosting-recommendation list at `talenttrack.app/hosting`.
+- The recommended hosting choice for European academies is a provider with EU-only data residency (e.g. WP Engine EU, Kinsta EU, Cloudways with an EU region). MediaManiacs publishes a hosting-recommendation list at `mediamaniacs.nl/talenttrack/hosting`.
 - We do not have direct access to your install. Support requires either screen-sharing or an admin account you create for us — both fully under your control, both audit-logged.
 
 The exceptions are two narrow operational telemetry channels:
@@ -91,7 +91,7 @@ We notify customers in advance of any sub-processor change via email and an upda
 
 ## Data Processing Agreement
 
-The Data Processing Agreement (DPA) between MediaManiacs (processor) and your academy (controller) is a standard EU template, legal-reviewed once, signed as-is. Download from [link to DPA — `talenttrack.app/security/dpa.pdf`]. Per-customer negotiation is not part of TalentTrack's standard offering; if your legal counsel needs a non-standard term, contact us.
+The Data Processing Agreement (DPA) between MediaManiacs (processor) and your academy (controller) is a standard EU template, legal-reviewed once, signed as-is. Download from [link to DPA — `mediamaniacs.nl/talenttrack/security/dpa.pdf`]. Per-customer negotiation is not part of TalentTrack's standard offering; if your legal counsel needs a non-standard term, contact us.
 
 ## Bug bounty
 

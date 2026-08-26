@@ -88,8 +88,10 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
-            // #2479 — pinned record identity (RecordSpine). Own sheet for
-            // the same reason.
+            // #2479 — pinned record identity (RecordSpine) needs the app
+            // shell's tokens for the identity strip. The tab half of the
+            // same sheet is enqueued unconditionally below, because in-page
+            // tabs render under `classic` too (#2932).
             wp_enqueue_style(
                 'tt-frontend-record-spine',
                 TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
@@ -133,6 +135,27 @@ class DashboardShortcode {
                 TT_VERSION
             );
         }
+
+        // #2932 — RecordSpine's in-page tab strip. Both the sheet and the
+        // behaviour load under either shell: unlike the identity strip,
+        // which is app-shell chrome, a section switcher is the only route
+        // to the panels behind it, so it must survive `classic`. The sheet
+        // is enqueued a second time under `app` above with the shell
+        // dependency it needs there; WordPress de-duplicates by handle, so
+        // the first registration wins and this is the `classic` path.
+        wp_enqueue_style(
+            'tt-frontend-record-spine',
+            TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
+            [ 'tt-public' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-record-spine-tabs',
+            TT_PLUGIN_URL . 'assets/js/components/record-spine-tabs.js',
+            [],
+            TT_VERSION,
+            true
+        );
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         // #2517 — warm the next page on hover. Navigation stays a real page
@@ -572,7 +595,13 @@ class DashboardShortcode {
 
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        echo '<div class="tt-shell" data-tt-shell>';
+        // #2933 — a surface that owns the thumb zone gets no bottom bar,
+        // so the main column must not reserve space for one either. The
+        // class is stamped here rather than computed in the sheet because
+        // only PHP knows which slug is rendering.
+        $focus = \TT\Shared\Frontend\FocusSurfaces::claims( $view );
+
+        echo '<div class="tt-shell' . ( $focus ? ' tt-shell--focus' : '' ) . '" data-tt-shell>';
         \TT\Shared\Frontend\Components\FrontendAppNav::render( get_current_user_id(), $view );
         \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerScrim();
         echo '<div class="tt-shell-main">';

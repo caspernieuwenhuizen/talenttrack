@@ -252,6 +252,36 @@ HelpDrawer::button( 'pdp' );         // the route — opens the wrong thing
   user's "back" target should be the form's referer, not the URL the
   redirect emits.
 
+## Cancel resolves `tt_back` in the shared helper (#2869)
+
+A form's **Cancel** button is a form action rather than a navigation
+affordance — it does not count against the two-affordance budget above — but it
+is still a place a user ends up, and §6 rule 5 has always said it should return
+them to where they came from.
+
+That is now resolved **once**, inside
+`\TT\Shared\Frontend\Components\FormSaveButton::render()`, rather than at each
+call site. Callers keep passing the §6 default in `cancel_url` — the record's
+detail page when editing, the list when creating — and the helper prefers a
+valid `tt_back` from the entry URL when one is present.
+
+The reason it lives in the helper is that the rule did not survive being
+everybody's job: of 65 `cancel_url` assignments in `src/`, four consulted
+`BackLink` and 61 hard-coded a destination. A form added after this inherits
+the behaviour without its author needing to know the rule exists.
+
+Two things worth knowing before changing it:
+
+- **Resolution goes through `BackLink::resolve()`, never `$_GET['tt_back']`.**
+  Cancel is a link a user is invited to click; following an unvalidated
+  parameter would make every form in the plugin an open redirect. `resolve()`
+  is the validating reader and refuses an off-site or malformed target.
+- **`ignore_back => true`** pins the caller's `cancel_url` for the rare form
+  that must always land in one place regardless of how it was reached.
+
+Note the method is `BackLink::resolve()`. CLAUDE.md §6 rule 5 names it
+`BackLink::resolveBack()`, which does not exist.
+
 ## Validation
 
 `tt_back` values are validated before rendering:

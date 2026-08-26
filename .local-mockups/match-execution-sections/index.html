@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Match execution — sectioned shell (sticky bar + tabs)</title>
+<style>
+:root {
+    --tt-ink:        #0e1a14;
+    --tt-ink-soft:   #6a6d66;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f4f6f3;
+    --tt-line:       #e3e6e1;
+    --tt-accent:     #0b3d2e;
+    --tt-success:    #2f9e5e;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d8453b;
+    --tt-mute:       #f0f3f2;
+    --tap:           48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    background: #22252a;
+    color: var(--tt-ink);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===================================================================
+   Mockup chrome — picker + phone frames. Not part of the port.
+   =================================================================== */
+.mk-head {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 20px 8px;
+    color: #e8ecea;
+}
+.mk-head h1 { font-size: 20px; margin: 0 0 6px; }
+.mk-head p { margin: 0 0 14px; font-size: 14px; color: #9aa5a0; max-width: 74ch; }
+.mk-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-picker button {
+    min-height: 40px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid #3a4048; background: #2c3037; color: #cfd6d2;
+    font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.mk-picker button[aria-pressed="true"] { background: #e8ecea; color: #14181c; border-color: #e8ecea; }
+.mk-stage {
+    max-width: 1180px; margin: 0 auto; padding: 18px 20px 60px;
+    display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;
+}
+.mk-col { flex: 0 0 auto; }
+.mk-col > figcaption {
+    color: #9aa5a0; font-size: 12px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; margin: 0 0 8px;
+}
+.mk-phone {
+    width: 360px; height: 640px; position: relative; overflow: hidden;
+    border-radius: 22px; border: 8px solid #14181c; background: var(--tt-bg);
+    box-shadow: 0 20px 40px -20px rgba(0,0,0,.7);
+}
+.mk-note { color: #9aa5a0; font-size: 12px; margin: 8px 0 0; width: 360px; }
+.mk-note b { color: #cfd6d2; }
+[hidden] { display: none !important; }
+
+/* ===================================================================
+   Production vocabulary — .tt-mexec-* so the port is mechanical.
+   Base = 360px (CLAUDE.md §2, mobile-first).
+   =================================================================== */
+.tt-mexec {
+    position: absolute; inset: 0;
+    display: grid;
+    background: var(--tt-bg);
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- A: sticky bar top, tabs top, CTA footer bottom --- */
+.tt-mexec[data-shell="tabs-top"] {
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: "bar" "tabs" "panel" "foot";
+}
+/* --- B: sticky bar top, CTA + tabs in the thumb zone --- */
+.tt-mexec[data-shell="tabs-bottom"] {
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas: "bar" "panel" "foot" "tabs";
+}
+/* --- Baseline: today. One scroll, footer fixed. --- */
+.tt-mexec[data-shell="scroll"] {
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "panel" "foot";
+}
+
+/* ----- Match bar (sticky) ------------------------------------------ */
+.tt-mexec-bar {
+    grid-area: bar;
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    padding: 6px var(--gap) 8px;
+    padding-top: calc(6px + env(safe-area-inset-top));
+}
+.tt-mexec-bar-meta {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    color: var(--tt-ink-soft);
+}
+.tt-mexec-bar-meta .home { text-align: left; }
+.tt-mexec-bar-meta .away { text-align: right; }
+.tt-mexec-bar-clock {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; color: var(--tt-ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.tt-mexec-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--tt-danger); flex: 0 0 auto;
+    animation: ttpulse 1.6s ease-in-out infinite;
+}
+@keyframes ttpulse { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+@media (prefers-reduced-motion: reduce) { .tt-mexec-live-dot { animation: none } }
+
+.tt-mexec-bar-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 8px;
+}
+.tt-mexec-score-stepper {
+    display: grid;
+    grid-template-columns: 44px 34px 44px;
+    align-items: stretch;
+}
+.tt-mexec-score-btn {
+    height: var(--tap); border: 1px solid var(--tt-line); background: var(--tt-mute);
+    font: inherit; font-size: 20px; font-weight: 700; color: var(--tt-ink);
+    cursor: pointer; touch-action: manipulation; padding: 0;
+}
+.tt-mexec-score-btn--minus { border-radius: var(--radius) 0 0 var(--radius); }
+.tt-mexec-score-btn--plus {
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--tt-accent); color: #fff; border-color: var(--tt-accent);
+}
+.tt-mexec-score-btn:active { filter: brightness(.92); }
+.tt-mexec-score-num {
+    display: flex; align-items: center; justify-content: center;
+    height: var(--tap); background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line); border-bottom: 1px solid var(--tt-line);
+    font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.tt-mexec-bar-mid { display: flex; justify-content: center; }
+.tt-mexec-timer-btn {
+    min-height: var(--tap); min-width: var(--tap); padding: 0 10px;
+    border: 1px solid var(--tt-line); border-radius: var(--radius);
+    background: var(--tt-mute); font: inherit; font-size: 15px; font-weight: 700;
+    color: var(--tt-ink); cursor: pointer; touch-action: manipulation;
+}
+.tt-mexec-timer-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.tt-mexec-edit-btn {
+    min-height: var(--tap); min-width: var(--tap); padding: 0 10px;
+    border: 1px solid var(--tt-line); border-radius: var(--radius);
+    background: var(--tt-paper); font: inherit; font-size: 13px; font-weight: 600;
+    color: var(--tt-ink-soft); cursor: pointer; touch-action: manipulation;
+}
+.tt-mexec-edit-btn[aria-pressed="true"] {
+    background: var(--tt-accent); border-color: var(--tt-accent); color: #fff;
+}
+/* Read-only states drop the whole control row; the bar shrinks to ~46px. */
+.tt-mexec[data-edit-mode="off"] .tt-mexec-edit-only { display: none; }
+.tt-mexec[data-edit-mode="off"] .tt-mexec-bar-row { grid-template-columns: 1fr auto; }
+.tt-mexec-bar-final {
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.tt-mexec-bar-final small { font-size: 12px; font-weight: 700; color: var(--tt-ink-soft); letter-spacing: .6px; }
+
+/* ----- Section tabs (sticky) --------------------------------------- */
+.tt-mexec-tabs {
+    grid-area: tabs;
+    display: flex;
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    padding: 0 6px;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.tt-mexec-tabs::-webkit-scrollbar { display: none; }
+.tt-mexec-tab {
+    flex: 1 1 0; min-width: 72px; min-height: var(--tap);
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; padding: 4px 6px;
+    border: 0; border-bottom: 3px solid transparent; background: none;
+    font: inherit; font-size: 12px; font-weight: 600; color: var(--tt-ink-soft);
+    cursor: pointer; touch-action: manipulation; white-space: nowrap;
+}
+.tt-mexec-tab-icon { font-size: 17px; line-height: 1; }
+.tt-mexec-tab[aria-selected="true"] { color: var(--tt-accent); border-bottom-color: var(--tt-accent); }
+.tt-mexec-tab:active { background: var(--tt-mute); }
+.tt-mexec-tab:focus-visible { outline: 2px solid var(--tt-accent); outline-offset: -3px; }
+.tt-mexec-tab-badge {
+    display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px;
+    border-radius: 999px; background: var(--tt-mute); color: var(--tt-ink-soft);
+    font-size: 11px; font-weight: 700; line-height: 18px;
+}
+.tt-mexec-tab[aria-selected="true"] .tt-mexec-tab-badge { background: var(--tt-accent); color: #fff; }
+.tt-mexec-tab[data-attention="true"] .tt-mexec-tab-badge { background: var(--tt-warn); color: #fff; }
+
+/* Variant B — thumb-zone bar */
+[data-shell="tabs-bottom"] .tt-mexec-tabs {
+    border-bottom: 0; border-top: 1px solid var(--tt-line);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+[data-shell="tabs-bottom"] .tt-mexec-tab { border-bottom: 0; border-top: 3px solid transparent; }
+[data-shell="tabs-bottom"] .tt-mexec-tab[aria-selected="true"] { border-top-color: var(--tt-accent); }
+
+/* ----- Panel (the only scrolling region) --------------------------- */
+.tt-mexec-panel {
+    grid-area: panel;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+}
+.tt-mexec-panel > [role="tabpanel"][hidden] { display: none; }
+
+/* ----- Footer CTA -------------------------------------------------- */
+.tt-mexec-footer {
+    grid-area: foot;
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line);
+    padding: 8px var(--gap-lg);
+    box-shadow: 0 -4px 12px rgba(0,0,0,.06);
+}
+[data-shell="tabs-top"] .tt-mexec-footer,
+[data-shell="scroll"] .tt-mexec-footer { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+[data-shell="tabs-bottom"] .tt-mexec-footer { box-shadow: none; }
+.tt-mexec-footer-cta {
+    width: 100%; min-height: 52px; border: 0; border-radius: var(--radius);
+    background: var(--tt-ink); color: #fff; font: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; touch-action: manipulation;
+}
+.tt-mexec-footer-cta[data-action="end-match"] { background: var(--tt-danger); }
+.tt-mexec-footer-cta[data-action="finalize"] { background: var(--tt-success); }
+.tt-mexec-footer-cta[data-action="start-match"] { background: var(--tt-accent); }
+/* Two-step confirm on the destructive transitions. First tap arms it for
+   ~3s; the armed face is visibly different, not merely relabelled, so a
+   glance is enough. Keyboard and pointer take the identical path — no
+   gesture, nothing to fall back from (CLAUDE.md §2). */
+.tt-mexec-footer-cta[data-armed="true"] {
+    background: var(--tt-warn);
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.55);
+}
+.tt-mexec-footer-cta[data-armed="true"]::after {
+    content: ''; display: block; height: 3px; margin: 6px 12px -4px;
+    background: rgba(255,255,255,.7); border-radius: 2px;
+    transform-origin: right center; animation: ttarm 3s linear forwards;
+}
+@keyframes ttarm { from { transform: scaleX(1) } to { transform: scaleX(0) } }
+@media (prefers-reduced-motion: reduce) {
+    .tt-mexec-footer-cta[data-armed="true"]::after { animation: none; transform: scaleX(1); }
+}
+.tt-mexec-footer-sub {
+    margin: 6px 0 0; display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; color: var(--tt-ink-soft);
+}
+.tt-mexec-footer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tt-success); display: inline-block; }
+.tt-mexec-bar-sync { display: inline-flex; align-items: center; margin-left: 6px; }
+
+/* ----- Sections inside a panel ------------------------------------- */
+.tt-mexec-section { background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); padding: var(--gap) var(--gap-lg) var(--gap-lg); }
+.tt-mexec-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+.tt-mexec-section-title { font-size: 13px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; margin: 0; color: var(--tt-ink-soft); }
+.tt-mexec-section-count { font-size: 12px; color: var(--tt-ink-soft); }
+.tt-mexec-empty { margin: 0; font-size: 13px; color: var(--tt-ink-soft); }
+
+.tt-mexec-player-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tt-mexec-player {
+    display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 10px;
+    min-height: var(--tap); padding: 6px 8px;
+    border: 1px solid var(--tt-line); border-radius: var(--radius); background: var(--tt-paper);
+}
+.tt-mexec-player-number { font-size: 13px; font-weight: 800; color: var(--tt-ink-soft); text-align: center; font-variant-numeric: tabular-nums; }
+.tt-mexec-player-name { font-size: 14px; font-weight: 600; min-width: 0; }
+.tt-mexec-player-name small { display: block; font-size: 11px; font-weight: 500; color: var(--tt-ink-soft); }
+.tt-mexec-action-btn {
+    min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--tt-accent);
+    background: var(--tt-accent); color: #fff; font: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; touch-action: manipulation;
+}
+.tt-mexec-action-btn--ghost { background: var(--tt-paper); color: var(--tt-accent); }
+.tt-mexec-goal-chip {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    background: var(--tt-mute); font-size: 11px; font-weight: 600; color: var(--tt-ink-soft);
+}
+.tt-mexec-player-goals { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+
+.tt-mxp-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tt-mxp-log li {
+    display: grid; grid-template-columns: 38px auto 1fr auto; align-items: center; gap: 8px;
+    min-height: 44px; padding: 4px 8px; border: 1px solid var(--tt-line); border-radius: var(--radius);
+    font-size: 13px;
+}
+.tt-mxp-log-min { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--tt-ink-soft); }
+.tt-mxp-log-chip { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--tt-mute); }
+.tt-mxp-log-chip[data-type="goal"] { background: #e2f3ea; color: #1e6b41; }
+.tt-mxp-log-chip[data-type="sub"] { background: #eaf0f6; color: #2b5580; }
+.tt-mxp-log-score { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.tt-mxp-pitch {
+    position: relative; aspect-ratio: 2 / 3; border-radius: var(--radius);
+    background: repeating-linear-gradient(180deg, #2f7a4f 0 8%, #2b7149 8% 16%);
+    border: 2px solid #ffffff55;
+}
+.tt-mxp-slot {
+    position: absolute; transform: translate(-50%, -50%);
+    display: grid; justify-items: center; gap: 2px; width: 62px; text-align: center;
+}
+.tt-mxp-slot-badge {
+    width: 26px; height: 26px; border-radius: 50%; background: #fff; color: #14311f;
+    font-size: 12px; font-weight: 800; display: grid; place-items: center;
+}
+.tt-mxp-slot-name { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+
+.tt-mexec-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tt-kpi { background: var(--tt-mute); border-radius: var(--radius); padding: 10px 12px; }
+.tt-kpi-value { font-size: 22px; font-weight: 800; line-height: 1; }
+.tt-kpi-label { font-size: 11px; color: var(--tt-ink-soft); margin-top: 4px; }
+
+.tt-mexec-state-pill {
+    margin: 0 0 8px; padding: 8px 12px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 700; background: #fdf0e3; color: #8a4515;
+}
+.tt-mexec-finalize-help { margin: 0 0 10px; font-size: 13px; color: var(--tt-ink-soft); }
+.tt-mexec-finalize-btn {
+    width: 100%; min-height: var(--tap); border: 0; border-radius: var(--radius);
+    background: var(--tt-success); color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.tt-mexec-tl-row { display: grid; grid-template-columns: 74px 1fr 34px; align-items: center; gap: 8px; min-height: 34px; font-size: 12px; }
+.tt-mexec-tl-track { position: relative; height: 12px; border-radius: 6px; background: repeating-linear-gradient(45deg,#eceeea 0 4px,#e2e5e0 4px 8px); }
+.tt-mexec-tl-seg { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: var(--tt-success); }
+.tt-mexec-tl-mins { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tt-mexec-tl-group { margin: 10px 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--tt-ink-soft); }
+.tt-mexec-min-row { display: grid; grid-template-columns: 1fr 44px 52px 44px; align-items: center; gap: 6px; min-height: var(--tap); font-size: 13px; }
+.tt-mexec-min-row input { min-height: 44px; text-align: center; border: 1px solid var(--tt-line); border-radius: 8px; font: inherit; font-size: 15px; width: 100%; }
+.tt-mexec-min-row button { min-height: 44px; border: 1px solid var(--tt-line); border-radius: 8px; background: var(--tt-mute); font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; }
+
+/* Baseline-only: the shell bottom bar the app shell puts over this view. */
+.mk-shellbar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 57px; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-around;
+    background: var(--tt-paper); border-top: 1px solid var(--tt-line);
+    font-size: 10px; color: var(--tt-ink-soft); font-weight: 600;
+}
+.mk-shellbar span { display: grid; justify-items: center; gap: 2px; }
+.mk-shellbar b { font-size: 16px; font-weight: 400; }
+.mk-overlap {
+    position: absolute; left: 8px; right: 8px; bottom: 62px; z-index: 1001;
+    background: var(--tt-danger); color: #fff; font-size: 11px; font-weight: 700;
+    padding: 6px 8px; border-radius: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="mk-head">
+    <h1>Match execution — sticky bar + section tabs</h1>
+    <p>
+        Today the surface is one scroll of up to fourteen stacked sections. The proposal keeps the score/clock
+        pinned at the top and the state CTA pinned at the bottom, and adds a pinned segmented control so the
+        coach switches sections instead of scrolling past them.
+        <b>Variant B is the chosen direction</b> — the switcher sits in the thumb zone, the CTA stacks above it,
+        and the app shell's own bottom bar is suppressed on this surface via <code>config/focus_surfaces.php</code>.
+        Destructive CTAs ("End match", "Finalize match") take two taps; try one.
+    </p>
+    <div class="mk-picker" id="mk-variant" role="group" aria-label="Variant">
+        <button type="button" data-variant="tabs-bottom" aria-pressed="true">B · Tabs in the thumb zone (chosen)</button>
+        <button type="button" data-variant="tabs-top" aria-pressed="false">A · Tabs under the score bar</button>
+        <button type="button" data-variant="scroll" aria-pressed="false">Baseline · today's long scroll</button>
+        <button type="button" data-variant="compare" aria-pressed="false">Compare all</button>
+    </div>
+    <div class="mk-picker" id="mk-state" role="group" aria-label="Match state" style="margin-top:8px">
+        <button type="button" data-state="second_half" aria-pressed="true">Live · second half</button>
+        <button type="button" data-state="pending_review" aria-pressed="false">Pending review</button>
+    </div>
+</div>
+
+<div class="mk-stage" id="mk-stage"></div>
+
+<template id="tpl-panels-live">
+    <!-- SQUAD -->
+    <div role="tabpanel" data-panel="squad">
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Tracked players</h2>
+                <span class="tt-mexec-section-count">3 flagged</span>
+            </div>
+            <ul class="tt-mexec-player-list">
+                <li class="tt-mexec-player">
+                    <span class="tt-mexec-player-number">7</span>
+                    <span class="tt-mexec-player-name">Sem de Vries<small>flagged: 1-2 combinatie</small></span>
+                    <button class="tt-mexec-action-btn tt-mexec-edit-only" type="button">+ action</button>
+                    <span class="tt-mexec-player-goals"><span class="tt-mexec-goal-chip">1-2 combinatie <strong>4</strong></span><span class="tt-mexec-goal-chip">61'</span></span>
+                </li>
+                <li class="tt-mexec-player">
+                    <span class="tt-mexec-player-number">10</span>
+                    <span class="tt-mexec-player-name">Milan Bakker<small>flagged: dieptepass</small></span>
+                    <button class="tt-mexec-action-btn tt-mexec-edit-only" type="button">+ action</button>
+                    <span class="tt-mexec-player-goals"><span class="tt-mexec-goal-chip">dieptepass <strong>2</strong></span><span class="tt-mexec-goal-chip">61'</span></span>
+                </li>
+                <li class="tt-mexec-player">
+                    <span class="tt-mexec-player-number">4</span>
+                    <span class="tt-mexec-player-name">Joep Hendriks<small>flagged: coachen achterin</small></span>
+                    <button class="tt-mexec-action-btn tt-mexec-edit-only" type="button">+ action</button>
+                    <span class="tt-mexec-player-goals"><span class="tt-mexec-goal-chip">coachen achterin <strong>0</strong></span><span class="tt-mexec-goal-chip">61'</span></span>
+                </li>
+            </ul>
+        </section>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Bench</h2>
+                <span class="tt-mexec-section-count">4 available</span>
+            </div>
+            <ul class="tt-mexec-player-list">
+                <li class="tt-mexec-player"><span class="tt-mexec-player-number">14</span><span class="tt-mexec-player-name">Tygo Smit</span><button class="tt-mexec-action-btn tt-mexec-action-btn--ghost tt-mexec-edit-only" type="button">→ on</button></li>
+                <li class="tt-mexec-player"><span class="tt-mexec-player-number">16</span><span class="tt-mexec-player-name">Noah Peters</span><button class="tt-mexec-action-btn tt-mexec-action-btn--ghost tt-mexec-edit-only" type="button">→ on</button></li>
+                <li class="tt-mexec-player"><span class="tt-mexec-player-number">18</span><span class="tt-mexec-player-name">Luca Jansen</span><button class="tt-mexec-action-btn tt-mexec-action-btn--ghost tt-mexec-edit-only" type="button">→ on</button></li>
+                <li class="tt-mexec-player"><span class="tt-mexec-player-number">21</span><span class="tt-mexec-player-name">Finn Willems</span><button class="tt-mexec-action-btn tt-mexec-action-btn--ghost tt-mexec-edit-only" type="button">→ on</button></li>
+            </ul>
+        </section>
+    </div>
+    <!-- PITCH -->
+    <div role="tabpanel" data-panel="pitch" hidden>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Ajax O17 vs Feyenoord O17</h2>
+                <span class="tt-mexec-section-count">14 Jun · 11:00</span>
+            </div>
+            <div class="tt-mexec-kpis">
+                <div class="tt-kpi"><p class="tt-kpi-value">3</p><p class="tt-kpi-label">Tracked players</p></div>
+                <div class="tt-kpi"><p class="tt-kpi-value">15</p><p class="tt-kpi-label">Available squad</p></div>
+            </div>
+        </section>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head"><h2 class="tt-mexec-section-title">Line-up</h2></div>
+            <div class="tt-mxp-pitch" role="img" aria-label="Starting eleven by position">
+                <div class="tt-mxp-slot" style="left:50%;top:92%"><span class="tt-mxp-slot-badge">1</span><span class="tt-mxp-slot-name">Daan K.</span></div>
+                <div class="tt-mxp-slot" style="left:18%;top:74%"><span class="tt-mxp-slot-badge">2</span><span class="tt-mxp-slot-name">Ties B.</span></div>
+                <div class="tt-mxp-slot" style="left:39%;top:78%"><span class="tt-mxp-slot-badge">4</span><span class="tt-mxp-slot-name">Joep H.</span></div>
+                <div class="tt-mxp-slot" style="left:61%;top:78%"><span class="tt-mxp-slot-badge">5</span><span class="tt-mxp-slot-name">Bram V.</span></div>
+                <div class="tt-mxp-slot" style="left:82%;top:74%"><span class="tt-mxp-slot-badge">3</span><span class="tt-mxp-slot-name">Sven D.</span></div>
+                <div class="tt-mxp-slot" style="left:28%;top:52%"><span class="tt-mxp-slot-badge">6</span><span class="tt-mxp-slot-name">Cas M.</span></div>
+                <div class="tt-mxp-slot" style="left:50%;top:56%"><span class="tt-mxp-slot-badge">8</span><span class="tt-mxp-slot-name">Ruben O.</span></div>
+                <div class="tt-mxp-slot" style="left:72%;top:52%"><span class="tt-mxp-slot-badge">10</span><span class="tt-mxp-slot-name">Milan B.</span></div>
+                <div class="tt-mxp-slot" style="left:20%;top:26%"><span class="tt-mxp-slot-badge">11</span><span class="tt-mxp-slot-name">Jesse R.</span></div>
+                <div class="tt-mxp-slot" style="left:50%;top:18%"><span class="tt-mxp-slot-badge">9</span><span class="tt-mxp-slot-name">Lars T.</span></div>
+                <div class="tt-mxp-slot" style="left:80%;top:26%"><span class="tt-mxp-slot-badge">7</span><span class="tt-mxp-slot-name">Sem d.V.</span></div>
+            </div>
+        </section>
+    </div>
+    <!-- LOG -->
+    <div role="tabpanel" data-panel="log" hidden>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Live progress</h2>
+                <span class="tt-mexec-section-count">5 events</span>
+            </div>
+            <ol class="tt-mxp-log">
+                <li><span class="tt-mxp-log-min">61'</span><span class="tt-mxp-log-chip" data-type="sub">↑↓ sub</span><span>Tygo Smit for Jesse Rood</span><span class="tt-mxp-log-score">2–1</span></li>
+                <li><span class="tt-mxp-log-min">58'</span><span class="tt-mxp-log-chip" data-type="goal">⚽ goal</span><span>Feyenoord O17</span><span class="tt-mxp-log-score">2–1</span></li>
+                <li><span class="tt-mxp-log-min">47'</span><span class="tt-mxp-log-chip" data-type="goal">⚽ goal</span><span>Lars Terpstra</span><span class="tt-mxp-log-score">2–0</span></li>
+                <li><span class="tt-mxp-log-min">33'</span><span class="tt-mxp-log-chip" data-type="sub">↑↓ sub</span><span>Noah Peters for Cas Mol</span><span class="tt-mxp-log-score">1–0</span></li>
+                <li><span class="tt-mxp-log-min">12'</span><span class="tt-mxp-log-chip" data-type="goal">⚽ goal</span><span>Sem de Vries</span><span class="tt-mxp-log-score">1–0</span></li>
+            </ol>
+        </section>
+    </div>
+</template>
+
+<template id="tpl-panels-review">
+    <!-- REVIEW -->
+    <div role="tabpanel" data-panel="review">
+        <section class="tt-mexec-section">
+            <p class="tt-mexec-state-pill">Match ended · pending review</p>
+            <p class="tt-mexec-finalize-help">Check the score, subs, goals and minutes in the other tabs. Turn on Edit to correct anything, then finalize to lock the match.</p>
+            <button class="tt-mexec-finalize-btn" type="button">Finalize match</button>
+        </section>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Recorded minutes</h2>
+                <span class="tt-mexec-section-count">15 players</span>
+            </div>
+            <div class="tt-mexec-min-row"><span>7 · Sem de Vries</span><button type="button">−</button><input type="number" inputmode="numeric" value="61"><button type="button">+</button></div>
+            <div class="tt-mexec-min-row"><span>10 · Milan Bakker</span><button type="button">−</button><input type="number" inputmode="numeric" value="70"><button type="button">+</button></div>
+            <div class="tt-mexec-min-row"><span>14 · Tygo Smit</span><button type="button">−</button><input type="number" inputmode="numeric" value="9"><button type="button">+</button></div>
+            <div class="tt-mexec-min-row"><span>16 · Noah Peters</span><button type="button">−</button><input type="number" inputmode="numeric" value="37"><button type="button">+</button></div>
+        </section>
+    </div>
+    <!-- MINUTES / squad timeline -->
+    <div role="tabpanel" data-panel="squad" hidden>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Squad timeline</h2>
+                <span class="tt-mexec-section-count">0' · 35' · 70'</span>
+            </div>
+            <p class="tt-mexec-tl-group">Started — XI</p>
+            <div class="tt-mexec-tl-row"><span>7 Sem d.V.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:0;width:87%"></i></span><span class="tt-mexec-tl-mins">61'</span></div>
+            <div class="tt-mexec-tl-row"><span>10 Milan B.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:0;width:100%"></i></span><span class="tt-mexec-tl-mins">70'</span></div>
+            <div class="tt-mexec-tl-row"><span>11 Jesse R.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:0;width:87%"></i></span><span class="tt-mexec-tl-mins">61'</span></div>
+            <div class="tt-mexec-tl-row"><span>6 Cas M.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:0;width:47%"></i></span><span class="tt-mexec-tl-mins">33'</span></div>
+            <p class="tt-mexec-tl-group">Started — bench</p>
+            <div class="tt-mexec-tl-row"><span>14 Tygo S.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:87%;width:13%"></i></span><span class="tt-mexec-tl-mins">9'</span></div>
+            <div class="tt-mexec-tl-row"><span>16 Noah P.</span><span class="tt-mexec-tl-track"><i class="tt-mexec-tl-seg" style="left:47%;width:53%"></i></span><span class="tt-mexec-tl-mins">37'</span></div>
+            <div class="tt-mexec-tl-row"><span>18 Luca J.</span><span class="tt-mexec-tl-track"></span><span class="tt-mexec-tl-mins">0'</span></div>
+        </section>
+    </div>
+    <!-- PITCH -->
+    <div role="tabpanel" data-panel="pitch" hidden>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Ajax O17 vs Feyenoord O17</h2>
+                <span class="tt-mexec-section-count">14 Jun · 11:00</span>
+            </div>
+            <div class="tt-mexec-kpis">
+                <div class="tt-kpi"><p class="tt-kpi-value">3</p><p class="tt-kpi-label">Tracked players</p></div>
+                <div class="tt-kpi"><p class="tt-kpi-value">15</p><p class="tt-kpi-label">Available squad</p></div>
+            </div>
+        </section>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head"><h2 class="tt-mexec-section-title">Line-up</h2></div>
+            <div class="tt-mxp-pitch" role="img" aria-label="Starting eleven by position">
+                <div class="tt-mxp-slot" style="left:50%;top:92%"><span class="tt-mxp-slot-badge">1</span><span class="tt-mxp-slot-name">Daan K.</span></div>
+                <div class="tt-mxp-slot" style="left:18%;top:74%"><span class="tt-mxp-slot-badge">2</span><span class="tt-mxp-slot-name">Ties B.</span></div>
+                <div class="tt-mxp-slot" style="left:39%;top:78%"><span class="tt-mxp-slot-badge">4</span><span class="tt-mxp-slot-name">Joep H.</span></div>
+                <div class="tt-mxp-slot" style="left:61%;top:78%"><span class="tt-mxp-slot-badge">5</span><span class="tt-mxp-slot-name">Bram V.</span></div>
+                <div class="tt-mxp-slot" style="left:82%;top:74%"><span class="tt-mxp-slot-badge">3</span><span class="tt-mxp-slot-name">Sven D.</span></div>
+                <div class="tt-mxp-slot" style="left:28%;top:52%"><span class="tt-mxp-slot-badge">6</span><span class="tt-mxp-slot-name">Cas M.</span></div>
+                <div class="tt-mxp-slot" style="left:50%;top:56%"><span class="tt-mxp-slot-badge">8</span><span class="tt-mxp-slot-name">Ruben O.</span></div>
+                <div class="tt-mxp-slot" style="left:72%;top:52%"><span class="tt-mxp-slot-badge">10</span><span class="tt-mxp-slot-name">Milan B.</span></div>
+                <div class="tt-mxp-slot" style="left:20%;top:26%"><span class="tt-mxp-slot-badge">11</span><span class="tt-mxp-slot-name">Jesse R.</span></div>
+                <div class="tt-mxp-slot" style="left:50%;top:18%"><span class="tt-mxp-slot-badge">9</span><span class="tt-mxp-slot-name">Lars T.</span></div>
+                <div class="tt-mxp-slot" style="left:80%;top:26%"><span class="tt-mxp-slot-badge">7</span><span class="tt-mxp-slot-name">Sem d.V.</span></div>
+            </div>
+        </section>
+    </div>
+    <!-- LOG -->
+    <div role="tabpanel" data-panel="log" hidden>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head">
+                <h2 class="tt-mexec-section-title">Match goals</h2>
+                <span class="tt-mexec-section-count">3 goals</span>
+            </div>
+            <ol class="tt-mxp-log">
+                <li><span class="tt-mxp-log-min">12'</span><span class="tt-mxp-log-chip" data-type="goal">⚽ us</span><span>Sem de Vries</span><span class="tt-mxp-log-score">1–0</span></li>
+                <li><span class="tt-mxp-log-min">47'</span><span class="tt-mxp-log-chip" data-type="goal">⚽ us</span><span>Lars Terpstra</span><span class="tt-mxp-log-score">2–0</span></li>
+                <li><span class="tt-mxp-log-min">58'</span><span class="tt-mxp-log-chip">⚽ them</span><span>Feyenoord O17</span><span class="tt-mxp-log-score">2–1</span></li>
+            </ol>
+        </section>
+        <section class="tt-mexec-section">
+            <div class="tt-mexec-section-head"><h2 class="tt-mexec-section-title">Live progress</h2><span class="tt-mexec-section-count">5 events</span></div>
+            <ol class="tt-mxp-log">
+                <li><span class="tt-mxp-log-min">61'</span><span class="tt-mxp-log-chip" data-type="sub">↑↓ sub</span><span>Tygo Smit for Jesse Rood</span><span class="tt-mxp-log-score">2–1</span></li>
+                <li><span class="tt-mxp-log-min">33'</span><span class="tt-mxp-log-chip" data-type="sub">↑↓ sub</span><span>Noah Peters for Cas Mol</span><span class="tt-mxp-log-score">1–0</span></li>
+            </ol>
+        </section>
+        <section class="tt-mexec-section tt-mexec-edit-only">
+            <div class="tt-mexec-section-head"><h2 class="tt-mexec-section-title">Add late events</h2><span class="tt-mexec-section-count">Minute 0–45</span></div>
+            <button class="tt-mexec-action-btn tt-mexec-action-btn--ghost" type="button">+ Goal</button>
+            <button class="tt-mexec-action-btn tt-mexec-action-btn--ghost" type="button">+ Substitution</button>
+        </section>
+    </div>
+</template>
+
+<script>
+(function () {
+    var TABS = {
+        second_half: [
+            { key: 'squad', icon: '👥', label: 'Squad', badge: '7' },
+            { key: 'pitch', icon: '⬛', label: 'Pitch' },
+            { key: 'log',   icon: '📋', label: 'Log',  badge: '5' }
+        ],
+        pending_review: [
+            { key: 'review', icon: '✅', label: 'Review', badge: '!', attention: true },
+            { key: 'squad',  icon: '⏱', label: 'Minutes' },
+            { key: 'pitch',  icon: '⬛', label: 'Pitch' },
+            { key: 'log',    icon: '📋', label: 'Log', badge: '5' }
+        ]
+    };
+
+    var STATE_META = {
+        second_half:    { editMode: 'on',  clock: '2H · 34:12', live: true,  cta: 'End match',     ctaAction: 'end-match', home: 2, away: 1 },
+        pending_review: { editMode: 'off', clock: 'Ended · pending review', live: false, cta: 'Finalize match', ctaAction: 'finalize', home: 2, away: 1 }
+    };
+
+    var variant = 'tabs-bottom';
+    var matchState = 'second_half';
+    var stage = document.getElementById('mk-stage');
+
+    function el(html) { var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
+
+    function buildBar(m, withSync) {
+        // In B the footer is a bare CTA with the tab bar beneath it, so the
+        // sync state moves up into the match bar rather than adding a third
+        // line to the thumb zone.
+        var sync = withSync
+            ? '<span class="tt-mexec-bar-sync" title="Synced"><i class="tt-mexec-footer-dot"></i></span>'
+            : '';
+        if (!m.live) {
+            return el(
+                '<div class="tt-mexec-bar">' +
+                  '<p class="tt-mexec-bar-meta"><span class="home">AJA</span>' +
+                    '<span class="tt-mexec-bar-clock">' + m.clock + sync + '</span>' +
+                    '<span class="away">FEY</span></p>' +
+                  '<div class="tt-mexec-bar-row">' +
+                    '<span class="tt-mexec-bar-final">' + m.home + ' – ' + m.away + ' <small>FINAL SCORE</small></span>' +
+                    '<button class="tt-mexec-edit-btn" type="button" aria-pressed="false">✎ Edit</button>' +
+                  '</div>' +
+                '</div>'
+            );
+        }
+        return el(
+            '<div class="tt-mexec-bar">' +
+              '<p class="tt-mexec-bar-meta"><span class="home">AJA</span>' +
+                '<span class="tt-mexec-bar-clock"><i class="tt-mexec-live-dot"></i>' + m.clock + sync + '</span>' +
+                '<span class="away">FEY</span></p>' +
+              '<div class="tt-mexec-bar-row">' +
+                '<span class="tt-mexec-score-stepper">' +
+                  '<button class="tt-mexec-score-btn tt-mexec-score-btn--minus" type="button" aria-label="Decrease home score">−</button>' +
+                  '<output class="tt-mexec-score-num">' + m.home + '</output>' +
+                  '<button class="tt-mexec-score-btn tt-mexec-score-btn--plus" type="button" aria-label="Increase home score">+</button>' +
+                '</span>' +
+                '<span class="tt-mexec-bar-mid"><button class="tt-mexec-timer-btn" type="button">⏸</button></span>' +
+                '<span class="tt-mexec-score-stepper">' +
+                  '<button class="tt-mexec-score-btn tt-mexec-score-btn--minus" type="button" aria-label="Decrease away score">−</button>' +
+                  '<output class="tt-mexec-score-num">' + m.away + '</output>' +
+                  '<button class="tt-mexec-score-btn tt-mexec-score-btn--plus" type="button" aria-label="Increase away score">+</button>' +
+                '</span>' +
+              '</div>' +
+            '</div>'
+        );
+    }
+
+    function buildTabs(defs) {
+        var nav = el('<div class="tt-mexec-tabs" role="tablist" aria-label="Match sections"></div>');
+        defs.forEach(function (t, i) {
+            var b = el(
+                '<button class="tt-mexec-tab" type="button" role="tab" data-panel="' + t.key + '"' +
+                (t.attention ? ' data-attention="true"' : '') +
+                ' aria-selected="' + (i === 0) + '">' +
+                  '<span class="tt-mexec-tab-icon" aria-hidden="true">' + t.icon + '</span>' +
+                  '<span>' + t.label + (t.badge ? '<span class="tt-mexec-tab-badge">' + t.badge + '</span>' : '') + '</span>' +
+                '</button>'
+            );
+            nav.appendChild(b);
+        });
+        return nav;
+    }
+
+    function buildPanel(state) {
+        var tpl = document.getElementById(state === 'pending_review' ? 'tpl-panels-review' : 'tpl-panels-live');
+        var wrap = el('<div class="tt-mexec-panel"></div>');
+        wrap.appendChild(tpl.content.cloneNode(true));
+        return wrap;
+    }
+
+    // "End match" and "Finalize match" are the two transitions a mis-tap
+    // cannot be walked back from cheaply, so they alone take two taps.
+    var DESTRUCTIVE = { 'end-match': 'Tap again to end match', 'finalize': 'Tap again to finalize' };
+
+    function buildFooter(m, showSync) {
+        var foot = el(
+            '<div class="tt-mexec-footer">' +
+              '<button class="tt-mexec-footer-cta" type="button" data-action="' + m.ctaAction + '">' + m.cta + '</button>' +
+              (showSync ? '<p class="tt-mexec-footer-sub"><span class="tt-mexec-footer-dot"></span>Synced</p>' : '') +
+            '</div>'
+        );
+        var cta = foot.querySelector('.tt-mexec-footer-cta');
+        var armTimer = null;
+        cta.addEventListener('click', function () {
+            var confirmLabel = DESTRUCTIVE[m.ctaAction];
+            if (!confirmLabel) return;                       // non-destructive: one tap, unchanged
+            if (cta.getAttribute('data-armed') === 'true') {  // second tap — would fire for real
+                clearTimeout(armTimer);
+                cta.removeAttribute('data-armed');
+                cta.textContent = m.cta;
+                return;
+            }
+            cta.setAttribute('data-armed', 'true');
+            cta.textContent = confirmLabel;
+            armTimer = setTimeout(function () {
+                cta.removeAttribute('data-armed');
+                cta.textContent = m.cta;
+            }, 3000);
+        });
+        return foot;
+    }
+
+    function buildScreen(v, state) {
+        var m = STATE_META[state];
+        var root = el('<div class="tt-mexec" data-shell="' + v + '" data-edit-mode="' + m.editMode + '"></div>');
+
+        if (v === 'scroll') {
+            // Baseline: everything stacked, one scroller, fixed CTA underneath
+            // the app shell's own bottom bar.
+            var panel = el('<div class="tt-mexec-panel"></div>');
+            panel.appendChild(buildBar(m, false));
+            var live = document.getElementById('tpl-panels-live').content.cloneNode(true);
+            var rev  = document.getElementById('tpl-panels-review').content.cloneNode(true);
+            [live, rev].forEach(function (frag) {
+                Array.prototype.forEach.call(frag.querySelectorAll('[role="tabpanel"]'), function (p) {
+                    p.hidden = false;
+                    while (p.firstElementChild) panel.appendChild(p.firstElementChild);
+                });
+            });
+            panel.appendChild(el('<div style="height:130px"></div>'));
+            root.appendChild(panel);
+            root.appendChild(buildFooter(m, true));
+            root.appendChild(el('<p class="mk-overlap">z-index 50 — the shell bottom bar (z 1000) sits on top of this CTA below 768px</p>'));
+            root.appendChild(el('<div class="mk-shellbar"><span><b>▦</b>Home</span><span><b>👤</b>Players</span><span><b>📅</b>Activities</span><span><b>📊</b>Reports</span><span><b>⋯</b>More</span></div>'));
+            return root;
+        }
+
+        var defs = TABS[state];
+        root.appendChild(buildBar(m, v === 'tabs-bottom'));
+        var tabs = buildTabs(defs);
+        var panel = buildPanel(state);
+        // First tab of the set is the open one.
+        Array.prototype.forEach.call(panel.querySelectorAll('[role="tabpanel"]'), function (p) {
+            p.hidden = p.getAttribute('data-panel') !== defs[0].key;
+        });
+        tabs.addEventListener('click', function (e) {
+            var btn = e.target.closest('.tt-mexec-tab');
+            if (!btn) return;
+            var key = btn.getAttribute('data-panel');
+            Array.prototype.forEach.call(tabs.children, function (b) {
+                b.setAttribute('aria-selected', String(b === btn));
+            });
+            Array.prototype.forEach.call(panel.querySelectorAll('[role="tabpanel"]'), function (p) {
+                p.hidden = p.getAttribute('data-panel') !== key;
+            });
+            panel.scrollTop = 0;
+        });
+        root.appendChild(tabs);
+        root.appendChild(panel);
+        root.appendChild(buildFooter(m, v === 'tabs-top'));
+        return root;
+    }
+
+    function frame(v, state, caption, note) {
+        var fig = el('<figure class="mk-col" style="margin:0"></figure>');
+        fig.appendChild(el('<figcaption>' + caption + '</figcaption>'));
+        var phone = el('<div class="mk-phone"></div>');
+        phone.appendChild(buildScreen(v, state));
+        fig.appendChild(phone);
+        if (note) fig.appendChild(el('<p class="mk-note">' + note + '</p>'));
+        return fig;
+    }
+
+    var NOTES = {
+        'tabs-bottom': '<b>B — chosen.</b> Switcher in the thumb zone, CTA stacked above it, sync dot moved up beside the clock. Best one-handed reach on a touchline. Requires <code>config/focus_surfaces.php</code> to suppress the shell bar here; the breadcrumb chain stays the exit. Destructive CTAs arm on the first tap.',
+        'tabs-top': '<b>A.</b> Score, clock and switcher all pinned at the top; CTA keeps the thumb zone to itself. Needs no shell change — kept here as the fallback if the focus-surface contract stalls.',
+        'scroll': '<b>Baseline.</b> Fourteen sections in one scroller. Scroll to reach the bench, scroll back to see the clock. The red strip marks a live bug: the CTA is z-index 50, the shell bar is z-index 1000.'
+    };
+
+    function render() {
+        stage.innerHTML = '';
+        if (variant === 'compare') {
+            ['tabs-bottom', 'tabs-top', 'scroll'].forEach(function (v) {
+                stage.appendChild(frame(v, matchState, v === 'scroll' ? 'Baseline · today' : (v === 'tabs-top' ? 'A · tabs on top' : 'B · tabs in thumb zone'), NOTES[v]));
+            });
+        } else {
+            stage.appendChild(frame(variant, matchState,
+                variant === 'scroll' ? 'Baseline · today' : (variant === 'tabs-top' ? 'A · tabs on top' : 'B · tabs in thumb zone'),
+                NOTES[variant]));
+        }
+    }
+
+    document.getElementById('mk-variant').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        variant = b.getAttribute('data-variant');
+        Array.prototype.forEach.call(this.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        render();
+    });
+    document.getElementById('mk-state').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        matchState = b.getAttribute('data-state');
+        Array.prototype.forEach.call(this.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        render();
+    });
+
+    render();
+})();
+</script>
+</body>
+</html>
