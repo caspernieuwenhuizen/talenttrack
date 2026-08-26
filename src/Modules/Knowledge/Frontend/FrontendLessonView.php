@@ -43,7 +43,7 @@ class FrontendLessonView extends FrontendViewBase {
     private const QUIZ_ACTION = 'tt_knowledge_quiz';
 
     public static function render( int $user_id, bool $is_admin ): void {
-        $library = __( 'Knowledge library', 'talenttrack' );
+        $library = __( 'Courses', 'talenttrack' );
 
         if ( ! current_user_can( 'tt_view_knowledge' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -468,14 +468,14 @@ class FrontendLessonView extends FrontendViewBase {
 
     private static function renderMissing( string $library ): void {
         FrontendBreadcrumbs::fromDashboard( __( 'Lesson not found', 'talenttrack' ), [
-            FrontendBreadcrumbs::viewCrumb( 'knowledge', $library ),
+            FrontendBreadcrumbs::viewCrumb( 'courses', $library ),
         ] );
         self::renderHeader( __( 'Lesson not found', 'talenttrack' ) );
         echo '<p class="tt-notice">' . esc_html__( 'That lesson is not part of this course.', 'talenttrack' ) . '</p>';
     }
 
     /**
-     * The §5a chain: Dashboard › Knowledge library › Course › Lesson.
+     * The §5a chain: Dashboard › Courses › Course › Lesson.
      *
      * The course crumb is itself the way back up to the course; a separate
      * button pointing at the same place would be the third affordance §5a
@@ -485,7 +485,7 @@ class FrontendLessonView extends FrontendViewBase {
      */
     private static function crumbs( string $library, string $course_slug, string $course_title ): array {
         return [
-            FrontendBreadcrumbs::viewCrumb( 'knowledge', $library ),
+            FrontendBreadcrumbs::viewCrumb( 'courses', $library ),
             FrontendBreadcrumbs::viewCrumb( 'course', $course_title, [ 'slug' => $course_slug ] ),
         ];
     }

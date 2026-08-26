@@ -105,7 +105,7 @@ return [
     'ideas-approval'                => [ 'viewable', 'Approving ideas — a queue.' ],
     'ideas-board'                   => [ 'viewable', 'The idea list — a queue, scannable one item at a time.' ],
     'ideas-refine'                  => [ 'viewable', 'Editing a submitted idea.' ],
-    'knowledge'                     => [ 'viewable', 'The course library index.' ],
+    'courses'                       => [ 'viewable', 'The course library index.' ],
     'mail-compose'                  => [ 'viewable', 'Writing a message. Usable on a phone; not frequent enough to design for.' ],
     'match-analysis-share'          => [ 'viewable', 'A token-gated link, opened wherever the recipient is. Reading a document is not authoring it.' ],
     'match-prep-share'              => [ 'viewable', 'The same shape as match-analysis-share, and read on match day at the ground more often than at a desk (#2892).' ],

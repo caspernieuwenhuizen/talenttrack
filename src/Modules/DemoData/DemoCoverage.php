@@ -1269,7 +1269,7 @@ class DemoCoverage {
             'tournaments' => __( 'Tournaments', 'talenttrack' ),
             'staff_development' => __( 'Staff development', 'talenttrack' ),
             'comms_ops'   => __( 'Messages and operator records', 'talenttrack' ),
-            'knowledge'   => __( 'Knowledge library', 'talenttrack' ),
+            'knowledge'   => __( 'Courses', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }

@@ -33,7 +33,7 @@ class FrontendKnowledgeLibraryView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        $title = __( 'Knowledge library', 'talenttrack' );
+        $title = __( 'Courses', 'talenttrack' );
 
         if ( ! current_user_can( 'tt_view_knowledge' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
