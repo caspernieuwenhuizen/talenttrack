@@ -94,6 +94,9 @@ final class SheetSchemas {
                     'first_name'           => [ 'label' => 'First name',           'type' => self::TYPE_STRING, 'required' => true  ],
                     'last_name'            => [ 'label' => 'Last name',            'type' => self::TYPE_STRING, 'required' => true  ],
                     'date_of_birth'        => [ 'label' => 'Date of birth',        'type' => self::TYPE_DATE,   'required' => false ],
+                    // #2894 — so a generated academy round-trips through
+                    // export → import with the field intact.
+                    'sex'                  => [ 'label' => 'Sex',                  'type' => self::TYPE_TEXT,   'required' => false ],
                     'nationality'          => [ 'label' => 'Nationality',          'type' => self::TYPE_STRING, 'required' => false ],
                     'team_key'             => [ 'label' => 'Team key',             'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'teams.auto_key' ],
                     'jersey_number'        => [ 'label' => 'Jersey number',        'type' => self::TYPE_INT,    'required' => false ],

@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerSex;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
@@ -464,6 +465,7 @@ class PlayersRestController {
                 : '',
             'photo_url'        => (string) ( $pl->photo_url ?? '' ),
             'date_of_birth'    => $pl->date_of_birth ?: null,
+            'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
             // v3.110.170 — row-link standard (#758).
             'detail_url'       => $detail_url,
@@ -694,6 +696,11 @@ class PlayersRestController {
             'first_name'          => sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
             'last_name'           => sanitize_text_field( (string) ( $r['last_name'] ?? '' ) ),
             'date_of_birth'       => sanitize_text_field( (string) ( $r['date_of_birth'] ?? '' ) ),
+            // #2894 — sanitize() maps anything unrecognised to blank rather
+            // than rejecting the request. An unknown value on a minor's
+            // record should degrade to "not recorded", not fail a save that
+            // was otherwise fine.
+            'sex'                 => PlayerSex::sanitize( $r['sex'] ?? '' ),
             'nationality'         => sanitize_text_field( (string) ( $r['nationality'] ?? '' ) ),
             'height_cm'           => ! empty( $r['height_cm'] ) ? absint( $r['height_cm'] ) : null,
             'weight_kg'           => ! empty( $r['weight_kg'] ) ? absint( $r['weight_kg'] ) : null,
@@ -733,6 +740,7 @@ class PlayersRestController {
             'first_name'          => (string) $pl->first_name,
             'last_name'           => (string) $pl->last_name,
             'date_of_birth'       => $pl->date_of_birth ?: null,
+            'sex'                 => (string) ( $pl->sex ?? '' ),
             'nationality'         => $pl->nationality ?: null,
             'height_cm'           => $pl->height_cm !== null ? (int) $pl->height_cm : null,
             'weight_kg'           => $pl->weight_kg !== null ? (int) $pl->weight_kg : null,
