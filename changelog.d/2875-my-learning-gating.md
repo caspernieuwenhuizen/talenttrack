@@ -19,4 +19,4 @@ is still readable in the meantime — the same shape the course library already
 used for exactly this situation.
 
 The library itself is deliberately not hidden: reading a course works without a
-linked staff record, only saving progress does not.
+linked staff record — only saving progress does not.
