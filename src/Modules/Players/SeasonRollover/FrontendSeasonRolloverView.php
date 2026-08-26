@@ -459,6 +459,8 @@ class FrontendSeasonRolloverView extends FrontendViewBase {
      * unknown or empty age group on either side means no ordering can be
      * established and no promotion is offered — better an empty dropdown than
      * a confident wrong one on a screen that moves whole squads.
+     *
+     * @param array<string,int> $ranks from {@see ageGroupRanks()}
      */
     private static function isOlderAgeGroup( object $target, object $source, array $ranks ): bool {
         $target_rank = self::rankOf( (string) ( $target->age_group ?? '' ), $ranks );
