@@ -125,9 +125,17 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
     }
 
     /**
-     * The badge and the list must count the same activities. A mismatch is
-     * the symptom that survived #2521 and #2522, so it is asserted against
-     * the two code paths rather than against a literal.
+     * On completed activities — the set both the badge and the list include
+     * — the two must agree. A mismatch there is the symptom that survived
+     * #2521 and #2522, so it is asserted against the two code paths rather
+     * than against a literal.
+     *
+     * They still diverge on *upcoming* activities by design: the list shows
+     * them, the badge counts attendance. Aligning those would mean putting
+     * the badge on `plan_state`, which defaults to 'completed' on rows the
+     * planner never touched — reintroducing #2521. That trade-off is a
+     * product question raised on the issue, not something to settle inside a
+     * duplicate-rows fix.
      */
     public function test_the_tab_badge_matches_the_rendered_rows(): void {
         $team_id   = $this->insertTeam();
@@ -171,15 +179,23 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
+    /**
+     * Real rows carry BOTH lifecycle columns: `plan_state` (what the
+     * planner tracks) and `activity_status_key` (what the coach set). The
+     * tab's list reads the first, its badge reads the second — see #2521 —
+     * so a fixture that sets only one makes the two disagree for a reason
+     * that has nothing to do with what is under test.
+     */
     private function insertActivity( int $team_id, string $date, string $plan_state ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
-            'club_id'           => $this->club,
-            'team_id'           => $team_id,
-            'title'             => 'Training ' . $date,
-            'session_date'      => $date,
-            'activity_type_key' => 'training',
-            'plan_state'        => $plan_state,
+            'club_id'             => $this->club,
+            'team_id'             => $team_id,
+            'title'               => 'Training ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => 'training',
+            'plan_state'          => $plan_state,
+            'activity_status_key' => $plan_state === 'completed' ? 'completed' : 'planned',
         ] );
         return (int) $wpdb->insert_id;
     }
