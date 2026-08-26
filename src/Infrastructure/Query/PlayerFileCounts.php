@@ -42,8 +42,26 @@ final class PlayerFileCounts {
         // #2522 — `record_type = 'actual'`: a player who is on the plan
         // AND has a recorded row was counted twice.
         $completed  = ActivityLifecycle::completedClause( 'a' );
+        // #2862 — COUNT(DISTINCT att.activity_id), not COUNT(*). The tab
+        // counts activities, and while `record_type = 'actual'` should mean
+        // one row per player per activity, the badge should not be the thing
+        // that discovers otherwise: a stray second recorded row would inflate
+        // the number beside a list that renders one entry.
+        //
+        // The badge deliberately keeps the `activity_status_key` lifecycle
+        // definition from #2521. Switching it to the `plan_state` filter the
+        // tab's list uses would make the two agree — and would reintroduce
+        // exactly what #2521 fixed, because `plan_state` defaults to
+        // 'completed' on every row the planner did not create, so
+        // still-planned sessions would count again.
+        //
+        // So the badge answers "activities attended" and the list also shows
+        // what is coming up. They agree on every completed activity and
+        // diverge only on upcoming ones. Whether the badge should instead
+        // count everything the tab renders is a product question, raised on
+        // the issue rather than settled quietly here.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*)
+            "SELECT COUNT(DISTINCT att.activity_id)
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d

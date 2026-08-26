@@ -134,19 +134,49 @@ final class ActivitiesRepository {
      *                             lists guests in a separate panel).
      * @return list<object>
      */
-    public function listRosterAttendance( int $activity_id, bool $include_guests = false ): array {
+    public function listRosterAttendance( int $activity_id, bool $include_guests = false, ?string $record_type = null ): array {
         global $wpdb;
         $p = $wpdb->prefix;
         $guest_filter = $include_guests ? '' : 'AND att.is_guest = 0';
+
+        // #2862 — a player can hold both an `expected` row (written by the
+        // planner) and an `actual` row (the register). With no filter at
+        // all, this listed every squad member twice: a fifteen-player squad
+        // rendered thirty rows under a summary reading "15 / 15 aanwezig".
+        //
+        // `$record_type` is explicit rather than hard-coded because the two
+        // callers want different things and both are right: the attendance
+        // panel wants the recorded roster on a completed activity, while the
+        // wizard's pre-fill path reads the expected rows on purpose. Passing
+        // null keeps the old unfiltered behaviour for anything not yet
+        // migrated, but collapses duplicates to one row per player,
+        // preferring the recorded one.
+        $params = [ $activity_id ];
+        if ( $record_type !== null && $record_type !== '' ) {
+            $type_filter = 'AND att.record_type = %s';
+            $params[]    = $record_type;
+        } else {
+            $type_filter = "AND att.id = (
+                                SELECT pick.id
+                                  FROM {$p}tt_attendance pick
+                                 WHERE pick.activity_id = att.activity_id
+                                   AND pick.player_id   = att.player_id
+                                   AND pick.is_guest    = att.is_guest
+                              ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
+                                 LIMIT 1
+                            )";
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.id, att.player_id, att.status, att.notes AS att_notes,
                     att.is_guest, att.record_type,
                     pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
                FROM {$p}tt_attendance att
                JOIN {$p}tt_players pl ON pl.id = att.player_id
-              WHERE att.activity_id = %d {$guest_filter}
+              WHERE att.activity_id = %d {$guest_filter} {$type_filter}
               ORDER BY pl.last_name ASC, pl.first_name ASC",
-            $activity_id
+            ...$params
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -249,6 +279,33 @@ final class ActivitiesRepository {
 
         $where_sql = implode( ' AND ', $where );
 
+        // #2862 — one row per ACTIVITY, not per attendance row.
+        //
+        // A player can hold two rows for the same activity: the `expected`
+        // row the planner writes and the `actual` row recording what
+        // happened. This list is a list of activities, so both rows joining
+        // produced a duplicate entry — the profile's Activities tab showed
+        // "Training 8.2" twice on the same date, four times over on one
+        // pilot player.
+        //
+        // Filtering to `record_type = 'actual'` is NOT the fix here, even
+        // though that is what the tab's badge count does: this tab
+        // deliberately shows still-planned activities, which have only an
+        // `expected` row, and filtering would empty that half of the list.
+        //
+        // So collapse to one attendance row per activity, preferring the
+        // recorded one where both exist — the recorded row carries the real
+        // status, and on a planned activity the expected row is all there is.
+        $dedupe = "att.id = (
+                       SELECT pick.id
+                         FROM {$p}tt_attendance pick
+                        WHERE pick.activity_id = att.activity_id
+                          AND pick.player_id   = att.player_id
+                          AND pick.is_guest    = att.is_guest
+                     ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
+                        LIMIT 1
+                   )";
+
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $sql = "SELECT * FROM (
                     SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, a.team_id, a.activity_status_key,
@@ -256,6 +313,7 @@ final class ActivitiesRepository {
                       FROM {$p}tt_attendance att
                       JOIN {$p}tt_activities a ON a.id = att.activity_id
                      WHERE {$where_sql}
+                       AND {$dedupe}
                   ORDER BY a.session_date DESC, a.id DESC
                      LIMIT %d
                 ) recent
