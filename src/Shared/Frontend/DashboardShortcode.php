@@ -311,6 +311,21 @@ class DashboardShortcode {
             return (string) ob_get_clean();
         }
 
+        // #2892 — the same arrangement for match preparation, and for the
+        // same reason: the token IS the credential, and the assistant
+        // coach, analyst or keeper coach it was sent to may have no account
+        // here. Before the login guard, because a logged-out staff member
+        // is exactly who this is for. The view verifies the HMAC, honours
+        // the `match_prep_sharing` toggle and marks the page noindex; the
+        // coach can revoke every issued link at any time.
+        if ( $tt_view_param === \TT\Modules\MatchPrep\Services\MatchPrepShareLink::VIEW_SLUG ) {
+            ob_start();
+            echo '<div class="tt-dashboard">';
+            \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepShareView::render();
+            echo '</div>';
+            return (string) ob_get_clean();
+        }
+
         // #1866 — branded password reset flow renders before the login
         // guard: a logged-out visitor resetting their password must reach
         // these screens. The secure key mechanics live in

@@ -55177,6 +55177,39 @@ msgstr ""
 msgid "Courses for the coaching staff's own development."
 msgstr "Cursussen voor de eigen ontwikkeling van de technische staf."
 
+#: src/Core/FeatureRegistry.php:420
+msgid "Match preparation share links"
+msgstr "Deellinks wedstrijdvoorbereiding"
+
+#: src/Core/FeatureRegistry.php:421
+msgid ""
+"Signed staff-only links to a match preparation. Writing and printing the plan "
+"stay available when this is off."
+msgstr ""
+"Ondertekende links naar een wedstrijdvoorbereiding, alleen voor staf. Het plan "
+"schrijven en afdrukken blijft werken als dit uitstaat."
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:60
+msgid ""
+"Shared staff document. It names players and says who is expected to start; "
+"please do not forward it outside the staff."
+msgstr ""
+"Gedeeld stafdocument. Er staan spelersnamen in en wie er naar verwachting "
+"begint; stuur het niet door buiten de staf."
+
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:79
+msgid ""
+"The match preparation may have been removed, or the link may have been "
+"reissued. Ask the coach who shared it for a new one."
+msgstr ""
+"De wedstrijdvoorbereiding is misschien verwijderd, of de link is opnieuw "
+"uitgegeven. Vraag de coach die hem deelde om een nieuwe."
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:242
+msgid "Match preparation sharing is switched off."
+msgstr "Het delen van wedstrijdvoorbereidingen staat uit."
+
 #~ msgid "This section is only available for people linked to a staff record."
 #~ msgstr ""
 #~ "Dit onderdeel is alleen beschikbaar voor mensen met een gekoppeld "

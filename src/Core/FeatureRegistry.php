@@ -410,6 +410,20 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'match-analysis-share' ],
                 'entities'        => [],
             ],
+            // #2892 — the same switch for match preparation, and separate
+            // from the analysis one on purpose: an academy may be happy for
+            // a plan to travel to an assistant before kick-off while
+            // preferring the post-match judgement of individual players to
+            // stay inside the app, or the reverse. One flag for both would
+            // force a choice nobody asked for.
+            'match_prep_sharing' => [
+                'label'           => __( 'Match preparation share links', 'talenttrack' ),
+                'description'     => __( 'Signed staff-only links to a match preparation. Writing and printing the plan stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'match-prep-share' ],
+                'entities'        => [],
+            ],
             // #2709 — keyed `export_match_analysis_pdf` to match the
             // `export_<key>` gate convention. The print router checks it
             // in tandem so the toggle isn't bypassed by the print URL.
