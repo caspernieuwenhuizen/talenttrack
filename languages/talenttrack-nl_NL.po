@@ -55111,6 +55111,7 @@ msgid "%s feature"
 msgid_plural "%s features"
 msgstr[0] "%s functie"
 msgstr[1] "%s functies"
+
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:60
 msgid ""
 "Your login is not linked to a staff record, so course progress cannot be "
