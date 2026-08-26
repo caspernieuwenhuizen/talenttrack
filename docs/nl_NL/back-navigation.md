@@ -305,6 +305,38 @@ HelpDrawer::button( 'pdp' );         // de route — opent het verkeerde
   het terug-doel hoort de referer van het formulier te zijn, niet de
   redirect-URL.
 
+## Annuleren volgt `tt_back` in de gedeelde helper (#2869)
+
+De **Annuleren**-knop van een formulier is een formulieractie en geen
+navigatie-affordance — hij telt dus niet mee voor het budget van twee
+hierboven — maar het is wél een plek waar een gebruiker terechtkomt, en §6
+regel 5 zegt al langer dat hij je terug moet brengen waar je vandaan kwam.
+
+Dat wordt nu **één keer** afgehandeld, in
+`\TT\Shared\Frontend\Components\FormSaveButton::render()`, in plaats van op elke
+aanroepplek. Aanroepers geven nog steeds de §6-standaard mee in `cancel_url` —
+de detailpagina bij bewerken, de lijst bij aanmaken — en de helper geeft
+voorrang aan een geldige `tt_back` uit de openings-URL als die er is.
+
+De reden dat dit in de helper zit: als regel overleefde het niet dat iedereen
+er zelf aan moest denken. Van de 65 `cancel_url`-toekenningen in `src/`
+raadpleegden er vier `BackLink`; de andere 61 hadden een bestemming hard
+ingebakken. Een formulier dat hierna wordt toegevoegd erft het gedrag zonder
+dat de bouwer de regel hoeft te kennen.
+
+Twee dingen om te weten voordat je dit wijzigt:
+
+- **Het oplossen gaat via `BackLink::resolve()`, nooit via `$_GET['tt_back']`.**
+  Annuleren is een link die je een gebruiker aanbiedt; een onvalidated parameter
+  volgen zou elk formulier in de plug-in tot een open redirect maken.
+  `resolve()` is de validerende lezer en weigert een doel buiten de site of een
+  onleesbaar doel.
+- **`ignore_back => true`** zet de `cancel_url` van de aanroeper vast, voor het
+  zeldzame formulier dat altijd op dezelfde plek moet uitkomen.
+
+Let op: de methode heet `BackLink::resolve()`. CLAUDE.md §6 regel 5 noemt hem
+`BackLink::resolveBack()`, en die bestaat niet.
+
 ## Validatie
 
 `tt_back`-waarden worden gevalideerd voor het renderen:

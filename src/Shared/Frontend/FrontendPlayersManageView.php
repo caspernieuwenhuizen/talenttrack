@@ -173,8 +173,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // translated label to NL users while keeping the stored
         // English name as the form value (preserves DB matching).
         $foot_options = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
+        // #2867 — a filter offers only categories that have teams in them.
+        // This dropdown narrows a list the viewer is already looking at, so a
+        // category with nothing behind it is a dead end; an academy with two
+        // teams used to scroll every category the seed shipped.
+        //
+        // The value currently on the URL is kept selectable even if it has
+        // just become unused, so a bookmarked or shared link does not quietly
+        // start filtering by something else.
+        $current_age_group = isset( $_GET['filter']['age_group'] )
+            ? sanitize_text_field( wp_unslash( (string) $_GET['filter']['age_group'] ) )
+            : '';
+
         $age_group_options = [];
-        foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
+        foreach ( QueryHelpers::age_groups_in_use( $current_age_group ) as $ag ) {
             $age_group_options[ (string) $ag ] = (string) $ag;
         }
 
