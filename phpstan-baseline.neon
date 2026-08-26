@@ -18646,3 +18646,8 @@ parameters:
 			message: "#^Method TT\\\\Shared\\\\Wizards\\\\WizardState\\:\\:start\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Shared/Wizards/WizardState.php
+
+		-
+			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:prepare\\(\\) expects literal\\-string, non\\-falsy\\-string given\\.$#"
+			count: 1
+			path: src/Modules/Measurements/Growth/BmiSeriesBuilder.php
