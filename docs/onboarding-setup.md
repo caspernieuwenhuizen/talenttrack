@@ -45,12 +45,19 @@ can stop and pick up later from the same place.
  account and links it to your WordPress user, so evaluations, activities,
  and notifications reference the right person. Tick **Grant me the Club
  Admin role** (recommended) to give yourself full management access.
-6. **Dashboard page** — creates the frontend page that hosts the
+6. **Add your staff** — add the coaches and staff who will use TalentTrack.
+ Give someone an email address and an invitation is prepared for them.
+ **Nobody is emailed yet**: invitations are held until you send them, so
+ you can finish setting up and look around before anyone is let in. When
+ you are ready, **Send N invitations and continue** releases them all. You
+ can also continue without sending — the invitations stay ready under
+ Configuration → Invitations, and nothing is lost.
+7. **Dashboard page** — creates the frontend page that hosts the
  `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so
  everyone lands on the dashboard when they sign in. If a page with the
  shortcode already exists it is reused, not duplicated. You can **Skip**
  this and set the homepage yourself later under Settings → Reading.
-7. **Done** — a summary of what was set up, with **Go to dashboard** and a
+8. **Done** — a summary of what was set up, with **Go to dashboard** and a
  **Run again** button.
 
 ## Stop and resume

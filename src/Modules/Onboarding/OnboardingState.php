@@ -22,7 +22,10 @@ class OnboardingState {
     // #2958 — `import` sits between academy and first_team: a club that
     // arrives with a squad list should not be asked to type its first team
     // by hand before it gets the chance to upload one.
-    public const STEPS = [ 'welcome', 'academy', 'import', 'first_team', 'first_admin', 'dashboard', 'done' ];
+    // #2965 — `staff` comes after first_admin: the admin establishes
+    // themselves before adding anyone else, and by then any teams from the
+    // import step exist to assign people to.
+    public const STEPS = [ 'welcome', 'academy', 'import', 'first_team', 'first_admin', 'staff', 'dashboard', 'done' ];
 
     private const STATE_OPT     = 'tt_onboarding_state';
     private const COMPLETED_OPT = 'tt_onboarding_completed_at';

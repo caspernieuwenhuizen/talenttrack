@@ -66,6 +66,7 @@ class OnboardingPage {
             case 'import':      self::renderImport();     break;
             case 'first_team':  self::renderFirstTeam();  break;
             case 'first_admin': self::renderFirstAdmin(); break;
+            case 'staff':       self::renderStaff();      break;
             case 'dashboard':   self::renderDashboard();  break;
             case 'done':        self::renderDone();       break;
             default:
@@ -396,6 +397,122 @@ class OnboardingPage {
         <?php
     }
 
+    /**
+     * The staff step (#2965).
+     *
+     * Add people now, send their credentials when you are ready. The copy
+     * has to say that plainly: an admin who thinks adding a coach emails
+     * them immediately will not add anyone until the very end, which is
+     * the behaviour this step exists to remove.
+     */
+    private static function renderStaff(): void {
+        $payload = OnboardingState::payloadFor( 'staff' );
+        $added   = (array) ( $payload['added'] ?? [] );
+        $error   = (string) ( $payload['error'] ?? '' );
+        $waiting = 0;
+        foreach ( $added as $person ) {
+            if ( ! empty( $person['invited'] ) ) $waiting++;
+        }
+        ?>
+        <h2><?php esc_html_e( 'Add your staff', 'talenttrack' ); ?></h2>
+        <p>
+            <?php esc_html_e( 'Add the coaches and staff who will use TalentTrack. Give them an email address and an invitation is prepared for each of them.', 'talenttrack' ); ?>
+        </p>
+        <p>
+            <strong><?php esc_html_e( 'Nobody is emailed yet.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Invitations are held until you send them, so you can finish setting up and look around first.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $error !== '' ) : ?>
+            <div class="notice notice-error"><p><?php echo esc_html( $error ); ?></p></div>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $added ) ) : ?>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Email', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Invitation', 'talenttrack' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ( $added as $person ) : ?>
+                    <tr>
+                        <td><?php echo esc_html( (string) ( $person['name'] ?? '' ) ); ?></td>
+                        <td><?php echo esc_html( (string) ( $person['email'] ?? '' ) ); ?></td>
+                        <td>
+                            <?php
+                            echo ! empty( $person['invited'] )
+                                ? esc_html__( 'Ready to send', 'talenttrack' )
+                                : esc_html__( 'No email — add one later to invite them', 'talenttrack' );
+                            ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_onboarding_staff', 'tt_onboarding_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_onboarding_staff" />
+            <table class="form-table">
+                <tr>
+                    <th><label for="tt_ob_staff_first"><?php esc_html_e( 'First name', 'talenttrack' ); ?></label></th>
+                    <td><input type="text" id="tt_ob_staff_first" name="first_name" class="regular-text" required autocomplete="given-name" /></td>
+                </tr>
+                <tr>
+                    <th><label for="tt_ob_staff_last"><?php esc_html_e( 'Last name', 'talenttrack' ); ?></label></th>
+                    <td><input type="text" id="tt_ob_staff_last" name="last_name" class="regular-text" required autocomplete="family-name" /></td>
+                </tr>
+                <tr>
+                    <th><label for="tt_ob_staff_email"><?php esc_html_e( 'Email', 'talenttrack' ); ?></label></th>
+                    <td>
+                        <input type="email" inputmode="email" autocomplete="email" id="tt_ob_staff_email" name="email" class="regular-text" />
+                        <p class="description"><?php esc_html_e( 'Optional. Without one they are still on the staff list, but cannot be invited to sign in.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+            </table>
+            <?php submit_button( __( 'Add this person', 'talenttrack' ), 'secondary', 'submit', false ); ?>
+        </form>
+
+        <p>
+            <?php if ( $waiting > 0 ) : ?>
+                <a class="button button-primary" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_send_invites' ) ); ?>">
+                    <?php
+                    printf(
+                        esc_html(
+                            /* translators: %d: number of invitations waiting to be sent */
+                            _n(
+                                'Send %d invitation and continue',
+                                'Send %d invitations and continue',
+                                $waiting,
+                                'talenttrack'
+                            )
+                        ),
+                        (int) $waiting
+                    );
+                    ?>
+                </a>
+            <?php endif; ?>
+            <a class="button" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_skip_staff' ) ); ?>">
+                <?php
+                echo $waiting > 0
+                    ? esc_html__( 'Continue without sending yet', 'talenttrack' )
+                    : esc_html__( 'Skip — I will add staff later', 'talenttrack' );
+                ?>
+            </a>
+        </p>
+
+        <?php if ( $waiting > 0 ) : ?>
+            <p class="description">
+                <?php esc_html_e( 'If you continue without sending, the invitations stay ready and waiting under Configuration → Invitations. Nothing is lost.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
+        <?php
+    }
+
     private static function renderDashboard(): void {
         $existing = get_posts( [
             'post_type'   => 'page',
@@ -560,6 +677,8 @@ class OnboardingPage {
             'saved'      => __( 'Saved.', 'talenttrack' ),
             'team_made'  => __( 'Team created.', 'talenttrack' ),
             'imported'   => __( 'Your squad has been imported.', 'talenttrack' ),
+            'staff_added' => __( 'Added. Their invitation is ready but not sent yet.', 'talenttrack' ),
+            'invites_sent' => __( 'Invitations sent.', 'talenttrack' ),
             'admin_made' => __( 'Admin record created.', 'talenttrack' ),
             'reset'      => __( 'Wizard reset.', 'talenttrack' ),
             'page_made'  => __( 'Frontend dashboard page created.', 'talenttrack' ),
