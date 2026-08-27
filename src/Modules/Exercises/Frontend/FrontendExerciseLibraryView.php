@@ -146,10 +146,18 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
     /**
      * The CSV importer (#2613), carrying a back-target so its breadcrumb
      * chain can offer the contextual pill back to the library.
+     *
+     * The affordance this builds a URL for is gated: its only caller wraps
+     * the whole paragraph in `CrossViewLink::render( 'exercises-import' )`,
+     * whose gate is registered in
+     * `CoreSurfaceRegistration::registerCrossViewLinkGates()` as
+     * `tt_manage_exercises` — the importer view's own early return. This
+     * method builds a string and renders nothing, so it is marked as the
+     * exception the #2304 gate documents rather than being wrapped again.
      */
     private static function importUrl(): string {
         return BackLink::appendTo(
-            add_query_arg( [ 'tt_view' => 'exercises-import' ], RecordLink::dashboardUrl() )
+            add_query_arg( [ 'tt_view' => 'exercises-import' ], RecordLink::dashboardUrl() ) /* tt-xview-ok — the calling affordance is wrapped in CrossViewLink */
         );
     }
 
