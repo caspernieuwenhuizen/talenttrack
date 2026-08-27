@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Import\ImportService;
 use TT\Modules\Onboarding\OnboardingState;
 
 /**
@@ -28,6 +29,9 @@ class OnboardingHandlers {
     public static function init(): void {
         add_action( 'admin_post_tt_onboarding_advance',              [ self::class, 'handleAdvance' ] );
         add_action( 'admin_post_tt_onboarding_academy',              [ self::class, 'handleAcademy' ] );
+        add_action( 'admin_post_tt_onboarding_import',               [ self::class, 'handleImport' ] );
+        add_action( 'admin_post_tt_onboarding_roster_template',      [ self::class, 'handleRosterTemplate' ] );
+        add_action( 'admin_post_tt_onboarding_skip_import',          [ self::class, 'handleSkipImport' ] );
         add_action( 'admin_post_tt_onboarding_first_team',           [ self::class, 'handleFirstTeam' ] );
         add_action( 'admin_post_tt_onboarding_first_admin',          [ self::class, 'handleFirstAdmin' ] );
         add_action( 'admin_post_tt_onboarding_reset',                [ self::class, 'handleReset' ] );
@@ -66,6 +70,93 @@ class OnboardingHandlers {
         ] );
 
         self::redirectToPage( [ 'tt_ob_msg' => 'saved' ] );
+    }
+
+    /**
+     * The squad-import step (#2958).
+     *
+     * Two passes over the same upload. The first validates and reports
+     * without writing anything, so the admin sees what the workbook holds
+     * before committing; the second, from the confirm button, imports for
+     * real. A workbook with blockers never reaches the second pass.
+     */
+    public static function handleImport(): void {
+        self::guard( 'tt_onboarding_import' );
+
+        $file = $_FILES['roster_file'] ?? null;
+
+        if ( ! is_array( $file ) || empty( $file['tmp_name'] ) ) {
+            OnboardingState::recordPayload( 'import', [
+                'error' => __( 'Choose a workbook to upload first.', 'talenttrack' ),
+            ] );
+            self::redirectToPage();
+            return;
+        }
+
+        if ( ! empty( $file['error'] ) ) {
+            OnboardingState::recordPayload( 'import', [
+                'error' => __( 'The upload did not complete. It may be larger than this server accepts.', 'talenttrack' ),
+            ] );
+            self::redirectToPage();
+            return;
+        }
+
+        $tmp_path = (string) $file['tmp_name'];
+        $name     = sanitize_file_name( (string) ( $file['name'] ?? 'workbook.xlsx' ) );
+        $commit   = ! empty( $_POST['tt_ob_import_confirm'] );
+
+        $service = new ImportService();
+        $result  = $commit
+            ? $service->import( $tmp_path, $name )
+            : $service->preview( $tmp_path, $name );
+
+        if ( empty( $result['ok'] ) ) {
+            OnboardingState::recordPayload( 'import', [
+                'blockers' => array_values( (array) ( $result['blockers'] ?? [] ) ),
+                'filename' => $name,
+            ] );
+            self::redirectToPage();
+            return;
+        }
+
+        $payload = [
+            'filename'  => $name,
+            'imported'  => (array) ( $result['imported'] ?? [] ),
+            'warnings'  => array_values( (array) ( $result['warnings'] ?? [] ) ),
+            'committed' => (bool) $commit,
+        ];
+        OnboardingState::recordPayload( 'import', $payload );
+
+        if ( $commit ) {
+            OnboardingState::setStep( 'first_team' );
+            do_action( 'tt_onboarding_step_completed', 'import', $payload );
+            self::redirectToPage( [ 'tt_ob_msg' => 'imported' ] );
+            return;
+        }
+
+        // Preview only — stay on the step so the report is what the admin
+        // sees next, with the confirm button under it.
+        self::redirectToPage();
+    }
+
+    /** Stream the three-sheet squad template (#2957). */
+    public static function handleRosterTemplate(): void {
+        self::guard( 'tt_onboarding_roster_template' );
+
+        if ( ! \TT\Modules\Import\Excel\TemplateBuilder::streamRosterDownload() ) {
+            wp_die( esc_html__( 'The spreadsheet library is not installed on this server, so the template cannot be generated.', 'talenttrack' ) );
+        }
+        exit;
+    }
+
+    /** Skip the import step — a club with no spreadsheet is not blocked. */
+    public static function handleSkipImport(): void {
+        self::guard( 'tt_onboarding_skip_import' );
+
+        OnboardingState::recordPayload( 'import', [ 'skipped' => true ] );
+        OnboardingState::setStep( 'first_team' );
+
+        self::redirectToPage();
     }
 
     public static function handleFirstTeam(): void {
@@ -123,7 +214,7 @@ class OnboardingHandlers {
         QueryHelpers::set_config( 'date_format_pref', $payload['date_format'] );
 
         OnboardingState::recordPayload( 'academy', $payload );
-        OnboardingState::setStep( 'first_team' );
+        OnboardingState::setStep( 'import' );
         do_action( 'tt_onboarding_step_completed', 'academy', $payload );
 
         return $payload;

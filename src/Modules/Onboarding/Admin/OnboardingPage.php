@@ -63,6 +63,7 @@ class OnboardingPage {
         switch ( $step ) {
             case 'welcome':     self::renderWelcome();    break;
             case 'academy':     self::renderAcademy();    break;
+            case 'import':      self::renderImport();     break;
             case 'first_team':  self::renderFirstTeam();  break;
             case 'first_admin': self::renderFirstAdmin(); break;
             case 'dashboard':   self::renderDashboard();  break;
@@ -151,6 +152,119 @@ class OnboardingPage {
         <?php
     }
 
+    /**
+     * The squad-import step (#2958).
+     *
+     * Nothing is written until the admin has seen what the workbook holds
+     * and pressed confirm — the first upload is a dry run. A club with no
+     * spreadsheet skips in one click; a workbook that fails validation
+     * leaves the wizard exactly where it was, with the reasons shown.
+     */
+    private static function renderImport(): void {
+        $payload   = OnboardingState::payloadFor( 'import' );
+        $blockers  = (array) ( $payload['blockers'] ?? [] );
+        $warnings  = (array) ( $payload['warnings'] ?? [] );
+        $imported  = (array) ( $payload['imported'] ?? [] );
+        $filename  = (string) ( $payload['filename'] ?? '' );
+        $error     = (string) ( $payload['error'] ?? '' );
+        $previewed = ! empty( $imported ) && empty( $payload['committed'] );
+        ?>
+        <h2><?php esc_html_e( 'Import your squad', 'talenttrack' ); ?></h2>
+        <p>
+            <?php esc_html_e( 'If you already keep your teams, players and staff in a spreadsheet, bring them in now rather than typing them again. Download the template, fill it in, and upload it.', 'talenttrack' ); ?>
+        </p>
+        <p>
+            <strong><?php esc_html_e( 'Nothing is saved until you confirm.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Uploading shows you what the file contains, and anything that needs fixing, first.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $error !== '' ) : ?>
+            <div class="notice notice-error"><p><?php echo esc_html( $error ); ?></p></div>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $blockers ) ) : ?>
+            <div class="notice notice-error">
+                <p><strong><?php esc_html_e( 'This workbook cannot be imported yet. Nothing was saved.', 'talenttrack' ); ?></strong></p>
+                <ul>
+                    <?php foreach ( $blockers as $blocker ) : ?>
+                        <li><?php echo esc_html( (string) $blocker ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $warnings ) ) : ?>
+            <div class="notice notice-warning">
+                <ul>
+                    <?php foreach ( $warnings as $warning ) : ?>
+                        <li><?php echo esc_html( (string) $warning ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <p>
+            <a class="button" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_roster_template' ) ); ?>">
+                <?php esc_html_e( 'Download the template', 'talenttrack' ); ?>
+            </a>
+        </p>
+
+        <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_onboarding_import', 'tt_onboarding_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_onboarding_import" />
+            <p>
+                <input type="file" name="roster_file"
+                       accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            </p>
+            <p class="description">
+                <?php
+                printf(
+                    /* translators: 1: upload_max_filesize, 2: post_max_size */
+                    esc_html__( 'Server limits on this install: upload_max_filesize = %1$s, post_max_size = %2$s. A workbook larger than the smaller of those is rejected before TalentTrack sees it.', 'talenttrack' ),
+                    esc_html( (string) ini_get( 'upload_max_filesize' ) ),
+                    esc_html( (string) ini_get( 'post_max_size' ) )
+                );
+                ?>
+            </p>
+            <?php submit_button( __( 'Check this file', 'talenttrack' ), 'secondary', 'submit', false ); ?>
+        </form>
+
+        <?php if ( $previewed ) : ?>
+            <div class="notice notice-info">
+                <p>
+                    <strong><?php
+                        printf(
+                            /* translators: %s: the uploaded file name */
+                            esc_html__( '%s is ready to import.', 'talenttrack' ),
+                            esc_html( $filename )
+                        );
+                    ?></strong>
+                </p>
+                <ul>
+                    <?php foreach ( $imported as $entity => $count ) : ?>
+                        <li><?php echo esc_html( sprintf( '%s: %d', (string) $entity, (int) $count ) ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <p><?php esc_html_e( 'Upload the file again to confirm and save these records.', 'talenttrack' ); ?></p>
+                <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( 'tt_onboarding_import', 'tt_onboarding_nonce' ); ?>
+                    <input type="hidden" name="action" value="tt_onboarding_import" />
+                    <input type="hidden" name="tt_ob_import_confirm" value="1" />
+                    <p><input type="file" name="roster_file" required
+                              accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></p>
+                    <?php submit_button( __( 'Import these records', 'talenttrack' ), 'primary', 'submit', false ); ?>
+                </form>
+            </div>
+        <?php endif; ?>
+
+        <p>
+            <a class="button" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_skip_import' ) ); ?>">
+                <?php esc_html_e( 'Skip — I do not have a spreadsheet', 'talenttrack' ); ?>
+            </a>
+        </p>
+        <?php
+    }
+
     private static function renderFirstTeam(): void {
         $payload    = OnboardingState::payloadFor( 'first_team' );
         $values     = [
@@ -162,10 +276,42 @@ class OnboardingPage {
         // site language (#1440).
         $age_groups = QueryHelpers::get_lookup_label_pairs( 'age_group' );
         ?>
+        <?php
+        // #2958 — when the import step already brought teams in, do not
+        // present an empty required form for something the admin has just
+        // done. Acknowledge what arrived and make this step optional.
+        $import_payload  = OnboardingState::payloadFor( 'import' );
+        $imported_counts = (array) ( $import_payload['imported'] ?? [] );
+        $imported_teams  = ! empty( $import_payload['committed'] ) ? (int) ( $imported_counts['teams'] ?? 0 ) : 0;
+        ?>
         <h2><?php esc_html_e( 'First team', 'talenttrack' ); ?></h2>
-        <p style="max-width:680px;">
-            <?php esc_html_e( 'Add one team now. You can add more later under Teams. Players, evaluations, activities, and goals all attach to a team, so we need at least one to make the rest of the plugin useful.', 'talenttrack' ); ?>
-        </p>
+        <?php if ( $imported_teams > 0 ) : ?>
+            <p>
+                <?php
+                printf(
+                    esc_html(
+                        /* translators: %d: number of teams brought in by the import */
+                        _n(
+                            'Your import brought in %d team. Add another now if you want, or continue.',
+                            'Your import brought in %d teams. Add another now if you want, or continue.',
+                            $imported_teams,
+                            'talenttrack'
+                        )
+                    ),
+                    (int) $imported_teams
+                );
+                ?>
+            </p>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_advance', [ 'from' => 'first_team', 'skip' => '1' ] ) ); ?>">
+                    <?php esc_html_e( 'Continue', 'talenttrack' ); ?>
+                </a>
+            </p>
+        <?php else : ?>
+            <p>
+                <?php esc_html_e( 'Add one team now. You can add more later under Teams. Players, evaluations, activities, and goals all attach to a team, so we need at least one to make the rest of the plugin useful.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
         <?php if ( class_exists( '\\TT\\Shared\\Wizards\\WizardRegistry' ) && \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-team' ) ) : ?>
             <p style="max-width:680px;">
                 <a class="button" href="<?php echo esc_url( \TT\Shared\Wizards\WizardEntryPoint::buildUrl( 'new-team' ) ); ?>" target="_blank" rel="noopener">
@@ -413,6 +559,7 @@ class OnboardingPage {
         $map = [
             'saved'      => __( 'Saved.', 'talenttrack' ),
             'team_made'  => __( 'Team created.', 'talenttrack' ),
+            'imported'   => __( 'Your squad has been imported.', 'talenttrack' ),
             'admin_made' => __( 'Admin record created.', 'talenttrack' ),
             'reset'      => __( 'Wizard reset.', 'talenttrack' ),
             'page_made'  => __( 'Frontend dashboard page created.', 'talenttrack' ),
