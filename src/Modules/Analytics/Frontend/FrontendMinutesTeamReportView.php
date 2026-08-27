@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Reports\GoalContributionQuery;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
@@ -227,6 +228,11 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         echo '<th class="num">' . esc_html__( 'Subs in', 'talenttrack' ) . '</th>';
         echo '<th class="num">' . esc_html__( 'Subs off', 'talenttrack' ) . '</th>';
         echo '<th class="num">' . esc_html__( 'Avg / match', 'talenttrack' ) . '</th>';
+        // #2859 — output beside exposure. Reading "played 340 minutes" and
+        // "scored 6" off two different screens is what made the comparison
+        // nobody was making; they belong in one row.
+        echo '<th class="num">' . esc_html_x( 'Goals scored', 'goals scored in matches', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html_x( 'Assists', 'who created a goal', 'talenttrack' ) . '</th>';
         foreach ( $type_keys as $key ) {
             echo '<th class="num">' . esc_html( $type_labels[ $key ] ) . '</th>';
         }
@@ -234,8 +240,13 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
 
         // #2160 — total column count for the drill-down row's colspan.
-        $col_count = 8 + count( $type_keys );
+        // #2859 — +2 for the goals / assists columns.
+        $col_count = 10 + count( $type_keys );
         $minutes_query = new MinutesQuery();
+        // One query for the whole team, keyed by player. A player with no
+        // contribution is absent from it and renders 0 — an empty cell would
+        // read as "not measured" rather than "none".
+        $contributions = ( new GoalContributionQuery() )->forTeam( $team_id, [ 'from' => $from, 'to' => $to ] );
         foreach ( $visible_rows as $r ) {
             $name = trim( (string) $r['first_name'] . ' ' . (string) $r['last_name'] );
             if ( $name === '' ) $name = '#' . (int) $r['player_id'];
@@ -257,6 +268,8 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             echo '<td class="num">' . (int) $r['subs_in'] . '</td>';
             echo '<td class="num">' . (int) $r['subs_off'] . '</td>';
             echo '<td class="num">' . (int) $r['__avg'] . '</td>';
+            echo '<td class="num">' . (int) ( $contributions[ $pid ]['goals'] ?? 0 ) . '</td>';
+            echo '<td class="num">' . (int) ( $contributions[ $pid ]['assists'] ?? 0 ) . '</td>';
             foreach ( $type_keys as $key ) {
                 $v = (int) ( $r['by_type'][ $key ] ?? 0 );
                 echo '<td class="num">' . esc_html( number_format_i18n( $v ) ) . '</td>';

@@ -15,10 +15,17 @@ as larger and more blocked than it is, and invited a code agent to pick
 up work that has no code in this repo.
 
 The GitHub issues listed below were closed on 2026-08-27 and their
-substance moved here verbatim in summary. Nothing was dropped. If one of
-these items later grows a genuine plugin-code component, file that
-component as its own issue — scoped to the code, not to the business
-problem.
+substance moved here. Nothing was dropped. If one of these items later
+grows a genuine plugin-code component, file that component as its own
+issue — scoped to the code, not to the business problem.
+
+**A note on how to read the open questions.** Eight decisions were locked
+on 2026-08-26 as a comment on the epic, but the child issue *bodies* were
+never updated to absorb them — so those bodies still listed questions
+that had already been answered. The decisions are reproduced below and
+folded into each section; where a section says *"Settled by the
+2026-08-26 decisions"*, that is the correction. Keep this document as the
+single record so the same drift does not happen again.
 
 ---
 
@@ -46,7 +53,40 @@ What it does not settle: pricing numbers (deferred), and the relationship
 to the `talenttrack-saas` port, which continues as the long-term rewrite.
 Hosted-WP-per-club is the near-term revenue path.
 
-## Tier model — decided 2026-08-27
+## Decisions locked — 2026-08-26
+
+| # | Decision |
+|---|---|
+| 1 | **Club subdomains hang off `mediamaniacs.nl`.** Trust and product pages at `mediamaniacs.nl/talenttrack/{privacy,security}`. The SaaS port keeps `.online`, so a later migration changes a club's URL. Clubs share the agency namespace, so provisioning needs a reserved-name list. DPA and trust pages are **Dutch**, English on request. |
+| 2 | **One VPS, many WordPress installs.** All hosting operations are ours. |
+| 3 | **Three tiers stay, Free included — and Free is the pilot vehicle.** No separate paid pilot. *(Superseded 2026-08-27 — see below.)* |
+| 4 | **SLA: 99.5% uptime, one business day support response.** |
+| 5 | **Isolation: separate MySQL database + scoped database user, and a separate system user / PHP-FPM pool, per install.** |
+| 6 | **MediaManiacs signs the DPA and issues invoices** — no new entity. |
+| 7 | **Billing: invoice + iDEAL / SEPA via Mollie.** Annual, aligned to the season. |
+| 8 | **Entitlement is control-plane-owned and cached per install** — never a constant baked into `wp-config.php`. |
+
+**Decision 8 is the constraint that protects the SaaS move.** Managed
+hosting and SaaS are the same commercial shape: a customer has a
+subscription, and an environment exists because that subscription does —
+only the environment differs (a WordPress install now, a Postgres tenant
+later). So the control plane owns customers, subscriptions, plans,
+entitlement, provisioning and de-provisioning, and is written once. A
+club's install *caches* its entitlement with a TTL and a grace window, so
+it keeps working when the control plane is unreachable, but never owns
+the answer. This is also why Freemius was retired rather than finished —
+its SDK is WordPress-coupled, so completing it would have meant building
+billing twice and migrating live subscriptions between them.
+
+**A single VPS is a single point of failure, so decision 4's 99.5% is a
+recovery-time commitment, not a redundancy one.** Roughly 3.5 hours of
+allowed downtime a month on infrastructure with no failover. Off-server
+backup and a rehearsed rebuild are what the SLA actually rests on — § 2
+needs a stated RTO and RPO, not just "backups configured".
+
+## Tier model — revised 2026-08-27
+
+**This supersedes decision 3.**
 
 - **Two tiers: Standard and Pro.** Free stops being a sellable tier — a
   club either pays for hosting or has no install. Free survives only as
@@ -58,6 +98,18 @@ Hosted-WP-per-club is the near-term revenue path.
   This protects a club whose season-start media upload would otherwise
   break their install.
 
+**Consequence that needs resolving: the pilot has lost its vehicle.**
+Decision 3 made Free the pilot — a club ran on a Free install for a
+season and converted. With Free removed as a tier, § 6's pilot path needs
+a new mechanism: a time-boxed full-product install, a paid pilot, or a
+first-year discount. This is the one thing today's reversal reopened, and
+it should be settled before § 6 is picked up.
+
+The upside of the reversal is that it removes the cost centre decision 3
+created — every Free install consumed VPS resources, backup storage and
+support attention indefinitely, on infrastructure that is now known to be
+a single VPS.
+
 The code half of the tier work — rewriting `FeatureMap::DEFAULT_MAP`,
 adding the missing `LicenseGate` call sites, regenerating the
 `docs/license-and-account.md` matrix — **stays on the development board**
@@ -65,17 +117,19 @@ as the one remaining code issue in this area.
 
 ## What already shipped
 
-- Full licence state machine — `LicenseGate`, `TrialState`,
-  `FreeTierCaps`, dev override, and the Account page with tier / usage /
-  upgrade UI. 91 gate references across 37 files in `src`.
+- Licence enforcement — `LicenseGate`, `FeatureMap`, `FreeTierCaps`,
+  `DevOverride`, and the Account page with tier / usage / upgrade UI. 91
+  gate references across 37 files in `src`.
+- **The entitlement layer from decision 8**: `Entitlement`,
+  `CachedEntitlement` and `EntitlementSourceInterface`. `FreemiusAdapter`
+  and `TrialState` were **deleted** — neither exists any more, so neither
+  can be cited as precedent.
 - One clean switch: `TT_COMMERCIAL_MODE` at `talenttrack.php`, currently
   `false`. Every install today runs unlocked Pro.
 - Fleet telemetry: `docs/phone-home.md` — install_id, version,
   team/player counts, DAU/WAU to an Admin Center endpoint.
 - A drafted legal pack: `marketing/security/dpa-template.md`,
   `privacy-policy.md`, `security-page.md`, plus a GDPR operator guide.
-- The parent domain decision, and the retirement of the Freemius adapter
-  in favour of an operator-set tier.
 
 ---
 
@@ -94,8 +148,10 @@ running `<club>.<domain>`.
 a working install:
 
 1. **DNS + TLS** — subdomain record, wildcard or per-host certificate.
-2. **WordPress install** — files, database, `wp-config.php` (including
-   the operator-set tier), salts, admin account.
+2. **WordPress install** — files, database, `wp-config.php`, salts, admin
+   account. The tier is **not** written here: decision 8 makes entitlement
+   control-plane-owned and cached per install, so provisioning registers
+   the install against the control plane rather than baking a constant in.
 3. **Plugin install + activation** — a pinned version from a release
    channel, migrations run and verified green.
 4. **Seed** — the setup wizard's outcome, non-interactively: persona
@@ -117,22 +173,25 @@ is idempotent or refuses clearly. De-provisioning exists, produces a
 machine-readable export, and deletes on a documented clock. The pipeline
 is documented well enough to be run by someone who is not its author.
 
+**Settled by the 2026-08-26 decisions.** Hosting stack is **one VPS,
+many WordPress installs** (decision 2). Database isolation is **separate
+database + scoped database user per install**, plus a separate system
+user / PHP-FPM pool (decision 5). The subdomain shape is
+`<club>.mediamaniacs.nl` (decision 1), which means clubs share the agency
+namespace and provisioning needs a **reserved-name list**.
+
 **Open questions.**
 
-1. **Hosting stack** — one VPS with many installs, a managed WordPress
-   host with a provisioning API, or containers per club? This decides
-   isolation strength, per-club cost, and update rollout. It is the
-   single highest-leverage unanswered question in the whole backlog.
-2. **Database isolation** — separate database per club, or shared with
-   table prefixes? Prefixes are cheaper and the WordPress default;
-   separate databases are the defensible answer when the data is minors'
-   records. See § 3.
-3. **Plugin artifact source** — public GitHub release, or a private
+1. **Plugin artifact source** — public GitHub release, or a private
    build? No longer a revenue risk, but pulling production installs from
    a public release deserves a deliberate decision.
-4. **Who runs it** — a script on a laptop, a CI workflow, or an action in
+2. **Who runs it** — a script on a laptop, a CI workflow, or an action in
    the Admin Center? The Admin Center already receives phone-home from
-   every install and is the natural console.
+   every install and is the natural console, and under decision 8 it is
+   also where entitlement lives — which argues for the control plane
+   owning provisioning too.
+3. **The exact subdomain shape** under `mediamaniacs.nl`, and the
+   reserved-name list that goes with it.
 
 ---
 
@@ -182,11 +241,16 @@ once, written down. Uptime and phone-home-gap alerting reaching a human.
 A support intake path the club's HoD knows about.
 `docs/go-live-runbook.md` generalised or forked into a fleet runbook.
 
+**Settled by the 2026-08-26 decisions.** The SLA is **99.5% uptime, one
+business day support response** (decision 4). On a single VPS with no
+failover that is a recovery-time commitment, so this section owes a
+stated **RTO and RPO** from a rehearsed rebuild — "backups configured" is
+not enough to stand behind the number.
+
 **Open questions.**
 
-1. What uptime and support-response commitment goes in the SLA? A
-   business promise as much as a technical one — decide before the legal
-   pack quotes a number.
+1. What RTO and RPO does a rehearsed rebuild actually achieve? The SLA is
+   already promised; this is the engineering that has to meet it.
 2. Do all clubs run the same plugin version, or can a club be pinned
    during a critical period (a tournament weekend, a trial cycle)?
    Pinning is kind to the club and expensive to support.
@@ -244,12 +308,17 @@ is verified on whatever web server the stack actually uses. The result
 feeds the DPA's technical and organisational measures annex, which
 currently describes a self-hosted world.
 
+**Settled by the 2026-08-26 decisions.** Decision 5 chose **separate
+MySQL database + scoped database user, and a separate system user /
+PHP-FPM pool, per install** — so both the database and the filesystem
+questions below are answered by design rather than by review. What
+remains is verifying the implementation matches, and that the PHP-FPM
+pool boundary actually holds for `tt-media/`, which is the sharper of the
+two risks.
+
 **Open questions.**
 
-1. Is separate-database-per-club worth its operational cost? Given the
-   data is minors' records the answer is probably yes, but it should be a
-   recorded decision rather than a default.
-2. Does the operator's cross-club access appear in the club's own audit
+1. Does the operator's cross-club access appear in the club's own audit
    log, or only in ours? The impersonation log already sets a precedent
    for logging operator access in the club's view.
 3. Does a club get to see where its data lives and who can reach it?
@@ -277,8 +346,9 @@ structured. What is missing is execution:
   `KvK: [number — fill in]`.
 - `docs/privacy-operator-guide.md` tells academies the DPA, sub-processor
   list, hosting region and personal-data column table live at
-  `talenttrack.app/privacy` — a page that has to exist before that
-  sentence is true.
+  `mediamaniacs.nl/talenttrack/privacy`. The `docs/` references were
+  repointed there by the domain decision, so the URL is now correct — but
+  **the page still has to be published** before that sentence is true.
 - The security and privacy documents were written for a self-hosted
   product. Under hosting the answer to "where is the data and who can
   reach it" changes completely, and so does the sub-processor list — the
@@ -287,35 +357,39 @@ structured. What is missing is execution:
 
 **What to do.** Legal review of the DPA against the hosted topology, not
 the self-hosted one it was drafted for. Fill in registered address and
-KvK. Write the sub-processor list from the chosen hosting stack, with a
-notification process when it changes. State the hosting region (EU, and
-specifically where). Rewrite the technical and organisational measures
-annex against § 3's findings. Terms of service and an SLA — uptime,
-support response, what happens to data on termination, and the
-de-provisioning clock. Publish the trust pages at the chosen domain and
-fix the `docs/` references pointing at `talenttrack.app`. Decide the
-retention defaults we commit to as processor, distinct from the retention
-policy each academy sets as controller.
+KvK. Write the sub-processor list — the VPS provider, the mail provider
+and the off-server backup target — with a notification process when it
+changes. State the hosting region (EU, and specifically where). Rewrite
+the technical and organisational measures annex against § 3's findings.
+Terms of service and an SLA carrying decision 4's numbers, plus what
+happens to data on termination and the de-provisioning clock. **Publish**
+the trust pages at `mediamaniacs.nl/talenttrack/{privacy,security}` —
+`docs/` already points there, so the links are dead until the pages
+exist. Decide the retention defaults we commit to as processor, distinct
+from the retention policy each academy sets as controller.
 
 **Done when.** A DPA reviewed by counsel and ready to counter-sign, no
-placeholders. A published sub-processor list matching the real stack.
-Terms and an SLA with stated uptime and support-response commitments.
-Live privacy and security pages at the chosen domain, every `docs/`
+placeholders, in Dutch. A published sub-processor list matching the real
+stack. Terms and an SLA stating 99.5% and one business day. Live privacy
+and security pages at `mediamaniacs.nl/talenttrack/`, every `docs/`
 reference resolving. A documented breach-notification path with a named
 responsible human and a clock. Data export and deletion on termination
 documented and matching what de-provisioning actually does.
 
-**Open questions.**
+**Settled by the 2026-08-26 decisions.** **MediaManiacs signs and
+invoices** — no new entity (decision 6). The **DPA and trust pages are
+Dutch**, English on request (decision 1) — which means the Dutch is the
+version that gets signed and therefore the version that needs the legal
+review. The SLA to quote is **99.5% / one business day** (decision 4).
+Trust pages publish at `mediamaniacs.nl/talenttrack/{privacy,security}`,
+and `docs/` has already been repointed there.
 
-1. Which entity signs — MediaManiacs as it exists today, or a separate
-   entity for the product? Affects liability; worth an accountant, not
-   just a lawyer.
-2. What is the uptime and support commitment? Decide with § 2, then write
-   it here, rather than promising first and engineering afterwards.
-3. Does a Dutch amateur club's board actually want a DPA in Dutch? The
-   template is English; the product ships Dutch first. A Dutch DPA is
-   probably the sales-friendlier artifact.
-4. Is a DPIA needed for the hosted service as a whole?
+The sub-processor list can now be drafted, because the stack is known:
+the VPS provider, the mail provider and the off-server backup target.
+
+**Open question.**
+
+1. Is a DPIA needed for the hosted service as a whole?
    `docs/photo-capture-dpia.md` exists for one feature; hosting minors'
    records as a service is a broader processing activity.
 
@@ -332,27 +406,27 @@ subscription does. Nothing for this exists today.
 
 **What to decide and build.**
 
-- **Payment mechanism.** A Dutch amateur club is likely to want an
-  invoice with a payment term, not a card form — many operate on a
-  treasurer and a bank transfer. That points at invoicing with iDEAL/SEPA
-  rather than card-first subscription billing. Whatever is chosen must
-  handle Dutch VAT and produce an invoice a club treasurer can file.
-- **Subscription lifecycle.** Annual is the natural term for a product
-  organised around football seasons — a club's budget year and its season
-  are the same cycle. That makes renewal a seasonal conversation rather
-  than a silent card charge.
+- **Payment mechanism — decided.** Invoice + **iDEAL / SEPA via Mollie**
+  (decision 7). A Dutch amateur club runs on a treasurer and a bank
+  transfer, not a card form. Still to build: Dutch VAT handling and an
+  invoice a club treasurer can file.
+- **Subscription lifecycle — decided.** **Annual, aligned to the season**
+  (decision 7). A club's budget year and its season are the same cycle,
+  so renewal is a seasonal conversation rather than a silent charge.
 - **The non-payment path.** The part that needs care, because the data
   belongs to children and the club is the controller. A reasonable
   ladder: reminder → grace period with full access → read-only → export
-  offered → de-provision on a stated clock. `TrialState` already models
-  this shape (30-day trial → 14-day read-only grace), a decent precedent
-  for the read-only step even if the mechanism moves operator-side. What
-  must never happen is a club losing access to its players' records
-  because an invoice was missed by a volunteer treasurer in July.
-- **Where the state lives.** The subscription is the source of truth for
-  whether an install should exist and at what tier. It connects to
-  provisioning (create), the operator-set tier (entitlement), and
-  de-provisioning (destroy).
+  offered → de-provision on a stated clock. Note that `TrialState`, which
+  used to model a version of this shape, was **deleted** by the Freemius
+  retirement — the read-only step has to be built on `Entitlement` /
+  `CachedEntitlement`, and there is no existing precedent in the code to
+  copy. What must never happen is a club losing access to its players'
+  records because an invoice was missed by a volunteer treasurer in July.
+- **Where the state lives — decided.** The control plane owns the
+  subscription and the entitlement it implies (decision 8); the install
+  caches it with a TTL and a grace window and never owns the answer. One
+  place answers "should this install exist, at what tier", and it
+  connects to provisioning (create) and de-provisioning (destroy).
 
 **Done when.** A payment and invoicing path a Dutch amateur club will
 actually use. VAT handled correctly, with invoices satisfying a club
@@ -364,17 +438,12 @@ deliberate seasonal conversation, not a surprise.
 
 **Open questions.**
 
-1. Invoice-and-transfer, or card/direct-debit subscription? A
-   sales-friction question about the actual buyer — a volunteer
-   treasurer, not a procurement department.
-2. Annual only, or is a monthly option worth the churn exposure? Annual
-   aligns with the season and with hosting cost recovery.
-3. Is there a setup or onboarding fee? Provisioning plus data migration
-   plus training is real work, and pricing it separately protects the
-   recurring number.
-4. How long is the read-only grace before de-provisioning, and does the
+1. How long is the read-only grace before de-provisioning, and does the
    club get an automatic export at the read-only step rather than having
    to ask?
+2. Is there a setup or onboarding fee? Provisioning plus data migration
+   plus training is real work, and pricing it separately protects the
+   recurring number. Folded into § 8.
 
 ---
 
@@ -418,14 +487,21 @@ defined pilot path: provisioned install, club's real data, DPA signed
 before the first real player record. A pilot converts to a subscription
 without rebuilding or migrating anything.
 
+**The pilot needs a new vehicle — this is the live question here.**
+Decision 3 made the Free tier the pilot: a club ran on a Free install for
+a season, with no separate paid pilot. The 2026-08-27 tier revision
+removed Free as a tier, so that mechanism is gone and the pilot path has
+nothing to run on. Options: a time-boxed full-product install on
+Standard, a paid pilot credited against the first year, or a first-season
+discount. **Settle this before picking § 6 up** — it also feeds § 5's
+subscription lifecycle and § 8's pricing.
+
 **Open questions.**
 
-1. Is the demo self-serve (open URL) or gated behind a form? Self-serve
+1. What replaces Free as the pilot vehicle? (Above.)
+2. Is the demo self-serve (open URL) or gated behind a form? Self-serve
    reaches more clubs; a form gives a contact to follow up. For a product
    sold to a handful of clubs a year, the form probably wins.
-2. Is the pilot free, paid, or credited against the first year? A paid
-   pilot filters for serious clubs; a free one lowers the barrier for the
-   first few references, which are worth more than the pilot revenue.
 3. How long is a pilot? A season is the honest answer for a product whose
    value shows up over a season, but it is a long sales cycle to carry.
 4. Does the existing DemoData preset make a good demo, or does the sales
@@ -511,13 +587,19 @@ split in the development issue is decided.
 
 ## Sequence
 
-1. **Hosting stack decision** (§ 1, open question 1) — blocks
-   provisioning, isolation, fleet ops and the sub-processor list. The
-   highest-leverage unanswered question here.
-2. **Provisioning** (§ 1) — the largest lift.
-3. **Isolation review** (§ 3) — depends on the stack choice; minors' data
-   makes it non-optional.
-4. **Fleet operations** (§ 2).
+The 2026-08-26 decisions removed what used to be step 1 — the hosting
+stack, database isolation, SLA, signing entity and payment mechanism are
+all settled. What is left is execution, plus one reopened product
+question.
+
+1. **Pick the pilot vehicle** (§ 6) — small, and it now blocks § 5's
+   lifecycle and § 8's pricing. Reopened by the 2026-08-27 tier revision.
+2. **Provisioning** (§ 1) — the largest lift, and now unblocked.
+3. **Isolation verification** (§ 3) — decision 5 chose the design;
+   this confirms the implementation matches, with `tt-media/` as the
+   sharp edge.
+4. **Fleet operations** (§ 2) — including the RTO/RPO the already-promised
+   99.5% SLA rests on.
 5. **Legal execution** (§ 4) and **billing** (§ 5) — hard gates on the
    first signature; run in parallel with 2–4.
 6. **Demo funnel** (§ 6), **pricing** (§ 8), **collateral** (§ 7) — last,
