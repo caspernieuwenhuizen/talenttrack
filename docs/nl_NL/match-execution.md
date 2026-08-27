@@ -21,6 +21,67 @@ activiteit: **Dashboard / Activiteiten / {activiteit} / Wedstrijduitvoering**.
 Tik op de activiteitskruimel om terug te keren naar de detailpagina van de
 wedstrijdactiviteit.
 
+## Twee indelingen — één scroll, of secties
+
+Het scherm heeft twee indelingen. Ze tonen dezelfde gegevens en kunnen
+precies hetzelfde; het verschil zit alleen in hoeveel je moet scrollen om
+er bij te komen.
+
+**Klassiek — één lange pagina** is de oorspronkelijke indeling. Alles —
+stand, speelklok, opstelling, verloop, reservebank, controle — staat onder
+elkaar in één kolom. Dit is de standaard.
+
+**Secties — stand vast, tabs onderaan** verdeelt het scherm in vier vaste
+stukken die niet meebewegen:
+
+- De **wedstrijdbalk** bovenin houdt de stand en de klok vast. Die blijven
+  altijd in beeld, en dat is precies de bedoeling: je wilt de stand niet
+  uit beeld hoeven scrollen om bij de reservebank te komen.
+- Het **paneel** in het midden is het enige dat scrollt.
+- De **statusknop** eronder — Wedstrijd starten, Eerste helft beëindigen,
+  Wedstrijd beëindigen, enzovoort — blijft binnen bereik van je duim.
+- De **sectietabs** helemaal onderaan bepalen wat het paneel laat zien.
+
+Welke tabs je krijgt, hangt af van waar de wedstrijd staat:
+
+| Tab | Toont | Wanneer |
+| --- | --- | --- |
+| **Selectie** | Gevolgde spelers, de reservebank en de wisselkeuze | Zolang de wedstrijd te bedienen is |
+| **Minuten** | De wedstrijdtijdlijn — wie stond wanneer op het veld | Na het laatste fluitsignaal |
+| **Opstelling** | De teams en datum, de tellingen en de opstelling | Altijd |
+| **Verloop** | Doelpunten, het verloop en late gebeurtenissen | Altijd |
+| **Controle** | Status na de wedstrijd, afronden en geregistreerde minuten | Na het laatste fluitsignaal |
+
+De tab die opengaat, is die met het werk erin: **Selectie** tijdens de
+wedstrijd, **Controle** zodra hij is afgelopen, en **Opstelling** vóór
+wedstrijddag, wanneer er nog niets met de reservebank te doen valt.
+**Wedstrijd controleren** op de statusknop opent de tab Controle in plaats
+van te scrollen.
+
+Als je de pagina opnieuw laadt — bijvoorbeeld omdat je telefoon langs de
+lijn in slaap viel — kom je terug op de tab waar je was. De uitzondering is
+een wedstrijd die intussen is afgelopen: die opent op Controle, want het
+laatste fluitsignaal is waarvoor je terugkwam.
+
+De tabs werken ook met een toetsenbord: met Tab kom je in de rij, daarna
+verspringen de pijltjestoetsen links en rechts tussen de tabs en wisselen
+ze het paneel meteen mee.
+
+### Een indeling kiezen
+
+Twee plekken bepalen het, en de meest specifieke wint:
+
+- **Configuratie → Wedstrijddag → Livewedstrijdscherm** stelt de standaard
+  voor de academie in.
+- **Mijn instellingen → Livewedstrijdscherm → Indeling** overschrijft die
+  alleen voor jou. Deze staat op *Gebruik de standaard van de academie* tot
+  je hem wijzigt.
+
+Door die splitsing kan één trainer de sectie-indeling één zaterdag
+uitproberen terwijl de rest op de scroll blijft. Terugschakelen verandert
+niets aan je gegevens — het zijn twee manieren om hetzelfde scherm te
+tekenen.
+
 ## Bewerken is een bewuste keuze
 
 Tijdens het spel zijn de bewerkingsknoppen al zichtbaar — een speler

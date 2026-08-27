@@ -19,6 +19,64 @@ The breadcrumb above the screen links back to the parent activity:
 **Dashboard / Activities / {activity} / Match execution**. Tapping the
 activity crumb returns you to the match activity's detail page.
 
+## Two layouts — one scroll, or sections
+
+The screen ships in two layouts. Both show the same information and do the
+same things; they differ only in how much scrolling it takes to reach any
+of it.
+
+**Classic — one long page** is the original. Everything — score, timer,
+line-up, event log, bench, review — sits in a single column you scroll
+down. It is the default.
+
+**Sections — score pinned, tabs at the bottom** splits the screen into four
+fixed regions that never move:
+
+- The **match bar** at the top holds the score and the clock. They stay in
+  view whatever you are looking at, which is the point — you should not
+  have to scroll the scoreline away to reach the bench.
+- The **panel** in the middle is the only part that scrolls.
+- The **state button** below it — Start match, End first half, End match,
+  and so on — stays in reach of your thumb.
+- The **section tabs** at the very bottom switch what the panel shows.
+
+Which tabs you get depends on where the match is:
+
+| Tab | Shows | When |
+| --- | --- | --- |
+| **Squad** | Tracked players, the bench, and the substitution picker | While the match can be run |
+| **Minutes** | The squad timeline — who was on, and when | After the final whistle |
+| **Pitch** | The teams and date, the tracked/available counts, and the line-up | Always |
+| **Log** | Goals, the event feed, and late events | Always |
+| **Review** | Post-match status, Finalize, and recorded minutes | After the final whistle |
+
+The tab that opens is the one with the work in it: **Squad** during the
+match, **Review** once it has ended, and **Pitch** before match day, when
+there is nothing on the bench to do yet. **Review match** on the state
+button opens the Review tab rather than scrolling.
+
+If you reload — a phone that went to sleep on the touchline, say — you come
+back to the tab you were on. The exception is a match that ended while you
+were away: that opens on Review, because the final whistle is the thing you
+came back for.
+
+The tabs also work from a keyboard: Tab moves into the strip, then the left
+and right arrow keys move between tabs and switch the panel as they go.
+
+### Choosing a layout
+
+Two places set it, and the more specific one wins:
+
+- **Configuration → Match day → Live match screen** sets the academy
+  default.
+- **My settings → Live match screen → Layout** overrides it for you alone.
+  It is set to *Use the academy default* unless you change it.
+
+That split is what lets one coach try the sectioned layout for a single
+Saturday while everyone else stays on the scroll. Switching back changes
+nothing about your data — the layouts are two ways of drawing the same
+screen.
+
 ## Editing is opt-in
 
 During play the mutating controls are already revealed — substituting a

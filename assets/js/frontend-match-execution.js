@@ -22,6 +22,122 @@
     })();
     var cfg = window.TT_MATCH_EXECUTION || {};
     var i18n = cfg.i18n || {};
+
+    /* -----------------------------------------------------------------
+     * #2935 — the sectioned layout.
+     *
+     * Container concerns only. Nothing below knows anything about a
+     * match; every function returns harmlessly when the classic
+     * long-scroll layout is in force, which is the whole rollback
+     * contract behind `MatchExecutionLayout`.
+     * ----------------------------------------------------------------- */
+
+    var sections = root.classList.contains('tt-mexec--sections');
+    var tabStrip = sections ? root.querySelector('[data-tt-spine-tabs]') : null;
+    var TAB_KEY  = 'tt-mexec-tab:' + (root.getAttribute('data-activity-id') || '0');
+
+    /*
+     * Size the container to the space left below the breadcrumb chain, so
+     * the document is exactly one viewport tall and the panel is the only
+     * thing that scrolls. Measured rather than assumed: the chain wraps to
+     * two lines on a long team name, and a hard-coded offset would put the
+     * tab strip below the fold on exactly the phones this layout is for.
+     *
+     * Also republishes `--tt-mexec-foot-h`, which #2917 introduced for the
+     * toast. In the classic layout that is the fixed footer's height; here
+     * the bottom chrome is the CTA plus the tab strip, and the toast has
+     * to clear both.
+     */
+    function fitSections() {
+        if (!sections) return;
+        var top = root.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0);
+        // A floor rather than a raw subtraction: a very short viewport (a
+        // landscape handset with the keyboard up) would otherwise collapse
+        // the panel to nothing, and a scrolling page is a better failure
+        // than an unusable one.
+        root.style.setProperty('--tt-mexec-avail', Math.max(320, Math.round(window.innerHeight - top)) + 'px');
+
+        var footer = root.querySelector('.tt-mexec-footer');
+        var chrome = (footer ? footer.offsetHeight : 0) + (tabStrip ? tabStrip.offsetHeight : 0);
+        if (chrome > 0) {
+            document.documentElement.style.setProperty('--tt-mexec-foot-h', chrome + 'px');
+        }
+    }
+
+    /*
+     * Open a panel by id. Clicks the tab rather than moving `hidden`
+     * around, so `record-spine-tabs.js` stays the only thing that knows
+     * how a tab strip switches — two implementations of that would drift.
+     *
+     * Returns false when there is no such tab, which is how the callers
+     * fall back to the classic behaviour.
+     */
+    function openPanel(panelId) {
+        if (!tabStrip) return false;
+        var tab = tabStrip.querySelector('[role="tab"][aria-controls="' + panelId + '"]');
+        if (!tab) return false;
+        tab.click();
+        return true;
+    }
+
+    /*
+     * Restore the tab the coach was on, unless the match moved on while
+     * they were away.
+     *
+     * A phone that sleeps mid-match and reloads should come back where it
+     * was. But a match that ended while it slept should open on Review:
+     * the final whistle pulls you forward, and that is worth overriding a
+     * remembered position for. Hence the stored state stamp — a mismatch
+     * means the server-rendered default wins.
+     *
+     * `sessionStorage` because it is per-tab and per-session: a coach
+     * opening a different match, or the same match tomorrow, starts from
+     * the state's default rather than from a stale memory.
+     */
+    function restoreTab() {
+        if (!tabStrip) return;
+        var raw;
+        try { raw = window.sessionStorage.getItem(TAB_KEY); } catch (e) { return; }
+        if (!raw) return;
+        var saved;
+        try { saved = JSON.parse(raw); } catch (e) { return; }
+        if (!saved || saved.state !== root.getAttribute('data-state')) return;
+        openPanel(saved.panel);
+    }
+
+    function rememberTab(panelId) {
+        if (!panelId) return;
+        try {
+            window.sessionStorage.setItem(TAB_KEY, JSON.stringify({
+                panel: panelId,
+                state: root.getAttribute('data-state')
+            }));
+        } catch (e) { /* private mode, quota — losing the position is fine. */ }
+    }
+
+    if (sections) {
+        if (tabStrip) {
+            tabStrip.addEventListener('tt-spine-tab-change', function (e) {
+                rememberTab(e.detail && e.detail.panel);
+            });
+        }
+        window.addEventListener('resize', fitSections);
+        window.addEventListener('orientationchange', fitSections);
+
+        // Deferred to `DOMContentLoaded` because `restoreTab()` works by
+        // clicking a tab, and `record-spine-tabs.js` binds its strips on
+        // that same event. This script declares a dependency on it, so it
+        // executes second, registers second, and therefore runs second.
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                fitSections();
+                restoreTab();
+            });
+        } else {
+            fitSections();
+            restoreTab();
+        }
+    }
     // #2267 — the canonical MatchExecutionState values, exported from the
     // PHP enum via the bootstrap config. The state machine compares against
     // these instead of the legacy hardcoded 'finished' literal (which no
@@ -242,11 +358,19 @@
             state.state = ST.PENDING_REVIEW;
             renderStateButton(); renderHalfLabel();
         } else if (state.state === ST.PENDING_REVIEW) {
-            // #2267 — "Review match": scroll to the post-match review
-            // panel (finalize + late events) rather than navigate away.
-            var panel = root.querySelector('.tt-mexec-post-match');
-            if (panel && typeof panel.scrollIntoView === 'function') {
-                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // #2267 — "Review match" reveals the post-match panel (finalize
+            // + late events) rather than navigating away.
+            //
+            // #2935 — under the sectioned layout that panel is behind the
+            // Review tab, and scrolling a container that does not scroll
+            // would do nothing at all. Switching tabs is the same intent
+            // expressed in the layout that is actually on screen; the
+            // scroll stays as the classic path's answer.
+            if (!openPanel('tt-mexec-panel-review')) {
+                var panel = root.querySelector('.tt-mexec-post-match');
+                if (panel && typeof panel.scrollIntoView === 'function') {
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         } else if (state.state === ST.FINALIZED) {
             // #2271 — a finalized match is never a dead-end: the footer CTA

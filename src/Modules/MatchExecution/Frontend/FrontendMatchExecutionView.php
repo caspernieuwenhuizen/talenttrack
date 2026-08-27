@@ -37,6 +37,158 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendMatchExecutionView extends FrontendViewBase {
 
+    /**
+     * #2935 — how the sectioned layout regroups the page without moving
+     * a single line of section markup.
+     *
+     * The eleven sections render in source order, as they always have.
+     * `cut()` drops an invisible marker before each one; the whole body is
+     * captured once and split on those markers, and the pieces are then
+     * emitted into panels in a different order.
+     *
+     * Markers rather than a buffer per section, because several of the
+     * sections live inside `PENDING_REVIEW` conditionals: a marker that
+     * does not run simply is not in the output, where an unbalanced
+     * `ob_start()` would swallow the rest of the page.
+     *
+     * Under `classic` none of this runs — no markers, no buffer — so that
+     * path is byte-identical because it is untouched, not because the
+     * markers were carefully stripped out again. Every line this adds
+     * inside the container is a column-0 `<?php … ?>` line, which emits
+     * nothing and whose own newline `?>` swallows.
+     */
+    private const CUT_PATTERN = '/<!--tt-cut:([a-z_]+)-->/';
+
+    /**
+     * Whether this render is regrouping. Set once, at the top of render().
+     *
+     * `cut()` consults it so that under `classic` the markers are never
+     * emitted and no buffering happens at all — the classic path is then
+     * byte-identical because it is *untouched*, not because the markers
+     * were carefully stripped again afterwards.
+     */
+    private static bool $sectioned = false;
+
+    /** Emit a split marker. A no-op under the classic layout. */
+    private static function cut( string $name ): void {
+        if ( ! self::$sectioned ) return;
+        echo '<!--tt-cut:' . $name . '-->';
+    }
+
+    /**
+     * Split a captured body on its markers.
+     *
+     * @return array<string,string> marker name => the html that followed it
+     */
+    private static function splitOnCuts( string $html ): array {
+        $parts = preg_split( self::CUT_PATTERN, $html, -1, PREG_SPLIT_DELIM_CAPTURE );
+        if ( ! is_array( $parts ) ) return [];
+
+        $out = [];
+        // parts[0] is whatever preceded the first marker; the rest alternate
+        // name, content.
+        for ( $i = 1; $i < count( $parts ); $i += 2 ) {
+            $name = (string) $parts[ $i ];
+            $out[ $name ] = ( $out[ $name ] ?? '' ) . (string) ( $parts[ $i + 1 ] ?? '' );
+        }
+        return $out;
+    }
+
+    /**
+     * Emit the captured sections as four regions (#2935).
+     *
+     * Region order is bar → panel → CTA → tabs: the strip a coach taps all
+     * match sits in the thumb zone, because this surface is run one-handed
+     * on a phone at the side of a pitch and the top of a 640px screen is
+     * not reachable with the same thumb.
+     *
+     * The tab set is derived from state rather than fixed. A greyed-out
+     * Review tab during the first half is noise; a tab that appears at the
+     * final whistle is a signal.
+     *
+     * @param array<string,string> $s  marker name => html
+     */
+    private static function renderSectioned( array $s, bool $is_review, bool $is_editable ): void {
+        $part = static function ( string $k ) use ( $s ): string {
+            return (string) ( $s[ $k ] ?? '' );
+        };
+
+        /*
+         * Which panel opens.
+         *
+         * Post-match it is Review — the final whistle is what the coach
+         * came back for. Live it is Squad, where the substitutions are.
+         *
+         * The third case is the one the design did not anticipate: the
+         * squad sections are `tt-mexec-edit-only`, so before match day —
+         * `not_started` with the start still locked — the Squad panel is
+         * empty. Opening on an empty panel reads as a broken screen, and
+         * the line-up is the only thing there is to look at at that point
+         * anyway, so Pitch takes the default instead. Squad is still one
+         * tap away, and becomes the default the moment the match can
+         * actually be run.
+         */
+        $default = $is_review
+            ? 'tt-mexec-panel-review'
+            : ( $is_editable ? 'tt-mexec-panel-squad' : 'tt-mexec-panel-pitch' );
+
+        // Squad reads "Minutes" post-match: the same panel, but by then it
+        // is the squad timeline rather than a bench to pick from.
+        $tabs = [];
+        if ( $is_review ) {
+            $tabs[] = [ 'label' => _x( 'Review', 'match execution tab', 'talenttrack' ), 'panel' => 'tt-mexec-panel-review' ];
+            $tabs[] = [ 'label' => _x( 'Minutes', 'match execution tab', 'talenttrack' ), 'panel' => 'tt-mexec-panel-squad' ];
+        } else {
+            $tabs[] = [ 'label' => _x( 'Squad', 'match execution tab', 'talenttrack' ), 'panel' => 'tt-mexec-panel-squad' ];
+        }
+        $tabs[] = [ 'label' => _x( 'Pitch', 'match execution tab', 'talenttrack' ), 'panel' => 'tt-mexec-panel-pitch' ];
+        $tabs[] = [ 'label' => _x( 'Log', 'match execution tab', 'talenttrack' ), 'panel' => 'tt-mexec-panel-log' ];
+
+        // One source of truth for which tab is active: the same `$default`
+        // the panels are hidden against. Marking a tab `active` by hand as
+        // well is how a strip ends up highlighting one tab while another
+        // one's panel is the visible one.
+        foreach ( $tabs as $i => $tab ) {
+            $tabs[ $i ]['active'] = ( $tab['panel'] === $default );
+        }
+
+        // --- bar: the two numbers that must never scroll away -----------
+        echo '<div class="tt-mexec-bar">' . $part( 'score' ) . $part( 'timer' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
+
+        // --- panels: the only scroller ----------------------------------
+        echo '<div class="tt-mexec-panels">';
+
+        if ( $is_review ) {
+            self::panel( 'tt-mexec-panel-review', $default, $part( 'review' ) );
+        }
+        self::panel( 'tt-mexec-panel-squad', $default, $part( 'squad' ) );
+        self::panel( 'tt-mexec-panel-pitch', $default, $part( 'identity' ) . $part( 'kpis' ) );
+        self::panel( 'tt-mexec-panel-log', $default, $part( 'goals' ) . $part( 'log' ) . $part( 'late' ) );
+
+        echo '</div>';
+
+        // --- CTA, then the tab strip in the thumb zone ------------------
+        echo $part( 'cta' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
+
+        \TT\Shared\Frontend\Components\RecordSpine::render( [ 'tabs' => $tabs ] );
+
+        // Dialogs last and outside the grid: a sheet positioned inside a
+        // scrolling panel would be clipped by it.
+        echo $part( 'overlays' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
+    }
+
+    /** One tab panel. Hidden unless it is the state's default. */
+    private static function panel( string $id, string $default_id, string $html ): void {
+        printf(
+            '<div id="%1$s" class="tt-mexec-panel" role="tabpanel" aria-labelledby="%2$s" tabindex="0"%3$s>',
+            esc_attr( $id ),
+            esc_attr( \TT\Shared\Frontend\Components\RecordSpine::tabId( $id ) ),
+            $id === $default_id ? '' : ' hidden'
+        );
+        echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
+        echo '</div>';
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_edit_activities' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -264,8 +416,24 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             );
         }
         ?>
-        <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-editable="<?php echo $is_editable ? '1' : '0'; ?>" data-edit-mode="<?php echo esc_attr( $initial_edit_mode ); ?>" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
+<?php
+        // #2935 — the sectioned layout is a container change and nothing
+        // else. The body below renders exactly as it always has; it is
+        // captured, split on the markers, and re-emitted into regions only
+        // when the layout resolves to `sections`.
+        //
+        // Column 0 deliberately, like every other line this change adds
+        // inside the container: indentation before a `<?php` opener is
+        // output, and eight spaces of it is exactly what made the classic
+        // render stop being byte-identical the first time round.
+        self::$sectioned = \TT\Modules\MatchExecution\MatchExecutionLayout::isSections( $user_id );
+        $tt_sections     = self::$sectioned;
+        $tt_review       = in_array( $state, [ MatchExecutionState::PENDING_REVIEW, MatchExecutionState::FINALIZED ], true );
+        ?>
+        <div class="tt-mexec<?php echo $tt_sections ? ' tt-mexec--sections' : ''; ?>" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-editable="<?php echo $is_editable ? '1' : '0'; ?>" data-edit-mode="<?php echo esc_attr( $initial_edit_mode ); ?>" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
+<?php if ( $tt_sections ) { ob_start(); } ?>
 
+<?php self::cut( 'identity' ); ?>
             <header class="tt-mexec-header">
                 <p class="tt-mexec-header-meta">
                     <span class="tt-mexec-team-name"><?php echo esc_html( $home_label ); ?></span>
@@ -304,6 +472,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   // carried no scorer, no minute and no way back to the player.
                   // There is no "−": a goal is removed by undoing it in the
                   // event feed, where what is being removed is legible. ?>
+<?php self::cut( 'score' ); ?>
             <section class="tt-mexec-score" aria-label="<?php esc_attr_e( 'Score', 'talenttrack' ); ?>">
                 <div class="tt-mexec-score-line">
                     <div class="tt-mexec-score-col">
@@ -323,6 +492,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </div>
             </section>
 
+<?php self::cut( 'timer' ); ?>
             <section class="tt-mexec-timer" aria-label="<?php esc_attr_e( 'Match timer', 'talenttrack' ); ?>">
                 <div class="tt-mexec-timer-main">
                     <p class="tt-mexec-timer-half" data-status="" data-tt-mexec-half-label>—</p>
@@ -339,6 +509,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   $tracked_count   = count( $specific_goal_ids );
                   $available_count = count( $available_ids );
                   ?>
+<?php self::cut( 'kpis' ); ?>
             <section class="tt-mexec-kpis" aria-label="<?php esc_attr_e( 'Match summary', 'talenttrack' ); ?>">
                 <?php
                 echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
@@ -387,6 +558,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   // goals + substitutions merged, time-ordered, each row
                   // carrying a minute, a type chip (icon + text, not colour
                   // alone) and a running-score chip. Cards are not modelled. ?>
+<?php self::cut( 'log' ); ?>
             <section class="tt-mxp-log-section" aria-label="<?php esc_attr_e( 'Live progress', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Live progress', 'talenttrack' ); ?></h2>
@@ -498,6 +670,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <?php endif; ?>
             </section>
 
+<?php self::cut( 'squad' ); ?>
             <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
@@ -688,6 +861,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     </div>
                 </section>
 
+<?php self::cut( 'goals' ); ?>
                 <?php // #2275 — Match goals: both teams' goals that make up the
                       // score. Our goals (home) carry a scorer and render green;
                       // opponent goals (away) render grey and have no scorer.
@@ -938,6 +1112,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
+<?php self::cut( 'review' ); ?>
             <?php // #1033 — post-match status bar. PENDING_REVIEW shows
                   // a visible "ended · pending review" pill + an explicit
                   // Finalize CTA. FINALIZED shows only the locked pill —
@@ -1092,6 +1267,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 $picker_players = $players_by_id;
                 ksort( $picker_players );
                 ?>
+<?php self::cut( 'late' ); ?>
                 <section class="tt-mexec-late-event tt-mexec-edit-only" aria-label="<?php esc_attr_e( 'Add late events', 'talenttrack' ); ?>">
                     <header class="tt-mexec-late-event-head">
                         <h2 class="tt-mexec-late-event-title">
@@ -1211,6 +1387,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
+<?php self::cut( 'cta' ); ?>
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
                     <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
@@ -1221,6 +1398,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </div>
             </footer>
 
+<?php self::cut( 'overlays' ); ?>
             <?php // #2857 — the goal sheet. Opened by either scoreboard
                   // button; the picker contents are built in JS from the live
                   // on-pitch / bench split, because a server-rendered roster
@@ -1283,6 +1461,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     </div>
                 </dialog>
             <?php endif; ?>
+<?php if ( $tt_sections ) : ?>
+<?php self::renderSectioned( self::splitOnCuts( (string) ob_get_clean() ), $tt_review, $is_editable ); ?>
+<?php endif; ?>
         </div>
 
         <?php
@@ -1324,7 +1505,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         wp_enqueue_script(
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/js/frontend-match-execution.js',
-            [],
+            // #2935 — the sectioned layout restores the open tab on load and
+            // switches to Review from the footer CTA, both by clicking a tab
+            // that `record-spine-tabs.js` has to have bound first. Declaring
+            // the dependency puts this script after it, so the two
+            // `DOMContentLoaded` handlers run in the order that needs.
+            [ 'tt-record-spine-tabs' ],
             TT_VERSION,
             true
         );
