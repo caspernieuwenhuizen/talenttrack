@@ -55354,6 +55354,10 @@ msgid_plural "%d of them have been changed since the import, and those changes w
 msgstr[0] "%d daarvan is gewijzigd sinds de import; die wijziging gaat mee weg."
 msgstr[1] "%d daarvan zijn gewijzigd sinds de import; die wijzigingen gaan mee weg."
 
+#: src/Core/FeatureRegistry.php:250
+msgid "What came in from each spreadsheet import, and a way to take a whole import back out. Turn off to hide the history; imported records stay exactly as they are."
+msgstr "Wat er bij elke spreadsheet-import is binnengekomen, en een manier om een hele import weer ongedaan te maken. Zet het uit om de geschiedenis te verbergen; geïmporteerde records blijven precies zoals ze zijn."
+
 #: src/Modules/Import/ImportModule.php:38
 msgid "What came in from a spreadsheet, and a way to take a whole import back out again."
 msgstr ""
