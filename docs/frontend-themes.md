@@ -19,6 +19,13 @@ Squarer corners (4px instead of 8px), a condensed heading face, and a
 navy-tinted depth so shadows read as part of the palette rather than as grey
 haze over it.
 
+**Leon Hutten** — the Leon Hutten Talenten Academie design system, built from
+the club's own crest. The crest's black banner becomes the header and the
+navigation rail; its diagonal cyan-to-navy stripe closes the header and the
+brand block. Buttons and links take the deep blue, cyan marks the section
+you are on, and the whole theme is set in Open Sans. Corners are the squarest
+of the three (3px).
+
 ## A theme replaces your colour settings
 
 While a theme is active it supplies the **whole** colour scheme — the brand
@@ -117,6 +124,12 @@ they are written beats out-specifying a moving target.
 The enqueue in `DashboardShortcode` picks up the shell stylesheet as a
 dependency only when the app shell actually enqueued it, so a `classic`
 install never registers a handle it does not load.
+
+A theme that wants a webfont has to load it itself.
+`BrandStyles::enqueueFonts()` also returns early while a theme is active — the
+club's font picker does not apply, and skipping the request spares the page a
+third-party fetch whose result nothing would use. `leon-hutten` loads Open
+Sans with an `@import` at the top of its own sheet.
 
 ### Known gap
 
