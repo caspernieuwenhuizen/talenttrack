@@ -57566,3 +57566,7 @@ msgstr "Eigen doelpunt"
 msgid "assist %s"
 msgstr "assist %s"
 
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
