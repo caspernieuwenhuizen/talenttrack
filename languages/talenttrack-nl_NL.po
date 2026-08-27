@@ -55162,6 +55162,76 @@ msgid "Brings teams, players and staff into the academy from a spreadsheet."
 msgstr ""
 "Haalt ploegen, spelers en staf vanuit een spreadsheet de academie binnen."
 
+#: src/Modules/Import/Excel/TemplateBuilder.php:241
+msgid "TalentTrack — squad template"
+msgstr "TalentTrack — selectiesjabloon"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:243
+msgid "What to fill in"
+msgstr "Wat je invult"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:244
+msgid ""
+"Three tabs: Teams, Players and People. Fill Teams first, then Players, then "
+"People — the later tabs point back at the teams you named."
+msgstr ""
+"Drie tabbladen: Teams, Players en People. Vul eerst Teams in, daarna Players "
+"en dan People — de latere tabbladen verwijzen terug naar de ploegen die je "
+"hebt benoemd."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:246
+msgid "auto_key (the first column on every tab)"
+msgstr "auto_key (de eerste kolom op elk tabblad)"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:247
+msgid ""
+"Type a short, unique label (e.g. \"U12_RED\", \"U14_GREEN\") in the auto_key "
+"cell on the Teams tab. Players and People then reference that label in their "
+"team_key column, which is how each person ends up in the right team."
+msgstr ""
+"Typ een kort, uniek label (bijvoorbeeld \"U12_ROOD\", \"U14_GROEN\") in de "
+"auto_key-cel op het tabblad Teams. Players en People verwijzen vervolgens "
+"naar dat label in hun team_key-kolom; zo komt iedereen in de juiste ploeg "
+"terecht."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:248
+msgid "Leave auto_key blank on a row nothing else needs to point at."
+msgstr "Laat auto_key leeg bij een rij waarnaar niets anders hoeft te verwijzen."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:250
+msgid "Staff go on the People tab"
+msgstr "Staf zet je op het tabblad People"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:251
+msgid ""
+"Coaches, assistants and other staff are People rows. Give each one a role "
+"and a team_key so they arrive attached to the team they work with."
+msgstr ""
+"Trainers, assistenten en andere staf zijn rijen op People. Geef elke persoon "
+"een rol en een team_key, zodat ze meteen aan de juiste ploeg gekoppeld "
+"binnenkomen."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:254
+msgid ""
+"YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the "
+"column format to \"Text\" first if dates look wrong after upload."
+msgstr ""
+"Alleen JJJJ-MM-DD. Excel maakt tijdens het typen soms zelf een andere "
+"datumopmaak — zet de kolomopmaak eerst op \"Tekst\" als datums er na het "
+"uploaden verkeerd uitzien."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:256
+msgid "Before anything is saved"
+msgstr "Voordat er iets wordt opgeslagen"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:257
+msgid ""
+"You will see exactly what the workbook contains, and anything that needs "
+"fixing, before a single record is created."
+msgstr ""
+"Je ziet precies wat er in het bestand staat, en wat er nog niet klopt, "
+"voordat er ook maar één record wordt aangemaakt."
+
 #: src/Shared/Modules/ModuleMetadata.php:434
 msgid ""
 "Generates sample players and teams for demos and testing — turn off in "

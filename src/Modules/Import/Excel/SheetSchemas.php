@@ -241,6 +241,26 @@ final class SheetSchemas {
         ];
     }
 
+    /**
+     * The roster subset (#2957) — what a club actually has on day one.
+     *
+     * A new academy arrives with a squad list, not a season of evaluations,
+     * so the install-time template offers these three sheets rather than
+     * all fifteen. They are the existing schemas, unchanged: this is a
+     * selector, not a second format, and a roster workbook imports through
+     * exactly the same code path as a full one.
+     *
+     * Order matters. Both `players.team_key` and `people.team_key` are
+     * foreign keys onto `teams.auto_key`, so Teams leads and someone
+     * filling the workbook top to bottom has the keys before they need
+     * them.
+     *
+     * The staff sheet is `People`, not `Staff` — staff are People rows
+     * carrying `role` + `team_key`, and the importer matches sheets by
+     * name, so renaming it would break every workbook already in the wild.
+     */
+    public const ROSTER_SHEETS = [ 'teams', 'players', 'people' ];
+
     /** Sheets the importer processes in v1.5 (others are documentation-only). */
     public const IMPORTABLE_SHEETS = [
         'teams', 'people', 'players', 'trial_cases',
@@ -253,6 +273,20 @@ final class SheetSchemas {
     public static function byKey( string $key ): ?array {
         $all = self::all();
         return $all[ $key ] ?? null;
+    }
+
+    /**
+     * The roster schemas, in ROSTER_SHEETS order.
+     *
+     * @return array<string,array{sheet:string,entity:string,group:string,columns:array<string,array{label:string,type:string,required:bool,fk?:string}>}>
+     */
+    public static function rosterSubset(): array {
+        $all = self::all();
+        $out = [];
+        foreach ( self::ROSTER_SHEETS as $key ) {
+            if ( isset( $all[ $key ] ) ) $out[ $key ] = $all[ $key ];
+        }
+        return $out;
     }
 
     /** Hex tab-colour for the sheet group. Used by TemplateBuilder. */
