@@ -45,8 +45,11 @@ final class ExcelImporter {
     }
 
     /**
+     * @param bool $dry_run Validate and report without writing a row.
+     *
      * @return array{
      *   ok:bool,
+     *   dry_run:bool,
      *   blockers:list<string>,
      *   warnings:list<string>,
      *   imported:array<string,int>,
@@ -55,7 +58,7 @@ final class ExcelImporter {
      *   generation_settings:array<string,string>
      * }
      */
-    public function importFile( string $tmp_path, string $original_name, ?string $batch_id_in = null ): array {
+    public function importFile( string $tmp_path, string $original_name, ?string $batch_id_in = null, bool $dry_run = false ): array {
         if ( ! class_exists( '\\PhpOffice\\PhpSpreadsheet\\IOFactory' ) ) {
             return $this->fail( __( 'PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root.', 'talenttrack' ) );
         }
@@ -85,6 +88,7 @@ final class ExcelImporter {
             $blockers[] = __( 'Sheet "Sessions" was renamed to "Activities" in v3.108.0 — re-download the demo-data template, or rename the sheet to "Activities" in your workbook.', 'talenttrack' );
             return [
                 'ok'                  => false,
+                'dry_run'             => $dry_run,
                 'blockers'            => $blockers,
                 'warnings'            => $warnings,
                 'imported'            => [],
@@ -108,6 +112,7 @@ final class ExcelImporter {
         if ( ! empty( $blockers ) ) {
             return [
                 'ok'                  => false,
+                'dry_run'             => $dry_run,
                 'blockers'            => $blockers,
                 'warnings'            => $warnings,
                 'imported'            => [],
@@ -117,19 +122,38 @@ final class ExcelImporter {
             ];
         }
 
-        $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
-        $registry = ( $this->sink_factory )( $batch_id );
-
         // Track present sheets — anything with at least one row.
         $present_sheets = [];
         foreach ( $rows as $key => $sheet_rows ) {
             if ( ! empty( $sheet_rows ) ) $present_sheets[] = $key;
         }
 
+        // #2956 — a dry run stops here. Validation has already run, so the
+        // caller gets the same blockers and warnings it would get from a
+        // real import, plus what the workbook would create — without a row
+        // being written or a batch existing. That is what lets a wizard put
+        // the report in front of someone BEFORE they commit to it.
+        if ( $dry_run ) {
+            return [
+                'ok'                  => true,
+                'dry_run'             => true,
+                'blockers'            => [],
+                'warnings'            => $warnings,
+                'imported'            => $this->wouldImport( $rows ),
+                'present_sheets'      => $present_sheets,
+                'batch_id'            => null,
+                'generation_settings' => $this->extractGenerationSettings( $rows['generation_settings'] ?? [] ),
+            ];
+        }
+
+        $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
+        $registry = ( $this->sink_factory )( $batch_id );
+
         $imported = $this->insertAll( $rows, $registry );
 
         return [
             'ok'                  => true,
+            'dry_run'             => false,
             'blockers'            => [],
             'warnings'            => $warnings,
             'imported'            => $imported,
@@ -137,6 +161,35 @@ final class ExcelImporter {
             'batch_id'            => $batch_id,
             'generation_settings' => $this->extractGenerationSettings( $rows['generation_settings'] ?? [] ),
         ];
+    }
+
+    /**
+     * Row counts a dry run reports, keyed the way `insertAll` keys its
+     * results so a preview and the eventual import read the same.
+     *
+     * @param array<string,list<array<string,mixed>>> $rows
+     * @return array<string,int>
+     */
+    private function wouldImport( array $rows ): array {
+        $map = [
+            'teams'              => 'teams',
+            'people'             => 'people',
+            'players'            => 'players',
+            'trial_cases'        => 'trial_cases',
+            'sessions'           => 'activities',
+            'session_attendance' => 'attendance',
+            'evaluations'        => 'evaluations',
+            'evaluation_ratings' => 'eval_ratings',
+            'goals'              => 'goals',
+            'player_journey'     => 'player_events',
+        ];
+
+        $out = [];
+        foreach ( $map as $sheet_key => $count_key ) {
+            $n = count( $rows[ $sheet_key ] ?? [] );
+            if ( $n > 0 ) $out[ $count_key ] = $n;
+        }
+        return $out;
     }
 
     /**
@@ -515,6 +568,7 @@ final class ExcelImporter {
     private function fail( string $msg ): array {
         return [
             'ok'                  => false,
+            'dry_run'             => false,
             'blockers'            => [ $msg ],
             'warnings'            => [],
             'imported'            => [],

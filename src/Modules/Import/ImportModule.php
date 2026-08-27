@@ -24,5 +24,7 @@ class ImportModule implements ModuleInterface {
 
     public function register( Container $container ): void {}
 
-    public function boot( Container $container ): void {}
+    public function boot( Container $container ): void {
+        \TT\Infrastructure\REST\ImportRestController::init();
+    }
 }
