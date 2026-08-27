@@ -55900,6 +55900,44 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendAuditLogView.php:82
+msgid "You do not have permission to read the impersonation log."
+msgstr "Je hebt geen rechten om het overnamelog te lezen."
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:160
+msgid "Nobody has used impersonation yet."
+msgstr "Er heeft nog niemand een account overgenomen."
+
+#. translators: %d: number of recorded impersonations
+#: src/Shared/Frontend/FrontendAuditLogView.php:171
+#, php-format
+msgid "%d impersonation on record."
+msgid_plural "%d impersonations on record."
+msgstr[0] "%d overname vastgelegd."
+msgstr[1] "%d overnames vastgelegd."
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:178
+msgid "Acted as"
+msgstr "Handelde als"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:179
+msgid "Ended"
+msgstr "Beëindigd"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:180
+msgid "Reason given"
+msgstr "Opgegeven reden"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:191
+msgid "Still open"
+msgstr "Nog open"
+
+#. translators: %d: the WordPress user id of a since-deleted account
+#: src/Modules/Authorization/Impersonation/ImpersonationLogRepository.php:96
+#, php-format
+msgid "Deleted user #%d"
+msgstr "Verwijderde gebruiker #%d"
+
 #~ msgid "Finalize this match? Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Deze wedstrijd afronden? Doelpunten, wissels en eindstand kunnen daarna "
