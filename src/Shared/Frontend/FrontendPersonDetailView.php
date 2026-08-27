@@ -82,6 +82,11 @@ final class FrontendPersonDetailView extends FrontendViewBase {
             $actions[] = [
                 'label'   => __( 'Archive', 'talenttrack' ),
                 'variant' => 'danger',
+                // #2871 — icon-only. The danger variant already defaults to
+                // the bin glyph, so this drops the visible label and keeps
+                // the accessible name. It keeps its confirmation: an
+                // icon-only destructive action without one would be a trap.
+                'icon_only' => true,
                 'data_attrs' => [
                     'tt-archive-rest-path' => 'people/' . $person_id,
                     'tt-archive-confirm'   => __( 'Archive this person? They can be restored later by a site admin.', 'talenttrack' ),

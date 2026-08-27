@@ -235,6 +235,22 @@
     color: #fff;
     border-color: var(--tt-ink-strong);
 }
+/*
+ * #2871 — Edit is icon-only and travels with the ⋯ on the right.
+ *
+ * `--more` already claimed `margin-left: auto`. Edit now takes it and
+ * `--more` gives it up when Edit precedes it, so the two sit together
+ * rather than Edit pushing right and ⋯ pushing right again, which would
+ * open a gap between them.
+ */
+.tt-player-action--edit {
+    width: 48px;
+    padding: 0;
+    justify-content: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 .tt-player-action--more {
     width: 48px;
     padding: 0;
@@ -244,6 +260,8 @@
     flex-shrink: 0;
     position: relative;
 }
+
+.tt-player-action--edit + .tt-player-action--more { margin-left: 0; }
 .tt-player-action--danger { color: var(--tt-danger); }
 
 .tt-player-action__menu {
