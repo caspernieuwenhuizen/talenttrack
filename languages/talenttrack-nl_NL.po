@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T05:34:40+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:44:32+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3468,6 +3468,7 @@ msgid "No workbook was uploaded."
 msgstr "Er is geen bestand geüpload."
 
 #: src/Infrastructure/REST/ImportRestController.php:85
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:98
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
 "De upload is niet afgerond. Het bestand is mogelijk groter dan deze server "
@@ -4824,7 +4825,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Goals/Admin/GoalsPage.php:47
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:414
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:560
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
@@ -5376,7 +5377,7 @@ msgstr "Opslaan"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:319
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:410
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
 #: src/Modules/People/Admin/PeoplePage.php:82
 #: src/Modules/People/Admin/PeoplePage.php:415
@@ -8960,7 +8961,7 @@ msgstr "Gebruiker:"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
 #: src/Modules/Goals/Admin/GoalsPage.php:135
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:382
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:191
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:337
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
 #: src/Modules/Players/Admin/PlayersPage.php:374
 #: src/Modules/Teams/Admin/TeamsPage.php:144
@@ -12230,8 +12231,8 @@ msgstr "Invoegen"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1195
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1561
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1568
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:201
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:276
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:347
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:381
 #: src/Shared/Frontend/FrontendBackupsView.php:444
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
@@ -14017,7 +14018,7 @@ msgid "Save Toggles"
 msgstr "Toggles opslaan"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:436
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:368
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:514
 #: src/Shared/CoreSurfaceRegistration.php:1632
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
 #: src/Shared/Frontend/FrontendTileGrid.php:783
@@ -14025,16 +14026,16 @@ msgid "Welcome"
 msgstr "Welkom"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:437
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:109
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:369
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:110
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:515
 #: src/Shared/Frontend/FrontendSetupView.php:126
 #: src/Shared/Frontend/FrontendSetupView.php:357
 msgid "Academy basics"
 msgstr "Basisgegevens academie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:438
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:165
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:370
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:287
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:516
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:253
 #: src/Shared/Frontend/FrontendSetupView.php:178
 #: src/Shared/Frontend/FrontendSetupView.php:358
@@ -14042,8 +14043,8 @@ msgid "First team"
 msgstr "Eerste team"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:215
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:371
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:361
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:517
 #: src/Shared/Frontend/FrontendSetupView.php:224
 #: src/Shared/Frontend/FrontendSetupView.php:359
 msgid "First admin"
@@ -14052,7 +14053,7 @@ msgstr "Eerste beheerder"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:440
 #: src/Modules/Development/IdeaStatus.php:102
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:789
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:373
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:519
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:903
 #: src/Shared/Frontend/FrontendSetupView.php:361
 msgid "Done"
@@ -15045,7 +15046,7 @@ msgstr "Toon details"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:140
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:230
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:376
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
@@ -15080,7 +15081,7 @@ msgstr "Voornaam"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:144
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:234
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:380
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
@@ -15203,7 +15204,7 @@ msgstr "Roltype"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:188
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:334
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
@@ -22660,9 +22661,10 @@ msgid "Review"
 msgstr "Controleren"
 
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:186
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:149
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:200
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:248
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:150
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:307
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:346
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:394
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
 #: src/Shared/Frontend/FrontendSetupView.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:200
@@ -24028,7 +24030,7 @@ msgid "Player cards"
 msgstr "Spelerkaarten"
 
 #: src/Modules/License/Admin/AccountPage.php:695
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:273
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:364
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
@@ -29556,7 +29558,7 @@ msgid "You're verified. Continue to your dashboard."
 msgstr "Je bent geverifieerd. Ga verder naar je dashboard."
 
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:94
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:358
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:504
 #: src/Shared/Frontend/FrontendMobilePromptView.php:88
 #: src/Shared/Frontend/FrontendSetupView.php:347
 msgid "Go to dashboard"
@@ -29888,26 +29890,38 @@ msgstr "Installatie starten"
 msgid "Skip for now"
 msgstr "Sla nu over"
 
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:90
+msgid "Choose a workbook to upload first."
+msgstr "Kies eerst een bestand om te uploaden."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:147
+msgid ""
+"The spreadsheet library is not installed on this server, so the template "
+"cannot be generated."
+msgstr ""
+"De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het "
+"sjabloon kan niet worden gegenereerd."
+
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:46
 msgid "Setup is complete."
 msgstr "Installatie is voltooid."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:48
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:430
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:577
 msgid "Reset wizard"
 msgstr "Wizard opnieuw starten"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:71
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:72
 #: src/Shared/Frontend/FrontendSetupView.php:82
 msgid "Unknown step."
 msgstr "Onbekende stap."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:82
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:83
 #: src/Shared/Frontend/FrontendSetupView.php:102
 msgid "Set up your academy"
 msgstr "Stel je academie in"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:84
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:85
 msgid ""
 "TalentTrack is a youth football talent management plugin. This wizard "
 "creates your first team, your admin profile, and a few defaults so you can "
@@ -29918,7 +29932,7 @@ msgstr ""
 "zodat je vandaag kunt beginnen met spelers volgen. Elke stap duurt ongeveer "
 "een minuut."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:87
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:88
 msgid ""
 "If you would rather see what TalentTrack looks like with sample data first, "
 "the demo button below loads a realistic academy dataset. You can wipe it and "
@@ -29928,16 +29942,16 @@ msgstr ""
 "Dan laadt de demo-knop hieronder een realistische academiedataset. Je kunt "
 "deze op elk moment wissen en opnieuw beginnen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:91
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:92
 #: src/Shared/Frontend/FrontendSetupView.php:111
 msgid "Set up my academy"
 msgstr "Mijn academie instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:94
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:95
 msgid "Try with sample data"
 msgstr "Probeer met voorbeeldgegevens"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:111
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:112
 #: src/Shared/Frontend/FrontendSetupView.php:128
 msgid ""
 "These show up across the plugin: in the dashboard header, on player rate "
@@ -29947,40 +29961,199 @@ msgstr ""
 "cards van spelers en in afgedrukte rapporten. Je kunt ze later wijzigen "
 "onder Configuratie."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:118
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:119
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:273
 #: src/Shared/Frontend/FrontendConfigurationView.php:1873
 #: src/Shared/Frontend/FrontendSetupView.php:132
 msgid "Academy name"
 msgstr "Naam academie"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:124
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:125
 #: src/Shared/Frontend/FrontendConfigurationView.php:1941
 #: src/Shared/Frontend/FrontendSetupView.php:138
 msgid "Primary color"
 msgstr "Primaire kleur"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:127
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:128
 #: src/Shared/Frontend/FrontendSetupView.php:141
 msgid "Used for headers, links, and the FIFA-style player card."
 msgstr "Gebruikt voor koppen, links en de FIFA-achtige spelerskaart."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:131
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:132
 #: src/Shared/Frontend/FrontendSetupView.php:144
 msgid "Season label"
 msgstr "Seizoenlabel"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:134
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:135
 #: src/Shared/Frontend/FrontendSetupView.php:148
 msgid "Free-form. Most clubs use \"2025/2026\" or similar."
 msgstr "Vrije tekst. De meeste clubs gebruiken \"2025/2026\" of vergelijkbaar."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:138
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:139
 #: src/Shared/Frontend/FrontendSetupView.php:151
 msgid "Date format"
 msgstr "Datumnotatie"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:167
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:172
+msgid "Import your squad"
+msgstr "Je selectie importeren"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:174
+msgid ""
+"If you already keep your teams, players and staff in a spreadsheet, bring "
+"them in now rather than typing them again. Download the template, fill it "
+"in, and upload it."
+msgstr ""
+"Houd je je teams, spelers en staf al in een spreadsheet bij, haal ze dan nu "
+"binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in "
+"en upload het."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:177
+msgid "Nothing is saved until you confirm."
+msgstr "Er wordt niets opgeslagen tot je bevestigt."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:178
+msgid ""
+"Uploading shows you what the file contains, and anything that needs fixing, "
+"first."
+msgstr ""
+"Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog "
+"niet klopt."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:187
+msgid "This workbook cannot be imported yet. Nothing was saved."
+msgstr "Dit bestand kan nog niet worden geïmporteerd. Er is niets opgeslagen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:208
+msgid "Download the template"
+msgstr "Download het sjabloon"
+
+#. translators: 1: upload_max_filesize, 2: post_max_size
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:223
+#, php-format
+msgid ""
+"Server limits on this install: upload_max_filesize = %1$s, post_max_size = "
+"%2$s. A workbook larger than the smaller of those is rejected before "
+"TalentTrack sees it."
+msgstr ""
+"Serverlimieten op deze installatie: upload_max_filesize = %1$s, "
+"post_max_size = %2$s. Een bestand dat groter is dan de kleinste van die twee "
+"wordt geweigerd voordat TalentTrack het ziet."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:229
+msgid "Check this file"
+msgstr "Dit bestand controleren"
+
+#. translators: %s: the uploaded file name
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:238
+#, php-format
+msgid "%s is ready to import."
+msgstr "%s is klaar om te importeren."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:248
+msgid "Upload the file again to confirm and save these records."
+msgstr ""
+"Upload het bestand opnieuw om te bevestigen en deze records op te slaan."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:255
+msgid "Import these records"
+msgstr "Deze records importeren"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:262
+msgid "Skip — I do not have a spreadsheet"
+msgstr "Overslaan — ik heb geen spreadsheet"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
+msgid "Add your staff"
+msgstr "Je staf toevoegen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
+msgid "Add the coaches and staff who will use TalentTrack. Give them an email address and an invitation is prepared for each of them."
+msgstr "Voeg de trainers en staf toe die TalentTrack gaan gebruiken. Geef ze een e-mailadres en er wordt voor ieder van hen een uitnodiging klaargezet."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
+msgid "Nobody is emailed yet."
+msgstr "Er wordt nog niemand gemaild."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:423
+msgid "Invitations are held until you send them, so you can finish setting up and look around first."
+msgstr "Uitnodigingen worden vastgehouden tot jij ze verstuurt, zodat je het inrichten eerst kunt afmaken en rond kunt kijken."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:435
+msgid "Invitation"
+msgstr "Uitnodiging"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:445
+msgid "Ready to send"
+msgstr "Klaar om te versturen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:446
+msgid "No email — add one later to invite them"
+msgstr "Geen e-mailadres — voeg er later een toe om diegene uit te nodigen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:470
+msgid "Optional. Without one they are still on the staff list, but cannot be invited to sign in."
+msgstr "Optioneel. Zonder e-mailadres staat diegene wel op de staflijst, maar kan hij niet worden uitgenodigd om in te loggen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:474
+msgid "Add this person"
+msgstr "Deze persoon toevoegen"
+
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:484
+#, php-format
+msgid "Send %d invitation and continue"
+msgid_plural "Send %d invitations and continue"
+msgstr[0] "%d uitnodiging versturen en doorgaan"
+msgstr[1] "%d uitnodigingen versturen en doorgaan"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:498
+msgid "Continue without sending yet"
+msgstr "Doorgaan zonder nu te versturen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:499
+msgid "Skip — I will add staff later"
+msgstr "Overslaan — ik voeg later staf toe"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:506
+msgid "If you continue without sending, the invitations stay ready and waiting under Configuration → Invitations. Nothing is lost."
+msgstr "Ga je door zonder te versturen, dan blijven de uitnodigingen klaarstaan onder Configuratie → Uitnodigingen. Er gaat niets verloren."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:566
+msgid "Added. Their invitation is ready but not sent yet."
+msgstr "Toegevoegd. De uitnodiging staat klaar maar is nog niet verstuurd."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:567
+msgid "Invitations sent."
+msgstr "Uitnodigingen verstuurd."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:158
+msgid "A first and last name are both needed."
+msgstr "Een voornaam en achternaam zijn allebei nodig."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:163
+msgid "That does not look like a valid email address."
+msgstr "Dat lijkt geen geldig e-mailadres."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:177
+msgid "That person could not be saved. They may already be on the list."
+msgstr "Die persoon kon niet worden opgeslagen. Mogelijk staat diegene al op de lijst."
+
+#. translators: %d: number of teams brought in by the import
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:294
+#, php-format
+msgid ""
+"Your import brought in %d team. Add another now if you want, or continue."
+msgid_plural ""
+"Your import brought in %d teams. Add another now if you want, or continue."
+msgstr[0] ""
+"Je import heeft %d team binnengehaald. Voeg er nu nog een toe als je wilt, "
+"of ga verder."
+msgstr[1] ""
+"Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, "
+"of ga verder."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:312
 #: src/Shared/Frontend/FrontendSetupView.php:180
 msgid ""
 "Add one team now. You can add more later under Teams. Players, evaluations, "
@@ -29991,18 +30164,18 @@ msgstr ""
 "evaluaties, activiteiten en doelen horen allemaal bij een team, dus we "
 "hebben er minstens één nodig om de rest van de plugin nuttig te maken."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:172
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:318
 msgid "Use the new-team wizard instead"
 msgstr "Gebruik in plaats daarvan de wizard voor nieuw team"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:174
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:320
 msgid ""
 "opens the frontend wizard with staff assignment built in. Come back here "
 "when done."
 msgstr ""
 "opent de frontend-wizard met stafkoppeling. Kom hier terug als je klaar bent."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:182
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:328
 #: src/Modules/Wizards/Team/BasicsStep.php:29
 #: src/Modules/Wizards/Team/ReviewStep.php:19
 #: src/Shared/Frontend/FrontendSetupView.php:184
@@ -30010,7 +30183,7 @@ msgstr ""
 msgid "Team name"
 msgstr "Teamnaam"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:196
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:342
 #: src/Shared/Frontend/FrontendSetupView.php:197
 msgid ""
 "Pick the closest match. New age groups can be added under Configuration → "
@@ -30021,7 +30194,7 @@ msgstr ""
 
 #. translators: %s is the WP display name + email of the current user
 #. translators: %s is the WP display name + email of the current user.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:220
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:366
 #: src/Shared/Frontend/FrontendSetupView.php:229
 #, php-format
 msgid ""
@@ -30033,16 +30206,16 @@ msgstr ""
 "koppelen dit aan je WP-account zodat evaluaties, activiteiten en meldingen "
 "allemaal naar de juiste persoon verwijzen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:238
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:384
 msgid "Club admin role"
 msgstr "Rol Clubbeheerder"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:242
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:388
 #: src/Shared/Frontend/FrontendSetupView.php:250
 msgid "Grant me the Club Admin role (recommended)"
 msgstr "Ken mij de rol Clubbeheerder toe (aanbevolen)"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:244
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:390
 #: src/Shared/Frontend/FrontendSetupView.php:252
 msgid ""
 "Club Admins can manage all teams, players, evaluations, and configuration."
@@ -30050,14 +30223,14 @@ msgstr ""
 "Clubbeheerders kunnen alle teams, spelers, evaluaties en configuratie "
 "beheren."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:262
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:372
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:408
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:518
 #: src/Shared/Frontend/FrontendSetupView.php:274
 #: src/Shared/Frontend/FrontendSetupView.php:360
 msgid "Dashboard page"
 msgstr "Dashboardpagina"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:264
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:410
 #: src/Shared/Frontend/FrontendSetupView.php:276
 msgid ""
 "TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] "
@@ -30070,7 +30243,7 @@ msgstr ""
 "site, zodat trainers, spelers en ouders direct op het dashboard landen "
 "wanneer ze inloggen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:268
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:414
 #: src/Shared/Frontend/FrontendSetupView.php:280
 msgid ""
 "A page with the dashboard shortcode already exists — it will be reused and "
@@ -30079,29 +30252,29 @@ msgstr ""
 "Er bestaat al een pagina met de dashboard-shortcode — die wordt hergebruikt "
 "en als homepage ingesteld, niet gedupliceerd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:273
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
 #: src/Shared/Frontend/FrontendSetupView.php:291
 msgid "Create page"
 msgstr "Pagina aanmaken & als homepage instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:280
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:426
 #: src/Shared/Frontend/FrontendSetupView.php:295
 msgid "You can change the homepage later under Settings → Reading."
 msgstr "Je kunt de homepage later wijzigen onder Instellingen → Lezen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:297
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:443
 #: src/Shared/Frontend/FrontendSetupView.php:310
 msgid "Setup complete"
 msgstr "Installatie voltooid"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:298
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:444
 #: src/Shared/Frontend/FrontendSetupView.php:311
 msgid "You are ready to use TalentTrack. Here is what was set up:"
 msgstr "Je bent klaar om TalentTrack te gebruiken. Dit is wat is ingesteld:"
 
 #. translators: %s is the academy name
 #. translators: %s is the academy name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:304
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:450
 #: src/Shared/Frontend/FrontendSetupView.php:317
 #, php-format
 msgid "Academy: %s"
@@ -30109,7 +30282,7 @@ msgstr "Academie: %s"
 
 #. translators: 1: team name, 2: age group
 #. translators: 1: team name, 2: age group.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:313
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:459
 #: src/Shared/Frontend/FrontendSetupView.php:326
 #, php-format
 msgid "Team: %1$s (%2$s)"
@@ -30117,61 +30290,61 @@ msgstr "Team: %1$s (%2$s)"
 
 #. translators: %s is the admin's full name
 #. translators: %s is the admin's full name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:323
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:469
 #: src/Shared/Frontend/FrontendSetupView.php:336
 #, php-format
 msgid "Admin: %s"
 msgstr "Beheerder: %s"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:330
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:476
 msgid "Recommended next steps"
 msgstr "Aanbevolen vervolgstappen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:334
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:480
 msgid "Add players"
 msgstr "Spelers toevoegen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:335
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:481
 msgid "Build out your roster — by hand or via CSV import."
 msgstr "Bouw je selectie op — handmatig of via CSV-import."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:339
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:485
 msgid "Invite first coach"
 msgstr "Eerste coach uitnodigen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:340
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:486
 msgid "Add a coach as a staff record so they can record evaluations."
 msgstr ""
 "Voeg een coach toe als stafrecord zodat hij/zij evaluaties kan vastleggen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:344
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:490
 msgid "Customize branding"
 msgstr "Branding aanpassen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:345
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:491
 msgid "Logo, colors, secondary palette, theme inheritance."
 msgstr "Logo, kleuren, secundair palet, thema-overerving."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:349
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:495
 msgid "Set up backups"
 msgstr "Back-ups instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:350
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:496
 msgid "Schedule daily backups so a hosting hiccup does not lose your data."
 msgstr ""
 "Plan dagelijkse back-ups zodat een hosting-hapering geen gegevens kost."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:378
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:524
 msgid "TalentTrack — Setup wizard"
 msgstr "TalentTrack — Installatiewizard"
 
 # #5 — wizard polish + resume entry points.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:380
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:526
 msgid "Stop and resume any time."
 msgstr "Stop en hervat wanneer het uitkomt."
 
 #. translators: %s is the bookmarkable URL of the wizard.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:384
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:530
 #, php-format
 msgid ""
 "Close this tab and your progress is kept. Pick it up again from %s, the "
@@ -30180,19 +30353,23 @@ msgstr ""
 "Sluit dit tabblad en je voortgang blijft bewaard. Hervat via %s, het tabblad "
 "Configuratie → Installatiewizard, of via het TalentTrack-accountmenu."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:415
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:561
 msgid "Team created."
 msgstr "Team aangemaakt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:416
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:562
+msgid "Your squad has been imported."
+msgstr "Je selectie is geïmporteerd."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:563
 msgid "Admin record created."
 msgstr "Beheerdersrecord aangemaakt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:564
 msgid "Wizard reset."
 msgstr "Wizard opnieuw gestart."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:418
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:565
 msgid "Frontend dashboard page created."
 msgstr "Frontend-dashboardpagina aangemaakt."
 
@@ -55359,154 +55536,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:172
-msgid "Import your squad"
-msgstr "Je selectie importeren"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:174
-msgid "If you already keep your teams, players and staff in a spreadsheet, bring them in now rather than typing them again. Download the template, fill it in, and upload it."
-msgstr "Houd je je teams, spelers en staf al in een spreadsheet bij, haal ze dan nu binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in en upload het."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:177
-msgid "Nothing is saved until you confirm."
-msgstr "Er wordt niets opgeslagen tot je bevestigt."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:178
-msgid "Uploading shows you what the file contains, and anything that needs fixing, first."
-msgstr "Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog niet klopt."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:190
-msgid "This workbook cannot be imported yet. Nothing was saved."
-msgstr "Dit bestand kan nog niet worden geïmporteerd. Er is niets opgeslagen."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:211
-msgid "Download the template"
-msgstr "Download het sjabloon"
-
-#. translators: 1: upload_max_filesize, 2: post_max_size
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:227
-#, php-format
-msgid "Server limits on this install: upload_max_filesize = %1$s, post_max_size = %2$s. A workbook larger than the smaller of those is rejected before TalentTrack sees it."
-msgstr "Serverlimieten op deze installatie: upload_max_filesize = %1$s, post_max_size = %2$s. Een bestand dat groter is dan de kleinste van die twee wordt geweigerd voordat TalentTrack het ziet."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:233
-msgid "Check this file"
-msgstr "Dit bestand controleren"
-
-#. translators: %s: the uploaded file name
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:241
-#, php-format
-msgid "%s is ready to import."
-msgstr "%s is klaar om te importeren."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:254
-msgid "Upload the file again to confirm and save these records."
-msgstr "Upload het bestand opnieuw om te bevestigen en deze records op te slaan."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:261
-msgid "Import these records"
-msgstr "Deze records importeren"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:267
-msgid "Skip — I do not have a spreadsheet"
-msgstr "Overslaan — ik heb geen spreadsheet"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
-msgid "Add your staff"
-msgstr "Je staf toevoegen"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
-msgid "Add the coaches and staff who will use TalentTrack. Give them an email address and an invitation is prepared for each of them."
-msgstr "Voeg de trainers en staf toe die TalentTrack gaan gebruiken. Geef ze een e-mailadres en er wordt voor ieder van hen een uitnodiging klaargezet."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
-msgid "Nobody is emailed yet."
-msgstr "Er wordt nog niemand gemaild."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:423
-msgid "Invitations are held until you send them, so you can finish setting up and look around first."
-msgstr "Uitnodigingen worden vastgehouden tot jij ze verstuurt, zodat je het inrichten eerst kunt afmaken en rond kunt kijken."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:435
-msgid "Invitation"
-msgstr "Uitnodiging"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:445
-msgid "Ready to send"
-msgstr "Klaar om te versturen"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:446
-msgid "No email — add one later to invite them"
-msgstr "Geen e-mailadres — voeg er later een toe om diegene uit te nodigen"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:470
-msgid "Optional. Without one they are still on the staff list, but cannot be invited to sign in."
-msgstr "Optioneel. Zonder e-mailadres staat diegene wel op de staflijst, maar kan hij niet worden uitgenodigd om in te loggen."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:474
-msgid "Add this person"
-msgstr "Deze persoon toevoegen"
-
-#. translators: %d: number of invitations waiting to be sent
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:484
-#, php-format
-msgid "Send %d invitation and continue"
-msgid_plural "Send %d invitations and continue"
-msgstr[0] "%d uitnodiging versturen en doorgaan"
-msgstr[1] "%d uitnodigingen versturen en doorgaan"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:498
-msgid "Continue without sending yet"
-msgstr "Doorgaan zonder nu te versturen"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:499
-msgid "Skip — I will add staff later"
-msgstr "Overslaan — ik voeg later staf toe"
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:506
-msgid "If you continue without sending, the invitations stay ready and waiting under Configuration → Invitations. Nothing is lost."
-msgstr "Ga je door zonder te versturen, dan blijven de uitnodigingen klaarstaan onder Configuratie → Uitnodigingen. Er gaat niets verloren."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:566
-msgid "Added. Their invitation is ready but not sent yet."
-msgstr "Toegevoegd. De uitnodiging staat klaar maar is nog niet verstuurd."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:567
-msgid "Invitations sent."
-msgstr "Uitnodigingen verstuurd."
-
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:158
-msgid "A first and last name are both needed."
-msgstr "Een voornaam en achternaam zijn allebei nodig."
-
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:163
-msgid "That does not look like a valid email address."
-msgstr "Dat lijkt geen geldig e-mailadres."
-
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:177
-msgid "That person could not be saved. They may already be on the list."
-msgstr "Die persoon kon niet worden opgeslagen. Mogelijk staat diegene al op de lijst."
-
-#. translators: %d: number of teams brought in by the import
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:292
-#, php-format
-msgid "Your import brought in %d team. Add another now if you want, or continue."
-msgid_plural "Your import brought in %d teams. Add another now if you want, or continue."
-msgstr[0] "Je import heeft %d team binnengehaald. Voeg er nu nog een toe als je wilt, of ga verder."
-msgstr[1] "Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, of ga verder."
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:562
-msgid "Your squad has been imported."
-msgstr "Je selectie is geïmporteerd."
-
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:80
-msgid "Choose a workbook to upload first."
-msgstr "Kies eerst een bestand om te uploaden."
-
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:151
-msgid "The spreadsheet library is not installed on this server, so the template cannot be generated."
-msgstr "De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het sjabloon kan niet worden gegenereerd."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
