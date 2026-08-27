@@ -80,6 +80,41 @@ class InvitationsConfigView extends FrontendViewBase {
             <a href="<?php echo esc_url( $filter_url( InvitationStatus::REVOKED ) ); ?>"><?php echo esc_html( InvitationStatus::label( InvitationStatus::REVOKED ) ); ?></a>
         </p>
 
+        <?php
+        // #2964 — invitations created with the send held. Surfaced above
+        // the table because "nobody has been told yet" is the thing an
+        // admin needs to notice, not something to discover row by row.
+        $unsent = $repo->unsentCount();
+        if ( $unsent > 0 && current_user_can( 'tt_send_invitation' ) ) :
+            ?>
+            <div class="tt-notice tt-inv-unsent">
+                <p>
+                    <?php
+                    printf(
+                        esc_html(
+                            /* translators: %d: number of invitations waiting to be sent */
+                            _n(
+                                '%d invitation is waiting to be sent. Nobody has received their sign-in details yet.',
+                                '%d invitations are waiting to be sent. Nobody has received their sign-in details yet.',
+                                $unsent,
+                                'talenttrack'
+                            )
+                        ),
+                        (int) $unsent
+                    );
+                    ?>
+                </p>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( 'tt_invitation_send_all' ); ?>
+                    <input type="hidden" name="action" value="tt_invitation_send_all" />
+                    <input type="hidden" name="_redirect" value="<?php echo esc_attr( self::currentUrl() ); ?>" />
+                    <button type="submit" class="tt-btn tt-btn-primary">
+                        <?php esc_html_e( 'Send all invitations', 'talenttrack' ); ?>
+                    </button>
+                </form>
+            </div>
+        <?php endif; ?>
+
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'No invitations match the filter.', 'talenttrack' ); ?></em></p>
             <?php return; ?>
@@ -109,8 +144,30 @@ class InvitationsConfigView extends FrontendViewBase {
                     <td><?php echo esc_html( self::userName( (int) $row->created_by ) ); ?></td>
                     <td><?php echo esc_html( (string) $row->created_at ); ?></td>
                     <td><?php echo esc_html( (string) $row->expires_at ); ?></td>
-                    <td><?php echo esc_html( InvitationStatus::label( (string) $row->status ) ); ?></td>
                     <td>
+                        <?php
+                        echo esc_html( InvitationStatus::label( (string) $row->status ) );
+                        // #2964 — "pending" now covers two different things:
+                        // waiting for a reply, and never sent at all. An admin
+                        // who cannot tell them apart will either double-send or
+                        // never send.
+                        if ( self::isUnsent( $row ) ) {
+                            echo ' — <strong>' . esc_html__( 'not sent yet', 'talenttrack' ) . '</strong>';
+                        }
+                        ?>
+                    </td>
+                    <td>
+                        <?php if ( self::isUnsent( $row ) && current_user_can( 'tt_send_invitation' ) ) : ?>
+                            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-inv-send-form">
+                                <?php wp_nonce_field( 'tt_invitation_send' ); ?>
+                                <input type="hidden" name="action" value="tt_invitation_send" />
+                                <input type="hidden" name="id" value="<?php echo (int) $row->id; ?>" />
+                                <input type="hidden" name="_redirect" value="<?php echo esc_attr( self::currentUrl() ); ?>" />
+                                <button type="submit" class="tt-btn tt-btn-primary">
+                                    <?php esc_html_e( 'Send now', 'talenttrack' ); ?>
+                                </button>
+                            </form>
+                        <?php endif; ?>
                         <?php if ( (string) $row->status === InvitationStatus::PENDING ) : ?>
                             <input type="text" readonly value="<?php echo esc_attr( $accept_url ); ?>"
                                    onclick="this.select(); document.execCommand('copy');"
@@ -204,6 +261,16 @@ class InvitationsConfigView extends FrontendViewBase {
             if ( $name ) return trim( (string) $name->first_name . ' ' . (string) $name->last_name );
         }
         return '';
+    }
+
+    /**
+     * Pending, and nobody has been mailed about it yet (#2964).
+     *
+     * @param object $row
+     */
+    private static function isUnsent( $row ): bool {
+        return (string) $row->status === InvitationStatus::PENDING
+            && (string) ( $row->sent_at ?? '' ) === '';
     }
 
     private static function userName( int $userId ): string {

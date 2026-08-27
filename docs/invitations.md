@@ -36,6 +36,16 @@ The popover shows the acceptance URL, a live preview of the message text, and th
 
 When an invitation is created **with an email address**, the accept link is also **emailed to the invitee automatically** — the admin no longer has to hand-carry every link. The email goes out through the Comms module (so it's audit-logged like any other message) in the invitee's locale, with a "set your password" call to action and the link's expiry. It's transactional: it bypasses opt-out / quiet-hours / rate-limits, so an invitee is never withheld their invite. The WhatsApp / copy-link share buttons still work for cases without an email or where the admin prefers to share by hand.
 
+## Holding the credentials back
+
+An invitation can be created **without sending it yet**. Nothing reaches the invitee until someone explicitly sends it — useful when setting a club up, where you want to add your coaches and check the place works before anyone gets an email inviting them into it.
+
+Held invitations show in the invitations list as **not sent yet**, with a count above the table and a **Send all invitations** action, or a **Send now** on any single row. Until you send, the invitee has received nothing at all.
+
+Sending is safe to repeat: an invitation that has already gone out is skipped rather than delivered twice, and a bulk send reports how many went and how many were left alone rather than one overall result.
+
+Held invitations do not expire differently, do not behave differently once sent, and can be revoked like any other. Leaving the wizard or the page without sending does not lose them — they stay in the list, waiting.
+
 ## Acceptance flow
 
 The recipient taps the link → lands on the dashboard's accept-invite route → sees a tiny form with three sections:

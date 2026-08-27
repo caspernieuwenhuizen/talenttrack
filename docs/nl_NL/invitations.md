@@ -36,6 +36,16 @@ De popover toont de accept-URL, een live preview van het berichtstekst en drie d
 
 Wanneer een uitnodiging wordt aangemaakt **met een e-mailadres**, wordt de accept-link ook **automatisch naar de genodigde gemaild** — de beheerder hoeft niet langer elke link met de hand te versturen. De e-mail gaat via de Comms-module (en wordt dus gelogd zoals elk ander bericht) in de taal van de genodigde, met een "stel je wachtwoord in"-actie en de vervaldatum van de link. Hij is transactioneel: opt-out / stille uren / rate-limits worden overgeslagen, zodat een genodigde zijn uitnodiging nooit wordt onthouden. De WhatsApp- / link-kopiëren-knoppen blijven werken voor gevallen zonder e-mailadres of wanneer de beheerder liever handmatig deelt.
 
+## Inloggegevens nog even vasthouden
+
+Een uitnodiging kan worden aangemaakt **zonder hem meteen te versturen**. De genodigde krijgt niets totdat iemand hem uitdrukkelijk verstuurt — handig bij het inrichten van een club, waar je eerst je trainers wilt toevoegen en wilt controleren of alles werkt voordat er iemand een uitnodiging binnenkrijgt.
+
+Vastgehouden uitnodigingen staan in de lijst als **nog niet verstuurd**, met een teller boven de tabel en een knop **Alle uitnodigingen versturen**, of **Nu versturen** op een losse rij. Tot je verstuurt, heeft de genodigde helemaal niets ontvangen.
+
+Versturen mag je gerust herhalen: een uitnodiging die al is verstuurd wordt overgeslagen in plaats van dubbel bezorgd, en bij een bulkverzending zie je hoeveel er zijn verstuurd en hoeveel er zijn overgeslagen in plaats van één totaaluitslag.
+
+Vastgehouden uitnodigingen verlopen niet anders, gedragen zich na verzending niet anders en kunnen net als elke andere worden ingetrokken. Verlaat je de wizard of de pagina zonder te versturen, dan gaan ze niet verloren — ze blijven in de lijst staan.
+
 ## Acceptatieflow
 
 De ontvanger tikt op de link → komt op de accept-invite-route van het dashboard → ziet een klein formulier met drie secties:
