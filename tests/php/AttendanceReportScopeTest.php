@@ -36,7 +36,10 @@ final class AttendanceReportScopeTest extends WP_UnitTestCase {
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'Hedel O14-1' ] );
         $this->team_id = (int) $wpdb->insert_id;
 
-        ReportsRestController::register();
+        // Register through the action, not by calling register() directly:
+        // WordPress raises a doing_it_wrong notice for routes registered
+        // outside `rest_api_init`, and the suite treats those as failures.
+        ReportsRestController::init();
         do_action( 'rest_api_init' );
     }
 
