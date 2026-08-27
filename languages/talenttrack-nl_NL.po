@@ -56262,6 +56262,33 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Save attribution"
+msgstr "Toekenning opslaan"
+
+msgid "Could not save the attribution."
+msgstr "Kon de toekenning niet opslaan."
+
+msgctxt "who scored a goal"
+msgid "Scorer"
+msgstr "Maker"
+
+msgctxt "who created a goal"
+msgid "Assist"
+msgstr "Assist"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Score recorded as %1$d–%2$d; %3$d goal logged. This match predates per-goal logging — the score is kept as recorded."
+msgid_plural "Score recorded as %1$d–%2$d; %3$d goals logged. This match predates per-goal logging — the score is kept as recorded."
+msgstr[0] "Stand vastgelegd als %1$d–%2$d; %3$d doelpunt geregistreerd. Deze wedstrijd dateert van vóór het vastleggen per doelpunt — de stand blijft zoals hij is vastgelegd."
+msgstr[1] "Stand vastgelegd als %1$d–%2$d; %3$d doelpunten geregistreerd. Deze wedstrijd dateert van vóór het vastleggen per doelpunt — de stand blijft zoals hij is vastgelegd."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "%d goal still needs a scorer. Attributing it puts the goal on the player's record."
+msgid_plural "%d goals still need a scorer. Attributing them puts each goal on the player's record."
+msgstr[0] "%d doelpunt heeft nog een maker nodig. Door het toe te kennen komt het doelpunt op de kaart van de speler."
+msgstr[1] "%d doelpunten hebben nog een maker nodig. Door ze toe te kennen komt elk doelpunt op de kaart van de speler."
+
+
 #~ msgid "Own goal"
 #~ msgstr "Eigen doelpunt"
 
@@ -57648,3 +57675,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
