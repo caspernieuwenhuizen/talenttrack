@@ -55461,6 +55461,140 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:36
+msgid "Import history"
+msgstr "Importgeschiedenis"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:32
+msgid "You do not have permission to manage imports."
+msgstr "Je hebt geen rechten om imports te beheren."
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:43
+msgid "Nothing has been imported from a spreadsheet yet."
+msgstr "Er is nog niets vanuit een spreadsheet geïmporteerd."
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:52
+msgid "File"
+msgstr "Bestand"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:53
+msgid "Imported"
+msgstr "Geïmporteerd"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:55
+msgctxt "who ran the import"
+msgid "By"
+msgstr "Door"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:56
+msgid "Records"
+msgstr "Records"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:66
+msgid "(unnamed file)"
+msgstr "(naamloos bestand)"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:72
+msgid "Already undone"
+msgstr "Al ongedaan gemaakt"
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:82
+msgid "Undo this import"
+msgstr "Deze import ongedaan maken"
+
+#. translators: %d: number of records changed since the import
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:92
+#, php-format
+msgid "%d of these records has been changed since it was imported."
+msgid_plural "%d of these records have been changed since they were imported."
+msgstr[0] "%d van deze records is gewijzigd sinds het is geïmporteerd."
+msgstr[1] "%d van deze records zijn gewijzigd sinds ze zijn geïmporteerd."
+
+#. translators: %s: a list like "3 teams, 24 players"
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:120
+#, php-format
+msgid "This will permanently delete %s that came from this file."
+msgstr "Dit verwijdert definitief %s die uit dit bestand zijn gekomen."
+
+#. translators: %d: number of records changed since the import
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:128
+#, php-format
+msgid "%d of them has been changed since the import, and those changes will go too."
+msgid_plural "%d of them have been changed since the import, and those changes will go too."
+msgstr[0] "%d daarvan is gewijzigd sinds de import; die wijziging gaat mee weg."
+msgstr[1] "%d daarvan zijn gewijzigd sinds de import; die wijzigingen gaan mee weg."
+
+#: src/Core/FeatureRegistry.php:250
+msgid "What came in from each spreadsheet import, and a way to take a whole import back out. Turn off to hide the history; imported records stay exactly as they are."
+msgstr "Wat er bij elke spreadsheet-import is binnengekomen, en een manier om een hele import weer ongedaan te maken. Zet het uit om de geschiedenis te verbergen; geïmporteerde records blijven precies zoals ze zijn."
+
+#: src/Modules/Import/ImportModule.php:38
+msgid "What came in from a spreadsheet, and a way to take a whole import back out again."
+msgstr "Wat er vanuit een spreadsheet is binnengekomen, en een manier om een hele import weer ongedaan te maken."
+
+#. translators: %s: a list like "3 teams, 24 players"
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:36
+#, php-format
+msgid "Import undone. Removed %s."
+msgstr "Import ongedaan gemaakt. %s verwijderd."
+
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:42
+msgid "That import had already been undone. Nothing was removed."
+msgstr "Die import was al ongedaan gemaakt. Er is niets verwijderd."
+
+#: src/Modules/Import/ImportUndoService.php:44
+msgid "No import was named."
+msgstr "Er is geen import opgegeven."
+
+#: src/Modules/Import/ImportUndoService.php:158
+msgctxt "import undo count"
+msgid "team"
+msgid_plural "teams"
+msgstr[0] "team"
+msgstr[1] "teams"
+
+#: src/Modules/Import/ImportUndoService.php:160
+msgctxt "import undo count"
+msgid "player"
+msgid_plural "players"
+msgstr[0] "speler"
+msgstr[1] "spelers"
+
+#: src/Modules/Import/ImportUndoService.php:162
+msgctxt "import undo count"
+msgid "staff member"
+msgid_plural "staff members"
+msgstr[0] "staflid"
+msgstr[1] "stafleden"
+
+#: src/Modules/Import/ImportUndoService.php:164
+msgctxt "import undo count"
+msgid "activity"
+msgid_plural "activities"
+msgstr[0] "activiteit"
+msgstr[1] "activiteiten"
+
+#: src/Modules/Import/ImportUndoService.php:166
+msgctxt "import undo count"
+msgid "evaluation"
+msgid_plural "evaluations"
+msgstr[0] "evaluatie"
+msgstr[1] "evaluaties"
+
+#: src/Modules/Import/ImportUndoService.php:168
+msgctxt "import undo count"
+msgid "goal"
+msgid_plural "goals"
+msgstr[0] "doel"
+msgstr[1] "doelen"
+
+#: src/Modules/Import/ImportUndoService.php:170
+msgctxt "import undo count"
+msgid "record"
+msgid_plural "records"
+msgstr[0] "record"
+msgstr[1] "records"
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Import\ImportBatchRegistry;
 use TT\Modules\Import\ImportService;
+use TT\Modules\Import\ImportUndoService;
 
 /**
  * ImportRestController (#2956, epic #2954) — spreadsheet import over REST.
@@ -53,10 +54,32 @@ final class ImportRestController {
                 ],
             ],
         ] );
+
+        register_rest_route( self::NS, '/imports/(?P<batch_key>[A-Za-z0-9._-]+)', [
+            'methods'             => 'DELETE',
+            'callback'            => [ __CLASS__, 'undo' ],
+            'permission_callback' => [ __CLASS__, 'canManage' ],
+        ] );
     }
 
     public static function canManage(): bool {
         return current_user_can( self::CAP );
+    }
+
+    /** @return \WP_REST_Response|\WP_Error */
+    public static function undo( \WP_REST_Request $request ) {
+        $batch_key = (string) $request->get_param( 'batch_key' );
+
+        $result = ( new ImportUndoService() )->undo( $batch_key );
+
+        if ( ! $result['ok'] ) {
+            return new \WP_Error( 'tt_import_undo_failed', $result['error'], [ 'status' => 400 ] );
+        }
+
+        return rest_ensure_response( [
+            'ok'      => true,
+            'deleted' => $result['deleted'],
+        ] );
     }
 
     /** @return \WP_REST_Response|\WP_Error */

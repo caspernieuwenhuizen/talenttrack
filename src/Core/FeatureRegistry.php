@@ -240,6 +240,19 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'media-retention' ],
                 'entities'        => [ 'media' ],
             ],
+            // #2959 (epic #2954) — the record of what each spreadsheet
+            // import created, and the undo for a whole batch. Default ON:
+            // an academy that never imports simply never sees a row, and
+            // switching it off after an import would hide the only way
+            // back out of one.
+            'import_history' => [
+                'label'           => __( 'Import history', 'talenttrack' ),
+                'description'     => __( 'What came in from each spreadsheet import, and a way to take a whole import back out. Turn off to hide the history; imported records stay exactly as they are.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Import\\ImportModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'import-history' ],
+                'entities'        => [ 'import_batch' ],
+            ],
             // #2382 (epic #2381) — the desktop attendance-entry grid, the
             // Excel-familiar alternative to the mark-attendance wizard.
             // Default ON: it's the power-entry path an academy uses instead
