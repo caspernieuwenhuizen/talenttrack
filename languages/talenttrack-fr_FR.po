@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T15:56:38+00:00\n"
+"POT-Creation-Date: 2026-08-27T15:57:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5784,7 +5784,7 @@ msgstr ""
 msgid "Rate players"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:272
+#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
 #: src/Modules/Media/Wizard/MediaTargetStep.php:107
 msgid "this player"
 msgstr ""
