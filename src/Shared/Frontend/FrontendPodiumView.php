@@ -34,7 +34,7 @@ class FrontendPodiumView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Top performers', 'talenttrack' ) );
         self::renderHeader( __( 'Top performers', 'talenttrack' ) );
 
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
 
         if ( empty( $teams ) ) {
             echo '<p class="tt-podium-empty"><em>' . esc_html__( 'No teams assigned.', 'talenttrack' ) . '</em></p>';

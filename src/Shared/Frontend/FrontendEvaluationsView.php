@@ -38,7 +38,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
-        $teams  = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams  = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
 
         // v3.110.64 — every code path on this routable view now emits
         // a `Dashboard / Evaluations / …` breadcrumb chain, per the

@@ -355,7 +355,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
      */
     private static function renderAssignmentForm( int $user_id, bool $is_admin, ?object $assignment = null ): void {
         $is_edit = $assignment !== null;
-        $teams  = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams  = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
         $roles  = ( new FunctionalRolesRepository() )->listRoles();
         $people = ( new PeopleRepository() )->list( [ 'status' => 'active' ] );
 

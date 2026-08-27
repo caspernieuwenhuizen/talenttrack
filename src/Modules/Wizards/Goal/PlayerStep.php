@@ -48,7 +48,7 @@ final class PlayerStep implements WizardStepInterface {
             true
         );
 
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
         if ( ! $teams ) {
             echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there's no roster to pick from. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
             // Required hidden input so the wizard's required-field

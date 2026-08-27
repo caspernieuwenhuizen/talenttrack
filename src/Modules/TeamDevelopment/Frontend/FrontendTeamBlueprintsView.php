@@ -75,7 +75,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Team blueprint', 'talenttrack' ) );
         self::renderHeader( __( 'Team blueprint', 'talenttrack' ) );
 
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
         if ( empty( $teams ) ) {
             echo '<p><em>' . esc_html__( 'No teams to show. Coaches see blueprint boards for teams they head-coach.', 'talenttrack' ) . '</em></p>';
             return;
