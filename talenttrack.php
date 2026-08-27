@@ -123,11 +123,25 @@ add_action( 'plugins_loaded', function () {
 // block below (priority 5) still runs after the kernel has booted.
 add_action( 'init', function () {
     TT\Core\Kernel::instance()->boot();
+
+    // #2981 — `wp tt admin-routes`. Registered AFTER the kernel has booted,
+    // because the whole point of the command is to read the admin menu as a
+    // running install actually assembles it: several groups register from
+    // module code that only executes when that module is enabled, so the full
+    // set exists at runtime and nowhere else.
+    if ( class_exists( 'WP_CLI' ) ) {
+        \WP_CLI::add_command( 'tt admin-routes', \TT\Shared\Cli\AdminRoutesCommand::class );
+    }
 }, 1 );
 
 add_action( 'init', function () {
     if ( is_admin() && class_exists( 'TT\\Shared\\Admin\\MenuExtension' ) ) {
         TT\Shared\Admin\MenuExtension::init();
+    }
+    // #2980 — the twelve pages that stay in wp-admin on purpose explain
+    // themselves where an operator meets them, from one config file.
+    if ( is_admin() && class_exists( 'TT\\Shared\\Admin\\AdminOnlyNotice' ) ) {
+        TT\Shared\Admin\AdminOnlyNotice::init();
     }
     // #0077 F4 — module-completeness dev report. #1449 moved its menu
     // row into AdminMenuRegistry (CoreSurfaceRegistration, WP_DEBUG-
