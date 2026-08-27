@@ -169,6 +169,7 @@ return [
     'eval-categories'               => [ 'desktop_only', 'Evaluation vocabulary.' ],
     'eval-coverage'                 => [ 'desktop_only', 'A coverage matrix: who has been evaluated, by whom, across a squad.' ],
     'explore'                       => [ 'desktop_only', 'A dimension explorer. The insight is in seeing many rows at once.' ],
+    'exercises-import'              => [ 'desktop_only', 'CSV upload, then a wide check table of every row before it commits. The same call as players-import.' ],
     'exports'                       => [ 'desktop_only', 'Export construction.' ],
     'features'                      => [ 'desktop_only', 'Feature toggles, install-wide. What they change reaches past any one record.' ],
     'functional-roles'              => [ 'desktop_only', 'Functional-role assignment.' ],

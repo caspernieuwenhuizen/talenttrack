@@ -57298,3 +57298,104 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Exercises/
+msgid "Column \"coaching_points\" is ignored: coaching points belong to a training plan's block, not to the exercise itself. Put anything that describes the drill in \"description\"."
+msgstr "De kolom \"coaching_points\" wordt genegeerd: coachpunten horen bij een blok in een trainingsplan, niet bij de oefening zelf. Zet alles wat de oefening beschrijft in \"description\"."
+
+#: src/Modules/Exercises/
+msgid "The CSV must include a name column."
+msgstr "Het CSV-bestand moet een kolom name bevatten."
+
+#: src/Modules/Exercises/
+msgid "name is required."
+msgstr "name is verplicht."
+
+#: src/Modules/Exercises/
+msgid "%1$s must be a whole number, found \"%2$s\"."
+msgstr "%1$s moet een heel getal zijn, maar bevat \"%2$s\"."
+
+#: src/Modules/Exercises/
+msgid "%1$s is %2$d, outside the allowed range %3$d-%4$d."
+msgstr "%1$s is %2$d en valt buiten het toegestane bereik %3$d-%4$d."
+
+#: src/Modules/Exercises/
+msgid "%1$s is greater than %2$s."
+msgstr "%1$s is groter dan %2$s."
+
+#: src/Modules/Exercises/
+msgid "category \"%s\" does not exist. Create it in the exercise library first, or leave the column empty."
+msgstr "De categorie \"%s\" bestaat niet. Maak die eerst aan in de oefeningenbibliotheek of laat de kolom leeg."
+
+#: src/Modules/Exercises/
+msgid "visibility \"%s\" is not one of club, team, private."
+msgstr "visibility \"%s\" is niet club, team of private."
+
+#: src/Modules/Exercises/
+msgid "visibility \"club\" needs the methodology-editing permission, which you do not have."
+msgstr "Voor visibility \"club\" is het recht om de methodiek te bewerken nodig, en dat heb je niet."
+
+#: src/Modules/Exercises/
+msgid "principle code \"%s\" does not match any principle."
+msgstr "De principecode \"%s\" hoort bij geen enkel principe."
+
+#: src/Modules/Exercises/
+msgid "You do not have permission to import exercises."
+msgstr "Je hebt geen rechten om oefeningen te importeren."
+
+#: src/Modules/Exercises/
+msgid "Import exercises from CSV"
+msgstr "Oefeningen importeren uit CSV"
+
+#: src/Modules/Exercises/
+msgid "Upload a CSV with one exercise per row. The first row must be a header naming the columns. A row that fails does not abort the import: every good row is saved, and the rows that failed come back as a file you can correct and upload again."
+msgstr "Upload een CSV-bestand met één oefening per rij. De eerste rij moet een kopregel zijn die de kolommen benoemt. Een rij die mislukt breekt de import niet af: elke goede rij wordt opgeslagen en de mislukte rijen krijg je terug als bestand dat je kunt corrigeren en opnieuw uploaden."
+
+#: src/Modules/Exercises/
+msgid "Fill in principle_codes wherever you can. A drill with no principles can still be chosen for a training, but the planner can never prefer it — so a large library tagged with nothing behaves like an empty one."
+msgstr "Vul principle_codes in waar je kunt. Een oefening zonder principes kan nog steeds gekozen worden voor een training, maar de planner kan er nooit de voorkeur aan geven — een grote bibliotheek zonder principes gedraagt zich dus als een lege."
+
+#: src/Modules/Exercises/
+msgid "required"
+msgstr "verplicht"
+
+#: src/Modules/Exercises/
+msgid "%1$d to %2$d"
+msgstr "%1$d tot en met %2$d"
+
+#: src/Modules/Exercises/
+msgid "semicolon-separated"
+msgstr "gescheiden door puntkomma's"
+
+#: src/Modules/Exercises/
+msgid "A number outside its allowed range fails its row rather than being rounded into range, so a column filled in on the wrong scale is reported instead of quietly rewritten across every row."
+msgstr "Een getal buiten het toegestane bereik laat die rij mislukken in plaats van naar het bereik toe afgerond te worden, zodat een kolom die op de verkeerde schaal is ingevuld gemeld wordt in plaats van stilletjes in elke rij aangepast."
+
+#: src/Modules/Exercises/
+msgid "organisation is added to the end of the description, matching the single field the exercise form offers. Exercises have no coaching_points column: coaching points belong to a training plan, not to the drill."
+msgstr "organisation wordt achter de omschrijving gezet, passend bij het ene veld dat het oefeningenformulier biedt. Oefeningen hebben geen kolom coaching_points: coachpunten horen bij een trainingsplan, niet bij de oefening."
+
+#: src/Modules/Exercises/
+msgid "visibility is team unless you say otherwise. Publishing to the whole club needs the methodology-editing permission, the same as in the exercise form."
+msgstr "visibility is team tenzij je iets anders opgeeft. Clubbreed publiceren vraagt het recht om de methodiek te bewerken, net als in het oefeningenformulier."
+
+#: src/Modules/Exercises/
+msgid "Check the file"
+msgstr "Bestand controleren"
+
+#: src/Modules/Exercises/
+msgid "2. Check"
+msgstr "2. Controleren"
+
+#: src/Modules/Exercises/
+msgid "Import exercises"
+msgstr "Oefeningen importeren"
+
+#: src/Modules/Exercises/
+msgid "Download the rows that failed"
+msgstr "Mislukte rijen downloaden"
+
+#: src/Modules/Exercises/
+msgid "Have a lot of them already? %s"
+msgstr "Heb je er al veel? %s"
+

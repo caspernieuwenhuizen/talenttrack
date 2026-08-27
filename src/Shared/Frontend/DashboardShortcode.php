@@ -1412,6 +1412,12 @@ class DashboardShortcode {
             case 'exercises':
                 \TT\Modules\Exercises\Frontend\FrontendExerciseLibraryView::render( $user_id, $is_admin );
                 return true;
+            // #2613 — CSV bulk import for the library. Gates on
+            // tt_manage_exercises inside; the club-wide visibility value
+            // re-checks tt_edit_methodology per row.
+            case 'exercises-import':
+                \TT\Modules\Exercises\Frontend\FrontendExerciseCsvImportView::render( $user_id, $is_admin );
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;
