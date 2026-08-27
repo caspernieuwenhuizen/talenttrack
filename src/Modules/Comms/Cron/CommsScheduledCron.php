@@ -267,7 +267,7 @@ final class CommsScheduledCron {
                     Recipient::parent(
                         $parent_user_id,
                         (int) $row->player_id,
-                        (string) ( ContactResolver::emailForParent( $parent_user_id ) ?? '' ),
+                        (string) ( ContactResolver::emailForUser( $parent_user_id ) ?? '' ),
                         (string) ( ContactResolver::phoneForUser( $parent_user_id ) ?? '' ),
                         (string) get_user_meta( $parent_user_id, 'locale', true )
                     ),
