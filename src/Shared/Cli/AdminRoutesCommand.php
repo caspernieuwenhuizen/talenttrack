@@ -158,7 +158,7 @@ final class AdminRoutesCommand {
         preg_match_all( "/case\s+'([a-z0-9-]+)'\s*:/", $source, $matches );
 
         /** @var list<string> $slugs */
-        $slugs = array_values( array_unique( $matches[1] ?? [] ) );
+        $slugs = array_values( array_unique( $matches[1] ) );
         sort( $slugs );
 
         return $slugs;
