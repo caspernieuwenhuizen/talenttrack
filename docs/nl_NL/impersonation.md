@@ -81,10 +81,12 @@ E-mail- en push-notificaties die door de doelgebruiker's acties getriggerd zoude
 
 Elke sessie wordt weggeschreven in de tabel `tt_impersonation_log`: wie wie overnam, wanneer het begon en eindigde, het IP-adres en de user-agent, en de opgegeven reden.
 
-**Dat log is binnen TalentTrack nog niet te lezen.** Er is geen scherm dat het toont en er is geen REST-endpoint voor. Het raadplegen betekent vandaag rechtstreeks de database bevragen. Leunt jouw academie erop dat overnames achteraf te controleren zijn — en sta je overnemen toe, dan hoort dat zo te zijn — behandel dit dan als een openstaand gat, niet als iets wat jij verkeerd hebt ingesteld.
+Je leest het onder **Auditlog → Impersonatie**. Eén regel per sessie: wanneer die begon, wie hem startte, als wie diegene handelde, wanneer en hoe hij eindigde, de opgegeven reden en het adres waar vandaan. Een sessie die nog niet is beëindigd, staat er als **Nog open** — dan zit er op dit moment iemand in het account van een ander, en dat is iets anders dan een sessie die vorige week is afgesloten.
+
+Het tabblad verschijnt alleen als je het mag lezen. Het is afgeschermd via de matrix-entiteit `impersonation_log` (Academiebeheerder RCD, Hoofd opleiding R), los van de rest van het auditlog — zien wie het dossier van een minderjarige heeft geopend is een engere vraag dan zien wie wat heeft bewerkt.
+
+Dezelfde gegevens staan op `GET /wp-json/talenttrack/v1/impersonation/log`, te filteren op `actor_user_id`, `target_user_id`, `date_from`, `date_to` en `active_only`, voor wie ze liever in de eigen rapportage trekt.
 
 ## Beperkingen
-
-- **Het auditlog heeft geen leesscherm.** Zie hierboven.
 - **Cross-club-impersonatie** is niet gebouwd. TalentTrack draait vandaag één academie per installatie, dus er is geen cross-club-situatie om af te schermen.
 - **2FA wordt niet opnieuw gevraagd.** Een sessie starten logt je in als de doelgebruiker zonder tweede factor. Een `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )`-constante is gereserveerd voor clubs die die stap nodig hebben, maar is nog niet aangesloten.

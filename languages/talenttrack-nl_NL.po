@@ -55716,6 +55716,44 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendAuditLogView.php:82
+msgid "You do not have permission to read the impersonation log."
+msgstr "Je hebt geen rechten om het overnamelog te lezen."
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:160
+msgid "Nobody has used impersonation yet."
+msgstr "Er heeft nog niemand een account overgenomen."
+
+#. translators: %d: number of impersonation sessions on record
+#: src/Shared/Frontend/FrontendAuditLogView.php:166
+#, php-format
+msgid "%d session on record."
+msgid_plural "%d sessions on record."
+msgstr[0] "%d sessie vastgelegd."
+msgstr[1] "%d sessies vastgelegd."
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:178
+msgid "Acted as"
+msgstr "Handelde als"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:179
+msgid "Ended"
+msgstr "Beëindigd"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:180
+msgid "Reason given"
+msgstr "Opgegeven reden"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:191
+msgid "Still open"
+msgstr "Nog open"
+
+#. translators: %d: the WordPress user id of a since-deleted account
+#: src/Modules/Authorization/Impersonation/ImpersonationLogRepository.php:96
+#, php-format
+msgid "Deleted user #%d"
+msgstr "Verwijderde gebruiker #%d"
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 

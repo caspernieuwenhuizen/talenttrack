@@ -121,6 +121,14 @@ Brings a club's teams, players and staff in from an Excel workbook. The domain c
 - **Which sink is used is the caller's choice, not the importer's.** `ExcelImporter` takes an `ImportTagSink` factory (#2955). `DemoBatchRegistry` satisfies it for demo workbooks, `ImportBatchRegistry` for real ones; parsing, validation and foreign keys are identical either way.
 - **Capability note:** `manage_options` matches the existing import surface (`DemoDataPage::CAP`) rather than inventing a looser gate. A dedicated `tt_manage_import` capability belongs with the import-history surface (#2959), where there is a screen for the matrix to point at.
 
+## Impersonation log (#2861)
+
+The read side of `tt_impersonation_log`, which has been written since migration 0056 with nothing able to query it back. `ImpersonationLogRepository` is the domain core; `ImpersonationRestController` (`src/Infrastructure/REST/`) is the REST surface, and the **Audit log → Impersonation** tab reads the same repository.
+
+- **Route:** `GET /impersonation/log` — `{ sessions: [ { id, actor_user_id, actor_name, target_user_id, target_name, started_at, ended_at, end_reason, actor_ip, actor_user_agent, reason, is_active } ], total }`. Filters: `actor_user_id`, `target_user_id`, `date_from`, `date_to` (both `YYYY-MM-DD`; anything else is ignored rather than a 400), `active_only`, `limit` (capped at 200), `offset`. Club-scoped.
+- **Cap:** the `impersonation_log` matrix entity, via `MatrixGate::canAnyScope( …, 'impersonation_log', 'read' )` — Academy Admin RCD, Head of Development R. The entity already existed in `MatrixEntityCatalog` gating a surface that had never been built, so this is a read over an existing entity rather than new authorization work. Deliberately **not** the audit-log page's own cap: seeing who opened a minor's record is a narrower question than seeing who edited what.
+- **A deleted account does not erase attribution.** `actor_name` / `target_name` fall back to `Deleted user #<id>`, so a session cannot decay into "someone impersonated someone" once the account is gone. This is an audit trail; that property is the point of it.
+
 ## Saved views — personal filter presets (#2385 / #2448)
 
 Named filter combinations a user re-applies with one click, for any surface that renders the shared `FilterBar`. The domain lives in `SavedViewsRepository` (`src/Infrastructure/Filters/SavedViewsRepository.php`); the REST surface is `SavedViewsRestController` (`src/Infrastructure/REST/SavedViewsRestController.php`), registered from `Kernel` rather than a module, since the surfaces span more than analytics.

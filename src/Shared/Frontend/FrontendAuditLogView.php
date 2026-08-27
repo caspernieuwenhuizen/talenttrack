@@ -40,6 +40,12 @@ class FrontendAuditLogView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-audit-log',
+            TT_PLUGIN_URL . 'assets/css/frontend-audit-log.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Audit log', 'talenttrack' ) );
         self::renderHeader( __( 'Audit log', 'talenttrack' ) );
 
@@ -71,6 +77,20 @@ class FrontendAuditLogView extends FrontendViewBase {
             return;
         }
 
+        // #2861 — the impersonation trail. Gated on its own matrix entity
+        // rather than the page's cap: seeing who opened a minor's record
+        // is a narrower question than seeing the audit log.
+        if ( $tab === 'impersonation' ) {
+            if ( ! self::canReadImpersonation() ) {
+                echo '<p class="tt-notice">'
+                    . esc_html__( 'You do not have permission to read the impersonation log.', 'talenttrack' )
+                    . '</p>';
+                return;
+            }
+            self::renderImpersonationTab();
+            return;
+        }
+
         $filters = self::filtersFromQuery();
         $page    = isset( $_GET['apage'] ) ? max( 1, absint( $_GET['apage'] ) ) : 1;
         $offset  = ( $page - 1 ) * self::PER_PAGE;
@@ -88,25 +108,138 @@ class FrontendAuditLogView extends FrontendViewBase {
         self::renderPagination( $total, $page, $filters );
     }
 
+    /**
+     * The tab strip.
+     *
+     * #2861 — rewritten from three hand-written anchors carrying their
+     * whole appearance in `style` attributes to a loop over a list, with
+     * the appearance in `frontend-audit-log.css`. Adding a third tab the
+     * old way would have meant a third copy of the same eleven
+     * declarations, and the inline-style gate would have been right to
+     * refuse it.
+     */
     private static function renderTabs( string $active ): void {
         $base = self::baseUrl();
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
         $entries_url = $view !== '' ? add_query_arg( 'tt_view', $view, $base ) : $base;
-        $failed_url  = add_query_arg( 'tab', 'failed-logins', $entries_url );
 
-        $entries_active = $active !== 'failed-logins';
-        $failed_active  = $active === 'failed-logins';
+        $tabs = [
+            [
+                'slug'  => '',
+                'url'   => $entries_url,
+                'label' => __( 'All entries', 'talenttrack' ),
+            ],
+            [
+                'slug'  => 'failed-logins',
+                'url'   => add_query_arg( 'tab', 'failed-logins', $entries_url ),
+                'label' => __( 'Failed logins', 'talenttrack' ),
+            ],
+        ];
+
+        // #2861 — the impersonation tab is gated separately: reading who
+        // looked at a minor's file is a narrower permission than reading
+        // the audit log, and it has its own matrix entity.
+        if ( self::canReadImpersonation() ) {
+            $tabs[] = [
+                'slug'  => 'impersonation',
+                'url'   => add_query_arg( 'tab', 'impersonation', $entries_url ),
+                'label' => __( 'Impersonation', 'talenttrack' ),
+            ];
+        }
+
+        echo '<nav class="tt-audit-tabs">';
+        foreach ( $tabs as $tab ) {
+            $is_active = $tab['slug'] === ''
+                ? ! in_array( $active, [ 'failed-logins', 'impersonation' ], true )
+                : $active === $tab['slug'];
+
+            printf(
+                '<a href="%1$s" class="tt-audit-tab%2$s"%3$s>%4$s</a>',
+                esc_url( (string) $tab['url'] ),
+                $is_active ? ' is-active' : '',
+                $is_active ? ' aria-current="page"' : '',
+                esc_html( (string) $tab['label'] )
+            );
+        }
+        echo '</nav>';
+    }
+
+    /**
+     * The impersonation trail (#2861).
+     *
+     * One row per session: who, whom, when, how long, from where, and the
+     * reason they gave. An open session is called out, because "someone is
+     * inside a player's account right now" is a different fact from
+     * "someone was, last Tuesday".
+     */
+    private static function renderImpersonationTab(): void {
+        $page   = isset( $_GET['ipage'] ) ? max( 1, absint( $_GET['ipage'] ) ) : 1;
+        $offset = ( $page - 1 ) * self::PER_PAGE;
+
+        $repo    = new \TT\Modules\Authorization\Impersonation\ImpersonationLogRepository();
+        $filters = [ 'limit' => self::PER_PAGE, 'offset' => $offset ];
+        $rows    = $repo->recent( $filters );
+        $total   = $repo->count( [] );
+
+        if ( empty( $rows ) ) {
+            echo '<p><em>' . esc_html__( 'Nobody has used impersonation yet.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        echo '<p class="tt-audit-summary">' . esc_html( sprintf(
+            /* translators: %d: number of impersonation sessions on record */
+            _n( '%d session on record.', '%d sessions on record.', $total, 'talenttrack' ),
+            $total
+        ) ) . '</p>';
 
         ?>
-        <nav class="tt-audit-tabs" style="display:flex; gap:8px; margin-bottom: var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e0e0e0);">
-            <a href="<?php echo esc_url( $entries_url ); ?>" class="tt-audit-tab<?php echo $entries_active ? ' is-active' : ''; ?>" style="padding: 10px 14px; text-decoration: none; color: <?php echo $entries_active ? 'var(--tt-ink, #1a1a1a)' : 'var(--tt-muted, #6a6d66)'; ?>; border-bottom: 2px solid <?php echo $entries_active ? 'var(--tt-accent, #5b8def)' : 'transparent'; ?>; font-weight: <?php echo $entries_active ? '600' : '400'; ?>; min-height: 48px; display: inline-flex; align-items: center;">
-                <?php esc_html_e( 'All entries', 'talenttrack' ); ?>
-            </a>
-            <a href="<?php echo esc_url( $failed_url ); ?>" class="tt-audit-tab<?php echo $failed_active ? ' is-active' : ''; ?>" style="padding: 10px 14px; text-decoration: none; color: <?php echo $failed_active ? 'var(--tt-ink, #1a1a1a)' : 'var(--tt-muted, #6a6d66)'; ?>; border-bottom: 2px solid <?php echo $failed_active ? 'var(--tt-accent, #5b8def)' : 'transparent'; ?>; font-weight: <?php echo $failed_active ? '600' : '400'; ?>; min-height: 48px; display: inline-flex; align-items: center;">
-                <?php esc_html_e( 'Failed logins', 'talenttrack' ); ?>
-            </a>
-        </nav>
+        <div class="tt-table-wrap">
+        <table class="tt-table tt-audit-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'Started', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Who', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Acted as', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Ended', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Reason given', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'From', 'talenttrack' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $rows as $row ) : ?>
+                <tr<?php echo ! empty( $row['is_active'] ) ? ' class="tt-imp-active"' : ''; ?>>
+                    <td><?php echo esc_html( (string) $row['started_at'] ); ?></td>
+                    <td><?php echo esc_html( (string) $row['actor_name'] ); ?></td>
+                    <td><?php echo esc_html( (string) $row['target_name'] ); ?></td>
+                    <td>
+                        <?php
+                        if ( ! empty( $row['is_active'] ) ) {
+                            echo '<strong>' . esc_html__( 'Still open', 'talenttrack' ) . '</strong>';
+                        } else {
+                            echo esc_html( (string) $row['ended_at'] );
+                            if ( ! empty( $row['end_reason'] ) ) {
+                                echo ' (' . esc_html( (string) $row['end_reason'] ) . ')';
+                            }
+                        }
+                        ?>
+                    </td>
+                    <td><?php echo esc_html( (string) ( $row['reason'] ?? '' ) ); ?></td>
+                    <td><?php echo esc_html( (string) ( $row['actor_ip'] ?? '' ) ); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
         <?php
+    }
+
+    /** Can the current user read the impersonation trail? (#2861) */
+    private static function canReadImpersonation(): bool {
+        return \TT\Modules\Authorization\MatrixGate::canAnyScope(
+            get_current_user_id(),
+            'impersonation_log',
+            'read'
+        );
     }
 
     /**
