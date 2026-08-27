@@ -26,5 +26,21 @@ class ImportModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         \TT\Infrastructure\REST\ImportRestController::init();
+
+        add_action( 'admin_post_tt_import_undo', [ Frontend\ImportUndoHandler::class, 'handle' ] );
+
+        \TT\Shared\Tiles\TileRegistry::register( [
+            'module_class' => self::class,
+            // Literal, not the class constant: check-module-toggles reads
+            // this statically and cannot resolve a computed slug.
+            'view_slug'    => 'import-history',
+            'group'        => __( 'Administration', 'talenttrack' ),
+            'kind'         => 'admin',
+            'order'        => 75,
+            'label'        => __( 'Import history', 'talenttrack' ),
+            'description'  => __( 'What came in from a spreadsheet, and a way to take a whole import back out again.', 'talenttrack' ),
+            'icon'         => 'import',
+            'cap'          => Frontend\FrontendImportHistoryView::CAP,
+        ] );
     }
 }

@@ -1522,6 +1522,12 @@ class DashboardShortcode {
                 // tt_view_data_browser internally.
                 \TT\Shared\Frontend\FrontendDataBrowserView::render( $user_id, $is_admin );
                 return true;
+            case 'import-history':
+                // #2959 — what a spreadsheet import created, and an undo
+                // for the whole batch. Gates on manage_options internally;
+                // the undo re-checks at the handler and REST layer.
+                \TT\Modules\Import\Frontend\FrontendImportHistoryView::render( $user_id, $is_admin );
+                return true;
             case 'recycle-bin':
                 // #2024 — centralized recycle bin. Cross-entity list of
                 // trashed rows with inline restore / purge. Gates on
