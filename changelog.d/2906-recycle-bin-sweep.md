@@ -1,3 +1,5 @@
+# Recycle-bin rows no longer inflate counts and averages (#2906)
+
 Fixed counts and averages that still included records sitting in the recycle
 bin. A player-file tab could show a badge of 3 above a list of 2, a team's
 average squad rating could be pulled by a deleted player's scores, and the

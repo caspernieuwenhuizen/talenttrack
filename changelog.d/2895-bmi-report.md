@@ -1,3 +1,7 @@
+# BMI-for-age report (#2895)
+
+Bump: minor
+
 New report: **Player · BMI-for-age**. It reads the height and weight you already
 record and places them on the WHO 5–19 growth curve, so a figure means something
 at 11 as well as at 16. The latest reading also appears at the top of a player's

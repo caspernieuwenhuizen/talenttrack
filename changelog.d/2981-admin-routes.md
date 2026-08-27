@@ -1,3 +1,5 @@
+# Admin-only screens explain themselves (#2980, #2981)
+
 The twelve screens that live in the WordPress admin on purpose now say so. Each
 one explains, at the top of the page, why it is not in the app — usually because
 it is how you diagnose a problem with the app, or how you get back in when the

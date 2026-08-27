@@ -1,3 +1,5 @@
+# Team dropdowns follow what you may see, not what you coach (#2911)
+
 Fixed team dropdowns that appeared empty for staff who hold a club-wide view but
 coach no team of their own — a head of development could not log an injury, start
 a goal, open team chemistry or a team blueprint, filter evaluations, manage a

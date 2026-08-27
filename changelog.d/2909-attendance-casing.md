@@ -1,3 +1,5 @@
+# Attendance statuses stored consistently (#2909)
+
 Attendance statuses are now stored consistently. Different parts of the app
 wrote "Present" and "present" into the same column, which left some checks
 quietly failing and some screens showing an attendance status without its
