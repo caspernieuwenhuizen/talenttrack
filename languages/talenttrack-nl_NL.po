@@ -56235,6 +56235,10 @@ msgctxt "who scored a goal"
 msgid "Scorer"
 msgstr "Maker"
 
+msgctxt "who created a goal"
+msgid "Assist"
+msgstr "Assist"
+
 #~ msgid ""
 #~ "Changes colours, corners and heading type only — never what anyone can "
 #~ "see or do. Federation is a navy chrome with a gold marker on the active "
