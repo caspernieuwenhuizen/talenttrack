@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T05:03:01+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:16:22+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1213,6 +1213,7 @@ msgstr "Aanvullende informatie"
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:26
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:19
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:17
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:87
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:20
 msgid "Insufficient permissions."
 msgstr "Onvoldoende rechten."
@@ -3742,7 +3743,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:131
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:628
@@ -4923,7 +4924,7 @@ msgstr "Bron"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
 #: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:174
 #: src/Modules/Methodology/Admin/MethodologyPage.php:358
@@ -5235,7 +5236,7 @@ msgstr "Bijwerken"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:377
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
 #: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:954
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
@@ -10864,7 +10865,7 @@ msgstr "Rol intrekken?"
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:89
 #: src/Modules/Authorization/Admin/RolesPage.php:220
 #: src/Modules/Authorization/Admin/RolesPage.php:222
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:183
 #: src/Modules/Invitations/Frontend/InviteButton.php:140
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:117
 #: src/Shared/Frontend/FrontendMySessionsView.php:148
@@ -11764,7 +11765,7 @@ msgstr "Bestandsnaam"
 #: src/Modules/DemoData/Admin/DemoDataPage.php:825
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:129
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:157
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
@@ -16200,7 +16201,7 @@ msgstr ""
 "Nog geen geschiedenis. Snapshots verschijnen hier automatisch bij elke save."
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:777
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:91
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
@@ -18141,8 +18142,9 @@ msgstr "Aanmaken van demogebruiker %1$s mislukt: %2$s"
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:18
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:16
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:85
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:19
-#: src/Modules/Invitations/InvitationService.php:65
+#: src/Modules/Invitations/InvitationService.php:66
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:195
 msgid "Not logged in."
 msgstr "Niet ingelogd."
@@ -18152,6 +18154,7 @@ msgstr "Niet ingelogd."
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:24
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:22
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:29
 msgid "Bad request."
 msgstr "Ongeldig verzoek."
 
@@ -21626,37 +21629,66 @@ msgstr "Berichten"
 msgid "Filter:"
 msgstr "Filter:"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:84
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#, php-format
+msgid ""
+"%d invitation is waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgid_plural ""
+"%d invitations are waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgstr[0] ""
+"%d uitnodiging wacht om verstuurd te worden. Niemand heeft zijn "
+"inloggegevens al ontvangen."
+msgstr[1] ""
+"%d uitnodigingen wachten om verstuurd te worden. Niemand heeft zijn "
+"inloggegevens al ontvangen."
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
+msgid "Send all invitations"
+msgstr "Alle uitnodigingen versturen"
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:119
 msgid "No invitations match the filter."
 msgstr "Geen uitnodigingen voldoen aan het filter."
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:92
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:127
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:457
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:498
 msgid "Target"
 msgstr "Doel"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:93
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:128
 msgid "Inviter"
 msgstr "Uitnodiger"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:95
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:130
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:96
 msgid "Expires"
 msgstr "Vervalt"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:120
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:155
+msgid "not sent yet"
+msgstr "nog niet verstuurd"
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:167
+#: src/Modules/License/Admin/AccountPage.php:817
+msgid "Send now"
+msgstr "Nu verzenden"
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:177
 msgid "Revoke this invitation?"
 msgstr "Deze uitnodiging intrekken?"
 
 #. translators: 1: accepted date, 2: user name
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:134
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:191
 #, php-format
 msgid "%1$s by %2$s"
 msgstr "%1$s door %2$s"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:153
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:210
 msgid ""
 "Six message templates — three role variants × two locales. Placeholders: "
 "{club} {role} {team} {player} {sender} {url} {ttl_days}. The {url} "
@@ -21665,6 +21697,38 @@ msgstr ""
 "Zes berichtsjablonen — drie rolvarianten × twee locales. Placeholders: "
 "{club} {role} {team} {player} {sender} {url} {ttl_days}. De placeholder "
 "{url} is verplicht zodat de ontvanger de uitnodiging kan openen."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:32
+msgid "Invitation sent."
+msgstr "Uitnodiging verstuurd."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:36
+msgid ""
+"Could not send this invitation. It may already have been sent, accepted, "
+"expired or revoked."
+msgstr ""
+"Deze uitnodiging kon niet worden verstuurd. Mogelijk is hij al verstuurd, "
+"geaccepteerd, verlopen of ingetrokken."
+
+#. translators: %d: number of invitations sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
+#, php-format
+msgid "%d invitation sent."
+msgid_plural "%d invitations sent."
+msgstr[0] "%d uitnodiging verstuurd."
+msgstr[1] "%d uitnodigingen verstuurd."
+
+#. translators: %d: number of invitations that could not be sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:66
+#, php-format
+msgid "%d invitation could not be sent and was left alone."
+msgid_plural "%d invitations could not be sent and were left alone."
+msgstr[0] "%d uitnodiging kon niet worden verstuurd en is overgeslagen."
+msgstr[1] "%d uitnodigingen konden niet worden verstuurd en zijn overgeslagen."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:78
+msgid "There was nothing waiting to be sent."
+msgstr "Er stond niets klaar om te versturen."
 
 #: src/Modules/Invitations/Frontend/InviteButton.php:66
 msgid "Share invite"
@@ -21756,17 +21820,17 @@ msgstr ""
 msgid "Invitation message saved."
 msgstr "Uitnodigingsbericht opgeslagen."
 
-#: src/Modules/Invitations/InvitationService.php:60
+#: src/Modules/Invitations/InvitationService.php:61
 msgid "Invalid invitation kind."
 msgstr "Ongeldig type uitnodiging."
 
-#: src/Modules/Invitations/InvitationService.php:69
-#: src/Modules/Invitations/InvitationService.php:165
+#: src/Modules/Invitations/InvitationService.php:70
+#: src/Modules/Invitations/InvitationService.php:225
 msgid "New user registration is currently disabled."
 msgstr "Nieuwe gebruikersregistratie is momenteel uitgeschakeld."
 
 #. translators: 1: cap, 2: actual count
-#: src/Modules/Invitations/InvitationService.php:84
+#: src/Modules/Invitations/InvitationService.php:85
 #, php-format
 msgid ""
 "Daily invitation cap reached (%1$d). Already created %2$d in the last 24 "
@@ -21775,28 +21839,28 @@ msgstr ""
 "Dagelijkse uitnodigingslimiet bereikt (%1$d). Al %2$d aangemaakt in de "
 "afgelopen 24 uur."
 
-#: src/Modules/Invitations/InvitationService.php:130
+#: src/Modules/Invitations/InvitationService.php:139
 msgid "The invitation could not be saved."
 msgstr "De uitnodiging kon niet worden opgeslagen."
 
-#: src/Modules/Invitations/InvitationService.php:168
-#: src/Modules/Invitations/InvitationService.php:225
+#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:285
 msgid "This invitation is no longer pending."
 msgstr "Deze uitnodiging is niet meer in afwachting."
 
-#: src/Modules/Invitations/InvitationService.php:172
+#: src/Modules/Invitations/InvitationService.php:232
 msgid "This invitation has expired."
 msgstr "Deze uitnodiging is verlopen."
 
-#: src/Modules/Invitations/InvitationService.php:177
+#: src/Modules/Invitations/InvitationService.php:237
 msgid "Please provide a valid recovery email."
 msgstr "Geef een geldig recovery-e-mailadres op."
 
-#: src/Modules/Invitations/InvitationService.php:181
+#: src/Modules/Invitations/InvitationService.php:241
 msgid "Password must be at least 8 characters."
 msgstr "Het wachtwoord moet minstens 8 tekens lang zijn."
 
-#: src/Modules/Invitations/InvitationService.php:185
+#: src/Modules/Invitations/InvitationService.php:245
 msgid ""
 "An account with that email already exists. Sign in instead and the "
 "invitation will link silently."
@@ -21804,11 +21868,11 @@ msgstr ""
 "Er bestaat al een account met dat e-mailadres. Log in en de uitnodiging "
 "wordt stilzwijgend gekoppeld."
 
-#: src/Modules/Invitations/InvitationService.php:208
+#: src/Modules/Invitations/InvitationService.php:268
 msgid "This invitation was just accepted by someone else."
 msgstr "Deze uitnodiging is zojuist door iemand anders geaccepteerd."
 
-#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:288
 msgid "Already accepted."
 msgstr "Al geaccepteerd."
 
@@ -24103,10 +24167,6 @@ msgstr "Phone-home mislukt."
 #: src/Modules/License/Admin/AccountPage.php:808
 msgid "Body size"
 msgstr "Body-grootte"
-
-#: src/Modules/License/Admin/AccountPage.php:817
-msgid "Send now"
-msgstr "Nu verzenden"
 
 #: src/Modules/License/Admin/AccountPage.php:822
 msgid ""
@@ -55290,62 +55350,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:154
-msgid "not sent yet"
-msgstr "nog niet verstuurd"
-
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
-msgid "Send all invitations"
-msgstr "Alle uitnodigingen versturen"
-
-#. translators: %d: number of invitations waiting to be sent
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
-#, php-format
-msgid ""
-"%d invitation is waiting to be sent. Nobody has received their sign-in "
-"details yet."
-msgid_plural ""
-"%d invitations are waiting to be sent. Nobody has received their sign-in "
-"details yet."
-msgstr[0] ""
-"%d uitnodiging wacht om verstuurd te worden. Niemand heeft zijn "
-"inloggegevens al ontvangen."
-msgstr[1] ""
-"%d uitnodigingen wachten om verstuurd te worden. Niemand heeft zijn "
-"inloggegevens al ontvangen."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:33
-msgid "Invitation sent."
-msgstr "Uitnodiging verstuurd."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:37
-msgid ""
-"Could not send this invitation. It may already have been sent, accepted, "
-"expired or revoked."
-msgstr ""
-"Deze uitnodiging kon niet worden verstuurd. Mogelijk is hij al verstuurd, "
-"geaccepteerd, verlopen of ingetrokken."
-
-#. translators: %d: number of invitations sent
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
-#, php-format
-msgid "%d invitation sent."
-msgid_plural "%d invitations sent."
-msgstr[0] "%d uitnodiging verstuurd."
-msgstr[1] "%d uitnodigingen verstuurd."
-
-#. translators: %d: number of invitations that could not be sent
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:68
-#, php-format
-msgid "%d invitation could not be sent and was left alone."
-msgid_plural "%d invitations could not be sent and were left alone."
-msgstr[0] "%d uitnodiging kon niet worden verstuurd en is overgeslagen."
-msgstr[1] "%d uitnodigingen konden niet worden verstuurd en zijn overgeslagen."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:79
-msgid "There was nothing waiting to be sent."
-msgstr "Er stond niets klaar om te versturen."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
