@@ -55347,6 +55347,100 @@ msgstr[1] "%d uitnodigingen konden niet worden verstuurd en zijn overgeslagen."
 msgid "There was nothing waiting to be sent."
 msgstr "Er stond niets klaar om te versturen."
 
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:172
+msgid "Import your squad"
+msgstr "Je selectie importeren"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:174
+msgid ""
+"If you already keep your teams, players and staff in a spreadsheet, bring "
+"them in now rather than typing them again. Download the template, fill it "
+"in, and upload it."
+msgstr ""
+"Houd je je teams, spelers en staf al in een spreadsheet bij, haal ze dan nu "
+"binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in "
+"en upload het."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:177
+msgid "Nothing is saved until you confirm."
+msgstr "Er wordt niets opgeslagen tot je bevestigt."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:178
+msgid "Uploading shows you what the file contains, and anything that needs fixing, first."
+msgstr ""
+"Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog "
+"niet klopt."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:190
+msgid "This workbook cannot be imported yet. Nothing was saved."
+msgstr "Dit bestand kan nog niet worden geïmporteerd. Er is niets opgeslagen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:211
+msgid "Download the template"
+msgstr "Download het sjabloon"
+
+#. translators: 1: upload_max_filesize, 2: post_max_size
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:227
+#, php-format
+msgid ""
+"Server limits on this install: upload_max_filesize = %1$s, post_max_size = "
+"%2$s. A workbook larger than the smaller of those is rejected before "
+"TalentTrack sees it."
+msgstr ""
+"Serverlimieten op deze installatie: upload_max_filesize = %1$s, post_max_size "
+"= %2$s. Een bestand dat groter is dan de kleinste van die twee wordt "
+"geweigerd voordat TalentTrack het ziet."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:233
+msgid "Check this file"
+msgstr "Dit bestand controleren"
+
+#. translators: %s: the uploaded file name
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:241
+#, php-format
+msgid "%s is ready to import."
+msgstr "%s is klaar om te importeren."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:254
+msgid "Upload the file again to confirm and save these records."
+msgstr "Upload het bestand opnieuw om te bevestigen en deze records op te slaan."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:261
+msgid "Import these records"
+msgstr "Deze records importeren"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:267
+msgid "Skip — I do not have a spreadsheet"
+msgstr "Overslaan — ik heb geen spreadsheet"
+
+#. translators: %d: number of teams brought in by the import
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:292
+#, php-format
+msgid "Your import brought in %d team. Add another now if you want, or continue."
+msgid_plural "Your import brought in %d teams. Add another now if you want, or continue."
+msgstr[0] ""
+"Je import heeft %d team binnengehaald. Voeg er nu nog een toe als je wilt, "
+"of ga verder."
+msgstr[1] ""
+"Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, "
+"of ga verder."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:562
+msgid "Your squad has been imported."
+msgstr "Je selectie is geïmporteerd."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:80
+msgid "Choose a workbook to upload first."
+msgstr "Kies eerst een bestand om te uploaden."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:151
+msgid ""
+"The spreadsheet library is not installed on this server, so the template "
+"cannot be generated."
+msgstr ""
+"De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het "
+"sjabloon kan niet worden gegenereerd."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 
