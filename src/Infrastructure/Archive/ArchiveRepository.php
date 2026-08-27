@@ -808,6 +808,20 @@ class ArchiveRepository {
      * Count active dependents of an entity — used for warnings before
      * archiving a team ("18 active players depend on this team").
      *
+     * The `archived_at IS NULL` guards below are raw ON PURPOSE (#2906) and
+     * must not be routed through {@see filterClause()}.
+     *
+     * Everywhere else in the codebase a bare `archived_at IS NULL` is a bug:
+     * it counts rows the recycle bin hides, so a KPI reads high and the list
+     * a coach opens to explain it comes back empty (#2865). These four are the
+     * exception, because they answer a different question. They run while
+     * deciding what archiving this record would take with it — and a trashed
+     * child is still a row the cascade reaches. Filtering them out would make
+     * the confirm dialog under-report what the operation destroys, which is
+     * the one number here that must never be too small.
+     *
+     * So: visible-row counts use filterClause; consequence counts do not.
+     *
      * @return array<string,int>  entity => count of active dependents
      */
     public function activeDependentsFor( string $entity, int $id ): array {

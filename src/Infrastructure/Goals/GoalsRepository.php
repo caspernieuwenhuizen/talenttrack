@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Goals;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -75,7 +76,7 @@ class GoalsRepository {
                    AND gl.link_type = 'principle'
                    AND gl.club_id = g.club_id
                  WHERE g.player_id IN ({$ph})
-                   AND g.archived_at IS NULL
+                   AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                    AND ( g.club_id = %d OR g.club_id IS NULL )
                    AND ( g.status IS NULL OR g.status NOT IN ({$sph}) )
                 HAVING principle_id IS NOT NULL";
@@ -116,7 +117,7 @@ class GoalsRepository {
             "SELECT g.*
                FROM {$p}tt_goals g
               WHERE g.player_id = %d
-                AND g.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
               ORDER BY g.created_at DESC",
             $player_id,
@@ -151,7 +152,7 @@ class GoalsRepository {
             "SELECT g.*
                FROM {$p}tt_goals g
               WHERE g.player_id = %d
-                AND g.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
                 AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
               ORDER BY ( g.due_date IS NULL ), g.due_date ASC, g.id DESC
@@ -186,7 +187,7 @@ class GoalsRepository {
                FROM {$p}tt_goals g
               WHERE g.id = %d
                 AND g.player_id = %d
-                AND g.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
               LIMIT 1",
             $goal_id,
@@ -218,7 +219,7 @@ class GoalsRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT g.*
                FROM {$p}tt_goals g
-              WHERE g.player_id = %d AND g.archived_at IS NULL
+              WHERE g.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
               ORDER BY g.due_date IS NULL, g.due_date ASC, g.created_at DESC
               LIMIT %d",
@@ -243,7 +244,7 @@ class GoalsRepository {
 
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )
                 AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
             $player_id, CurrentClub::id()
@@ -263,7 +264,7 @@ class GoalsRepository {
 
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )
                 AND due_date IS NOT NULL
                 AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL %d DAY)
@@ -284,7 +285,7 @@ class GoalsRepository {
 
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )
                 AND status = 'completed'",
             $player_id, CurrentClub::id()
@@ -306,7 +307,7 @@ class GoalsRepository {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT g.*
                FROM {$p}tt_goals g
-              WHERE g.player_id = %d AND g.archived_at IS NULL
+              WHERE g.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
                 AND g.due_date IS NOT NULL
                 AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )

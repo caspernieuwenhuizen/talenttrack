@@ -4,6 +4,7 @@ namespace TT\Infrastructure\PlayerStatus;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
@@ -181,7 +182,7 @@ final class PlayerStatusCalculator {
                JOIN {$wpdb->prefix}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
               WHERE e.player_id = %d
                 AND e.club_id = %d
-                AND e.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND e.eval_date >= %s
                 AND e.eval_date <= %s",
             $player_id, CurrentClub::id(), $from, $to
