@@ -22,7 +22,6 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   POST   /<activity_id>/end-half       {half}
  *   POST   /<activity_id>/pause          {half}
  *   POST   /<activity_id>/resume         {half, pause_seconds}
- *   POST   /<activity_id>/score          {home, away}
  *   POST   /<activity_id>/substitution   {event_uuid, half, minute, player_off, player_on}
  *   POST   /<activity_id>/goal-event     {event_uuid, player_id, half, minute,
  *                                        team, assist_player_id, is_own_goal}
@@ -57,7 +56,7 @@ class MatchExecutionRestController {
         // still edit goals / subs / score post-match.
         // #2271 — `reopen` transitions a FINALIZED execution back to
         // PENDING_REVIEW so any datapoint can be corrected post-finalize.
-        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'score', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
+        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
             register_rest_route( self::NS, $base . '/' . $action, [
                 [
                     'methods'             => 'POST',
@@ -471,27 +470,13 @@ class MatchExecutionRestController {
         return RestResponse::success( [ 'execution_id' => $exec_id ] );
     }
 
-    public static function route_score( \WP_REST_Request $r ): \WP_REST_Response {
-        [ $exec_id, $err ] = self::ensureExecution( $r );
-        if ( $err ) return $err;
-        $finalized_err = self::assertEditable( $exec_id );
-        if ( $finalized_err ) return $finalized_err;
-        $body = $r->get_json_params();
-        $home = max( 0, min( 99, (int) ( $body['home'] ?? 0 ) ) );
-        $away = max( 0, min( 99, (int) ( $body['away'] ?? 0 ) ) );
-        $repo = new MatchExecutionRepository();
-        $repo->update( $exec_id, [
-            'home_score' => $home,
-            'away_score' => $away,
-        ] );
-        // #1048 — score edits in PENDING_REVIEW don't affect minutes
-        // arithmetic but DO need the attendance row's `minutes_played`
-        // to stay current for downstream reports. Skipping recompute
-        // here (a score change touches nothing in computeMinutes); the
-        // sub / goal endpoints below DO recompute since they change
-        // either the sub log or the implied roster shape.
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'home' => $home, 'away' => $away ] );
-    }
+    // #2857 — `POST /score` is gone. It wrote a scoreline directly onto the
+    // execution row, which is the write this epic exists to remove: a number
+    // with no event behind it, drifting away from the goal log beside it. The
+    // score is now derived from the goal events (syncScoresFromGoals), so
+    // there is nothing left for the endpoint to do that would not be a way to
+    // reintroduce the drift. The stepper that called it is replaced by the
+    // goal sheet; nothing else in the plugin ever called it.
 
     // -----------------------------------------------------------------
     // Event logs
@@ -590,8 +575,8 @@ class MatchExecutionRestController {
 
         $repo = new MatchExecutionRepository();
         $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute, $team, $assist_id > 0 ? $assist_id : null, $is_own_goal );
-        // #2275 — the opponent's timed goals now drive the away scoreline.
-        if ( $team === 'away' ) $repo->syncAwayScoreFromGoals( $exec_id );
+        // #2857 — the goal log is the scoreline, on both sides.
+        $repo->syncScoresFromGoals( $exec_id );
         // #1048 — goal events don't affect minutes_played directly
         // (computeMinutes ignores goal_events), but they do affect
         // any downstream summary that mirrors the goal log. Recompute
@@ -682,6 +667,11 @@ class MatchExecutionRestController {
             $out['minute'] = $minute;
         }
 
+        // #2857 — a correction cannot change which team a goal counts for, so
+        // this is a no-op today. It is here so every goal-event write path
+        // ends the same way: if a later slice ever lets a goal switch sides,
+        // it will not also have to remember to re-derive the score.
+        $repo->syncScoresFromGoals( $exec_id );
         self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( $out );
     }
@@ -754,8 +744,9 @@ class MatchExecutionRestController {
         $event_uuid = (string) $r['event_uuid'];
         $repo = new MatchExecutionRepository();
         $repo->reverseGoalEvent( $event_uuid );
-        // #2275 — keep the away scoreline in step if an opponent goal was removed.
-        $repo->syncAwayScoreFromGoals( $exec_id );
+        // #2857 — undoing a goal is how a goal is removed, so the scoreline
+        // has to follow it down.
+        $repo->syncScoresFromGoals( $exec_id );
         self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
