@@ -217,7 +217,11 @@ final class ReportsRestController extends BaseController {
         $team_id       = (int) $req->get_param( 'team_id' );
         $type_key      = (string) $req->get_param( 'activity_type_key' );
         $allowed       = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] ) return RestResponse::success( [ 'players' => [], 'threshold' => AttendanceFlagService::threshold() ] );
+        // #2893 — a permission block is not an empty result. Returning
+        // success([]) made the client print "No player attendance in this
+        // window", which asserts something false about the data; the
+        // caller cannot tell the two apart from a 200 with an empty array.
+        if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $players = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( [
@@ -234,7 +238,7 @@ final class ReportsRestController extends BaseController {
         $n               = (int) $req->get_param( 'n' );
         $type_key        = (string) $req->get_param( 'activity_type_key' );
         $allowed         = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] ) return RestResponse::success( [ 'top' => [], 'bottom' => [], 'total' => 0 ] );
+        if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( $board );
@@ -245,7 +249,7 @@ final class ReportsRestController extends BaseController {
         $team_id         = (int) $req->get_param( 'team_id' );
         $type_key        = (string) $req->get_param( 'activity_type_key' );
         $allowed         = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] ) return RestResponse::success( [ 'players' => [], 'threshold' => AttendanceFlagService::threshold() ] );
+        if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $players = ( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( [
@@ -268,6 +272,21 @@ final class ReportsRestController extends BaseController {
     }
 
     /**
+     * The one refusal the three attendance readers share (#2893).
+     *
+     * A distinct code so the client can say "you cannot see this team's
+     * players" rather than "this team has no attendance" — the second is
+     * a claim about the data, and it was the wrong one.
+     */
+    private static function attendanceForbidden(): \WP_REST_Response {
+        return RestResponse::error(
+            'forbidden_team',
+            __( 'You do not have access to this team’s players.', 'talenttrack' ),
+            403
+        );
+    }
+
+    /**
      * Mirror the analytics views' team-scope rule: academy-wide roles
      * (global-scope read on `activities`, via `AllTeamsScope` — #1942)
      * read the whole club; everyone else is narrowed to the teams they
@@ -277,7 +296,14 @@ final class ReportsRestController extends BaseController {
      * @return array{team_ids:list<int>|null, blocked:bool}
      */
     private static function attendanceScope( int $team_id ): array {
-        $is_scope_admin = \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( get_current_user_id() );
+        // #2893 — the `tt_edit_settings` fallback is what the render side
+        // and `MinutesRestController::…` both use; this controller was the
+        // outlier. Without it a user holding `tt_edit_settings` but no
+        // persona carrying global read on `activities` saw every team in
+        // the rendered table and was blocked on every drill-down — the
+        // table and its own expansion contradicting each other.
+        $is_scope_admin = current_user_can( 'tt_edit_settings' )
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( get_current_user_id() );
         if ( $is_scope_admin ) {
             return [ 'team_ids' => null, 'blocked' => false ];
         }

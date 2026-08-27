@@ -55716,6 +55716,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Infrastructure/REST/ReportsRestController.php:283
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
+msgid "You do not have access to this team’s players."
+msgstr "Je hebt geen toegang tot de spelers van dit team."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 
