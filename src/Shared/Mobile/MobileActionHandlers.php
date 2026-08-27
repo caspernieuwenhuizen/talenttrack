@@ -71,7 +71,7 @@ final class MobileActionHandlers {
         }
 
         $user = wp_get_current_user();
-        $to   = (string) ( $user->user_email ?? '' );
+        $to   = (string) ( \TT\Infrastructure\Identity\ContactResolver::emailForUser( (int) $user->ID ) ?? '' );
         if ( $to === '' || ! is_email( $to ) ) {
             self::redirectBack( $safe_url, 'mobile_link_failed' );
         }

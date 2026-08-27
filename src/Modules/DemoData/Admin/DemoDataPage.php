@@ -1146,7 +1146,7 @@ class DemoDataPage {
         }
         check_admin_referer( 'tt_demo_excel_template' );
 
-        $ok = \TT\Modules\DemoData\Excel\TemplateBuilder::streamDownload();
+        $ok = \TT\Modules\Import\Excel\TemplateBuilder::streamDownload();
         if ( ! $ok ) {
             self::bounce(
                 admin_url( 'tools.php?page=' . self::SLUG ),
@@ -1205,7 +1205,10 @@ class DemoDataPage {
         if ( function_exists( 'set_time_limit' ) ) @set_time_limit( 0 );
 
         try {
-            $importer = new \TT\Modules\DemoData\Excel\ExcelImporter();
+            $importer = new \TT\Modules\Import\Excel\ExcelImporter(
+                static fn( string $id ): \TT\Modules\Import\ImportTagSink
+                    => new \TT\Modules\DemoData\DemoBatchRegistry( $id )
+            );
             $result   = $importer->importFile( $tmp_path, $original_name );
         } catch ( \Throwable $e ) {
             \TT\Infrastructure\Logging\Logger::error( 'demo.excel.import.fatal', [

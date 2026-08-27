@@ -1,7 +1,7 @@
 ---
 title: Licentie & account
 group: configuration
-summary: Tier, trial-status, gebruikslimieten, upgrade-flow.
+summary: Tier, gebruikslimieten en hoe een pakket op een installatie wordt vastgelegd.
 audience: [admin]
 module: TT\Modules\License\LicenseModule
 order: 100
@@ -9,53 +9,75 @@ order: 100
 
 # Licentie en account
 
-TalentTrack draait op drie tiers — **Free**, **Standard** (€399/jr) en **Pro** (€699/jr). De license- en accountmodule die in v3.17.0 is gereleased legt de basis; de daadwerkelijke facturatie start zodra de Freemius-gegevens in een release zitten.
+TalentTrack kent drie tiers — **Free**, **Standard** en **Pro**. Op welke een installatie zit, wordt bepaald bij het inrichten ervan, niet in de plugin zelf: er is hier geen afrekenscherm, geen licentiesleutel om te plakken, en niets wat een clubbeheerder kan omzetten om meer te krijgen dan waar de club recht op heeft.
 
-## Wat zit er in v3.17.0
+## Hoe een installatie haar tier kent
 
-- Een **`Configuratie → Account`**-pagina in wp-admin (of `TalentTrack → Account` direct onder het dashboard) die de huidige tier, trial-/overgangsstatus en gebruik versus de Free-tier-limieten toont.
-- De state machine **30-daagse Standard-trial → 14 dagen alleen-lezen → Free**. Eén klik op de Accountpagina start de trial.
-- **Free-tier-limieten**: 1 team / 25 spelers / onbeperkt evaluaties. Bij het bereiken van de team- of spelerlimiet verschijnt een upgrade-melding in plaats van opslaan.
-- **Drie kerngate's** ingebouwd:
- - Spelersvergelijking
- - Rate cards (volledige analyses)
- - CSV-bulkimport
-- **Ontwikkelaarsoverride** voor demo-opnames en lokale tests — zie hieronder.
-- De Freemius-SDK-adapter is **standaard slapend** en activeert pas wanneer `TT_FREEMIUS_PRODUCT_ID` en `TT_FREEMIUS_PUBLIC_KEY` zijn gedefinieerd in `wp-config.php`. Tot die tijd draait elke installatie Free (of trial / dev-override indien actief).
+Je TalentTrack-operator legt het pakket vast bij het inrichten. De installatie bewaart daar een lokale kopie van, zodat alles gewoon blijft werken als de systemen van de operator even niet bereikbaar zijn — een pakket verdampt niet omdat er een middag een server plat lag.
 
-## Tiers (voorlopig)
+Volgorde waarin de tier wordt bepaald, de eerste treffer wint:
+
+1. **Ontwikkelaars-override** — alleen op installaties waar de eigenaar `TT_DEV_OVERRIDE_SECRET` heeft ingesteld. Zie onderaan.
+2. **Het vastgelegde pakket.**
+3. **Free** — als er geen pakket is vastgelegd, of het vastgelegde pakket zo lang niet is ververst dat het niet meer wordt vertrouwd.
+
+Staat er op de Accountpagina dat er geen pakket is vastgelegd en klopt dat niet? Neem contact op met je operator. Aan hun kant is het één regel werk en aan je gegevens verandert niets.
+
+## Van pakket wisselen
+
+Vraag het je operator. Je installatie gaat ter plekke naar de nieuwe tier: dezelfde site, dezelfde URL, dezelfde gegevens, met meer ruimte en meer functies. Er wordt niets gemigreerd, geëxporteerd, opnieuw ingelezen of opgebouwd, en er is geen downtime.
+
+Andersom werkt hetzelfde, met één ding om te weten: teruggaan naar een tier waarvan je de limieten al overschrijdt verwijdert niets. Bestaande teams en spelers blijven leesbaar; je kunt er alleen niets bij zetten tot je weer onder de limiet zit.
+
+## Tiers
 
 | Functie | Free | Standard | Pro |
 | - | - | - | - |
-| Basis: spelers / teams / sessies / doelen / basisevaluaties | ✓ | ✓ | ✓ |
-| Lokale + e-mail-back-ups | ✓ | ✓ | ✓ |
-| Tot 1 team en 25 spelers | ✓ | onbeperkt | onbeperkt |
-| Radar charts, spelersvergelijking, rate cards (volledig) | — | ✓ | ✓ |
+| Basis spelers / teams / activiteiten / doelen / eenvoudige evaluaties | ✓ | ✓ | ✓ |
+| Back-up naar lokaal + e-mail | ✓ | ✓ | ✓ |
+| Maximaal 1 team en 25 spelers | ✓ | onbeperkt | onbeperkt |
+| Radardiagrammen, spelersvergelijking, tariefkaarten (volledig) | — | ✓ | ✓ |
 | CSV-bulkimport | — | ✓ | ✓ |
 | Functionele rollen | — | ✓ | ✓ |
-| Gedeeltelijk terugzetten + 14-daagse undo | — | ✓ | ✓ |
-| Multi-academie / federatie | — | — | ✓ |
-| Foto-naar-sessie AI (#0016 wanneer geleverd) | — | — | ✓ |
+| Gedeeltelijk terugzetten van back-ups + 14 dagen ongedaan maken | — | ✓ | ✓ |
+| Geplande rapportages | — | ✓ | ✓ |
+| Meerdere academies / federatie | — | — | ✓ |
 | Proefspelersmodule | — | — | ✓ |
-| Scout-toegang (#0014 Sprint 5) | — | — | ✓ |
-| S3 / Dropbox / GDrive-back-upbestemmingen | — | — | ✓ |
+| Scouttoegang | — | — | ✓ |
+| Teamchemie + blauwdrukken | — | — | ✓ |
+| Back-up naar S3 / Dropbox / GDrive | — | — | ✓ |
 
-De matrix is **bewerkbaar via het Freemius-dashboard tijdens runtime** — de PHP-standaarden zijn een terugvaloptie; wat Casper in Freemius' plan-features instelt overschrijft ze op elke installatie zodra de SDK synct.
+> **Deze tabel loopt achter op het product.** Ze beschrijft de indeling zoals die in v3.17.0 is getrokken. Het meeste wat TalentTrack sindsdien heeft gekregen — wedstrijdanalyse, de mediabibliotheek, trainingsplannen, signalen, cursussen, toernooien, het analyseplatform en meer — heeft geen tier en gedraagt zich daardoor als Free. Het opnieuw trekken van die indeling is bekend en staat gepland; behandel de tabel tot die tijd als historisch, niet als leidend.
 
-## Trial-flow
+## Free-tier-limieten
 
-1. Een Free-gebruiker klikt op de Accountpagina op **Start 30-daagse Standard-trial**.
-2. Standard-tier-functies worden 30 dagen ontgrendeld; resterende dagen staan op de Accountpagina.
-3. Op dag 30 gaat de installatie in **alleen-lezen overgangstermijn**: bestaande gegevens blijven toegankelijk, gegate functies zijn verborgen, banner toont "Trial beëindigd — upgrade om nieuwe evaluaties te blijven toevoegen."
-4. Op dag 44 valt de installatie hard terug naar Free. Gegevens blijven behouden.
+**1 team, 25 spelers, onbeperkt evaluaties.** Bij het bereiken van de team- of spelerlimiet verschijnt een upgrade-melding in plaats van opslaan. Limieten gelden alleen op Free; Standard en Pro kennen ze niet.
 
-Een trial kan slechts één keer worden gestart. Resetten kan alleen via de ontwikkelaarsoverride.
+De limieten worden afgedwongen in de schermen, in de wizards én op de REST-API, dus ze zijn niet te omzeilen via de importroute of een directe API-aanroep.
 
-## Ontwikkelaarstier-override (alleen voor de eigenaar)
+## Accountpagina
 
-Voor demo's en lokale tests zonder zelf te betalen.
+Klik je op **TalentTrack** in de wp-admin-zijbalk, dan land je op de Accountpagina. Die heeft drie tabbladen:
 
-**Eenmalige setup op je demo- / dev-installatie**:
+| Tabblad | Recht | Wat je er vindt |
+| - | - | - |
+| **Account** | `tt_edit_settings` (alleen operators) | Huidige tier, gebruik versus limieten, wat de volgende tier toevoegt, phone-home-diagnostiek |
+| **Pakket & beperkingen** | `read` (iedereen die is ingelogd) | Huidig pakket, limiettabel met waarschuwingen, en de volledige Free/Standard/Pro-matrix met jouw effectieve tier gemarkeerd |
+| **MFA** | `read` (iedereen die is ingelogd) | Je eigen tweestapsverificatie en herstelcodes |
+
+Het tabblad Pakket staat bewust open voor iedereen: een trainer die een functie niet kan vinden, moet zelf kunnen zien of die ontbreekt of alleen op slot zit.
+
+## Niet-commerciële testinstallaties
+
+`TT_COMMERCIAL_MODE` in `talenttrack.php` bepaalt of hier iets van wordt afgedwongen.
+
+Staat de constante op `false` — de standaard, en het geval op elke ontwikkel- en demo-installatie — dan is het een **niet-commerciële testinstallatie**: alles is ontgrendeld, limieten gelden niet, en de Accountpagina toont één uitleg in plaats van de pakket-UI. Staat ze op `true`, dan geldt de volgorde hierboven.
+
+## Ontwikkelaars-override (alleen eigenaar)
+
+Voor demo's en lokaal testen zonder een echt pakket in te richten.
+
+**Eenmalig instellen op je demo-/ontwikkelinstallatie:**
 
 1. Genereer een bcrypt-hash van een wachtwoord dat je onthoudt. In een PHP-shell:
    ```php
@@ -63,40 +85,11 @@ Voor demo's en lokale tests zonder zelf te betalen.
    ```
 2. Voeg toe aan `wp-config.php`:
    ```php
-   define( 'TT_DEV_OVERRIDE_SECRET', '$2y$10$....je-hash-hier....' );
+   define( 'TT_DEV_OVERRIDE_SECRET', '$2y$10$....jouw-hash-hier....' );
    ```
-3. Bezoek `wp-admin/admin.php?page=tt-dev-license` (geen menu-link — typ de URL).
-4. Vul je wachtwoord in, kies een tier, klik op Activeren.
+3. Ga naar `wp-admin/admin.php?page=tt-dev-license` (geen menulink — typ de URL).
+4. Voer je wachtwoord in, kies een tier, klik op Activeren.
 
-De override wordt opgeslagen als een 24-uurstransient. Een "🔓 DEV: Pro"-pill verschijnt in de wp-admin-bovenbalk zodat je niet vergeet dat hij aan staat. Bezoek de URL opnieuw om hem eerder te wissen.
+De override wordt 24 uur bewaard als transient. In de bovenbalk van wp-admin verschijnt een "🔓 DEV: Pro"-label zodat je niet vergeet dat hij aanstaat. Ga opnieuw naar de URL om hem eerder te wissen.
 
-**Klantinstallaties zien deze code nooit** — zonder de constante is de adminpagina een 404 en negeert `LicenseGate::tier()` de override.
-
-## Accountpagina
-
-Klikken op **TalentTrack** in de linker wp-admin-balk leidt nu rechtstreeks naar de Accountpagina. Het oude statistieken-en-tegels-overzicht is verhuisd naar een apart **Dashboard**-submenu en blijft zo één klik verder beschikbaar voor admins die het willen gebruiken.
-
-De Accountpagina is opgesplitst in twee tabbladen:
-
-| Tab | Cap | Inhoud |
-| - | - | - |
-| **Account** | `tt_edit_settings` (alleen operators) | Huidige tier, trial-/overgangsstatus, gebruik vs. Free-tier-limieten, de knop "Start 30-daagse Standard-trial", trial-reset via dev-override, Admin Center phone-home-diagnose |
-| **Plan & beperkingen** | `read` (iedereen die ingelogd is) | Banner met huidig plan, limietentabel met waarschuwingen op de limiet, volledige Free / Standard / Pro-functiematrix met de huidige effectieve tier gemarkeerd |
-
-Het tabblad Plan & beperkingen vervangt het voormalige losse *Plan & beperkingen*-submenu, zodat coaches één compleet overzicht houden van wat is afgeschermd zonder een aparte menu-ingang.
-
-## Accountconfiguratie
-
-Drie constanten sturen de monetisatie aan (alle in `wp-config.php`, alle optioneel):
-
-| Constante | Vereist voor | Effect |
-| - | - | - |
-| `TT_FREEMIUS_PRODUCT_ID` | Betaalde plannen + checkout | Activeert de SDK |
-| `TT_FREEMIUS_PUBLIC_KEY` | Betaalde plannen + checkout | Authenticeert met Freemius |
-| `TT_DEV_OVERRIDE_SECRET` | Dev-override | Schakelt de verborgen override-pagina in |
-
-Zonder de eerste twee draait de plugin Free voor iedereen. Dat is het veilige standaardgedrag — Sprint 1 levert monetisatie slapend; Casper schakelt in zodra het Freemius-account klaar is.
-
-## Verkoopanalyse
-
-Gebruik voor v1 het **eigen Freemius-dashboard** op freemius.com — installaties, trials, conversies, MRR, churn, refunds, EU-btw-inning. Een aparte `talenttrack-ops`-plugin/-site voor rijkere custom analyses is de v2-optie zodra de leemtes in het Freemius-dashboard concreet zijn.
+**Klantinstallaties komen hier nooit langs** — zonder de constante geeft de beheerpagina een 404 en negeert de gate de override volledig.

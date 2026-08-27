@@ -23,6 +23,17 @@ A **person** is a real-world role at the club. A **WordPress user** is a login a
 
 Link them when both exist. The link powers things like "coach X can see team Y" and "who coaches this team".
 
+### Contact details stay in step
+
+Once a person and an account are linked, their **email and phone are kept the same on both**. Change the email on the person here and the sign-in account follows; change it on the WordPress profile and the person record follows. Whichever you edit, that is the address the academy's messages will actually go to.
+
+Two things to know:
+
+- **Changing someone's email also changes where their password reset goes**, because it is the same address their account signs in with. That is usually what you want, but it is worth knowing before you edit a colleague's record.
+- **If another account already uses that email**, the person record still saves and the sign-in email is left as it was, with a message saying so. WordPress does not allow two accounts to share an address.
+
+A person with no linked account keeps their contact details as before — nothing to sync, nothing lost. That is the physio in the list above.
+
 ## Functional roles
 
 Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**. These map to authorization roles via the [Access control](access-control.md) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verloopsymbolen — keuzepalet (#2537)</title>
+<link rel="stylesheet" href="_shared.css">
+<style>
+/* Mockup-only chrome for this page. Nothing here ports 1:1 — the ported
+   part is the winning glyph set plus the .tt-tr-trend-- rules already in
+   assets/css/frontend-test-results.css. */
+
+/* --- the state grid ---------------------------------------------------- */
+.states { overflow-x: auto; overscroll-behavior-x: contain; }
+.states table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+.states th, .states td { padding: 10px 8px; border-bottom: 1px solid var(--tt-line-soft); text-align: center; white-space: nowrap; }
+.states th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--tt-ink-soft); font-weight: 700; }
+.states th.rowhead, .states td.rowhead { text-align: left; position: sticky; left: 0; background: var(--tt-paper); min-width: 168px; }
+.states tbody tr:hover td { background: var(--tt-bg-soft); }
+.states tbody tr:hover td.rowhead { background: var(--tt-bg-soft); }
+.states .fam { font-weight: 700; }
+.states .fam small { display: block; font-weight: 400; font-size: 11px; color: var(--tt-ink-soft); white-space: normal; }
+
+/* --- the trend token itself (this IS the ported bit) ------------------- */
+.tt-tr-trend { display: inline-flex; align-items: center; gap: .3em; font-variant-numeric: tabular-nums; }
+.tt-tr-trend__glyph { font-size: 1em; line-height: 1; }
+.tt-tr-trend__delta { font-weight: 700; }
+.tt-tr-trend--up    { color: var(--tt-success); }
+.tt-tr-trend--down  { color: var(--tt-danger); }
+.tt-tr-trend--flat,
+.tt-tr-trend--rose,
+.tt-tr-trend--fell  { color: var(--tt-ink-soft); }
+.tt-tr-trend--none  { color: var(--tt-line); }
+
+/* Family E draws its glyph instead of typing it. */
+.glyph-svg { width: .8em; height: .8em; display: inline-block; vertical-align: -0.02em; }
+
+/* Family F wraps the glyph in a tinted round. */
+.tt-tr-trend--badge .tt-tr-trend__glyph {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.35em; height: 1.35em; border-radius: 999px; font-size: .72em;
+    background: currentColor;
+}
+.tt-tr-trend--badge .tt-tr-trend__glyph > * { color: var(--tt-paper); }
+
+/* --- risk / avoid list ------------------------------------------------- */
+.risk { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 720px) { .risk { grid-template-columns: 1fr 1fr; } }
+.risk__item { border: 1px solid var(--tt-line); border-left: 4px solid var(--tt-danger); border-radius: var(--tt-radius); padding: 10px 12px; }
+.risk__glyphs { font-size: 22px; margin-bottom: 2px; }
+.risk__why { font-size: 12.5px; color: var(--tt-ink-soft); margin: 0; }
+
+.ok-strip { border-left: 4px solid var(--tt-success); background: #f2fbf5; border-radius: var(--tt-radius); padding: 10px 12px; font-size: 13px; }
+
+/* --- player link comparison ------------------------------------------- */
+.tt-record-link {
+    display: inline-block; text-decoration: none; color: inherit;
+    border-radius: 4px; padding: 2px 4px; margin: -2px -4px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.tt-record-link:hover, .tt-record-link:focus-visible {
+    background: rgba(11, 95, 255, .04); transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.06); outline: none;
+}
+.link-bad { color: #0000ee; text-decoration: underline; }
+.compare { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 720px) { .compare { grid-template-columns: 1fr 1fr; } }
+.compare__col { border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 12px; }
+.compare__tag { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 3px 8px; border-radius: 999px; display: inline-block; margin-bottom: 8px; }
+.compare__tag--now { background: var(--tt-danger-subtle); color: #8c2b24; }
+.compare__tag--fix { background: var(--tt-success-subtle); color: #1c6b3d; }
+.compare small { display: block; font-size: 12px; color: var(--tt-ink-soft); margin-top: 8px; }
+
+.sample { font-size: 14px; }
+.sample td { padding: 8px 10px; border-bottom: 1px solid var(--tt-line-soft); }
+.sample .who { font-weight: 600; }
+.sample .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.big { font-size: 26px; line-height: 1; }
+code.k { background: var(--tt-line-soft); padding: 1px 5px; border-radius: 3px; font-size: 12.5px; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar"><strong>Verloopsymbolen</strong> keuzepalet voor het testrapport · <a href="index.html">terug naar de hub</a></div>
+
+<div class="note-strip">
+  Twee dingen staan hier naast elkaar: <strong>welke symbolen mogelijk zijn</strong> voor het
+  verloop, en <strong>hoe de spelerlink hoort te ogen</strong>. Beide gaan over
+  <code>FrontendTestTrendsView</code>, dat vandaag geen pijl toont en een kale
+  <code>&lt;a&gt;</code> gebruikt waar het zusterrapport <code>tt-record-link</code> gebruikt.
+</div>
+
+<div class="frame">
+
+  <div class="page-head">
+    <h1>Verloopsymbolen</h1>
+    <p class="page-head__sub">
+      Zes toestanden, zeven kandidaat-families. Kleur draagt nooit alleen de betekenis:
+      elk symbool krijgt kleur én vorm én een verborgen tekstlabel.
+    </p>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head">
+      <h2 class="card__title">1 · De zes toestanden die uitdrukbaar moeten zijn</h2>
+      <span class="card__hint">uit <code>TestTrendsQuery::withChange()</code></span>
+    </div>
+    <p style="margin-top:0">
+      Het verschil dat je noemde zit in de kolom <code class="k">direction</code> van de test.
+      Heeft een test een richting (<code>higher</code> / <code>lower</code>), dan is een verandering
+      <em>beter</em> of <em>slechter</em> en mag hij kleur krijgen. Staat de richting op
+      <code>neutral</code> — lengte, gewicht, schoenmaat — dan is er geen goed of fout en toont het
+      symbool alleen <em>welke kant het op ging</em>, in grijs.
+    </p>
+    <div class="table-wrap">
+      <table class="tt-table">
+        <thead>
+          <tr><th>Toestand</th><th>Wanneer</th><th>Kleur</th><th>Symbool zegt</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="who">verbeterd</td><td><code>verdict = improved</code></td><td><span class="delta-up">groen</span></td><td>omhoog, positief</td></tr>
+          <tr><td class="who">achteruit</td><td><code>verdict = declined</code></td><td><span class="delta-down">rood</span></td><td>omlaag, negatief</td></tr>
+          <tr><td class="who">gelijk</td><td><code>verdict = flat</code> · &lt; 2&nbsp;% beweging</td><td style="color:var(--tt-ink-soft)">grijs</td><td>geen beweging</td></tr>
+          <tr><td class="who">gestegen (neutraal)</td><td><code>direction = neutral</code>, delta&nbsp;&gt;&nbsp;0</td><td style="color:var(--tt-ink-soft)">grijs</td><td>omhoog, <strong>geen oordeel</strong></td></tr>
+          <tr><td class="who">gedaald (neutraal)</td><td><code>direction = neutral</code>, delta&nbsp;&lt;&nbsp;0</td><td style="color:var(--tt-ink-soft)">grijs</td><td>omlaag, <strong>geen oordeel</strong></td></tr>
+          <tr><td class="who">geen vorige meting</td><td><code>delta = null</code></td><td style="color:var(--tt-line)">licht</td><td>niets — em-streepje</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-bottom:0; font-size:13px; color:var(--tt-ink-soft)">
+      Let op de valkuil die het rapport al goed doet: bij een test waar <em>lager beter</em> is
+      hoort <code>−0,08&nbsp;s</code> bij een <strong>omhoog</strong>-symbool. Het symbool volgt het
+      oordeel, nooit het teken van het getal.
+    </p>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head">
+      <h2 class="card__title">2 · De kandidaten</h2>
+      <span class="card__hint">alle zes toestanden per familie</span>
+    </div>
+
+    <div class="states">
+      <table>
+        <thead>
+          <tr>
+            <th class="rowhead">Familie</th>
+            <th>verbeterd</th>
+            <th>achteruit</th>
+            <th>gelijk</th>
+            <th>gestegen<br>(neutraal)</th>
+            <th>gedaald<br>(neutraal)</th>
+            <th>geen data</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td class="rowhead fam">A · Massieve driehoek
+              <small>▲ U+25B2 · ▼ U+25BC · ▬ U+25AC — wat het rapport <em>Testresultaten</em> vandaag al gebruikt</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up big">▲</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down big">▼</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat big">▬</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose big">▲</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--fell big">▼</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">B · Kleine driehoek
+              <small>▴ U+25B4 · ▾ U+25BE · ▪ U+25AA — zelfde vorm, x-hoogte, rustiger in een dichte tabel</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up big">▴</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down big">▾</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat big">▪</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose big">▴</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--fell big">▾</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">C · Rechte pijl
+              <small>↑ U+2191 · ↓ U+2193 · → U+2192 — al in gebruik in de richtinguitleg en de sorteerkop</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up big">↑</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down big">↓</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat big">→</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose big">↑</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--fell big">↓</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">D · Schuine pijl
+              <small>↗ U+2197 · ↘ U+2198 · → U+2192 — leest als de helling van een grafieklijn</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up big">↗</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down big">↘</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat big">→</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose big">↗</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--fell big">↘</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">E · Getekend (inline SVG)
+              <small>geen lettertype-afhankelijkheid; exacte maat, optisch gecentreerd, kleurt mee met <code>currentColor</code></small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up big"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.2 9.2 8.4H.8Z" fill="currentColor"/></svg></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down big"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.8.8 1.6h8.4Z" fill="currentColor"/></svg></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat big"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><rect x=".8" y="4.2" width="8.4" height="1.6" rx=".8" fill="currentColor"/></svg></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose big"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.2 9.2 8.4H.8Z" fill="currentColor"/></svg></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--fell big"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.8.8 1.6h8.4Z" fill="currentColor"/></svg></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">F · Pijl in een rondje
+              <small>zelfde pijl, in een gevulde cirkel — nadrukkelijker, kost meer regelhoogte</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--badge tt-tr-trend--up big"><span class="tt-tr-trend__glyph"><span>▲</span></span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--badge tt-tr-trend--down big"><span class="tt-tr-trend__glyph"><span>▼</span></span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--badge tt-tr-trend--flat big"><span class="tt-tr-trend__glyph"><span>▬</span></span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--badge tt-tr-trend--rose big"><span class="tt-tr-trend__glyph"><span>▲</span></span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--badge tt-tr-trend--fell big"><span class="tt-tr-trend__glyph"><span>▼</span></span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none big">—</span></td>
+          </tr>
+
+          <tr>
+            <td class="rowhead fam">G · Alleen kleur, geen symbool
+              <small>de huidige situatie in <em>Testverloop</em> — hier alleen ter vergelijking</small>
+            </td>
+            <td><span class="tt-tr-trend tt-tr-trend--up" style="font-weight:700">+0,4</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down" style="font-weight:700">−0,3</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat" style="font-weight:700">+0,0</span></td>
+            <td><span class="tt-tr-trend" style="font-weight:700">+6</span></td>
+            <td><span class="tt-tr-trend" style="font-weight:700">−2</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:13px; color:var(--tt-ink-soft); margin-bottom:0">
+      Familie G faalt op de toegankelijkheidsregel die de rest van het rapport wél volgt: het
+      verschil tussen &ldquo;verbeterd&rdquo; en &ldquo;achteruit&rdquo; is dan uitsluitend
+      groen&nbsp;versus&nbsp;rood — onzichtbaar voor de ~8&nbsp;% mannelijke kleurenblinden, en
+      onzichtbaar in de zwart-witafdruk van het rapport.
+    </p>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head">
+      <h2 class="card__title">3 · Op ware grootte, in de tabel</h2>
+      <span class="card__hint">symbool + getal, zoals de kolom <em>Verandering</em> eruit zou zien</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="tt-table sample">
+        <thead>
+          <tr>
+            <th>Speler</th><th class="num">14 sep</th><th class="num">9 nov</th>
+            <th>A driehoek</th><th>B klein</th><th>C recht</th><th>D schuin</th><th>E getekend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="who">Sem de Vries</td><td class="num">2,04</td><td class="num">1,96</td>
+            <td><span class="tt-tr-trend tt-tr-trend--up"><span class="tt-tr-trend__glyph">▲</span><span class="tt-tr-trend__delta">−0,08 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--up"><span class="tt-tr-trend__glyph">▴</span><span class="tt-tr-trend__delta">−0,08 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--up"><span class="tt-tr-trend__glyph">↑</span><span class="tt-tr-trend__delta">−0,08 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--up"><span class="tt-tr-trend__glyph">↗</span><span class="tt-tr-trend__delta">−0,08 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--up"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.2 9.2 8.4H.8Z" fill="currentColor"/></svg><span class="tt-tr-trend__delta">−0,08 s</span></span></td>
+          </tr>
+          <tr>
+            <td class="who">Noah Bakker</td><td class="num">2,01</td><td class="num">2,07</td>
+            <td><span class="tt-tr-trend tt-tr-trend--down"><span class="tt-tr-trend__glyph">▼</span><span class="tt-tr-trend__delta">+0,06 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down"><span class="tt-tr-trend__glyph">▾</span><span class="tt-tr-trend__delta">+0,06 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down"><span class="tt-tr-trend__glyph">↓</span><span class="tt-tr-trend__delta">+0,06 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down"><span class="tt-tr-trend__glyph">↘</span><span class="tt-tr-trend__delta">+0,06 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--down"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.8.8 1.6h8.4Z" fill="currentColor"/></svg><span class="tt-tr-trend__delta">+0,06 s</span></span></td>
+          </tr>
+          <tr>
+            <td class="who">Liam Jansen</td><td class="num">1,99</td><td class="num">1,99</td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat"><span class="tt-tr-trend__glyph">▬</span><span class="tt-tr-trend__delta">+0,00 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat"><span class="tt-tr-trend__glyph">▪</span><span class="tt-tr-trend__delta">+0,00 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat"><span class="tt-tr-trend__glyph">→</span><span class="tt-tr-trend__delta">+0,00 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat"><span class="tt-tr-trend__glyph">→</span><span class="tt-tr-trend__delta">+0,00 s</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--flat"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><rect x=".8" y="4.2" width="8.4" height="1.6" rx=".8" fill="currentColor"/></svg><span class="tt-tr-trend__delta">+0,00 s</span></span></td>
+          </tr>
+          <tr>
+            <td class="who">Daan Visser<br><small style="color:var(--tt-ink-soft); font-weight:400">lengte · neutrale test</small></td>
+            <td class="num">168</td><td class="num">174</td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose"><span class="tt-tr-trend__glyph">▲</span><span class="tt-tr-trend__delta">+6 cm</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose"><span class="tt-tr-trend__glyph">▴</span><span class="tt-tr-trend__delta">+6 cm</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose"><span class="tt-tr-trend__glyph">↑</span><span class="tt-tr-trend__delta">+6 cm</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose"><span class="tt-tr-trend__glyph">↗</span><span class="tt-tr-trend__delta">+6 cm</span></span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--rose"><svg class="glyph-svg" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.2 9.2 8.4H.8Z" fill="currentColor"/></svg><span class="tt-tr-trend__delta">+6 cm</span></span></td>
+          </tr>
+          <tr>
+            <td class="who">Finn Smit</td><td class="num">—</td><td class="num">2,11</td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+            <td><span class="tt-tr-trend tt-tr-trend--none">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px; color:var(--tt-ink-soft); margin-bottom:0">
+      Rij&nbsp;1 en&nbsp;2 zijn de test <em>10&nbsp;m sprint</em> (lager is beter): de tijd daalt en
+      het symbool wijst omhoog. Rij&nbsp;4 is <em>lengte</em> (neutraal): dezelfde vorm, maar grijs —
+      hij is gegroeid, dat is geen prestatie.
+    </p>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head"><h2 class="card__title">4 · Het &ldquo;gelijk&rdquo;-symbool apart</h2></div>
+    <p style="margin-top:0">
+      De omhoog/omlaag-vorm is snel gekozen; de derde toestand is lastiger, want die moet
+      &ldquo;er is gemeten, er is niets veranderd&rdquo; zeggen zonder op een streepje voor
+      &ldquo;niet gemeten&rdquo; te lijken.
+    </p>
+    <div class="table-wrap">
+      <table class="tt-table">
+        <thead><tr><th>Teken</th><th>Codepunt</th><th>Leest als</th><th>Risico</th></tr></thead>
+        <tbody>
+          <tr><td class="who big">▬</td><td><code>U+25AC</code></td><td>massief blokje — huidige keuze in Testresultaten</td><td>iets zwaar naast kleine cijfers</td></tr>
+          <tr><td class="who big">▪</td><td><code>U+25AA</code></td><td>klein vierkantje</td><td>lijkt op een opsommingsteken</td></tr>
+          <tr><td class="who big">→</td><td><code>U+2192</code></td><td>zijwaarts, past bij pijlfamilies C/D</td><td>suggereert beweging waar er geen is</td></tr>
+          <tr><td class="who big">↔</td><td><code>U+2194</code></td><td>uitdrukkelijk &ldquo;geen richting&rdquo;</td><td>kan als &ldquo;wisselend&rdquo; gelezen worden</td></tr>
+          <tr><td class="who big">=</td><td><code>U+003D</code></td><td>gelijk — geen enkele lettertyperisico</td><td>oogt wiskundig, niet grafisch</td></tr>
+          <tr><td class="who big">•</td><td><code>U+2022</code></td><td>neutraal punt, laagste ruis</td><td>zegt uit zichzelf niet &ldquo;gelijk&rdquo;</td></tr>
+          <tr><td class="who big">—</td><td><code>U+2014</code></td><td>em-streepje</td><td><strong>botst</strong> met &ldquo;niet gemeten&rdquo; — niet gebruiken</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head"><h2 class="card__title">5 · Wat niet kan</h2></div>
+    <div class="risk">
+      <div class="risk__item">
+        <div class="risk__glyphs">⬆ ⬇</div>
+        <p class="risk__why"><code>U+2B06 / U+2B07</code> — deze hebben een emoji-presentatie als
+          standaard. Op Android en iOS worden het blauwe emoji-pijlen die de kleurregel negeren:
+          groen/rood/grijs doet er dan niets meer toe.</p>
+      </div>
+      <div class="risk__item">
+        <div class="risk__glyphs">🔺 🔻 📈 📉</div>
+        <p class="risk__why">Emoji met ingebakken kleur. Dan bestaat de neutrale toestand
+          simpelweg niet, en de afdruk wordt bont.</p>
+      </div>
+      <div class="risk__item">
+        <div class="risk__glyphs">⏶ ⏷ ⯅ ⯆</div>
+        <p class="risk__why"><code>U+23F6</code> en <code>U+2BC5</code> ontbreken in veel
+          systeemlettertypen; je krijgt dan het lege vierkantje in plaats van een pijl.</p>
+      </div>
+      <div class="risk__item">
+        <div class="risk__glyphs">＋ − ✓ ✗</div>
+        <p class="risk__why">Zijn al bezet: <code>+/−</code> door het getal zelf (het teken staat al
+          in <code>MeasurementDeltaFormat::signed()</code>) en <code>✓/✗</code> door
+          <em>passfail</em>-metingen. Hergebruik zou twee betekenissen op één teken leggen.</p>
+      </div>
+    </div>
+    <p class="ok-strip" style="margin-bottom:0">
+      Families <strong>A t/m E</strong> zijn allemaal veilig: die codepunten zitten in de
+      standaard-Windows-, Android-, iOS- en Linux-lettertypen en hebben geen emoji-variant.
+      Familie&nbsp;E is de enige die zelfs bij een exotisch thema-lettertype gegarandeerd goed
+      staat, omdat er niets getypt wordt.
+    </p>
+  </div>
+
+  <!-- ============================================================= -->
+  <div class="card">
+    <div class="card__head"><h2 class="card__title">6 · De spelerlink</h2></div>
+    <p style="margin-top:0">
+      Dit is geen smaakverschil maar een gemiste klasse. <em>Testresultaten</em> zet
+      <code class="k">class="tt-record-link"</code> op de naam; <em>Testverloop</em> zet een kale
+      <code>&lt;a href&gt;</code> neer. Die kale link erft de themastijl — blauw en onderstreept —
+      terwijl elke andere recordnaam in het dashboard de eigen tekstkleur houdt en bij hover
+      optilt. Bovendien hangt <em>peek</em> (de zweefkaart met de spelersamenvatting) aan diezelfde
+      helper, dus die ontbreekt nu ook.
+    </p>
+    <div class="compare">
+      <div class="compare__col">
+        <span class="compare__tag compare__tag--now">nu · Testverloop</span>
+        <table class="tt-table sample"><tbody>
+          <tr><td class="who"><a class="link-bad" href="#0">Sem de Vries</a></td><td class="num">1,96</td></tr>
+          <tr><td class="who"><a class="link-bad" href="#0">Noah Bakker</a></td><td class="num">2,07</td></tr>
+          <tr><td class="who"><a class="link-bad" href="#0">Liam Jansen</a></td><td class="num">1,99</td></tr>
+        </tbody></table>
+        <small>Themablauw, onderstreept, geen hover-respons, geen peek.</small>
+      </div>
+      <div class="compare__col">
+        <span class="compare__tag compare__tag--fix">zoals overal elders</span>
+        <table class="tt-table sample"><tbody>
+          <tr><td class="who"><a class="tt-record-link" href="#0">Sem de Vries</a></td><td class="num">1,96</td></tr>
+          <tr><td class="who"><a class="tt-record-link" href="#0">Noah Bakker</a></td><td class="num">2,07</td></tr>
+          <tr><td class="who"><a class="tt-record-link" href="#0">Liam Jansen</a></td><td class="num">1,99</td></tr>
+        </tbody></table>
+        <small>Eigen tekstkleur, hover tilt de rij op, peek werkt. Beweeg de muis erover.</small>
+      </div>
+    </div>
+    <p style="font-size:13px; color:var(--tt-ink-soft); margin-bottom:0">
+      De ranglijst (<em>Meest verbeterd</em> / <em>Teruggevallen</em>) toont de naam nu als
+      platte tekst, zonder link. Ook dat hoort dezelfde <code>RecordLink::inline()</code> te zijn —
+      een naam in dit rapport is overal klikbaar, of nergens.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

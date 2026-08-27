@@ -23,7 +23,7 @@ final class KnowledgeLinks {
 
     /** The library index. */
     public static function library(): string {
-        return self::to( [ 'tt_view' => 'knowledge' ] );
+        return self::to( [ 'tt_view' => 'courses' ] );
     }
 
     /** One course. */

@@ -51,6 +51,10 @@ class FormSlugContract {
             'first_name'          => __( 'First name', 'talenttrack' ),
             'last_name'           => __( 'Last name', 'talenttrack' ),
             'date_of_birth'       => __( 'Date of birth', 'talenttrack' ),
+            // #2894 — labelled for its purpose. This selects a growth
+            // reference curve; it is not the academy's record of how a young
+            // person describes themselves and must not be presented as one.
+            'sex'                 => __( 'Sex (for growth references)', 'talenttrack' ),
             'nationality'         => __( 'Nationality', 'talenttrack' ),
             'height_cm'           => __( 'Height (cm)', 'talenttrack' ),
             'weight_kg'           => __( 'Weight (kg)', 'talenttrack' ),

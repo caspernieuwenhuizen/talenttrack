@@ -5,7 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\DemoData\Excel\ExcelImporter;
+use TT\Modules\Import\Excel\ExcelImporter;
+use TT\Modules\Import\ImportTagSink;
 use TT\Modules\DemoData\Generators\UserGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
@@ -102,7 +103,10 @@ class DemoGenerator {
         $excel_present_sheets = [];
         $excel_imported       = [];
         if ( $source === 'excel' || $source === 'hybrid' ) {
-            $excel = ( new ExcelImporter() )->importFile( $excel_path, basename( $excel_path ), $batch_id );
+            $importer = new ExcelImporter(
+                static fn( string $id ): ImportTagSink => new DemoBatchRegistry( $id )
+            );
+            $excel = $importer->importFile( $excel_path, basename( $excel_path ), $batch_id );
             if ( ! $excel['ok'] ) {
                 return [
                     'batch_id'   => $batch_id,

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Match analysis — section rating control</title>
+<style>
+/*
+ * Mockup only — .local-mockups/match-analysis-ratings/
+ *
+ * The per-phase rating control on the Team functions step. Shipped in
+ * v4.96.0 as four full-width pills; they read as empty input fields
+ * rather than as a choice, and the 999px ovals fight the square bullet
+ * inputs directly beneath them.
+ *
+ * Production class names and tokens.css values.
+ */
+:root {
+    --tt-ink: #0e1a14;
+    --tt-ink-soft: #6a6d66;
+    --tt-muted: #6a6d66;
+    --tt-paper: #ffffff;
+    --tt-bg-soft: #f4f6f3;
+    --tt-line: #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-success: #2f9e5e;
+    --tt-warning: #e8902b;
+    --tt-info: #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-info-subtle: #e6f0fa;
+    --tt-radius: 8px;
+    --tt-radius-lg: 14px;
+    --tt-fs-body: 1rem;
+    --tt-lh-body: 1.5;
+    --tt-fs-sm: 0.85rem;
+    --tt-fs-lg: 1.125rem;
+    --tt-fs-h2: 1.5rem;
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 20px;
+    --tt-sp-6: 24px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font: var(--tt-fs-body)/var(--tt-lh-body) -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap { max-width: 640px; margin: 0 auto; }
+h1 { font-size: var(--tt-fs-h2); margin: 0 0 var(--tt-sp-2); }
+.lede { color: var(--tt-muted); margin: 0 0 var(--tt-sp-5); }
+
+.variant {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    padding: var(--tt-sp-4);
+    margin-bottom: var(--tt-sp-5);
+}
+.variant h2 { font-size: var(--tt-fs-lg); margin: 0 0 var(--tt-sp-1); }
+.variant .note { color: var(--tt-muted); font-size: var(--tt-fs-sm); margin: 0 0 var(--tt-sp-4); }
+
+/* the section card, as production renders it */
+.tt-ma__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-bg-soft);
+}
+.tt-ma__section-title { margin: 0; font-size: var(--tt-fs-lg); }
+.tt-ma__planned {
+    margin: 0;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+.tt-ma__planned-label { font-weight: 600; color: var(--tt-ink); }
+
+.tt-ma__bullets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.tt-ma__bullet {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 1rem;
+}
+
+.tt-ma__rating-input {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── as shipped ──────────────────────────────────────────────────── */
+
+.now .tt-ma__ratings {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--tt-sp-2);
+}
+.now .tt-ma__rating {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 48px; padding: 0 var(--tt-sp-2);
+    border: 1px solid var(--tt-line); border-radius: 999px;
+    background: var(--tt-paper); color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm); text-align: center; cursor: pointer;
+}
+.now .tt-ma__rating-input:checked + .tt-ma__rating {
+    background: var(--tt-success-subtle); color: var(--tt-success);
+    border-color: currentColor; font-weight: 600;
+}
+
+/* ── A. joined segmented bar ─────────────────────────────────────── */
+
+.va .tt-ma__ratings {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    overflow: hidden;
+    background: var(--tt-paper);
+}
+.va .tt-ma__rating {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 var(--tt-sp-2);
+    border-left: 1px solid var(--tt-line-soft);
+    color: var(--tt-ink-soft); font-size: var(--tt-fs-sm);
+    text-align: center; cursor: pointer;
+}
+.va .tt-ma__rating:first-of-type { border-left: 0; }
+.va .tt-ma__rating-input:checked + .tt-ma__rating { font-weight: 600; }
+.va .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="went_well"]  { background: var(--tt-success-subtle); color: var(--tt-success); }
+.va .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="mixed"]      { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.va .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="needs_work"] { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.va .tt-ma__rating-input:checked + .tt-ma__rating[data-rating=""]           { background: var(--tt-bg-soft); }
+
+/* ── B. joined bar + the roster's glyph language ─────────────────── */
+
+.vb .tt-ma__ratings {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    overflow: hidden;
+    background: var(--tt-paper);
+}
+.vb .tt-ma__rating {
+    display: flex; align-items: center; justify-content: center; gap: var(--tt-sp-1);
+    min-height: 44px; padding: 0 var(--tt-sp-2);
+    border-left: 1px solid var(--tt-line-soft);
+    color: var(--tt-ink-soft); font-size: var(--tt-fs-sm);
+    text-align: center; cursor: pointer;
+}
+.vb .tt-ma__rating:first-of-type { border-left: 0; }
+.vb .tt-ma__glyph { font-size: 0.9rem; line-height: 1; }
+.vb .tt-ma__rating-input:checked + .tt-ma__rating { font-weight: 600; }
+.vb .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="went_well"]  { background: var(--tt-success-subtle); color: var(--tt-success); }
+.vb .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="mixed"]      { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.vb .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="needs_work"] { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.vb .tt-ma__rating-input:checked + .tt-ma__rating[data-rating=""]           { background: var(--tt-bg-soft); }
+
+/* ── C. compact chips, content width, right-aligned with the title ── */
+
+.vc .tt-ma__head {
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: var(--tt-sp-2);
+}
+.vc .tt-ma__ratings { display: flex; gap: var(--tt-sp-1); }
+.vc .tt-ma__rating {
+    display: inline-flex; align-items: center; gap: var(--tt-sp-1);
+    min-height: 36px; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper); color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm); cursor: pointer;
+}
+.vc .tt-ma__glyph { font-size: 0.9rem; line-height: 1; }
+.vc .tt-ma__rating-input:checked + .tt-ma__rating { font-weight: 600; border-color: currentColor; }
+.vc .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="went_well"]  { background: var(--tt-success-subtle); color: var(--tt-success); }
+.vc .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="mixed"]      { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.vc .tt-ma__rating-input:checked + .tt-ma__rating[data-rating="needs_work"] { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.vc .tt-ma__clear {
+    background: none; border: 0; padding: 0 var(--tt-sp-1);
+    font: inherit; font-size: var(--tt-fs-sm); color: var(--tt-muted);
+    text-decoration: underline; cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Section rating — the pills, and three ways out</h1>
+<p class="lede">
+  Four full-width pills in the same white-on-outline as the text inputs below them, so
+  they read as empty fields rather than as a choice. All three alternatives keep the same
+  four states and the same radios underneath; only the presentation changes.
+</p>
+
+<!-- as shipped -->
+<section class="variant now">
+  <h2>As shipped (v4.96.0)</h2>
+  <p class="note">Pill radius 999px, four equal columns, white fill. The eye reads a row of empty inputs.</p>
+
+  <div class="tt-ma__section">
+    <h3 class="tt-ma__section-title">Aanvallen</h3>
+    <p class="tt-ma__planned"><span class="tt-ma__planned-label">Gepland</span> Snel het spel verleggen en de tweede paal aanvallen.</p>
+    <div class="tt-ma__ratings" role="radiogroup" aria-label="Oordeel — Aanvallen">
+      <input type="radio" class="tt-ma__rating-input" id="n0" name="n" /><label class="tt-ma__rating" for="n0" data-rating="">Niet beoordeeld</label>
+      <input type="radio" class="tt-ma__rating-input" id="n1" name="n" checked /><label class="tt-ma__rating" for="n1" data-rating="went_well">Ging goed</label>
+      <input type="radio" class="tt-ma__rating-input" id="n2" name="n" /><label class="tt-ma__rating" for="n2" data-rating="mixed">Wisselend</label>
+      <input type="radio" class="tt-ma__rating-input" id="n3" name="n" /><label class="tt-ma__rating" for="n3" data-rating="needs_work">Moet beter</label>
+    </div>
+    <ul class="tt-ma__bullets">
+      <li><input class="tt-ma__bullet" type="text" value="Vooral Jesse deed dit niet consistent" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+    </ul>
+  </div>
+</section>
+
+<!-- A -->
+<section class="variant va">
+  <h2>A — Joined segmented bar</h2>
+  <p class="note">One control instead of four, square corners matching the inputs, and the selection carries the phase colour rather than always green. Nothing to learn.</p>
+
+  <div class="tt-ma__section">
+    <h3 class="tt-ma__section-title">Aanvallen</h3>
+    <p class="tt-ma__planned"><span class="tt-ma__planned-label">Gepland</span> Snel het spel verleggen en de tweede paal aanvallen.</p>
+    <div class="tt-ma__ratings" role="radiogroup" aria-label="Oordeel — Aanvallen">
+      <input type="radio" class="tt-ma__rating-input" id="a0" name="a" /><label class="tt-ma__rating" for="a0" data-rating="">Niet beoordeeld</label>
+      <input type="radio" class="tt-ma__rating-input" id="a1" name="a" checked /><label class="tt-ma__rating" for="a1" data-rating="went_well">Ging goed</label>
+      <input type="radio" class="tt-ma__rating-input" id="a2" name="a" /><label class="tt-ma__rating" for="a2" data-rating="mixed">Wisselend</label>
+      <input type="radio" class="tt-ma__rating-input" id="a3" name="a" /><label class="tt-ma__rating" for="a3" data-rating="needs_work">Moet beter</label>
+    </div>
+    <ul class="tt-ma__bullets">
+      <li><input class="tt-ma__bullet" type="text" value="Vooral Jesse deed dit niet consistent" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+    </ul>
+  </div>
+</section>
+
+<!-- B -->
+<section class="variant vb">
+  <h2>B — Joined bar, with the roster's glyphs</h2>
+  <p class="note">Same bar, plus the ▲ ● ▼ the player markers already use. One visual language for "how did this go" across the whole page, and shape carries the meaning where colour cannot.</p>
+
+  <div class="tt-ma__section">
+    <h3 class="tt-ma__section-title">Aanvallen</h3>
+    <p class="tt-ma__planned"><span class="tt-ma__planned-label">Gepland</span> Snel het spel verleggen en de tweede paal aanvallen.</p>
+    <div class="tt-ma__ratings" role="radiogroup" aria-label="Oordeel — Aanvallen">
+      <input type="radio" class="tt-ma__rating-input" id="b0" name="b" /><label class="tt-ma__rating" for="b0" data-rating=""><span class="tt-ma__glyph">—</span> Niet beoordeeld</label>
+      <input type="radio" class="tt-ma__rating-input" id="b1" name="b" checked /><label class="tt-ma__rating" for="b1" data-rating="went_well"><span class="tt-ma__glyph">▲</span> Ging goed</label>
+      <input type="radio" class="tt-ma__rating-input" id="b2" name="b" /><label class="tt-ma__rating" for="b2" data-rating="mixed"><span class="tt-ma__glyph">●</span> Wisselend</label>
+      <input type="radio" class="tt-ma__rating-input" id="b3" name="b" /><label class="tt-ma__rating" for="b3" data-rating="needs_work"><span class="tt-ma__glyph">▼</span> Moet beter</label>
+    </div>
+    <ul class="tt-ma__bullets">
+      <li><input class="tt-ma__bullet" type="text" value="Vooral Jesse deed dit niet consistent" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+    </ul>
+  </div>
+</section>
+
+<!-- C -->
+<section class="variant vc">
+  <h2>C — Compact chips, up beside the phase name</h2>
+  <p class="note">Three small chips on the title line, sized to their words instead of stretched to the card. The rating stops competing with the bullets for attention, and an unrated phase is simply one with nothing selected.</p>
+
+  <div class="tt-ma__section">
+    <div class="tt-ma__head">
+      <h3 class="tt-ma__section-title">Aanvallen</h3>
+      <div class="tt-ma__ratings" role="radiogroup" aria-label="Oordeel — Aanvallen">
+        <input type="radio" class="tt-ma__rating-input" id="c1" name="c" checked /><label class="tt-ma__rating" for="c1" data-rating="went_well"><span class="tt-ma__glyph">▲</span> Ging goed</label>
+        <input type="radio" class="tt-ma__rating-input" id="c2" name="c" /><label class="tt-ma__rating" for="c2" data-rating="mixed"><span class="tt-ma__glyph">●</span> Wisselend</label>
+        <input type="radio" class="tt-ma__rating-input" id="c3" name="c" /><label class="tt-ma__rating" for="c3" data-rating="needs_work"><span class="tt-ma__glyph">▼</span> Moet beter</label>
+        <button type="button" class="tt-ma__clear">wissen</button>
+      </div>
+    </div>
+    <p class="tt-ma__planned"><span class="tt-ma__planned-label">Gepland</span> Snel het spel verleggen en de tweede paal aanvallen.</p>
+    <ul class="tt-ma__bullets">
+      <li><input class="tt-ma__bullet" type="text" value="Vooral Jesse deed dit niet consistent" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+      <li><input class="tt-ma__bullet" type="text" placeholder="Eén kort punt…" /></li>
+    </ul>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

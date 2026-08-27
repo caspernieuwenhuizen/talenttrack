@@ -15,6 +15,14 @@ class CoachDashboardView {
         global $wpdb; $p = $wpdb->prefix;
         $view = isset( $_GET['tt_view'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_view'] ) ) : 'roster';
         $max  = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        // Deliberately left on "teams I coach" (#2911).
+        //
+        // Every other team picker widened to `QueryHelpers::get_teams_in_scope()`
+        // so a head of development stops meeting empty dropdowns. This one did
+        // not: the coach dashboard is an explicitly personal surface, and
+        // filling it with all thirty teams in the academy is no more useful to
+        // someone who coaches none of them than filling it with none. The empty
+        // state here is the honest answer to "which of my teams need me today?".
         $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
         // v2.15.0: enqueue card stylesheet for the podium + player detail card.

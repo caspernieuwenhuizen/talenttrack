@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerSex;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -173,8 +174,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // translated label to NL users while keeping the stored
         // English name as the form value (preserves DB matching).
         $foot_options = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
+        // #2867 — a filter offers only categories that have teams in them.
+        // This dropdown narrows a list the viewer is already looking at, so a
+        // category with nothing behind it is a dead end; an academy with two
+        // teams used to scroll every category the seed shipped.
+        //
+        // The value currently on the URL is kept selectable even if it has
+        // just become unused, so a bookmarked or shared link does not quietly
+        // start filtering by something else.
+        $current_age_group = isset( $_GET['filter']['age_group'] )
+            ? sanitize_text_field( wp_unslash( (string) $_GET['filter']['age_group'] ) )
+            : '';
+
         $age_group_options = [];
-        foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
+        foreach ( QueryHelpers::age_groups_in_use( $current_age_group ) as $ag ) {
             $age_group_options[ (string) $ag ] = (string) $ag;
         }
 
@@ -358,6 +371,26 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'label' => __( 'Date of birth', 'talenttrack' ),
                     'value' => (string) ( $player->date_of_birth ?? '' ),
                 ] ); ?>
+                <?php
+                // #2894 — beside date of birth, because the two are read
+                // together: a growth reference is a curve per sex indexed by
+                // age. Optional everywhere, and the blank option is a real
+                // choice rather than a placeholder.
+                $sex_value = PlayerSex::sanitize( $player->sex ?? '' );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-player-sex"><?php esc_html_e( 'Sex (for growth references)', 'talenttrack' ); ?></label>
+                    <select id="tt-player-sex" class="tt-input" name="sex">
+                        <?php foreach ( PlayerSex::options() as $value => $label ) : ?>
+                            <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $sex_value, $value ); ?>>
+                                <?php echo esc_html( $label ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="tt-field-hint">
+                        <?php esc_html_e( 'Used only to pick the right growth curve for age-adjusted height, weight and BMI. Leave blank if you would rather not record it — everything else still works.', 'talenttrack' ); ?>
+                    </span>
+                </div>
                 <?php echo DateInputComponent::render( [
                     // The date the player joined the academy. Editable
                     // because the admission flow doesn't always reach

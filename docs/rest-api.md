@@ -110,6 +110,25 @@ The recycle bin adds a second soft-delete tier on top of the existing archive: *
 - **Visibility gate for detail loads:** detail views call `ArchiveRepository::findIncludingArchived($entity, $id)`, which returns `null` for a trashed row unless the caller holds `tt_manage_recycle_bin`. A `null` result renders a 404 — never a permission-denied page that would confirm a trashed minor's record exists.
 - **`?tt_view` / view vocabulary:** the 3-state filter is `active | archived | trashed | all`, where `all` = active + archived and **never** trashed. Per-entity list views never surface `trashed`; only the bin view does, gated on `tt_manage_recycle_bin`.
 
+## Spreadsheet import (#2956, epic #2954)
+
+Brings a club's teams, players and staff in from an Excel workbook. The domain core is `ImportService` (`src/Modules/Import/ImportService.php`) over `ExcelImporter`; the REST surface is `ImportRestController` (`src/Infrastructure/REST/ImportRestController.php`). The PHP surfaces call the same service, so a non-WordPress front end gets identical validation.
+
+- **Routes:**
+  - `POST /imports` — multipart upload, file field `file`. Returns `{ ok, committed, batch_key, imported: { <entity>: <count> }, warnings, sheets }`. **Writes nothing unless `commit` is true** — the default is a dry run that validates the workbook and reports what it *would* create, which is what lets a wizard show the report before anyone commits. A workbook that fails validation returns HTTP 200 with `{ ok: false, blockers, warnings }`: a bad spreadsheet is a normal outcome, not a server fault, and the blockers are the useful payload. Cap: `manage_options`.
+  - `GET /imports` — the club's real import batches, most recent first: `{ batches: [ { id, uuid, batch_key, source_filename, counts, created_at, created_by } ] }`. Cap: `manage_options`.
+- **Real imports never touch `tt_demo_tags`.** Rows created by a real import are recorded in `tt_import_batches` / `tt_import_tags` (migration 0238) via `ImportBatchRegistry`, not in DemoData's tag table. This is a safety property, not tidiness: `DemoDataCleaner::wipeData( null, null )` resolves what to delete from `tt_demo_tags` with no batch filter, so a club's real squad recorded there would be deleted by a routine "wipe demo data". Separate tables mean there is no filter for a future query to forget.
+- **Which sink is used is the caller's choice, not the importer's.** `ExcelImporter` takes an `ImportTagSink` factory (#2955). `DemoBatchRegistry` satisfies it for demo workbooks, `ImportBatchRegistry` for real ones; parsing, validation and foreign keys are identical either way.
+- **Capability note:** `manage_options` matches the existing import surface (`DemoDataPage::CAP`) rather than inventing a looser gate. A dedicated `tt_manage_import` capability belongs with the import-history surface (#2959), where there is a screen for the matrix to point at.
+
+## Impersonation log (#2861)
+
+The read side of `tt_impersonation_log`, which has been written since migration 0056 with nothing able to query it back. `ImpersonationLogRepository` is the domain core; `ImpersonationRestController` (`src/Infrastructure/REST/`) is the REST surface, and the **Audit log → Impersonation** tab reads the same repository.
+
+- **Route:** `GET /impersonation/log` — `{ sessions: [ { id, actor_user_id, actor_name, target_user_id, target_name, started_at, ended_at, end_reason, actor_ip, actor_user_agent, reason, is_active } ], total }`. Filters: `actor_user_id`, `target_user_id`, `date_from`, `date_to` (both `YYYY-MM-DD`; anything else is ignored rather than a 400), `active_only`, `limit` (capped at 200), `offset`. Club-scoped.
+- **Cap:** the `impersonation_log` matrix entity, via `MatrixGate::canAnyScope( …, 'impersonation_log', 'read' )` — Academy Admin RCD, Head of Development R. The entity already existed in `MatrixEntityCatalog` gating a surface that had never been built, so this is a read over an existing entity rather than new authorization work. Deliberately **not** the audit-log page's own cap: seeing who opened a minor's record is a narrower question than seeing who edited what.
+- **A deleted account does not erase attribution.** `actor_name` / `target_name` fall back to `Deleted user #<id>`, so a session cannot decay into "someone impersonated someone" once the account is gone. This is an audit trail; that property is the point of it.
+
 ## Saved views — personal filter presets (#2385 / #2448)
 
 Named filter combinations a user re-applies with one click, for any surface that renders the shared `FilterBar`. The domain lives in `SavedViewsRepository` (`src/Infrastructure/Filters/SavedViewsRepository.php`); the REST surface is `SavedViewsRestController` (`src/Infrastructure/REST/SavedViewsRestController.php`), registered from `Kernel` rather than a module, since the surfaces span more than analytics.

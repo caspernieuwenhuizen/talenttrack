@@ -240,6 +240,19 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'media-retention' ],
                 'entities'        => [ 'media' ],
             ],
+            // #2959 (epic #2954) — the record of what each spreadsheet
+            // import created, and the undo for a whole batch. Default ON:
+            // an academy that never imports simply never sees a row, and
+            // switching it off after an import would hide the only way
+            // back out of one.
+            'import_history' => [
+                'label'           => __( 'Import history', 'talenttrack' ),
+                'description'     => __( 'What came in from each spreadsheet import, and a way to take a whole import back out. Turn off to hide the history; imported records stay exactly as they are.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Import\\ImportModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'import-history' ],
+                'entities'        => [ 'import_batch' ],
+            ],
             // #2382 (epic #2381) — the desktop attendance-entry grid, the
             // Excel-familiar alternative to the mark-attendance wizard.
             // Default ON: it's the power-entry path an academy uses instead
@@ -410,6 +423,20 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'match-analysis-share' ],
                 'entities'        => [],
             ],
+            // #2892 — the same switch for match preparation, and separate
+            // from the analysis one on purpose: an academy may be happy for
+            // a plan to travel to an assistant before kick-off while
+            // preferring the post-match judgement of individual players to
+            // stay inside the app, or the reverse. One flag for both would
+            // force a choice nobody asked for.
+            'match_prep_sharing' => [
+                'label'           => __( 'Match preparation share links', 'talenttrack' ),
+                'description'     => __( 'Signed staff-only links to a match preparation. Writing and printing the plan stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'match-prep-share' ],
+                'entities'        => [],
+            ],
             // #2709 — keyed `export_match_analysis_pdf` to match the
             // `export_<key>` gate convention. The print router checks it
             // in tandem so the toggle isn't bypassed by the print URL.
@@ -480,7 +507,7 @@ class FeatureRegistry {
                 // down as well as the tiles, so a bookmarked lesson URL
                 // stops resolving rather than rendering a surface the
                 // academy turned off.
-                'view_slugs'      => [ 'knowledge', 'course', 'lesson', 'my-learning', 'submission-review' ],
+                'view_slugs'      => [ 'courses', 'course', 'lesson', 'my-learning', 'submission-review' ],
                 'entities'        => [],
             ],
         ];
@@ -553,6 +580,8 @@ class FeatureRegistry {
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
             // #2537 — one test, every player, over the season.
             'test_trends'                   => __( 'Test trends', 'talenttrack' ),
+            // #2895 — height and weight read against a published growth curve.
+            'player_bmi'                    => __( 'Player · BMI-for-age', 'talenttrack' ),
             // #2650 — knowledge-library completion, three lenses.
             'learning_courses'              => __( 'Learning · Course completion', 'talenttrack' ),
             'learning_people'               => __( 'Learning · Per person', 'talenttrack' ),

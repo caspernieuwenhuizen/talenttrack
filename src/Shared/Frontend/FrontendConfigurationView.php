@@ -1638,6 +1638,22 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_manage_recycle_bin' ) ) {
             $sections['system']['tiles'][] = [ 'title' => __( 'Recycle bin', 'talenttrack' ), 'desc' => __( 'Records staged for permanent deletion. Restore them to the archive, or delete them now. Purged after the retention window.', 'talenttrack' ), 'url' => $view( 'recycle-bin' ), 'icon' => 'migrations' ];
         }
+        // #2880 — the authorization matrix shipped in #2654 with every piece
+        // of plumbing in place except a way in: no tile anywhere pointed at
+        // `?tt_view=matrix`, so the only route was typing the URL. The whole
+        // premise of #2654 was that an academy admin could fix an over-broad
+        // permission grant WITHOUT a WordPress account — and an admin who
+        // cannot find the screen is exactly where they were before it
+        // shipped. A feature that is complete and unreachable is worse than
+        // one that is unbuilt, because the board says it is done.
+        //
+        // Settings rather than a dashboard tile, matching the recycle bin
+        // above: this is an operator surface, reached deliberately, not
+        // something a coach should meet on their landing page. The cap is the
+        // same one the view re-checks.
+        if ( current_user_can( 'tt_manage_authorization' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Access control matrix', 'talenttrack' ), 'desc' => __( 'Who may read and change each kind of record, per persona. The grants behind player evaluations, notes and medical fields.', 'talenttrack' ), 'url' => $view( 'matrix' ), 'icon' => 'roles' ];
+        }
 
         // #1539 — tiles contributed via the tt_config_tile_groups filter
         // (Modules, Dashboard layouts, Custom widgets). Route them into a
@@ -2116,6 +2132,26 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </select>
                     <p class="tt-field-hint">
                         <?php esc_html_e( 'The app shell keeps a navigation sidebar on screen on a laptop and a slide-out menu on a phone. Classic returns to the tile overview to switch sections. Everyone can pick their own layout in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
+                <?php
+                // #2934 — how the live-match screen is laid out. Same shape
+                // as the navigation layout above: an academy default that
+                // individuals can override in My settings, with `classic`
+                // the ship value so nobody is moved mid-season.
+                $mexec_layout = \TT\Modules\MatchExecution\MatchExecutionLayout::clubDefault();
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Match day', 'talenttrack' ); ?></h4>
+                    <label class="tt-field-label" for="tt-cfg-match-execution-layout"><?php esc_html_e( 'Live match screen', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-match-execution-layout" class="tt-input" name="config[<?php echo esc_attr( \TT\Modules\MatchExecution\MatchExecutionLayout::CONFIG_KEY ); ?>]">
+                        <?php foreach ( \TT\Modules\MatchExecution\MatchExecutionLayout::labels() as $layout_value => $layout_label ) : ?>
+                            <option value="<?php echo esc_attr( $layout_value ); ?>" <?php selected( $mexec_layout, $layout_value ); ?>><?php echo esc_html( $layout_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls. Coaches can pick their own in My settings; this is what they get until they do.', 'talenttrack' ); ?>
                     </p>
                 </div>
 

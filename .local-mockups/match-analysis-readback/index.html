@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Match analysis — read-back / share document</title>
+<style>
+/*
+ * Mockup only — .local-mockups/match-analysis-readback/
+ *
+ * Three directions for the finished analysis: the read-only view, the
+ * staff share page and the print sheet all render from this. Shipped in
+ * v4.96.0 as one full-width card per section, which gives an empty phase
+ * the same weight as the phase somebody wrote three points about.
+ *
+ * Production tokens; the classes are indicative (.tt-mar-* here) because
+ * this is a layout question, not a naming one.
+ */
+:root {
+    --tt-ink: #0e1a14;
+    --tt-ink-soft: #6a6d66;
+    --tt-muted: #6a6d66;
+    --tt-paper: #ffffff;
+    --tt-bg-soft: #f4f6f3;
+    --tt-line: #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-success: #2f9e5e;
+    --tt-warning: #e8902b;
+    --tt-info: #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-info-subtle: #e6f0fa;
+    --tt-radius: 8px;
+    --tt-radius-lg: 14px;
+    --tt-fs-sm: 0.85rem;
+    --tt-fs-lg: 1.125rem;
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 20px;
+    --tt-sp-6: 24px;
+    --tt-sp-8: 32px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: var(--tt-sp-5);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font: 1rem/1.55 -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap { max-width: 1120px; margin: 0 auto; }
+h1.page { font-size: 1.5rem; margin: 0 0 var(--tt-sp-2); }
+.lede { color: var(--tt-muted); margin: 0 0 var(--tt-sp-5); max-width: 70ch; }
+.nav { display: flex; flex-wrap: wrap; gap: var(--tt-sp-2); margin: 0 0 var(--tt-sp-6); }
+.nav a {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: 999px; background: var(--tt-paper);
+    color: var(--tt-ink); text-decoration: none; font-size: var(--tt-fs-sm);
+}
+.variant { margin-bottom: var(--tt-sp-8); }
+.variant .caption { color: var(--tt-muted); font-size: var(--tt-fs-sm); margin: 0 0 var(--tt-sp-3); max-width: 70ch; }
+.variant h2.dir { font-size: var(--tt-fs-lg); margin: 0 0 var(--tt-sp-1); }
+body:has(#only-1:target) .variant:not(.v1),
+body:has(#only-2:target) .variant:not(.v2),
+body:has(#only-3:target) .variant:not(.v3),
+body:has(.only:target) .lede,
+body:has(.only:target) h1.page { display: none; }
+
+/* ── shared: the document shell ──────────────────────────────────── */
+
+.doc {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    padding: var(--tt-sp-6);
+}
+
+.doc__head { border-bottom: 2px solid var(--tt-ink); padding-bottom: var(--tt-sp-3); margin-bottom: var(--tt-sp-5); }
+.doc__eyebrow { color: var(--tt-muted); font-size: var(--tt-fs-sm); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 var(--tt-sp-1); }
+.doc__title { font-size: 1.55rem; line-height: 1.15; margin: 0 0 var(--tt-sp-2); }
+.doc__facts { display: flex; flex-wrap: wrap; gap: var(--tt-sp-4); color: var(--tt-ink-soft); font-size: var(--tt-fs-sm); }
+.doc__facts b { color: var(--tt-ink); font-variant-numeric: tabular-nums; }
+
+.chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px var(--tt-sp-2);
+    border-radius: 999px;
+    background: var(--tt-bg-soft); color: var(--tt-ink-soft);
+    font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+}
+.chip[data-r="went_well"]  { background: var(--tt-success-subtle); color: var(--tt-success); }
+.chip[data-r="mixed"]      { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.chip[data-r="needs_work"] { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.chip[data-r=""]           { background: transparent; color: var(--tt-muted); font-weight: 400; }
+
+.summary { margin: 0 0 var(--tt-sp-5); font-size: 1.05rem; line-height: 1.6; }
+.summary--quote { border-left: 3px solid var(--tt-line); padding-left: var(--tt-sp-4); color: var(--tt-ink); }
+
+/* ── 1. report: two columns, phases as rows ──────────────────────── */
+
+.v1 .cols { display: grid; gap: var(--tt-sp-6); }
+@media (min-width: 900px) { .v1 .cols { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); } }
+
+.v1 h3.block { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tt-muted); margin: 0 0 var(--tt-sp-3); }
+.v1 .phase { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--tt-sp-1); padding: var(--tt-sp-3) 0; border-top: 1px solid var(--tt-line-soft); }
+.v1 .phase:first-of-type { border-top: 0; padding-top: 0; }
+.v1 .phase__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--tt-sp-2); }
+.v1 .phase__name { font-weight: 600; }
+.v1 .phase ul { margin: 0; padding-left: var(--tt-sp-5); color: var(--tt-ink); }
+.v1 .phase li { margin: 2px 0; }
+.v1 .phase--empty .phase__name { color: var(--tt-muted); font-weight: 400; }
+
+.v1 .players { display: flex; flex-direction: column; gap: var(--tt-sp-3); }
+.v1 .player { border-left: 3px solid var(--tt-line); padding-left: var(--tt-sp-3); }
+.v1 .player[data-m="stood_out"]   { border-left-color: var(--tt-success); }
+.v1 .player[data-m="as_expected"] { border-left-color: var(--tt-info); }
+.v1 .player[data-m="below_par"]   { border-left-color: var(--tt-warning); }
+.v1 .player__name { font-weight: 600; }
+.v1 .player__note { margin: 2px 0 0; color: var(--tt-ink-soft); }
+
+/* ── 2. scorecard: phase tiles, then only what was written ───────── */
+
+.v2 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--tt-sp-2); margin: 0 0 var(--tt-sp-5); }
+@media (min-width: 700px) { .v2 .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.v2 .tile {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+.v2 .tile[data-r="went_well"]  { background: var(--tt-success-subtle); border-color: transparent; }
+.v2 .tile[data-r="mixed"]      { background: var(--tt-info-subtle);    border-color: transparent; }
+.v2 .tile[data-r="needs_work"] { background: var(--tt-warning-subtle); border-color: transparent; }
+.v2 .tile__phase { font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); }
+.v2 .tile__value { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.v2 .tile[data-r="went_well"]  .tile__value { color: var(--tt-success); }
+.v2 .tile[data-r="mixed"]      .tile__value { color: var(--tt-info); }
+.v2 .tile[data-r="needs_work"] .tile__value { color: var(--tt-warning); }
+.v2 .tile[data-r=""] .tile__value { color: var(--tt-muted); font-weight: 400; }
+
+.v2 h3.block { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tt-muted); margin: var(--tt-sp-5) 0 var(--tt-sp-3); }
+.v2 .noted { display: flex; flex-direction: column; gap: var(--tt-sp-4); }
+.v2 .noted__phase { display: flex; flex-direction: column; gap: var(--tt-sp-1); }
+.v2 .noted__name { font-weight: 600; display: flex; align-items: center; gap: var(--tt-sp-2); }
+.v2 .noted__phase ul { margin: 0; padding-left: var(--tt-sp-5); }
+
+.v2 .marks { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: var(--tt-sp-3); }
+@media (min-width: 700px) { .v2 .marks { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.v2 .mark { border-top: 3px solid var(--tt-line); padding-top: var(--tt-sp-2); }
+.v2 .mark[data-m="stood_out"]   { border-top-color: var(--tt-success); }
+.v2 .mark[data-m="as_expected"] { border-top-color: var(--tt-info); }
+.v2 .mark[data-m="below_par"]   { border-top-color: var(--tt-warning); }
+.v2 .mark__label { font-size: var(--tt-fs-sm); font-weight: 600; color: var(--tt-ink-soft); margin-bottom: var(--tt-sp-2); }
+.v2 .mark__player { margin-bottom: var(--tt-sp-2); }
+.v2 .mark__player b { display: block; }
+.v2 .mark__player span { color: var(--tt-ink-soft); font-size: var(--tt-fs-sm); }
+
+/* ── 3. memo: prose first, phases as a rail ──────────────────────── */
+
+.v3 .memo { max-width: 68ch; }
+.v3 .rail { display: flex; flex-direction: column; }
+.v3 .rail__row {
+    display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3) 0; border-bottom: 1px solid var(--tt-line-soft);
+}
+.v3 .rail__row:last-child { border-bottom: 0; }
+.v3 .rail__mark { border-radius: 999px; background: var(--tt-line); margin-top: 6px; height: 12px; }
+.v3 .rail__row[data-r="went_well"]  .rail__mark { background: var(--tt-success); }
+.v3 .rail__row[data-r="mixed"]      .rail__mark { background: var(--tt-info); }
+.v3 .rail__row[data-r="needs_work"] .rail__mark { background: var(--tt-warning); }
+.v3 .rail__name { font-weight: 600; }
+.v3 .rail__rating { color: var(--tt-ink-soft); font-size: var(--tt-fs-sm); }
+.v3 .rail__row p { margin: var(--tt-sp-1) 0 0; }
+.v3 .rail__row ul { margin: var(--tt-sp-1) 0 0; padding-left: var(--tt-sp-5); }
+.v3 .unrated { color: var(--tt-muted); font-size: var(--tt-fs-sm); margin: var(--tt-sp-3) 0 0; }
+
+.v3 .people { margin-top: var(--tt-sp-6); border-top: 2px solid var(--tt-ink); padding-top: var(--tt-sp-4); }
+.v3 .person { display: grid; grid-template-columns: 8rem minmax(0, 1fr); gap: var(--tt-sp-3); padding: var(--tt-sp-2) 0; border-bottom: 1px solid var(--tt-line-soft); }
+.v3 .person:last-child { border-bottom: 0; }
+.v3 .person__who { display: flex; flex-direction: column; gap: 2px; }
+.v3 .person__who b { font-weight: 600; }
+.v3 .person__note { margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="only" id="only-1"></span><span class="only" id="only-2"></span><span class="only" id="only-3"></span>
+
+<h1 class="page">The finished analysis — three ways to read it back</h1>
+<p class="lede">
+  This is what the read-only view, the staff share link and the print sheet all render.
+  Today every phase gets an identical full-width card, so a phase nobody rated takes as much
+  room as the one with three points written about it, and the match itself — opponent, score,
+  date — is a grey line above it all. Same content in all three; only the document changes.
+</p>
+
+<nav class="nav">
+  <a href="#only-1">1 — Report</a>
+  <a href="#only-2">2 — Scorecard</a>
+  <a href="#only-3">3 — Memo</a>
+  <a href="./">all three</a>
+</nav>
+
+<!-- ───────────────────────── 1 ───────────────────────── -->
+<section class="variant v1">
+  <h2 class="dir">1 — Report</h2>
+  <p class="caption">
+    Two columns on desktop: the match read on the left, the players on the right, so the two
+    halves of the analysis are visible at once instead of one being a scroll away. Phases are
+    rows, not cards — an unrated one costs a single grey line.
+  </p>
+
+  <div class="doc">
+    <header class="doc__head">
+      <p class="doc__eyebrow">Wedstrijdanalyse</p>
+      <h2 class="doc__title">Wedstrijd 6.2 <span style="color:var(--tt-muted);font-weight:400">tegen Ajax U17</span></h2>
+      <div class="doc__facts">
+        <span>vrijdag 31 juli 2026</span>
+        <span>Uitwedstrijd</span>
+        <span>Uitslag <b>2 – 1</b></span>
+        <span>12 spelers</span>
+      </div>
+    </header>
+
+    <p class="summary summary--quote">Prima. Traag begonnen en er langzaam ingegroeid; tweede helft was het voetbal waarop we trainen.</p>
+
+    <div class="cols">
+      <div>
+        <h3 class="block">Per fase</h3>
+
+        <div class="phase">
+          <div class="phase__head">
+            <span class="phase__name">Aanvallen</span>
+            <span class="chip" data-r="went_well">▲ Ging goed</span>
+          </div>
+          <ul><li>Vooral Jesse deed dit niet consistent</li></ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase__head">
+            <span class="phase__name">Omschakelen naar verdedigen</span>
+            <span class="chip" data-r="mixed">● Wisselend</span>
+          </div>
+          <ul><li>Traag druk zetten na balverlies</li><li>Na rust ging de dichtstbijzijnde speler er wel direct op</li></ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase__head">
+            <span class="phase__name">Omschakelen naar aanvallen</span>
+            <span class="chip" data-r="needs_work">▼ Moet beter</span>
+          </div>
+          <ul><li>Eerste pass na balwinst ging te vaak achteruit</li></ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase__head">
+            <span class="phase__name">Verdedigen</span>
+            <span class="chip" data-r="went_well">▲ Ging goed</span>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase__head">
+            <span class="phase__name">Spelhervattingen</span>
+            <span class="chip" data-r="went_well">▲ Ging goed</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="block">Spelers · 3 van 12 genoemd</h3>
+        <div class="players">
+          <div class="player" data-m="stood_out">
+            <span class="player__name">Thijs</span> <span class="chip" data-r="went_well">▲ Sprong eruit</span>
+            <p class="player__note">Verdedigend sterk</p>
+          </div>
+          <div class="player" data-m="below_par">
+            <span class="player__name">Justin</span> <span class="chip" data-r="needs_work">▼ Kwam tekort</span>
+            <p class="player__note">Te slordig in balbezit</p>
+          </div>
+          <div class="player" data-m="as_expected">
+            <span class="player__name">Guus</span> <span class="chip" data-r="mixed">● Zoals verwacht</span>
+            <p class="player__note">Hard gewerkt</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── 2 ───────────────────────── -->
+<section class="variant v2">
+  <h2 class="dir">2 — Scorecard</h2>
+  <p class="caption">
+    The shape of the match first: six small tiles, one per phase, colour-carrying, readable in
+    two seconds. Underneath, only the phases somebody actually wrote about. Players are grouped
+    by what they were marked, which is the sentence a coach says out loud on Monday.
+  </p>
+
+  <div class="doc">
+    <header class="doc__head">
+      <p class="doc__eyebrow">Wedstrijdanalyse</p>
+      <h2 class="doc__title">Wedstrijd 6.2 <span style="color:var(--tt-muted);font-weight:400">tegen Ajax U17</span></h2>
+      <div class="doc__facts">
+        <span>vrijdag 31 juli 2026</span>
+        <span>Uitwedstrijd</span>
+        <span>Uitslag <b>2 – 1</b></span>
+      </div>
+    </header>
+
+    <div class="tiles">
+      <div class="tile" data-r="went_well"><span class="tile__phase">Aanvallen</span><span class="tile__value">▲ Ging goed</span></div>
+      <div class="tile" data-r="mixed"><span class="tile__phase">Omschakelen naar verdedigen</span><span class="tile__value">● Wisselend</span></div>
+      <div class="tile" data-r="needs_work"><span class="tile__phase">Omschakelen naar aanvallen</span><span class="tile__value">▼ Moet beter</span></div>
+      <div class="tile" data-r="went_well"><span class="tile__phase">Verdedigen</span><span class="tile__value">▲ Ging goed</span></div>
+      <div class="tile" data-r="went_well"><span class="tile__phase">Spelhervattingen</span><span class="tile__value">▲ Ging goed</span></div>
+      <div class="tile" data-r=""><span class="tile__phase">Algemeen</span><span class="tile__value">Niet beoordeeld</span></div>
+    </div>
+
+    <p class="summary summary--quote">Prima. Traag begonnen en er langzaam ingegroeid; tweede helft was het voetbal waarop we trainen.</p>
+
+    <h3 class="block">Wat opviel per fase</h3>
+    <div class="noted">
+      <div class="noted__phase">
+        <span class="noted__name">Aanvallen <span class="chip" data-r="went_well">▲</span></span>
+        <ul><li>Vooral Jesse deed dit niet consistent</li></ul>
+      </div>
+      <div class="noted__phase">
+        <span class="noted__name">Omschakelen naar verdedigen <span class="chip" data-r="mixed">●</span></span>
+        <ul><li>Traag druk zetten na balverlies</li><li>Na rust ging de dichtstbijzijnde speler er wel direct op</li></ul>
+      </div>
+      <div class="noted__phase">
+        <span class="noted__name">Omschakelen naar aanvallen <span class="chip" data-r="needs_work">▼</span></span>
+        <ul><li>Eerste pass na balwinst ging te vaak achteruit</li></ul>
+      </div>
+    </div>
+
+    <h3 class="block">Spelers · 3 van 12 genoemd</h3>
+    <div class="marks">
+      <div class="mark" data-m="stood_out">
+        <p class="mark__label">▲ Sprong eruit</p>
+        <div class="mark__player"><b>Thijs</b><span>Verdedigend sterk</span></div>
+      </div>
+      <div class="mark" data-m="as_expected">
+        <p class="mark__label">● Zoals verwacht</p>
+        <div class="mark__player"><b>Guus</b><span>Hard gewerkt</span></div>
+      </div>
+      <div class="mark" data-m="below_par">
+        <p class="mark__label">▼ Kwam tekort</p>
+        <div class="mark__player"><b>Justin</b><span>Te slordig in balbezit</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── 3 ───────────────────────── -->
+<section class="variant v3">
+  <h2 class="dir">3 — Memo</h2>
+  <p class="caption">
+    Reads like something a person wrote. The coach's words lead at full size, the phases follow
+    as a single quiet list with a coloured dot per rating, and the unrated ones are named once in
+    a footnote rather than occupying the page. Least chrome of the three; best on paper.
+  </p>
+
+  <div class="doc">
+    <header class="doc__head">
+      <p class="doc__eyebrow">Wedstrijdanalyse · Ajax U17 (uit) · 31 juli 2026</p>
+      <h2 class="doc__title">Wedstrijd 6.2 — 2 – 1</h2>
+    </header>
+
+    <div class="memo">
+      <p class="summary">Prima. Traag begonnen en er langzaam ingegroeid; tweede helft was het voetbal waarop we trainen.</p>
+
+      <div class="rail">
+        <div class="rail__row" data-r="went_well">
+          <span class="rail__mark"></span>
+          <div>
+            <span class="rail__name">Aanvallen</span> <span class="rail__rating">— ging goed</span>
+            <ul><li>Vooral Jesse deed dit niet consistent</li></ul>
+          </div>
+        </div>
+        <div class="rail__row" data-r="mixed">
+          <span class="rail__mark"></span>
+          <div>
+            <span class="rail__name">Omschakelen naar verdedigen</span> <span class="rail__rating">— wisselend</span>
+            <ul><li>Traag druk zetten na balverlies</li><li>Na rust ging de dichtstbijzijnde speler er wel direct op</li></ul>
+          </div>
+        </div>
+        <div class="rail__row" data-r="needs_work">
+          <span class="rail__mark"></span>
+          <div>
+            <span class="rail__name">Omschakelen naar aanvallen</span> <span class="rail__rating">— moet beter</span>
+            <ul><li>Eerste pass na balwinst ging te vaak achteruit</li></ul>
+          </div>
+        </div>
+        <div class="rail__row" data-r="went_well">
+          <span class="rail__mark"></span>
+          <div>
+            <span class="rail__name">Verdedigen</span> <span class="rail__rating">— ging goed</span>
+          </div>
+        </div>
+        <div class="rail__row" data-r="went_well">
+          <span class="rail__mark"></span>
+          <div>
+            <span class="rail__name">Spelhervattingen</span> <span class="rail__rating">— ging goed</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="unrated">Niet beoordeeld: Algemeen.</p>
+
+      <div class="people">
+        <h3 class="block" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tt-muted);margin:0 0 var(--tt-sp-3)">Spelers · 3 van 12 genoemd</h3>
+        <div class="person">
+          <span class="person__who"><b>Thijs</b><span class="chip" data-r="went_well">▲ Sprong eruit</span></span>
+          <p class="person__note">Verdedigend sterk</p>
+        </div>
+        <div class="person">
+          <span class="person__who"><b>Justin</b><span class="chip" data-r="needs_work">▼ Kwam tekort</span></span>
+          <p class="person__note">Te slordig in balbezit</p>
+        </div>
+        <div class="person">
+          <span class="person__who"><b>Guus</b><span class="chip" data-r="mixed">● Zoals verwacht</span></span>
+          <p class="person__note">Hard gewerkt</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

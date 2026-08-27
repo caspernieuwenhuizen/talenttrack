@@ -4794,49 +4794,49 @@ parameters:
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\ExcelImporter\\:\\:formatDate\\(\\) has parameter \\$val with no type specified\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\ExcelImporter\\:\\:formatDate\\(\\) has parameter \\$val with no type specified\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/ExcelImporter.php
+			path: src/Modules/Import/Excel/ExcelImporter.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\ExcelImporter\\:\\:readSheet\\(\\) has parameter \\$book with no type specified\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\ExcelImporter\\:\\:readSheet\\(\\) has parameter \\$book with no type specified\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/ExcelImporter.php
+			path: src/Modules/Import/Excel/ExcelImporter.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\SheetSchemas\\:\\:byKey\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\SheetSchemas\\:\\:byKey\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/SheetSchemas.php
+			path: src/Modules/Import/Excel/SheetSchemas.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\TemplateBuilder\\:\\:emitReadmeSheet\\(\\) has parameter \\$book with no type specified\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\TemplateBuilder\\:\\:emitReadmeSheet\\(\\) has parameter \\$book with no type specified\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\TemplateBuilder\\:\\:populateAutoKeyFormula\\(\\) has parameter \\$schema with no value type specified in iterable type array\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\TemplateBuilder\\:\\:populateAutoKeyFormula\\(\\) has parameter \\$schema with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\TemplateBuilder\\:\\:populateAutoKeyFormula\\(\\) has parameter \\$sheet with no type specified\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\TemplateBuilder\\:\\:populateAutoKeyFormula\\(\\) has parameter \\$sheet with no type specified\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\TemplateBuilder\\:\\:populateGenerationSettingsHints\\(\\) has parameter \\$sheet with no type specified\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\TemplateBuilder\\:\\:populateGenerationSettingsHints\\(\\) has parameter \\$sheet with no type specified\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
-			message: "#^Method TT\\\\Modules\\\\DemoData\\\\Excel\\\\TemplateBuilder\\:\\:sourceColumnFor\\(\\) has parameter \\$schema with no value type specified in iterable type array\\.$#"
+			message: "#^Method TT\\\\Modules\\\\Import\\\\Excel\\\\TemplateBuilder\\:\\:sourceColumnFor\\(\\) has parameter \\$schema with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
 			message: "#^Offset 'group' on array\\{sheet\\: string, entity\\: string, group\\: string, columns\\: array\\<string, array\\{label\\: string, type\\: string, required\\: bool, fk\\?\\: string\\}\\>\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
-			path: src/Modules/DemoData/Excel/TemplateBuilder.php
+			path: src/Modules/Import/Excel/TemplateBuilder.php
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$id\\.$#"
@@ -6395,7 +6395,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$id\\.$#"
-			count: 1
+			count: 2
 			path: src/Modules/Invitations/Frontend/InvitationsConfigView.php
 
 		-
@@ -6405,7 +6405,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$status\\.$#"
-			count: 3
+			count: 4
 			path: src/Modules/Invitations/Frontend/InvitationsConfigView.php
 
 		-
@@ -6455,12 +6455,12 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$kind\\.$#"
-			count: 5
+			count: 6
 			path: src/Modules/Invitations/InvitationService.php
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$status\\.$#"
-			count: 3
+			count: 4
 			path: src/Modules/Invitations/InvitationService.php
 
 		-
@@ -6495,7 +6495,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:prepare\\(\\) expects literal\\-string, non\\-falsy\\-string given\\.$#"
-			count: 9
+			count: 11
 			path: src/Modules/Invitations/InvitationsRepository.php
 
 		-
@@ -7124,11 +7124,6 @@ parameters:
 			path: src/Modules/License/FeatureMap.php
 
 		-
-			message: "#^Constant TT_PLUGIN_DIR not found\\.$#"
-			count: 1
-			path: src/Modules/License/FreemiusAdapter.php
-
-		-
 			message: "#^Access to an undefined property object\\:\\:\\$activity_id\\.$#"
 			count: 1
 			path: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php
@@ -7715,7 +7710,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:prepare\\(\\) expects literal\\-string, non\\-falsy\\-string given\\.$#"
-			count: 6
+			count: 8
 			path: src/Modules/MatchPrep/Repositories/MatchPrepRepository.php
 
 		-
@@ -18651,3 +18646,8 @@ parameters:
 			message: "#^Method TT\\\\Shared\\\\Wizards\\\\WizardState\\:\\:start\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Shared/Wizards/WizardState.php
+
+		-
+			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:prepare\\(\\) expects literal\\-string, non\\-falsy\\-string given\\.$#"
+			count: 1
+			path: src/Modules/Measurements/Growth/BmiSeriesBuilder.php

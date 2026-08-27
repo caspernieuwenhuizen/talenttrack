@@ -3,6 +3,7 @@ namespace TT\Modules\Comms\Cron;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\MessageType;
@@ -266,8 +267,8 @@ final class CommsScheduledCron {
                     Recipient::parent(
                         $parent_user_id,
                         (int) $row->player_id,
-                        (string) $u->user_email,
-                        (string) get_user_meta( $parent_user_id, 'tt_phone', true ),
+                        (string) ( ContactResolver::emailForParent( $parent_user_id ) ?? '' ),
+                        (string) ( ContactResolver::phoneForUser( $parent_user_id ) ?? '' ),
                         (string) get_user_meta( $parent_user_id, 'locale', true )
                     ),
                 ],
@@ -320,8 +321,8 @@ final class CommsScheduledCron {
                     Recipient::coach(
                         $coach_user_id,
                         null,
-                        (string) $u->user_email,
-                        (string) get_user_meta( $coach_user_id, 'tt_phone', true ),
+                        (string) ( ContactResolver::emailForUser( $coach_user_id ) ?? '' ),
+                        (string) ( ContactResolver::phoneForUser( $coach_user_id ) ?? '' ),
                         (string) get_user_meta( $coach_user_id, 'locale', true )
                     ),
                 ],
@@ -346,7 +347,7 @@ final class CommsScheduledCron {
     private static function clubAdminRecipients( int $club_id ): array {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT u.ID, u.user_email, u.display_name
+            "SELECT u.ID, u.display_name
                 FROM {$wpdb->users} u
                 JOIN {$wpdb->usermeta} m ON m.user_id = u.ID
                   AND m.meta_key = %s
@@ -362,8 +363,8 @@ final class CommsScheduledCron {
             $out[] = Recipient::coach(
                 (int) $r->ID,
                 null,
-                (string) $r->user_email,
-                (string) get_user_meta( (int) $r->ID, 'tt_phone', true ),
+                (string) ( ContactResolver::emailForUser( (int) $r->ID ) ?? '' ),
+                (string) ( ContactResolver::phoneForUser( (int) $r->ID ) ?? '' ),
                 (string) get_user_meta( (int) $r->ID, 'locale', true )
             );
         }

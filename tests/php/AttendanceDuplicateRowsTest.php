@@ -125,17 +125,13 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
     }
 
     /**
-     * On completed activities — the set both the badge and the list include
-     * — the two must agree. A mismatch there is the symptom that survived
-     * #2521 and #2522, so it is asserted against the two code paths rather
-     * than against a literal.
+     * The badge counts what the tab renders — decided 2026-08-26. A number
+     * on a tab is read as "how many things are in here", so a badge of 14
+     * above 19 rows is the disagreement the pilot reported.
      *
-     * They still diverge on *upcoming* activities by design: the list shows
-     * them, the badge counts attendance. Aligning those would mean putting
-     * the badge on `plan_state`, which defaults to 'completed' on rows the
-     * planner never touched — reintroducing #2521. That trade-off is a
-     * product question raised on the issue, not something to settle inside a
-     * duplicate-rows fix.
+     * Asserted against the two code paths rather than a literal: a mismatch
+     * is the symptom that survived #2521 and #2522, and pinning it to a
+     * number would let the next divergence through.
      */
     public function test_the_tab_badge_matches_the_rendered_rows(): void {
         $team_id   = $this->insertTeam();
@@ -159,6 +155,34 @@ final class AttendanceDuplicateRowsTest extends WP_UnitTestCase {
             count( $rows ),
             'the badge and the list must not disagree about how many activities there are'
         );
+    }
+
+    /**
+     * The case the old badge got wrong: an upcoming fixture is rendered by
+     * the tab, so it has to be counted by the badge too. Under the previous
+     * `activity_status_key` rule this was 2 vs 3.
+     */
+    public function test_upcoming_activities_count_toward_the_badge(): void {
+        $team_id   = $this->insertTeam();
+        $player_id = $this->insertPlayer( $team_id );
+
+        foreach ( [ '2026-04-23', '2026-05-18' ] as $date ) {
+            $past = $this->insertActivity( $team_id, $date, 'completed' );
+            $this->insertAttendance( $past, $player_id, 'actual', 'present' );
+        }
+
+        $upcoming = $this->insertActivity( $team_id, gmdate( 'Y-m-d', strtotime( '+14 days' ) ), 'planned' );
+        $this->insertAttendance( $upcoming, $player_id, 'expected', 'present' );
+
+        $rows   = ( new ActivitiesRepository() )->listForPlayer( $player_id, 25, 'ASC', [
+            'record_types'        => null,
+            'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+            'only_past_completed' => true,
+        ] );
+        $counts = PlayerFileCounts::for( $player_id );
+
+        $this->assertCount( 3, $rows, 'two played plus one upcoming' );
+        $this->assertSame( 3, (int) $counts['activities'], 'the badge counts the upcoming one too' );
     }
 
     private function insertTeam(): int {

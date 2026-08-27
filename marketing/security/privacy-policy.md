@@ -1,6 +1,6 @@
 # Privacy Policy
 
-> **Source for `talenttrack.app/privacy`.** Copy this content to the public page on the TalentTrack website. Update the *Last reviewed* date with each annual review. The operator-facing how-to is at `docs/privacy-operator-guide.md` inside the plugin; the legal Data Processing Agreement template is at `marketing/security/dpa-template.md`.
+> **Source for `mediamaniacs.nl/talenttrack/privacy`.** Copy this content to the public page on the TalentTrack website. Update the *Last reviewed* date with each annual review. The operator-facing how-to is at `docs/privacy-operator-guide.md` inside the plugin; the legal Data Processing Agreement template is at `marketing/security/dpa-template.md`.
 
 > **Last reviewed:** [date of last annual review]
 
@@ -8,7 +8,7 @@ This privacy policy explains how MediaManiacs, the company that publishes Talent
 
 ## Two roles
 
-**On `talenttrack.app` (the website you're reading right now), we are the controller.** We decide what data is collected when you browse the site, sign up for a trial, or download something. The amount of data is minimal — see "What we collect on this website" below.
+**On `mediamaniacs.nl` (the website you're reading right now), we are the controller.** We decide what data is collected when you browse the site, sign up for a trial, or download something. The amount of data is minimal — see "What we collect on this website" below.
 
 **On your TalentTrack install (after you become a customer), your academy is the controller and we are the processor.** Your academy decides what data is collected about your players, staff, and operations. We hold that data on your behalf, only act on your instructions, and have signed a Data Processing Agreement (DPA) with you that documents this relationship. The legal commitments we make to you in that role are in the DPA, not on this page.
 
@@ -16,7 +16,7 @@ This split matters because the GDPR obligations differ. This page covers our rol
 
 ## What we collect on this website
 
-When you visit `talenttrack.app`:
+When you visit `mediamaniacs.nl`:
 
 - **Server-side logs** — your IP address, the pages you requested, the timestamp, your browser's user-agent string. Retained 90 days for security and abuse detection.
 - **Cookies** — a single first-party cookie remembering your language preference and whether you've dismissed our cookie notice. No third-party advertising cookies, no analytics cookies, no tracking pixels.
@@ -77,7 +77,7 @@ For the website:
 
 | Sub-processor | Purpose | Region |
 |--|--|--|
-| Hosting provider for `talenttrack.app` | Webserver | EU (Netherlands) |
+| Hosting provider for `mediamaniacs.nl` | Webserver | EU (Netherlands) |
 | Email provider for `casper@mediamaniacs.nl` | Email | EU |
 
 For customer installs (in the controller's role): the academy chooses its own hosting provider; Freemius handles licensing and payment. See the customer-facing security page for the full list.
@@ -91,7 +91,7 @@ We do not transfer your data outside the EU. The exceptions are:
 
 ## Cookies
 
-`talenttrack.app` uses one first-party cookie to remember your language preference and cookie-notice dismissal. No tracking cookies, no third-party cookies. Cookie banner is currently the standard EU opt-out style; full cookie-management details are in the cookie notice.
+`mediamaniacs.nl` uses one first-party cookie to remember your language preference and cookie-notice dismissal. No tracking cookies, no third-party cookies. Cookie banner is currently the standard EU opt-out style; full cookie-management details are in the cookie notice.
 
 Customer installs of TalentTrack run on WordPress, which uses session cookies for authentication. Those cookies are first-party to the academy's WordPress install and live under the academy's privacy policy, not ours.
 
@@ -103,7 +103,7 @@ The product TalentTrack collects data about players who are typically minors (10
 
 For the website: standard hardened WordPress install on a managed European host. HTTPS only. No third-party analytics or advertising.
 
-For customer installs: see the security page at `talenttrack.app/security` for the full posture, including encryption commitments, audit cadence, and breach-notification commitments.
+For customer installs: see the security page at `mediamaniacs.nl/talenttrack/security` for the full posture, including encryption commitments, audit cadence, and breach-notification commitments.
 
 ## Changes to this policy
 

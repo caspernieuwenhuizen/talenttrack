@@ -196,6 +196,34 @@ forms digitally: the button leaves the toolbar and the print URL refuses,
 while the coach's own export is untouched. Turning either off leaves the
 match-prep screen itself fully usable.
 
+## Share the plan with staff who have no account
+
+**Share plan** produces a link you can send to an assistant coach, an analyst or
+a keeper coach. They open it and read the plan — the lineup, the per-phase goals,
+the per-player notes — without logging in and without an account on this install.
+
+It is read-only. Nobody who opens the link can change anything, and the page is
+kept out of search engines.
+
+Three things worth knowing before you send one:
+
+- **The link is the key.** Anyone who has it can read the plan, so treat it the
+  way you would treat the printed sheet: give it to the people who need it, and
+  not to a group chat you do not control.
+- **It names players and says who is expected to start.** That is the point of
+  sending it, and it is also the reason not to forward it outside the staff.
+- **You can revoke it.** *Replace link* issues a new one and stops the old one
+  working immediately — for everyone who has it. Use it if a link went to the
+  wrong group, or when someone leaves the staff.
+
+The link keeps working as you edit: whoever opens it sees the plan as it stands,
+not as it was when you sent it. That is the difference between this and emailing
+a PDF, which is out of date the moment you swap a starter.
+
+Sharing can be switched off entirely for the academy under **Modules and
+features**, separately from match-analysis sharing. Writing and printing the plan
+are unaffected.
+
 ## What you can't do here
 
 - Edit the roster (add / remove players from the team) — that's the

@@ -34,7 +34,7 @@ class TeamKpisRepository {
             "SELECT COUNT(*)
                FROM {$p}tt_activities
               WHERE team_id = %d
-                AND ( archived_at IS NULL OR archived_at = '' )
+                AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND session_date >= CURDATE()
                 AND session_date <= DATE_ADD(CURDATE(), INTERVAL %d DAY)
                 AND activity_status_key NOT IN ('completed', 'cancelled')",
@@ -65,7 +65,7 @@ class TeamKpisRepository {
               WHERE a.team_id = %d
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'
-                AND a.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
                 AND {$completed}
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
             $team_id, $days
@@ -97,13 +97,19 @@ class TeamKpisRepository {
         global $wpdb;
         $p          = $wpdb->prefix;
         $eval_live  = ArchiveRepository::filterClause( 'active', 'e' );
+        // #2906 — the player side needed the same treatment. #2865 routed the
+        // evaluations through filterClause but left `pl.archived_at IS NULL`
+        // raw, so a trashed player's ratings still counted toward the squad
+        // average while their row was gone from every list. Same bug as #2865,
+        // one JOIN along.
+        $player_live = ArchiveRepository::filterClause( 'active', 'pl' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT AVG(r.rating) AS avg_r, COUNT(*) AS n
                FROM {$p}tt_eval_ratings r
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_players pl ON pl.id = e.player_id
               WHERE pl.team_id = %d
-                AND pl.archived_at IS NULL
+                AND {$player_live}
                 AND pl.club_id = %d
                 AND {$eval_live}",
             $team_id, CurrentClub::id()

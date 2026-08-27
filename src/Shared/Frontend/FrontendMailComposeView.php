@@ -59,7 +59,11 @@ final class FrontendMailComposeView extends FrontendViewBase {
             ? add_query_arg( [ 'tt_view' => 'people', 'id' => $person_id ], $dash )
             : add_query_arg( [ 'tt_view' => 'people' ], $dash );
 
-        if ( ! $person || empty( $person->email ) ) {
+        $email = $person
+            ? (string) ( \TT\Infrastructure\Identity\ContactResolver::emailForPerson( $person_id ) ?? '' )
+            : '';
+
+        if ( ! $person || $email === '' ) {
             self::renderHeader( __( 'Compose email', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'No recipient on file.', 'talenttrack' ) . '</em></p>';
             return;
@@ -78,14 +82,13 @@ final class FrontendMailComposeView extends FrontendViewBase {
                 if ( $subject === '' || trim( wp_strip_all_tags( $body ) ) === '' ) {
                     $error = __( 'Subject and message body are both required.', 'talenttrack' );
                 } else {
-                    $sent_ok = (bool) wp_mail( (string) $person->email, $subject, $body );
+                    $sent_ok = (bool) wp_mail( $email, $subject, $body );
                     self::recordAudit( (int) $person->id, $subject, $body, $sent_ok );
                 }
             }
         }
 
         $name  = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
-        $email = (string) $person->email;
 
         self::enqueueAssets();
         self::enqueueViewCss();

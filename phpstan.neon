@@ -27,6 +27,10 @@ parameters:
     scanFiles:
         - talenttrack.php
         - tools/phpstan-constants.php
+        # #2981 — WP-CLI is the runtime that loads WordPress, not a composer
+        # dependency, so PHPStan had never seen a WP_CLI symbol. Declaring the
+        # handful we call beats grandfathering each CLI file in the baseline.
+        - tools/phpstan-wpcli-stub.php
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
     ignoreErrors: []

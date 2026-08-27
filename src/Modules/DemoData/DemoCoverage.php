@@ -594,6 +594,8 @@ class DemoCoverage {
         'tt_alert_preferences' => [ 'exempt' => 'A real person\'s own alert settings. Absence of a row already means "use the default", so an empty table is the correct state.' ],
         'tt_comms_optouts' => [ 'exempt' => 'A real recipient\'s own choice about what reaches them. Seeding one would suppress demo messages the operator expects to see.' ],
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
+        'tt_import_batches' => [ 'exempt' => 'The record of a REAL spreadsheet import (#2956). Deliberately outside the demo registry — anything the demo cleaner can reach, it can delete, and these rows account for a club\'s actual squad.' ],
+        'tt_import_tags'    => [ 'exempt' => 'Which rows a real import created (#2956). Same reason as tt_import_batches: the demo cleaner must not be able to see, let alone wipe, a club\'s imported records.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
         'tt_error_log'   => [ 'exempt' => 'Error log. Synthetic errors would send operators chasing bugs that never happened.' ],
         // #2631 — derived state, not content. Rows are written only by the
@@ -1269,7 +1271,7 @@ class DemoCoverage {
             'tournaments' => __( 'Tournaments', 'talenttrack' ),
             'staff_development' => __( 'Staff development', 'talenttrack' ),
             'comms_ops'   => __( 'Messages and operator records', 'talenttrack' ),
-            'knowledge'   => __( 'Knowledge library', 'talenttrack' ),
+            'knowledge'   => __( 'Courses', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }

@@ -45,6 +45,58 @@ npm run wp-env:clean          # nuke the database (if a test mucked it)
 `.github/workflows/e2e.yml` runs the suite on every PR. Failing
 runs upload screenshots + videos + traces as artifacts.
 
+## Projects
+
+Two, and they do not overlap:
+
+| project | viewport | runs | blocking |
+| --- | --- | --- | --- |
+| `chromium` | Desktop Chrome | every spec except `mobile-viewport.spec.js` | yes |
+| `iphone-13` | 390x844, touch on | `mobile-viewport.spec.js` only | not yet |
+
+Locally: `npm run test:e2e` for the desktop suite, `npm run test:e2e:mobile`
+for the viewport gate.
+
+### The mobile viewport gate (#2813)
+
+`mobile-viewport.spec.js` walks every surface a phone can actually reach —
+read from `config/mobile_surfaces.php`, skipping `desktop_only`, since a
+phone visitor is intercepted before those render — and asserts three things
+per surface:
+
+1. No horizontal overflow (`scrollWidth <= clientWidth`).
+2. No visible interactive element under 48px in either dimension.
+3. No table wider than the viewport, on `native` surfaces only. Elsewhere a
+   table scrolling inside its own container is the intended compromise.
+
+Two settings in `playwright.config.js` are load-bearing rather than
+cosmetic, and both are spelled out instead of spread from
+`devices['iPhone 13']` so a Playwright upgrade cannot move a regression
+gate's goalposts:
+
+- **`hasTouch: true`.** The 48px floor lives behind
+  `@media (pointer: coarse)`. Without touch the run measures desktop
+  density and passes every tap-target assertion for the wrong reason.
+- **An iPhone user agent.** `MobileDetector::isPhone()` reads the UA
+  server-side to decide what a phone gets. Without it the gate measures the
+  desktop render at a narrow width, which is not the same thing.
+
+The spec also hides `#wpadminbar`, which declares `min-width: 600px` and
+would otherwise fake ~210px of overflow on every surface in every run.
+
+**Baseline.** The audit found 2,213 defect rows; a gate that fails on all of
+them is a gate somebody turns off. `mobile-baseline.json` lists allowed
+finding kinds per surface — anything not listed fails. It ships **empty**,
+because the audit measured a seeded local install rather than wp-env, and
+transcribing those rows would grant exemptions nobody verified against what
+CI sees. The first run prints the real offender list in that file's exact
+shape; paste it in and the gate is calibrated.
+
+Until the baseline is empty the step is `continue-on-error` in `e2e.yml`.
+Flip it to blocking when the last allowance goes. The spec also reports any
+baseline entry that has *stopped* offending — that is the line to delete,
+and a stale allowance is where the next real regression hides.
+
 ## Coverage matrix (#0076)
 
 | File | Flow | Status |
