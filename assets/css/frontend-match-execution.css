@@ -1984,3 +1984,221 @@
     .tt-mexec-goal-sheet-actions { justify-content: flex-end; }
     .tt-mexec-goal-sheet-actions .tt-btn { flex: 0 0 auto; }
 }
+
+/* =====================================================================
+   #2935 — the sectioned layout.
+   ---------------------------------------------------------------------
+   Everything below is under `.tt-mexec--sections`, which PHP adds only
+   when `MatchExecutionLayout::isSections()` resolves. The classic
+   long-scroll layout above is untouched, and none of these selectors
+   can reach it.
+
+   Four regions in a grid, in thumb-zone order: bar, panel, CTA, tabs.
+   The panel is the only scroller. There is no `position: fixed`
+   anywhere here, which is what removes the z-index race with the shell
+   bar that #2916 was about — the regions are grid rows, so nothing can
+   be stacked underneath them.
+
+   `--tt-mexec-avail` is measured once in JS (see `fitSections()` in
+   frontend-match-execution.js): the container takes exactly the height
+   left below the breadcrumbs, so the document itself is one viewport
+   tall and the body never scrolls. The `100dvh` fallback keeps the
+   layout usable if that script fails — it overshoots by the height of
+   the chain above, which costs a little page scroll and nothing else.
+   ===================================================================== */
+
+.tt-mexec--sections {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+        "bar"
+        "panels"
+        "cta"
+        "tabs";
+    block-size: var(--tt-mexec-avail, 100dvh);
+    /* The classic layout reserves room for a fixed footer. Here the CTA
+       is a grid row, so reserving it again would be dead space. */
+    padding-bottom: 0;
+}
+
+/* ----- bar: the two numbers that must never scroll away ----- */
+
+/*
+ * The clock and the start/pause button stack in the middle column rather
+ * than sitting beside it. Four columns on one row does fit in English, and
+ * does not in Dutch: "Hervatten" on the button pushes the clock chip past
+ * its column and the two overlap at 360px. Stacking makes the bar's width
+ * independent of how long a translation runs, which is the only version of
+ * this that stays correct in a language nobody has tested yet.
+ *
+ * The button is `display: none` post-match (see the `data-state` rules
+ * above), so the second row collapses and a finalized match gets the
+ * shorter bar the design asked for, without a rule of its own.
+ */
+.tt-mexec--sections .tt-mexec-bar {
+    grid-area: bar;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "home clock away"
+        "home pause away";
+    align-items: center;
+    justify-items: center;
+    gap: 6px 8px;
+    padding: 8px var(--tt-mexec-gap);
+    /* The score card's own ground, not a new one. The scoreline is gold
+       (`--tt-mx-gold`), which is legible on the dark green it has always
+       sat on and is about 1.9:1 on white — so flattening the card into
+       the bar without carrying its background over would fail contrast
+       on the one number this surface exists to show. */
+    background: var(--tt-mx-primary, #0b3d2e);
+    color: #fff;
+    border-bottom: 1px solid var(--tt-mx-primary, #0b3d2e);
+}
+
+/* The timer moved onto the green with the score, so the two pieces that
+   were drawn for white have to follow it. Nothing new is introduced —
+   these are the same treatments the score card already gives its own
+   label and its `+` button. */
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-half {
+    color: rgba(255, 255, 255, 0.78);
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-half[data-status="live"],
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-half[data-status="live"]::before {
+    color: var(--tt-mx-gold, #e8b624);
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-clock {
+    /* A dark-green chip on a dark-green bar is an invisible chip. */
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--tt-mx-gold, #e8b624);
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn:active {
+    background: rgba(255, 255, 255, 0.24);
+}
+/* Start and resume stay the affirmative green, pause the warn orange —
+   both keep enough separation from the bar to read as buttons. */
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn[data-action="start"],
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn[data-action="resume"] {
+    background: var(--tt-mexec-success);
+    border-color: var(--tt-mexec-success);
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn[data-action="pause"] {
+    background: var(--tt-mexec-warn);
+    border-color: var(--tt-mexec-warn);
+}
+
+/* The score and timer sections keep their markup exactly as the classic
+   layout renders it — the rework is container-only. `display: contents`
+   is what lets their children take part in the bar's grid without any
+   section being moved or rewritten. `display: contents` drops the box,
+   not the semantics — the two <section aria-label>s stay in the
+   accessibility tree, so the score and the timer are still announced as
+   the named regions they are. */
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-score,
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-score-line,
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer {
+    display: contents;
+}
+
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-score-col:first-child { grid-area: home; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-score-col:last-child  { grid-area: away; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-main            { grid-area: clock; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-btn             { grid-area: pause; }
+
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-main { text-align: center; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-timer-clock { font-size: 22px; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-score-team-label { margin-bottom: 2px; }
+
+/* ----- panels: the only scroller ----- */
+
+.tt-mexec--sections .tt-mexec-panels {
+    grid-area: panels;
+    min-block-size: 0;
+    overflow-y: auto;
+    /* Nothing inside a panel may push the page sideways at 360px. */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Reaching the end of the bench must not start scrolling the page
+       behind it — there is no page behind it to scroll. */
+    overscroll-behavior: contain;
+    padding-bottom: var(--tt-mexec-gap);
+}
+
+/* No `display` here on purpose: setting one would defeat `hidden` on the
+   panels the server rendered closed. */
+.tt-mexec--sections .tt-mexec-panel:focus-visible {
+    outline: 2px solid var(--tt-mexec-accent);
+    outline-offset: -2px;
+}
+
+/* The first block in a panel does not need the separation it needs when
+   fourteen sections run together down one scroller. */
+.tt-mexec--sections .tt-mexec-panel .tt-mexec-section:first-child,
+.tt-mexec--sections .tt-mexec-panel .tt-mexec-header {
+    margin-top: 0;
+}
+
+/* ----- CTA ----- */
+
+.tt-mexec--sections .tt-mexec-footer {
+    grid-area: cta;
+    /* This is the line #2916 was filed against. Under `sections` the CTA
+       is a grid row, so there is nothing left to stack it under. */
+    position: static;
+    padding: 8px var(--tt-mexec-gap-lg);
+    box-shadow: none;
+    border-top: 1px solid var(--tt-mexec-line);
+}
+
+/* The design put the sync line up in the bar to keep the thumb zone to
+   two rows. It stays in the footer's DOM instead, because moving it
+   would mean cutting the footer open mid-element, and the regrouping
+   only ever moves whole sections. Laying it out beside the button gets
+   the same result — one row, not two — with the markup left alone. */
+.tt-mexec--sections .tt-mexec-footer-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tt-mexec--sections .tt-mexec-footer-cta { flex: 1 1 auto; }
+.tt-mexec--sections .tt-mexec-footer-sub {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* ----- tabs, in the thumb zone ----- */
+
+.tt-mexec--sections .tt-spine {
+    grid-area: tabs;
+    /* `.tt-spine--tabs-only` pins itself to the top of a scroller. Here
+       it is a grid row in a container that does not scroll, so the
+       sticky is inert at best and a rounded floating strip at worst. */
+    position: static;
+    margin: 0;
+    border-radius: 0;
+    border-top: 1px solid var(--tt-mexec-line);
+    box-shadow: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tt-mexec--sections .tt-spine .tt-spine__tabs {
+    padding: 6px var(--tt-mexec-gap) 6px;
+}
+
+/* Room for four tabs at 360px without either of the two shortest being
+   pushed off the edge. The strip still scrolls if a translation runs
+   long — it is `overflow-x: auto` in the shared sheet. */
+.tt-mexec--sections .tt-spine .tt-spine__tab {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0 8px;
+}
+
+@media (min-width: 768px) {
+    .tt-mexec--sections .tt-mexec-bar { padding-inline: var(--tt-mexec-gap-lg); }
+    .tt-mexec--sections .tt-spine .tt-spine__tab { flex: 0 0 auto; padding: 0 16px; }
+}
