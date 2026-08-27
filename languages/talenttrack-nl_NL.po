@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T16:06:29+00:00\n"
+"POT-Creation-Date: 2026-08-27T16:12:14+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -943,8 +943,8 @@ msgstr "Trainers- en stafoverzicht"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:270
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:379
 #: src/Shared/CoreSurfaceRegistration.php:1310
-#: src/Shared/Frontend/FrontendAuditLogView.php:43
-#: src/Shared/Frontend/FrontendAuditLogView.php:44
+#: src/Shared/Frontend/FrontendAuditLogView.php:49
+#: src/Shared/Frontend/FrontendAuditLogView.php:50
 #: src/Shared/Frontend/FrontendConfigurationView.php:1605
 #: src/Shared/Frontend/FrontendExportsView.php:206
 msgid "Audit log"
@@ -4023,7 +4023,7 @@ msgstr "Seizoen"
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:58
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1178
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2999
-#: src/Shared/Frontend/FrontendAuditLogView.php:371
+#: src/Shared/Frontend/FrontendAuditLogView.php:507
 #: src/Shared/Frontend/FrontendComparisonView.php:274
 #: src/Shared/Frontend/FrontendEvaluationsView.php:186
 #: src/Shared/Frontend/FrontendEvaluationsView.php:299
@@ -5796,7 +5796,8 @@ msgstr "Datumbereik"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:554
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
-#: src/Shared/Frontend/FrontendAuditLogView.php:372
+#: src/Shared/Frontend/FrontendAuditLogView.php:208
+#: src/Shared/Frontend/FrontendAuditLogView.php:508
 #: src/Shared/Frontend/FrontendConfigurationView.php:2862
 #: src/Shared/Frontend/FrontendEvaluationsView.php:214
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:108
@@ -5822,7 +5823,7 @@ msgstr "Vanaf"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Frontend/Components/FilterBar.php:555
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
-#: src/Shared/Frontend/FrontendAuditLogView.php:373
+#: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2863
 #: src/Shared/Frontend/FrontendEvaluationsView.php:215
 #: src/Shared/Frontend/FrontendMailComposeView.php:120
@@ -9193,8 +9194,8 @@ msgstr "Persona"
 #: src/Modules/Authorization/Admin/MatrixPage.php:484
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:518
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:70
-#: src/Shared/Frontend/FrontendAuditLogView.php:353
-#: src/Shared/Frontend/FrontendAuditLogView.php:413
+#: src/Shared/Frontend/FrontendAuditLogView.php:489
+#: src/Shared/Frontend/FrontendAuditLogView.php:549
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:92
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:100
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:125
@@ -9996,6 +9997,7 @@ msgid "Scout access"
 msgstr "Scouttoegang"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:168
+#: src/Shared/Frontend/FrontendAuditLogView.php:146
 msgid "Impersonation"
 msgstr "Impersonatie"
 
@@ -10278,7 +10280,7 @@ msgstr "Nog geen matrix-wijzigingen."
 #: src/Modules/Training/Wizard/WhenStep.php:22
 #: src/Modules/Vct/Wizard/WhenStep.php:27
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
-#: src/Shared/Frontend/FrontendAuditLogView.php:410
+#: src/Shared/Frontend/FrontendAuditLogView.php:546
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:190
 msgid "When"
 msgstr "Wanneer"
@@ -10862,7 +10864,7 @@ msgstr "Geen gebruikers met TT-rol gevonden."
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:398
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:480
 #: src/Modules/Stats/Admin/UsageStatsPage.php:219
-#: src/Shared/Frontend/FrontendAuditLogView.php:411
+#: src/Shared/Frontend/FrontendAuditLogView.php:547
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:146
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:243
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:368
@@ -11511,6 +11513,12 @@ msgstr ""
 #: src/Modules/Authorization/Impersonation/ImpersonationContext.php:53
 msgid "this"
 msgstr "deze"
+
+#. translators: %d: the WordPress user id of a since-deleted account
+#: src/Modules/Authorization/Impersonation/ImpersonationLogRepository.php:97
+#, php-format
+msgid "Deleted user #%d"
+msgstr "Verwijderde gebruiker #%d"
 
 #: src/Modules/Authorization/Impersonation/ImpersonationService.php:37
 msgid "Actor and target user ids are required."
@@ -14197,25 +14205,25 @@ msgstr "Wissen"
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:252
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:319
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:328
-#: src/Shared/Frontend/FrontendAuditLogView.php:344
-#: src/Shared/Frontend/FrontendAuditLogView.php:412
+#: src/Shared/Frontend/FrontendAuditLogView.php:480
+#: src/Shared/Frontend/FrontendAuditLogView.php:548
 msgid "Action"
 msgstr "Actie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:519
-#: src/Shared/Frontend/FrontendAuditLogView.php:414
+#: src/Shared/Frontend/FrontendAuditLogView.php:550
 msgid "IP"
 msgstr "IP"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:520
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:43
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:114
-#: src/Shared/Frontend/FrontendAuditLogView.php:415
+#: src/Shared/Frontend/FrontendAuditLogView.php:551
 msgid "Payload"
 msgstr "Payload"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:524
-#: src/Shared/Frontend/FrontendAuditLogView.php:389
+#: src/Shared/Frontend/FrontendAuditLogView.php:525
 msgid "No audit entries match your filters."
 msgstr "Geen audit-vermeldingen voldoen aan uw filters."
 
@@ -20123,7 +20131,7 @@ msgstr "Entiteit-ID"
 
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:42
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:113
-#: src/Shared/Frontend/FrontendAuditLogView.php:253
+#: src/Shared/Frontend/FrontendAuditLogView.php:389
 msgid "IP address"
 msgstr "IP-adres"
 
@@ -20609,7 +20617,7 @@ msgstr "Geen activiteiten gepland in deze periode."
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:398
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
-#: src/Shared/Frontend/FrontendAuditLogView.php:210
+#: src/Shared/Frontend/FrontendAuditLogView.php:346
 msgid "Day"
 msgstr "Dag"
 
@@ -23699,6 +23707,7 @@ msgstr "Je antwoord kon niet worden opgeslagen."
 
 #: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:34
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
+#: src/Shared/Frontend/FrontendAuditLogView.php:204
 msgid "Who"
 msgstr "Wie"
 
@@ -34833,7 +34842,7 @@ msgid "(unknown user)"
 msgstr "(onbekende gebruiker)"
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:317
-#: src/Shared/Frontend/FrontendAuditLogView.php:231
+#: src/Shared/Frontend/FrontendAuditLogView.php:367
 msgid "Username"
 msgstr "Gebruikersnaam"
 
@@ -45949,7 +45958,7 @@ msgstr "Laden mislukt — opnieuw proberen?"
 #. translators: 1: current page, 2: total pages
 #. translators: 1: current page number, 2: total page count
 #: src/Shared/Frontend/Components/FrontendListTable.php:180
-#: src/Shared/Frontend/FrontendAuditLogView.php:483
+#: src/Shared/Frontend/FrontendAuditLogView.php:619
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
 #, php-format
 msgid "Page %1$d of %2$d"
@@ -47254,68 +47263,105 @@ msgstr ""
 "Nog geen toernooi? Vraag een beheerder om er een aan te maken in de "
 "toernooiplanner."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:55
+#: src/Shared/Frontend/FrontendAuditLogView.php:61
 msgid "Audit logging is disabled."
 msgstr "Auditlogboek is uitgeschakeld."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:56
+#: src/Shared/Frontend/FrontendAuditLogView.php:62
 msgid ""
 "Enable it under Configuration → Feature Toggles to start recording entries."
 msgstr ""
 "Schakel in via Configuratie → Functietoggles om vermeldingen te registreren."
 
+#: src/Shared/Frontend/FrontendAuditLogView.php:86
+msgid "You do not have permission to read the impersonation log."
+msgstr "Je hebt geen rechten om het overnamelog te lezen."
+
 # v3.110.1 — #0086 Workstream B Child 3: login-fail tracking + Failed-logins tab
-#: src/Shared/Frontend/FrontendAuditLogView.php:103
+#: src/Shared/Frontend/FrontendAuditLogView.php:130
 msgid "All entries"
 msgstr "Alle items"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:106
+#: src/Shared/Frontend/FrontendAuditLogView.php:135
 msgid "Failed logins"
 msgstr "Mislukte logins"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:126
+#: src/Shared/Frontend/FrontendAuditLogView.php:185
+msgid "Nobody has used impersonation yet."
+msgstr "Er heeft nog niemand een account overgenomen."
+
+#. translators: %d: number of recorded impersonations
+#: src/Shared/Frontend/FrontendAuditLogView.php:194
+#, php-format
+msgid "%d impersonation on record."
+msgid_plural "%d impersonations on record."
+msgstr[0] "%d overname vastgelegd."
+msgstr[1] "%d overnames vastgelegd."
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:203
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:166
+msgid "Started"
+msgstr "Gestart"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:205
+msgid "Acted as"
+msgstr "Handelde als"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:206
+msgid "Ended"
+msgstr "Beëindigd"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:207
+msgid "Reason given"
+msgstr "Opgegeven reden"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:220
+msgid "Still open"
+msgstr "Nog open"
+
+#: src/Shared/Frontend/FrontendAuditLogView.php:262
 msgid ""
 "Audit log table not found. Run migrations to enable failed-login tracking."
 msgstr ""
 "Audit-log-tabel niet gevonden. Voer migraties uit om mislukte-login-tracking "
 "aan te zetten."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:190
+#: src/Shared/Frontend/FrontendAuditLogView.php:326
 msgid "Last 7 days"
 msgstr "Laatste 7 dagen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:192
-#: src/Shared/Frontend/FrontendAuditLogView.php:197
+#: src/Shared/Frontend/FrontendAuditLogView.php:328
+#: src/Shared/Frontend/FrontendAuditLogView.php:333
 msgid "Failed login attempts"
 msgstr "Mislukte login-pogingen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:195
+#: src/Shared/Frontend/FrontendAuditLogView.php:331
 msgid "Last 30 days"
 msgstr "Laatste 30 dagen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:202
+#: src/Shared/Frontend/FrontendAuditLogView.php:338
 msgid "No failed login attempts recorded in the last 30 days."
 msgstr "Geen mislukte login-pogingen geregistreerd in de laatste 30 dagen."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:206
+#: src/Shared/Frontend/FrontendAuditLogView.php:342
 msgid "Daily breakdown — last 30 days"
 msgstr "Dagverdeling — laatste 30 dagen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:211
-#: src/Shared/Frontend/FrontendAuditLogView.php:232
-#: src/Shared/Frontend/FrontendAuditLogView.php:254
+#: src/Shared/Frontend/FrontendAuditLogView.php:347
+#: src/Shared/Frontend/FrontendAuditLogView.php:368
+#: src/Shared/Frontend/FrontendAuditLogView.php:390
 msgid "Attempts"
 msgstr "Pogingen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:227
+#: src/Shared/Frontend/FrontendAuditLogView.php:363
 msgid "Top attempted usernames"
 msgstr "Top geprobeerde gebruikersnamen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:249
+#: src/Shared/Frontend/FrontendAuditLogView.php:385
 msgid "Top source IPs"
 msgstr "Top bron-IPs"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:270
+#: src/Shared/Frontend/FrontendAuditLogView.php:406
 msgid ""
 "No automatic lockout in v1 — this view exists to surface volume so the "
 "operator can act when an unusual pattern emerges. Lockout is a v2 "
@@ -47325,36 +47371,36 @@ msgstr ""
 "te maken zodat de operator kan handelen wanneer een ongebruikelijk patroon "
 "ontstaat. Blokkering is een v2-uitbreiding zodra er echt volume is."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:347
-#: src/Shared/Frontend/FrontendAuditLogView.php:356
+#: src/Shared/Frontend/FrontendAuditLogView.php:483
+#: src/Shared/Frontend/FrontendAuditLogView.php:492
 msgid "— Any —"
 msgstr "— Elk —"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:362
+#: src/Shared/Frontend/FrontendAuditLogView.php:498
 msgid "User #"
 msgstr "Gebruiker #"
 
 #. translators: 1: first row index, 2: last row index, 3: total count
-#: src/Shared/Frontend/FrontendAuditLogView.php:393
+#: src/Shared/Frontend/FrontendAuditLogView.php:529
 #, php-format
 msgid "Showing %1$d–%2$d of %3$d entries."
 msgstr "%1$d–%2$d van %3$d vermeldingen."
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:398
+#: src/Shared/Frontend/FrontendAuditLogView.php:534
 msgid "Clear filters"
 msgstr "Filters wissen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:437
+#: src/Shared/Frontend/FrontendAuditLogView.php:573
 msgid "(system)"
 msgstr "(systeem)"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:477
-#: src/Shared/Frontend/FrontendAuditLogView.php:479
+#: src/Shared/Frontend/FrontendAuditLogView.php:613
+#: src/Shared/Frontend/FrontendAuditLogView.php:615
 msgid "Newer"
 msgstr "Nieuwer"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:487
-#: src/Shared/Frontend/FrontendAuditLogView.php:489
+#: src/Shared/Frontend/FrontendAuditLogView.php:623
+#: src/Shared/Frontend/FrontendAuditLogView.php:625
 msgid "Older"
 msgstr "Ouder"
 
@@ -55150,10 +55196,6 @@ msgstr "Completion-statistieken"
 msgid "Wizard"
 msgstr "Wizard"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:166
-msgid "Started"
-msgstr "Gestart"
-
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:169
 msgid "Most-skipped step"
 msgstr "Meest overgeslagen stap"
@@ -55899,44 +55941,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:82
-msgid "You do not have permission to read the impersonation log."
-msgstr "Je hebt geen rechten om het overnamelog te lezen."
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:160
-msgid "Nobody has used impersonation yet."
-msgstr "Er heeft nog niemand een account overgenomen."
-
-#. translators: %d: number of recorded impersonations
-#: src/Shared/Frontend/FrontendAuditLogView.php:171
-#, php-format
-msgid "%d impersonation on record."
-msgid_plural "%d impersonations on record."
-msgstr[0] "%d overname vastgelegd."
-msgstr[1] "%d overnames vastgelegd."
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:178
-msgid "Acted as"
-msgstr "Handelde als"
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:179
-msgid "Ended"
-msgstr "Beëindigd"
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:180
-msgid "Reason given"
-msgstr "Opgegeven reden"
-
-#: src/Shared/Frontend/FrontendAuditLogView.php:191
-msgid "Still open"
-msgstr "Nog open"
-
-#. translators: %d: the WordPress user id of a since-deleted account
-#: src/Modules/Authorization/Impersonation/ImpersonationLogRepository.php:96
-#, php-format
-msgid "Deleted user #%d"
-msgstr "Verwijderde gebruiker #%d"
 
 #~ msgid "Finalize this match? Goals, subs, and score cannot be edited after."
 #~ msgstr ""
