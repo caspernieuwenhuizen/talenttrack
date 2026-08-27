@@ -57536,15 +57536,6 @@ msgstr "✓ Doelpunt · %1$s · %2$d'"
 msgid "Which of ours put it in?"
 msgstr "Wie van ons werkte hem erin?"
 
-msgid "Scorer"
-msgstr "Maker"
-
-msgid "Assist"
-msgstr "Assist"
-
-msgid "Own goal"
-msgstr "Eigen doelpunt"
-
 msgid "Save attribution"
 msgstr "Toekenning opslaan"
 
