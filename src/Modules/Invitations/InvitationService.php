@@ -306,7 +306,36 @@ class InvitationService {
             $isPrimary = empty( $existing );
             $this->parents->link( $playerId, $userId, $isPrimary );
         } elseif ( $kind === InvitationKind::STAFF && $personId > 0 ) {
-            $wpdb->update( $wpdb->prefix . 'tt_people', [ 'wp_user_id' => $userId ], [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
+            $link = [ 'wp_user_id' => $userId ];
+
+            // #2963 — record the address they actually redeemed with.
+            // Without this, every accepted invitation leaves two addresses
+            // on file for one person: whatever the admin typed when they
+            // created the person row, and whatever the invitee typed here.
+            // The invitee's wins — they typed it about themselves and have
+            // just proved they can receive mail at it, whereas the admin's
+            // entry was a guess.
+            $account_email = self::accountEmail( $userId );
+            if ( $account_email !== '' ) {
+                $previous = (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT email FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                    $personId, CurrentClub::id()
+                ) );
+
+                if ( $previous !== '' && strcasecmp( $previous, $account_email ) !== 0 ) {
+                    // Logged rather than dropped silently: the old address
+                    // may be the one the club actually has on file elsewhere.
+                    \TT\Infrastructure\Logging\Logger::info( 'invitation.redeem.email_replaced', [
+                        'person_id' => $personId,
+                        'previous'  => $previous,
+                        'current'   => $account_email,
+                    ] );
+                }
+
+                $link['email'] = $account_email;
+            }
+
+            $wpdb->update( $wpdb->prefix . 'tt_people', $link, [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
             // Functional-role assignment is left to whoever wires the
             // PeopleModule's assignment surface; the invitation only
             // records the *intent* via target_functional_role_key, the
@@ -321,6 +350,21 @@ class InvitationService {
      * #1820 — normalise a stored name part to title case ("luuk" ->
      * "Luuk", "VAN DER BERG" -> "Van Der Berg"). Unicode-aware.
      */
+    /**
+     * The redeeming account's own address, '' when unusable.
+     *
+     * Deliberately the raw account address rather than
+     * `ContactResolver::emailForUser()` — at this point in redemption the
+     * person row is the thing being corrected, so resolving through it
+     * would just hand back the stale value we are replacing.
+     */
+    private static function accountEmail( int $userId ): string {
+        $user = get_userdata( $userId );
+        if ( ! $user ) return '';
+        $email = sanitize_email( (string) $user->user_email );
+        return is_email( $email ) ? $email : '';
+    }
+
     private static function titleCaseName( string $name ): string {
         $name = trim( $name );
         if ( $name === '' ) return '';
