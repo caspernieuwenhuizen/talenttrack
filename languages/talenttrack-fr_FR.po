@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-26T20:45:24+00:00\n"
+"POT-Creation-Date: 2026-08-27T04:22:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -9798,7 +9798,7 @@ msgid "Import token expired. Re-upload the file."
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:687
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1224
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1227
 #: src/Shared/Frontend/DashboardShortcode.php:264
 msgid "Import failed."
 msgstr ""
@@ -16360,7 +16360,7 @@ msgid "No file uploaded."
 msgstr ""
 
 #. translators: %s: error message
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1218
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1221
 #, php-format
 msgid ""
 "Excel import crashed: %s. The plugin caught it before WordPress fell over, "
@@ -16368,41 +16368,41 @@ msgid ""
 msgstr ""
 
 #. translators: %s: upload_max_filesize value
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1263
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1266
 #, php-format
 msgid ""
 "Upload exceeded the server's upload_max_filesize (%s). Ask your hoster to "
 "raise it, or split the workbook."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1267
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1270
 msgid "Upload exceeded the form's declared maximum size."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1269
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1272
 msgid "Upload was interrupted mid-transfer. Try again on a stable connection."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1271
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1274
 msgid "No file was selected for upload."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1273
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1276
 msgid ""
 "PHP could not write to its temporary directory. Ask your hoster to fix "
 "`upload_tmp_dir`."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1275
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1278
 msgid "PHP could not write the uploaded file to disk."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1277
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1280
 msgid "A PHP extension blocked the upload."
 msgstr ""
 
 #. translators: %d: PHP UPLOAD_ERR_* code
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1281
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1284
 #, php-format
 msgid "Upload failed (error code %d)."
 msgstr ""
@@ -16723,174 +16723,6 @@ msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
 "themselves ship with the plugin and are never generated."
-msgstr ""
-
-# v3.52.0 — Excel-driven demo data (#0059)
-#: src/Modules/DemoData/Excel/ExcelImporter.php:42
-msgid ""
-"PhpSpreadsheet is not installed. Run `composer install --no-dev` from the "
-"plugin root."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/ExcelImporter.php:57
-#, php-format
-msgid "Could not read the workbook: %s"
-msgstr ""
-
-# v3.108.0 — #0080 Wave D: demo-data Excel sheet rename
-#: src/Modules/DemoData/Excel/ExcelImporter.php:67
-msgid ""
-"Sheet \"Sessions\" was renamed to \"Activities\" in v3.108.0 — re-download "
-"the demo-data template, or rename the sheet to \"Activities\" in your "
-"workbook."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/ExcelImporter.php:157
-#, php-format
-msgid "Sheet \"%1$s\": required column \"%2$s\" missing."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/ExcelImporter.php:187
-#, php-format
-msgid "Sheet \"%1$s\" row %2$d: %3$s is required."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/ExcelImporter.php:225
-#, php-format
-msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
-msgstr ""
-
-# v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
-# Bundle 6 — Excel demo-data template instructions
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:113
-msgid "TalentTrack — demo data template"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:115
-msgid "How to fill this workbook"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:116
-msgid ""
-"Each green tab is a master entity (Teams, People, Players, Trial cases). "
-"Each blue tab is a transactional record (Activities, Attendance, "
-"Evaluations, Goals, Player journey). Purple = settings, grey = reference."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:118
-msgid "auto_key (the first column on every entity tab)"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:119
-msgid ""
-"Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the "
-"auto_key cell. Other tabs reference back to it via team_key / player_key / "
-"session_key fields. The importer maps your auto_key to the inserted row id, "
-"so cross-sheet links resolve at import time without you needing the database "
-"id."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:120
-msgid ""
-"Leave auto_key blank if you do not need to reference the row from another "
-"sheet — but most rows are referenced somewhere, so filling it in is the safe "
-"default."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:122
-msgid "Foreign-key columns (e.g. team_key, player_key)"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:123
-msgid ""
-"Type the auto_key value of the row you want to link to. Example: a Players "
-"row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". "
-"The importer rejects the workbook if a foreign-key value points to a row "
-"that does not exist."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:125
-msgid "Importable vs. documentation-only sheets"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:126
-msgid ""
-"The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, "
-"Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
-"Player_Journey, Generation_Settings."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:127
-msgid ""
-"Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
-"documentation-only. Configure those via the wp-admin Configuration screens. "
-"They are included here so you can see what categories / weights / lookups "
-"your imported data will key into."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:129
-msgid "Required vs. optional columns"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:130
-msgid ""
-"Every column header carries a label. Required columns are typically the "
-"human-name fields (first_name / last_name / title) plus the foreign keys "
-"that establish relationships. The importer will tell you which row + column "
-"failed validation when you upload."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:132
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:329
-msgid "Dates"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:133
-msgid ""
-"YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on "
-"cell entry — set the column format to \"Text\" first if you see weird date "
-"values after upload."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:135
-msgid "Recommended workflow"
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:136
-msgid ""
-"1. Fill Teams first. Pick auto_key labels that mean something to you "
-"(\"U12_RED\", \"U14_GREEN\")."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:137
-msgid "2. Fill People next, referencing Teams via team_key on staff rows."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:138
-msgid "3. Fill Players, referencing Teams via team_key."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:139
-msgid "4. Add Activities for each team (they reference Teams via team_key)."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:140
-msgid "5. Add Session_Attendance rows for who showed up at each activity."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:141
-msgid ""
-"6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:142
-msgid "7. Add Goals + Player_Journey events as needed."
-msgstr ""
-
-#: src/Modules/DemoData/Excel/TemplateBuilder.php:144
-msgid ""
-"Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step "
-"0 — Source → Excel upload."
 msgstr ""
 
 #. translators: 1: demo persona slot, 2: the underlying WordPress error.
@@ -19735,6 +19567,174 @@ msgstr ""
 #: src/Modules/Holidays/Wizards/NewHolidayWizard.php:15
 #: src/Shared/Frontend/FrontendHolidaysView.php:59
 msgid "New holiday"
+msgstr ""
+
+# v3.52.0 — Excel-driven demo data (#0059)
+#: src/Modules/Import/Excel/ExcelImporter.php:60
+msgid ""
+"PhpSpreadsheet is not installed. Run `composer install --no-dev` from the "
+"plugin root."
+msgstr ""
+
+#: src/Modules/Import/Excel/ExcelImporter.php:75
+#, php-format
+msgid "Could not read the workbook: %s"
+msgstr ""
+
+# v3.108.0 — #0080 Wave D: demo-data Excel sheet rename
+#: src/Modules/Import/Excel/ExcelImporter.php:85
+msgid ""
+"Sheet \"Sessions\" was renamed to \"Activities\" in v3.108.0 — re-download "
+"the demo-data template, or rename the sheet to \"Activities\" in your "
+"workbook."
+msgstr ""
+
+#: src/Modules/Import/Excel/ExcelImporter.php:175
+#, php-format
+msgid "Sheet \"%1$s\": required column \"%2$s\" missing."
+msgstr ""
+
+#: src/Modules/Import/Excel/ExcelImporter.php:205
+#, php-format
+msgid "Sheet \"%1$s\" row %2$d: %3$s is required."
+msgstr ""
+
+#: src/Modules/Import/Excel/ExcelImporter.php:243
+#, php-format
+msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
+msgstr ""
+
+# v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
+# Bundle 6 — Excel demo-data template instructions
+#: src/Modules/Import/Excel/TemplateBuilder.php:113
+msgid "TalentTrack — demo data template"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:115
+msgid "How to fill this workbook"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:116
+msgid ""
+"Each green tab is a master entity (Teams, People, Players, Trial cases). "
+"Each blue tab is a transactional record (Activities, Attendance, "
+"Evaluations, Goals, Player journey). Purple = settings, grey = reference."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:118
+msgid "auto_key (the first column on every entity tab)"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:119
+msgid ""
+"Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the "
+"auto_key cell. Other tabs reference back to it via team_key / player_key / "
+"session_key fields. The importer maps your auto_key to the inserted row id, "
+"so cross-sheet links resolve at import time without you needing the database "
+"id."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:120
+msgid ""
+"Leave auto_key blank if you do not need to reference the row from another "
+"sheet — but most rows are referenced somewhere, so filling it in is the safe "
+"default."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:122
+msgid "Foreign-key columns (e.g. team_key, player_key)"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:123
+msgid ""
+"Type the auto_key value of the row you want to link to. Example: a Players "
+"row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". "
+"The importer rejects the workbook if a foreign-key value points to a row "
+"that does not exist."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:125
+msgid "Importable vs. documentation-only sheets"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:126
+msgid ""
+"The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, "
+"Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
+"Player_Journey, Generation_Settings."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:127
+msgid ""
+"Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
+"documentation-only. Configure those via the wp-admin Configuration screens. "
+"They are included here so you can see what categories / weights / lookups "
+"your imported data will key into."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:129
+msgid "Required vs. optional columns"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:130
+msgid ""
+"Every column header carries a label. Required columns are typically the "
+"human-name fields (first_name / last_name / title) plus the foreign keys "
+"that establish relationships. The importer will tell you which row + column "
+"failed validation when you upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:132
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:329
+msgid "Dates"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:133
+msgid ""
+"YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on "
+"cell entry — set the column format to \"Text\" first if you see weird date "
+"values after upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:135
+msgid "Recommended workflow"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:136
+msgid ""
+"1. Fill Teams first. Pick auto_key labels that mean something to you "
+"(\"U12_RED\", \"U14_GREEN\")."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:137
+msgid "2. Fill People next, referencing Teams via team_key on staff rows."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:138
+msgid "3. Fill Players, referencing Teams via team_key."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:139
+msgid "4. Add Activities for each team (they reference Teams via team_key)."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:140
+msgid "5. Add Session_Attendance rows for who showed up at each activity."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:141
+msgid ""
+"6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:142
+msgid "7. Add Goals + Player_Journey events as needed."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:144
+msgid ""
+"Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step "
+"0 — Source → Excel upload."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
@@ -41506,7 +41506,7 @@ msgid "Access Control"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1674
-#: src/Shared/Modules/ModuleMetadata.php:427
+#: src/Shared/Modules/ModuleMetadata.php:433
 msgid "Demo data"
 msgstr ""
 
@@ -51046,7 +51046,16 @@ msgstr ""
 msgid "In-product help pages and admin guides built into the dashboard."
 msgstr ""
 
+#: src/Shared/Modules/ModuleMetadata.php:427
+msgctxt "module name"
+msgid "Import"
+msgstr ""
+
 #: src/Shared/Modules/ModuleMetadata.php:428
+msgid "Brings teams, players and staff into the academy from a spreadsheet."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:434
 msgid ""
 "Generates sample players and teams for demos and testing — turn off in "
 "production."
