@@ -55152,73 +55152,6 @@ msgid "Brings teams, players and staff into the academy from a spreadsheet."
 msgstr ""
 "Haalt ploegen, spelers en staf vanuit een spreadsheet de academie binnen."
 
-#: src/Shared/Modules/ModuleMetadata.php:434
-msgid ""
-"Generates sample players and teams for demos and testing — turn off in "
-"production."
-msgstr ""
-"Genereert voorbeeldspelers en -teams voor demo's en tests — zet dit uit in "
-"productie."
-
-#. translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff"
-#: src/Shared/Tiles/TileRegistry.php:362
-#, php-format
-msgid "%1$s (%2$s)"
-msgstr "%1$s (%2$s)"
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:76
-#, php-format
-msgid "The field \"%s\" is required."
-msgstr "Het veld \"%s\" is verplicht."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:235
-#, php-format
-msgid "The field \"%s\" must be a number."
-msgstr "Het veld \"%s\" moet een getal zijn."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:251
-#, php-format
-msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
-msgstr "Het veld \"%s\" moet een geldige datum zijn (JJJJ-MM-DD)."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:273
-#: src/Shared/Validation/CustomFieldValidator.php:300
-#, php-format
-msgid "The field \"%s\" has an invalid selection."
-msgstr "Het veld \"%s\" bevat een ongeldige selectie."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:319
-#, php-format
-msgid "The field \"%s\" must be a valid URL."
-msgstr "Het veld \"%s\" moet een geldige URL zijn."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:334
-#, php-format
-msgid "The field \"%s\" must be a valid email address."
-msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
-
-#. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:350
-#, php-format
-msgid "The field \"%s\" must be a valid phone number."
-msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Shared/Modules/ModuleMetadata.php:427
-msgctxt "module name"
-msgid "Import"
-msgstr "Importeren"
-
-#: src/Shared/Modules/ModuleMetadata.php:428
-msgid "Brings teams, players and staff into the academy from a spreadsheet."
-msgstr ""
-"Haalt ploegen, spelers en staf vanuit een spreadsheet de academie binnen."
-
 #: src/Modules/Import/Excel/TemplateBuilder.php:241
 msgid "TalentTrack — squad template"
 msgstr "TalentTrack — selectiesjabloon"
@@ -55288,6 +55221,63 @@ msgid ""
 msgstr ""
 "Je ziet precies wat er in het bestand staat, en wat er nog niet klopt, "
 "voordat er ook maar één record wordt aangemaakt."
+
+#: src/Shared/Modules/ModuleMetadata.php:434
+msgid ""
+"Generates sample players and teams for demos and testing — turn off in "
+"production."
+msgstr ""
+"Genereert voorbeeldspelers en -teams voor demo's en tests — zet dit uit in "
+"productie."
+
+#. translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff"
+#: src/Shared/Tiles/TileRegistry.php:362
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr "%1$s (%2$s)"
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:76
+#, php-format
+msgid "The field \"%s\" is required."
+msgstr "Het veld \"%s\" is verplicht."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:235
+#, php-format
+msgid "The field \"%s\" must be a number."
+msgstr "Het veld \"%s\" moet een getal zijn."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:251
+#, php-format
+msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
+msgstr "Het veld \"%s\" moet een geldige datum zijn (JJJJ-MM-DD)."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:273
+#: src/Shared/Validation/CustomFieldValidator.php:300
+#, php-format
+msgid "The field \"%s\" has an invalid selection."
+msgstr "Het veld \"%s\" bevat een ongeldige selectie."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:319
+#, php-format
+msgid "The field \"%s\" must be a valid URL."
+msgstr "Het veld \"%s\" moet een geldige URL zijn."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:334
+#, php-format
+msgid "The field \"%s\" must be a valid email address."
+msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
+
+#. translators: %s is the custom field label.
+#: src/Shared/Validation/CustomFieldValidator.php:350
+#, php-format
+msgid "The field \"%s\" must be a valid phone number."
+msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
