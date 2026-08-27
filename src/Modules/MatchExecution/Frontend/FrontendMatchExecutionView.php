@@ -1189,7 +1189,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'away_goal_add_error'   => __( 'Could not add the opponent goal.', 'talenttrack' ),
                 // Rebuild — finalize + late-event handlers moved from the
                 // view's inline <script> into the JS module.
-                'finalize_confirm'  => __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ),
+                // #2936 — the two-tap guard's armed labels. They replace the
+                // question a confirm dialog would have asked: the button
+                // says what the next tap does, so the answer is the tap.
+                'end_match_arm'     => __( 'Tap again to end match', 'talenttrack' ),
+                'finalize_arm'      => __( 'Tap again to finalize', 'talenttrack' ),
                 'finalize_error'    => __( 'Could not finalize:', 'talenttrack' ),
                 'late_save_error'   => __( 'Could not save:', 'talenttrack' ),
             ],
