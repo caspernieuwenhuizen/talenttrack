@@ -55760,10 +55760,7 @@ msgstr "Nog open"
 #, php-format
 msgid "Deleted user #%d"
 msgstr "Verwijderde gebruiker #%d"
-#: src/Infrastructure/REST/ReportsRestController.php:283
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
-msgid "You do not have access to this team’s players."
-msgstr "Je hebt geen toegang tot de spelers van dit team."
+
 #~ msgid "Finalize this match? Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Deze wedstrijd afronden? Doelpunten, wissels en eindstand kunnen daarna "
