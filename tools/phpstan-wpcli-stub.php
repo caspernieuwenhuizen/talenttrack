@@ -34,10 +34,18 @@ namespace {
         public static function warning( $message ): void {}
 
         /**
+         * Terminates the process, which is why it is typed `never` rather than
+         * `void`: WP-CLI exits here, so code after a call to it really is
+         * unreachable and PHPStan should say so. Typing it `void` made every
+         * existing guard clause in MfaCliCommand report as dead code.
+         *
          * @param string|\Throwable $message
          * @param bool|int          $exit
+         * @return never
          */
-        public static function error( $message, $exit = true ): void {}
+        public static function error( $message, $exit = true ) {
+            exit( 1 );
+        }
 
         /**
          * @param string                $name
