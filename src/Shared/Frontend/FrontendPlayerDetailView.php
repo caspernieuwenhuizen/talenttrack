@@ -814,6 +814,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['goals']['trend_class'] ); ?>"><?php echo esc_html( $kpis['goals']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php // #2859 — "Goals scored", never bare "Goals": the tile
+                      // beside it counts development goals, and one word cannot
+                      // carry both senses on the same strip. Links to Activities,
+                      // where the per-match rows show which matches they came in. ?>
+                <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'activities' ], $base_url ) ); ?>">
+                    <div class="tt-player-kpi__label"><?php echo esc_html_x( 'Goals scored', 'goals scored in matches', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__num">
+                        <?php echo esc_html( $kpis['scored']['value'] ); ?>
+                    </div>
+                    <?php if ( $kpis['scored']['hint'] !== '' ) : ?>
+                        <div class="tt-player-kpi__hint"><?php echo esc_html( $kpis['scored']['hint'] ); ?></div>
+                    <?php endif; ?>
+                </a>
                 <?php
                 // #2123 — Measurements standing as a journey signal. Same
                 // `measurements:read` gate as the Measurements tab so the
@@ -932,6 +945,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
         }
 
+        // #2859 — match output, beside the exposure and judgement signals
+        // already here. Goals were invisible on a player's record until now:
+        // the goal log had no reader outside match execution, so a hat-trick
+        // left no trace on the player it belonged to.
+        //
+        // Note the label. In this product "goals" already means a development
+        // objective — the tile two along counts those — so the scoring sense
+        // has to say "scored" or the strip contradicts itself.
+        $contrib = ( new \TT\Modules\Analytics\Reports\GoalContributionQuery() )->forPlayer( $player_id );
+        $scored_goals = (int) $contrib['goals'];
+        $scored_assists = (int) $contrib['assists'];
+        $scored_hint = '';
+        if ( $scored_assists > 0 ) {
+            /* translators: %d: number of assists the player has been credited with */
+            $scored_hint = sprintf( _n( '%d assist', '%d assists', $scored_assists, 'talenttrack' ), $scored_assists );
+        }
+
         return [
             'avg_rating' => [
                 'value'       => $avg_value,
@@ -956,6 +986,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 'scale'       => '',
                 'hint'        => $meas_hint,
                 'trend_class' => $meas_class,
+            ],
+            'scored' => [
+                'value'       => (string) $scored_goals,
+                'scale'       => '',
+                'hint'        => $scored_hint,
+                'trend_class' => '',
             ],
         ];
     }

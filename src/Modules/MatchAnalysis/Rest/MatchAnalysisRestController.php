@@ -302,6 +302,10 @@ class MatchAnalysisRestController {
             'result'      => $payload['result'],
             'sections'    => array_values( $payload['sections'] ),
             'players'     => $payload['players'],
+            // #2860 — read-only. Goals are written on the match-execution
+            // surface; a consumer that wants to change one goes there, so
+            // there is no matching write on this resource.
+            'goals'       => array_values( (array) ( $payload['goals'] ?? [] ) ),
             'sources'     => [
                 'match_prep'      => (bool) $payload['has_prep'],
                 'match_execution' => (bool) $payload['has_exec'],
