@@ -55360,75 +55360,13 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:154
-msgid "not sent yet"
-msgstr "nog niet verstuurd"
-
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
-msgid "Send all invitations"
-msgstr "Alle uitnodigingen versturen"
-
-#. translators: %d: number of invitations waiting to be sent
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
-#, php-format
-msgid ""
-"%d invitation is waiting to be sent. Nobody has received their sign-in "
-"details yet."
-msgid_plural ""
-"%d invitations are waiting to be sent. Nobody has received their sign-in "
-"details yet."
-msgstr[0] ""
-"%d uitnodiging wacht om verstuurd te worden. Niemand heeft zijn "
-"inloggegevens al ontvangen."
-msgstr[1] ""
-"%d uitnodigingen wachten om verstuurd te worden. Niemand heeft zijn "
-"inloggegevens al ontvangen."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:33
-msgid "Invitation sent."
-msgstr "Uitnodiging verstuurd."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:37
-msgid ""
-"Could not send this invitation. It may already have been sent, accepted, "
-"expired or revoked."
-msgstr ""
-"Deze uitnodiging kon niet worden verstuurd. Mogelijk is hij al verstuurd, "
-"geaccepteerd, verlopen of ingetrokken."
-
-#. translators: %d: number of invitations sent
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
-#, php-format
-msgid "%d invitation sent."
-msgid_plural "%d invitations sent."
-msgstr[0] "%d uitnodiging verstuurd."
-msgstr[1] "%d uitnodigingen verstuurd."
-
-#. translators: %d: number of invitations that could not be sent
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:68
-#, php-format
-msgid "%d invitation could not be sent and was left alone."
-msgid_plural "%d invitations could not be sent and were left alone."
-msgstr[0] "%d uitnodiging kon niet worden verstuurd en is overgeslagen."
-msgstr[1] "%d uitnodigingen konden niet worden verstuurd en zijn overgeslagen."
-
-#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:79
-msgid "There was nothing waiting to be sent."
-msgstr "Er stond niets klaar om te versturen."
-
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:172
 msgid "Import your squad"
 msgstr "Je selectie importeren"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:174
-msgid ""
-"If you already keep your teams, players and staff in a spreadsheet, bring "
-"them in now rather than typing them again. Download the template, fill it "
-"in, and upload it."
-msgstr ""
-"Houd je je teams, spelers en staf al in een spreadsheet bij, haal ze dan nu "
-"binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in "
-"en upload het."
+msgid "If you already keep your teams, players and staff in a spreadsheet, bring them in now rather than typing them again. Download the template, fill it in, and upload it."
+msgstr "Houd je je teams, spelers en staf al in een spreadsheet bij, haal ze dan nu binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in en upload het."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:177
 msgid "Nothing is saved until you confirm."
@@ -55436,9 +55374,7 @@ msgstr "Er wordt niets opgeslagen tot je bevestigt."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:178
 msgid "Uploading shows you what the file contains, and anything that needs fixing, first."
-msgstr ""
-"Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog "
-"niet klopt."
+msgstr "Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog niet klopt."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:190
 msgid "This workbook cannot be imported yet. Nothing was saved."
@@ -55451,14 +55387,8 @@ msgstr "Download het sjabloon"
 #. translators: 1: upload_max_filesize, 2: post_max_size
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:227
 #, php-format
-msgid ""
-"Server limits on this install: upload_max_filesize = %1$s, post_max_size = "
-"%2$s. A workbook larger than the smaller of those is rejected before "
-"TalentTrack sees it."
-msgstr ""
-"Serverlimieten op deze installatie: upload_max_filesize = %1$s, post_max_size "
-"= %2$s. Een bestand dat groter is dan de kleinste van die twee wordt "
-"geweigerd voordat TalentTrack het ziet."
+msgid "Server limits on this install: upload_max_filesize = %1$s, post_max_size = %2$s. A workbook larger than the smaller of those is rejected before TalentTrack sees it."
+msgstr "Serverlimieten op deze installatie: upload_max_filesize = %1$s, post_max_size = %2$s. Een bestand dat groter is dan de kleinste van die twee wordt geweigerd voordat TalentTrack het ziet."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:233
 msgid "Check this file"
@@ -55487,12 +55417,8 @@ msgstr "Overslaan — ik heb geen spreadsheet"
 #, php-format
 msgid "Your import brought in %d team. Add another now if you want, or continue."
 msgid_plural "Your import brought in %d teams. Add another now if you want, or continue."
-msgstr[0] ""
-"Je import heeft %d team binnengehaald. Voeg er nu nog een toe als je wilt, "
-"of ga verder."
-msgstr[1] ""
-"Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, "
-"of ga verder."
+msgstr[0] "Je import heeft %d team binnengehaald. Voeg er nu nog een toe als je wilt, of ga verder."
+msgstr[1] "Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, of ga verder."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:562
 msgid "Your squad has been imported."
@@ -55503,12 +55429,8 @@ msgid "Choose a workbook to upload first."
 msgstr "Kies eerst een bestand om te uploaden."
 
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:151
-msgid ""
-"The spreadsheet library is not installed on this server, so the template "
-"cannot be generated."
-msgstr ""
-"De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het "
-"sjabloon kan niet worden gegenereerd."
+msgid "The spreadsheet library is not installed on this server, so the template cannot be generated."
+msgstr "De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het sjabloon kan niet worden gegenereerd."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
