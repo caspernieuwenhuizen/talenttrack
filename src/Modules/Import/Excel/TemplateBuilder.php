@@ -211,6 +211,7 @@ final class TemplateBuilder {
     }
 
     /**
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
      * @param list<array{0:string,1:bool}> $rows text + is-heading
      */
     private static function writeReadmeRows( $sheet, array $rows ): void {
