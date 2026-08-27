@@ -66,10 +66,28 @@ The pilot does this for the Activities surface. Goals, Players, Trial cases, and
 
 ## #0084 — surface classification
 
-Every `?tt_view=` route declares its `mobile_class` via `MobileSurfaceRegistry::register($view_slug, $class)`:
+Every `?tt_view=` route declares its class in `config/mobile_surfaces.php`, which `CoreSurfaceRegistration` feeds to `MobileSurfaceRegistry::register($view_slug, $class)`:
 
 - **`native`** — mobile-first surface. The pattern library (`mobile-patterns.css` + `mobile-helpers.js`) is enqueued automatically by `DashboardShortcode` on these surfaces.
 - **`viewable`** — readable on mobile but desktop-preferred. The default for unregistered slugs.
+- **`read_only`** — readable on a phone, edited at a desk. Behaviourally identical to `viewable` while no surface holding it carries a mutating control, which is true of all nine today.
 - **`desktop_only`** — phone access lands on `FrontendMobilePromptView` instead of the cramped responsive view. Per-club override via the `force_mobile_for_user_agents` setting; per-request override via `?force_mobile=1`.
 
+Tablets are never gated — `MobileDetector::isPhone()` excludes iPad, Android tablets, Kindle and PlayBook, so `desktop_only` only ever affects handsets.
+
+Each entry carries a one-sentence reason, because the reason is the decision. `config/mobile_surfaces.php` documents the five questions that pick a class, in order, first match wins.
+
 See [`mobile-patterns.md`](mobile-patterns.md) for the four CSS components (`tt-mobile-bottom-sheet`, `tt-mobile-cta-bar`, `tt-mobile-segmented-control`, `tt-mobile-list-item`) and the `TT.Mobile.*` JS helpers.
+
+### The gate — `tools/check-mobile-classes.php`
+
+The first classification was populated once and then went untouched through roughly twenty new modules, which is how 125 of 151 surfaces came to resolve to `viewable` by default rather than by decision. Nothing failed, because an unclassified slug does not error — it silently becomes `viewable`.
+
+`tools/check-mobile-classes.php` makes that silence a build failure. It asserts every routable slug has an entry, every entry names one of the four classes, every entry carries a reason, and no entry names a slug the dispatcher no longer routes. It runs in the `Mobile class lint` workflow on any PR touching the dispatcher, the manifest, the registry or a module.
+
+The slug set is **derived from the dispatcher**, not declared, so the gate cannot drift from what is actually reachable. Deriving it naively is the trap — a `case '<slug>':` grep misses seven live routes in two ways:
+
+- **Constant arms.** `case FrontendAlertSettingsView::SLUG:` routes `alert-settings`, but the literal lives in the view class. The gate resolves the constant by reading the class it names.
+- **Pre-auth routes.** `accept-invite`, the two share links, `lost-password`, `reset-password` and `mfa-prompt` are handled by `===` comparisons above the dispatch chain, because they must work for a logged-out or half-authenticated visitor. A `!==` in the same position is a guard excluding a slug, not a route to it, and is not counted.
+
+`bin/mobile-class-selfcheck.php` proves the gate still bites, running it against deliberately broken trees. Two of its cases exist specifically for the seven routes above: if the deriver ever regresses to the naive grep, those cases fail even though the gate itself would still pass on the real tree.

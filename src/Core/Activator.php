@@ -815,8 +815,8 @@ class Activator {
         $p = $wpdb->prefix;
         $has_present = $wpdb->get_row( "SHOW COLUMNS FROM `{$p}tt_attendance` LIKE 'present'" );
         if ( ! $has_present ) return;
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='present' WHERE present=1 AND (status IS NULL OR status='')" );
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='absent'  WHERE present=0 AND (status IS NULL OR status='')" );
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Present' WHERE present=1 AND (status IS NULL OR status='')" );
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Absent'  WHERE present=0 AND (status IS NULL OR status='')" );
     }
 
     private static function markMigrationsApplied(): void {

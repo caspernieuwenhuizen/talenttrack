@@ -51,9 +51,11 @@
  * with `?force_mobile=1`.
  *
  * ADDING A SURFACE: add it here. A routable slug with no entry silently
- * falls to `viewable`, which is exactly how the previous list rotted. The
- * build step that turns that silence into a failure is #2812; until it
- * lands, this file is kept honest by hand.
+ * falls to `viewable`, which is exactly how the previous list rotted.
+ * `tools/check-mobile-classes.php` (#2812) turns that silence into a
+ * build failure, so a new surface cannot ship unclassified. It also
+ * fails an entry with no reason text, and one naming a slug the
+ * dispatcher no longer routes.
  *
  * @return array<string, array{0: string, 1: string}> slug => [class, why]
  */
@@ -169,6 +171,7 @@ return [
     'exports'                       => [ 'desktop_only', 'Export construction.' ],
     'features'                      => [ 'desktop_only', 'Feature toggles, install-wide. What they change reaches past any one record.' ],
     'functional-roles'              => [ 'desktop_only', 'Functional-role assignment.' ],
+    'import-history'                => [ 'desktop_only', 'Undoing a whole spreadsheet batch. A data operation reaching well past one record, and not one to fat-finger on a phone.' ],
     'injuries'                      => [ 'desktop_only', 'Sensitive medical data, permission-gated and audit-logged. A considered desk entry is the safeguarding position.' ],
     'invitations-config'            => [ 'desktop_only', 'Invitation settings.' ],
     'lesson'                        => [ 'desktop_only', 'Lesson reading. Gated with `course`, for the same reason.' ],

@@ -93,6 +93,27 @@ jobs:
         env:
           CI: true
 
+      # #2813 — the mobile viewport gate, at 390x844 with touch enabled.
+      # Walks every phone-reachable surface asserting no horizontal
+      # overflow, no sub-48px tap target and no over-wide table on a
+      # `native` surface.
+      #
+      # Reporting, not blocking, on purpose. The audit found 2,213 defect
+      # rows and a gate that fails on all of them is a gate somebody turns
+      # off. `tests/e2e/mobile-baseline.json` starts empty, so the first
+      # run prints the real offender list in that file's own shape — paste
+      # it in and the gate is calibrated to what CI actually sees. As the
+      # fix waves land the baseline shrinks; when it is empty, drop the
+      # `continue-on-error` below and this becomes a blocking gate.
+      #
+      # It reuses the wp-env instance the step above already paid ~82s to
+      # start, which is why it lives here rather than in its own workflow.
+      - name: Mobile viewport gate (reporting)
+        continue-on-error: true
+        run: npm run test:e2e:mobile
+        env:
+          CI: true
+
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
