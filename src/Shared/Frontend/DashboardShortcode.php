@@ -1184,6 +1184,13 @@ class DashboardShortcode {
             case 'test-trends':
                 \TT\Modules\Measurements\Frontend\FrontendTestTrendsView::render( $user_id, $is_admin );
                 return true;
+            // #2895 — BMI-for-age. Height and weight are already recorded as
+            // ordinary tests; this is the surface that reads them against a
+            // published growth curve so a number means something at 11 as
+            // well as at 16.
+            case 'player-bmi':
+                \TT\Modules\Measurements\Frontend\FrontendPlayerBmiView::render( $user_id, $is_admin );
+                return true;
             // #2121 — the test-catalogue config surface. Matrix-gated on
             // `measurement_definitions` change inside the view.
             case 'measurement-tests':

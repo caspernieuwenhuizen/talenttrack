@@ -147,6 +147,87 @@ class MeasurementsRestController {
                 'permission_callback' => [ __CLASS__, 'can_browse_results' ],
             ],
         ]);
+
+        // #2895 — BMI-for-age. Same read model the three rendered surfaces
+        // use, so a non-WordPress front end gets the same percentiles the
+        // page shows (CLAUDE.md §4).
+        register_rest_route( self::NS, '/reports/player-bmi', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'player_bmi' ],
+                'permission_callback' => [ __CLASS__, 'can_browse_results' ],
+            ],
+        ]);
+    }
+
+    /**
+     * GET /reports/player-bmi — the roster read model, or one player's series
+     * when `player_id` is given.
+     *
+     * Team scope mirrors the view exactly: a global reader sees every team,
+     * everyone else only the teams they may see.
+     */
+    public static function player_bmi( \WP_REST_Request $r ) {
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
+            return new \WP_Error( 'tt_report_disabled', __( 'This report has been switched off for your academy.', 'talenttrack' ), [ 'status' => 404 ] );
+        }
+
+        $uid     = get_current_user_id();
+        $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
+        $teams   = \TT\Infrastructure\Query\QueryHelpers::get_teams_in_scope( $uid, $see_all );
+        $allowed = array_map( static fn ( $t ) => (int) $t->id, is_array( $teams ) ? $teams : [] );
+
+        $query = new \TT\Modules\Measurements\Reports\BmiQuery();
+
+        $meta = [
+            'reference'        => $query->reference()->key(),
+            'reference_label'  => $query->reference()->label(),
+            'pair_window_days' => $query->pairWindowDays(),
+        ];
+
+        $player_id = absint( $r['player_id'] ?? 0 );
+        if ( $player_id > 0 ) {
+            if ( ! self::player_is_in_scope( $player_id, $allowed, $see_all ) ) {
+                return new \WP_Error( 'tt_forbidden_player', __( 'You do not have access to this player.', 'talenttrack' ), [ 'status' => 403 ] );
+            }
+            return new \WP_REST_Response(
+                $meta + [ 'player_id' => $player_id, 'series' => $query->playerSeries( $player_id ) ],
+                200
+            );
+        }
+
+        $team_id = absint( $r['team_id'] ?? 0 );
+        if ( $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
+            return new \WP_Error( 'tt_forbidden_team', __( 'You do not have access to this team.', 'talenttrack' ), [ 'status' => 403 ] );
+        }
+
+        return new \WP_REST_Response(
+            $meta + [ 'rows' => $query->rosterRows( $team_id > 0 ? [ $team_id ] : $allowed ) ],
+            200
+        );
+    }
+
+    /**
+     * Is this player inside the caller's team scope?
+     *
+     * A global reader passes; anyone else has to own the player's team. The
+     * check is here rather than in BmiQuery because scope is an authorization
+     * question, not a read-model one.
+     *
+     * @param list<int> $allowed_team_ids
+     */
+    private static function player_is_in_scope( int $player_id, array $allowed_team_ids, bool $see_all ): bool {
+        if ( $see_all ) return true;
+        if ( $allowed_team_ids === [] ) return false;
+
+        global $wpdb;
+        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+
+        return $team_id > 0 && in_array( $team_id, $allowed_team_ids, true );
     }
 
     /**

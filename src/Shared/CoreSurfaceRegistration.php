@@ -1061,6 +1061,27 @@ final class CoreSurfaceRegistration {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },
         ]);
+        // #2895 — BMI-for-age. Same `measurements` read gate and the same
+        // hidden personas as Test trends: this is a screening figure about a
+        // child's body, and a player or parent meeting it without context on
+        // a dashboard tile is not how it should reach them.
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'player-bmi',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 31,
+            'label'             => __( 'Player · BMI-for-age', 'talenttrack' ),
+            'description'       => __( 'Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'feature'           => 'report_player_bmi',
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([

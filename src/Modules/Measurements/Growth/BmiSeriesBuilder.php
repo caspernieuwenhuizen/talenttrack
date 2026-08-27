@@ -42,6 +42,22 @@ final class BmiSeriesBuilder {
      */
     public const PAIR_WINDOW_DAYS = 30;
 
+    /**
+     * Definition names that count as a height or a weight, lowercased.
+     *
+     * Matched on NAME rather than a fixed id because the academy owns its
+     * measurement vocabulary — a Dutch install calls these `Lengte` and
+     * `Gewicht`. Public so a view can ask "does this academy have both?"
+     * using the same list this class searches, rather than a second copy that
+     * drifts.
+     *
+     * @var list<string>
+     */
+    public const HEIGHT_NAMES = [ 'height', 'lengte', 'length', 'stature' ];
+
+    /** @var list<string> */
+    public const WEIGHT_NAMES = [ 'weight', 'gewicht', 'mass' ];
+
     private \wpdb $wpdb;
     private string $t_results;
     private string $t_definitions;
@@ -132,15 +148,16 @@ final class BmiSeriesBuilder {
      *
      * Matched on the definition NAME rather than a fixed id: the academy
      * owns its measurement vocabulary, and a Dutch install calls these
-     * `Lengte` and `Gewicht`. Archived results are excluded — a reading
-     * somebody deleted should not appear in a trend.
+     * `Lengte` and `Gewicht`. Archived AND trashed results are excluded —
+     * a reading somebody deleted should not appear in a trend. This reads
+     * through the shared lifecycle clause (#2906) rather than a hand-rolled
+     * `archived_at IS NULL`, which would have counted rows the recycle bin
+     * hides in every list.
      *
      * @return array<string,float>
      */
     private function readings( int $player_id, int $club_id, string $kind ): array {
-        $names = $kind === 'height'
-            ? [ 'height', 'lengte', 'length', 'stature' ]
-            : [ 'weight', 'gewicht', 'mass' ];
+        $names = $kind === 'height' ? self::HEIGHT_NAMES : self::WEIGHT_NAMES;
 
         $placeholders = implode( ',', array_fill( 0, count( $names ), '%s' ) );
 
@@ -153,7 +170,7 @@ final class BmiSeriesBuilder {
                JOIN {$this->t_definitions} d ON d.id = r.definition_id
               WHERE r.player_id = %d
                 AND r.club_id = %d
-                AND r.archived_at IS NULL
+                AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'r' ) . "
                 AND r.value_numeric IS NOT NULL
                 AND r.value_numeric > 0
                 AND LOWER(TRIM(d.name)) IN ({$placeholders})

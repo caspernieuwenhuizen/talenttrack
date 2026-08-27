@@ -57067,3 +57067,117 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "Percentiles are against %1$s. A BMI is only shown when a weight and a height were recorded within %2$d days of each other; the gap for each figure is listed so you can judge it."
+msgstr "Percentielen zijn afgezet tegen %1$s. Een BMI wordt alleen getoond als een gewicht en een lengte binnen %2$d dagen van elkaar zijn vastgelegd; bij elke waarde staat het aantal dagen ertussen, zodat je het zelf kunt beoordelen."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "BMI describes a body, not a player. It is a screening figure for spotting change over time, not a judgement about any individual — read it alongside what you know about them."
+msgstr "Een BMI beschrijft een lichaam, niet een speler. Het is een signaalwaarde om verandering over de tijd op te merken, geen oordeel over een individu — lees hem naast wat je verder over deze speler weet."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "No BMI yet — it needs a height and a weight recorded close together."
+msgstr "Nog geen BMI — daarvoor zijn een lengte en een gewicht nodig die kort na elkaar zijn vastgelegd."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "BMI"
+msgstr "BMI"
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "No percentile: the growth reference does not cover this age and sex."
+msgstr "Geen percentiel: de groeireferentie dekt deze leeftijd en dit geslacht niet."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "%1$s percentile (SDS %2$s)"
+msgstr "%1$s percentiel (SDS %2$s)"
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "Change since %2$s: %1$s SDS"
+msgstr "Verandering sinds %2$s: %1$s SDS"
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "Measured %s, height and weight the same day."
+msgstr "Gemeten op %s, lengte en gewicht op dezelfde dag."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "Measured %1$s, height recorded %2$d day apart."
+msgid_plural "Measured %1$s, height recorded %2$d days apart."
+msgstr[0] "Gemeten op %1$s, lengte %2$d dag ervoor of erna vastgelegd."
+msgstr[1] "Gemeten op %1$s, lengte %2$d dagen ervoor of erna vastgelegd."
+
+#: src/Modules/Measurements/Frontend/BmiBlock.php
+msgid "%dth"
+msgstr "%de"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Player · BMI-for-age"
+msgstr "Speler · BMI naar leeftijd"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "This report needs a height test and a weight test in your test catalogue. Add them under Manage tests, record some results, and the curve will fill in."
+msgstr "Deze rapportage heeft een lengte-test en een gewicht-test in je testcatalogus nodig. Voeg ze toe bij Tests beheren, leg een paar waarden vast en de curve vult zich vanzelf."
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "No teams are in your scope yet."
+msgstr "Er vallen nog geen teams binnen jouw bereik."
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "%1$d of %2$d players have a usable height and weight pair."
+msgstr "%1$d van de %2$d spelers heeft een bruikbaar paar lengte en gewicht."
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Percentile"
+msgstr "Percentiel"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Measured"
+msgstr "Gemeten"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "No height and weight recorded close enough together"
+msgstr "Geen lengte en gewicht die kort genoeg na elkaar zijn vastgelegd"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Not covered by the reference"
+msgstr "Valt buiten de referentie"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "First measurement"
+msgstr "Eerste meting"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "SDS"
+msgstr "SDS"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "This player has no BMI points yet — it needs a height and a weight recorded close together."
+msgstr "Deze speler heeft nog geen BMI-punten — daarvoor zijn een lengte en een gewicht nodig die kort na elkaar zijn vastgelegd."
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Gap"
+msgstr "Tussenruimte"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "Not covered"
+msgstr "Valt buiten de referentie"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "same day"
+msgstr "zelfde dag"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "All teams in scope"
+msgstr "Alle teams binnen bereik"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php
+msgid "No players in this selection."
+msgstr "Geen spelers in deze selectie."
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16."
+msgstr "Lengte en gewicht afgezet tegen een gepubliceerde groeicurve, zodat een waarde net zo goed iets zegt op je elfde als op je zestiende."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "BMI-for-age"
+msgstr "BMI naar leeftijd"

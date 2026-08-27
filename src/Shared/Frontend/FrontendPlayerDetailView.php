@@ -1663,7 +1663,63 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #2895 — BMI-for-age sits at the top of the tab, above the per-test
+        // rows it is derived from. It is the third surface decision 3 called
+        // for, and it renders through the same BmiBlock the report does, so a
+        // coach reading a player's file and a coach reading the roster report
+        // cannot be shown different percentiles for the same child.
+        self::renderBmiBlock( $player_id );
+
         \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::renderBody( $player_id );
+    }
+
+    /**
+     * The BMI-for-age block on the Measurements tab.
+     *
+     * Renders nothing at all when the report is switched off for the academy,
+     * or when this player has no usable height/weight pair and no age the
+     * reference covers — an empty framed box on a player's file is noise, and
+     * the roster report is where "who is missing data" belongs.
+     */
+    private static function renderBmiBlock( int $player_id ): void {
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
+            return;
+        }
+
+        $query  = new \TT\Modules\Measurements\Reports\BmiQuery();
+        $series = $query->playerSeries( $player_id );
+        if ( $series === [] ) {
+            return;
+        }
+
+        $latest = $series[ count( $series ) - 1 ];
+        $prev   = count( $series ) >= 2 ? $series[ count( $series ) - 2 ] : null;
+
+        $row = [
+            'bmi'           => $latest['bmi'],
+            'sds'           => $latest['sds'],
+            'percentile'    => $latest['percentile'],
+            'covered'       => $latest['sds'] !== null,
+            'date'          => $latest['date'],
+            'gap_days'      => $latest['gap_days'],
+            'previous_date' => $prev === null ? null : $prev['date'],
+            'delta_sds'     => ( $prev !== null && $latest['sds'] !== null && $prev['sds'] !== null )
+                ? round( (float) $latest['sds'] - (float) $prev['sds'], 2 )
+                : null,
+        ];
+
+        wp_enqueue_style(
+            'tt-frontend-bmi',
+            TT_PLUGIN_URL . 'assets/css/frontend-bmi.css',
+            [],
+            TT_VERSION
+        );
+
+        echo '<section class="tt-bmi-section">';
+        echo '<h3>' . esc_html__( 'BMI-for-age', 'talenttrack' ) . '</h3>';
+        \TT\Modules\Measurements\Frontend\BmiBlock::renderStanding( $row );
+        \TT\Modules\Measurements\Frontend\BmiBlock::renderCaveat( $query );
+        echo '</section>';
     }
 
     /** Activities tab — recent attended + planned activities for the player. */

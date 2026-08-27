@@ -1,0 +1,125 @@
+/*
+ * BMI-for-age (#2895).
+ *
+ * Mobile-first: the base rules are the 360px layout and the media query scales
+ * up. The table scrolls inside its own container rather than pushing the page
+ * sideways.
+ *
+ * There is deliberately NO status colour in this sheet — no red row, no amber
+ * percentile, no threshold styling. The report reports; it does not grade a
+ * child. See BmiBlock's docblock.
+ */
+
+.tt-bmi-caveat {
+    margin: 0 0 var(--tt-sp-2);
+    max-width: 70ch;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--tt-muted);
+}
+
+.tt-bmi-caveat--soft {
+    font-style: italic;
+}
+
+.tt-bmi-coverage {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: 0.9375rem;
+    color: var(--tt-text);
+}
+
+.tt-bmi-standing {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-border);
+    border-radius: var(--tt-radius);
+    background: var(--tt-surface);
+}
+
+.tt-bmi-value {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+}
+
+.tt-bmi-number {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--tt-text);
+}
+
+.tt-bmi-unit {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted);
+}
+
+.tt-bmi-percentile,
+.tt-bmi-delta,
+.tt-bmi-meta,
+.tt-bmi-uncovered {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--tt-muted);
+}
+
+.tt-bmi-percentile strong {
+    color: var(--tt-text);
+    font-size: 1rem;
+}
+
+.tt-bmi-empty {
+    margin: 0;
+    padding: var(--tt-sp-3);
+    border: 1px dashed var(--tt-border);
+    border-radius: var(--tt-radius);
+    font-size: 0.875rem;
+    color: var(--tt-muted);
+}
+
+/* Wide content scrolls inside its own container, never the page body. */
+.tt-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tt-bmi-table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+}
+
+.tt-bmi-cell-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tt-bmi-cell-empty {
+    color: var(--tt-muted);
+    font-size: 0.8125rem;
+    font-style: italic;
+}
+
+.tt-bmi-sds {
+    color: var(--tt-muted);
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .tt-bmi-standing {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: var(--tt-sp-3);
+    }
+
+    .tt-bmi-table {
+        min-width: 0;
+    }
+}
