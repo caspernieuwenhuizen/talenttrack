@@ -55209,6 +55209,16 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Infrastructure/REST/ImportRestController.php:76
+msgid "No workbook was uploaded."
+msgstr "Er is geen bestand geüpload."
+
+#: src/Infrastructure/REST/ImportRestController.php:86
+msgid "The upload did not complete. It may be larger than this server accepts."
+msgstr ""
+"De upload is niet afgerond. Het bestand is mogelijk groter dan deze server "
+"accepteert."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 
