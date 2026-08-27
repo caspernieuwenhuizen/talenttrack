@@ -7,6 +7,8 @@ use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Import\ImportService;
+use TT\Modules\Invitations\InvitationKind;
+use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Onboarding\OnboardingState;
 
 /**
@@ -31,6 +33,9 @@ class OnboardingHandlers {
         add_action( 'admin_post_tt_onboarding_academy',              [ self::class, 'handleAcademy' ] );
         add_action( 'admin_post_tt_onboarding_import',               [ self::class, 'handleImport' ] );
         add_action( 'admin_post_tt_onboarding_roster_template',      [ self::class, 'handleRosterTemplate' ] );
+        add_action( 'admin_post_tt_onboarding_staff',                [ self::class, 'handleStaff' ] );
+        add_action( 'admin_post_tt_onboarding_skip_staff',           [ self::class, 'handleSkipStaff' ] );
+        add_action( 'admin_post_tt_onboarding_send_invites',         [ self::class, 'handleSendInvites' ] );
         add_action( 'admin_post_tt_onboarding_skip_import',          [ self::class, 'handleSkipImport' ] );
         add_action( 'admin_post_tt_onboarding_first_team',           [ self::class, 'handleFirstTeam' ] );
         add_action( 'admin_post_tt_onboarding_first_admin',          [ self::class, 'handleFirstAdmin' ] );
@@ -136,6 +141,109 @@ class OnboardingHandlers {
 
         // Preview only — stay on the step so the report is what the admin
         // sees next, with the confirm button under it.
+        self::redirectToPage();
+    }
+
+    /**
+     * Add one staff member, with their invitation held (#2965).
+     *
+     * Every invitation this step creates uses `defer_send`, so nobody is
+     * emailed while the admin is still setting the place up. The sending
+     * happens later, from the Done step, once they have looked around.
+     */
+    public static function handleStaff(): void {
+        self::guard( 'tt_onboarding_staff' );
+
+        $first = sanitize_text_field( wp_unslash( (string) ( $_POST['first_name'] ?? '' ) ) );
+        $last  = sanitize_text_field( wp_unslash( (string) ( $_POST['last_name']  ?? '' ) ) );
+        $email = sanitize_email( wp_unslash( (string) ( $_POST['email'] ?? '' ) ) );
+        $role  = sanitize_text_field( wp_unslash( (string) ( $_POST['role_type'] ?? 'staff' ) ) );
+
+        if ( $first === '' || $last === '' ) {
+            self::recordStaffError( __( 'A first and last name are both needed.', 'talenttrack' ) );
+            return;
+        }
+
+        if ( $email !== '' && ! is_email( $email ) ) {
+            self::recordStaffError( __( 'That does not look like a valid email address.', 'talenttrack' ) );
+            return;
+        }
+
+        $repo      = new PeopleRepository();
+        $person_id = (int) $repo->create( [
+            'first_name' => $first,
+            'last_name'  => $last,
+            'email'      => $email !== '' ? $email : null,
+            'role_type'  => $role !== '' ? $role : 'staff',
+            'status'     => 'active',
+        ] );
+
+        if ( $person_id <= 0 ) {
+            self::recordStaffError( __( 'That person could not be saved. They may already be on the list.', 'talenttrack' ) );
+            return;
+        }
+
+        $invited = false;
+        if ( $email !== '' ) {
+            $result = ( new InvitationService() )->create( [
+                'kind'               => InvitationKind::STAFF,
+                'target_person_id'   => $person_id,
+                'prefill_first_name' => $first,
+                'prefill_last_name'  => $last,
+                'prefill_email'      => $email,
+                // #2964 — held. Nothing reaches them yet.
+                'defer_send'         => true,
+            ] );
+            $invited = ! empty( $result['ok'] );
+        }
+
+        $payload         = OnboardingState::payloadFor( 'staff' );
+        $added           = (array) ( $payload['added'] ?? [] );
+        $added[]         = [
+            'name'    => trim( $first . ' ' . $last ),
+            'email'   => $email,
+            'invited' => $invited,
+        ];
+        $payload['added'] = $added;
+        unset( $payload['error'] );
+
+        OnboardingState::recordPayload( 'staff', $payload );
+        self::redirectToPage( [ 'tt_ob_msg' => 'staff_added' ] );
+    }
+
+    /** Finish the staff step without sending anything. */
+    public static function handleSkipStaff(): void {
+        self::guard( 'tt_onboarding_skip_staff' );
+
+        OnboardingState::setStep( 'dashboard' );
+        self::redirectToPage();
+    }
+
+    /**
+     * Release every held invitation, then move on (#2964, #2965).
+     *
+     * This is the moment the admin has been setting up towards: they have
+     * added their people, looked around, and are ready for those people to
+     * be let in.
+     */
+    public static function handleSendInvites(): void {
+        self::guard( 'tt_onboarding_send_invites' );
+
+        $result  = ( new InvitationService() )->sendDeferred();
+        $payload = OnboardingState::payloadFor( 'staff' );
+
+        $payload['sent']    = count( $result['sent'] );
+        $payload['skipped'] = count( $result['skipped'] );
+        OnboardingState::recordPayload( 'staff', $payload );
+
+        OnboardingState::setStep( 'dashboard' );
+        self::redirectToPage( [ 'tt_ob_msg' => 'invites_sent' ] );
+    }
+
+    private static function recordStaffError( string $message ): void {
+        $payload          = OnboardingState::payloadFor( 'staff' );
+        $payload['error'] = $message;
+        OnboardingState::recordPayload( 'staff', $payload );
         self::redirectToPage();
     }
 
@@ -298,7 +406,7 @@ class OnboardingHandlers {
             'person_id'  => $person_id,
         ];
         OnboardingState::recordPayload( 'first_admin', $payload );
-        OnboardingState::setStep( 'dashboard' );
+        OnboardingState::setStep( 'staff' );
         do_action( 'tt_onboarding_step_completed', 'first_admin', $payload );
 
         return $payload;

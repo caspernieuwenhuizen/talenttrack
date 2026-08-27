@@ -50,13 +50,21 @@ opgeslagen, zodat je kunt stoppen en later vanaf dezelfde plek verdergaan.
  evaluaties, activiteiten en meldingen naar de juiste persoon verwijzen.
  Vink **Geef mij de rol Clubbeheerder** (aanbevolen) aan om jezelf volledige
  beheerstoegang te geven.
-6. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
+6. **Je staf toevoegen** — voeg de trainers en staf toe die TalentTrack gaan
+ gebruiken. Geef iemand een e-mailadres en er wordt een uitnodiging voor
+ diegene klaargezet. **Er wordt nog niemand gemaild**: uitnodigingen worden
+ vastgehouden tot jij ze verstuurt, zodat je het inrichten kunt afmaken en
+ rond kunt kijken voordat er iemand binnenkomt. Ben je zover, dan verstuurt
+ **N uitnodigingen versturen en doorgaan** ze allemaal. Je kunt ook
+ doorgaan zonder te versturen — de uitnodigingen blijven klaarstaan onder
+ Configuratie → Uitnodigingen, en er gaat niets verloren.
+7. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
  `[talenttrack_dashboard]`-shortcode host en stelt deze in als de homepage
  van de site, zodat iedereen op het dashboard belandt na het inloggen.
  Bestaat er al een pagina met de shortcode, dan wordt die hergebruikt en
  niet gedupliceerd. Je kunt dit **Overslaan** en de homepage later zelf
  instellen onder Instellingen → Lezen.
-7. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
+8. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
  en een knop **Opnieuw uitvoeren**.
 
 ## Stoppen en hervatten

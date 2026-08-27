@@ -55413,6 +55413,82 @@ msgstr "Deze records importeren"
 msgid "Skip — I do not have a spreadsheet"
 msgstr "Overslaan — ik heb geen spreadsheet"
 
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
+msgid "Add your staff"
+msgstr "Je staf toevoegen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
+msgid "Add the coaches and staff who will use TalentTrack. Give them an email address and an invitation is prepared for each of them."
+msgstr "Voeg de trainers en staf toe die TalentTrack gaan gebruiken. Geef ze een e-mailadres en er wordt voor ieder van hen een uitnodiging klaargezet."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
+msgid "Nobody is emailed yet."
+msgstr "Er wordt nog niemand gemaild."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:423
+msgid "Invitations are held until you send them, so you can finish setting up and look around first."
+msgstr "Uitnodigingen worden vastgehouden tot jij ze verstuurt, zodat je het inrichten eerst kunt afmaken en rond kunt kijken."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:435
+msgid "Invitation"
+msgstr "Uitnodiging"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:445
+msgid "Ready to send"
+msgstr "Klaar om te versturen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:446
+msgid "No email — add one later to invite them"
+msgstr "Geen e-mailadres — voeg er later een toe om diegene uit te nodigen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:470
+msgid "Optional. Without one they are still on the staff list, but cannot be invited to sign in."
+msgstr "Optioneel. Zonder e-mailadres staat diegene wel op de staflijst, maar kan hij niet worden uitgenodigd om in te loggen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:474
+msgid "Add this person"
+msgstr "Deze persoon toevoegen"
+
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:484
+#, php-format
+msgid "Send %d invitation and continue"
+msgid_plural "Send %d invitations and continue"
+msgstr[0] "%d uitnodiging versturen en doorgaan"
+msgstr[1] "%d uitnodigingen versturen en doorgaan"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:498
+msgid "Continue without sending yet"
+msgstr "Doorgaan zonder nu te versturen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:499
+msgid "Skip — I will add staff later"
+msgstr "Overslaan — ik voeg later staf toe"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:506
+msgid "If you continue without sending, the invitations stay ready and waiting under Configuration → Invitations. Nothing is lost."
+msgstr "Ga je door zonder te versturen, dan blijven de uitnodigingen klaarstaan onder Configuratie → Uitnodigingen. Er gaat niets verloren."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:566
+msgid "Added. Their invitation is ready but not sent yet."
+msgstr "Toegevoegd. De uitnodiging staat klaar maar is nog niet verstuurd."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:567
+msgid "Invitations sent."
+msgstr "Uitnodigingen verstuurd."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:158
+msgid "A first and last name are both needed."
+msgstr "Een voornaam en achternaam zijn allebei nodig."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:163
+msgid "That does not look like a valid email address."
+msgstr "Dat lijkt geen geldig e-mailadres."
+
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:177
+msgid "That person could not be saved. They may already be on the list."
+msgstr "Die persoon kon niet worden opgeslagen. Mogelijk staat diegene al op de lijst."
+
 #. translators: %d: number of teams brought in by the import
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:292
 #, php-format
