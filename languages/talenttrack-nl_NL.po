@@ -55351,23 +55351,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Infrastructure/REST/ImportRestController.php:76
-msgid "No workbook was uploaded."
-msgstr "Er is geen bestand geüpload."
-
-#: src/Infrastructure/REST/ImportRestController.php:86
-msgid "The upload did not complete. It may be larger than this server accepts."
-msgstr ""
-"De upload is niet afgerond. Het bestand is mogelijk groter dan deze server "
-"accepteert."
-
 #. translators: %s: the email address that is already taken
 #: src/Infrastructure/Identity/ContactSync.php:147
 #, php-format
 msgid "Another account already uses %s, so the sign-in email was left unchanged."
-msgstr ""
-"Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd "
-"gebleven."
+msgstr "Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd gebleven."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
