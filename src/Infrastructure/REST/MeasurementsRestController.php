@@ -167,7 +167,7 @@ class MeasurementsRestController {
      * Team scope mirrors the view exactly: a global reader sees every team,
      * everyone else only the teams they may see.
      */
-    public static function player_bmi( \WP_REST_Request $r ) {
+    public static function player_bmi( \WP_REST_Request $r ): \WP_REST_Response|\WP_Error {
         if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
             return new \WP_Error( 'tt_report_disabled', __( 'This report has been switched off for your academy.', 'talenttrack' ), [ 'status' => 404 ] );
         }
@@ -175,7 +175,7 @@ class MeasurementsRestController {
         $uid     = get_current_user_id();
         $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
         $teams   = \TT\Infrastructure\Query\QueryHelpers::get_teams_in_scope( $uid, $see_all );
-        $allowed = array_map( static fn ( $t ) => (int) $t->id, is_array( $teams ) ? $teams : [] );
+        $allowed = array_map( static fn ( $t ): int => (int) ( $t->id ?? 0 ), $teams );
 
         $query = new \TT\Modules\Measurements\Reports\BmiQuery();
 
