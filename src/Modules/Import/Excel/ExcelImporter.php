@@ -563,7 +563,7 @@ final class ExcelImporter {
     }
 
     /**
-     * @return array{ok:bool,blockers:list<string>,warnings:list<string>,imported:array<string,int>,present_sheets:list<string>,batch_id:?string,generation_settings:array<string,string>}
+     * @return array{ok:bool,dry_run:bool,blockers:list<string>,warnings:list<string>,imported:array<string,int>,present_sheets:list<string>,batch_id:?string,generation_settings:array<string,string>}
      */
     private function fail( string $msg ): array {
         return [

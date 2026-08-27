@@ -68,7 +68,11 @@ final class ImportBatchRegistry implements ImportTagSink {
         );
     }
 
-    /** Entity ids of one type in this batch. @return int[] */
+    /**
+     * Entity ids of one type in this batch.
+     *
+     * @return list<int>
+     */
     public function entityIds( string $entity_type ): array {
         global $wpdb;
         $ids = $wpdb->get_col( $wpdb->prepare(
@@ -82,7 +86,7 @@ final class ImportBatchRegistry implements ImportTagSink {
     /**
      * Ids of one type across every real import batch, or one batch.
      *
-     * @return int[]
+     * @return list<int>
      */
     public static function allEntityIds( string $entity_type, ?string $batch_key = null ): array {
         global $wpdb;

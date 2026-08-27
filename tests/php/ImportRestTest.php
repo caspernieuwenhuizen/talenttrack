@@ -24,7 +24,11 @@ final class ImportRestTest extends WP_UnitTestCase {
 
         $this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 
-        ImportRestController::register();
+        // Register through the action rather than calling register()
+        // directly — WordPress emits a doing_it_wrong notice for routes
+        // registered outside `rest_api_init`, and the test suite treats
+        // those notices as failures.
+        ImportRestController::init();
         do_action( 'rest_api_init' );
     }
 
