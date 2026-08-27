@@ -75,7 +75,7 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         }
 
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        $allowed = array_map( static fn ( $t ) => (int) $t->id, $teams );
+        $allowed = array_map( static fn ( $t ): int => (int) ( $t->id ?? 0 ), $teams );
         if ( $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
             $team_id = 0;
         }
@@ -250,8 +250,8 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         foreach ( $teams as $t ) {
             printf(
                 '<option value="%d"%s>%s</option>',
-                (int) $t->id,
-                selected( $team_id, (int) $t->id, false ),
+                (int) ( $t->id ?? 0 ),
+                selected( $team_id, (int) ( $t->id ?? 0 ), false ),
                 esc_html( (string) ( $t->name ?? '' ) )
             );
         }

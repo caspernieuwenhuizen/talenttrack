@@ -30,13 +30,17 @@ use TT\Modules\Measurements\Growth\WhoBmiForAgeReference;
  */
 final class BmiQuery {
 
-    private \wpdb $wpdb;
     private BmiSeriesBuilder $series;
     private GrowthReference $reference;
 
+    /**
+     * `$wpdb` is read with `global` inside each method rather than captured as
+     * a property. That is the house style, and it is also what keeps PHPStan
+     * happy: a `\wpdb`-typed property loses the `literal-string` narrowing on
+     * `$wpdb->prefix`, so every `prepare()` built from it fails level 8. That
+     * is why BmiSeriesBuilder needed a baseline entry; this does not.
+     */
     public function __construct( ?GrowthReference $reference = null ) {
-        global $wpdb;
-        $this->wpdb      = $wpdb;
         $this->series    = new BmiSeriesBuilder();
         $this->reference = $reference ?? new WhoBmiForAgeReference();
     }
@@ -75,10 +79,11 @@ final class BmiQuery {
 
         $club = (int) CurrentClub::id();
         $ph   = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-        $p    = $this->wpdb->prefix;
+        global $wpdb;
+        $p    = $wpdb->prefix;
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $players = $this->wpdb->get_results( $this->wpdb->prepare(
+        $players = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.team_id, pl.sex,
                     pl.date_of_birth, t.name AS team_name
                FROM {$p}tt_players pl
@@ -157,10 +162,11 @@ final class BmiQuery {
     public function playerSeries( int $player_id ): array {
         if ( $player_id <= 0 ) return [];
 
+        global $wpdb;
         $club = (int) CurrentClub::id();
-        $p    = $this->wpdb->prefix;
+        $p    = $wpdb->prefix;
 
-        $player = $this->wpdb->get_row( $this->wpdb->prepare(
+        $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT sex, date_of_birth FROM {$p}tt_players WHERE id = %d AND club_id = %d",
             $player_id, $club
         ) );
