@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T05:44:32+00:00\n"
+"POT-Creation-Date: 2026-08-27T06:02:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:408
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2200
+#: src/Shared/Frontend/DashboardShortcode.php:2206
 #: src/Shared/Frontend/FrontendConfigurationView.php:2902
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Parent"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2205
+#: src/Shared/Frontend/DashboardShortcode.php:2211
 msgid "Team Manager"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:225
 #: src/Shared/Frontend/DashboardShortcode.php:258
-#: src/Shared/Frontend/DashboardShortcode.php:2199
+#: src/Shared/Frontend/DashboardShortcode.php:2205
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3272
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3284
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3361
@@ -252,7 +252,7 @@ msgstr "Entraîneur"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2203
+#: src/Shared/Frontend/DashboardShortcode.php:2209
 #: src/Shared/Frontend/FrontendConfigurationView.php:2896
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -506,7 +506,21 @@ msgid ""
 "reappear if it is switched back on."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:251
+#: src/Core/FeatureRegistry.php:249
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:36
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:37
+#: src/Modules/Import/ImportModule.php:40
+msgid "Import history"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:250
+msgid ""
+"What came in from each spreadsheet import, and a way to take a whole import "
+"back out. Turn off to hide the history; imported records stay exactly as "
+"they are."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:264
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:91
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:174
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:527
@@ -514,35 +528,35 @@ msgstr ""
 msgid "Attendance grid"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:252
+#: src/Core/FeatureRegistry.php:265
 msgid ""
 "The desktop attendance-entry grid (players × activities) — a spreadsheet "
 "alternative to the step-by-step attendance wizard. The wizard stays "
 "available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:263
+#: src/Core/FeatureRegistry.php:276
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:83
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:143
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:537
 msgid "Minutes grid"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:264
+#: src/Core/FeatureRegistry.php:277
 msgid ""
 "The desktop minutes-entry grid (players × matches) — a spreadsheet way to "
 "record and correct match minutes across a period. The per-match minutes "
 "editor stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:275
+#: src/Core/FeatureRegistry.php:288
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:112
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:372
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:551
 msgid "Ratings grid"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:276
+#: src/Core/FeatureRegistry.php:289
 msgid ""
 "The desktop ratings-entry grid (players × evaluation categories, one "
 "activity) — a spreadsheet alternative to rating players one card at a time. "
@@ -551,7 +565,7 @@ msgid ""
 msgstr ""
 
 # v3.109.4 — #0078 Phase 3 custom widgets builder UI
-#: src/Core/FeatureRegistry.php:287
+#: src/Core/FeatureRegistry.php:300
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:180
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:56
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:84
@@ -561,59 +575,59 @@ msgstr ""
 msgid "Custom widgets"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:288
+#: src/Core/FeatureRegistry.php:301
 msgid ""
 "The builder for bespoke dashboard widgets backed by custom data sources "
 "(beta)."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:298
+#: src/Core/FeatureRegistry.php:311
 msgid "Photo exercise extraction"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:299
+#: src/Core/FeatureRegistry.php:312
 msgid ""
 "Read a training plan photo and turn it into exercises with AI. The exercise "
 "library stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:309
+#: src/Core/FeatureRegistry.php:322
 msgid "Blueprint share links"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:310
+#: src/Core/FeatureRegistry.php:323
 msgid ""
 "Public read-only share links for team blueprints. Blueprint editing stays "
 "available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:323
+#: src/Core/FeatureRegistry.php:336
 msgid "Onboarding pipeline workflow"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:324
+#: src/Core/FeatureRegistry.php:337
 msgid ""
 "Automatic tasks that move prospects through the recruitment funnel (log, "
 "invite, test training, trial review, team offer). The onboarding pipeline "
 "view stays available when this is off; only new task automation stops."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:343
+#: src/Core/FeatureRegistry.php:356
 msgid "SMS channel"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:344
+#: src/Core/FeatureRegistry.php:357
 msgid ""
 "Offer SMS as a messaging channel. TalentTrack does not send SMS by itself — "
 "this needs a provider plugin, and without one every SMS fails. The other "
 "channels (email, push, WhatsApp link, in-app) are unaffected."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:351
+#: src/Core/FeatureRegistry.php:364
 msgid "Scheduled messaging"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:352
+#: src/Core/FeatureRegistry.php:365
 msgid ""
 "Daily automated reminders (goal nudges, attendance flags, onboarding nudges, "
 "staff-development reminders). Event-driven messaging stays available when "
@@ -621,7 +635,7 @@ msgid ""
 msgstr ""
 
 # v3.99.1 — #0006 team-planning module
-#: src/Core/FeatureRegistry.php:363
+#: src/Core/FeatureRegistry.php:376
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:153
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:47
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:93
@@ -632,109 +646,109 @@ msgstr ""
 msgid "Team planner"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:364
+#: src/Core/FeatureRegistry.php:377
 msgid ""
 "The week-by-week team-planning calendar. The Activities log stays available "
 "when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:371
+#: src/Core/FeatureRegistry.php:384
 msgid "Medical events on timeline"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:372
+#: src/Core/FeatureRegistry.php:385
 msgid ""
 "Show injury and medical events on the player timeline to staff who already "
 "hold the medical-view permission. When off, medical events are hidden from "
 "the timeline even for authorised staff. The permission itself is unchanged."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:379
+#: src/Core/FeatureRegistry.php:392
 msgid "PDP calendar integration"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:380
+#: src/Core/FeatureRegistry.php:393
 msgid ""
 "Write scheduled PDP conversations to the calendar feed when a development "
 "plan is created or carried over. The PDP plans, conversations and verdicts "
 "stay available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:387
+#: src/Core/FeatureRegistry.php:400
 msgid "Dashboard layout editor"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:388
+#: src/Core/FeatureRegistry.php:401
 msgid ""
 "The drag-and-drop builder for persona dashboard layouts. The rendered "
 "dashboards keep working from their saved layouts when this is off; only the "
 "editor is hidden."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:406
+#: src/Core/FeatureRegistry.php:419
 msgid "Match analysis share links"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:407
+#: src/Core/FeatureRegistry.php:420
 msgid ""
 "Signed staff-only links to a match analysis. Writing and printing the "
 "analysis stay available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:420
+#: src/Core/FeatureRegistry.php:433
 msgid "Match preparation share links"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:421
+#: src/Core/FeatureRegistry.php:434
 msgid ""
 "Signed staff-only links to a match preparation. Writing and printing the "
 "plan stay available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:431
+#: src/Core/FeatureRegistry.php:444
 msgid "Match analysis PDF export"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:432
+#: src/Core/FeatureRegistry.php:445
 msgid ""
 "Allow a match analysis to be printed or saved as an A4 PDF. The analysis "
 "screen stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:439
+#: src/Core/FeatureRegistry.php:452
 msgid "Match prep PDF export"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:440
+#: src/Core/FeatureRegistry.php:453
 msgid ""
 "Allow the A4 match-preparation sheet to be exported/printed as a PDF. The "
 "match-prep screen stays available when this is off. The referee's team sheet "
 "is a separate setting."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:460
+#: src/Core/FeatureRegistry.php:473
 msgid "Match day team sheet"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:461
+#: src/Core/FeatureRegistry.php:474
 msgid ""
 "The referee/opposition team sheet (Starting XI, Bench, Squad + signature "
 "lines). Switch off if match forms are filed digitally. The coach's own match-"
 "prep PDF is a separate setting."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:473
+#: src/Core/FeatureRegistry.php:486
 msgid "Tournament auto-balance"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:474
+#: src/Core/FeatureRegistry.php:487
 msgid ""
 "The greedy fair-share auto-planner that fills a match grid by eligibility, "
 "equal-share minutes and starts distribution. Manual click-to-swap planning "
 "stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:488 src/Modules/DemoData/DemoCoverage.php:1274
+#: src/Core/FeatureRegistry.php:501 src/Modules/DemoData/DemoCoverage.php:1274
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -745,78 +759,78 @@ msgstr ""
 msgid "Courses"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:489
+#: src/Core/FeatureRegistry.php:502
 msgid ""
 "The coach-development courses shipped with the plugin: the library, the "
 "reader and each person's learning record. Turn off for an academy that runs "
 "its coach education elsewhere. Progress already recorded is kept."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:514
+#: src/Core/FeatureRegistry.php:527
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:86
 msgid "Players list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:515
+#: src/Core/FeatureRegistry.php:528
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:155
 msgid "Team roster + season stats"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:516
+#: src/Core/FeatureRegistry.php:529
 #: src/Shared/Frontend/FrontendExportsView.php:230
 msgid "Federation registration (JSON)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:517
+#: src/Core/FeatureRegistry.php:530
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:33
 #: src/Shared/Frontend/FrontendExportsView.php:102
 msgid "Attendance register"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:518
+#: src/Core/FeatureRegistry.php:531
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:167
 msgid "Team activity history"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:519
+#: src/Core/FeatureRegistry.php:532
 #: src/Modules/Export/Exporters/TeamIcalExporter.php:36
 #: src/Shared/Frontend/FrontendExportsView.php:219
 msgid "Team activity calendar (iCal)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:520
+#: src/Core/FeatureRegistry.php:533
 #: src/Shared/Frontend/FrontendExportsView.php:131
 msgid "Evaluations export"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:521
+#: src/Core/FeatureRegistry.php:534
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:32
 #: src/Shared/Frontend/FrontendExportsView.php:143
 msgid "Player evaluations (flat)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:522
+#: src/Core/FeatureRegistry.php:535
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:114
 msgid "Goals list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:523
+#: src/Core/FeatureRegistry.php:536
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
 #: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "KPI snapshot"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:524
+#: src/Core/FeatureRegistry.php:537
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:190
 msgid "Coach / staff directory"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:525
+#: src/Core/FeatureRegistry.php:538
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:41
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:122
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
@@ -830,80 +844,80 @@ msgstr ""
 msgid "Audit log"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:526
+#: src/Core/FeatureRegistry.php:539
 #: src/Shared/Frontend/FrontendExportsView.php:246
 msgid "Full club-data backup"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:527
+#: src/Core/FeatureRegistry.php:540
 #: src/Shared/Frontend/FrontendExportsView.php:260
 msgid "Demo-data round-trip"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:529
+#: src/Core/FeatureRegistry.php:542
 msgid ""
 "Show this export tile and allow it to run. When off, the tile is hidden from "
 "the Exports page and its export is rejected even via a direct link."
 msgstr ""
 
 #. translators: %s = export tile name, e.g. "Players list".
-#: src/Core/FeatureRegistry.php:533
+#: src/Core/FeatureRegistry.php:546
 #, php-format
 msgid "Export: %s"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:550
+#: src/Core/FeatureRegistry.php:563
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:98
 #: src/Shared/Frontend/FrontendStandardReportsView.php:493
 #: src/Shared/Frontend/FrontendStandardReportsView.php:506
 msgid "Player · Minutes played"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:551
+#: src/Core/FeatureRegistry.php:564
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:104
 #: src/Shared/Frontend/FrontendStandardReportsView.php:835
 #: src/Shared/Frontend/FrontendStandardReportsView.php:845
 msgid "Team · Minutes distribution"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:553
+#: src/Core/FeatureRegistry.php:566
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:114
 #: src/Shared/Frontend/FrontendStandardReportsView.php:666
 #: src/Shared/Frontend/FrontendStandardReportsView.php:676
 msgid "Team · Minutes share"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:554
+#: src/Core/FeatureRegistry.php:567
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:164
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1054
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1063
 msgid "Team · Squad evaluation summary"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:555
+#: src/Core/FeatureRegistry.php:568
 msgid "Season · Summary"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:556
+#: src/Core/FeatureRegistry.php:569
 msgid "Season · Trial funnel"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:557
+#: src/Core/FeatureRegistry.php:570
 msgid "Scout · Report card"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:558
+#: src/Core/FeatureRegistry.php:571
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:216
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1512
 msgid "Coach · Evaluation quality"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:559
+#: src/Core/FeatureRegistry.php:572
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:225
 msgid "Player · Progress & radar"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:560
+#: src/Core/FeatureRegistry.php:573
 #: src/Modules/Reports/Admin/ReportsPage.php:61
 #: src/Modules/Reports/Admin/ReportsPage.php:173
 #: src/Shared/Frontend/FrontendReportDetailView.php:55
@@ -911,7 +925,7 @@ msgstr ""
 msgid "Team rating averages"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:561
+#: src/Core/FeatureRegistry.php:574
 #: src/Modules/Reports/Admin/ReportsPage.php:68
 #: src/Modules/Reports/Admin/ReportsPage.php:261
 #: src/Shared/Frontend/FrontendReportDetailView.php:56
@@ -919,15 +933,15 @@ msgstr ""
 msgid "Coach activity"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:562
+#: src/Core/FeatureRegistry.php:575
 msgid "Team · Attendance statistics"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:563
+#: src/Core/FeatureRegistry.php:576
 msgid "Player · Attendance statistics"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:564
+#: src/Core/FeatureRegistry.php:577
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:81
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:89
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:92
@@ -935,12 +949,12 @@ msgstr ""
 msgid "Attendance leaderboard"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:565
+#: src/Core/FeatureRegistry.php:578
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:149
 msgid "Minutes played per team"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:566
+#: src/Core/FeatureRegistry.php:579
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:87
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:65
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:73
@@ -949,7 +963,7 @@ msgstr ""
 msgid "Minutes audit"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:567
+#: src/Core/FeatureRegistry.php:580
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:265
 #: src/Shared/Frontend/FrontendRateCardView.php:51
 #: src/Shared/Frontend/FrontendRateCardView.php:52
@@ -957,38 +971,38 @@ msgstr ""
 msgid "Rate cards"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:569
+#: src/Core/FeatureRegistry.php:582
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:1054
 msgid "Test trends"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:571
+#: src/Core/FeatureRegistry.php:584
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:175
 #: src/Shared/Frontend/FrontendStandardReportsView.php:179
 msgid "Learning · Course completion"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:572
+#: src/Core/FeatureRegistry.php:585
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:182
 #: src/Shared/Frontend/FrontendStandardReportsView.php:193
 msgid "Learning · Per person"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:573
+#: src/Core/FeatureRegistry.php:586
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:189
 #: src/Shared/Frontend/FrontendStandardReportsView.php:203
 msgid "Learning · Staff coverage per team"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:575
+#: src/Core/FeatureRegistry.php:588
 msgid ""
 "Show this report and allow it to open. When off, the report tile is hidden "
 "and the report is rejected even via a direct link."
 msgstr ""
 
 #. translators: %s = report name, e.g. "Player · Minutes played".
-#: src/Core/FeatureRegistry.php:579
+#: src/Core/FeatureRegistry.php:592
 #, php-format
 msgid "Report: %s"
 msgstr ""
@@ -1087,6 +1101,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaSubmitHandler.php:21
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:18
 #: src/Modules/Development/Frontend/TrackSaveHandler.php:18
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:19
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:26
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:19
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:17
@@ -1857,7 +1872,7 @@ msgstr "Kinésithérapeute"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2204
+#: src/Shared/Frontend/DashboardShortcode.php:2210
 #: src/Shared/Frontend/FrontendConfigurationView.php:2900
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1940,7 +1955,7 @@ msgstr "Admin du club"
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2202
+#: src/Shared/Frontend/DashboardShortcode.php:2208
 msgid "Head Coach"
 msgstr "Entraîneur principal"
 
@@ -1951,7 +1966,7 @@ msgstr "Entraîneur principal"
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2201
+#: src/Shared/Frontend/DashboardShortcode.php:2207
 msgid "Assistant Coach"
 msgstr "Entraîneur adjoint"
 
@@ -3263,11 +3278,11 @@ msgstr ""
 msgid "Goal not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ImportRestController.php:75
+#: src/Infrastructure/REST/ImportRestController.php:98
 msgid "No workbook was uploaded."
 msgstr ""
 
-#: src/Infrastructure/REST/ImportRestController.php:85
+#: src/Infrastructure/REST/ImportRestController.php:108
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:98
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
@@ -4695,6 +4710,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
 #: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:55
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:174
@@ -6914,6 +6930,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:36
 #: src/Modules/Development/Frontend/TracksView.php:43
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:98
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:30
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:30
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:50
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
@@ -6958,9 +6975,9 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:1017
 #: src/Shared/Frontend/DashboardShortcode.php:1242
 #: src/Shared/Frontend/DashboardShortcode.php:1251
-#: src/Shared/Frontend/DashboardShortcode.php:1602
-#: src/Shared/Frontend/DashboardShortcode.php:1610
-#: src/Shared/Frontend/DashboardShortcode.php:1618
+#: src/Shared/Frontend/DashboardShortcode.php:1608
+#: src/Shared/Frontend/DashboardShortcode.php:1616
+#: src/Shared/Frontend/DashboardShortcode.php:1624
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -7016,7 +7033,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:935
 #: src/Shared/CoreSurfaceRegistration.php:1852
 #: src/Shared/CoreSurfaceRegistration.php:2159
-#: src/Shared/Frontend/DashboardShortcode.php:1880
+#: src/Shared/Frontend/DashboardShortcode.php:1886
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
 msgstr ""
@@ -9516,7 +9533,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:510
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:511
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:512
-#: src/Modules/Media/MediaModule.php:114
+#: src/Modules/Import/ImportModule.php:37 src/Modules/Media/MediaModule.php:114
 #: src/Shared/CoreSurfaceRegistration.php:1201
 #: src/Shared/Modules/ModuleMetadata.php:51
 msgid "Administration"
@@ -10831,7 +10848,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2206
+#: src/Shared/Frontend/DashboardShortcode.php:2212
 msgid "Academy Admin"
 msgstr ""
 
@@ -16754,6 +16771,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaSubmitHandler.php:20
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:17
 #: src/Modules/Development/Frontend/TrackSaveHandler.php:17
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:17
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:18
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:16
@@ -16768,6 +16786,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:25
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:24
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:25
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:22
 #: src/Modules/Invitations/Frontend/InvitationSendHandler.php:29
 msgid "Bad request."
@@ -17310,7 +17329,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2077
 #: src/Shared/CoreSurfaceRegistration.php:2264
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2240
+#: src/Shared/Frontend/DashboardShortcode.php:2246
 #: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -19231,7 +19250,7 @@ msgstr "Imprimer"
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:231
-#: src/Shared/Frontend/DashboardShortcode.php:2245
+#: src/Shared/Frontend/DashboardShortcode.php:2251
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:159
 msgid "Close"
 msgstr "Fermer"
@@ -19811,6 +19830,136 @@ msgid ""
 "You will see exactly what the workbook contains, and anything that needs "
 "fixing, before a single record is created."
 msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:31
+msgid "You do not have permission to manage imports."
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:42
+msgid "Nothing has been imported from a spreadsheet yet."
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:50
+msgid "File"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:51
+msgid "Imported"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:53
+msgctxt "who ran the import"
+msgid "By"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:54
+msgid "Records"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:64
+msgid "(unnamed file)"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:70
+msgid "Already undone"
+msgstr ""
+
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:79
+msgid "Undo this import"
+msgstr ""
+
+#. translators: %d: number of records changed since the import
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:88
+#, php-format
+msgid "%d of these records has been changed since it was imported."
+msgid_plural "%d of these records have been changed since they were imported."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: a list like "3 teams, 24 players"
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:117
+#, php-format
+msgid "This will permanently delete %s that came from this file."
+msgstr ""
+
+#. translators: %d: number of records changed since the import
+#: src/Modules/Import/Frontend/FrontendImportHistoryView.php:124
+#, php-format
+msgid ""
+"%d of them has been changed since the import, and those changes will go too."
+msgid_plural ""
+"%d of them have been changed since the import, and those changes will go too."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: a list like "3 teams, 24 players"
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:38
+#, php-format
+msgid "Import undone. Removed %s."
+msgstr ""
+
+#: src/Modules/Import/Frontend/ImportUndoHandler.php:43
+msgid "That import had already been undone. Nothing was removed."
+msgstr ""
+
+#: src/Modules/Import/ImportModule.php:41
+msgid ""
+"What came in from a spreadsheet, and a way to take a whole import back out "
+"again."
+msgstr ""
+
+#: src/Modules/Import/ImportUndoService.php:45
+msgid "No import was named."
+msgstr ""
+
+#: src/Modules/Import/ImportUndoService.php:163
+msgctxt "import undo count"
+msgid "team"
+msgid_plural "teams"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:165
+msgctxt "import undo count"
+msgid "player"
+msgid_plural "players"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:167
+msgctxt "import undo count"
+msgid "staff member"
+msgid_plural "staff members"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:169
+msgctxt "import undo count"
+msgid "activity"
+msgid_plural "activities"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:171
+msgctxt "import undo count"
+msgid "evaluation"
+msgid_plural "evaluations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:173
+msgctxt "import undo count"
+msgid "goal"
+msgid_plural "goals"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Import/ImportUndoService.php:175
+msgctxt "import undo count"
+msgid "record"
+msgid_plural "records"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
 msgid "This invitation link is invalid."
@@ -30151,8 +30300,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2155
-#: src/Shared/Frontend/DashboardShortcode.php:2156
+#: src/Shared/Frontend/DashboardShortcode.php:2161
+#: src/Shared/Frontend/DashboardShortcode.php:2162
 msgid "Help & docs"
 msgstr ""
 
@@ -32935,8 +33084,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1603
-#: src/Shared/Frontend/DashboardShortcode.php:1611
+#: src/Shared/Frontend/DashboardShortcode.php:1609
+#: src/Shared/Frontend/DashboardShortcode.php:1617
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -34517,7 +34666,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:195
 #: src/Shared/Frontend/DashboardShortcode.php:229
-#: src/Shared/Frontend/DashboardShortcode.php:2250
+#: src/Shared/Frontend/DashboardShortcode.php:2256
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -42788,7 +42937,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:219
-#: src/Shared/Frontend/DashboardShortcode.php:2090
+#: src/Shared/Frontend/DashboardShortcode.php:2096
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -42974,84 +43123,84 @@ msgstr ""
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1619
+#: src/Shared/Frontend/DashboardShortcode.php:1625
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1831
-#: src/Shared/Frontend/DashboardShortcode.php:2224
+#: src/Shared/Frontend/DashboardShortcode.php:1837
+#: src/Shared/Frontend/DashboardShortcode.php:2230
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1882
+#: src/Shared/Frontend/DashboardShortcode.php:1888
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2018
+#: src/Shared/Frontend/DashboardShortcode.php:2024
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2021
+#: src/Shared/Frontend/DashboardShortcode.php:2027
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2024
+#: src/Shared/Frontend/DashboardShortcode.php:2030
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2047
+#: src/Shared/Frontend/DashboardShortcode.php:2053
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2110
+#: src/Shared/Frontend/DashboardShortcode.php:2116
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:2134
+#: src/Shared/Frontend/DashboardShortcode.php:2140
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2174
+#: src/Shared/Frontend/DashboardShortcode.php:2180
 #: src/Shared/Frontend/FrontendMySettingsView.php:54
 #: src/Shared/Frontend/FrontendMySettingsView.php:55
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:2181
+#: src/Shared/Frontend/DashboardShortcode.php:2187
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2193
+#: src/Shared/Frontend/DashboardShortcode.php:2199
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2196
+#: src/Shared/Frontend/DashboardShortcode.php:2202
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2220
+#: src/Shared/Frontend/DashboardShortcode.php:2226
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2242
+#: src/Shared/Frontend/DashboardShortcode.php:2248
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2314
+#: src/Shared/Frontend/DashboardShortcode.php:2320
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2315
+#: src/Shared/Frontend/DashboardShortcode.php:2321
 msgid "Switch back to all personas"
 msgstr ""
 
