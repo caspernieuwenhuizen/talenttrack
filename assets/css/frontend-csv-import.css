@@ -1,0 +1,74 @@
+/*
+ * CSV import flow — shared by the players and exercise-library importers.
+ *
+ * Small on purpose. The flow's markup is otherwise built from the generic
+ * panel / table / flash components; what it needs of its own is the
+ * per-row status pill and a readable notes column, both of which used to
+ * be inline styles inside `csv-import.js` (#2613).
+ *
+ * Mobile-first: the base rules are the 360px layout, and the only media
+ * query widens the notes column once there is room for it.
+ */
+
+.tt-csv-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--tt-radius, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    white-space: nowrap;
+}
+
+.tt-csv-import-help {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    margin-bottom: 1rem;
+}
+
+.tt-csv-import-fields {
+    margin-bottom: 1rem;
+}
+
+/*
+ * The accepted-columns disclosure is a tap target, so it carries the
+ * 48px floor rather than the browser's default summary height.
+ */
+.tt-csv-import-fields > summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-csv-import-fields p {
+    margin-top: 0.5rem;
+    line-height: 1.8;
+}
+
+.tt-csv-header-warning {
+    margin-bottom: 0.5rem;
+}
+
+/*
+ * The notes cell carries the whole reason a row failed, which is often a
+ * sentence or three. Left to itself it either squeezes every other column
+ * to nothing or forces the table off the side of a phone.
+ */
+.tt-csv-import td[data-label][data-notes] {
+    white-space: normal;
+    min-width: 12rem;
+}
+
+.tt-csv-import-actions {
+    margin-top: 0.75rem;
+}
+
+.tt-csv-result-summary {
+    font-size: var(--tt-fs-body, 1rem);
+    line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+    .tt-csv-import td[data-label][data-notes] {
+        min-width: 20rem;
+    }
+}

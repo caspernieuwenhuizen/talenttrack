@@ -142,6 +142,16 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         return add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ); /* tt-xview-ok — same view */
     }
 
+    /**
+     * The CSV importer (#2613), carrying a back-target so its breadcrumb
+     * chain can offer the contextual pill back to the library.
+     */
+    private static function importUrl(): string {
+        return BackLink::appendTo(
+            add_query_arg( [ 'tt_view' => 'exercises-import' ], RecordLink::dashboardUrl() )
+        );
+    }
+
     private static function renderList( int $user_id ): void {
         FrontendBreadcrumbs::fromDashboard( __( 'Exercises', 'talenttrack' ) );
         self::renderHeader( __( 'Exercise library', 'talenttrack' ) );
@@ -303,6 +313,19 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
      * list stays the point of the page.
      */
     private static function renderCreateForm( int $user_id ): void {
+        // #2613 — the bulk path, next to the one-at-a-time path. An
+        // academy arriving with 150 drills in a spreadsheet should not
+        // have to discover the importer from a menu somewhere else.
+        echo '<p class="tt-ex-create__bulk">';
+        printf(
+            /* translators: %s: link to the CSV import screen. */
+            esc_html__( 'Have a lot of them already? %s', 'talenttrack' ),
+            '<a href="' . esc_url( self::importUrl() ) . '">'
+                . esc_html__( 'Import exercises from CSV', 'talenttrack' )
+                . '</a>'
+        );
+        echo '</p>';
+
         echo '<details class="tt-ex-create">';
         echo '<summary class="tt-ex-create__summary">' . esc_html__( 'Add exercise', 'talenttrack' ) . '</summary>';
         echo '<form class="tt-ex-create__form" method="post" action="">';

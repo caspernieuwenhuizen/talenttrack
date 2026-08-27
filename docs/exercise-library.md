@@ -3,7 +3,7 @@ title: Exercise library
 group: performance
 summary: Every drill the academy can build a training from, in one place.
 audience: [user, admin]
-views: [exercises]
+views: [exercises, exercises-import]
 module: TT\Modules\Exercises\ExercisesModule
 order: 95
 ---
@@ -68,6 +68,40 @@ Whether the *rest of the club* gets it is a separate decision, made by the head
 of development. Your team keeps using it either way.
 
 You can also mark a drill **Only me** if it is a work in progress.
+
+### Bringing a lot of drills at once
+
+If the club already has its drills in a spreadsheet, you do not have to retype
+them. Above **Add exercise** there is a link to **Import exercises from CSV**.
+
+Save the spreadsheet as a `.csv` file with a header row naming the columns, then
+upload it. Nothing is saved yet: you get a check screen first, listing every row
+that has a problem and why. Only when you press **Import exercises** is anything
+written.
+
+A row that fails does not stop the rest. Every good row is saved, and the failed
+rows come back as a file you can correct and upload again — the reason is added
+as an extra column, so you can fix them in the spreadsheet and re-upload.
+
+The columns the file may contain are listed on the import screen itself under
+**Accepted columns**. Three things are worth knowing before you start:
+
+- **Fill in `principle_codes` wherever you can.** This is the column that
+  decides whether the drill is useful. A drill with no principles can still be
+  chosen for a session, but the planner can never *prefer* it — so a large
+  library tagged with nothing behaves like an empty one. Separate several codes
+  with a semicolon.
+- **A number outside its range fails its row.** It is not rounded into range.
+  If a column was filled in on the wrong scale, you are told, rather than every
+  row being quietly rewritten.
+- **Drills arrive belonging to your team**, exactly as they do when you add one
+  by hand. Publishing to the whole club is still the head of development's
+  decision.
+
+If your spreadsheet has an **organisation** column it is added to the end of the
+description, matching the single field the form offers. There is no place for
+per-drill **coaching points**: those belong to a training plan's block, because
+the same drill is coached differently depending on what the session is for.
 
 ## Classifying the library
 

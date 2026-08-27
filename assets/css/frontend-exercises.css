@@ -91,6 +91,23 @@
     margin-bottom: var(--tt-sp-4, 16px);
 }
 
+/*
+ * The bulk-import pointer above the create form (#2613). Its link is a
+ * tap target, so it gets the 48px floor rather than inheriting a body
+ * line-height.
+ */
+.tt-ex-create__bulk {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-ex-create__bulk a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
 .tt-ex-create__summary {
     display: flex;
     align-items: center;
