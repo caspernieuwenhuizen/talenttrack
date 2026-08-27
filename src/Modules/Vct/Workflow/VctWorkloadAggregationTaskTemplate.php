@@ -152,10 +152,23 @@ class VctWorkloadAggregationTaskTemplate extends TaskTemplate {
 
             $present_player_ids = [];
             if ( $activity_id > 0 ) {
+                // #2909 — `record_type = 'actual'` is load-bearing here and was
+                // missing. Attendance carries two kinds of row: an `expected`
+                // row written when the session is planned, and an `actual` row
+                // written when the coach registers who turned up. Both can read
+                // 'Present' — the planner maps "expected" straight onto it.
+                //
+                // Without this filter the query attributes a session's full
+                // training load to every player who was merely *pencilled in*,
+                // including those who never showed. Workload is the number a
+                // physio reads when deciding whether a player is being
+                // overloaded, so counting a session nobody attended is the kind
+                // of wrong that reaches a child.
                 $present_player_ids = (array) $wpdb->get_col( $wpdb->prepare(
                     "SELECT player_id FROM {$attendance_table}
                       WHERE club_id = %d
                         AND activity_id = %d
+                        AND record_type = 'actual'
                         AND status = 'Present'",
                     $club_id, $activity_id
                 ) );
