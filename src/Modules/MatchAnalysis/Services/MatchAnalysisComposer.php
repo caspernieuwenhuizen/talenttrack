@@ -120,9 +120,100 @@ final class MatchAnalysisComposer {
             'result'      => self::resultFor( $activity, $exec ),
             'sections'    => $this->sectionsFor( $analysis_id, $prep ),
             'players'     => $this->playersFor( $activity, $analysis_id, $prep, $prep_repo, $exec_repo ),
+            'goals'       => self::goalsFor( $prep, $exec, $exec_repo ),
             'has_prep'    => (bool) $prep,
             'has_exec'    => (bool) $exec,
         ];
+    }
+
+    /**
+     * #2860 — the goals that made the result, in the order they happened.
+     *
+     * The analysis and the match-execution log describe the same game and
+     * were not on speaking terms: a coach reading the readback could see
+     * which team functions were rated and how the game ended, but not when
+     * the goals came or who scored them. A run of three conceded inside ten
+     * minutes is context for the defending-phase rating sitting beside it,
+     * and without the timeline that context lived on another screen.
+     *
+     * Read-only, and deliberately so. Goals are edited on the match
+     * execution surface; this renders them and nothing more.
+     *
+     * Minutes are made absolute across both halves so the list reads as one
+     * game rather than two restarting clocks. Opponent goals carry no
+     * scorer — their squad is not in the system — and our unattributed and
+     * own goals keep their own states rather than borrowing a name.
+     *
+     * @return list<array{
+     *     minute:int, half:int, team:string, is_own_goal:bool,
+     *     scorer:string, assist:string, has_scorer:bool
+     * }>
+     */
+    public static function goalsFor( ?object $prep, ?object $exec, MatchExecutionRepository $exec_repo ): array {
+        if ( ! $exec ) return [];
+
+        $events = $exec_repo->listGoalEvents( (int) $exec->id );
+        if ( empty( $events ) ) return [];
+
+        // A wpdb row is a bag of columns, so read it as one: the prep may be
+        // absent entirely, and the column may not be set on an old row.
+        $prep_columns = $prep ? get_object_vars( $prep ) : [];
+        $half_length  = (int) ( $prep_columns['half_length_minutes'] ?? 0 );
+        if ( $half_length <= 0 ) $half_length = 35;
+
+        $ids = [];
+        foreach ( $events as $ge ) {
+            $pid = (int) ( $ge->player_id ?? 0 );
+            $aid = (int) ( $ge->assist_player_id ?? 0 );
+            if ( $pid > 0 ) $ids[] = $pid;
+            if ( $aid > 0 ) $ids[] = $aid;
+        }
+        $ids = array_values( array_unique( $ids ) );
+
+        $names = [];
+        if ( ! empty( $ids ) ) {
+            $players = self::playerRows( $ids );
+            $short   = PlayerShortName::resolve( $players );
+            foreach ( $players as $player ) {
+                $pid = (int) $player->id;
+                $names[ $pid ] = (string) ( $short[ $pid ] ?? QueryHelpers::player_display_name( $player ) );
+            }
+        }
+
+        $out = [];
+        foreach ( $events as $ge ) {
+            $half   = (int) ( $ge->half ?? 1 ) === 2 ? 2 : 1;
+            $minute = (int) ( $ge->minute_in_half ?? 0 );
+            $pid    = (int) ( $ge->player_id ?? 0 );
+            $aid    = (int) ( $ge->assist_player_id ?? 0 );
+            $own    = ! empty( $ge->is_own_goal );
+            $ours   = ( (string) ( $ge->team ?? 'home' ) === 'home' );
+
+            // A scorer we cannot name is, for a reader, a scorer we do not
+            // have: the id is set but resolves to no player row — a record
+            // deleted outside the erasure path, or one from another club.
+            // `has_scorer` follows the resolved name rather than the id, so
+            // the readback says "Scorer not recorded" instead of printing an
+            // empty space where a name belongs.
+            $scorer_name = $pid > 0 ? (string) ( $names[ $pid ] ?? '' ) : '';
+            $assist_name = $aid > 0 ? (string) ( $names[ $aid ] ?? '' ) : '';
+
+            $out[] = [
+                'minute'      => ( $half === 2 ? $half_length : 0 ) + $minute,
+                'half'        => $half,
+                'team'        => $ours ? 'home' : 'away',
+                'is_own_goal' => $own,
+                'scorer'      => $scorer_name,
+                'assist'      => $assist_name,
+                'has_scorer'  => $scorer_name !== '',
+            ];
+        }
+
+        usort( $out, static function ( array $a, array $b ): int {
+            return $a['minute'] <=> $b['minute'];
+        } );
+
+        return $out;
     }
 
     /**

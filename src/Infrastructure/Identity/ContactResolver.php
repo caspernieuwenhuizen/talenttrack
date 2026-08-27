@@ -74,32 +74,19 @@ final class ContactResolver {
         return self::accountEmail( $wp_user_id );
     }
 
-    /**
-     * Email for a parent account.
+    /*
+     * There is no `emailForParent()` any more (#2997).
      *
-     * Identical to {@see self::emailForUser()} except that it keeps the
-     * pre-existing WooCommerce `billing_email` preference ahead of the
-     * account address. That precedence predates this class and it is not
-     * recorded anywhere whether it is deliberate support for clubs
-     * running WooCommerce or drift that has been quietly redirecting
-     * parent mail. Preserved verbatim rather than silently changed,
-     * because dropping it would move where existing parent mail lands.
-     * Pending an answer on #2961.
+     * It existed to preserve a WooCommerce `billing_email` lookup that
+     * outranked the account's own address for parents. #2961 kept that
+     * verbatim while nobody could say whether it was deliberate; the
+     * answer came back that it was drift, so the lookup is gone and
+     * parents resolve through `emailForUser()` like everyone else.
+     *
+     * Not kept as an alias on purpose: a method whose only remaining job
+     * is to document a removed exception invites the next reader to
+     * assume parents are still special, and they are not.
      */
-    public static function emailForParent( int $wp_user_id ): ?string {
-        if ( $wp_user_id <= 0 ) return null;
-
-        $person = self::personRowForUser( $wp_user_id );
-        if ( $person ) {
-            $email = sanitize_email( (string) ( $person->email ?? '' ) );
-            if ( $email !== '' && is_email( $email ) ) return $email;
-        }
-
-        $billing = sanitize_email( (string) get_user_meta( $wp_user_id, 'billing_email', true ) );
-        if ( $billing !== '' && is_email( $billing ) ) return $billing;
-
-        return self::accountEmail( $wp_user_id );
-    }
 
     /** Phone for a person, by `tt_people.id`. */
     public static function phoneForPerson( int $person_id ): ?string {

@@ -20,6 +20,13 @@ sectie waar je bent. Strakkere hoeken (4px in plaats van 8px), een smalle
 kopletter en een marineblauw getinte diepte, zodat schaduwen bij het palet
 horen in plaats van er als grijze waas overheen te liggen.
 
+**Leon Hutten** — het ontwerp van Leon Hutten Talenten Academie, gebouwd op
+het clubembleem. De zwarte band uit het embleem wordt de kopbalk en de
+navigatiekolom; de diagonale streep van cyaan naar marineblauw sluit de
+kopbalk en het merkblok af. Knoppen en links krijgen het diepe blauw, cyaan
+markeert de sectie waar je bent, en het hele thema staat in Open Sans. De
+hoeken zijn het strakst van de drie (3px).
+
 ## Een thema vervangt je kleurinstellingen
 
 Zolang een thema actief is levert het het **complete** kleurenschema — de
@@ -123,6 +130,12 @@ plek waar ze geschreven worden is beter dan een bewegend doel overtroeven.
 Het inladen in `DashboardShortcode` neemt het stijlblad van de shell alleen als
 afhankelijkheid op wanneer de shell dat ook werkelijk heeft ingeladen, zodat een
 `classic`-installatie nooit een handle registreert die zij niet laadt.
+
+Een thema dat een webletter wil gebruiken, moet die zelf inladen.
+`BrandStyles::enqueueFonts()` stopt namelijk ook meteen zolang er een thema
+actief is — de letterkeuze van de club geldt dan niet, en het overslaan van dat
+verzoek scheelt de pagina een externe aanvraag waar niets mee gedaan wordt.
+`leon-hutten` laadt Open Sans met een `@import` bovenaan zijn eigen stijlblad.
 
 ### Bekend gat
 

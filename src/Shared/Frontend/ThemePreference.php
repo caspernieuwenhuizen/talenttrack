@@ -19,11 +19,15 @@ use TT\Infrastructure\Config\ConfigService;
  *     renders exactly as it did before this existed.
  *   - `federation` — navy chrome, gold active marker, condensed display
  *     type, tighter radii. Designed against the app shell (#2456).
+ *   - `leon-hutten` — the club's own design system (#2939): black crest
+ *     banner as chrome, a cyan-to-navy stripe motif, blue actions with
+ *     a cyan accent, Open Sans throughout.
  *
- * Club brand colours are deliberately NOT a theme's business:
- * `--tt-primary` / `--tt-secondary` are emitted by `BrandStyles` and
- * re-themed by the operator's colour editor. A theme owns the neutrals,
- * the chrome, depth, status colours and type — never the club's identity.
+ * A theme owns the complete visual design, brand colours included:
+ * `BrandStyles` stops emitting `--tt-primary` / `--tt-secondary` while
+ * one is active (#2515), so each theme sheet declares its own. What the
+ * club keeps is its identity in markup — the logo and the academy name,
+ * which every theme renders untouched.
  *
  * Resolution order is user override -> club default -> `default`, matching
  * `ShellPreference`. The club default lives in `tt_config` (club-scoped per
@@ -46,6 +50,9 @@ final class ThemePreference {
     /** Navy institutional theme (#2512). */
     public const FEDERATION = 'federation';
 
+    /** Leon Hutten — Talenten Academie, from the club's handoff (#2939). */
+    public const LEON_HUTTEN = 'leon-hutten';
+
     /** Per-user value meaning "follow the club default". */
     public const INHERIT = 'inherit';
 
@@ -55,7 +62,7 @@ final class ThemePreference {
      * @return list<string>
      */
     public static function themes(): array {
-        return [ self::DEFAULT_THEME, self::FEDERATION ];
+        return [ self::DEFAULT_THEME, self::FEDERATION, self::LEON_HUTTEN ];
     }
 
     /**
@@ -161,6 +168,7 @@ final class ThemePreference {
         return [
             self::DEFAULT_THEME => __( 'Default — green and gold', 'talenttrack' ),
             self::FEDERATION    => __( 'Federation — navy and gold', 'talenttrack' ),
+            self::LEON_HUTTEN   => __( 'Leon Hutten — black and cyan', 'talenttrack' ),
         ];
     }
 }
