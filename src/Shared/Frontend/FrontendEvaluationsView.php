@@ -392,6 +392,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
             $actions[] = [
                 'label'      => __( 'Archive', 'talenttrack' ),
                 'variant'    => 'danger',
+                // #2871 — icon-only; keeps its confirmation.
+                'icon_only'  => true,
                 'data_attrs' => [
                     'tt-archive-rest-path' => 'evaluations/' . $eval_id,
                     'tt-archive-confirm'   => __( 'Archive this evaluation? It will be hidden but the data is preserved.', 'talenttrack' ),

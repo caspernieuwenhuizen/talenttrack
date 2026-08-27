@@ -618,8 +618,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 </button>
             <?php endif; ?>
             <?php if ( $can_edit ) : ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $edit_url ); ?>">
-                    <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
+                <?php
+                // #2871 — Edit is a pencil beside the ⋯ rather than a text
+                // button at the far left. It is the one action taken on the
+                // record itself, and a full-width label bought it a row of
+                // header height that pushed the profile below the fold on a
+                // phone. The label survives as both the accessible name and
+                // the hover title, so the msgid does not change.
+                $edit_label = __( 'Edit', 'talenttrack' );
+                ?>
+                <a class="tt-player-action tt-player-action--edit"
+                   href="<?php echo esc_url( $edit_url ); ?>"
+                   aria-label="<?php echo esc_attr( $edit_label ); ?>"
+                   title="<?php echo esc_attr( $edit_label ); ?>">
+                    <?php
+                    echo \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 18, 'height' => 18 ] );
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    ?>
                 </a>
             <?php endif; ?>
             <?php if ( $has_overflow ) : ?>
