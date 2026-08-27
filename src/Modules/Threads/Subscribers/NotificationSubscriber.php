@@ -68,8 +68,10 @@ final class NotificationSubscriber {
 
         foreach ( $recipients as $uid ) {
             $u = get_user_by( 'id', $uid );
-            if ( ! $u instanceof \WP_User || empty( $u->user_email ) ) continue;
-            wp_mail( (string) $u->user_email, $subject, $body );
+            if ( ! $u instanceof \WP_User ) continue;
+            $email = \TT\Infrastructure\Identity\ContactResolver::emailForUser( (int) $u->ID );
+            if ( $email === null ) continue;
+            wp_mail( $email, $subject, $body );
         }
     }
 

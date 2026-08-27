@@ -88,13 +88,14 @@ class TaskMailer {
         $chain  = (string) ( $config['dispatcher_chain'] ?? '' );
 
         if ( $chain === '' || $chain === DispatcherChain::PRESET_EMAIL_ONLY ) {
-            if ( empty( $user->user_email ) ) return;
-            $sent = wp_mail( $user->user_email, $subject, $body );
+            $to = \TT\Infrastructure\Identity\ContactResolver::emailForUser( (int) $user->ID );
+            if ( $to === null ) return;
+            $sent = wp_mail( $to, $subject, $body );
             if ( ! $sent && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                 error_log( sprintf(
                     '[TalentTrack workflow] TaskMailer: wp_mail returned false for task %d to %s',
                     $task_id,
-                    $user->user_email
+                    $to
                 ) );
             }
             return;
