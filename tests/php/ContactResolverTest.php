@@ -121,21 +121,36 @@ final class ContactResolverTest extends WP_UnitTestCase {
         $this->assertSame( 'contact@example.test', ContactResolver::emailForUser( $uid ) );
     }
 
-    public function test_parent_keeps_the_billing_email_preference_over_the_account(): void {
-        // Preserved behaviour, not endorsed behaviour — see the docblock on
-        // ContactResolver::emailForParent() and the open question on #2961.
+    public function test_billing_email_is_not_consulted( ): void {
+        // #2997 — the WooCommerce field used to outrank the account's own
+        // address for parents. It was drift, and it is gone. This is the
+        // assertion that stops it coming back: a parent with a
+        // billing_email and no person-row email now resolves to the
+        // account address, not the billing one.
         $uid = self::factory()->user->create( [ 'user_email' => 'account@example.test' ] );
         update_user_meta( $uid, 'billing_email', 'billing@example.test' );
 
-        $this->assertSame( 'billing@example.test', ContactResolver::emailForParent( $uid ) );
+        $this->assertSame( 'account@example.test', ContactResolver::emailForUser( $uid ) );
     }
 
-    public function test_parent_person_row_still_outranks_billing_email(): void {
+    public function test_a_parents_person_row_still_wins( ): void {
+        // Unchanged by #2997 — step 1 always won, so no parent with a
+        // person-row email sees their mail move.
         $uid = self::factory()->user->create( [ 'user_email' => 'account@example.test' ] );
         update_user_meta( $uid, 'billing_email', 'billing@example.test' );
         $this->makePerson( [ 'email' => 'edited@example.test', 'wp_user_id' => $uid ] );
 
-        $this->assertSame( 'edited@example.test', ContactResolver::emailForParent( $uid ) );
+        $this->assertSame( 'edited@example.test', ContactResolver::emailForUser( $uid ) );
+    }
+
+    public function test_parents_are_no_longer_a_special_case( ): void {
+        // The resolver used to carry a parent-specific entry point. There
+        // is one rule now, and this asserts the class does not quietly
+        // grow a second one back.
+        $this->assertFalse(
+            method_exists( ContactResolver::class, 'emailForParent' ),
+            'emailForParent() is back; parents should resolve like everyone else'
+        );
     }
 
     public function test_phone_resolves_person_row_before_user_meta(): void {
