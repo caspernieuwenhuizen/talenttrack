@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T19:31:39+00:00\n"
+"POT-Creation-Date: 2026-08-27T19:47:02+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -48689,17 +48689,20 @@ msgstr "Standaard van de academie"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1915
 msgid ""
 "Changes colours, corners and heading type only — never what anyone can see "
-"or do. Federation is a navy chrome with a gold marker on the active section. "
-"A theme supplies the whole colour scheme, so the Colours settings do not "
-"apply while one is active; your logo and academy name still do. Everyone can "
-"pick their own theme in My settings; this is what they get until they do."
+"or do. Federation is a navy chrome with a gold marker on the active section; "
+"Leon Hutten is the club design system, a black crest banner with a cyan "
+"stripe. A theme supplies the whole colour scheme, so the Colours settings do "
+"not apply while one is active; your logo and academy name still do. Everyone "
+"can pick their own theme in My settings; this is what they get until they do."
 msgstr ""
 "Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of "
 "doen. Federation is een marineblauwe chroom met een gouden markering op de "
-"sectie waar je bent. Een thema levert het complete kleurenschema, dus de "
-"instellingen onder Kleuren gelden niet zolang er een thema actief is; je "
-"logo en academienaam wel. Iedereen kan onder Mijn instellingen een eigen "
-"thema kiezen; dit is wat ze krijgen zolang ze dat niet doen."
+"sectie waar je bent; Leon Hutten is het ontwerp van de club zelf, een zwarte "
+"embleembalk met een cyaan streep. Een thema levert het complete "
+"kleurenschema, dus de instellingen onder Kleuren gelden niet zolang er een "
+"thema actief is; je logo en academienaam wel. Iedereen kan onder Mijn "
+"instellingen een eigen thema kiezen; dit is wat ze krijgen zolang ze dat "
+"niet doen."
 
 #. translators: %s: the name of the active visual theme.
 #: src/Shared/Frontend/FrontendConfigurationView.php:1932
@@ -55578,13 +55581,17 @@ msgstr "Klassiek — tegeloverzicht, geen zijbalk"
 msgid "App shell — sidebar navigation"
 msgstr "App-shell — navigatie in de zijbalk"
 
-#: src/Shared/Frontend/ThemePreference.php:162
+#: src/Shared/Frontend/ThemePreference.php:169
 msgid "Default — green and gold"
 msgstr "Standaard — groen en goud"
 
-#: src/Shared/Frontend/ThemePreference.php:163
+#: src/Shared/Frontend/ThemePreference.php:170
 msgid "Federation — navy and gold"
 msgstr "Federation — marineblauw en goud"
+
+#: src/Shared/Frontend/ThemePreference.php:171
+msgid "Leon Hutten — black and cyan"
+msgstr "Leon Hutten — zwart en cyaan"
 
 #. translators: %s site name
 #: src/Shared/Mobile/MobileActionHandlers.php:81
@@ -56190,6 +56197,21 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid ""
+#~ "Changes colours, corners and heading type only — never what anyone can "
+#~ "see or do. Federation is a navy chrome with a gold marker on the active "
+#~ "section. A theme supplies the whole colour scheme, so the Colours "
+#~ "settings do not apply while one is active; your logo and academy name "
+#~ "still do. Everyone can pick their own theme in My settings; this is what "
+#~ "they get until they do."
+#~ msgstr ""
+#~ "Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien "
+#~ "of doen. Federation is een marineblauwe chroom met een gouden markering "
+#~ "op de sectie waar je bent. Een thema levert het complete kleurenschema, "
+#~ "dus de instellingen onder Kleuren gelden niet zolang er een thema actief "
+#~ "is; je logo en academienaam wel. Iedereen kan onder Mijn instellingen een "
+#~ "eigen thema kiezen; dit is wat ze krijgen zolang ze dat niet doen."
 
 #~ msgid "Decrease home score"
 #~ msgstr "Thuisscore verlagen"
@@ -57559,10 +57581,3 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-msgid "Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section; Leon Hutten is the club design system, a black crest banner with a cyan stripe. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do."
-msgstr "Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of doen. Federation is een marineblauwe chroom met een gouden markering op de sectie waar je bent; Leon Hutten is het ontwerp van de club zelf, een zwarte embleembalk met een cyaan streep. Een thema levert het complete kleurenschema, dus de instellingen onder Kleuren gelden niet zolang er een thema actief is; je logo en academienaam wel. Iedereen kan onder Mijn instellingen een eigen thema kiezen; dit is wat ze krijgen zolang ze dat niet doen."
-
-msgid "Leon Hutten — black and cyan"
-msgstr "Leon Hutten — zwart en cyaan"
-

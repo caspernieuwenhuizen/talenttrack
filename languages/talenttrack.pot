@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-27T19:31:39+00:00\n"
+"POT-Creation-Date: 2026-08-27T19:47:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -42593,7 +42593,7 @@ msgid "Academy default"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1915
-msgid "Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do."
+msgid "Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section; Leon Hutten is the club design system, a black crest banner with a cyan stripe. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do."
 msgstr ""
 
 #. translators: %s: the name of the active visual theme.
@@ -48290,12 +48290,16 @@ msgstr ""
 msgid "App shell — sidebar navigation"
 msgstr ""
 
-#: src/Shared/Frontend/ThemePreference.php:162
+#: src/Shared/Frontend/ThemePreference.php:169
 msgid "Default — green and gold"
 msgstr ""
 
-#: src/Shared/Frontend/ThemePreference.php:163
+#: src/Shared/Frontend/ThemePreference.php:170
 msgid "Federation — navy and gold"
+msgstr ""
+
+#: src/Shared/Frontend/ThemePreference.php:171
+msgid "Leon Hutten — black and cyan"
 msgstr ""
 
 #. translators: %s site name
