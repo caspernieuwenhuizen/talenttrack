@@ -49,6 +49,9 @@ define( 'ABSPATH', $root . '/' );
 if ( ! function_exists( '__' ) ) {
     function __( string $text, string $domain = '' ): string { return $text; }
 }
+if ( ! function_exists( '_x' ) ) {
+    function _x( string $text, string $context, string $domain = '' ): string { return $text; }
+}
 if ( ! function_exists( '_n' ) ) {
     function _n( string $single, string $plural, int $number, string $domain = '' ): string {
         return $number === 1 ? $single : $plural;
