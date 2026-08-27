@@ -3,6 +3,7 @@ namespace TT\Modules\Push\Dispatchers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Modules\Comms\Domain\Recipient;
 
 /**
@@ -24,20 +25,19 @@ final class EmailDispatcher implements DispatcherInterface {
     public function applicableTo( array $context ): bool {
         $user_id = (int) ( $context['user_id'] ?? 0 );
         if ( $user_id <= 0 ) return false;
-        $user = get_userdata( $user_id );
-        return $user && ! empty( $user->user_email );
+        return ContactResolver::emailForUser( $user_id ) !== null;
     }
 
     public function deliver( array $context ): bool {
         $user_id = (int) ( $context['user_id'] ?? 0 );
         if ( $user_id <= 0 ) return false;
-        $user = get_userdata( $user_id );
-        if ( ! $user || empty( $user->user_email ) ) return false;
+        $email = ContactResolver::emailForUser( $user_id );
+        if ( $email === null ) return false;
 
         $recipient = Recipient::self(
             $user_id,
-            (string) $user->user_email,
-            (string) get_user_meta( $user_id, 'tt_phone', true ),
+            $email,
+            (string) ( ContactResolver::phoneForUser( $user_id ) ?? '' ),
             (string) get_user_meta( $user_id, 'locale', true )
         );
 
