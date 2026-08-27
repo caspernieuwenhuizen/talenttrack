@@ -55351,6 +55351,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s: the email address that is already taken
+#: src/Infrastructure/Identity/ContactSync.php:147
+#, php-format
+msgid "Another account already uses %s, so the sign-in email was left unchanged."
+msgstr "Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd gebleven."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 
