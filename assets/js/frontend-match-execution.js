@@ -146,6 +146,61 @@
         }
     });
 
+    // --- #2936 — two-tap guard on the destructive transitions ---
+    //
+    // Ending a match and finalizing it are the two transitions that are
+    // disruptive AND awkward to undo: a mis-tap during the second half
+    // parks the clock and moves the match to pending_review mid-game, and
+    // the recovery is correcting the clock by hand on a touchline while
+    // play continues.
+    //
+    // Arm-and-commit rather than window.confirm(): a native modal on a
+    // phone at the side of a pitch is a worse interruption than the thing
+    // it is guarding, and it cannot show the drain that tells you the
+    // window is closing. The armed state changes LABEL as well as colour,
+    // so it never depends on colour alone.
+    //
+    // Deliberately not applied to start-match, start-second-half,
+    // end-first-half or reopen-match: half-time is a normal transition and
+    // is reversible by starting the second half, and re-open has its own
+    // confirm already.
+    var ARM_MS = 3000;
+    var armed = null;   // { btn, label, timer }
+
+    function disarm() {
+        if (!armed) return;
+        clearTimeout(armed.timer);
+        armed.btn.removeAttribute('data-armed');
+        armed.btn.textContent = armed.label;
+        armed = null;
+    }
+
+    /**
+     * Returns true when the caller should proceed (this was the commit
+     * tap), false when the tap merely armed the button.
+     */
+    function armOrCommit(btn, armedLabel) {
+        if (armed && armed.btn === btn) {
+            var wasArmed = armed;
+            clearTimeout(wasArmed.timer);
+            btn.removeAttribute('data-armed');
+            btn.textContent = wasArmed.label;
+            armed = null;
+            return true;
+        }
+
+        disarm();   // arming one button disarms any other
+
+        armed = { btn: btn, label: btn.textContent, timer: null };
+        // The accessible name is what changes, so announce it on the
+        // element itself rather than adding a second live region.
+        btn.setAttribute('aria-live', 'polite');
+        btn.setAttribute('data-armed', 'true');
+        btn.textContent = armedLabel;
+        armed.timer = setTimeout(disarm, ARM_MS);
+        return false;
+    }
+
     // --- Sticky bottom action (half transitions) ---
     els.stateBtn.addEventListener('click', function () {
         if (state.state === ST.NOT_STARTED) {
@@ -165,6 +220,9 @@
             // as the timer Start button.
             els.timerBtn.click();
         } else if (state.state === ST.SECOND_HALF) {
+            // #2936 — first tap arms, second commits. Nothing is sent on
+            // the arming tap.
+            if (!armOrCommit(els.stateBtn, i18n.end_match_arm || 'Tap again to end match')) return;
             // #2267 — end the match: stop the clock, then finish() and
             // adopt the server's returned state (pending_review). The
             // legacy code hardcoded 'finished' and never read the response,
@@ -799,6 +857,15 @@
     }
     function renderStateButton() {
         if (!els.stateBtn) return;
+        // #2936 — the CTA is about to be relabelled for a new state, so an
+        // arming started against the old one is stale. Cancel it rather
+        // than let the next tap commit a transition the coach armed for a
+        // different button.
+        if (armed && armed.btn === els.stateBtn) {
+            clearTimeout(armed.timer);
+            armed.btn.removeAttribute('data-armed');
+            armed = null;
+        }
         // #956 — state→CTA mapping per the spec table. data-action also
         // drives the CSS colour-coding on the footer CTA.
         if (state.state === ST.FIRST_HALF) {
@@ -1235,13 +1302,19 @@
     // api()/doFetch()/uuidv4() helpers instead of a second lazy-cfg copy. ---
     var MINUTE_MAX = HALF_LENGTH + 10;
 
-    // Finalize — lock the match. Confirm, POST, reload; surface a server
-    // error message inline.
+    // Finalize — lock the match. Two-tap guard, POST, reload; surface a
+    // server error message inline.
+    //
+    // #2936 — this replaced a window.confirm(). The guard is not new, but
+    // a native modal is the wrong shape here: it interrupts a touchline
+    // more than the action it protects, and it cannot show the closing
+    // window. Same arm-and-commit as End match, so the two destructive
+    // transitions behave identically.
     (function wireFinalize() {
         var btn = root.querySelector('[data-tt-mexec-finalize]');
         if (!btn) return;
         btn.addEventListener('click', function () {
-            if (!window.confirm(i18n.finalize_confirm || 'Finalize this match? Goals, subs, and score cannot be edited after.')) return;
+            if (!armOrCommit(btn, i18n.finalize_arm || 'Tap again to finalize')) return;
             btn.disabled = true;
             doFetch((cfg.rest_url || '') + 'finalize', 'POST', {}).then(function () {
                 window.location.reload();

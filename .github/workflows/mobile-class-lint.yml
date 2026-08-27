@@ -1,0 +1,64 @@
+name: Mobile class lint
+
+# Fails a PR that ships a routable surface with no mobile classification
+# (#2812).
+#
+# `config/mobile_surfaces.php` records what a phone gets for every
+# `?tt_view=` surface. The previous classification was populated once in
+# #0084 and then went untouched through roughly twenty new modules, which
+# is how 125 of 151 surfaces came to resolve to `viewable` by default
+# rather than by decision. #2807 rebuilt it by hand. Without something
+# that fails the build it rots exactly the same way again, and the rot is
+# invisible: an unclassified surface does not error, it silently becomes
+# `viewable`.
+#
+# The slug set is derived from the dispatcher rather than declared, so the
+# gate cannot drift from what is actually reachable. Deriving it naively is
+# the trap — a `case '<slug>':` grep misses the constant arms and the
+# pre-auth routes, seven live surfaces between them.
+#
+# `bin/mobile-class-selfcheck.php` proves it still bites, including two
+# cases dedicated to those seven: if the deriver ever regresses to the
+# naive grep, the self-check fails even though the gate itself would still
+# pass on the real tree.
+#
+# Scope: the dispatcher that decides what is routable, the manifest that
+# classifies it, the registry that reads it, and the gate itself.
+
+on:
+  pull_request:
+    paths:
+      - 'config/mobile_surfaces.php'
+      - 'src/Shared/Frontend/DashboardShortcode.php'
+      - 'src/Shared/MobileSurfaceRegistry.php'
+      - 'src/Shared/CoreSurfaceRegistration.php'
+      - 'src/Modules/**'
+      - 'tools/check-mobile-classes.php'
+      - 'bin/mobile-class-selfcheck.php'
+      - '.github/workflows/mobile-class-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-classes:
+    name: Every routable surface declares a mobile class
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Every routable surface is classified, with a reason
+        run: php tools/check-mobile-classes.php
+
+      # A gate that passes is not evidence that it works. This runs the
+      # gate against broken trees and asserts it fails on each, and only
+      # for the right reason.
+      - name: The gate still bites
+        run: php bin/mobile-class-selfcheck.php

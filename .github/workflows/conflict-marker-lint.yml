@@ -1,0 +1,43 @@
+name: Conflict marker lint
+
+# #2891 (split from #2889) — `docs/rest-api.md` reached main carrying a
+# literal `>>>>>>> ca7f4c98 (…)` line, committed while resolving #2835's
+# merge. It sat there for three days, and in between every branch that
+# touched the file and merged main failed with
+# `error: could not parse conflict hunks` — git cannot three-way-merge a
+# file that already contains a marker.
+#
+# Twenty other workflows lint this repository and none of them looked at
+# file bodies, which is why it merged clean.
+#
+# This is deliberately a standalone workflow rather than a step inside
+# docs-lint: that one is path-filtered to `docs/**` and a handful of PHP
+# files, so a marker committed in `src/` on a PR that touches no docs
+# would never be scanned. The check itself takes about a second on the
+# whole corpus, so running it unfiltered costs nothing.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No committed conflict markers
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Scan for committed conflict markers
+        run: php tools/check-conflict-markers.php

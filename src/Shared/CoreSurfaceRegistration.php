@@ -127,6 +127,12 @@ final class CoreSurfaceRegistration {
         // anyone who would only be shown a "not authorized" notice.
         $reg::register( 'exercises', 'tt_view_activities' );
 
+        // #2613 — the library's CSV importer. A narrower gate than the
+        // library itself: reading the list needs tt_view_activities,
+        // writing 150 rows into it needs tt_manage_exercises, which is
+        // the importer view's own early return.
+        $reg::register( 'exercises-import', 'tt_manage_exercises' );
+
         // #2496 — training plans. Same shape: the plan list guards on
         // tt_training_plan, so any affordance pointing at it does too.
         $reg::register( 'training-plans', 'tt_training_plan' );
@@ -177,7 +183,7 @@ final class CoreSurfaceRegistration {
         $knowledge_gate = static function ( int $uid ): bool {
             return $uid > 0 && user_can( $uid, 'tt_view_knowledge' );
         };
-        $reg::register( 'knowledge', $knowledge_gate );
+        $reg::register( 'courses', $knowledge_gate );
         $reg::register( 'course', $knowledge_gate );
         $reg::register( 'lesson', $knowledge_gate );
         $reg::register( 'my-learning', $knowledge_gate );
@@ -221,68 +227,36 @@ final class CoreSurfaceRegistration {
     }
 
     /**
-     * #0084 Child 1 — initial mobile classification declarations.
-     * #0084 Child 3 (v3.104.0) — extends with the `native` set + the
-     * remaining desktop_only surfaces that landed after Child 1's
-     * 17-slug seed.
+     * Apply the mobile classification for every routable `?tt_view=` slug.
      *
-     * Other slugs resolve to `viewable` via `MobileSurfaceRegistry`'s
-     * default — backwards-compatible with the existing inventory.
+     * The list itself lives in `config/mobile_surfaces.php` (#2807), one
+     * entry per slug with the class and a sentence saying why. It used to
+     * be two hard-coded arrays here: populated once in #0084 and untouched
+     * through roughly twenty new modules, which is how 125 of 151 surfaces
+     * came to resolve to `viewable` by default rather than by decision.
+     *
+     * Moving it out follows `config/always_on_surfaces.php`, and buys the
+     * same three things: the whole policy is reviewable in one diff, a
+     * build step can check it against the dispatcher, and changing a
+     * surface's class is a one-line edit next to the reason it was given.
+     *
+     * An unreadable or absent file is not fatal — every slug then falls to
+     * `viewable`, which is exactly where they were before any of this.
      */
     private static function registerMobileClasses(): void {
-        $desktop_only = [
-            'configuration',
-            'custom-fields',
-            'eval-categories',
-            'roles',
-            'migrations',
-            'usage-stats',
-            'usage-stats-details',
-            'audit-log',
-            'cohort-transitions',
-            'custom-css',
-            'workflow-config',
-            'team-blueprints',
-            'methodology',
-            'invitations-config',
-            'trial-tracks-editor',
-            'trial-letter-templates-editor',
-            'wizards-admin',
-            // #0084 Child 3 — additional desktop_only routes.
-            'players-import',     // CSV mapping flow — laptop required.
-            // #918 — `onboarding-pipeline` moved out of desktop_only.
-            // Scouts hit the pipeline 5-15x per week from the pitch
-            // (per docs/scout-actions.md action #2); forcing a
-            // device-switch was friction the daily workflow couldn't
-            // bear. The view resolves to `viewable` via
-            // MobileSurfaceRegistry's default — kanban scrolls
-            // horizontally below 480px but no "use desktop" redirect.
-            // A full mobile-first audit (bump to `native`) ships
-            // separately if pilot asks.
-            'reports',            // wizard + multi-column tables.
-            // #0083 Child 3 — analytics dimension explorer.
-            'explore',
-            // #0083 Child 5 — central analytics surface.
-            'analytics',
-            // #0083 Child 6 — scheduled reports management.
-            'scheduled-reports',
-        ];
-        foreach ( $desktop_only as $slug ) {
-            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_DESKTOP_ONLY );
-        }
+        $file = TT_PLUGIN_DIR . 'config/mobile_surfaces.php';
+        if ( ! is_readable( $file ) ) return;
 
-        // #0084 Child 3 — `native` declarations. Coaches reach the
-        // player profile from the sideline ("is this kid match-fit?")
-        // and finish a training via the new-evaluation wizard on a
-        // phone all the time. These surfaces get the mobile pattern
-        // library auto-enqueued.
-        $native = [
-            'players',   // coach player profile
-            'wizard',    // every wizard goes through this aggregator slug
-            'teammate',  // player viewing a teammate's card
-        ];
-        foreach ( $native as $slug ) {
-            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_NATIVE );
+        $map = require $file;
+        if ( ! is_array( $map ) ) return;
+
+        foreach ( $map as $slug => $entry ) {
+            // Tolerate both shapes: [ class, reason ] as written, and a
+            // bare class string, so a hand-edit that drops the reason
+            // still classifies rather than silently falling to viewable.
+            $class = is_array( $entry ) ? ( $entry[0] ?? '' ) : $entry;
+            if ( ! is_string( $class ) || $class === '' ) continue;
+            \TT\Shared\MobileSurfaceRegistry::register( (string) $slug, $class );
         }
     }
 
@@ -1093,6 +1067,27 @@ final class CoreSurfaceRegistration {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },
         ]);
+        // #2895 — BMI-for-age. Same `measurements` read gate and the same
+        // hidden personas as Test trends: this is a screening figure about a
+        // child's body, and a player or parent meeting it without context on
+        // a dashboard tile is not how it should reach them.
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'player-bmi',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 31,
+            'label'             => __( 'Player · BMI-for-age', 'talenttrack' ),
+            'description'       => __( 'Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'feature'           => 'report_player_bmi',
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([
@@ -1495,6 +1490,19 @@ final class CoreSurfaceRegistration {
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',
+            // #2875 — hide, don't tease (CLAUDE.md §7). Enrolments are stored
+            // against a person, not a WordPress user, so a login with no
+            // linked staff record has nowhere to hold one and the view can
+            // only apologise. Offering the tile and then refusing is what a
+            // head of development hit: a dashboard invited them into a page
+            // that told them they did not qualify.
+            //
+            // The library tile is deliberately NOT gated this way — reading a
+            // course works fine without a person row; only progress does not.
+            'cap_callback' => static function ( int $uid ): bool {
+                if ( $uid <= 0 || ! user_can( $uid, 'tt_view_knowledge' ) ) return false;
+                return \TT\Modules\Knowledge\KnowledgePerson::forUser( $uid ) > 0;
+            },
             'feature'      => 'knowledge_courses',
         ]);
 
@@ -1507,12 +1515,14 @@ final class CoreSurfaceRegistration {
 
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
-            'view_slug'    => 'knowledge',
+            'view_slug'    => 'courses',
             'group'        => $learning_group,
             'kind'         => 'work',
             'order'        => 10,
-            'label'        => __( 'Knowledge library', 'talenttrack' ),
-            'description'  => __( 'Courses for coaches: methodology, periodisation, and how this academy works.', 'talenttrack' ),
+            'label'        => __( 'Courses', 'talenttrack' ),
+            // #2883 — the old description opened with "Courses for coaches",
+            // which under a tile now labelled Courses just repeats the word.
+            'description'  => __( 'Coach education: methodology, periodisation, and how this academy works.', 'talenttrack' ),
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',

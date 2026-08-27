@@ -27,6 +27,16 @@ Edit first. In the **post-match review window** the screen opens read-only
 to guard against accidental taps: the score, goals, and substitutions are
 shown but not editable until you tap **Edit** in the header.
 
+## Ending and finalizing take two taps
+
+**End match** and **Finalize** ask for a second tap before they commit.
+
+The first tap arms the button: it turns orange, changes to **Tap again to end match** (or **Tap again to finalize**), and a thin bar drains across the bottom for three seconds. Tapping again within those three seconds does it. Doing nothing lets the button go back to normal, and nothing was sent.
+
+These two are guarded because they are the disruptive ones. Ending a match parks the clock and moves it into review — mis-tap that during the second half and you are correcting the clock by hand with play still going on. The other transitions are not guarded: starting the match, ending the first half and starting the second half are all normal steps, and any of them is undone by simply carrying on.
+
+The keyboard path is identical — Enter or Space arms, a second Enter or Space commits.
+
 ## After the match — adjust every datapoint
 
 Once the match ends it enters **pending review**. This is the full

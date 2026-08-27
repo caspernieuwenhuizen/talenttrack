@@ -209,6 +209,35 @@ werkbalk en de afdruk-URL weigert, terwijl de export van de trainer
 gewoon blijft. Zet je er één uit, dan blijft het match-prep-scherm zelf
 volledig bruikbaar.
 
+## Het plan delen met staf zonder account
+
+Met **Plan delen** maak je een link die je naar een assistent-trainer, een
+analist of een keeperstrainer kunt sturen. Die opent hem en leest het plan — de
+opstelling, de doelen per fase, de aandachtspunten per speler — zonder in te
+loggen en zonder account op deze installatie.
+
+Alleen lezen. Wie de link opent kan niets wijzigen, en de pagina wordt buiten
+zoekmachines gehouden.
+
+Drie dingen om te weten voordat je er een verstuurt:
+
+- **De link ís de sleutel.** Iedereen die hem heeft kan het plan lezen. Behandel
+  hem zoals je het geprinte wedstrijdformulier behandelt: geef hem aan wie hem
+  nodig heeft, en niet aan een groepsapp die je niet in de hand hebt.
+- **Er staan spelersnamen in, en wie er naar verwachting begint.** Daarvoor
+  stuur je hem, en daarom stuur je hem niet door buiten de staf.
+- **Je kunt hem intrekken.** Met **Link vervangen** komt er een nieuwe en stopt
+  de oude direct met werken — voor iedereen die hem heeft. Gebruik dat als een
+  link bij de verkeerde groep terechtkwam, of als iemand de staf verlaat.
+
+De link blijft meelopen terwijl je bijwerkt: wie hem opent ziet het plan zoals
+het nu is, niet zoals het was toen je hem verstuurde. Dat is het verschil met
+een PDF mailen, die verouderd is zodra je één basisspeler wisselt.
+
+Delen kan voor de hele academie worden uitgezet onder **Modules en functies**,
+los van het delen van wedstrijdanalyses. Het plan schrijven en afdrukken
+verandert er niet door.
+
 ## Wat hier niet kan
 
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe

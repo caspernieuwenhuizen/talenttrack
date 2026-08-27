@@ -30,6 +30,38 @@ final class InvitationEmailNotifier {
         if ( $invitation_id <= 0 ) return;
 
         $invitation = ( new InvitationsRepository() )->find( $invitation_id );
+
+        // #2964 — a deferred invitation carries no `sent_at`. Nobody is
+        // mailed until someone explicitly sends it, which is the point:
+        // an admin setting a club up wants to check the place works before
+        // credentials reach their coaches. Reuses the same tolerance the
+        // link-only path already relies on — an invitation that exists
+        // without an email having gone out is a supported state, not a
+        // failure.
+        if ( $invitation && (string) ( $invitation->sent_at ?? '' ) === '' ) {
+            Logger::info( 'Invitation email held — send deferred', [
+                'invitation_id' => $invitation_id,
+                'kind'          => $kind,
+            ] );
+            return;
+        }
+
+        self::deliver( $invitation, $invitation_id, $kind );
+    }
+
+    /**
+     * Dispatch for an invitation whose send has just been authorised.
+     *
+     * Separate entry point so `InvitationService::send()` does not have to
+     * fake the creation hook to get a deferred invitation delivered.
+     */
+    public static function dispatch( int $invitation_id, string $kind ): void {
+        if ( $invitation_id <= 0 ) return;
+        self::deliver( ( new InvitationsRepository() )->find( $invitation_id ), $invitation_id, $kind );
+    }
+
+    /** @param object|null $invitation */
+    private static function deliver( $invitation, int $invitation_id, string $kind ): void {
         if ( ! $invitation ) {
             Logger::error( 'Invitation email skipped — invitation row not found', [
                 'invitation_id' => $invitation_id,

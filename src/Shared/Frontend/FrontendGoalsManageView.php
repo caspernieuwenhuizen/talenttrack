@@ -126,6 +126,8 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 $detail_actions[] = [
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'variant' => 'danger',
+                    // #2871 — icon-only; keeps its confirmation.
+                    'icon_only' => true,
                     'data_attrs' => [
                         'tt-archive-rest-path' => 'goals/' . (int) $goal->id,
                         'tt-archive-confirm'   => __( 'Archive this goal? It will be hidden but the data is preserved.', 'talenttrack' ),

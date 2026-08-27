@@ -59,6 +59,32 @@ class InvitationsRepository {
     }
 
     /**
+     * Ids of pending invitations nobody has been mailed about yet (#2964).
+     *
+     * @return int[]
+     */
+    public function unsentIds(): array {
+        $ids = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT id FROM {$this->table}
+              WHERE sent_at IS NULL AND status = %s AND club_id = %d
+              ORDER BY id ASC",
+            InvitationStatus::PENDING,
+            CurrentClub::id()
+        ) );
+        return array_map( 'intval', $ids );
+    }
+
+    /** How many pending invitations are still waiting to be sent (#2964). */
+    public function unsentCount(): int {
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table}
+              WHERE sent_at IS NULL AND status = %s AND club_id = %d",
+            InvitationStatus::PENDING,
+            CurrentClub::id()
+        ) );
+    }
+
+    /**
      * Atomically flip an invitation from `pending` to `accepted`.
      * Returns the affected row count — caller treats >0 as "I won the
      * accept race" and proceeds with WP user creation + linking. Two

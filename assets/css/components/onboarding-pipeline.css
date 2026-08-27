@@ -252,5 +252,14 @@ a.tt-pipeline-card:focus-visible {
     text-decoration: none; color: var(--tt-muted, #6a6d66); font-size: 1.4rem; line-height: 1;
 }
 .tt-dashboard .tt-pipeline-focus-ctx { margin: 0.5rem 0 0; color: var(--tt-muted, #6a6d66); font-size: 0.85rem; }
-.tt-dashboard .tt-pipeline-focus-actions { margin: 0.6rem 0 0; }
+/* #2838 — the panel carries two actions now (next action + edit contact).
+   Wrap rather than crowd: at 360px two buttons at the 48px touch target do
+   not fit side by side, and 0.5rem is the minimum spacing between adjacent
+   targets. */
+.tt-dashboard .tt-pipeline-focus-actions {
+    margin: 0.6rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
 @media (max-width: 480px) { .tt-dashboard .tt-pipeline-focus-stage { display: none; } }

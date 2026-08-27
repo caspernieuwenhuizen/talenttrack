@@ -175,10 +175,15 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $att_status   = $att ? (string) ( $att->status ?? '' ) : '';
         $att_notes    = $att && ! empty( $att->notes ) ? (string) $att->notes : '';
         $type_key     = (string) ( $row->activity_type_key ?? '' );
-        $att_status_lower = strtolower( $att_status );
-        $att_status_class = $att_status_lower === AttendanceStatus::PRESENT
+        // #2909 — compare against the canonical member, not a lowercased copy.
+        // This used to `strtolower()` and compare to a constant that was also
+        // lowercase; once AttendanceStatus became Title Case that comparison
+        // would have been false for every row, silently dropping the status
+        // colour rather than erroring.
+        $att_canonical    = AttendanceStatus::normalise( $att_status );
+        $att_status_class = $att_canonical === AttendanceStatus::PRESENT
             ? 'tt-status-completed'
-            : ( $att_status_lower === AttendanceStatus::ABSENT ? 'tt-status-pending' : '' );
+            : ( $att_canonical === AttendanceStatus::ABSENT ? 'tt-status-pending' : '' );
         ?>
         <article class="tt-activity-detail">
             <p class="tt-activity-detail-meta">

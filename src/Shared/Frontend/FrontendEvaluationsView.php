@@ -38,7 +38,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
-        $teams  = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams  = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
 
         // v3.110.64 — every code path on this routable view now emits
         // a `Dashboard / Evaluations / …` breadcrumb chain, per the
@@ -392,6 +392,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
             $actions[] = [
                 'label'      => __( 'Archive', 'talenttrack' ),
                 'variant'    => 'danger',
+                // #2871 — icon-only; keeps its confirmation.
+                'icon_only'  => true,
                 'data_attrs' => [
                     'tt-archive-rest-path' => 'evaluations/' . $eval_id,
                     'tt-archive-confirm'   => __( 'Archive this evaluation? It will be hidden but the data is preserved.', 'talenttrack' ),

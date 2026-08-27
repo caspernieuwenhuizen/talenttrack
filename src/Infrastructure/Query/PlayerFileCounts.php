@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Query;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
+
 /**
  * PlayerFileCounts — single source for the player-file tab badge counts.
  *
@@ -20,37 +22,67 @@ final class PlayerFileCounts {
         $p = $wpdb->prefix;
 
         $goals = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ),
             $player_id
         ) );
         // The evaluation badge count and the evaluations-tab list query
         // (FrontendPlayerDetailView::renderEvaluationsTab) must agree
         // on the same scope, otherwise the operator sees a non-zero
-        // badge with an empty tab. Pin both to `(player_id, club_id,
-        // archived_at IS NULL)`.
+        // badge with an empty tab. Pin both to `(player_id, club_id)` plus
+        // the shared lifecycle clause — #2906 moved this off a hand-rolled
+        // `archived_at IS NULL`, which counted rows the recycle bin hides.
         $evaluations = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND " . ArchiveRepository::filterClause( 'active' ),
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
-        // v3.110.3 — restrict to completed activities. Mirrors the
-        // tab's render query (FrontendPlayerDetailView::renderActivitiesTab)
-        // so the badge and the tab list always agree on scope.
+        // v3.110.3 — mirrors the tab's render query
+        // (FrontendPlayerDetailView::renderActivitiesTab) so the badge and
+        // the tab list always agree on scope. That intent is unchanged; what
+        // changed in #2862 is that they now actually do.
         //
-        // #2521 — "completed" is the coach-set `activity_status_key`, not
-        // `plan_state` (which defaults to 'completed' on every row the
-        // planner did not create, so a still-planned session counted).
-        // #2522 — `record_type = 'actual'`: a player who is on the plan
-        // AND has a recorded row was counted twice.
-        $completed  = ActivityLifecycle::completedClause( 'a' );
+        // #2522 — a player on the plan who also has a recorded row was
+        // counted twice. DISTINCT on the activity handles that now.
+        //
+        // #2862 — COUNT(DISTINCT att.activity_id), not COUNT(*). The tab
+        // counts activities, and while `record_type = 'actual'` should mean
+        // one row per player per activity, the badge should not be the thing
+        // that discovers otherwise: a stray second recorded row would inflate
+        // the number beside a list that renders one entry.
+        //
+        // Decided 2026-08-26: the badge counts **what the tab renders**, not
+        // what the player attended. A number sitting on a tab is read as
+        // "how many things are in here", and a badge saying 14 above a list
+        // of 19 rows is the disagreement the pilot reported.
+        //
+        // So this mirrors `ActivitiesRepository::listForPlayer()`'s filter
+        // set exactly — same plan states, same past-completed rule, same
+        // archived guard — minus its 25-row recent-window cap, because the
+        // badge is a total and the list is a window.
+        //
+        // #2521 is not being reverted, but it does need reading first. Its
+        // point was that `plan_state` defaults to 'completed' on rows the
+        // planner never created, so a plan-state filter counts still-planned
+        // sessions. That was a bug when the badge claimed to count
+        // *attendance*. It is not one now: those same rows are exactly what
+        // the list puts on screen, so counting them is what makes the two
+        // agree. The `activity_status_key` question moves to the list, which
+        // is where "should a planner-less row show as completed" actually
+        // belongs.
+        //
+        // `record_type` is deliberately absent for the same reason: the list
+        // shows planned activities, which have only an `expected` row.
+        // DISTINCT on the activity is what stops a player holding both rows
+        // counting twice.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*)
+            "SELECT COUNT(DISTINCT att.activity_id)
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
-                AND att.record_type = 'actual'
-                AND a.archived_at IS NULL
-                AND {$completed}",
+                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
+                AND a.plan_state IN ( 'completed', 'planned', 'scheduled' )
+                AND ( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
+                      OR a.plan_state IN ( 'planned', 'scheduled' ) )",
             $player_id
         ) );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(
@@ -58,7 +90,7 @@ final class PlayerFileCounts {
             $player_id
         ) );
         $trials = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE player_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "",
             $player_id
         ) );
         // #0085 — notes count for the new Notes tab badge. Only counts
@@ -79,7 +111,7 @@ final class PlayerFileCounts {
         // the Measurements tab's per-test rows.
         $measurements = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT definition_id) FROM {$p}tt_measurement_results
-              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+              WHERE player_id = %d AND club_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "",
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
 
@@ -88,6 +120,13 @@ final class PlayerFileCounts {
         // and the tab's tile count cannot disagree. Joined through
         // tt_media rather than counting link rows, because the link table
         // is polymorphic and carries no archived state of its own.
+        //
+        // #2906 — this one keeps its raw `archived_at IS NULL` while every
+        // other count here moved to ArchiveRepository::filterClause(). It has
+        // to: `tt_media` is not a recycle-bin entity, so it has no
+        // `trashed_at` column and the shared clause would reference one that
+        // does not exist. Media has its own retention lifecycle (#2666).
+        // Revisit if media ever joins the bin.
         $media = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_media m

@@ -32,22 +32,39 @@ opgeslagen, zodat je kunt stoppen en later vanaf dezelfde plek verdergaan.
  en de datumnotatie die in de hele plugin wordt gebruikt. Deze verschijnen
  in de dashboardkop, op spelerskaarten en in afgedrukte rapporten. Je kunt
  ze later aanpassen onder Configuratie.
-3. **Eerste team** — geef je eerste team een naam en kies de
+3. **Je selectie importeren** — houd je je teams, spelers en staf al in een
+ spreadsheet bij, haal ze hier dan binnen in plaats van ze opnieuw te
+ typen. Download het sjabloon met drie tabbladen, vul het in en upload
+ het. **Er wordt niets opgeslagen tot je bevestigt**: de eerste upload
+ laat alleen zien wat er in het bestand staat en wat er nog niet klopt, en
+ bij een bestand met problemen blijft de wizard staan waar hij stond.
+ **Overslaan** als je geen spreadsheet hebt.
+4. **Eerste team** — geef je eerste team een naam en kies de
  leeftijdscategorie. Spelers, evaluaties, activiteiten en doelen hangen
- allemaal aan een team, dus je hebt er minstens één nodig. Je kunt **Deze
- stap overslaan** als je liever later teams toevoegt onder Teams.
-4. **Eerste beheerder** — maakt een TalentTrack-medewerkersrecord aan voor
+ allemaal aan een team, dus je hebt er minstens één nodig. Heeft de
+ importstap al teams binnengehaald, dan meldt deze stap dat en kun je
+ gewoon doorgaan. Je kunt **Deze stap overslaan** als je liever later
+ teams toevoegt onder Teams.
+5. **Eerste beheerder** — maakt een TalentTrack-medewerkersrecord aan voor
  het ingelogde account en koppelt dit aan je WordPress-gebruiker, zodat
  evaluaties, activiteiten en meldingen naar de juiste persoon verwijzen.
  Vink **Geef mij de rol Clubbeheerder** (aanbevolen) aan om jezelf volledige
  beheerstoegang te geven.
-5. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
+6. **Je staf toevoegen** — voeg de trainers en staf toe die TalentTrack gaan
+ gebruiken. Geef iemand een e-mailadres en er wordt een uitnodiging voor
+ diegene klaargezet. **Er wordt nog niemand gemaild**: uitnodigingen worden
+ vastgehouden tot jij ze verstuurt, zodat je het inrichten kunt afmaken en
+ rond kunt kijken voordat er iemand binnenkomt. Ben je zover, dan verstuurt
+ **N uitnodigingen versturen en doorgaan** ze allemaal. Je kunt ook
+ doorgaan zonder te versturen — de uitnodigingen blijven klaarstaan onder
+ Configuratie → Uitnodigingen, en er gaat niets verloren.
+7. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
  `[talenttrack_dashboard]`-shortcode host en stelt deze in als de homepage
  van de site, zodat iedereen op het dashboard belandt na het inloggen.
  Bestaat er al een pagina met de shortcode, dan wordt die hergebruikt en
  niet gedupliceerd. Je kunt dit **Overslaan** en de homepage later zelf
  instellen onder Instellingen → Lezen.
-6. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
+8. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
  en een knop **Opnieuw uitvoeren**.
 
 ## Stoppen en hervatten

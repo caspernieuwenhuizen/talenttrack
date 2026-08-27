@@ -3,7 +3,7 @@ title: Scout — the season in actions
 group: basics
 summary: What a scout does in TalentTrack across a running season.
 audience: [user]
-views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits]
+views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits, prospect-edit]
 order: 34
 ---
 
@@ -60,6 +60,24 @@ Look for two things: prospects that have gone quiet at one stage, and which
 kinds of discovery context actually convert. The second one changes where you
 spend your Saturdays.
 
+### Correct contact details or consent
+
+Phone numbers change, emails get mistyped, and consent often arrives a day later
+by text. Open **Edit contact** — from the row menu on the Prospects overview, or
+from the panel that opens when you click a card on the onboarding pipeline — and
+correct the parent or guardian's name, email and phone.
+
+The **Consent given on** date is the record of when the family agreed. Set it
+when consent arrives. Clear it if consent is withdrawn: a date left in place
+that is no longer true is worse than no date at all, so recording a withdrawal
+is deliberately as easy as recording the agreement. Every change to this date is
+written to the audit log, with the old value and the new one.
+
+Only the contact block and the consent date can be changed here. The player's
+name, date of birth and how you found them stay as first recorded — correcting
+*who a player is* is a different conversation from correcting *how we reach
+their family*, and this form deliberately cannot do the first by accident.
+
 ### Follow a test-training outcome
 
 When the head of development records the outcome of a test training, the result
@@ -80,16 +98,15 @@ being watched — instead of it living in your head.
 
 ## What you cannot do yet
 
-Two things scouts reasonably expect are not built:
+One thing scouts reasonably expect is not built:
 
 - **Adding a follow-up note to a prospect you already logged.** Notes are
  captured when you create the prospect and cannot be appended to afterwards.
-- **Correcting parent contact details or consent on an existing prospect.**
- The wizard is create-only.
+ Seeing the same player a second time is the normal case, not the exception,
+ so this is on the backlog.
 
-Until those exist, put corrections and later observations in the message to the
-head of development rather than assuming the record will carry them. Both are
-on the backlog.
+Until it exists, put later observations in the message to the head of
+development rather than assuming the record will carry them.
 
 ## See also
 

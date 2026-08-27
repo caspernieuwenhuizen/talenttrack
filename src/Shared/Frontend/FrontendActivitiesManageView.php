@@ -592,6 +592,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         // On a completed or cancelled one it IS the remaining
                         // action, so it leads.
                         'overflow' => $is_planned,
+                        // #2871 — icon-only in the header row. The overflow
+                        // menu still renders it with its label, where there
+                        // is room and an icon alone would read as noise.
+                        'icon_only' => ! $is_planned,
                         'data_attrs' => [
                             'tt-archive-rest-path' => 'activities/' . (int) $session->id,
                             'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
@@ -1622,7 +1626,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // behaviour for free. Editing lives on the edit form (§3
             // fallback) / the completion wizard, not here — a detail view
             // must not mutate.
-            self::renderAttendanceRosterReadonly( $activity_id );
+            self::renderAttendanceRosterReadonly( $activity_id, (string) ( $session->plan_state ?? '' ) );
         } else {
             echo '<p class="tt-act-att__warn">'
                 . esc_html__( 'No attendance recorded yet.', 'talenttrack' )
@@ -1660,11 +1664,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * via LabelTranslator. Read-only by design — no inputs, no edit
      * affordance (the card head's Edit link is the edit path).
      */
-    private static function renderAttendanceRosterReadonly( int $activity_id ): void {
+    private static function renderAttendanceRosterReadonly( int $activity_id, string $plan_state = '' ): void {
         if ( $activity_id <= 0 ) return;
 
+        // #2862 — on a COMPLETED activity show the recorded roster only.
+        // The expected roster answered "who did we expect", which stops
+        // being an interesting question once the register has been taken,
+        // and listing both is what put every squad member on screen twice.
+        // On a still-planned activity the expected roster is all there is,
+        // so it stays — passing null there collapses any duplicate to one
+        // row per player rather than filtering a half that does not exist.
+        $record_type = strtolower( $plan_state ) === 'completed' ? 'actual' : null;
+
         $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listRosterAttendance( $activity_id, true );
+            ->listRosterAttendance( $activity_id, true, $record_type );
         if ( empty( $roster ) ) return;
 
         $palette = self::attendanceStatusPalette();
@@ -2826,7 +2839,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * @param array<int,object> $guests     guest attendance rows (#0026)
      */
     private static function renderForm( int $user_id, bool $is_admin, ?object $session, array $attendance, array $guests ): void {
-        $teams         = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        // The stored team is passed as `must_include` so editing an activity
+        // never silently unassigns it: without that, a team outside the
+        // editor's scope drops out of the options and the next save writes
+        // whatever the select happens to land on. That is the #2866 failure.
+        $teams         = QueryHelpers::get_teams_in_scope( $user_id, $is_admin, (int) ( $session->team_id ?? 0 ) );
         $selected_team = (int) ( $session->team_id ?? ( $teams ? $teams[0]->id : 0 ) );
 
         // v4.20.10 (#1154) — was: roster spanned every team the coach

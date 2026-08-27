@@ -169,7 +169,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
 
         // Build the team filter from the user's accessible teams.
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
         $team_options = [];
         foreach ( $teams as $t ) {
             $team_options[ (int) $t->id ] = (string) $t->name;
@@ -470,7 +470,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-tournament-form';
 
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
         $formations = QueryHelpers::get_lookup_names( 'tournament_formation' );
 
         // v4.20.36 (#1196) — honour `tt_back` when present (CLAUDE.md §6

@@ -80,6 +80,24 @@ van de academie", die deze instelling blijft volgen wanneer je haar wijzigt.
 
 Volledige uitleg in [Navigatie-indeling (de frontend-shell)](frontend-shell.md).
 
+## Wedstrijddag
+
+Kiest de standaardindeling van het livewedstrijdscherm voor de hele academie —
+**Klassiek** (alles op één lange pagina) of **Secties** (de stand en de klok
+staan vast bovenaan, met een rij tabs binnen duimbereik onderaan, zodat de bank
+één tik ver is in plaats van drie keer scrollen). Klassiek is de standaard.
+
+Net als bij de navigatie-indeling hierboven is dit de standaard die mensen
+overerven, geen slot: elke trainer kan onder *Mijn instellingen →
+Livewedstrijdscherm* zijn eigen keuze maken, inclusief "gebruik de standaard van
+de academie", die deze instelling blijft volgen wanneer je haar wijzigt.
+
+Dat telt hier zwaarder dan bijna overal elders in het product. Een trainer
+bedient dit scherm met één hand, op een telefoon, langs de lijn, met een lopende
+klok — hem halverwege het seizoen op een onbekende indeling zetten is precies hoe
+speelminuten en wissels niet worden vastgelegd. Zet één trainer een zaterdag op
+Secties, kijk hoe het bevalt, en zet daarna de academie om.
+
 ## Zie ook
 
 - [Configuratie en branding](configuration-branding.md)

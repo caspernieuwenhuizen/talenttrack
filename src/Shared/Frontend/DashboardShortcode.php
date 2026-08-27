@@ -88,8 +88,10 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
-            // #2479 — pinned record identity (RecordSpine). Own sheet for
-            // the same reason.
+            // #2479 — pinned record identity (RecordSpine) needs the app
+            // shell's tokens for the identity strip. The tab half of the
+            // same sheet is enqueued unconditionally below, because in-page
+            // tabs render under `classic` too (#2932).
             wp_enqueue_style(
                 'tt-frontend-record-spine',
                 TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
@@ -133,6 +135,27 @@ class DashboardShortcode {
                 TT_VERSION
             );
         }
+
+        // #2932 — RecordSpine's in-page tab strip. Both the sheet and the
+        // behaviour load under either shell: unlike the identity strip,
+        // which is app-shell chrome, a section switcher is the only route
+        // to the panels behind it, so it must survive `classic`. The sheet
+        // is enqueued a second time under `app` above with the shell
+        // dependency it needs there; WordPress de-duplicates by handle, so
+        // the first registration wins and this is the `classic` path.
+        wp_enqueue_style(
+            'tt-frontend-record-spine',
+            TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
+            [ 'tt-public' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-record-spine-tabs',
+            TT_PLUGIN_URL . 'assets/js/components/record-spine-tabs.js',
+            [],
+            TT_VERSION,
+            true
+        );
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         // #2517 — warm the next page on hover. Navigation stays a real page
@@ -284,6 +307,21 @@ class DashboardShortcode {
             ob_start();
             echo '<div class="tt-dashboard">';
             \TT\Modules\MatchAnalysis\Frontend\FrontendMatchAnalysisView::renderShared();
+            echo '</div>';
+            return (string) ob_get_clean();
+        }
+
+        // #2892 — the same arrangement for match preparation, and for the
+        // same reason: the token IS the credential, and the assistant
+        // coach, analyst or keeper coach it was sent to may have no account
+        // here. Before the login guard, because a logged-out staff member
+        // is exactly who this is for. The view verifies the HMAC, honours
+        // the `match_prep_sharing` toggle and marks the page noindex; the
+        // coach can revoke every issued link at any time.
+        if ( $tt_view_param === \TT\Modules\MatchPrep\Services\MatchPrepShareLink::VIEW_SLUG ) {
+            ob_start();
+            echo '<div class="tt-dashboard">';
+            \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepShareView::render();
             echo '</div>';
             return (string) ob_get_clean();
         }
@@ -557,7 +595,13 @@ class DashboardShortcode {
 
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        echo '<div class="tt-shell" data-tt-shell>';
+        // #2933 — a surface that owns the thumb zone gets no bottom bar,
+        // so the main column must not reserve space for one either. The
+        // class is stamped here rather than computed in the sheet because
+        // only PHP knows which slug is rendering.
+        $focus = \TT\Shared\Frontend\FocusSurfaces::claims( $view );
+
+        echo '<div class="tt-shell' . ( $focus ? ' tt-shell--focus' : '' ) . '" data-tt-shell>';
         \TT\Shared\Frontend\Components\FrontendAppNav::render( get_current_user_id(), $view );
         \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerScrim();
         echo '<div class="tt-shell-main">';
@@ -999,6 +1043,11 @@ class DashboardShortcode {
             case 'prospects-overview':
                 \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
                 return true;
+            // #2838 — correct the parent contact block + consent state on
+            // a prospect that was already logged.
+            case 'prospect-edit':
+                \TT\Modules\Prospects\Frontend\FrontendProspectEditView::render( $user_id );
+                return true;
             // v3.110.119 — scout's scouting-visit planner.
             case 'scouting-visits':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingPlanView::render( $user_id, $is_admin );
@@ -1134,6 +1183,13 @@ class DashboardShortcode {
             // its own report toggle enforced inside the view.
             case 'test-trends':
                 \TT\Modules\Measurements\Frontend\FrontendTestTrendsView::render( $user_id, $is_admin );
+                return true;
+            // #2895 — BMI-for-age. Height and weight are already recorded as
+            // ordinary tests; this is the surface that reads them against a
+            // published growth curve so a number means something at 11 as
+            // well as at 16.
+            case 'player-bmi':
+                \TT\Modules\Measurements\Frontend\FrontendPlayerBmiView::render( $user_id, $is_admin );
                 return true;
             // #2121 — the test-catalogue config surface. Matrix-gated on
             // `measurement_definitions` change inside the view.
@@ -1356,6 +1412,12 @@ class DashboardShortcode {
             case 'exercises':
                 \TT\Modules\Exercises\Frontend\FrontendExerciseLibraryView::render( $user_id, $is_admin );
                 return true;
+            // #2613 — CSV bulk import for the library. Gates on
+            // tt_manage_exercises inside; the club-wide visibility value
+            // re-checks tt_edit_methodology per row.
+            case 'exercises-import':
+                \TT\Modules\Exercises\Frontend\FrontendExerciseCsvImportView::render( $user_id, $is_admin );
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;
@@ -1472,6 +1534,12 @@ class DashboardShortcode {
                 // table / page / search query params and gates on
                 // tt_view_data_browser internally.
                 \TT\Shared\Frontend\FrontendDataBrowserView::render( $user_id, $is_admin );
+                return true;
+            case 'import-history':
+                // #2959 — what a spreadsheet import created, and an undo
+                // for the whole batch. Gates on manage_options internally;
+                // the undo re-checks at the handler and REST layer.
+                \TT\Modules\Import\Frontend\FrontendImportHistoryView::render( $user_id, $is_admin );
                 return true;
             case 'recycle-bin':
                 // #2024 — centralized recycle bin. Cross-entity list of
@@ -1643,7 +1711,7 @@ class DashboardShortcode {
      */
     private static function dispatchKnowledgeView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
-            case 'knowledge':
+            case 'courses':
                 \TT\Modules\Knowledge\Frontend\FrontendKnowledgeLibraryView::render( $user_id, $is_admin );
                 return true;
             case 'course':

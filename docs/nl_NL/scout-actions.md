@@ -3,7 +3,7 @@ title: Scout — het seizoen in acties
 group: basics
 summary: Wat een scout in TalentTrack doet gedurende een lopend seizoen.
 audience: [user]
-views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits]
+views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits, prospect-edit]
 order: 34
 ---
 
@@ -61,6 +61,27 @@ Let op twee dingen: prospects die in één fase stil zijn blijven staan, en welk
 soort vindcontext daadwerkelijk doorstroomt. Dat tweede verandert waar je je
 zaterdagen doorbrengt.
 
+### Corrigeer contactgegevens of toestemming
+
+Telefoonnummers veranderen, e-mailadressen worden verkeerd overgetypt, en
+toestemming komt vaak een dag later per bericht binnen. Open **Contact
+bewerken** — via het rijmenu op het Prospects-overzicht, of via het paneel dat
+opent als je op een kaart in de onboardingpijplijn klikt — en corrigeer de naam,
+het e-mailadres en het telefoonnummer van de ouder of verzorger.
+
+De datum bij **Toestemming gegeven op** legt vast wanneer het gezin akkoord
+ging. Zet hem zodra de toestemming binnen is. Maak hem leeg als de toestemming
+wordt ingetrokken: een datum laten staan die niet meer klopt is erger dan
+helemaal geen datum, dus het vastleggen van een intrekking is bewust net zo
+makkelijk als het vastleggen van het akkoord. Elke wijziging van deze datum gaat
+naar het auditlogboek, met de oude en de nieuwe waarde.
+
+Alleen het contactblok en de toestemmingsdatum zijn hier te wijzigen. De naam,
+geboortedatum en hoe je de speler gevonden hebt blijven zoals ze zijn
+vastgelegd — corrigeren *wie een speler is* is een ander gesprek dan corrigeren
+*hoe we het gezin bereiken*, en dit formulier kan het eerste met opzet niet per
+ongeluk doen.
+
 ### Volg de uitkomst van een testtraining
 
 Zodra het hoofd opleiding de uitkomst van een testtraining vastlegt, verschijnt
@@ -81,16 +102,15 @@ echt worden bekeken — in plaats van dat het in jouw hoofd zit.
 
 ## Wat nog niet kan
 
-Twee dingen die een scout redelijkerwijs verwacht, zijn nog niet gebouwd:
+Eén ding dat een scout redelijkerwijs verwacht, is nog niet gebouwd:
 
 - **Een notitie toevoegen aan een prospect die je al hebt vastgelegd.** Notities
  worden bij het aanmaken vastgelegd en kunnen daarna niet worden aangevuld.
-- **Contactgegevens of toestemming van een ouder corrigeren.** De wizard kan
- alleen aanmaken.
+ Dezelfde speler een tweede keer zien is eerder regel dan uitzondering, dus dit
+ staat op de backlog.
 
-Zolang dat zo is: zet correcties en latere waarnemingen in je bericht aan het
-hoofd opleiding, in plaats van ervan uit te gaan dat het dossier ze meeneemt.
-Beide staan op de backlog.
+Zolang dat zo is: zet latere waarnemingen in je bericht aan het hoofd opleiding,
+in plaats van ervan uit te gaan dat het dossier ze meeneemt.
 
 ## Zie ook
 

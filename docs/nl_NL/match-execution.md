@@ -30,6 +30,16 @@ alleen-lezen om per ongeluk tikken te voorkomen: de stand, doelpunten en
 wissels worden getoond maar zijn niet bewerkbaar totdat je op **Bewerken**
 tikt in de kop.
 
+## Beëindigen en definitief maken kosten twee tikken
+
+**Wedstrijd beëindigen** en **Definitief maken** vragen om een tweede tik voordat ze doorgaan.
+
+De eerste tik zet de knop op scherp: hij wordt oranje, verandert in **Tik nogmaals om de wedstrijd te beëindigen** (of **Tik nogmaals om definitief te maken**), en er loopt drie seconden lang een dun balkje onderlangs leeg. Tik je binnen die drie seconden opnieuw, dan gebeurt het. Doe je niets, dan gaat de knop terug naar normaal en is er niets verstuurd.
+
+Juist deze twee zijn beveiligd, omdat zij de ingrijpende stappen zijn. Een wedstrijd beëindigen zet de klok stil en verplaatst hem naar de nabespreking — tik je daar tijdens de tweede helft per ongeluk op, dan zit je de klok met de hand te corrigeren terwijl er gewoon doorgespeeld wordt. De andere overgangen zijn niet beveiligd: de wedstrijd starten, de eerste helft beëindigen en de tweede helft starten zijn normale stappen, en elk daarvan los je op door gewoon verder te gaan.
+
+Met het toetsenbord werkt het hetzelfde — Enter of spatie zet op scherp, een tweede Enter of spatie bevestigt.
+
 ## Na de wedstrijd — elk gegeven aanpassen
 
 Zodra de wedstrijd eindigt, komt hij in **nabespreking**. Dit is de

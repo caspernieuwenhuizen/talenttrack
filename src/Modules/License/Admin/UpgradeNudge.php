@@ -49,7 +49,7 @@ class UpgradeNudge {
                 <?php
                 printf(
                     /* translators: %s is the required tier label, e.g. "Standard" */
-                    esc_html__( 'Available on %s and above. Open your account page to start a 30-day trial or upgrade.', 'talenttrack' ),
+                    esc_html__( 'Available on %s and above. Open your account page to see what the plan adds.', 'talenttrack' ),
                     '<strong>' . esc_html( $tier_label ) . '</strong>'
                 );
                 ?>

@@ -58,6 +58,13 @@ A **player** is an individual footballer. Each player has:
 - First and last name
 - Position(s), preferred foot, jersey number
 - Height, weight, date of birth
+- **Sex (for growth references)** — optional, and blank by default on every
+  existing player. It is asked for one reason: age-adjusted height, weight and
+  BMI are read against published growth curves, and those curves are separate
+  for boys and girls, so without it the age-adjusted figures cannot be
+  calculated. It is not a record of how a young person describes themselves and
+  should not be used as one. Leaving it blank costs that player only the
+  age-adjusted columns — height, weight and raw BMI still read normally.
 - Optional link to a WordPress user account (so they can log in)
 - Custom fields your academy has configured
 
@@ -99,7 +106,7 @@ The player file got a hero-card redesign and per-tab empty-state CTAs.
 The player file is rebuilt as a port of `.local-mockups/player-profile/index.html`. Backend unchanged — same `tt_players` row, same `tt_view_players` capability gate, same `?tt_view=players&id=N` URL — but the visual contract changes substantially.
 
 - **Hero.** Paper background with a soft bottom shadow (no more blue gradient strip). The status signal moves to a 4px coloured border on the avatar — green for `active`, gold for `trial`, red for `released`, neutral grey for `inactive`. Jersey number renders as a small badge tucked into the avatar's bottom-right corner with a paper-coloured outline. Below: name + team link + status pill (carrying inline "X yrs in academy") + first position pill.
-- **Action row.** `+ Log behaviour` (primary inverted) · `Set potential` · `Edit` · `⋯` overflow holding **Archive** and (when the player has no team) **Assign to team**. Cap-gating unchanged: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_edit_players`.
+- **Action row.** `+ Log behaviour` (primary inverted) · `Set potential`, then on the right a pencil **Edit** icon and the `⋯` overflow holding **Archive** and (when the player has no team) **Assign to team**. Edit is icon-only and sits beside the `⋯` rather than taking a full-width button on the left — its name still reaches a screen reader and a mouse hover. Cap-gating unchanged: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_edit_players`.
 - **Key facts strip.** Three cards (DOB / Foot / Joined) each with a small hint (age, alternate position, years-in-academy). 3-up grid on mobile + tablet; reflows to a vertical 1-up stack on desktop where the strip moves into the left rail.
 - **At-a-glance KPI strip.** Three KPI cards — Avg rating (with `▲`/`▼` trend arrow vs the rolling mean), Attendance % (over the last 30 days), Goals (active count with optional `N due soon` hint when any have a due date within 7 days). Each card is a link jumping to the relevant tab.
 - **Tabs.** Pill chips replacing the underlined nav. Each tab carries a count badge from `PlayerFileCounts::for()` when the count is > 0. Mobile horizontally scrolls; tablet+ wraps to a single visible row. Notes tab disappears entirely for users without `tt_view_player_notes`. **Write notes as if the family will read them**: hidden from players and parents in the UI, notes remain disclosable in a GDPR subject-access request unless your DPO documents a legitimate-interest exclusion (see the privacy operator guide).

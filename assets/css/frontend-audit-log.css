@@ -1,0 +1,49 @@
+/*
+ * frontend-audit-log.css — the audit-log view's tab strip and tables.
+ *
+ * #2861 — these rules were previously eleven `style` declarations
+ * repeated on each tab anchor in PHP. Adding a third tab meant a third
+ * copy, so they moved here instead. Tokens only, no raw hex.
+ */
+
+.tt-audit-tabs {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line, #e0e0e0);
+    flex-wrap: wrap;
+}
+
+.tt-audit-tab {
+    padding: 10px 14px;
+    text-decoration: none;
+    color: var(--tt-muted, #6a6d66);
+    border-bottom: 2px solid transparent;
+    font-weight: 400;
+    /* CLAUDE.md §2 — 48px minimum tappable height. */
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.tt-audit-tab.is-active {
+    color: var(--tt-ink, #1a1a1a);
+    border-bottom-color: var(--tt-accent, #5b8def);
+    font-weight: 600;
+}
+
+.tt-audit-tab:focus-visible {
+    outline: 2px solid var(--tt-accent, #5b8def);
+    outline-offset: 2px;
+}
+
+/*
+ * An impersonation session with no end time is somebody inside another
+ * person's account right now. That is a different fact from a session
+ * that finished last Tuesday, and the row says so without relying on
+ * colour alone — the Ended cell reads "Still open" in bold.
+ */
+.tt-imp-active {
+    background: var(--tt-warn-soft, #fff6e6);
+}

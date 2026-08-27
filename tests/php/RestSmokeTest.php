@@ -132,6 +132,14 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'GET /teams/1/minutes-share'    => [ 'GET',    '/talenttrack/v1/teams/1/minutes-share' ],
             'GET /teams/1/minutes-share/1'  => [ 'GET',    '/talenttrack/v1/teams/1/minutes-share/1' ],
 
+            // #2838 — prospects. A prospect row is a named minor who is not
+            // yet a player, carrying a parent's name, email, phone and the
+            // family's consent state. An anonymous caller gets nothing, and
+            // the PATCH least of all.
+            'GET /prospects'                => [ 'GET',    '/talenttrack/v1/prospects' ],
+            'GET /prospects/1'              => [ 'GET',    '/talenttrack/v1/prospects/1' ],
+            'PATCH /prospects/1'            => [ 'PATCH',  '/talenttrack/v1/prospects/1' ],
+
             // Cross-cutting / admin surfaces.
             'POST /config'                  => [ 'POST',   '/talenttrack/v1/config' ],
             'GET /audit-log'                => [ 'GET',    '/talenttrack/v1/audit-log' ],
@@ -405,6 +413,110 @@ final class RestSmokeTest extends WP_UnitTestCase {
      *
      * @param mixed $body
      */
+    /**
+     * #2838 — the prospect correction path. Covers the two things the
+     * endpoint exists to make possible and one thing it must refuse.
+     *
+     * The clearing case is the point: `array_key_exists` rather than
+     * `isset`, so an empty `consent_given_at` nulls the column instead of
+     * being read as "not supplied". Without that, consent could be granted
+     * and never withdrawn — the original bug in the opposite direction.
+     */
+    public function test_prospect_patch_corrects_contact_and_clears_consent(): void {
+        global $wpdb;
+
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        $prospect_id = ( new \TT\Modules\Prospects\Repositories\ProspectsRepository() )->create( [
+            'first_name'       => 'Smoke',
+            'last_name'        => 'Prospect',
+            'parent_email'     => 'typo@exmaple.com',
+            'consent_given_at' => '2026-01-05 00:00:00',
+        ] );
+        $this->assertGreaterThan( 0, $prospect_id, 'fixture prospect is created' );
+
+        // READ.
+        $read = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/prospects/' . $prospect_id ) );
+        $this->assertSame( 200, $read->get_status() );
+        $read_body = $read->get_data();
+        $this->assertEnvelopeSuccess( $read_body );
+        $this->assertArrayHasKey( 'prospect', $read_body['data'] );
+
+        // CORRECT the mistyped email.
+        $patch = new WP_REST_Request( 'PATCH', '/talenttrack/v1/prospects/' . $prospect_id );
+        $patch->set_header( 'Content-Type', 'application/json' );
+        $patch->set_body( wp_json_encode( [ 'parent_email' => 'parent@example.com' ] ) );
+        $patch_res = rest_do_request( $patch );
+        $this->assertSame( 200, $patch_res->get_status(), 'contact correction succeeds' );
+        $this->assertEnvelopeSuccess( $patch_res->get_data() );
+
+        $table = $wpdb->prefix . 'tt_prospects';
+        $this->assertSame(
+            'parent@example.com',
+            $wpdb->get_var( $wpdb->prepare( "SELECT parent_email FROM {$table} WHERE id = %d", $prospect_id ) )
+        );
+
+        // WITHDRAW consent — an empty value must null the column.
+        $clear = new WP_REST_Request( 'PATCH', '/talenttrack/v1/prospects/' . $prospect_id );
+        $clear->set_header( 'Content-Type', 'application/json' );
+        $clear->set_body( wp_json_encode( [ 'consent_given_at' => '' ] ) );
+        $clear_res = rest_do_request( $clear );
+        $this->assertSame( 200, $clear_res->get_status(), 'clearing consent succeeds' );
+        $this->assertEnvelopeSuccess( $clear_res->get_data() );
+
+        $this->assertNull(
+            $wpdb->get_var( $wpdb->prepare( "SELECT consent_given_at FROM {$table} WHERE id = %d", $prospect_id ) ),
+            'an empty consent value withdraws consent rather than being ignored'
+        );
+    }
+
+    /**
+     * A consent date the endpoint cannot read is refused, not stored as
+     * null. Silently dropping a date somebody typed is the failure mode
+     * this endpoint exists to end.
+     */
+    public function test_prospect_patch_rejects_a_malformed_consent_date(): void {
+        global $wpdb;
+
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        $prospect_id = ( new \TT\Modules\Prospects\Repositories\ProspectsRepository() )->create( [
+            'first_name'       => 'Malformed',
+            'last_name'        => 'Consent',
+            'consent_given_at' => '2026-01-05 00:00:00',
+        ] );
+
+        $bad = new WP_REST_Request( 'PATCH', '/talenttrack/v1/prospects/' . $prospect_id );
+        $bad->set_header( 'Content-Type', 'application/json' );
+        $bad->set_body( wp_json_encode( [ 'consent_given_at' => '5 January' ] ) );
+        $bad_res = rest_do_request( $bad );
+
+        $this->assertSame( 400, $bad_res->get_status(), 'an unreadable consent date is a bad request' );
+
+        $table = $wpdb->prefix . 'tt_prospects';
+        $this->assertNotNull(
+            $wpdb->get_var( $wpdb->prepare( "SELECT consent_given_at FROM {$table} WHERE id = %d", $prospect_id ) ),
+            'a refused write leaves the stored consent untouched'
+        );
+    }
+
+    /**
+     * A prospect id that does not exist answers 404 rather than crashing or
+     * reporting a phantom success.
+     */
+    public function test_prospect_patch_on_a_missing_row_is_not_found(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        $req = new WP_REST_Request( 'PATCH', '/talenttrack/v1/prospects/99999' );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( wp_json_encode( [ 'parent_name' => 'Nobody' ] ) );
+
+        $this->assertSame( 404, rest_do_request( $req )->get_status() );
+    }
+
     private function assertEnvelopeSuccess( $body ): void {
         $this->assertIsArray( $body, 'response body is the envelope array' );
         $this->assertArrayHasKey( 'success', $body );

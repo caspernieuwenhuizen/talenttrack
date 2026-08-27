@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Teams;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -33,7 +34,7 @@ class TeamKpisRepository {
             "SELECT COUNT(*)
                FROM {$p}tt_activities
               WHERE team_id = %d
-                AND ( archived_at IS NULL OR archived_at = '' )
+                AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND session_date >= CURDATE()
                 AND session_date <= DATE_ADD(CURDATE(), INTERVAL %d DAY)
                 AND activity_status_key NOT IN ('completed', 'cancelled')",
@@ -64,7 +65,7 @@ class TeamKpisRepository {
               WHERE a.team_id = %d
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'
-                AND a.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
                 AND {$completed}
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
             $team_id, $days
@@ -74,23 +75,43 @@ class TeamKpisRepository {
     }
 
     /**
-     * Average rating across every rating row on non-archived evaluations
-     * of the team's active roster players. Returns null when no team
-     * player has a rating yet.
+     * Average rating across every rating row on live evaluations of the
+     * team's active roster players. Returns null when no team player has a
+     * rating yet.
+     *
+     * #2865 — this used to hand-roll `e.archived_at IS NULL`, which predates
+     * the recycle bin (#2018). `tt_evaluations` is a registered recycle-bin
+     * entity, so `trashed_at` is real and populated, and a trashed
+     * evaluation was invisible in every list a coach could open while still
+     * feeding this KPI. A pilot team's profile read "Selectiebeoordeling 8,3"
+     * beside an evaluations list that was empty in every state, including
+     * archived — because `ArchiveRepository::filterClause` hides trashed rows
+     * in *every* view and this query hid them in none.
+     *
+     * Reading through the shared clause is the point: a number on a team
+     * profile and the list a coach opens to explain it must not disagree
+     * about what counts as deleted.
      */
     public function avgSquadRating( int $team_id ): ?float {
         if ( $team_id <= 0 ) return null;
         global $wpdb;
-        $p   = $wpdb->prefix;
+        $p          = $wpdb->prefix;
+        $eval_live  = ArchiveRepository::filterClause( 'active', 'e' );
+        // #2906 — the player side needed the same treatment. #2865 routed the
+        // evaluations through filterClause but left `pl.archived_at IS NULL`
+        // raw, so a trashed player's ratings still counted toward the squad
+        // average while their row was gone from every list. Same bug as #2865,
+        // one JOIN along.
+        $player_live = ArchiveRepository::filterClause( 'active', 'pl' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT AVG(r.rating) AS avg_r, COUNT(*) AS n
                FROM {$p}tt_eval_ratings r
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_players pl ON pl.id = e.player_id
               WHERE pl.team_id = %d
-                AND pl.archived_at IS NULL
+                AND {$player_live}
                 AND pl.club_id = %d
-                AND e.archived_at IS NULL",
+                AND {$eval_live}",
             $team_id, CurrentClub::id()
         ) );
         if ( ! $row || (int) $row->n <= 0 ) return null;

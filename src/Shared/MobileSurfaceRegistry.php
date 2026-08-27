@@ -34,6 +34,14 @@ final class MobileSurfaceRegistry {
 
     public const CLASS_NATIVE       = 'native';
     public const CLASS_VIEWABLE     = 'viewable';
+    /**
+     * #2807 — readable on a phone, editable only at a desk. Declarable now
+     * so `config/mobile_surfaces.php` can name the nine surfaces that hold
+     * it; the behaviour that strips mutating controls lands in #2808. Until
+     * then it behaves exactly like `viewable`, which is the safe direction
+     * to be wrong in: a reader sees the surface either way.
+     */
+    public const CLASS_READ_ONLY    = 'read_only';
     public const CLASS_DESKTOP_ONLY = 'desktop_only';
 
     /** @var array<string,string>  view-slug → class */
@@ -81,6 +89,15 @@ final class MobileSurfaceRegistry {
     }
 
     /**
+     * Whether `$view_slug` is readable on a phone but edited at a desk
+     * (#2807). No consumer acts on this yet — #2808 is what makes it mean
+     * something at render time.
+     */
+    public static function isReadOnly( string $view_slug ): bool {
+        return self::classify( $view_slug ) === self::CLASS_READ_ONLY;
+    }
+
+    /**
      * Wholesale dump for the operator-facing audit / diagnostics pages.
      *
      * @return array<string,string>
@@ -98,6 +115,11 @@ final class MobileSurfaceRegistry {
 
     /** @return string[] */
     private static function allowedClasses(): array {
-        return [ self::CLASS_NATIVE, self::CLASS_VIEWABLE, self::CLASS_DESKTOP_ONLY ];
+        return [
+            self::CLASS_NATIVE,
+            self::CLASS_VIEWABLE,
+            self::CLASS_READ_ONLY,
+            self::CLASS_DESKTOP_ONLY,
+        ];
     }
 }

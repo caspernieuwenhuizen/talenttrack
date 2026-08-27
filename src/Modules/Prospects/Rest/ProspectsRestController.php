@@ -3,6 +3,7 @@ namespace TT\Modules\Prospects\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
@@ -16,8 +17,12 @@ use TT\Modules\Workflow\WorkflowModule;
  *
  * Routes:
  *
- *   POST /talenttrack/v1/prospects/log     dispatch the LogProspect
- *                                          chain for the current user.
+ *   POST  /talenttrack/v1/prospects/log     dispatch the LogProspect
+ *                                           chain for the current user.
+ *   GET   /talenttrack/v1/prospects         paginated list.
+ *   GET   /talenttrack/v1/prospects/{id}    one prospect.
+ *   PATCH /talenttrack/v1/prospects/{id}    correct the parent contact
+ *                                           block and the consent state.
  *
  * Subsequent stages (parent confirmation, test-training outcome
  * recording, trial-group review) are handled entirely by `TaskEngine`
@@ -49,6 +54,21 @@ class ProspectsRestController {
             'methods'             => 'GET',
             'callback'            => [ self::class, 'list_prospects' ],
             'permission_callback' => [ self::class, 'can_view' ],
+        ] );
+        // #2838 — a prospect could be created and never corrected. The
+        // repository's update() already whitelisted these fields; nothing
+        // had ever called it.
+        register_rest_route( self::NS, '/prospects/(?P<id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'get_prospect' ],
+                'permission_callback' => [ self::class, 'can_view' ],
+            ],
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ self::class, 'update_prospect' ],
+                'permission_callback' => [ self::class, 'can_log' ],
+            ],
         ] );
     }
 
@@ -186,6 +206,128 @@ class ProspectsRestController {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
         return $n;
+    }
+
+    /**
+     * GET /prospects/{id} — one prospect, club-scoped by the repository.
+     */
+    public static function get_prospect( \WP_REST_Request $r ): \WP_REST_Response {
+        $id  = (int) $r['id'];
+        $row = $id > 0 ? ( new ProspectsRepository() )->find( $id ) : null;
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'prospect' => $row ] );
+    }
+
+    /**
+     * PATCH /prospects/{id} — correct the parent contact block and the
+     * consent state.
+     *
+     * Scope is deliberately narrow (#2838): the four fields a scout needs
+     * to fix after the fact, not a general-purpose record editor. A
+     * mistyped email and a consent that arrived a day late by text are the
+     * two everyday cases, and the second is the one that matters — a
+     * consent flag that cannot be corrected asserts a state about a minor
+     * that may no longer be true.
+     *
+     * `array_key_exists` rather than `isset` throughout, so an explicit
+     * null clears a field instead of being read as "not supplied". That is
+     * what makes withdrawing consent expressible at all.
+     */
+    public static function update_prospect( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid prospect id.', 'talenttrack' ), 400 );
+        }
+
+        $repo = new ProspectsRepository();
+        $row  = $repo->find( $id );
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+
+        $params = $r->get_params();
+        $patch  = [];
+
+        if ( array_key_exists( 'parent_name', $params ) ) {
+            $v = trim( sanitize_text_field( (string) $r['parent_name'] ) );
+            $patch['parent_name'] = $v !== '' ? $v : null;
+        }
+        if ( array_key_exists( 'parent_email', $params ) ) {
+            $raw = trim( (string) $r['parent_email'] );
+            if ( $raw === '' ) {
+                $patch['parent_email'] = null;
+            } else {
+                $email = sanitize_email( $raw );
+                if ( ! is_email( $email ) ) {
+                    return RestResponse::error(
+                        'invalid_email',
+                        __( 'That does not look like an email address.', 'talenttrack' ),
+                        400
+                    );
+                }
+                $patch['parent_email'] = $email;
+            }
+        }
+        if ( array_key_exists( 'parent_phone', $params ) ) {
+            $v = trim( sanitize_text_field( (string) $r['parent_phone'] ) );
+            $patch['parent_phone'] = $v !== '' ? $v : null;
+        }
+        if ( array_key_exists( 'consent_given_at', $params ) ) {
+            $raw = trim( (string) $r['consent_given_at'] );
+            if ( $raw === '' ) {
+                $patch['consent_given_at'] = null;
+            } elseif ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $raw ) ) {
+                $patch['consent_given_at'] = $raw . ' 00:00:00';
+            } else {
+                // Reject rather than store null: silently dropping a
+                // consent date the operator typed is the failure mode this
+                // whole endpoint exists to end.
+                return RestResponse::error(
+                    'invalid_consent_date',
+                    __( 'Consent date must be YYYY-MM-DD.', 'talenttrack' ),
+                    400
+                );
+            }
+        }
+
+        if ( ! $patch ) {
+            return RestResponse::success( [ 'id' => $id, 'changed' => false ] );
+        }
+
+        $ok = $repo->update( $id, $patch );
+        if ( $ok ) {
+            self::audit_changes( $id, $row, $patch );
+        }
+        return RestResponse::success( [ 'id' => $id, 'changed' => $ok ] );
+    }
+
+    /**
+     * Two distinct audit actions, because they answer different questions.
+     * A contact correction is housekeeping; a consent change is the record
+     * of whether a family agreed to their child being tracked, and a
+     * consent state that can be edited without a trail is no better than
+     * one that cannot be edited at all.
+     *
+     * @param array<string,mixed> $patch
+     */
+    private static function audit_changes( int $id, object $before, array $patch ): void {
+        $audit = new AuditService();
+
+        if ( array_key_exists( 'consent_given_at', $patch ) ) {
+            $audit->record( 'prospect.consent_changed', 'prospect', $id, [
+                'from' => $before->consent_given_at ?? null,
+                'to'   => $patch['consent_given_at'],
+            ] );
+        }
+
+        $contact = array_diff_key( $patch, [ 'consent_given_at' => true ] );
+        if ( $contact ) {
+            $audit->record( 'prospect.updated', 'prospect', $id, [
+                'fields' => array_keys( $contact ),
+            ] );
+        }
     }
 
     /**

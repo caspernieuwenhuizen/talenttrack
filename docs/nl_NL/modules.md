@@ -23,7 +23,7 @@ De frontend-Modulespagina toont modules als **kaarten gegroepeerd per categorie*
 
 De categorieën, op volgorde: **Spelersgegevens**, **Coaching & ontwikkeling**, **Planning & wedstrijddag**, **Communicatie**, **Analyse & rapportage**, **Integraties**, **Administratie** (met de drie altijd-aan kernmodules) en **Geavanceerd / ontwikkelaar**. Het label, de omschrijving, het pictogram en de categorie van elke module staan op één plek — `TT\Shared\Modules\ModuleMetadata` — zodat een gebruiker nooit een kale klassennaam ziet.
 
-Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 functies") en een uitklapbaar paneel. Elke functie staat in de kaart van de bovenliggende module, met een eigen **Functie**-pil (visueel anders dan het Module-label), de omschrijving en een eigen schakelaar. Functies verschijnen alleen zolang hun bovenliggende module aanstaat. De pagina is mobile-first: kaarten stapelen op een telefoon in één kolom en de schakelaars voldoen aan het 48px-aanraakdoel.
+Heeft een module meer dan vier subfuncties, dan toont de kaart een functieteller (bijv. "21 functies") en een uitklapbaar paneel; vier of minder staan gewoon in de kaart. Rapporten heeft er eenentwintig, en die allemaal uitgeklapt lieten de modules ernaast verdwijnen. Elke functie staat in de kaart van de bovenliggende module, met een eigen **Functie**-pil (visueel anders dan het Module-label), de omschrijving en een eigen schakelaar. Functies verschijnen alleen zolang hun bovenliggende module aanstaat. De pagina is mobile-first: kaarten stapelen op een telefoon in één kolom en de schakelaars voldoen aan het 48px-aanraakdoel.
 
 Een **zoekbalk** boven aan de frontendpagina (`?tt_view=modules`, v4.x+) filtert de lijst live tijdens het typen — op naam of omschrijving van een module of functie. Is de treffer een geneste functie, dan klapt de modulekaart automatisch open zodat de rij zichtbaar is; categorieën zonder overgebleven treffers vallen weg en er verschijnt een leeg-melding wanneer niets overeenkomt. Het is een filter aan de clientkant (geen herlaad), en met JavaScript uit verschijnt gewoon de volledige lijst. De wp-admin Modules-pagina heeft geen zoekfunctie — de frontendpagina is de surface die wordt voortgezet.
 
@@ -172,13 +172,28 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 - **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op de frontend-Modulepagina naast de andere (de wp-admin-Modulepagina werkt ook nog; beide schrijven dezelfde `tt_feature_state`-rij). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
 
-## Alleen-lezen status voor iedereen (`?tt_view=features`,)
+## De functiecatalogus voor iedereen (`?tt_view=features`)
 
-De Modulepagina is alleen voor beheerders (het is een schrijfvlak). Voor transparantie krijgt elke gebruiker — coach, speler, ouder — een alleen-lezen **Functies**-weergave op **`?tt_view=features`**, bereikbaar via een **Functies**-tegel onder de groep **Over** op het dashboard. Er is geen speciale capability voor nodig.
+De Modulepagina is alleen voor beheerders (het is een schrijfvlak). Elke gebruiker — coach, speler, ouder — krijgt een alleen-lezen **Functies**-weergave op **`?tt_view=features`**, bereikbaar via een **Functies**-tegel onder de groep **Over** op het dashboard. Er is geen speciale capability voor nodig.
 
-Het toont elke gebruikersgerichte module met een **Aan / Uit / Altijd aan**-badge, een regel "Levert:" (opgebouwd uit de onderdelen die de module bezit), en eventuele subfuncties eronder met hun eigen badge + beschrijving. Er zijn geen knoppen — het is een momentopname van wat live is. Gebruikers die modules *mogen* beheren zien een link **Modules & functies beheren** naar de bewerkbare pagina.
+De pagina opent met een samenvatting van hoeveel van TalentTrack de academie gebruikt ("Jouw academie gebruikt 14 van 19 TalentTrack-functies") en valt daarna uiteen in twee delen:
 
-Dezelfde data is via REST beschikbaar op `GET /wp-json/talenttrack/v1/feature-status` (elke ingelogde gebruiker). Alle vormgeving zit in `FeatureStatusService`, zodat de weergave en de API hetzelfde antwoord geven. Alleen modules die de gebruiker daadwerkelijk iets tonen (een tegel of functie bezitten) verschijnen — pure infrastructuurmodules worden weggelaten.
+- **In gebruik** — wat vandaag aanstaat.
+- **Beschikbaar om aan te zetten** — hoort bij TalentTrack, maar staat hier nog niet aan.
+
+Beide delen groeperen hun kaarten per categorie (Spelersgegevens, Coaching & ontwikkeling, Planning & wedstrijddag, enzovoort). Elke kaart toont het pictogram van de module, de naam en één regel over waar de module voor dient, een regel **Bevat** met de schermen die de module toevoegt, en eventuele subfuncties eronder met hun eigen Aan/Uit-badge.
+
+Er staan nergens knoppen op de pagina en geen enkele kaart linkt naar de beheerpagina — het is een catalogus, geen tweede schrijfvlak. Gebruikers die modules *mogen* beheren zien in de paginakop een link **Modules & functies beheren** naar de bewerkbare pagina.
+
+Drie dingen blijven bewust weg:
+
+- **Altijd-aan kernmodules** — authenticatie, configuratie en autorisatie. Ze kunnen niet uit, dus ze als functie tonen is ruis.
+- **Geavanceerde / ontwikkelaarsmodules** — het seed-review- en custom-widgetgereedschap. Niet gericht op de academie.
+- **Alles in ontwikkeling dat nog niet aanstaat.** Een module of functie die als "in ontwikkeling" is gemarkeerd (zie hierboven) en nog uit staat, wordt niet aangeprezen. Staat die markering op iets dat al *wel* aanstaat, dan blijft het onder **In gebruik** staan, met het amberkleurige label — de schermen zijn immers live op het dashboard, dus verbergen zou alleen verwarren.
+
+Modules die de gebruiker niets tonen (geen tegel, geen functie) verschijnen nooit, niet op deze pagina en niet in de API.
+
+Dezelfde catalogus is via REST beschikbaar op `GET /wp-json/talenttrack/v1/feature-catalog` (elke ingelogde gebruiker). De oudere `GET /wp-json/talenttrack/v1/feature-status` is ongewijzigd en geeft nog steeds de volledige, ongefilterde lijst van modules en functies — inclusief altijd-aan en in ontwikkeling — voor aanroepers die de status controleren in plaats van een catalogus lezen. Alle vormgeving voor beide zit in `FeatureStatusService`, zodat de weergave en de API hetzelfde antwoord geven.
 
 ## Uitschakelbaarheid — het contract voor een nieuwe module
 

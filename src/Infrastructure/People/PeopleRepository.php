@@ -18,6 +18,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class PeopleRepository {
 
+    /** #2962 — why the last update()'s account-side write was refused, if it was. */
+    private string $last_sync_error = '';
+
     /**
      * Allowed role_type values for tt_people.role_type.
      * Expanded in v2.7.0 to include 'parent' and 'other' so People can
@@ -206,7 +209,32 @@ class PeopleRepository {
         }
 
         $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        return $result !== false;
+        if ( $result === false ) return false;
+
+        // #2962 — write the contact details through to the linked account,
+        // so the address the admin just edited is the address mail actually
+        // reaches. A refusal (usually a duplicate email) is recorded on the
+        // repository rather than thrown: the person row saved correctly and
+        // the caller needs to report the half that did not.
+        if ( array_key_exists( 'email', $row ) || array_key_exists( 'phone', $row ) ) {
+            $this->last_sync_error = \TT\Infrastructure\Identity\ContactSync::pushToAccount(
+                $id,
+                array_key_exists( 'email', $row ) ? (string) $row['email'] : null,
+                array_key_exists( 'phone', $row ) ? (string) $row['phone'] : null
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Why the account-side write was refused on the last update(), or ''.
+     *
+     * The person row still saved. This is the part that did not, and the
+     * form should say so rather than reporting a clean save.
+     */
+    public function lastSyncError(): string {
+        return $this->last_sync_error;
     }
 
     public function setStatus( int $id, string $status ): bool {
