@@ -67,6 +67,32 @@ final class DeferredInvitationTest extends WP_UnitTestCase {
         ], $extra ) );
     }
 
+    /**
+     * A second invitation needs a second person: create() deduplicates on
+     * the target, returning the existing pending invitation rather than
+     * issuing a new one. Two invitations for one person are the same
+     * invitation.
+     *
+     * @param array<string,mixed> $extra
+     */
+    private function createForNewPerson( array $extra = [] ): array {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Ander',
+            'last_name'  => 'Persoon',
+            'email'      => 'other@example.test',
+            'role_type'  => 'staff',
+            'status'     => 'active',
+        ] );
+
+        return ( new InvitationService() )->create( array_merge( [
+            'kind'             => InvitationKind::STAFF,
+            'target_person_id' => (int) $wpdb->insert_id,
+            'prefill_email'    => 'other@example.test',
+        ], $extra ) );
+    }
+
     public function test_a_deferred_invitation_mails_nobody(): void {
         $result = $this->create( [ 'defer_send' => true ] );
 
@@ -112,7 +138,8 @@ final class DeferredInvitationTest extends WP_UnitTestCase {
 
     public function test_bulk_send_reports_per_invitation(): void {
         $a = (int) $this->create( [ 'defer_send' => true ] )['id'];
-        $b = (int) $this->create( [ 'defer_send' => true, 'prefill_email' => 'other@example.test' ] )['id'];
+        $b = (int) $this->createForNewPerson( [ 'defer_send' => true ] )['id'];
+        $this->assertNotSame( $a, $b );
 
         $service = new InvitationService();
         $service->send( $a ); // already sent — must be reported as skipped
@@ -131,10 +158,10 @@ final class DeferredInvitationTest extends WP_UnitTestCase {
         $this->assertSame( 0, $repo->unsentCount() );
 
         $this->create( [ 'defer_send' => true ] );
-        $this->create( [ 'defer_send' => true, 'prefill_email' => 'other@example.test' ] );
+        $this->createForNewPerson( [ 'defer_send' => true ] );
         $this->assertSame( 2, $repo->unsentCount() );
 
-        $this->create(); // sent immediately — not waiting
+        $this->createForNewPerson(); // sent immediately — not waiting
         $this->assertSame( 2, $repo->unsentCount() );
 
         ( new InvitationService() )->sendDeferred();
