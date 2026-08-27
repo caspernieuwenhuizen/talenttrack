@@ -190,16 +190,21 @@ final class BmiQuery {
      * The reference band values at a given age and sex — the curve a player's
      * points are drawn against.
      *
-     * @return array<string,float>|null  z-label => BMI value
+     * Returns a LIST rather than a z-keyed map on purpose: PHP casts numeric
+     * string keys to integers, so `'-2'` and `'0'` would silently become ints
+     * while `'+1'` stayed a string, giving a caller an array whose key types
+     * depend on the sign. A list of pairs has one shape.
+     *
+     * @return list<array{z:float, value:float}>|null
      */
     public function referenceBands( int $age_months, string $sex ): ?array {
         if ( ! $this->reference->covers( $age_months, $sex ) ) return null;
 
         $bands = [];
-        foreach ( [ '-2', '-1', '0', '+1', '+2' ] as $label ) {
-            $value = $this->reference->valueAtSds( (float) $label, $age_months, $sex );
+        foreach ( [ -2.0, -1.0, 0.0, 1.0, 2.0 ] as $z ) {
+            $value = $this->reference->valueAtSds( $z, $age_months, $sex );
             if ( $value === null ) return null;
-            $bands[ $label ] = round( $value, 2 );
+            $bands[] = [ 'z' => $z, 'value' => round( $value, 2 ) ];
         }
         return $bands;
     }

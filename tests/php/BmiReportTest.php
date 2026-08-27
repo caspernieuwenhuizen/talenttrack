@@ -146,9 +146,14 @@ final class BmiReportTest extends WP_UnitTestCase {
         $bands = ( new BmiQuery() )->referenceBands( 120, 'male' );
 
         $this->assertIsArray( $bands );
-        $this->assertSame( [ '-2', '-1', '0', '+1', '+2' ], array_keys( $bands ) );
-        $this->assertLessThan( $bands['0'],  $bands['-1'] );
-        $this->assertLessThan( $bands['+1'], $bands['0'] );
+        $this->assertCount( 5, $bands );
+        $this->assertSame( [ -2.0, -1.0, 0.0, 1.0, 2.0 ], array_column( $bands, 'z' ) );
+
+        // The curve must rise monotonically with z, or it is not a curve.
+        $values = array_column( $bands, 'value' );
+        $sorted = $values;
+        sort( $sorted );
+        $this->assertSame( $sorted, $values, 'BMI at each band must increase with the z-score' );
     }
 
     public function test_reference_bands_are_null_outside_coverage(): void {

@@ -68,7 +68,6 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
 
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'read', 'global' );
         $teams   = QueryHelpers::get_teams_in_scope( $user_id, $see_all );
-        $teams   = is_array( $teams ) ? $teams : [];
 
         if ( $teams === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams are in your scope yet.', 'talenttrack' ) . '</p>';
