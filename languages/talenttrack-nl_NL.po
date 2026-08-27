@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T04:57:01+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:03:01+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -21139,15 +21139,15 @@ msgstr "%1$s rij %2$d: %3$s \"%4$s\" komt niet overeen met een %5$s-rij."
 
 # v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
 # Bundle 6 — Excel demo-data template instructions
-#: src/Modules/Import/Excel/TemplateBuilder.php:113
+#: src/Modules/Import/Excel/TemplateBuilder.php:152
 msgid "TalentTrack — demo data template"
 msgstr "TalentTrack — demo-data sjabloon"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:115
+#: src/Modules/Import/Excel/TemplateBuilder.php:154
 msgid "How to fill this workbook"
 msgstr "Het werkboek invullen"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:116
+#: src/Modules/Import/Excel/TemplateBuilder.php:155
 msgid ""
 "Each green tab is a master entity (Teams, People, Players, Trial cases). "
 "Each blue tab is a transactional record (Activities, Attendance, "
@@ -21158,11 +21158,11 @@ msgstr ""
 "Evaluations, Goals, Player journey). Paars = instellingen, grijs = "
 "referentie."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:118
+#: src/Modules/Import/Excel/TemplateBuilder.php:157
 msgid "auto_key (the first column on every entity tab)"
 msgstr "auto_key (de eerste kolom op elk entiteitstabblad)"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:119
+#: src/Modules/Import/Excel/TemplateBuilder.php:158
 msgid ""
 "Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the "
 "auto_key cell. Other tabs reference back to it via team_key / player_key / "
@@ -21176,7 +21176,7 @@ msgstr ""
 "id, dus tabblad-overstijgende links lossen zich op bij import zonder dat je "
 "de database-id nodig hebt."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:120
+#: src/Modules/Import/Excel/TemplateBuilder.php:159
 msgid ""
 "Leave auto_key blank if you do not need to reference the row from another "
 "sheet — but most rows are referenced somewhere, so filling it in is the safe "
@@ -21186,11 +21186,11 @@ msgstr ""
 "te verwijzen — maar de meeste rijen worden ergens gerefereerd, dus invullen "
 "is de veilige standaard."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:122
+#: src/Modules/Import/Excel/TemplateBuilder.php:161
 msgid "Foreign-key columns (e.g. team_key, player_key)"
 msgstr "Foreign-key-kolommen (bijv. team_key, player_key)"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:123
+#: src/Modules/Import/Excel/TemplateBuilder.php:162
 msgid ""
 "Type the auto_key value of the row you want to link to. Example: a Players "
 "row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". "
@@ -21202,11 +21202,11 @@ msgstr ""
 "\"ABC\" is. De importeur weigert het werkboek als een foreign-key-waarde "
 "naar een niet-bestaande rij verwijst."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:125
+#: src/Modules/Import/Excel/TemplateBuilder.php:164
 msgid "Importable vs. documentation-only sheets"
 msgstr "Importeerbare vs. documentatie-tabbladen"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:126
+#: src/Modules/Import/Excel/TemplateBuilder.php:165
 msgid ""
 "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, "
 "Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
@@ -21216,7 +21216,7 @@ msgstr ""
 "Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
 "Player_Journey, Generation_Settings."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:127
+#: src/Modules/Import/Excel/TemplateBuilder.php:166
 msgid ""
 "Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
 "documentation-only. Configure those via the wp-admin Configuration screens. "
@@ -21228,11 +21228,11 @@ msgstr ""
 "Ze staan hier zodat je ziet op welke categorieën / wegingen / lookups je "
 "import zich aansluit."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:129
+#: src/Modules/Import/Excel/TemplateBuilder.php:168
 msgid "Required vs. optional columns"
 msgstr "Verplichte vs. optionele kolommen"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:130
+#: src/Modules/Import/Excel/TemplateBuilder.php:169
 msgid ""
 "Every column header carries a label. Required columns are typically the "
 "human-name fields (first_name / last_name / title) plus the foreign keys "
@@ -21244,12 +21244,13 @@ msgstr ""
 "relaties leggen. Bij upload meldt de importeur welke rij + kolom de "
 "validatie niet doorstond."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:132
+#: src/Modules/Import/Excel/TemplateBuilder.php:171
+#: src/Modules/Import/Excel/TemplateBuilder.php:254
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:329
 msgid "Dates"
 msgstr "Datums"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:133
+#: src/Modules/Import/Excel/TemplateBuilder.php:172
 msgid ""
 "YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on "
 "cell entry — set the column format to \"Text\" first if you see weird date "
@@ -21259,11 +21260,11 @@ msgstr ""
 "formaat bij invoer — zet de kolom-opmaak op \"Tekst\" voordat je typt als je "
 "vreemde datumwaarden ziet na upload."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:135
+#: src/Modules/Import/Excel/TemplateBuilder.php:174
 msgid "Recommended workflow"
 msgstr "Aanbevolen werkstroom"
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:136
+#: src/Modules/Import/Excel/TemplateBuilder.php:175
 msgid ""
 "1. Fill Teams first. Pick auto_key labels that mean something to you "
 "(\"U12_RED\", \"U14_GREEN\")."
@@ -21271,44 +21272,115 @@ msgstr ""
 "1. Vul Teams eerst. Kies auto_key-labels die voor jou betekenis hebben "
 "(\"U12_RED\", \"U14_GREEN\")."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:137
+#: src/Modules/Import/Excel/TemplateBuilder.php:176
 msgid "2. Fill People next, referencing Teams via team_key on staff rows."
 msgstr ""
 "2. Vul daarna People, met team_key op stafrijen die naar Teams verwijst."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:138
+#: src/Modules/Import/Excel/TemplateBuilder.php:177
 msgid "3. Fill Players, referencing Teams via team_key."
 msgstr "3. Vul Players, met team_key die naar Teams verwijst."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:139
+#: src/Modules/Import/Excel/TemplateBuilder.php:178
 msgid "4. Add Activities for each team (they reference Teams via team_key)."
 msgstr ""
 "4. Voeg Activities toe voor elk team (verwijzen naar Teams via team_key)."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:140
+#: src/Modules/Import/Excel/TemplateBuilder.php:179
 msgid "5. Add Session_Attendance rows for who showed up at each activity."
 msgstr ""
 "5. Voeg Session_Attendance-rijen toe voor wie aanwezig was bij elke "
 "activiteit."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:141
+#: src/Modules/Import/Excel/TemplateBuilder.php:180
 msgid ""
 "6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
 msgstr ""
 "6. Voeg Evaluations + Evaluation_Ratings toe die naar Players + Activities "
 "verwijzen."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:142
+#: src/Modules/Import/Excel/TemplateBuilder.php:181
 msgid "7. Add Goals + Player_Journey events as needed."
 msgstr "7. Voeg Goals + Player_Journey-gebeurtenissen toe waar nodig."
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:144
+#: src/Modules/Import/Excel/TemplateBuilder.php:183
 msgid ""
 "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step "
 "0 — Source → Excel upload."
 msgstr ""
 "Sla op als .xlsx en upload via TalentTrack → Configuratie → Demo-data → Stap "
 "0 — Bron → Excel upload."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:242
+msgid "TalentTrack — squad template"
+msgstr "TalentTrack — selectiesjabloon"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:244
+msgid "What to fill in"
+msgstr "Wat je invult"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:245
+msgid ""
+"Three tabs: Teams, Players and People. Fill Teams first, then Players, then "
+"People — the later tabs point back at the teams you named."
+msgstr ""
+"Drie tabbladen: Teams, Players en People. Vul eerst Teams in, daarna Players "
+"en dan People — de latere tabbladen verwijzen terug naar de ploegen die je "
+"hebt benoemd."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:247
+msgid "auto_key (the first column on every tab)"
+msgstr "auto_key (de eerste kolom op elk tabblad)"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:248
+msgid ""
+"Type a short, unique label (e.g. \"U12_RED\", \"U14_GREEN\") in the auto_key "
+"cell on the Teams tab. Players and People then reference that label in their "
+"team_key column, which is how each person ends up in the right team."
+msgstr ""
+"Typ een kort, uniek label (bijvoorbeeld \"U12_ROOD\", \"U14_GROEN\") in de "
+"auto_key-cel op het tabblad Teams. Players en People verwijzen vervolgens "
+"naar dat label in hun team_key-kolom; zo komt iedereen in de juiste ploeg "
+"terecht."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:249
+msgid "Leave auto_key blank on a row nothing else needs to point at."
+msgstr ""
+"Laat auto_key leeg bij een rij waarnaar niets anders hoeft te verwijzen."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:251
+msgid "Staff go on the People tab"
+msgstr "Staf zet je op het tabblad People"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:252
+msgid ""
+"Coaches, assistants and other staff are People rows. Give each one a role "
+"and a team_key so they arrive attached to the team they work with."
+msgstr ""
+"Trainers, assistenten en andere staf zijn rijen op People. Geef elke persoon "
+"een rol en een team_key, zodat ze meteen aan de juiste ploeg gekoppeld "
+"binnenkomen."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:255
+msgid ""
+"YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the "
+"column format to \"Text\" first if dates look wrong after upload."
+msgstr ""
+"Alleen JJJJ-MM-DD. Excel maakt tijdens het typen soms zelf een andere "
+"datumopmaak — zet de kolomopmaak eerst op \"Tekst\" als datums er na het "
+"uploaden verkeerd uitzien."
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:257
+msgid "Before anything is saved"
+msgstr "Voordat er iets wordt opgeslagen"
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:258
+msgid ""
+"You will see exactly what the workbook contains, and anything that needs "
+"fixing, before a single record is created."
+msgstr ""
+"Je ziet precies wat er in het bestand staat, en wat er nog niet klopt, "
+"voordat er ook maar één record wordt aangemaakt."
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
 msgid "This invitation link is invalid."
@@ -55161,76 +55233,6 @@ msgstr "Importeren"
 msgid "Brings teams, players and staff into the academy from a spreadsheet."
 msgstr ""
 "Haalt ploegen, spelers en staf vanuit een spreadsheet de academie binnen."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:241
-msgid "TalentTrack — squad template"
-msgstr "TalentTrack — selectiesjabloon"
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:243
-msgid "What to fill in"
-msgstr "Wat je invult"
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:244
-msgid ""
-"Three tabs: Teams, Players and People. Fill Teams first, then Players, then "
-"People — the later tabs point back at the teams you named."
-msgstr ""
-"Drie tabbladen: Teams, Players en People. Vul eerst Teams in, daarna Players "
-"en dan People — de latere tabbladen verwijzen terug naar de ploegen die je "
-"hebt benoemd."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:246
-msgid "auto_key (the first column on every tab)"
-msgstr "auto_key (de eerste kolom op elk tabblad)"
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:247
-msgid ""
-"Type a short, unique label (e.g. \"U12_RED\", \"U14_GREEN\") in the auto_key "
-"cell on the Teams tab. Players and People then reference that label in their "
-"team_key column, which is how each person ends up in the right team."
-msgstr ""
-"Typ een kort, uniek label (bijvoorbeeld \"U12_ROOD\", \"U14_GROEN\") in de "
-"auto_key-cel op het tabblad Teams. Players en People verwijzen vervolgens "
-"naar dat label in hun team_key-kolom; zo komt iedereen in de juiste ploeg "
-"terecht."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:248
-msgid "Leave auto_key blank on a row nothing else needs to point at."
-msgstr "Laat auto_key leeg bij een rij waarnaar niets anders hoeft te verwijzen."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:250
-msgid "Staff go on the People tab"
-msgstr "Staf zet je op het tabblad People"
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:251
-msgid ""
-"Coaches, assistants and other staff are People rows. Give each one a role "
-"and a team_key so they arrive attached to the team they work with."
-msgstr ""
-"Trainers, assistenten en andere staf zijn rijen op People. Geef elke persoon "
-"een rol en een team_key, zodat ze meteen aan de juiste ploeg gekoppeld "
-"binnenkomen."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:254
-msgid ""
-"YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the "
-"column format to \"Text\" first if dates look wrong after upload."
-msgstr ""
-"Alleen JJJJ-MM-DD. Excel maakt tijdens het typen soms zelf een andere "
-"datumopmaak — zet de kolomopmaak eerst op \"Tekst\" als datums er na het "
-"uploaden verkeerd uitzien."
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:256
-msgid "Before anything is saved"
-msgstr "Voordat er iets wordt opgeslagen"
-
-#: src/Modules/Import/Excel/TemplateBuilder.php:257
-msgid ""
-"You will see exactly what the workbook contains, and anything that needs "
-"fixing, before a single record is created."
-msgstr ""
-"Je ziet precies wat er in het bestand staat, en wat er nog niet klopt, "
-"voordat er ook maar één record wordt aangemaakt."
 
 #: src/Shared/Modules/ModuleMetadata.php:434
 msgid ""

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T04:57:01+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:03:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -19614,26 +19614,26 @@ msgstr ""
 
 # v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
 # Bundle 6 — Excel demo-data template instructions
-#: src/Modules/Import/Excel/TemplateBuilder.php:113
+#: src/Modules/Import/Excel/TemplateBuilder.php:152
 msgid "TalentTrack — demo data template"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:115
+#: src/Modules/Import/Excel/TemplateBuilder.php:154
 msgid "How to fill this workbook"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:116
+#: src/Modules/Import/Excel/TemplateBuilder.php:155
 msgid ""
 "Each green tab is a master entity (Teams, People, Players, Trial cases). "
 "Each blue tab is a transactional record (Activities, Attendance, "
 "Evaluations, Goals, Player journey). Purple = settings, grey = reference."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:118
+#: src/Modules/Import/Excel/TemplateBuilder.php:157
 msgid "auto_key (the first column on every entity tab)"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:119
+#: src/Modules/Import/Excel/TemplateBuilder.php:158
 msgid ""
 "Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the "
 "auto_key cell. Other tabs reference back to it via team_key / player_key / "
@@ -19642,18 +19642,18 @@ msgid ""
 "id."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:120
+#: src/Modules/Import/Excel/TemplateBuilder.php:159
 msgid ""
 "Leave auto_key blank if you do not need to reference the row from another "
 "sheet — but most rows are referenced somewhere, so filling it in is the safe "
 "default."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:122
+#: src/Modules/Import/Excel/TemplateBuilder.php:161
 msgid "Foreign-key columns (e.g. team_key, player_key)"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:123
+#: src/Modules/Import/Excel/TemplateBuilder.php:162
 msgid ""
 "Type the auto_key value of the row you want to link to. Example: a Players "
 "row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". "
@@ -19661,18 +19661,18 @@ msgid ""
 "that does not exist."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:125
+#: src/Modules/Import/Excel/TemplateBuilder.php:164
 msgid "Importable vs. documentation-only sheets"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:126
+#: src/Modules/Import/Excel/TemplateBuilder.php:165
 msgid ""
 "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, "
 "Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
 "Player_Journey, Generation_Settings."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:127
+#: src/Modules/Import/Excel/TemplateBuilder.php:166
 msgid ""
 "Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
 "documentation-only. Configure those via the wp-admin Configuration screens. "
@@ -19680,11 +19680,11 @@ msgid ""
 "your imported data will key into."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:129
+#: src/Modules/Import/Excel/TemplateBuilder.php:168
 msgid "Required vs. optional columns"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:130
+#: src/Modules/Import/Excel/TemplateBuilder.php:169
 msgid ""
 "Every column header carries a label. Required columns are typically the "
 "human-name fields (first_name / last_name / title) plus the foreign keys "
@@ -19692,57 +19692,113 @@ msgid ""
 "failed validation when you upload."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:132
+#: src/Modules/Import/Excel/TemplateBuilder.php:171
+#: src/Modules/Import/Excel/TemplateBuilder.php:254
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:329
 msgid "Dates"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:133
+#: src/Modules/Import/Excel/TemplateBuilder.php:172
 msgid ""
 "YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on "
 "cell entry — set the column format to \"Text\" first if you see weird date "
 "values after upload."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:135
+#: src/Modules/Import/Excel/TemplateBuilder.php:174
 msgid "Recommended workflow"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:136
+#: src/Modules/Import/Excel/TemplateBuilder.php:175
 msgid ""
 "1. Fill Teams first. Pick auto_key labels that mean something to you "
 "(\"U12_RED\", \"U14_GREEN\")."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:137
+#: src/Modules/Import/Excel/TemplateBuilder.php:176
 msgid "2. Fill People next, referencing Teams via team_key on staff rows."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:138
+#: src/Modules/Import/Excel/TemplateBuilder.php:177
 msgid "3. Fill Players, referencing Teams via team_key."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:139
+#: src/Modules/Import/Excel/TemplateBuilder.php:178
 msgid "4. Add Activities for each team (they reference Teams via team_key)."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:140
+#: src/Modules/Import/Excel/TemplateBuilder.php:179
 msgid "5. Add Session_Attendance rows for who showed up at each activity."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:141
+#: src/Modules/Import/Excel/TemplateBuilder.php:180
 msgid ""
 "6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:142
+#: src/Modules/Import/Excel/TemplateBuilder.php:181
 msgid "7. Add Goals + Player_Journey events as needed."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:144
+#: src/Modules/Import/Excel/TemplateBuilder.php:183
 msgid ""
 "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step "
 "0 — Source → Excel upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:242
+msgid "TalentTrack — squad template"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:244
+msgid "What to fill in"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:245
+msgid ""
+"Three tabs: Teams, Players and People. Fill Teams first, then Players, then "
+"People — the later tabs point back at the teams you named."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:247
+msgid "auto_key (the first column on every tab)"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:248
+msgid ""
+"Type a short, unique label (e.g. \"U12_RED\", \"U14_GREEN\") in the auto_key "
+"cell on the Teams tab. Players and People then reference that label in their "
+"team_key column, which is how each person ends up in the right team."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:249
+msgid "Leave auto_key blank on a row nothing else needs to point at."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:251
+msgid "Staff go on the People tab"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:252
+msgid ""
+"Coaches, assistants and other staff are People rows. Give each one a role "
+"and a team_key so they arrive attached to the team they work with."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:255
+msgid ""
+"YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the "
+"column format to \"Text\" first if dates look wrong after upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:257
+msgid "Before anything is saved"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:258
+msgid ""
+"You will see exactly what the workbook contains, and anything that needs "
+"fixing, before a single record is created."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
