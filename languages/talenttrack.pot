@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-27T05:03:01+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:34:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -995,6 +995,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:26
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:19
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:17
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:87
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:20
 msgid "Insufficient permissions."
 msgstr ""
@@ -1161,6 +1162,12 @@ msgstr ""
 
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:88
 msgid "Enable on pilot / training / ephemeral demo installs where every record is demo data. With this on, demo mode is permanently active: all newly created records auto-tag as demo, demo filtering always shows the tagged set, and the runtime mode toggle is overridden. Disable for production installs where some records are real club data."
+msgstr ""
+
+#. translators: %s: the email address that is already taken
+#: src/Infrastructure/Identity/ContactSync.php:147
+#, php-format
+msgid "Another account already uses %s, so the sign-in email was left unchanged."
 msgstr ""
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:90
@@ -3378,7 +3385,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:131
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:628
@@ -4515,7 +4522,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
 #: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:174
 #: src/Modules/Methodology/Admin/MethodologyPage.php:358
@@ -4806,7 +4813,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:377
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
 #: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:954
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
@@ -9805,7 +9812,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:89
 #: src/Modules/Authorization/Admin/RolesPage.php:220
 #: src/Modules/Authorization/Admin/RolesPage.php:222
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:183
 #: src/Modules/Invitations/Frontend/InviteButton.php:140
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:117
 #: src/Shared/Frontend/FrontendMySessionsView.php:148
@@ -10532,7 +10539,7 @@ msgstr ""
 #: src/Modules/DemoData/Admin/DemoDataPage.php:825
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:129
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:157
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
@@ -14225,7 +14232,7 @@ msgid "No history yet. Snapshots appear here automatically every time you save."
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:777
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:91
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
@@ -15791,8 +15798,9 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:18
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:16
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:85
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:19
-#: src/Modules/Invitations/InvitationService.php:65
+#: src/Modules/Invitations/InvitationService.php:66
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:195
 msgid "Not logged in."
 msgstr ""
@@ -15802,6 +15810,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:24
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:22
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:29
 msgid "Bad request."
 msgstr ""
 
@@ -18869,38 +18878,87 @@ msgstr ""
 msgid "Filter:"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:84
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#, php-format
+msgid "%d invitation is waiting to be sent. Nobody has received their sign-in details yet."
+msgid_plural "%d invitations are waiting to be sent. Nobody has received their sign-in details yet."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
+msgid "Send all invitations"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:119
 msgid "No invitations match the filter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:92
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:127
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:457
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:498
 msgid "Target"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:93
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:128
 msgid "Inviter"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:95
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:130
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:96
 msgid "Expires"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:120
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:155
+msgid "not sent yet"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:167
+#: src/Modules/License/Admin/AccountPage.php:817
+msgid "Send now"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:177
 msgid "Revoke this invitation?"
 msgstr ""
 
 #. translators: 1: accepted date, 2: user name
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:134
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:191
 #, php-format
 msgid "%1$s by %2$s"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:153
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:210
 msgid "Six message templates — three role variants × two locales. Placeholders: {club} {role} {team} {player} {sender} {url} {ttl_days}. The {url} placeholder is required so the recipient can open the invitation."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:32
+msgid "Invitation sent."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:36
+msgid "Could not send this invitation. It may already have been sent, accepted, expired or revoked."
+msgstr ""
+
+#. translators: %d: number of invitations sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
+#, php-format
+msgid "%d invitation sent."
+msgid_plural "%d invitations sent."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of invitations that could not be sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:66
+#, php-format
+msgid "%d invitation could not be sent and was left alone."
+msgid_plural "%d invitations could not be sent and were left alone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:78
+msgid "There was nothing waiting to be sent."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/InviteButton.php:66
@@ -18981,51 +19039,51 @@ msgstr ""
 msgid "Invitation message saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:60
+#: src/Modules/Invitations/InvitationService.php:61
 msgid "Invalid invitation kind."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:69
-#: src/Modules/Invitations/InvitationService.php:165
+#: src/Modules/Invitations/InvitationService.php:70
+#: src/Modules/Invitations/InvitationService.php:225
 msgid "New user registration is currently disabled."
 msgstr ""
 
 #. translators: 1: cap, 2: actual count
-#: src/Modules/Invitations/InvitationService.php:84
+#: src/Modules/Invitations/InvitationService.php:85
 #, php-format
 msgid "Daily invitation cap reached (%1$d). Already created %2$d in the last 24 hours."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:130
+#: src/Modules/Invitations/InvitationService.php:139
 msgid "The invitation could not be saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:168
-#: src/Modules/Invitations/InvitationService.php:225
+#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:285
 msgid "This invitation is no longer pending."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:172
+#: src/Modules/Invitations/InvitationService.php:232
 msgid "This invitation has expired."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:177
+#: src/Modules/Invitations/InvitationService.php:237
 msgid "Please provide a valid recovery email."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:181
+#: src/Modules/Invitations/InvitationService.php:241
 msgid "Password must be at least 8 characters."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:185
+#: src/Modules/Invitations/InvitationService.php:245
 msgid "An account with that email already exists. Sign in instead and the invitation will link silently."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:208
+#: src/Modules/Invitations/InvitationService.php:268
 msgid "This invitation was just accepted by someone else."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:288
 msgid "Already accepted."
 msgstr ""
 
@@ -21055,10 +21113,6 @@ msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:808
 msgid "Body size"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:817
-msgid "Send now"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:822

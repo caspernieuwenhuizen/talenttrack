@@ -51,5 +51,10 @@ class AuthModule implements ModuleInterface {
         // is deleted, so a re-issued user id can't silently inherit
         // someone else's record.
         WpUserUnlink::register();
+
+        // #2962 — keep the account's contact details and the linked person
+        // row aligned, in both directions. Registered here because this is
+        // already the module that owns WP-user lifecycle hooks.
+        \TT\Infrastructure\Identity\ContactSync::init();
     }
 }
