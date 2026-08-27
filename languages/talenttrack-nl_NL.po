@@ -57563,3 +57563,23 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Goals scored"
 msgstr "Doelpunten gemaakt"
 
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:235
+msgctxt "who created a goal"
+msgid "Assists"
+msgstr "Assists"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:234
+msgctxt "goals scored in matches"
+msgid "Goals scored"
+msgstr "Doelpunten gemaakt"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:962
+msgid "%d assist"
+msgid_plural "%d assists"
+msgstr[0] "%d assist"
+msgstr[1] "%d assists"
+
+#: src/Infrastructure/REST/GoalContributionsRestController.php:51
+msgid "Invalid player."
+msgstr "Ongeldige speler."
+
