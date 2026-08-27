@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Definitions;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Recipients\TeamHeadCoachLookup;
 use TT\Modules\Alerts\Contracts\AlertInterface;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
@@ -159,52 +160,21 @@ abstract class AbstractActivityAlert implements AlertInterface {
     /**
      * WP user id of each team's head coach, keyed by team id, in one query.
      *
-     * Same resolution as `Workflow\Resolvers\TeamHeadCoachResolver` — the
-     * `head_coach` functional-role assignment in `tt_team_people`, which has
-     * been the single source of truth since #1315 retired the legacy
-     * `tt_teams.head_coach_id` column. #2635 lifts that resolver into shared
-     * infrastructure and this method collapses into a call to it; until
-     * then, duplicating one join is cheaper than a cross-module dependency
-     * on a class that is about to move.
+     * Delegates to `Infrastructure\Recipients\TeamHeadCoachLookup` (#2719),
+     * now the single implementation of this join — the workflow engine's
+     * assignee resolver and both alert base classes had each grown their
+     * own copy of it, and three copies of the query that decides who sees
+     * a named minor's data is a privacy risk, not untidiness.
+     *
+     * Still batched, deliberately: the sweep runs across every team in the
+     * academy, and a per-team query here would turn one sweep into
+     * hundreds.
      *
      * @param list<int> $team_ids
      * @return array<int,int> team_id => wp_user_id
      */
     protected function headCoachesByTeam( array $team_ids ): array {
-        global $wpdb;
-        $team_ids = array_values( array_filter( array_map( 'intval', $team_ids ) ) );
-        if ( empty( $team_ids ) ) return [];
-
-        $p    = $wpdb->prefix;
-        $list = implode( ',', $team_ids );
-
-        // MIN(tp.id) mirrors the resolver's ORDER BY tp.id ASC LIMIT 1:
-        // where a team somehow has two head-coach assignments, both pick the
-        // same one, so an occurrence does not flip between recipients from
-        // sweep to sweep and duplicate itself under two dedupe keys.
-        $rows = $wpdb->get_results(
-            "SELECT tp.team_id, pe.wp_user_id
-               FROM {$p}tt_team_people tp
-         INNER JOIN {$p}tt_functional_roles fr ON tp.functional_role_id = fr.id
-         INNER JOIN {$p}tt_people pe ON tp.person_id = pe.id
-              WHERE tp.team_id IN ({$list})
-                AND fr.role_key = 'head_coach'
-                AND pe.wp_user_id > 0
-                AND tp.id IN (
-                    SELECT MIN(tp2.id)
-                      FROM {$p}tt_team_people tp2
-                INNER JOIN {$p}tt_functional_roles fr2 ON tp2.functional_role_id = fr2.id
-                     WHERE tp2.team_id IN ({$list})
-                       AND fr2.role_key = 'head_coach'
-                  GROUP BY tp2.team_id
-                )"
-        );
-
-        $out = [];
-        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row->team_id ] = (int) $row->wp_user_id;
-        }
-        return $out;
+        return TeamHeadCoachLookup::forTeams( $team_ids );
     }
 
     /**

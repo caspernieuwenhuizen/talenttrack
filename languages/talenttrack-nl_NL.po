@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T15:48:24+00:00\n"
+"POT-Creation-Date: 2026-08-27T15:57:50+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -89,7 +89,7 @@ msgstr "Team Manager"
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:229
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:207
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:206
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:53
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:56
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:143
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:306
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:246
@@ -2513,7 +2513,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:343
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:207
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:452
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:160
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:163
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:436
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:422
@@ -3577,7 +3577,7 @@ msgstr "Er moet een test gekozen worden."
 #: src/Infrastructure/REST/MeasurementsRestController.php:164
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:84
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:75
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:78
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
@@ -4024,7 +4024,7 @@ msgstr "Datum"
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:414
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:467
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:384
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:390
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
@@ -4273,6 +4273,11 @@ msgstr "Wedstrijd niet gevonden."
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:124
 msgid "You do not coach this match’s team."
 msgstr "Je coacht het team van deze wedstrijd niet."
+
+#: src/Infrastructure/REST/ReportsRestController.php:284
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
+msgid "You do not have access to this team’s players."
+msgstr "Je hebt geen toegang tot de spelers van dit team."
 
 #: src/Infrastructure/REST/SavedViewsRestController.php:125
 msgid "No view key supplied."
@@ -4780,8 +4785,8 @@ msgstr "Alle types"
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:208
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:152
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:161
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:155
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:164
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:495
 #: src/Modules/Authorization/Admin/RolesPage.php:492
@@ -5653,8 +5658,8 @@ msgstr "allen aanwezig"
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:254
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:210
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:214
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:54
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:162
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:57
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:165
 msgid "Present %"
 msgstr "Aanwezig %"
 
@@ -5734,7 +5739,7 @@ msgstr "Alleen wedstrijden"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:307
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:351
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:460
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:377
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:383
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:444
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:430
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2008
@@ -5747,7 +5752,7 @@ msgstr "Periode"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:314
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:367
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:476
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:393
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:399
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:460
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:446
 #: src/Shared/Frontend/FrontendStandardReportsView.php:477
@@ -5758,7 +5763,7 @@ msgstr "Datumbereik"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:315
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:368
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:477
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:394
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:400
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:461
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:447
 #: src/Modules/Authorization/Admin/DebugPage.php:157
@@ -5791,7 +5796,7 @@ msgstr "Vanaf"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:316
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:369
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:478
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:395
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:401
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:462
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:448
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
@@ -6069,7 +6074,7 @@ msgstr "Doorgaan met beoordelen"
 msgid "Rate players"
 msgstr "Spelers beoordelen"
 
-#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:272
+#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
 #: src/Modules/Media/Wizard/MediaTargetStep.php:107
 msgid "this player"
 msgstr "deze speler"
@@ -7296,7 +7301,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:48
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:70
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:55
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:61
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:64
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:51
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:51
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:54
@@ -7444,7 +7449,7 @@ msgid "No analytics registered for this entity type yet."
 msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:151
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:154
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:105
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:494
 #: src/Modules/Authorization/Admin/RolesPage.php:489
@@ -7503,9 +7508,9 @@ msgstr "Geen vermeldingen."
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:56
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:67
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:75
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:62
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:73
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:81
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:65
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:76
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:84
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:52
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:62
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:85
@@ -7545,7 +7550,7 @@ msgstr "Rapporten"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:73
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:58
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:64
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:67
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:57
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:63
@@ -7586,7 +7591,7 @@ msgstr "Meest betrouwbaar — hoogste aanwezigheid"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:187
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:165
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:153
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:156
 msgid "Avg. attendance"
 msgstr "Gem. aanwezigheid"
 
@@ -7642,7 +7647,7 @@ msgstr "Top %d"
 #  elsewhere in this catalogue — no entries added for them.)
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:361
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:470
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:387
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:393
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2002
 msgid "— all types —"
 msgstr "— alle types —"
@@ -7683,7 +7688,7 @@ msgid "Player attendance statistics"
 msgstr "Aanwezigheidsstatistieken per speler"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:119
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:119
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:122
 msgid ""
 "You don't coach any teams yet, so there is no attendance to show. Ask an "
 "administrator to assign you to a team."
@@ -7693,13 +7698,13 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:127
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:142
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:132
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:135
 msgid "No attendance recorded in the selected window."
 msgstr "Geen aanwezigheid geregistreerd in het gekozen tijdvenster."
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:128
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:143
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:130
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:133
 msgid "This report is limited to the teams you coach."
 msgstr "Dit rapport is beperkt tot de teams die je traint."
 
@@ -7740,45 +7745,45 @@ msgstr "Kon spelers niet laden. Probeer opnieuw."
 msgid "No player attendance in this window."
 msgstr "Geen aanwezigheid van spelers in deze periode."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:58
 msgid "At risk"
 msgstr "Risico"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:72
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:80
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:75
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:83
 msgid "Team attendance"
 msgstr "Team-aanwezigheid"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:83
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:86
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:129
 msgid "Team attendance statistics"
 msgstr "Aanwezigheidsstatistieken per team"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:154
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:157
 msgid "Teams below 70%"
 msgstr "Teams onder 70%"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:163
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:166
 msgid "Late %"
 msgstr "Te laat %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:164
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:167
 msgid "Absent %"
 msgstr "Afwezig %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:165
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:168
 msgid "Excused %"
 msgstr "Verontschuldigd %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:166
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:169
 msgid "Injured %"
 msgstr "Geblesseerd %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:196
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:199
 msgid "Open team"
 msgstr "Team openen"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:197
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:200
 msgid "View players"
 msgstr "Spelers bekijken"
 
