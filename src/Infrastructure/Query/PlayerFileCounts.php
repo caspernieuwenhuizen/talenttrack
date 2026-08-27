@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Query;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
+
 /**
  * PlayerFileCounts — single source for the player-file tab badge counts.
  *
@@ -20,16 +22,17 @@ final class PlayerFileCounts {
         $p = $wpdb->prefix;
 
         $goals = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ),
             $player_id
         ) );
         // The evaluation badge count and the evaluations-tab list query
         // (FrontendPlayerDetailView::renderEvaluationsTab) must agree
         // on the same scope, otherwise the operator sees a non-zero
-        // badge with an empty tab. Pin both to `(player_id, club_id,
-        // archived_at IS NULL)`.
+        // badge with an empty tab. Pin both to `(player_id, club_id)` plus
+        // the shared lifecycle clause — #2906 moved this off a hand-rolled
+        // `archived_at IS NULL`, which counted rows the recycle bin hides.
         $evaluations = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND " . ArchiveRepository::filterClause( 'active' ),
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         // v3.110.3 — mirrors the tab's render query
@@ -76,7 +79,7 @@ final class PlayerFileCounts {
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
-                AND a.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
                 AND a.plan_state IN ( 'completed', 'planned', 'scheduled' )
                 AND ( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
                       OR a.plan_state IN ( 'planned', 'scheduled' ) )",
@@ -87,7 +90,7 @@ final class PlayerFileCounts {
             $player_id
         ) );
         $trials = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE player_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "",
             $player_id
         ) );
         // #0085 — notes count for the new Notes tab badge. Only counts
@@ -108,7 +111,7 @@ final class PlayerFileCounts {
         // the Measurements tab's per-test rows.
         $measurements = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT definition_id) FROM {$p}tt_measurement_results
-              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+              WHERE player_id = %d AND club_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "",
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
 
@@ -117,6 +120,13 @@ final class PlayerFileCounts {
         // and the tab's tile count cannot disagree. Joined through
         // tt_media rather than counting link rows, because the link table
         // is polymorphic and carries no archived state of its own.
+        //
+        // #2906 — this one keeps its raw `archived_at IS NULL` while every
+        // other count here moved to ArchiveRepository::filterClause(). It has
+        // to: `tt_media` is not a recycle-bin entity, so it has no
+        // `trashed_at` column and the shared clause would reference one that
+        // does not exist. Media has its own retention lifecycle (#2666).
+        // Revisit if media ever joins the bin.
         $media = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_media m
