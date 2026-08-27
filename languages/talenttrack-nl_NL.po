@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T05:16:22+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:34:40+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1438,6 +1438,15 @@ msgstr ""
 "toont altijd de getagde set en de runtime-modus-schakelaar wordt "
 "overschreven. Schakel uit op productie-installaties waar sommige records "
 "echte clubgegevens zijn."
+
+#. translators: %s: the email address that is already taken
+#: src/Infrastructure/Identity/ContactSync.php:147
+#, php-format
+msgid ""
+"Another account already uses %s, so the sign-in email was left unchanged."
+msgstr ""
+"Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd "
+"gebleven."
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:90
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:50
@@ -55350,12 +55359,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#. translators: %s: the email address that is already taken
-#: src/Infrastructure/Identity/ContactSync.php:147
-#, php-format
-msgid "Another account already uses %s, so the sign-in email was left unchanged."
-msgstr "Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd gebleven."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"

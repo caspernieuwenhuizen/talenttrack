@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-27T05:16:22+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:34:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1162,6 +1162,12 @@ msgstr ""
 
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:88
 msgid "Enable on pilot / training / ephemeral demo installs where every record is demo data. With this on, demo mode is permanently active: all newly created records auto-tag as demo, demo filtering always shows the tagged set, and the runtime mode toggle is overridden. Disable for production installs where some records are real club data."
+msgstr ""
+
+#. translators: %s: the email address that is already taken
+#: src/Infrastructure/Identity/ContactSync.php:147
+#, php-format
+msgid "Another account already uses %s, so the sign-in email was left unchanged."
 msgstr ""
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:90

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T05:16:22+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:34:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1283,6 +1283,13 @@ msgid ""
 "records auto-tag as demo, demo filtering always shows the tagged set, and "
 "the runtime mode toggle is overridden. Disable for production installs where "
 "some records are real club data."
+msgstr ""
+
+#. translators: %s: the email address that is already taken
+#: src/Infrastructure/Identity/ContactSync.php:147
+#, php-format
+msgid ""
+"Another account already uses %s, so the sign-in email was left unchanged."
 msgstr ""
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:90
