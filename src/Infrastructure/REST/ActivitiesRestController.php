@@ -1407,9 +1407,15 @@ class ActivitiesRestController {
      * uses. Anything unrecognised defaults to 'expected'.
      */
     private static function plannedStatusToKey( string $status ): string {
-        $s = strtolower( trim( $status ) );
+        // #2909 — compare canonically rather than by lowercasing both sides.
+        // The map's values are AttendanceStatus members (Title Case) now, so a
+        // lowercased needle would never match; folding the incoming value keeps
+        // this tolerant of rows written in any casing, which is the point.
+        $canonical = AttendanceStatus::normalise( $status );
+        if ( $canonical === null ) return 'expected';
+
         foreach ( self::plannedStatusMap() as $key => $stored ) {
-            if ( $s === $stored ) return $key;
+            if ( $canonical === $stored ) return $key;
         }
         return 'expected';
     }
