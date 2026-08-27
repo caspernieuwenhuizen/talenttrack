@@ -1,18 +1,21 @@
 <?php
-namespace TT\Modules\DemoData\Excel;
+namespace TT\Modules\Import\Excel;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\Import\ImportTagSink;
 
 /**
- * ExcelImporter (#0059) — parse + validate + import a demo workbook.
+ * ExcelImporter (#0059) — parse + validate + import a workbook.
  *
  * Returns a structured per-sheet validation report and (when validation
  * passes) inserts rows into the appropriate `tt_*` tables, tagging
- * every row via DemoBatchRegistry with `source: 'excel'`.
+ * every row via the injected `ImportTagSink` with `source: 'excel'`.
+ *
+ * The sink is what separates a demo workbook from a club's real squad
+ * (#2955); the parsing and validation below are identical either way.
  *
  * v1.5 covers Teams, People, Players, Trial_Cases, Sessions/Activities,
  * Session_Attendance, Evaluations, Evaluation_Ratings, Goals,
@@ -27,8 +30,26 @@ use TT\Modules\DemoData\DemoBatchRegistry;
 final class ExcelImporter {
 
     /**
+     * Builds the sink that records what the import created, given the
+     * batch id. Injected rather than chosen here: the importer has no
+     * business deciding whether the rows it writes are demo data or a
+     * club's real squad.
+     *
+     * @var callable(string):ImportTagSink
+     */
+    private $sink_factory;
+
+    /** @param callable(string):ImportTagSink $sink_factory */
+    public function __construct( callable $sink_factory ) {
+        $this->sink_factory = $sink_factory;
+    }
+
+    /**
+     * @param bool $dry_run Validate and report without writing a row.
+     *
      * @return array{
      *   ok:bool,
+     *   dry_run:bool,
      *   blockers:list<string>,
      *   warnings:list<string>,
      *   imported:array<string,int>,
@@ -37,7 +58,7 @@ final class ExcelImporter {
      *   generation_settings:array<string,string>
      * }
      */
-    public function importFile( string $tmp_path, string $original_name, ?string $batch_id_in = null ): array {
+    public function importFile( string $tmp_path, string $original_name, ?string $batch_id_in = null, bool $dry_run = false ): array {
         if ( ! class_exists( '\\PhpOffice\\PhpSpreadsheet\\IOFactory' ) ) {
             return $this->fail( __( 'PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root.', 'talenttrack' ) );
         }
@@ -67,6 +88,7 @@ final class ExcelImporter {
             $blockers[] = __( 'Sheet "Sessions" was renamed to "Activities" in v3.108.0 — re-download the demo-data template, or rename the sheet to "Activities" in your workbook.', 'talenttrack' );
             return [
                 'ok'                  => false,
+                'dry_run'             => $dry_run,
                 'blockers'            => $blockers,
                 'warnings'            => $warnings,
                 'imported'            => [],
@@ -90,6 +112,7 @@ final class ExcelImporter {
         if ( ! empty( $blockers ) ) {
             return [
                 'ok'                  => false,
+                'dry_run'             => $dry_run,
                 'blockers'            => $blockers,
                 'warnings'            => $warnings,
                 'imported'            => [],
@@ -99,19 +122,38 @@ final class ExcelImporter {
             ];
         }
 
-        $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
-        $registry = new DemoBatchRegistry( $batch_id );
-
         // Track present sheets — anything with at least one row.
         $present_sheets = [];
         foreach ( $rows as $key => $sheet_rows ) {
             if ( ! empty( $sheet_rows ) ) $present_sheets[] = $key;
         }
 
+        // #2956 — a dry run stops here. Validation has already run, so the
+        // caller gets the same blockers and warnings it would get from a
+        // real import, plus what the workbook would create — without a row
+        // being written or a batch existing. That is what lets a wizard put
+        // the report in front of someone BEFORE they commit to it.
+        if ( $dry_run ) {
+            return [
+                'ok'                  => true,
+                'dry_run'             => true,
+                'blockers'            => [],
+                'warnings'            => $warnings,
+                'imported'            => $this->wouldImport( $rows ),
+                'present_sheets'      => $present_sheets,
+                'batch_id'            => null,
+                'generation_settings' => $this->extractGenerationSettings( $rows['generation_settings'] ?? [] ),
+            ];
+        }
+
+        $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
+        $registry = ( $this->sink_factory )( $batch_id );
+
         $imported = $this->insertAll( $rows, $registry );
 
         return [
             'ok'                  => true,
+            'dry_run'             => false,
             'blockers'            => [],
             'warnings'            => $warnings,
             'imported'            => $imported,
@@ -119,6 +161,35 @@ final class ExcelImporter {
             'batch_id'            => $batch_id,
             'generation_settings' => $this->extractGenerationSettings( $rows['generation_settings'] ?? [] ),
         ];
+    }
+
+    /**
+     * Row counts a dry run reports, keyed the way `insertAll` keys its
+     * results so a preview and the eventual import read the same.
+     *
+     * @param array<string,list<array<string,mixed>>> $rows
+     * @return array<string,int>
+     */
+    private function wouldImport( array $rows ): array {
+        $map = [
+            'teams'              => 'teams',
+            'people'             => 'people',
+            'players'            => 'players',
+            'trial_cases'        => 'trial_cases',
+            'sessions'           => 'activities',
+            'session_attendance' => 'attendance',
+            'evaluations'        => 'evaluations',
+            'evaluation_ratings' => 'eval_ratings',
+            'goals'              => 'goals',
+            'player_journey'     => 'player_events',
+        ];
+
+        $out = [];
+        foreach ( $map as $sheet_key => $count_key ) {
+            $n = count( $rows[ $sheet_key ] ?? [] );
+            if ( $n > 0 ) $out[ $count_key ] = $n;
+        }
+        return $out;
     }
 
     /**
@@ -252,7 +323,7 @@ final class ExcelImporter {
      * @param array<string,list<array<string,mixed>>> $rows
      * @return array<string,int>
      */
-    private function insertAll( array $rows, DemoBatchRegistry $registry ): array {
+    private function insertAll( array $rows, ImportTagSink $registry ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -390,7 +461,14 @@ final class ExcelImporter {
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
                 'player_id'   => $player_id,
-                'status'      => (string) ( $r['status'] ?? 'Present' ),
+                // #2909 — a spreadsheet says whatever the person typed. Fold
+                // to the canonical member so an import cannot reintroduce the
+                // casing split this migration exists to clear up; anything
+                // outside the five is passed through as the academy's own
+                // vocabulary.
+                'status'      => (string) ( \TT\Domain\Vocabularies\Lookups\AttendanceStatus::normalise(
+                    (string) ( $r['status'] ?? '' )
+                ) ?? ( $r['status'] ?? 'Present' ) ),
                 'notes'       => (string) ( $r['notes']  ?? '' ),
                 'is_guest'    => 0,
             ] );
@@ -492,11 +570,12 @@ final class ExcelImporter {
     }
 
     /**
-     * @return array{ok:bool,blockers:list<string>,warnings:list<string>,imported:array<string,int>,present_sheets:list<string>,batch_id:?string,generation_settings:array<string,string>}
+     * @return array{ok:bool,dry_run:bool,blockers:list<string>,warnings:list<string>,imported:array<string,int>,present_sheets:list<string>,batch_id:?string,generation_settings:array<string,string>}
      */
     private function fail( string $msg ): array {
         return [
             'ok'                  => false,
+            'dry_run'             => false,
             'blockers'            => [ $msg ],
             'warnings'            => [],
             'imported'            => [],

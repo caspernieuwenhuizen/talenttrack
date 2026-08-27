@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Match analysis — player marker control</title>
+<style>
+/*
+ * Mockup only — .local-mockups/match-analysis-markers/
+ *
+ * Four candidate replacements for the four stacked radio buttons on the
+ * Players step of the match analysis (#2704, #2726). Production class
+ * names and tokens.css values, mobile-first, so whichever wins ports as
+ * CSS rather than as a redesign.
+ *
+ * Every variant renders the SAME fourteen-player squad from one array, so
+ * the comparison is about how each one scales, not about how much sample
+ * data it was given. D and E are live — click them.
+ */
+:root {
+    --tt-ink: #0e1a14;
+    --tt-ink-soft: #6a6d66;
+    --tt-muted: #6a6d66;
+    --tt-paper: #ffffff;
+    --tt-bg-soft: #f4f6f3;
+    --tt-line: #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-success: #2f9e5e;
+    --tt-warning: #e8902b;
+    --tt-info: #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-info-subtle: #e6f0fa;
+    --tt-radius: 8px;
+    --tt-radius-lg: 14px;
+    --tt-motion-duration: 150ms;
+    --tt-motion-easing: ease;
+    --tt-fs-body: 1rem;
+    --tt-lh-body: 1.5;
+    --tt-fs-sm: 0.85rem;
+    --tt-fs-lg: 1.125rem;
+    --tt-fs-h2: 1.5rem;
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 20px;
+    --tt-sp-6: 24px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font: var(--tt-fs-body)/var(--tt-lh-body) -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap { max-width: 68rem; margin: 0 auto; }
+h1 { font-size: var(--tt-fs-h2); margin: 0 0 var(--tt-sp-2); }
+.lede { color: var(--tt-muted); margin: 0 0 var(--tt-sp-4); }
+.nav { display: flex; flex-wrap: wrap; gap: var(--tt-sp-2); margin: 0 0 var(--tt-sp-5); }
+.nav a {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: 999px; background: var(--tt-paper);
+    color: var(--tt-ink); text-decoration: none; font-size: var(--tt-fs-sm);
+}
+
+.variants { display: grid; gap: var(--tt-sp-5); }
+.variant { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: var(--tt-sp-4); }
+.variant h2 { font-size: var(--tt-fs-lg); margin: 0 0 var(--tt-sp-1); }
+.variant .note { color: var(--tt-muted); font-size: var(--tt-fs-sm); margin: 0 0 var(--tt-sp-4); }
+.variant .verdict { margin-top: var(--tt-sp-4); font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); border-top: 1px solid var(--tt-line-soft); padding-top: var(--tt-sp-3); }
+.variant .rec { font-weight: 400; font-size: var(--tt-fs-sm); color: var(--tt-success); }
+
+/* Deep-link one variant: index.html#only-a … #only-e */
+body:has(#only-a:target) .variant:not(.va),
+body:has(#only-b:target) .variant:not(.vb),
+body:has(#only-c:target) .variant:not(.vc),
+body:has(#only-d:target) .variant:not(.vd),
+body:has(#only-e:target) .variant:not(.ve),
+body:has(#only-f:target) .variant:not(.vf),
+body:has(.only:target) .before { display: none; }
+
+/* ── shared row shell ─────────────────────────────────────────────── */
+
+.tt-ma__players { display: flex; flex-direction: column; gap: var(--tt-sp-3); margin: 0; padding: 0; list-style: none; }
+.tt-ma__player {
+    display: flex; flex-direction: column; gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line-soft); border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+}
+.tt-ma__player-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--tt-sp-2); }
+.tt-ma__player-name { font-weight: 600; }
+.tt-ma__player-min { color: var(--tt-muted); font-size: var(--tt-fs-sm); font-variant-numeric: tabular-nums; }
+.tt-ma__player-plan { margin: 0; color: var(--tt-ink-soft); font-size: var(--tt-fs-sm); }
+
+.tt-ma__player-note, .tt-ma__player-tag {
+    width: 100%; min-height: 48px; font-size: 1rem; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper); color: var(--tt-ink); font-family: inherit;
+}
+
+.tt-ma__marker-input {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── A. segmented control ─────────────────────────────────────────── */
+
+.va .tt-ma__markers {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--tt-line); border-radius: 999px;
+    background: var(--tt-paper); overflow: hidden;
+}
+.va .tt-ma__marker {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 46px; padding: 0 2px;
+    border-left: 1px solid var(--tt-line-soft);
+    font-size: var(--tt-fs-sm); line-height: 1.15; text-align: center;
+    color: var(--tt-ink-soft); cursor: pointer;
+    transition: background var(--tt-motion-duration) var(--tt-motion-easing);
+}
+.va .tt-ma__marker:first-of-type { border-left: 0; }
+.va .tt-ma__marker-input:checked + .tt-ma__marker { font-weight: 600; }
+.va .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="stood_out"]   { background: var(--tt-success-subtle); color: var(--tt-success); }
+.va .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="as_expected"] { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.va .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="below_par"]   { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.va .tt-ma__marker-input:checked + .tt-ma__marker[data-marker=""]            { background: var(--tt-bg-soft); }
+.va .tt-ma__marker-input:focus-visible + .tt-ma__marker { outline: 2px solid var(--tt-info); outline-offset: -2px; }
+
+/* ── B. three chips ───────────────────────────────────────────────── */
+
+.vb .tt-ma__markers { display: flex; gap: var(--tt-sp-2); flex-wrap: wrap; align-items: center; }
+.vb .tt-ma__marker {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--tt-sp-4);
+    border: 1px solid var(--tt-line); border-radius: 999px;
+    background: var(--tt-paper); color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm); cursor: pointer;
+}
+.vb .tt-ma__marker-input:checked + .tt-ma__marker { font-weight: 600; border-color: currentColor; }
+.vb .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="stood_out"]   { background: var(--tt-success-subtle); color: var(--tt-success); }
+.vb .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="as_expected"] { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.vb .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="below_par"]   { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.vb .tt-ma__clear { background: none; border: 0; padding: 0 var(--tt-sp-2); font: inherit; font-size: var(--tt-fs-sm); color: var(--tt-muted); text-decoration: underline; cursor: pointer; }
+
+/* ── C. glyph row ─────────────────────────────────────────────────── */
+
+.vc .tt-ma__markers {
+    display: grid; grid-template-columns: repeat(4, 44px);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    overflow: hidden; background: var(--tt-paper); justify-content: end;
+}
+.vc .tt-ma__marker {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 44px; border-left: 1px solid var(--tt-line-soft);
+    font-size: 1rem; color: var(--tt-ink-soft); cursor: pointer;
+}
+.vc .tt-ma__marker:first-of-type { border-left: 0; }
+.vc .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="stood_out"]   { background: var(--tt-success-subtle); color: var(--tt-success); }
+.vc .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="as_expected"] { background: var(--tt-info-subtle);    color: var(--tt-info); }
+.vc .tt-ma__marker-input:checked + .tt-ma__marker[data-marker="below_par"]   { background: var(--tt-warning-subtle); color: var(--tt-warning); }
+.vc .tt-ma__marker-input:checked + .tt-ma__marker[data-marker=""]            { background: var(--tt-bg-soft); }
+.vc .tt-ma__marker-state { font-size: var(--tt-fs-sm); color: var(--tt-muted); }
+
+@media (min-width: 768px) {
+    .va .tt-ma__player, .vb .tt-ma__player, .vc .tt-ma__player {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center; column-gap: var(--tt-sp-3); row-gap: var(--tt-sp-2);
+    }
+    .va .tt-ma__player-head, .vb .tt-ma__player-head, .vc .tt-ma__player-head { grid-column: 1; }
+    .va .tt-ma__markers, .vb .tt-ma__markers, .vc .tt-ma__markers { grid-column: 2; }
+    .va .tt-ma__player-plan, .vb .tt-ma__player-plan, .vc .tt-ma__player-plan,
+    .va .tt-ma__player-note, .vb .tt-ma__player-note, .vc .tt-ma__player-note,
+    .va .tt-ma__player-tag,  .vb .tt-ma__player-tag,  .vc .tt-ma__player-tag,
+    .vc .tt-ma__marker-state { grid-column: 1 / -1; }
+    .va .tt-ma__markers { min-width: 340px; }
+}
+
+/* ── D. tally sheet ───────────────────────────────────────────────── */
+
+.tt-ma__legend { display: flex; flex-wrap: wrap; gap: var(--tt-sp-3); margin: 0 0 var(--tt-sp-3); font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); }
+.tt-ma__legend span { display: inline-flex; align-items: center; gap: var(--tt-sp-1); }
+.tt-ma__glyph { font-size: 1rem; line-height: 1; }
+.tt-ma__glyph--up { color: var(--tt-success); }
+.tt-ma__glyph--ok { color: var(--tt-info); }
+.tt-ma__glyph--dn { color: var(--tt-warning); }
+
+.tt-ma__tally { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--tt-sp-2); margin: 0 0 var(--tt-sp-4); padding: 0; list-style: none; }
+@media (min-width: 768px) { .tt-ma__tally { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.tt-ma__tag-btn {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--tt-sp-2);
+    width: 100%; min-height: 48px; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper); color: var(--tt-ink);
+    font: inherit; font-size: var(--tt-fs-sm); text-align: left; cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-ma__tag-btn[data-marker="stood_out"]   { background: var(--tt-success-subtle); border-color: var(--tt-success); }
+.tt-ma__tag-btn[data-marker="as_expected"] { background: var(--tt-info-subtle);    border-color: var(--tt-info); }
+.tt-ma__tag-btn[data-marker="below_par"]   { background: var(--tt-warning-subtle); border-color: var(--tt-warning); }
+.tt-ma__tag-btn:focus-visible { outline: 2px solid var(--tt-info); outline-offset: 2px; }
+.tt-ma__tag-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-ma__tag-mark { font-size: 1.05rem; line-height: 1; color: var(--tt-muted); }
+.tt-ma__tag-btn[data-marker="stood_out"]   .tt-ma__tag-mark { color: var(--tt-success); }
+.tt-ma__tag-btn[data-marker="as_expected"] .tt-ma__tag-mark { color: var(--tt-info); }
+.tt-ma__tag-btn[data-marker="below_par"]   .tt-ma__tag-mark { color: var(--tt-warning); }
+
+.tt-ma__tagged-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 var(--tt-sp-2); font-size: var(--tt-fs-sm); color: var(--tt-muted); }
+.tt-ma__tagged { display: flex; flex-direction: column; gap: var(--tt-sp-3); margin: 0; padding: 0; list-style: none; }
+.tt-ma__tagged li {
+    display: flex; flex-direction: column; gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line-soft); border-left: 4px solid var(--tt-line);
+    border-radius: var(--tt-radius); background: var(--tt-bg-soft);
+}
+.tt-ma__tagged li[data-marker="stood_out"]   { border-left-color: var(--tt-success); }
+.tt-ma__tagged li[data-marker="as_expected"] { border-left-color: var(--tt-info); }
+.tt-ma__tagged li[data-marker="below_par"]   { border-left-color: var(--tt-warning); }
+.tt-ma__tagged-title { display: flex; align-items: center; gap: var(--tt-sp-2); font-weight: 600; flex-wrap: wrap; }
+.tt-ma__tagged-title small { font-weight: 400; color: var(--tt-muted); }
+.tt-ma__tagged-empty { color: var(--tt-muted); font-size: var(--tt-fs-sm); margin: 0; }
+
+/* ── F. tally grid + direct-choice popover (D's layout, C's directness) ── */
+
+.vf .tt-ma__tally li { position: relative; }
+
+.tt-ma__picker {
+    position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; right: 0;
+    display: flex; flex-direction: column; gap: 2px;
+    padding: var(--tt-sp-1);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper); box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0,0,0,.12));
+}
+.tt-ma__picker button {
+    display: flex; align-items: center; gap: var(--tt-sp-2);
+    min-height: 44px; padding: 0 var(--tt-sp-2);
+    border: 0; border-radius: var(--tt-radius); background: none;
+    font: inherit; font-size: var(--tt-fs-sm); text-align: left; cursor: pointer;
+}
+.tt-ma__picker button:hover, .tt-ma__picker button:focus-visible { background: var(--tt-bg-soft); }
+.tt-ma__picker button[data-choice="stood_out"]   .tt-ma__glyph { color: var(--tt-success); }
+.tt-ma__picker button[data-choice="as_expected"] .tt-ma__glyph { color: var(--tt-info); }
+.tt-ma__picker button[data-choice="below_par"]   .tt-ma__glyph { color: var(--tt-warning); }
+.tt-ma__picker button[data-choice=""] { color: var(--tt-muted); border-top: 1px solid var(--tt-line-soft); border-radius: 0; }
+
+/* ── E. buckets ───────────────────────────────────────────────────── */
+
+.tt-ma__pool { display: flex; flex-wrap: wrap; gap: var(--tt-sp-2); margin: 0 0 var(--tt-sp-3); padding: 0; list-style: none; }
+.tt-ma__pool button, .tt-ma__bucket button {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: 999px; background: var(--tt-bg-soft);
+    font: inherit; font-size: var(--tt-fs-sm); cursor: pointer;
+}
+.tt-ma__pool button[aria-pressed="true"] { border-color: var(--tt-info); background: var(--tt-info-subtle); font-weight: 600; }
+.tt-ma__buckets { display: grid; gap: var(--tt-sp-3); }
+@media (min-width: 768px) { .tt-ma__buckets { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tt-ma__bucket { border: 1px dashed var(--tt-line); border-radius: var(--tt-radius); padding: var(--tt-sp-3); min-height: 110px; background: var(--tt-paper); }
+.tt-ma__bucket h3 { margin: 0 0 var(--tt-sp-2); font-size: var(--tt-fs-sm); }
+.tt-ma__bucket--up { border-color: var(--tt-success); }
+.tt-ma__bucket--ok { border-color: var(--tt-info); }
+.tt-ma__bucket--dn { border-color: var(--tt-warning); }
+.tt-ma__bucket ul { display: flex; flex-direction: column; gap: var(--tt-sp-2); margin: 0; padding: 0; list-style: none; align-items: flex-start; }
+
+/* ── today's rendering, for reference ─────────────────────────────── */
+
+.before { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: var(--tt-sp-4); margin-bottom: var(--tt-sp-5); }
+.before .stack { display: flex; flex-direction: column; gap: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="only" id="only-a"></span><span class="only" id="only-b"></span><span class="only" id="only-c"></span><span class="only" id="only-d"></span><span class="only" id="only-e"></span><span class="only" id="only-f"></span>
+
+<h1>Player marker — four stacked radios, four ways out</h1>
+<p class="lede">
+  Same fourteen-player squad in every variant, so the comparison is about how each one scales.
+  All four keep the same three markers and the same stored data
+  (<code>players[ID][marker]</code> + note + phase) — only the interaction changes.
+  <strong>D and E are live: click them.</strong>
+</p>
+
+<nav class="nav">
+  <a href="#only-a">A — segmented</a>
+  <a href="#only-b">B — chips</a>
+  <a href="#only-c">C — glyph row</a>
+  <a href="#only-d">D — tally sheet</a>
+  <a href="#only-f">F — grid + picker</a>
+  <a href="#only-e">E — buckets</a>
+  <a href="./">all</a>
+</nav>
+
+<div class="before">
+  <h2 style="margin-top:0">Today</h2>
+  <p class="note" style="color:var(--tt-muted)">One player as it renders now — six rows before the note field starts, times fourteen.</p>
+  <div class="stack">
+    <strong>Thijs</strong>
+    <label><input type="radio" name="now" checked /> Niet genoemd</label>
+    <label><input type="radio" name="now" /> Sprong eruit</label>
+    <label><input type="radio" name="now" /> Zoals verwacht</label>
+    <label><input type="radio" name="now" /> Kwam tekort</label>
+  </div>
+</div>
+
+<div class="variants">
+
+  <section class="variant va">
+    <h2>A — Segmented control</h2>
+    <p class="note">Four equal segments in one pill, full width on mobile. Every state is readable without tapping, which is what makes it safe for a control most rows never leave.</p>
+    <ul class="tt-ma__players" data-render="a"></ul>
+    <p class="verdict"><strong>Trade-off:</strong> the Dutch labels wrap to two lines at 360px. Fixable by shortening the vocabulary (Eruit / Verwacht / Tekort) — a copy decision, not a CSS one. Fourteen of these is still a long page.</p>
+  </section>
+
+  <section class="variant vb">
+    <h2>B — Three chips, no fourth state</h2>
+    <p class="note">"Niet genoemd" stops being an option and becomes the absence of one. Three targets instead of four; clearing is a small link that appears once something is set.</p>
+    <ul class="tt-ma__players" data-render="b"></ul>
+    <p class="verdict"><strong>Trade-off:</strong> full words fit, but the chips wrap at 360px and "how do I undo this" is something the coach has to discover.</p>
+  </section>
+
+  <section class="variant vc">
+    <h2>C — Glyph row per player</h2>
+    <p class="note">Four 44px cells (— ▲ ● ▼) on the same line as the name. Still a form per player, but the tightest version of one.</p>
+    <ul class="tt-ma__players" data-render="c"></ul>
+    <p class="verdict"><strong>Trade-off:</strong> a glyph has to be learned. ▲/▼ read as up/down, which is the right metaphor, but first use needs the tooltip or the state line to teach it.</p>
+  </section>
+
+  <section class="variant vd">
+    <h2>D — Tally sheet: tap a name to tag it <em class="rec">— live, click the names</em></h2>
+    <p class="note">
+      The squad is a grid of names, not a stack of forms. Tapping a name cycles it
+      — → ▲ → ● → ▼ → —, and only the players you tagged grow a note field, underneath.
+      Marking three players out of fourteen costs three taps and shows exactly three text inputs.
+    </p>
+
+    <div class="tt-ma__legend">
+      <span><span class="tt-ma__glyph tt-ma__glyph--up">▲</span> sprong eruit</span>
+      <span><span class="tt-ma__glyph tt-ma__glyph--ok">●</span> zoals verwacht</span>
+      <span><span class="tt-ma__glyph tt-ma__glyph--dn">▼</span> kwam tekort</span>
+      <span>tik door tot leeg om te wissen</span>
+    </div>
+
+    <ul class="tt-ma__tally" data-render="d-tally"></ul>
+
+    <div class="tt-ma__tagged-head">
+      <strong style="color:var(--tt-ink)">Toelichting</strong>
+      <span data-render="d-count"></span>
+    </div>
+    <ul class="tt-ma__tagged" data-render="d-tagged"></ul>
+    <p class="tt-ma__tagged-empty" data-render="d-empty" hidden>Nog niemand genoemd — dat mag.</p>
+
+    <p class="verdict">
+      <strong>Why this one:</strong> the whole squad stays visible, so nobody is quietly skipped — the reason
+      the roster is listed at all — but the form only exists where the coach has something to say.
+      Fourteen players fit on one phone screen.<br>
+      <strong>Trade-off:</strong> cycling has to be taught (the legend does it), and it needs JS. Without JS it
+      degrades to today's rendering — every player, every field — so nothing is lost, it is just less pleasant.
+    </p>
+  </section>
+
+  <section class="variant vf">
+    <h2>F — Tally grid, direct choice <em class="rec">— live, click the names</em></h2>
+    <p class="note">
+      D's layout with C's directness: the squad is still a grid of names, but tapping one opens a
+      three-way picker instead of cycling. Always two taps, in any direction, with the options
+      named in words — nothing to learn and nothing to cycle past.
+    </p>
+
+    <div class="tt-ma__legend">
+      <span><span class="tt-ma__glyph tt-ma__glyph--up">▲</span> sprong eruit</span>
+      <span><span class="tt-ma__glyph tt-ma__glyph--ok">●</span> zoals verwacht</span>
+      <span><span class="tt-ma__glyph tt-ma__glyph--dn">▼</span> kwam tekort</span>
+    </div>
+
+    <ul class="tt-ma__tally" data-render="f-tally"></ul>
+
+    <div class="tt-ma__tagged-head">
+      <strong style="color:var(--tt-ink)">Toelichting</strong>
+      <span data-render="f-count"></span>
+    </div>
+    <ul class="tt-ma__tagged" data-render="f-tagged"></ul>
+
+    <p class="verdict">
+      <strong>What it fixes:</strong> D's two weak points — the cycle you have to learn, and "below par"
+      costing three taps — without giving up the compact grid. Screen readers get a normal menu of
+      three named options rather than a button whose meaning changes each press.<br>
+      <strong>Trade-off:</strong> a popover is more moving parts than a radio, and it still needs JS.
+    </p>
+  </section>
+
+  <section class="variant ve">
+    <h2>E — Three buckets <em class="rec">— live, click a name then a bucket</em></h2>
+    <p class="note">Tap a name in the pool, then tap a bucket. The buckets read back as the summary the coach will actually say out loud on Monday.</p>
+    <ul class="tt-ma__pool" data-render="e-pool"></ul>
+    <div class="tt-ma__buckets">
+      <div class="tt-ma__bucket tt-ma__bucket--up"><h3>▲ Sprong eruit</h3><ul data-bucket="stood_out"></ul></div>
+      <div class="tt-ma__bucket tt-ma__bucket--ok"><h3>● Zoals verwacht</h3><ul data-bucket="as_expected"></ul></div>
+      <div class="tt-ma__bucket tt-ma__bucket--dn"><h3>▼ Kwam tekort</h3><ul data-bucket="below_par"></ul></div>
+    </div>
+    <p class="verdict"><strong>Trade-off:</strong> two taps per player instead of one, and on a phone the three buckets stack, so the pool and the bucket you are aiming at are rarely on screen together. Reads best on a laptop, which is not where this gets filled in.</p>
+  </section>
+
+</div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var SQUAD = [
+        { id: 1,  name: 'Thijs',  min: 60, marker: '' },
+        { id: 2,  name: 'Senna',  min: 45, marker: 'stood_out', plan: 'eerder inschuiven bij balbezit', note: 'Nam de bal twee keer in de draai aan onder druk.', phase: 'Aanvallen' },
+        { id: 3,  name: 'Daan P', min: 70, marker: '' },
+        { id: 4,  name: 'Daan A', min: 70, marker: 'below_par', note: 'Stopte met terugzakken na een uur.', phase: 'Omschakelen naar verdedigen' },
+        { id: 5,  name: 'Javi',   min: 25, marker: '' },
+        { id: 6,  name: 'Mees',   min: 60, marker: 'as_expected' },
+        { id: 7,  name: 'Luuk',   min: 70, marker: '' },
+        { id: 8,  name: 'Sem',    min: 35, marker: '', plan: 'de bal vasthouden onder druk' },
+        { id: 9,  name: 'Noud',   min: 70, marker: '' },
+        { id: 10, name: 'Tygo',   min: 15, marker: '' },
+        { id: 11, name: 'Finn',   min: 70, marker: '' },
+        { id: 12, name: 'Cas B',  min: 40, marker: '' },
+        { id: 13, name: 'Boaz',   min: 30, marker: '' },
+        { id: 14, name: 'Ravi',   min: 70, marker: '' }
+    ];
+
+    var MARKERS = [
+        { key: '',            label: 'Niet genoemd',  short: '—',              glyph: '—' },
+        { key: 'stood_out',   label: 'Sprong eruit',  short: 'Sprong<br>eruit', glyph: '▲' },
+        { key: 'as_expected', label: 'Zoals verwacht', short: 'Zoals<br>verwacht', glyph: '●' },
+        { key: 'below_par',   label: 'Kwam tekort',   short: 'Kwam<br>tekort',  glyph: '▼' }
+    ];
+
+    var GLYPH_CLASS = { stood_out: 'up', as_expected: 'ok', below_par: 'dn' };
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+    function markerOf(key) { for (var i = 0; i < MARKERS.length; i++) { if (MARKERS[i].key === key) return MARKERS[i]; } return MARKERS[0]; }
+    function el(sel) { return document.querySelector('[data-render="' + sel + '"]'); }
+
+    // ---- A / B / C: one row per player -------------------------------
+
+    function head(p) {
+        return '<div class="tt-ma__player-head">'
+            + '<span class="tt-ma__player-name">' + esc(p.name) + '</span>'
+            + '<span class="tt-ma__player-min">' + p.min + "'</span>"
+            + '</div>'
+            + (p.plan ? '<p class="tt-ma__player-plan">Gevraagd om: ' + esc(p.plan) + '</p>' : '');
+    }
+
+    function fields(p) {
+        if (!p.marker) return '';
+        return '<input class="tt-ma__player-note" type="text" value="' + esc(p.note || '') + '" placeholder="Wat deed hij precies?" />'
+            + '<select class="tt-ma__player-tag"><option>' + esc(p.phase || 'Geen specifieke fase') + '</option><option>Geen specifieke fase</option></select>';
+    }
+
+    function radios(p, variant, keys, render) {
+        var out = '<div class="tt-ma__markers" role="radiogroup" aria-label="Hoe deed ' + esc(p.name) + ' het?">';
+        keys.forEach(function (key) {
+            var m  = markerOf(key);
+            var id = variant + p.id + '-' + (key || 'none');
+            out += '<input type="radio" class="tt-ma__marker-input" id="' + id + '" name="' + variant + p.id + '"'
+                + (p.marker === key ? ' checked' : '') + ' />'
+                + '<label class="tt-ma__marker" for="' + id + '" data-marker="' + key + '"'
+                + (variant === 'c' ? ' title="' + esc(m.label) + '"' : '') + '>'
+                + render(m) + '</label>';
+        });
+        if (variant === 'b' && p.marker) {
+            out += '<button type="button" class="tt-ma__clear">wissen</button>';
+        }
+        out += '</div>';
+        return out;
+    }
+
+    function renderRows(target, variant, keys, render, extra) {
+        el(target).innerHTML = SQUAD.map(function (p) {
+            return '<li class="tt-ma__player">'
+                + head(p)
+                + radios(p, variant, keys, render)
+                + (extra ? extra(p) : '')
+                + fields(p)
+                + '</li>';
+        }).join('');
+    }
+
+    renderRows('a', 'a', ['', 'stood_out', 'as_expected', 'below_par'], function (m) { return m.short; });
+    renderRows('b', 'b', ['stood_out', 'as_expected', 'below_par'], function (m) { return m.label; });
+    renderRows('c', 'c', ['', 'stood_out', 'as_expected', 'below_par'], function (m) { return m.glyph; }, function (p) {
+        return p.marker ? '<span class="tt-ma__marker-state">' + esc(markerOf(p.marker).label) + '</span>' : '';
+    });
+
+    // ---- D: tally sheet ----------------------------------------------
+
+    var tags = {};
+    SQUAD.forEach(function (p) { tags[p.id] = p.marker; });
+
+    function renderTally() {
+        el('d-tally').innerHTML = SQUAD.map(function (p) {
+            var m = markerOf(tags[p.id]);
+            return '<li><button type="button" class="tt-ma__tag-btn" data-marker="' + tags[p.id] + '" data-id="' + p.id + '"'
+                + ' aria-label="' + esc(p.name) + ' — ' + esc(m.label) + '">'
+                + '<span class="tt-ma__tag-name">' + esc(p.name) + '</span>'
+                + '<span class="tt-ma__tag-mark">' + m.glyph + '</span>'
+                + '</button></li>';
+        }).join('');
+
+        var tagged = SQUAD.filter(function (p) { return tags[p.id]; });
+
+        el('d-count').textContent = tagged.length + ' van ' + SQUAD.length + ' genoemd';
+        el('d-empty').hidden = tagged.length > 0;
+
+        el('d-tagged').innerHTML = tagged.map(function (p) {
+            var m = markerOf(tags[p.id]);
+            return '<li data-marker="' + tags[p.id] + '">'
+                + '<span class="tt-ma__tagged-title">'
+                + '<span class="tt-ma__glyph tt-ma__glyph--' + GLYPH_CLASS[tags[p.id]] + '">' + m.glyph + '</span> '
+                + esc(p.name)
+                + ' <small>' + p.min + "'" + (p.plan ? ' · gevraagd om: ' + esc(p.plan) : '') + '</small>'
+                + '</span>'
+                + '<input class="tt-ma__player-note" type="text" value="' + esc(p.note || '') + '" placeholder="Wat deed hij precies? (mag leeg blijven)" />'
+                + '<select class="tt-ma__player-tag"><option>' + esc(p.phase || 'Geen specifieke fase') + '</option><option>Geen specifieke fase</option></select>'
+                + '</li>';
+        }).join('');
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.tt-ma__tag-btn') : null;
+        if (!btn) return;
+        var id   = parseInt(btn.getAttribute('data-id'), 10);
+        var keys = MARKERS.map(function (m) { return m.key; });
+        var next = (keys.indexOf(tags[id]) + 1) % keys.length;
+        tags[id] = keys[next];
+        renderTally();
+    });
+
+    renderTally();
+
+    // ---- F: tally grid + direct-choice popover -------------------------
+
+    var ftags = {};
+    SQUAD.forEach(function (p) { ftags[p.id] = p.marker; });
+    var open = null;
+
+    function taggedList(target, countTarget, state) {
+        var tagged = SQUAD.filter(function (p) { return state[p.id]; });
+        el(countTarget).textContent = tagged.length + ' van ' + SQUAD.length + ' genoemd';
+        el(target).innerHTML = tagged.map(function (p) {
+            var m = markerOf(state[p.id]);
+            return '<li data-marker="' + state[p.id] + '">'
+                + '<span class="tt-ma__tagged-title">'
+                + '<span class="tt-ma__glyph tt-ma__glyph--' + GLYPH_CLASS[state[p.id]] + '">' + m.glyph + '</span> '
+                + esc(p.name)
+                + ' <small>' + p.min + "'" + (p.plan ? ' · gevraagd om: ' + esc(p.plan) : '') + '</small>'
+                + '</span>'
+                + '<input class="tt-ma__player-note" type="text" value="' + esc(p.note || '') + '" placeholder="Wat deed hij precies? (mag leeg blijven)" />'
+                + '<select class="tt-ma__player-tag"><option>' + esc(p.phase || 'Geen specifieke fase') + '</option><option>Geen specifieke fase</option></select>'
+                + '</li>';
+        }).join('');
+    }
+
+    function renderF() {
+        el('f-tally').innerHTML = SQUAD.map(function (p) {
+            var m = markerOf(ftags[p.id]);
+            var out = '<li><button type="button" class="tt-ma__tag-btn" data-marker="' + ftags[p.id] + '" data-pick-id="' + p.id + '"'
+                + ' aria-haspopup="true" aria-expanded="' + (open === p.id) + '"'
+                + ' aria-label="' + esc(p.name) + ' — ' + esc(m.label) + '">'
+                + '<span class="tt-ma__tag-name">' + esc(p.name) + '</span>'
+                + '<span class="tt-ma__tag-mark">' + m.glyph + '</span>'
+                + '</button>';
+
+            if (open === p.id) {
+                out += '<div class="tt-ma__picker" role="menu">'
+                    + ['stood_out', 'as_expected', 'below_par'].map(function (key) {
+                        var mm = markerOf(key);
+                        return '<button type="button" role="menuitem" data-choice="' + key + '" data-choice-id="' + p.id + '">'
+                            + '<span class="tt-ma__glyph">' + mm.glyph + '</span> ' + esc(mm.label) + '</button>';
+                    }).join('')
+                    + (ftags[p.id] ? '<button type="button" role="menuitem" data-choice="" data-choice-id="' + p.id + '">wissen</button>' : '')
+                    + '</div>';
+            }
+
+            return out + '</li>';
+        }).join('');
+
+        taggedList('f-tagged', 'f-count', ftags);
+    }
+
+    document.addEventListener('click', function (e) {
+        var choice = e.target.closest ? e.target.closest('[data-choice-id]') : null;
+        if (choice) {
+            ftags[parseInt(choice.getAttribute('data-choice-id'), 10)] = choice.getAttribute('data-choice');
+            open = null;
+            renderF();
+            return;
+        }
+
+        var toggle = e.target.closest ? e.target.closest('[data-pick-id]') : null;
+        if (toggle) {
+            var id = parseInt(toggle.getAttribute('data-pick-id'), 10);
+            open = open === id ? null : id;
+            renderF();
+            return;
+        }
+
+        if (open !== null) { open = null; renderF(); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && open !== null) { open = null; renderF(); }
+    });
+
+    renderF();
+
+    // ---- E: buckets ---------------------------------------------------
+
+    var buckets = {};
+    SQUAD.forEach(function (p) { buckets[p.id] = p.marker; });
+    var picked = null;
+
+    function renderBuckets() {
+        el('e-pool').innerHTML = SQUAD.filter(function (p) { return !buckets[p.id]; }).map(function (p) {
+            return '<li><button type="button" data-pick="' + p.id + '" aria-pressed="' + (picked === p.id) + '">'
+                + esc(p.name) + '</button></li>';
+        }).join('');
+
+        ['stood_out', 'as_expected', 'below_par'].forEach(function (key) {
+            var ul = document.querySelector('[data-bucket="' + key + '"]');
+            ul.innerHTML = SQUAD.filter(function (p) { return buckets[p.id] === key; }).map(function (p) {
+                return '<li><button type="button" data-unpick="' + p.id + '">' + esc(p.name) + ' ' + p.min + "'</button></li>";
+            }).join('');
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        var t = e.target.closest ? e.target : null;
+        if (!t) return;
+
+        var pick = t.closest('[data-pick]');
+        if (pick) { picked = parseInt(pick.getAttribute('data-pick'), 10); renderBuckets(); return; }
+
+        var unpick = t.closest('[data-unpick]');
+        if (unpick) { buckets[parseInt(unpick.getAttribute('data-unpick'), 10)] = ''; renderBuckets(); return; }
+
+        var bucket = t.closest('.tt-ma__bucket');
+        if (bucket && picked) {
+            buckets[picked] = bucket.querySelector('[data-bucket]').getAttribute('data-bucket');
+            picked = null;
+            renderBuckets();
+        }
+    });
+
+    renderBuckets();
+}());
+</script>
+</body>
+</html>

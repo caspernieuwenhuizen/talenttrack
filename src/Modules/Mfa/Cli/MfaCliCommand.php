@@ -124,8 +124,10 @@ final class MfaCliCommand {
         $ref  = (string) ( $args[0] ?? '' );
         $user = is_numeric( $ref ) ? get_userdata( (int) $ref ) : ( get_user_by( 'login', $ref ) ?: get_user_by( 'email', $ref ) );
         if ( ! $user instanceof \WP_User ) {
+            // No `return` after this: WP_CLI::error() terminates the process.
+            // The statement that used to sit here was dead, and invisible while
+            // PHPStan had no idea what WP_CLI was (#2981).
             \WP_CLI::error( sprintf( /* translators: %s: the user reference the operator typed */ __( 'No user found for "%s" (tried id, login, email).', 'talenttrack' ), $ref ) );
-            return;
         }
         $repo = new MfaSecretsRepository();
         if ( $repo->findByUserId( (int) $user->ID ) === null ) {

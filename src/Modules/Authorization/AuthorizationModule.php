@@ -52,6 +52,9 @@ class AuthorizationModule implements ModuleInterface {
         // #0071 child 5 — impersonation banner + daily orphan cleanup cron.
         Impersonation\ImpersonationBanner::init();
         Impersonation\ImpersonationCron::init();
+        // #2861 — the read side. The log has been written since migration
+        // 0056 with nothing able to query it back.
+        \TT\Infrastructure\REST\ImpersonationRestController::init();
         // #1449 — the Impersonate admin page's menu row is now registered
         // declaratively via AdminMenuRegistry (CoreSurfaceRegistration),
         // so ImpersonationPage no longer self-hooks admin_menu.

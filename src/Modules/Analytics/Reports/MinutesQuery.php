@@ -416,6 +416,65 @@ final class MinutesQuery {
     }
 
     /**
+     * #2864 — one player's appearances and minutes across a window,
+     * regardless of which team the matches belonged to.
+     *
+     * Every other method here is team-first, because the minutes reports
+     * are. The goal-intake sheet is player-first: it is printed for one
+     * player before a season-goals conversation, and that player may have
+     * moved age group inside the window.
+     *
+     * The predicate is deliberately identical to `matchCountsForTeam()`'s
+     * `recorded` branch, minus the team constraint. That is the whole
+     * point of the method existing: before this, the intake sheet ran its
+     * own SQL with no activity-type filter, no archived / trashed /
+     * cancelled guard, no upper date bound and no `record_type` filter, so
+     * it printed a coach's trainings and next month's fixtures as matches
+     * played. A sheet claiming 35 matches and 300 minutes cannot be both,
+     * and a coach cannot tell which half to believe.
+     *
+     * Appearances require recorded minutes, matching `recorded`. A player
+     * marked present for a match they did not enter is not an appearance,
+     * and counting them here while the minutes report does not would
+     * recreate the disagreement in a smaller form.
+     *
+     * @return array{apps:int, minutes:int}
+     */
+    public function seasonTotalsForPlayer( int $player_id, string $from, string $to ): array {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        if ( $player_id <= 0 ) return [ 'apps' => 0, 'minutes' => 0 ];
+
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT( DISTINCT att.activity_id ) AS apps,
+                    COALESCE( SUM( COALESCE( att.minutes_override, att.minutes_played, 0 ) ), 0 ) AS minutes
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+              WHERE a.club_id = %d
+                AND att.player_id = %d
+                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND att.record_type = 'actual'
+                AND att.is_guest = 0
+                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
+            $club_id, $player_id, $from, $to
+        ) );
+
+        return [
+            'apps'    => (int) ( $row->apps ?? 0 ),
+            'minutes' => (int) ( $row->minutes ?? 0 ),
+        ];
+    }
+
+    /**
      * #2160 — per-match minutes breakdown for ONE player on a team over a
      * date window. Reads the exact same source as {@see forTeam()}:
      * persisted `record_type = 'actual'` minutes ONLY (#2193 — no report-

@@ -105,6 +105,45 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
+        // #2876 — this used to read `$player->potential_band`, a column
+        // `tt_players` does not have. Reading a missing property on a wpdb
+        // row is silent, so the ternary took its else branch every time and
+        // the popover opened blank for every player, whatever was on record.
+        // Potential lives in `tt_player_potential` as dated history rows;
+        // the repository that owns them is the only thing that knows the
+        // current band.
+        //
+        // Blank is not a harmless default here. A coach who cannot see what
+        // the academy currently thinks records a fresh guess instead of a
+        // revision, and every save appends a row — so the history filled with
+        // re-statements that read as changes of mind.
+        $latest_potential = ( new \TT\Modules\Players\Repositories\PlayerPotentialRepository() )
+            ->latestFor( $player_id );
+
+        $current_band = $latest_potential ? (string) ( $latest_potential->potential_band ?? '' ) : '';
+        $set_at       = $latest_potential ? (string) ( $latest_potential->set_at ?? '' ) : '';
+        $set_by_id    = $latest_potential ? (int) ( $latest_potential->set_by ?? 0 ) : 0;
+        $set_by_name  = '';
+        if ( $set_by_id > 0 ) {
+            $setter = get_userdata( $set_by_id );
+            if ( $setter instanceof \WP_User ) {
+                $set_by_name = (string) $setter->display_name;
+            }
+        }
+
+        // "First team, set by Kevin in March" is a different prompt from a
+        // bare pre-selected radio — it tells the coach whether the standing
+        // judgement is current enough to be worth revising.
+        $current_potential_meta = '';
+        if ( $current_band !== '' && $set_at !== '' ) {
+            $when = mysql2date( get_option( 'date_format' ), $set_at, true );
+            $current_potential_meta = $set_by_name !== ''
+                /* translators: 1: localised date, 2: name of the person who set it */
+                ? sprintf( __( 'Set on %1$s by %2$s', 'talenttrack' ), $when, $set_by_name )
+                /* translators: %s: localised date */
+                : sprintf( __( 'Set on %s', 'talenttrack' ), $when );
+        }
+
         wp_localize_script( 'tt-frontend-player-hero-popovers', 'TTPlayerHeroPopovers', [
             'rest_url'                => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
             'rest_nonce'              => wp_create_nonce( 'wp_rest' ),
@@ -113,7 +152,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'rating_max'              => $rmax,
             'activities'              => $activities,
             'potential_bands'         => $bands,
-            'current_potential_band'  => isset( $player->potential_band ) ? (string) $player->potential_band : '',
+            'current_potential_band'  => $current_band,
+            'current_potential_meta'  => $current_potential_meta,
             'history_url'             => $history_url,
             'i18n' => [
                 'close'                => __( 'Close',                       'talenttrack' ),
@@ -578,8 +618,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 </button>
             <?php endif; ?>
             <?php if ( $can_edit ) : ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $edit_url ); ?>">
-                    <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
+                <?php
+                // #2871 — Edit is a pencil beside the ⋯ rather than a text
+                // button at the far left. It is the one action taken on the
+                // record itself, and a full-width label bought it a row of
+                // header height that pushed the profile below the fold on a
+                // phone. The label survives as both the accessible name and
+                // the hover title, so the msgid does not change.
+                $edit_label = __( 'Edit', 'talenttrack' );
+                ?>
+                <a class="tt-player-action tt-player-action--edit"
+                   href="<?php echo esc_url( $edit_url ); ?>"
+                   aria-label="<?php echo esc_attr( $edit_label ); ?>"
+                   title="<?php echo esc_attr( $edit_label ); ?>">
+                    <?php
+                    echo \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 18, 'height' => 18 ] );
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    ?>
                 </a>
             <?php endif; ?>
             <?php if ( $has_overflow ) : ?>
@@ -1659,7 +1714,63 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #2895 — BMI-for-age sits at the top of the tab, above the per-test
+        // rows it is derived from. It is the third surface decision 3 called
+        // for, and it renders through the same BmiBlock the report does, so a
+        // coach reading a player's file and a coach reading the roster report
+        // cannot be shown different percentiles for the same child.
+        self::renderBmiBlock( $player_id );
+
         \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::renderBody( $player_id );
+    }
+
+    /**
+     * The BMI-for-age block on the Measurements tab.
+     *
+     * Renders nothing at all when the report is switched off for the academy,
+     * or when this player has no usable height/weight pair and no age the
+     * reference covers — an empty framed box on a player's file is noise, and
+     * the roster report is where "who is missing data" belongs.
+     */
+    private static function renderBmiBlock( int $player_id ): void {
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
+            return;
+        }
+
+        $query  = new \TT\Modules\Measurements\Reports\BmiQuery();
+        $series = $query->playerSeries( $player_id );
+        if ( $series === [] ) {
+            return;
+        }
+
+        $latest = $series[ count( $series ) - 1 ];
+        $prev   = count( $series ) >= 2 ? $series[ count( $series ) - 2 ] : null;
+
+        $row = [
+            'bmi'           => $latest['bmi'],
+            'sds'           => $latest['sds'],
+            'percentile'    => $latest['percentile'],
+            'covered'       => $latest['sds'] !== null,
+            'date'          => $latest['date'],
+            'gap_days'      => $latest['gap_days'],
+            'previous_date' => $prev === null ? null : $prev['date'],
+            'delta_sds'     => ( $prev !== null && $latest['sds'] !== null && $prev['sds'] !== null )
+                ? round( (float) $latest['sds'] - (float) $prev['sds'], 2 )
+                : null,
+        ];
+
+        wp_enqueue_style(
+            'tt-frontend-bmi',
+            TT_PLUGIN_URL . 'assets/css/frontend-bmi.css',
+            [],
+            TT_VERSION
+        );
+
+        echo '<section class="tt-bmi-section">';
+        echo '<h3>' . esc_html__( 'BMI-for-age', 'talenttrack' ) . '</h3>';
+        \TT\Modules\Measurements\Frontend\BmiBlock::renderStanding( $row );
+        \TT\Modules\Measurements\Frontend\BmiBlock::renderCaveat( $query );
+        echo '</section>';
     }
 
     /** Activities tab — recent attended + planned activities for the player. */

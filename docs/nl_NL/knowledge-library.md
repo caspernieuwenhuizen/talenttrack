@@ -1,16 +1,16 @@
 ---
-title: Kennisbank
+title: Cursussen
 group: development
 summary: Cursussen voor trainersontwikkeling, geleverd als markdown en gelezen in de app.
 audience: [admin, dev]
-views: [knowledge, course, lesson, my-learning, submission-review]
+views: [courses, course, lesson, my-learning, submission-review]
 module: TT\Modules\Knowledge\KnowledgeModule
 feature: knowledge_courses
 tier: standard
 order: 75
 ---
 
-# Kennisbank
+# Cursussen
 
 De kennisbank bevat cursussen voor trainersontwikkeling. Een cursus wordt met
 de plug-in meegeleverd als markdown, wordt in de app gelezen, houdt voortgang
@@ -321,7 +321,7 @@ academie heeft uitgezet.
 
 ### Navigatie (CLAUDE.md §5)
 
-De keten is `Dashboard › Kennisbank › Cursus › Les`. De cursuskruimel is de weg
+De keten is `Dashboard › Cursussen › Cursus › Les`. De cursuskruimel is de weg
 terug naar de cursus en de kennisbankkruimel de weg terug naar de bibliotheek —
 er is geen aparte terugknop, want dat zou de derde affordance zijn die §5a
 verbiedt.

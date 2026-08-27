@@ -3,6 +3,7 @@ namespace TT\Modules\Push\Dispatchers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Invitations\PlayerParentsRepository;
@@ -67,10 +68,9 @@ final class ParentEmailDispatcher implements DispatcherInterface {
         $out  = [];
         $seen = [];
         foreach ( $this->parentUserIdsFor( $player_id ) as $parent_user_id ) {
-            $u = get_userdata( $parent_user_id );
-            if ( ! $u || empty( $u->user_email ) ) continue;
+            $email = ContactResolver::emailForParent( (int) $parent_user_id );
+            if ( $email === null ) continue;
 
-            $email = (string) $u->user_email;
             if ( isset( $seen[ $email ] ) ) continue;
             $seen[ $email ] = true;
 
@@ -78,7 +78,7 @@ final class ParentEmailDispatcher implements DispatcherInterface {
                 (int) $parent_user_id,
                 $player_id,
                 $email,
-                (string) get_user_meta( $parent_user_id, 'tt_phone', true ),
+                (string) ( ContactResolver::phoneForUser( (int) $parent_user_id ) ?? '' ),
                 (string) get_user_meta( $parent_user_id, 'locale', true )
             );
         }
@@ -101,10 +101,8 @@ final class ParentEmailDispatcher implements DispatcherInterface {
 
         $emails = [];
         foreach ( $this->parentUserIdsFor( $player_id ) as $pid ) {
-            $u = get_userdata( $pid );
-            if ( $u && ! empty( $u->user_email ) ) {
-                $emails[] = (string) $u->user_email;
-            }
+            $email = ContactResolver::emailForParent( (int) $pid );
+            if ( $email !== null ) $emails[] = $email;
         }
         return array_values( array_unique( $emails ) );
     }

@@ -49,6 +49,82 @@ class MatchPrepRepository {
         return $row ?: null;
     }
 
+    /** #2892 — one prep by its own id, club-scoped like every other read. */
+    public function find( int $prep_id ): ?object {
+        if ( $prep_id <= 0 ) return null;
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_prep} WHERE id = %d AND club_id = %d",
+            $prep_id, CurrentClub::id()
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #2892 — lookup by uuid, for the share route.
+     *
+     * Deliberately NOT club-scoped: the share link is resolved before
+     * login, so there is no current club to scope to — `CurrentClub::id()`
+     * on a logged-out request would answer for the wrong tenant or for
+     * none. The uuid is unique across the table (`uniq_uuid`, migration
+     * 0118), and the HMAC is what actually authorises the read; the caller
+     * verifies it before doing anything with this row.
+     */
+    public function findByUuid( string $uuid ): ?object {
+        $uuid = trim( $uuid );
+        if ( $uuid === '' ) return null;
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_prep} WHERE uuid = %s",
+            $uuid
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #2892 — the prep's share-token seed, initialising it on first read.
+     *
+     * Lazily rather than at insert: a prep nobody has shared should not be
+     * carrying a secret. Seeded from the uuid, which is cryptographically
+     * random by construction, exactly as the analysis and blueprint
+     * repositories do.
+     */
+    public function ensureShareTokenSeed( int $prep_id ): string {
+        $row = $this->find( $prep_id );
+        if ( ! $row ) return '';
+
+        $seed = (string) ( $row->share_token_seed ?? '' );
+        if ( $seed !== '' ) return $seed;
+
+        $seed = (string) ( $row->uuid ?? '' );
+        if ( $seed === '' ) return '';
+
+        $this->wpdb->update(
+            $this->t_prep,
+            [ 'share_token_seed' => $seed ],
+            [ 'id' => $prep_id, 'club_id' => CurrentClub::id() ]
+        );
+        return $seed;
+    }
+
+    /**
+     * #2892 — replace the seed, invalidating every previously issued share
+     * URL for this prep. Returns the new seed.
+     *
+     * This is the revocation the seed exists for: a shared prep names
+     * minors and says which of them is expected to start, so a coach who
+     * sent a link to the wrong group needs a way to make it stop working.
+     */
+    public function rotateShareTokenSeed( int $prep_id ): string {
+        if ( $prep_id <= 0 ) return '';
+
+        $seed = wp_generate_password( 16, false );
+        $this->wpdb->update(
+            $this->t_prep,
+            [ 'share_token_seed' => $seed ],
+            [ 'id' => $prep_id, 'club_id' => CurrentClub::id() ]
+        );
+        return $seed;
+    }
+
     /**
      * Find-or-create the prep row for an activity. Returns the row's id.
      *

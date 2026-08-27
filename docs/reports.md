@@ -74,6 +74,8 @@ Both the team report and the player report carry the same filtering vocabulary a
 
 **Scope note.** When you only coach some teams, the attendance reports show just those teams. If your filters return nothing, the empty-state message says the report is **limited to the teams you coach**, so an empty window doesn't read as "the academy has no data".
 
+**Expanding a team you cannot read says so.** On the team attendance report, each row expands into its per-player breakdown. If you are not allowed to read that team's players, the expansion now says **you do not have access to this team's players** — where it previously said there was no attendance in the window, which was a claim about the data rather than about your access, and could sit directly under a row reporting 92.9% present.
+
 On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
 
 ## Saving a filter set as a named view (v4.x+)

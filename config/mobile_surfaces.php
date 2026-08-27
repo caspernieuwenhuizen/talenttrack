@@ -51,9 +51,11 @@
  * with `?force_mobile=1`.
  *
  * ADDING A SURFACE: add it here. A routable slug with no entry silently
- * falls to `viewable`, which is exactly how the previous list rotted. The
- * build step that turns that silence into a failure is #2812; until it
- * lands, this file is kept honest by hand.
+ * falls to `viewable`, which is exactly how the previous list rotted.
+ * `tools/check-mobile-classes.php` (#2812) turns that silence into a
+ * build failure, so a new surface cannot ship unclassified. It also
+ * fails an entry with no reason text, and one naming a slug the
+ * dispatcher no longer routes.
  *
  * @return array<string, array{0: string, 1: string}> slug => [class, why]
  */
@@ -105,9 +107,10 @@ return [
     'ideas-approval'                => [ 'viewable', 'Approving ideas — a queue.' ],
     'ideas-board'                   => [ 'viewable', 'The idea list — a queue, scannable one item at a time.' ],
     'ideas-refine'                  => [ 'viewable', 'Editing a submitted idea.' ],
-    'knowledge'                     => [ 'viewable', 'The course library index.' ],
+    'courses'                       => [ 'viewable', 'The course library index.' ],
     'mail-compose'                  => [ 'viewable', 'Writing a message. Usable on a phone; not frequent enough to design for.' ],
     'match-analysis-share'          => [ 'viewable', 'A token-gated link, opened wherever the recipient is. Reading a document is not authoring it.' ],
+    'match-prep-share'              => [ 'viewable', 'The same shape as match-analysis-share, and read on match day at the ground more often than at a desk (#2892).' ],
     'my-learning'                   => [ 'viewable', 'A coach’s own course progress.' ],
     'my-sessions'                   => [ 'viewable', 'Active sign-in sessions.' ],
     'my-settings'                   => [ 'viewable', 'Account preferences.' ],
@@ -119,6 +122,7 @@ return [
     'pdp'                           => [ 'viewable', 'Development plans, read more often than edited.' ],
     'people'                        => [ 'viewable', 'Staff and contacts. Lower frequency than players and teams; the responsive CSS is honest enough.' ],
     'player-attributes'             => [ 'viewable', 'One player’s chemistry attributes. Bulk entry argues for a desk, but gating it means the attributes never get filled and the engine computes on nulls.' ],
+    'prospect-edit'                 => [ 'viewable', 'Correcting a parent’s contact details or the consent date on one prospect (#2838). Four fields on one record, so none of the first three questions fires — but it is a correction made at a desk after the fact, not capture at the moment of seeing a player, which is what keeps it out of native.' ],
     'prospects-overview'            => [ 'viewable', 'A list view over the funnel.' ],
     'scout-history'                 => [ 'viewable', 'A scout’s own past activity.' ],
     'scout-my-players'              => [ 'viewable', 'A scout’s portfolio list.' ],
@@ -142,6 +146,7 @@ return [
     'reports'                       => [ 'read_only', 'Reading a report survives a phone. Assembling one does not.' ],
     'standard-report'               => [ 'read_only', 'The rendered output of a saved report.' ],
     'test-trends'                   => [ 'read_only', 'Trend lines read on a phone; the underlying table does not.' ],
+    'player-bmi'                    => [ 'read_only', 'Percentiles and the change since the last measurement read fine on a phone; the six-column roster table is a desk job.' ],
     'usage-stats'                   => [ 'read_only', 'Summary figures, readable; the drill-down is separate and gated.' ],
 
     /* ---- desktop_only (75) -------------------------------------------- */
@@ -164,9 +169,11 @@ return [
     'eval-categories'               => [ 'desktop_only', 'Evaluation vocabulary.' ],
     'eval-coverage'                 => [ 'desktop_only', 'A coverage matrix: who has been evaluated, by whom, across a squad.' ],
     'explore'                       => [ 'desktop_only', 'A dimension explorer. The insight is in seeing many rows at once.' ],
+    'exercises-import'              => [ 'desktop_only', 'CSV upload, then a wide check table of every row before it commits. The same call as players-import.' ],
     'exports'                       => [ 'desktop_only', 'Export construction.' ],
     'features'                      => [ 'desktop_only', 'Feature toggles, install-wide. What they change reaches past any one record.' ],
     'functional-roles'              => [ 'desktop_only', 'Functional-role assignment.' ],
+    'import-history'                => [ 'desktop_only', 'Undoing a whole spreadsheet batch. A data operation reaching well past one record, and not one to fat-finger on a phone.' ],
     'injuries'                      => [ 'desktop_only', 'Sensitive medical data, permission-gated and audit-logged. A considered desk entry is the safeguarding position.' ],
     'invitations-config'            => [ 'desktop_only', 'Invitation settings.' ],
     'lesson'                        => [ 'desktop_only', 'Lesson reading. Gated with `course`, for the same reason.' ],

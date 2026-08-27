@@ -30,20 +30,34 @@ can stop and pick up later from the same place.
  date format used across the plugin. These appear in the dashboard header,
  on player cards, and in printed reports. You can change them later under
  Configuration.
-3. **First team** — name your first team and pick its age group. Players,
+3. **Import your squad** — if you already keep your teams, players and staff
+ in a spreadsheet, bring them in here rather than typing them again.
+ Download the three-sheet template, fill it in, upload it. **Nothing is
+ saved until you confirm**: the first upload only reports what the file
+ contains and anything that needs fixing, and a file with problems leaves
+ the wizard exactly where it was. **Skip** if you have no spreadsheet.
+4. **First team** — name your first team and pick its age group. Players,
  evaluations, activities, and goals all attach to a team, so you need at
- least one. You can **Skip this step** if you would rather add teams
- later under Teams.
-4. **First admin** — creates a TalentTrack staff record for the signed-in
+ least one. If the import step already brought teams in, this step says so
+ and you can simply continue. You can **Skip this step** if you would
+ rather add teams later under Teams.
+5. **First admin** — creates a TalentTrack staff record for the signed-in
  account and links it to your WordPress user, so evaluations, activities,
  and notifications reference the right person. Tick **Grant me the Club
  Admin role** (recommended) to give yourself full management access.
-5. **Dashboard page** — creates the frontend page that hosts the
+6. **Add your staff** — add the coaches and staff who will use TalentTrack.
+ Give someone an email address and an invitation is prepared for them.
+ **Nobody is emailed yet**: invitations are held until you send them, so
+ you can finish setting up and look around before anyone is let in. When
+ you are ready, **Send N invitations and continue** releases them all. You
+ can also continue without sending — the invitations stay ready under
+ Configuration → Invitations, and nothing is lost.
+7. **Dashboard page** — creates the frontend page that hosts the
  `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so
  everyone lands on the dashboard when they sign in. If a page with the
  shortcode already exists it is reused, not duplicated. You can **Skip**
  this and set the homepage yourself later under Settings → Reading.
-6. **Done** — a summary of what was set up, with **Go to dashboard** and a
+8. **Done** — a summary of what was set up, with **Go to dashboard** and a
  **Run again** button.
 
 ## Stop and resume

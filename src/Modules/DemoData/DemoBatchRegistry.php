@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Import\ImportTagSink;
 
 /**
  * DemoBatchRegistry — thin wrapper around tt_demo_tags.
@@ -12,8 +13,14 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * plus optional extra_json (archetype for players, persistent:true for users,
  * seed for audit). All generators accept a registry instance and call
  * tag() after each insert.
+ *
+ * Satisfies `ImportTagSink` (#2955) so the Excel importer can record rows
+ * without knowing whether they are demo data or a club's real squad. Rows
+ * tagged here land in `tt_demo_tags` and are therefore reachable by
+ * `DemoDataCleaner` — which is correct for demo data and wrong for
+ * everything else.
  */
-class DemoBatchRegistry {
+class DemoBatchRegistry implements ImportTagSink {
 
     private string $batch_id;
 

@@ -1,8 +1,8 @@
 /**
- * TalentTrack — players CSV import flow
- * #0019 Sprint 3 session 3.2
+ * TalentTrack — CSV import flow
+ * #0019 Sprint 3 session 3.2; generalised for the exercise library in #2613.
  *
- * Three steps backed by one REST endpoint (POST /players/import):
+ * Three steps backed by one REST endpoint:
  *
  *   1. Upload — submit the form with dry_run=1; render preview.
  *   2. Preview — re-submit the same file with dry_run=0; render result.
@@ -11,6 +11,20 @@
  * Re-uploading the file on commit is fine for typical CSVs (≤1MB)
  * and keeps the endpoint stateless. If the user picks a different
  * file we restart from step 1.
+ *
+ * PER-ENTITY CONFIGURATION
+ *
+ * The flow is identical for every entity; only the endpoint and the
+ * preview columns differ. Both are read off the root element:
+ *
+ *   data-tt-csv-endpoint="exercises/import"
+ *   data-tt-csv-fields='[{"key":"name","label":"Exercise"}, …]'
+ *
+ * Both are optional and default to the players behaviour, so the
+ * players view keeps working without touching its markup. A second copy
+ * of this file per entity was the obvious alternative and the wrong one
+ * — the interesting parts here are the error handling and the
+ * re-upload-on-commit dance, and those should not be maintained twice.
  */
 (function(){
     'use strict';
@@ -50,16 +64,37 @@
         if (!file) return null;
         fd.append('file', file);
         fd.append('dry_run', dryRun ? '1' : '0');
+        // Only entities that have a duplicate policy render the radios.
         var dupe = form.querySelector('input[name="dupe_strategy"]:checked');
-        fd.append('dupe_strategy', dupe ? dupe.value : 'skip');
+        if (dupe) fd.append('dupe_strategy', dupe.value);
         return fd;
     }
 
-    function send(fd) {
+    function endpointFor(root) {
+        return root.getAttribute('data-tt-csv-endpoint') || 'players/import';
+    }
+
+    /**
+     * Preview columns, between the Row/Status and Notes columns the flow
+     * always renders. Absent means the players column set, so the
+     * original view needs no change.
+     */
+    function fieldsFor(root) {
+        var raw = root.getAttribute('data-tt-csv-fields');
+        if (!raw) return null;
+        try {
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function send(root, fd) {
         var rest = getRest();
         var headers = { 'Accept': 'application/json' };
         if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
-        return fetch(rest.url + 'players/import', {
+        return fetch(rest.url + endpointFor(root), {
             method: 'POST',
             credentials: 'same-origin',
             headers: headers,
@@ -93,22 +128,40 @@
         var tbody = root.querySelector('[data-tt-csv-preview-body="1"]');
         if (!tbody) return;
         tbody.innerHTML = '';
+        var fields = fieldsFor(root);
+
         (data.preview || []).forEach(function(p) {
             var tr = document.createElement('tr');
             var d = p.data || {};
+
+            // `messages` is the exercise importer's shape, `errors` the
+            // players one. Both are a list of reader-facing sentences.
             var note = '';
-            if (p.errors && p.errors.length) note = p.errors.join('; ');
+            if (p.messages && p.messages.length) note = p.messages.join('; ');
+            else if (p.errors && p.errors.length) note = p.errors.join('; ');
             else if (p.dupe_of) note = (window.TT && TT.i18n && TT.i18n.csv_dupe_of) ? TT.i18n.csv_dupe_of.replace('%d', String(p.dupe_of)) : 'Matches existing player #' + p.dupe_of;
+
             var i18n = (window.TT && TT.i18n) || {};
             var statusLabel = p.status === 'error' ? (i18n.csv_status_error || 'Error') : (p.status === 'warning' ? (i18n.csv_status_dupe || 'Dupe') : (i18n.csv_status_ok || 'OK'));
             var statusClass = p.status === 'error' ? 'tt-flash-error' : (p.status === 'warning' ? 'tt-flash-warning' : 'tt-flash-success');
-            tr.innerHTML =
+
+            var cells =
                 '<td data-label="' + escapeHtml(i18n.csv_col_row    || 'Row')    + '">' + escapeHtml(p.row_number) + '</td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_status || 'Status') + '"><span class="tt-flash ' + statusClass + '" style="display:inline-block; padding:2px 8px;">' + escapeHtml(statusLabel) + '</span></td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_player || 'Player') + '">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_dob    || 'DOB')    + '">' + escapeHtml(d.date_of_birth || '') + '</td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>' +
-                '<td data-label="' + escapeHtml(i18n.csv_col_notes  || 'Notes')  + '">' + escapeHtml(note) + '</td>';
+                '<td data-label="' + escapeHtml(i18n.csv_col_status || 'Status') + '"><span class="tt-flash tt-csv-status ' + statusClass + '">' + escapeHtml(statusLabel) + '</span></td>';
+
+            if (fields) {
+                fields.forEach(function(f) {
+                    cells += '<td data-label="' + escapeHtml(f.label || f.key) + '">' + escapeHtml(d[f.key] || '') + '</td>';
+                });
+            } else {
+                cells +=
+                    '<td data-label="' + escapeHtml(i18n.csv_col_player || 'Player') + '">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
+                    '<td data-label="' + escapeHtml(i18n.csv_col_dob    || 'DOB')    + '">' + escapeHtml(d.date_of_birth || '') + '</td>' +
+                    '<td data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>';
+            }
+
+            cells += '<td data-label="' + escapeHtml(i18n.csv_col_notes || 'Notes') + '">' + escapeHtml(note) + '</td>';
+            tr.innerHTML = cells;
             tbody.appendChild(tr);
         });
     }
@@ -118,12 +171,21 @@
         if (ul) {
             ul.innerHTML = '';
             var i18n = (window.TT && window.TT.i18n) || {};
-            var lines = [
-                (i18n.csv_created  || 'Created: %d').replace('%d', String(data.created || 0)),
-                (i18n.csv_updated  || 'Updated: %d').replace('%d', String(data.updated || 0)),
-                (i18n.csv_skipped  || 'Skipped (dupes): %d').replace('%d', String(data.skipped || 0)),
-                (i18n.csv_errored  || 'Errors: %d').replace('%d', String(data.errored || 0)),
+
+            // Only the counters the endpoint actually returned. An
+            // importer with no update path should not report "Updated: 0"
+            // as though updating were a thing it declined to do.
+            var counters = [
+                ['created', i18n.csv_created || 'Created: %d'],
+                ['updated', i18n.csv_updated || 'Updated: %d'],
+                ['skipped', i18n.csv_skipped || 'Skipped (dupes): %d'],
+                ['errored', i18n.csv_errored || 'Errors: %d'],
             ];
+            var lines = [];
+            counters.forEach(function(pair) {
+                if (!Object.prototype.hasOwnProperty.call(data, pair[0])) return;
+                lines.push(pair[1].replace('%d', String(data[pair[0]] || 0)));
+            });
             lines.forEach(function(t) {
                 var li = document.createElement('li');
                 li.textContent = t;
@@ -160,7 +222,7 @@
                 if (btn) btn.disabled = false;
                 return;
             }
-            send(fd).then(function(r) {
+            send(root, fd).then(function(r) {
                 if (btn) btn.disabled = false;
                 if (!r.ok || !r.json || !r.json.success) {
                     var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || i18n.csv_preview_failed || 'Could not preview the file.';
@@ -183,7 +245,7 @@
                 commit.disabled = true;
                 var fd = buildFormData(form, false);
                 var i18n2 = (window.TT && TT.i18n) || {};
-                send(fd).then(function(r) {
+                send(root, fd).then(function(r) {
                     commit.disabled = false;
                     if (!r.ok || !r.json || !r.json.success) {
                         var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || i18n2.csv_import_failed || 'Import failed.';

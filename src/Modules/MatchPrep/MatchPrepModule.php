@@ -31,6 +31,12 @@ class MatchPrepModule implements ModuleInterface {
     public function boot( Container $container ): void {
         MatchPrepRestController::init();
 
+        // #2892 — a shared prep names minors and says who is expected to
+        // start. Keep it out of search indexes and out of referrer headers,
+        // the same way the match-analysis share does. Priority 5 so the
+        // headers are set before anything renders.
+        add_action( 'template_redirect', [ __CLASS__, 'guardShareRequestIndexing' ], 5 );
+
         // #1031 — standalone print route so the WP admin bar + theme
         // chrome stay off the printed sheet.
         MatchPrepPrintRouter::init();
@@ -44,5 +50,22 @@ class MatchPrepModule implements ModuleInterface {
         if ( class_exists( ExporterRegistry::class ) ) {
             ExporterRegistry::register( new MatchPrepPdfExporter() );
         }
+    }
+
+    /**
+     * #2892 — noindex + no-referrer on the share route only.
+     *
+     * Headers rather than robots.txt: the URL carries a token, so it must
+     * not reach a crawler's index and must not leak through a referrer
+     * header if the reader clicks a link on the page.
+     */
+    public static function guardShareRequestIndexing(): void {
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        if ( $view !== \TT\Modules\MatchPrep\Services\MatchPrepShareLink::VIEW_SLUG ) return;
+
+        header( 'X-Robots-Tag: noindex, nofollow, noarchive', true );
+        header( 'Referrer-Policy: no-referrer', true );
+
+        add_action( 'wp_head', [ \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepShareView::class, 'noindexMeta' ], 1 );
     }
 }

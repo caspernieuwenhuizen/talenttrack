@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Exercises\ExerciseCsvImporter;
 use TT\Modules\Exercises\ExercisesRepository;
 
 /**
@@ -85,6 +86,16 @@ final class ExercisesRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'bulk_tag_principles' ],
+                'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+            ],
+        ] );
+        // #2613 — CSV bulk import. Literal segment, so it is registered
+        // before the `(?P<id>\d+)` routes for the same reason the bulk
+        // tagger is.
+        register_rest_route( self::NS, '/exercises/import', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'import_exercises' ],
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );
@@ -307,6 +318,60 @@ final class ExercisesRestController {
     public static function list_categories( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new ExercisesRepository();
         return RestResponse::success( [ 'items' => $repo->listCategories() ] );
+    }
+
+    /**
+     * POST /exercises/import — multipart upload of a CSV (#2613).
+     *
+     * One endpoint for both preview (`dry_run=1`, the default) and commit
+     * (`dry_run=0`), matching `/players/import`. The client re-uploads on
+     * commit, which is cheap for a few hundred rows and keeps the
+     * endpoint stateless.
+     *
+     * Preview response: `{ header_warnings, total, valid, errored,
+     * without_principles, preview[] }`.
+     * Commit response: `{ created, errored, errors[], error_csv }`.
+     *
+     * `without_principles` is in the preview on purpose. A drill with no
+     * principle links can be picked by the generator but never
+     * *preferred*, so an import that quietly skipped that column produces
+     * a large library that behaves like an empty one — and the moment to
+     * notice is before the commit, not after.
+     */
+    public static function import_exercises( \WP_REST_Request $r ): \WP_REST_Response {
+        $files = $r->get_file_params();
+        if ( empty( $files['file'] ) || ! is_array( $files['file'] ) ) {
+            return RestResponse::error( 'no_file', __( 'No CSV file uploaded.', 'talenttrack' ), 400 );
+        }
+
+        $upload = $files['file'];
+        if ( ( $upload['error'] ?? UPLOAD_ERR_OK ) !== UPLOAD_ERR_OK ) {
+            return RestResponse::error( 'upload_error', __( 'The upload failed.', 'talenttrack' ), 400 );
+        }
+        if ( ( $upload['size'] ?? 0 ) > 5 * 1024 * 1024 ) {
+            return RestResponse::error( 'file_too_large', __( 'CSV files larger than 5MB are not accepted.', 'talenttrack' ), 400 );
+        }
+        if ( ! is_uploaded_file( (string) $upload['tmp_name'] ) ) {
+            return RestResponse::error( 'upload_invalid', __( 'Uploaded file could not be read.', 'talenttrack' ), 400 );
+        }
+        if ( strtolower( pathinfo( (string) $upload['name'], PATHINFO_EXTENSION ) ) !== 'csv' ) {
+            return RestResponse::error( 'bad_extension', __( 'Only .csv files are accepted.', 'talenttrack' ), 400 );
+        }
+
+        $tmp_path = (string) $upload['tmp_name'];
+
+        if ( ( $r['dry_run'] ?? '1' ) !== '0' ) {
+            return RestResponse::success( ExerciseCsvImporter::preview( $tmp_path ) );
+        }
+
+        $summary = ExerciseCsvImporter::commit( $tmp_path );
+
+        Logger::info( 'csv.exercise.import.completed', [
+            'created' => $summary['created'],
+            'errored' => $summary['errored'],
+        ] );
+
+        return RestResponse::success( $summary );
     }
 
     public static function get_exercise( \WP_REST_Request $r ): \WP_REST_Response {

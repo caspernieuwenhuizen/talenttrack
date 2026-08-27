@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Match analysis — one-pager, final layout</title>
+<style>
+/*
+ * Mockup only — .local-mockups/match-analysis-onepager/final.html
+ *
+ * The agreed layout. Two phase columns following the two chains of the
+ * game, then a wide players column:
+ *
+ *   kolom 1 (balbezit)     kolom 2 (balverlies)     kolom 3
+ *   Aanvallen              Verdedigen               Spelers
+ *   Omsch. naar verdedigen Omsch. naar aanvallen
+ *   Spelhervattingen aan   Spelhervattingen ver
+ *
+ * Each column reads as a chain: what we do with the ball and what happens
+ * the moment we lose it; what we do without it and what happens the moment
+ * we win it. That also restores the 1:1 mapping with the four match-prep
+ * goal boxes, which is why set pieces splits back into attacking and
+ * defending.
+ *
+ * The sheet is exactly 297 × 210 mm.
+ */
+:root {
+    --tt-ink: #0e1a14;
+    --tt-ink-soft: #52564f;
+    --tt-muted: #6a6d66;
+    --tt-paper: #ffffff;
+    --tt-bg-soft: #f4f6f3;
+    --tt-line: #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-success: #2f9e5e;
+    --tt-warning: #e8902b;
+    --tt-info: #2d6fb3;
+    --tt-success-subtle: #e8f7ec;
+    --tt-warning-subtle: #fdf3e2;
+    --tt-info-subtle: #ecf3fa;
+    --tt-radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0; padding: 24px;
+    background: #dfe3de; color: var(--tt-ink);
+    font: 12px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.cap { max-width: 297mm; margin: 0 auto 12px; font-size: 13px; color: #4b4f49; }
+.cap b { color: var(--tt-ink); }
+
+.sheet {
+    width: 297mm; height: 210mm;
+    margin: 0 auto;
+    padding: 12mm 13mm;
+    background: var(--tt-paper);
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+    display: flex; flex-direction: column; gap: 5mm;
+}
+
+.sheet__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-bottom: 1.5pt solid var(--tt-ink); padding-bottom: 6px; }
+.sheet__eyebrow { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--tt-muted); margin: 0 0 3px; }
+.sheet__id h2 { font-size: 20px; line-height: 1.1; margin: 0; }
+.sheet__id h2 span { color: var(--tt-muted); font-weight: 400; }
+.sheet__facts { display: flex; gap: 14px; align-items: baseline; font-size: 11px; color: var(--tt-ink-soft); white-space: nowrap; }
+.sheet__score { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* The coach's overall read gets the same box as a phase tile, in neutral
+ * grey: it belongs to the same family, but it carries no rating, so it
+ * takes none of the three colours. */
+.summary {
+    margin: 0;
+    padding: 7px 9px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+.summary b { display: block; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--tt-muted); font-weight: 700; margin-bottom: 2px; }
+
+/* two phase columns + a wide players column */
+.body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 95mm; gap: 4mm; flex: 1; min-height: 0; }
+
+.chain { display: flex; flex-direction: column; gap: 3mm; align-content: start; }
+.chain__head { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--tt-muted); font-weight: 600; margin: 0; }
+
+.tile {
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    padding: 7px 9px; display: flex; flex-direction: column; gap: 3px;
+}
+.tile__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.tile__name { font-weight: 700; font-size: 12.5px; }
+.tile__rating { font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+
+.tile[data-r="went_well"]  { background: var(--tt-success-subtle); border-color: #cfe9d7; }
+.tile[data-r="mixed"]      { background: var(--tt-info-subtle);    border-color: #d3e2f1; }
+.tile[data-r="needs_work"] { background: var(--tt-warning-subtle); border-color: #f2e0c2; }
+.tile[data-r=""]           { background: var(--tt-bg-soft); border-style: dashed; }
+
+.tile[data-r="went_well"]  .tile__rating { color: var(--tt-success); }
+.tile[data-r="mixed"]      .tile__rating { color: var(--tt-info); }
+.tile[data-r="needs_work"] .tile__rating { color: var(--tt-warning); }
+.tile[data-r=""]           .tile__rating { color: var(--tt-muted); font-weight: 400; }
+.tile[data-r=""]           .tile__name   { color: var(--tt-ink-soft); font-weight: 600; }
+
+.tile ul { margin: 2px 0 0; padding: 0; list-style: none; }
+.tile li { position: relative; padding-left: 13px; margin: 1.5px 0; font-size: 11.5px; line-height: 1.4; }
+.tile li::before { content: "›"; position: absolute; left: 2px; top: -1px; font-size: 13px; font-weight: 700; color: var(--tt-muted); }
+
+/* players — wide column, one name per row */
+.players__head { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--tt-muted); font-weight: 600; margin: 0 0 4px; }
+.players { display: flex; flex-direction: column; gap: 5px; }
+.player { border-left: 3px solid var(--tt-line); padding: 1px 0 2px 8px; }
+.player[data-m="stood_out"]   { border-left-color: var(--tt-success); }
+.player[data-m="as_expected"] { border-left-color: var(--tt-info); }
+.player[data-m="below_par"]   { border-left-color: var(--tt-warning); }
+.player__line { display: flex; align-items: baseline; gap: 6px; }
+.player__name { font-weight: 700; font-size: 12px; }
+.player__mark { font-size: 10px; font-weight: 700; }
+.player__min  { margin-left: auto; font-size: 10px; color: var(--tt-muted); font-variant-numeric: tabular-nums; }
+.player[data-m="stood_out"]   .player__mark { color: var(--tt-success); }
+.player[data-m="as_expected"] .player__mark { color: var(--tt-info); }
+.player[data-m="below_par"]   .player__mark { color: var(--tt-warning); }
+.player__note { margin: 0; font-size: 11.5px; color: var(--tt-ink-soft); line-height: 1.35; }
+
+.sheet__foot { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--tt-muted); border-top: 1px solid var(--tt-line); padding-top: 4px; }
+
+@media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    body { background: #fff; padding: 0; }
+    .cap { display: none; }
+    .sheet { box-shadow: none; width: auto; height: auto; }
+}
+</style>
+</head>
+<body>
+
+<p class="cap"><b>Definitieve indeling.</b> Kolom 1 volgt de bal: aanvallen → omschakelen naar verdedigen → spelhervattingen aanvallend. Kolom 2 volgt het balverlies: verdedigen → omschakelen naar aanvallen → spelhervattingen verdedigend. Kolom 3 is de spelerskolom, breed genoeg voor één naam per regel. Chevron als opsommingsteken.</p>
+
+<div class="sheet">
+  <header class="sheet__head">
+    <div class="sheet__id">
+      <p class="sheet__eyebrow">Wedstrijdanalyse · JO17-1</p>
+      <h2>Wedstrijd 6.2 <span>— uit tegen Ajax U17</span></h2>
+    </div>
+    <div class="sheet__facts">
+      <span>vrijdag 31 juli 2026</span>
+      <span>12 spelers</span>
+      <span class="sheet__score">2 – 1</span>
+    </div>
+  </header>
+
+  <p class="summary"><b>Algemeen</b>Prima. Traag begonnen en er langzaam ingegroeid; de tweede helft was het voetbal waarop we trainen. De eerste twintig minuten waren we bij vrijwel elke tweede bal te laat.</p>
+
+  <div class="body">
+
+    <!-- kolom 1: met de bal -->
+    <div class="chain">
+      <p class="chain__head">Met de bal</p>
+
+      <div class="tile" data-r="went_well">
+        <div class="tile__head"><span class="tile__name">Aanvallen</span><span class="tile__rating">▲ Ging goed</span></div>
+        <ul>
+          <li>Rustig van achteruit opgebouwd toen ze druk zetten</li>
+          <li>De wissel naar de verre buitenspeler kwam er twee keer uit</li>
+          <li>Vooral Jesse deed dit niet consistent</li>
+        </ul>
+      </div>
+
+      <div class="tile" data-r="mixed">
+        <div class="tile__head"><span class="tile__name">Omschakelen naar verdedigen</span><span class="tile__rating">● Wisselend</span></div>
+        <ul>
+          <li>Traag druk zetten na balverlies — kost ons de tegengoal</li>
+          <li>Na rust ging de dichtstbijzijnde speler er wel direct op</li>
+        </ul>
+      </div>
+
+      <div class="tile" data-r="needs_work">
+        <div class="tile__head"><span class="tile__name">Spelhervattingen aanvallend</span><span class="tile__rating">▼ Moet beter</span></div>
+        <ul>
+          <li>Onze corners komen nog steeds op de eerste verdediger</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- kolom 2: zonder de bal -->
+    <div class="chain">
+      <p class="chain__head">Zonder de bal</p>
+
+      <div class="tile" data-r="went_well">
+        <div class="tile__head"><span class="tile__name">Verdedigen</span><span class="tile__rating">▲ Ging goed</span></div>
+        <ul>
+          <li>Compact tussen de linies; door het midden kwamen ze er niet door</li>
+          <li>De linie zakte wel te snel bij balverlies op hun helft</li>
+        </ul>
+      </div>
+
+      <div class="tile" data-r="needs_work">
+        <div class="tile__head"><span class="tile__name">Omschakelen naar aanvallen</span><span class="tile__rating">▼ Moet beter</span></div>
+        <ul>
+          <li>Eerste pass na balwinst ging te vaak achteruit</li>
+          <li>Twee counters die wel op een schot eindigden</li>
+        </ul>
+      </div>
+
+      <div class="tile" data-r="went_well">
+        <div class="tile__head"><span class="tile__name">Spelhervattingen verdedigend</span><span class="tile__rating">▲ Ging goed</span></div>
+        <ul>
+          <li>Hun vrije trappen goed verdedigd; iedereen pakte een man</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- kolom 3: spelers -->
+    <div>
+      <p class="players__head">Spelers · 5 van 12 genoemd</p>
+      <div class="players">
+        <div class="player" data-m="stood_out">
+          <div class="player__line"><span class="player__name">Thijs</span><span class="player__mark">▲ Sprong eruit</span><span class="player__min">70'</span></div>
+          <p class="player__note">Verdedigend sterk; bleef de laatste linie de hele wedstrijd coachen.</p>
+        </div>
+        <div class="player" data-m="stood_out">
+          <div class="player__line"><span class="player__name">Senna</span><span class="player__mark">▲ Sprong eruit</span><span class="player__min">45'</span></div>
+          <p class="player__note">Nam de bal twee keer in de draai aan onder druk, zonder dat het gevraagd werd.</p>
+        </div>
+        <div class="player" data-m="as_expected">
+          <div class="player__line"><span class="player__name">Guus</span><span class="player__mark">● Zoals verwacht</span><span class="player__min">60'</span></div>
+          <p class="player__note">Hard gewerkt, deed wat hem gevraagd was.</p>
+        </div>
+        <div class="player" data-m="below_par">
+          <div class="player__line"><span class="player__name">Justin</span><span class="player__mark">▼ Kwam tekort</span><span class="player__min">70'</span></div>
+          <p class="player__note">Te slordig in balbezit; verloor drie keer over dezelfde schouder.</p>
+        </div>
+        <div class="player" data-m="below_par">
+          <div class="player__line"><span class="player__name">Daan A</span><span class="player__mark">▼ Kwam tekort</span><span class="player__min">25'</span></div>
+          <p class="player__note">Stopte met terugzakken na een uur. Voor zaterdag even bespreken.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="sheet__foot">
+    <span>Stafdocument — niet verder verspreiden buiten de staf.</span>
+    <span>TalentTrack · geprint 23 augustus 2026</span>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -61,10 +61,25 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
     }
 
     /**
-     * #2521 — the player-file Activities badge reads the same gate, so the
-     * badge and the reports cannot disagree about what happened.
+     * #2521 asserted that the player-file Activities badge ignored planned
+     * activities. **#2862 supersedes that**, deliberately: the badge sits on
+     * the tab and is read as "how many things are in here", so it counts
+     * what the tab renders — and the tab has always rendered upcoming and
+     * not-yet-completed activities.
+     *
+     * What #2521 was actually protecting is untouched and still asserted
+     * below: an `expected` row alongside an `actual` row on the SAME
+     * activity must not count twice. That was the real bug; the
+     * planned-activity exclusion was the shape the fix happened to take.
+     *
+     * Note what this fixture demonstrates about `plan_state`. The second
+     * activity is created with no plan state, and the column defaults to
+     * `completed`, so nothing downstream can tell it apart from a genuinely
+     * completed one — the trap #2521's comment names. That weakness is
+     * unchanged here: the point is that the badge and the list now read the
+     * same column, so whatever they conclude, they conclude together.
      */
-    public function test_player_file_badge_ignores_planned_activities(): void {
+    public function test_player_file_badge_counts_what_the_tab_renders(): void {
         $team_id   = $this->insertTeam( 'U14 badge' );
         $player_id = $this->insertPlayer( $team_id, 'Bad', 'Ge' );
 
@@ -76,8 +91,29 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
         // The plan row on the completed activity must not double the badge.
         $this->insertAttendance( $completed, $player_id, 'present', 'expected' );
 
+        $rows = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->listForPlayer(
+            $player_id,
+            25,
+            'ASC',
+            [
+                'record_types'        => null,
+                'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+                'only_past_completed' => true,
+            ]
+        );
+
         $counts = PlayerFileCounts::for( $player_id );
-        $this->assertSame( 1, (int) $counts['activities'], 'one completed activity, counted once' );
+
+        $this->assertSame(
+            count( $rows ),
+            (int) $counts['activities'],
+            'the badge and the list must agree about how many activities there are'
+        );
+        $this->assertSame(
+            2,
+            (int) $counts['activities'],
+            'two activities, each counted once despite the duplicate attendance row'
+        );
     }
 
     /**

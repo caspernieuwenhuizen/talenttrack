@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "Known mobile viewport offenders (#2813). Each entry allows specific finding",
+    "kinds on one surface: 'overflow', 'tap-target', 'wide-table'. Anything not",
+    "listed here fails the spec.",
+    "",
+    "This starts empty on purpose. The audit's 2,213 rows were measured against a",
+    "seeded local install, not against wp-env's baseline data, so transcribing them",
+    "here would encode offenders this suite may not even reproduce and would grant",
+    "blanket exemptions nobody verified. The first CI run prints the real list in",
+    "this file's exact shape - paste it in, and the gate is calibrated to what CI",
+    "actually sees.",
+    "",
+    "Until then the job is non-blocking (continue-on-error in e2e.yml), so an",
+    "un-calibrated baseline reports rather than blocks. Flip both - empty the",
+    "allowances as waves land, then drop continue-on-error - when the list reaches",
+    "zero.",
+    "",
+    "Removing an entry is the goal. The spec reports any entry that no longer",
+    "offends, because a stale allowance is where the next real regression hides."
+  ],
+  "surfaces": {}
+}

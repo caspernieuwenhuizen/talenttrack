@@ -306,6 +306,126 @@ class QueryHelpers {
         ) );
     }
 
+    /**
+     * #2866 — the teams a viewer may choose from, resolved from their actual
+     * scope rather than from a coach assignment.
+     *
+     * Ten surfaces carried `$is_admin ? get_teams() : get_teams_for_coach()`,
+     * which asks "which teams do you coach?" — the assistant-coach question.
+     * A head of development coaches none and is not a WordPress
+     * administrator, so every one of those pickers came back empty for them.
+     * On the player edit form that was not merely unhelpful: the player's own
+     * team was absent from the options, nothing was selected, and saving
+     * posted `team_id = 0` and unassigned the player.
+     *
+     * Global read on `teams` (head of development, academy admin, read-only
+     * observer) sees every team; a team-scoped grant sees their own. The
+     * `$is_admin` flag stays as a belt-and-braces first rung — a WordPress
+     * administrator is the person running the install and must never be
+     * locked out of a picker by a matrix that has not been seeded yet.
+     *
+     * `$must_include_team_id` guarantees a specific team is present whatever
+     * the scope says. Pass the record's current value on any edit form: it
+     * makes "the control silently dropped a value the viewer could not browse
+     * to" impossible, even if a scope resolver is wrong again later.
+     *
+     * @return object[]
+     */
+    public static function get_teams_in_scope( int $user_id, bool $is_admin = false, int $must_include_team_id = 0 ): array {
+        $can_see_all = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeams( $user_id, 'teams' );
+
+        $teams = $can_see_all
+            ? self::get_teams()
+            : self::get_teams_for_coach( $user_id );
+
+        if ( $must_include_team_id > 0 ) {
+            $present = false;
+            foreach ( $teams as $t ) {
+                if ( (int) ( $t->id ?? 0 ) === $must_include_team_id ) { $present = true; break; }
+            }
+            if ( ! $present ) {
+                $current = self::get_team( $must_include_team_id );
+                if ( $current !== null ) {
+                    $teams[] = $current;
+                    usort( $teams, static fn( $a, $b ): int =>
+                        strcasecmp( (string) ( $a->name ?? '' ), (string) ( $b->name ?? '' ) ) );
+                }
+            }
+        }
+
+        return $teams;
+    }
+
+    /**
+     * #2867 — age categories that actually have teams in them, for use in
+     * **filters**.
+     *
+     * A filter narrows a list you are already looking at, so offering a
+     * category that returns nothing is offering a dead end: an academy with
+     * two teams still scrolled every category the seed shipped.
+     *
+     * This is deliberately NOT for edit or create forms. Assigning a value to
+     * a record needs the whole vocabulary — you have to be able to put the
+     * first team into a category nobody is in yet — so
+     * `get_lookup_names( 'age_group' )` stays right there.
+     *
+     * Archived and trashed teams do not keep a category alive: the filter
+     * describes what a viewer can currently browse to.
+     *
+     * `$keep` is a value to retain even when unused — pass whatever the URL
+     * currently filters on, so a bookmarked or shared link does not silently
+     * change what it shows when the last team in that category is archived.
+     *
+     * Ordering follows the `age_group` lookup, not the teams table, so the
+     * filter reads in the order the admin arranged rather than alphabetically.
+     *
+     * @return list<string>
+     */
+    public static function age_groups_in_use( string $keep = '' ): array {
+        global $wpdb;
+
+        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $used = (array) $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT t.age_group
+               FROM {$wpdb->prefix}tt_teams t
+              WHERE t.club_id = %d
+                AND t.age_group IS NOT NULL
+                AND t.age_group <> ''
+                AND {$lifecycle}",
+            CurrentClub::id()
+        ) );
+
+        $used_lc = [];
+        foreach ( $used as $u ) {
+            $used_lc[ strtolower( trim( (string) $u ) ) ] = true;
+        }
+        $keep_lc = strtolower( trim( $keep ) );
+
+        $out = [];
+        foreach ( self::get_lookup_names( 'age_group' ) as $name ) {
+            $name = (string) $name;
+            $lc   = strtolower( trim( $name ) );
+            if ( isset( $used_lc[ $lc ] ) || ( $keep_lc !== '' && $lc === $keep_lc ) ) {
+                $out[] = $name;
+            }
+        }
+
+        // A team may carry an age group that is no longer in the vocabulary
+        // (renamed, or typed before the lookup existed). Filtering it out
+        // would hide those teams behind a filter with no way to select them.
+        foreach ( $used as $u ) {
+            $u = trim( (string) $u );
+            if ( $u !== '' && ! in_array( $u, $out, true ) ) {
+                $out[] = $u;
+            }
+        }
+
+        return $out;
+    }
+
     public static function get_team( int $id ): ?object {
         global $wpdb;
         $scope = self::apply_demo_scope( 't', 'team' );

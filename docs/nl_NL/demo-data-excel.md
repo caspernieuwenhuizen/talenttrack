@@ -28,6 +28,16 @@ Klik in de bronstap op **Template downloaden (.xlsx)** voor een vers werkboek me
 
 Elk entiteit-tabblad heeft een `auto_key`-kolom met een live formule die een stabiele tekstsleutel berekent zodra je begint te typen. Verwijzingen tussen tabbladen gebruiken die sleutels: bijv. `Players.team_key` verwijst naar `Teams.auto_key`.
 
+### Het selectiesjabloon — drie tabbladen in plaats van vijftien
+
+Van hetzelfde werkboek bestaat een kortere vorm: **Teams, Players en People**, in die volgorde, met een `_README` die alleen die drie uitlegt.
+
+Dat sjabloon past bij de situatie waarin een club op dag één zit: er ligt een selectielijst, geen seizoen aan evaluaties. Verder verschilt er niets — het zijn dezelfde schema's met dezelfde kolommen, dezelfde `auto_key`-formules en dezelfde validatie, dus een selectiebestand en een volledig bestand gaan door dezelfde import.
+
+Tabbladen die je weglaat worden stil overgeslagen; een selectiebestand klaagt dus niet over de twaalf ontbrekende tabbladen. Heeft een club wél historie mee te nemen, dan blijft het volledige sjabloon met vijftien tabbladen daarvoor de weg.
+
+Staf hoort op het tabblad **People**, met een `role` en een `team_key` — er is geen apart Staff-tabblad.
+
 ## Wat v1.5 importeert
 
 De Master- en Transactioneel-tabbladen worden letterlijk geïmporteerd. Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn alleen ter documentatie in v1.5 — beheer die via de bestaande Configuratie-schermen. Generation_Settings wordt gelezen voor datumhints in hybride modus.

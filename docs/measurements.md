@@ -3,7 +3,7 @@ title: Measurements & testing
 group: performance
 summary: Recorded test values per player over time, and the trends they make.
 audience: [user, admin]
-views: [measurements, measurements-entry, measurements-coverage, measurement-tests, test-results, test-trends]
+views: [measurements, measurements-entry, measurements-coverage, measurement-tests, test-results, test-trends, player-bmi]
 module: TT\Modules\Measurements\MeasurementsModule
 order: 80
 ---
@@ -381,3 +381,57 @@ dashboard:
 
 Each link carries a contextual back-pill on arrival, so the destination
 offers a one-click route back to where you came from.
+
+## BMI-for-age
+
+**Player · BMI-for-age** reads the height and weight you already record and
+places them on a published growth curve. It lives under **Reports**, and the
+latest figure also appears at the top of a player's **Measurements** tab.
+
+BMI on its own says very little about a young player. The same figure that is
+unremarkable for a sixteen-year-old can be high for an eleven-year-old, which is
+why every number here is shown as a **percentile** for that player's age and sex
+rather than on its own. A percentile answers the only question worth asking:
+where does this player sit compared with others of the same age?
+
+### What you need first
+
+Your test catalogue needs a **height** test and a **weight** test. Any of the
+usual names work — *Height*, *Lengte*, *Weight*, *Gewicht* — because the report
+matches on the test name, not on a fixed identifier. If either is missing, the
+report says so instead of showing an empty grid.
+
+A player also needs a **date of birth** and a **sex** on their record. Without a
+date of birth there is no age, and without a sex there is no curve, so the report
+shows the BMI and leaves the percentile blank rather than guessing.
+
+### How a BMI gets built
+
+A weight is paired with the nearest height recorded **within 30 days**. Outside
+that window no BMI is calculated, because a height taken two months earlier
+describes a different body on a growing child. Every figure lists how many days
+apart the two readings were, so you can judge it yourself.
+
+Players with no usable pair still appear in the table, with the reason. Knowing
+who you have no data for is usually the first thing to act on.
+
+### What the report will not do
+
+It will not tell you a player is overweight or underweight. There are no red
+rows, no warning colours and no thresholds. It reports a position on a curve and
+how that position has moved since the last measurement — the **Change** column
+shows the shift in standard deviations, which is the figure that matters over a
+season.
+
+Reading a growth curve clinically is a job for someone qualified to do it. These
+are children, and a screen that labels one in front of whoever is standing behind
+the laptop is not something this system does.
+
+### The reference
+
+Percentiles use the **WHO 2007 growth reference for 5–19 years**, which is named
+on screen so you always know which curve you are reading. It covers ages 5 to 19
+inclusive; a player outside that range shows a BMI with no percentile.
+
+The reference is pluggable: if your academy needs a different one, it can be
+swapped without changing anything else about the report.

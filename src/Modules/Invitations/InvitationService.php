@@ -50,9 +50,10 @@ class InvitationService {
      *   prefill_last_name?:string,
      *   prefill_email?:string,
      *   override_cap?:bool,
-     *   override_reason?:string
+     *   override_reason?:string,
+     *   defer_send?:bool
      * } $args
-     * @return array{ok:bool, id:?int, token:?string, error:?string, cap_exceeded:?bool}
+     * @return array{ok:bool, id:?int, token:?string, error:?string, cap_exceeded:?bool, deferred?:bool}
      */
     public function create( array $args ): array {
         $kind = (string) ( $args['kind'] ?? '' );
@@ -106,6 +107,11 @@ class InvitationService {
             ];
         }
 
+        // #2964 — hold the credentials. Used by the onboarding staff step,
+        // where the admin adds coaches and wants to look around before
+        // anything reaches them.
+        $defer_send = ! empty( $args['defer_send'] );
+
         $ttl = max( 1, (int) $this->config->getInt( 'invite_token_ttl_days', 14 ) );
         $expires = gmdate( 'Y-m-d H:i:s', time() + $ttl * 86400 );
         $token = InvitationToken::generate();
@@ -124,6 +130,9 @@ class InvitationService {
             'locale'                      => $locale,
             'created_by'                  => $userId,
             'expires_at'                  => $expires,
+            // #2964 — NULL means "created, nobody mailed yet". A normal
+            // create stamps it, so existing callers are unchanged.
+            'sent_at'                     => $defer_send ? null : gmdate( 'Y-m-d H:i:s' ),
         ] );
 
         if ( $id <= 0 ) {
@@ -134,6 +143,10 @@ class InvitationService {
             do_action( 'tt_invitation_cap_overridden', $userId, $id, (string) $args['override_reason'] );
         }
 
+        // #2964 — the hook still fires when the send is deferred. Other
+        // listeners may legitimately care that an invitation now exists;
+        // it is only the email dispatch that waits. InvitationEmailNotifier
+        // reads `sent_at IS NULL` and stands down.
         do_action( 'tt_invitation_created', $id, $kind );
 
         return [
@@ -142,7 +155,54 @@ class InvitationService {
             'token'        => $token,
             'error'        => null,
             'cap_exceeded' => false,
+            'deferred'     => $defer_send,
         ];
+    }
+
+    /**
+     * Deliver a deferred invitation and stamp `sent_at`.
+     *
+     * Idempotent by design: an invitation that already carries `sent_at`
+     * returns false without dispatching, so a double-click or a retried
+     * bulk send cannot mail someone their credentials twice.
+     */
+    public function send( int $invitationId ): bool {
+        $invitation = $this->repo->find( $invitationId );
+        if ( ! $invitation ) return false;
+
+        if ( (string) ( $invitation->sent_at ?? '' ) !== '' ) return false;
+        if ( (string) $invitation->status !== InvitationStatus::PENDING ) return false;
+
+        $this->repo->update( $invitationId, [ 'sent_at' => gmdate( 'Y-m-d H:i:s' ) ] );
+
+        // Re-read so the notifier sees the stamped row and does not treat
+        // this dispatch as another deferred one.
+        InvitationEmailNotifier::dispatch( $invitationId, (string) $invitation->kind );
+
+        return true;
+    }
+
+    /**
+     * Send every unsent invitation, reporting per invitation rather than
+     * one aggregate result — a bulk send where three of twelve failed is
+     * not "failed", and the admin needs to know which three.
+     *
+     * @param int[]|null $ids null sends every unsent invitation.
+     * @return array{sent:int[], skipped:int[]}
+     */
+    public function sendDeferred( ?array $ids = null ): array {
+        $targets = $ids ?? $this->repo->unsentIds();
+
+        $sent = [];
+        $skipped = [];
+        foreach ( $targets as $id ) {
+            if ( $this->send( (int) $id ) ) {
+                $sent[] = (int) $id;
+            } else {
+                $skipped[] = (int) $id;
+            }
+        }
+        return [ 'sent' => $sent, 'skipped' => $skipped ];
     }
 
     // Accept
@@ -306,7 +366,36 @@ class InvitationService {
             $isPrimary = empty( $existing );
             $this->parents->link( $playerId, $userId, $isPrimary );
         } elseif ( $kind === InvitationKind::STAFF && $personId > 0 ) {
-            $wpdb->update( $wpdb->prefix . 'tt_people', [ 'wp_user_id' => $userId ], [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
+            $link = [ 'wp_user_id' => $userId ];
+
+            // #2963 — record the address they actually redeemed with.
+            // Without this, every accepted invitation leaves two addresses
+            // on file for one person: whatever the admin typed when they
+            // created the person row, and whatever the invitee typed here.
+            // The invitee's wins — they typed it about themselves and have
+            // just proved they can receive mail at it, whereas the admin's
+            // entry was a guess.
+            $account_email = self::accountEmail( $userId );
+            if ( $account_email !== '' ) {
+                $previous = (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT email FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                    $personId, CurrentClub::id()
+                ) );
+
+                if ( $previous !== '' && strcasecmp( $previous, $account_email ) !== 0 ) {
+                    // Logged rather than dropped silently: the old address
+                    // may be the one the club actually has on file elsewhere.
+                    \TT\Infrastructure\Logging\Logger::info( 'invitation.redeem.email_replaced', [
+                        'person_id' => $personId,
+                        'previous'  => $previous,
+                        'current'   => $account_email,
+                    ] );
+                }
+
+                $link['email'] = $account_email;
+            }
+
+            $wpdb->update( $wpdb->prefix . 'tt_people', $link, [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
             // Functional-role assignment is left to whoever wires the
             // PeopleModule's assignment surface; the invitation only
             // records the *intent* via target_functional_role_key, the
@@ -321,6 +410,21 @@ class InvitationService {
      * #1820 — normalise a stored name part to title case ("luuk" ->
      * "Luuk", "VAN DER BERG" -> "Van Der Berg"). Unicode-aware.
      */
+    /**
+     * The redeeming account's own address, '' when unusable.
+     *
+     * Deliberately the raw account address rather than
+     * `ContactResolver::emailForUser()` — at this point in redemption the
+     * person row is the thing being corrected, so resolving through it
+     * would just hand back the stale value we are replacing.
+     */
+    private static function accountEmail( int $userId ): string {
+        $user = get_userdata( $userId );
+        if ( ! $user ) return '';
+        $email = sanitize_email( (string) $user->user_email );
+        return is_email( $email ) ? $email : '';
+    }
+
     private static function titleCaseName( string $name ): string {
         $name = trim( $name );
         if ( $name === '' ) return '';

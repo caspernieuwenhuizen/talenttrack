@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Evaluations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -67,7 +68,7 @@ class EvaluationsRepository {
                LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
                LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
               WHERE e.coach_id = %d
-                AND e.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND e.eval_date >= %s
                 AND ( e.club_id = %d OR e.club_id IS NULL )
               ORDER BY e.eval_date DESC",
@@ -122,7 +123,7 @@ class EvaluationsRepository {
                     (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r
                       WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
                FROM {$p}tt_evaluations e
-              WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL
+              WHERE e.player_id = %d AND e.club_id = %d AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
               ORDER BY e.eval_date DESC LIMIT %d",
             $player_id, CurrentClub::id(), $limit
         ) );
@@ -150,7 +151,7 @@ class EvaluationsRepository {
                FROM {$p}tt_evaluations e
                JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
               WHERE e.player_id = %d
-                AND e.archived_at IS NULL
+                AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND ( e.club_id = %d OR e.club_id IS NULL )",
             $player_id, CurrentClub::id()
         ) );
@@ -207,7 +208,7 @@ class EvaluationsRepository {
             "SELECT AVG(r.rating)
                FROM {$p}tt_evaluations e
                JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
-              WHERE e.player_id = %d AND e.archived_at IS NULL
+              WHERE e.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND ( e.club_id = %d OR e.club_id IS NULL )
                 AND e.eval_date >= %s",
             $player_id, $club_id, $recent_cut
@@ -216,7 +217,7 @@ class EvaluationsRepository {
             "SELECT AVG(r.rating)
                FROM {$p}tt_evaluations e
                JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
-              WHERE e.player_id = %d AND e.archived_at IS NULL
+              WHERE e.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND ( e.club_id = %d OR e.club_id IS NULL )
                 AND e.eval_date >= %s AND e.eval_date < %s",
             $player_id, $club_id, $prior_cut, $recent_cut
@@ -238,7 +239,7 @@ class EvaluationsRepository {
                    FROM {$p}tt_evaluations e
                    JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
                    JOIN {$p}tt_eval_categories c ON c.id = r.category_id
-                  WHERE e.player_id = %d AND e.archived_at IS NULL
+                  WHERE e.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                     AND ( e.club_id = %d OR e.club_id IS NULL )
                     AND c.parent_id IS NULL
                     AND e.eval_date >= %s
@@ -277,7 +278,7 @@ class EvaluationsRepository {
             "SELECT AVG(r.rating)
                FROM {$p}tt_evaluations e
                JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
-              WHERE e.player_id = %d AND e.archived_at IS NULL
+              WHERE e.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'e' ) . "
                 AND ( e.club_id = %d OR e.club_id IS NULL )
               GROUP BY e.id
               ORDER BY e.eval_date DESC LIMIT 1",
@@ -298,7 +299,7 @@ class EvaluationsRepository {
 
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_evaluations
-              WHERE player_id = %d AND archived_at IS NULL
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )",
             $player_id, CurrentClub::id()
         ) );
@@ -319,7 +320,7 @@ class EvaluationsRepository {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT player_feedback, eval_date
                FROM {$p}tt_evaluations
-              WHERE player_id = %d AND archived_at IS NULL
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
                 AND ( club_id = %d OR club_id IS NULL )
                 AND player_feedback IS NOT NULL AND player_feedback <> ''
               ORDER BY eval_date DESC, id DESC

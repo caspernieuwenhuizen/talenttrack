@@ -127,6 +127,12 @@ final class CoreSurfaceRegistration {
         // anyone who would only be shown a "not authorized" notice.
         $reg::register( 'exercises', 'tt_view_activities' );
 
+        // #2613 — the library's CSV importer. A narrower gate than the
+        // library itself: reading the list needs tt_view_activities,
+        // writing 150 rows into it needs tt_manage_exercises, which is
+        // the importer view's own early return.
+        $reg::register( 'exercises-import', 'tt_manage_exercises' );
+
         // #2496 — training plans. Same shape: the plan list guards on
         // tt_training_plan, so any affordance pointing at it does too.
         $reg::register( 'training-plans', 'tt_training_plan' );
@@ -177,7 +183,7 @@ final class CoreSurfaceRegistration {
         $knowledge_gate = static function ( int $uid ): bool {
             return $uid > 0 && user_can( $uid, 'tt_view_knowledge' );
         };
-        $reg::register( 'knowledge', $knowledge_gate );
+        $reg::register( 'courses', $knowledge_gate );
         $reg::register( 'course', $knowledge_gate );
         $reg::register( 'lesson', $knowledge_gate );
         $reg::register( 'my-learning', $knowledge_gate );
@@ -1061,6 +1067,27 @@ final class CoreSurfaceRegistration {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },
         ]);
+        // #2895 — BMI-for-age. Same `measurements` read gate and the same
+        // hidden personas as Test trends: this is a screening figure about a
+        // child's body, and a player or parent meeting it without context on
+        // a dashboard tile is not how it should reach them.
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'player-bmi',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 31,
+            'label'             => __( 'Player · BMI-for-age', 'talenttrack' ),
+            'description'       => __( 'Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'feature'           => 'report_player_bmi',
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([
@@ -1463,6 +1490,19 @@ final class CoreSurfaceRegistration {
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',
+            // #2875 — hide, don't tease (CLAUDE.md §7). Enrolments are stored
+            // against a person, not a WordPress user, so a login with no
+            // linked staff record has nowhere to hold one and the view can
+            // only apologise. Offering the tile and then refusing is what a
+            // head of development hit: a dashboard invited them into a page
+            // that told them they did not qualify.
+            //
+            // The library tile is deliberately NOT gated this way — reading a
+            // course works fine without a person row; only progress does not.
+            'cap_callback' => static function ( int $uid ): bool {
+                if ( $uid <= 0 || ! user_can( $uid, 'tt_view_knowledge' ) ) return false;
+                return \TT\Modules\Knowledge\KnowledgePerson::forUser( $uid ) > 0;
+            },
             'feature'      => 'knowledge_courses',
         ]);
 
@@ -1475,12 +1515,14 @@ final class CoreSurfaceRegistration {
 
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
-            'view_slug'    => 'knowledge',
+            'view_slug'    => 'courses',
             'group'        => $learning_group,
             'kind'         => 'work',
             'order'        => 10,
-            'label'        => __( 'Knowledge library', 'talenttrack' ),
-            'description'  => __( 'Courses for coaches: methodology, periodisation, and how this academy works.', 'talenttrack' ),
+            'label'        => __( 'Courses', 'talenttrack' ),
+            // #2883 — the old description opened with "Courses for coaches",
+            // which under a tile now labelled Courses just repeats the word.
+            'description'  => __( 'Coach education: methodology, periodisation, and how this academy works.', 'talenttrack' ),
             'icon'         => 'methodology',
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',
