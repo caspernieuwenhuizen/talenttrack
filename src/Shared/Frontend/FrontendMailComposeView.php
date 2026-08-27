@@ -60,7 +60,7 @@ final class FrontendMailComposeView extends FrontendViewBase {
             : add_query_arg( [ 'tt_view' => 'people' ], $dash );
 
         $email = $person
-            ? (string) ( \TT\Infrastructure\Identity\ContactResolver::emailForPerson( (int) $person->id ) ?? '' )
+            ? (string) ( \TT\Infrastructure\Identity\ContactResolver::emailForPerson( $person_id ) ?? '' )
             : '';
 
         if ( ! $person || $email === '' ) {

@@ -143,7 +143,7 @@ final class ContactResolver {
         return $phone !== '' ? $phone : null;
     }
 
-    private static function personRow( int $person_id ) {
+    private static function personRow( int $person_id ): ?object {
         global $wpdb;
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT email, phone, wp_user_id
@@ -160,7 +160,7 @@ final class ContactResolver {
      * `PeopleRepository` enforces — archived rows keep their
      * `wp_user_id` and must not win over the live one.
      */
-    private static function personRowForUser( int $wp_user_id ) {
+    private static function personRowForUser( int $wp_user_id ): ?object {
         global $wpdb;
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT email, phone, wp_user_id
