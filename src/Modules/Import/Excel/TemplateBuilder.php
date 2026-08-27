@@ -20,10 +20,50 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class TemplateBuilder {
 
-    public static function streamDownload( string $filename = 'talenttrack-demo-data-template.xlsx' ): bool {
-        if ( ! class_exists( '\\PhpOffice\\PhpSpreadsheet\\Spreadsheet' ) ) {
+    /**
+     * The three-sheet roster workbook (#2957) — Teams, Players, People.
+     *
+     * Same builder, same schemas, same importer; a club setting up for the
+     * first time just does not need the other twelve sheets in front of it.
+     */
+    public static function streamRosterDownload( string $filename = 'talenttrack-roster-template.xlsx' ): bool {
+        return self::streamDownload( $filename, SheetSchemas::rosterSubset() );
+    }
+
+    /**
+     * @param array<string,array<string,mixed>>|null $schemas Sheets to emit;
+     *        null emits the full fifteen.
+     */
+    public static function streamDownload( string $filename = 'talenttrack-demo-data-template.xlsx', ?array $schemas = null ): bool {
+        $book = self::build( $schemas );
+        if ( $book === null ) {
             return false;
         }
+
+        header( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Cache-Control: max-age=0' );
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx( $book );
+        $writer->save( 'php://output' );
+        return true;
+    }
+
+    /**
+     * Build the workbook without sending it, so the shape can be asserted
+     * on rather than only eyeballed after a download.
+     *
+     * @param array<string,array<string,mixed>>|null $schemas
+     * @return \PhpOffice\PhpSpreadsheet\Spreadsheet|null null when
+     *         PhpSpreadsheet is not installed.
+     */
+    public static function build( ?array $schemas = null ) {
+        if ( ! class_exists( '\\PhpOffice\\PhpSpreadsheet\\Spreadsheet' ) ) {
+            return null;
+        }
+
+        $is_roster = $schemas !== null;
+        $schemas   = $schemas ?? SheetSchemas::all();
 
         $book = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $book->removeSheetByIndex( 0 );
@@ -33,9 +73,9 @@ final class TemplateBuilder {
         // Explains auto_key, the green / blue / purple / grey tab
         // colours, FK references, and which sheets the importer
         // actually consumes (the v1.5 IMPORTABLE_SHEETS list).
-        self::emitReadmeSheet( $book );
+        self::emitReadmeSheet( $book, $is_roster );
         $i = 1;
-        foreach ( SheetSchemas::all() as $key => $schema ) {
+        foreach ( $schemas as $key => $schema ) {
             $sheet = $book->createSheet( $i );
             $sheet->setTitle( $schema['sheet'] );
 
@@ -79,13 +119,7 @@ final class TemplateBuilder {
 
         $book->setActiveSheetIndex( 0 );
 
-        header( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
-        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-        header( 'Cache-Control: max-age=0' );
-
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx( $book );
-        $writer->save( 'php://output' );
-        return true;
+        return $book;
     }
 
     /**
@@ -99,10 +133,15 @@ final class TemplateBuilder {
      * how-to-fill explanation. Indexed first so it opens by default
      * when the user double-clicks the downloaded file.
      */
-    private static function emitReadmeSheet( $book ): void {
+    private static function emitReadmeSheet( $book, bool $is_roster = false ): void {
         $sheet = $book->createSheet( 0 );
         $sheet->setTitle( '_README' );
         $sheet->getTabColor()->setRGB( 'FFC000' ); // amber, distinct from data tabs
+
+        if ( $is_roster ) {
+            self::writeReadmeRows( $sheet, self::rosterReadmeRows() );
+            return;
+        }
 
         // Sheet identifier tokens (Sessions, Session_Attendance, Teams, etc.)
         // are English literals because the importer reads sheet names exactly
@@ -144,21 +183,80 @@ final class TemplateBuilder {
             [ __( 'Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload.', 'talenttrack' ) ],
         ];
 
+        // #2957 — headings are marked, not counted. The previous version
+        // hard-coded the bold row numbers, and from row 10 on they had
+        // drifted one row past the headings they were meant to mark, so
+        // the workbook shipped with body paragraphs bold and the section
+        // titles plain. Marking them inline keeps that fixed when the copy
+        // changes again.
+        self::writeReadmeRows( $sheet, self::markHeadings( $rows ) );
+    }
+
+    /**
+     * Promote the known section titles in the full README to headings.
+     *
+     * @param list<array{0:string}> $rows
+     * @return list<array{0:string,1:bool}>
+     */
+    private static function markHeadings( array $rows ): array {
+        $out = [];
+        foreach ( $rows as $i => $row ) {
+            $text = (string) $row[0];
+            // A heading is a non-empty line whose predecessor is blank —
+            // which is exactly how this README is laid out.
+            $is_heading = $i > 0 && $text !== '' && trim( (string) ( $rows[ $i - 1 ][0] ?? '' ) ) === '';
+            $out[] = [ $text, $is_heading ];
+        }
+        return $out;
+    }
+
+    /**
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet
+     * @param list<array{0:string,1:bool}> $rows text + is-heading
+     */
+    private static function writeReadmeRows( $sheet, array $rows ): void {
         $row_index = 1;
         foreach ( $rows as $row ) {
             $sheet->setCellValue( 'A' . $row_index, $row[0] );
+            if ( ! empty( $row[1] ) ) {
+                $sheet->getStyle( 'A' . $row_index )->getFont()->setBold( true )->setSize( 12 );
+            }
             $row_index++;
         }
         $sheet->getStyle( 'A1' )->getFont()->setBold( true )->setSize( 14 );
-        $sheet->getStyle( 'A3' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A6' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A11' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A14' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A18' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A21' )->getFont()->setBold( true )->setSize( 12 );
-        $sheet->getStyle( 'A24' )->getFont()->setBold( true )->setSize( 12 );
         $sheet->getColumnDimension( 'A' )->setWidth( 110 );
-        $sheet->getStyle( 'A1:A33' )->getAlignment()->setWrapText( true );
+        $sheet->getStyle( 'A1:A' . max( 1, $row_index - 1 ) )->getAlignment()->setWrapText( true );
+    }
+
+    /**
+     * README for the three-sheet roster workbook (#2957).
+     *
+     * Deliberately short. Someone setting a club up for the first time is
+     * reading this to find out what to type in three tabs, not to learn the
+     * whole import format.
+     *
+     * @return list<array{0:string,1:bool}>
+     */
+    private static function rosterReadmeRows(): array {
+        return [
+            [ __( 'TalentTrack — squad template', 'talenttrack' ), false ],
+            [ '', false ],
+            [ __( 'What to fill in', 'talenttrack' ), true ],
+            [ __( 'Three tabs: Teams, Players and People. Fill Teams first, then Players, then People — the later tabs point back at the teams you named.', 'talenttrack' ), false ],
+            [ '', false ],
+            [ __( 'auto_key (the first column on every tab)', 'talenttrack' ), true ],
+            [ __( 'Type a short, unique label (e.g. "U12_RED", "U14_GREEN") in the auto_key cell on the Teams tab. Players and People then reference that label in their team_key column, which is how each person ends up in the right team.', 'talenttrack' ), false ],
+            [ __( 'Leave auto_key blank on a row nothing else needs to point at.', 'talenttrack' ), false ],
+            [ '', false ],
+            [ __( 'Staff go on the People tab', 'talenttrack' ), true ],
+            [ __( 'Coaches, assistants and other staff are People rows. Give each one a role and a team_key so they arrive attached to the team they work with.', 'talenttrack' ), false ],
+            [ '', false ],
+            [ __( 'Dates', 'talenttrack' ), true ],
+            [ __( 'YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the column format to "Text" first if dates look wrong after upload.', 'talenttrack' ), false ],
+            [ '', false ],
+            [ __( 'Before anything is saved', 'talenttrack' ), true ],
+            [ __( 'You will see exactly what the workbook contains, and anything that needs fixing, before a single record is created.', 'talenttrack' ), false ],
+        ];
     }
 
     private static function populateAutoKeyFormula( $sheet, string $key, array $schema ): void {

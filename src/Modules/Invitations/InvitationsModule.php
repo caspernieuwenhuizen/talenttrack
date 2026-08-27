@@ -51,6 +51,8 @@ class InvitationsModule implements ModuleInterface {
         add_action( 'admin_post_tt_invitation_bulk_create', [ Frontend\InvitationBulkCreateHandler::class, 'handle' ] );
         add_action( 'admin_post_tt_invitation_accept',   [ Frontend\InvitationAcceptHandler::class, 'handle' ] );
         add_action( 'admin_post_tt_invitation_revoke',   [ Frontend\InvitationRevokeHandler::class, 'handle' ] );
+        add_action( 'admin_post_tt_invitation_send',     [ Frontend\InvitationSendHandler::class, 'handleOne' ] );
+        add_action( 'admin_post_tt_invitation_send_all', [ Frontend\InvitationSendHandler::class, 'handleAll' ] );
         add_action( 'admin_post_tt_invitation_message_save', [ Frontend\MessageSaveHandler::class, 'handle' ] );
         // Acceptance handler is also reachable when not logged in.
         add_action( 'admin_post_nopriv_tt_invitation_accept', [ Frontend\InvitationAcceptHandler::class, 'handle' ] );

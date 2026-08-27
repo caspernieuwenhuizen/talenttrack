@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T04:22:17+00:00\n"
+"POT-Creation-Date: 2026-08-27T05:16:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -734,7 +734,7 @@ msgid ""
 "stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:488 src/Modules/DemoData/DemoCoverage.php:1272
+#: src/Core/FeatureRegistry.php:488 src/Modules/DemoData/DemoCoverage.php:1274
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -1090,6 +1090,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:26
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:19
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:17
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:87
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:20
 msgid "Insufficient permissions."
 msgstr ""
@@ -2244,7 +2245,7 @@ msgid "Mixed"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1265
+#: src/Modules/DemoData/DemoCoverage.php:1267
 #: src/Modules/Documentation/HelpTopics.php:186
 #: src/Shared/Frontend/FrontendConfigurationView.php:2146
 msgid "Match day"
@@ -3255,6 +3256,14 @@ msgstr ""
 msgid "Goal not found."
 msgstr ""
 
+#: src/Infrastructure/REST/ImportRestController.php:75
+msgid "No workbook was uploaded."
+msgstr ""
+
+#: src/Infrastructure/REST/ImportRestController.php:85
+msgid "The upload did not complete. It may be larger than this server accepts."
+msgstr ""
+
 #: src/Infrastructure/REST/InvitationsRestController.php:120
 msgid "Could not create invitation."
 msgstr ""
@@ -3524,7 +3533,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:131
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:628
@@ -3654,7 +3663,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1252
+#: src/Modules/DemoData/DemoCoverage.php:1254
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:561
 #: src/Modules/License/Admin/AccountPage.php:640
@@ -4513,7 +4522,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1253
+#: src/Modules/DemoData/DemoCoverage.php:1255
 #: src/Modules/License/Admin/AccountPage.php:691
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:495
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -4678,7 +4687,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
 #: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:174
 #: src/Modules/Methodology/Admin/MethodologyPage.php:358
@@ -4979,7 +4988,7 @@ msgstr "Mettre à jour"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:377
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
 #: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:954
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
@@ -5505,7 +5514,7 @@ msgstr "De"
 #: src/Shared/Frontend/FrontendAuditLogView.php:373
 #: src/Shared/Frontend/FrontendConfigurationView.php:2863
 #: src/Shared/Frontend/FrontendEvaluationsView.php:215
-#: src/Shared/Frontend/FrontendMailComposeView.php:117
+#: src/Shared/Frontend/FrontendMailComposeView.php:120
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:109
 #: src/Shared/Frontend/FrontendStandardReportsView.php:479
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1550
@@ -6340,7 +6349,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1254
+#: src/Modules/DemoData/DemoCoverage.php:1256
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:566
 #: src/Modules/License/Admin/AccountPage.php:690
@@ -6393,7 +6402,7 @@ msgstr "Évaluations"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1255
+#: src/Modules/DemoData/DemoCoverage.php:1257
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:692
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -6433,7 +6442,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:1251
+#: src/Modules/DemoData/DemoCoverage.php:1253
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -6533,7 +6542,7 @@ msgstr ""
 
 #. translators: %s: player name
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
-#: src/Modules/DemoData/DemoCoverage.php:1262
+#: src/Modules/DemoData/DemoCoverage.php:1264
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:879
@@ -6732,7 +6741,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1256
+#: src/Modules/DemoData/DemoCoverage.php:1258
 msgid "Journey events"
 msgstr ""
 
@@ -6797,12 +6806,12 @@ msgid "Pending"
 msgstr "En attente"
 
 #. translators: 1: schedule name, 2: KPI label
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:68
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:69
 #, php-format
 msgid "TalentTrack scheduled report: %1$s (%2$s)"
 msgstr ""
 
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:72
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:73
 msgid ""
 "Your TalentTrack scheduled report is attached.\n"
 "\n"
@@ -7033,7 +7042,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:1250
+#: src/Modules/DemoData/DemoCoverage.php:1252
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
 #: src/Modules/License/Admin/AccountPage.php:556
@@ -9293,7 +9302,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1257
+#: src/Modules/DemoData/DemoCoverage.php:1259
 #: src/Modules/License/Admin/AccountPage.php:709
 #: src/Shared/CoreSurfaceRegistration.php:834
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -9315,7 +9324,7 @@ msgstr ""
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1270
+#: src/Modules/DemoData/DemoCoverage.php:1272
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr ""
@@ -9430,7 +9439,7 @@ msgid "Impersonation"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1266
+#: src/Modules/DemoData/DemoCoverage.php:1268
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
@@ -10265,7 +10274,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:89
 #: src/Modules/Authorization/Admin/RolesPage.php:220
 #: src/Modules/Authorization/Admin/RolesPage.php:222
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:183
 #: src/Modules/Invitations/Frontend/InviteButton.php:140
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:117
 #: src/Shared/Frontend/FrontendMySessionsView.php:148
@@ -11074,7 +11083,7 @@ msgstr ""
 #: src/Modules/DemoData/Admin/DemoDataPage.php:825
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:129
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:157
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
@@ -13831,7 +13840,7 @@ msgid "Level"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:104
-#: src/Shared/Frontend/FrontendMailComposeView.php:125
+#: src/Shared/Frontend/FrontendMailComposeView.php:128
 msgid "Message"
 msgstr ""
 
@@ -14999,7 +15008,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:777
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:91
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
@@ -15723,7 +15732,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1259
+#: src/Modules/DemoData/DemoCoverage.php:1261
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
@@ -16555,39 +16564,39 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1258
+#: src/Modules/DemoData/DemoCoverage.php:1260
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1260
+#: src/Modules/DemoData/DemoCoverage.php:1262
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1261
+#: src/Modules/DemoData/DemoCoverage.php:1263
 msgid "Player reports"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1263
+#: src/Modules/DemoData/DemoCoverage.php:1265
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:220
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1264
+#: src/Modules/DemoData/DemoCoverage.php:1266
 msgid "Training content"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1267
+#: src/Modules/DemoData/DemoCoverage.php:1269
 #: src/Shared/Frontend/FrontendTeamsManageView.php:516
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1268
+#: src/Modules/DemoData/DemoCoverage.php:1270
 msgid "Scouting pipeline"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1269
+#: src/Modules/DemoData/DemoCoverage.php:1271
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
@@ -16595,130 +16604,130 @@ msgstr ""
 msgid "Tournaments"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1271
+#: src/Modules/DemoData/DemoCoverage.php:1273
 msgid "Messages and operator records"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1280
+#: src/Modules/DemoData/DemoCoverage.php:1282
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1281
+#: src/Modules/DemoData/DemoCoverage.php:1283
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1282
+#: src/Modules/DemoData/DemoCoverage.php:1284
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1283
+#: src/Modules/DemoData/DemoCoverage.php:1285
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1284
+#: src/Modules/DemoData/DemoCoverage.php:1286
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1285
+#: src/Modules/DemoData/DemoCoverage.php:1287
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1286
+#: src/Modules/DemoData/DemoCoverage.php:1288
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1287
+#: src/Modules/DemoData/DemoCoverage.php:1289
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1288
+#: src/Modules/DemoData/DemoCoverage.php:1290
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1289
+#: src/Modules/DemoData/DemoCoverage.php:1291
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1290
+#: src/Modules/DemoData/DemoCoverage.php:1292
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1291
+#: src/Modules/DemoData/DemoCoverage.php:1293
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1292
+#: src/Modules/DemoData/DemoCoverage.php:1294
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1293
+#: src/Modules/DemoData/DemoCoverage.php:1295
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1294
+#: src/Modules/DemoData/DemoCoverage.php:1296
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1295
+#: src/Modules/DemoData/DemoCoverage.php:1297
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1296
+#: src/Modules/DemoData/DemoCoverage.php:1298
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1297
+#: src/Modules/DemoData/DemoCoverage.php:1299
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1298
+#: src/Modules/DemoData/DemoCoverage.php:1300
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1299
+#: src/Modules/DemoData/DemoCoverage.php:1301
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1300
+#: src/Modules/DemoData/DemoCoverage.php:1302
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1301
+#: src/Modules/DemoData/DemoCoverage.php:1303
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1302
+#: src/Modules/DemoData/DemoCoverage.php:1304
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
@@ -16740,8 +16749,9 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:18
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:16
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:85
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:19
-#: src/Modules/Invitations/InvitationService.php:65
+#: src/Modules/Invitations/InvitationService.php:66
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:195
 msgid "Not logged in."
 msgstr ""
@@ -16751,6 +16761,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:24
 #: src/Modules/Development/Frontend/TrackDeleteHandler.php:25
 #: src/Modules/Invitations/Frontend/InvitationRevokeHandler.php:22
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:29
 msgid "Bad request."
 msgstr ""
 
@@ -19570,62 +19581,62 @@ msgid "New holiday"
 msgstr ""
 
 # v3.52.0 — Excel-driven demo data (#0059)
-#: src/Modules/Import/Excel/ExcelImporter.php:60
+#: src/Modules/Import/Excel/ExcelImporter.php:63
 msgid ""
 "PhpSpreadsheet is not installed. Run `composer install --no-dev` from the "
 "plugin root."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:75
+#: src/Modules/Import/Excel/ExcelImporter.php:78
 #, php-format
 msgid "Could not read the workbook: %s"
 msgstr ""
 
 # v3.108.0 — #0080 Wave D: demo-data Excel sheet rename
-#: src/Modules/Import/Excel/ExcelImporter.php:85
+#: src/Modules/Import/Excel/ExcelImporter.php:88
 msgid ""
 "Sheet \"Sessions\" was renamed to \"Activities\" in v3.108.0 — re-download "
 "the demo-data template, or rename the sheet to \"Activities\" in your "
 "workbook."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:175
+#: src/Modules/Import/Excel/ExcelImporter.php:228
 #, php-format
 msgid "Sheet \"%1$s\": required column \"%2$s\" missing."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:205
+#: src/Modules/Import/Excel/ExcelImporter.php:258
 #, php-format
 msgid "Sheet \"%1$s\" row %2$d: %3$s is required."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:243
+#: src/Modules/Import/Excel/ExcelImporter.php:296
 #, php-format
 msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
 msgstr ""
 
 # v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
 # Bundle 6 — Excel demo-data template instructions
-#: src/Modules/Import/Excel/TemplateBuilder.php:113
+#: src/Modules/Import/Excel/TemplateBuilder.php:152
 msgid "TalentTrack — demo data template"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:115
+#: src/Modules/Import/Excel/TemplateBuilder.php:154
 msgid "How to fill this workbook"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:116
+#: src/Modules/Import/Excel/TemplateBuilder.php:155
 msgid ""
 "Each green tab is a master entity (Teams, People, Players, Trial cases). "
 "Each blue tab is a transactional record (Activities, Attendance, "
 "Evaluations, Goals, Player journey). Purple = settings, grey = reference."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:118
+#: src/Modules/Import/Excel/TemplateBuilder.php:157
 msgid "auto_key (the first column on every entity tab)"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:119
+#: src/Modules/Import/Excel/TemplateBuilder.php:158
 msgid ""
 "Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the "
 "auto_key cell. Other tabs reference back to it via team_key / player_key / "
@@ -19634,18 +19645,18 @@ msgid ""
 "id."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:120
+#: src/Modules/Import/Excel/TemplateBuilder.php:159
 msgid ""
 "Leave auto_key blank if you do not need to reference the row from another "
 "sheet — but most rows are referenced somewhere, so filling it in is the safe "
 "default."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:122
+#: src/Modules/Import/Excel/TemplateBuilder.php:161
 msgid "Foreign-key columns (e.g. team_key, player_key)"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:123
+#: src/Modules/Import/Excel/TemplateBuilder.php:162
 msgid ""
 "Type the auto_key value of the row you want to link to. Example: a Players "
 "row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". "
@@ -19653,18 +19664,18 @@ msgid ""
 "that does not exist."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:125
+#: src/Modules/Import/Excel/TemplateBuilder.php:164
 msgid "Importable vs. documentation-only sheets"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:126
+#: src/Modules/Import/Excel/TemplateBuilder.php:165
 msgid ""
 "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, "
 "Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, "
 "Player_Journey, Generation_Settings."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:127
+#: src/Modules/Import/Excel/TemplateBuilder.php:166
 msgid ""
 "Reference tabs (Eval_Categories, Category_Weights, _Lookups) are "
 "documentation-only. Configure those via the wp-admin Configuration screens. "
@@ -19672,11 +19683,11 @@ msgid ""
 "your imported data will key into."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:129
+#: src/Modules/Import/Excel/TemplateBuilder.php:168
 msgid "Required vs. optional columns"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:130
+#: src/Modules/Import/Excel/TemplateBuilder.php:169
 msgid ""
 "Every column header carries a label. Required columns are typically the "
 "human-name fields (first_name / last_name / title) plus the foreign keys "
@@ -19684,57 +19695,113 @@ msgid ""
 "failed validation when you upload."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:132
+#: src/Modules/Import/Excel/TemplateBuilder.php:171
+#: src/Modules/Import/Excel/TemplateBuilder.php:254
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:329
 msgid "Dates"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:133
+#: src/Modules/Import/Excel/TemplateBuilder.php:172
 msgid ""
 "YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on "
 "cell entry — set the column format to \"Text\" first if you see weird date "
 "values after upload."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:135
+#: src/Modules/Import/Excel/TemplateBuilder.php:174
 msgid "Recommended workflow"
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:136
+#: src/Modules/Import/Excel/TemplateBuilder.php:175
 msgid ""
 "1. Fill Teams first. Pick auto_key labels that mean something to you "
 "(\"U12_RED\", \"U14_GREEN\")."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:137
+#: src/Modules/Import/Excel/TemplateBuilder.php:176
 msgid "2. Fill People next, referencing Teams via team_key on staff rows."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:138
+#: src/Modules/Import/Excel/TemplateBuilder.php:177
 msgid "3. Fill Players, referencing Teams via team_key."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:139
+#: src/Modules/Import/Excel/TemplateBuilder.php:178
 msgid "4. Add Activities for each team (they reference Teams via team_key)."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:140
+#: src/Modules/Import/Excel/TemplateBuilder.php:179
 msgid "5. Add Session_Attendance rows for who showed up at each activity."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:141
+#: src/Modules/Import/Excel/TemplateBuilder.php:180
 msgid ""
 "6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:142
+#: src/Modules/Import/Excel/TemplateBuilder.php:181
 msgid "7. Add Goals + Player_Journey events as needed."
 msgstr ""
 
-#: src/Modules/Import/Excel/TemplateBuilder.php:144
+#: src/Modules/Import/Excel/TemplateBuilder.php:183
 msgid ""
 "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step "
 "0 — Source → Excel upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:242
+msgid "TalentTrack — squad template"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:244
+msgid "What to fill in"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:245
+msgid ""
+"Three tabs: Teams, Players and People. Fill Teams first, then Players, then "
+"People — the later tabs point back at the teams you named."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:247
+msgid "auto_key (the first column on every tab)"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:248
+msgid ""
+"Type a short, unique label (e.g. \"U12_RED\", \"U14_GREEN\") in the auto_key "
+"cell on the Teams tab. Players and People then reference that label in their "
+"team_key column, which is how each person ends up in the right team."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:249
+msgid "Leave auto_key blank on a row nothing else needs to point at."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:251
+msgid "Staff go on the People tab"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:252
+msgid ""
+"Coaches, assistants and other staff are People rows. Give each one a role "
+"and a team_key so they arrive attached to the team they work with."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:255
+msgid ""
+"YYYY-MM-DD only. Excel sometimes reformats dates as you type them — set the "
+"column format to \"Text\" first if dates look wrong after upload."
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:257
+msgid "Before anything is saved"
+msgstr ""
+
+#: src/Modules/Import/Excel/TemplateBuilder.php:258
+msgid ""
+"You will see exactly what the workbook contains, and anything that needs "
+"fixing, before a single record is created."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
@@ -19959,41 +20026,96 @@ msgstr ""
 msgid "Filter:"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:84
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#, php-format
+msgid ""
+"%d invitation is waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgid_plural ""
+"%d invitations are waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
+msgid "Send all invitations"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:119
 msgid "No invitations match the filter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:92
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:127
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:457
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:498
 msgid "Target"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:93
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:128
 msgid "Inviter"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:95
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:130
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:96
 msgid "Expires"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:120
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:155
+msgid "not sent yet"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:167
+#: src/Modules/License/Admin/AccountPage.php:817
+msgid "Send now"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:177
 msgid "Revoke this invitation?"
 msgstr ""
 
 #. translators: 1: accepted date, 2: user name
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:134
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:191
 #, php-format
 msgid "%1$s by %2$s"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:153
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:210
 msgid ""
 "Six message templates — three role variants × two locales. Placeholders: "
 "{club} {role} {team} {player} {sender} {url} {ttl_days}. The {url} "
 "placeholder is required so the recipient can open the invitation."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:32
+msgid "Invitation sent."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:36
+msgid ""
+"Could not send this invitation. It may already have been sent, accepted, "
+"expired or revoked."
+msgstr ""
+
+#. translators: %d: number of invitations sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
+#, php-format
+msgid "%d invitation sent."
+msgid_plural "%d invitations sent."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of invitations that could not be sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:66
+#, php-format
+msgid "%d invitation could not be sent and was left alone."
+msgid_plural "%d invitations could not be sent and were left alone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:78
+msgid "There was nothing waiting to be sent."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/InviteButton.php:66
@@ -20080,55 +20202,55 @@ msgstr ""
 msgid "Invitation message saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:60
+#: src/Modules/Invitations/InvitationService.php:61
 msgid "Invalid invitation kind."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:69
-#: src/Modules/Invitations/InvitationService.php:165
+#: src/Modules/Invitations/InvitationService.php:70
+#: src/Modules/Invitations/InvitationService.php:225
 msgid "New user registration is currently disabled."
 msgstr ""
 
 #. translators: 1: cap, 2: actual count
-#: src/Modules/Invitations/InvitationService.php:84
+#: src/Modules/Invitations/InvitationService.php:85
 #, php-format
 msgid ""
 "Daily invitation cap reached (%1$d). Already created %2$d in the last 24 "
 "hours."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:130
+#: src/Modules/Invitations/InvitationService.php:139
 msgid "The invitation could not be saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:168
-#: src/Modules/Invitations/InvitationService.php:225
+#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:285
 msgid "This invitation is no longer pending."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:172
+#: src/Modules/Invitations/InvitationService.php:232
 msgid "This invitation has expired."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:177
+#: src/Modules/Invitations/InvitationService.php:237
 msgid "Please provide a valid recovery email."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:181
+#: src/Modules/Invitations/InvitationService.php:241
 msgid "Password must be at least 8 characters."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:185
+#: src/Modules/Invitations/InvitationService.php:245
 msgid ""
 "An account with that email already exists. Sign in instead and the "
 "invitation will link silently."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:208
+#: src/Modules/Invitations/InvitationService.php:268
 msgid "This invitation was just accepted by someone else."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:228
+#: src/Modules/Invitations/InvitationService.php:288
 msgid "Already accepted."
 msgstr ""
 
@@ -22281,10 +22403,6 @@ msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:808
 msgid "Body size"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:817
-msgid "Send now"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:822
@@ -37892,7 +38010,7 @@ msgid "Acceptance-slip return deadline"
 msgstr ""
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:98
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:98
+#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:100
 msgid "The club"
 msgstr ""
 
@@ -37955,12 +38073,12 @@ msgid "Datum:"
 msgstr ""
 
 #. translators: 1: player name, 2: days remaining (negative if past)
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:89
+#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:91
 #, php-format
 msgid "Trial input needed: %1$s (%2$d days)"
 msgstr ""
 
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:94
+#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:96
 #, php-format
 msgid ""
 "Hi %1$s,\n"
@@ -40726,12 +40844,12 @@ msgid "— %s"
 msgstr ""
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:109
+#: src/Modules/Workflow/Notifications/TaskMailer.php:110
 #, php-format
 msgid "New task: %1$s. Deadline: %2$s."
 msgstr ""
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:128
+#: src/Modules/Workflow/Notifications/TaskMailer.php:129
 msgid "no deadline"
 msgstr ""
 
@@ -45731,50 +45849,50 @@ msgstr ""
 #. translators: %s: person display name
 #. translators: %s = recipient name
 #: src/Shared/Frontend/FrontendMailComposeView.php:47
-#: src/Shared/Frontend/FrontendMailComposeView.php:94
+#: src/Shared/Frontend/FrontendMailComposeView.php:97
 #, php-format
 msgid "Compose email to %s"
 msgstr ""
 
 # #0063 — q2 polish epic
 #: src/Shared/Frontend/FrontendMailComposeView.php:54
-#: src/Shared/Frontend/FrontendMailComposeView.php:63
+#: src/Shared/Frontend/FrontendMailComposeView.php:67
 msgid "Compose email"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:64
+#: src/Shared/Frontend/FrontendMailComposeView.php:68
 msgid "No recipient on file."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:74
+#: src/Shared/Frontend/FrontendMailComposeView.php:78
 msgid "Security check failed. Please reload the page and try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:79
+#: src/Shared/Frontend/FrontendMailComposeView.php:83
 msgid "Subject and message body are both required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:100
+#: src/Shared/Frontend/FrontendMailComposeView.php:103
 msgid "Email sent. A copy has been logged to the audit trail."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:104
+#: src/Shared/Frontend/FrontendMailComposeView.php:107
 msgid ""
 "wp_mail returned false. The audit log captured the attempt; check the site's "
 "SMTP / mailer configuration."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:121
+#: src/Shared/Frontend/FrontendMailComposeView.php:124
 msgid "Subject"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:127
+#: src/Shared/Frontend/FrontendMailComposeView.php:130
 msgid ""
 "Sends from the academy's configured email address. Every send is recorded in "
 "the audit log."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:130
+#: src/Shared/Frontend/FrontendMailComposeView.php:133
 msgid "Send email"
 msgstr ""
 
