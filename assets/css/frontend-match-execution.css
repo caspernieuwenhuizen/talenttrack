@@ -86,9 +86,13 @@
     color: var(--tt-mexec-ink-soft);
     margin: 0 0 6px;
 }
+/* #2857 — two cells now: the derived score, and one button that opens the
+ * goal sheet. The old three-cell +/- stepper is gone with the endpoint that
+ * backed it; a goal is removed by undoing it in the event feed. */
 .tt-mexec-score-stepper {
     display: grid;
-    grid-template-columns: var(--tt-mexec-tap-min) 44px var(--tt-mexec-tap-min);
+    grid-template-columns: minmax(44px, auto) var(--tt-mexec-tap-min);
+    gap: 8px;
     align-items: center;
     justify-content: center;
 }
@@ -105,18 +109,24 @@
     padding: 0;
 }
 .tt-mexec-score-btn:active { background: var(--tt-mexec-line); }
-.tt-mexec-score-btn--minus { border-radius: var(--tt-mexec-radius) 0 0 var(--tt-mexec-radius); }
-.tt-mexec-score-btn--plus  { border-radius: 0 var(--tt-mexec-radius) var(--tt-mexec-radius) 0; background: var(--tt-mexec-accent); color: white; border-color: var(--tt-mexec-accent); }
-.tt-mexec-score-btn--plus:active { background: #1a5d96; }
+.tt-mexec-score-btn--goal {
+    border-radius: var(--tt-mexec-radius);
+    background: var(--tt-mexec-accent);
+    color: white;
+    border-color: var(--tt-mexec-accent);
+}
+.tt-mexec-score-btn--goal:active { background: #1a5d96; }
 .tt-mexec-score-num {
     text-align: center;
     font-size: 28px;
     font-weight: 800;
     line-height: 1;
     background: var(--tt-mexec-paper);
-    border-top: 1px solid var(--tt-mexec-line);
-    border-bottom: 1px solid var(--tt-mexec-line);
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: var(--tt-mexec-radius);
     height: var(--tt-mexec-tap-min);
+    min-width: 44px;
+    padding: 0 0.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1043,12 +1053,13 @@
     color: #fff;
 }
 .tt-mexec .tt-mexec-score-btn:active { background: rgba(255, 255, 255, 0.22); }
-.tt-mexec .tt-mexec-score-btn--plus {
+.tt-mexec .tt-mexec-score-btn--goal {
     background: var(--tt-mx-gold);
     border-color: var(--tt-mx-gold);
     color: var(--tt-mx-primary);
 }
-.tt-mexec .tt-mexec-score-btn--plus:active { background: #d8a91d; }
+.tt-mexec .tt-mexec-score-btn--goal:active { background: #d8a91d; }
+.tt-mexec .tt-mexec-score-num { border: none; }
 
 /* ---- Timer — clock chip + live dot -------------------------------- */
 .tt-mexec .tt-mexec-timer { padding: 0.9rem 1.1rem; }
@@ -1765,3 +1776,211 @@
 }
 .tt-mexec-late-event-submit:active { filter: brightness(0.92); }
 .tt-mexec-late-event-submit:disabled { background: var(--tt-line, #b0b3b6); border-color: var(--tt-line, #b0b3b6); cursor: not-allowed; }
+
+/* ----- #2857 — the goal sheet -------------------------------------- *
+ * A bottom sheet, because it is used one-handed on a phone at the side
+ * of a pitch: the picker sits in the thumb zone and the chrome stays out
+ * of the way. Wide viewports get a centred dialog instead, where a
+ * bottom-anchored sheet would be a long way from the pointer.            */
+.tt-mexec-goal-sheet {
+    border: none;
+    border-radius: var(--tt-mexec-radius) var(--tt-mexec-radius) 0 0;
+    padding: 0;
+    width: 100%;
+    max-width: 720px;
+    max-height: 88vh;
+    margin: auto auto 0;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+    overscroll-behavior: contain;
+}
+.tt-mexec-goal-sheet::backdrop { background: rgba(14, 26, 20, 0.55); }
+.tt-mexec-goal-sheet-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-mexec-gap);
+    padding: var(--tt-mexec-gap-lg);
+    padding-bottom: calc(var(--tt-mexec-gap-lg) + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+}
+.tt-mexec-goal-sheet-head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tt-mexec-goal-sheet-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+.tt-mexec-goal-sheet-sub {
+    margin: 0;
+    color: var(--tt-mexec-ink-soft);
+    font-size: 0.9rem;
+}
+.tt-mexec-goal-sheet-when {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0;
+}
+.tt-mexec-goal-sheet-minute {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-goal-sheet-minute input {
+    /* 16px floor keeps iOS from zooming the whole sheet on focus. */
+    font-size: 16px;
+    min-height: var(--tt-mexec-tap-min);
+    width: 5rem;
+    padding: 0 10px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 8px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-goal-sheet-half {
+    display: inline-flex;
+    gap: 8px;
+}
+.tt-mexec-goal-half-btn {
+    min-height: var(--tt-mexec-tap-min);
+    min-width: var(--tt-mexec-tap-min);
+    padding: 0 12px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 999px;
+    background: var(--tt-mexec-mute);
+    color: var(--tt-mexec-ink);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-half-btn[aria-pressed="true"] {
+    background: var(--tt-mexec-accent);
+    border-color: var(--tt-mexec-accent);
+    color: #fff;
+}
+
+.tt-mexec-goal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tt-mexec-goal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 0 14px 0 8px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 999px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-chip:active { background: var(--tt-mexec-mute); }
+.tt-mexec-goal-chip[aria-pressed="true"] {
+    background: var(--tt-mexec-accent);
+    border-color: var(--tt-mexec-accent);
+    color: #fff;
+}
+.tt-mexec-goal-chip-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--tt-mexec-mute);
+    color: var(--tt-mexec-ink);
+    font-size: 0.85rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-goal-chip[aria-pressed="true"] .tt-mexec-goal-chip-num {
+    background: rgba(255, 255, 255, 0.24);
+    color: #fff;
+}
+
+.tt-mexec-goal-more { margin: 0; }
+.tt-mexec-goal-more-summary {
+    min-height: var(--tt-mexec-tap-min);
+    display: flex;
+    align-items: center;
+    color: var(--tt-mexec-ink-soft);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-more[open] .tt-mexec-goal-more-summary { margin-bottom: 8px; }
+
+.tt-mexec-goal-escapes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tt-mexec-goal-escape {
+    min-height: var(--tt-mexec-tap-min);
+    padding: 0 14px;
+    border: 1px dashed var(--tt-mexec-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--tt-mexec-ink-soft);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-escape:active { background: var(--tt-mexec-mute); }
+.tt-mexec-goal-escape[aria-pressed="true"] {
+    border-style: solid;
+    border-color: var(--tt-mexec-accent);
+    color: var(--tt-mexec-accent);
+}
+
+.tt-mexec-goal-sheet-error {
+    margin: 0;
+    color: var(--tt-mexec-danger);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.tt-mexec-goal-sheet-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--tt-mexec-line);
+    padding-top: var(--tt-mexec-gap);
+}
+.tt-mexec-goal-sheet-actions .tt-btn {
+    min-height: var(--tt-mexec-tap-min);
+    flex: 1 1 auto;
+}
+
+.tt-mexec-goal-sheet :focus-visible {
+    outline: 2px solid var(--tt-mexec-accent);
+    outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+    .tt-mexec-goal-sheet {
+        border-radius: var(--tt-mexec-radius);
+        margin: auto;
+        max-height: 80vh;
+    }
+    .tt-mexec-goal-sheet-actions { justify-content: flex-end; }
+    .tt-mexec-goal-sheet-actions .tt-btn { flex: 0 0 auto; }
+}

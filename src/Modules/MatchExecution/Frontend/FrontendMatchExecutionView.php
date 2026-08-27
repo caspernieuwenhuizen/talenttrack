@@ -297,22 +297,27 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <?php endif; ?>
             </header>
 
+            <?php // #2857 — the scoreline is a readout of the goal log, not a
+                  // number the coach edits. Each side keeps one button, and it
+                  // logs a goal rather than incrementing a counter: that is the
+                  // whole point of the change, since a goal recorded as "+1"
+                  // carried no scorer, no minute and no way back to the player.
+                  // There is no "−": a goal is removed by undoing it in the
+                  // event feed, where what is being removed is legible. ?>
             <section class="tt-mexec-score" aria-label="<?php esc_attr_e( 'Score', 'talenttrack' ); ?>">
                 <div class="tt-mexec-score-line">
                     <div class="tt-mexec-score-col">
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $home_abbr ); ?></p>
-                        <div class="tt-mexec-score-stepper" aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $home_abbr ) ); ?>">
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="home" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease home score', 'talenttrack' ); ?>">−</button>
-                            <output class="tt-mexec-score-num" data-tt-mexec-home-score><?php echo (int) $home_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="home" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase home score', 'talenttrack' ); ?>">+</button>
+                        <div class="tt-mexec-score-stepper">
+                            <output class="tt-mexec-score-num" data-tt-mexec-home-score aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $home_abbr ) ); ?>"><?php echo (int) $home_score; ?></output>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="home" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $home_abbr ) ); ?>">+</button>
                         </div>
                     </div>
                     <div class="tt-mexec-score-col">
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $away_abbr ); ?></p>
-                        <div class="tt-mexec-score-stepper" aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $away_abbr ) ); ?>">
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="away" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease away score', 'talenttrack' ); ?>">−</button>
-                            <output class="tt-mexec-score-num" data-tt-mexec-away-score><?php echo (int) $away_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="away" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase away score', 'talenttrack' ); ?>">+</button>
+                        <div class="tt-mexec-score-stepper">
+                            <output class="tt-mexec-score-num" data-tt-mexec-away-score aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $away_abbr ) ); ?>"><?php echo (int) $away_score; ?></output>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="away" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $away_abbr ) ); ?>">+</button>
                         </div>
                     </div>
                 </div>
@@ -1081,6 +1086,69 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     </p>
                 </div>
             </footer>
+
+            <?php // #2857 — the goal sheet. Opened by either scoreboard
+                  // button; the picker contents are built in JS from the live
+                  // on-pitch / bench split, because a server-rendered roster
+                  // goes stale the moment a substitution happens.
+                  //
+                  // Two steps, but Save is reachable from the first: a coach
+                  // who does not care about assists never sees the second. The
+                  // escape hatches matter more than they look — without a way
+                  // to say "I did not see who scored", the only remaining
+                  // affordance was a score control that recorded no event.
+                  ?>
+            <?php if ( $is_editable ) :
+                $goal_minute_max = (int) $prep->half_length_minutes + 10;
+                ?>
+                <dialog class="tt-mexec-goal-sheet" data-tt-mexec-goal-sheet aria-labelledby="tt-mexec-goal-sheet-title">
+                    <div class="tt-mexec-goal-sheet-inner">
+                        <header class="tt-mexec-goal-sheet-head">
+                            <h2 class="tt-mexec-goal-sheet-title" id="tt-mexec-goal-sheet-title" data-tt-mexec-goal-sheet-title><?php esc_html_e( 'Who scored?', 'talenttrack' ); ?></h2>
+                            <p class="tt-mexec-goal-sheet-when">
+                                <label class="tt-mexec-goal-sheet-minute">
+                                    <span><?php esc_html_e( 'Minute', 'talenttrack' ); ?></span>
+                                    <input type="number" inputmode="numeric" autocomplete="off"
+                                           min="0" max="<?php echo (int) $goal_minute_max; ?>"
+                                           data-tt-mexec-goal-minute />
+                                </label>
+                                <?php // The half is a toggle, not a readout: the sheet is
+                                      // also how a goal gets logged after the whistle, when
+                                      // the clock no longer says which half it was. ?>
+                                <span class="tt-mexec-goal-sheet-half" role="group" aria-label="<?php esc_attr_e( 'Half', 'talenttrack' ); ?>">
+                                    <button type="button" class="tt-mexec-goal-half-btn" data-tt-mexec-goal-half="1"><?php esc_html_e( '1st half', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-mexec-goal-half-btn" data-tt-mexec-goal-half="2"><?php esc_html_e( '2nd half', 'talenttrack' ); ?></button>
+                                </span>
+                            </p>
+                        </header>
+
+                        <div class="tt-mexec-goal-sheet-step" data-tt-mexec-goal-step="scorer">
+                            <div class="tt-mexec-goal-chips" data-tt-mexec-goal-onpitch></div>
+                            <details class="tt-mexec-goal-more" data-tt-mexec-goal-more>
+                                <summary class="tt-mexec-goal-more-summary"><?php esc_html_e( 'Bench and rest of squad', 'talenttrack' ); ?></summary>
+                                <div class="tt-mexec-goal-chips" data-tt-mexec-goal-bench></div>
+                            </details>
+                            <div class="tt-mexec-goal-escapes">
+                                <button type="button" class="tt-mexec-goal-escape" data-tt-mexec-goal-unknown><?php esc_html_e( 'Scorer not recorded', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-mexec-goal-escape" data-tt-mexec-goal-own></button>
+                            </div>
+                        </div>
+
+                        <div class="tt-mexec-goal-sheet-step" data-tt-mexec-goal-step="assist" hidden>
+                            <p class="tt-mexec-goal-sheet-sub" data-tt-mexec-goal-assist-sub></p>
+                            <div class="tt-mexec-goal-chips" data-tt-mexec-goal-assist></div>
+                            <button type="button" class="tt-mexec-goal-escape" data-tt-mexec-goal-no-assist><?php esc_html_e( 'No assist', 'talenttrack' ); ?></button>
+                        </div>
+
+                        <p class="tt-mexec-goal-sheet-error" data-tt-mexec-goal-error role="alert" hidden></p>
+
+                        <footer class="tt-mexec-goal-sheet-actions">
+                            <button type="button" class="tt-btn tt-btn-secondary tt-mexec-goal-cancel" data-tt-mexec-goal-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                            <button type="button" class="tt-btn tt-btn-primary tt-mexec-goal-save" data-tt-mexec-goal-save disabled><?php esc_html_e( 'Save goal', 'talenttrack' ); ?></button>
+                        </footer>
+                    </div>
+                </dialog>
+            <?php endif; ?>
         </div>
 
         <?php
@@ -1183,6 +1251,20 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 // #2273 — transient "just came off" bench pill (live sub).
                 'came_off'          => __( 'Off', 'talenttrack' ),
                 'just_came_off_for' => __( 'Just came off for', 'talenttrack' ),
+                // #2857 — the live goal sheet.
+                'goal_title_scorer'   => __( 'Who scored?', 'talenttrack' ),
+                'goal_title_opponent' => __( 'Opponent goal', 'talenttrack' ),
+                'goal_title_assist'   => __( 'Who assisted?', 'talenttrack' ),
+                'goal_own_theirs'     => __( 'Own goal (theirs)', 'talenttrack' ),
+                'goal_own_ours'       => __( 'Own goal (ours)', 'talenttrack' ),
+                /* translators: %s: the scorer's name */
+                'goal_assist_sub'     => __( 'Scored by %s', 'talenttrack' ),
+                'goal_scorer_unknown' => __( 'Scorer not recorded', 'talenttrack' ),
+                'goal_minute_error'   => __( 'Enter a minute inside the match.', 'talenttrack' ),
+                'goal_save_error'     => __( 'Could not save the goal. It has been removed from the score.', 'talenttrack' ),
+                /* translators: %1$s: who scored, %2$d: the minute */
+                'goal_toast_format'   => __( '✓ Goal · %1$s · %2$d\'', 'talenttrack' ),
+                'goal_pick_our_scorer'=> __( 'Which of ours put it in?', 'talenttrack' ),
                 // #2275 — opponent-goal review affordances.
                 'away_goal_del_confirm' => __( 'Remove this opponent goal? The score updates.', 'talenttrack' ),
                 'away_goal_minute_error'=> __( 'Enter a valid minute.', 'talenttrack' ),
