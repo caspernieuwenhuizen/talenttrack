@@ -56198,6 +56198,27 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "assist %s"
+msgstr "assist %s"
+
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
+msgid "Save attribution"
+msgstr "Toekenning opslaan"
+
+msgid "Could not save the attribution."
+msgstr "Kon de toekenning niet opslaan."
+
+msgctxt "who scored a goal"
+msgid "Scorer"
+msgstr "Maker"
+
+msgctxt "who created a goal"
+msgid "Assist"
+msgstr "Assist"
+
 #~ msgid ""
 #~ "Changes colours, corners and heading type only — never what anyone can "
 #~ "see or do. Federation is a navy chrome with a gold marker on the active "
@@ -57581,25 +57602,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-msgid "assist %s"
-msgstr "assist %s"
-
-msgctxt "goal put in by the side it counts against"
-msgid "Own goal"
-msgstr "Eigen doelpunt"
-
-msgid "Save attribution"
-msgstr "Toekenning opslaan"
-
-msgid "Could not save the attribution."
-msgstr "Kon de toekenning niet opslaan."
-
-msgctxt "who scored a goal"
-msgid "Scorer"
-msgstr "Maker"
-
-msgctxt "who created a goal"
-msgid "Assist"
-msgstr "Assist"
 
