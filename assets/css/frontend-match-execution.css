@@ -6,6 +6,22 @@
  * `tt-mexec-` prefix to scope cleanly within the dashboard chrome.
  */
 
+/*
+ * #2917 — how much room the pinned footer takes, in one place.
+ *
+ * Two things read it: `.tt-mexec`'s scroll clearance, and the sideline
+ * toast. It lives on `:root` rather than on `.tt-mexec` because the toast
+ * is appended to `document.body` (see `toast()` in
+ * frontend-match-execution.js), so a value scoped to `.tt-mexec` would
+ * never reach it — the toast would silently fall back and the two numbers
+ * would drift apart again, which is the bug this replaces.
+ *
+ * The name is prefixed, so defining it globally collides with nothing.
+ */
+:root {
+    --tt-mexec-foot-h: 96px;
+}
+
 .tt-mexec {
     --tt-mexec-tap-min: 48px;
     --tt-mexec-gap: 12px;
@@ -25,7 +41,7 @@
     margin: 0 auto;
     background: var(--tt-mexec-bg);
     color: var(--tt-mexec-ink);
-    padding-bottom: 96px;
+    padding-bottom: var(--tt-mexec-foot-h);
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -352,6 +368,50 @@
 .tt-mexec-footer-cta[data-action="start-second-half"] { background: var(--tt-mexec-success); }
 .tt-mexec-footer-cta[data-action="end-match"]         { background: var(--tt-mexec-danger); }
 .tt-mexec-footer-cta[data-action="done"]              { background: var(--tt-mexec-ink); }
+/*
+ * #2936 — armed state on the two destructive transitions.
+ *
+ * The label changes too (in JS), so this never depends on colour alone.
+ * The bar drains for the length of the window, which is the part a
+ * confirm dialog cannot show: it says "this is closing", not just "are
+ * you sure".
+ */
+.tt-mexec-footer-cta[data-armed="true"],
+.tt-mexec-finalize-btn[data-armed="true"] {
+    position: relative;
+    overflow: hidden;
+    background: var(--tt-mexec-warn);
+    color: white;
+}
+
+.tt-mexec-footer-cta[data-armed="true"]::after,
+.tt-mexec-finalize-btn[data-armed="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    transform-origin: left center;
+    animation: tt-mexec-arm-drain 3s linear forwards;
+}
+
+@keyframes tt-mexec-arm-drain {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* Hold the bar full rather than draining it. The 3s timeout still
+       applies — the guard is unchanged, only the animation is. */
+    .tt-mexec-footer-cta[data-armed="true"]::after,
+    .tt-mexec-finalize-btn[data-armed="true"]::after {
+        animation: none;
+        transform: scaleX(1);
+    }
+}
+
 .tt-mexec-footer-sub {
     font-size: 12px;
     color: var(--tt-mexec-ink-soft);
@@ -567,7 +627,10 @@
 .tt-mexec-toast {
     position: fixed;
     left: 50%;
-    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    /* #2917 — reads the footer's published height instead of duplicating
+       it. The 12px is a deliberate gap: the toast sat flush against the
+       footer before, which made the Undo action read as part of it. */
+    bottom: calc(var(--tt-mexec-foot-h) + 12px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%);
     z-index: 1000;
     display: flex;

@@ -461,7 +461,14 @@ final class ExcelImporter {
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
                 'player_id'   => $player_id,
-                'status'      => (string) ( $r['status'] ?? 'Present' ),
+                // #2909 — a spreadsheet says whatever the person typed. Fold
+                // to the canonical member so an import cannot reintroduce the
+                // casing split this migration exists to clear up; anything
+                // outside the five is passed through as the academy's own
+                // vocabulary.
+                'status'      => (string) ( \TT\Domain\Vocabularies\Lookups\AttendanceStatus::normalise(
+                    (string) ( $r['status'] ?? '' )
+                ) ?? ( $r['status'] ?? 'Present' ) ),
                 'notes'       => (string) ( $r['notes']  ?? '' ),
                 'is_guest'    => 0,
             ] );

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T15:07:59+00:00\n"
+"POT-Creation-Date: 2026-08-27T15:45:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -154,7 +154,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:183
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:818
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:362
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:369
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:20
 #: src/Modules/Wizards/Goal/PlayerStep.php:36
 #: src/Shared/Frontend/CoachDashboardView.php:203
@@ -1596,29 +1596,29 @@ msgstr ""
 msgid "Account unlinked."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:82
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:83
 msgid "No evaluations in the last 90 days."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:102
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:103
 msgid "Sparse attendance data — confidence reduced."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:128
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:129
 msgid "Insufficient signal — needs first evaluation and a few activities."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:147
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:148
 #, php-format
 msgid "Composite %s below red threshold %s."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:150
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:151
 #, php-format
 msgid "Composite %s below amber threshold %s."
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:159
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:160
 #, php-format
 msgid "Behaviour %s below floor %s — capped at amber."
 msgstr ""
@@ -1772,7 +1772,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:120
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:893
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:153
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:160
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1012
 msgid "Present"
 msgstr "Anwesend"
@@ -1782,7 +1782,7 @@ msgstr "Anwesend"
 #: src/Modules/Analytics/AnalyticsModule.php:121
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:145
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:216
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:154
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:161
 msgid "Absent"
 msgstr "Abwesend"
 
@@ -2615,17 +2615,17 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:318
 #: src/Infrastructure/REST/ActivitiesRestController.php:453
-#: src/Infrastructure/REST/ActivitiesRestController.php:550
+#: src/Infrastructure/REST/ActivitiesRestController.php:554
 msgid "No changes supplied."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:324
-#: src/Infrastructure/REST/ActivitiesRestController.php:1135
-#: src/Infrastructure/REST/ActivitiesRestController.php:1152
-#: src/Infrastructure/REST/ActivitiesRestController.php:1182
-#: src/Infrastructure/REST/ActivitiesRestController.php:1587
-#: src/Infrastructure/REST/ActivitiesRestController.php:1756
-#: src/Infrastructure/REST/ActivitiesRestController.php:1794
+#: src/Infrastructure/REST/ActivitiesRestController.php:1139
+#: src/Infrastructure/REST/ActivitiesRestController.php:1156
+#: src/Infrastructure/REST/ActivitiesRestController.php:1186
+#: src/Infrastructure/REST/ActivitiesRestController.php:1600
+#: src/Infrastructure/REST/ActivitiesRestController.php:1770
+#: src/Infrastructure/REST/ActivitiesRestController.php:1808
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:99
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
@@ -2640,13 +2640,13 @@ msgid "You do not coach this activity's team."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:430
-#: src/Infrastructure/REST/ActivitiesRestController.php:527
+#: src/Infrastructure/REST/ActivitiesRestController.php:531
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:120
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:110
 msgid "That team is not in your scope."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:635
+#: src/Infrastructure/REST/ActivitiesRestController.php:639
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
 #: src/Infrastructure/REST/GoalsRestController.php:142
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -2655,27 +2655,27 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:929
+#: src/Infrastructure/REST/ActivitiesRestController.php:933
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:941
+#: src/Infrastructure/REST/ActivitiesRestController.php:945
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:969
+#: src/Infrastructure/REST/ActivitiesRestController.php:973
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1000
-#: src/Infrastructure/REST/ActivitiesRestController.php:1129
-#: src/Infrastructure/REST/ActivitiesRestController.php:1147
-#: src/Infrastructure/REST/ActivitiesRestController.php:1172
-#: src/Infrastructure/REST/ActivitiesRestController.php:1583
-#: src/Infrastructure/REST/ActivitiesRestController.php:1693
-#: src/Infrastructure/REST/ActivitiesRestController.php:1734
-#: src/Infrastructure/REST/ActivitiesRestController.php:1752
-#: src/Infrastructure/REST/ActivitiesRestController.php:1791
+#: src/Infrastructure/REST/ActivitiesRestController.php:1004
+#: src/Infrastructure/REST/ActivitiesRestController.php:1133
+#: src/Infrastructure/REST/ActivitiesRestController.php:1151
+#: src/Infrastructure/REST/ActivitiesRestController.php:1176
+#: src/Infrastructure/REST/ActivitiesRestController.php:1596
+#: src/Infrastructure/REST/ActivitiesRestController.php:1707
+#: src/Infrastructure/REST/ActivitiesRestController.php:1748
+#: src/Infrastructure/REST/ActivitiesRestController.php:1766
+#: src/Infrastructure/REST/ActivitiesRestController.php:1805
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:165
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:182
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1128
@@ -2685,78 +2685,78 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1018
+#: src/Infrastructure/REST/ActivitiesRestController.php:1022
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1052
+#: src/Infrastructure/REST/ActivitiesRestController.php:1056
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1311
+#: src/Infrastructure/REST/ActivitiesRestController.php:1315
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:1608
+#: src/Infrastructure/REST/ActivitiesRestController.php:1622
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1612
+#: src/Infrastructure/REST/ActivitiesRestController.php:1626
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1615
+#: src/Infrastructure/REST/ActivitiesRestController.php:1629
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1675
+#: src/Infrastructure/REST/ActivitiesRestController.php:1689
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1676
+#: src/Infrastructure/REST/ActivitiesRestController.php:1690
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1714
+#: src/Infrastructure/REST/ActivitiesRestController.php:1728
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1715
+#: src/Infrastructure/REST/ActivitiesRestController.php:1729
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1721
+#: src/Infrastructure/REST/ActivitiesRestController.php:1735
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1737
+#: src/Infrastructure/REST/ActivitiesRestController.php:1751
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1814
-#: src/Infrastructure/REST/ActivitiesRestController.php:1871
+#: src/Infrastructure/REST/ActivitiesRestController.php:1828
+#: src/Infrastructure/REST/ActivitiesRestController.php:1885
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1817
+#: src/Infrastructure/REST/ActivitiesRestController.php:1831
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1837
+#: src/Infrastructure/REST/ActivitiesRestController.php:1851
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1858
+#: src/Infrastructure/REST/ActivitiesRestController.php:1872
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1874
+#: src/Infrastructure/REST/ActivitiesRestController.php:1888
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -23185,9 +23185,9 @@ msgid "Plan this match first before you can run it."
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:211
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1246
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1254
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1260
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1250
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1258
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1264
 msgid "OPP"
 msgstr ""
 
@@ -23702,15 +23702,19 @@ msgstr ""
 msgid "Could not add the opponent goal."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1192
-msgid "Finalize this match? Goals, subs, and score cannot be edited after."
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1195
+msgid "Tap again to end match"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1193
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1196
+msgid "Tap again to finalize"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1197
 msgid "Could not finalize:"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1194
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1198
 msgid "Could not save:"
 msgstr ""
 
@@ -24057,7 +24061,7 @@ msgstr ""
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:788
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:124
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:336
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:343
 msgid "Mark all present"
 msgstr ""
 
@@ -33452,7 +33456,7 @@ msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:495
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:186
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:191
 msgid "Date:"
 msgstr ""
 
@@ -39678,53 +39682,53 @@ msgstr ""
 msgid "Or mark any absences below first, then continue."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:146
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:153
 msgid "⏰ LATE"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:147
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:154
 msgid "✕ ABSENT"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:148
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:155
 msgid "🛡 EXCUSED"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:149
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:156
 msgid "🩹 INJURED"
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:152
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:159
 #, php-format
 msgid "Attendance for %s"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:159
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:166
 msgid "Mark late"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:160
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:167
 msgid "✓ Late"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:161
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:168
 msgid "× Revert to on-time"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:167
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:174
 msgid "Reason (optional):"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:169
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:176
 msgid "🛡 Excused"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:172
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:179
 msgid "🩹 Injured"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:332
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:339
 msgid ""
 "Mark each player's attendance. Only present + late players will appear in "
 "the rating step."
@@ -42121,26 +42125,26 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:151
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:189
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:194
 #: src/Shared/Frontend/FrontendPlayersManageView.php:703
-#: src/Shared/Frontend/PlayerDashboardView.php:297
+#: src/Shared/Frontend/PlayerDashboardView.php:300
 msgid "Team:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:152
 #: src/Shared/Frontend/FrontendPlayersManageView.php:706
-#: src/Shared/Frontend/PlayerDashboardView.php:298
+#: src/Shared/Frontend/PlayerDashboardView.php:301
 msgid "Pos:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:153
 #: src/Shared/Frontend/FrontendPlayersManageView.php:709
-#: src/Shared/Frontend/PlayerDashboardView.php:299
+#: src/Shared/Frontend/PlayerDashboardView.php:302
 msgid "Foot:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:171
-#: src/Shared/Frontend/PlayerDashboardView.php:318
+#: src/Shared/Frontend/PlayerDashboardView.php:321
 msgid "Additional Information"
 msgstr ""
 
@@ -46626,21 +46630,21 @@ msgid "That activity is no longer available."
 msgstr ""
 
 # v3.92.5 — Activity detail polish (PR 3 of pilot batch)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:192
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:197
 msgid "Opponent:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:195
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:200
 msgid "Location:"
 msgstr ""
 
 #. translators: %s = attendance status label (Present / Absent / Late / etc.)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:211
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:216
 #, php-format
 msgid "Your attendance: %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:221
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:226
 msgid "Notes from your coach"
 msgstr ""
 
@@ -47386,12 +47390,12 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyTeamView.php:43
-#: src/Shared/Frontend/PlayerDashboardView.php:228
+#: src/Shared/Frontend/PlayerDashboardView.php:231
 msgid "You are not on a team yet."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyTeamView.php:75
-#: src/Shared/Frontend/PlayerDashboardView.php:243
+#: src/Shared/Frontend/PlayerDashboardView.php:246
 msgid "Top players on the team"
 msgstr ""
 
@@ -47446,7 +47450,7 @@ msgstr ""
 
 #. translators: %s is the team name.
 #: src/Shared/Frontend/FrontendMyTeamView.php:182
-#: src/Shared/Frontend/PlayerDashboardView.php:255
+#: src/Shared/Frontend/PlayerDashboardView.php:258
 #, php-format
 msgid "Teammates on %s"
 msgstr ""
@@ -51025,23 +51029,23 @@ msgstr ""
 msgid "No goals assigned."
 msgstr ""
 
-#: src/Shared/Frontend/PlayerDashboardView.php:187
+#: src/Shared/Frontend/PlayerDashboardView.php:190
 msgid "(as guest)"
 msgstr ""
 
-#: src/Shared/Frontend/PlayerDashboardView.php:204
+#: src/Shared/Frontend/PlayerDashboardView.php:207
 msgid "Development Over Time"
 msgstr ""
 
-#: src/Shared/Frontend/PlayerDashboardView.php:207
+#: src/Shared/Frontend/PlayerDashboardView.php:210
 msgid "Not enough data yet."
 msgstr ""
 
-#: src/Shared/Frontend/PlayerDashboardView.php:213
+#: src/Shared/Frontend/PlayerDashboardView.php:216
 msgid "How to use your dashboard"
 msgstr ""
 
-#: src/Shared/Frontend/PlayerDashboardView.php:214
+#: src/Shared/Frontend/PlayerDashboardView.php:217
 msgid ""
 "Overview shows your profile and latest radar chart. Evaluations lists every "
 "evaluation your coaches have recorded. Goals shows your development goals. "
