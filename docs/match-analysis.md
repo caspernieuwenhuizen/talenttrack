@@ -134,6 +134,30 @@ see is what they get.
 Phases you left unrated still appear, marked as such. The page should show
 what you said and, just as plainly, what you did not.
 
+### The goals
+
+Between your overall read and the phase tiles, the page lists **the goals
+that made the result**, in the order they happened — minute, who scored,
+and the assist where one was recorded. Minutes run straight through both
+halves, so a second-half goal reads as `52'` rather than restarting at
+`22'`, and the list shows the shape of the game rather than two separate
+clocks.
+
+They sit above the phases on purpose. A run of three conceded inside ten
+minutes is the context for the defending-phase rating underneath it, and
+until now that context lived on a different screen.
+
+Our goals show the scorer; where you logged the goal without one it reads
+**Scorer not recorded**, and an **Own goal** says so rather than borrowing
+somebody's name. The opponent's goals appear as timed marks with no
+scorer — their squad isn't in the system.
+
+The list is **read-only**. Goals are logged and corrected on the
+match-execution screen, and a second place to type them would be a second
+place for them to be wrong. A match with no logged goals shows no goal
+section at all: an empty list would claim nobody scored, when usually it
+just means the match was never run through the live screen.
+
 ## Print, or save as PDF
 
 **Print or save as PDF** opens the analysis as a clean **landscape A4** in

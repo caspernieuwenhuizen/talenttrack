@@ -136,6 +136,32 @@ Fases die je niet beoordeeld hebt staan er nog steeds, als zodanig
 gemarkeerd. De pagina hoort te tonen wat je gezegd hebt en net zo duidelijk
 wat niet.
 
+### De doelpunten
+
+Tussen jouw algemene indruk en de fasetegels somt de pagina **de doelpunten
+op die de uitslag maakten**, in de volgorde waarin ze vielen — minuut, wie
+scoorde, en de assist als je die hebt vastgelegd. De minuten lopen door over
+beide helften, dus een doelpunt in de tweede helft leest als `52'` en begint
+niet opnieuw bij `22'`. Zo toont de lijst het verloop van de wedstrijd in
+plaats van twee losse klokken.
+
+Ze staan bewust boven de fases. Drie tegendoelpunten binnen tien minuten is
+de context bij de beoordeling van de verdedigende fase eronder, en die
+context stond tot nu toe op een ander scherm.
+
+Bij onze doelpunten staat de maker; heb je het doelpunt zonder maker
+vastgelegd, dan leest het **Maker niet vastgelegd**, en een **Eigen
+doelpunt** zegt dat, in plaats van iemands naam te lenen. De doelpunten van
+de tegenstander verschijnen als markeringen met een tijd en zonder maker —
+hun selectie staat niet in het systeem.
+
+De lijst is **alleen-lezen**. Doelpunten leg je vast en corrigeer je op het
+wedstrijduitvoeringsscherm; een tweede plek om ze in te typen zou een tweede
+plek zijn waar ze fout kunnen staan. Een wedstrijd zonder vastgelegde
+doelpunten toont helemaal geen doelpuntenblok: een lege lijst zou beweren
+dat er niet gescoord is, terwijl het meestal betekent dat de wedstrijd nooit
+via het live scherm is gespeeld.
+
 ## Printen of opslaan als PDF
 
 **Printen of opslaan als PDF** opent de analyse als een schone **liggende

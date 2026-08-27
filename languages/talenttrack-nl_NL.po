@@ -57581,3 +57581,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
+msgid "assist %s"
+msgstr "assist %s"
+
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
