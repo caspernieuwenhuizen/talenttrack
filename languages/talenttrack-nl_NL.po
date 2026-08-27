@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T15:29:24+00:00\n"
+"POT-Creation-Date: 2026-08-27T15:45:20+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -25007,9 +25007,9 @@ msgid "Plan this match first before you can run it."
 msgstr "Plan deze wedstrijd eerst voor je hem kunt uitvoeren."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:211
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1246
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1254
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1260
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1250
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1258
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1264
 msgid "OPP"
 msgstr "TEG"
 
@@ -25538,17 +25538,19 @@ msgstr "Voer een geldige minuut in."
 msgid "Could not add the opponent goal."
 msgstr "Kon het doelpunt van de tegenstander niet toevoegen."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1192
-msgid "Finalize this match? Goals, subs, and score cannot be edited after."
-msgstr ""
-"Deze wedstrijd afronden? Doelpunten, wissels en eindstand kunnen daarna niet "
-"meer worden bewerkt."
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1195
+msgid "Tap again to end match"
+msgstr "Tik nogmaals om de wedstrijd te beëindigen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1193
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1196
+msgid "Tap again to finalize"
+msgstr "Tik nogmaals om definitief te maken"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1197
 msgid "Could not finalize:"
 msgstr "Afronden mislukt:"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1194
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1198
 msgid "Could not save:"
 msgstr "Opslaan mislukt:"
 
@@ -55716,13 +55718,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1194
-msgid "Tap again to end match"
-msgstr "Tik nogmaals om de wedstrijd te beëindigen"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1195
-msgid "Tap again to finalize"
-msgstr "Tik nogmaals om definitief te maken"
+#~ msgid "Finalize this match? Goals, subs, and score cannot be edited after."
+#~ msgstr ""
+#~ "Deze wedstrijd afronden? Doelpunten, wissels en eindstand kunnen daarna "
+#~ "niet meer worden bewerkt."
 
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-27T15:29:24+00:00\n"
+"POT-Creation-Date: 2026-08-27T15:45:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -23185,9 +23185,9 @@ msgid "Plan this match first before you can run it."
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:211
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1246
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1254
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1260
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1250
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1258
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1264
 msgid "OPP"
 msgstr ""
 
@@ -23702,15 +23702,19 @@ msgstr ""
 msgid "Could not add the opponent goal."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1192
-msgid "Finalize this match? Goals, subs, and score cannot be edited after."
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1195
+msgid "Tap again to end match"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1193
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1196
+msgid "Tap again to finalize"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1197
 msgid "Could not finalize:"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1194
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1198
 msgid "Could not save:"
 msgstr ""
 
