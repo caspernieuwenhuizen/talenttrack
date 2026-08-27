@@ -1,18 +1,21 @@
 <?php
-namespace TT\Modules\DemoData\Excel;
+namespace TT\Modules\Import\Excel;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\Import\ImportTagSink;
 
 /**
- * ExcelImporter (#0059) — parse + validate + import a demo workbook.
+ * ExcelImporter (#0059) — parse + validate + import a workbook.
  *
  * Returns a structured per-sheet validation report and (when validation
  * passes) inserts rows into the appropriate `tt_*` tables, tagging
- * every row via DemoBatchRegistry with `source: 'excel'`.
+ * every row via the injected `ImportTagSink` with `source: 'excel'`.
+ *
+ * The sink is what separates a demo workbook from a club's real squad
+ * (#2955); the parsing and validation below are identical either way.
  *
  * v1.5 covers Teams, People, Players, Trial_Cases, Sessions/Activities,
  * Session_Attendance, Evaluations, Evaluation_Ratings, Goals,
@@ -25,6 +28,21 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * Hybrid dispatcher knows which procedural generators to skip.
  */
 final class ExcelImporter {
+
+    /**
+     * Builds the sink that records what the import created, given the
+     * batch id. Injected rather than chosen here: the importer has no
+     * business deciding whether the rows it writes are demo data or a
+     * club's real squad.
+     *
+     * @var callable(string):ImportTagSink
+     */
+    private $sink_factory;
+
+    /** @param callable(string):ImportTagSink $sink_factory */
+    public function __construct( callable $sink_factory ) {
+        $this->sink_factory = $sink_factory;
+    }
 
     /**
      * @return array{
@@ -100,7 +118,7 @@ final class ExcelImporter {
         }
 
         $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
-        $registry = new DemoBatchRegistry( $batch_id );
+        $registry = ( $this->sink_factory )( $batch_id );
 
         // Track present sheets — anything with at least one row.
         $present_sheets = [];
@@ -252,7 +270,7 @@ final class ExcelImporter {
      * @param array<string,list<array<string,mixed>>> $rows
      * @return array<string,int>
      */
-    private function insertAll( array $rows, DemoBatchRegistry $registry ): array {
+    private function insertAll( array $rows, ImportTagSink $registry ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 

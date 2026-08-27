@@ -423,6 +423,12 @@ class ModuleMetadata {
                 'icon'        => 'docs',
                 'category'    => self::CAT_ADVANCED,
             ],
+            'TT\\Modules\\Import\\ImportModule' => [
+                'label'       => _x( 'Import', 'module name', 'talenttrack' ),
+                'description' => __( 'Brings teams, players and staff into the academy from a spreadsheet.', 'talenttrack' ),
+                'icon'        => 'import',
+                'category'    => self::CAT_ADMIN,
+            ],
             'TT\\Modules\\DemoData\\DemoDataModule' => [
                 'label'       => __( 'Demo data', 'talenttrack' ),
                 'description' => __( 'Generates sample players and teams for demos and testing — turn off in production.', 'talenttrack' ),

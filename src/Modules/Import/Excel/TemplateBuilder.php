@@ -1,5 +1,5 @@
 <?php
-namespace TT\Modules\DemoData\Excel;
+namespace TT\Modules\Import\Excel;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 

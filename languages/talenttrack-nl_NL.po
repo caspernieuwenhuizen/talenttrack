@@ -55199,6 +55199,16 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Modules/ModuleMetadata.php:427
+msgctxt "module name"
+msgid "Import"
+msgstr "Importeren"
+
+#: src/Shared/Modules/ModuleMetadata.php:428
+msgid "Brings teams, players and staff into the academy from a spreadsheet."
+msgstr ""
+"Haalt ploegen, spelers en staf vanuit een spreadsheet de academie binnen."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 
