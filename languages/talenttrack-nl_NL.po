@@ -56237,6 +56237,30 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:139
+msgctxt "match execution tab"
+msgid "Review"
+msgstr "Controle"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:140
+msgctxt "match execution tab"
+msgid "Minutes"
+msgstr "Minuten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:142
+msgctxt "match execution tab"
+msgid "Squad"
+msgstr "Selectie"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:144
+msgctxt "match execution tab"
+msgid "Pitch"
+msgstr "Opstelling"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:145
+msgctxt "match execution tab"
+msgid "Log"
+msgstr "Verloop"
 #~ msgid "Own goal"
 #~ msgstr "Eigen doelpunt"
 
