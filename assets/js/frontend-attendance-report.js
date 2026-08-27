@@ -122,6 +122,15 @@
             headers: { 'X-WP-Nonce': CFG.nonce || '' },
             credentials: 'same-origin'
         } ).then( function ( res ) {
+            // #2893 — a 403 here is not a failure to load, it is an answer:
+            // this user may not read this team's players. Saying "no
+            // attendance" instead would assert something false about the
+            // data, which is the bug being fixed.
+            if ( res.status === 403 ) {
+                var err = new Error( 'forbidden' );
+                err.ttForbidden = true;
+                throw err;
+            }
             if ( ! res.ok ) {
                 throw new Error( 'HTTP ' + res.status );
             }
@@ -131,8 +140,12 @@
             cell.textContent = '';
             cell.appendChild( renderSubTable( players ) );
             done( true );
-        } ).catch( function () {
-            setMessage( cell, t( 'error', 'Could not load players. Try again.' ) );
+        } ).catch( function ( err ) {
+            if ( err && err.ttForbidden ) {
+                setMessage( cell, t( 'forbidden', 'You do not have access to this team’s players.' ) );
+            } else {
+                setMessage( cell, t( 'error', 'Could not load players. Try again.' ) );
+            }
             done( false );
         } );
     }

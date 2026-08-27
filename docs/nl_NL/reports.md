@@ -74,6 +74,8 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 
 **Bereikmelding.** Als je maar enkele teams traint, tonen de aanwezigheidsrapporten alleen die teams. Levert je filter niets op, dan meldt de lege-status dat het rapport **beperkt is tot de teams die je traint**, zodat een leeg venster niet leest als "de academie heeft geen data".
 
+**Een team uitklappen dat je niet mag lezen, zegt dat ook.** In het teamaanwezigheidsrapport klapt elke rij uit naar de verdeling per speler. Mag je de spelers van dat team niet inzien, dan meldt de uitklap nu dat **je geen toegang hebt tot de spelers van dit team** — waar er eerder stond dat er geen aanwezigheid in de periode was. Dat was een uitspraak over de gegevens in plaats van over je toegang, en kon pal onder een rij staan die 92,9% aanwezig meldde.
+
 Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
 
 ## Een filterset opslaan als benoemde weergave (v4.x+)

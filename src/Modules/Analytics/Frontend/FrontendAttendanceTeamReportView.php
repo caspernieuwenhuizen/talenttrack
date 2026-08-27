@@ -50,6 +50,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
                 'loading'  => __( 'Loading players…', 'talenttrack' ),
                 'error'    => __( 'Could not load players. Try again.', 'talenttrack' ),
                 'empty'    => __( 'No player attendance in this window.', 'talenttrack' ),
+                // #2893 — distinct from `empty`: one is a fact about the
+                // data, the other about the reader.
+                'forbidden' => __( 'You do not have access to this team’s players.', 'talenttrack' ),
                 'player'   => __( 'Player', 'talenttrack' ),
                 'present'  => __( 'Present %', 'talenttrack' ),
                 'flagged'  => __( 'At risk', 'talenttrack' ),
@@ -205,7 +208,10 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             echo '<td class="tt-num">' . esc_html( self::pct( $r->injured, $r->total ) ) . '</td>';
             echo '</tr>';
             // Lazy target row — JS injects the per-player sub-table here.
-            echo '<tr class="tt-att-sub-row" id="tt-att-sub-' . esc_attr( (string) $team_id ) . '" hidden>';
+            // #2893 — `data-tt-table-noop` keeps it out of the table
+            // tools' row count. Every team emits one of these, so without
+            // it the counter read exactly twice the number of teams.
+            echo '<tr class="tt-att-sub-row" data-tt-table-noop="true" id="tt-att-sub-' . esc_attr( (string) $team_id ) . '" hidden>';
             echo '<td colspan="7" class="tt-att-sub-cell"></td>';
             echo '</tr>';
         }
