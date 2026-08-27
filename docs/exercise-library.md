@@ -88,7 +88,7 @@ The columns the file may contain are listed on the import screen itself under
 
 - **Fill in `principle_codes` wherever you can.** This is the column that
   decides whether the drill is useful. A drill with no principles can still be
-  chosen for a session, but the planner can never *prefer* it — so a large
+  chosen for a training, but the planner can never *prefer* it — so a large
   library tagged with nothing behaves like an empty one. Separate several codes
   with a semicolon.
 - **A number outside its range fails its row.** It is not rounded into range.
@@ -101,7 +101,7 @@ The columns the file may contain are listed on the import screen itself under
 If your spreadsheet has an **organisation** column it is added to the end of the
 description, matching the single field the form offers. There is no place for
 per-drill **coaching points**: those belong to a training plan's block, because
-the same drill is coached differently depending on what the session is for.
+the same drill is coached differently depending on what the training is for.
 
 ## Classifying the library
 

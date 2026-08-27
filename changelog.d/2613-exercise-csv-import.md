@@ -12,5 +12,5 @@ your team, exactly as they do when you add one by hand — publishing to the who
 club stays the head of development's decision.
 
 The screen asks you to fill in the principles column wherever you can. A drill
-with no principles can still be chosen for a session, but the planner can never
+with no principles can still be chosen for a training, but the planner can never
 prefer it, so a large library tagged with nothing behaves like an empty one.

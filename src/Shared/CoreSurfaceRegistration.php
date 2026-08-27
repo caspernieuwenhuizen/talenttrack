@@ -127,6 +127,12 @@ final class CoreSurfaceRegistration {
         // anyone who would only be shown a "not authorized" notice.
         $reg::register( 'exercises', 'tt_view_activities' );
 
+        // #2613 — the library's CSV importer. A narrower gate than the
+        // library itself: reading the list needs tt_view_activities,
+        // writing 150 rows into it needs tt_manage_exercises, which is
+        // the importer view's own early return.
+        $reg::register( 'exercises-import', 'tt_manage_exercises' );
+
         // #2496 — training plans. Same shape: the plan list guards on
         // tt_training_plan, so any affordance pointing at it does too.
         $reg::register( 'training-plans', 'tt_training_plan' );

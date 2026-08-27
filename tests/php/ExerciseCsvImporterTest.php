@@ -33,12 +33,25 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
     /** @var list<string> */
     private $tmp_files = [];
 
+    /**
+     * Exercises already in the table when the test starts.
+     *
+     * An install seeds a substantial library — migration 0090 plus the VCT
+     * catalogue — so an absolute `COUNT(*)` measures the seed, not the
+     * import. Every count assertion here is a delta from this baseline.
+     *
+     * @var int
+     */
+    private $baseline = 0;
+
     public function set_up(): void {
         parent::set_up();
         global $wpdb;
         $this->p = $wpdb->prefix;
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $this->baseline = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->p}tt_exercises" );
     }
 
     public function tear_down(): void {
@@ -145,8 +158,8 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
     // ── principles ─────────────────────────────────────────────────────
 
     public function test_a_known_principle_code_is_linked(): void {
-        $principle = $this->insertPrinciple( 'AO-01' );
-        $csv       = $this->csv( "name,principle_codes\nRondo,AO-01\n" );
+        $principle = $this->insertPrinciple( 'ZZTEST-01' );
+        $csv       = $this->csv( "name,principle_codes\nRondo,ZZTEST-01\n" );
 
         $summary = ExerciseCsvImporter::commit( $csv );
 
@@ -155,9 +168,9 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
     }
 
     public function test_several_codes_link_and_a_repeat_does_not_duplicate(): void {
-        $a   = $this->insertPrinciple( 'AO-01' );
-        $b   = $this->insertPrinciple( 'AO-02' );
-        $csv = $this->csv( "name,principle_codes\nRondo,AO-01;AO-02;AO-01\n" );
+        $a   = $this->insertPrinciple( 'ZZTEST-01' );
+        $b   = $this->insertPrinciple( 'ZZTEST-02' );
+        $csv = $this->csv( "name,principle_codes\nRondo,ZZTEST-01;ZZTEST-02;ZZTEST-01\n" );
 
         ExerciseCsvImporter::commit( $csv );
 
@@ -167,8 +180,8 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
     }
 
     public function test_an_unknown_principle_code_fails_its_row_rather_than_being_dropped(): void {
-        $this->insertPrinciple( 'AO-01' );
-        $csv = $this->csv( "name,principle_codes\nRondo,AO-01;NOPE-99\n" );
+        $this->insertPrinciple( 'ZZTEST-01' );
+        $csv = $this->csv( "name,principle_codes\nRondo,ZZTEST-01;NOPE-99\n" );
 
         $preview = ExerciseCsvImporter::preview( $csv );
 
@@ -182,8 +195,8 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
     }
 
     public function test_rows_without_principles_are_counted_in_the_preview(): void {
-        $this->insertPrinciple( 'AO-01' );
-        $csv = $this->csv( "name,principle_codes\nTagged,AO-01\nUntagged,\nAlsoUntagged,\n" );
+        $this->insertPrinciple( 'ZZTEST-01' );
+        $csv = $this->csv( "name,principle_codes\nTagged,ZZTEST-01\nUntagged,\nAlsoUntagged,\n" );
 
         $preview = ExerciseCsvImporter::preview( $csv );
 
@@ -301,9 +314,11 @@ final class ExerciseCsvImporterTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
+    /** Exercises created since the test started. */
     private function countExercises(): int {
         global $wpdb;
-        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->p}tt_exercises" );
+        $now = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->p}tt_exercises" );
+        return $now - $this->baseline;
     }
 
     private function lastExerciseId(): int {

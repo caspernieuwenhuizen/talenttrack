@@ -73,7 +73,7 @@ class FrontendExerciseCsvImportView extends FrontendViewBase {
             </p>
 
             <p class="tt-csv-import-help">
-                <?php esc_html_e( 'Fill in principle_codes wherever you can. A drill with no principles can still be chosen for a session, but the planner can never prefer it — so a large library tagged with nothing behaves like an empty one.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Fill in principle_codes wherever you can. A drill with no principles can still be chosen for a training, but the planner can never prefer it — so a large library tagged with nothing behaves like an empty one.', 'talenttrack' ); ?>
             </p>
 
             <details class="tt-csv-import-fields">

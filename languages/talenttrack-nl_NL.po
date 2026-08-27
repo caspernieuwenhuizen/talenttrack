@@ -57121,7 +57121,7 @@ msgid "Upload a CSV with one exercise per row. The first row must be a header na
 msgstr "Upload een CSV-bestand met één oefening per rij. De eerste rij moet een kopregel zijn die de kolommen benoemt. Een rij die mislukt breekt de import niet af: elke goede rij wordt opgeslagen en de mislukte rijen krijg je terug als bestand dat je kunt corrigeren en opnieuw uploaden."
 
 #: src/Modules/Exercises/
-msgid "Fill in principle_codes wherever you can. A drill with no principles can still be chosen for a session, but the planner can never prefer it — so a large library tagged with nothing behaves like an empty one."
+msgid "Fill in principle_codes wherever you can. A drill with no principles can still be chosen for a training, but the planner can never prefer it — so a large library tagged with nothing behaves like an empty one."
 msgstr "Vul principle_codes in waar je kunt. Een oefening zonder principes kan nog steeds gekozen worden voor een training, maar de planner kan er nooit de voorkeur aan geven — een grote bibliotheek zonder principes gedraagt zich dus als een lege."
 
 #: src/Modules/Exercises/
