@@ -56198,9 +56198,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-msgid "Own goal"
-msgstr "Eigen doelpunt"
-
 msgid "assist %s"
 msgstr "assist %s"
 
@@ -56208,19 +56205,6 @@ msgctxt "goal put in by the side it counts against"
 msgid "Own goal"
 msgstr "Eigen doelpunt"
 
-msgid "Save attribution"
-msgstr "Toekenning opslaan"
-
-msgid "Could not save the attribution."
-msgstr "Kon de toekenning niet opslaan."
-
-msgctxt "who scored a goal"
-msgid "Scorer"
-msgstr "Maker"
-
-msgctxt "who created a goal"
-msgid "Assist"
-msgstr "Assist"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:235
 msgctxt "who created a goal"
 msgid "Assists"
@@ -56240,6 +56224,16 @@ msgstr[1] "%d assists"
 #: src/Infrastructure/REST/GoalContributionsRestController.php:51
 msgid "Invalid player."
 msgstr "Ongeldige speler."
+
+msgid "Save attribution"
+msgstr "Toekenning opslaan"
+
+msgid "Could not save the attribution."
+msgstr "Kon de toekenning niet opslaan."
+
+msgctxt "who scored a goal"
+msgid "Scorer"
+msgstr "Maker"
 
 #~ msgid ""
 #~ "Changes colours, corners and heading type only — never what anyone can "
