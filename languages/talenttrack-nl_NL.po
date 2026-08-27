@@ -55351,10 +55351,8 @@ msgstr "Dit verwijdert definitief %s die uit dit bestand zijn gekomen."
 #, php-format
 msgid "%d of them has been changed since the import, and those changes will go too."
 msgid_plural "%d of them have been changed since the import, and those changes will go too."
-msgstr[0] ""
-"%d daarvan is gewijzigd sinds de import; die wijziging gaat mee weg."
-msgstr[1] ""
-"%d daarvan zijn gewijzigd sinds de import; die wijzigingen gaan mee weg."
+msgstr[0] "%d daarvan is gewijzigd sinds de import; die wijziging gaat mee weg."
+msgstr[1] "%d daarvan zijn gewijzigd sinds de import; die wijzigingen gaan mee weg."
 
 #: src/Modules/Import/ImportModule.php:38
 msgid "What came in from a spreadsheet, and a way to take a whole import back out again."
