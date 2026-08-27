@@ -55291,6 +55291,62 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:154
+msgid "not sent yet"
+msgstr "nog niet verstuurd"
+
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:112
+msgid "Send all invitations"
+msgstr "Alle uitnodigingen versturen"
+
+#. translators: %d: number of invitations waiting to be sent
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
+#, php-format
+msgid ""
+"%d invitation is waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgid_plural ""
+"%d invitations are waiting to be sent. Nobody has received their sign-in "
+"details yet."
+msgstr[0] ""
+"%d uitnodiging wacht om verstuurd te worden. Niemand heeft zijn "
+"inloggegevens al ontvangen."
+msgstr[1] ""
+"%d uitnodigingen wachten om verstuurd te worden. Niemand heeft zijn "
+"inloggegevens al ontvangen."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:33
+msgid "Invitation sent."
+msgstr "Uitnodiging verstuurd."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:37
+msgid ""
+"Could not send this invitation. It may already have been sent, accepted, "
+"expired or revoked."
+msgstr ""
+"Deze uitnodiging kon niet worden verstuurd. Mogelijk is hij al verstuurd, "
+"geaccepteerd, verlopen of ingetrokken."
+
+#. translators: %d: number of invitations sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:55
+#, php-format
+msgid "%d invitation sent."
+msgid_plural "%d invitations sent."
+msgstr[0] "%d uitnodiging verstuurd."
+msgstr[1] "%d uitnodigingen verstuurd."
+
+#. translators: %d: number of invitations that could not be sent
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:68
+#, php-format
+msgid "%d invitation could not be sent and was left alone."
+msgid_plural "%d invitations could not be sent and were left alone."
+msgstr[0] "%d uitnodiging kon niet worden verstuurd en is overgeslagen."
+msgstr[1] "%d uitnodigingen konden niet worden verstuurd en zijn overgeslagen."
+
+#: src/Modules/Invitations/Frontend/InvitationSendHandler.php:79
+msgid "There was nothing waiting to be sent."
+msgstr "Er stond niets klaar om te versturen."
+
 #~ msgid "Knowledge library"
 #~ msgstr "Kennisbank"
 

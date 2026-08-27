@@ -50,9 +50,10 @@ class InvitationService {
      *   prefill_last_name?:string,
      *   prefill_email?:string,
      *   override_cap?:bool,
-     *   override_reason?:string
+     *   override_reason?:string,
+     *   defer_send?:bool
      * } $args
-     * @return array{ok:bool, id:?int, token:?string, error:?string, cap_exceeded:?bool}
+     * @return array{ok:bool, id:?int, token:?string, error:?string, cap_exceeded:?bool, deferred?:bool}
      */
     public function create( array $args ): array {
         $kind = (string) ( $args['kind'] ?? '' );
@@ -106,6 +107,11 @@ class InvitationService {
             ];
         }
 
+        // #2964 — hold the credentials. Used by the onboarding staff step,
+        // where the admin adds coaches and wants to look around before
+        // anything reaches them.
+        $defer_send = ! empty( $args['defer_send'] );
+
         $ttl = max( 1, (int) $this->config->getInt( 'invite_token_ttl_days', 14 ) );
         $expires = gmdate( 'Y-m-d H:i:s', time() + $ttl * 86400 );
         $token = InvitationToken::generate();
@@ -124,6 +130,9 @@ class InvitationService {
             'locale'                      => $locale,
             'created_by'                  => $userId,
             'expires_at'                  => $expires,
+            // #2964 — NULL means "created, nobody mailed yet". A normal
+            // create stamps it, so existing callers are unchanged.
+            'sent_at'                     => $defer_send ? null : gmdate( 'Y-m-d H:i:s' ),
         ] );
 
         if ( $id <= 0 ) {
@@ -134,6 +143,10 @@ class InvitationService {
             do_action( 'tt_invitation_cap_overridden', $userId, $id, (string) $args['override_reason'] );
         }
 
+        // #2964 — the hook still fires when the send is deferred. Other
+        // listeners may legitimately care that an invitation now exists;
+        // it is only the email dispatch that waits. InvitationEmailNotifier
+        // reads `sent_at IS NULL` and stands down.
         do_action( 'tt_invitation_created', $id, $kind );
 
         return [
@@ -142,7 +155,54 @@ class InvitationService {
             'token'        => $token,
             'error'        => null,
             'cap_exceeded' => false,
+            'deferred'     => $defer_send,
         ];
+    }
+
+    /**
+     * Deliver a deferred invitation and stamp `sent_at`.
+     *
+     * Idempotent by design: an invitation that already carries `sent_at`
+     * returns false without dispatching, so a double-click or a retried
+     * bulk send cannot mail someone their credentials twice.
+     */
+    public function send( int $invitationId ): bool {
+        $invitation = $this->repo->find( $invitationId );
+        if ( ! $invitation ) return false;
+
+        if ( (string) ( $invitation->sent_at ?? '' ) !== '' ) return false;
+        if ( (string) $invitation->status !== InvitationStatus::PENDING ) return false;
+
+        $this->repo->update( $invitationId, [ 'sent_at' => gmdate( 'Y-m-d H:i:s' ) ] );
+
+        // Re-read so the notifier sees the stamped row and does not treat
+        // this dispatch as another deferred one.
+        InvitationEmailNotifier::dispatch( $invitationId, (string) $invitation->kind );
+
+        return true;
+    }
+
+    /**
+     * Send every unsent invitation, reporting per invitation rather than
+     * one aggregate result — a bulk send where three of twelve failed is
+     * not "failed", and the admin needs to know which three.
+     *
+     * @param int[]|null $ids null sends every unsent invitation.
+     * @return array{sent:int[], skipped:int[]}
+     */
+    public function sendDeferred( ?array $ids = null ): array {
+        $targets = $ids ?? $this->repo->unsentIds();
+
+        $sent = [];
+        $skipped = [];
+        foreach ( $targets as $id ) {
+            if ( $this->send( (int) $id ) ) {
+                $sent[] = (int) $id;
+            } else {
+                $skipped[] = (int) $id;
+            }
+        }
+        return [ 'sent' => $sent, 'skipped' => $skipped ];
     }
 
     // Accept
