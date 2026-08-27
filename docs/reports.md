@@ -149,6 +149,30 @@ many minutes each player actually played across the day). Either way the minutes
 land on the attendance row and every report reads them. A tournament with no
 recorded minutes still shows nothing — the same honest zero as a match.
 
+### Goals and assists beside the minutes
+
+**Team · Minutes distribution** carries **Goals scored** and **Assists**
+columns next to the minutes. Minutes say how much of the game a player got;
+goals and assists say what they did with it, and reading the two off
+different screens is what stops anyone comparing them.
+
+Both are counted from the goals logged on the match-execution screen, over
+the same window as the rest of the table. A player who contributed nothing
+shows a zero, not a blank — a blank would read as "not measured".
+
+Three rules are worth knowing, because they decide whose number moves:
+
+- A goal nobody attributed counts toward the **score** but toward **no
+  player**. It belongs to the match until someone fills in the scorer.
+- An **own goal** never adds to the scorer's goals. Putting one into your
+  own net is not an attacking contribution.
+- An **undone** goal counts for nobody.
+
+The same figures appear on the player's own profile — the **Goals scored**
+tile in the at-a-glance strip, with assists on the line beneath. Note the
+wording: the tile beside it, plain **Goals**, counts a player's development
+goals. The two senses are kept apart everywhere they meet.
+
 ### Filtering the minutes reports
 
 **Player · Minutes played** and **Team · Minutes distribution** carry the same
