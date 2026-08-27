@@ -3,7 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\DemoData\Excel\SheetSchemas;
+use TT\Modules\Import\Excel\SheetSchemas;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 
