@@ -2835,7 +2835,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * @param array<int,object> $guests     guest attendance rows (#0026)
      */
     private static function renderForm( int $user_id, bool $is_admin, ?object $session, array $attendance, array $guests ): void {
-        $teams         = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        // The stored team is passed as `must_include` so editing an activity
+        // never silently unassigns it: without that, a team outside the
+        // editor's scope drops out of the options and the next save writes
+        // whatever the select happens to land on. That is the #2866 failure.
+        $teams         = QueryHelpers::get_teams_in_scope( $user_id, $is_admin, (int) ( $session->team_id ?? 0 ) );
         $selected_team = (int) ( $session->team_id ?? ( $teams ? $teams[0]->id : 0 ) );
 
         // v4.20.10 (#1154) — was: roster spanned every team the coach
