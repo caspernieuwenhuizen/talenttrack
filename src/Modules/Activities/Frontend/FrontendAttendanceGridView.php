@@ -233,7 +233,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         foreach ( $activities as $a ) {
             $aid   = (int) $a['activity_id'];
             $date  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
-            $glyph = $a['is_match'] ? '⚽' : '🏃';
+            // #2993 — icon-set glyph, not an emoji.
+            $glyph = $a['is_match'] ? 'football' : 'training-cone';
             $label = (string) $a['title'] !== '' ? (string) $a['title'] : ( $a['is_match'] ? __( 'Match', 'talenttrack' ) : __( 'Training', 'talenttrack' ) );
             $cls   = 'tt-agrid__act' . ( $a['is_match'] ? ' is-match' : '' );
             // #2521 — a past-dated session that is still planned will be
@@ -247,7 +248,9 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                 . ' data-completes="' . ( $completes ? '1' : '0' ) . '"'
                 . ' data-label="' . esc_attr( trim( $date . ' · ' . $label, ' ·' ) ) . '">';
             echo '<span class="tt-agrid__act-date">' . esc_html( $date ) . '</span>';
-            echo '<span class="tt-agrid__act-type" aria-hidden="true">' . esc_html( $glyph ) . '</span>';
+            echo '<span class="tt-agrid__act-type" aria-hidden="true">'
+                . \TT\Shared\Icons\IconRenderer::render( $glyph, [ 'width' => 14, 'height' => 14 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                . '</span>';
             echo '<button type="button" class="tt-agrid__fill" data-activity="' . esc_attr( (string) $aid ) . '">' . esc_html__( 'all present', 'talenttrack' ) . '</button>';
             echo '</th>';
         }

@@ -1070,8 +1070,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $icon   = self::activityTypeIcon( $type_key );
 
         echo '<header class="tt-act-detail__hero">';
-        echo '<div class="tt-act-detail__icon" style="background:' . esc_attr( $colors['bg'] ) . ';">'
-            . esc_html( $icon ) . '</div>';
+        // #2993 — an icon-set glyph rather than an emoji. It inherits
+        // currentColor, so it works on the type's tinted ground and in a
+        // print, which a colour emoji does not.
+        echo '<div class="tt-act-detail__icon" style="background:' . esc_attr( $colors['bg'] ) . ';">' /* tt-inline-ok */
+            . \TT\Shared\Icons\IconRenderer::render( $icon, [ 'width' => 20, 'height' => 20 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            . '</div>';
         echo '<div class="tt-act-detail__hero-main">';
 
         // Title — match days read "Team vs Opponent" when both known.
@@ -1396,15 +1400,27 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
     }
 
+    /**
+     * The icon-set name for an activity type (#2993).
+     *
+     * These were emoji until now, which is why the match icon read as
+     * out of place: an OS-rendered colour glyph among outline SVGs. All
+     * five moved together rather than only the one that was complained
+     * about — a single SVG beside four emoji is a worse inconsistency
+     * than five emoji were.
+     *
+     * Returns a name for `IconRenderer`, not markup, so callers decide
+     * the size and escaping.
+     */
     private static function activityTypeIcon( string $type_key ): string {
         switch ( strtolower( $type_key ) ) {
             case ActivityTypeKey::GAME:
-            case 'match':              return '⚽';
-            case ActivityTypeKey::TOURNAMENT: return '🏆';
-            case ActivityTypeKey::MEETING:    return '📋';
-            case ActivityTypeKey::OTHER:      return '📌';
+            case 'match':                     return 'football';
+            case ActivityTypeKey::TOURNAMENT: return 'trophy';
+            case ActivityTypeKey::MEETING:    return 'clipboard';
+            case ActivityTypeKey::OTHER:      return 'pin';
             case ActivityTypeKey::TRAINING:
-            default:                   return '🎯';
+            default:                          return 'training-cone';
         }
     }
 

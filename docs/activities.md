@@ -41,7 +41,7 @@ A single **filter bar** sits above the list. On a desktop screen it shows everyt
 The bar holds five controls, each under its own label:
 
 - **Team** — narrow to one team. Defaults to all teams the coach has access to.
-- **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added).
+- **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added). Each type carries its own icon — a football for a match, a trophy for a tournament, a clipboard for a meeting, a cone for training — drawn in the same outline style as the rest of the product, so they read the same on screen and in a print.
 - **Period** — a date window: **All · This week · Next week · This month · Next month · This season**. Picking one scopes the list without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season.
 - **Status** — an **Active · Archived · All** control. **Active** is the default — the timeline you normally see. **Archived** replaces the timeline with a flat list of the activities you've archived, each with a **Restore** button and (for admins) a **Delete permanently** button. **All** shows the active timeline with the archived list appended below it.
 - **Cancelled** — a **Show** switch, off by default. Cancelled activities are hidden so the schedule stays clean; flip it on to bring them back, dimmed and struck through with a Cancelled pill in whichever date bucket they fall.
