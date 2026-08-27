@@ -132,7 +132,7 @@ final class RecipientResolver {
         foreach ( $rows as $row ) {
             $uid = (int) ( is_array( $row ) ? ( $row['parent_user_id'] ?? $row['user_id'] ?? 0 ) : 0 );
             if ( $uid <= 0 ) continue;
-            $email  = (string) ( ContactResolver::emailForParent( $uid ) ?? '' );
+            $email  = (string) ( ContactResolver::emailForUser( $uid ) ?? '' );
             $phone  = (string) ( ContactResolver::phoneForUser( $uid ) ?? '' );
             $locale = (string) get_user_meta( $uid, 'locale', true );
             $out[]  = Recipient::parent( $uid, $playerId, $email, $phone, $locale );

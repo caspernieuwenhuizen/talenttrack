@@ -1,0 +1,406 @@
+/*
+ * theme-leon-hutten.css — the `leon-hutten` theme (#2939).
+ *
+ * Built from the club's design-system handoff. The palette is not a
+ * recolour: every value was sampled from the club crest, which is a
+ * shield with a black border and banner, diagonal stripes running cyan
+ * to navy, and a white wordmark. Black is the chrome, the blue ramp
+ * carries the actions, cyan is the one signature accent.
+ *
+ * Loaded ONLY when ThemePreference resolves to `leon-hutten`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * Two layers, in this order, matching `theme-federation.css`:
+ *
+ *   1. Token overrides. `tokens.css` declares the neutral design tokens
+ *      on `.tt-root` (the body class). This sheet redeclares a subset on
+ *      `.tt-dashboard`, a closer ancestor, so every surface inside the
+ *      dashboard inherits the themed value without a single per-view
+ *      rule.
+ *   2. Chrome. The header and rail read `--tt-paper` and `--tt-primary`,
+ *      which cannot express a black rail without darkening every card,
+ *      so the chrome is a small set of explicit rules against the
+ *      shell's own class vocabulary.
+ *
+ * THE CONTRAST RULE, which is the easiest thing here to get wrong:
+ * `#0262a1` clears 6.5:1 on white and is therefore what carries actions,
+ * links and any small label. `#02a2da` measures 3.3:1 — enough for large
+ * text, icons, borders and fills, not enough for body copy or a small
+ * label on a light surface. Cyan is never spent on running text below.
+ *
+ * Mobile-first per CLAUDE.md §2: nothing here is viewport-conditional
+ * except the collapsed rail, which follows the shell's own breakpoint.
+ * Scoped under `.tt-dashboard` — no global resets, the active WordPress
+ * theme is treated as hostile.
+ */
+
+/*
+ * Open Sans. A theme owns its type as well as its colour, and
+ * `BrandStyles::enqueueFonts()` returns early while a theme is active,
+ * so the club's font picker never fires and nothing else would load
+ * this. Same mechanism `player-card.css` already uses.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap");
+
+.tt-dashboard.tt-theme-leon-hutten {
+    /* ---- Brand tokens ---------------------------------------------- */
+    /*
+     * A theme owns the complete visual design, so it declares the brand
+     * tokens rather than leaving them to the club. `BrandStyles` stops
+     * emitting its `:root` block entirely while a theme is active.
+     *
+     * These are NOT optional. Around forty surfaces read
+     * `var(--tt-primary, #0b3d2e)` with the shipped green as a hardcoded
+     * fallback, so suppressing the club's emission without declaring
+     * replacements here would paint that green straight back in.
+     *
+     * The club keeps its identity through the crest and the academy name,
+     * which are markup rather than tokens and are untouched by this.
+     */
+    --tt-primary:       #0262a1;   /* third stripe — actions, links */
+    --tt-primary-rgb:   2, 98, 161;
+    --tt-secondary:     #02a2da;   /* brightest stripe — signature accent */
+    --tt-secondary-rgb: 2, 162, 218;
+    --tt-accent:        #0262a1;
+
+    /*
+     * Focus rings live on light surfaces almost everywhere, so the ring
+     * takes the 6.5:1 blue rather than the 3.3:1 cyan. The rail is the
+     * exception and rings in cyan explicitly, further down.
+     */
+    --tt-focus-ring:    #0262a1;
+
+    /* The derived brand shades. `frontend-admin.css` and the app chrome read
+       these with green hardcoded as the fallback, so they have to be stated
+       here too or they reintroduce the shipped palette one button at a time. */
+    --tt-primary-deep:  #111111;   /* crest banner — deep headings */
+    --tt-primary-ink:   #0f4b8c;   /* darkest stripe — pressed / hover ink */
+
+    /*
+     * Hover MUST be light. `public.css` pairs this background with
+     * `color: var(--tt-ink)`, so a dark value here puts near-black text on
+     * a near-black button. Cyan is also the handoff's signature
+     * interaction — primary rests in blue, responds in cyan — and it
+     * clears 6:1 against the ink it is paired with.
+     */
+    --tt-primary-hover: #02a2da;
+
+    /* ---- Neutral token overrides ----------------------------------- */
+    /* Cool-cast, so the greys sit with the blues instead of fighting them. */
+    --tt-ink:        #12181d;
+    --tt-ink-soft:   #3f4a55;
+    --tt-muted:      #6b7681;
+
+    /* Surfaces */
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f2f5f7;
+    --tt-line:       #dde3e8;
+    --tt-line-soft:  #e9eef2;
+
+    /* Status — re-tuned by the handoff so they read as part of a cool
+       palette rather than as four borrowed warm colours. */
+    --tt-success:        #14884a;
+    --tt-warning:        #c77a0a;
+    --tt-danger:         #c0342b;
+    --tt-info:           #0284c0;
+    --tt-success-subtle: #dcf1e4;
+    --tt-warning-subtle: #fdf0d9;
+    --tt-danger-subtle:  #fce4e2;
+    --tt-info-subtle:    #e2f2fb;
+
+    /*
+     * The handoff calls in-app cards square, with 3px reserved for pills
+     * and chips. Taken literally that is a 0 everywhere, which reads as
+     * unfinished next to the shipped 8px; 3px is the handoff's own next
+     * step up and keeps the intent — squarer than default, squarer than
+     * Federation.
+     */
+    --tt-radius:     3px;
+    --tt-radius-lg:  6px;
+
+    /* Depth is navy-cast rather than neutral black, so shadows read as
+       part of the palette instead of as grey haze over it. The resting
+       state carries no shadow, per the handoff. */
+    --tt-shadow-sm:  none;
+    --tt-shadow-md:  0 8px 24px -8px rgba(15, 75, 140, .16);
+    --tt-shadow-lg:  0 18px 48px rgba(15, 75, 140, .20);
+
+    /* ---- Type ------------------------------------------------------ */
+    /*
+     * One face for everything. The club site runs Open Sans, so the
+     * system follows it; the crest wordmark is a heavy condensed italic
+     * that is not Open Sans, and echoing it needs a second family the
+     * club has not chosen yet.
+     */
+    --tt-font-display: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --tt-font-body:    "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* ---- Theme-local variables ------------------------------------- */
+    /* Chrome — the black banner and its states. Theme-local (`--tt-lh-`)
+       rather than token overrides, because nothing outside the shell's
+       chrome should pick these up. */
+    --tt-lh-chrome:          #111111;
+    --tt-lh-chrome-2:        #1c1c1c;
+    --tt-lh-chrome-active:   #0f4b8c;
+    --tt-lh-chrome-ink:      #f2f5f7;
+    --tt-lh-chrome-ink-soft: #9aa7b4;
+    --tt-lh-chrome-line:     #2a2a2a;
+
+    /* The one colour the theme spends sparingly: the active marker, the
+       rail's focus ring, and the stripe. 6.8:1 on the black chrome. */
+    --tt-lh-cyan:            #02a2da;
+
+    /*
+     * The crest's diagonal stripes, as a repeating gradient. Decorative
+     * only — never place text on it. Held as a variable so the two
+     * places that draw it cannot drift apart.
+     */
+    --tt-lh-stripes: repeating-linear-gradient(
+        115deg,
+        #02a2da 0px, #02a2da 10px,
+        #0284c0 10px, #0284c0 20px,
+        #0262a1 20px, #0262a1 30px,
+        #0f4b8c 30px, #0f4b8c 40px
+    );
+}
+
+/* ---- Chrome: the top bar ------------------------------------------- */
+/*
+ * The header is the crest's black banner. Left to the brand tokens it
+ * renders in `--tt-primary` — the blue that buttons and links already
+ * use — which puts the chrome and the actions on the same colour and
+ * leaves nothing to distinguish a bar from a button.
+ */
+.tt-dashboard.tt-theme-leon-hutten .tt-dash-header {
+    background: var(--tt-lh-chrome);
+    color: #ffffff;
+    /*
+     * The rule under the bar becomes the stripe motif. Keeping the border
+     * and making it transparent reserves exactly the space the
+     * pseudo-element then paints, and it works for the classic shell too,
+     * where the same border is a heading rule rather than the edge of a
+     * bar. 5px rather than the shipped 3px: the stripe runs at 115°, and
+     * below about 5px the diagonal is cut too thin to read as one — it
+     * breaks up into dashes.
+     */
+    border-bottom: 5px solid transparent;
+    position: relative;
+}
+
+/*
+ * `public.css` hangs a 60px decorative tick off the header's bottom-left
+ * in the secondary colour. The stripe replaces it: same element, full
+ * width, sitting in the transparent border above. Overriding `width` is
+ * required — the shipped rule pins it to 60px.
+ */
+.tt-dashboard.tt-theme-leon-hutten .tt-dash-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -5px;
+    width: auto;
+    height: 5px;
+    background: var(--tt-lh-stripes);
+}
+
+/*
+ * The dashboard title reads `--tt-primary` in the classic shell, where
+ * the header is not a filled bar. Under the app shell it sits on the
+ * black banner, where blue-on-black is 1.9:1. It takes the chrome's ink.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-dash-title {
+    color: var(--tt-lh-chrome-ink);
+}
+
+/* ---- Chrome: the black rail ---------------------------------------- */
+/*
+ * Scoped to the app shell. Under `classic` the theme is the token layer
+ * plus the header above — there is no rail to paint.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav {
+    background: var(--tt-lh-chrome);
+    border-inline-end-color: var(--tt-lh-chrome-line);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-lh-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-lh-chrome-ink-soft);
+}
+
+/*
+ * Hover and active-press are separate steps, so a pressed row is
+ * distinguishable from a hovered one on a device that has both. Touch
+ * devices never see hover — per CLAUDE.md §2 it only enhances; the
+ * active state below is what a tap confirms against.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-lh-chrome-2);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-lh-chrome-active);
+}
+
+/*
+ * Active destination. Navy fill with a cyan inset bar — the two ends of
+ * the crest's stripe, doing the work the club-coloured marker does in
+ * the default theme. Most club primaries fall below the 3:1 a marker
+ * needs against black; the theme's own cyan clears 6.8:1.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-lh-chrome-active);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 var(--tt-lh-cyan);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-lh-cyan);
+}
+
+/*
+ * Focus ring. `--tt-focus-ring` is the 6.5:1 blue, which is right on
+ * every light surface and invisible on this one. The rail rings in cyan.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-lh-cyan);
+    outline-offset: 2px;
+}
+
+/* ---- Collapsible groups -------------------------------------------- */
+/*
+ * The group summaries read light-surface tokens — `--tt-line-soft` for
+ * the divider and `--tt-surface-2` for hover, which nothing defines here
+ * and which therefore falls back to a near-white block on black. Both
+ * take the rail's own vocabulary instead, so a group header and a
+ * destination respond identically.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-lh-chrome-line);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-lh-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-lh-chrome-2);
+    color: var(--tt-lh-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-lh-cyan);
+    outline-offset: -2px;
+}
+
+/* ---- Brand + user blocks ------------------------------------------- */
+/*
+ * The brand block closes on the stripe rather than on a hairline — the
+ * crest's own motif marking where identity ends and navigation begins.
+ * This is the second and last place the stripe appears; it earns its
+ * meaning by being scarce, the same argument Federation makes for gold.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__brand {
+    border-bottom: 5px solid transparent;
+    background-image: var(--tt-lh-stripes);
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 5px;
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-lh-chrome-line);
+}
+
+/*
+ * The crest mark takes cyan on black: it is the club's own colour and
+ * the mark is a large fill, which is where the 3.3:1 cyan belongs. The
+ * user avatar stays quiet navy so the two marks are not competing at
+ * opposite ends of the same rail.
+ */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-lh-cyan);
+    color: var(--tt-lh-chrome);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-lh-chrome-active);
+    color: var(--tt-lh-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-lh-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-lh-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__home:focus-visible {
+    outline: 2px solid var(--tt-lh-cyan);
+    outline-offset: 2px;
+}
+
+/* The collapse control sits on the rail, so it inherits the rail's ink. */
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-lh-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-lh-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-lh-cyan);
+    outline-offset: 2px;
+}
+
+/* ---- Collapsed icon rail (>=1024px) -------------------------------- */
+/*
+ * In the rail the label is hidden and the icon carries the whole target,
+ * so the active marker has to be readable at icon size. The inset bar is
+ * kept — it is the same 3px edge — and the icon takes the cyan.
+ */
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-lh-chrome-line);
+        background: var(--tt-lh-chrome-2);
+        color: var(--tt-lh-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-leon-hutten.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-lh-chrome-ink);
+    }
+}
+
+/* ---- Display type --------------------------------------------------- */
+/*
+ * One family, so the voice comes from weight and tracking rather than
+ * from a second face: 800 with the tracking pulled in, which is the
+ * handoff's display and heading treatment.
+ */
+.tt-dashboard.tt-theme-leon-hutten .tt-spine__name,
+.tt-dashboard.tt-theme-leon-hutten .tt-player-hero__name,
+.tt-dashboard.tt-theme-leon-hutten .tt-fview-title {
+    font-family: var(--tt-font-display);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+}
+
+/*
+ * The specimen sets the eyebrow in cyan. At 0.72rem on white that is the
+ * exact case the handoff's own contrast rule rules out, so the eyebrow
+ * keeps a colour that passes and takes the wide tracking instead — which
+ * is what gives it its character in the specimen anyway.
+ */
+.tt-dashboard.tt-theme-leon-hutten .tt-eyebrow {
+    color: var(--tt-primary);
+    letter-spacing: 0.16em;
+}

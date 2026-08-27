@@ -50,6 +50,11 @@ final class MatchAnalysisDocument {
 
         self::renderHead( $payload );
         self::renderSummary( $payload );
+        // #2860 — the goals sit above the phase tiles because that is what
+        // they are for: a run of three conceded inside ten minutes is the
+        // context for the defending-phase rating further down, and it was
+        // living on another screen.
+        self::renderGoals( (array) ( $payload['goals'] ?? [] ) );
 
         echo '<div class="tt-mad__body">';
         foreach ( MatchAnalysisEnums::chains() as $chain => $section_keys ) {
@@ -279,6 +284,62 @@ final class MatchAnalysisDocument {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * #2860 — the goal timeline, chronological across both halves.
+     *
+     * Renders nothing at all when the match has no logged goals. An empty
+     * frame would say "no goals were scored" where the truth is usually
+     * "this match was never run through the live screen", and a document
+     * that reads as staff evidence should not assert the first.
+     *
+     * @param list<array<string,mixed>> $goals
+     */
+    private static function renderGoals( array $goals ): void {
+        if ( empty( $goals ) ) return;
+
+        echo '<section class="tt-mad__goals" aria-label="' . esc_attr__( 'Goals', 'talenttrack' ) . '">';
+        echo '<h2 class="tt-mad__goals-title">' . esc_html__( 'Goals', 'talenttrack' ) . '</h2>';
+        echo '<ol class="tt-mad__goal-list">';
+
+        foreach ( $goals as $goal ) {
+            $ours = ( (string) ( $goal['team'] ?? 'home' ) === 'home' );
+            $own  = ! empty( $goal['is_own_goal'] );
+
+            // Three states our goals can be in, kept apart. "Own goal" and
+            // "scorer not recorded" are different facts, and collapsing them
+            // into one label is what the review surface stopped doing.
+            if ( ! $ours ) {
+                $who = $own
+                    ? _x( 'Own goal', 'goal put in by the side it counts against', 'talenttrack' )
+                    : __( 'Opponent goal', 'talenttrack' );
+            } elseif ( $own ) {
+                $who = _x( 'Own goal', 'goal put in by the side it counts against', 'talenttrack' );
+            } elseif ( ! empty( $goal['has_scorer'] ) ) {
+                $who = (string) $goal['scorer'];
+            } else {
+                $who = __( 'Scorer not recorded', 'talenttrack' );
+            }
+
+            echo '<li class="tt-mad__goal tt-mad__goal--' . ( $ours ? 'for' : 'against' ) . '">';
+            echo '<span class="tt-mad__goal-min">' . esc_html( sprintf( "%d'", (int) $goal['minute'] ) ) . '</span>';
+            echo '<span class="tt-mad__goal-who">' . esc_html( $who ) . '</span>';
+
+            $assist = (string) ( $goal['assist'] ?? '' );
+            if ( $assist !== '' ) {
+                echo '<span class="tt-mad__goal-assist">' . esc_html( sprintf(
+                    /* translators: %s: the assisting player's name */
+                    __( 'assist %s', 'talenttrack' ),
+                    $assist
+                ) ) . '</span>';
+            }
+
+            echo '</li>';
+        }
+
+        echo '</ol>';
+        echo '</section>';
     }
 
     private static function renderFoot(): void {

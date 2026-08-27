@@ -186,7 +186,10 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             $owned = ! empty( $a['owned_by_execution'] );
             echo '<th class="tt-agrid__act is-match" scope="col" title="' . esc_attr( $label ) . '">';
             echo '<span class="tt-agrid__act-date">' . esc_html( $date ) . '</span>';
-            echo '<span class="tt-agrid__act-type" aria-hidden="true">⚽</span>';
+            // #2993 — icon-set glyph, not an emoji.
+            echo '<span class="tt-agrid__act-type" aria-hidden="true">'
+                . \TT\Shared\Icons\IconRenderer::render( 'football', [ 'width' => 14, 'height' => 14 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                . '</span>';
             if ( $owned ) {
                 echo '<span class="tt-agrid__act-owned" title="' . esc_attr__( 'Minutes come from the match sheet; your entry is kept as a correction.', 'talenttrack' ) . '">' . esc_html__( 'live', 'talenttrack' ) . '</span>';
             }

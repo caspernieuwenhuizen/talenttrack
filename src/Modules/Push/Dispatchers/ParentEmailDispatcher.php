@@ -68,7 +68,7 @@ final class ParentEmailDispatcher implements DispatcherInterface {
         $out  = [];
         $seen = [];
         foreach ( $this->parentUserIdsFor( $player_id ) as $parent_user_id ) {
-            $email = ContactResolver::emailForParent( (int) $parent_user_id );
+            $email = ContactResolver::emailForUser( (int) $parent_user_id );
             if ( $email === null ) continue;
 
             if ( isset( $seen[ $email ] ) ) continue;
@@ -101,7 +101,7 @@ final class ParentEmailDispatcher implements DispatcherInterface {
 
         $emails = [];
         foreach ( $this->parentUserIdsFor( $player_id ) as $pid ) {
-            $email = ContactResolver::emailForParent( (int) $pid );
+            $email = ContactResolver::emailForUser( (int) $pid );
             if ( $email !== null ) $emails[] = $email;
         }
         return array_values( array_unique( $emails ) );
