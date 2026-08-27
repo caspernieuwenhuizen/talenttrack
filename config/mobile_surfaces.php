@@ -146,6 +146,7 @@ return [
     'reports'                       => [ 'read_only', 'Reading a report survives a phone. Assembling one does not.' ],
     'standard-report'               => [ 'read_only', 'The rendered output of a saved report.' ],
     'test-trends'                   => [ 'read_only', 'Trend lines read on a phone; the underlying table does not.' ],
+    'player-bmi'                    => [ 'read_only', 'Percentiles and the change since the last measurement read fine on a phone; the six-column roster table is a desk job.' ],
     'usage-stats'                   => [ 'read_only', 'Summary figures, readable; the drill-down is separate and gated.' ],
 
     /* ---- desktop_only (75) -------------------------------------------- */

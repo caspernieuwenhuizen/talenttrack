@@ -580,6 +580,8 @@ class FeatureRegistry {
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
             // #2537 — one test, every player, over the season.
             'test_trends'                   => __( 'Test trends', 'talenttrack' ),
+            // #2895 — height and weight read against a published growth curve.
+            'player_bmi'                    => __( 'Player · BMI-for-age', 'talenttrack' ),
             // #2650 — knowledge-library completion, three lenses.
             'learning_courses'              => __( 'Learning · Course completion', 'talenttrack' ),
             'learning_people'               => __( 'Learning · Per person', 'talenttrack' ),
