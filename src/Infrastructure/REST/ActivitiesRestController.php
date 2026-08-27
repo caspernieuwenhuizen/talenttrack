@@ -465,7 +465,11 @@ class ActivitiesRestController {
             if ( ! is_array( $c ) ) { $skipped++; continue; }
             $aid    = absint( $c['activity_id'] ?? 0 );
             $pid    = absint( $c['player_id'] ?? 0 );
-            $status = strtolower( trim( (string) ( $c['status'] ?? '' ) ) );
+            // #2909 — fold to the canonical member rather than lowercasing.
+            // The grid's JS posts lowercase, older clients post Title Case,
+            // and both must land in the column as one vocabulary.
+            $raw    = trim( (string) ( $c['status'] ?? '' ) );
+            $status = $raw === '' ? '' : (string) ( AttendanceStatus::normalise( $raw ) ?? $raw );
             if ( $aid <= 0 || $pid <= 0 ) { $skipped++; continue; }
             if ( $status !== '' && ! AttendanceStatus::isValid( $status ) ) { $skipped++; continue; }
 
@@ -1386,10 +1390,13 @@ class ActivitiesRestController {
      * @return array<string, string>
      */
     private static function plannedStatusMap(): array {
+        // #2909 — Title Case, matching AttendanceStatus. This writer used to
+        // emit lowercase while the wizard and the grid wrote Title Case, which
+        // is how the column ended up with two casings in the first place.
         return [
-            'expected'   => 'present',
-            'not_coming' => 'absent',
-            'maybe'      => 'excused',
+            'expected'   => AttendanceStatus::PRESENT,
+            'not_coming' => AttendanceStatus::ABSENT,
+            'maybe'      => AttendanceStatus::EXCUSED,
         ];
     }
 
@@ -1592,14 +1599,15 @@ class ActivitiesRestController {
         $age_raw   = $r['guest_age'] ?? '';
         $age       = ( $age_raw === '' || $age_raw === null ) ? null : max( 0, min( 99, absint( $age_raw ) ) );
         $position  = sanitize_text_field( (string) ( $r['guest_position'] ?? '' ) );
-        // v3.110.143 — was `'Present'` (capitalised). Every other write
-        // path in the codebase normalises to lowercase since v3.110.4,
-        // and downstream reads use `LOWER(status) IN (…)` since
-        // v3.110.78. Send the lowercase canonical value so the row
-        // matches the picker / widget queries without surprises.
+        // #2909 — this used to lowercase, following a v3.110.4 convention
+        // that the wizard and the grid never actually obeyed; that split is
+        // how the column ended up holding two casings. AttendanceStatus is
+        // the authority now, so fold to the canonical member instead.
+        // Anything outside the five is an academy's own vocabulary and is
+        // stored as given.
         $status    = sanitize_text_field( (string) ( $r['status'] ?? AttendanceStatus::PRESENT ) );
         if ( $status !== '' ) {
-            $status = strtolower( $status );
+            $status = (string) ( AttendanceStatus::normalise( $status ) ?? $status );
         }
         $g_notes   = sanitize_textarea_field( (string) ( $r['guest_notes'] ?? '' ) );
 
