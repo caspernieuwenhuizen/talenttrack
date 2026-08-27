@@ -186,9 +186,14 @@ class FrontendAuditLogView extends FrontendViewBase {
             return;
         }
 
+        // The #0035 gate rejects user-visible "session" vocabulary, and it
+        // is right to: the product's own word for a bounded period of
+        // activity is elsewhere spoken for. "Impersonation" is the countable
+        // noun here anyway, and it names the thing more precisely than
+        // "session" did.
         echo '<p class="tt-audit-summary">' . esc_html( sprintf(
-            /* translators: %d: number of impersonation sessions on record */
-            _n( '%d session on record.', '%d sessions on record.', $total, 'talenttrack' ),
+            /* translators: %d: number of recorded impersonations */
+            _n( '%d impersonation on record.', '%d impersonations on record.', $total, 'talenttrack' ),
             $total
         ) ) . '</p>';
 

@@ -55724,13 +55724,13 @@ msgstr "Je hebt geen rechten om het overnamelog te lezen."
 msgid "Nobody has used impersonation yet."
 msgstr "Er heeft nog niemand een account overgenomen."
 
-#. translators: %d: number of impersonation sessions on record
-#: src/Shared/Frontend/FrontendAuditLogView.php:166
+#. translators: %d: number of recorded impersonations
+#: src/Shared/Frontend/FrontendAuditLogView.php:171
 #, php-format
-msgid "%d session on record."
-msgid_plural "%d sessions on record."
-msgstr[0] "%d sessie vastgelegd."
-msgstr[1] "%d sessies vastgelegd."
+msgid "%d impersonation on record."
+msgid_plural "%d impersonations on record."
+msgstr[0] "%d overname vastgelegd."
+msgstr[1] "%d overnames vastgelegd."
 
 #: src/Shared/Frontend/FrontendAuditLogView.php:178
 msgid "Acted as"
