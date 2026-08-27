@@ -592,6 +592,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         // On a completed or cancelled one it IS the remaining
                         // action, so it leads.
                         'overflow' => $is_planned,
+                        // #2871 — icon-only in the header row. The overflow
+                        // menu still renders it with its label, where there
+                        // is room and an icon alone would read as noise.
+                        'icon_only' => ! $is_planned,
                         'data_attrs' => [
                             'tt-archive-rest-path' => 'activities/' . (int) $session->id,
                             'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
