@@ -57554,3 +57554,15 @@ msgstr "assist %s"
 msgid "Could not save the attribution."
 msgstr "Kon de toekenning niet opslaan."
 
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
+msgctxt "who scored a goal"
+msgid "Scorer"
+msgstr "Maker"
+
+msgctxt "who created a goal"
+msgid "Assist"
+msgstr "Assist"
+
