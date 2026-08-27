@@ -57560,9 +57560,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
-msgid "Scorer not recorded"
-msgstr "Maker niet vastgelegd"
-
 msgid "Own goal"
 msgstr "Eigen doelpunt"
 
