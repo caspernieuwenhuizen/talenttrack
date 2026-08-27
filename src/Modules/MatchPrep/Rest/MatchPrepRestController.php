@@ -8,6 +8,7 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
 
 /**
  * MatchPrepRestController — REST surface for the match-prep form.
@@ -47,6 +48,23 @@ class MatchPrepRestController {
         // prep_id rather than activity_id because the role row belongs
         // to the match-prep aggregate; the view already knows the
         // prep_id from the initial page load.
+        // #2892 — minting and rotating the staff share link. Both gate on
+        // `can_edit`: deciding a plan naming minors may leave the app is the
+        // author's call, not any reader's.
+        register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)/share', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_share' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)/share/rotate', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'rotate_share' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role', [
             [
                 'methods'             => 'PUT',
@@ -366,5 +384,62 @@ class MatchPrepRestController {
         ] );
 
         return RestResponse::success( [ 'prep_id' => $prep_id, 'role_key' => $role_key ] );
+    }
+
+    /**
+     * #2892 — mint the share link.
+     *
+     * Separate from rendering the surface on purpose, following #2749: if
+     * opening a prep wrote a seed as a side effect, every prep anyone
+     * merely looked at would end up with a live, working URL nobody asked
+     * for. Sharing is a decision.
+     *
+     * Idempotent — calling it twice returns the same link rather than
+     * quietly invalidating one already handed out. Replacing a link is what
+     * `share/rotate` is for.
+     */
+    public static function create_share( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'match_prep_sharing' ) ) {
+            return RestResponse::error( 'sharing_disabled', __( 'Match preparation sharing is switched off.', 'talenttrack' ), 403 );
+        }
+
+        $prep_id = ( new MatchPrepRepository() )->ensureForActivity( $activity_id );
+        if ( $prep_id <= 0 ) {
+            return RestResponse::error( 'db_error', __( 'Match prep could not be created.', 'talenttrack' ), 500 );
+        }
+
+        return RestResponse::success( [
+            'share_url' => MatchPrepShareLink::urlFor( $prep_id ),
+        ] );
+    }
+
+    /**
+     * #2892 — replace the seed, invalidating every URL already issued for
+     * this prep. The revocation the seed exists for.
+     */
+    public static function rotate_share( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'match_prep_sharing' ) ) {
+            return RestResponse::error( 'sharing_disabled', __( 'Match preparation sharing is switched off.', 'talenttrack' ), 403 );
+        }
+
+        $repo    = new MatchPrepRepository();
+        $prep_id = $repo->ensureForActivity( $activity_id );
+        if ( $prep_id <= 0 ) {
+            return RestResponse::error( 'db_error', __( 'Match prep could not be created.', 'talenttrack' ), 500 );
+        }
+
+        $repo->rotateShareTokenSeed( $prep_id );
+
+        return RestResponse::success( [
+            'share_url' => MatchPrepShareLink::urlFor( $prep_id ),
+        ] );
     }
 }

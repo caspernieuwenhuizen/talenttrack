@@ -103,12 +103,11 @@ if ( ! class_exists( 'TT\\Infrastructure\\Usage\\UsageTracker' ) ) {
         }
     ' );
 }
-if ( ! class_exists( 'TT\\Modules\\License\\FreemiusAdapter' ) ) {
+if ( ! class_exists( 'TT\\Modules\\License\\Entitlement' ) ) {
     eval( '
         namespace TT\\Modules\\License;
-        class FreemiusAdapter {
-            public static function isConfigured(): bool { return false; }
-            public static function tier(): string { return "free"; }
+        class Entitlement {
+            public static function tier(): ?string { return null; }
         }
     ' );
 }

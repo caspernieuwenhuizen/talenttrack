@@ -69,6 +69,43 @@ het hoofd opleidingen. Jouw team gebruikt hem hoe dan ook.
 
 Je kunt een oefening ook op **Alleen ikzelf** zetten zolang je er nog aan werkt.
 
+### Veel oefeningen in één keer
+
+Staan de oefeningen van de club al in een spreadsheet, dan hoef je ze niet over
+te typen. Boven **Oefening toevoegen** staat een link naar **Oefeningen
+importeren uit CSV**.
+
+Sla de spreadsheet op als `.csv`-bestand met een kopregel die de kolommen
+benoemt en upload het. Er wordt nog niets opgeslagen: je krijgt eerst een
+controlescherm te zien met elke rij die een probleem heeft, en waarom. Pas als
+je op **Oefeningen importeren** drukt, wordt er iets weggeschreven.
+
+Een rij die mislukt houdt de rest niet tegen. Elke goede rij wordt opgeslagen en
+de mislukte rijen krijg je terug als bestand dat je kunt corrigeren en opnieuw
+uploaden — de reden staat er als extra kolom bij, zodat je ze in de spreadsheet
+kunt herstellen.
+
+Welke kolommen het bestand mag bevatten staat op het importscherm zelf onder
+**Toegestane kolommen**. Drie dingen zijn goed om vooraf te weten:
+
+- **Vul `principle_codes` in waar je kunt.** Dat is de kolom die bepaalt of de
+  oefening bruikbaar is. Een oefening zonder principes kan nog steeds gekozen
+  worden voor een training, maar de planner kan er nooit de *voorkeur* aan
+  geven — een grote bibliotheek zonder principes gedraagt zich dus als een lege.
+  Scheid meerdere codes met een puntkomma.
+- **Een getal buiten zijn bereik laat die rij mislukken.** Het wordt niet naar
+  het bereik toe afgerond. Is een kolom op de verkeerde schaal ingevuld, dan
+  hoor je dat, in plaats van dat elke rij stilletjes wordt aangepast.
+- **Oefeningen komen binnen bij je eigen team**, precies zoals wanneer je er met
+  de hand één toevoegt. Clubbreed publiceren blijft een beslissing van het hoofd
+  opleiding.
+
+Heeft je spreadsheet een kolom **organisation**, dan wordt die achter de
+omschrijving gezet — hetzelfde veld dat het formulier aanbiedt. Voor
+**coachpunten** per oefening is geen plek: die horen bij een blok in een
+trainingsplan, omdat dezelfde oefening anders gecoacht wordt afhankelijk van
+waar de training voor dient.
+
 ## De bibliotheek classificeren
 
 Een oefening zonder principes wordt **nooit voorgesteld door de generator**, en

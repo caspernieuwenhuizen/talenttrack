@@ -23,6 +23,17 @@ Een **persoon** is een echte rol bij de club. Een **WordPress-gebruiker** is een
 
 Koppel ze als beide bestaan. De koppeling maakt dingen mogelijk als "coach X mag team Y zien" en "wie coacht dit team".
 
+### Contactgegevens blijven gelijk
+
+Zodra een persoon en een account gekoppeld zijn, worden hun **e-mailadres en telefoonnummer op beide plekken gelijk gehouden**. Wijzig je het e-mailadres bij de persoon, dan volgt het inlogaccount; wijzig je het op het WordPress-profiel, dan volgt het persoonsrecord. Wat je ook aanpast, dát is het adres waar de berichten van de academie daadwerkelijk naartoe gaan.
+
+Twee dingen om te weten:
+
+- **Het e-mailadres van iemand wijzigen verandert ook waar zijn wachtwoordherstel naartoe gaat**, want het is hetzelfde adres waarmee het account inlogt. Meestal is dat precies de bedoeling, maar het is goed om te weten voordat je het record van een collega aanpast.
+- **Gebruikt een ander account dat e-mailadres al**, dan wordt het persoonsrecord gewoon opgeslagen en blijft het inlogadres ongewijzigd, met een melding die dat zegt. WordPress staat niet toe dat twee accounts hetzelfde adres delen.
+
+Een persoon zonder gekoppeld account houdt zijn contactgegevens zoals voorheen — niets om te synchroniseren, niets dat verloren gaat. Dat is de fysiotherapeut uit het lijstje hierboven.
+
 ## Functionele rollen
 
 Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**, **Assistent-coach**, **Fysio**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](access-control.md) — door iemand de functionele rol Hoofdcoach toe te kennen, krijgt hij/zij automatisch de benodigde rechten.

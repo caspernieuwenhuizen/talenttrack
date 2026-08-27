@@ -80,10 +80,12 @@ Email and push notifications that would have been triggered by the target user's
 
 Every session is written to the `tt_impersonation_log` table: who impersonated whom, when it started and ended, the IP and user agent, and the reason given.
 
-**There is no way to read that log inside TalentTrack yet.** No screen lists it, and there is no REST endpoint for it. Reviewing it today means querying the database directly. If your academy relies on being able to review impersonation after the fact — and if you allow impersonation at all, you should — treat that as a gap rather than an oversight on your part.
+Read it under **Audit log → Impersonation**. One row per session: when it started, who started it, whose account they acted as, when it ended and how, the reason they gave, and the address they came from. A session that has not ended reads **Still open** — someone is inside another person's account right now, which is a different fact from a session that finished last week.
+
+The tab only appears if you are allowed to read it. It is gated on the `impersonation_log` matrix entity (Academy Admin RCD, Head of Development R), separately from the rest of the audit log — seeing who opened a minor's record is a narrower question than seeing who edited what.
+
+The same data is available at `GET /wp-json/talenttrack/v1/impersonation/log`, filterable by `actor_user_id`, `target_user_id`, `date_from`, `date_to` and `active_only`, for anyone who would rather pull it into their own reporting.
 
 ## Limitations
-
-- **The audit log has no reader surface.** As above.
 - **Cross-club impersonation** is not implemented. TalentTrack runs one academy per install today, so there is no cross-club case to gate.
 - **2FA is not re-challenged.** Starting a session signs you in as the target without a second-factor prompt. A `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )` constant is reserved for clubs that need the challenge, but it is not wired up.

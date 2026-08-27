@@ -32,7 +32,7 @@ final class KnowledgeReaderTest extends WP_UnitTestCase {
     private const COURSE = 'voetbalperiodisering';
 
     /** The four routable surfaces this wave adds. */
-    private const SLUGS = [ 'knowledge', 'course', 'lesson', 'my-learning' ];
+    private const SLUGS = [ 'courses', 'course', 'lesson', 'my-learning' ];
 
     private int $person_id = 0;
     private int $user_id   = 0;
@@ -128,7 +128,7 @@ final class KnowledgeReaderTest extends WP_UnitTestCase {
             $slugs[] = (string) ( $tile['view_slug'] ?? '' );
         }
 
-        $this->assertContains( 'knowledge', $slugs );
+        $this->assertContains( 'courses', $slugs );
         $this->assertContains( 'my-learning', $slugs );
     }
 

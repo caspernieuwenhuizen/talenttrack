@@ -8,6 +8,7 @@ use TT\Modules\Exercises\ExerciseScenesRepository;
 use TT\Modules\Exercises\ExercisesRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -140,6 +141,24 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
 
     private static function listUrl(): string {
         return add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ); /* tt-xview-ok — same view */
+    }
+
+    /**
+     * The CSV importer (#2613), carrying a back-target so its breadcrumb
+     * chain can offer the contextual pill back to the library.
+     *
+     * The affordance this builds a URL for is gated: its only caller wraps
+     * the whole paragraph in `CrossViewLink::render( 'exercises-import' )`,
+     * whose gate is registered in
+     * `CoreSurfaceRegistration::registerCrossViewLinkGates()` as
+     * `tt_manage_exercises` — the importer view's own early return. This
+     * method builds a string and renders nothing, so it is marked as the
+     * exception the #2304 gate documents rather than being wrapped again.
+     */
+    private static function importUrl(): string {
+        return BackLink::appendTo(
+            add_query_arg( [ 'tt_view' => 'exercises-import' ], RecordLink::dashboardUrl() ) /* tt-xview-ok — the calling affordance is wrapped in CrossViewLink */
+        );
     }
 
     private static function renderList( int $user_id ): void {
@@ -303,6 +322,27 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
      * list stays the point of the page.
      */
     private static function renderCreateForm( int $user_id ): void {
+        // #2613 — the bulk path, next to the one-at-a-time path. An
+        // academy arriving with 150 drills in a spreadsheet should not
+        // have to discover the importer from a menu somewhere else.
+        //
+        // Gated through CrossViewLink (#2304): writing to the library
+        // needs tt_manage_exercises, which is narrower than the
+        // tt_view_activities that got the reader this far, so a coach who
+        // could only be shown a "not authorized" notice never sees the
+        // invitation.
+        CrossViewLink::render( 'exercises-import', static function (): void {
+            echo '<p class="tt-ex-create__bulk">';
+            printf(
+                /* translators: %s: link to the CSV import screen. */
+                esc_html__( 'Have a lot of them already? %s', 'talenttrack' ),
+                '<a href="' . esc_url( self::importUrl() ) . '">'
+                    . esc_html__( 'Import exercises from CSV', 'talenttrack' )
+                    . '</a>'
+            );
+            echo '</p>';
+        } );
+
         echo '<details class="tt-ex-create">';
         echo '<summary class="tt-ex-create__summary">' . esc_html__( 'Add exercise', 'talenttrack' ) . '</summary>';
         echo '<form class="tt-ex-create__form" method="post" action="">';

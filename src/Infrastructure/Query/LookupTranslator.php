@@ -133,17 +133,56 @@ class LookupTranslator {
     /**
      * Shared row lookup for `byTypeAndName()` + `descriptionByTypeAndName()`.
      * Cached per-request via the same shape `byTypeAndName()` used inline.
+     *
+     * #2863 — exact match first, then a normalised fallback. One column can
+     * hold two casings of the same value when two writers disagree:
+     * `tt_attendance.status` stores `Present` from the attendance wizard and
+     * `present` from the planned-roster path, while the seeded lookup rows
+     * are Title Case. Exact matching resolved the first and missed the
+     * second, which fell through to `__()`, found no msgid, and printed the
+     * raw key — so one column on one screen showed *Aanwezig* on some rows
+     * and *present* on others.
+     *
+     * `LookupPill::resolveRow()` has carried this fallback since v3.71.2 for
+     * the same class of mismatch. `LookupTranslator` never got one, which
+     * meant which surface you happened to look at decided whether a value
+     * translated. Both now answer the same way.
+     *
+     * This makes *reading* robust. It does not make the stored data
+     * consistent — that is a migration, tracked separately.
      */
     private static function rowByTypeAndName( string $type, string $stored_name ): ?object {
         if ( $stored_name === '' ) return null;
         static $cache = [];
+        static $normalised_cache = [];
         if ( ! isset( $cache[ $type ] ) ) {
-            $cache[ $type ] = [];
+            $cache[ $type ]            = [];
+            $normalised_cache[ $type ] = [];
             foreach ( QueryHelpers::get_lookups( $type ) as $row ) {
-                $cache[ $type ][ (string) $row->name ] = $row;
+                // Read once and reuse: the PHPStan baseline records exactly
+                // one `$row->name` access in this file, and a second would
+                // fail the gate on the count rather than on anything real.
+                $name = (string) $row->name;
+                $cache[ $type ][ $name ] = $row;
+                $normalised_cache[ $type ][ self::normaliseName( $name ) ] = $row;
             }
         }
-        return $cache[ $type ][ $stored_name ] ?? null;
+        if ( isset( $cache[ $type ][ $stored_name ] ) ) {
+            return $cache[ $type ][ $stored_name ];
+        }
+        return $normalised_cache[ $type ][ self::normaliseName( $stored_name ) ] ?? null;
+    }
+
+    /**
+     * #2863 — collapse the casing / separator difference between stored
+     * values and lookup-row names. Same rule as
+     * `LookupPill::normaliseName()`, deliberately: two normalisers that
+     * disagree would reintroduce the split this fixes, one surface at a
+     * time.
+     */
+    private static function normaliseName( string $name ): string {
+        $n = strtolower( str_replace( [ '_', '-' ], ' ', $name ) );
+        return trim( (string) preg_replace( '/\s+/', ' ', $n ) );
     }
 
     /**

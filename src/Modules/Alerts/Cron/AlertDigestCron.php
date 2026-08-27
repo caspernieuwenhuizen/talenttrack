@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Cron;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Digest\AlertDigestQuery;
 use TT\Modules\Comms\CommsService;
@@ -123,7 +124,7 @@ final class AlertDigestCron {
             MessageType::ALERT_DIGEST,
             (int) apply_filters( 'tt_current_club_id', 1 ),
             0, // system sender
-            [ Recipient::self( $user_id, (string) $user->user_email ) ],
+            [ Recipient::self( $user_id, (string) ( ContactResolver::emailForUser( $user_id ) ?? '' ) ) ],
             [
                 'alert_count' => (string) count( $rows ),
                 'alert_lines' => $this->renderLines( $rows ),

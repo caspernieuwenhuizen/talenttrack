@@ -23,6 +23,7 @@ return [
     TT\Modules\Reports\ReportsModule::class               => true,
     TT\Modules\Stats\StatsModule::class                   => true,
     TT\Modules\Documentation\DocumentationModule::class   => true,
+    TT\Modules\Import\ImportModule::class                 => true,
     TT\Modules\DemoData\DemoDataModule::class             => true,
     TT\Modules\Onboarding\OnboardingModule::class         => true,
     TT\Modules\Backup\BackupModule::class                 => true,

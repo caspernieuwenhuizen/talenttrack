@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use ReflectionMethod;
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\REST\ActivitiesRestController;
 
 /**
@@ -27,20 +28,33 @@ final class PlannedAttendanceStatusMapTest extends WP_UnitTestCase {
         return (string) $m->invoke( null, $status );
     }
 
+    /**
+     * #2909 — the stored side is Title Case now. These used to assert
+     * lowercase, which was correct while the column had no canonical casing
+     * and this writer happened to disagree with the wizard and the grid.
+     */
     public function test_plan_keys_map_to_stored_statuses(): void {
         $map = $this->map();
-        $this->assertSame( 'present', $map['expected'] );
-        $this->assertSame( 'absent',  $map['not_coming'] );
-        $this->assertSame( 'excused', $map['maybe'] );
+        $this->assertSame( AttendanceStatus::PRESENT, $map['expected'] );
+        $this->assertSame( AttendanceStatus::ABSENT,  $map['not_coming'] );
+        $this->assertSame( AttendanceStatus::EXCUSED, $map['maybe'] );
     }
 
     public function test_stored_status_round_trips_to_plan_key(): void {
-        $this->assertSame( 'expected',   $this->toKey( 'present' ) );
-        $this->assertSame( 'not_coming', $this->toKey( 'absent' ) );
-        $this->assertSame( 'maybe',      $this->toKey( 'excused' ) );
+        $this->assertSame( 'expected',   $this->toKey( AttendanceStatus::PRESENT ) );
+        $this->assertSame( 'not_coming', $this->toKey( AttendanceStatus::ABSENT ) );
+        $this->assertSame( 'maybe',      $this->toKey( AttendanceStatus::EXCUSED ) );
     }
 
+    /**
+     * Rows written before #2909's migration, or by a client that has been
+     * sending lowercase for years, still resolve. That tolerance is why
+     * plannedStatusToKey folds through AttendanceStatus rather than comparing
+     * strings directly.
+     */
     public function test_stored_status_is_case_insensitive(): void {
+        $this->assertSame( 'expected',   $this->toKey( 'present' ) );
+        $this->assertSame( 'not_coming', $this->toKey( 'absent' ) );
         $this->assertSame( 'not_coming', $this->toKey( 'Absent' ) );
         $this->assertSame( 'maybe',      $this->toKey( '  EXCUSED ' ) );
     }

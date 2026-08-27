@@ -3,7 +3,7 @@ title: Metingen & testen
 group: performance
 summary: Vastgelegde testwaarden per speler door de tijd heen, en de trends die daaruit volgen.
 audience: [user, admin]
-views: [measurements, measurements-entry, measurements-coverage, measurement-tests, test-results, test-trends]
+views: [measurements, measurements-entry, measurements-coverage, measurement-tests, test-results, test-trends, player-bmi]
 module: TT\Modules\Measurements\MeasurementsModule
 order: 80
 ---
@@ -402,3 +402,62 @@ zodat je niet terug hoeft naar het dashboard:
 Elke link draagt bij aankomst een contextuele terug-pil, zodat het
 bestemmingsscherm een terugroute met één klik biedt naar waar je vandaan
 kwam.
+
+## BMI naar leeftijd
+
+**Speler · BMI naar leeftijd** gebruikt de lengte en het gewicht die je al
+vastlegt en zet die af tegen een gepubliceerde groeicurve. Je vindt het onder
+**Rapportages**; de meest recente waarde staat ook bovenaan het tabblad
+**Metingen** van een speler.
+
+Een BMI op zichzelf zegt weinig over een jeugdspeler. Dezelfde waarde die bij
+een zestienjarige niets bijzonders is, kan bij een elfjarige hoog zijn. Daarom
+wordt elk getal hier getoond als **percentiel** voor de leeftijd en het geslacht
+van die speler, en niet als losse waarde. Een percentiel beantwoordt de enige
+vraag die ertoe doet: waar staat deze speler ten opzichte van leeftijdsgenoten?
+
+### Wat je eerst nodig hebt
+
+In je testcatalogus moeten een **lengte**-test en een **gewicht**-test staan. De
+gebruikelijke namen werken allemaal — *Lengte*, *Height*, *Gewicht*, *Weight* —
+want de rapportage zoekt op de naam van de test, niet op een vast nummer.
+Ontbreekt er één, dan zegt de rapportage dat, in plaats van een leeg raster te
+tonen.
+
+Een speler heeft ook een **geboortedatum** en een **geslacht** nodig. Zonder
+geboortedatum is er geen leeftijd, en zonder geslacht is er geen curve. In die
+gevallen toont de rapportage wel de BMI, maar blijft het percentiel leeg in
+plaats van dat er iets wordt gegokt.
+
+### Hoe een BMI tot stand komt
+
+Een gewicht wordt gekoppeld aan de dichtstbijzijnde lengte die **binnen 30
+dagen** is vastgelegd. Daarbuiten wordt geen BMI berekend: bij een groeiend kind
+beschrijft een lengte van twee maanden geleden een ander lichaam. Bij elke
+waarde staat hoeveel dagen er tussen beide metingen zaten, zodat je het zelf kunt
+beoordelen.
+
+Spelers zonder bruikbaar paar staan wél in de tabel, met de reden erbij. Weten
+van wie je geen gegevens hebt, is meestal het eerste om op te pakken.
+
+### Wat de rapportage niet doet
+
+Ze zegt niet dat een speler te zwaar of te licht is. Geen rode regels, geen
+waarschuwingskleuren, geen grenswaarden. Ze toont een positie op een curve en
+hoe die positie is verschoven sinds de vorige meting — de kolom **Verandering**
+laat de verschuiving in standaarddeviaties zien, en dat is het getal dat over
+een seizoen iets betekent.
+
+Een groeicurve klinisch duiden is werk voor iemand die daarvoor gekwalificeerd
+is. Dit zijn kinderen, en een scherm dat er één een etiket opplakt waar
+toevallig iemand meekijkt, hoort niet in dit systeem.
+
+### De referentie
+
+Percentielen gebruiken de **WHO-groeireferentie 2007 voor 5–19 jaar**, die op het
+scherm wordt genoemd zodat je altijd weet welke curve je leest. Ze loopt van 5
+tot en met 19 jaar; bij een speler daarbuiten zie je wel een BMI, maar geen
+percentiel.
+
+De referentie is verwisselbaar: heeft jullie academie een andere nodig, dan kan
+die worden ingewisseld zonder dat er verder iets aan de rapportage verandert.

@@ -179,8 +179,11 @@ class PlayerDashboardView {
                 . '<th>' . esc_html__( 'Notes', 'talenttrack' ) . '</th>'
                 . '</tr></thead><tbody>';
             foreach ( $att as $a ) {
-                $status_lower = strtolower( (string) $a->status );
-                $cls = $status_lower === AttendanceStatus::PRESENT ? 'tt-att-present' : ( $status_lower === AttendanceStatus::ABSENT ? 'tt-att-absent' : 'tt-att-other' );
+                // #2909 — fold to the canonical member. Comparing a lowercased
+                // copy against the constant worked only while the constant was
+                // itself lowercase; it is Title Case now.
+                $status_canonical = AttendanceStatus::normalise( (string) $a->status );
+                $cls = $status_canonical === AttendanceStatus::PRESENT ? 'tt-att-present' : ( $status_canonical === AttendanceStatus::ABSENT ? 'tt-att-absent' : 'tt-att-other' );
                 $is_guest_visit = ! empty( $a->is_guest );
                 $session_label  = (string) $a->session_title;
                 if ( $is_guest_visit ) {

@@ -146,7 +146,14 @@ class PasswordResetHandler {
             $academy,
         ];
 
-        wp_mail( $user->user_email, $subject, implode( "\r\n", $lines ) );
+        // Deliberately the ACCOUNT address, not ContactResolver::emailForUser().
+        // Recovery mail belongs to the account, not to the person record — if
+        // it resolved through tt_people, editing a contact email on the People
+        // screen would redirect someone else's password reset. #2961.
+        $recovery = \TT\Infrastructure\Identity\ContactResolver::emailForAccount( (int) $user->ID );
+        if ( $recovery === null ) return;
+
+        wp_mail( $recovery, $subject, implode( "\r\n", $lines ) );
     }
 
     private function loginUrl(): string {

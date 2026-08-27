@@ -62,10 +62,14 @@ class TeamPickerComponent {
     }
 
     /**
+     * #2866 — resolves from the viewer's scope, not from a coach assignment.
+     * A head of development holds a global read on teams and coaches none, so
+     * the old `get_teams_for_coach()` branch handed them an empty picker.
+     *
      * @return array<int, object>
      */
     public static function resolveTeams( int $user_id, bool $is_admin ): array {
-        return $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        return QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
     }
 
     /**

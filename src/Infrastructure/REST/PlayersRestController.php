@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerSex;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
@@ -464,6 +465,7 @@ class PlayersRestController {
                 : '',
             'photo_url'        => (string) ( $pl->photo_url ?? '' ),
             'date_of_birth'    => $pl->date_of_birth ?: null,
+            'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
             // v3.110.170 — row-link standard (#758).
             'detail_url'       => $detail_url,
@@ -533,6 +535,19 @@ class PlayersRestController {
         global $wpdb;
         $data = self::extract( $r );
         $data = self::stampConsent( $data, $existing );
+
+        // #2866 — `extract()` maps a missing `team_id` to 0, which is right
+        // on create (no team chosen) and destructive on update: a partial
+        // payload would silently unassign the player from their squad.
+        //
+        // A `team_id` that is *present* is honoured whatever its value,
+        // including 0 — deliberately choosing the empty option is how a
+        // player is taken off a team, and that has to keep working. Only an
+        // absent key falls back to what is already stored.
+        if ( ! array_key_exists( 'team_id', $r->get_params() ) ) {
+            $data['team_id'] = (int) ( $existing->team_id ?? 0 );
+        }
+
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
@@ -681,6 +696,11 @@ class PlayersRestController {
             'first_name'          => sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
             'last_name'           => sanitize_text_field( (string) ( $r['last_name'] ?? '' ) ),
             'date_of_birth'       => sanitize_text_field( (string) ( $r['date_of_birth'] ?? '' ) ),
+            // #2894 — sanitize() maps anything unrecognised to blank rather
+            // than rejecting the request. An unknown value on a minor's
+            // record should degrade to "not recorded", not fail a save that
+            // was otherwise fine.
+            'sex'                 => PlayerSex::sanitize( $r['sex'] ?? '' ),
             'nationality'         => sanitize_text_field( (string) ( $r['nationality'] ?? '' ) ),
             'height_cm'           => ! empty( $r['height_cm'] ) ? absint( $r['height_cm'] ) : null,
             'weight_kg'           => ! empty( $r['weight_kg'] ) ? absint( $r['weight_kg'] ) : null,
@@ -720,6 +740,7 @@ class PlayersRestController {
             'first_name'          => (string) $pl->first_name,
             'last_name'           => (string) $pl->last_name,
             'date_of_birth'       => $pl->date_of_birth ?: null,
+            'sex'                 => (string) ( $pl->sex ?? '' ),
             'nationality'         => $pl->nationality ?: null,
             'height_cm'           => $pl->height_cm !== null ? (int) $pl->height_cm : null,
             'weight_kg'           => $pl->weight_kg !== null ? (int) $pl->weight_kg : null,

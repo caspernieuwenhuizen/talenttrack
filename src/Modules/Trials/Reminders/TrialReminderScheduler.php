@@ -75,7 +75,9 @@ final class TrialReminderScheduler {
 
     private static function sendReminderEmail( int $user_id, object $case, int $days_remaining ): bool {
         $user = get_userdata( $user_id );
-        if ( ! $user || ! $user->user_email ) return false;
+        if ( ! $user ) return false;
+        $to = \TT\Infrastructure\Identity\ContactResolver::emailForUser( $user_id );
+        if ( $to === null ) return false;
 
         $player = QueryHelpers::get_player( (int) $case->player_id );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $case->player_id;
@@ -98,6 +100,6 @@ final class TrialReminderScheduler {
             get_bloginfo( 'name' ) ?: __( 'The club', 'talenttrack' )
         );
 
-        return (bool) wp_mail( $user->user_email, $subject, $body );
+        return (bool) wp_mail( $to, $subject, $body );
     }
 }

@@ -248,8 +248,12 @@ class ModuleMetadata {
                 'category'    => self::CAT_COACHING,
             ],
             'TT\\Modules\\Knowledge\\KnowledgeModule' => [
-                'label'       => __( 'Knowledge library', 'talenttrack' ),
-                'description' => __( 'Courses and reference material for the coaching staff\'s own development.', 'talenttrack' ),
+                'label'       => __( 'Courses', 'talenttrack' ),
+                // #2883 — was "Courses and reference material". There is no
+                // reference material in there: CourseRegistry is a projection
+                // of the courses/ folder and nothing else. A card should not
+                // promise a second content type that does not exist.
+                'description' => __( 'Courses for the coaching staff\'s own development.', 'talenttrack' ),
                 'icon'        => 'docs',
                 'category'    => self::CAT_COACHING,
             ],
@@ -418,6 +422,12 @@ class ModuleMetadata {
                 'description' => __( 'In-product help pages and admin guides built into the dashboard.', 'talenttrack' ),
                 'icon'        => 'docs',
                 'category'    => self::CAT_ADVANCED,
+            ],
+            'TT\\Modules\\Import\\ImportModule' => [
+                'label'       => _x( 'Import', 'module name', 'talenttrack' ),
+                'description' => __( 'Brings teams, players and staff into the academy from a spreadsheet.', 'talenttrack' ),
+                'icon'        => 'import',
+                'category'    => self::CAT_ADMIN,
             ],
             'TT\\Modules\\DemoData\\DemoDataModule' => [
                 'label'       => __( 'Demo data', 'talenttrack' ),

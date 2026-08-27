@@ -28,6 +28,16 @@ Click **Download template (.xlsx)** in the source step to get a fresh workbook w
 
 Every entity sheet has an `auto_key` column with a live formula that computes a stable text key the moment you start typing. Cross-sheet links use those keys: e.g. `Players.team_key` references `Teams.auto_key`.
 
+### The squad template — three sheets instead of fifteen
+
+There is a second, shorter shape of the same workbook: **Teams, Players and People**, in that order, behind a `_README` that explains only those three.
+
+It exists for the case a club is actually in on its first day — someone has a squad list, not a season of evaluations behind them. Nothing else differs: the three sheets are the same schemas with the same columns, the same `auto_key` formulas and the same validation, so a squad workbook and a full workbook go through one importer.
+
+Sheets you leave out are skipped silently, so a squad workbook raises no complaints about the twelve absent tabs. If a club does have history to bring across, the full fifteen-sheet template is still the way to do it.
+
+Staff belong on the **People** sheet, with a `role` and a `team_key` — there is no separate Staff sheet.
+
 ## What v1.5 imports
 
 The Master + Transactional sheets are imported literally. Reference sheets (Eval_Categories, Category_Weights, _Lookups) are documentation-only in v1.5 — admin-edit those via the existing Configuration surfaces. Generation_Settings is read for hybrid-mode date hints.

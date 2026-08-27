@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Cron;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\ScheduledReportsRepository;
@@ -106,9 +107,9 @@ final class ScheduledReportsRunner {
                 continue;
             }
             // Treat as a WP role key.
-            $users = get_users( [ 'role' => $entry, 'fields' => [ 'user_email' ] ] );
+            $users = get_users( [ 'role' => $entry, 'fields' => [ 'ID' ] ] );
             foreach ( $users as $u ) {
-                $email = (string) ( $u->user_email ?? '' );
+                $email = (string) ( ContactResolver::emailForUser( (int) ( $u->ID ?? 0 ) ) ?? '' );
                 if ( $email !== '' && is_email( $email ) ) $out[] = $email;
             }
         }

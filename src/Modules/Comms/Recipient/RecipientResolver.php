@@ -3,6 +3,7 @@ namespace TT\Modules\Comms\Recipient;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\ContactResolver;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Invitations\PlayerParentsRepository;
@@ -131,12 +132,8 @@ final class RecipientResolver {
         foreach ( $rows as $row ) {
             $uid = (int) ( is_array( $row ) ? ( $row['parent_user_id'] ?? $row['user_id'] ?? 0 ) : 0 );
             if ( $uid <= 0 ) continue;
-            $email  = (string) get_user_meta( $uid, 'billing_email', true );
-            if ( $email === '' ) {
-                $u = get_userdata( $uid );
-                $email = $u ? (string) $u->user_email : '';
-            }
-            $phone  = (string) get_user_meta( $uid, 'tt_phone', true );
+            $email  = (string) ( ContactResolver::emailForParent( $uid ) ?? '' );
+            $phone  = (string) ( ContactResolver::phoneForUser( $uid ) ?? '' );
             $locale = (string) get_user_meta( $uid, 'locale', true );
             $out[]  = Recipient::parent( $uid, $playerId, $email, $phone, $locale );
         }
@@ -151,8 +148,8 @@ final class RecipientResolver {
         if ( $uid <= 0 ) return null;
         $u = get_userdata( $uid );
         if ( ! $u ) return null;
-        $email  = (string) $u->user_email;
-        $phone  = (string) get_user_meta( $uid, 'tt_phone', true );
+        $email  = (string) ( ContactResolver::emailForUser( $uid ) ?? '' );
+        $phone  = (string) ( ContactResolver::phoneForUser( $uid ) ?? '' );
         $locale = (string) get_user_meta( $uid, 'locale', true );
         return Recipient::self( $uid, $email, $phone, $locale );
     }

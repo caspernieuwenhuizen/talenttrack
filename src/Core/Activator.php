@@ -252,6 +252,7 @@ class Activator {
             first_name VARCHAR(255) NOT NULL,
             last_name VARCHAR(255) NOT NULL,
             date_of_birth DATE,
+            sex VARCHAR(20) NOT NULL DEFAULT '',
             nationality VARCHAR(100) DEFAULT '',
             height_cm SMALLINT UNSIGNED DEFAULT NULL,
             weight_kg SMALLINT UNSIGNED DEFAULT NULL,
@@ -814,8 +815,8 @@ class Activator {
         $p = $wpdb->prefix;
         $has_present = $wpdb->get_row( "SHOW COLUMNS FROM `{$p}tt_attendance` LIKE 'present'" );
         if ( ! $has_present ) return;
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='present' WHERE present=1 AND (status IS NULL OR status='')" );
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='absent'  WHERE present=0 AND (status IS NULL OR status='')" );
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Present' WHERE present=1 AND (status IS NULL OR status='')" );
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Absent'  WHERE present=0 AND (status IS NULL OR status='')" );
     }
 
     private static function markMigrationsApplied(): void {

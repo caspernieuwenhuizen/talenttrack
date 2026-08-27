@@ -58,6 +58,14 @@ Een **speler** is een individuele voetballer. Elke speler heeft:
 - Voornaam en achternaam
 - Positie(s), voorkeursvoet, rugnummer
 - Lengte, gewicht, geboortedatum
+- **Geslacht (voor groeicurves)** — optioneel, en bij elke bestaande speler
+  standaard leeg. Het wordt om één reden gevraagd: voor lengte, gewicht en BMI
+  naar leeftijd worden gepubliceerde groeicurves gebruikt, en die zijn
+  gescheiden voor jongens en meisjes. Zonder dit gegeven zijn die naar leeftijd
+  gecorrigeerde waarden niet te berekenen. Het is geen vastlegging van hoe een
+  jongere zichzelf omschrijft en hoort daar ook niet voor gebruikt te worden.
+  Leeg laten kost die speler alleen de naar leeftijd gecorrigeerde kolommen —
+  lengte, gewicht en de gewone BMI blijven gewoon werken.
 - Optionele koppeling aan een WordPress-gebruikersaccount (zodat hij/zij kan inloggen)
 - Eventuele aangepaste velden die je academie heeft geconfigureerd
 
@@ -99,7 +107,7 @@ Het spelersdossier kreeg een herontworpen hero-kaart en lege-staat-CTA's per tab
 Het spelersdossier is opnieuw opgebouwd als een port van `.local-mockups/player-profile/index.html`. Backend ongewijzigd — dezelfde `tt_players`-rij, dezelfde `tt_view_players`-bevoegdheidspoort, dezelfde `?tt_view=players&id=N`-URL — maar het visuele contract verandert ingrijpend.
 
 - **Hero.** Papieren ondergrond met zachte onderschaduw (geen blauwe verloopstrook meer). Het statussignaal verhuist naar een 4px gekleurde rand om de avatar — groen voor `active`, goud voor `trial`, rood voor `released`, neutraal grijs voor `inactive`. Rugnummer wordt een kleine badge in de rechteronderhoek van de avatar met een papier-gekleurde outline. Daaronder: naam + teamlink + statuspil (met inline "X jr in de academie") + eerste positiepil.
-- **Actierij.** `+ Gedrag vastleggen` (primair geïnverteerd) · `Potentieel instellen` · `Bewerken` · `⋯` overflow met **Archiveren** en (als de speler nog geen team heeft) **Aan team toewijzen**. Bevoegdheidsgating ongewijzigd: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_edit_players`.
+- **Actierij.** `+ Gedrag vastleggen` (primair geïnverteerd) · `Potentieel instellen`, en rechts een potlood-icoon **Bewerken** met daarnaast de `⋯` overflow met **Archiveren** en (als de speler nog geen team heeft) **Aan team toewijzen**. Bewerken is alleen een icoon en staat naast de `⋯` in plaats van als brede knop links — de naam bereikt nog steeds een schermlezer en verschijnt bij hover. Bevoegdheidsgating ongewijzigd: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_edit_players`.
 - **Kerngegevens-strook.** Drie kaartjes (Geboortedatum / Voet / Toegetreden) met telkens een hintregel (leeftijd, alternatieve positie, jaren-in-academie). 3-koloms op mobiel + tablet; verandert in een verticale 1-koloms stapel op desktop waar de strook in de linkerkolom belandt.
 - **In één oogopslag KPI-strook.** Drie KPI-kaarten — Gem. beoordeling (met `▲`/`▼` trendpijl t.o.v. het rollende gemiddelde), Aanwezigheid % (laatste 30 dagen), Doelen (actief aantal met optionele hint `N binnenkort verlopen` wanneer er één binnen 7 dagen vervalt). Elke kaart is een link die naar de bijbehorende tab springt.
 - **Tabs.** Pil-vormige chips vervangen de onderstreepte navigatie. Elke tab draagt een teller-badge via `PlayerFileCounts::for()` zodra het aantal > 0 is. Mobiel scrolt horizontaal; tablet+ vouwt naar één zichtbare rij. De Notities-tab verdwijnt volledig voor gebruikers zonder `tt_view_player_notes`. **Schrijf notities alsof het gezin meeleest**: verborgen voor spelers en ouders in de UI, maar bij een AVG-inzageverzoek blijven ze opvraagbaar tenzij je FG een gerechtvaardigd-belang-uitsluiting documenteert (zie de privacy-operatorgids).
