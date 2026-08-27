@@ -57493,3 +57493,46 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Log a goal for %s"
+msgstr "Doelpunt vastleggen voor %s"
+
+msgid "Who scored?"
+msgstr "Wie scoorde?"
+
+msgid "Bench and rest of squad"
+msgstr "Bank en rest van de selectie"
+
+msgid "Scorer not recorded"
+msgstr "Maker niet vastgelegd"
+
+msgid "No assist"
+msgstr "Geen assist"
+
+msgid "Save goal"
+msgstr "Doelpunt opslaan"
+
+msgid "Who assisted?"
+msgstr "Wie gaf de assist?"
+
+msgid "Own goal (theirs)"
+msgstr "Eigen doelpunt (van hen)"
+
+msgid "Own goal (ours)"
+msgstr "Eigen doelpunt (van ons)"
+
+msgid "Scored by %s"
+msgstr "Gemaakt door %s"
+
+msgid "Enter a minute inside the match."
+msgstr "Vul een minuut binnen de wedstrijd in."
+
+msgid "Could not save the goal. It has been removed from the score."
+msgstr "Kon het doelpunt niet opslaan. Het is uit de stand gehaald."
+
+msgid "✓ Goal · %1$s · %2$d'"
+msgstr "✓ Doelpunt · %1$s · %2$d'"
+
+msgid "Which of ours put it in?"
+msgstr "Wie van ons werkte hem erin?"
+

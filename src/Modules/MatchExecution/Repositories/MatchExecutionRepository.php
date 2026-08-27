@@ -373,15 +373,29 @@ class MatchExecutionRepository {
     }
 
     /**
-     * #2275 — sync the opponent's stored `away_score` on the execution row to
-     * the count of non-reversed away goal events, so the scoreline the feed +
-     * review + reports read stays true after an opponent goal is added, edited
-     * or removed. Idempotent.
+     * #2857 — sync BOTH stored scores on the execution row to the count of
+     * non-reversed goal events per team.
+     *
+     * #2275 derived only the away score this way, while the home score stayed
+     * a free-standing number a coach stepped up and down by hand. The two had
+     * nothing holding them together, so the scoreboard could read 3–1 over a
+     * goal list holding one goal, and neither was marked as suspect. Worse,
+     * the away stepper wrote a value this method then overwrote the next time
+     * any opponent goal was touched — the coach's entry discarded in silence.
+     *
+     * Deriving both sides is what removes the class of problem rather than
+     * one instance of it: the score is now a readout of the goal log, and
+     * there is no second place to record a goal.
+     *
+     * Idempotent.
      */
-    public function syncAwayScoreFromGoals( int $execution_id ): void {
+    public function syncScoresFromGoals( int $execution_id ): void {
         if ( $execution_id <= 0 ) return;
         $counts = $this->goalCountsByTeam( $execution_id );
-        $this->update( $execution_id, [ 'away_score' => (int) $counts['away'] ] );
+        $this->update( $execution_id, [
+            'home_score' => (int) $counts['home'],
+            'away_score' => (int) $counts['away'],
+        ] );
     }
 
     /**
