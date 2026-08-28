@@ -52299,11 +52299,20 @@ msgstr "op schema"
 
 #. translators: %d: number of assists the player has been credited with
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:962
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1901
 #, php-format
 msgid "%d assist"
 msgid_plural "%d assists"
 msgstr[0] "%d assist"
 msgstr[1] "%d assists"
+
+#. translators: %d: number of goals the player scored in this match
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1890
+#, php-format
+msgid "%d goal scored"
+msgid_plural "%d goals scored"
+msgstr[0] "%d doelpunt gemaakt"
+msgstr[1] "%d doelpunten gemaakt"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1019
 msgid "Joined recently"

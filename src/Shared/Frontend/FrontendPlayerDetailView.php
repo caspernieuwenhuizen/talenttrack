@@ -1825,6 +1825,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
         $list_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() );
+
+        // #3045 — goals + assists per match for the rows below. One query for
+        // the whole tab, keyed by activity id, from the domain service that
+        // already owns the counting rules (#2859): ours only, own goals and
+        // reversed events excluded, cancelled and archived matches excluded.
+        // Doing it here rather than in the list query keeps one definition of
+        // "a goal contribution" instead of a second one in SQL that would
+        // drift from this one.
+        $contrib_per_match = ( new \TT\Modules\Analytics\Reports\GoalContributionQuery() )
+            ->forPlayer( $player_id )['per_match'];
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">
@@ -1858,7 +1868,43 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                             </div>
                             <div class="tt-player-row__body">
                                 <p class="tt-player-row__title"><?php echo esc_html( (string) ( $a->title ?? '' ) ); ?></p>
-                                <p class="tt-player-row__meta"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $a->session_date ?? '' ) ) ); ?></p>
+                                <p class="tt-player-row__meta">
+                                    <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $a->session_date ?? '' ) ) ); ?>
+                                    <?php
+                                    // #3045 — what the player produced in this match, on the
+                                    // line itself. Only where there is something: a "0 · 0" on
+                                    // every row is noise, and on a training it means nothing.
+                                    //
+                                    // #2859's naming rule holds here too — in this product
+                                    // "goals" already means a development objective, and this
+                                    // tab sits one click from the one that lists those. The
+                                    // scoring sense has to say "scored".
+                                    $contrib = $contrib_per_match[ (int) $a->id ] ?? null;
+                                    $goals   = $contrib !== null ? (int) $contrib['goals'] : 0;
+                                    $assists = $contrib !== null ? (int) $contrib['assists'] : 0;
+                                    if ( $goals > 0 ) : ?>
+                                        <span class="tt-player-row__stat" data-stat="goals">
+                                            <?php
+                                            printf(
+                                                /* translators: %d: number of goals the player scored in this match */
+                                                esc_html( _n( '%d goal scored', '%d goals scored', $goals, 'talenttrack' ) ),
+                                                (int) $goals
+                                            );
+                                            ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if ( $assists > 0 ) : ?>
+                                        <span class="tt-player-row__stat" data-stat="assists">
+                                            <?php
+                                            printf(
+                                                /* translators: %d: number of assists the player made in this match */
+                                                esc_html( _n( '%d assist', '%d assists', $assists, 'talenttrack' ) ),
+                                                (int) $assists
+                                            );
+                                            ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </p>
                             </div>
                             <?php if ( $status_lbl !== '' ) : ?>
                                 <span class="tt-player-row__pill" data-status="<?php echo esc_attr( $status_key ); ?>">

@@ -756,6 +756,22 @@
     flex-wrap: wrap;
     gap: 4px;
 }
+/* #3045 — goals / assists on a match line. Subordinate to the activity
+   title: this is a detail on the row, not its subject. Wraps with the
+   rest of the meta line at 360px rather than pushing the row wide. */
+.tt-player-row__stat {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--tt-mute-soft);
+    color: var(--tt-ink-soft);
+    white-space: nowrap;
+}
+.tt-player-row__stat[data-stat="goals"] {
+    background: #e0efe5;
+    color: var(--tt-success);
+}
 .tt-player-row__chev {
     color: var(--tt-line-soft);
     font-size: 18px;
