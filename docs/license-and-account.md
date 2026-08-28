@@ -9,7 +9,7 @@ order: 100
 
 # License and account
 
-TalentTrack runs on three tiers — **Free**, **Standard** and **Pro**. Which one an install is on is decided when it is provisioned, not inside the plugin: there is no checkout here, no license key to paste, and nothing a club admin can toggle to change what their install is entitled to.
+TalentTrack runs on two plans — **Standard** and **Pro** — plus a **Not activated** state for an install whose plan has not been recorded or has lapsed. Which plan an install is on is decided when it is provisioned, not inside the plugin: there is no checkout here, no license key to paste, and nothing a club admin can toggle to change what their install is entitled to.
 
 ## How an install learns its tier
 
@@ -19,7 +19,7 @@ Resolution order, first match wins:
 
 1. **Developer override** — only on installs where the owner has configured `TT_DEV_OVERRIDE_SECRET`. See below.
 2. **The recorded plan.**
-3. **Free** — when no plan has been recorded, or the recorded one has gone unrefreshed for so long that it is no longer trusted.
+3. **Not activated** — when no plan has been recorded, or the recorded one has gone unrefreshed for so long that it is no longer trusted.
 
 If the Account page says no plan is recorded and that looks wrong, contact your operator. It is a one-line fix on their side and nothing in your data is affected.
 
@@ -29,31 +29,44 @@ Ask your operator. Your install moves to the new tier in place: the same site, t
 
 Going the other way works the same, with one caveat worth knowing: dropping to a tier whose caps you are already over does not delete anything. Existing teams and players stay readable; you just cannot add past the cap until you are back under it.
 
-## Tiers
+## Two plans
 
-| Feature | Free | Standard | Pro |
-| - | - | - | - |
-| Core players / teams / activities / goals / basic evaluations | ✓ | ✓ | ✓ |
-| Backup local + email destinations | ✓ | ✓ | ✓ |
-| Up to 1 team and 25 players | ✓ | unlimited | unlimited |
-| Radar charts, player comparison, rate cards (full) | — | ✓ | ✓ |
-| CSV bulk import | — | ✓ | ✓ |
-| Functional roles | — | ✓ | ✓ |
-| Backup partial restore + 14-day undo | — | ✓ | ✓ |
-| Scheduled reports | — | ✓ | ✓ |
-| Multi-academy / federation | — | — | ✓ |
-| Trial player module | — | — | ✓ |
-| Scout access | — | — | ✓ |
-| Team chemistry + blueprints | — | — | ✓ |
-| S3 / Dropbox / GDrive backup destinations | — | — | ✓ |
+**Standard** is the academy product. **Pro** adds match day, training, media, the analytics platform and the integrations.
 
-> **This table is out of date against the product.** It describes the split as it was drawn in v3.17.0. Most of what TalentTrack has gained since — match analysis, the media library, training plans, alerts, courses, tournaments, the analytics platform and more — has no tier assigned and therefore behaves as Free. Re-drawing it is a known, tracked piece of work; until it lands, treat the table as historical rather than authoritative.
+There is no Free plan. TalentTrack is hosted — your club has a subdomain the operator runs — so an install exists because somebody is paying for it. What you will still see named in the account page is *Not activated*, which is the state an install is in before its plan has been recorded or after it has lapsed. It is not something anyone is sold.
 
-## Free-tier caps
+### Standard — run the academy
 
-**1 team, 25 players, unlimited evaluations.** Hitting the team or player cap surfaces an upgrade nudge instead of saving. Caps apply only on Free; Standard and Pro have none.
+Players, teams, staff. Evaluations with the full category tree, weights and coverage windows. Development plans and the conversation cycle. Goals. The player journey and cohort transitions. The status light and behaviour ratings. Measurements and testing. Trials, prospects and scout access. Attendance and minutes. The standard reports, radar, player comparison and rate cards. Methodology, the planner, holidays, season rollover. Excel and CSV import, backups, translations, custom fields and club branding.
 
-The caps are enforced in the UI, in the wizards, and on the REST API, so they cannot be sidestepped by the import path or by a direct API call.
+### Pro — everything 2026 added
+
+| | |
+| - | - |
+| **Match day** | Match analysis and its share link, match preparation, the live match surface, tournaments, and the three match-day PDF exports |
+| **Training** | Training plans, the exercise library, per-player training exposure, photo extraction |
+| **Media** | The media library — photo and video on a player's record |
+| **Analytics** | The dimension explorer, scheduled reports, custom widgets, the persona-dashboard editor |
+| **Reaching people** | Scheduled sends, the SMS channel, push notifications |
+| **Integrations** | Spond, Strava |
+| **Coach development** | Courses |
+| **Squad construction** | Team chemistry and blueprint sharing |
+| **Bulk entry** | The attendance, minutes and ratings grids |
+| **Backup** | Object-storage destinations |
+
+### What is never a paid feature
+
+The audit log, the permission matrix, two-factor authentication, record deletion, the recycle bin, the impersonation log, media consent and subject-access requests are available on **every** plan, including an install that is not activated.
+
+These are how an academy meets its obligations to the children in it. Selling child-data safety as an add-on is not something this product does.
+
+For the same reason, a club whose plan has lapsed keeps the dashboard, player cards, local backup and export. You can always read and take out your own data.
+
+## Usage limits
+
+Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.
+
+The caps in `FreeTierCaps` (1 team, 25 players) are now demo furniture: they are what stops the public demo subdomain being used as a free academy. They are configured on the demo install and nowhere else.
 
 ## Account page
 
@@ -62,7 +75,7 @@ Clicking **TalentTrack** in the wp-admin sidebar lands on the Account page. It h
 | Tab | Cap | What's there |
 | - | - | - |
 | **Account** | `tt_edit_settings` (operators only) | Current tier, usage versus caps, what the next tier adds, phone-home diagnostics |
-| **Plan & restrictions** | `read` (everyone logged in) | Current plan, caps table with at-cap warnings, and the full Free / Standard / Pro feature matrix with your effective tier highlighted |
+| **Plan & restrictions** | `read` (everyone logged in) | Current plan, caps table with at-cap warnings, and the full Standard / Pro feature matrix with your effective tier highlighted |
 | **MFA** | `read` (everyone logged in) | Your own two-factor enrollment and backup codes |
 
 The Plan tab is open to everyone deliberately: a coach who cannot find a feature should be able to see for themselves whether it is missing or merely locked.
