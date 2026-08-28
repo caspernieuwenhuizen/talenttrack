@@ -111,6 +111,7 @@ final class VideoLocationStripper {
     /** @var array<int, string> 1-based key index => key name, from `keys`. */
     private $keys = [];
 
+    /** @param resource $handle An open `r+b` stream on the video. */
     private function __construct( $handle, int $filesize ) {
         $this->handle   = $handle;
         $this->filesize = $filesize;
