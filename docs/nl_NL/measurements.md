@@ -39,7 +39,13 @@ hierop voort.
 - **Streefwaarde** — een band per leeftijdsgroep (groen / oranje) voor een
  test. Een geregistreerde waarde krijgt groen, oranje of rood ten opzichte
  van de band voor de leeftijdsgroep van de speler, rekening houdend met de
- richting van de test.
+ richting van de test. De band is wat een speler moet *halen*, dus beter dan
+ de band is ook groen: bij een test waarbij lager beter is, is een tijd
+ sneller dan de groene band groen, en bij hoger-is-beter is een waarde erboven
+ groen. Je vult nooit een rode drempel in — rood is simpelweg alles voorbij
+ oranje aan de slechtere kant. Bij een **neutrale** test tellen beide randen
+ wel, want daar moet de waarde binnen een bereik landen in plaats van er zo
+ ver mogelijk voorbij te komen.
 - **Statusniveaus** — alleen voor het waardetype **status**: een door de
  beheerder ingestelde, geordende reeks gekleurde niveaus (bijv. *Risico*
  rood, *Aandacht* oranje, *Op koers* groen). Een statustest registreert per
