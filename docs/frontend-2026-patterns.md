@@ -177,6 +177,22 @@ for every registered key.
 - Card grids: `repeat(auto-fit, minmax(…, 1fr))`; stack to one column at base.
 - Two-affordance nav unchanged (breadcrumb + `tt_back` pill, CLAUDE.md §5).
 
+## Page actions — two on a phone, the rest in the menu
+
+`FrontendViewBase::pageActionsHtml()` splits its actions three ways, in order:
+
+1. **Capability filter.** An action the reader cannot see is removed *first*, so it never counts towards the budget below — otherwise a user with one visible action out of nine would still be handed a menu.
+2. **Explicit `overflow`** (#2830). The author saying "this one is secondary even on a desktop". Still honoured on every viewport.
+3. **The phone budget** (#2809). On a phone user agent, at most **two** actions stay in the row; the rest join the overflow menu.
+
+Which two survive: `primary`-flagged actions first, then declared order, both stable. Neither signal is new — `primary` already picks the button variant — so **no call site has to learn anything for this to work**, which is the point. The audit's worst case was activity detail rendering nine full-width buttons above any content, none of them flagged.
+
+Desktop is unchanged: every action renders inline unless its author marked it `overflow`.
+
+The menu is a native `<details>` / `<summary>`, so it opens with JavaScript disabled. `assets/js/page-actions-overflow.js` adds only the behaviour a bare `<details>` lacks — Escape closes and returns focus to the trigger, opening moves focus to the first item, and clicking outside closes it. Remove the file and the menu still works.
+
+Both the trigger and the menu items already carry the 48px floor from #2830's CSS; do not re-add it per view.
+
 ## Per-view restyle checklist
 
 1. New `assets/css/<view>.css`, mobile-first, `.tt-` prefixed, enqueued with `[ 'tt-frontend-app-chrome' ]` dep.
