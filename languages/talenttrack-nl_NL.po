@@ -56399,6 +56399,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "Weights must sum to 100. Current total: %d."
+msgstr "Gewichten moeten optellen tot 100. Huidig totaal: %d."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "You do not have permission to view category weights."
+msgstr "Je hebt geen rechten om categoriegewichten te bekijken."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "How much each main category counts towards a player's overall rating, per age group. The values are percentages and must add up to 100. An age group with nothing configured weights every category equally."
+msgstr "Hoe zwaar elke hoofdcategorie meetelt in de overall-beoordeling van een speler, per leeftijdscategorie. De waarden zijn percentages en moeten optellen tot 100. Een leeftijdscategorie zonder instelling telt elke categorie even zwaar."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "No active main categories yet. Add them under Evaluation categories first."
+msgstr "Nog geen actieve hoofdcategorieën. Voeg ze eerst toe onder Beoordelingscategorieën."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "No age groups yet. Add them under Configuration first."
+msgstr "Nog geen leeftijdscategorieën. Voeg ze eerst toe onder Instellingen."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "Reset this age group to equal weights?"
+msgstr "Deze leeftijdscategorie terugzetten naar gelijke gewichten?"
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "You do not have permission to change category weights."
+msgstr "Je hebt geen rechten om categoriegewichten te wijzigen."
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "Per-age-group weights"
+msgstr "Gewichten per leeftijdscategorie"
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "Adds up to 100"
+msgstr "Telt op tot 100"
+
+#: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php
+msgid "Must add up to 100"
+msgstr "Moet optellen tot 100"
+
 #~ msgid "All changes saved."
 #~ msgstr "Alle wijzigingen opgeslagen."
 

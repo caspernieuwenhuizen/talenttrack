@@ -65,12 +65,31 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
 
     private static function renderTree(): void {
         $base = remove_query_arg( [ 'action', 'id' ] );
-        $new_url     = add_query_arg( [ 'tt_view' => 'eval-categories', 'action' => 'new' ], $base );
-        $weights_url = admin_url( 'admin.php?page=tt-category-weights' );
+        $new_url = add_query_arg( [ 'tt_view' => 'eval-categories', 'action' => 'new' ], $base );
 
         echo '<p style="margin:0 0 var(--tt-sp-3); display:flex; gap:8px; flex-wrap:wrap;">';
         echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add category', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $weights_url ) . '">' . esc_html__( 'Edit per-age-group weights (wp-admin)', 'talenttrack' ) . '</a>';
+
+        // #2977 — was a link into wp-admin. The weights now have a frontend
+        // surface, so this stays on the frontend. Gated through CrossViewLink
+        // because reading weights needs tt_view_category_weights, which is
+        // not implied by the tt_view_evaluation_categories that got the
+        // reader onto this page.
+        \TT\Shared\Frontend\Components\CrossViewLink::render(
+            \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::SLUG,
+            static function () use ( $base ): void {
+                $weights_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                    add_query_arg(
+                        [ 'tt_view' => \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::SLUG ],
+                        $base
+                    ) /* tt-xview-ok — the affordance is wrapped in CrossViewLink */
+                );
+                echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $weights_url ) . '">'
+                    . esc_html__( 'Per-age-group weights', 'talenttrack' )
+                    . '</a>';
+            }
+        );
+
         echo '</p>';
 
         $repo  = new EvalCategoriesRepository();
