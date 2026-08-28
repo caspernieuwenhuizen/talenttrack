@@ -57,6 +57,15 @@ alerts all have something to show. Future activities are planned and carry no
 result: no attendance, no minutes, no ratings and no match execution. Match
 prep is written for them, which is what a coach's screen looks like mid-week.
 
+**Set my own numbers** under the preset opens three fields — teams, players per
+team, weeks of history — prefilled from the chosen preset and overridable per
+run. This is the only way to change the player count, and therefore the number
+of demo accounts: every preset ships 12 players per team, which suits a U15
+squad and not a U8 one playing six-a-side. Leave a field empty and the preset's
+value is used, so touching nothing generates exactly what the preset always did.
+The line below the fields shows the resulting player and account count as you
+type. Values are clamped to what a run can finish.
+
 Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury
 record says they were out, goal scorers come from that match's lineup, and

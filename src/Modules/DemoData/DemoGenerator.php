@@ -19,8 +19,11 @@ use TT\Modules\DemoData\Generators\GoalGenerator;
 /**
  * DemoGenerator — orchestrates all six generators in dependency order.
  *
- * MT RNG is seeded up front so (seed, preset, domain) is reproducible
+ * MT RNG is seeded up front so (seed, preset, size, domain) is reproducible
  * byte-for-byte across runs.
+ *
+ * `$opts['size']` (#3042) optionally overrides the chosen preset's `teams`,
+ * `players_per_team` and `weeks`.
  */
 class DemoGenerator {
 
@@ -32,7 +35,7 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
+     * @param array{preset:string, size?:array{teams?:int, players_per_team?:int, weeks?:int}, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
      * @return array{
      *   batch_id:string,
      *   users:array<string,int>,
@@ -51,6 +54,25 @@ class DemoGenerator {
             $preset = 'small';
         }
         $config = self::PRESETS[ $preset ];
+
+        // #3042 — per-run size overrides on top of the preset. The presets
+        // stay the one-click path and the default; this is for the operator
+        // who needs a different shape, and it is the only way to change the
+        // player count at all — `players_per_team` was 12 in every preset,
+        // and twelve is not a neutral number in youth football.
+        //
+        // Only the three keys a preset carries are honoured, each clamped to
+        // a range a run can finish. An absent or unusable value leaves the
+        // preset's, so an operator who overrides nothing gets exactly the
+        // dataset they got before this existed.
+        $size = $opts['size'] ?? [];
+        foreach ( [ 'teams' => 40, 'players_per_team' => 40, 'weeks' => 104 ] as $key => $max ) {
+            if ( ! isset( $size[ $key ] ) ) continue;
+            $value = (int) $size[ $key ];
+            if ( $value <= 0 ) continue;
+            $config[ $key ] = min( $max, $value );
+        }
+
         $seed   = (int) ( $opts['seed'] ?? 20260504 );
         mt_srand( $seed );
 
