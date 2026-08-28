@@ -128,17 +128,28 @@ bruikbaar. Wie zo'n link volgt zonder ingelogd te zijn in TalentTrack, krijgt ge
 Het praktische gevolg is klein maar goed om te weten: een galerij die 's nachts in een browsertabblad open blijft staan, toont de volgende ochtend
 gebroken afbeeldingen. De pagina herladen lost dat op.
 
-### Locatiegegevens worden uit foto's verwijderd
+### Locatiegegevens worden verwijderd
 
-Een foto die met een telefoon is gemaakt, legt meestal vast waar hij gemaakt is. Bij een trainingsfoto is dat de locatie van een veld vol kinderen,
-en die informatie zit ín het beeldbestand.
+Een foto of video die met een telefoon is gemaakt, legt meestal vast waar hij gemaakt is. Bij een training is dat de locatie van een veld vol
+kinderen, en die informatie zit ín het bestand.
 
-TalentTrack leest de opnamedatum uit — zodat de foto op de juiste plek in de tijdlijn van de speler belandt — en verwijdert daarna alle ingesloten
-gegevens, locatie inbegrepen, vóór opslag. Het opgeslagen bestand bevat de foto en verder niets.
+**Foto's.** TalentTrack leest de opnamedatum uit — zodat de foto op de juiste plek in de tijdlijn van de speler belandt — en verwijdert daarna alle
+ingesloten gegevens, locatie inbegrepen, vóór opslag. Het opgeslagen bestand bevat de foto en verder niets.
 
-**Video is de uitzondering.** Het verwijderen van ingesloten gegevens uit een videobestand vraagt gereedschap dat TalentTrack niet meelevert, en
-telefoons schrijven locatie wél in video. Geüploade video behoudt daarom wat de camera heeft vastgelegd. Is dat voor jouw academie bezwaarlijk,
-gebruik dan de videolink en houd beeld bij je videoleverancier, of upload geen telefoonvideo van een locatie die je liever niet prijsgeeft.
+**Video.** TalentTrack zoekt de plekken in het videobestand op waar telefoons coördinaten wegschrijven en maakt die leeg vóór opslag. Beeld en
+geluid worden niet aangeraakt en het bestand wordt niet opnieuw gecodeerd, dus aan de opname verandert niets.
+
+Na het uploaden van een video vertelt de uploadlijst wat er is gebeurd:
+
+- *Locatiegegevens zijn uit deze video verwijderd.* — er zijn coördinaten gevonden en die zijn weg.
+- Niets — het bestand bevatte geen locatiegegevens.
+- Een waarschuwing dat het bestand **gegevens bevat die TalentTrack niet kon lezen** — het bestand is opgeslagen, maar iets erin was niet te
+  begrijpen en het kan nog steeds prijsgeven waar het is opgenomen. Verwijder die gegevens vóór het uploaden, of gebruik in plaats daarvan de
+  videolink.
+
+Dat laatste komt zelden voor en wordt bewust getoond in plaats van verzwegen. TalentTrack noemt een bestand niet schoon als het dat niet zeker weet.
+
+Wil je liever helemaal geen beeld op de server, gebruik dan de videolink en houd het beeld bij je videoleverancier.
 
 ### Uploadgrootte
 
