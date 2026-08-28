@@ -1,0 +1,136 @@
+/*
+ * Category weights (#2977).
+ *
+ * Mobile-first per CLAUDE.md §2: the base rules are the 360px layout, and the
+ * one media query widens the row into a label/input pair once there is room.
+ * The surface is classified `desktop_only`, so a phone gets the prompt page
+ * rather than this — but the narrow layout is still the base, because a
+ * classification is a decision that can change and a desktop-first sheet is
+ * the thing that makes changing it expensive.
+ */
+
+.tt-cw-intro {
+    margin-bottom: 1rem;
+    max-width: 44rem;
+}
+
+.tt-cw-group {
+    margin-bottom: 1.25rem;
+}
+
+.tt-cw-group__title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.tt-cw-status {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 400;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-cw-status--set {
+    background: var(--tt-ok-bg, #e6f4ea);
+    color: var(--tt-ok, #2e7d4f);
+}
+
+.tt-cw-status--fallback {
+    background: var(--tt-muted-bg, #f1f1f1);
+    color: var(--tt-muted, #666);
+}
+
+.tt-cw-rows {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.tt-cw-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.tt-cw-row__label {
+    font-weight: 600;
+}
+
+.tt-cw-row__input {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/*
+ * 5rem is wide enough for three digits at a 16px font. The font size is not
+ * negotiable downwards: anything under 16px makes iOS zoom the page on focus
+ * (§2), and this form is nothing but number inputs.
+ */
+.tt-cw-input {
+    width: 5rem;
+    min-height: 48px;
+    font-size: 1rem;
+    text-align: right;
+}
+
+.tt-cw-row__unit {
+    color: var(--tt-muted, #666);
+}
+
+.tt-cw-total {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+    font-weight: 600;
+}
+
+.tt-cw-total__value {
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-cw-total__hint {
+    font-weight: 400;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+/*
+ * Colour is not the only signal — the hint text says the same thing in words,
+ * so the state survives a colour-blind reader and a monochrome print.
+ */
+.tt-cw-form.is-balanced .tt-cw-total__value,
+.tt-cw-form.is-balanced .tt-cw-total__hint {
+    color: var(--tt-ok, #2e7d4f);
+}
+
+.tt-cw-form.is-unbalanced .tt-cw-total__value,
+.tt-cw-form.is-unbalanced .tt-cw-total__hint {
+    color: var(--tt-danger, #b32d2e);
+}
+
+.tt-cw-actions {
+    margin-top: 0.75rem;
+}
+
+.tt-cw-reset {
+    /* Secondary and subordinate, but still a real tap target. */
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+@media (min-width: 480px) {
+    .tt-cw-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.75rem;
+    }
+
+    .tt-cw-row__label {
+        font-weight: 400;
+    }
+}

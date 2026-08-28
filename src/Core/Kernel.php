@@ -157,6 +157,9 @@ class Kernel {
         \TT\Shared\Frontend\FrontendMatrixView::init();
         // #1486 — read-only Features status view (REST endpoint).
         \TT\Shared\Frontend\FrontendFeaturesView::init();
+        // #2977 — frontend category weights (save + reset handlers + REST).
+        // wp-admin's page stays as it was; both call CategoryWeightsRepository.
+        \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::init();
         // #1381 — season rollover (bulk cohort promotion): execute handler
         // + REST plan/execute endpoints.
         \TT\Modules\Players\SeasonRollover\FrontendSeasonRolloverView::init();

@@ -167,6 +167,7 @@ return [
     'data-browser'                  => [ 'desktop_only', 'A raw table browser over the live schema.' ],
     'dev-tracks'                    => [ 'desktop_only', 'Development-track definitions.' ],
     'eval-categories'               => [ 'desktop_only', 'Evaluation vocabulary.' ],
+    'eval-category-weights'         => [ 'desktop_only', 'An age-group by category weighting matrix, and what it changes is every composite rating the academy reads.' ],
     'eval-coverage'                 => [ 'desktop_only', 'A coverage matrix: who has been evaluated, by whom, across a squad.' ],
     'explore'                       => [ 'desktop_only', 'A dimension explorer. The insight is in seeing many rows at once.' ],
     'exercises-import'              => [ 'desktop_only', 'CSV upload, then a wide check table of every row before it commits. The same call as players-import.' ],

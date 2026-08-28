@@ -127,6 +127,12 @@ final class CoreSurfaceRegistration {
         // anyone who would only be shown a "not authorized" notice.
         $reg::register( 'exercises', 'tt_view_activities' );
 
+        // #2977 — per-age-group category weights. Its own read cap, not the
+        // tt_view_evaluation_categories that reaches the categories list:
+        // the two surfaces are adjacent but separately granted, and the
+        // link between them has to hide when the destination would refuse.
+        $reg::register( 'eval-category-weights', 'tt_view_category_weights' );
+
         // #2613 — the library's CSV importer. A narrower gate than the
         // library itself: reading the list needs tt_view_activities,
         // writing 150 rows into it needs tt_manage_exercises, which is
@@ -271,6 +277,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'teammate',           self::M_TEAMS );
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
+        TileRegistry::registerSlugOwnership( 'eval-category-weights', self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'roles',              self::M_AUTHORIZATION );
         // #2654 — the frontend authorization matrix, reached from the
         // Configuration landing and from Roles & rights. A persona ×

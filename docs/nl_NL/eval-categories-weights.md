@@ -25,14 +25,20 @@ Als een coach een evaluatie vastlegt, kan hij/zij de hoofdcategorie rechtstreeks
 
 ## Categorie gewichten per leeftijdscategorie
 
-Op de pagina **Categorie gewichten** bepaal je hoe zwaar elke hoofdcategorie meeweegt in de overall-beoordeling van een speler, **per leeftijdscategorie**. Bijvoorbeeld:
+Open **Beoordelingscategorieën** en kies **Gewichten per leeftijdscategorie**.
+
+Daar bepaal je hoe zwaar elke hoofdcategorie meeweegt in de overall-beoordeling van een speler, **per leeftijdscategorie**. Bijvoorbeeld:
 
 - U9: Technisch 40%, Tactisch 20%, Fysiek 20%, Mentaal 20%
 - U17: Technisch 25%, Tactisch 30%, Fysiek 25%, Mentaal 20%
 
 Onderbouwing: jongere spelers worden sterker beoordeeld op techniek en minder op tactisch inzicht; oudere spelers verschuiven richting tactische en fysieke volwassenheid.
 
-Gewichten moeten per leeftijdscategorie optellen tot 100%. Het systeem berekent de overall-beoordeling van elke speler aan de hand van de gewichten die horen bij de leeftijdscategorie van zijn/haar team.
+Gewichten moeten per leeftijdscategorie optellen tot 100%. Het totaal wordt bijgewerkt terwijl je typt en Opslaan blijft onbeschikbaar tot het op 100 staat, zodat een set die niet klopt niet opgeslagen kan worden.
+
+Een leeftijdscategorie die je nooit hebt ingesteld toont **Gelijke gewichten** en telt elke categorie even zwaar. Dat is een werkende situatie, geen ontbrekende: er gaat niets stuk als je nooit een gewicht instelt. Met **Terug naar gelijk** zet je een ingestelde leeftijdscategorie daarop terug, en het verschil blijft zichtbaar: "gelijk omdat dat de standaard is" en "gelijk omdat iemand daarvoor koos" blijven te onderscheiden.
+
+Het systeem berekent de overall-beoordeling van elke speler aan de hand van de gewichten die horen bij de leeftijdscategorie van zijn/haar team.
 
 ## Gevolgen van het wijzigen van gewichten
 
