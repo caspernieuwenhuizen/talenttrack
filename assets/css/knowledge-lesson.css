@@ -61,6 +61,7 @@
 .tt-lesson .tt-knowledge-lesson__position,
 .tt-lesson .tt-knowledge-lesson__objectives,
 .tt-lesson .tt-knowledge-lesson__completion,
+.tt-lesson .tt-quiz-result,
 .tt-lesson .tt-notice {
     max-width: min(var(--tt-lesson-measure), 100%);
     margin-inline: auto;

@@ -201,8 +201,14 @@
 
 /* ── the no-JavaScript result panel ─────────────────────────────────── */
 
+/*
+ * #2872 — same 68ch as `.tt-quiz` had, one element further out. This panel
+ * is a sibling of the lesson body rather than a block inside it, so it was
+ * a fifth width on the page. The measure comes from `.tt-lesson`; the
+ * centring is in `knowledge-lesson.css` with the rest of the siblings.
+ */
 .tt-quiz-result {
-    max-width: 68ch;
+    max-width: min(var(--tt-lesson-measure, 96ch), 100%);
     margin: 0 0 var(--tt-sp-5, 20px);
     padding: var(--tt-sp-4, 16px);
     border-radius: var(--tt-radius, 8px);
