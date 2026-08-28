@@ -11,7 +11,7 @@ order: 160
 
 > **Het activiteitentabblad heet `Activities`.** Een oudere werkmap waarvan het tabblad nog `Sessions` heet, moet opnieuw worden gedownload — of hernoem het tabblad met de hand naar `Activities`. Werkmappen op basis van een ouder template (of ouder) moeten opnieuw worden gedownload, of het tabblad moet handmatig worden hernoemd naar `Activities`. De importer geeft een duidelijke blokkering op werkmappen met een `Sessions`-tabblad — geen soft-fallback. De interne schema-sleutel blijft `sessions` voor terugcompatibiliteit met code­paden.
 
-De demodatagenerator bij **Tools → TalentTrack Demo** heeft drie bronnen:
+De demodatagenerator bij **TalentTrack → Demo data** heeft drie bronnen:
 
 - **Alleen procedureel** — kies een preset (Tiny / Small / Medium / Large) en laat de generator alles doen. Snel en geloofwaardig, maar team- en spelersnamen zijn willekeurig.
 - **Excel-upload** — vul offline een werkboek, upload het, de importer maakt precies wat erin staat. Er wordt niets procedureel gegenereerd. Ideaal voor demo's waar de eigen teamnamen en verhalen van de prospect ertoe doen.

@@ -32,6 +32,21 @@ class DemoDataPage {
     private const TRANSIENT_USER_STATS = 'tt_demo_last_user_stats';
     private const TRANSIENT_MISSING_COACH = 'tt_demo_last_missing_coach';
 
+    /**
+     * Admin URL of this page.
+     *
+     * #3026 — every post-action redirect used to build `tools.php?page=…`
+     * by hand, left over from when the page lived under Tools. It is
+     * registered under the `talenttrack` parent (see
+     * CoreSurfaceRegistration), so those URLs resolved to a slug WordPress
+     * does not know about there and every demo action ended on "Sorry, you
+     * are not allowed to access this page". One helper so the next menu
+     * move is a one-line change.
+     */
+    public static function pageUrl(): string {
+        return admin_url( 'admin.php?page=' . self::SLUG );
+    }
+
     public static function init(): void {
         // v3.70.1 hotfix — menu registration moved to
         // CoreSurfaceRegistration via AdminMenuRegistry so the entry
@@ -842,7 +857,7 @@ class DemoDataPage {
     // Action handlers
 
     public static function handleGenerate(): void {
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $redirect = self::pageUrl();
 
         // v3.89.2 — same post_max_size guard as handleExcelImport so a
         // too-big workbook in the unified generator form bounces with a
@@ -997,7 +1012,7 @@ class DemoDataPage {
         check_admin_referer( 'tt_demo_wipe_data', 'tt_demo_nonce' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.wipe_data' );
 
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $redirect = self::pageUrl();
         $typed    = isset( $_POST['confirm_text'] ) ? trim( (string) wp_unslash( (string) $_POST['confirm_text'] ) ) : '';
         if ( $typed !== 'WIPE' ) {
             self::bounce( $redirect, 'Type WIPE exactly to confirm.' );
@@ -1050,7 +1065,7 @@ class DemoDataPage {
         check_admin_referer( 'tt_demo_wipe_users', 'tt_demo_nonce' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.wipe_users' );
 
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $redirect = self::pageUrl();
         $typed    = isset( $_POST['confirm_text'] )    ? trim( (string) wp_unslash( (string) $_POST['confirm_text'] ) )    : '';
         $domain   = isset( $_POST['expected_domain'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['expected_domain'] ) ) : '';
         if ( $typed !== 'WIPE USERS' ) {
@@ -1101,7 +1116,7 @@ class DemoDataPage {
                 'tt_demo_msg'             => 'journey_rebuilt',
                 'tt_demo_journey_walked'  => $total,
             ],
-            admin_url( 'tools.php?page=' . self::SLUG )
+            self::pageUrl()
         );
         wp_safe_redirect( $redirect );
         exit;
@@ -1113,7 +1128,7 @@ class DemoDataPage {
         }
         check_admin_referer( 'tt_demo_mode', 'tt_demo_nonce' );
 
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $redirect = self::pageUrl();
         $target   = isset( $_POST['target'] ) ? sanitize_key( (string) $_POST['target'] ) : '';
 
         if ( $target === 'on' ) {
@@ -1149,7 +1164,7 @@ class DemoDataPage {
         $ok = \TT\Modules\Import\Excel\TemplateBuilder::streamDownload();
         if ( ! $ok ) {
             self::bounce(
-                admin_url( 'tools.php?page=' . self::SLUG ),
+                self::pageUrl(),
                 'PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root.'
             );
         }
@@ -1171,7 +1186,7 @@ class DemoDataPage {
      * a fatal that the host's reverse proxy turns into a generic 500.
      */
     public static function handleExcelImport(): void {
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $redirect = self::pageUrl();
 
         if ( self::postMaxSizeExceeded() ) {
             self::bounce( $redirect, sprintf(

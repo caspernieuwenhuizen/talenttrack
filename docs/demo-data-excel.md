@@ -11,7 +11,7 @@ order: 160
 
 > **The activities sheet is called `Activities`.** An older workbook whose sheet is still called `Sessions` needs to be re-downloaded, or have the sheet manually renamed to `Activities`. The importer emits a clear blocker on workbooks that still carry a `Sessions` sheet — no soft fallback. The schema key inside the importer stays `sessions` for back-compat with internal code paths.
 
-The demo-data generator at **Tools → TalentTrack Demo** has three sources:
+The demo-data generator at **TalentTrack → Demo data** has three sources:
 
 - **Procedural only** — pick a preset (Tiny / Small / Medium / Large) and let the generator do everything. Fast, believable, but the team and player names are randomised.
 - **Excel upload** — fill a workbook offline, upload it, the importer creates exactly what's in the workbook. Nothing is generated procedurally. Best for demos where the prospect's own team names + stories matter.
