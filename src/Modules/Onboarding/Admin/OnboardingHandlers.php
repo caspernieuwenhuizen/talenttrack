@@ -43,6 +43,7 @@ class OnboardingHandlers {
         add_action( 'admin_post_tt_onboarding_dismiss',              [ self::class, 'handleDismiss' ] );
         add_action( 'admin_post_tt_onboarding_demo',                 [ self::class, 'handleDemo' ] );
         add_action( 'admin_post_tt_onboarding_create_dashboard_page',[ self::class, 'handleCreateDashboardPage' ] );
+        add_action( 'admin_post_tt_onboarding_finish',               [ self::class, 'handleFinish' ] );
     }
 
     // Step submit handlers
@@ -442,6 +443,28 @@ class OnboardingHandlers {
         self::guard( 'tt_onboarding_create_dashboard_page' );
         self::createDashboardPage();
         self::redirectToPage( [ 'tt_ob_msg' => 'page_made' ] );
+    }
+
+    /**
+     * Leave the Done screen (#3025).
+     *
+     * The wizard is already marked completed by the dashboard step; this
+     * only moves the step off `done` so `OnboardingPage::render()`'s
+     * completion guard takes over again and a later visit to the wizard
+     * gets the short "Setup is complete" screen rather than the summary.
+     * The payload is left alone — it is the record of what the wizard did.
+     */
+    public static function handleFinish(): void {
+        self::guard( 'tt_onboarding_finish' );
+        OnboardingState::setStep( 'welcome' );
+
+        $dash = OnboardingState::payloadFor( 'dashboard' );
+        $url  = ! empty( $dash['page_url'] )
+            ? (string) $dash['page_url']
+            : admin_url( 'admin.php?page=talenttrack' );
+
+        wp_safe_redirect( $url );
+        exit;
     }
 
     /**

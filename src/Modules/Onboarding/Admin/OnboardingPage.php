@@ -35,11 +35,23 @@ class OnboardingPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
+        $state = OnboardingState::get();
+        $step  = $state['step'];
+
         // Force-welcome param (used by the Reset link) overrides the
         // completion check so a completed install can re-enter the
         // wizard once the user explicitly asked to.
         $force = isset( $_GET['force_welcome'] ) && $_GET['force_welcome'] === '1';
-        if ( OnboardingState::isCompleted() && ! $force ) {
+
+        // #3025 — the dashboard step marks the wizard completed and sets the
+        // step to `done` in the same request, so this guard used to fire on
+        // the redirect that was supposed to render the Done screen. The whole
+        // summary — what was set up, the recommended next steps, the link to
+        // the dashboard just created — was unreachable on every install.
+        // Letting `done` through renders it once; `handleFinish()` moves the
+        // step off `done` when the operator leaves, so a later visit gets the
+        // short screen below as before.
+        if ( OnboardingState::isCompleted() && $step !== 'done' && ! $force ) {
             ?>
             <div class="wrap">
                 <h1><?php esc_html_e( 'Setup wizard', 'talenttrack' ); ?></h1>
@@ -52,9 +64,6 @@ class OnboardingPage {
             <?php
             return;
         }
-
-        $state = OnboardingState::get();
-        $step  = $state['step'];
 
         echo '<div class="wrap tt-onboarding-wrap">';
         self::renderHeader( $step );
@@ -617,7 +626,13 @@ class OnboardingPage {
         </div>
 
         <p style="margin-top:32px;">
-            <a class="button button-primary" href="<?php echo esc_url( $dashboard_url ); ?>">
+            <?php
+            // #3025 — leaving goes through the finish action rather than
+            // straight to the dashboard, so the step moves off `done` and a
+            // later visit to the wizard gets the short "Setup is complete"
+            // screen instead of replaying this summary forever.
+            ?>
+            <a class="button button-primary" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_finish' ) ); ?>">
                 <?php esc_html_e( 'Go to dashboard', 'talenttrack' ); ?>
             </a>
         </p>
@@ -627,11 +642,16 @@ class OnboardingPage {
     // Helpers
 
     private static function renderHeader( string $step ): void {
+        // #3025 — every entry in OnboardingState::STEPS needs a title here.
+        // `import` and `staff` were missing, so while the operator was on
+        // either of those two steps the stepper highlighted nothing.
         $titles = [
             'welcome'     => __( 'Welcome', 'talenttrack' ),
             'academy'     => __( 'Academy basics', 'talenttrack' ),
+            'import'      => __( 'Import your squad', 'talenttrack' ),
             'first_team'  => __( 'First team', 'talenttrack' ),
             'first_admin' => __( 'First admin', 'talenttrack' ),
+            'staff'       => __( 'Add your staff', 'talenttrack' ),
             'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
             'done'        => __( 'Done', 'talenttrack' ),
         ];
