@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T21:55:19+00:00\n"
+"POT-Creation-Date: 2026-08-28T22:03:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -190,7 +190,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:378
 #: src/Shared/Frontend/FrontendGoalsManageView.php:483
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:94
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:147
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:152
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:531
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
@@ -3329,7 +3329,7 @@ msgid "No workbook was uploaded."
 msgstr ""
 
 #: src/Infrastructure/REST/ImportRestController.php:108
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:103
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:104
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
 
@@ -3517,7 +3517,7 @@ msgid ""
 msgstr ""
 
 #: src/Infrastructure/REST/MediaRestController.php:624
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:192
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:197
 msgid "That could not be saved."
 msgstr ""
 
@@ -4561,7 +4561,7 @@ msgstr ""
 #: src/Infrastructure/Teams/TeamDetailSections.php:65
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:963
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:93
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:146
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:151
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:235
 #: src/Shared/Frontend/FrontendTeamDetailView.php:805
 msgid "Media"
@@ -4649,7 +4649,7 @@ msgstr "Ajouter"
 #: src/Modules/Goals/Admin/GoalsPage.php:47
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:677
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:697
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
@@ -5192,7 +5192,7 @@ msgstr "Enregistrer"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:518
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:541
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
 #: src/Modules/People/Admin/PeoplePage.php:82
 #: src/Modules/People/Admin/PeoplePage.php:415
@@ -5496,7 +5496,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSpondView.php:166
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:187
 #: src/Shared/Frontend/FrontendTranslationsView.php:214
-#: src/Shared/Frontend/FrontendViewBase.php:82
+#: src/Shared/Frontend/FrontendViewBase.php:104
 #: src/Shared/Frontend/FrontendWizardView.php:320
 msgid "Cancel"
 msgstr "Annuler"
@@ -6775,8 +6775,8 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:196
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1309
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:96
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:149
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:101
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:154
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1375
 #: src/Shared/Frontend/FrontendTrialCaseView.php:203
 #: src/Shared/Frontend/FrontendTrialCaseView.php:355
@@ -7635,7 +7635,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:150
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:170
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:154
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:434
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:443
 #: src/Modules/Pdp/Admin/SeasonsPage.php:64
 #: src/Modules/Pdp/Admin/SeasonsPage.php:109
 #: src/Modules/Pdp/Admin/SeasonsPage.php:150
@@ -8424,7 +8424,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamsManageView.php:184
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:216
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:144
-#: src/Shared/Frontend/FrontendViewBase.php:83
+#: src/Shared/Frontend/FrontendViewBase.php:105
 msgid "Archive"
 msgstr "Archiver"
 
@@ -8608,7 +8608,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
 #: src/Modules/Goals/Admin/GoalsPage.php:135
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:382
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:338
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:347
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
 #: src/Modules/Players/Admin/PlayersPage.php:374
 #: src/Modules/Teams/Admin/TeamsPage.php:144
@@ -9208,7 +9208,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:67
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:148
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:153
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2462
 msgid "Reason"
 msgstr ""
@@ -9324,7 +9324,7 @@ msgstr "Migrations"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:64
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:444
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:45
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:57
 msgid "Setup wizard"
 msgstr ""
 
@@ -11614,8 +11614,8 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1195
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1561
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1568
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:348
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:539
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:357
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:548
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:381
 #: src/Shared/Frontend/FrontendBackupsView.php:444
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
@@ -11785,8 +11785,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:86
 #: src/Modules/Invitations/Frontend/InviteButton.php:133
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:435
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:470
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:444
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:479
 #: src/Modules/People/Admin/PeoplePage.php:173
 #: src/Modules/People/Admin/PeoplePage.php:312
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
@@ -13062,7 +13062,7 @@ msgid "Save Toggles"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:436
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:631
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:649
 #: src/Shared/CoreSurfaceRegistration.php:1671
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
 #: src/Shared/Frontend/FrontendTileGrid.php:783
@@ -13070,16 +13070,16 @@ msgid "Welcome"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:437
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:111
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:632
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:120
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:650
 #: src/Shared/Frontend/FrontendSetupView.php:126
 #: src/Shared/Frontend/FrontendSetupView.php:357
 msgid "Academy basics"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:438
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:288
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:633
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:297
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:652
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:253
 #: src/Shared/Frontend/FrontendSetupView.php:178
 #: src/Shared/Frontend/FrontendSetupView.php:358
@@ -13087,8 +13087,8 @@ msgid "First team"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:362
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:634
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:371
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:653
 #: src/Shared/Frontend/FrontendSetupView.php:224
 #: src/Shared/Frontend/FrontendSetupView.php:359
 msgid "First admin"
@@ -13097,7 +13097,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:440
 #: src/Modules/Development/IdeaStatus.php:102
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:796
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:636
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:656
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:903
 #: src/Shared/Frontend/FrontendSetupView.php:361
 msgid "Done"
@@ -14007,8 +14007,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:140
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:377
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:462
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:386
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:471
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
@@ -14043,8 +14043,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:144
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:381
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:466
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:390
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:475
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
@@ -14167,7 +14167,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:335
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:344
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
@@ -18753,7 +18753,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3629
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3635
 #: src/Shared/Frontend/FrontendConfigurationView.php:1890
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:123
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:128
 #: src/Shared/Frontend/FrontendPlayersManageView.php:461
 #: src/Shared/Frontend/FrontendTeamsManageView.php:382
 msgid "Remove"
@@ -21509,10 +21509,10 @@ msgid "Review"
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:186
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:151
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:308
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:347
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:395
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:160
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:317
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:356
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:404
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
 #: src/Shared/Frontend/FrontendSetupView.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:200
@@ -22802,7 +22802,7 @@ msgid "Subject access requests"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:702
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:472
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:495
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
@@ -28372,7 +28372,7 @@ msgid "You're verified. Continue to your dashboard."
 msgstr ""
 
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:94
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:621
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:636
 #: src/Shared/Frontend/FrontendMobilePromptView.php:102
 #: src/Shared/Frontend/FrontendSetupView.php:347
 msgid "Go to dashboard"
@@ -28653,141 +28653,142 @@ msgstr ""
 msgid "Skip for now"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:95
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:96
 msgid "Choose a workbook to upload first."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:163
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:164
 msgid "A first and last name are both needed."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:168
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:169
 msgid "That does not look like a valid email address."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:182
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:183
 msgid "That person could not be saved. They may already be on the list."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:255
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:256
 msgid ""
 "The spreadsheet library is not installed on this server, so the template "
 "cannot be generated."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:46
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:58
 msgid "Setup is complete."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:48
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:696
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:60
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:716
 msgid "Reset wizard"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:73
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:82
 #: src/Shared/Frontend/FrontendSetupView.php:82
 msgid "Unknown step."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:84
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:93
 #: src/Shared/Frontend/FrontendSetupView.php:102
 msgid "Set up your academy"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:86
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:95
 msgid ""
 "TalentTrack is a youth football talent management plugin. This wizard "
 "creates your first team, your admin profile, and a few defaults so you can "
 "start tracking players today. Each step takes about a minute."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:89
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:98
 msgid ""
 "If you would rather see what TalentTrack looks like with sample data first, "
 "the demo button below loads a realistic academy dataset. You can wipe it and "
 "start over at any time."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:93
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:102
 #: src/Shared/Frontend/FrontendSetupView.php:111
 msgid "Set up my academy"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:96
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:105
 msgid "Try with sample data"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:113
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:122
 #: src/Shared/Frontend/FrontendSetupView.php:128
 msgid ""
 "These show up across the plugin: in the dashboard header, on player rate "
 "cards, and in printed reports. You can change them later under Configuration."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:120
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:129
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:273
 #: src/Shared/Frontend/FrontendConfigurationView.php:1873
 #: src/Shared/Frontend/FrontendSetupView.php:132
 msgid "Academy name"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:126
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:135
 #: src/Shared/Frontend/FrontendConfigurationView.php:1941
 #: src/Shared/Frontend/FrontendSetupView.php:138
 msgid "Primary color"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:129
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:138
 #: src/Shared/Frontend/FrontendSetupView.php:141
 msgid "Used for headers, links, and the FIFA-style player card."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:133
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:142
 #: src/Shared/Frontend/FrontendSetupView.php:144
 msgid "Season label"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:136
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:145
 #: src/Shared/Frontend/FrontendSetupView.php:148
 msgid "Free-form. Most clubs use \"2025/2026\" or similar."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:140
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:149
 #: src/Shared/Frontend/FrontendSetupView.php:151
 msgid "Date format"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:173
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:182
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:651
 msgid "Import your squad"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:175
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:184
 msgid ""
 "If you already keep your teams, players and staff in a spreadsheet, bring "
 "them in now rather than typing them again. Download the template, fill it "
 "in, and upload it."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:178
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:187
 msgid "Nothing is saved until you confirm."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:179
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 msgid ""
 "Uploading shows you what the file contains, and anything that needs fixing, "
 "first."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:188
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:197
 msgid "This workbook cannot be imported yet. Nothing was saved."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:209
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:218
 msgid "Download the template"
 msgstr ""
 
 #. translators: 1: upload_max_filesize, 2: post_max_size
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:224
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:233
 #, php-format
 msgid ""
 "Server limits on this install: upload_max_filesize = %1$s, post_max_size = "
@@ -28795,30 +28796,30 @@ msgid ""
 "TalentTrack sees it."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:230
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:239
 msgid "Check this file"
 msgstr ""
 
 #. translators: %s: the uploaded file name
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:239
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:248
 #, php-format
 msgid "%s is ready to import."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:249
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:258
 msgid "Upload the file again to confirm and save these records."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:256
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:265
 msgid "Import these records"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:263
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:272
 msgid "Skip — I do not have a spreadsheet"
 msgstr ""
 
 #. translators: %d: number of teams brought in by the import
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:295
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:304
 #, php-format
 msgid ""
 "Your import brought in %d team. Add another now if you want, or continue."
@@ -28827,7 +28828,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:313
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:322
 #: src/Shared/Frontend/FrontendSetupView.php:180
 msgid ""
 "Add one team now. You can add more later under Teams. Players, evaluations, "
@@ -28835,17 +28836,17 @@ msgid ""
 "the rest of the plugin useful."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:319
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:328
 msgid "Use the new-team wizard instead"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:321
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:330
 msgid ""
 "opens the frontend wizard with staff assignment built in. Come back here "
 "when done."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:329
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:338
 #: src/Modules/Wizards/Team/BasicsStep.php:29
 #: src/Modules/Wizards/Team/ReviewStep.php:19
 #: src/Shared/Frontend/FrontendSetupView.php:184
@@ -28853,7 +28854,7 @@ msgstr ""
 msgid "Team name"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:343
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:352
 #: src/Shared/Frontend/FrontendSetupView.php:197
 msgid ""
 "Pick the closest match. New age groups can be added under Configuration → "
@@ -28862,7 +28863,7 @@ msgstr ""
 
 #. translators: %s is the WP display name + email of the current user
 #. translators: %s is the WP display name + email of the current user.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:367
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:376
 #: src/Shared/Frontend/FrontendSetupView.php:229
 #, php-format
 msgid ""
@@ -28871,93 +28872,94 @@ msgid ""
 "all reference the right person."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:385
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:394
 msgid "Club admin role"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:389
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:398
 #: src/Shared/Frontend/FrontendSetupView.php:250
 msgid "Grant me the Club Admin role (recommended)"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:391
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:400
 #: src/Shared/Frontend/FrontendSetupView.php:252
 msgid ""
 "Club Admins can manage all teams, players, evaluations, and configuration."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:426
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:654
 msgid "Add your staff"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:428
 msgid ""
 "Add the coaches and staff who will use TalentTrack. Give them an email "
 "address and an invitation is prepared for each of them."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:431
 msgid "Nobody is emailed yet."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:423
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:432
 msgid ""
 "Invitations are held until you send them, so you can finish setting up and "
 "look around first."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:436
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:445
 msgid "Invitation"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:447
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:456
 msgid "Ready to send"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:448
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:457
 msgid "No email — add one later to invite them"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:473
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:482
 msgid ""
 "Optional. Without one they are still on the staff list, but cannot be "
 "invited to sign in."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:477
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:486
 msgid "Add this person"
 msgstr ""
 
 #. translators: %d: number of invitations waiting to be sent
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:487
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:496
 #, php-format
 msgid "Send %d invitation and continue"
 msgid_plural "Send %d invitations and continue"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:502
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:511
 msgid "Continue without sending yet"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:503
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:512
 msgid "Skip — I will add staff later"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:510
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:519
 msgid ""
 "If you continue without sending, the invitations stay ready and waiting "
 "under Configuration → Invitations. Nothing is lost."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:525
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:635
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:534
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:655
 #: src/Shared/Frontend/FrontendSetupView.php:274
 #: src/Shared/Frontend/FrontendSetupView.php:360
 msgid "Dashboard page"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:527
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:536
 #: src/Shared/Frontend/FrontendSetupView.php:276
 msgid ""
 "TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] "
@@ -28966,36 +28968,36 @@ msgid ""
 "in."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:531
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:540
 #: src/Shared/Frontend/FrontendSetupView.php:280
 msgid ""
 "A page with the dashboard shortcode already exists — it will be reused and "
 "set as the homepage, not duplicated."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:536
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:545
 #: src/Shared/Frontend/FrontendSetupView.php:291
 msgid "Create page"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:543
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:552
 #: src/Shared/Frontend/FrontendSetupView.php:295
 msgid "You can change the homepage later under Settings → Reading."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:560
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:569
 #: src/Shared/Frontend/FrontendSetupView.php:310
 msgid "Setup complete"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:561
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:570
 #: src/Shared/Frontend/FrontendSetupView.php:311
 msgid "You are ready to use TalentTrack. Here is what was set up:"
 msgstr ""
 
 #. translators: %s is the academy name
 #. translators: %s is the academy name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:567
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:576
 #: src/Shared/Frontend/FrontendSetupView.php:317
 #, php-format
 msgid "Academy: %s"
@@ -29003,7 +29005,7 @@ msgstr ""
 
 #. translators: 1: team name, 2: age group
 #. translators: 1: team name, 2: age group.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:576
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:585
 #: src/Shared/Frontend/FrontendSetupView.php:326
 #, php-format
 msgid "Team: %1$s (%2$s)"
@@ -29011,90 +29013,90 @@ msgstr ""
 
 #. translators: %s is the admin's full name
 #. translators: %s is the admin's full name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:586
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:595
 #: src/Shared/Frontend/FrontendSetupView.php:336
 #, php-format
 msgid "Admin: %s"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:593
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:602
 msgid "Recommended next steps"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:597
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:606
 msgid "Add players"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:598
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:607
 msgid "Build out your roster — by hand or via CSV import."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:602
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:611
 msgid "Invite first coach"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:603
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:612
 msgid "Add a coach as a staff record so they can record evaluations."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:607
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:616
 msgid "Customize branding"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:608
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:617
 msgid "Logo, colors, secondary palette, theme inheritance."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:612
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:621
 msgid "Set up backups"
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:613
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:622
 msgid "Schedule daily backups so a hosting hiccup does not lose your data."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:641
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:661
 msgid "TalentTrack — Setup wizard"
 msgstr ""
 
 # #5 — wizard polish + resume entry points.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:643
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:663
 msgid "Stop and resume any time."
 msgstr ""
 
 #. translators: %s is the bookmarkable URL of the wizard.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:647
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:667
 #, php-format
 msgid ""
 "Close this tab and your progress is kept. Pick it up again from %s, the "
 "Configuration → Setup wizard tab, or your TalentTrack account menu."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:678
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:698
 msgid "Team created."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:679
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:699
 msgid "Your squad has been imported."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:680
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:700
 msgid "Added. Their invitation is ready but not sent yet."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:681
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:701
 msgid "Invitations sent."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:682
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:702
 msgid "Admin record created."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:683
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:703
 msgid "Wizard reset."
 msgstr ""
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:684
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:704
 msgid "Frontend dashboard page created."
 msgstr ""
 
@@ -36012,7 +36014,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:646
 #: src/Shared/Frontend/FrontendTeamDetailView.php:374
 #: src/Shared/Frontend/FrontendTrialCaseView.php:309
-#: src/Shared/Frontend/FrontendViewBase.php:353
+#: src/Shared/Frontend/FrontendViewBase.php:439
 msgid "More actions"
 msgstr ""
 
@@ -42130,19 +42132,19 @@ msgid "this week"
 msgstr ""
 
 # ===== v3.6.0 — demo prep batch C (tables + i18n) =====
-#: src/Shared/Admin/Menu.php:594 src/Shared/Frontend/FrontendViewBase.php:54
+#: src/Shared/Admin/Menu.php:594 src/Shared/Frontend/FrontendViewBase.php:76
 msgid "Search:"
 msgstr ""
 
-#: src/Shared/Admin/Menu.php:595 src/Shared/Frontend/FrontendViewBase.php:55
+#: src/Shared/Admin/Menu.php:595 src/Shared/Frontend/FrontendViewBase.php:77
 msgid "Filter rows…"
 msgstr ""
 
-#: src/Shared/Admin/Menu.php:596 src/Shared/Frontend/FrontendViewBase.php:56
+#: src/Shared/Admin/Menu.php:596 src/Shared/Frontend/FrontendViewBase.php:78
 msgid "{n} row(s)"
 msgstr ""
 
-#: src/Shared/Admin/Menu.php:597 src/Shared/Frontend/FrontendViewBase.php:57
+#: src/Shared/Admin/Menu.php:597 src/Shared/Frontend/FrontendViewBase.php:79
 msgid "{v} of {n}"
 msgstr ""
 
@@ -47065,56 +47067,57 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:95
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:100
+msgctxt "date a player left the academy"
 msgid "Left"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:116
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:121
 msgid ""
 "This player has no recorded leaving date, so the date their record last "
 "changed is used instead."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:117
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:122
 msgid "estimated"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:125
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:130
 msgid "Keep"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:138
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:143
 msgid "Kept on purpose"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:139
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:144
 msgid ""
 "These are past their retention date and are being kept anyway. A policy with "
 "an invisible list of exceptions is not one anybody can check, so they are "
 "listed here with the reason given."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:163
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:168
 msgid "Put back in the queue"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:190
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:195
 msgid ""
 "Remove this from the player's file? If nothing else is attached to it, the "
 "file is deleted for good."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:191
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:196
 msgid ""
 "Why is this being kept? (Required — it is what makes the exception "
 "auditable.)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:193
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:198
 msgid "Removed from this player. The file is still attached elsewhere."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:194
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:199
 msgid "Removed, and the file was deleted."
 msgstr ""
 
@@ -51653,7 +51656,7 @@ msgstr ""
 msgid "%s h"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendViewBase.php:81
+#: src/Shared/Frontend/FrontendViewBase.php:103
 msgid "Archive record"
 msgstr ""
 
