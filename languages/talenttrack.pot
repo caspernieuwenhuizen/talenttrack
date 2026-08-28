@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T20:10:56+00:00\n"
+"POT-Creation-Date: 2026-08-28T20:23:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -55,13 +55,13 @@ msgstr ""
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:505
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:320
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:285
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:408
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2217
+#: src/Shared/Frontend/DashboardShortcode.php:2223
 #: src/Shared/Frontend/FrontendConfigurationView.php:2902
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -71,7 +71,7 @@ msgstr ""
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2222
+#: src/Shared/Frontend/DashboardShortcode.php:2228
 msgid "Team Manager"
 msgstr ""
 
@@ -135,7 +135,7 @@ msgstr ""
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:319
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:371
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:284
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:339
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
@@ -174,7 +174,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:225
 #: src/Shared/Frontend/DashboardShortcode.php:258
-#: src/Shared/Frontend/DashboardShortcode.php:2216
+#: src/Shared/Frontend/DashboardShortcode.php:2222
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3308
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3385
@@ -222,7 +222,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:154
 #: src/Modules/People/Admin/PeoplePage.php:497
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:385
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:437
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/Reports/Admin/ReportsPage.php:295
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:276
@@ -250,13 +250,13 @@ msgstr ""
 #: src/Infrastructure/Security/RolesService.php:274
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:501
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:324
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:376
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:289
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:344
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2220
+#: src/Shared/Frontend/DashboardShortcode.php:2226
 #: src/Shared/Frontend/FrontendConfigurationView.php:2896
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1112,7 +1112,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:172
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:147
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:299
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:394
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:446
 msgid "KPI"
 msgstr ""
 
@@ -1695,7 +1695,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:82
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:499
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:321
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:286
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
 #: src/Modules/Teams/Admin/TeamsPage.php:51
@@ -1708,7 +1708,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:83
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
 #: src/Modules/People/Admin/PeoplePage.php:498
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:322
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
 #: src/Modules/Teams/Admin/TeamsPage.php:52
@@ -1721,7 +1721,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:84
 #: src/Infrastructure/Query/LabelTranslator.php:85
 #: src/Modules/Mfa/Settings/MfaSettings.php:107
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:323
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:375
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:288
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
 #: src/Modules/Teams/Admin/TeamsPage.php:53
@@ -1750,14 +1750,14 @@ msgstr ""
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:271
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
 #: src/Modules/People/Admin/PeoplePage.php:504
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:325
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:377
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:290
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:345
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:210
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2221
+#: src/Shared/Frontend/DashboardShortcode.php:2227
 #: src/Shared/Frontend/FrontendConfigurationView.php:2900
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1840,7 +1840,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2219
+#: src/Shared/Frontend/DashboardShortcode.php:2225
 msgid "Head Coach"
 msgstr ""
 
@@ -1850,7 +1850,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2218
+#: src/Shared/Frontend/DashboardShortcode.php:2224
 msgid "Assistant Coach"
 msgstr ""
 
@@ -5262,7 +5262,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:378
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:735
 #: src/Modules/People/Admin/PeoplePage.php:58
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:376
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:428
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:307
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:135
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:116
@@ -6721,6 +6721,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:194
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:208
 #: src/Modules/Methodology/Frontend/MethodologyView.php:53
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:51
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:28
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:39
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:41
@@ -6752,9 +6753,9 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:1015
 #: src/Shared/Frontend/DashboardShortcode.php:1247
 #: src/Shared/Frontend/DashboardShortcode.php:1256
-#: src/Shared/Frontend/DashboardShortcode.php:1619
-#: src/Shared/Frontend/DashboardShortcode.php:1627
-#: src/Shared/Frontend/DashboardShortcode.php:1635
+#: src/Shared/Frontend/DashboardShortcode.php:1625
+#: src/Shared/Frontend/DashboardShortcode.php:1633
+#: src/Shared/Frontend/DashboardShortcode.php:1641
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -6809,7 +6810,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:941
 #: src/Shared/CoreSurfaceRegistration.php:1879
 #: src/Shared/CoreSurfaceRegistration.php:2186
-#: src/Shared/Frontend/DashboardShortcode.php:1897
+#: src/Shared/Frontend/DashboardShortcode.php:1903
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
 msgstr ""
@@ -8406,7 +8407,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:320
 #: src/Modules/Authorization/Admin/MatrixPage.php:483
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:46
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:86
 #: src/Shared/Frontend/FrontendConfigurationView.php:2946
 msgid "Persona"
 msgstr ""
@@ -9576,6 +9577,7 @@ msgstr ""
 #: src/Modules/Documentation/HelpTopics.php:190
 #: src/Modules/Measurements/MeasurementsModule.php:130
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:71
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
 #: src/Modules/Stats/Admin/UsageStatsPage.php:356
 #: src/Modules/TeamDevelopment/TeamDevelopmentModule.php:53
@@ -9864,7 +9866,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:102
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:142
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:109
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:116
 msgid "Personas"
 msgstr ""
 
@@ -10392,7 +10394,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2223
+#: src/Shared/Frontend/DashboardShortcode.php:2229
 msgid "Academy Admin"
 msgstr ""
 
@@ -10647,7 +10649,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:298
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:779
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:364
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:416
 #: src/Shared/Frontend/FrontendBackupsView.php:273
 #: src/Shared/Frontend/FrontendBackupsView.php:291
 msgid "Size"
@@ -12544,7 +12546,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:578
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:363
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:415
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:352
 #: src/Shared/Frontend/FrontendConfigurationView.php:586
 #: src/Shared/Frontend/FrontendConfigurationView.php:956
@@ -14465,7 +14467,7 @@ msgid "No custom widgets yet. Build one to surface it on a persona dashboard."
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:73
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:367
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:419
 msgid "Data source"
 msgstr ""
 
@@ -16418,7 +16420,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2104
 #: src/Shared/CoreSurfaceRegistration.php:2291
 #: src/Shared/Frontend/CoachDashboardView.php:45
-#: src/Shared/Frontend/DashboardShortcode.php:2257
+#: src/Shared/Frontend/DashboardShortcode.php:2263
 #: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -17550,7 +17552,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:240
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:645
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1550
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:59
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:99
 #: src/Shared/Frontend/DashboardShortcode.php:277
 msgid "Undo"
 msgstr ""
@@ -17590,7 +17592,7 @@ msgstr ""
 
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:249
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:250
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:413
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:284
@@ -18443,7 +18445,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:231
-#: src/Shared/Frontend/DashboardShortcode.php:2262
+#: src/Shared/Frontend/DashboardShortcode.php:2268
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:159
 msgid "Close"
 msgstr ""
@@ -26849,7 +26851,7 @@ msgid "Remove the define from wp-config.php to re-enable enforcement. Enrollment
 msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:102
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:326
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:378
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:291
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:346
 #: src/Shared/Frontend/FrontendConfigurationView.php:2895
@@ -26861,7 +26863,7 @@ msgid "Head of development"
 msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:110
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:327
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:379
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:292
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:347
 #: src/Shared/Frontend/FrontendConfigurationView.php:2903
@@ -28947,235 +28949,238 @@ msgstr ""
 msgid "Assign"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:28
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:41
 msgid "You do not have permission to edit persona dashboard layouts."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:33
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:46
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:64
 msgid "The dashboard layout editor is turned off for this academy."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:42
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:82
 msgid "Editor toolbar"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:44
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:84
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:62
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:70
 #: src/Modules/PersonaDashboard/PersonaDashboardModule.php:70
 #: src/Modules/PersonaDashboard/PersonaDashboardModule.php:71
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:92
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:96
 msgid "Dashboard layouts"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:56
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:96
 msgid "Library"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:61
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:101
 msgid "Redo"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:64
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:104
 msgid "Mobile preview"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:66
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:377
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:106
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:429
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:288
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:177
 msgid "Reset to default"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:68
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:108
 #: src/Shared/Frontend/FrontendTrialCaseView.php:637
 msgid "Save draft"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:70
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:110
 msgid "Publish"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:79
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:119
 msgid "Widget and KPI palette"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:82
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:122
 msgid "Widgets"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:84
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:124
 msgid "KPIs"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:91
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:131
 msgid "Layout canvas"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:94
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:134
 msgid "Hero band"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:95
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:135
 msgid "Task band"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:96
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:136
 msgid "Bento grid"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:102
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:142
 msgid "Selected widget properties"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:104
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:369
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:144
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:421
 msgid "Select a widget on the canvas to edit its properties."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:359
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:411
 msgid "Add widget"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:360
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:412
 msgid "Add KPI"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:362
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:414
 msgid "Resize"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:365
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:417
 msgid "Mobile priority"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:366
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:418
 msgid "Show on mobile"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:368
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:420
 msgid "Persona label override"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:370
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:422
 msgid "Reset this persona to the ship default?"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:371
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:423
 msgid "Your published layout for this persona will be replaced by the TalentTrack default. This cannot be undone."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:424
 msgid "Publish layout"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:425
 #, php-format
 msgid "This will replace the live %1$s dashboard for ~%2$d users on their next page load."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:426
 #, php-format
 msgid "This will replace the live %s dashboard on the next page load for users matching this persona."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:375
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:427
 msgid "Publish now"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:378
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:430
 msgid "Draft saved."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:379
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:431
 msgid "Layout published."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:380
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:432
 msgid "Reset to default."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:381
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:433
 msgid "Save failed. Try again."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:382
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:434
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:372
 msgid "You have unsaved changes."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:383
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:435
 msgid "No widgets placed. Drag from the palette on the left, or use the keyboard: focus a palette item and press Enter to add it."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:384
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:436
 msgid "Academy-wide"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:386
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:438
 msgid "Player / parent"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:388
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:440
 msgid "Intended for"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:441
 msgid "Capability required"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:391
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:443
 #, php-format
 msgid "Visible to %s users by default."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:392
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:444
 #, php-format
 msgid "Hidden — %1$s users lack `%2$s` by default. Grant via Authorization → Matrix or remove from this layout."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:393
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:445
 msgid "Based on the persona's default WordPress role only — per-user matrix scopes can override this."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:395
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:447
 msgid "Use widget default"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:396
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:448
 msgid "Mobile preview · 360 px"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:397
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:449
 msgid "Desktop · 12 columns"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:398
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:450
 msgid "Press space to grab, arrow keys to move, space to drop, escape to cancel."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:399
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:451
 #, php-format
 msgid "Grabbed %s. Use arrow keys to move, space to drop, escape to cancel."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:400
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:452
 #, php-format
 msgid "Dropped %1$s at column %2$d, row %3$d."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:401
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:453
 msgid "Move cancelled."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:402
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:454
 msgid "Preview as"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:403
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:455
 #, php-format
 msgid "Added %s to the canvas."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:405
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:457
 msgid "Swapped."
 msgstr ""
 
@@ -29314,9 +29319,13 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2172
-#: src/Shared/Frontend/DashboardShortcode.php:2173
+#: src/Shared/Frontend/DashboardShortcode.php:2178
+#: src/Shared/Frontend/DashboardShortcode.php:2179
 msgid "Help & docs"
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:53
+msgid "You do not have permission to edit dashboard layouts."
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:115
@@ -29535,7 +29544,7 @@ msgstr ""
 msgid "Players in trial group"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:93
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:97
 msgid "Drag-and-drop editor — tune what each persona sees on their landing page."
 msgstr ""
 
@@ -31895,8 +31904,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1620
-#: src/Shared/Frontend/DashboardShortcode.php:1628
+#: src/Shared/Frontend/DashboardShortcode.php:1626
+#: src/Shared/Frontend/DashboardShortcode.php:1634
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -33395,7 +33404,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:195
 #: src/Shared/Frontend/DashboardShortcode.php:229
-#: src/Shared/Frontend/DashboardShortcode.php:2267
+#: src/Shared/Frontend/DashboardShortcode.php:2273
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -41134,7 +41143,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:219
-#: src/Shared/Frontend/DashboardShortcode.php:2107
+#: src/Shared/Frontend/DashboardShortcode.php:2113
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -41315,76 +41324,76 @@ msgstr ""
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1636
+#: src/Shared/Frontend/DashboardShortcode.php:1642
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1848
-#: src/Shared/Frontend/DashboardShortcode.php:2241
+#: src/Shared/Frontend/DashboardShortcode.php:1854
+#: src/Shared/Frontend/DashboardShortcode.php:2247
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1899
+#: src/Shared/Frontend/DashboardShortcode.php:1905
 msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2035
+#: src/Shared/Frontend/DashboardShortcode.php:2041
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2038
+#: src/Shared/Frontend/DashboardShortcode.php:2044
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2041
+#: src/Shared/Frontend/DashboardShortcode.php:2047
 msgid "The administrator has temporarily turned off this part of TalentTrack. Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2064
+#: src/Shared/Frontend/DashboardShortcode.php:2070
 msgid "TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2127
+#: src/Shared/Frontend/DashboardShortcode.php:2133
 msgid "Search results"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2151
+#: src/Shared/Frontend/DashboardShortcode.php:2157
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2191
+#: src/Shared/Frontend/DashboardShortcode.php:2197
 #: src/Shared/Frontend/FrontendMySettingsView.php:54
 #: src/Shared/Frontend/FrontendMySettingsView.php:55
 msgid "My settings"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2198
+#: src/Shared/Frontend/DashboardShortcode.php:2204
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2210
+#: src/Shared/Frontend/DashboardShortcode.php:2216
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2213
+#: src/Shared/Frontend/DashboardShortcode.php:2219
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2237
+#: src/Shared/Frontend/DashboardShortcode.php:2243
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2259
+#: src/Shared/Frontend/DashboardShortcode.php:2265
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2331
+#: src/Shared/Frontend/DashboardShortcode.php:2337
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2332
+#: src/Shared/Frontend/DashboardShortcode.php:2338
 msgid "Switch back to all personas"
 msgstr ""
 
