@@ -468,7 +468,14 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 </a>
                 <?php endif; // #2769 export_match_day_team_sheet ?>
                 <span class="tt-mp-spacer"></span>
-                <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
+                <?php
+                // #3004 (epic #2881) — the shared status line. `tt-mp-save-state`
+                // stays as the JS hook and as this surface's positioning class;
+                // the words and the appearance are the component's now, so a
+                // coach reads the same sentence here as on every other
+                // autosaving surface.
+                \TT\Shared\Frontend\Components\SaveState::render( 'tt-mp-save-state' );
+                ?>
             </div>
 
             <!-- ===== 3-COLUMN GRID ===== -->
@@ -866,10 +873,14 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // #2831 — the O/A/V principle pill, shared with the activity detail
         // card and the printed team sheet.
         \TT\Modules\Methodology\Frontend\PrinciplePills::enqueue();
+        // #3004 — the shared autosave component. Declared as a dependency
+        // rather than merely enqueued alongside, so `TT.Autosave` is defined
+        // before this file's `create()` call runs.
+        \TT\Shared\Frontend\Components\SaveState::enqueue();
         wp_enqueue_script(
             'tt-match-prep',
             TT_PLUGIN_URL . 'assets/js/frontend-match-prep.js',
-            [],
+            [ 'tt-autosave' ],
             TT_VERSION,
             true
         );
@@ -879,10 +890,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
             'prep_id'    => (int) $prep_id,
             'activity_id' => (int) $activity_id,
             'i18n'       => [
-                'saving'          => __( 'Saving…', 'talenttrack' ),
-                'saved'           => __( 'All changes saved.', 'talenttrack' ),
-                'dirty'           => __( 'Unsaved changes…', 'talenttrack' ),
-                'error'           => __( 'Save failed. Try again.', 'talenttrack' ),
                 'search'          => __( 'Search player…', 'talenttrack' ),
                 'no_players'      => __( 'No available players found.', 'talenttrack' ),
                 'clear'           => __( 'Clear', 'talenttrack' ),

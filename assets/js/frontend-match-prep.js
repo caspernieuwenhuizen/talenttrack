@@ -56,8 +56,8 @@
         specific:       {},
         analyst:        {},
         rolesAssigned:  {},
-        dirty:          false,
-        savingCount:    0,
+        // `dirty` and `savingCount` moved into TT.Autosave (#3004). Ask
+        // `saver.isPending()` rather than reading a flag from here.
         cancelUrl:      String(bootstrap.cancel_url || '')
     };
 
@@ -144,33 +144,27 @@
 
     var baseUrl = String(cfg.rest_url || '/wp-json/talenttrack/v1/match-prep/');
 
-    function restCall(method, url, body) {
-        state.savingCount++;
-        renderSaveState();
-        return fetch(url, {
-            method: method,
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-WP-Nonce': cfg.rest_nonce || ''
-            },
-            body: body != null ? JSON.stringify(body) : null
-        }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        }).then(function (resp) {
-            state.savingCount = Math.max(0, state.savingCount - 1);
-            state.dirty = state.savingCount > 0 ? state.dirty : false;
-            renderSaveState();
-            return resp;
-        }).catch(function (err) {
-            state.savingCount = Math.max(0, state.savingCount - 1);
-            state.dirty = true;
-            renderSaveState(true);
-            throw err;
-        });
-    }
+    // #3004 (epic #2881) — the debounce, the save state and the error path
+    // are TT.Autosave's now. This file used to own all three, and three other
+    // surfaces owned their own copies; the loop that lived here was the
+    // reference the component was lifted from.
+    //
+    // One behaviour changes with the move, deliberately: saves no longer
+    // overlap. The old `savingCount` let two writes to the same record be in
+    // the air at once, and whichever answered second won regardless of which
+    // was composed second — so a fast typist could watch a character vanish.
+    // The component keeps one request in flight and fires exactly one more
+    // afterwards, carrying the state as it is by then.
+    var saver = TT.Autosave.create({
+        stateEl: $('[data-tt-save-state]'),
+        nonce:   cfg.rest_nonce || '',
+        delay:   250,
+        i18n:    (window.TT_Autosave && window.TT_Autosave.i18n) || {},
+        serialise: function () {
+            if (state.activityId <= 0) return null;
+            return { method: 'PUT', url: baseUrl + state.activityId, body: buildFullPayload() };
+        }
+    });
 
     function buildFullPayload() {
         var lineupOut = { '1': {}, '2': {} };
@@ -210,61 +204,41 @@
     // Debounced full save — for inputs typed into rapidly (attention text,
     // goal text, half length). Discrete events (slot picks, flag toggles)
     // call saveAll() directly so the user sees the dot turn green.
-    var saveTimer = null;
-    function scheduleSave(delay) {
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(function () { saveTimer = null; saveAll(); }, delay || 250);
-    }
+    function scheduleSave(delay) { saver.change(delay); }
 
     function saveAll() {
         if (state.activityId <= 0) return Promise.resolve();
-        markDirty();
-        return restCall('PUT', baseUrl + state.activityId, buildFullPayload());
+        return saver.saveNow();
     }
 
+    // Roles write to their own endpoint rather than being a slice of the
+    // full payload, so they go through `send()` — same status line, same
+    // ordering guarantee, no second save loop in this file.
     function saveRole(roleKey, playerId) {
         if (state.prepId <= 0 || !roleKey) return Promise.resolve();
-        markDirty();
-        return restCall('PUT', baseUrl + state.prepId + '/role', {
-            role_key: roleKey,
-            player_id: playerId
+        return saver.send({
+            method: 'PUT',
+            url: baseUrl + state.prepId + '/role',
+            body: { role_key: roleKey, player_id: playerId }
         });
     }
 
     function clearRoleRemote(roleKey) {
         if (state.prepId <= 0 || !roleKey) return Promise.resolve();
-        markDirty();
-        return restCall('DELETE', baseUrl + state.prepId + '/role/' + encodeURIComponent(roleKey), null);
+        return saver.send({
+            method: 'DELETE',
+            url: baseUrl + state.prepId + '/role/' + encodeURIComponent(roleKey)
+        });
     }
 
-    function markDirty() { state.dirty = true; renderSaveState(); }
+    function markDirty() { saver.change(); }
 
     // ---------------------------------------------------------------------
     // Rendering
     // ---------------------------------------------------------------------
 
-    function renderSaveState(isError) {
-        var el = $('[data-tt-mp-save-state]');
-        if (!el) return;
-        el.classList.remove('tt-mp-state-dirty', 'tt-mp-state-saving', 'tt-mp-state-error', 'tt-mp-state-saved');
-        if (isError) {
-            el.classList.add('tt-mp-state-error');
-            el.textContent = i18n('error', 'Save failed. Try again.');
-            return;
-        }
-        if (state.savingCount > 0) {
-            el.classList.add('tt-mp-state-saving');
-            el.textContent = i18n('saving', 'Saving…');
-            return;
-        }
-        if (state.dirty) {
-            el.classList.add('tt-mp-state-dirty');
-            el.textContent = i18n('dirty', 'Unsaved changes…');
-            return;
-        }
-        el.classList.add('tt-mp-state-saved');
-        el.textContent = i18n('saved', 'All changes saved.');
-    }
+    // renderSaveState() is gone — TT.Autosave renders the status line, and
+    // this file's only job is to hand it the element (see `saver` above).
 
     function renderAll() {
         renderRoster();
@@ -272,7 +246,7 @@
         renderDps();
         renderRoles();
         renderFoot();
-        renderSaveState();
+        saver.render();
     }
 
     function renderRoster() {
@@ -771,26 +745,11 @@
                 reason: String(entry.reason || (entry.sub || ''))
             };
         });
-        state.savingCount++;
-        renderSaveState();
-        fetch(baseUrl + state.activityId, {
-            method: 'PUT',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-WP-Nonce': cfg.rest_nonce || ''
-            },
-            body: JSON.stringify(payload)
-        }).then(function (r) {
-            state.savingCount = Math.max(0, state.savingCount - 1);
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            state.dirty = false;
-            renderSaveState();
-        }).catch(function () {
-            state.savingCount = Math.max(0, state.savingCount - 1);
-            renderSaveState(true);
-        });
+        // The availability drawer writes the full record with an extra
+        // `availability` block, so it is a send() rather than the debounced
+        // serialise — but it shows the same status line and queues behind
+        // any save already in the air.
+        saver.send({ method: 'PUT', url: baseUrl + state.activityId, body: payload });
     }
 
     function renderDrawer() {
