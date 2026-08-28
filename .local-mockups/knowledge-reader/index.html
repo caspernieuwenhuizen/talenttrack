@@ -59,7 +59,7 @@ body {
 
 /* ── mockup chrome (not shipped) ───────────────────────────────────── */
 .mk-note {
-    max-width: 76ch;
+    max-width: 96ch;
     margin: var(--tt-sp-6) auto;
     padding: var(--tt-sp-4);
     border-left: 4px solid var(--tt-primary);
@@ -77,7 +77,7 @@ body {
     font-size: 0.92em;
 }
 .mk-label {
-    max-width: 76ch;
+    max-width: 96ch;
     margin: var(--tt-sp-8) auto var(--tt-sp-2);
     font-size: 11px;
     font-weight: 700;
@@ -85,10 +85,16 @@ body {
     text-transform: uppercase;
     color: var(--tt-muted);
 }
+/*
+ * The real canvas. The app shell gives content `min(94vw, 1600px)`
+ * (`public.css`, `.tt-dashboard`), so the first version of this mockup —
+ * capped at 1080px — was showing the reader about two thirds of the room it
+ * actually has, and made the column look better-proportioned than it is.
+ */
 .mk-sheet {
-    max-width: 1080px;
+    max-width: min(94vw, 1600px);
     margin: 0 auto var(--tt-sp-8);
-    padding: var(--tt-sp-6) var(--tt-sp-5) var(--tt-sp-8);
+    padding: var(--tt-sp-6) var(--tt-sp-6) var(--tt-sp-8);
     background: var(--tt-paper);
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-radius-lg);
@@ -113,7 +119,18 @@ body {
  * measure belongs to the container; blocks inherit and never declare.
  */
 .tt-lesson {
-    --tt-lesson-measure: 76ch;
+    /*
+     * 76ch was a paperback measure on a surface we have just argued belongs
+     * at a desk. With the shell handing the reader up to 1600px, a 76ch
+     * column used under half of it — which is the same complaint #2737 made
+     * about the calculators, applied to the prose.
+     *
+     * 96ch at 17px is roughly 900px: wider than a book, still inside the
+     * range where the eye finds the start of the next line reliably. Past
+     * about 100 characters it stops being a reading column and starts being
+     * a wall, and the reason to go desktop-only was legibility, not size.
+     */
+    --tt-lesson-measure: 96ch;
 }
 
 .tt-lesson-head {
@@ -132,7 +149,7 @@ body {
 }
 .tt-lesson-title {
     margin: 0;
-    font-size: 1.9rem;
+    font-size: 2.2rem;
     line-height: 1.15;
     letter-spacing: -0.02em;
     text-wrap: balance;
@@ -143,8 +160,13 @@ body {
     display: grid;
     grid-template-columns: 1fr min(var(--tt-lesson-measure), 100%) 1fr;
     color: var(--tt-ink);
-    font-size: var(--tt-fs-body);
-    line-height: var(--tt-lh-body);
+    /*
+     * A wider column needs bigger type and more leading, or the return
+     * sweep starts landing on the wrong line. 17px/1.7 against the 16px/1.6
+     * the reader used at 76ch.
+     */
+    font-size: 1.0625rem;
+    line-height: 1.7;
 }
 
 .tt-lesson-body > * {
@@ -178,7 +200,7 @@ body {
 
 .tt-lesson-body h2 {
     margin: var(--tt-sp-8) 0 0;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     line-height: 1.2;
     text-wrap: balance;
 }
@@ -329,14 +351,35 @@ body {
 
 <p class="mk-label">#2872 · design of record</p>
 <div class="mk-note">
-    <p><strong>One reading column.</strong> Every text-bearing block on a lesson sits on the same measure
-    (<code>--tt-lesson-measure</code>, 76ch), declared once on <code>.tt-lesson</code> and inherited. The dashed
-    outlines below are mockup-only and exist to show the single edge — they are not part of the proposal.</p>
+    <p><strong>One reading column, and a desktop-sized one.</strong> Every text-bearing block on a lesson sits on
+    the same measure (<code>--tt-lesson-measure</code>), declared once on <code>.tt-lesson</code> and inherited.
+    The dashed outlines below are mockup-only and exist to show the single edge — they are not part of the
+    proposal.</p>
+
+    <p><strong>Revised after review — it was too narrow.</strong> Two things were wrong. This mockup capped its
+    page at 1080px while the app shell actually gives content <code>min(94vw, 1600px)</code>, so it was showing
+    the reader two thirds of its real room and flattering the proportions. And 76ch is a paperback measure on a
+    surface we have just argued belongs at a desk — the same complaint #2737 made about the calculators, applied
+    to the prose.</p>
+
+    <table style="border-collapse:collapse;margin:0 0 12px;font-size:inherit">
+        <tr><td style="padding:2px 16px 2px 0">Page</td><td>1080px → <strong>min(94vw, 1600px)</strong>, matching the shell</td></tr>
+        <tr><td style="padding:2px 16px 2px 0">Measure</td><td>76ch → <strong>96ch</strong> (~900px at 17px)</td></tr>
+        <tr><td style="padding:2px 16px 2px 0">Body</td><td>16px/1.6 → <strong>17px/1.7</strong> — a wider column needs the leading, or the return sweep lands on the wrong line</td></tr>
+        <tr><td style="padding:2px 16px 2px 0">Title / H2</td><td>1.9rem → 2.2rem, 1.3rem → 1.5rem</td></tr>
+    </table>
+
+    <p>96ch is the deliberate stopping point rather than "as wide as it goes". Past roughly 100 characters a
+    column stops being easier to read and starts being a wall, and legibility was the argument for desktop-only in
+    the first place. The width that was going spare now goes to the figures, which is the whole point of the
+    full-bleed exception: the diagram in state B is ~1550px, not ~1030px.</p>
+
     <p style="margin-bottom:0"><strong>What changes in the CSS:</strong> <code>.tt-quiz</code> loses its own
     <code>max-width: 68ch</code>; <code>.tt-quiz</code>, <code>.tt-lesson-actionline</code> and
-    <code>.tt-lesson-assignment</code> come out of the full-bleed list in <code>knowledge-lesson.css</code>. The
-    calculators, wide tables and model diagrams stay wide — #2737 widened those for a reason that still holds, and
-    they are figures rather than sentences.</p>
+    <code>.tt-lesson-assignment</code> come out of the full-bleed list in <code>knowledge-lesson.css</code>; and
+    <code>--tt-lesson-measure</code> moves from <code>.tt-lesson-body</code> up to <code>.tt-lesson</code> so the
+    header shares it. The calculators, wide tables and model diagrams stay wide — #2737 widened those for a reason
+    that still holds, and they are figures rather than sentences.</p>
 </div>
 
 <p class="mk-label">State A — callout, prose, inline check, quiz</p>
@@ -434,6 +477,10 @@ body {
             <figcaption>De keten. Een diagram verliest detail op de leesbreedte, dus dit is wat wél breder mag —
             en de bijschriftregel gaat terug naar de kolom.</figcaption>
         </figure>
+
+        <p>Op een breed scherm is dit het verschil dat de bureau-keuze oplevert: de tekst blijft op één
+        leesbreedte, het diagram pakt de volle pagina. Dat contrast werkt alleen als de tekst zich eraan houdt —
+        een kolom die zelf ook meegroeit, maakt de uitzondering betekenisloos.</p>
 
         <p>Het diagram hierboven is breder dan de tekst. Dat is de enige uitzondering: een figuur waarvan het detail
         verloren gaat op de leesbreedte. Het bijschrift eronder staat weer in de kolom, zodat het oog na de figuur

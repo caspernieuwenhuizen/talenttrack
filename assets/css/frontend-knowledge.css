@@ -26,7 +26,7 @@
 
 /* Prose keeps a measure, matching the lesson body's (#2737). */
 .tt-knowledge-lede {
-    max-width: 76ch;
+    max-width: min(var(--tt-lesson-measure, 96ch), 100%);
     color: var(--tt-ink-soft, #6a6d66);
     font-size: var(--tt-fs-lg, 1.125rem);
     line-height: 1.5;
@@ -193,7 +193,7 @@
 }
 
 .tt-knowledge-course__requirements {
-    max-width: 76ch;
+    max-width: min(var(--tt-lesson-measure, 96ch), 100%);
     margin: 0 0 var(--tt-sp-5, 20px);
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);

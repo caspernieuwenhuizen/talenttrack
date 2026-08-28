@@ -104,6 +104,15 @@ class FrontendLessonView extends FrontendViewBase {
             'meta' => self::position( $manifest->lessonSlugs(), $lesson_slug ),
         ] );
 
+        // #2872 — one reading column for the whole lesson, not just its body.
+        // The measure lives on this wrapper so the title, the position line,
+        // the objectives and the completion panel can share the value the
+        // prose uses. Before this they each took their width from wherever
+        // they happened to sit — the title from the page gutter, the panels
+        // from the full page, the prose from the body grid — which is the
+        // "several documents pasted together" the pilot review reported.
+        echo '<div class="tt-lesson">';
+
         self::renderHeader( $lesson->title() );
 
         if ( $notice !== '' ) {
@@ -129,6 +138,8 @@ class FrontendLessonView extends FrontendViewBase {
         echo '</article>';
 
         self::renderCompletion( $enrolment_id, $course_slug, $lesson_slug, $is_read, $lesson->hasQuiz(), $lesson->hasAssignment(), $completion );
+
+        echo '</div>';
     }
 
     /** Learning objectives, when the lesson declares them. */
