@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T21:20:05+00:00\n"
+"POT-Creation-Date: 2026-08-28T21:41:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -40687,11 +40687,11 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:166
+#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:245
 msgid "Quick navigation"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:198
+#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:277
 msgid "More"
 msgstr ""
 
