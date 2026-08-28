@@ -262,7 +262,7 @@ class FrontendMobilePromptView extends FrontendViewBase {
                 return [
                     'slug'  => 'activities',
                     'label' => __( 'Open the activity', 'talenttrack' ),
-                    'lead'  => __( 'Taking attendance for one session? Open the session itself — that screen is built for a phone.', 'talenttrack' ),
+                    'lead'  => __( 'Taking attendance for one activity? Open the activity itself — that screen is built for a phone.', 'talenttrack' ),
                 ];
         }
 

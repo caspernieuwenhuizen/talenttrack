@@ -56510,8 +56510,8 @@ msgid "Open the activity"
 msgstr "Open de activiteit"
 
 #: src/Shared/Frontend/FrontendMobilePromptView.php
-msgid "Taking attendance for one session? Open the session itself — that screen is built for a phone."
-msgstr "Aanwezigheid voor één training vastleggen? Open de activiteit zelf — dat scherm is voor een telefoon gemaakt."
+msgid "Taking attendance for one activity? Open the activity itself — that screen is built for a phone."
+msgstr "Aanwezigheid voor één activiteit vastleggen? Open de activiteit zelf — dat scherm is voor een telefoon gemaakt."
 
 #~ msgid "Edit per-age-group weights (wp-admin)"
 #~ msgstr "Wegingen per leeftijdscategorie aanpassen (wp-admin)"
