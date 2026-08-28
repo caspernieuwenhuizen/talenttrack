@@ -21,6 +21,12 @@ use TT\Modules\DemoData\Generators\GoalGenerator;
  *
  * MT RNG is seeded up front so (seed, preset, size, domain) is reproducible
  * byte-for-byte across runs.
+ *
+ * `$opts['size']` (#3042) optionally overrides the chosen preset's `teams`,
+ * `players_per_team` and `weeks`. It is not in the `@param` shape below
+ * deliberately: that shape has never listed the selective-generation flags
+ * or the Excel-source keys either, and completing it here would only move
+ * the inaccuracy rather than fix it.
  */
 class DemoGenerator {
 
@@ -32,7 +38,7 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, size?:array{teams?:int, players_per_team?:int, weeks?:int}, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
+     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
      * @return array{
      *   batch_id:string,
      *   users:array<string,int>,
