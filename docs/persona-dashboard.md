@@ -4,6 +4,7 @@ group: frontend
 summary: Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.
 audience: [user, admin]
 module: TT\Modules\PersonaDashboard\PersonaDashboardModule
+views: [persona-templates]
 order: 30
 ---
 
@@ -58,7 +59,11 @@ Widgets come in four sizes — Small, Medium, Large, Extra-large — and snap to
 
 ## Customising a persona's dashboard
 
-Open *TalentTrack → Dashboard layouts* in wp-admin. The page is gated by the `tt_edit_persona_templates` capability — granted to administrators and Academy Admins by default, opt-in for Head of Development.
+Open **Configuration → Dashboard layouts**. The editor is gated by the `tt_edit_persona_templates` capability — granted to administrators and Academy Admins by default, opt-in for Head of Development.
+
+The same editor is still available at *TalentTrack → Dashboard layouts* in wp-admin. It is one editor on two screens, not two editors: both read and write the same stored layouts, so it does not matter which you use or which one somebody else used yesterday.
+
+It needs a desktop. Dragging widgets between three panes has no thumb-sized equivalent, so a phone gets the "best on a larger screen" page instead.
 
 The editor has three panes:
 

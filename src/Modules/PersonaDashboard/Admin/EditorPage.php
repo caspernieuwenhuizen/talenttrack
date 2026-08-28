@@ -23,22 +23,62 @@ final class EditorPage {
 
     public const SLUG = 'tt-dashboard-layouts';
 
+    /**
+     * The one capability that governs this editor, wherever it is rendered.
+     *
+     * Named rather than repeated so the frontend surface (#2978) cannot
+     * drift onto a different one — the whole point of that port is that both
+     * screens write the same stored rows, which is only true if both admit
+     * the same people.
+     */
+    public const CAP = 'tt_edit_persona_templates';
+
+    /** The sub-feature that switches the editor off entirely (#1538). */
+    public const FEATURE = 'persona_dashboard_editor';
+
     public static function render(): void {
-        if ( ! current_user_can( 'tt_edit_persona_templates' ) ) {
+        if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'You do not have permission to edit persona dashboard layouts.', 'talenttrack' ) );
         }
         // #1538 — blocks direct-URL access when the editor sub-feature is
         // off (the menu + tile are already hidden in the module boot).
-        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'persona_dashboard_editor' ) ) {
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( self::FEATURE ) ) {
             wp_die( esc_html__( 'The dashboard layout editor is turned off for this academy.', 'talenttrack' ) );
         }
+
+        self::renderEditor();
+    }
+
+    /**
+     * The editor itself — markup, bootstrap and the localize hand-off.
+     *
+     * Public and chrome-parameterised because #2978 puts the same editor on
+     * the frontend at `?tt_view=persona-templates`. There is deliberately
+     * **one** implementation: the editor persists `data_source` = a tile's
+     * view slug into stored persona-dashboard rows, and two renderers
+     * drifting apart is how those stored rows would come to reference
+     * something one screen offers and the other does not.
+     *
+     * Callers do their own capability and feature checks first; this method
+     * assumes both have passed.
+     *
+     * @param array{wrapper?:string,button?:string,primary?:string} $chrome
+     *        Class names for the host surface. wp-admin wants its own
+     *        `wrap` / `button` classes; the frontend wants `tt-btn`. Only
+     *        the classes differ — never the markup, the data attributes or
+     *        the bootstrap.
+     */
+    public static function renderEditor( array $chrome = [] ): void {
+        $wrapper = (string) ( $chrome['wrapper'] ?? 'wrap tt-pde-wrap' );
+        $btn     = (string) ( $chrome['button'] ?? 'button tt-pde-btn' );
+        $primary = (string) ( $chrome['primary'] ?? 'button button-primary tt-pde-btn-primary' );
 
         $personas    = PersonaTemplateRegistry::defaultPersonas();
         $club_id     = self::currentClubId();
         $current_user = wp_get_current_user();
         $bootstrap   = self::buildBootstrap( $personas, $club_id );
 
-        echo '<div class="wrap tt-pde-wrap" data-library-open="true">';
+        echo '<div class="' . esc_attr( $wrapper ) . '" data-library-open="true">';
         echo '<header class="tt-pde-toolbar" role="toolbar" aria-label="' . esc_attr__( 'Editor toolbar', 'talenttrack' ) . '">';
         echo '<div class="tt-pde-toolbar-left">';
         echo '<h1 class="tt-pde-title">' . esc_html__( 'Dashboard layouts', 'talenttrack' ) . '</h1>';
@@ -52,21 +92,21 @@ final class EditorPage {
         echo '</label>';
         echo '</div>';
         echo '<div class="tt-pde-toolbar-right">';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="library-toggle" aria-pressed="true">';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="library-toggle" aria-pressed="true">';
         echo esc_html__( 'Library', 'talenttrack' ) . '</button>';
         echo '<span class="tt-pde-divider" aria-hidden="true"></span>';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="undo" aria-keyshortcuts="Control+Z" disabled>';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="undo" aria-keyshortcuts="Control+Z" disabled>';
         echo esc_html__( 'Undo', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="redo" aria-keyshortcuts="Control+Shift+Z" disabled>';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="redo" aria-keyshortcuts="Control+Shift+Z" disabled>';
         echo esc_html__( 'Redo', 'talenttrack' ) . '</button>';
         echo '<span class="tt-pde-divider" aria-hidden="true"></span>';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="mobile-preview" aria-pressed="false">';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="mobile-preview" aria-pressed="false">';
         echo esc_html__( 'Mobile preview', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="reset">';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="reset">';
         echo esc_html__( 'Reset to default', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="save-draft">';
+        echo '<button type="button" class="' . esc_attr( $btn ) . '" data-tt-pde="save-draft">';
         echo esc_html__( 'Save draft', 'talenttrack' ) . '</button>';
-        echo '<button type="button" class="button button-primary tt-pde-btn-primary" data-tt-pde="publish">';
+        echo '<button type="button" class="' . esc_attr( $primary ) . '" data-tt-pde="publish">';
         echo esc_html__( 'Publish', 'talenttrack' ) . '</button>';
         echo '</div>';
         echo '</header>';
@@ -121,6 +161,18 @@ final class EditorPage {
         // Hook from `add_submenu_page` is "talenttrack_page_tt-dashboard-layouts" (when parent is "talenttrack").
         if ( strpos( $hook, self::SLUG ) === false ) return;
 
+        self::enqueueEditorAssets();
+    }
+
+    /**
+     * The editor's own CSS and JS.
+     *
+     * Split out of the admin-hook guard so the frontend surface (#2978)
+     * loads the identical pair. `renderEditor()` hands its bootstrap to the
+     * `tt-persona-dashboard-editor` handle, so anything that renders the
+     * editor has to have enqueued it under that exact name first.
+     */
+    public static function enqueueEditorAssets(): void {
         wp_enqueue_style(
             'tt-persona-dashboard-editor',
             TT_PLUGIN_URL . 'assets/css/persona-dashboard-editor.css',

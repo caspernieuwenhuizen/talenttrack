@@ -40,7 +40,11 @@ Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikke
 
 ## Een persona-dashboard aanpassen
 
-Open *TalentTrack → Dashboard-lay-outs* in wp-admin. De pagina is afgeschermd met de capability `tt_edit_persona_templates` — standaard toegekend aan beheerders en academiebeheerders, optioneel aan Head of Development.
+Open **Instellingen → Dashboard-lay-outs**. De editor is afgeschermd met de capability `tt_edit_persona_templates` — standaard toegekend aan beheerders en academiebeheerders, optioneel aan Head of Development.
+
+Dezelfde editor blijft beschikbaar via *TalentTrack → Dashboard-lay-outs* in wp-admin. Het is één editor op twee schermen, geen twee editors: beide lezen en schrijven dezelfde opgeslagen lay-outs, dus het maakt niet uit welke je gebruikt of welke iemand anders gisteren gebruikte.
+
+Je hebt er een desktop voor nodig. Widgets tussen drie panelen slepen heeft geen variant die met een duim werkt, dus op een telefoon krijg je de pagina "werkt het best op een groter scherm".
 
 De editor heeft drie panelen:
 

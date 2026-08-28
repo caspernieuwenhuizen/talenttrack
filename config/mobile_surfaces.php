@@ -192,6 +192,7 @@ return [
     'modules'                       => [ 'desktop_only', 'Turning modules on and off, install-wide.' ],
     'parent-accounts'               => [ 'desktop_only', 'The same for parents.' ],
     'pdp-planning'                  => [ 'desktop_only', 'Planning development across a squad.' ],
+    'persona-templates'             => [ 'desktop_only', 'A drag-and-drop canvas with a palette and a properties panel. There is no version of that which works under a thumb.' ],
     'player-accounts'               => [ 'desktop_only', 'Linking player records to sign-ins.' ],
     'player-status-methodology'     => [ 'desktop_only', 'Status vocabulary, academy-wide.' ],
     'players-import'                => [ 'desktop_only', 'CSV upload and column mapping.' ],

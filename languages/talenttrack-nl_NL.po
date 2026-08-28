@@ -56399,6 +56399,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php
+msgid "You do not have permission to edit dashboard layouts."
+msgstr "Je hebt geen rechten om dashboard-lay-outs te bewerken."
+
 #~ msgid "All changes saved."
 #~ msgstr "Alle wijzigingen opgeslagen."
 

@@ -88,12 +88,19 @@ class PersonaDashboardModule implements ModuleInterface {
      * @return array<int, array{label: string, tiles: array<int, array<string,mixed>>}>
      */
     public static function addEditorTile( array $groups ): array {
+        // #2978 — points at the frontend editor rather than wp-admin. The
+        // wp-admin page is unchanged and still reachable from its own menu;
+        // this is the tile on a frontend configuration surface, so sending
+        // it into wp-admin was the thing #2874 is about.
         $tile = [
             'label'       => __( 'Dashboard layouts', 'talenttrack' ),
             'description' => __( 'Drag-and-drop editor — tune what each persona sees on their landing page.', 'talenttrack' ),
             'icon'        => '🧩',
-            'url'         => admin_url( 'admin.php?page=' . EditorPage::SLUG ),
-            'cap'         => 'tt_edit_persona_templates',
+            'url'         => add_query_arg(
+                [ 'tt_view' => \TT\Modules\PersonaDashboard\Frontend\FrontendPersonaTemplatesView::SLUG ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            ), /* tt-xview-ok — a tile, gated by its own `cap` below */
+            'cap'         => EditorPage::CAP,
         ];
         foreach ( $groups as &$group ) {
             if ( ! is_array( $group ) ) continue;

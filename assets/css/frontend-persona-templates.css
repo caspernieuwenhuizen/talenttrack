@@ -1,0 +1,66 @@
+/*
+ * The persona dashboard editor, hosted on the frontend (#2978).
+ *
+ * `persona-dashboard-editor.css` already lays the editor out and is loaded
+ * first — this sheet only undoes the wp-admin assumptions that sheet was
+ * written against. Every rule here is scoped to `.tt-pde-wrap--frontend`, so
+ * the wp-admin screen is untouched.
+ *
+ * The editor is classified `desktop_only`: it is a drag-and-drop canvas with
+ * a palette and a properties panel, and there is no version of that which
+ * works under a thumb. A phone gets the prompt page instead.
+ */
+
+.tt-pde-wrap--frontend {
+    /*
+     * wp-admin's `.wrap` supplies the page gutter this markup expects. On the
+     * frontend the dashboard shell already provides one, so the editor only
+     * needs to stop being flush against it.
+     */
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * The editor's toolbar heading is the page title here, since the view
+ * deliberately renders no separate header above it.
+ */
+.tt-pde-wrap--frontend .tt-pde-title {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    margin: 0;
+}
+
+/*
+ * The toolbar wraps rather than scrolls. At tablet width seven controls plus
+ * a persona picker do not fit on one line, and a toolbar that scrolls
+ * sideways hides its own Publish button.
+ */
+.tt-pde-wrap--frontend .tt-pde-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/*
+ * `.tt-btn` already carries the 48px floor, but the editor's own
+ * `.tt-pde-btn` sets a compact wp-admin height. The frontend host wins:
+ * these are real tap targets on a tablet, which is the narrowest device
+ * that reaches this surface.
+ */
+.tt-pde-wrap--frontend .tt-pde-btn,
+.tt-pde-wrap--frontend .tt-pde-btn-primary {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-pde-wrap--frontend .tt-pde-persona-picker select {
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+/*
+ * The three panes are a fixed wp-admin-width grid in the base sheet. Let them
+ * use the frontend's content width instead of assuming the admin one.
+ */
+.tt-pde-wrap--frontend .tt-pde-grid {
+    max-width: 100%;
+}
