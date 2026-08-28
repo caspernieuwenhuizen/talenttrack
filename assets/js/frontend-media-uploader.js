@@ -285,6 +285,18 @@
 
 		if ( media.title ) row.li.querySelector( '.tt-media-queue__name' ).textContent = media.title;
 
+		// #2611 — say what happened to the video's location metadata. The
+		// server decides the wording; the uploader only decides whether it
+		// reads as a confirmation or a warning.
+		if ( media.location_notice ) {
+			var note = el( 'p', 'tt-media-queue__note', media.location_notice );
+			if ( media.location_metadata === 'unreadable' ) {
+				note.classList.add( 'tt-media-queue__note--warn' );
+			}
+			row.li.appendChild( note );
+			this.say( media.location_notice );
+		}
+
 		this.added.push( media.uuid );
 		this.sync();
 
