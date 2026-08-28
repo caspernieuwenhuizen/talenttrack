@@ -92,7 +92,12 @@ class FrontendMediaRetentionView extends FrontendViewBase {
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Media', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Left', 'talenttrack' ) . '</th>';
+        // #3031 — contextualised. The bare "Left" msgid also has to serve
+        // the `foot_option` lookup value, which LookupTranslator::name()
+        // hands to __() as its last fallback. One msgid cannot mean both
+        // "departed" and "left foot": Dutch renders them "Vertrokken" and
+        // "Links", and whichever was translated first won everywhere.
+        echo '<th>' . esc_html_x( 'Left', 'date a player left the academy', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 

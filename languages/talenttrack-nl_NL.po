@@ -50745,7 +50745,8 @@ msgstr[1] ""
 "Deze academie bewaart de foto's en video's van een speler %d jaar nadat die "
 "weggaat. Hieronder is nog niets verwijderd — alles wacht op jouw beslissing."
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:95
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:100
+msgctxt "date a player left the academy"
 msgid "Left"
 msgstr "Vertrokken"
 
