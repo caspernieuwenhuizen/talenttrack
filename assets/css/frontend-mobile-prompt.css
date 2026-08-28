@@ -1,0 +1,111 @@
+/*
+ * The "open this on desktop" page (#2811).
+ *
+ * This is the one surface that has to be beyond reproach on a phone: it is
+ * the page telling somebody the product needs a bigger screen, and if it is
+ * itself cramped the message reads as an excuse.
+ *
+ * Every rule was an inline style before this issue. Moving them out is a net
+ * deletion on the lines the #1389 gate scans, so the gate is satisfied rather
+ * than circumvented.
+ */
+
+.tt-mprompt {
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 1rem;
+    /* Safe area: this page is often the first thing after a notch. */
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.tt-mprompt__flash {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.tt-mprompt__title {
+    margin: 1.5rem 0 0.5rem;
+    font-size: var(--tt-fs-h2, 1.5rem);
+    line-height: 1.3;
+}
+
+.tt-mprompt__reason {
+    color: var(--tt-muted, #5b6e75);
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+}
+
+/*
+ * The alternative is the most useful thing on the page when there is one, so
+ * it sits above the email fallback rather than below it. A signpost beats a
+ * wall, and a signpost under the fold is a wall.
+ */
+.tt-mprompt__alt {
+    margin: 0 0 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-mprompt__alt-lead {
+    margin: 0 0 0.75rem;
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mprompt__actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/*
+ * Full-width stacked buttons: at 360px two side-by-side actions are each
+ * too narrow to read, and this page's whole job is to offer a way onward.
+ */
+.tt-mprompt .tt-btn {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.tt-mprompt__or {
+    margin: 0 0 0.5rem;
+    color: var(--tt-muted, #5b6e75);
+}
+
+/*
+ * "Show it anyway" is a real button now, not a small link in a footnote.
+ * It is the escape hatch for a gate standing in front of 77 surfaces, and a
+ * URL parameter you have to already know about is not an escape hatch.
+ *
+ * Tertiary rather than secondary: available, clearly subordinate to the two
+ * suggestions above it, and never the obvious thing to press.
+ */
+.tt-mprompt__override {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-mprompt__override-lead {
+    margin: 0 0 0.75rem;
+    color: var(--tt-muted, #5b6e75);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-mprompt__override .tt-btn {
+    background: transparent;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    color: var(--tt-muted, #5b6e75);
+}
+
+@media (min-width: 480px) {
+    .tt-mprompt {
+        padding: 1.5rem;
+    }
+}

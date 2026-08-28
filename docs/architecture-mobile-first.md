@@ -71,7 +71,17 @@ Every `?tt_view=` route declares its class in `config/mobile_surfaces.php`, whic
 - **`native`** — mobile-first surface. The pattern library (`mobile-patterns.css` + `mobile-helpers.js`) is enqueued automatically by `DashboardShortcode` on these surfaces.
 - **`viewable`** — readable on mobile but desktop-preferred. The default for unregistered slugs.
 - **`read_only`** — readable on a phone, edited at a desk. On a phone the surface renders, minus anything that writes: the controls are removed from the DOM rather than disabled, and there is no banner, so the phone gets a clean reading view. Desktop and tablet are untouched, and `?force_mobile=1` opts out exactly as it does for `desktop_only`. In practice the reports themselves carry no mutating control at all — the one that bites is the saved-views strip's save / rename / overwrite / delete, which `SavedViews` drops here while keeping the apply links, since applying a saved view is a GET and is the reason to render the strip on a phone.
-- **`desktop_only`** — phone access lands on `FrontendMobilePromptView` instead of the cramped responsive view. Per-club override via the `force_mobile_for_user_agents` setting; per-request override via `?force_mobile=1`.
+- **`desktop_only`** — phone access lands on `FrontendMobilePromptView` instead of the cramped responsive view. Per-club override via the `force_mobile_for_user_agents` setting; per-request override via `?force_mobile=1`, which the prompt page also exposes as a visible **Show it anyway** button.
+
+### The prompt page (#2811)
+
+`desktop_only` covers **77 of 156** routable surfaces — half the product. It was designed when it stood in front of 22, and at four times that frequency a generic "best on a larger screen" reads as the product being broken rather than as a considered gate. So the page:
+
+- **Names the surface**, read from the blocked slug's `TileRegistry` label. Sub-views with no tile fall back to the generic heading rather than inventing a name — telling a coach that "Eval Category Weights" needs a desktop is worse than not naming it.
+- **Gives a reason specific to the surface**, from `reasonFor()`. Grouped by family — study surfaces, roster grids, matrices, printed documents, builders, wide-blast-radius settings, imports — because the families are the same five questions `config/mobile_surfaces.php` documents for choosing a class. A reason true of all 77 tells nobody anything.
+- **Offers the phone path where one genuinely exists**, from `alternativeFor()`, gated through `CrossViewLink` so it hides when the target would refuse. **Deliberately sparse**: an invented alternative is worse than none, because sending a coach to a screen that does not do what they came for costs more than the honest "not on a phone". Per-record alternatives are absent for a mechanical reason — match prep's phone path is its share link, and that is minted per activity, so it cannot be linked from a page that only knows the slug.
+
+The reason strings live in the view, not in `config/mobile_surfaces.php`. That file's reasons are developer rationale: not wrapped in `__()`, and `require`d early enough that translating at load would be too soon. Two audiences, two sets of words — do not try to merge them.
 
 Tablets are never gated — `MobileDetector::isPhone()` excludes iPad, Android tablets, Kindle and PlayBook, so `desktop_only` only ever affects handsets.
 

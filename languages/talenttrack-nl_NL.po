@@ -56473,6 +56473,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "You can open it here anyway. Expect to scroll sideways."
+msgstr "Je kunt het hier toch openen. Reken op zijwaarts scrollen."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "%s is designed for desktop."
+msgstr "%s is gemaakt voor een desktop."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "This is spreadsheet-style entry across your whole roster — every player against every column. On a phone you would be scrolling in two directions at once."
+msgstr "Dit is invoer in spreadsheetvorm over je hele selectie — elke speler tegen elke kolom. Op een telefoon zou je in twee richtingen tegelijk scrollen."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "The rows and the columns are the content here. Reflowed into one column it is not a smaller table, it is a different and much less useful thing."
+msgstr "De rijen en de kolommen zíjn hier de inhoud. Teruggebracht tot één kolom is het geen kleinere tabel, maar iets anders en veel minder bruikbaars."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "This screen is the printed page — it is laid out at A4 because that is what it becomes. It needs the width of the document it is."
+msgstr "Dit scherm ís de geprinte pagina — het is op A4 opgemaakt omdat het dat wordt. Het heeft de breedte nodig van het document dat het is."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "You build something here by dragging and comparing across the screen at once. There is no version of that which works under a thumb."
+msgstr "Hier bouw je iets door te slepen en in één oogopslag te vergelijken. Daar bestaat geen variant van die met een duim werkt."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "What you change here reaches well past any one record, so it is worth doing sitting down, with everything it affects visible at once."
+msgstr "Wat je hier wijzigt reikt veel verder dan één record, dus doe het zittend, met alles wat het raakt tegelijk in beeld."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "Importing means checking a file row by row before anything is saved. That check is the point, and it needs a screen you can read it on."
+msgstr "Importeren betekent een bestand rij voor rij controleren voordat er iets wordt opgeslagen. Die controle is het hele punt, en die vraagt een scherm waarop je het kunt lezen."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "Open the activity"
+msgstr "Open de activiteit"
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php
+msgid "Taking attendance for one session? Open the session itself — that screen is built for a phone."
+msgstr "Aanwezigheid voor één training vastleggen? Open de activiteit zelf — dat scherm is voor een telefoon gemaakt."
+
 #~ msgid "Edit per-age-group weights (wp-admin)"
 #~ msgstr "Wegingen per leeftijdscategorie aanpassen (wp-admin)"
 
