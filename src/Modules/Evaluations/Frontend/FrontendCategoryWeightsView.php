@@ -98,7 +98,9 @@ class FrontendCategoryWeightsView extends FrontendViewBase {
      * between "equal by choice" and "not set up".
      */
     public static function restGet( \WP_REST_Request $r ): \WP_REST_Response {
-        $mains  = ( new EvalCategoriesRepository() )->getMainCategories( true );
+        /** @var list<object{id:int,label:string}> $mains */
+        $mains = ( new EvalCategoriesRepository() )->getMainCategories( true );
+        /** @var list<object{id:int}> $groups */
         $groups = QueryHelpers::get_lookups( 'age_group' );
 
         $main_ids = array_map( static fn( $m ) => (int) $m->id, $mains );
@@ -224,12 +226,14 @@ class FrontendCategoryWeightsView extends FrontendViewBase {
 
         self::renderFlash();
 
+        /** @var list<object{id:int,label:string}> $mains */
         $mains = ( new EvalCategoriesRepository() )->getMainCategories( true );
         if ( $mains === [] ) {
             echo '<p class="tt-empty">' . esc_html__( 'No active main categories yet. Add them under Evaluation categories first.', 'talenttrack' ) . '</p>';
             return;
         }
 
+        /** @var list<object{id:int}> $groups */
         $groups = QueryHelpers::get_lookups( 'age_group' );
         if ( $groups === [] ) {
             echo '<p class="tt-empty">' . esc_html__( 'No age groups yet. Add them under Configuration first.', 'talenttrack' ) . '</p>';
@@ -249,9 +253,10 @@ class FrontendCategoryWeightsView extends FrontendViewBase {
     }
 
     /**
-     * @param object[]              $mains
-     * @param array<int,array<int,int>> $stored
-     * @param array<int,int>        $equal
+     * @param object{id:int}                    $group
+     * @param list<object{id:int,label:string}> $mains
+     * @param array<int,array<int,int>>         $stored
+     * @param array<int,int>                    $equal
      */
     private static function renderGroupForm( object $group, array $mains, array $stored, array $equal, bool $can_edit ): void {
         $ag_id      = (int) $group->id;

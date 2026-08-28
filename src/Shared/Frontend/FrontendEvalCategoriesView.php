@@ -65,7 +65,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
 
     private static function renderTree(): void {
         $base = remove_query_arg( [ 'action', 'id' ] );
-        $new_url = add_query_arg( [ 'tt_view' => 'eval-categories', 'action' => 'new' ], $base );
+        $new_url = add_query_arg( [ 'tt_view' => 'eval-categories', 'action' => 'new' ], $base ); /* tt-xview-ok — same view */
 
         echo '<p style="margin:0 0 var(--tt-sp-3); display:flex; gap:8px; flex-wrap:wrap;">';
         echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add category', 'talenttrack' ) . '</a>';
