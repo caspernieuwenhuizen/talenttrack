@@ -53,11 +53,19 @@ Each preset generates 12 players per team.
 Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury
 record says they were out, goal scorers come from that match's lineup, and
-substitutions take a starter off for a bench player so derived minutes-played
-never exceed the match length and a team's total lands exactly on squad size
-times it. Squad size follows the age group — six for the youngest, eight in
+substitutions take a starter off for a bench player so minutes played never
+exceed the match length and a team's total lands exactly on squad size times
+it. Squad size follows the age group — six for the youngest, eight in
 the middle, eleven from the early teens — because youth football is
 small-sided.
+
+**Minutes are recorded on played matches**, derived from that substitution
+stream: a starter who was never replaced gets the full match, one taken off
+gets the minute they went off, and a substitute gets what was left when they
+came on. A player who sat on the bench without appearing has no minutes rather
+than zero — "did not feature" and "played nothing" are different facts, and the
+minutes surfaces exist to tell them apart. Fixtures in the future carry no
+minutes, because they have not been played.
 
 Chemistry snapshots are computed by the chemistry engine from the team's
 blueprint lineup, not invented, so a recompute agrees with what is stored.

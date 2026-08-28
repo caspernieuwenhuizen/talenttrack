@@ -164,6 +164,14 @@ class ActivityGenerator implements DependentGeneratorInterface {
                             'player_id'  => $player_id,
                             'status'     => $status,
                             'notes'      => '',
+                            // #3029 — stated rather than inherited from the
+                            // column default. Every minutes and attendance
+                            // read filters on `record_type = 'actual'`
+                            // (#2193), and MatchDayGenerator matches on it
+                            // when it writes minutes back onto these rows;
+                            // a demo dataset should not depend on a schema
+                            // default staying put for either to work.
+                            'record_type' => 'actual',
                         ] );
                         $att_id = (int) $wpdb->insert_id;
                         if ( $att_id ) {

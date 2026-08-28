@@ -317,20 +317,35 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         $subs = min( count( $bench ), mt_rand( 2, 5 ) );
         $off_pool = $starting;
         shuffle( $off_pool );
+
+        // #3029 — remember when each swap happened so minutes can be derived
+        // from it below. player_id => absolute minute of the change.
+        $off_at = [];
+        $on_at  = [];
+
         for ( $i = 0; $i < $subs; $i++ ) {
             $player_off = (int) $off_pool[ $i ];
             $player_on  = (int) $bench[ $i ];
+            $minute_in_half = mt_rand( 5, self::HALF_LENGTH - 2 );
             $exec_repo->logSubstitution(
                 $execution_id,
                 self::uuid(),
                 2,                                    // youth subs cluster in the second half
-                mt_rand( 5, self::HALF_LENGTH - 2 ),
+                $minute_in_half,
                 $player_off,
                 $player_on
             );
+
+            // Second half, so the absolute minute is one full half plus the
+            // minute within it.
+            $absolute = self::HALF_LENGTH + $minute_in_half;
+            $off_at[ $player_off ] = $absolute;
+            $on_at[ $player_on ]   = $absolute;
         }
         $this->tagRowsFor( 'match_substitution', 'tt_match_execution_substitutions', 'execution_id', $execution_id );
         $total += $subs;
+
+        $this->writeMinutes( $activity_id, $starting, $off_at, $on_at );
 
         // A light tracked-event stream — enough to populate the feed without
         // pretending a youth match was fully scouted.
@@ -403,6 +418,71 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $out[ (string) $item->name ] = (string) $item->name;
         }
         return $out ?: self::FALLBACK_ACTIONS;
+    }
+
+    /**
+     * Derive minutes played and write them onto the attendance rows (#3029).
+     *
+     * The docblock at the top of this class has always claimed that "derived
+     * minutes-played never exceeds the match length and the team's outfield
+     * total lands on squad size × match length". That was true of the
+     * substitution stream, but nobody ever derived the number back onto
+     * `tt_attendance.minutes_played` — so every minutes surface was empty on
+     * the dataset the product is demonstrated with, because `MinutesQuery`
+     * reads only persisted minutes and never estimates at report time
+     * (#2193).
+     *
+     * The arithmetic, from the stream this method is handed:
+     *
+     *   starter, never replaced   → the full match
+     *   starter off at minute m   → m
+     *   substitute on at minute m → match length − m
+     *   unused bench              → left alone
+     *
+     * Each swap therefore contributes exactly one match's worth of minutes
+     * across the pair, which is what makes the team total reconcile.
+     *
+     * An unused bench player keeps `NULL` rather than being written to 0.
+     * "Did not feature" and "played nothing" are different facts, and a
+     * demo dataset that blurs them would teach the wrong thing about a
+     * surface whose whole job is minutes distribution.
+     *
+     * @param int[]           $starting Starting XI player ids.
+     * @param array<int,int>  $off_at   player id => absolute minute taken off.
+     * @param array<int,int>  $on_at    player id => absolute minute brought on.
+     */
+    private function writeMinutes( int $activity_id, array $starting, array $off_at, array $on_at ): void {
+        global $wpdb;
+
+        $full = self::HALF_LENGTH * 2;
+
+        $minutes = [];
+        foreach ( $starting as $player_id ) {
+            $player_id = (int) $player_id;
+            $minutes[ $player_id ] = isset( $off_at[ $player_id ] )
+                ? (int) $off_at[ $player_id ]
+                : $full;
+        }
+        foreach ( $on_at as $player_id => $minute ) {
+            $minutes[ (int) $player_id ] = $full - (int) $minute;
+        }
+
+        foreach ( $minutes as $player_id => $played ) {
+            if ( $played <= 0 ) continue;
+
+            $wpdb->update(
+                "{$wpdb->prefix}tt_attendance",
+                [ 'minutes_played' => $played ],
+                [
+                    'club_id'     => CurrentClub::id(),
+                    'activity_id' => $activity_id,
+                    'player_id'   => $player_id,
+                    'record_type' => 'actual',
+                ],
+                [ '%d' ],
+                [ '%d', '%d', '%d', '%s' ]
+            );
+        }
     }
 
     /**

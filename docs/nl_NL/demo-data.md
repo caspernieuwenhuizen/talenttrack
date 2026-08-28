@@ -54,6 +54,14 @@ Elke preset genereert 12 spelers per team.
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op.
 
+Gespeelde wedstrijden krijgen **speelminuten**, afgeleid uit de wissels: een
+basisspeler die niet gewisseld is krijgt de hele wedstrijd, wie eruit gaat de
+minuut van de wissel, en een invaller wat er nog restte. Een speler die op de
+bank bleef krijgt géén minuten in plaats van nul — "niet in actie gekomen" en
+"nul minuten gespeeld" zijn verschillende feiten, en juist daarvoor bestaan de
+minutenschermen. Wedstrijden in de toekomst leveren geen minuten op; die zijn
+nog niet gespeeld.
+
 ## Kiezen wat je genereert
 
 Het generatieformulier bestaat uit twee groepen.
