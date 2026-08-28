@@ -92,14 +92,17 @@ class PlayerMeasurementProfile {
                 // missing, and the band is a property of the age group, not
                 // of the reading.
                 $target = $this->targets->forDefinitionAndAge( $def_id, $age_group );
+                // Read once: the flag and the shaded band have to agree about
+                // which side of the target is the better one (#3028).
+                $direction = (string) $def->direction;
                 if ( $latest_row && $latest_row->value_numeric !== null ) {
                     $flag = $this->targets->flagFor(
                         (float) $latest_row->value_numeric,
                         $target,
-                        (string) $def->direction
+                        $direction
                     );
                 }
-                $band = self::bandFrom( $target, (string) $def->direction );
+                $band = self::bandFrom( $target, $direction );
             }
 
             $series = array_map(
@@ -187,6 +190,8 @@ class PlayerMeasurementProfile {
      * had improved past the target appeared to have fallen out of it. What
      * the operator entered is the edge a player should reach, not a floor
      * they should stay above.
+     *
+     * @return array{min: float|null, max: float|null}|null
      */
     private static function bandFrom( ?object $target, string $direction = 'neutral' ): ?array {
         if ( $target === null ) return null;
