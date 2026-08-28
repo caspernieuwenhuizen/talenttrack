@@ -1850,7 +1850,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <?php
                 $today = gmdate( 'Y-m-d', current_time( 'timestamp' ) );
                 foreach ( $rows as $a ) :
-                    $url        = RecordLink::detailUrlForWithBack( 'activities', (int) $a->id );
+                    $activity_id = (int) $a->id;
+                    $url        = RecordLink::detailUrlForWithBack( 'activities', $activity_id );
                     $date_bit   = self::dateBadge( (string) ( $a->session_date ?? '' ) );
                     $is_today   = (string) ( $a->session_date ?? '' ) === $today;
                     $is_planned = in_array( (string) ( $a->plan_state ?? '' ), [ 'planned', 'scheduled' ], true );
@@ -1879,7 +1880,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                     // "goals" already means a development objective, and this
                                     // tab sits one click from the one that lists those. The
                                     // scoring sense has to say "scored".
-                                    $contrib = $contrib_per_match[ (int) $a->id ] ?? null;
+                                    $contrib = $contrib_per_match[ $activity_id ] ?? null;
                                     $goals   = $contrib !== null ? (int) $contrib['goals'] : 0;
                                     $assists = $contrib !== null ? (int) $contrib['assists'] : 0;
                                     if ( $goals > 0 ) : ?>
