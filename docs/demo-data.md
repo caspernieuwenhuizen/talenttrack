@@ -50,6 +50,13 @@ Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
 
+The week count is how far **back** the activity window runs. On top of it every
+preset also generates **four weeks ahead**, so a demo install has a next match
+and upcoming trainings — the week planner, match prep and the upcoming-activity
+alerts all have something to show. Future activities are planned and carry no
+result: no attendance, no minutes, no ratings and no match execution. Match
+prep is written for them, which is what a coach's screen looks like mid-week.
+
 **Set my own numbers** under the preset opens three fields — teams, players per
 team, weeks of history — prefilled from the chosen preset and overridable per
 run. This is the only way to change the player count, and therefore the number

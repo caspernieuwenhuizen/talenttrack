@@ -43,6 +43,10 @@ class DashboardShortcode {
         // the landing page: the banner renders above the body of whatever
         // the coach opened, so its styles must be present there too.
         wp_enqueue_style( 'tt-frontend-alerts', TT_PLUGIN_URL . 'assets/css/frontend-alerts.css', [ 'tt-public' ], TT_VERSION );
+        // #3034 — the banner's "Not today" control. Deferred and delegated
+        // from the document, so it costs nothing on a view whose banner is
+        // empty and needs no re-binding when the banner renders late.
+        wp_enqueue_script( 'tt-frontend-alerts', TT_PLUGIN_URL . 'assets/js/frontend-alerts.js', [ 'tt-public' ], TT_VERSION, true );
         // #2632 — the preference + policy matrices. Small enough not to be
         // worth a per-view conditional enqueue, and the settings screens are
         // reachable from more than one entry point.

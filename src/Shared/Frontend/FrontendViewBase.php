@@ -21,6 +21,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 abstract class FrontendViewBase {
 
+    /**
+     * How many page actions a phone shows before the rest fold away (#2809).
+     *
+     * Two, because one is a header with a single button and three is a row
+     * that wraps at 360px. The audit's worst case was nine full-width
+     * buttons stacked above any content on activity detail — the overflow
+     * was fixed by #2789, the density was not.
+     */
+    private const PHONE_ACTION_BUDGET = 2;
+
     private static bool $assets_enqueued = false;
 
     /**
@@ -36,6 +46,18 @@ abstract class FrontendViewBase {
             TT_PLUGIN_URL . 'assets/css/frontend-mobile.css',
             [],
             TT_VERSION
+        );
+
+        // #2809 — keyboard behaviour for the page-actions overflow menu.
+        // The menu is a native <details> and works without this; the file
+        // adds Escape-to-close, focus-into-the-menu on open, and
+        // close-on-outside-click. No-op on pages with no menu.
+        wp_enqueue_script(
+            'tt-page-actions-overflow',
+            TT_PLUGIN_URL . 'assets/js/page-actions-overflow.js',
+            [],
+            TT_VERSION,
+            true
         );
 
         // Client-side table sort + search. Safe no-op on views without
@@ -212,15 +234,36 @@ abstract class FrontendViewBase {
         // the primary row. The split happens here rather than at the call
         // site so a caller declares intent ("this one is secondary enough to
         // fold away") and every surface folds it the same way.
+        //
+        // Capability filtering happens first, so an action the reader cannot
+        // see never counts towards the phone budget below. Otherwise a user
+        // with one visible action out of nine would still be handed a menu.
         $primary_row = [];
         $overflow    = [];
         foreach ( $actions as $a ) {
             if ( ! is_array( $a ) ) continue;
+            if ( ! empty( $a['cap'] ) && ! current_user_can( (string) $a['cap'] ) ) continue;
             if ( ! empty( $a['overflow'] ) ) {
                 $overflow[] = $a;
             } else {
                 $primary_row[] = $a;
             }
+        }
+
+        // #2809 — the phone budget. #2830 gave every surface an overflow
+        // menu but left the split entirely opt-in, so a view that never
+        // marked anything `overflow` still renders all of them: activity
+        // detail stacks nine full-width buttons above any content.
+        //
+        // A cap here rather than at the call sites, because the issue's own
+        // warning is that this must not depend on every caller remembering
+        // to pass a flag. `overflow` stays meaningful — it is the author
+        // saying "this one is secondary even on a desktop" — and the budget
+        // is the floor under them.
+        if ( count( $primary_row ) > self::PHONE_ACTION_BUDGET && self::isPhoneRequest() ) {
+            $ordered     = self::byProminence( $primary_row );
+            $overflow    = array_merge( array_slice( $ordered, self::PHONE_ACTION_BUDGET ), $overflow );
+            $primary_row = array_slice( $ordered, 0, self::PHONE_ACTION_BUDGET );
         }
 
         $html = self::pageActionButtonsHtml( $primary_row );
@@ -229,6 +272,49 @@ abstract class FrontendViewBase {
         }
 
         return $html;
+    }
+
+    /**
+     * Which of the primary actions survive on a phone, most prominent first.
+     *
+     * `primary`-flagged actions win, then declared order. Both signals
+     * already exist — `primary` is read at render time for the button
+     * variant — so no call site has to learn a new contract for this to
+     * work, which is the whole point.
+     *
+     * A stable sort matters: two `primary` actions must keep the order their
+     * view declared them in, or the surviving pair would depend on PHP's
+     * sort internals rather than on the author's intent.
+     *
+     * @param array<int,array<string,mixed>> $actions
+     * @return array<int,array<string,mixed>>
+     */
+    private static function byProminence( array $actions ): array {
+        $primary = [];
+        $rest    = [];
+
+        foreach ( $actions as $a ) {
+            if ( ! empty( $a['primary'] ) ) {
+                $primary[] = $a;
+            } else {
+                $rest[] = $a;
+            }
+        }
+
+        return array_merge( $primary, $rest );
+    }
+
+    /**
+     * Whether this request should get the phone treatment.
+     *
+     * Decided by user agent, the same way `desktop_only` gating decides it,
+     * so the two cannot disagree about what a phone is. `?force_mobile=1`
+     * is honoured for the same reason it is everywhere else — someone who
+     * has deliberately asked for the phone path should get all of it.
+     */
+    private static function isPhoneRequest(): bool {
+        if ( ! class_exists( \TT\Shared\MobileDetector::class ) ) return false;
+        return \TT\Shared\MobileDetector::isPhone();
     }
 
     /**

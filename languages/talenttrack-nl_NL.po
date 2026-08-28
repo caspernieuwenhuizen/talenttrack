@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T21:46:20+00:00\n"
+"POT-Creation-Date: 2026-08-28T22:20:14+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -192,7 +192,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:378
 #: src/Shared/Frontend/FrontendGoalsManageView.php:483
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:94
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:147
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:152
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:531
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
@@ -1227,14 +1227,14 @@ msgid "Additional information"
 msgstr "Aanvullende informatie"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:20
-#: src/Modules/DemoData/Admin/DemoDataPage.php:54
-#: src/Modules/DemoData/Admin/DemoDataPage.php:860
-#: src/Modules/DemoData/Admin/DemoDataPage.php:995
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1048
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1085
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1112
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1145
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1185
+#: src/Modules/DemoData/Admin/DemoDataPage.php:69
+#: src/Modules/DemoData/Admin/DemoDataPage.php:875
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1010
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1063
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1100
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1127
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1160
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1200
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:24
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:20
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:19
@@ -1858,7 +1858,7 @@ msgstr "Laag"
 
 #: src/Infrastructure/Query/LabelTranslator.php:41
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:156
-#: src/Modules/DemoData/Admin/DemoDataPage.php:586
+#: src/Modules/DemoData/Admin/DemoDataPage.php:601
 #: src/Modules/Wizards/Goal/DetailsStep.php:20
 msgid "Medium"
 msgstr "Gemiddeld"
@@ -1910,7 +1910,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendHolidaysView.php:97
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:130
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2460
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2507
 #: src/Shared/Frontend/FrontendPlayersManageView.php:261
 #: src/Shared/Frontend/FrontendTeamDetailView.php:254
 #: src/Shared/Frontend/FrontendTeamsManageView.php:188
@@ -2763,7 +2763,7 @@ msgstr "Aangepaste widget"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:56
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:160
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2196
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2243
 msgid "Injury"
 msgstr "Blessure"
 
@@ -3532,7 +3532,7 @@ msgid "No workbook was uploaded."
 msgstr "Er is geen bestand geüpload."
 
 #: src/Infrastructure/REST/ImportRestController.php:108
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:103
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:104
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
 "De upload is niet afgerond. Het bestand is mogelijk groter dan deze server "
@@ -3730,7 +3730,7 @@ msgstr ""
 "controleren."
 
 #: src/Infrastructure/REST/MediaRestController.php:624
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:192
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:197
 msgid "That could not be saved."
 msgstr "Dat kon niet worden opgeslagen."
 
@@ -3904,7 +3904,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendPersonDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:496
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1266
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2459
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2506
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendSpondView.php:217
 #: src/Shared/Frontend/FrontendTeamDetailView.php:614
@@ -4806,7 +4806,7 @@ msgstr "Aankomende activiteiten"
 #: src/Infrastructure/Teams/TeamDetailSections.php:65
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:963
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:93
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:146
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:151
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:235
 #: src/Shared/Frontend/FrontendTeamDetailView.php:805
 msgid "Media"
@@ -4894,7 +4894,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Goals/Admin/GoalsPage.php:47
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:677
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:697
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
@@ -5203,7 +5203,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:544
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:167
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:238
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2470
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2517
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:190
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:267
@@ -5359,7 +5359,7 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/FrontendModulesView.php:400
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2452
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2499
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
 #: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
@@ -5448,7 +5448,7 @@ msgstr "Opslaan"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:518
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:541
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
 #: src/Modules/People/Admin/PeoplePage.php:82
 #: src/Modules/People/Admin/PeoplePage.php:415
@@ -5767,7 +5767,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/FrontendSpondView.php:166
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:187
 #: src/Shared/Frontend/FrontendTranslationsView.php:214
-#: src/Shared/Frontend/FrontendViewBase.php:82
+#: src/Shared/Frontend/FrontendViewBase.php:104
 #: src/Shared/Frontend/FrontendWizardView.php:320
 msgid "Cancel"
 msgstr "Annuleren"
@@ -6567,6 +6567,14 @@ msgid_plural "%d more alerts need your attention."
 msgstr[0] "Nog %d melding vraagt je aandacht."
 msgstr[1] "Nog %d meldingen vragen je aandacht."
 
+#: src/Modules/Alerts/Frontend/AlertBanner.php:157
+msgid "Not today"
+msgstr "Nu even niet"
+
+#: src/Modules/Alerts/Frontend/AlertBanner.php:156
+msgid "Hide this until tomorrow. It comes back if it is still true."
+msgstr "Verberg dit tot morgen. Klopt het dan nog steeds, dan komt het terug."
+
 #: src/Modules/Alerts/Frontend/AlertBanner.php:109
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169
@@ -6701,7 +6709,7 @@ msgid "Alert"
 msgstr "Melding"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2460
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2507
 msgid "Cleared"
 msgstr "Vrijgegeven"
 
@@ -7153,8 +7161,8 @@ msgstr "Stagebesluiten"
 #: src/Modules/Analytics/AnalyticsModule.php:196
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1309
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:96
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:149
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:101
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:154
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1375
 #: src/Shared/Frontend/FrontendTrialCaseView.php:203
 #: src/Shared/Frontend/FrontendTrialCaseView.php:355
@@ -7316,7 +7324,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:389
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:469
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1849
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1860
 msgid "Planned"
 msgstr "Gepland"
 
@@ -7945,7 +7953,7 @@ msgstr "POP-dossier"
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:172
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:734
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1921
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1968
 msgid "Open file"
 msgstr "Open dossier"
 
@@ -8039,7 +8047,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:150
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:170
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:154
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:434
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:443
 #: src/Modules/Pdp/Admin/SeasonsPage.php:64
 #: src/Modules/Pdp/Admin/SeasonsPage.php:109
 #: src/Modules/Pdp/Admin/SeasonsPage.php:150
@@ -8864,7 +8872,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamsManageView.php:184
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:216
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:144
-#: src/Shared/Frontend/FrontendViewBase.php:83
+#: src/Shared/Frontend/FrontendViewBase.php:105
 msgid "Archive"
 msgstr "Archiveren"
 
@@ -9060,7 +9068,7 @@ msgstr "Gebruiker:"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
 #: src/Modules/Goals/Admin/GoalsPage.php:135
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:382
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:338
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:347
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
 #: src/Modules/Players/Admin/PlayersPage.php:374
 #: src/Modules/Teams/Admin/TeamsPage.php:144
@@ -9723,8 +9731,8 @@ msgstr ""
 "uitgesloten (geen beheerder-op-beheerder)."
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:67
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:148
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2462
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:153
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2509
 msgid "Reason"
 msgstr "Reden"
 
@@ -9841,7 +9849,7 @@ msgstr "Migraties"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:64
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:444
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:45
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:57
 msgid "Setup wizard"
 msgstr "Installatiewizard"
 
@@ -10463,7 +10471,7 @@ msgid "Import token expired. Re-upload the file."
 msgstr "Importtoken verlopen. Upload het bestand opnieuw."
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:687
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1227
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1242
 #: src/Shared/Frontend/DashboardShortcode.php:264
 msgid "Import failed."
 msgstr "Import mislukt."
@@ -11742,7 +11750,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:175
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:297
-#: src/Modules/DemoData/Admin/DemoDataPage.php:449
+#: src/Modules/DemoData/Admin/DemoDataPage.php:464
 #: src/Shared/Frontend/FrontendBackupsView.php:184
 #: src/Shared/Frontend/FrontendBackupsView.php:272
 #: src/Shared/Frontend/FrontendBackupsView.php:290
@@ -11887,7 +11895,7 @@ msgstr "Bestandsnaam"
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:296
 #: src/Modules/DataBrowser/SemanticRegistry.php:205
-#: src/Modules/DemoData/Admin/DemoDataPage.php:825
+#: src/Modules/DemoData/Admin/DemoDataPage.php:840
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:129
@@ -12382,8 +12390,8 @@ msgstr "Invoegen"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1195
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1561
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1568
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:348
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:539
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:357
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:548
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:381
 #: src/Shared/Frontend/FrontendBackupsView.php:444
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
@@ -12568,8 +12576,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:86
 #: src/Modules/Invitations/Frontend/InviteButton.php:133
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:435
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:470
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:444
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:479
 #: src/Modules/People/Admin/PeoplePage.php:173
 #: src/Modules/People/Admin/PeoplePage.php:312
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
@@ -14171,7 +14179,7 @@ msgid "Save Toggles"
 msgstr "Toggles opslaan"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:436
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:631
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:649
 #: src/Shared/CoreSurfaceRegistration.php:1671
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
 #: src/Shared/Frontend/FrontendTileGrid.php:783
@@ -14179,16 +14187,16 @@ msgid "Welcome"
 msgstr "Welkom"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:437
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:111
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:632
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:120
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:650
 #: src/Shared/Frontend/FrontendSetupView.php:126
 #: src/Shared/Frontend/FrontendSetupView.php:357
 msgid "Academy basics"
 msgstr "Basisgegevens academie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:438
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:288
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:633
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:297
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:652
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:253
 #: src/Shared/Frontend/FrontendSetupView.php:178
 #: src/Shared/Frontend/FrontendSetupView.php:358
@@ -14196,8 +14204,8 @@ msgid "First team"
 msgstr "Eerste team"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:362
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:634
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:371
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:653
 #: src/Shared/Frontend/FrontendSetupView.php:224
 #: src/Shared/Frontend/FrontendSetupView.php:359
 msgid "First admin"
@@ -14206,7 +14214,7 @@ msgstr "Eerste beheerder"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:440
 #: src/Modules/Development/IdeaStatus.php:102
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:796
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:636
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:656
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:903
 #: src/Shared/Frontend/FrontendSetupView.php:361
 msgid "Done"
@@ -14273,7 +14281,7 @@ msgid "Action (e.g. player.saved)"
 msgstr "Actie (bijv. player.saved)"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:507
-#: src/Modules/DemoData/Admin/DemoDataPage.php:262
+#: src/Modules/DemoData/Admin/DemoDataPage.php:277
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:40
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:111
 #: src/Shared/Frontend/FrontendExportsView.php:214
@@ -15199,8 +15207,8 @@ msgstr "Toon details"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:140
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:377
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:462
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:386
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:471
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
@@ -15235,8 +15243,8 @@ msgstr "Voornaam"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:144
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:381
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:466
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:390
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:475
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
@@ -15359,7 +15367,7 @@ msgstr "Roltype"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:335
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:344
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
@@ -17127,7 +17135,7 @@ msgstr "Het soort overgang."
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2178
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2225
 msgid "Injuries"
 msgstr "Blessures"
 
@@ -17207,11 +17215,11 @@ msgstr "Aangemaakt door"
 msgid "Updated by"
 msgstr "Bijgewerkt door"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:98
+#: src/Modules/DemoData/Admin/DemoDataPage.php:113
 msgid "TalentTrack Demo Data"
 msgstr "TalentTrack-demogegevens"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:101
+#: src/Modules/DemoData/Admin/DemoDataPage.php:116
 msgid ""
 "Generate a realistic Dutch-academy dataset for demos, toggle a site-wide "
 "demo mode that hides real club data, and wipe cleanly when the demo is over."
@@ -17221,13 +17229,13 @@ msgstr ""
 "wanneer de demo voorbij is."
 
 #. translators: 1: batch id, 2: data counts, 3: user counts
-#: src/Modules/DemoData/Admin/DemoDataPage.php:154
+#: src/Modules/DemoData/Admin/DemoDataPage.php:169
 #, php-format
 msgid "Generation complete. Batch: %1$s. Data: %2$s. %3$s."
 msgstr "Generatie voltooid. Batch: %1$s. Gegevens: %2$s. %3$s."
 
 #. translators: %s is a comma-separated list of team names.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:166
+#: src/Modules/DemoData/Admin/DemoDataPage.php:181
 #, php-format
 msgid ""
 "No head coach is recorded for: %s. Their generated work is attributed to you "
@@ -17238,21 +17246,21 @@ msgstr ""
 "genereer opnieuw voor een kloppender beeld."
 
 #. translators: 1: row count, 2: comma-list of categories
-#: src/Modules/DemoData/Admin/DemoDataPage.php:184
+#: src/Modules/DemoData/Admin/DemoDataPage.php:199
 #, php-format
 msgid "Demo data wiped — %1$d rows across %2$s."
 msgstr "Demo-data gewist — %1$d rijen verspreid over %2$s."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:189
+#: src/Modules/DemoData/Admin/DemoDataPage.php:204
 msgid "Demo data wiped."
 msgstr "Demogegevens gewist."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:197
+#: src/Modules/DemoData/Admin/DemoDataPage.php:212
 msgid "Demo users removed."
 msgstr "Demogebruikers verwijderd."
 
 #. translators: %d is the row-walk count across evaluations + goals + verdicts + players + trials
-#: src/Modules/DemoData/Admin/DemoDataPage.php:206
+#: src/Modules/DemoData/Admin/DemoDataPage.php:221
 #, php-format
 msgid ""
 "Journey events rebuilt — walked %d source rows. New events were inserted "
@@ -17261,15 +17269,15 @@ msgstr ""
 "Journey-events opnieuw opgebouwd — %d bronrijen doorlopen. Nieuwe events "
 "zijn toegevoegd waar ze ontbraken; bestaande events bleven onaangeraakt."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:214
+#: src/Modules/DemoData/Admin/DemoDataPage.php:229
 msgid "Demo mode updated."
 msgstr "Demomodus bijgewerkt."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:225
+#: src/Modules/DemoData/Admin/DemoDataPage.php:240
 msgid "Demo mode"
 msgstr "Demomodus"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:229
+#: src/Modules/DemoData/Admin/DemoDataPage.php:244
 msgid ""
 " — real club data is hidden from every read path. Only demo rows are visible "
 "elsewhere in the plugin."
@@ -17277,58 +17285,58 @@ msgstr ""
 " — echte clubgegevens zijn overal in de plugin verborgen. Alleen "
 "demogegevens zijn elders zichtbaar."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:231
+#: src/Modules/DemoData/Admin/DemoDataPage.php:246
 msgid "OFF"
 msgstr "UIT"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:232
+#: src/Modules/DemoData/Admin/DemoDataPage.php:247
 msgid " — demo data is hidden from every read path. Normal operation."
 msgstr " — demogegevens zijn overal verborgen. Normale werking."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:241
+#: src/Modules/DemoData/Admin/DemoDataPage.php:256
 msgid "Type EXIT DEMO to confirm"
 msgstr "Typ EXIT DEMO ter bevestiging"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:243
+#: src/Modules/DemoData/Admin/DemoDataPage.php:258
 msgid "Exit demo mode"
 msgstr "Demomodus verlaten"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:246
+#: src/Modules/DemoData/Admin/DemoDataPage.php:261
 msgid "Enter demo mode"
 msgstr "Demomodus starten"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:255
+#: src/Modules/DemoData/Admin/DemoDataPage.php:270
 msgid "Current demo footprint"
 msgstr "Huidige demogegevens"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:257
+#: src/Modules/DemoData/Admin/DemoDataPage.php:272
 msgid "No demo data exists yet."
 msgstr "Er zijn nog geen demogegevens."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:263
+#: src/Modules/DemoData/Admin/DemoDataPage.php:278
 msgid "Tagged rows"
 msgstr "Gemarkeerde rijen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:282
+#: src/Modules/DemoData/Admin/DemoDataPage.php:297
 msgid "Accounts from the last run"
 msgstr "Accounts uit de laatste run"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:283
+#: src/Modules/DemoData/Admin/DemoDataPage.php:298
 msgid ""
 "Shown once, then cleared on next page load. Copy these now if you need them."
 msgstr ""
 "Eenmalig getoond — bij de volgende paginalading verdwijnen ze. Kopieer ze nu "
 "als je ze nodig hebt."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:294
+#: src/Modules/DemoData/Admin/DemoDataPage.php:309
 msgid "Generate"
 msgstr "Genereren"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:299
+#: src/Modules/DemoData/Admin/DemoDataPage.php:314
 msgid "Demo users already exist from a previous run."
 msgstr "Demogebruikers bestaan al van een vorige run."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:300
+#: src/Modules/DemoData/Admin/DemoDataPage.php:315
 msgid ""
 "No new WP users will be created and no welcome emails will be sent. This run "
 "only creates data rows (teams, players, evaluations, activities, goals)."
@@ -17337,11 +17345,11 @@ msgstr ""
 "verstuurd. Deze run maakt alleen gegevensrijen (teams, spelers, evaluaties, "
 "activiteiten, doelen)."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:306
+#: src/Modules/DemoData/Admin/DemoDataPage.php:321
 msgid "First run."
 msgstr "Eerste run."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:307
+#: src/Modules/DemoData/Admin/DemoDataPage.php:322
 msgid ""
 "This run will create 36 persistent demo WP users and send them WordPress "
 "welcome emails. The email domain must be one whose inbox you control (a "
@@ -17351,11 +17359,11 @@ msgstr ""
 "welkomstmails. Het mail-domein moet er één zijn waar je de inbox van beheert "
 "(een catch-all is het beste — zie hieronder)."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:315
+#: src/Modules/DemoData/Admin/DemoDataPage.php:330
 msgid "Generating demo data…"
 msgstr "Demogegevens genereren…"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:316
+#: src/Modules/DemoData/Admin/DemoDataPage.php:331
 msgid ""
 "This usually takes 15–45 seconds depending on the preset. Leave this tab "
 "open until it finishes."
@@ -17364,28 +17372,28 @@ msgstr ""
 "open tot het klaar is."
 
 # #5 — DemoData wizard polish.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:320
+#: src/Modules/DemoData/Admin/DemoDataPage.php:335
 msgid "Generate-form layout"
 msgstr "Indeling genereerformulier"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:322
+#: src/Modules/DemoData/Admin/DemoDataPage.php:337
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:235
 #: src/Shared/Frontend/CoachForms.php:278
 msgid "Basic"
 msgstr "Basis"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:325
+#: src/Modules/DemoData/Admin/DemoDataPage.php:340
 #: src/Shared/CoreSurfaceRegistration.php:1643
 #: src/Shared/Frontend/FrontendConfigurationView.php:2030
 msgid "Advanced"
 msgstr "Geavanceerd"
 
 # v3.56.0 — Excel demo data finished (#0059)
-#: src/Modules/DemoData/Admin/DemoDataPage.php:335
+#: src/Modules/DemoData/Admin/DemoDataPage.php:350
 msgid "Step 0 — Source"
 msgstr "Stap 0 — Bron"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:338
+#: src/Modules/DemoData/Admin/DemoDataPage.php:353
 msgid ""
 "Procedural for a fast, believable academy. Excel for a deterministic dataset "
 "matching the prospect's real teams. Hybrid for the best of both — Excel "
@@ -17395,37 +17403,37 @@ msgstr ""
 "dataset die overeenkomt met de echte teams van de prospect. Hybride voor het "
 "beste van beide — Excel waar je het hebt, procedureel vult de rest."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:342
+#: src/Modules/DemoData/Admin/DemoDataPage.php:357
 msgid "Procedural only"
 msgstr "Alleen procedureel"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:343
+#: src/Modules/DemoData/Admin/DemoDataPage.php:358
 msgid "pick a preset and let the generator do everything."
 msgstr "kies een preset en laat de generator alles doen."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:347
+#: src/Modules/DemoData/Admin/DemoDataPage.php:362
 msgid "Excel upload"
 msgstr "Excel-upload"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:348
+#: src/Modules/DemoData/Admin/DemoDataPage.php:363
 msgid "use only what's in the workbook; nothing is generated."
 msgstr "gebruik alleen wat in het werkboek staat; er wordt niets gegenereerd."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:352
+#: src/Modules/DemoData/Admin/DemoDataPage.php:367
 msgid "Hybrid: upload + procedural top-up"
 msgstr "Hybride: upload + procedurele aanvulling"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:353
+#: src/Modules/DemoData/Admin/DemoDataPage.php:368
 msgid ""
 "Excel sheets win; the procedural generator fills any sheet you left blank."
 msgstr ""
 "Excel-tabbladen winnen; de procedurele generator vult elk leeg tabblad aan."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:359
+#: src/Modules/DemoData/Admin/DemoDataPage.php:374
 msgid "Download template (.xlsx)"
 msgstr "Template downloaden (.xlsx)"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:364
+#: src/Modules/DemoData/Admin/DemoDataPage.php:379
 msgid ""
 "v1.5: Teams, People, Players, Trial cases, Activities (Sessions), "
 "Attendance, Evaluations, Eval ratings, Goals, Player-journey events. "
@@ -17439,7 +17447,7 @@ msgstr ""
 "alleen ter documentatie — beheer die via de bestaande Configuratie-schermen."
 
 #. translators: 1: upload_max_filesize, 2: post_max_size, 3: memory_limit
-#: src/Modules/DemoData/Admin/DemoDataPage.php:370
+#: src/Modules/DemoData/Admin/DemoDataPage.php:385
 #, php-format
 msgid ""
 "Server limits on this install: upload_max_filesize = %1$s · post_max_size = "
@@ -17452,12 +17460,12 @@ msgstr ""
 "ziet."
 
 # v3.85.0 — demo selective generation toggles + dashboard URL fix
-#: src/Modules/DemoData/Admin/DemoDataPage.php:382
+#: src/Modules/DemoData/Admin/DemoDataPage.php:397
 msgid "Step 0.5 — What to generate"
 msgstr "Stap 0.5 — Wat genereren"
 
 # v3.90.1 — demo selective generation + selective wipe (six-category grid)
-#: src/Modules/DemoData/Admin/DemoDataPage.php:387
+#: src/Modules/DemoData/Admin/DemoDataPage.php:402
 msgid ""
 "Master data — uncheck to use the rows already in your club instead of "
 "generating new ones. These three toggles only apply to the procedural source "
@@ -17468,19 +17476,19 @@ msgstr ""
 "procedurele bron (Excel + hybride lezen master-data sowieso uit het "
 "werkboek)."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:391
+#: src/Modules/DemoData/Admin/DemoDataPage.php:406
 msgid "Generate teams"
 msgstr "Ploegen genereren"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:392
+#: src/Modules/DemoData/Admin/DemoDataPage.php:407
 msgid "uncheck to use existing teams in the club."
 msgstr "uitvinken om bestaande ploegen in de club te gebruiken."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:396
+#: src/Modules/DemoData/Admin/DemoDataPage.php:411
 msgid "Generate people + WP users"
 msgstr "Mensen + WP-gebruikers genereren"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:397
+#: src/Modules/DemoData/Admin/DemoDataPage.php:412
 msgid ""
 "uncheck to skip the 36-account creation. Existing People rows + their WP "
 "users stay untouched."
@@ -17488,15 +17496,15 @@ msgstr ""
 "uitvinken om de 36-account-creatie over te slaan. Bestaande Mensen-rijen en "
 "hun WP-gebruikers blijven onaangeraakt."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:401
+#: src/Modules/DemoData/Admin/DemoDataPage.php:416
 msgid "Generate players"
 msgstr "Spelers genereren"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:402
+#: src/Modules/DemoData/Admin/DemoDataPage.php:417
 msgid "uncheck to use existing players in the club."
 msgstr "uitvinken om bestaande spelers in de club te gebruiken."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:407
+#: src/Modules/DemoData/Admin/DemoDataPage.php:422
 msgid ""
 "Dependent entities — uncheck any to skip generating that category on top of "
 "whatever master data ends up present. Applies to every source (procedural, "
@@ -17507,24 +17515,24 @@ msgstr ""
 "hybride)."
 
 #. translators: %s is a demo-data category, e.g. "Activities".
-#: src/Modules/DemoData/Admin/DemoDataPage.php:420
+#: src/Modules/DemoData/Admin/DemoDataPage.php:435
 #, php-format
 msgid "Generate %s"
 msgstr "%s genereren"
 
 #. translators: 1: preset name, 2: number of teams, 3: players per team, 4: weeks of activity
-#: src/Modules/DemoData/Admin/DemoDataPage.php:459
+#: src/Modules/DemoData/Admin/DemoDataPage.php:474
 #, php-format
 msgid "%1$s — %2$d team, %3$d players/team, %4$d weeks"
 msgid_plural "%1$s — %2$d teams, %3$d players/team, %4$d weeks"
 msgstr[0] "%1$s — %2$d team, %3$d spelers/team, %4$d weken"
 msgstr[1] "%1$s — %2$d teams, %3$d spelers/team, %4$d weken"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:477
+#: src/Modules/DemoData/Admin/DemoDataPage.php:492
 msgid "Club name for this demo"
 msgstr "Clubnaam voor deze demo"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:480
+#: src/Modules/DemoData/Admin/DemoDataPage.php:495
 msgid ""
 "Used as the prefix for every generated team name (e.g. \"FC Groningen "
 "JO11\"). Defaults to the academy name from Configuration. Only affects this "
@@ -17534,11 +17542,11 @@ msgstr ""
 "JO11\"). Standaard is de academienaam uit Configuratie. Geldt alleen voor "
 "deze generatie-uitvoering — je Configuratie-instelling wordt niet gewijzigd."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:484
+#: src/Modules/DemoData/Admin/DemoDataPage.php:499
 msgid "Demo email domain"
 msgstr "Mailadresdomein demo"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:489
+#: src/Modules/DemoData/Admin/DemoDataPage.php:504
 msgid ""
 "Ignored — users already exist. Kept for reference; change only if you plan "
 "to wipe users and recreate."
@@ -17546,18 +17554,18 @@ msgstr ""
 "Genegeerd — gebruikers bestaan al. Bewaard ter referentie; wijzig alleen als "
 "je de gebruikers wilt wissen en opnieuw aanmaken."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:491
+#: src/Modules/DemoData/Admin/DemoDataPage.php:506
 msgid ""
 "Every demo account will be <slot>@<this-domain> (e.g. coach1@demo.example."
 "com)."
 msgstr ""
 "Elk demo-account wordt <slot>@<dit-domein> (bijv. coach1@demo.example.com)."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:492
+#: src/Modules/DemoData/Admin/DemoDataPage.php:507
 msgid "WordPress will email welcome credentials to each address."
 msgstr "WordPress mailt naar elk adres een welkomstbericht met inloggegevens."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:493
+#: src/Modules/DemoData/Admin/DemoDataPage.php:508
 msgid ""
 "Pick a domain whose inbox you actually receive — a catch-all "
 "(anything@yourdomain.tld → real inbox) is the safest, since 36 different "
@@ -17572,11 +17580,11 @@ msgstr ""
 "Ondersteunt je DNS geen catch-all? Bekijk dan de handmatige gebruikerslijst "
 "hieronder en maak de WordPress-gebruikers zelf eerst aan."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:499
+#: src/Modules/DemoData/Admin/DemoDataPage.php:514
 msgid "Shared password"
 msgstr "Gedeeld wachtwoord"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:504
+#: src/Modules/DemoData/Admin/DemoDataPage.php:519
 msgid ""
 "Ignored — existing accounts keep their current password. Only used when new "
 "users are created."
@@ -17584,24 +17592,24 @@ msgstr ""
 "Genegeerd — bestaande accounts behouden hun huidige wachtwoord. Wordt alleen "
 "gebruikt bij het aanmaken van nieuwe gebruikers."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:506
+#: src/Modules/DemoData/Admin/DemoDataPage.php:521
 msgid "Applied to all 36 demo accounts on first creation."
 msgstr "Toegepast op alle 36 demoaccounts bij de eerste aanmaak."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:513
+#: src/Modules/DemoData/Admin/DemoDataPage.php:528
 msgid "I confirm this domain catches mail I own"
 msgstr "Ik bevestig dat dit domein mail opvangt die ik beheer"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:517
+#: src/Modules/DemoData/Admin/DemoDataPage.php:532
 msgid "Required — 36 WP welcome emails will be sent."
 msgstr "Verplicht — er worden 36 WP-welkomstmails verstuurd."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:525
+#: src/Modules/DemoData/Admin/DemoDataPage.php:540
 msgid "Skip user creation — show me the list to create manually"
 msgstr ""
 "Gebruikerscreatie overslaan — toon mij de lijst om handmatig aan te maken"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:528
+#: src/Modules/DemoData/Admin/DemoDataPage.php:543
 msgid ""
 "Prefer to create the WordPress users yourself (e.g. your hosting environment "
 "doesn't support catch-all email)? Create the 36 accounts below before "
@@ -17616,7 +17624,7 @@ msgstr ""
 "allemaal bestaan, herkent deze pagina ze en wordt de gebruikerscreatie-stap "
 "automatisch overgeslagen."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:537
+#: src/Modules/DemoData/Admin/DemoDataPage.php:552
 msgid ""
 "Replace <your-domain> with the value you typed in the field above. After "
 "creating them, refresh this page — the warning above turns to \"Demo users "
@@ -17626,11 +17634,11 @@ msgstr ""
 "daarna deze pagina — de waarschuwing hierboven verandert dan in \"Demo-"
 "gebruikers bestaan al\"."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:547
+#: src/Modules/DemoData/Admin/DemoDataPage.php:562
 msgid "Seed"
 msgstr "Seed"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:550
+#: src/Modules/DemoData/Admin/DemoDataPage.php:565
 msgid ""
 "Fixed default 20260504 — produces the same roster every run. Change for a "
 "different roster."
@@ -17639,15 +17647,15 @@ msgstr ""
 "voor een andere selectie."
 
 # ===== v3.6.1 — demo prep follow-ups =====
-#: src/Modules/DemoData/Admin/DemoDataPage.php:554
+#: src/Modules/DemoData/Admin/DemoDataPage.php:569
 msgid "Content language"
 msgstr "Taal van de content"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:568
+#: src/Modules/DemoData/Admin/DemoDataPage.php:583
 msgid "(site locale)"
 msgstr "(sitetaal)"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:572
+#: src/Modules/DemoData/Admin/DemoDataPage.php:587
 msgid ""
 "Language the generated content (goal titles, descriptions, activity titles, "
 "default location) is written in. Only languages the generators ship content "
@@ -17660,25 +17668,25 @@ msgstr ""
 "sleutel toe aan de GoalGenerator / ActivityGenerator-constanten om een "
 "nieuwe te ondersteunen."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:577
+#: src/Modules/DemoData/Admin/DemoDataPage.php:592
 msgid "Generate demo data"
 msgstr "Demogegevens genereren"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:585
+#: src/Modules/DemoData/Admin/DemoDataPage.php:600
 msgid "Small"
 msgstr "Klein"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:587
+#: src/Modules/DemoData/Admin/DemoDataPage.php:602
 msgid "Large"
 msgstr "Groot"
 
 # v3.91.7 — Demo journey events (generator hooks + rebuild button)
-#: src/Modules/DemoData/Admin/DemoDataPage.php:629
-#: src/Modules/DemoData/Admin/DemoDataPage.php:636
+#: src/Modules/DemoData/Admin/DemoDataPage.php:644
+#: src/Modules/DemoData/Admin/DemoDataPage.php:651
 msgid "Rebuild journey events"
 msgstr "Journey-events opnieuw opbouwen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:631
+#: src/Modules/DemoData/Admin/DemoDataPage.php:646
 msgid ""
 "Walk every evaluation, goal, PDP verdict, player join-date, and trial case "
 "in this club and emit any missing journey events. Idempotent — re-running is "
@@ -17692,15 +17700,15 @@ msgstr ""
 "dit na een demo-run op installaties van vóór v3.91.7, of wanneer een bulk-"
 "import de runtime-hooks overgeslagen heeft."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:660
+#: src/Modules/DemoData/Admin/DemoDataPage.php:675
 msgid "Wipe"
 msgstr "Wissen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:662
+#: src/Modules/DemoData/Admin/DemoDataPage.php:677
 msgid "Wipe demo data"
 msgstr "Demogegevens wissen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:664
+#: src/Modules/DemoData/Admin/DemoDataPage.php:679
 msgid ""
 "Pick which categories of demo-tagged rows to remove. Each box wipes the "
 "category plus its dependents (e.g. \"Teams\" also wipes the activities + "
@@ -17715,7 +17723,7 @@ msgstr ""
 "aangeraakt. De 36 vaste demo-WP-gebruikers blijven bij deze actie bestaan — "
 "gebruik \"Demo-gebruikers ook wissen\" hieronder daarvoor."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:667
+#: src/Modules/DemoData/Admin/DemoDataPage.php:682
 msgid ""
 "Counts shown are the demo-tagged rows that match the cascade right now. "
 "Double-counts across overlapping categories are deduplicated server-side at "
@@ -17725,21 +17733,21 @@ msgstr ""
 "vallen. Dubbeltellingen over overlappende categorieën worden server-side "
 "ontdubbeld bij het verwijderen."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:676
+#: src/Modules/DemoData/Admin/DemoDataPage.php:691
 msgid "Batch"
 msgstr "Batch"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:679
+#: src/Modules/DemoData/Admin/DemoDataPage.php:694
 msgid "All batches"
 msgstr "Alle batches"
 
 #. translators: 1: batch id, 2: created-at timestamp, 3: total tag count.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:685
+#: src/Modules/DemoData/Admin/DemoDataPage.php:700
 #, php-format
 msgid "%1$s — %2$s (%3$d tagged rows)"
 msgstr "%1$s — %2$s (%3$d getagde rijen)"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:695
+#: src/Modules/DemoData/Admin/DemoDataPage.php:710
 msgid ""
 "Pick a batch to scope the wipe to that batch only. \"All batches\" preserves "
 "the historical behaviour."
@@ -17747,49 +17755,49 @@ msgstr ""
 "Kies een batch om het wissen tot die batch te beperken. \"Alle batches\" "
 "behoudt het historische gedrag."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:702
+#: src/Modules/DemoData/Admin/DemoDataPage.php:717
 msgid "Categories to wipe"
 msgstr "Categorieën om te wissen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:707
+#: src/Modules/DemoData/Admin/DemoDataPage.php:722
 msgid "Master data"
 msgstr "Master-data"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:708
+#: src/Modules/DemoData/Admin/DemoDataPage.php:723
 msgid "Dependent entities"
 msgstr "Afhankelijke entiteiten"
 
 #. translators: 1: row count, 2: what else the cascade reaches.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:728
+#: src/Modules/DemoData/Admin/DemoDataPage.php:743
 #, php-format
 msgid "%1$d demo rows. %2$s"
 msgstr "%1$d demorijen. %2$s"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:739
+#: src/Modules/DemoData/Admin/DemoDataPage.php:754
 msgid "Type WIPE to confirm"
 msgstr "Typ WIPE ter bevestiging"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:741
+#: src/Modules/DemoData/Admin/DemoDataPage.php:756
 msgid "Wipe selected categories"
 msgstr "Geselecteerde categorieën wissen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:743
-#: src/Modules/DemoData/Admin/DemoDataPage.php:767
+#: src/Modules/DemoData/Admin/DemoDataPage.php:758
+#: src/Modules/DemoData/Admin/DemoDataPage.php:782
 msgid "Nothing selected."
 msgstr "Niets geselecteerd."
 
 #. translators: 1: total cascade row count, 2: number of selected categories
-#: src/Modules/DemoData/Admin/DemoDataPage.php:765
+#: src/Modules/DemoData/Admin/DemoDataPage.php:780
 #, php-format
 msgid "Will wipe ~%1$d rows across %2$d categories."
 msgstr "Wist ~%1$d rijen over %2$d categorieën."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:792
+#: src/Modules/DemoData/Admin/DemoDataPage.php:807
 msgid "Wipe demo users too"
 msgstr "Demogebruikers ook wissen"
 
 #. translators: %d is the count of persistent demo users
-#: src/Modules/DemoData/Admin/DemoDataPage.php:796
+#: src/Modules/DemoData/Admin/DemoDataPage.php:811
 #, php-format
 msgid ""
 "Removes the persistent set of %d demo WP users. Rare — typically only when "
@@ -17801,37 +17809,37 @@ msgstr ""
 "drie veiligheidschecks (domein-match, niet huidige gebruiker, niet laatste "
 "beheerder)."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:804
+#: src/Modules/DemoData/Admin/DemoDataPage.php:819
 msgid "Expected email domain (e.g. demo.talenttrack.local)"
 msgstr "Verwacht mailadresdomein (bijv. demo.talenttrack.local)"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:807
+#: src/Modules/DemoData/Admin/DemoDataPage.php:822
 msgid "Type WIPE USERS to confirm"
 msgstr "Typ WIPE USERS ter bevestiging"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:809
+#: src/Modules/DemoData/Admin/DemoDataPage.php:824
 msgid "Wipe demo users"
 msgstr "Demogebruikers wissen"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:817
+#: src/Modules/DemoData/Admin/DemoDataPage.php:832
 msgid "Past batches"
 msgstr "Eerdere batches"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:819
+#: src/Modules/DemoData/Admin/DemoDataPage.php:834
 msgid "No batches yet."
 msgstr "Nog geen batches."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:824
+#: src/Modules/DemoData/Admin/DemoDataPage.php:839
 msgid "Batch id"
 msgstr "Batch-id"
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:826
+#: src/Modules/DemoData/Admin/DemoDataPage.php:841
 msgid "Tagged entities"
 msgstr "Gemarkeerde entiteiten"
 
 #. translators: %s: post_max_size from php.ini, e.g. "8M"
-#: src/Modules/DemoData/Admin/DemoDataPage.php:854
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1179
+#: src/Modules/DemoData/Admin/DemoDataPage.php:869
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1194
 #, php-format
 msgid ""
 "Upload exceeded the server's POST size limit (post_max_size = %s). Ask your "
@@ -17841,21 +17849,21 @@ msgstr ""
 "Vraag je hoster om die op te hogen, of splits de werkmap in kleinere "
 "bestanden."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:937
+#: src/Modules/DemoData/Admin/DemoDataPage.php:952
 msgid "Excel and Hybrid sources require an uploaded workbook."
 msgstr "Voor de bronnen Excel en Hybride is een geüploade werkmap vereist."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:945
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1201
+#: src/Modules/DemoData/Admin/DemoDataPage.php:960
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1216
 msgid "Invalid upload."
 msgstr "Ongeldige upload."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1191
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1206
 msgid "No file uploaded."
 msgstr "Geen bestand geüpload."
 
 #. translators: %s: error message
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1221
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1236
 #, php-format
 msgid ""
 "Excel import crashed: %s. The plugin caught it before WordPress fell over, "
@@ -17866,7 +17874,7 @@ msgstr ""
 "details."
 
 #. translators: %s: upload_max_filesize value
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1266
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1281
 #, php-format
 msgid ""
 "Upload exceeded the server's upload_max_filesize (%s). Ask your hoster to "
@@ -17875,21 +17883,21 @@ msgstr ""
 "De upload overschrijdt upload_max_filesize op de server (%s). Vraag je "
 "hoster om die op te hogen, of splits de werkmap."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1270
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1285
 msgid "Upload exceeded the form's declared maximum size."
 msgstr "De upload overschrijdt het in het formulier opgegeven maximum."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1272
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1287
 msgid "Upload was interrupted mid-transfer. Try again on a stable connection."
 msgstr ""
 "De upload is halverwege onderbroken. Probeer opnieuw op een stabiele "
 "verbinding."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1274
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1289
 msgid "No file was selected for upload."
 msgstr "Er is geen bestand geselecteerd om te uploaden."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1276
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1291
 msgid ""
 "PHP could not write to its temporary directory. Ask your hoster to fix "
 "`upload_tmp_dir`."
@@ -17897,16 +17905,16 @@ msgstr ""
 "PHP kon niet schrijven naar zijn tijdelijke map. Vraag je hoster om "
 "`upload_tmp_dir` te corrigeren."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1278
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1293
 msgid "PHP could not write the uploaded file to disk."
 msgstr "PHP kon het geüploade bestand niet naar schijf schrijven."
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1280
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1295
 msgid "A PHP extension blocked the upload."
 msgstr "Een PHP-extensie heeft de upload geblokkeerd."
 
 #. translators: %d: PHP UPLOAD_ERR_* code
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1284
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1299
 #, php-format
 msgid "Upload failed (error code %d)."
 msgstr "Upload mislukt (foutcode %d)."
@@ -20321,7 +20329,7 @@ msgstr "Dupliceren"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3629
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3635
 #: src/Shared/Frontend/FrontendConfigurationView.php:1890
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:123
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:128
 #: src/Shared/Frontend/FrontendPlayersManageView.php:461
 #: src/Shared/Frontend/FrontendTeamsManageView.php:382
 msgid "Remove"
@@ -22544,8 +22552,8 @@ msgstr "Je hebt geen rechten om blessures te bekijken."
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:57
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:145
 #: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2168
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2181
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2215
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2228
 msgid "Record injury"
 msgstr "Blessure vastleggen"
 
@@ -22561,7 +22569,7 @@ msgstr "Nu uit"
 
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:119
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:201
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2207
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2254
 msgid "Recovered"
 msgstr "Hersteld"
 
@@ -22607,7 +22615,7 @@ msgstr "Dagen uit"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
 #: src/Modules/Workflow/TaskStatus.php:67
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2213
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2260
 msgid "Overdue"
 msgstr "Te laat"
 
@@ -22787,7 +22795,7 @@ msgid "Unsure — flag for medical review"
 msgstr "Onzeker — markeer voor medische review"
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:62
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2445
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2492
 msgid "Notes (optional)"
 msgstr "Notities (optioneel)"
 
@@ -23252,10 +23260,10 @@ msgid "Review"
 msgstr "Controleren"
 
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:186
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:151
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:308
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:347
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:395
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:160
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:317
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:356
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:404
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
 #: src/Shared/Frontend/FrontendSetupView.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:200
@@ -23444,9 +23452,9 @@ msgstr "Voortgang"
 #: src/Shared/Frontend/CoachForms.php:607
 #: src/Shared/Frontend/FrontendGoalsManageView.php:283
 #: src/Shared/Frontend/FrontendGoalsManageView.php:368
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2328
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2332
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2339
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2375
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2379
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2386
 msgid "Due"
 msgstr "Deadline"
 
@@ -24639,7 +24647,7 @@ msgid "Subject access requests"
 msgstr "Inzageverzoeken"
 
 #: src/Modules/License/Admin/AccountPage.php:702
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:472
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:495
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
@@ -30510,7 +30518,7 @@ msgid "You're verified. Continue to your dashboard."
 msgstr "Je bent geverifieerd. Ga verder naar je dashboard."
 
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:94
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:621
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:636
 #: src/Shared/Frontend/FrontendMobilePromptView.php:102
 #: src/Shared/Frontend/FrontendSetupView.php:347
 msgid "Go to dashboard"
@@ -30842,25 +30850,25 @@ msgstr "Installatie starten"
 msgid "Skip for now"
 msgstr "Sla nu over"
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:95
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:96
 msgid "Choose a workbook to upload first."
 msgstr "Kies eerst een bestand om te uploaden."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:163
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:164
 msgid "A first and last name are both needed."
 msgstr "Een voornaam en achternaam zijn allebei nodig."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:168
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:169
 msgid "That does not look like a valid email address."
 msgstr "Dat lijkt geen geldig e-mailadres."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:182
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:183
 msgid "That person could not be saved. They may already be on the list."
 msgstr ""
 "Die persoon kon niet worden opgeslagen. Mogelijk staat diegene al op de "
 "lijst."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:255
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:256
 msgid ""
 "The spreadsheet library is not installed on this server, so the template "
 "cannot be generated."
@@ -30868,26 +30876,26 @@ msgstr ""
 "De spreadsheet-bibliotheek is niet op deze server geïnstalleerd, dus het "
 "sjabloon kan niet worden gegenereerd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:46
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:58
 msgid "Setup is complete."
 msgstr "Installatie is voltooid."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:48
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:696
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:60
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:716
 msgid "Reset wizard"
 msgstr "Wizard opnieuw starten"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:73
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:82
 #: src/Shared/Frontend/FrontendSetupView.php:82
 msgid "Unknown step."
 msgstr "Onbekende stap."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:84
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:93
 #: src/Shared/Frontend/FrontendSetupView.php:102
 msgid "Set up your academy"
 msgstr "Stel je academie in"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:86
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:95
 msgid ""
 "TalentTrack is a youth football talent management plugin. This wizard "
 "creates your first team, your admin profile, and a few defaults so you can "
@@ -30898,7 +30906,7 @@ msgstr ""
 "zodat je vandaag kunt beginnen met spelers volgen. Elke stap duurt ongeveer "
 "een minuut."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:89
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:98
 msgid ""
 "If you would rather see what TalentTrack looks like with sample data first, "
 "the demo button below loads a realistic academy dataset. You can wipe it and "
@@ -30908,16 +30916,16 @@ msgstr ""
 "Dan laadt de demo-knop hieronder een realistische academiedataset. Je kunt "
 "deze op elk moment wissen en opnieuw beginnen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:93
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:102
 #: src/Shared/Frontend/FrontendSetupView.php:111
 msgid "Set up my academy"
 msgstr "Mijn academie instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:96
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:105
 msgid "Try with sample data"
 msgstr "Probeer met voorbeeldgegevens"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:113
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:122
 #: src/Shared/Frontend/FrontendSetupView.php:128
 msgid ""
 "These show up across the plugin: in the dashboard header, on player rate "
@@ -30927,44 +30935,45 @@ msgstr ""
 "cards van spelers en in afgedrukte rapporten. Je kunt ze later wijzigen "
 "onder Configuratie."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:120
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:129
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:273
 #: src/Shared/Frontend/FrontendConfigurationView.php:1873
 #: src/Shared/Frontend/FrontendSetupView.php:132
 msgid "Academy name"
 msgstr "Naam academie"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:126
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:135
 #: src/Shared/Frontend/FrontendConfigurationView.php:1941
 #: src/Shared/Frontend/FrontendSetupView.php:138
 msgid "Primary color"
 msgstr "Primaire kleur"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:129
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:138
 #: src/Shared/Frontend/FrontendSetupView.php:141
 msgid "Used for headers, links, and the FIFA-style player card."
 msgstr "Gebruikt voor koppen, links en de FIFA-achtige spelerskaart."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:133
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:142
 #: src/Shared/Frontend/FrontendSetupView.php:144
 msgid "Season label"
 msgstr "Seizoenlabel"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:136
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:145
 #: src/Shared/Frontend/FrontendSetupView.php:148
 msgid "Free-form. Most clubs use \"2025/2026\" or similar."
 msgstr "Vrije tekst. De meeste clubs gebruiken \"2025/2026\" of vergelijkbaar."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:140
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:149
 #: src/Shared/Frontend/FrontendSetupView.php:151
 msgid "Date format"
 msgstr "Datumnotatie"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:173
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:182
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:651
 msgid "Import your squad"
 msgstr "Je selectie importeren"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:175
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:184
 msgid ""
 "If you already keep your teams, players and staff in a spreadsheet, bring "
 "them in now rather than typing them again. Download the template, fill it "
@@ -30974,11 +30983,11 @@ msgstr ""
 "binnen in plaats van ze opnieuw te typen. Download het sjabloon, vul het in "
 "en upload het."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:178
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:187
 msgid "Nothing is saved until you confirm."
 msgstr "Er wordt niets opgeslagen tot je bevestigt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:179
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 msgid ""
 "Uploading shows you what the file contains, and anything that needs fixing, "
 "first."
@@ -30986,16 +30995,16 @@ msgstr ""
 "Bij het uploaden zie je eerst wat er in het bestand staat, en wat er nog "
 "niet klopt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:188
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:197
 msgid "This workbook cannot be imported yet. Nothing was saved."
 msgstr "Dit bestand kan nog niet worden geïmporteerd. Er is niets opgeslagen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:209
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:218
 msgid "Download the template"
 msgstr "Download het sjabloon"
 
 #. translators: 1: upload_max_filesize, 2: post_max_size
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:224
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:233
 #, php-format
 msgid ""
 "Server limits on this install: upload_max_filesize = %1$s, post_max_size = "
@@ -31006,31 +31015,31 @@ msgstr ""
 "post_max_size = %2$s. Een bestand dat groter is dan de kleinste van die twee "
 "wordt geweigerd voordat TalentTrack het ziet."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:230
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:239
 msgid "Check this file"
 msgstr "Dit bestand controleren"
 
 #. translators: %s: the uploaded file name
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:239
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:248
 #, php-format
 msgid "%s is ready to import."
 msgstr "%s is klaar om te importeren."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:249
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:258
 msgid "Upload the file again to confirm and save these records."
 msgstr ""
 "Upload het bestand opnieuw om te bevestigen en deze records op te slaan."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:256
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:265
 msgid "Import these records"
 msgstr "Deze records importeren"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:263
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:272
 msgid "Skip — I do not have a spreadsheet"
 msgstr "Overslaan — ik heb geen spreadsheet"
 
 #. translators: %d: number of teams brought in by the import
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:295
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:304
 #, php-format
 msgid ""
 "Your import brought in %d team. Add another now if you want, or continue."
@@ -31043,7 +31052,7 @@ msgstr[1] ""
 "Je import heeft %d teams binnengehaald. Voeg er nu nog een toe als je wilt, "
 "of ga verder."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:313
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:322
 #: src/Shared/Frontend/FrontendSetupView.php:180
 msgid ""
 "Add one team now. You can add more later under Teams. Players, evaluations, "
@@ -31054,18 +31063,18 @@ msgstr ""
 "evaluaties, activiteiten en doelen horen allemaal bij een team, dus we "
 "hebben er minstens één nodig om de rest van de plugin nuttig te maken."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:319
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:328
 msgid "Use the new-team wizard instead"
 msgstr "Gebruik in plaats daarvan de wizard voor nieuw team"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:321
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:330
 msgid ""
 "opens the frontend wizard with staff assignment built in. Come back here "
 "when done."
 msgstr ""
 "opent de frontend-wizard met stafkoppeling. Kom hier terug als je klaar bent."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:329
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:338
 #: src/Modules/Wizards/Team/BasicsStep.php:29
 #: src/Modules/Wizards/Team/ReviewStep.php:19
 #: src/Shared/Frontend/FrontendSetupView.php:184
@@ -31073,7 +31082,7 @@ msgstr ""
 msgid "Team name"
 msgstr "Teamnaam"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:343
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:352
 #: src/Shared/Frontend/FrontendSetupView.php:197
 msgid ""
 "Pick the closest match. New age groups can be added under Configuration → "
@@ -31084,7 +31093,7 @@ msgstr ""
 
 #. translators: %s is the WP display name + email of the current user
 #. translators: %s is the WP display name + email of the current user.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:367
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:376
 #: src/Shared/Frontend/FrontendSetupView.php:229
 #, php-format
 msgid ""
@@ -31096,16 +31105,16 @@ msgstr ""
 "koppelen dit aan je WP-account zodat evaluaties, activiteiten en meldingen "
 "allemaal naar de juiste persoon verwijzen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:385
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:394
 msgid "Club admin role"
 msgstr "Rol Clubbeheerder"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:389
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:398
 #: src/Shared/Frontend/FrontendSetupView.php:250
 msgid "Grant me the Club Admin role (recommended)"
 msgstr "Ken mij de rol Clubbeheerder toe (aanbevolen)"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:391
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:400
 #: src/Shared/Frontend/FrontendSetupView.php:252
 msgid ""
 "Club Admins can manage all teams, players, evaluations, and configuration."
@@ -31113,11 +31122,12 @@ msgstr ""
 "Clubbeheerders kunnen alle teams, spelers, evaluaties en configuratie "
 "beheren."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:417
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:426
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:654
 msgid "Add your staff"
 msgstr "Je staf toevoegen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:419
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:428
 msgid ""
 "Add the coaches and staff who will use TalentTrack. Give them an email "
 "address and an invitation is prepared for each of them."
@@ -31125,11 +31135,11 @@ msgstr ""
 "Voeg de trainers en staf toe die TalentTrack gaan gebruiken. Geef ze een e-"
 "mailadres en er wordt voor ieder van hen een uitnodiging klaargezet."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:422
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:431
 msgid "Nobody is emailed yet."
 msgstr "Er wordt nog niemand gemaild."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:423
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:432
 msgid ""
 "Invitations are held until you send them, so you can finish setting up and "
 "look around first."
@@ -31137,19 +31147,19 @@ msgstr ""
 "Uitnodigingen worden vastgehouden tot jij ze verstuurt, zodat je het "
 "inrichten eerst kunt afmaken en rond kunt kijken."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:436
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:445
 msgid "Invitation"
 msgstr "Uitnodiging"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:447
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:456
 msgid "Ready to send"
 msgstr "Klaar om te versturen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:448
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:457
 msgid "No email — add one later to invite them"
 msgstr "Geen e-mailadres — voeg er later een toe om diegene uit te nodigen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:473
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:482
 msgid ""
 "Optional. Without one they are still on the staff list, but cannot be "
 "invited to sign in."
@@ -31157,27 +31167,27 @@ msgstr ""
 "Optioneel. Zonder e-mailadres staat diegene wel op de staflijst, maar kan "
 "hij niet worden uitgenodigd om in te loggen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:477
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:486
 msgid "Add this person"
 msgstr "Deze persoon toevoegen"
 
 #. translators: %d: number of invitations waiting to be sent
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:487
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:496
 #, php-format
 msgid "Send %d invitation and continue"
 msgid_plural "Send %d invitations and continue"
 msgstr[0] "%d uitnodiging versturen en doorgaan"
 msgstr[1] "%d uitnodigingen versturen en doorgaan"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:502
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:511
 msgid "Continue without sending yet"
 msgstr "Doorgaan zonder nu te versturen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:503
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:512
 msgid "Skip — I will add staff later"
 msgstr "Overslaan — ik voeg later staf toe"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:510
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:519
 msgid ""
 "If you continue without sending, the invitations stay ready and waiting "
 "under Configuration → Invitations. Nothing is lost."
@@ -31185,14 +31195,14 @@ msgstr ""
 "Ga je door zonder te versturen, dan blijven de uitnodigingen klaarstaan "
 "onder Configuratie → Uitnodigingen. Er gaat niets verloren."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:525
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:635
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:534
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:655
 #: src/Shared/Frontend/FrontendSetupView.php:274
 #: src/Shared/Frontend/FrontendSetupView.php:360
 msgid "Dashboard page"
 msgstr "Dashboardpagina"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:527
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:536
 #: src/Shared/Frontend/FrontendSetupView.php:276
 msgid ""
 "TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] "
@@ -31205,7 +31215,7 @@ msgstr ""
 "site, zodat trainers, spelers en ouders direct op het dashboard landen "
 "wanneer ze inloggen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:531
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:540
 #: src/Shared/Frontend/FrontendSetupView.php:280
 msgid ""
 "A page with the dashboard shortcode already exists — it will be reused and "
@@ -31214,29 +31224,29 @@ msgstr ""
 "Er bestaat al een pagina met de dashboard-shortcode — die wordt hergebruikt "
 "en als homepage ingesteld, niet gedupliceerd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:536
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:545
 #: src/Shared/Frontend/FrontendSetupView.php:291
 msgid "Create page"
 msgstr "Pagina aanmaken & als homepage instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:543
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:552
 #: src/Shared/Frontend/FrontendSetupView.php:295
 msgid "You can change the homepage later under Settings → Reading."
 msgstr "Je kunt de homepage later wijzigen onder Instellingen → Lezen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:560
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:569
 #: src/Shared/Frontend/FrontendSetupView.php:310
 msgid "Setup complete"
 msgstr "Installatie voltooid"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:561
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:570
 #: src/Shared/Frontend/FrontendSetupView.php:311
 msgid "You are ready to use TalentTrack. Here is what was set up:"
 msgstr "Je bent klaar om TalentTrack te gebruiken. Dit is wat is ingesteld:"
 
 #. translators: %s is the academy name
 #. translators: %s is the academy name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:567
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:576
 #: src/Shared/Frontend/FrontendSetupView.php:317
 #, php-format
 msgid "Academy: %s"
@@ -31244,7 +31254,7 @@ msgstr "Academie: %s"
 
 #. translators: 1: team name, 2: age group
 #. translators: 1: team name, 2: age group.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:576
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:585
 #: src/Shared/Frontend/FrontendSetupView.php:326
 #, php-format
 msgid "Team: %1$s (%2$s)"
@@ -31252,61 +31262,61 @@ msgstr "Team: %1$s (%2$s)"
 
 #. translators: %s is the admin's full name
 #. translators: %s is the admin's full name.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:586
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:595
 #: src/Shared/Frontend/FrontendSetupView.php:336
 #, php-format
 msgid "Admin: %s"
 msgstr "Beheerder: %s"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:593
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:602
 msgid "Recommended next steps"
 msgstr "Aanbevolen vervolgstappen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:597
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:606
 msgid "Add players"
 msgstr "Spelers toevoegen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:598
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:607
 msgid "Build out your roster — by hand or via CSV import."
 msgstr "Bouw je selectie op — handmatig of via CSV-import."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:602
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:611
 msgid "Invite first coach"
 msgstr "Eerste coach uitnodigen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:603
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:612
 msgid "Add a coach as a staff record so they can record evaluations."
 msgstr ""
 "Voeg een coach toe als stafrecord zodat hij/zij evaluaties kan vastleggen."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:607
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:616
 msgid "Customize branding"
 msgstr "Branding aanpassen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:608
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:617
 msgid "Logo, colors, secondary palette, theme inheritance."
 msgstr "Logo, kleuren, secundair palet, thema-overerving."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:612
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:621
 msgid "Set up backups"
 msgstr "Back-ups instellen"
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:613
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:622
 msgid "Schedule daily backups so a hosting hiccup does not lose your data."
 msgstr ""
 "Plan dagelijkse back-ups zodat een hosting-hapering geen gegevens kost."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:641
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:661
 msgid "TalentTrack — Setup wizard"
 msgstr "TalentTrack — Installatiewizard"
 
 # #5 — wizard polish + resume entry points.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:643
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:663
 msgid "Stop and resume any time."
 msgstr "Stop en hervat wanneer het uitkomt."
 
 #. translators: %s is the bookmarkable URL of the wizard.
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:647
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:667
 #, php-format
 msgid ""
 "Close this tab and your progress is kept. Pick it up again from %s, the "
@@ -31315,31 +31325,31 @@ msgstr ""
 "Sluit dit tabblad en je voortgang blijft bewaard. Hervat via %s, het tabblad "
 "Configuratie → Installatiewizard, of via het TalentTrack-accountmenu."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:678
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:698
 msgid "Team created."
 msgstr "Team aangemaakt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:679
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:699
 msgid "Your squad has been imported."
 msgstr "Je selectie is geïmporteerd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:680
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:700
 msgid "Added. Their invitation is ready but not sent yet."
 msgstr "Toegevoegd. De uitnodiging staat klaar maar is nog niet verstuurd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:681
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:701
 msgid "Invitations sent."
 msgstr "Uitnodigingen verstuurd."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:682
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:702
 msgid "Admin record created."
 msgstr "Beheerdersrecord aangemaakt."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:683
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:703
 msgid "Wizard reset."
 msgstr "Wizard opnieuw gestart."
 
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:684
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:704
 msgid "Frontend dashboard page created."
 msgstr "Frontend-dashboardpagina aangemaakt."
 
@@ -32228,7 +32238,7 @@ msgstr "Eindoordeel opslaan"
 #. translators: %s is a date.
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1354
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:61
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2204
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2251
 #, php-format
 msgid "Since %s"
 msgstr "Sinds %s"
@@ -38732,7 +38742,7 @@ msgstr "Chemie verbergen"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:646
 #: src/Shared/Frontend/FrontendTeamDetailView.php:374
 #: src/Shared/Frontend/FrontendTrialCaseView.php:309
-#: src/Shared/Frontend/FrontendViewBase.php:353
+#: src/Shared/Frontend/FrontendViewBase.php:439
 msgid "More actions"
 msgstr "Meer acties"
 
@@ -42524,7 +42534,7 @@ msgstr "Leeftijdsprofiel bijgewerkt."
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2533
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2580
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1098
 msgid "Save failed: database error."
 msgstr "Opslaan mislukt: databasefout."
@@ -45413,19 +45423,19 @@ msgid "this week"
 msgstr "deze week"
 
 # ===== v3.6.0 — demo prep batch C (tables + i18n) =====
-#: src/Shared/Admin/Menu.php:594 src/Shared/Frontend/FrontendViewBase.php:54
+#: src/Shared/Admin/Menu.php:594 src/Shared/Frontend/FrontendViewBase.php:76
 msgid "Search:"
 msgstr "Zoek:"
 
-#: src/Shared/Admin/Menu.php:595 src/Shared/Frontend/FrontendViewBase.php:55
+#: src/Shared/Admin/Menu.php:595 src/Shared/Frontend/FrontendViewBase.php:77
 msgid "Filter rows…"
 msgstr "Rijen filteren…"
 
-#: src/Shared/Admin/Menu.php:596 src/Shared/Frontend/FrontendViewBase.php:56
+#: src/Shared/Admin/Menu.php:596 src/Shared/Frontend/FrontendViewBase.php:78
 msgid "{n} row(s)"
 msgstr "{n} rij(en)"
 
-#: src/Shared/Admin/Menu.php:597 src/Shared/Frontend/FrontendViewBase.php:57
+#: src/Shared/Admin/Menu.php:597 src/Shared/Frontend/FrontendViewBase.php:79
 msgid "{v} of {n}"
 msgstr "{v} van {n}"
 
@@ -46653,7 +46663,7 @@ msgstr ""
 "bij deze activiteit geregistreerd."
 
 #: src/Shared/Frontend/Components/MediaGallery.php:97
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2137
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2184
 msgid "No photos or video yet"
 msgstr "Nog geen foto's of video"
 
@@ -50787,7 +50797,7 @@ msgctxt "date a player left the academy"
 msgid "Left"
 msgstr "Vertrokken"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:116
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:121
 msgid ""
 "This player has no recorded leaving date, so the date their record last "
 "changed is used instead."
@@ -50795,19 +50805,19 @@ msgstr ""
 "Van deze speler is geen vertrekdatum vastgelegd; daarom wordt de datum "
 "gebruikt waarop zijn dossier voor het laatst is gewijzigd."
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:117
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:122
 msgid "estimated"
 msgstr "geschat"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:125
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:130
 msgid "Keep"
 msgstr "Bewaren"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:138
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:143
 msgid "Kept on purpose"
 msgstr "Bewust bewaard"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:139
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:144
 msgid ""
 "These are past their retention date and are being kept anyway. A policy with "
 "an invisible list of exceptions is not one anybody can check, so they are "
@@ -50817,11 +50827,11 @@ msgstr ""
 "een onzichtbare lijst uitzonderingen is niet te controleren, dus staan ze "
 "hier met de opgegeven reden erbij."
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:163
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:168
 msgid "Put back in the queue"
 msgstr "Terug in de wachtrij"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:190
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:195
 msgid ""
 "Remove this from the player's file? If nothing else is attached to it, the "
 "file is deleted for good."
@@ -50829,7 +50839,7 @@ msgstr ""
 "Dit van het dossier van de speler halen? Hangt er verder niets meer aan, dan "
 "wordt het bestand definitief gewist."
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:191
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:196
 msgid ""
 "Why is this being kept? (Required — it is what makes the exception "
 "auditable.)"
@@ -50837,11 +50847,11 @@ msgstr ""
 "Waarom wordt dit bewaard? (Verplicht — daarmee is de uitzondering "
 "controleerbaar.)"
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:193
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:198
 msgid "Removed from this player. The file is still attached elsewhere."
 msgstr "Van deze speler gehaald. Het bestand hangt nog elders."
 
-#: src/Shared/Frontend/FrontendMediaRetentionView.php:194
+#: src/Shared/Frontend/FrontendMediaRetentionView.php:199
 msgid "Removed, and the file was deleted."
 msgstr "Gehaald, en het bestand is verwijderd."
 
@@ -52336,7 +52346,9 @@ msgid "on target"
 msgstr "op schema"
 
 #. translators: %d: number of assists the player has been credited with
+#. translators: %d: number of assists the player made in this match
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:962
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1902
 #, php-format
 msgid "%d assist"
 msgid_plural "%d assists"
@@ -52486,7 +52498,7 @@ msgstr ""
 #. translators: %d: number of recent evaluations
 #. translators: %d: number of recent activities
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1650
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1834
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1844
 #, php-format
 msgid "Recent · %d"
 msgstr "Recent · %d"
@@ -52524,19 +52536,27 @@ msgstr ""
 "Activiteiten worden op teamniveau vastgelegd. Wijs deze speler eerst toe aan "
 "een team; activiteiten van dat team verschijnen daarna hier."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1837
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1847
 msgid "View all"
 msgstr "Bekijk alle"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1882
+#. translators: %d: number of goals the player scored in this match
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1891
+#, php-format
+msgid "%d goal scored"
+msgid_plural "%d goals scored"
+msgstr[0] "%d doelpunt gemaakt"
+msgstr[1] "%d doelpunten gemaakt"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1929
 msgid "You do not have permission to view PDP files for this player."
 msgstr "Je hebt geen rechten om de POP-dossiers van deze speler te bekijken."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1891
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1938
 msgid "No PDP cycle yet for this player"
 msgstr "Nog geen POP-cyclus voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1892
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1939
 msgid ""
 "A Personal Development Plan documents what the player is focusing on, agreed "
 "with parents and the coach. Open one to start the cycle."
@@ -52544,39 +52564,39 @@ msgstr ""
 "Een Persoonlijk Ontwikkelingsplan documenteert waar de speler op focust, in "
 "afstemming met ouders en de coach. Open er een om de cyclus te starten."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1893
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1940
 msgid "Start PDP cycle"
 msgstr "POP-cyclus starten"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1919
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1966
 msgid "Active cycle"
 msgstr "Actieve cyclus"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1927
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1974
 msgid "PDP progress"
 msgstr "POP-voortgang"
 
 #. translators: %s: date the PDP cycle was created
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1936
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1983
 #, php-format
 msgid "Created %s"
 msgstr "Aangemaakt %s"
 
 #. translators: %d: number of past PDP cycles
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1949
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1996
 #, php-format
 msgid "Past cycles · %d"
 msgstr "Eerdere cycli · %d"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2032
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2079
 msgid "You do not have permission to view trial cases for this player."
 msgstr "Je hebt geen rechten om stagedossiers van deze speler te bekijken."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2041
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2088
 msgid "No trial history for this player"
 msgstr "Nog geen stagegeschiedenis voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2043
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2090
 msgid ""
 "A trial case tracks the prospect from first training through to the academy "
 "decision. Open one when you want to evaluate this player formally."
@@ -52585,24 +52605,24 @@ msgstr ""
 "Open er een wanneer je deze speler formeel wilt beoordelen."
 
 # v3.104.2 — pilot batch new copy
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2044
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2091
 msgid ""
 "This player is not currently on trial, so there is no trial history to show."
 msgstr ""
 "Deze speler is op dit moment niet op stage, dus er is geen stagegeschiedenis "
 "om te tonen."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2047
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2094
 msgid "Open trial case"
 msgstr "Stagedossier openen"
 
 #. translators: %d: number of trial cases
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2063
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2110
 #, php-format
 msgid "Trial cases · %d"
 msgstr "Stagedossiers · %d"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2138
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2185
 msgid ""
 "A clip of a moment in training says more about how a player is developing "
 "than a score does. Anything added here sits on their timeline under the day "
@@ -52612,11 +52632,11 @@ msgstr ""
 "van een speler dan een cijfer. Wat je hier toevoegt, staat op de tijdlijn "
 "onder de dag waarop het gemaakt is."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2145
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2192
 msgid "Injuries are not in your scope"
 msgstr "Blessures vallen buiten jouw bereik"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2146
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2193
 msgid ""
 "Injury records are medical data and stay with the coaching staff responsible "
 "for this player. Talk to your academy admin if you should have access."
@@ -52625,11 +52645,11 @@ msgstr ""
 "speler verantwoordelijk is. Overleg met je academiebeheerder als je toegang "
 "hoort te hebben."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2166
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2213
 msgid "No injuries recorded"
 msgstr "Geen blessures vastgelegd"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2167
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2214
 msgid ""
 "Recording an injury puts it on this player's journey, so a coach reading the "
 "file next season can see what they came back from."
@@ -52639,36 +52659,36 @@ msgstr ""
 "teruggekomen."
 
 #. translators: %s is a date.
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2211
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2258
 #, php-format
 msgid "Expected back %s"
 msgstr "Verwacht terug %s"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2216
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2263
 msgid "Return date not set"
 msgstr "Terugkeerdatum niet ingesteld"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2229
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2276
 msgid "Record return"
 msgstr "Terugkeer vastleggen"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2250
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2297
 msgid "Date the player returned to play (yyyy-mm-dd):"
 msgstr "Datum waarop de speler weer meedeed (jjjj-mm-dd):"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2251
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2298
 msgid "Could not save the return date. Try again."
 msgstr "De terugkeerdatum kon niet worden opgeslagen. Probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2252
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2299
 msgid "Enter the date as yyyy-mm-dd."
 msgstr "Voer de datum in als jjjj-mm-dd."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2272
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2319
 msgid "Notes are staff-only"
 msgstr "Notities zijn alleen voor staf"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2273
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2320
 msgid ""
 "A running log of staff observations about this player. You don't have access "
 "— talk to your academy admin if you should."
@@ -52676,11 +52696,11 @@ msgstr ""
 "Een doorlopend logboek van staf-observaties over deze speler. Je hebt geen "
 "toegang — vraag je academy admin als dat anders moet."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2281
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2328
 msgid "Not in scope for this player"
 msgstr "Geen toegang voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2282
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2329
 msgid ""
 "You have notes access in general, but not for this player's team. Talk to "
 "your academy admin if you should."
@@ -52688,11 +52708,11 @@ msgstr ""
 "Je hebt in het algemeen toegang tot notities, maar niet voor het team van "
 "deze speler. Vraag je academy admin als dat anders moet."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2289
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2336
 msgid "Staff notes"
 msgstr "Stafnotities"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2293
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2340
 msgid ""
 "A running log staff use to share observations about this player. Notes are "
 "visible to staff only — never to the player or their parents."
@@ -52700,59 +52720,59 @@ msgstr ""
 "Een doorlopend logboek waarin staf observaties over deze speler delen. "
 "Notities zijn alleen zichtbaar voor staf — nooit voor de speler of de ouders."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2373
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2420
 msgid "— Pick a reason —"
 msgstr "— Kies een reden —"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2374
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2421
 msgid "Injury — knee"
 msgstr "Blessure — knie"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2375
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2422
 msgid "Injury — ankle"
 msgstr "Blessure — enkel"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2376
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2423
 msgid "Asthma"
 msgstr "Astma"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2377
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2424
 msgid "Cardiac condition"
 msgstr "Hartconditie"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2378
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2425
 msgid "Other medical reason"
 msgstr "Andere medische reden"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2379
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2426
 msgid "Temporary fatigue"
 msgstr "Tijdelijke vermoeidheid"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2382
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2429
 msgid "1 — recovery only"
 msgstr "1 — alleen recovery"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2383
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2430
 msgid "2 — low"
 msgstr "2 — laag"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2384
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2431
 msgid "3 — medium"
 msgstr "3 — gemiddeld"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2385
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2432
 msgid "4 — high"
 msgstr "4 — hoog"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2399
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2446
 msgid "PHV — Physical / Health / Vitality"
 msgstr "PHV — Fysiek / health / vitality"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2410
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2457
 msgid "Player has a PHV flag"
 msgstr "Speler heeft een PHV-vlag"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2412
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2459
 msgid ""
 "Automatically excluded from VCT blocks above the configured intensity "
 "ceiling."
@@ -52760,36 +52780,36 @@ msgstr ""
 "Wordt automatisch uitgesloten van VCT-blokken boven het ingestelde "
 "intensiteitsplafond."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2419
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2466
 msgid "Reason (short, for the coach)"
 msgstr "Reden (kort, voor de trainer)"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2427
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2474
 msgid "Visible to staff on the coach view; not visible to other parents."
 msgstr ""
 "Zichtbaar voor staf op de coach-view; niet zichtbaar voor andere ouders."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2433
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2480
 msgid "Intensity ceiling (max intensity band)"
 msgstr "Intensiteitsplafond (max intensity-band)"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2436
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2483
 msgid "— None set —"
 msgstr "— Niet ingesteld —"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2447
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2494
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2466
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2513
 msgid "Intensity ceiling"
 msgstr "Intensiteitsplafond"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2476
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2523
 msgid "Where the PHV flag appears:"
 msgstr "Waar de PHV-vlag verschijnt:"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2477
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2524
 msgid ""
 "Hero pill next to the name · VCT session wizard workload check · coach-view "
 "sideline banner · match prep per-player attention."
@@ -52797,16 +52817,16 @@ msgstr ""
 "Hero-pill naast de naam · belastingscheck in de VCT-sessie-wizard · sideline-"
 "banner op de coach-view · per-speler aandachtspunt in matchprep."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2505
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2552
 msgid "You do not have permission to edit PHV flags."
 msgstr "Je hebt geen rechten om PHV-vlaggen te wijzigen."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2509
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2556
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1075
 msgid "Save failed: session expired. Reload and try again."
 msgstr "Opslaan mislukt: sessie verlopen. Herlaad en probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2532
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2579
 msgid "PHV flag saved."
 msgstr "PHV-vlag opgeslagen."
 
@@ -55804,7 +55824,7 @@ msgstr "%s min"
 msgid "%s h"
 msgstr "%s u"
 
-#: src/Shared/Frontend/FrontendViewBase.php:81
+#: src/Shared/Frontend/FrontendViewBase.php:103
 msgid "Archive record"
 msgstr "Archiveer record"
 
