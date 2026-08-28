@@ -678,39 +678,81 @@ class AccountPage {
     }
 
     /**
-     * Catalogue of features rendered in the Plan tab matrix. Order
-     * roughly follows `FeatureMap::DEFAULT_MAP`. Internal-only features
-     * (radar_charts, undo_bulk) are included so operators understand
-     * the full restriction set.
+     * Catalogue of features rendered in the Plan tab matrix.
+     *
+     * #2922 — built **from** `FeatureMap::allFeatures()` rather than
+     * hand-listed beside it. The hand-listed version is what let the two
+     * drift: the map grew and the matrix did not, so an operator reading
+     * this page saw a 2025 product. A key with no nice label here still
+     * renders, humanised from the key, which is worse copy but never a
+     * missing row.
      *
      * @return array<string,string>
      */
     private static function featureCatalogue(): array {
-        return [
-            'core_evaluations'  => __( 'Evaluations', 'talenttrack' ),
-            'core_sessions'     => __( 'Activities', 'talenttrack' ),
-            'core_goals'        => __( 'Goals', 'talenttrack' ),
-            'core_attendance'   => __( 'Attendance', 'talenttrack' ),
-            'core_player_card'  => __( 'Player cards', 'talenttrack' ),
-            'core_dashboard'    => __( 'Dashboard', 'talenttrack' ),
-            'backup_local'      => __( 'Local backup', 'talenttrack' ),
-            'backup_email'      => __( 'Email backup', 'talenttrack' ),
-            'onboarding'        => __( 'Onboarding wizard', 'talenttrack' ),
-            'demo_data'         => __( 'Demo data generator', 'talenttrack' ),
-            'radar_charts'      => __( 'Radar charts', 'talenttrack' ),
-            'player_comparison' => __( 'Player comparison', 'talenttrack' ),
-            'rate_cards_full'   => __( 'Rate cards (full)', 'talenttrack' ),
-            'csv_import'        => __( 'CSV import', 'talenttrack' ),
-            'functional_roles'  => __( 'Functional roles', 'talenttrack' ),
-            'partial_restore'   => __( 'Partial restore', 'talenttrack' ),
-            'undo_bulk'         => __( 'Undo bulk actions', 'talenttrack' ),
-            'multi_academy'     => __( 'Multi-academy', 'talenttrack' ),
-            'photo_session'     => __( 'Photo-to-activity capture', 'talenttrack' ),
-            'trial_module'      => __( 'Trial cases', 'talenttrack' ),
-            'scout_access'      => __( 'Scout access', 'talenttrack' ),
-            'team_chemistry'    => __( 'Team chemistry', 'talenttrack' ),
-            's3_backup'         => __( 'S3 backup', 'talenttrack' ),
+        $labels = [
+            'audit_log'            => __( 'Audit log', 'talenttrack' ),
+            'authorization_matrix' => __( 'Permission matrix', 'talenttrack' ),
+            'mfa'                  => __( 'Two-factor authentication', 'talenttrack' ),
+            'record_deletion'      => __( 'Record deletion', 'talenttrack' ),
+            'recycle_bin'          => __( 'Recycle bin', 'talenttrack' ),
+            'impersonation_log'    => __( 'Impersonation log', 'talenttrack' ),
+            'media_consent'        => __( 'Media consent', 'talenttrack' ),
+            'subject_access'       => __( 'Subject access requests', 'talenttrack' ),
+            'core_dashboard'       => __( 'Dashboard', 'talenttrack' ),
+            'core_player_card'     => __( 'Player cards', 'talenttrack' ),
+            'core_players'         => __( 'Players', 'talenttrack' ),
+            'core_teams'           => __( 'Teams', 'talenttrack' ),
+            'core_people'          => __( 'Staff and people', 'talenttrack' ),
+            'core_evaluations'     => __( 'Evaluations', 'talenttrack' ),
+            'core_goals'           => __( 'Goals', 'talenttrack' ),
+            'core_attendance'      => __( 'Attendance', 'talenttrack' ),
+            'core_activities'      => __( 'Activities', 'talenttrack' ),
+            'player_journey'       => __( 'Player journey', 'talenttrack' ),
+            'player_pdp'           => __( 'Development plans', 'talenttrack' ),
+            'player_status'        => __( 'Player status light', 'talenttrack' ),
+            'behaviour_rating'     => __( 'Behaviour ratings', 'talenttrack' ),
+            'measurements'         => __( 'Measurements and testing', 'talenttrack' ),
+            'season_rollover'      => __( 'Season rollover', 'talenttrack' ),
+            'trial_module'         => __( 'Trial cases', 'talenttrack' ),
+            'prospects'            => __( 'Prospect pipeline', 'talenttrack' ),
+            'scout_access'         => __( 'Scout access', 'talenttrack' ),
+            'radar_charts'         => __( 'Radar charts', 'talenttrack' ),
+            'player_comparison'    => __( 'Player comparison', 'talenttrack' ),
+            'rate_cards_full'      => __( 'Rate cards (full)', 'talenttrack' ),
+            'reports_standard'     => __( 'Standard reports', 'talenttrack' ),
+            'csv_import'           => __( 'CSV import', 'talenttrack' ),
+            'excel_import'         => __( 'Excel import', 'talenttrack' ),
+            'backup_local'         => __( 'Local backup', 'talenttrack' ),
+            'backup_email'         => __( 'Email backup', 'talenttrack' ),
+            's3_backup'            => __( 'Object-storage backup', 'talenttrack' ),
+            'match_analysis'       => __( 'Match analysis', 'talenttrack' ),
+            'match_prep'           => __( 'Match preparation', 'talenttrack' ),
+            'match_execution'      => __( 'Live match', 'talenttrack' ),
+            'tournaments'          => __( 'Tournaments', 'talenttrack' ),
+            'training'             => __( 'Training plans', 'talenttrack' ),
+            'exercises'            => __( 'Exercise library', 'talenttrack' ),
+            'media'                => __( 'Media library', 'talenttrack' ),
+            'analytics_explorer'   => __( 'Dimension explorer', 'talenttrack' ),
+            'scheduled_reports'    => __( 'Scheduled reports', 'talenttrack' ),
+            'custom_widgets'       => __( 'Custom widgets', 'talenttrack' ),
+            'knowledge_courses'    => __( 'Courses', 'talenttrack' ),
+            'team_chemistry'       => __( 'Team chemistry', 'talenttrack' ),
+            'spond_integration'    => __( 'Spond integration', 'talenttrack' ),
+            'strava_integration'   => __( 'Strava integration', 'talenttrack' ),
+            'push_notifications'   => __( 'Push notifications', 'talenttrack' ),
+            'attendance_grid'      => __( 'Attendance grid', 'talenttrack' ),
+            'minutes_grid'         => __( 'Minutes grid', 'talenttrack' ),
+            'ratings_grid'         => __( 'Ratings grid', 'talenttrack' ),
         ];
+
+        $catalogue = [];
+        foreach ( FeatureMap::allFeatures() as $key ) {
+            $catalogue[ $key ] = $labels[ $key ]
+                ?? ucfirst( str_replace( '_', ' ', $key ) );
+        }
+
+        return $catalogue;
     }
 
     /**

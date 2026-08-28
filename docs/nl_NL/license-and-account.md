@@ -9,7 +9,7 @@ order: 100
 
 # Licentie en account
 
-TalentTrack kent drie tiers — **Free**, **Standard** en **Pro**. Op welke een installatie zit, wordt bepaald bij het inrichten ervan, niet in de plugin zelf: er is hier geen afrekenscherm, geen licentiesleutel om te plakken, en niets wat een clubbeheerder kan omzetten om meer te krijgen dan waar de club recht op heeft.
+TalentTrack kent twee pakketten — **Standard** en **Pro** — plus de staat **Niet geactiveerd** voor een installatie waarvan het pakket niet is vastgelegd of is verlopen. Op welk pakket een installatie zit, wordt bepaald bij het inrichten ervan, niet in de plugin zelf: er is hier geen afrekenscherm, geen licentiesleutel om te plakken, en niets wat een clubbeheerder kan omzetten om meer te krijgen dan waar de club recht op heeft.
 
 ## Hoe een installatie haar tier kent
 
@@ -19,7 +19,7 @@ Volgorde waarin de tier wordt bepaald, de eerste treffer wint:
 
 1. **Ontwikkelaars-override** — alleen op installaties waar de eigenaar `TT_DEV_OVERRIDE_SECRET` heeft ingesteld. Zie onderaan.
 2. **Het vastgelegde pakket.**
-3. **Free** — als er geen pakket is vastgelegd, of het vastgelegde pakket zo lang niet is ververst dat het niet meer wordt vertrouwd.
+3. **Niet geactiveerd** — als er geen pakket is vastgelegd, of het vastgelegde pakket zo lang niet is ververst dat het niet meer wordt vertrouwd.
 
 Staat er op de Accountpagina dat er geen pakket is vastgelegd en klopt dat niet? Neem contact op met je operator. Aan hun kant is het één regel werk en aan je gegevens verandert niets.
 
@@ -29,31 +29,44 @@ Vraag het je operator. Je installatie gaat ter plekke naar de nieuwe tier: dezel
 
 Andersom werkt hetzelfde, met één ding om te weten: teruggaan naar een tier waarvan je de limieten al overschrijdt verwijdert niets. Bestaande teams en spelers blijven leesbaar; je kunt er alleen niets bij zetten tot je weer onder de limiet zit.
 
-## Tiers
+## Twee pakketten
 
-| Functie | Free | Standard | Pro |
-| - | - | - | - |
-| Basis spelers / teams / activiteiten / doelen / eenvoudige evaluaties | ✓ | ✓ | ✓ |
-| Back-up naar lokaal + e-mail | ✓ | ✓ | ✓ |
-| Maximaal 1 team en 25 spelers | ✓ | onbeperkt | onbeperkt |
-| Radardiagrammen, spelersvergelijking, tariefkaarten (volledig) | — | ✓ | ✓ |
-| CSV-bulkimport | — | ✓ | ✓ |
-| Functionele rollen | — | ✓ | ✓ |
-| Gedeeltelijk terugzetten van back-ups + 14 dagen ongedaan maken | — | ✓ | ✓ |
-| Geplande rapportages | — | ✓ | ✓ |
-| Meerdere academies / federatie | — | — | ✓ |
-| Proefspelersmodule | — | — | ✓ |
-| Scouttoegang | — | — | ✓ |
-| Teamchemie + blauwdrukken | — | — | ✓ |
-| Back-up naar S3 / Dropbox / GDrive | — | — | ✓ |
+**Standard** is het academieproduct. **Pro** voegt wedstrijddag, training, media, het analyseplatform en de koppelingen toe.
 
-> **Deze tabel loopt achter op het product.** Ze beschrijft de indeling zoals die in v3.17.0 is getrokken. Het meeste wat TalentTrack sindsdien heeft gekregen — wedstrijdanalyse, de mediabibliotheek, trainingsplannen, signalen, cursussen, toernooien, het analyseplatform en meer — heeft geen tier en gedraagt zich daardoor als Free. Het opnieuw trekken van die indeling is bekend en staat gepland; behandel de tabel tot die tijd als historisch, niet als leidend.
+Er is geen Free-pakket. TalentTrack draait gehost — je club heeft een subdomein dat de beheerder draait — dus een installatie bestaat omdat iemand ervoor betaalt. Wat je op de accountpagina nog wél tegenkomt is *Niet geactiveerd*: de staat van een installatie vóórdat het pakket is vastgelegd, of nadat het is verlopen. Het is niets wat aan iemand wordt verkocht.
 
-## Free-tier-limieten
+### Standard — de academie draaien
 
-**1 team, 25 spelers, onbeperkt evaluaties.** Bij het bereiken van de team- of spelerlimiet verschijnt een upgrade-melding in plaats van opslaan. Limieten gelden alleen op Free; Standard en Pro kennen ze niet.
+Spelers, teams, staf. Evaluaties met de volledige categorieboom, wegingen en beoordelingsvensters. Ontwikkelplannen en de gesprekscyclus. Doelen. De spelersreis en cohortovergangen. Het stoplicht en gedragsscores. Metingen en testen. Proefspelers, prospects en scouttoegang. Aanwezigheid en speelminuten. De standaardrapportages, radar, spelersvergelijking en tariefkaarten. Methodiek, de planner, vakanties, seizoensovergang. Excel- en CSV-import, back-ups, vertalingen, eigen velden en clubhuisstijl.
 
-De limieten worden afgedwongen in de schermen, in de wizards én op de REST-API, dus ze zijn niet te omzeilen via de importroute of een directe API-aanroep.
+### Pro — alles wat 2026 heeft toegevoegd
+
+| | |
+| - | - |
+| **Wedstrijddag** | Wedstrijdanalyse en de deellink, wedstrijdvoorbereiding, het live-wedstrijdscherm, toernooien en de drie wedstrijd-pdf-exports |
+| **Training** | Trainingsplannen, de oefeningenbibliotheek, trainingsblootstelling per speler, foto-extractie |
+| **Media** | De mediabibliotheek — foto en video op het spelersdossier |
+| **Analyse** | De dimensieverkenner, geplande rapportages, eigen widgets, de persona-dashboardeditor |
+| **Mensen bereiken** | Geplande verzendingen, het sms-kanaal, pushmeldingen |
+| **Koppelingen** | Spond, Strava |
+| **Trainersontwikkeling** | Cursussen |
+| **Selectie samenstellen** | Teamchemie en het delen van blauwdrukken |
+| **Bulkinvoer** | De aanwezigheids-, minuten- en beoordelingsrasters |
+| **Back-up** | Bestemmingen in objectopslag |
+
+### Wat nooit een betaalde functie is
+
+Het auditlogboek, de rechtenmatrix, tweefactorauthenticatie, records verwijderen, de prullenbak, het inlogovername-logboek, mediatoestemming en inzageverzoeken zijn beschikbaar op **elk** pakket, ook op een installatie die niet geactiveerd is.
+
+Zo voldoet een academie aan haar verplichtingen tegenover de kinderen die erin zitten. De veiligheid van kindgegevens verkopen als losse module doet dit product niet.
+
+Om diezelfde reden houdt een club met een verlopen pakket het dashboard, spelerskaarten, lokale back-up en export. Je eigen gegevens kun je altijd inzien en meenemen.
+
+## Gebruikslimieten
+
+Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.
+
+De limieten in `FreeTierCaps` (1 team, 25 spelers) zijn nu demomeubilair: ze voorkomen dat het publieke demo-subdomein als gratis academie wordt gebruikt. Ze staan ingesteld op de demo-installatie en nergens anders.
 
 ## Accountpagina
 
@@ -62,7 +75,7 @@ Klik je op **TalentTrack** in de wp-admin-zijbalk, dan land je op de Accountpagi
 | Tabblad | Recht | Wat je er vindt |
 | - | - | - |
 | **Account** | `tt_edit_settings` (alleen operators) | Huidige tier, gebruik versus limieten, wat de volgende tier toevoegt, phone-home-diagnostiek |
-| **Pakket & beperkingen** | `read` (iedereen die is ingelogd) | Huidig pakket, limiettabel met waarschuwingen, en de volledige Free/Standard/Pro-matrix met jouw effectieve tier gemarkeerd |
+| **Pakket & beperkingen** | `read` (iedereen die is ingelogd) | Huidig pakket, limiettabel met waarschuwingen, en de volledige Standard/Pro-matrix met jouw effectieve tier gemarkeerd |
 | **MFA** | `read` (iedereen die is ingelogd) | Je eigen tweestapsverificatie en herstelcodes |
 
 Het tabblad Pakket staat bewust open voor iedereen: een trainer die een functie niet kan vinden, moet zelf kunnen zien of die ontbreekt of alleen op slot zit.
