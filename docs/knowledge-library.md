@@ -800,6 +800,22 @@ The objectives and completion panels that bracket the lesson body dropped their
 cap entirely — a capped panel above and below a full-width body reads as an
 indent nobody asked for.
 
+## Courses are read at a desk
+
+A course and a lesson open on a laptop, not a phone. Visit one on a phone and
+you get the "open on desktop" page with a link you can email yourself, rather
+than a lesson squeezed into 360px.
+
+That is a deliberate exception to the mobile-first rule the rest of the product
+follows, and the reason is what the surface is for: a coach *studies* a course,
+sitting down, for forty minutes. Attendance is the opposite case — taken
+standing up with a ball under one arm — and stays phone-first. The prompt says
+so rather than offering the generic "best on a bigger screen", because a reason
+a coach recognises is the difference between an explanation and a wall.
+
+The course list and your own progress stay readable on a phone. It is the
+reader itself that asks for the desk.
+
 ## Switching it off
 
 The module is registered in `config/modules.php` and can be disabled entirely.

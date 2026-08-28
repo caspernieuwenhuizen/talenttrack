@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course reader — one measure (#2872)</title>
+
+<!--
+  Design of record for #2872, per the mockup gate in the issue.
+
+  Production class names and tokens.css values throughout. Nothing here is
+  invented styling: the CSS below is the diff being proposed against
+  assets/css/knowledge-lesson.css, knowledge-quiz.css and
+  frontend-knowledge.css, expressed standalone so it can be looked at
+  without a WordPress install.
+
+  Content is the real lesson: courses/voetbalperiodisering/01-voetbaltaal.md,
+  "Voetbaltaal — conditie opnieuw gedefinieerd", Les 1 van 11 — the one in
+  the pilot-review screenshots.
+
+  Two states, as the issue asks for:
+    A. intro callout + prose + inline check + quiz  (the reported case)
+    B. a lesson with an image                        (the full-bleed exception)
+-->
+
+<style>
+/* ── tokens.css (the values the reader actually reads) ─────────────── */
+:root {
+    --tt-primary:   #0b3d2e;
+    --tt-ink:       #0e1a14;
+    --tt-ink-soft:  #6a6d66;
+    --tt-muted:     #6a6d66;
+    --tt-paper:     #ffffff;
+    --tt-bg-soft:   #f4f6f3;
+    --tt-line:      #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-success:   #2f9e5e;
+    --tt-warning:   #e8902b;
+    --tt-info:      #2d6fb3;
+    --tt-info-subtle:    #e6f0fa;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-radius:    8px;
+    --tt-radius-lg: 14px;
+    --tt-sp-1: 4px; --tt-sp-2: 8px; --tt-sp-3: 12px;
+    --tt-sp-4: 16px; --tt-sp-5: 20px; --tt-sp-6: 24px; --tt-sp-8: 32px;
+    --tt-fs-sm: 0.85rem; --tt-fs-body: 1rem; --tt-fs-lg: 1.125rem;
+    --tt-lh-body: 1.6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 0 var(--tt-sp-5) var(--tt-sp-8);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ── mockup chrome (not shipped) ───────────────────────────────────── */
+.mk-note {
+    max-width: 76ch;
+    margin: var(--tt-sp-6) auto;
+    padding: var(--tt-sp-4);
+    border-left: 4px solid var(--tt-primary);
+    border-radius: 0 var(--tt-radius) var(--tt-radius) 0;
+    background: var(--tt-paper);
+    font-size: var(--tt-fs-sm);
+    line-height: 1.55;
+    color: var(--tt-ink-soft);
+}
+.mk-note strong { color: var(--tt-ink); }
+.mk-note code {
+    background: var(--tt-bg-soft);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.92em;
+}
+.mk-label {
+    max-width: 76ch;
+    margin: var(--tt-sp-8) auto var(--tt-sp-2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tt-muted);
+}
+.mk-sheet {
+    max-width: 1080px;
+    margin: 0 auto var(--tt-sp-8);
+    padding: var(--tt-sp-6) var(--tt-sp-5) var(--tt-sp-8);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+}
+/* The rule that proves the claim: one edge, every text block on it. */
+.mk-sheet--guides .tt-lesson-body > * {
+    outline: 1px dashed rgba(11, 61, 46, 0.28);
+    outline-offset: 3px;
+}
+
+/* ── PROPOSED: the reader ──────────────────────────────────────────── */
+
+/*
+ * ONE measure, declared once, inherited by everything.
+ *
+ * The four widths in the screenshots were never four decisions — they were
+ * four *sources*. The page title came from the view chrome, the top callout
+ * from the lesson wrapper, the prose from the grid's middle track, and the
+ * check and quiz from block components that each set their own max-width
+ * (the quiz's was 68ch against the body's 76ch, which is the offset you can
+ * see). Giving each of them a corrected width is how it drifts again. The
+ * measure belongs to the container; blocks inherit and never declare.
+ */
+.tt-lesson {
+    --tt-lesson-measure: 76ch;
+}
+
+.tt-lesson-head {
+    display: grid;
+    grid-template-columns: 1fr min(var(--tt-lesson-measure), 100%) 1fr;
+    margin-bottom: var(--tt-sp-6);
+}
+.tt-lesson-head > * { grid-column: 2; }
+
+.tt-lesson-eyebrow {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted);
+}
+.tt-lesson-title {
+    margin: 0;
+    font-size: 1.9rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: var(--tt-ink);
+}
+
+.tt-lesson-body {
+    display: grid;
+    grid-template-columns: 1fr min(var(--tt-lesson-measure), 100%) 1fr;
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-body);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-lesson-body > * {
+    grid-column: 2;
+    min-width: 0;
+}
+
+.tt-lesson-body > * + * { margin-top: var(--tt-sp-5); }
+
+/*
+ * CHANGED — what still breaks out.
+ *
+ * Only things that are a figure rather than a sentence. A load matrix, a
+ * pitch calculator, a wide table and a model diagram are read by scanning
+ * a grid, and #2737 widened them for a real reason that stands.
+ *
+ * Removed from this list: `.tt-quiz`, `.tt-lesson-actionline` and
+ * `.tt-lesson-assignment`. All three are text a coach reads a sentence at a
+ * time, and all three were spanning the full width while carrying their own
+ * narrower max-width — which is precisely the "flush left, narrower than the
+ * prose, colliding with the block above" in the screenshots. They were never
+ * wide; they were unaligned.
+ */
+.tt-lesson-body > .tt-lesson-wide,
+.tt-lesson-body > .tt-lesson-tool,
+.tt-lesson-body > .tt-lesson-table-scroll,
+.tt-lesson-body > .tt-lesson-model,
+.tt-lesson-body > .tt-lesson-figure {
+    grid-column: 1 / -1;
+}
+
+.tt-lesson-body h2 {
+    margin: var(--tt-sp-8) 0 0;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+.tt-lesson-body p { margin: 0; }
+
+/* Callout — already on the measure; shown to prove it lines up. */
+.tt-lesson-callout {
+    padding: var(--tt-sp-4);
+    border-left: 3px solid var(--tt-primary);
+    border-radius: 0 var(--tt-radius) var(--tt-radius) 0;
+    background: var(--tt-bg-soft);
+}
+.tt-lesson-callout__title {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-primary);
+}
+.tt-lesson-callout p { margin: 0; }
+
+/* Inline check — on the measure, full width of it, not right-aligned. */
+.tt-lesson-check {
+    padding: var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+.tt-lesson-check__prompt {
+    margin: 0 0 var(--tt-sp-3);
+    font-weight: 600;
+}
+.tt-lesson-check__options {
+    display: grid;
+    gap: var(--tt-sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.tt-lesson-check__option {
+    display: flex;
+    gap: var(--tt-sp-2);
+    align-items: flex-start;
+    min-height: 48px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-lesson-check__option input { min-width: 20px; min-height: 20px; margin-top: 2px; }
+
+/*
+ * CHANGED — the quiz.
+ *
+ * `max-width: 68ch` is gone. It was a second measure, 8ch narrower than the
+ * body's, inside a track that spanned the full width — so the card sat left,
+ * short of the prose on one side and short of the page on the other. It now
+ * simply fills the one measure it sits in.
+ */
+.tt-quiz {
+    padding: var(--tt-sp-5);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-bg-soft);
+}
+.tt-quiz__title {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+.tt-quiz__intro { margin: 0 0 var(--tt-sp-4); color: var(--tt-ink-soft); }
+.tt-quiz__question { margin: 0 0 var(--tt-sp-4); }
+.tt-quiz__prompt { margin: 0 0 var(--tt-sp-2); font-weight: 600; }
+.tt-quiz__options { display: grid; gap: var(--tt-sp-2); margin: 0; padding: 0; list-style: none; }
+.tt-quiz__option {
+    display: flex;
+    gap: var(--tt-sp-2);
+    align-items: flex-start;
+    min-height: 48px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-quiz__option input { min-width: 20px; min-height: 20px; margin-top: 2px; }
+.tt-quiz__actions { margin-top: var(--tt-sp-5); }
+.tt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-5);
+    border: 1px solid transparent;
+    border-radius: var(--tt-radius);
+    background: var(--tt-primary);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-btn:focus-visible { outline: 3px solid var(--tt-info); outline-offset: 2px; }
+
+/*
+ * State B — the exception. A figure earns more width than the text because
+ * detail in it is lost at the measure. Nothing else does.
+ */
+.tt-lesson-figure { margin: 0; }
+.tt-lesson-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--tt-radius);
+}
+.tt-lesson-figure figcaption {
+    max-width: var(--tt-lesson-measure);
+    margin: var(--tt-sp-2) auto 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    text-align: center;
+}
+
+/* Stand-in for the diagram, so the mockup needs no binary asset. */
+.mk-figure-stand {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 6;
+    border: 1px dashed var(--tt-line);
+    border-radius: var(--tt-radius);
+    background:
+        repeating-linear-gradient(90deg, var(--tt-bg-soft) 0 39px, var(--tt-line-soft) 39px 40px),
+        var(--tt-bg-soft);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+
+@media (max-width: 700px) {
+    .mk-sheet { padding: var(--tt-sp-4) var(--tt-sp-3) var(--tt-sp-6); }
+    .tt-lesson-title { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<p class="mk-label">#2872 · design of record</p>
+<div class="mk-note">
+    <p><strong>One reading column.</strong> Every text-bearing block on a lesson sits on the same measure
+    (<code>--tt-lesson-measure</code>, 76ch), declared once on <code>.tt-lesson</code> and inherited. The dashed
+    outlines below are mockup-only and exist to show the single edge — they are not part of the proposal.</p>
+    <p style="margin-bottom:0"><strong>What changes in the CSS:</strong> <code>.tt-quiz</code> loses its own
+    <code>max-width: 68ch</code>; <code>.tt-quiz</code>, <code>.tt-lesson-actionline</code> and
+    <code>.tt-lesson-assignment</code> come out of the full-bleed list in <code>knowledge-lesson.css</code>. The
+    calculators, wide tables and model diagrams stay wide — #2737 widened those for a reason that still holds, and
+    they are figures rather than sentences.</p>
+</div>
+
+<p class="mk-label">State A — callout, prose, inline check, quiz</p>
+
+<div class="mk-sheet mk-sheet--guides">
+  <article class="tt-lesson">
+
+    <header class="tt-lesson-head">
+        <p class="tt-lesson-eyebrow">Voetbalperiodisering · Les 1 van 11</p>
+        <h1 class="tt-lesson-title">Voetbaltaal: conditie opnieuw gedefinieerd</h1>
+    </header>
+
+    <div class="tt-lesson-body">
+
+        <div class="tt-lesson-callout tt-lesson-callout--objectives">
+            <p class="tt-lesson-callout__title">Wat je gaat leren</p>
+            <p>Na deze module leg je uit waarom termen als aeroob, anaeroob en explosieve kracht een voetbaltrainer
+            niet helpen. Je ontleedt een voetbalhandeling in positie, moment, richting en snelheid, verdeeld over
+            besluitvorming en uitvoering. En je plaatst voetbalconditie op de juiste plek in de keten speelstijl –
+            spelinzicht – techniek – conditie.</p>
+        </div>
+
+        <h2>Het probleem met geleende taal</h2>
+
+        <p>Conditiebegrippen uit de trainingsleer zijn ontwikkeld voor sporten waarin de beweging vaststaat:
+        hardlopen, roeien, wielrennen. In die sporten is snelheid een getal en uithoudingsvermogen een tijd.</p>
+
+        <p>In voetbal ligt de beweging niet vast. Een speler versnelt omdat hij ruimte ziet, remt af omdat de bal een
+        andere kant op gaat, en sprint niet omdat er een startschot klinkt maar omdat zijn directe tegenstander
+        wegdraait.</p>
+
+        <div class="tt-lesson-check">
+            <p class="tt-lesson-check__prompt">Even checken — waarom helpt de term “aeroob uithoudingsvermogen” een
+            voetbaltrainer niet?</p>
+            <ul class="tt-lesson-check__options">
+                <li><label class="tt-lesson-check__option"><input type="radio" name="check1">
+                    <span>Omdat de fysiologie erachter inmiddels achterhaald is</span></label></li>
+                <li><label class="tt-lesson-check__option"><input type="radio" name="check1">
+                    <span>Omdat de term niet zegt wát een speler op het veld anders moet doen</span></label></li>
+                <li><label class="tt-lesson-check__option"><input type="radio" name="check1">
+                    <span>Omdat voetballers hun aerobe systeem nauwelijks gebruiken</span></label></li>
+            </ul>
+        </div>
+
+        <h2>Specificiteit: je verbetert wat je traint</h2>
+
+        <p>Een speler die rondjes om het veld loopt, wordt beter in rondjes om het veld lopen. Dat is geen woordspel
+        maar het specificiteitsprincipe. Wil je dat je team negentig minuten lang druk kan zetten, dan moet je druk
+        zetten trainen — vaker, langer en op een hoger tempo dan het nu kan.</p>
+
+        <section class="tt-quiz">
+            <h2 class="tt-quiz__title">Toets jezelf</h2>
+            <p class="tt-quiz__intro">Drie vragen over deze les. Je kunt zo vaak opnieuw proberen als je wilt.</p>
+
+            <div class="tt-quiz__question">
+                <p class="tt-quiz__prompt">Je wilt dat je team in de laatste twintig minuten nog druk kan zetten.
+                Wat traint dat het beste?</p>
+                <ul class="tt-quiz__options">
+                    <li><label class="tt-quiz__option"><input type="radio" name="q1">
+                        <span>Twee keer per week een duurloop van twintig minuten</span></label></li>
+                    <li><label class="tt-quiz__option"><input type="radio" name="q1">
+                        <span>Partijvormen waarin je team vaker en langer druk zet dan het nu volhoudt</span></label></li>
+                    <li><label class="tt-quiz__option"><input type="radio" name="q1">
+                        <span>Intervaltraining zonder bal, op een hogere hartslag dan in de wedstrijd</span></label></li>
+                </ul>
+            </div>
+
+            <div class="tt-quiz__actions">
+                <button type="button" class="tt-btn">Antwoorden nakijken</button>
+            </div>
+        </section>
+
+    </div>
+  </article>
+</div>
+
+<p class="mk-label">State B — the full-bleed exception</p>
+
+<div class="mk-sheet mk-sheet--guides">
+  <article class="tt-lesson">
+
+    <header class="tt-lesson-head">
+        <p class="tt-lesson-eyebrow">Voetbalperiodisering · Les 1 van 11</p>
+        <h1 class="tt-lesson-title">De volgorde die niet omgedraaid mag worden</h1>
+    </header>
+
+    <div class="tt-lesson-body">
+
+        <p>Speelstijl bepaalt welk spelinzicht je vraagt, spelinzicht bepaalt welke techniek eronder moet liggen, en
+        pas daarna komt de conditie die dat alles negentig minuten volhoudt. Draai de keten om en je traint een
+        speler die hard kan lopen naar de verkeerde plek.</p>
+
+        <figure class="tt-lesson-figure">
+            <div class="mk-figure-stand">speelstijl → spelinzicht → techniek → conditie</div>
+            <figcaption>De keten. Een diagram verliest detail op de leesbreedte, dus dit is wat wél breder mag —
+            en de bijschriftregel gaat terug naar de kolom.</figcaption>
+        </figure>
+
+        <p>Het diagram hierboven is breder dan de tekst. Dat is de enige uitzondering: een figuur waarvan het detail
+        verloren gaat op de leesbreedte. Het bijschrift eronder staat weer in de kolom, zodat het oog na de figuur
+        op dezelfde regel terugkomt.</p>
+
+    </div>
+  </article>
+</div>
+
+<div class="mk-note">
+    <p style="margin-bottom:0"><strong>Also in this ship, already merged separately:</strong> the reader stays
+    <code>desktop_only</code>, and the phone prompt now names the reason — “a course is something you sit down and
+    study, not something you read on the touchline” — instead of the generic “best on desktop” every one of the 41
+    gated surfaces shows today.</p>
+</div>
+
+</body>
+</html>

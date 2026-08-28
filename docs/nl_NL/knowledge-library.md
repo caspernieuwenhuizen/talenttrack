@@ -827,6 +827,23 @@ De doelstellingen- en afrondingspanelen die de les omlijsten hebben hun maximum
 helemaal laten vallen — een smal paneel boven en onder een breed lesblok leest
 als een inspringing waar niemand om vroeg.
 
+## Cursussen lees je aan een bureau
+
+Een cursus en een les openen op een laptop, niet op een telefoon. Open je er een
+op je telefoon, dan krijg je de pagina "openen op desktop" met een link die je
+naar jezelf kunt mailen, in plaats van een les geperst in 360 pixels.
+
+Dat is een bewuste uitzondering op de mobile-first regel die de rest van het
+product volgt, en de reden is waar het scherm voor dient: een trainer *studeert*
+op een cursus, zittend, veertig minuten lang. Aanwezigheid is precies het
+omgekeerde geval — staand bijgehouden met een bal onder je arm — en blijft
+telefoon-eerst. De melding zegt dat er ook bij, in plaats van het algemene "werkt
+het best op een groter scherm": een reden die een trainer herkent is het verschil
+tussen een uitleg en een muur.
+
+De cursuslijst en je eigen voortgang blijven prima leesbaar op een telefoon. Het
+is de lezer zelf die om het bureau vraagt.
+
 ## Uitzetten
 
 De module staat in `config/modules.php` en kan volledig uit. De cursussen zelf
