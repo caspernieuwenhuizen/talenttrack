@@ -99,7 +99,7 @@ class PlayerMeasurementProfile {
                         (string) $def->direction
                     );
                 }
-                $band = self::bandFrom( $target );
+                $band = self::bandFrom( $target, (string) $def->direction );
             }
 
             $series = array_map(
@@ -178,10 +178,25 @@ class PlayerMeasurementProfile {
      *
      * @return array{min: ?float, max: ?float}|null
      */
-    private static function bandFrom( ?object $target ): ?array {
+    /**
+     * The shaded "on target for this age group" band on the trend chart.
+     *
+     * #3028 — the band is open on the better side, matching
+     * MeasurementTargetsRepository::flagFor(). A closed band drew the green
+     * area stopping at green_min on a lower-is-better test, so a player who
+     * had improved past the target appeared to have fallen out of it. What
+     * the operator entered is the edge a player should reach, not a floor
+     * they should stay above.
+     */
+    private static function bandFrom( ?object $target, string $direction = 'neutral' ): ?array {
         if ( $target === null ) return null;
         $min = isset( $target->green_min ) && $target->green_min !== null ? (float) $target->green_min : null;
         $max = isset( $target->green_max ) && $target->green_max !== null ? (float) $target->green_max : null;
+        if ( $direction === 'lower' ) {
+            $min = null;
+        } elseif ( $direction === 'higher' ) {
+            $max = null;
+        }
         if ( $min === null && $max === null ) return null;
         return [ 'min' => $min, 'max' => $max ];
     }

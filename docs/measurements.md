@@ -36,7 +36,13 @@ out on top of it.
  Staff enter one value per player against it.
 - **Target** — a per-age-group band (green / amber) for a test. A recorded
  value is flagged green, amber, or red against the band for the player's
- age group, respecting the test's direction.
+ age group, respecting the test's direction. The band is what a player
+ should *reach*, so beating it counts as green: on a lower-is-better test a
+ time faster than the green band is green, and on a higher-is-better test a
+ value above it is green. You never enter a red threshold — red is simply
+ everything past amber on the worse side. A **neutral** test is the one case
+ where both edges bound, because the value is meant to land inside a range
+ rather than get as far past it as possible.
 - **Status levels** — for the **status** value type only: an operator-defined,
  ordered set of coloured levels (e.g. *At risk* red, *Watch* amber, *On
  track* green). A status test records a level per player rather than a

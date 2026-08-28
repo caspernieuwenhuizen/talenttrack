@@ -60,8 +60,18 @@ class MeasurementTargetsRepository {
      * [amber_min, amber_max] but outside green is amber; outside amber is
      * red. Missing band edges are treated as open (no bound on that side).
      *
-     * `direction` does not change the band maths — bands are absolute — but
-     * is accepted so callers can stay direction-aware for sorting/labels.
+     * `direction` opens the band on the better side (#3028). Closed
+     * intervals are only right for a `neutral` test. On a `lower`-is-better
+     * test the operator enters the band a player should reach — green from
+     * 4.950 to 5.100 on a 30m sprint — and a 4.84s run beats it. Treating
+     * that as outside every band flagged the fastest sprinter in the squad
+     * red and the slowest green. So on `lower` the lower edges are dropped
+     * and only the upper ones bound; on `higher` the mirror; on `neutral`
+     * both edges hold, which is what a "should land in this range" test
+     * (body composition, ACWR) needs.
+     *
+     * This also means an operator never has to enter a red threshold: the
+     * better side has no outer bound to express.
      *
      * @param float|null $value
      */
@@ -72,6 +82,14 @@ class MeasurementTargetsRepository {
         $green_max = $this->num( $target->green_max ?? null );
         $amber_min = $this->num( $target->amber_min ?? null );
         $amber_max = $this->num( $target->amber_max ?? null );
+
+        if ( $direction === 'lower' ) {
+            $green_min = null;
+            $amber_min = null;
+        } elseif ( $direction === 'higher' ) {
+            $green_max = null;
+            $amber_max = null;
+        }
 
         $in_green = ( $green_min === null || $value >= $green_min )
                  && ( $green_max === null || $value <= $green_max );
@@ -87,7 +105,10 @@ class MeasurementTargetsRepository {
 
         // A target exists with at least one band edge, and the value sits
         // outside both bands → red. With no edges at all there's nothing
-        // to flag.
+        // to flag — which now also covers a target whose only edges are on
+        // the side this direction ignores (a `lower` test carrying nothing
+        // but a green_min). That target cannot bound anything, so no flag
+        // is the honest answer; flagging every reading red is not.
         $has_any = $green_min !== null || $green_max !== null
                 || $amber_min !== null || $amber_max !== null;
         return $has_any ? 'bad' : '';
