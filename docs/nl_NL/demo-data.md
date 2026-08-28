@@ -51,6 +51,16 @@ Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
 8 weken), **medium** (6 teams, 16 weken), **large** (12 teams, 36 weken).
 Elke preset genereert 12 spelers per team.
 
+Het aantal weken is hoe ver het activiteitenvenster **terug** loopt. Daar
+bovenop genereert elke preset ook **vier weken vooruit**, zodat een demo-
+installatie een volgende wedstrijd en aankomende trainingen heeft — de
+weekplanner, wedstrijdvoorbereiding en de meldingen over aankomende
+activiteiten hebben dan allemaal iets te tonen. Toekomstige activiteiten staan
+op gepland en dragen geen uitslag: geen aanwezigheid, geen minuten, geen
+beoordelingen en geen wedstrijduitvoering. Wedstrijdvoorbereiding wordt er wel
+voor geschreven — precies zoals het scherm van een trainer er midden in de week
+uitziet.
+
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op.
 

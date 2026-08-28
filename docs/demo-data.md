@@ -50,6 +50,13 @@ Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
 
+The week count is how far **back** the activity window runs. On top of it every
+preset also generates **four weeks ahead**, so a demo install has a next match
+and upcoming trainings — the week planner, match prep and the upcoming-activity
+alerts all have something to show. Future activities are planned and carry no
+result: no attendance, no minutes, no ratings and no match execution. Match
+prep is written for them, which is what a coach's screen looks like mid-week.
+
 Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury
 record says they were out, goal scorers come from that match's lineup, and
