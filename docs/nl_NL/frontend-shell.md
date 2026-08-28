@@ -289,22 +289,54 @@ standaardpaneel in plaats van niets.
 ### De slots van de onderbalk
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier
-bestemmingen, eerst uit configuratie en daarna uit de afgeleide standaard:
+bestemmingen in drie stappen:
 
 1. **Geconfigureerd** — club-scoped `tt_config`-sleutel `tt_shell_mobile_slots`,
    een JSON-object van `persona-sleutel => [ slug, … ]`. Een `*`-sleutel geldt
-   voor elke persona zonder eigen ingang. Afwezig of leeg betekent "afleiden", en
-   dat is de opleverstand.
-2. **Afgeleid** — de eerste vier `kind: 'work'`-tegels uit
+   voor elke persona zonder eigen ingang. Afwezig of leeg valt door.
+2. **Meegeleverde standaard per persona** — `FrontendAppBottomBar::DEFAULT_SLOTS`
+   (#2810).
+3. **Afgeleid** — de eerste vier `kind: 'work'`-tegels uit
    `FrontendAppNav::groups()`, dus al gefilterd op capability, voorzien van
    persona-labels en in `groupOrder()`-volgorde. Setup-tegels vallen af.
 
-Een geconfigureerde slug die niet meer bestaat, voor de persona verborgen is of
-de capability-controle niet haalt, wordt **overgeslagen**; de afgeleide standaard
-vult het gat. Een verouderde configuratie degradeert dus naar een verstandige
-balk in plaats van een kapotte of lege. Er is bewust nog geen beheerderskeuze-UI:
-de sleutel is via de config-laag te lezen en te schrijven, en de standaard is
-goed genoeg om zonder te leveren.
+| persona | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| head_coach | activities | players | teams | my-tasks |
+| assistant_coach | activities | players | teams | my-tasks |
+| scout | onboarding-pipeline | scouting-visits | players | my-tasks |
+| head_of_development | my-tasks | players | trials | evaluations |
+| team_manager | activities | teams | players | my-tasks |
+| player | my-tasks | my-journey | overview | my-team |
+| parent | my-activities | overview | my-evaluations | my-pdp |
+| academy_admin | — geen balk — |
+
+Elke stap vult alleen wat de vorige overliet, dus een verouderde of
+onvolledige configuratie degradeert in plaats van de balk leeg te maken. Een
+geconfigureerde slug die niet meer bestaat, voor de persona verborgen is of de
+capability-controle niet haalt, wordt **overgeslagen**.
+
+**De academiebeheerder krijgt geen balk.** Geen balk met setup-tegels en ook niet
+de afgeleide standaard — de balk laat setup-schermen bewust weg, en setup ís het
+hele dashboard van deze persona, dus elke balk die we voor hen tonen is
+misleidend of iets anders in dezelfde jas. `render()` geeft helemaal niets terug
+in plaats van het met CSS te verbergen: verborgen markup wordt nog steeds
+meegeleverd en houdt zijn plek in de toetsenbordvolgorde. Let op: dit is een
+andere situatie dan "geen slots geconfigureerd", want die valt nog steeds terug
+op de afgeleide standaard.
+
+**`readonly_observer` heeft bewust geen meegeleverde standaard**: er zijn geen
+genummerde persona-acties om slots aan te ontlenen, dus die leidt af in plaats
+van te gokken.
+
+**Elke slot moet `native`, `viewable` of `read_only` zijn.** Een `desktop_only`-
+slug op één duikdruk afstand is de desktop-melding op één duikdruk afstand —
+navigatie die in werkelijkheid een muur is. `ThumbBarSlotsTest` bewaakt dit
+tegen `config/mobile_surfaces.php`, wat nodig is omdat een herclassificatie één
+regel in een ander bestand is, zonder dat iets anders die aan de balk verbindt.
+
+Er is bewust nog geen beheerderskeuze-UI: de sleutel is via de config-laag te
+lezen en te schrijven.
 
 **De slots bepalen uit echt gebruik.** `tt_usage_events` (migratie 0011) legt al
 `event_type = 'frontend_view'` vast met de view-slug in `event_target`, per

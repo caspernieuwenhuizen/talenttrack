@@ -278,20 +278,50 @@ shows the default panel rather than nothing.
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four
-destinations, config first and derived default second:
+destinations, in three passes:
 
 1. **Configured** — club-scoped `tt_config` key `tt_shell_mobile_slots`, a JSON
    object of `persona key => [ slug, … ]`. A `*` key applies to any persona with
-   no entry of its own. Absent or empty means "derive", which is the ship state.
-2. **Derived** — the first four `kind: 'work'` tiles from
+   no entry of its own. Absent or empty falls through.
+2. **Shipped per-persona default** — `FrontendAppBottomBar::DEFAULT_SLOTS` (#2810).
+3. **Derived** — the first four `kind: 'work'` tiles from
    `FrontendAppNav::groups()`, i.e. already capability-filtered, persona-labelled
    and in `groupOrder()` sequence. Setup tiles are excluded.
 
-A configured slug that no longer exists, is hidden for the persona, or fails the
-capability check is **skipped**, and the derived default backfills the gap — so a
-stale config degrades to a sensible bar rather than a broken or empty one. There
-is deliberately no operator picker yet; the key is readable and writable through
-the config layer, and the default is good enough to ship without one.
+| persona | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| head_coach | activities | players | teams | my-tasks |
+| assistant_coach | activities | players | teams | my-tasks |
+| scout | onboarding-pipeline | scouting-visits | players | my-tasks |
+| head_of_development | my-tasks | players | trials | evaluations |
+| team_manager | activities | teams | players | my-tasks |
+| player | my-tasks | my-journey | overview | my-team |
+| parent | my-activities | overview | my-evaluations | my-pdp |
+| academy_admin | — no bar — |
+
+Each pass only fills what the previous one left, so a stale or partial config
+degrades rather than emptying the bar. A configured slug that no longer exists,
+is hidden for the persona, or fails the capability check is **skipped**.
+
+**The academy admin gets no bar.** Not a bar of setup tiles, and not the derived
+default — the bar excludes setup surfaces by design and setup is that persona's
+entire dashboard, so any bar rendered for them is either misleading or a
+different thing wearing the same chrome. `render()` emits nothing at all rather
+than hiding it in CSS: hidden markup still ships and still holds a place in the
+keyboard tab order. Note this is a different state from "no slots configured",
+which still falls through to the derived default.
+
+**`readonly_observer` has no shipped default**, deliberately: it has no numbered
+persona actions to trace slots to, so it derives rather than guesses.
+
+**Every slot must be `native`, `viewable` or `read_only`.** A `desktop_only` slug
+a thumb-tap away is the desktop-prompt page a thumb-tap away — navigation that is
+actually a wall. `ThumbBarSlotsTest` asserts this against
+`config/mobile_surfaces.php`, which matters because reclassifying a surface is a
+one-line edit in a different file with nothing else connecting it to the bar.
+
+There is deliberately no operator picker yet; the key is readable and writable
+through the config layer.
 
 **Deciding the slots from real usage.** `tt_usage_events` (migration 0011)
 already records `event_type = 'frontend_view'` with the view slug in
