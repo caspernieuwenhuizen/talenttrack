@@ -127,6 +127,11 @@ final class CoreSurfaceRegistration {
         // anyone who would only be shown a "not authorized" notice.
         $reg::register( 'exercises', 'tt_view_activities' );
 
+        // #2811 — the desktop-only prompt page offers the activity list as
+        // the phone path for the three entry grids, so that offer needs the
+        // same gate the list itself applies.
+        $reg::register( 'activities', 'tt_view_activities' );
+
         // #2977 — per-age-group category weights. Its own read cap, not the
         // tt_view_evaluation_categories that reaches the categories list:
         // the two surfaces are adjacent but separately granted, and the
