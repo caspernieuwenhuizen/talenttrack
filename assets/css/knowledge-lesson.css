@@ -16,36 +16,45 @@
  * A lesson holds two kinds of thing and they want opposite widths.
  *
  * Prose wants a measure — long lines are genuinely harder to read, and the
- * eye loses the start of the next one. Tools do not: a seven-day planner,
+ * eye loses the start of the next one. Figures do not: a seven-day planner,
  * a load matrix or a pitch calculator squeezed into a paperback column is
  * the reason this reader felt cramped on a laptop, where it was using less
- * than half the window while its widest tables scrolled sideways.
+ * than half the window while its widest tables scrolled sideways (#2737).
  *
- * So the body is a three-column grid: prose sits in the middle track at a
- * readable measure, and anything carrying `tt-lesson-wide` spans all three.
- * Below the breakpoint `min()` collapses the middle track to 100%, both
- * outer tracks become zero, and mobile renders exactly as it did before.
- */
-/*
- * #2872 — the measure moved up to the page wrapper, and grew.
+ * So the body is a three-column grid: text sits in the middle track at the
+ * measure, and a figure spans all three. Below the breakpoint `min()`
+ * collapses the middle track to 100%, both outer tracks become zero, and a
+ * narrow screen renders as one plain column.
  *
- * It lived on `.tt-lesson-body`, which meant only the prose could read it:
- * the title took its width from the page gutter, the objectives and
- * completion panels from the full page, and the quiz from a `max-width` of
- * its own. Four widths on one screen, which is what the pilot review saw as
- * "several documents pasted together". A custom property on the body is
- * invisible to the body's siblings, so the token has to sit above them.
+ * ## #2872 — one measure for the page, not just the body
  *
- * 76ch was also a paperback measure on a surface that is now deliberately
+ * The token used to live on `.tt-lesson-body`, which meant only the prose
+ * could read it. A custom property on the body is invisible to the body's
+ * *siblings*, so the title took its width from the page gutter, the
+ * objectives and completion panels from the full page, and the quiz and its
+ * result panel from a `max-width` of their own. Five widths on one screen,
+ * which is what the pilot review saw as "several documents pasted
+ * together" — and the reason the quiz appeared to collide with the block
+ * above it: it spanned the full width while capped narrower than the prose,
+ * so it sat short on both sides.
+ *
+ * The token now sits on the `.tt-lesson` page wrapper and everything
+ * inherits it. Blocks inherit the measure and never declare one; giving
+ * each block a corrected width is how this drifts again.
+ *
+ * ## Why 96ch
+ *
+ * 76ch was a paperback measure on a surface that is deliberately
  * desktop-only. The shell hands the reader `min(94vw, 1600px)`, so a 76ch
- * column used under half of it — the same complaint #2737 made about the
- * calculators, applied to the prose.
+ * column used under half of it — #2737's complaint about the calculators,
+ * applied to the prose.
  *
- * 96ch at 17px is roughly 900px. It is a stopping point rather than "as
+ * 96ch at 17px is roughly 900px, and it is a stopping point rather than "as
  * wide as it goes": past about 100 characters a column stops being easier
  * to read and starts being a wall, and legibility was the argument for
  * going desktop-only in the first place. The width left over goes to the
- * figures, which is the point of the full-bleed exception below.
+ * figures, which is the point of the full-bleed exception below — and that
+ * contrast only means anything while the text holds its line.
  */
 .tt-lesson {
     --tt-lesson-measure: 96ch;
@@ -63,7 +72,7 @@
 .tt-lesson .tt-knowledge-lesson__completion,
 .tt-lesson .tt-quiz-result,
 .tt-lesson .tt-notice {
-    max-width: min(var(--tt-lesson-measure), 100%);
+    max-width: min(var(--tt-lesson-measure, 96ch), 100%);
     margin-inline: auto;
 }
 
@@ -71,7 +80,7 @@
     display: grid;
     grid-template-columns:
         1fr
-        min(var(--tt-lesson-measure), 100%)
+        min(var(--tt-lesson-measure, 96ch), 100%)
         1fr;
 
     color: var(--tt-ink, #0e1a14);
