@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T06:39:16+00:00\n"
+"POT-Creation-Date: 2026-08-28T20:10:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -21116,7 +21116,7 @@ msgid "Hand in for review"
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/CalloutBlock.php:35
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:141
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:152
 msgid "What you will learn"
 msgstr ""
 
@@ -21460,105 +21460,105 @@ msgstr ""
 msgid "Continue"
 msgstr "Fortfahren"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:171
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:182
 msgid ""
 "Your login is not linked to a staff record, so progress is not saved for "
 "this lesson."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:179
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:190
 msgid "You have marked this lesson as read."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:186
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:197
 msgid "Mark as read"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:193
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:204
 msgid "passing the check for this module"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:196
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:207
 msgid "having its assignment approved"
 msgstr ""
 
 #. translators: %s: a list of outstanding requirements
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:202
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:213
 #, php-format
 msgid "This lesson also needs %s before it counts as finished."
 msgstr ""
 
 #. translators: %s: the title of the next lesson
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:216
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:227
 #, php-format
 msgid "Next: %s"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:261
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:272
 msgid "Marked as read."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:306
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:317
 msgid "Handed in. Your reviewer will pick it up from here."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:309
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:320
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:767
 msgid "Write your answer before handing it in."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:312
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:323
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:770
 #: src/Modules/Knowledge/Wizards/AssignmentWriteStep.php:101
 msgid "This assignment is already with a reviewer."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:315
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:326
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:776
 msgid "That could not be handed in."
 msgstr ""
 
 #. translators: 1: correct answers, 2: total questions
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:397
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:408
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:85
 #, php-format
 msgid "You answered %1$d of %2$d correctly."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:405
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:416
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:86
 msgid "That is a pass — this lesson's check is done."
 msgstr ""
 
 #. translators: %d: the number of correct answers needed
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:408
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:419
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:88
 #, php-format
 msgid ""
 "You need %d correct to pass. Read back over the parts below and try again."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:421
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:432
 msgid "Correct"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:422
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:433
 msgid "Wrong"
 msgstr ""
 
 #. translators: %s: the correct answer
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:428
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:439
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:92
 #, php-format
 msgid "Answer: %s"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:470
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:473
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:481
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:484
 msgid "Lesson not found"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:474
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:485
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:323
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:483
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:494
@@ -21570,13 +21570,13 @@ msgid "That lesson is not part of this course."
 msgstr ""
 
 #. translators: 1: this lesson's number, 2: total lessons
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:502
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:513
 #, php-format
 msgid "Lesson %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: comma-separated list of items, 2: the final item
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:526
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:537
 #, php-format
 msgid "%1$s and %2$s"
 msgstr ""
