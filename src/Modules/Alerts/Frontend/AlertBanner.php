@@ -3,6 +3,7 @@ namespace TT\Modules\Alerts\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
@@ -23,9 +24,14 @@ use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
  * have to learn a second visual language for "something needs your
  * attention". The difference is that a flash message is about what just
  * happened and an alert is about what is still true, which is why these
- * cannot be dismissed away permanently — dismissal lands with the
- * preference layer in #2632, and until then the only way to clear one is to
- * fix the underlying thing, which is the intended behaviour anyway.
+ * cannot be dismissed away permanently.
+ *
+ * #3034 — each row carries a "Not today" control wired to the snooze
+ * endpoint (#2632). Snoozing is not muting: the occurrence stays in the
+ * table, keeps being reconciled, and comes back when the snooze lapses if
+ * the condition is still true. Operational alerts — the ones about a
+ * child's safety — get no control, matching
+ * `AlertPolicyResolver::lockReason()`.
  */
 final class AlertBanner {
 
@@ -98,7 +104,11 @@ final class AlertBanner {
         if ( $title === '' ) return;
 
         printf(
-            '<div class="tt-alert tt-alert-%1$s"><span class="tt-alert-sev">%2$s</span><span class="tt-alert-text">%3$s</span>%4$s</div>',
+            '<div class="tt-alert tt-alert-%1$s">'
+                . '<span class="tt-alert-sev">%2$s</span>'
+                . '<span class="tt-alert-text">%3$s</span>'
+                . '%4$s%5$s'
+            . '</div>',
             esc_attr( $severity ),
             esc_html( Severity::label( $severity ) ),
             esc_html( $title ),
@@ -108,7 +118,43 @@ final class AlertBanner {
                     esc_url( $url ),
                     esc_html__( 'Open', 'talenttrack' )
                 )
-                : ''
+                : '',
+            self::snoozeControl( $row )
+        );
+    }
+
+    /**
+     * The "not today" control (#3034).
+     *
+     * `POST /alerts/{uuid}/snooze` and its repository side have been in place
+     * since #2632, and the banner has never had anything wired to them — this
+     * class's docblock still said dismissal was pending. A coach who cannot
+     * act on an alert right now had no way to clear it short of fixing the
+     * underlying thing, which is the correct default for a *permanent* mute
+     * and much too blunt for "not this morning".
+     *
+     * A day is the default because that is what the review asked for, and
+     * because an alert is state rather than an event: if the condition is
+     * still true tomorrow the reconcile puts it back, which is exactly the
+     * behaviour that makes a short snooze safe.
+     *
+     * Operational alerts get no control. Those are the ones about a child's
+     * safety, and `AlertPolicyResolver::lockReason()` already refuses to let
+     * a user mute them — offering a snooze here would route around that.
+     */
+    private static function snoozeControl( object $row ): string {
+        $uuid = (string) ( $row->uuid ?? '' );
+        $key  = (string) ( $row->alert_key ?? '' );
+        if ( $uuid === '' || $key === '' ) return '';
+
+        $definition = AlertRegistry::find( $key );
+        if ( $definition !== null && $definition->isOperational() ) return '';
+
+        return sprintf(
+            '<button type="button" class="tt-alert-snooze" data-tt-alert-snooze="%1$s" data-tt-alert-duration="day" title="%2$s">%3$s</button>',
+            esc_attr( $uuid ),
+            esc_attr__( 'Hide this until tomorrow. It comes back if it is still true.', 'talenttrack' ),
+            esc_html__( 'Not today', 'talenttrack' )
         );
     }
 

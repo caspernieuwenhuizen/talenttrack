@@ -152,6 +152,8 @@ Berichten die de academie je *stuurt* — e-mails, pushberichten — staan apart
 
 Heb je op dit moment niets aan een melding, stel hem dan een dag, een week of een maand uit. Hij verdwijnt en komt daarna terug, als het probleem dan nog bestaat.
 
+Op de banner staat hiervoor bij elke melding **Nu even niet**, die hem een dag uitstelt — het gewone geval, en één klik in plaats van een menu. Meldingen die over de veiligheid van een kind gaan hebben die knop niet: dat zijn precies de meldingen die je nergens kunt uitzetten, en de banner biedt daar geen omweg omheen.
+
 ### Eén melding wegklikken
 
 Wegklikken verwijdert hem definitief — maar **alleen die ene keer**. Wordt hetzelfde probleem opgelost en gebeurt het daarna opnieuw, dan krijg je een nieuwe melding, want dat is echt nieuwe informatie. Wil je een *soort* melding permanent stoppen, vink hem dan uit bij Meldingsinstellingen.

@@ -16,31 +16,40 @@
   margin: 0 0 1rem;
 }
 
+/* #3034 — one row per alert, not three.
+   Stacking the severity label, the sentence and a 48px button gave each
+   alert about 110px, and three of them pushed the page content the coach
+   came for below the fold. The row wraps only when the text genuinely needs
+   a second line, so the 360px case still reads. */
 .tt-alert {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.375rem 0.625rem;
   border-radius: var(--tt-radius-md, 8px);
   border-left: 4px solid var(--tt-color-border, #d7dde0);
   background: var(--tt-color-surface-alt, #f5f7f8);
   color: var(--tt-color-text, #1d2327);
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
+/* Severity reads as a small chip rather than a reserved column: at 360px a
+   7.5rem label beside a full sentence left the sentence three words wide. */
 .tt-alert-sev {
   flex: 0 0 auto;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--tt-color-text-muted, #5b6e75);
 }
 
 .tt-alert-text {
-  flex: 1 1 auto;
+  flex: 1 1 12rem;
+  min-width: 0;
 }
 
 /* 48x48 minimum touch target per §2, met via padding rather than a fixed
@@ -59,6 +68,44 @@
   font-weight: 600;
   text-decoration: none;
   touch-action: manipulation;
+}
+
+/* #3034 — "Not today". Subordinate to the CTA: acting on the alert is the
+   point, putting it off is the escape hatch. Same 48px floor, and the 8px
+   gap between adjacent targets comes from the row's own gap. */
+.tt-alert-snooze {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--tt-color-border, #d7dde0);
+  border-radius: var(--tt-radius-sm, 6px);
+  background: transparent;
+  color: var(--tt-color-text-muted, #5b6e75);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tt-alert-snooze:hover,
+.tt-alert-snooze:focus-visible {
+  background: var(--tt-color-surface, #fff);
+  color: var(--tt-color-text, #1d2327);
+}
+
+.tt-alert-snooze:focus-visible {
+  outline: 2px solid var(--tt-color-focus, #2271b1);
+  outline-offset: 2px;
+}
+
+.tt-alert-snooze[aria-busy="true"] {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .tt-alert-cta:hover,
@@ -103,13 +150,17 @@
 
 @media (min-width: 480px) {
   .tt-alert {
-    flex-direction: row;
-    align-items: center;
+    flex-wrap: nowrap;
     gap: 0.75rem;
   }
 
-  .tt-alert-sev {
-    min-width: 7.5rem;
+  /* With room to spare the sentence can be truncated rather than wrapped,
+     which keeps every alert exactly one row tall. The full text stays
+     available through the CTA it links to. */
+  .tt-alert-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
