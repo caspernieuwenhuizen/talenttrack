@@ -56399,6 +56399,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/Components/SaveState.php:70
+msgid "Save failed — retry"
+msgstr "Opslaan mislukt — probeer opnieuw"
+
 #~ msgid "Onboarding wizard"
 #~ msgstr "Onboarding-wizard"
 

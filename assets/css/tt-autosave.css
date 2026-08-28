@@ -1,0 +1,70 @@
+/**
+ * tt-autosave.css (#3004, epic #2881) — the save-state line.
+ *
+ * One appearance for every autosaving surface. The four surfaces that had
+ * their own each styled it differently: match prep as a coloured dot with
+ * text, the attendance grid as a bare span, the ratings grid as a pill. A
+ * coach moving between them had to re-find the same information three times.
+ *
+ * Mobile-first: this is a status line, so it costs nothing at 360px and does
+ * not grow at any breakpoint. Colour is never the only signal — the words
+ * carry the state, and the dot repeats it.
+ */
+
+.tt-save-state {
+	display: inline-flex;
+	gap: var(--tt-sp-2, 0.5rem);
+	align-items: center;
+	min-height: 1.5rem;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	line-height: 1.4;
+	color: var(--tt-muted, #6a7570);
+	white-space: nowrap;
+}
+
+/*
+ * The dot. `::before` rather than an element so a surface can render the
+ * status line with one call and no wrapper, and so the dot cannot be read
+ * out as content by a screen reader that is already being told the words.
+ */
+.tt-save-state::before {
+	content: "";
+	flex: 0 0 auto;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.tt-save-state.is-saved {
+	color: var(--tt-success, #2f9e5e);
+}
+
+.tt-save-state.is-dirty {
+	color: var(--tt-muted, #6a7570);
+}
+
+.tt-save-state.is-saving {
+	color: var(--tt-info, #2d6fb3);
+}
+
+.tt-save-state.is-error {
+	color: var(--tt-danger, #d8453b);
+	font-weight: 600;
+}
+
+/*
+ * Saving is the one state worth animating: it is the only one that means
+ * "wait". Reduced motion drops the pulse and keeps the colour and the word,
+ * which carry the meaning on their own.
+ */
+@media (prefers-reduced-motion: no-preference) {
+	.tt-save-state.is-saving::before {
+		animation: tt-save-pulse 1s ease-in-out infinite;
+	}
+}
+
+@keyframes tt-save-pulse {
+	0%, 100% { opacity: 1; }
+	50%      { opacity: 0.35; }
+}

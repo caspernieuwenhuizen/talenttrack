@@ -102,28 +102,24 @@
     min-width: 2.75rem;
     padding: 0.5rem 0.875rem;
 }
+/*
+ * #3004 — appearance moved to tt-autosave.css, shared with every other
+ * autosaving surface. What stays here is the one thing that is genuinely
+ * this toolbar's business: reserving the space.
+ *
+ * Without the reservation, the text flipping between "Unsaved changes…",
+ * "Saving…" and "All changes saved" collapses the box and reflows the
+ * toolbar every keystroke — coaches lose their cursor or scroll position
+ * mid-edit. `min-width` holds the longest state's width so the flex items
+ * beside it do not shift either.
+ *
+ * The `tt-mp-state-*` classes are gone with the old renderer; the shared
+ * component emits `is-dirty` / `is-saving` / `is-saved` / `is-error`.
+ */
 .tt-mp-toolbar .tt-mp-save-state {
-    font-size: 0.8125rem;
-    color: var(--tt-mp-ink-soft);
-    /*
-     * Reserve one line of vertical space so the indicator's box stays
-     * stable while its text toggles between dirty / saving / saved /
-     * empty. Without this, the textContent flip from "Unsaved changes…"
-     * to "" to "All changes saved." collapses the box to 0px and reflows
-     * the toolbar height every keystroke — coaches lose their cursor /
-     * scroll position mid-edit. Min-width keeps the longest state's
-     * pixel width reserved so the surrounding flex items don't shift
-     * horizontally either.
-     */
     min-height: 1.4em;
     min-width: 12ch;
-    display: inline-flex;
-    align-items: center;
 }
-.tt-mp-toolbar .tt-mp-save-state.tt-mp-state-dirty { color: var(--tt-mp-warn); }
-.tt-mp-toolbar .tt-mp-save-state.tt-mp-state-saving { color: var(--tt-mp-accent); }
-.tt-mp-toolbar .tt-mp-save-state.tt-mp-state-error { color: var(--tt-mp-danger); }
-.tt-mp-toolbar .tt-mp-save-state.tt-mp-state-saved { color: var(--tt-mp-success); }
 
 /* -------------------------------------------------------------------
  * Grid layout — mobile-first stack
