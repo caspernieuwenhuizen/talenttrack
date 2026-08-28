@@ -133,6 +133,23 @@ Elke module-statuswijziging schrijft een rij naar `tt_module_state` met de `upda
 
 Sommige modules bezitten meerdere losse onderdelen. Met een **functievlag** zet je er één uit terwijl de rest van de module — en de naastgelegen onderdelen — blijft draaien. Dit is fijnmaziger dan de moduleschakelaar: de hele module uitzetten zou onderdelen meenemen die je juist wilt behouden.
 
+### Uitschakelbaarheid en pakket zijn twee verschillende assen
+
+Er zijn twee lijsten in de code die er allebei uitzien als "de functies", en ze door elkaar halen is precies hoe ze allebei verouderen.
+
+| | `Core\FeatureRegistry` | `Modules\License\FeatureMap` |
+| - | - | - |
+| Beantwoordt | *Wat heeft deze club aangezet?* | *Waar heeft deze club recht op?* |
+| Bepaald door | de clubbeheerder zelf, tijdens gebruik | het pakket waarmee de installatie is ingericht |
+| Gewijzigd via | een schakelaar op de Modulespagina | een release, of een pakketwissel |
+| Staat in | `src/Core/FeatureRegistry.php` | `src/Modules/License/FeatureMap.php` |
+
+Een club kan iets uitzetten waarvoor ze betaalt. Een club kan niet iets aanzetten waar ze geen recht op heeft. De twee worden dus los van elkaar gecontroleerd en **geen van beide leidt zich af uit de ander**: een scherm vraagt `FeatureRegistry::isEnabled()` voor "gebruikt deze club dit" en `LicenseGate::allows()` voor "mag deze club dit".
+
+Ze delen een aantal sleutelnamen waar ze hetzelfde onderdeel beschrijven; dat leest prettig naast elkaar, maar het is gemak, geen koppeling. Vóór #2922 deelden ze precies één naam (`team_chemistry`) en dat was toeval — en dat is nu juist de situatie om te vermijden, in beide richtingen: één naam die twee dingen betekent, en twee namen voor één ding.
+
+Pro-functies die nog geen `LicenseGate`-aanroep hebben, staan met naam en al in `config/license_gate_pending.php`, en `FeatureMapGateCoverageTest` faalt zodra een Pro-functie niet is afgeschermd én niet in die lijst staat. Een pakketindeling zonder poortjes is een tabel die niemand handhaaft — precies zo overleefde de indeling uit 2025 twintig modules zonder dat iemand het merkte.
+
 ### Functieschakelaars per module (`?tt_view=modules`,)
 
 Op de frontend-Modulepagina verschijnt elke functie als een ingesprongen rij (↳) direct onder de bovenliggende module, met een eigen Aan/Uit-schakelaar. Een functie verschijnt alleen zolang de bovenliggende module aanstaat. De functies die **standaard uit** staan:

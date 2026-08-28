@@ -131,6 +131,23 @@ Every module-state change writes a row to `tt_module_state` with the `updated_by
 
 Some modules own several distinct surfaces. A **feature flag** switches one of them off while the rest of the module — and its sibling surfaces — keep running. This is finer-grained than the module toggle: disabling the whole module would take down surfaces you want to keep.
 
+### Switchability and plan are two different axes
+
+There are two lists in the codebase that both look like "the features", and confusing them is how each of them goes stale.
+
+| | `Core\FeatureRegistry` | `Modules\License\FeatureMap` |
+| - | - | - |
+| Answers | *What has this club switched on?* | *What is this club entitled to?* |
+| Decided by | the club's own operator, at runtime | the plan the install was provisioned with |
+| Changed by | a toggle on the Modules page | a release, or a plan change |
+| Lives in | `src/Core/FeatureRegistry.php` | `src/Modules/License/FeatureMap.php` |
+
+A club can switch off something it pays for. A club cannot switch on something it does not have. So the two are checked independently, and **neither derives from the other** — a surface asks `FeatureRegistry::isEnabled()` for "is this club using it" and `LicenseGate::allows()` for "is this club allowed it".
+
+They share some key names where they describe the same surface, which makes them readable side by side. That is a convenience, not a link. Before #2922 they shared exactly one name (`team_chemistry`) and it was coincidence — which is the state to avoid, in both directions: a shared name that means two things, and two names that mean one thing.
+
+Pro features that do not yet have a `LicenseGate` call site are listed explicitly in `config/license_gate_pending.php`, and `FeatureMapGateCoverageTest` fails if a Pro feature is neither gated nor listed. A tier map without gates is a table nobody enforces, and that is precisely how the 2025 map survived twenty modules without anybody noticing.
+
 ### Per-module feature toggles (`?tt_view=modules`,)
 
 On the frontend Modules page each feature appears as an indented row (↳) directly beneath its parent module, with its own On/Off switch. A feature only shows while its parent module is on. The features that ship **off by default**:

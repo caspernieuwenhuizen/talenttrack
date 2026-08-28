@@ -56344,6 +56344,61 @@ msgstr "Locatiegegevens zijn uit deze video verwijderd."
 #: src/Infrastructure/REST/MediaRestController.php:365
 msgid "This video carries metadata TalentTrack could not read, which may include where it was filmed. Remove it before uploading, or link to the video on your own provider instead."
 msgstr "Deze video bevat gegevens die TalentTrack niet kon lezen; daar kan in staan waar hij is opgenomen. Verwijder die gegevens vóór het uploaden, of verwijs in plaats daarvan naar de video bij je eigen aanbieder."
+#: src/Modules/License/FeatureMap.php:308
+msgid "Not activated"
+msgstr "Niet geactiveerd"
+
+#: src/Modules/License/Admin/AccountPage.php:700
+msgid "Permission matrix"
+msgstr "Rechtenmatrix"
+
+#: src/Modules/License/Admin/AccountPage.php:702
+msgid "Record deletion"
+msgstr "Records verwijderen"
+
+#: src/Modules/License/Admin/AccountPage.php:704
+msgid "Impersonation log"
+msgstr "Inlogovername-logboek"
+
+#: src/Modules/License/Admin/AccountPage.php:705
+msgid "Media consent"
+msgstr "Mediatoestemming"
+
+#: src/Modules/License/Admin/AccountPage.php:706
+msgid "Subject access requests"
+msgstr "Inzageverzoeken"
+
+#: src/Modules/License/Admin/AccountPage.php:710
+msgid "Staff and people"
+msgstr "Staf en personen"
+
+#: src/Modules/License/Admin/AccountPage.php:719
+msgid "Player status light"
+msgstr "Stoplicht speler"
+
+#: src/Modules/License/Admin/AccountPage.php:721
+msgid "Measurements and testing"
+msgstr "Metingen en testen"
+
+#: src/Modules/License/Admin/AccountPage.php:724
+msgid "Prospect pipeline"
+msgstr "Prospectinstroom"
+
+#: src/Modules/License/Admin/AccountPage.php:729
+msgid "Standard reports"
+msgstr "Standaardrapportages"
+
+#: src/Modules/License/Admin/AccountPage.php:731
+msgid "Excel import"
+msgstr "Excel-import"
+
+#: src/Modules/License/Admin/AccountPage.php:734
+msgid "Object-storage backup"
+msgstr "Back-up naar objectopslag"
+
+#: src/Modules/License/Admin/AccountPage.php:741
+msgid "Dimension explorer"
+msgstr "Dimensieverkenner"
 
 #~ msgid "Our goal"
 #~ msgstr "Ons doelpunt"
