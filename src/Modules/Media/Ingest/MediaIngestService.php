@@ -23,11 +23,15 @@ use TT\Modules\Media\Storage\MediaStorage;
  *     would defeat the point of storing these files privately at all.
  *   - Orientation is applied to the pixels first, or every portrait photo
  *     lands sideways once its EXIF is gone.
+ *   - **Video location atoms are removed too** (#2611). Not by
+ *     re-encoding — that needs a demuxer this plugin does not ship — but
+ *     by overwriting the located boxes in place. See
+ *     `VideoLocationStripper` for why nothing is cut out.
  *
- * Video is the honest gap: stripping location metadata from an MP4 needs
- * a demuxer this plugin does not ship, and iOS writes GPS into the `moov`
- * atom. Uploaded video therefore keeps its container metadata. That is
- * documented rather than papered over, and tracked separately.
+ * Where the stripper cannot promise a video is clean, the ingest result
+ * says so rather than staying quiet: `location_metadata` carries
+ * `removed` / `none` / `unreadable` up to the caller, and the uploader
+ * tells the person who just uploaded it.
  */
 final class MediaIngestService {
 
@@ -110,6 +114,15 @@ final class MediaIngestService {
         $height        = null;
         $thumbnail_key = null;
 
+        // #2611 — a video's location atoms go before anything else reads
+        // or hashes the file, so the checksum below identifies the
+        // stripped object rather than the one that arrived. An image
+        // reports `none`: its metadata is gone by re-encode, not by
+        // surgery, and saying "removed" would imply this ran.
+        $location_metadata = $kind === MediaKind::VIDEO
+            ? VideoLocationStripper::strip( $source_path )
+            : VideoLocationStripper::NONE;
+
         if ( $kind === MediaKind::IMAGE ) {
             // Order matters: read the date out of the EXIF, apply the
             // orientation to the pixels, and only then strip. Doing it in
@@ -161,6 +174,12 @@ final class MediaIngestService {
             'checksum'        => is_string( $checksum ) ? $checksum : null,
             'thumbnail_key'   => $thumbnail_key,
             'captured_at'     => $captured_at,
+            // Not a `tt_media` column — `MediaRepository::insert()` builds
+            // its row from a fixed list, so this rides along to the REST
+            // layer and is dropped on the way into the database. It
+            // describes what happened during this ingest, not a property
+            // of the stored object.
+            'location_metadata' => $location_metadata,
         ] );
     }
 

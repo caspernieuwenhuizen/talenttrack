@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T05:52:22+00:00\n"
+"POT-Creation-Date: 2026-08-28T06:28:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -412,7 +412,7 @@ msgstr ""
 
 # #0018 — team development sprints 2-5 (engine + UI + pairings + team-fit)
 #: src/Core/FeatureRegistry.php:149
-#: src/Modules/License/Admin/AccountPage.php:711
+#: src/Modules/License/Admin/AccountPage.php:740
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:263
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:48
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:98
@@ -469,7 +469,7 @@ msgid ""
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:198
-#: src/Modules/License/Admin/AccountPage.php:701
+#: src/Modules/License/Admin/AccountPage.php:721
 #: src/Shared/CoreSurfaceRegistration.php:960
 #: src/Shared/Frontend/FrontendComparisonView.php:68
 #: src/Shared/Frontend/FrontendComparisonView.php:69
@@ -495,7 +495,9 @@ msgid ""
 "hide it from this academy."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:236 src/Shared/Modules/ModuleMetadata.php:189
+#: src/Core/FeatureRegistry.php:236
+#: src/Modules/License/Admin/AccountPage.php:735
+#: src/Shared/Modules/ModuleMetadata.php:189
 msgid "Media library"
 msgstr ""
 
@@ -523,6 +525,7 @@ msgstr ""
 #: src/Core/FeatureRegistry.php:264
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:91
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:174
+#: src/Modules/License/Admin/AccountPage.php:744
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:527
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:678
 msgid "Attendance grid"
@@ -538,6 +541,7 @@ msgstr ""
 #: src/Core/FeatureRegistry.php:276
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:83
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:143
+#: src/Modules/License/Admin/AccountPage.php:745
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:537
 msgid "Minutes grid"
 msgstr ""
@@ -552,6 +556,7 @@ msgstr ""
 #: src/Core/FeatureRegistry.php:288
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:112
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:372
+#: src/Modules/License/Admin/AccountPage.php:746
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:551
 msgid "Ratings grid"
 msgstr ""
@@ -571,6 +576,7 @@ msgstr ""
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:84
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:85
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:126
+#: src/Modules/License/Admin/AccountPage.php:738
 #: src/Shared/Modules/ModuleMetadata.php:409
 msgid "Custom widgets"
 msgstr ""
@@ -754,6 +760,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
 #: src/Modules/Knowledge/Frontend/LearningReports.php:129
 #: src/Modules/Knowledge/Frontend/LearningReports.php:239
+#: src/Modules/License/Admin/AccountPage.php:739
 #: src/Shared/CoreSurfaceRegistration.php:1522
 #: src/Shared/Modules/ModuleMetadata.php:251
 msgid "Courses"
@@ -834,6 +841,7 @@ msgstr ""
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:41
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:122
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
+#: src/Modules/License/Admin/AccountPage.php:694
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:270
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:379
 #: src/Shared/CoreSurfaceRegistration.php:1316
@@ -2070,7 +2078,7 @@ msgstr "Tournoi"
 
 #: src/Infrastructure/Query/LabelTranslator.php:241
 #: src/Modules/Backup/PresetRegistry.php:78
-#: src/Modules/License/FeatureMap.php:123
+#: src/Modules/License/FeatureMap.php:324
 #: src/Modules/Reports/AudienceType.php:87
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:203
 msgid "Standard"
@@ -2331,7 +2339,7 @@ msgid "Completed"
 msgstr "Terminé"
 
 #: src/Infrastructure/Query/QueryHelpers.php:709
-#: src/Modules/License/Admin/AccountPage.php:700
+#: src/Modules/License/Admin/AccountPage.php:720
 msgid "Radar charts"
 msgstr ""
 
@@ -3450,89 +3458,100 @@ msgstr ""
 msgid "Could not schedule the test."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:197
-#: src/Infrastructure/REST/MediaRestController.php:466
+#: src/Infrastructure/REST/MediaRestController.php:198
+#: src/Infrastructure/REST/MediaRestController.php:497
 msgid "Provide a valid entity_type and entity_id."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:284
+#: src/Infrastructure/REST/MediaRestController.php:285
 msgid "Provide a valid entity_type and entity_id to attach the media to."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:337
+#: src/Infrastructure/REST/MediaRestController.php:338
 msgid "The media item could not be saved."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:416
+#: src/Infrastructure/REST/MediaRestController.php:376
+msgid "Location data was removed from this video."
+msgstr ""
+
+#: src/Infrastructure/REST/MediaRestController.php:380
+msgid ""
+"This video carries metadata TalentTrack could not read, which may include "
+"where it was filmed. Remove it before uploading, or link to the video on "
+"your own provider instead."
+msgstr ""
+
+#: src/Infrastructure/REST/MediaRestController.php:447
 msgid "The capture date could not be understood."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:425
+#: src/Infrastructure/REST/MediaRestController.php:456
 msgid "No editable fields were provided."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:450
+#: src/Infrastructure/REST/MediaRestController.php:481
 msgid "The media item could not be removed."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:484
+#: src/Infrastructure/REST/MediaRestController.php:515
 msgid "The media item could not be attached."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:498
-#: src/Infrastructure/REST/MediaRestController.php:600
+#: src/Infrastructure/REST/MediaRestController.php:529
+#: src/Infrastructure/REST/MediaRestController.php:631
 msgid "That attachment was not found."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:575
+#: src/Infrastructure/REST/MediaRestController.php:606
 msgid "That could not be put back in the queue."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:579
+#: src/Infrastructure/REST/MediaRestController.php:610
 msgid "Provide decision=keep or decision=release."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:586
+#: src/Infrastructure/REST/MediaRestController.php:617
 msgid ""
 "Give a reason for keeping this. Without one the exception cannot be audited."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:593
+#: src/Infrastructure/REST/MediaRestController.php:624
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:192
 msgid "That could not be saved."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:613
+#: src/Infrastructure/REST/MediaRestController.php:644
 msgid ""
 "That does not look like a video address. Paste the web address of the video "
 "as it appears in your browser."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:646
+#: src/Infrastructure/REST/MediaRestController.php:677
 msgid ""
 "No file was received. Attach a file, or provide external_url for a video "
 "hosted elsewhere."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:712
+#: src/Infrastructure/REST/MediaRestController.php:743
 msgid "Media item not found."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:716
+#: src/Infrastructure/REST/MediaRestController.php:747
 msgid "You do not have permission to do that."
 msgstr ""
 
 #. translators: %s is the server's maximum upload size.
-#: src/Infrastructure/REST/MediaRestController.php:774
+#: src/Infrastructure/REST/MediaRestController.php:805
 #, php-format
 msgid "That file is larger than this server accepts (%s)."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:779
+#: src/Infrastructure/REST/MediaRestController.php:810
 msgid "The upload did not finish. Check your connection and try again."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:781
+#: src/Infrastructure/REST/MediaRestController.php:812
 msgid "The file could not be uploaded."
 msgstr ""
 
@@ -3741,6 +3760,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:561
 #: src/Modules/License/Admin/AccountPage.php:640
+#: src/Modules/License/Admin/AccountPage.php:704
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:292
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:25
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
@@ -4574,7 +4594,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1255
-#: src/Modules/License/Admin/AccountPage.php:691
+#: src/Modules/License/Admin/AccountPage.php:710
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:495
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:336
@@ -4967,7 +4987,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:102
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
-#: src/Modules/License/Admin/AccountPage.php:693
+#: src/Modules/License/Admin/AccountPage.php:709
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:149
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:126
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:71
@@ -6407,7 +6427,7 @@ msgstr ""
 #: src/Modules/DemoData/DemoCoverage.php:1256
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:566
-#: src/Modules/License/Admin/AccountPage.php:690
+#: src/Modules/License/Admin/AccountPage.php:707
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1366
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:94
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:146
@@ -6459,7 +6479,7 @@ msgstr "Évaluations"
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1257
 #: src/Modules/Goals/Admin/GoalsPage.php:46
-#: src/Modules/License/Admin/AccountPage.php:692
+#: src/Modules/License/Admin/AccountPage.php:708
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:302
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:303
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -6491,6 +6511,7 @@ msgid "Goals"
 msgstr "Objectifs"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:234
+#: src/Modules/License/Admin/AccountPage.php:712
 msgid "Development plans"
 msgstr ""
 
@@ -7106,6 +7127,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
 #: src/Modules/License/Admin/AccountPage.php:556
 #: src/Modules/License/Admin/AccountPage.php:639
+#: src/Modules/License/Admin/AccountPage.php:705
 #: src/Modules/People/Admin/PeoplePage.php:175
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:247
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:370
@@ -8238,6 +8260,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:67
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:70
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:75
+#: src/Modules/License/Admin/AccountPage.php:737
 msgid "Scheduled reports"
 msgstr ""
 
@@ -9376,7 +9399,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
 #: src/Modules/DemoData/DemoCoverage.php:1259
-#: src/Modules/License/Admin/AccountPage.php:709
+#: src/Modules/License/Admin/AccountPage.php:717
 #: src/Shared/CoreSurfaceRegistration.php:840
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:33
@@ -9413,6 +9436,7 @@ msgid "Threads"
 msgstr "Fils de discussion"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:150
+#: src/Modules/License/Admin/AccountPage.php:741
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
 #: src/Shared/CoreSurfaceRegistration.php:1976
 #: src/Shared/Frontend/FrontendConfigurationView.php:1564
@@ -9421,6 +9445,7 @@ msgid "Spond integration"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:151
+#: src/Modules/License/Admin/AccountPage.php:742
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:49
 #: src/Shared/Frontend/FrontendConfigurationView.php:1570
 msgid "Strava integration"
@@ -9499,7 +9524,7 @@ msgid "Persona templates"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:167
-#: src/Modules/License/Admin/AccountPage.php:710
+#: src/Modules/License/Admin/AccountPage.php:719
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:24
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:27
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:30
@@ -9527,6 +9552,7 @@ msgid "Player notes"
 msgstr "Notes du joueur"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:182
+#: src/Modules/License/Admin/AccountPage.php:698
 #: src/Shared/Frontend/FrontendConfigurationView.php:1639
 #: src/Shared/Frontend/FrontendRecycleBinView.php:41
 #: src/Shared/Frontend/FrontendRecycleBinView.php:53
@@ -11223,7 +11249,6 @@ msgstr "Restaurer"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:321
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1424
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1449
-#: src/Modules/License/Admin/AccountPage.php:705
 #: src/Shared/Frontend/FrontendBackupsView.php:300
 msgid "Partial restore"
 msgstr ""
@@ -13937,7 +13962,7 @@ msgid "No log entries match the current filter."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:122
-#: src/Modules/License/Admin/AccountPage.php:804
+#: src/Modules/License/Admin/AccountPage.php:846
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:251
 #: src/Shared/Frontend/DashboardShortcode.php:253
 #: src/Shared/Frontend/FrontendConfigurationView.php:509
@@ -16684,6 +16709,7 @@ msgid "Scouting pipeline"
 msgstr ""
 
 #: src/Modules/DemoData/DemoCoverage.php:1271
+#: src/Modules/License/Admin/AccountPage.php:732
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
@@ -18093,6 +18119,7 @@ msgid "You do not have permission to view the exercise library."
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:166
+#: src/Modules/License/Admin/AccountPage.php:734
 msgid "Exercise library"
 msgstr ""
 
@@ -18298,7 +18325,7 @@ msgid "Not found"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:568
-#: src/Modules/License/Admin/AccountPage.php:806
+#: src/Modules/License/Admin/AccountPage.php:848
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:155
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:319
@@ -20497,7 +20524,7 @@ msgid "not sent yet"
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:167
-#: src/Modules/License/Admin/AccountPage.php:817
+#: src/Modules/License/Admin/AccountPage.php:859
 msgid "Send now"
 msgstr ""
 
@@ -22315,6 +22342,7 @@ msgid "You must be logged in to manage your MFA settings."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:149
+#: src/Modules/License/Admin/AccountPage.php:696
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:45
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:89
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:106
@@ -22690,11 +22718,27 @@ msgid ""
 "and nothing is lost — the same install carries on with more room."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:694
-msgid "Player cards"
+#: src/Modules/License/Admin/AccountPage.php:695
+msgid "Permission matrix"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:695
+#: src/Modules/License/Admin/AccountPage.php:697
+msgid "Record deletion"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:699
+msgid "Impersonation log"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:700
+msgid "Media consent"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:701
+msgid "Subject access requests"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:702
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:472
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
@@ -22711,74 +22755,125 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: src/Modules/License/Admin/AccountPage.php:696
-msgid "Local backup"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:697
-msgid "Email backup"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:698
-msgid "Onboarding wizard"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:699
-msgid "Demo data generator"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:702
-msgid "Rate cards (full)"
-msgstr ""
-
 #: src/Modules/License/Admin/AccountPage.php:703
-msgid "CSV import"
-msgstr ""
-
-#: src/Modules/License/Admin/AccountPage.php:704
-#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:269
-#: src/Shared/CoreSurfaceRegistration.php:612
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:45
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:46
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:64
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:131
-msgid "Functional roles"
+msgid "Player cards"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:706
-msgid "Undo bulk actions"
+msgid "Staff and people"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:707
-msgid "Multi-academy"
+#: src/Modules/License/Admin/AccountPage.php:711
+#: src/Shared/Modules/ModuleMetadata.php:165
+msgid "Player journey"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:708
-msgid "Photo-to-activity capture"
+#: src/Modules/License/Admin/AccountPage.php:713
+msgid "Player status light"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:712
-msgid "S3 backup"
+#: src/Modules/License/Admin/AccountPage.php:714
+#: src/Shared/Frontend/FrontendConfigurationView.php:200
+#: src/Shared/Frontend/FrontendConfigurationView.php:325
+msgid "Behaviour ratings"
+msgstr "Notes de comportement"
+
+#: src/Modules/License/Admin/AccountPage.php:715
+msgid "Measurements and testing"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:716
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:59
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:60
+#: src/Shared/CoreSurfaceRegistration.php:597
+msgid "Season rollover"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:718
+msgid "Prospect pipeline"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:722
+msgid "Rate cards (full)"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:723
+msgid "Standard reports"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:724
+msgid "CSV import"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:725
+msgid "Excel import"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:726
+msgid "Local backup"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:727
+msgid "Email backup"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:728
+msgid "Object-storage backup"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:729
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:192
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:505
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:82
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:87
+#: src/Shared/Modules/ModuleMetadata.php:305
+msgid "Match analysis"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:730
+#: src/Shared/Modules/ModuleMetadata.php:293
+msgid "Match preparation"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:731
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:266
+msgid "Live match"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:733
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
+#: src/Shared/Modules/ModuleMetadata.php:269
+msgid "Training plans"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:736
+msgid "Dimension explorer"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:743
+#: src/Shared/Modules/ModuleMetadata.php:325
+msgid "Push notifications"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:766
 msgid "Non-commercial test instance"
 msgstr ""
 
 #. translators: %s: PHP constant name
-#: src/Modules/License/Admin/AccountPage.php:729
+#: src/Modules/License/Admin/AccountPage.php:771
 #, php-format
 msgid ""
 "%s is set to false in talenttrack.php. Every TalentTrack feature is "
 "unlocked, free-tier caps do not apply, and the plan UI is hidden."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:735
+#: src/Modules/License/Admin/AccountPage.php:777
 msgid "Switching to commercial mode"
 msgstr ""
 
 #. translators: %s: PHP constant name
-#: src/Modules/License/Admin/AccountPage.php:739
+#: src/Modules/License/Admin/AccountPage.php:781
 #, php-format
 msgid ""
 "flip %s to true in talenttrack.php. Provisioning records which plan the "
@@ -22786,58 +22881,58 @@ msgid ""
 "features above it."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:771
+#: src/Modules/License/Admin/AccountPage.php:813
 msgid "Admin Center phone-home"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:773
+#: src/Modules/License/Admin/AccountPage.php:815
 msgid "Install ID"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:774
-#: src/Modules/License/Admin/AccountPage.php:807
+#: src/Modules/License/Admin/AccountPage.php:816
+#: src/Modules/License/Admin/AccountPage.php:849
 msgid "Endpoint"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:775
+#: src/Modules/License/Admin/AccountPage.php:817
 msgid "Last sent"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:780
+#: src/Modules/License/Admin/AccountPage.php:822
 msgid "never (no successful send recorded yet)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:783
+#: src/Modules/License/Admin/AccountPage.php:825
 msgid "Last phoned version"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:784
+#: src/Modules/License/Admin/AccountPage.php:826
 msgid "(not yet recorded)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:786
+#: src/Modules/License/Admin/AccountPage.php:828
 msgid "Next daily cron"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:791
+#: src/Modules/License/Admin/AccountPage.php:833
 msgid ""
 "NOT scheduled — wp-cron is not registered. This is the most likely cause "
 "when an install never phones home."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:799
+#: src/Modules/License/Admin/AccountPage.php:841
 msgid "Phone-home succeeded."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:799
+#: src/Modules/License/Admin/AccountPage.php:841
 msgid "Phone-home failed."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:808
+#: src/Modules/License/Admin/AccountPage.php:850
 msgid "Body size"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:822
+#: src/Modules/License/Admin/AccountPage.php:864
 msgid ""
 "If \"Last sent\" is empty and \"Next daily cron\" is not scheduled, wp-cron "
 "is likely disabled (DISABLE_WP_CRON in wp-config.php) and no system cron "
@@ -22942,13 +23037,12 @@ msgstr ""
 msgid "Upgrade to continue"
 msgstr ""
 
-#: src/Modules/License/FeatureMap.php:122
+#: src/Modules/License/FeatureMap.php:323
 msgid "Pro"
 msgstr ""
 
-#: src/Modules/License/FeatureMap.php:124
-#: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:159
-msgid "Free"
+#: src/Modules/License/FeatureMap.php:329
+msgid "Not activated"
 msgstr ""
 
 # v3.86.1 — license enforcement bundle (rebased onto v3.86.0)
@@ -22981,15 +23075,6 @@ msgid "%1$s was played %2$d day ago and has no analysis yet."
 msgid_plural "%1$s was played %2$d days ago and has no analysis yet."
 msgstr[0] ""
 msgstr[1] ""
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:192
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:505
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:82
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:87
-#: src/Shared/Modules/ModuleMetadata.php:305
-msgid "Match analysis"
-msgstr ""
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:48
 msgid "Match analysis is switched off for this academy."
@@ -25580,33 +25665,33 @@ msgstr ""
 msgid "The requested byte range is outside the file."
 msgstr ""
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:70
+#: src/Modules/Media/Ingest/MediaIngestService.php:74
 msgid "No file was received."
 msgstr ""
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:75
+#: src/Modules/Media/Ingest/MediaIngestService.php:79
 msgid "That file is empty."
 msgstr ""
 
 #. translators: 1: size of the file, 2: the server's limit.
-#: src/Modules/Media/Ingest/MediaIngestService.php:84
+#: src/Modules/Media/Ingest/MediaIngestService.php:88
 #, php-format
 msgid "That file is %1$s. This server accepts uploads up to %2$s."
 msgstr ""
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:95
+#: src/Modules/Media/Ingest/MediaIngestService.php:99
 msgid ""
 "That file type cannot be uploaded because it can contain scripts. Upload a "
 "JPEG, PNG or WebP image instead."
 msgstr ""
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:101
+#: src/Modules/Media/Ingest/MediaIngestService.php:105
 msgid ""
 "That file type is not supported. Upload a JPEG, PNG or WebP image, or an MP4 "
 "or MOV video."
 msgstr ""
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:144
+#: src/Modules/Media/Ingest/MediaIngestService.php:157
 msgid "The file could not be saved. Check that the uploads folder is writable."
 msgstr ""
 
@@ -30937,6 +31022,15 @@ msgstr ""
 msgid "Compare players"
 msgstr ""
 
+#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:269
+#: src/Shared/CoreSurfaceRegistration.php:612
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:45
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:46
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:64
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:131
+msgid "Functional roles"
+msgstr ""
+
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:318
 #: src/Modules/PersonaDashboard/Widgets/AssignedPlayersGridWidget.php:89
 msgid "My reports"
@@ -31691,10 +31785,6 @@ msgstr ""
 msgid "Live · %s"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:266
-msgid "Live match"
-msgstr ""
-
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:291
 msgid "Today's match"
 msgstr ""
@@ -32033,6 +32123,10 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:135
 msgid "Pending invitations"
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:159
+msgid "Free"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:161
@@ -32932,12 +33026,6 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:47
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:360
 msgid "You do not have permission to run a season rollover."
-msgstr ""
-
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:59
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:60
-#: src/Shared/CoreSurfaceRegistration.php:597
-msgid "Season rollover"
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:96
@@ -37534,11 +37622,6 @@ msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:121
 msgid "From a photo"
-msgstr ""
-
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
-#: src/Shared/Modules/ModuleMetadata.php:269
-msgid "Training plans"
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:146
@@ -44681,11 +44764,6 @@ msgstr ""
 "tournoi."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:200
-#: src/Shared/Frontend/FrontendConfigurationView.php:325
-msgid "Behaviour ratings"
-msgstr "Notes de comportement"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:200
 msgid ""
 "Needs support … Exemplary. Labels for the player behaviour card and "
 "evaluation review."
@@ -51764,10 +51842,6 @@ msgstr ""
 msgid "Age-group squads players belong to, with rosters and staff assignments."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:165
-msgid "Player journey"
-msgstr ""
-
 #: src/Shared/Modules/ModuleMetadata.php:166
 msgid ""
 "The chronological timeline of every player — trial, signing, injuries and "
@@ -51899,10 +51973,6 @@ msgid ""
 "Plan tournament squads and balance the minutes players get across the day."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:293
-msgid "Match preparation"
-msgstr ""
-
 #: src/Shared/Modules/ModuleMetadata.php:294
 msgid ""
 "Head-coach match plan — line-up, availability and the printable team sheet."
@@ -51932,10 +52002,6 @@ msgstr ""
 msgid ""
 "Outbound email and notifications, with opt-out, quiet hours and rate "
 "limiting."
-msgstr ""
-
-#: src/Shared/Modules/ModuleMetadata.php:325
-msgid "Push notifications"
 msgstr ""
 
 #: src/Shared/Modules/ModuleMetadata.php:326

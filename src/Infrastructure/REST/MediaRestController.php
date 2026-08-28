@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\Delivery\MediaDelivery;
 use TT\Modules\Media\Ingest\MediaIngestService;
+use TT\Modules\Media\Ingest\VideoLocationStripper;
 use TT\Modules\Media\Links\VideoLinkResolver;
 use TT\Modules\Media\MediaAttachmentPolicy;
 use TT\Modules\Media\MediaEntityType;
@@ -346,10 +347,40 @@ final class MediaRestController {
 
         $created = $repo->find( $media_id );
 
-        return RestResponse::success(
-            self::withTile( self::shape( $created, true ), $created, $entity_type, $entity_id ),
-            201
-        );
+        $body = self::withTile( self::shape( $created, true ), $created, $entity_type, $entity_id );
+
+        // #2611 — what happened to the file's location metadata during
+        // this ingest. Attached to the create response only: it describes
+        // the act, not the stored object, so re-reading the item later
+        // does not carry it.
+        $location = (string) ( $payload['location_metadata'] ?? '' );
+        if ( $location !== '' ) {
+            $body['location_metadata'] = $location;
+            $notice = self::locationNotice( $location );
+            if ( $notice !== '' ) $body['location_notice'] = $notice;
+        }
+
+        return RestResponse::success( $body, 201 );
+    }
+
+    /**
+     * What to tell the person who just uploaded a video.
+     *
+     * Silence was the friendlier option and it lost: an academy running a
+     * DPIA has to be able to point at the moment the product said what it
+     * did with the coordinates, and a paragraph in the docs is not that
+     * moment. A file we could not fully parse is never reported as clean.
+     */
+    private static function locationNotice( string $state ): string {
+        if ( $state === VideoLocationStripper::REMOVED ) {
+            return __( 'Location data was removed from this video.', 'talenttrack' );
+        }
+
+        if ( $state === VideoLocationStripper::UNREADABLE ) {
+            return __( 'This video carries metadata TalentTrack could not read, which may include where it was filmed. Remove it before uploading, or link to the video on your own provider instead.', 'talenttrack' );
+        }
+
+        return '';
     }
 
     /**
