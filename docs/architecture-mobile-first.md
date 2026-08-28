@@ -70,7 +70,7 @@ Every `?tt_view=` route declares its class in `config/mobile_surfaces.php`, whic
 
 - **`native`** — mobile-first surface. The pattern library (`mobile-patterns.css` + `mobile-helpers.js`) is enqueued automatically by `DashboardShortcode` on these surfaces.
 - **`viewable`** — readable on mobile but desktop-preferred. The default for unregistered slugs.
-- **`read_only`** — readable on a phone, edited at a desk. Behaviourally identical to `viewable` while no surface holding it carries a mutating control, which is true of all nine today.
+- **`read_only`** — readable on a phone, edited at a desk. On a phone the surface renders, minus anything that writes: the controls are removed from the DOM rather than disabled, and there is no banner, so the phone gets a clean reading view. Desktop and tablet are untouched, and `?force_mobile=1` opts out exactly as it does for `desktop_only`. In practice the reports themselves carry no mutating control at all — the one that bites is the saved-views strip's save / rename / overwrite / delete, which `SavedViews` drops here while keeping the apply links, since applying a saved view is a GET and is the reason to render the strip on a phone.
 - **`desktop_only`** — phone access lands on `FrontendMobilePromptView` instead of the cramped responsive view. Per-club override via the `force_mobile_for_user_agents` setting; per-request override via `?force_mobile=1`.
 
 Tablets are never gated — `MobileDetector::isPhone()` excludes iPad, Android tablets, Kindle and PlayBook, so `desktop_only` only ever affects handsets.

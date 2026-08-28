@@ -37,7 +37,20 @@ final class SavedViews {
         // writes REST would then refuse is worse than rendering nothing.
         if ( ! SavedViewsRegistry::currentUserCan( $view_key ) ) return '';
 
-        self::enqueueAssets( $param_names );
+        // #2808 — on a `read_only` surface reached from a phone, the strip
+        // keeps its apply links and loses everything that writes. Applying a
+        // saved view is a GET and is the reason to have the strip on a phone
+        // at all; naming, overwriting and deleting one are desk work, and
+        // they are also the controls that cannot hold the 48px floor once a
+        // chip carries a manage button beside its label.
+        //
+        // Removed from the DOM rather than disabled: the class means "this
+        // surface reads on a phone", and a disabled control still tells the
+        // user the surface half-works. There is no banner either — see the
+        // accepted risk on #2808.
+        $read_only = self::readOnlyHere( $base_params );
+
+        self::enqueueAssets( $param_names, $read_only );
 
         $views = ( new SavedViewsRepository() )->listForUser( get_current_user_id(), $view_key );
 
@@ -79,14 +92,16 @@ final class SavedViews {
                 // chip could not meet the 48px touch floor side by side at
                 // 360px, and a strip of five views would carry fifteen of
                 // them. The dialog behind this covers all three actions.
-                $out .= '<button type="button" class="tt-saved-views__manage"'
-                    . ' data-tt-view-manage="' . (int) $view->id . '"'
-                    . ' aria-haspopup="dialog"'
-                    . ' aria-label="' . esc_attr( sprintf(
-                        /* translators: %s: saved view name */
-                        __( 'Edit or delete saved view %s', 'talenttrack' ),
-                        $name
-                    ) ) . '">&hellip;</button>';
+                if ( ! $read_only ) {
+                    $out .= '<button type="button" class="tt-saved-views__manage"'
+                        . ' data-tt-view-manage="' . (int) $view->id . '"'
+                        . ' aria-haspopup="dialog"'
+                        . ' aria-label="' . esc_attr( sprintf(
+                            /* translators: %s: saved view name */
+                            __( 'Edit or delete saved view %s', 'talenttrack' ),
+                            $name
+                        ) ) . '">&hellip;</button>';
+                }
                 $out .= '</li>';
             }
             $out .= '</ul>';
@@ -96,6 +111,15 @@ final class SavedViews {
         // action. The empty-state line #2385 always printed was tolerable on
         // five reports; across every FilterBar surface it is permanent noise
         // for users who never save one.
+        //
+        // #2808 — which means that on a read-only phone surface with no
+        // saved views there is nothing left to render, and the wrapper would
+        // be an empty box. Return nothing instead.
+        if ( $read_only ) {
+            $out .= '</div>';
+            return $views !== [] ? $out : '';
+        }
+
         $out .= '<div class="tt-saved-views__save">';
         $out .= '<button type="button" class="tt-btn tt-btn-secondary" data-tt-view-save-toggle>'
             . esc_html__( 'Save filters', 'talenttrack' ) . '</button>';
@@ -115,14 +139,40 @@ final class SavedViews {
         return $out;
     }
 
+    /**
+     * Is this render a read-only one — a `read_only` surface on a phone?
+     *
+     * The surface slug comes from `$base_params['tt_view']`, which every
+     * caller already supplies so its apply links land back on the right
+     * view. Reading it here keeps the classification check inside the
+     * component instead of threading a flag through `FilterBar::render()`
+     * and every call site.
+     *
+     * @param array<string,string> $base_params
+     */
+    private static function readOnlyHere( array $base_params ): bool {
+        $slug = (string) ( $base_params['tt_view'] ?? '' );
+        if ( $slug === '' ) return false;
+
+        return \TT\Shared\MobileDetector::phoneGateApplies()
+            && \TT\Shared\MobileSurfaceRegistry::isReadOnly( $slug );
+    }
+
     /** @param array<int,string> $param_names */
-    private static function enqueueAssets( array $param_names ): void {
+    private static function enqueueAssets( array $param_names, bool $read_only = false ): void {
         wp_enqueue_style(
             'tt-saved-views',
             TT_PLUGIN_URL . 'assets/css/frontend-saved-views.css',
             [ 'tt-public' ],
             TT_VERSION
         );
+
+        // #2808 — the script exists to save, rename, overwrite and delete.
+        // A read-only render emits none of the controls it binds to, so it
+        // would sit inert on the one device with the tightest budget for it
+        // (CLAUDE.md §2). The apply links are plain hrefs and need no JS.
+        if ( $read_only ) return;
+
         wp_enqueue_script(
             'tt-saved-views',
             TT_PLUGIN_URL . 'assets/js/saved-views.js',

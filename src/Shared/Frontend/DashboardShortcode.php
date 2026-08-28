@@ -448,10 +448,8 @@ class DashboardShortcode {
         // out via `?force_mobile=1`, render the polite prompt page instead.
         // Tablets and desktops always pass through.
         if ( $view !== ''
-             && ! \TT\Shared\MobileDetector::userForcedMobile()
-             && \TT\Shared\MobileDetector::isPhone()
+             && \TT\Shared\MobileDetector::phoneGateApplies()
              && \TT\Shared\MobileSurfaceRegistry::isDesktopOnly( $view )
-             && ( new \TT\Shared\Mobile\MobileSettings() )->isMobileGateEnabled()
         ) {
             FrontendMobilePromptView::render( $user_id, $view );
             self::closeShell();
