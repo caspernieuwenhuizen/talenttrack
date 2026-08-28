@@ -177,7 +177,112 @@ final class TeamHeadCoachLookupTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new TeamHeadCoachResolver() )->resolve( new TaskContext() ) );
     }
 
+    // ── the team overview names the same coach (#2995) ─────────────────
+
+    /**
+     * The overview widget used to carry an
+     * `OR tp2.role_in_team = 'head_coach'` fallback the notification paths
+     * never had, so a row with the legacy string and no functional role
+     * showed a head coach on the HoD landing who would silently receive
+     * none of that team's alerts or tasks.
+     */
+    public function test_a_legacy_role_in_team_row_is_not_named_as_head_coach(): void {
+        $team = $this->insertTeam( 'U14 legacy' );
+        $this->assignLegacyRoleInTeamOnly( $team, 'head_coach' );
+
+        // Nobody to notify — and now nobody named on the overview either.
+        $this->assertNull( TeamHeadCoachLookup::forTeam( $team ) );
+        $this->assertSame( '', $this->overviewHeadCoachName( $team ) );
+    }
+
+    public function test_overview_and_notification_paths_name_the_same_coach(): void {
+        $coach = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        $proper  = $this->insertTeam( 'U15 properly staffed' );
+        $legacy  = $this->insertTeam( 'U16 legacy string only' );
+        $neither = $this->insertTeam( 'U17 unstaffed' );
+
+        $this->assignHeadCoach( $proper, $coach );
+        $this->assignLegacyRoleInTeamOnly( $legacy, 'head_coach' );
+
+        foreach ( [ $proper, $legacy, $neither ] as $team ) {
+            $notified = TeamHeadCoachLookup::forTeam( $team );
+            $shown    = $this->overviewHeadCoachName( $team );
+
+            // Either both resolve somebody, or neither does. The widget may
+            // still name a coach who has no WP account — that difference is
+            // deliberate (there is simply nobody to email) and is covered
+            // separately below.
+            $this->assertSame(
+                null === $notified,
+                '' === $shown,
+                "overview and notification paths disagree for team {$team}"
+            );
+        }
+    }
+
+    public function test_a_head_coach_without_a_wp_account_is_still_named_on_the_overview(): void {
+        $team = $this->insertTeam( 'U13 volunteer' );
+        $this->assignHeadCoach( $team, 0 );
+
+        // The deliberate asymmetry: the widget answers "who is the head
+        // coach", the lookup answers "who do we email". A volunteer with no
+        // account is the former and not the latter, and hiding them from
+        // the overview would be the wrong correction.
+        $this->assertNull( TeamHeadCoachLookup::forTeam( $team ) );
+        $this->assertNotSame( '', $this->overviewHeadCoachName( $team ) );
+    }
+
+    /**
+     * The head-coach sub-select from `TeamOverviewRepository::summariesFor()`,
+     * run directly. The repository method itself needs a HoD user, a date
+     * window and evaluation/attendance fixtures to return a row at all;
+     * this asserts the resolution clause rather than the whole widget.
+     */
+    private function overviewHeadCoachName( int $team_id ): string {
+        global $wpdb;
+
+        return (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT CONCAT_WS(' ', pe.first_name, pe.last_name)
+               FROM {$this->p}tt_team_people tp2
+         INNER JOIN {$this->p}tt_people pe ON pe.id = tp2.person_id AND pe.club_id = tp2.club_id
+         INNER JOIN {$this->p}tt_functional_roles fr ON fr.id = tp2.functional_role_id AND fr.club_id = tp2.club_id
+              WHERE tp2.team_id = %d AND tp2.club_id = %d
+                AND fr.role_key = 'head_coach'
+           ORDER BY tp2.id ASC
+              LIMIT 1",
+            $team_id,
+            $this->club
+        ) );
+    }
+
     // ── fixtures ───────────────────────────────────────────────────────
+
+    /**
+     * A pre-#1315 row: the legacy `role_in_team` string with no
+     * `functional_role_id`. Activator::repairFunctionalRoleBackfill()
+     * fills these in on activation, so this shape only survives between
+     * an import and the next activation — which is exactly the window the
+     * removed fallback was papering over.
+     */
+    private function assignLegacyRoleInTeamOnly( int $team_id, string $role_key ): void {
+        global $wpdb;
+
+        $wpdb->insert( "{$this->p}tt_people", [
+            'club_id'    => $this->club,
+            'first_name' => 'Legacy',
+            'last_name'  => ucfirst( $role_key ),
+            'wp_user_id' => self::factory()->user->create( [ 'role' => 'administrator' ] ),
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+
+        $wpdb->insert( "{$this->p}tt_team_people", [
+            'club_id'      => $this->club,
+            'team_id'      => $team_id,
+            'person_id'    => $person_id,
+            'role_in_team' => $role_key,
+        ] );
+    }
 
     private function insertTeam( string $name ): int {
         global $wpdb;

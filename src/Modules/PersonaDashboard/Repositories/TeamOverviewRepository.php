@@ -38,6 +38,25 @@ final class TeamOverviewRepository {
 
         // Per-team headline numbers in one query. Sub-selects keep the
         // window join-driven and avoid LEFT-JOIN row multiplication.
+        //
+        // #2995 — the head-coach sub-select resolves through the
+        // functional-role join alone. It used to carry an
+        // `OR tp2.role_in_team = 'head_coach'` fallback, which made this
+        // the only place in the product that would name a head coach the
+        // notification paths never reach: `Infrastructure\Recipients\
+        // TeamHeadCoachLookup` (the shared implementation behind workflow
+        // task assignees and both alert base classes, #2719) joins on the
+        // functional role and nothing else.
+        //
+        // The fallback was redundant rather than protective. `role_in_team`
+        // and `is_head_coach` are both written from the same functional-role
+        // key on every create and update (PeopleRepository), so they cannot
+        // diverge through the application; and any legacy row that carries
+        // `role_in_team` without a `functional_role_id` has its FK filled in
+        // by Activator::repairFunctionalRoleBackfill(), which runs on every
+        // activation and is idempotent. Keeping the OR meant a team overview
+        // could name somebody the alerts would silently skip — and an alert
+        // nobody receives is not a failure anyone notices.
         // v3.110.88 — read the age_group VARCHAR column directly instead
         // of joining to tt_lookups via a non-existent `t.age_group_id`.
         // The schema (Activator + migrations) carries age_group as a
@@ -53,9 +72,9 @@ final class TeamOverviewRepository {
                         SELECT CONCAT_WS(' ', pe.first_name, pe.last_name)
                           FROM {$p}tt_team_people tp2
                           INNER JOIN {$p}tt_people pe ON pe.id = tp2.person_id AND pe.club_id = tp2.club_id
-                          LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp2.functional_role_id AND fr.club_id = tp2.club_id
+                          INNER JOIN {$p}tt_functional_roles fr ON fr.id = tp2.functional_role_id AND fr.club_id = tp2.club_id
                          WHERE tp2.team_id = t.id AND tp2.club_id = t.club_id
-                           AND ( fr.role_key = 'head_coach' OR tp2.role_in_team = 'head_coach' )
+                           AND fr.role_key = 'head_coach'
                          ORDER BY tp2.id ASC
                          LIMIT 1
                     ) AS head_coach_name,
