@@ -690,7 +690,12 @@
 .tt-player-list { list-style: none; margin: 0; padding: 0; }
 .tt-player-row {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    /* #3032 — the first track holds a date badge whose top line is a
+       translated word. "DUE" fits 44px; the Dutch "DEADLINE" is ~62px and
+       overflowed a fixed track, painting across the title beside it.
+       minmax() keeps the 44px floor the month badges are sized for and
+       lets the track grow for whatever the locale needs. */
+    grid-template-columns: minmax(44px, auto) 1fr auto;
     gap: var(--tt-gap);
     align-items: center;
     padding: 10px var(--tt-gap-lg);
@@ -706,7 +711,10 @@
     text-align: center;
     background: var(--tt-mute-soft);
     border-radius: var(--tt-radius);
-    padding: 6px 0;
+    /* Horizontal padding matters now the track sizes to content: without
+       it a long label like "DEADLINE" would touch both edges. The short
+       month badges stay at the 44px floor either way. */
+    padding: 6px 8px;
     line-height: 1;
 }
 .tt-player-row__date--today {
@@ -737,6 +745,7 @@
     opacity: 0.8;
     display: block;
     margin-bottom: 2px;
+    white-space: nowrap;
 }
 .tt-player-row__body { min-width: 0; }
 .tt-player-row__title {
