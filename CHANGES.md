@@ -1,3 +1,158 @@
+# TalentTrack v4.108.0 — Uploaded video no longer carries the location it was filmed at (#2611)
+
+Uploaded video no longer keeps the location its camera recorded. TalentTrack
+finds the parts of an MP4 or MOV where phones write coordinates and blanks them
+before storing the file — without re-encoding, so the picture and sound are
+untouched and the file is byte-for-byte the same length. After an upload the
+queue says what happened: that location data was removed, or, in the rare case
+that the file contains something TalentTrack cannot read, a warning that it may
+still say where it was filmed. Photos were already stripped on upload; video was
+the documented exception, and no longer is.
+
+# TalentTrack v4.108.0 — The read-only mobile class now actually reads only (#2808)
+
+Ten analysis surfaces are classified `read_only` — readable on a phone,
+edited at a desk. The class, its config entries and `isReadOnly()` shipped
+with the classification work, but nothing consumed them, so a `read_only`
+surface behaved exactly like an ordinary one.
+
+On a phone these surfaces now render without the controls that write. In
+practice that is one control: the saved-views strip's save, rename,
+overwrite and delete. The reports themselves carry no form that mutates
+anything. The apply links stay — applying a saved view is a plain link, and
+it is the reason to show the strip on a phone at all — and the script that
+only exists to save and delete is no longer loaded there.
+
+Nothing changes on desktop or tablet, the surfaces are not gated behind the
+desktop prompt, and `?force_mobile=1` opts out for a visit exactly as it
+does for a desktop-only surface. Controls are removed rather than disabled,
+and there is no banner: the class means the surface reads on a phone, and a
+row of greyed-out buttons says the opposite.
+
+The three conditions every classification gate shares — a phone, the club
+setting on, no per-visit override — now live in one place
+(`MobileDetector::phoneGateApplies()`) instead of being spelled out
+per gate, which is how `?force_mobile=1` would otherwise end up honoured on
+one class and quietly ignored on another.
+
+# TalentTrack v4.108.0 — Opening a course on a phone now says why it wants a desk (#2872)
+
+Opening a course or a lesson on a phone now explains itself. The "open on
+desktop" page used to say the same generic line on all 41 gated surfaces; for a
+course it now says what the surface is actually for — something you sit down and
+study, not something you read on the touchline — so the prompt reads as an
+explanation rather than a wall.
+
+# TalentTrack v4.108.0 — A course lesson now reads as one document (#2872)
+
+A course lesson now reads as one document. Everything carrying a sentence — the
+title, the objectives, the prose, the inline checks, the action line, the
+assignment, the quiz and the completion panel — sits on the same reading column,
+and only figures, tables and the calculators are allowed to be wider.
+
+Previously a lesson took its widths from four different places, which is why it
+looked like several documents pasted together and why the quiz appeared to
+collide with the block above it.
+
+The column is also wider than it was. Courses are read at a desk, so a
+paperback-width column left most of a laptop screen unused; the reading width
+grew along with the text size, and the space that was going spare now goes to
+the diagrams and tables that actually need it.
+
+# TalentTrack v4.108.0 — Two plans, and safeguarding is never one of them (#2922)
+
+The plan map has been re-drawn for the 2026 product. TalentTrack now has two
+plans — **Standard**, the academy product, and **Pro**, which adds match day,
+training, media, the analytics platform and the integrations. There is no Free
+plan: the product is hosted, so an install exists because somebody is paying for
+it, and "Free" is now only the state of an install whose plan has not been
+recorded or has lapsed.
+
+Everything that ships since v3.17.0 had no plan at all, which meant match
+analysis, media, training, alerts, courses, tournaments and the analytics
+platform all behaved as free. All of it now has a plan.
+
+Two things stay out of the plan on principle. The audit log, permission matrix,
+two-factor authentication, record deletion, the recycle bin, media consent and
+subject-access requests are on every plan — the safety of children's data is not
+an upsell. And a club whose plan has lapsed keeps the dashboard, player cards,
+backup and export, so you can always read and take out your own data.
+
+Player count, team count and storage are priced against what they cost to run
+rather than bundled into the plan.
+
+# TalentTrack v4.108.0 — Category weights are editable without leaving TalentTrack (#2977)
+
+Category weights are now editable without leaving TalentTrack. Open **Evaluation
+categories** and choose **Per-age-group weights**: one panel per age group, with
+a running total that tells you where you are and a Save that stays unavailable
+until the percentages add up to 100.
+
+This is the setting that decides what an evaluation score *means* — change it and
+every overall rating the academy reads is re-weighted — and until now it was the
+one piece of evaluation configuration that could only be reached through the
+WordPress admin.
+
+An age group you have never configured shows **Equal weights** and counts every
+category the same, which is a working state rather than a missing one.
+**Reset to equal** puts a configured age group back to it.
+
+The WordPress admin page still works and both write the same data, so nothing
+changes for anyone already using it.
+
+# TalentTrack v4.108.0 — The dashboard layout editor is available on the frontend (#2978)
+
+The dashboard layout editor is now available without leaving TalentTrack. Open
+**Configuration → Dashboard layouts** and tune what each persona sees when they
+log in.
+
+It is the same editor as the one in the WordPress admin, not a second copy —
+both read and write the same stored layouts, so it makes no difference which one
+you use, or which one somebody else used yesterday. The WordPress admin page is
+unchanged for anyone already using it.
+
+It needs a desktop: dragging widgets between three panels has no thumb-sized
+equivalent, so a phone gets the "best on a larger screen" page instead.
+
+# TalentTrack v4.108.0 — Team overview and the notification paths now name the same head coach (#2995)
+
+The head-of-development landing's team overview resolved a team's head
+coach through the functional role **or** the legacy `role_in_team` string.
+Every other head-coach resolution in the product — workflow task assignees
+and both alert base classes, which have shared one implementation since
+#2719 — uses the functional role alone.
+
+So a team whose coach carried the legacy string without the matching
+functional-role assignment was shown a head coach who would silently
+receive none of that team's alerts or tasks. The overview said one thing
+and the notification engine believed another, and the failure was invisible
+in the direction that matters: nobody notices an alert that was never sent.
+
+The fallback was redundant rather than protective. `role_in_team` and
+`is_head_coach` are both written from the same functional-role key on every
+create and update, so they cannot diverge through the application, and any
+legacy row missing its `functional_role_id` has it filled in by the
+self-healing backfill that runs on every activation. Dropping the clause
+leaves one answer to "who is this team's head coach", asserted by a test.
+
+One asymmetry is deliberate and stays: the overview still names a head
+coach who has no WordPress account, where the notification paths skip them.
+The widget answers who the coach is; the lookup answers who there is to
+email.
+
+# TalentTrack v4.108.0 — One save indicator across the surfaces that save as you work (#3004)
+
+Match preparation's save indicator now uses the shared component that every
+autosaving surface will use, so the words a coach reads while their work is
+being stored are the same wherever they are. Nothing changes about what is
+saved or when.
+
+One thing does improve: two saves can no longer be in flight at once. The old
+loop let overlapping requests race, and whichever answered second won regardless
+of which was typed second — so a fast typist could occasionally watch a
+character disappear. There is now one request at a time, with the next carrying
+whatever has been typed since.
+
 # TalentTrack v4.107.0 — Fill the exercise library from a spreadsheet (#2613)
 
 The exercise library can now be filled from a spreadsheet. Above **Add
