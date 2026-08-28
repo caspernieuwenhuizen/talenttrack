@@ -50,6 +50,15 @@ Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
 
+**Set my own numbers** under the preset opens three fields — teams, players per
+team, weeks of history — prefilled from the chosen preset and overridable per
+run. This is the only way to change the player count, and therefore the number
+of demo accounts: every preset ships 12 players per team, which suits a U15
+squad and not a U8 one playing six-a-side. Leave a field empty and the preset's
+value is used, so touching nothing generates exactly what the preset always did.
+The line below the fields shows the resulting player and account count as you
+type. Values are clamped to what a run can finish.
+
 Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury
 record says they were out, goal scorers come from that match's lineup, and

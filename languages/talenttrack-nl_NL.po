@@ -11905,8 +11905,45 @@ msgstr "Aangemaakt"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:416
 #: src/Shared/Frontend/FrontendBackupsView.php:273
 #: src/Shared/Frontend/FrontendBackupsView.php:291
+#: src/Modules/DemoData/Admin/DemoDataPage.php:496
 msgid "Size"
 msgstr "Grootte"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:491
+msgid "Pick a preset, or open the size fields below to set your own numbers."
+msgstr ""
+"Kies een preset, of open de velden hieronder om je eigen aantallen in te "
+"stellen."
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:512
+msgid "Players per team"
+msgstr "Spelers per team"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:513
+msgid "Weeks of history"
+msgstr "Weken historie"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:517
+msgid "Set my own numbers"
+msgstr "Eigen aantallen instellen"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:519
+msgid ""
+"Leave a field empty to use the preset value. Larger numbers take longer to "
+"generate."
+msgstr ""
+"Laat een veld leeg om de waarde van de preset te gebruiken. Grotere "
+"aantallen kosten meer tijd om te genereren."
+
+#. translators: 1: number of teams, 2: players per team, 3: total players, 4: weeks of history
+#: src/Modules/DemoData/Admin/DemoDataPage.php:545
+#, php-format
+msgid ""
+"%1$d teams x %2$d players = %3$d players and demo accounts, over %4$d weeks "
+"of history."
+msgstr ""
+"%1$d teams x %2$d spelers = %3$d spelers en demo-accounts, over %4$d weken "
+"historie."
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:314
 #: src/Shared/Frontend/FrontendBackupsView.php:294

@@ -463,7 +463,8 @@ class DemoDataPage {
                     <tr>
                         <th scope="row"><label for="tt_demo_preset"><?php esc_html_e( 'Preset', 'talenttrack' ); ?></label></th>
                         <td>
-                            <select id="tt_demo_preset" name="preset">
+                            <select id="tt_demo_preset" name="preset"
+                                    data-tt-demo-presets="<?php echo esc_attr( (string) wp_json_encode( DemoGenerator::PRESETS ) ); ?>">
                                 <?php foreach ( DemoGenerator::PRESETS as $key => $cfg ) :
                                     $preset_label = self::presetLabel( (string) $key );
                                     ?>
@@ -486,6 +487,92 @@ class DemoDataPage {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <p class="description">
+                                <?php esc_html_e( 'Pick a preset, or open the size fields below to set your own numbers.', 'talenttrack' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Size', 'talenttrack' ); ?></th>
+                        <td>
+                            <?php
+                            // #3042 — the presets are the one-click path and stay
+                            // the default; these are for the operator who needs a
+                            // different shape. players_per_team was 12 in every
+                            // preset, so the number of players — and therefore the
+                            // number of demo accounts — could not be changed at
+                            // all. Twelve is not neutral in this product: a U8
+                            // squad playing 6v6 looks nothing like a U17 one.
+                            //
+                            // Left blank, each field falls back to the preset, so
+                            // an operator who touches nothing gets exactly today's
+                            // dataset.
+                            $size_fields = [
+                                'teams'            => [ __( 'Teams', 'talenttrack' ), 1, 40 ],
+                                'players_per_team' => [ __( 'Players per team', 'talenttrack' ), 1, 40 ],
+                                'weeks'            => [ __( 'Weeks of history', 'talenttrack' ), 1, 104 ],
+                            ];
+                            ?>
+                            <details data-tt-demo-size>
+                                <summary><?php esc_html_e( 'Set my own numbers', 'talenttrack' ); ?></summary>
+                                <p class="description">
+                                    <?php esc_html_e( 'Leave a field empty to use the preset value. Larger numbers take longer to generate.', 'talenttrack' ); ?>
+                                </p>
+                                <?php foreach ( $size_fields as $name => list( $label, $min, $max ) ) : ?>
+                                    <p>
+                                        <label for="tt_demo_<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $label ); ?></label><br />
+                                        <input type="number" inputmode="numeric"
+                                               id="tt_demo_<?php echo esc_attr( $name ); ?>"
+                                               name="<?php echo esc_attr( $name ); ?>"
+                                               min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1"
+                                               class="small-text"
+                                               data-tt-demo-size-field="<?php echo esc_attr( $name ); ?>" />
+                                    </p>
+                                <?php endforeach; ?>
+                                <p class="description" data-tt-demo-size-total aria-live="polite"></p>
+                            </details>
+                            <script>
+                            (function(){
+                                var sel = document.getElementById('tt_demo_preset');
+                                var box = document.querySelector('[data-tt-demo-size]');
+                                if ( ! sel || ! box ) return;
+                                var presets = {};
+                                try { presets = JSON.parse( sel.getAttribute('data-tt-demo-presets') || '{}' ); } catch (e) { return; }
+                                var out    = box.querySelector('[data-tt-demo-size-total]');
+                                var fields = box.querySelectorAll('[data-tt-demo-size-field]');
+                                var tmpl   = <?php echo wp_json_encode(
+                                    /* translators: 1: number of teams, 2: players per team, 3: total players, 4: weeks of history */
+                                    __( '%1$d teams x %2$d players = %3$d players and demo accounts, over %4$d weeks of history.', 'talenttrack' )
+                                ); ?>;
+                                function effective( name ) {
+                                    var field = box.querySelector('[data-tt-demo-size-field="' + name + '"]');
+                                    var typed = field && field.value !== '' ? parseInt( field.value, 10 ) : NaN;
+                                    if ( ! isNaN( typed ) && typed > 0 ) return typed;
+                                    var preset = presets[ sel.value ] || {};
+                                    return parseInt( preset[ name ], 10 ) || 0;
+                                }
+                                function update() {
+                                    var teams = effective('teams');
+                                    var per   = effective('players_per_team');
+                                    var weeks = effective('weeks');
+                                    // Placeholders track the chosen preset so an empty
+                                    // field shows what it will actually use.
+                                    fields.forEach(function( f ){
+                                        var preset = presets[ sel.value ] || {};
+                                        f.placeholder = preset[ f.getAttribute('data-tt-demo-size-field') ] || '';
+                                    });
+                                    if ( ! out ) return;
+                                    out.textContent = tmpl
+                                        .replace('%1$d', teams)
+                                        .replace('%2$d', per)
+                                        .replace('%3$d', teams * per)
+                                        .replace('%4$d', weeks);
+                                }
+                                sel.addEventListener('change', update);
+                                fields.forEach(function( f ){ f.addEventListener('input', update); });
+                                update();
+                            })();
+                            </script>
                         </td>
                     </tr>
                     <tr>
@@ -887,6 +974,18 @@ class DemoDataPage {
         $password  = isset( $_POST['password'] )  ? (string) wp_unslash( (string) $_POST['password'] )                : '';
         $preset    = isset( $_POST['preset'] )    ? sanitize_key( (string) $_POST['preset'] )                         : 'small';
         $seed      = isset( $_POST['seed'] )      ? (int) $_POST['seed']                                              : 20260504;
+
+        // #3042 — per-run size overrides. An empty field means "use the
+        // preset", so an operator who leaves them alone gets exactly the
+        // dataset the preset produced before this existed. Bounds are
+        // clamped rather than rejected: the numbers here only decide how
+        // much is generated, and a typo should not lose the rest of a
+        // filled-in form. The upper bounds are what a run can finish.
+        $size = [];
+        foreach ( [ 'teams' => 40, 'players_per_team' => 40, 'weeks' => 104 ] as $key => $max ) {
+            if ( ! isset( $_POST[ $key ] ) || $_POST[ $key ] === '' ) continue;
+            $size[ $key ] = max( 1, min( $max, (int) $_POST[ $key ] ) );
+        }
         $club_name        = isset( $_POST['club_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['club_name'] ) ) : '';
         $content_language = isset( $_POST['content_language'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['content_language'] ) ) : '';
         $confirmed        = ! empty( $_POST['domain_confirmed'] );
@@ -971,6 +1070,7 @@ class DemoDataPage {
             \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::NEUTRAL );
             $result = DemoGenerator::run( array_merge( [
                 'preset'           => $preset,
+                'size'             => $size,
                 'domain'           => $domain,
                 'password'         => $password,
                 'seed'             => $seed,

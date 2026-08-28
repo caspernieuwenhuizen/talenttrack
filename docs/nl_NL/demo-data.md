@@ -51,6 +51,16 @@ Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
 8 weken), **medium** (6 teams, 16 weken), **large** (12 teams, 36 weken).
 Elke preset genereert 12 spelers per team.
 
+**Eigen aantallen instellen** onder de preset opent drie velden — teams, spelers
+per team, weken historie — voorgevuld vanuit de gekozen preset en per run aan te
+passen. Dit is de enige manier om het aantal spelers te wijzigen, en daarmee het
+aantal demo-accounts: elke preset levert 12 spelers per team, wat past bij een
+O15-selectie en niet bij een O8 die zes-tegen-zes speelt. Laat je een veld leeg,
+dan wordt de waarde van de preset gebruikt, dus als je niets aanraakt krijg je
+precies wat de preset altijd al genereerde. De regel onder de velden toont
+tijdens het typen hoeveel spelers en accounts dat oplevert. Waarden worden
+begrensd tot wat een run kan afmaken.
+
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op.
 
