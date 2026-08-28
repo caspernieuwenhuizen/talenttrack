@@ -23,10 +23,7 @@ use TT\Modules\DemoData\Generators\GoalGenerator;
  * byte-for-byte across runs.
  *
  * `$opts['size']` (#3042) optionally overrides the chosen preset's `teams`,
- * `players_per_team` and `weeks`. It is not in the `@param` shape below
- * deliberately: that shape has never listed the selective-generation flags
- * or the Excel-source keys either, and completing it here would only move
- * the inaccuracy rather than fix it.
+ * `players_per_team` and `weeks`.
  */
 class DemoGenerator {
 
@@ -38,7 +35,7 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
+     * @param array{preset:string, size?:array{teams?:int, players_per_team?:int, weeks?:int}, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
      * @return array{
      *   batch_id:string,
      *   users:array<string,int>,
@@ -68,7 +65,7 @@ class DemoGenerator {
         // a range a run can finish. An absent or unusable value leaves the
         // preset's, so an operator who overrides nothing gets exactly the
         // dataset they got before this existed.
-        $size = isset( $opts['size'] ) && is_array( $opts['size'] ) ? $opts['size'] : [];
+        $size = $opts['size'] ?? [];
         foreach ( [ 'teams' => 40, 'players_per_team' => 40, 'weeks' => 104 ] as $key => $max ) {
             if ( ! isset( $size[ $key ] ) ) continue;
             $value = (int) $size[ $key ];

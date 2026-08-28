@@ -4629,7 +4629,7 @@ parameters:
 			path: src/Modules/DemoData/Admin/DemoDataPage.php
 
 		-
-			message: "#^Parameter \\#1 \\$opts of static method TT\\\\Modules\\\\DemoData\\\\DemoGenerator\\:\\:run\\(\\) expects array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\}, non\\-empty\\-array\\<non\\-falsy\\-string, bool\\|int\\|string\\> given\\.$#"
+			message: "#^Parameter \\#1 \\$opts of static method TT\\\\Modules\\\\DemoData\\\\DemoGenerator\\:\\:run\\(\\) expects array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\}, non\\-empty\\-array\\<non\\-falsy\\-string, array\\<'players_per_team'\\|'teams'\\|'weeks', int\\<1, 104\\>\\>\\|bool\\|int\\|string\\> given\\.$#"
 			count: 1
 			path: src/Modules/DemoData/Admin/DemoDataPage.php
 
@@ -4714,37 +4714,37 @@ parameters:
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'excel_path' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'excel_path' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'gen_people' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'gen_people' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'gen_players' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'gen_players' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'gen_teams' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'gen_teams' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'preset' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			message: "#^Offset 'preset' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'seed' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			message: "#^Offset 'seed' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
 		-
-			message: "#^Offset 'source' on array\\{preset\\: string, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
+			message: "#^Offset 'source' on array\\{preset\\: string, size\\?\\: array\\{teams\\?\\: int, players_per_team\\?\\: int, weeks\\?\\: int\\}, domain\\: string, password\\: string, seed\\: int, club_name\\?\\: string, content_language\\?\\: string\\} in isset\\(\\) does not exist\\.$#"
 			count: 1
 			path: src/Modules/DemoData/DemoGenerator.php
 
