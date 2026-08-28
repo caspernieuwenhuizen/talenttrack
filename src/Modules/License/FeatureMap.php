@@ -256,13 +256,16 @@ class FeatureMap {
     public static function tierHas( string $tier, string $feature ): bool {
         $tier = self::normalizeTier( $tier );
 
-        $effective = [];
-        $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_FREE ] ?? [] );
+        // The `?? []` these three lines used to carry is gone: with every
+        // tier's key now written out above, PHPStan can see the shape and
+        // reads the coalesce as dead. A missing tier key is a fatal typo in
+        // this file, not a runtime case to absorb.
+        $effective = self::DEFAULT_MAP[ self::TIER_FREE ];
         if ( $tier === self::TIER_STANDARD || $tier === self::TIER_PRO ) {
-            $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_STANDARD ] ?? [] );
+            $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_STANDARD ] );
         }
         if ( $tier === self::TIER_PRO ) {
-            $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_PRO ] ?? [] );
+            $effective = array_merge( $effective, self::DEFAULT_MAP[ self::TIER_PRO ] );
         }
         return ! empty( $effective[ $feature ] );
     }
