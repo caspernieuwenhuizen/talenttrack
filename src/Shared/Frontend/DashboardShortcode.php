@@ -1419,6 +1419,12 @@ class DashboardShortcode {
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;
+            // #2978 — the persona dashboard editor. Gates on
+            // tt_edit_persona_templates and the persona_dashboard_editor
+            // sub-feature inside, matching the wp-admin page's own guards.
+            case 'persona-templates':
+                \TT\Modules\PersonaDashboard\Frontend\FrontendPersonaTemplatesView::render( $user_id, $is_admin );
+                return true;
             case 'eval-categories':
                 FrontendEvalCategoriesView::render( $user_id, $is_admin );
                 return true;
