@@ -105,6 +105,22 @@ class ActivityGenerator implements DependentGeneratorInterface {
         $start_date = strtotime( '-' . $this->weeks . ' weeks' );
         if ( $start_date === false ) $start_date = time();
 
+        // #3030 — the window straddles today instead of ending on it.
+        //
+        // `weeks` is the depth of HISTORY the preset asks for; the horizon
+        // below is what comes next. Without it the last generated activity
+        // landed on today and a demo install had nothing planned at all —
+        // no next match, nothing for the week planner, match prep or the
+        // upcoming-activity alerts to point at. Half the product is about
+        // what happens next, and it looked empty in the dataset used to
+        // show the product.
+        //
+        // Four weeks regardless of preset: it is enough for every surface
+        // that reads forward, and scaling it with `weeks` would give the
+        // large preset a nine-month fixture list nobody looks at.
+        $horizon_weeks = 4;
+        $total_weeks   = $this->weeks + $horizon_weeks;
+
         $resolved_language = self::resolveLanguage( $this->language );
         $strings           = self::SESSION_STRINGS_BY_LANGUAGE[ $resolved_language ];
 
@@ -115,13 +131,14 @@ class ActivityGenerator implements DependentGeneratorInterface {
             $roster   = $players_by_team[ $team_id ] ?? [];
             if ( ! $roster ) continue;
 
-            for ( $w = 0; $w < $this->weeks; $w++ ) {
+            for ( $w = 0; $w < $total_weeks; $w++ ) {
                 for ( $s = 0; $s < 2; $s++ ) {
                     // 2 activities per week, spaced Tue / Thu-ish
                     // — second slot of every 3rd week becomes a game.
                     $day_offset = ( $w * 7 ) + ( $s === 0 ? 1 : 3 );
                     $when = $start_date + $day_offset * DAY_IN_SECONDS;
 
+                    $is_future = $when >= time();
                     $is_game = ( $s === 1 && ( $w % 3 ) === 2 );
                     $type    = $is_game ? 'game' : 'training';
                     $subtype = null;
@@ -144,7 +161,14 @@ class ActivityGenerator implements DependentGeneratorInterface {
                         'coach_id'            => $coach_id,
                         'notes'               => '',
                         'activity_type_key'   => $type,
-                        'activity_status_key' => $when < time() ? 'completed' : 'planned',
+                        'activity_status_key' => $is_future ? 'planned' : 'completed',
+                        // #3030 — `plan_state` is the other lifecycle axis
+                        // (migration 0144), and the planner, match prep and
+                        // the player profile's activity list all read it. It
+                        // used to fall to the column's 'completed' default,
+                        // which was harmless while every generated row was in
+                        // the past and is wrong now that some are not.
+                        'plan_state'          => $is_future ? 'scheduled' : 'completed',
                         'activity_source_key' => 'generated',
                         'game_subtype_key'    => $subtype,
                         'other_label'         => null,
@@ -153,6 +177,15 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     if ( ! $activity_id ) continue;
                     $this->registry->tag( 'activity', $activity_id, [ 'team_id' => $team_id ] );
                     $total++;
+
+                    // #3030 — an activity that has not happened yet carries no
+                    // attendance. These rows are `record_type = 'actual'`, the
+                    // record of who turned up; writing them for next Tuesday
+                    // would be inventing a result, and it would leave the
+                    // attendance flow with nothing to demonstrate. Match prep
+                    // for future fixtures still comes from MatchDayGenerator,
+                    // which already writes prep without execution.
+                    if ( $is_future ) continue;
 
                     foreach ( $roster as $player_id ) {
                         $label = $this->pickAttendance( (int) $tendencies[ $player_id ] );

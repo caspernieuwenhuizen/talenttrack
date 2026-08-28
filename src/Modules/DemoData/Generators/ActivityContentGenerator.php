@@ -264,11 +264,18 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
         $ids = $this->registry->entityIds( 'activity' );
         if ( ! $ids || $type === '' ) return $ids;
 
+        // #3030 — past activities only. What this generator writes is the
+        // record of a session that RAN — `actual_duration_minutes`, notes on
+        // how it went — so attaching it to next Tuesday's training would
+        // assert a result that has not happened. Harmless while every
+        // generated activity was in the past; now that the window reaches
+        // forward, the filter has to be stated.
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_activities
-              WHERE id IN ({$placeholders}) AND club_id = %d AND activity_type_key = %s",
-            ...array_merge( $ids, [ CurrentClub::id(), $type ] )
+              WHERE id IN ({$placeholders}) AND club_id = %d AND activity_type_key = %s
+                AND session_date <= %s",
+            ...array_merge( $ids, [ CurrentClub::id(), $type, current_time( 'Y-m-d' ) ] )
         ) );
         return array_map( 'intval', (array) $rows );
     }
