@@ -71,7 +71,7 @@ class FrontendMobilePromptView extends FrontendViewBase {
 
         echo '<h2 style="margin:24px 0 8px;">' . esc_html__( 'This page is designed for desktop.', 'talenttrack' ) . '</h2>';
         echo '<p style="color:#5b6e75; margin:0 0 24px;">'
-            . esc_html__( 'Open it on a laptop or computer for the best experience.', 'talenttrack' )
+            . esc_html( self::reasonFor( $blocked_view ) )
             . '</p>';
 
         echo '<form method="post" action="' . esc_url( $email_action ) . '" style="margin-bottom:24px;">';
@@ -97,6 +97,36 @@ class FrontendMobilePromptView extends FrontendViewBase {
         echo '</p>';
 
         echo '</div>';
+    }
+
+    /**
+     * Why *this* surface wants a bigger screen.
+     *
+     * "Open it on a laptop for the best experience" is true of every one
+     * of the gated surfaces and therefore tells a coach nothing. A reason
+     * that names the actual work — this is a document, this is a matrix,
+     * this is something you study — is the difference between a wall and
+     * an explanation, and it is what stops the prompt reading as the
+     * product being broken on a phone.
+     *
+     * Only the surfaces with something specific to say are listed; the
+     * rest keep the generic line. The literals live here rather than in
+     * `config/mobile_surfaces.php` so the string extractor can see them:
+     * that file's reasons are developer rationale, are not wrapped in
+     * `__()`, and are `require`d early enough that translating at load
+     * would be too soon.
+     *
+     * #2811 generalises this across all 41 gated surfaces. This is the
+     * seam it will widen, not a pattern it has to undo.
+     */
+    private static function reasonFor( string $view_slug ): string {
+        switch ( $view_slug ) {
+            case 'course':
+            case 'lesson':
+                return __( 'A course is something you sit down and study, not something you read on the touchline. Open it at a desk and the lesson gets the width it was written for.', 'talenttrack' );
+        }
+
+        return __( 'Open it on a laptop or computer for the best experience.', 'talenttrack' );
     }
 
     /**

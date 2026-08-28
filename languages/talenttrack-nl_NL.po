@@ -56320,6 +56320,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendMobilePromptView.php:127
+msgid "A course is something you sit down and study, not something you read on the touchline. Open it at a desk and the lesson gets the width it was written for."
+msgstr "Een cursus is iets om voor te gaan zitten, niet iets om langs de lijn te lezen. Open hem aan een bureau, dan krijgt de les de breedte waarvoor hij geschreven is."
+
 #~ msgid "Our goal"
 #~ msgstr "Ons doelpunt"
 
