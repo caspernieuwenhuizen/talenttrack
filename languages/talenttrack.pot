@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T06:28:36+00:00\n"
+"POT-Creation-Date: 2026-08-28T06:36:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -44259,10 +44259,6 @@ msgstr ""
 msgid "This page is designed for desktop."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMobilePromptView.php:74
-msgid "Open it on a laptop or computer for the best experience."
-msgstr ""
-
 #: src/Shared/Frontend/FrontendMobilePromptView.php:82
 msgid "Email me the link"
 msgstr ""
@@ -44277,6 +44273,14 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMobilePromptView.php:95
 msgid "Show it anyway"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php:126
+msgid "A course is something you sit down and study, not something you read on the touchline. Open it at a desk and the lesson gets the width it was written for."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php:129
+msgid "Open it on a laptop or computer for the best experience."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:42

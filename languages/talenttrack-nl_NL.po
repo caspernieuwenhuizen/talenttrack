@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T06:28:36+00:00\n"
+"POT-Creation-Date: 2026-08-28T06:36:08+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -50810,10 +50810,6 @@ msgstr "We konden de link niet versturen. Probeer de dashboard-link hieronder."
 msgid "This page is designed for desktop."
 msgstr "Deze pagina is gemaakt voor desktop."
 
-#: src/Shared/Frontend/FrontendMobilePromptView.php:74
-msgid "Open it on a laptop or computer for the best experience."
-msgstr "Open hem op een laptop of computer voor de beste ervaring."
-
 #: src/Shared/Frontend/FrontendMobilePromptView.php:82
 msgid "Email me the link"
 msgstr "Mail me de link"
@@ -50829,6 +50825,20 @@ msgstr "Toch op je telefoon nodig?"
 #: src/Shared/Frontend/FrontendMobilePromptView.php:95
 msgid "Show it anyway"
 msgstr "Laat hem alsnog zien"
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php:126
+msgid ""
+"A course is something you sit down and study, not something you read on the "
+"touchline. Open it at a desk and the lesson gets the width it was written "
+"for."
+msgstr ""
+"Een cursus is iets om voor te gaan zitten, niet iets om langs de lijn te "
+"lezen. Open hem aan een bureau, dan krijgt de les de breedte waarvoor hij "
+"geschreven is."
+
+#: src/Shared/Frontend/FrontendMobilePromptView.php:129
+msgid "Open it on a laptop or computer for the best experience."
+msgstr "Open hem op een laptop of computer voor de beste ervaring."
 
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:42
 msgid "Mobile experience"
@@ -56406,10 +56416,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "S3 backup"
 #~ msgstr "S3 back-up"
-
-#: src/Shared/Frontend/FrontendMobilePromptView.php:127
-msgid "A course is something you sit down and study, not something you read on the touchline. Open it at a desk and the lesson gets the width it was written for."
-msgstr "Een cursus is iets om voor te gaan zitten, niet iets om langs de lijn te lezen. Open hem aan een bureau, dan krijgt de les de breedte waarvoor hij geschreven is."
 
 #~ msgid "Our goal"
 #~ msgstr "Ons doelpunt"
