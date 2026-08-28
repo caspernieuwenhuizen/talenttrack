@@ -6567,6 +6567,14 @@ msgid_plural "%d more alerts need your attention."
 msgstr[0] "Nog %d melding vraagt je aandacht."
 msgstr[1] "Nog %d meldingen vragen je aandacht."
 
+#: src/Modules/Alerts/Frontend/AlertBanner.php:157
+msgid "Not today"
+msgstr "Nu even niet"
+
+#: src/Modules/Alerts/Frontend/AlertBanner.php:156
+msgid "Hide this until tomorrow. It comes back if it is still true."
+msgstr "Verberg dit tot morgen. Klopt het dan nog steeds, dan komt het terug."
+
 #: src/Modules/Alerts/Frontend/AlertBanner.php:109
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169

@@ -152,6 +152,8 @@ Messages the academy *sends* you — emails, push notifications — are separate
 
 If a single alert is not useful right now, snooze it for a day, a week or a month. It disappears and comes back when the snooze runs out, provided the thing is still unfixed.
 
+The banner carries this on each alert as **Not today**, which snoozes it for a day — the common case, and one click rather than a menu. Alerts that concern a child's safety carry no such button: those are the ones you cannot mute anywhere, and the banner does not offer a way around that.
+
 ### Dismissing one alert
 
 Dismissing removes it for good — but **only that occurrence**. If the same problem is fixed and then happens again, you get a new alert, because it is genuinely new information. To stop a *kind* of alert permanently, untick it in Alert settings instead.
