@@ -26,9 +26,47 @@
  * Below the breakpoint `min()` collapses the middle track to 100%, both
  * outer tracks become zero, and mobile renders exactly as it did before.
  */
-.tt-lesson-body {
-    --tt-lesson-measure: 76ch;
+/*
+ * #2872 — the measure moved up to the page wrapper, and grew.
+ *
+ * It lived on `.tt-lesson-body`, which meant only the prose could read it:
+ * the title took its width from the page gutter, the objectives and
+ * completion panels from the full page, and the quiz from a `max-width` of
+ * its own. Four widths on one screen, which is what the pilot review saw as
+ * "several documents pasted together". A custom property on the body is
+ * invisible to the body's siblings, so the token has to sit above them.
+ *
+ * 76ch was also a paperback measure on a surface that is now deliberately
+ * desktop-only. The shell hands the reader `min(94vw, 1600px)`, so a 76ch
+ * column used under half of it — the same complaint #2737 made about the
+ * calculators, applied to the prose.
+ *
+ * 96ch at 17px is roughly 900px. It is a stopping point rather than "as
+ * wide as it goes": past about 100 characters a column stops being easier
+ * to read and starts being a wall, and legibility was the argument for
+ * going desktop-only in the first place. The width left over goes to the
+ * figures, which is the point of the full-bleed exception below.
+ */
+.tt-lesson {
+    --tt-lesson-measure: 96ch;
+}
 
+/*
+ * Everything that carries a sentence sits on the measure, centred. The
+ * lesson title is `.tt-fview-title` — shared page chrome — so it is scoped
+ * here rather than restyled globally; its inline rule sets only font-size
+ * and colour, which leaves width and margin to this file.
+ */
+.tt-lesson .tt-fview-title,
+.tt-lesson .tt-knowledge-lesson__position,
+.tt-lesson .tt-knowledge-lesson__objectives,
+.tt-lesson .tt-knowledge-lesson__completion,
+.tt-lesson .tt-notice {
+    max-width: min(var(--tt-lesson-measure), 100%);
+    margin-inline: auto;
+}
+
+.tt-lesson-body {
     display: grid;
     grid-template-columns:
         1fr
@@ -36,8 +74,12 @@
         1fr;
 
     color: var(--tt-ink, #0e1a14);
-    font-size: var(--tt-fs-body, 1rem);
-    line-height: var(--tt-lh-body, 1.5);
+    /*
+     * A wider column needs bigger type and more leading, or the eye's
+     * return sweep starts landing on the wrong line.
+     */
+    font-size: 1.0625rem;
+    line-height: 1.7;
 }
 
 .tt-lesson-body > * {
@@ -50,14 +92,19 @@
  * so they are named by that rather than one by one; the rest are the
  * things that are visibly a figure or a grid rather than a sentence.
  * `.tt-lesson-wide` is the opt-in for anything added later.
+ *
+ * #2872 removed three from this list: `.tt-quiz`, `.tt-lesson-actionline`
+ * and `.tt-lesson-assignment`. All three are text a coach reads a sentence
+ * at a time, and all three were spanning the full width *while carrying a
+ * narrower max-width of their own* — so they rendered short of the prose on
+ * one side and short of the page on the other. That is the block that looked
+ * flush left and collided with what was above it. They were never wide; they
+ * were unaligned.
  */
 .tt-lesson-body > .tt-lesson-wide,
 .tt-lesson-body > .tt-lesson-tool,
 .tt-lesson-body > .tt-lesson-table-scroll,
-.tt-lesson-body > .tt-lesson-actionline,
-.tt-lesson-body > .tt-lesson-model,
-.tt-lesson-body > .tt-quiz,
-.tt-lesson-body > .tt-lesson-assignment {
+.tt-lesson-body > .tt-lesson-model {
     grid-column: 1 / -1;
 }
 

@@ -7,8 +7,17 @@
  * every tint.
  */
 
+/*
+ * #2872 — no `max-width` of its own. It used to carry 68ch against the
+ * lesson body's 76ch *and* span the body's full width, so it landed
+ * narrower than the prose and left-aligned in a wide track. The quiz now
+ * sits in the measure track like every other text block and fills it.
+ *
+ * Outside a lesson (the standalone quiz surface) it has no measure to
+ * inherit, so it takes the reading width from the token's fallback.
+ */
 .tt-quiz {
-    max-width: 68ch;
+    max-width: min(var(--tt-lesson-measure, 96ch), 100%);
     margin: var(--tt-sp-6, 24px) 0;
     padding: var(--tt-sp-4, 16px);
     background: var(--tt-paper, #fff);

@@ -780,25 +780,37 @@ than a blank cell, lesson titles rather than slugs.
 
 ## Page width
 
-The reader is a three-column grid. Prose sits in the middle track at a
-readable measure (`--tt-lesson-measure`, 76ch); anything that is a figure
-rather than a sentence spans all three:
+**One reading column, and one exception to it.**
+
+Everything on a lesson that carries a sentence sits on the same measure
+(`--tt-lesson-measure`, 96ch) — the title, the position line, the objectives,
+the prose, the inline checks, the action line, the assignment, the quiz and the
+completion panel. Only things that are a *figure* rather than a sentence are
+allowed more width:
 
 - the four calculators, by their shared `.tt-lesson-tool` class
 - tables, via `.tt-lesson-table-scroll`
-- `.tt-lesson-actionline`, `.tt-lesson-model`, the quiz and the assignment
+- `.tt-lesson-model`
 - anything else that opts in with `.tt-lesson-wide`
 
-A course is worked through at a desk, and the tools are what the reader came
-for. Capping a seven-day planner at a paperback column while 700px of window
-sits unused beside it was the problem this solves; unclamping the prose as well
-would have traded it for 140-character lines. Below the breakpoint `min()`
-collapses the middle track to 100%, the outer tracks become zero, and mobile
-renders exactly as before.
+The measure is declared once, on the `.tt-lesson` page wrapper, and everything
+below inherits it. That is the part that matters: a lesson previously took its
+widths from four different places — the title from the page gutter, the panels
+from the full page, the prose from the body grid, the quiz from a `max-width`
+of its own — which is why it read as several documents pasted together, and why
+the quiz appeared to collide with the block above it. Giving each block a
+corrected width would drift again; blocks inherit the measure and never declare
+one.
 
-The objectives and completion panels that bracket the lesson body dropped their
-cap entirely — a capped panel above and below a full-width body reads as an
-indent nobody asked for.
+96ch is a deliberate stopping point, not "as wide as it goes". A course is
+worked through at a desk and the shell offers up to 1600px, so a paperback
+column wasted most of it — but past roughly 100 characters a column stops being
+easier to read and starts being a wall, and legibility is the reason courses are
+desktop-only at all. The width left over goes to the figures, which is the whole
+point of the exception.
+
+Below the breakpoint `min()` collapses the middle track to 100%, the outer
+tracks become zero, and a narrow screen renders as one plain column.
 
 ## Courses are read at a desk
 

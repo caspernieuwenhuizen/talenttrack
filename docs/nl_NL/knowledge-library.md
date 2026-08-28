@@ -807,25 +807,35 @@ plaats van een lege cel, lestitels in plaats van slugs.
 
 ## Paginabreedte
 
-De lezer is een grid van drie kolommen. Lopende tekst staat in de
-middelste baan op een leesbare maat (`--tt-lesson-measure`, 76ch); alles wat
-eerder een figuur dan een zin is, beslaat alle drie:
+**Eén leeskolom, met één uitzondering.**
+
+Alles op een les dat een zin draagt staat op dezelfde maat
+(`--tt-lesson-measure`, 96ch) — de titel, de positieregel, de doelstellingen, de
+lopende tekst, de tussenvragen, de actieregel, de opdracht, de toets en het
+afrondingspaneel. Alleen wat eerder een *figuur* dan een zin is, mag breder:
 
 - de vier rekenhulpen, via hun gedeelde klasse `.tt-lesson-tool`
 - tabellen, via `.tt-lesson-table-scroll`
-- `.tt-lesson-actionline`, `.tt-lesson-model`, de toets en de opdracht
+- `.tt-lesson-model`
 - al het andere dat zich met `.tt-lesson-wide` aanmeldt
 
-Een cursus wordt aan een bureau doorgewerkt, en de rekenhulpen zijn waarvoor de
-lezer komt. Een weekplanner van zeven dagen in een pocketkolom persen terwijl er
-700 pixels venster naast ongebruikt bleef, was het probleem dat dit oplost; ook
-de tekst losmaken zou het hebben ingeruild voor regels van 140 tekens. Onder het
-breekpunt klapt `min()` de middelste baan naar 100%, worden de buitenste banen
-nul, en rendert mobiel precies zoals eerst.
+De maat wordt één keer vastgelegd, op de paginawikkel `.tt-lesson`, en alles
+eronder erft hem. Dat is het punt: een les haalde haar breedtes eerder uit vier
+verschillende plekken — de titel uit de paginamarge, de panelen uit de volle
+pagina, de tekst uit het lesgrid, de toets uit een eigen `max-width` — en dat is
+waarom het las als meerdere documenten die aan elkaar geplakt zijn, en waarom de
+toets tegen het blok erboven leek te botsen. Elk blok een gecorrigeerde breedte
+geven zou opnieuw uiteenlopen; blokken erven de maat en leggen er zelf geen vast.
 
-De doelstellingen- en afrondingspanelen die de les omlijsten hebben hun maximum
-helemaal laten vallen — een smal paneel boven en onder een breed lesblok leest
-als een inspringing waar niemand om vroeg.
+96ch is een bewuste grens, geen "zo breed mogelijk". Een cursus wordt aan een
+bureau doorgewerkt en de schil biedt tot 1600 pixels, dus een pocketkolom liet
+het meeste onbenut — maar voorbij ongeveer 100 tekens wordt een kolom niet
+prettiger maar een muur, en leesbaarheid is juist de reden dat cursussen
+bureau-only zijn. De ruimte die overblijft gaat naar de figuren, en dat is
+precies waar de uitzondering voor is.
+
+Onder het breekpunt klapt `min()` de middelste baan naar 100%, worden de
+buitenste banen nul, en rendert een smal scherm als één gewone kolom.
 
 ## Cursussen lees je aan een bureau
 
