@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T05:52:22+00:00\n"
+"POT-Creation-Date: 2026-08-28T06:15:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3657,62 +3657,76 @@ msgstr "De test kon niet worden opgeslagen."
 msgid "Could not schedule the test."
 msgstr "De test kon niet worden ingepland."
 
-#: src/Infrastructure/REST/MediaRestController.php:197
-#: src/Infrastructure/REST/MediaRestController.php:466
+#: src/Infrastructure/REST/MediaRestController.php:198
+#: src/Infrastructure/REST/MediaRestController.php:497
 msgid "Provide a valid entity_type and entity_id."
 msgstr "Geef een geldige entity_type en entity_id op."
 
-#: src/Infrastructure/REST/MediaRestController.php:284
+#: src/Infrastructure/REST/MediaRestController.php:285
 msgid "Provide a valid entity_type and entity_id to attach the media to."
 msgstr ""
 "Geef een geldige entity_type en entity_id op om het bestand aan te koppelen."
 
-#: src/Infrastructure/REST/MediaRestController.php:337
+#: src/Infrastructure/REST/MediaRestController.php:338
 msgid "The media item could not be saved."
 msgstr "Het media-item kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MediaRestController.php:416
+#: src/Infrastructure/REST/MediaRestController.php:376
+msgid "Location data was removed from this video."
+msgstr "Locatiegegevens zijn uit deze video verwijderd."
+
+#: src/Infrastructure/REST/MediaRestController.php:380
+msgid ""
+"This video carries metadata TalentTrack could not read, which may include "
+"where it was filmed. Remove it before uploading, or link to the video on "
+"your own provider instead."
+msgstr ""
+"Deze video bevat gegevens die TalentTrack niet kon lezen; daar kan in staan "
+"waar hij is opgenomen. Verwijder die gegevens vóór het uploaden, of verwijs "
+"in plaats daarvan naar de video bij je eigen aanbieder."
+
+#: src/Infrastructure/REST/MediaRestController.php:447
 msgid "The capture date could not be understood."
 msgstr "De opnamedatum kon niet worden gelezen."
 
-#: src/Infrastructure/REST/MediaRestController.php:425
+#: src/Infrastructure/REST/MediaRestController.php:456
 msgid "No editable fields were provided."
 msgstr "Er zijn geen te wijzigen velden meegegeven."
 
-#: src/Infrastructure/REST/MediaRestController.php:450
+#: src/Infrastructure/REST/MediaRestController.php:481
 msgid "The media item could not be removed."
 msgstr "Het media-item kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/MediaRestController.php:484
+#: src/Infrastructure/REST/MediaRestController.php:515
 msgid "The media item could not be attached."
 msgstr "Het media-item kon niet worden gekoppeld."
 
-#: src/Infrastructure/REST/MediaRestController.php:498
-#: src/Infrastructure/REST/MediaRestController.php:600
+#: src/Infrastructure/REST/MediaRestController.php:529
+#: src/Infrastructure/REST/MediaRestController.php:631
 msgid "That attachment was not found."
 msgstr "Die koppeling is niet gevonden."
 
-#: src/Infrastructure/REST/MediaRestController.php:575
+#: src/Infrastructure/REST/MediaRestController.php:606
 msgid "That could not be put back in the queue."
 msgstr "Dat kon niet terug in de wachtrij worden gezet."
 
-#: src/Infrastructure/REST/MediaRestController.php:579
+#: src/Infrastructure/REST/MediaRestController.php:610
 msgid "Provide decision=keep or decision=release."
 msgstr "Geef decision=keep of decision=release op."
 
-#: src/Infrastructure/REST/MediaRestController.php:586
+#: src/Infrastructure/REST/MediaRestController.php:617
 msgid ""
 "Give a reason for keeping this. Without one the exception cannot be audited."
 msgstr ""
 "Geef een reden om dit te bewaren. Zonder reden is de uitzondering niet te "
 "controleren."
 
-#: src/Infrastructure/REST/MediaRestController.php:593
+#: src/Infrastructure/REST/MediaRestController.php:624
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:192
 msgid "That could not be saved."
 msgstr "Dat kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MediaRestController.php:613
+#: src/Infrastructure/REST/MediaRestController.php:644
 msgid ""
 "That does not look like a video address. Paste the web address of the video "
 "as it appears in your browser."
@@ -3720,7 +3734,7 @@ msgstr ""
 "Dat lijkt geen videoadres. Plak het webadres van de video zoals het in je "
 "browser staat."
 
-#: src/Infrastructure/REST/MediaRestController.php:646
+#: src/Infrastructure/REST/MediaRestController.php:677
 msgid ""
 "No file was received. Attach a file, or provide external_url for a video "
 "hosted elsewhere."
@@ -3728,26 +3742,26 @@ msgstr ""
 "Er is geen bestand ontvangen. Voeg een bestand toe, of geef external_url op "
 "voor video die ergens anders staat."
 
-#: src/Infrastructure/REST/MediaRestController.php:712
+#: src/Infrastructure/REST/MediaRestController.php:743
 msgid "Media item not found."
 msgstr "Media-item niet gevonden."
 
-#: src/Infrastructure/REST/MediaRestController.php:716
+#: src/Infrastructure/REST/MediaRestController.php:747
 msgid "You do not have permission to do that."
 msgstr "Je hebt geen rechten om dat te doen."
 
 #. translators: %s is the server's maximum upload size.
-#: src/Infrastructure/REST/MediaRestController.php:774
+#: src/Infrastructure/REST/MediaRestController.php:805
 #, php-format
 msgid "That file is larger than this server accepts (%s)."
 msgstr "Dat bestand is groter dan deze server accepteert (%s)."
 
-#: src/Infrastructure/REST/MediaRestController.php:779
+#: src/Infrastructure/REST/MediaRestController.php:810
 msgid "The upload did not finish. Check your connection and try again."
 msgstr ""
 "De upload is niet afgerond. Controleer je verbinding en probeer het opnieuw."
 
-#: src/Infrastructure/REST/MediaRestController.php:781
+#: src/Infrastructure/REST/MediaRestController.php:812
 msgid "The file could not be uploaded."
 msgstr "Het bestand kon niet worden geüpload."
 
@@ -27530,21 +27544,21 @@ msgstr "Het opgeslagen bestand is leeg."
 msgid "The requested byte range is outside the file."
 msgstr "Het opgevraagde bytebereik valt buiten het bestand."
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:70
+#: src/Modules/Media/Ingest/MediaIngestService.php:74
 msgid "No file was received."
 msgstr "Er is geen bestand ontvangen."
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:75
+#: src/Modules/Media/Ingest/MediaIngestService.php:79
 msgid "That file is empty."
 msgstr "Dat bestand is leeg."
 
 #. translators: 1: size of the file, 2: the server's limit.
-#: src/Modules/Media/Ingest/MediaIngestService.php:84
+#: src/Modules/Media/Ingest/MediaIngestService.php:88
 #, php-format
 msgid "That file is %1$s. This server accepts uploads up to %2$s."
 msgstr "Dat bestand is %1$s. Deze server accepteert uploads tot %2$s."
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:95
+#: src/Modules/Media/Ingest/MediaIngestService.php:99
 msgid ""
 "That file type cannot be uploaded because it can contain scripts. Upload a "
 "JPEG, PNG or WebP image instead."
@@ -27552,7 +27566,7 @@ msgstr ""
 "Dit bestandstype kan niet worden geüpload omdat het scripts kan bevatten. "
 "Upload in plaats daarvan een JPEG-, PNG- of WebP-afbeelding."
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:101
+#: src/Modules/Media/Ingest/MediaIngestService.php:105
 msgid ""
 "That file type is not supported. Upload a JPEG, PNG or WebP image, or an MP4 "
 "or MOV video."
@@ -27560,7 +27574,7 @@ msgstr ""
 "Dit bestandstype wordt niet ondersteund. Upload een JPEG-, PNG- of WebP-"
 "afbeelding, of een MP4- of MOV-video."
 
-#: src/Modules/Media/Ingest/MediaIngestService.php:144
+#: src/Modules/Media/Ingest/MediaIngestService.php:157
 msgid "The file could not be saved. Check that the uploads folder is writable."
 msgstr ""
 "Het bestand kon niet worden opgeslagen. Controleer of er naar de uploadmap "
