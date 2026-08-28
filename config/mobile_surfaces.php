@@ -137,7 +137,7 @@ return [
     'trial-parent-meeting'          => [ 'viewable', 'A single meeting record — one page of notes.' ],
     'trials'                        => [ 'viewable', 'Trial records; a list plus a record.' ],
 
-    /* ---- read_only (9) ------------------------------------------------ */
+    /* ---- read_only (10) ----------------------------------------------- */
     'analytics'                     => [ 'read_only', 'Charts and summaries read acceptably on a phone; building the query does not.' ],
     'attendance-report-player'      => [ 'read_only', 'One player’s attendance over time.' ],
     'attendance-report-team'        => [ 'read_only', 'Squad attendance summary.' ],

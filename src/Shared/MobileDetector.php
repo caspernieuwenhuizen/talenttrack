@@ -91,4 +91,26 @@ final class MobileDetector {
         $val = (string) $_GET['force_mobile'];
         return $val === '1' || strtolower( $val ) === 'true';
     }
+
+    /**
+     * Do the phone-class surface rules apply to this request at all?
+     *
+     * The three conditions every classification gate shares: a phone-class
+     * user agent, the per-club gate switched on, and the user not having
+     * opted out for this visit via `?force_mobile=1`. What the caller does
+     * once these hold depends on the class — `desktop_only` renders the
+     * prompt page instead of the view, `read_only` renders the view without
+     * its mutating controls.
+     *
+     * #2808 — extracted so the two gates cannot drift. They were one
+     * inline condition in the dispatcher when `desktop_only` was the only
+     * class that acted on the classification; a second copy is how
+     * `?force_mobile=1` ends up honoured on one surface class and ignored
+     * on the other.
+     */
+    public static function phoneGateApplies(): bool {
+        return ! self::userForcedMobile()
+            && self::isPhone()
+            && ( new \TT\Shared\Mobile\MobileSettings() )->isMobileGateEnabled();
+    }
 }
