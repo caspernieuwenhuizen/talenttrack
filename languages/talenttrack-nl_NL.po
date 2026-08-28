@@ -56320,6 +56320,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Infrastructure/REST/MediaRestController.php:361
+msgid "Location data was removed from this video."
+msgstr "Locatiegegevens zijn uit deze video verwijderd."
+
+#: src/Infrastructure/REST/MediaRestController.php:365
+msgid "This video carries metadata TalentTrack could not read, which may include where it was filmed. Remove it before uploading, or link to the video on your own provider instead."
+msgstr "Deze video bevat gegevens die TalentTrack niet kon lezen; daar kan in staan waar hij is opgenomen. Verwijder die gegevens vóór het uploaden, of verwijs in plaats daarvan naar de video bij je eigen aanbieder."
+
 #~ msgid "Our goal"
 #~ msgstr "Ons doelpunt"
 

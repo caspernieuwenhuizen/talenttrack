@@ -122,17 +122,27 @@ Someone who follows such a link without being logged in to TalentTrack is refuse
 The practical effect is small but worth recognising: a gallery left open in a browser tab overnight will show broken images the next morning.
 Reloading the page fixes it.
 
-### Photo location data is removed
+### Location data is removed
 
-A photo taken on a phone usually records where it was taken. For a photo taken at training, that is the location of a pitch full of children, and
-it travels inside the image file.
+A photo or video taken on a phone usually records where it was taken. At training, that is the location of a pitch full of children, and it
+travels inside the file.
 
-TalentTrack reads the date the photo was taken — so it lands in the right place on the player's timeline — and then removes all embedded
-information, including location, before storing it. The stored file contains the picture and nothing else.
+**Photos.** TalentTrack reads the date the photo was taken — so it lands in the right place on the player's timeline — and then removes all
+embedded information, including location, before storing it. The stored file contains the picture and nothing else.
 
-**Video is the exception.** Removing embedded data from a video file needs tooling TalentTrack does not include, and phones do write location into
-video. Uploaded video therefore keeps whatever its camera recorded. If that matters for your academy, use the video-link option and keep footage
-with your video provider, or avoid uploading video shot on a phone at a venue you would rather not disclose.
+**Video.** TalentTrack finds the parts of the video file where phones record coordinates and blanks them before storing it. The picture and sound
+are never touched and the file is not re-encoded, so nothing about the footage changes.
+
+After you upload a video, the upload list tells you what happened:
+
+- *Location data was removed from this video.* — coordinates were found and are gone.
+- Nothing said — the file carried no location data to begin with.
+- A warning that the file **carries metadata TalentTrack could not read** — the file is stored, but something in it could not be understood, and
+  it may still say where it was filmed. Remove it before uploading, or use the video-link option instead.
+
+That last case is rare, and it is deliberately shown rather than hidden. TalentTrack will not tell you a file is clean when it cannot be sure.
+
+If you would rather no footage sat on the server at all, use the video-link option and keep it with your video provider.
 
 ### Upload size
 

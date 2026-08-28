@@ -107,7 +107,8 @@
 	grid-template-areas:
 		"name   action"
 		"bar    bar"
-		"state  state";
+		"state  state"
+		"note   note";
 	gap: var(--tt-sp-1, 0.25rem) var(--tt-sp-2, 0.5rem);
 	align-items: center;
 	padding: var(--tt-sp-2, 0.5rem);
@@ -119,7 +120,7 @@
 @media (min-width: 480px) {
 	.tt-media-queue__item {
 		grid-template-columns: minmax(0, 1fr) 8rem auto;
-		grid-template-areas: "name bar action" "state state state";
+		grid-template-areas: "name bar action" "state state state" "note note note";
 	}
 }
 
@@ -187,6 +188,27 @@
 
 .tt-media-queue__item.is-cancelled {
 	opacity: 0.6;
+}
+
+/*
+ * #2611 — what happened to an uploaded video's location metadata. The
+ * plain note confirms the coordinates were removed; the warn variant says
+ * the file carries metadata we could not read, which is the one an
+ * academy has to actually act on.
+ */
+.tt-media-queue__note {
+	grid-area: note;
+	margin: 0;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	line-height: 1.4;
+	color: var(--tt-ink-soft, #5b6470);
+}
+
+.tt-media-queue__note--warn {
+	padding: var(--tt-sp-2, 0.5rem);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-warning-subtle, #fdf3d8);
+	color: var(--tt-ink, #1c2126);
 }
 
 /* ── Link box ─────────────────────────────────────────────────────── */
