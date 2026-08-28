@@ -429,12 +429,12 @@ class OnboardingHandlers {
 
     public static function handleDemo(): void {
         self::guard( 'tt_onboarding_demo' );
-        // Deep-link to the existing Tools → TalentTrack Demo page where
-        // the admin picks a preset, domain, and password rather than us
-        // guessing sensible defaults. The wizard is dismissed so the
+        // Deep-link to the TalentTrack → Demo data page where the admin
+        // picks a preset, domain, and password rather than us guessing
+        // sensible defaults. The wizard is dismissed so the
         // admin lands cleanly on the dashboard after generating.
         OnboardingState::setDismissed( true );
-        wp_safe_redirect( admin_url( 'tools.php?page=tt-demo-data' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=tt-demo-data' ) );
         exit;
     }
 

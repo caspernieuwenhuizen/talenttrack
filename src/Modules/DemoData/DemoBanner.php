@@ -31,7 +31,7 @@ class DemoBanner {
             'id'     => 'tt-demo-mode',
             'parent' => 'top-secondary',
             'title'  => '<span style="background:#b32d2e;color:#fff;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;line-height:1.6;">🎭 DEMO</span>',
-            'href'   => admin_url( 'tools.php?page=tt-demo-data' ),
+            'href'   => admin_url( 'admin.php?page=tt-demo-data' ),
             'meta'   => [ 'title' => __( 'TalentTrack is running in demo mode. Real data is hidden.', 'talenttrack' ) ],
         ] );
     }
