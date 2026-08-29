@@ -57712,6 +57712,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Comms/Rest/CommsRestController.php:279
+msgid "That message is not in your inbox."
+msgstr "Dat bericht staat niet in je inbox."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:282
+msgid "The message could not be updated."
+msgstr "Het bericht kon niet worden bijgewerkt."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:334
+msgid "No such message template."
+msgstr "Dit berichtsjabloon bestaat niet."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:366
+msgid "Expected a list of message types."
+msgstr "Er werd een lijst met berichtsoorten verwacht."
+
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
 
