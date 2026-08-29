@@ -48630,67 +48630,6 @@ msgstr "%d velden worden hersteld."
 msgid "Revert failed — nothing changed"
 msgstr "Terugdraaien mislukt — er is niets gewijzigd"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:386
-msgid "Mark as final"
-msgstr "Markeren als definitief"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:391
-msgid "Marked final. Anyone holding the share link can read it."
-msgstr "Definitief gemarkeerd. Iedereen met de deellink kan hem lezen."
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:229
-msgid "This analysis is not finished yet"
-msgstr "Deze analyse is nog niet af"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:231
-msgid ""
-"The coach is still writing it. The link stays valid — open it again once "
-"they have marked it final."
-msgstr ""
-"De trainer is er nog mee bezig. De link blijft geldig — open hem opnieuw "
-"zodra de analyse definitief is gemarkeerd."
-
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:262
-msgid ""
-"Someone else changed this analysis while you were writing. Reload the page "
-"to see their version."
-msgstr ""
-"Iemand anders heeft deze analyse gewijzigd terwijl jij aan het schrijven "
-"was. Herlaad de pagina om hun versie te zien."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
-msgid "Someone else changed this analysis. Reload the page to see their version."
-msgstr ""
-"Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om hun versie "
-"te zien."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
-msgid "Mark this analysis final? Anyone holding the share link can then read it."
-msgstr ""
-"Deze analyse definitief markeren? Iedereen met de deellink kan hem dan lezen."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:71
-msgid "The analysis could not be marked final. Try again."
-msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
-msgid ""
-"Sign off this conversation? It becomes read-only for everyone — open a new "
-"conversation if a follow-up edit is needed."
-msgstr ""
-"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
-"open een nieuw gesprek als er nog een wijziging nodig is."
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1239
-msgid "Sign off"
-msgstr "Ondertekenen"
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1240
-msgid "Everything above is already saved. Signing off closes the conversation for editing."
-msgstr ""
-"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
-"bewerken."
-
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
 msgid "Staff member"
@@ -58472,6 +58411,24 @@ msgstr "Berichten die de academie je heeft gestuurd."
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:700
 msgid "Messages sent"
 msgstr "Verstuurde berichten"
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
+msgid ""
+"Sign off this conversation? It becomes read-only for everyone — open a new "
+"conversation if a follow-up edit is needed."
+msgstr ""
+"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
+"open een nieuw gesprek als er nog een wijziging nodig is."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1239
+msgid "Sign off"
+msgstr "Ondertekenen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1240
+msgid "Everything above is already saved. Signing off closes the conversation for editing."
+msgstr ""
+"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
+"bewerken."
+
 #~ msgid ""
 #~ "Choose which messages your academy sends. Unchecking one stops it being "
 #~ "sent to anyone, for every channel. Nothing is lost: a message that was "
