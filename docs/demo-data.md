@@ -134,6 +134,19 @@ If your browser has JavaScript switched off, the whole run happens in the one
 request as before. That still works for the smaller presets; the large one is
 what needs the steps.
 
+## Generating twice into the same club
+
+A second run adds to what is already there rather than replacing it, and a few
+categories work from the whole club rather than only from the batch they are
+writing — match analyses read every played match, staff development reads every
+person. Those skip whatever a previous run already covered: a match that
+already has an analysis does not get a second one, and a coach who already has
+a staff development file does not get a second file.
+
+So the second run's counts are legitimately lower than the first's. That is the
+categories reporting what they wrote, not a failure. If you want a fresh
+academy rather than more of the same one, **wipe first, then generate**.
+
 ## Choosing what to generate
 
 The generate form splits into two groups.

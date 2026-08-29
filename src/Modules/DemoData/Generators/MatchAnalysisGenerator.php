@@ -165,12 +165,23 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
 
         // Only matches that have been played. A demo full of analyses of
         // fixtures still in the future would misrepresent the flow.
+        //
+        // #3102 — and only matches that do not already have one. The subject
+        // query reads the whole club rather than this batch, so a second run
+        // into a populated install met run one's matches again and let the
+        // INSERT fail against `uk_activity (club_id, activity_id)`. That
+        // printed a wpdb error and quietly wrote fewer rows than the operator
+        // was told. Skipping deliberately is the same outcome without either.
         $matches = (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, session_date FROM {$wpdb->prefix}tt_activities
-              WHERE club_id = %d
-                AND activity_type_key IN ( 'game', 'match' )
-                AND session_date <= %s
-           ORDER BY id ASC",
+            "SELECT a.id, a.session_date
+               FROM {$wpdb->prefix}tt_activities a
+          LEFT JOIN {$wpdb->prefix}tt_match_analyses ma
+                 ON ma.activity_id = a.id AND ma.club_id = a.club_id
+              WHERE a.club_id = %d
+                AND a.activity_type_key IN ( 'game', 'match' )
+                AND a.session_date <= %s
+                AND ma.id IS NULL
+           ORDER BY a.id ASC",
             $club,
             current_time( 'Y-m-d' )
         ) );
@@ -363,13 +374,13 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
         return $written;
     }
 
+    /**
+     * #3102 — outside the seeded stream, so a second run into the same
+     * install does not re-mint the uuid the first one already stored. See
+     * \TT\Modules\DemoData\DemoUuid.
+     */
     private static function uuid(): string {
-        return function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-        );
+        return \TT\Modules\DemoData\DemoUuid::mint();
     }
 
     private static function resolveLanguage( string $locale ): string {

@@ -108,6 +108,19 @@ Staat JavaScript uit in je browser, dan gebeurt de hele run in die ene aanvraag
 zoals voorheen. Voor de kleinere presets werkt dat prima; de grote preset is
 degene die de stappen nodig heeft.
 
+## Twee keer genereren in dezelfde club
+
+Een tweede run vult aan bij wat er al staat in plaats van het te vervangen, en
+een paar categorieën werken vanuit de hele club in plaats van alleen vanuit de
+batch die ze schrijven — wedstrijdanalyses lezen elke gespeelde wedstrijd,
+stafontwikkeling leest elke persoon. Die slaan over wat een eerdere run al
+heeft gedaan: een wedstrijd die al een analyse heeft krijgt er geen tweede, en
+een trainer die al een stafontwikkelingsdossier heeft krijgt er geen tweede.
+
+De aantallen van de tweede run liggen dus terecht lager dan die van de eerste.
+Dat is wat de categorieën echt hebben geschreven, geen fout. Wil je een verse
+academie in plaats van meer van dezelfde, **wis dan eerst en genereer daarna**.
+
 ## Kiezen wat je genereert
 
 Het generatieformulier bestaat uit twee groepen.

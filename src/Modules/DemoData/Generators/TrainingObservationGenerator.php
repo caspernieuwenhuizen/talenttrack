@@ -84,9 +84,19 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
         $total = 0;
         $n     = 0;
 
+        // #3102 — runs that nobody has been observed on yet. Like the match
+        // analyses, this reads the whole club rather than this batch, so a
+        // second run re-observed run one's sessions. `tt_training_observations`
+        // has no natural unique key to catch that, which makes it the quieter
+        // half of the same bug: no error, just a demo where every player was
+        // observed twice for the same session.
         $runs = (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, activity_id, run_date FROM {$wpdb->prefix}tt_training_plan_runs
-              WHERE club_id = %d AND status = 'completed' ORDER BY id ASC",
+            "SELECT r.id, r.activity_id, r.run_date
+               FROM {$wpdb->prefix}tt_training_plan_runs r
+          LEFT JOIN {$wpdb->prefix}tt_training_observations o
+                 ON o.run_id = r.id AND o.club_id = r.club_id
+              WHERE r.club_id = %d AND r.status = 'completed' AND o.id IS NULL
+           ORDER BY r.id ASC",
             $club
         ) );
 
@@ -164,13 +174,13 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
         return array_slice( $out, max( 0, $middle - 1 ), 3 ) ?: $out;
     }
 
+    /**
+     * #3102 — outside the seeded stream, so a second run into the same
+     * install does not re-mint the uuid the first one already stored. See
+     * \TT\Modules\DemoData\DemoUuid.
+     */
     private static function uuid(): string {
-        return function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-        );
+        return \TT\Modules\DemoData\DemoUuid::mint();
     }
 
     private static function resolveLanguage( string $locale ): string {

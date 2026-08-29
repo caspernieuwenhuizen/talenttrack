@@ -249,10 +249,23 @@ class StaffDevelopmentGenerator implements DependentGeneratorInterface {
     private function staffPeople(): array {
         global $wpdb;
 
+        // #3102 — people who do not already have a staff PDP. `ORDER BY id
+        // LIMIT 12` returns the same first twelve on a second run, and
+        // `currentSeasonId()` returns the same season, so the insert met
+        // `uk_person_season (person_id, season_id)` and failed. It collides
+        // even on a club with no seasons: the missing row casts to 0, and 0
+        // is not NULL, so MySQL treats two of them as equal.
+        //
+        // Filtering here rather than at the insert also stops the sibling
+        // tables — certifications, staff goals, evaluations, mentorships —
+        // duplicating their rows, since none of them carries a unique key to
+        // refuse a second copy.
         $ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people
-              WHERE club_id = %d AND archived_at IS NULL
-              ORDER BY id LIMIT 12",
+            "SELECT p.id FROM {$wpdb->prefix}tt_people p
+          LEFT JOIN {$wpdb->prefix}tt_staff_pdp sp
+                 ON sp.person_id = p.id AND sp.club_id = p.club_id
+              WHERE p.club_id = %d AND p.archived_at IS NULL AND sp.id IS NULL
+           ORDER BY p.id LIMIT 12",
             CurrentClub::id()
         ) );
         return array_map( 'intval', (array) $ids );
@@ -291,13 +304,13 @@ class StaffDevelopmentGenerator implements DependentGeneratorInterface {
         return array_map( 'intval', (array) $ids );
     }
 
+    /**
+     * #3102 — outside the seeded stream, so a second run into the same
+     * install does not re-mint the uuid the first one already stored. See
+     * \TT\Modules\DemoData\DemoUuid.
+     */
     private static function uuid(): string {
-        return function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000, mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-        );
+        return \TT\Modules\DemoData\DemoUuid::mint();
     }
 
     private static function resolveLanguage( string $locale ): string {

@@ -96,6 +96,17 @@ class KnowledgeGenerator implements DependentGeneratorInterface {
             $overdue   = $shape === 1 && $index > 0;
             $due       = gmdate( 'Y-m-d H:i:s', strtotime( $overdue ? '-1 week' : '+4 weeks' ) ?: time() );
 
+            // #3102 — a learner already enrolled on this course is somebody
+            // a previous run wrote. `enrol()` is idempotent and hands the
+            // existing enrolment back rather than inserting, which sounds
+            // like the right answer and is not: `writeProgress()` below would
+            // then write this run's lesson rows against a populated
+            // enrolment and collide with `uk_enrolment_lesson`. The learner
+            // is already covered, so skip them.
+            if ( $enrols->findFor( $person_id, $course_slug ) !== null ) {
+                continue;
+            }
+
             $enrolment_id = $enrols->enrol( $person_id, $course_slug, [
                 'assigned_by' => 0,
                 'due_at'      => $due,
