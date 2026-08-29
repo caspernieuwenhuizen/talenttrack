@@ -11,6 +11,7 @@ use TT\Infrastructure\REST\CustomFieldsRestController;
 use TT\Infrastructure\REST\ErrorLogRestController;
 use TT\Infrastructure\REST\LookupNormalisationRestController;
 use TT\Infrastructure\REST\LookupsRestController;
+use TT\Infrastructure\REST\ProfilesRestController;
 
 class ConfigurationModule implements ModuleInterface {
     public function getName(): string { return 'configuration'; }
@@ -32,5 +33,9 @@ class ConfigurationModule implements ModuleInterface {
         // #987 v4.12.0 — accept/skip actions for the canonical-language
         // drift review tool. Surface lives at `?tt_view=lookup-normalisation`.
         LookupNormalisationRestController::init();
+        // #3035 — install profiles. Registered from Configuration
+        // deliberately: Configuration is always-on, and the routes that
+        // reshape an install must not themselves be switchable off.
+        ProfilesRestController::init();
     }
 }

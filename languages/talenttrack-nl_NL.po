@@ -56738,6 +56738,26 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#, php-format
+#~ msgid ""
+#~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Open this on a laptop or computer."
+#~ msgstr ""
+#~ "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
+#~ "desktop te mailen.\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Open hem op een laptop of computer."
+#. translators: %s is the requested install-profile slug.
+#: src/Infrastructure/REST/ProfilesRestController.php:196
+#, php-format
+msgid "No install profile named \"%s\"."
+msgstr "Geen installatieprofiel met de naam \"%s\"."
+
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
 
@@ -56798,21 +56818,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 #~ msgid "Your %s desktop link"
 #~ msgstr "Je %s desktop-link"
-
-#, php-format
-#~ msgid ""
-#~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open this on a laptop or computer."
-#~ msgstr ""
-#~ "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
-#~ "desktop te mailen.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open hem op een laptop of computer."
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
@@ -58233,3 +58238,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
