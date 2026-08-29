@@ -36,10 +36,14 @@ final class CommsLogRepository {
     /**
      * One page of the log, newest first.
      *
+     * Rows come back as associative arrays rather than objects: the caller
+     * serialises every column by name anyway, and an array keeps the shape
+     * checkable instead of reaching for properties on a bare `object`.
+     *
      * @param array<string,mixed> $filters player_id, user_id, template_key,
      *                                     message_type, status, channel,
      *                                     date_from, date_to
-     * @return list<object>
+     * @return list<array<string,mixed>>
      */
     public function search( array $filters, int $page = 1, int $per_page = 50 ): array {
         global $wpdb;
@@ -56,8 +60,8 @@ final class CommsLogRepository {
                  LIMIT %d OFFSET %d";
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $args, [ $per_page, $offset ] ) ) );
-        return is_array( $rows ) ? $rows : [];
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $args, [ $per_page, $offset ] ) ), ARRAY_A );
+        return is_array( $rows ) ? array_values( $rows ) : [];
     }
 
     /**

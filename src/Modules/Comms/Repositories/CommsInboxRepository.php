@@ -33,7 +33,10 @@ final class CommsInboxRepository {
     /**
      * One page of a user's own messages, newest first.
      *
-     * @return list<object>
+     * Associative arrays rather than objects, for the reason
+     * `CommsLogRepository::search()` gives.
+     *
+     * @return list<array<string,mixed>>
      */
     public function forUser( int $user_id, bool $unread_only = false, int $page = 1, int $per_page = 25 ): array {
         if ( $user_id <= 0 ) return [];
@@ -51,8 +54,8 @@ final class CommsInboxRepository {
               ORDER BY created_at DESC, id DESC
               LIMIT %d OFFSET %d",
             $user_id, CurrentClub::id(), $per_page, $offset
-        ) );
-        return is_array( $rows ) ? $rows : [];
+        ), ARRAY_A );
+        return is_array( $rows ) ? array_values( $rows ) : [];
     }
 
     public function countForUser( int $user_id, bool $unread_only = false ): int {
@@ -72,8 +75,10 @@ final class CommsInboxRepository {
 
     /**
      * One message, but only if it belongs to this user.
+     *
+     * @return array<string,mixed>|null
      */
-    public function findForUser( int $id, int $user_id ): ?object {
+    public function findForUser( int $id, int $user_id ): ?array {
         if ( $id <= 0 || $user_id <= 0 ) return null;
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
@@ -83,8 +88,8 @@ final class CommsInboxRepository {
               WHERE id = %d AND recipient_user_id = %d AND club_id = %d
               LIMIT 1",
             $id, $user_id, CurrentClub::id()
-        ) );
-        return $row ?: null;
+        ), ARRAY_A );
+        return is_array( $row ) ? $row : null;
     }
 
     /**
@@ -95,21 +100,27 @@ final class CommsInboxRepository {
      * was first opened. Marking unread clears it outright — that is the
      * user deliberately undoing the stamp, not a repeat view.
      *
-     * @return bool False when the row is not this user's, or the write failed.
+     * Returns the message as it now stands so the caller does not have to
+     * re-read it, or null when the row is not this user's or the write
+     * failed.
+     *
+     * @return array<string,mixed>|null
      */
-    public function setRead( int $id, int $user_id, bool $read ): bool {
+    public function setRead( int $id, int $user_id, bool $read ): ?array {
         $row = $this->findForUser( $id, $user_id );
-        if ( $row === null ) return false;
+        if ( $row === null ) return null;
 
-        if ( $read && $row->read_at !== null && (string) $row->read_at !== '' ) return true;
+        if ( $read && (string) ( $row['read_at'] ?? '' ) !== '' ) return $row;
 
         global $wpdb;
         // No format arrays: `read_at` is either a datetime string or a
         // genuine NULL, and wpdb only writes NULL when it is left to infer.
-        return $wpdb->update(
+        $ok = $wpdb->update(
             $this->table,
             [ 'read_at' => $read ? current_time( 'mysql' ) : null ],
             [ 'id' => $id, 'recipient_user_id' => $user_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
+
+        return $ok ? $this->findForUser( $id, $user_id ) : null;
     }
 }

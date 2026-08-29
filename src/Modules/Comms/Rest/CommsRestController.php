@@ -220,27 +220,28 @@ final class CommsRestController extends BaseController {
      * integrity value and telling an API consumer about it would only
      * invite someone to try to reverse it.
      *
+     * @param array<string,mixed> $row
      * @return array<string,mixed>
      */
-    private static function serializeLogRow( object $row ): array {
+    private static function serializeLogRow( array $row ): array {
         return [
-            'id'           => (int) $row->id,
-            'uuid'         => (string) $row->uuid,
-            'created_at'   => (string) $row->created_at,
-            'template_key' => (string) $row->template_key,
-            'message_type' => (string) $row->message_type,
-            'channel'      => (string) $row->channel,
-            'sender_user_id' => (int) $row->sender_user_id,
-            'recipient'    => [
-                'user_id'   => $row->recipient_user_id !== null ? (int) $row->recipient_user_id : null,
-                'player_id' => $row->recipient_player_id !== null ? (int) $row->recipient_player_id : null,
-                'kind'      => (string) $row->recipient_kind,
-                'address'   => (string) $row->address_blob,
+            'id'             => (int) ( $row['id'] ?? 0 ),
+            'uuid'           => (string) ( $row['uuid'] ?? '' ),
+            'created_at'     => (string) ( $row['created_at'] ?? '' ),
+            'template_key'   => (string) ( $row['template_key'] ?? '' ),
+            'message_type'   => (string) ( $row['message_type'] ?? '' ),
+            'channel'        => (string) ( $row['channel'] ?? '' ),
+            'sender_user_id' => (int) ( $row['sender_user_id'] ?? 0 ),
+            'recipient'      => [
+                'user_id'   => isset( $row['recipient_user_id'] ) ? (int) $row['recipient_user_id'] : null,
+                'player_id' => isset( $row['recipient_player_id'] ) ? (int) $row['recipient_player_id'] : null,
+                'kind'      => (string) ( $row['recipient_kind'] ?? '' ),
+                'address'   => (string) ( $row['address_blob'] ?? '' ),
             ],
-            'subject'      => $row->subject !== null ? (string) $row->subject : null,
-            'status'       => (string) $row->status,
-            'error_code'   => $row->error_code !== null ? (string) $row->error_code : null,
-            'attempt'      => (int) $row->attempt,
+            'subject'        => isset( $row['subject'] ) ? (string) $row['subject'] : null,
+            'status'         => (string) ( $row['status'] ?? '' ),
+            'error_code'     => isset( $row['error_code'] ) ? (string) $row['error_code'] : null,
+            'attempt'        => (int) ( $row['attempt'] ?? 1 ),
         ];
     }
 
@@ -278,34 +279,41 @@ final class CommsRestController extends BaseController {
         if ( $repo->findForUser( $id, $user ) === null ) {
             return RestResponse::error( 'not_found', __( 'That message is not in your inbox.', 'talenttrack' ), 404 );
         }
-        if ( ! $repo->setRead( $id, $user, $read ) ) {
+
+        // `setRead()` hands back the row as it now stands, so the response
+        // reports what was actually stored rather than what was asked for.
+        $updated = $repo->setRead( $id, $user, $read );
+        if ( $updated === null ) {
             return RestResponse::error( 'db_error', __( 'The message could not be updated.', 'talenttrack' ), 500 );
         }
 
-        $row = $repo->findForUser( $id, $user );
         return RestResponse::success( [
-            'message'      => $row !== null ? self::serializeInboxRow( $row ) : null,
+            'message'      => self::serializeInboxRow( $updated ),
             'unread_count' => $repo->unreadCount( $user ),
         ] );
     }
 
-    /** @return array<string,mixed> */
-    private static function serializeInboxRow( object $row ): array {
-        $payload = (string) ( $row->payload_json ?? '' );
+    /**
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    private static function serializeInboxRow( array $row ): array {
+        $payload = (string) ( $row['payload_json'] ?? '' );
         $decoded = $payload !== '' ? json_decode( $payload, true ) : null;
+        $read_at = (string) ( $row['read_at'] ?? '' );
 
         return [
-            'id'           => (int) $row->id,
-            'uuid'         => (string) $row->uuid,
-            'created_at'   => (string) $row->created_at,
-            'template_key' => (string) $row->template_key,
-            'message_type' => (string) $row->message_type,
-            'player_id'    => $row->recipient_player_id !== null ? (int) $row->recipient_player_id : null,
-            'subject'      => $row->subject !== null ? (string) $row->subject : null,
-            'body'         => (string) ( $row->body ?? '' ),
+            'id'           => (int) ( $row['id'] ?? 0 ),
+            'uuid'         => (string) ( $row['uuid'] ?? '' ),
+            'created_at'   => (string) ( $row['created_at'] ?? '' ),
+            'template_key' => (string) ( $row['template_key'] ?? '' ),
+            'message_type' => (string) ( $row['message_type'] ?? '' ),
+            'player_id'    => isset( $row['recipient_player_id'] ) ? (int) $row['recipient_player_id'] : null,
+            'subject'      => isset( $row['subject'] ) ? (string) $row['subject'] : null,
+            'body'         => (string) ( $row['body'] ?? '' ),
             'payload'      => is_array( $decoded ) ? $decoded : null,
-            'read_at'      => $row->read_at !== null ? (string) $row->read_at : null,
-            'is_read'      => $row->read_at !== null && (string) $row->read_at !== '',
+            'read_at'      => $read_at !== '' ? $read_at : null,
+            'is_read'      => $read_at !== '',
         ];
     }
 
