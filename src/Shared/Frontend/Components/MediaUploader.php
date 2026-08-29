@@ -71,6 +71,9 @@ final class MediaUploader {
             . ' data-entity-type="' . esc_attr( $entity_type ) . '"'
             . ' data-entity-id="' . (int) $entity_id . '"'
             . ' data-max-bytes="' . (int) $limit . '"'
+            // The policy's own wording, so a refused paste (#3092) says
+            // what a refused upload says rather than a generic near-miss.
+            . ' data-refusal="' . esc_attr( MediaAttachmentPolicy::refusalMessage( $entity_type ) ) . '"'
             . ( $state_field !== '' ? ' data-state-field="' . esc_attr( $state_field ) . '"' : '' )
             . '>';
 
@@ -98,6 +101,12 @@ final class MediaUploader {
         if ( $documents_only ) {
             echo '<span class="tt-media-dropzone__hint">'
                 . esc_html__( 'PDF, Word, spreadsheet or plain text. Photos and video are not accepted here.', 'talenttrack' )
+                . '</span>';
+        } else {
+            // Hidden on touch by CSS — there is no clipboard image to paste
+            // on a phone, where the camera is the one-tap route anyway.
+            echo '<span class="tt-media-dropzone__hint tt-media-dropzone__hint--paste">'
+                . esc_html__( 'Or paste a screenshot.', 'talenttrack' )
                 . '</span>';
         }
         // `capture` asks for the camera, which is right for a photograph and
@@ -173,6 +182,9 @@ final class MediaUploader {
                 'tooLarge'     => __( 'This file is larger than the server accepts.', 'talenttrack' ),
                 'badType'      => __( 'That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or MOV video.', 'talenttrack' ),
                 'linkNeeded'   => __( 'Paste a web address first.', 'talenttrack' ),
+                /* translators: %s is when the screenshot was pasted, e.g. "2026-08-29 14-32-07". */
+                'pastedTitle'  => __( 'Screenshot %s', 'talenttrack' ),
+                'pasteRefused' => __( 'That kind of file cannot be attached here.', 'talenttrack' ),
                 'networkError' => __( 'The upload failed. Check your connection and try again.', 'talenttrack' ),
                 /* translators: %d is how many files were added. */
                 'addedCount'   => __( '%d added', 'talenttrack' ),

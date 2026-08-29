@@ -16,6 +16,9 @@
  *   - **Size is checked before the request starts.** Discovering a file
  *     is too big after uploading it over a phone connection is the worst
  *     possible time to find out.
+ *   - **Paste is bound on the document, not on the drop zone** (#3092).
+ *     A drop zone cannot hold focus, and someone who has just taken a
+ *     screenshot expects Ctrl+V to land it without clicking first.
  */
 ( function () {
 	'use strict';
@@ -32,6 +35,122 @@
 		if ( className ) node.className = className;
 		if ( text !== undefined ) node.textContent = text;
 		return node;
+	}
+
+	// Every uploader on the page, so the document-level paste handler can
+	// work out which one a pasted image belongs to (#3092).
+	var INSTANCES = [];
+
+	var EXTENSIONS = {
+		'image/png': 'png',
+		'image/jpeg': 'jpg',
+		'image/webp': 'webp',
+		'image/gif': 'gif'
+	};
+
+	function two( n ) {
+		return ( n < 10 ? '0' : '' ) + n;
+	}
+
+	/**
+	 * A clipboard image is named `image.png` or nothing at all, and a grid
+	 * of tiles all reading "Photo" is no better. The moment it was pasted
+	 * is the one thing that tells them apart, and the title stays editable
+	 * afterwards like any other.
+	 */
+	function stamp() {
+		var d = new Date();
+		return d.getFullYear() + '-' + two( d.getMonth() + 1 ) + '-' + two( d.getDate() )
+			+ ' ' + two( d.getHours() ) + '-' + two( d.getMinutes() ) + '-' + two( d.getSeconds() );
+	}
+
+	/**
+	 * Wrap a clipboard blob so it behaves like a picked file — the queue
+	 * row, the size check and the upload part all read `name`.
+	 */
+	function asFile( blob, name ) {
+		try {
+			return new File( [ blob ], name, { type: blob.type } );
+		} catch ( e ) {
+			// No File constructor: the blob still uploads, it just carries
+			// its name on the form part rather than on itself.
+			blob.name = name;
+			return blob;
+		}
+	}
+
+	/**
+	 * A pasted image must clear the same policy a picked one does. The
+	 * `accept` list is the policy's answer for this target — an explicit
+	 * list of MIME types, no wildcards — so a screenshot cannot land on a
+	 * documents-only target such as a course submission. The server checks
+	 * again; this only spares the coach a round trip.
+	 */
+	function acceptsType( root, type ) {
+		var input = root.querySelector( '[data-role="file"]' );
+		var accept = input ? ( input.getAttribute( 'accept' ) || '' ) : '';
+		if ( accept === '' ) return true;
+		return accept.replace( /\s+/g, '' ).split( ',' ).indexOf( type ) !== -1;
+	}
+
+	function isTextEntry( node ) {
+		if ( ! node || ! node.tagName ) return false;
+		if ( node.isContentEditable ) return true;
+		if ( node.tagName === 'TEXTAREA' ) return true;
+		return node.tagName === 'INPUT' && node.type !== 'file';
+	}
+
+	/**
+	 * Which uploader a paste belongs to: the one holding focus, or the
+	 * only one on the page. Several uploaders and no focus is genuinely
+	 * ambiguous, and guessing would drop a photo on the wrong record.
+	 */
+	function pasteTarget() {
+		var active = document.activeElement;
+
+		for ( var i = 0; i < INSTANCES.length; i++ ) {
+			if ( active && INSTANCES[ i ].root.contains( active ) ) return INSTANCES[ i ];
+		}
+
+		return INSTANCES.length === 1 ? INSTANCES[ 0 ] : null;
+	}
+
+	function onPaste( e ) {
+		if ( ! e.clipboardData ) return;
+
+		// The link box, and any other field, keeps its ordinary paste.
+		if ( isTextEntry( e.target ) ) return;
+
+		var images = [];
+		var seen = {};
+
+		function consider( file ) {
+			if ( ! file || ! file.type || file.type.indexOf( 'image/' ) !== 0 ) return;
+			var key = ( file.name || '' ) + ':' + file.size + ':' + file.type;
+			if ( seen[ key ] ) return;
+			seen[ key ] = true;
+			images.push( file );
+		}
+
+		var items = e.clipboardData.items || [];
+		for ( var i = 0; i < items.length; i++ ) {
+			if ( items[ i ].kind === 'file' ) consider( items[ i ].getAsFile() );
+		}
+
+		// A file copied in Explorer or Finder arrives here rather than as
+		// an item, and the same image can appear in both.
+		var files = e.clipboardData.files || [];
+		for ( var j = 0; j < files.length; j++ ) consider( files[ j ] );
+
+		// Nothing to upload: leave the paste alone rather than swallowing
+		// it, so pasting text anywhere on the page still behaves.
+		if ( images.length === 0 ) return;
+
+		var uploader = pasteTarget();
+		if ( ! uploader ) return;
+
+		e.preventDefault();
+		images.forEach( function ( image ) { uploader.acceptPasted( image ); } );
 	}
 
 	/**
@@ -102,8 +221,11 @@
 		this.queue = root.querySelector( '[data-role="queue"]' );
 		this.status = root.querySelector( '[data-role="status"]' );
 		this.stateField = root.querySelector( '[data-role="state"]' );
+		this.refusal = root.getAttribute( 'data-refusal' ) || '';
 		this.added = [];
 		this.bind();
+
+		INSTANCES.push( this );
 	}
 
 	Uploader.prototype.bind = function () {
@@ -154,6 +276,26 @@
 		for ( var i = 0; i < files.length; i++ ) this.upload( files[ i ] );
 	};
 
+	/**
+	 * A screenshot straight off the clipboard (#3092). It goes through the
+	 * same queue, size check and cancel button as anything else — the only
+	 * difference is that it arrives without a name, so it is given one.
+	 */
+	Uploader.prototype.acceptPasted = function ( blob ) {
+		if ( ! acceptsType( this.root, blob.type ) ) {
+			this.say( this.refusal || t( 'pasteRefused', 'That kind of file cannot be attached here.' ) );
+			return;
+		}
+
+		var when = stamp();
+		var ext = EXTENSIONS[ blob.type ] || 'png';
+
+		this.upload(
+			asFile( blob, 'screenshot-' + when.replace( ' ', '-' ) + '.' + ext ),
+			( t( 'pastedTitle', 'Screenshot %s' ) ).replace( '%s', when )
+		);
+	};
+
 	Uploader.prototype.row = function ( label ) {
 		var li = el( 'li', 'tt-media-queue__item' );
 		var name = el( 'span', 'tt-media-queue__name', label );
@@ -173,9 +315,9 @@
 		return { li: li, fill: fill, state: state, action: action };
 	};
 
-	Uploader.prototype.upload = function ( file ) {
+	Uploader.prototype.upload = function ( file, title ) {
 		var self = this;
-		var row = this.row( file.name );
+		var row = this.row( title || file.name );
 
 		if ( this.maxBytes && file.size > this.maxBytes ) {
 			this.fail( row, t( 'tooLarge', 'This file is larger than the server accepts.' ) );
@@ -184,9 +326,10 @@
 
 		posterFor( file ).then( function ( poster ) {
 			var form = new FormData();
-			form.append( 'file', file );
+			form.append( 'file', file, file.name );
 			form.append( 'entity_type', self.entityType );
 			form.append( 'entity_id', self.entityId );
+			if ( title ) form.append( 'title', title );
 			if ( poster ) form.append( 'poster', poster, 'poster.jpg' );
 
 			var xhr = new XMLHttpRequest();
@@ -352,6 +495,10 @@
 	} else {
 		init();
 	}
+
+	// Bound once, whatever `init` runs later finds: the handler resolves
+	// its uploader at paste time and does nothing when there is none.
+	document.addEventListener( 'paste', onPaste );
 
 	window.TT = window.TT || {};
 	window.TT.mediaUploader = { init: init };
