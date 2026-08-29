@@ -48074,6 +48074,49 @@ msgstr "%d velden worden hersteld."
 msgid "Revert failed — nothing changed"
 msgstr "Terugdraaien mislukt — er is niets gewijzigd"
 
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:386
+msgid "Mark as final"
+msgstr "Markeren als definitief"
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:391
+msgid "Marked final. Anyone holding the share link can read it."
+msgstr "Definitief gemarkeerd. Iedereen met de deellink kan hem lezen."
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:229
+msgid "This analysis is not finished yet"
+msgstr "Deze analyse is nog niet af"
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:231
+msgid ""
+"The coach is still writing it. The link stays valid — open it again once "
+"they have marked it final."
+msgstr ""
+"De trainer is er nog mee bezig. De link blijft geldig — open hem opnieuw "
+"zodra de analyse definitief is gemarkeerd."
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:262
+msgid ""
+"Someone else changed this analysis while you were writing. Reload the page "
+"to see their version."
+msgstr ""
+"Iemand anders heeft deze analyse gewijzigd terwijl jij aan het schrijven "
+"was. Herlaad de pagina om hun versie te zien."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
+msgid "Someone else changed this analysis. Reload the page to see their version."
+msgstr ""
+"Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om hun versie "
+"te zien."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
+msgid "Mark this analysis final? Anyone holding the share link can then read it."
+msgstr ""
+"Deze analyse definitief markeren? Iedereen met de deellink kan hem dan lezen."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:71
+msgid "The analysis could not be marked final. Try again."
+msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
+
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
 msgid "Staff member"

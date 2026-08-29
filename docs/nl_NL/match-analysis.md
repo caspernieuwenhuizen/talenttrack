@@ -256,8 +256,11 @@ Zodra hij bestaat zie je de URL zelf met **Link kopiëren** ernaast. Stuur hem
 naar een assistent-trainer, een scout of wie er verder van de staf mee moet
 lezen. De link opent de analyse alleen-lezen, zonder in te loggen.
 
-Twee dingen om te weten voordat je hem verstuurt:
+Drie dingen om te weten voordat je hem verstuurt:
 
+- Hij toont de analyse **pas als je hem definitief hebt gemarkeerd**. Stuur
+ de link gerust eerder; tot dat moment meldt hij dat de analyse nog niet af
+ is, en zodra je publiceert toont hij het document.
 - Hij toont de **spelersnotities volledig**, inclusief wie tekortkwam. Het is
  een stafdocument en dat staat ook op de pagina zelf. De pagina wordt niet
  door zoekmachines geïndexeerd.
@@ -306,9 +309,61 @@ gedeelde caches.
 
 ## Opslaan
 
-**Analyse opslaan** laat je precies staan waar je stond, met alles wat je
-getypt hebt nog in beeld. Er navigeert niets weg, en de knoppen voor printen
-en delen blijven waar ze zijn.
+**Er is geen opslaanknop.** De analyse slaat zichzelf op terwijl je schrijft.
+Onderaan het formulier staat een statusregel die vertelt hoe ver dat is —
+*Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen* —
+in dezelfde woorden als op elk ander scherm in TalentTrack dat opslaat
+terwijl je werkt.
+
+Dit is het scherm dat die bescherming het hardst nodig heeft: je schrijft
+hem meestal op een telefoon, na het laatste fluitsignaal, verspreid over
+een aantal minuten. Een alinea kwijtraken door een verkeerd ingedrukte
+terugknop is hier de fout die telt, niet een zin opslaan waar je nog over
+twijfelde.
+
+Naast de statusregel staan twee manieren terug:
+
+- **Ongedaan maken** draait de laatst opgeslagen wijziging terug.
+- **Wijzigingen terugdraaien** zet het hele formulier terug naar hoe het was
+ toen je het scherm opende. Hij vraagt het eerst en noemt hoeveel velden hij
+ herstelt.
+
+Beide staan volledig beschreven onder *Opslaggedrag* op de pagina
+[wedstrijdvoorbereiding](match-prep.md) — hier werken ze precies zo.
+
+Er is geen **Annuleren**, want er staat niets open om te annuleren. De
+pagina verlaten laat een concept achter, en dat is een echte, leesbare
+toestand: zie hieronder.
+
+### Concept en definitief
+
+Elke analyse begint als **concept**. Automatisch opslaan schrijft altijd
+alleen het concept — wat je typt wordt niet gepubliceerd door het te typen.
+
+**Markeren als definitief** is de enige bewuste actie die op het formulier
+overblijft. Het is publiceren, geen opslaan: het zegt dat de analyse af is
+en geeft de stafdeellink toestemming hem te tonen.
+
+- Zolang je hem niet definitief hebt gemarkeerd blijft de deellink geldig,
+ maar toont hij *Deze analyse is nog niet af* in plaats van een halve zin
+ over een kind met naam en toenaam.
+- Een analyse die al definitief is **blijft definitief** als je er nog een
+ typefout uit haalt. Een gepubliceerd document opnieuw openen haalt het niet
+ offline bij de mensen die de link hebben gekregen.
+
+### Als iemand anders aan dezelfde analyse schrijft
+
+Een hoofdtrainer op de tribune en een assistent langs de lijn kunnen dezelfde
+analyse openen. Slaat de ander op terwijl jij schrijft, dan wordt jouw
+volgende opslagpoging **geweigerd in plaats van samengevoegd**, en zegt de
+statusregel *Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om
+hun versie te zien.*
+
+Wat je getypt hebt verdwijnt niet van het scherm — maar er wordt ook niets
+meer opgeslagen, dus kopieer wat je wilt bewaren voordat je herlaadt.
+Weigeren is een bewuste keuze: het stilletjes overschrijven van de analyse
+van een collega over een kind, zin voor zin, zonder dat een van beiden het
+merkt, is de slechtere uitkomst.
 
 ## Wat hier niet kan
 

@@ -209,6 +209,16 @@
             if (btn) btn.focus();
         });
 
+        // #3007 — undo and revert put old values straight back into the
+        // radios, which the chips above are drawn from. Without this the
+        // radios would be right and the chips would still show the marker
+        // the coach just took back.
+        document.addEventListener('tt:ma-remounted', function () {
+            closePicker();
+            players.forEach(paint);
+            repaintCount();
+        });
+
         // Last: the class that swaps the presentation. Set only once the
         // grid exists, so a script that dies halfway leaves the plain form
         // standing rather than a page with no controls at all.

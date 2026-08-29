@@ -7,10 +7,9 @@ use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisShareLink;
-use TT\Shared\Frontend\Components\BackLink;
-use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\SaveState;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -27,11 +26,24 @@ use TT\Shared\Frontend\FrontendViewBase;
  * writes one line and saves; the empty sections stay empty rather than
  * demanding a grade the coach does not have.
  *
- * Save is explicit (CLAUDE.md §6), unlike match prep's live-save. Match
- * prep is filled in at the pitch under time pressure where losing an edit
- * to a flaky connection is the worse failure; an analysis is written in one
- * sitting afterwards, where being able to abandon a half-written draft is
- * worth more than never pressing Save.
+ * ## Save model (#3007, epic #2881)
+ *
+ * The surface autosaves. It used to require an explicit Save on the
+ * argument that abandoning a half-written draft was worth more than never
+ * pressing Save — but the pilot said the opposite: a coach writing up a
+ * game on a phone after the final whistle is composing over minutes, and
+ * the work most worth protecting is the sentence they were halfway through.
+ *
+ * What "abandon a draft" turned into is better than what it replaced. The
+ * analysis carries a status, and autosave only ever writes the **draft**;
+ * **Mark as final** is the one deliberate commit on the surface, and it is
+ * a publish rather than a save — until it is pressed, the share link says
+ * the analysis is not ready rather than showing half a sentence about a
+ * child. Backing out of an edit is `TT.Autosave`'s undo and revert (#3005,
+ * #3006), which reach further than abandoning ever did.
+ *
+ * There is no Cancel: CLAUDE.md §6 governs forms where Save is the commit,
+ * and here there is nothing uncommitted to walk away from.
  */
 class FrontendMatchAnalysisView extends FrontendViewBase {
 
@@ -161,6 +173,23 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             $uuid
         );
 
+        // #3007 — a draft is not a document. Now that the surface autosaves,
+        // this link would otherwise show whatever the coach happened to have
+        // typed the last time it debounced: half a sentence about a named
+        // child, sent to the staff room. The link is valid, so this is not a
+        // not-found — it says the analysis is not published yet, which is
+        // also why it sits *after* the recorder: a coach who has not marked
+        // theirs final should be able to see that people are waiting on it.
+        //
+        // The guarantee the share link has always carried survives autosave:
+        // if you were sent one and it renders, you are reading a finished
+        // document.
+        if ( (string) ( $payload['status'] ?? '' ) !== MatchAnalysisEnums::STATUS_FINAL ) {
+            remove_filter( 'tt_current_club_id', $club_filter );
+            self::renderShareNotFinal();
+            return;
+        }
+
         self::enqueueStyles();
 
         echo '<div class="tt-ma tt-ma--shared">';
@@ -184,6 +213,26 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
      * distinguishable from outside, or the page becomes an oracle for
      * whichever part the prober got wrong.
      */
+    /**
+     * The link is good, the analysis is not finished (#3007).
+     *
+     * Deliberately different words from `renderShareNotFound()`. This one
+     * is not an oracle risk: the reader was sent the link by the coach who
+     * is writing it, so telling them it is not ready leaks nothing they
+     * were not already told, and "this link is no longer valid" would send
+     * them back to ask for a link they already have.
+     */
+    private static function renderShareNotFinal(): void {
+        self::enqueueStyles();
+
+        echo '<div class="tt-ma tt-ma--pending">';
+        echo '<h1 class="tt-ma__title">' . esc_html__( 'This analysis is not finished yet', 'talenttrack' ) . '</h1>';
+        echo '<p class="tt-ma__meta">'
+            . esc_html__( 'The coach is still writing it. The link stays valid — open it again once they have marked it final.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
+    }
+
     private static function renderShareNotFound(): void {
         self::enqueueStyles();
 
@@ -255,13 +304,20 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         $sections = (array) $payload['sections'];
         $players  = (array) $payload['players'];
 
+        // #3007 — no `tt-ajax-form`, and no submit. The form is now driven
+        // by `TT.Autosave` from `match-analysis.js`: every edit debounces
+        // into the same `PUT` the Save button used to fire, and the status
+        // line below says where it got to. Leaving the shared submit
+        // handler bound as well would give one form two ways to write
+        // itself, racing each other on the same record.
+        //
+        // `data-updated` is the version token the surface sends back with
+        // every write so a second coach cannot be overwritten silently.
         printf(
-            // `stay` rather than `reload`: saving must not move the coach.
-            // Reloading jumped the scroll to the top, which reads as having
-            // been taken off the page, and put the print and share actions
-            // out of reach for a beat (#2749).
-            '<form class="tt-ajax-form tt-ma__form" data-rest-path="activities/%d/analysis" data-rest-method="PUT" data-redirect-after-save="stay">',
-            $activity_id
+            '<form class="tt-ma__form" data-tt-ma-form data-rest-path="activities/%d/analysis" data-status="%s" data-updated="%s">',
+            $activity_id,
+            esc_attr( (string) ( $payload['status'] ?? MatchAnalysisEnums::STATUS_DRAFT ) ),
+            esc_attr( (string) ( $payload['updated_at'] ?? '' ) )
         );
 
         // --- Overall ------------------------------------------------
@@ -313,12 +369,27 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         PlayerTallyRoster::render( $players, 'ma' );
         echo '</section>';
 
-        // --- Save ----------------------------------------------------
+        // --- Save state, and the one deliberate commit ----------------
+        //
+        // #3007 — the Save button is gone. What replaces it is not a second
+        // save affordance but a publish: **Mark as final** is what turns a
+        // draft the coach is still composing into the document the share
+        // link is allowed to show.
+        $is_final = (string) ( $payload['status'] ?? '' ) === MatchAnalysisEnums::STATUS_FINAL;
+
         echo '<div class="tt-ma__actions">';
-        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes its own output
-            'label'      => __( 'Save analysis', 'talenttrack' ),
-            'cancel_url' => self::cancelUrl( $activity_id ),
-        ] );
+        SaveState::render( 'tt-ma__save-state' );
+
+        printf(
+            '<button type="button" class="tt-btn tt-btn-primary tt-ma__finalise" data-tt-ma-finalise%s>%s</button>',
+            $is_final ? ' hidden' : '',
+            esc_html__( 'Mark as final', 'talenttrack' )
+        );
+        printf(
+            '<p class="tt-ma__final-note" data-tt-ma-final-note%s>%s</p>',
+            $is_final ? '' : ' hidden',
+            esc_html__( 'Marked final. Anyone holding the share link can read it.', 'talenttrack' )
+        );
         echo '</div>';
 
         echo '</form>';
@@ -538,17 +609,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
     // -----------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------
-
-    /**
-     * Cancel target: back where the user came from when the entry URL said
-     * so, otherwise the match's own detail page (CLAUDE.md §6).
-     */
-    private static function cancelUrl( int $activity_id ): string {
-        $back = BackLink::resolve();
-        if ( $back !== null ) return $back['url'];
-
-        return RecordLink::detailUrlFor( 'activities', $activity_id );
-    }
 
     /**
      * The plan line above a section's inputs. Rendered only when the plan
