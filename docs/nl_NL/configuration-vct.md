@@ -71,6 +71,51 @@ antwoorden geven.
 De alleen-lezen tabel **Referentie-faseprofielen** boven de editor toont
 de meegeleverde sjabloonprofielen ter referentie.
 
+## Welke leeftijdscategorieën gemodelleerd zijn, en waarom de jongste niet
+
+Er worden vijf profielen meegeleverd: **JO10, JO11, JO12, JO13 en JO14**. De
+trainingsgenerator maakt alleen een concept voor een categorie die er één heeft,
+want het profiel levert het leeftijdsveilige intensiteitsplafond — en daar valt
+bij kinderen niet naar te gokken.
+
+De jongste categorieën vallen daar **bewust** buiten. Op JO7–JO9 wordt
+trainingsbelasting niet in getallen gepland; de trainer bouwt de training zelf.
+De generator maakt voor hen nooit een concept, en zegt dat nu als antwoord in
+plaats van te melden dat er een profiel ontbreekt — de oude tekst stuurde
+trainers op zoek naar een instelling die niet bestaat.
+
+Alles boven het bereik is een ander verhaal: dat heeft simpelweg nog geen
+profiel, en dat kun je toevoegen. De grens tussen die twee is geen vaste lijst
+categorieën, maar het jongste profiel dat je club daadwerkelijk heeft. Voeg een
+JO9-profiel toe en JO9 valt vanaf dat moment binnen het bereik.
+
+## Een leeftijdsprofiel toevoegen en verwijderen
+
+Onderaan het tabblad **Leeftijdsprofielen** biedt **Leeftijdsprofiel toevoegen**
+elke categorie aan die er nog geen heeft.
+
+Er wordt niets voorgevuld. Deze getallen bepalen hoe lang en hoe zwaar kinderen
+trainen, dus een plausibel ogende suggestie zou slechter zijn dan een leeg veld —
+die nodigt uit tot instemmen in plaats van beslissen. De meegeleverde profielen
+staan op hetzelfde scherm als voorbeeld, en de maximale trainingsduur en het
+intensiteitsplafond zijn verplicht.
+
+Bij het toevoegen wordt ook de **trainingsvorm** gekopieerd van de dichtstbijzijnde
+categorie die er al een heeft — JO15 erft het sjabloon van JO14, niet van JO10.
+Die vorm is een startpunt; de grenzen die je zojuist hebt ingevuld bepalen wat de
+training echt begrenst. Beide moeten bestaan, anders zou alleen een profiel
+toevoegen het concept één stap later alsnog blokkeren met een andere melding.
+
+**Verwijderen** wordt geweigerd zolang er nog een team in die categorie zit: die
+teams zouden stilletjes geen conceptrainingen meer krijgen, en niemand koppelt
+dat weken later aan een klik op dit scherm. Verplaats of archiveer die teams
+eerst. Al geplande trainingen worden nooit geraakt — een opgeslagen plan draagt
+zijn eigen blokken, en het profiel wordt alleen tijdens het concept gelezen.
+
+Beide acties vragen het recht op VCT-configuratie, dat bij de Hoofd Opleiding
+ligt. Dit zijn de plafonds die bepalen hoe zwaar minderjarigen worden belast, dus
+ze horen niet bij het algemene beheer.
+
 ## Leeftijdsprofielen en teamschema's bewerken
 
 Beide tabbladen gebruiken verzorgde `<details>`-accordeons — één per

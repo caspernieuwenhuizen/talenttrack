@@ -44,6 +44,81 @@ class VctSessionTemplatesRepository {
         return $this->hydrate( $row );
     }
 
+    /**
+     * Age groups that have at least one template on this club.
+     *
+     * @return list<string>
+     */
+    public function ageGroupsWithTemplates(): array {
+        $rows = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT DISTINCT age_group FROM {$this->table} WHERE club_id = %d",
+            CurrentClub::id()
+        ) );
+        // `get_col()` is typed as always returning an array, so an
+        // `is_array()` guard here is dead code PHPStan reports as such.
+        return array_values( array_map( 'strval', $rows ) );
+    }
+
+    /**
+     * Clone every template of one age group onto another (#2601).
+     *
+     * Adding an age profile is not enough on its own to make the
+     * generator work: the profile supplies the load ceiling, the template
+     * supplies the shape of the session, and a missing template blocks
+     * the draft one pass later with a different message. Copying the
+     * nearest modelled age group's blueprint means an academy that adds
+     * U15 gets a working generator from its own ceilings, instead of
+     * hitting a second wall it has no surface to fix.
+     *
+     * A blueprint is a starting point, not a claim about this age group —
+     * the numbers that carry the age-safety are the ones the operator
+     * typed into the profile, and they are applied over the top of these
+     * slots by the rule pipeline.
+     *
+     * `INSERT IGNORE`-shaped: an md_context the target already has is
+     * left alone, so re-running never overwrites an academy's own edits.
+     *
+     * @return int Number of templates copied.
+     */
+    public function copyAgeGroup( string $from_age_group, string $to_age_group ): int {
+        if ( $from_age_group === '' || $to_age_group === '' || $from_age_group === $to_age_group ) return 0;
+
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT md_context, slots_json, total_duration_minutes_target, description_nl
+               FROM {$this->table}
+              WHERE club_id = %d AND age_group = %s",
+            CurrentClub::id(), $from_age_group
+        ) );
+        if ( ! is_array( $rows ) || $rows === [] ) return 0;
+
+        $copied = 0;
+        foreach ( $rows as $row ) {
+            $exists = (int) $this->wpdb->get_var( $this->wpdb->prepare(
+                "SELECT id FROM {$this->table}
+                  WHERE club_id = %d AND age_group = %s AND md_context = %s",
+                CurrentClub::id(), $to_age_group, (string) $row->md_context
+            ) );
+            if ( $exists > 0 ) continue;
+
+            $ok = $this->wpdb->insert(
+                $this->table,
+                [
+                    'club_id'                       => CurrentClub::id(),
+                    'uuid'                          => wp_generate_uuid4(),
+                    'age_group'                     => $to_age_group,
+                    'md_context'                    => (string) $row->md_context,
+                    'slots_json'                    => (string) $row->slots_json,
+                    'total_duration_minutes_target' => (int) $row->total_duration_minutes_target,
+                    'description_nl'                => $row->description_nl !== null ? (string) $row->description_nl : null,
+                ],
+                [ '%d', '%s', '%s', '%s', '%s', '%d', '%s' ]
+            );
+            if ( $ok ) $copied++;
+        }
+
+        return $copied;
+    }
+
     /** @param object $row */
     private function hydrate( $row ): array {
         $slots = json_decode( (string) $row->slots_json, true );

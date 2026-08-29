@@ -124,6 +124,30 @@
 }
 .tt-dashboard .tt-vct-form-full { grid-column: 1 / -1; }
 
+/* #2601 — the remove action sits below its profile's save form, in its
+   own <form> so a stray Enter in a number field cannot trigger it. The
+   rule above it separates a destructive action from the one beside it. */
+.tt-dashboard .tt-vct-form-danger {
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+    padding-top: 12px;
+    margin-top: 4px;
+}
+.tt-dashboard .tt-vct-form-danger .tt-help {
+    margin: 8px 0 0;
+    font-size: 0.85rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* The add accordion reads as an action rather than another record. */
+.tt-dashboard .tt-vct-accordion--add {
+    border-style: dashed;
+}
+.tt-dashboard .tt-vct-accordion--add .tt-help {
+    padding: 0 16px;
+    font-size: 0.88rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
 .tt-dashboard .tt-vct-check {
     display: flex;
     align-items: center;

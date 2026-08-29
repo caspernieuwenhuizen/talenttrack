@@ -4,6 +4,7 @@ namespace TT\Modules\Vct\Rules;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
+use TT\Modules\Vct\Services\AgeProfileCoverage;
 
 /**
  * AgeAdmissibilityRule — Pass 1.
@@ -17,6 +18,15 @@ use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
  * isn't seeded), the pipeline emits a `block`-severity warning so
  * the caller surfaces a 400 instead of silently composing with
  * default ceilings.
+ *
+ * #2601 — that block comes in two flavours, and telling them apart is
+ * the point. Below the club's modelled range (U7-U9 today) there is no
+ * load model *by design*: structured load planning does not apply at that
+ * age and the coach shapes the session. Above it, or in a hole inside it,
+ * a profile can exist and simply does not yet — which is somebody's job
+ * to fix. Both still block; age safety is never inferred from a default.
+ * See `AgeProfileCoverage` for why the boundary is derived from the
+ * profiles rather than listed in code.
  */
 class AgeAdmissibilityRule implements RulePass {
 
@@ -30,7 +40,10 @@ class AgeAdmissibilityRule implements RulePass {
         $profile = $this->age_profiles->findByAgeGroup( $ctx->age_group );
 
         if ( $profile === null ) {
-            $ctx->addWarning( 'missing_age_profile', 'block', [
+            $code = AgeProfileCoverage::isBelowModelledRange( $ctx->age_group, $this->age_profiles )
+                ? 'age_below_modelled_range'
+                : 'missing_age_profile';
+            $ctx->addWarning( $code, 'block', [
                 'age_group' => $ctx->age_group,
             ] );
             return $ctx;
