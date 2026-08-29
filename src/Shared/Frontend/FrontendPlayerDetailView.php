@@ -205,6 +205,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
         $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        // #2725 — what this player has repeatedly been marked as after a
+        // match, and in which phase of play. The individual notes are
+        // already on the journey; this is the summary above them. Gated on
+        // the same cap the analyses themselves read under.
+        if ( current_user_can( 'tt_view_activities' ) ) {
+            $tabs['match-analysis'] = __( 'Match analysis', 'talenttrack' );
+        }
         // #2500 (epic #2493) — what this player has actually been taught,
         // per principle, from the trainings they attended. Gated on its
         // own `training_exposure` entity rather than on `training_plan`:
@@ -440,6 +447,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
                         case 'training':
                             \TT\Modules\Training\Frontend\PlayerTrainingTab::render( $player_id, $user_id );
+                            break;
+                        case 'match-analysis':
+                            \TT\Modules\MatchAnalysis\Frontend\PlayerMatchAnalysisTab::render( $player_id, $user_id );
                             break;
                         case 'strava':      \TT\Modules\Strava\Frontend\FrontendStravaView::renderPanel( $player ); break;
                         case 'pdp':         self::renderPdpTab( $player_id ); break;

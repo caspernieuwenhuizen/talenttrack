@@ -1,0 +1,283 @@
+/*
+ * frontend-install-profile.css — install-profile strip + preview screen.
+ *
+ * Authoring rule (CLAUDE.md § 2): mobile-first. Base = 360px viewport;
+ * breakpoints scale UP via `min-width`. No `max-width` queries, no raw
+ * hex — every colour reads a token from tokens.css.
+ *
+ * A three-section diff of fifty rows is exactly the surface that breaks
+ * on a phone if it is written desktop-first, so the base layout is a
+ * single stacked column of full-width rows and the wider viewports only
+ * add breathing room.
+ *
+ * Class contract:
+ *
+ *   Strip — FrontendInstallProfileView::renderStrip(), on ?tt_view=modules
+ *     .tt-profile-strip              — the whole strip
+ *     .tt-profile-strip__state       — current profile + divergence
+ *     .tt-profile-strip__title       — "Install profile"
+ *     .tt-profile-strip__value       — "Basics · 3 changes since"
+ *     .tt-profile-strip__pick        — the change-profile form
+ *     .tt-profile-strip__label       — visible label for the select
+ *     .tt-profile-strip__select      — profile chooser
+ *     .tt-profile-strip__go          — submit into the preview
+ *
+ *   Preview — FrontendInstallProfileView::render()
+ *     .tt-profile-preview__intro     — the profile's own description
+ *     .tt-profile-preview__lede      — how the ticks work
+ *     .tt-profile-preview__safety    — the nothing-is-deleted line
+ *     .tt-profile-preview__empty     — nothing-to-do state
+ *     .tt-profile-preview__form      — wraps the diff + Apply/Cancel
+ *
+ *   Diff — Components\ProfileDiff::render()
+ *     .tt-profile-diff               — all three sections
+ *     .tt-profile-diff__group        — one section (--on / --off / --skipped)
+ *     .tt-profile-diff__title        — section heading
+ *     .tt-profile-diff__count        — row count beside the heading
+ *     .tt-profile-diff__list         — <ul> of rows
+ *     .tt-profile-diff__row          — one <li>
+ *     .tt-profile-diff__pick         — the 48px tap row (label, or a div
+ *                                      with --static for a skipped row)
+ *     .tt-profile-diff__check        — the checkbox
+ *     .tt-profile-diff__name         — module / feature label
+ *     .tt-profile-diff__kind         — "Module" / "Feature" pill
+ *     .tt-profile-diff__reason       — why a skipped row cannot be applied
+ */
+
+/* =============================================================
+   STRIP
+   ============================================================= */
+
+/* The post-apply flash on the Modules page. A class rather than the
+ * inline style its neighbour carries — the inline-style gate is
+ * diff-only, so the backlog stays and new markup does not add to it. */
+.tt-profile-flash {
+    margin-bottom: var(--tt-sp-4);
+}
+
+.tt-profile-strip {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    margin-bottom: var(--tt-sp-5);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+}
+
+.tt-profile-strip__title {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--tt-muted);
+}
+
+.tt-profile-strip__value {
+    margin: var(--tt-sp-1) 0 0;
+    font-size: var(--tt-fs-lg);
+    color: var(--tt-ink);
+}
+
+.tt-profile-strip__pick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2);
+}
+
+.tt-profile-strip__label {
+    flex: 1 1 100%;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+}
+
+.tt-profile-strip__select {
+    flex: 1 1 12rem;
+    min-height: 48px;
+    /* 16px stops iOS zooming the page when the control takes focus. */
+    font-size: 16px;
+    padding: 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+}
+
+.tt-profile-strip__go {
+    min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-profile-strip {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .tt-profile-strip__pick {
+        flex-wrap: nowrap;
+    }
+    .tt-profile-strip__label {
+        flex: 0 0 auto;
+    }
+}
+
+/* =============================================================
+   PREVIEW
+   ============================================================= */
+
+.tt-profile-preview__intro,
+.tt-profile-preview__lede,
+.tt-profile-preview__safety {
+    margin: 0 0 var(--tt-sp-3);
+    max-width: 62ch;
+    line-height: var(--tt-lh-body);
+}
+
+.tt-profile-preview__intro {
+    color: var(--tt-ink);
+}
+
+.tt-profile-preview__lede,
+.tt-profile-preview__safety {
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-profile-preview__empty {
+    margin: var(--tt-sp-5) 0;
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    color: var(--tt-ink-soft);
+}
+
+/* =============================================================
+   DIFF
+   ============================================================= */
+
+.tt-profile-diff {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-5);
+    margin: var(--tt-sp-5) 0;
+}
+
+.tt-profile-diff__title {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-h3);
+    color: var(--tt-ink);
+}
+
+.tt-profile-diff__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.75rem;
+    padding: 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-ink-soft);
+    background: var(--tt-bg-soft);
+    border-radius: 999px;
+}
+
+.tt-profile-diff__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    /* 8px is the § 2 minimum spacing between adjacent tap targets. */
+    gap: var(--tt-sp-2);
+}
+
+.tt-profile-diff__pick {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3);
+    /* The whole row is the tap target, not just the box inside it. */
+    min-height: 48px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-profile-diff__pick:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-profile-diff__pick--static {
+    cursor: default;
+    background: var(--tt-bg-soft);
+}
+
+.tt-profile-diff__check {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    accent-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-profile-diff__check:focus-visible {
+    outline: 2px solid var(--tt-info);
+    outline-offset: 2px;
+}
+
+.tt-profile-diff__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--tt-ink);
+    overflow-wrap: anywhere;
+}
+
+.tt-profile-diff__kind {
+    flex: 0 0 auto;
+    padding: 2px var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    background: var(--tt-bg-soft);
+    border-radius: 999px;
+}
+
+.tt-profile-diff__pick--static .tt-profile-diff__kind {
+    background: var(--tt-paper);
+}
+
+.tt-profile-diff__reason {
+    /* On a phone the reason drops under the name rather than squeezing
+     * three things onto one line; it widens back out on tablet. */
+    flex: 1 1 100%;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-warning);
+}
+
+.tt-profile-diff__pick--static {
+    flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+    .tt-profile-diff__pick--static {
+        flex-wrap: nowrap;
+    }
+    .tt-profile-diff__reason {
+        flex: 0 0 auto;
+    }
+}
+
+/* The group heading colour is the only thing distinguishing the three
+ * sections at a glance; keep it above the 4.5:1 body-text threshold. */
+.tt-profile-diff__group--skipped .tt-profile-diff__title {
+    color: var(--tt-ink-soft);
+}

@@ -1455,6 +1455,11 @@ class DashboardShortcode {
                 // #1451 — frontend equivalent of the wp-admin Modules toggle.
                 FrontendModulesView::render( $user_id, $is_admin );
                 return true;
+            case 'install-profile':
+                // #3037 — preview and confirm an install profile. The only
+                // path in the product that applies one.
+                \TT\Shared\Frontend\FrontendInstallProfileView::render( $user_id, $is_admin );
+                return true;
             case 'matrix':
                 // #2654 — the authorization matrix, editable by an academy
                 // admin without a WordPress account. wp-admin keeps its own
