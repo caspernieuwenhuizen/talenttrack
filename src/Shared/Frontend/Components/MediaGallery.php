@@ -258,7 +258,9 @@ final class MediaGallery {
             }
         }
 
-        echo '<details class="tt-media-tag" data-role="tag" data-uuid="' . esc_attr( (string) $item->uuid ) . '">';
+        $uuid = (string) $item->uuid;
+
+        echo '<details class="tt-media-tag" data-role="tag" data-uuid="' . esc_attr( $uuid ) . '">';
         echo '<summary class="tt-media-tag__summary">' . esc_html(
             $attached === []
                 ? __( 'Tag players', 'talenttrack' )
@@ -273,7 +275,7 @@ final class MediaGallery {
             'mode'     => 'tile',
             'players'  => $players,
             'selected' => $attached,
-            'uuid'     => (string) $item->uuid,
+            'uuid'     => $uuid,
         ] );
 
         echo '</details>';

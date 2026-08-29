@@ -76,6 +76,8 @@ final class MediaDetailsStep implements WizardStepInterface {
      * gone by the time the grid renders. Absent where nothing can be
      * tagged — a photo on a player is already about that player, and a
      * team's roster is a list of everyone.
+     *
+     * @param array<string, mixed> $state
      */
     private static function renderTagField( array $state ): void {
         $players = MediaTagRoster::for(

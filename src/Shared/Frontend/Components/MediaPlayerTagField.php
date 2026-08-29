@@ -35,8 +35,8 @@ final class MediaPlayerTagField {
 
     /**
      * @param array{
-     *   mode: string,
-     *   players: array<int, string>,
+     *   mode?: string,
+     *   players?: array<int, string>,
      *   selected?: array<int, int>,
      *   uuid?: string,
      *   field_name?: string,

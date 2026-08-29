@@ -124,13 +124,15 @@ final class MediaConfirmStep implements WizardStepInterface {
             if ( ! $media ) continue;
             if ( ! $access->canEdit( $user, $media ) ) continue;
 
-            if ( $fields !== [] ) $repo->update( (int) $media->id, $fields );
+            $media_id = (int) $media->id;
+
+            if ( $fields !== [] ) $repo->update( $media_id, $fields );
 
             foreach ( $tagged as $player_id ) {
                 // Idempotent: a coach who steps back and finishes again
                 // must not end up with the same player attached twice.
-                if ( $links->findLink( (int) $media->id, MediaEntityType::PLAYER, $player_id ) ) continue;
-                $links->link( (int) $media->id, MediaEntityType::PLAYER, $player_id );
+                if ( $links->findLink( $media_id, MediaEntityType::PLAYER, $player_id ) ) continue;
+                $links->link( $media_id, MediaEntityType::PLAYER, $player_id );
             }
 
             $applied++;
