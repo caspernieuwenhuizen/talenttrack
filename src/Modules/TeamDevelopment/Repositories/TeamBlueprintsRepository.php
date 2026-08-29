@@ -616,14 +616,25 @@ class TeamBlueprintsRepository {
         return $seed;
     }
 
+    /**
+     * #3102 — `random_int()` rather than `mt_rand()`, because the demo
+     * generator calls `mt_srand()` with a fixed seed before every step. Two
+     * demo runs with the same seed therefore restarted the Mersenne Twister
+     * from an identical state and minted byte-for-byte the same uuid, which
+     * collided with `uk_uuid` on the second run.
+     *
+     * The CSPRNG is not reachable by `mt_srand()`, so the identity is fresh
+     * every time while the demo dataset stays reproducible — which is what
+     * the seed was ever meant to fix.
+     */
     private static function uuid(): string {
         return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000,
-            mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+            random_int( 0, 0xffff ), random_int( 0, 0xffff ),
+            random_int( 0, 0xffff ),
+            random_int( 0, 0x0fff ) | 0x4000,
+            random_int( 0, 0x3fff ) | 0x8000,
+            random_int( 0, 0xffff ), random_int( 0, 0xffff ), random_int( 0, 0xffff )
         );
     }
 }

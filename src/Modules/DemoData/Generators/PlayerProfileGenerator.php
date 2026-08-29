@@ -408,15 +408,13 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
         return 0;
     }
 
+    /**
+     * #3102 — outside the seeded stream, so a second run into the same
+     * install does not re-mint the uuid the first one already stored. See
+     * \TT\Modules\DemoData\DemoUuid.
+     */
     private static function uuid(): string {
-        return function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : sprintf(
-            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0xffff ),
-            mt_rand( 0, 0x0fff ) | 0x4000,
-            mt_rand( 0, 0x3fff ) | 0x8000,
-            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
-        );
+        return \TT\Modules\DemoData\DemoUuid::mint();
     }
 
     private static function resolveLanguage( string $locale ): string {
