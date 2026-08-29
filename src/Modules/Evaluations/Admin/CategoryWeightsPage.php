@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Evaluations\CategoryWeightsRepository;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 
 /**
  * CategoryWeightsPage — manages weighted overall rating config.
@@ -27,10 +28,28 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 class CategoryWeightsPage {
 
-    private const CAP = 'tt_view_settings';
+    /**
+     * #3023 — a read capability used to authorise the write.
+     *
+     * Both `render()` and the two handlers gated on `tt_view_settings`, so
+     * a *view* capability was what stood between a user and rewriting the
+     * weighting that decides every composite rating the academy reads. It
+     * also disagreed with its own entry points: the admin menu item and
+     * the dashboard tile are gated on `tt_view_category_weights`, so the
+     * page was reachable by URL for a user those deliberately hide it from.
+     *
+     * The purpose-built pair already existed — seeded in `RolesService` and
+     * mapped in `LegacyCapMapper` to the `category_weights` entity with
+     * `read` and `change`. Nothing needed inventing; the page just did not
+     * use them. Resolved through `AuthorizationService::userCanOrMatrix()`
+     * so the matrix is honoured rather than only the WordPress role, which
+     * is what the frontend surface does.
+     */
+    private const CAP_VIEW = 'tt_view_category_weights';
+    private const CAP_EDIT = 'tt_edit_category_weights';
 
     public static function render(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), self::CAP_VIEW ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -178,7 +197,7 @@ class CategoryWeightsPage {
     // Handlers
 
     public static function handleSave(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -216,7 +235,7 @@ class CategoryWeightsPage {
     }
 
     public static function handleReset(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $age_group_id = isset( $_GET['age_group_id'] ) ? absint( $_GET['age_group_id'] ) : 0;

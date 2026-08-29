@@ -26,6 +26,18 @@ class PeoplePage {
     private const CAP = 'tt_view_people';
 
     /**
+     * #3023 sweep — the capability that authorises a write.
+     *
+     * `handleSave`, `handleSetStatus` and `handleUnassignStaff` all gated
+     * on `tt_view_people`, a read capability, while the list already hides
+     * its own **Add new** and **Edit** links behind `tt_edit_people`. So
+     * the affordances were gated correctly and the endpoints behind them
+     * were not: a user who could only read people could still POST a save.
+     * The capability existed; the handlers just did not consult it.
+     */
+    private const CAP_EDIT = 'tt_edit_people';
+
+    /**
      * Enqueue the bulk delete-preview dialog assets on the People list.
      * Wired from PeopleModule::boot() via `admin_enqueue_scripts`.
      * #1138 (v4.20.0).
@@ -411,7 +423,7 @@ class PeoplePage {
     // Handlers
 
     public static function handleSave(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_save_person', 'tt_nonce' );
@@ -457,7 +469,7 @@ class PeoplePage {
     }
 
     public static function handleSetStatus(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $id = isset( $_POST['id'] ) ? absint( wp_unslash( (string) $_POST['id'] ) ) : 0;
@@ -473,7 +485,7 @@ class PeoplePage {
     }
 
     public static function handleUnassignStaff(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $assignment_id = isset( $_POST['assignment_id'] ) ? absint( wp_unslash( (string) $_POST['assignment_id'] ) ) : 0;

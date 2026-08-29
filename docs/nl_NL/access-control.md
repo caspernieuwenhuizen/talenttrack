@@ -39,6 +39,23 @@ De rechten van vóór v3 bestaan nog steeds en werken nog steeds:
 
 Daardoor blijft externe code of andere plug-ins die op legacy-rechtennamen controleren zonder aanpassing werken. Louter-lezen gebruikers (de rol Waarnemer) falen terecht op legacy `manage`-checks omdat hun edit-tegenhanger ontbreekt.
 
+## Een leesrecht geeft nooit toestemming om te schrijven
+
+Iets bekijken en iets wijzigen zijn twee verschillende rechten, en de wp-adminpagina's houden zich daar nu overal aan waar een smaller recht bestaat om dat te zeggen.
+
+Vijf wp-adminschermen schermden hun **opslaan** af met een recht waarvan de naam *bekijken* zegt: Categoriegewichten, Aangepaste velden, Evaluatiecategorieën, Eval-typecategorieën en Personen. Bij elk daarvan was het menu-item dat ernaartoe leidt al afgeschermd met het smallere leesrecht, dus de pagina was via de URL bereikbaar voor iemand die het toegangspunt bewust verbergt — en de schrijfactie erachter werd toegestaan op grond van leestoegang.
+
+**Voor wie dit iets verandert.** Vooral voor het **Hoofd Ontwikkeling**. `tt_view_settings` is een verzamelrecht: je hebt het zodra je alle deel-leesrechten hebt. Het Hoofd Ontwikkeling heeft die bewust — het mag de configuratie inzien — en is bij het opsplitsen van de instellingenrechten juist zijn `tt_edit_*`-rechten kwijtgeraakt. De wp-adminpagina's gaven dat schrijfrecht via het lees-verzamelrecht terug. Dat gebeurt niet meer. Moet een Hoofd Ontwikkeling echt categoriegewichten, aangepaste velden of evaluatiecategorieën kunnen wijzigen, geef dan het bijbehorende `tt_edit_*`-recht: een bewuste keuze in plaats van een bijeffect.
+
+Clubbeheerder en beheerder merken niets: die hebben alle betrokken schrijfrechten al. Trainers en teammanagers ook niet: die hadden `tt_view_settings` nooit.
+
+Twee schrijfacties noemen nog een leesrecht. Beide zijn vastgelegd in plaats van stilzwijgend verruimd, omdat het juiste recht nog niet bestaat en er een verzinnen op zichzelf een wijziging aan het rechtenmodel is:
+
+| Actie | Afgeschermd met | Waarom nog open |
+| - | - | - |
+| Een rol toekennen of intrekken bij een persoon | `tt_view_settings` | Er is geen recht voor het toekennen van een rol. Het dichtstbijzijnde, `tt_manage_authorization`, betekent "de rechtenmatrix bewerken" — een andere handeling. |
+| Een geplande rapportage archiveren | `tt_view_analytics` | Er is geen schrijfrecht voor analyse. |
+
 ## De vooraf geconfigureerde rollen
 
 | Rol | View | Edit |
