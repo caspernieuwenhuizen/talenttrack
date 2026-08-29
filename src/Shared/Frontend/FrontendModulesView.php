@@ -217,6 +217,14 @@ class FrontendModulesView extends FrontendViewBase {
             [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
+        // #3037 — the install-profile strip renders on this page, so its
+        // sheet loads here too. The preview screen enqueues it itself.
+        wp_enqueue_style(
+            'tt-frontend-install-profile',
+            TT_PLUGIN_URL . 'assets/css/frontend-install-profile.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         // #2300 — client-side filter over the module + feature list.
         wp_enqueue_script(
             'tt-frontend-modules-search',
@@ -233,6 +241,23 @@ class FrontendModulesView extends FrontendViewBase {
                 . esc_html__( 'Module state saved. Reload open tabs to see the effect.', 'talenttrack' )
                 . '</div>';
         }
+
+        // #3037 — an install profile was applied on the preview screen.
+        if ( isset( $_GET['tt_msg'] ) && $_GET['tt_msg'] === 'profile-applied' ) {
+            $applied = isset( $_GET['tt_applied'] ) ? absint( wp_unslash( $_GET['tt_applied'] ) ) : 0;
+            echo '<div class="tt-flash tt-flash-success tt-profile-flash">'
+                . esc_html( sprintf(
+                    /* translators: %d is the number of modules and features that were switched on or off. */
+                    _n( 'Install profile applied — %d change made. Reload open tabs to see the effect.', 'Install profile applied — %d changes made. Reload open tabs to see the effect.', $applied, 'talenttrack' ),
+                    $applied
+                ) )
+                . '</div>';
+        }
+
+        // #3037 — which profile this install is on, how far it has drifted,
+        // and the way in to changing it. The strip renders its own markup;
+        // this view only calls it.
+        FrontendInstallProfileView::renderStrip();
 
         // Group every declared module under its category. Categories with
         // no modules drop out. The render below is a pure composer — all

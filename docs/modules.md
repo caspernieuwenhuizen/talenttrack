@@ -3,7 +3,7 @@ title: Modules
 group: frontend
 summary: Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code.
 audience: [admin]
-views: [modules, features]
+views: [modules, features, install-profile]
 order: 80
 ---
 
@@ -55,6 +55,20 @@ A profile is an association, not a copy. The install remembers which profile it 
 Choosing a profile never overrules your plan. A module or feature that is not part of what this install is entitled to is reported as skipped, with the reason, rather than being switched on and failing later.
 
 Applying a profile changes only which surfaces are switched on. **No data is deleted, ever.** A module switched off by a profile keeps every row it owns, and switching it back on restores access to all of it.
+
+### Where you see it, and how you change it
+
+At the top of the Modules page there is a strip reading **Install profile** and, under it, either the profile you are on with the number of changes since — *Basics · 3 changes since* — or **Not on a profile** for an install that predates them. Beside it, a chooser and a **Review changes** button.
+
+Review changes opens the preview, which is the **only** screen in the product that applies a profile. It lists what would happen in three groups:
+
+1. **Will be switched on**
+2. **Will be switched off**
+3. **Cannot be applied** — anything above what your plan includes, with the reason. These are read-only text rather than an unticked box, because they are not a choice you have.
+
+Everything in the first two groups is ticked. Untick anything you would rather keep as it is and it is left alone; the confirmation afterwards says how many changes were made. Nothing is written until you press **Apply** — opening the preview and navigating away changes nothing at all. **Cancel** returns you to the Modules page, and if you arrived from somewhere else it returns you there instead.
+
+A profile that would change nothing shows a short "already matches" line and no Apply button.
 
 *Audience: developers.* The profiles themselves live in `config/profiles.php` and are not editable at runtime — changing what Basics means is a release, for the same reason the plan map is. A profile states its modules in full (every class in `config/modules.php`, so a module added in a release has to be placed rather than arriving on by omission) and its features as overrides only (the catalog builds the export and report keys from loops, so enumerating them would go stale the day a report is added). `TT\Shared\Modules\ProfileRegistry` reads the file; `TT\Shared\Modules\ProfileService` compares it against live state (`diff()`, `divergence()`) and applies it (`apply()`) through `ModuleRegistry` and `FeatureRegistry`, so every write carries the same audit trail a hand-thrown switch does. `tools/check-module-toggles.php` fails the build when a profile names something that does not resolve, misses a switchable module, or tries to disable an always-on one.
 
