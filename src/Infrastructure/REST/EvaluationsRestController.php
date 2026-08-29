@@ -552,8 +552,21 @@ class EvaluationsRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
         }
 
-        $header = self::extract( $r );
-        unset( $header['coach_id'] ); // preserve original coach
+        // #3008 (epic #2881) — a patch, not a full row.
+        //
+        // This used to reuse `extract()`, which fills every column from
+        // `$r[…] ?? ''`. That is right for a create and catastrophic for an
+        // update the moment the surface autosaves: a body carrying only
+        // `notes` would zero `player_id` and `eval_type_id`, reset the date
+        // to today and blank the player feedback, the opponent and the
+        // result. Nothing about it would look like a bug — it would look
+        // like a coach's write-up quietly disappearing when they edited a
+        // different field.
+        //
+        // Now only the keys the request actually carries are written, and
+        // absence means "leave it alone" — the same contract the goals,
+        // PDP-conversation and match-analysis writers already keep.
+        $header = self::patch( $r );
 
         // v4.20.37 (#1197) — Audit 2 (#1176) flagged the cross-club
         // rewrite class on this handler. Pre-fix the UPDATE's WHERE
@@ -571,15 +584,19 @@ class EvaluationsRestController {
                 return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
             }
         }
-        $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            Logger::error( 'rest.evaluation.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
-            return RestResponse::error(
-                'db_error',
-                __( 'The evaluation could not be updated.', 'talenttrack' ),
-                500,
-                [ 'db_error' => (string) $wpdb->last_error ]
-            );
+        // A body that carries only ratings has nothing to write here, and
+        // an empty `$wpdb->update()` is an error rather than a no-op.
+        if ( $header ) {
+            $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            if ( $ok === false ) {
+                Logger::error( 'rest.evaluation.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
+                return RestResponse::error(
+                    'db_error',
+                    __( 'The evaluation could not be updated.', 'talenttrack' ),
+                    500,
+                    [ 'db_error' => (string) $wpdb->last_error ]
+                );
+            }
         }
 
         if ( isset( $r['ratings'] ) ) {
@@ -627,8 +644,22 @@ class EvaluationsRestController {
 
         // #0018 — same hook as create_eval; let cache invalidators
         // know the player's evaluation surface changed.
-        if ( ! empty( $header['player_id'] ) ) {
-            do_action( 'tt_evaluation_saved', (int) $header['player_id'], $id );
+        //
+        // #3008 — read the player back off the row when the patch did not
+        // carry one. A partial write still changes the player's evaluation
+        // surface, and a cache that is only invalidated when the caller
+        // happened to resend `player_id` is a cache that goes stale on
+        // exactly the writes autosave produces most of.
+        $player_id = (int) ( $header['player_id'] ?? 0 );
+        if ( $player_id <= 0 ) {
+            $player_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT player_id FROM {$p}tt_evaluations WHERE id = %d AND club_id = %d",
+                $id,
+                CurrentClub::id()
+            ) );
+        }
+        if ( $player_id > 0 ) {
+            do_action( 'tt_evaluation_saved', $player_id, $id );
         }
 
         return RestResponse::success( [ 'id' => $id ] );
@@ -723,6 +754,43 @@ class EvaluationsRestController {
             // single source the minutes reports read. The dead column stays
             // in place (no destructive migration) but receives no new writes.
         ];
+    }
+
+    /**
+     * The update counterpart of `extract()`: only the header columns the
+     * request actually carries (#3008, epic #2881).
+     *
+     * `extract()` answers "what does a new evaluation look like", so every
+     * column gets a default. This answers "what did the caller ask to
+     * change", so absence means untouched. The distinction did not matter
+     * while the form posted itself whole on one deliberate Save; it is
+     * load-bearing now that the surface autosaves and other clients may
+     * send a slice.
+     *
+     * `coach_id` is deliberately absent: an edit never re-points an
+     * evaluation at whoever happened to open it.
+     *
+     * @return array<string, mixed>
+     */
+    private static function patch( \WP_REST_Request $r ): array {
+        $params = (array) $r->get_params();
+
+        $text = [ 'opponent', 'competition', 'game_result', 'home_away', 'eval_date' ];
+        $area = [ 'notes', 'player_feedback' ];
+        $ints = [ 'player_id', 'eval_type_id' ];
+
+        $patch = [];
+        foreach ( $ints as $key ) {
+            if ( array_key_exists( $key, $params ) ) $patch[ $key ] = absint( $r[ $key ] );
+        }
+        foreach ( $text as $key ) {
+            if ( array_key_exists( $key, $params ) ) $patch[ $key ] = sanitize_text_field( (string) $r[ $key ] );
+        }
+        foreach ( $area as $key ) {
+            if ( array_key_exists( $key, $params ) ) $patch[ $key ] = sanitize_textarea_field( (string) $r[ $key ] );
+        }
+
+        return $patch;
     }
 
     /**

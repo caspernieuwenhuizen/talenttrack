@@ -465,8 +465,31 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $selected_player = $is_edit ? (int) ( $goal->player_id ?? 0 ) : $preset_player_id;
         $hide_player_picker = ! $is_edit && $preset_player_id > 0;
 
+        // #3008 (epic #2881) — a goal being edited autosaves; a goal being
+        // written for the first time does not. Autosave writes to a record,
+        // and in create mode there is no record yet: pointing it at `POST
+        // /goals` would leave an empty goal on a player's file behind every
+        // coach who opened the form and changed their mind.
+        $autosaves = $is_edit;
+        if ( $autosaves ) {
+            \TT\Shared\Frontend\Components\FormAutosave::enqueue();
+        }
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
+        <form id="<?php echo esc_attr( $form_id ); ?>"
+              class="<?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              <?php if ( $autosaves ) {
+                  echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
+                      $rest_path,
+                      $rest_meth,
+                      'goal:' . $rest_path
+                  );
+              } else {
+                  printf(
+                      'data-rest-path="%s" data-rest-method="%s" data-redirect-after-save="list"',
+                      esc_attr( $rest_path ),
+                      esc_attr( $rest_meth )
+                  );
+              } ?>>
             <div class="tt-grid tt-grid-2">
                 <?php if ( $hide_player_picker ) : ?>
                     <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
@@ -612,10 +635,21 @@ class FrontendGoalsManageView extends FrontendViewBase {
             $detail_url = $is_edit ? add_query_arg( [ 'tt_view' => 'goals', 'id' => (int) $goal->id ], $dash_url ) : $list_url;
             $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
             $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
-            echo FormSaveButton::render( [
-                'label'      => $is_edit ? __( 'Update goal', 'talenttrack' ) : __( 'Add goal', 'talenttrack' ),
-                'cancel_url' => $cancel_url,
-            ] );
+
+            if ( $autosaves ) {
+                // #3008 — the save state replaces Save + Cancel. §6's
+                // Cancel governs a form where Save is the commit; there is
+                // nothing uncommitted here to walk away from, and undo and
+                // revert reach further than abandoning did.
+                echo '<div class="tt-form-actions">';
+                \TT\Shared\Frontend\Components\SaveState::render();
+                echo '</div>';
+            } else {
+                echo FormSaveButton::render( [
+                    'label'      => __( 'Add goal', 'talenttrack' ),
+                    'cancel_url' => $cancel_url,
+                ] );
+            }
             ?>
             <div class="tt-form-msg"></div>
         </form>

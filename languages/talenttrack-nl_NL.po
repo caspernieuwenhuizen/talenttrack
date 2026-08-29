@@ -58537,6 +58537,24 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
+msgid ""
+"Sign off this conversation? It becomes read-only for everyone — open a new "
+"conversation if a follow-up edit is needed."
+msgstr ""
+"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
+"open een nieuw gesprek als er nog een wijziging nodig is."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1239
+msgid "Sign off"
+msgstr "Ondertekenen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1240
+msgid "Everything above is already saved. Signing off closes the conversation for editing."
+msgstr ""
+"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
+"bewerken."
+
 #~ msgid ""
 #~ "Choose which messages your academy sends. Unchecking one stops it being "
 #~ "sent to anyone, for every channel. Nothing is lost: a message that was "

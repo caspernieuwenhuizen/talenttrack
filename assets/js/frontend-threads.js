@@ -42,6 +42,51 @@
             if (action === 'delete') doDelete(msgEl, msgId);
         });
 
+        // #3008 (epic #2881) — the compose box keeps a draft.
+        //
+        // The other four surfaces in this slice autosave, meaning "write to
+        // the record as you go". A note cannot: a thread message is a post,
+        // not a field, and writing one on the first keystroke would fan a
+        // notification out to the staff for a sentence the coach was still
+        // choosing the words for.
+        //
+        // What the epic actually asked for here is that the work is not
+        // lost — and for a compose box that means the draft survives the
+        // tab, not that the message is committed early. So the text is kept
+        // in this browser, restored when the coach comes back, and cleared
+        // the moment it is genuinely posted.
+        //
+        // Keyed per user as well as per thread: academy laptops get shared,
+        // and a half-written note about a child must not surface under
+        // somebody else's account.
+        var draftKey = 'tt.thread.draft.'
+            + String(cfg.current_user_id || 0) + '.'
+            + String(cfg.thread_type || '') + '.'
+            + String(cfg.thread_id || '');
+
+        function draftRead() {
+            try { return window.localStorage.getItem(draftKey) || ''; } catch (e) { return ''; }
+        }
+        function draftWrite(value) {
+            try {
+                if (value) window.localStorage.setItem(draftKey, value);
+                else window.localStorage.removeItem(draftKey);
+            } catch (e) { /* private window, full store: the box still works */ }
+        }
+
+        if (compose) {
+            var draftArea = compose.querySelector('textarea');
+            if (draftArea) {
+                // Never overwrite something already in the box — a browser
+                // that restored the field itself has the fresher copy.
+                if (!draftArea.value) {
+                    var kept = draftRead();
+                    if (kept) draftArea.value = kept;
+                }
+                draftArea.addEventListener('input', function () { draftWrite(draftArea.value); });
+            }
+        }
+
         if (compose) {
             compose.addEventListener('submit', function (ev) {
                 ev.preventDefault();
@@ -60,6 +105,8 @@
                         if (msg.id > lastId) lastId = msg.id;
                         if (ta) ta.value = '';
                         if (pv) pv.checked = false;
+                        // Posted, so the draft has served its purpose.
+                        draftWrite('');
                     }
                 }).catch(function () {
                     alert(cfg.i18n.failed || 'Could not send message.');

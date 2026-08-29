@@ -29,6 +29,23 @@ Een **doel** is iets waar een speler aan werkt — bijvoorbeeld "nauwkeurigheid 
 3. Vul titel, omschrijving, status en prioriteit in en optioneel een streefdatum.
 4. Opslaan.
 
+## Een doel bewerken slaat zichzelf op
+
+Een doel toevoegen eindigt met **Opslaan**, zoals hierboven. Een doel
+**bewerken** niet: dat slaat op terwijl je schrijft, en op de plek van de
+opslaanknop staat een statusregel die vertelt hoe ver dat is —
+*Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*.
+
+Ernaast draait **Ongedaan maken** de laatst opgeslagen wijziging terug en zet
+**Wijzigingen terugdraaien** het formulier terug naar hoe het was toen je het
+opende. Beide staan volledig beschreven onder *Opslaggedrag* op de pagina
+[wedstrijdvoorbereiding](match-prep.md).
+
+Er is geen Annuleren meer op het bewerkformulier, want er staat niets open om
+te annuleren. Toevoegen vraagt nog wel om Opslaan, en dat is met opzet: er
+mag geen leeg doel in het dossier van een speler achterblijven omdat je het
+formulier opende en je bedacht.
+
 ## Voortgang volgen
 
 Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vordert. Het **Status**-filter op de doelenlijst groepeert doelen in **Actief**, **Behaald** en **Gemist**, en staat standaard op Actief zodat de lijst opent met wat er nog loopt. Archiveren staat daar los van: de lijst opent met niet-gearchiveerde doelen, en met de **⋯**-knop aan het eind van de filterrij schakel je naar de gearchiveerde.

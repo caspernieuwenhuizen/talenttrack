@@ -1140,7 +1140,36 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '</div>';
         }
         ?>
-        <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
+        <?php
+        // #3008 (epic #2881) — the conversation composes itself as the
+        // coach writes, up to the point a signature locks it.
+        //
+        // The signature lock is the boundary, not the content lock. A
+        // content-locked conversation (a later talk in the cycle) still has
+        // one editable field, the planned date, and its other inputs are
+        // rendered `disabled` — so they are absent from the serialisation
+        // and the autosave carries only the date, which the endpoint
+        // accepts. A signature-locked conversation has nothing writable at
+        // all, so it gets no save state and no autosave.
+        $autosaves = ! $is_locked;
+        if ( $autosaves ) {
+            \TT\Shared\Frontend\Components\FormAutosave::enqueue();
+        }
+        ?>
+        <form class="<?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              <?php if ( $autosaves ) {
+                  echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
+                      $rest_path,
+                      'PATCH',
+                      'pdp-conversation:' . $rest_path
+                  );
+              } else {
+                  printf(
+                      'data-rest-path="%s" data-rest-method="PATCH" data-redirect-after-save-url="%s"',
+                      esc_attr( $rest_path ),
+                      esc_attr( $back_to_file_url )
+                  );
+              } ?>>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
@@ -1202,23 +1231,44 @@ class FrontendPdpManageView extends FrontendViewBase {
 
             <?php if ( $is_signed ) : ?>
                 <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) ); ?></p>
-            <?php elseif ( ! $is_locked && ! $content_locked ) : ?>
-                <div class="tt-field">
-                    <label class="tt-checkbox">
-                        <input type="checkbox" name="coach_signoff_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
-                        <?php esc_html_e( 'Sign off this conversation now', 'talenttrack' ); ?>
-                    </label>
-                </div>
             <?php endif; ?>
 
-            <?php if ( ! $is_locked ) : ?>
-                <div class="tt-form-actions" style="margin-top:16px;">
-                    <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save conversation', 'talenttrack' ); ?></button>
+            <?php if ( $autosaves ) : ?>
+                <div class="tt-form-actions">
+                    <?php \TT\Shared\Frontend\Components\SaveState::render(); ?>
                 </div>
             <?php endif; ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php
+        // #3008 — sign-off leaves the conversation form and becomes its own
+        // confirmed action.
+        //
+        // It was a checkbox inside the form. On a form the coach had to
+        // press Save on, that was fine: ticking it and pressing Save is two
+        // deliberate acts. On an autosaving form it becomes one accidental
+        // one — the tick debounces, the conversation locks end-to-end, and
+        // the only way back is to open a new conversation. A control that
+        // makes a player's record permanently read-only must not fire
+        // because 600 milliseconds elapsed.
+        //
+        // So it is a button, outside the autosaving form, behind the
+        // confirm `public.js` already honours, landing back on the PDP file
+        // the way Save used to.
+        if ( ! $is_signed && ! $is_locked && ! $content_locked ) :
+            ?>
+            <form class="tt-ajax-form tt-pdp-signoff"
+                  data-rest-path="<?php echo esc_attr( $rest_path ); ?>"
+                  data-rest-method="PATCH"
+                  data-confirm-msg="<?php esc_attr_e( 'Sign off this conversation? It becomes read-only for everyone — open a new conversation if a follow-up edit is needed.', 'talenttrack' ); ?>"
+                  data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
+                <input type="hidden" name="coach_signoff_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Sign off', 'talenttrack' ); ?></button>
+                <p class="tt-help-text"><?php esc_html_e( 'Everything above is already saved. Signing off closes the conversation for editing.', 'talenttrack' ); ?></p>
+                <div class="tt-form-msg"></div>
+            </form>
+            <?php
+        endif;
         // #2042 — proxy acknowledgement. A coach who ran the talk in person
         // can record the player's / parent's acknowledgement on their behalf,
         // each behind a confirm dialog. Plain proxy: it writes the same

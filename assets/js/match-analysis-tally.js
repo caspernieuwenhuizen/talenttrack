@@ -209,11 +209,11 @@
             if (btn) btn.focus();
         });
 
-        // #3007 — undo and revert put old values straight back into the
+        // #3007 / #3008 — undo and revert put old values straight back into the
         // radios, which the chips above are drawn from. Without this the
         // radios would be right and the chips would still show the marker
         // the coach just took back.
-        document.addEventListener('tt:ma-remounted', function () {
+        document.addEventListener('tt:form-remounted', function () {
             closePicker();
             players.forEach(paint);
             repaintCount();

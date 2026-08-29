@@ -58,6 +58,16 @@ De gesprekken verlopen op volgorde: alleen het **actieve** gesprek — het eerst
 
 De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen. Zodra de coach ondertekent, wordt het veld vergrendeld.
 
+### Het gespreksformulier slaat zichzelf op
+
+Er is geen knop **Gesprek opslaan** meer. Het formulier slaat op terwijl je schrijft, en op de plek van de knop staat een statusregel die vertelt hoe ver dat is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*. **Ongedaan maken** en **Wijzigingen terugdraaien** staan ernaast, net als op elk ander automatisch opslaand scherm; beide staan volledig beschreven onder *Opslaggedrag* op de pagina [wedstrijdvoorbereiding](match-prep.md).
+
+De **zelfreflectie** van de speler werkt hetzelfde, zolang het venster open staat. Buiten het venster is het veld uitgeschakeld, zoals eerder, en wordt er niets opgeslagen.
+
+**Ondertekenen is nu een eigen knop, geen vinkje op het formulier.** Het was een vinkje dat je samen met de rest opsloeg. Op een formulier dat zichzelf opslaat zou dat één misklik verwijderd zijn van het gesprek permanent op slot zetten voor iedereen — daarom staat er nu een aparte knop **Ondertekenen** onder het formulier, achter een bevestiging. Alles daarboven is op dat moment al opgeslagen; ondertekenen is wat het gesprek voor bewerken sluit.
+
+Een **inhoudelijk vergrendeld** gesprek — een later gesprek in de cyclus — slaat nog wel zijn geplande datum automatisch op, het enige veld dat het je laat wijzigen. Een **ondertekend** gesprek slaat niets op, want er valt niets meer te schrijven.
+
 ### 3. Bevestiging
 
 Na ondertekening verschijnt het gesprek op het *Mijn POP*-overzicht van de speler (en de ouder, indien gekoppeld). Beiden kunnen op *Bevestigen* klikken â€” een lichte "ik heb het gezien"-timestamp.
