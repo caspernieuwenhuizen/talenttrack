@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T15:42:50+00:00\n"
+"POT-Creation-Date: 2026-08-29T15:57:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -83,7 +83,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:408
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2240
+#: src/Shared/Frontend/DashboardShortcode.php:2245
 #: src/Shared/Frontend/FrontendConfigurationView.php:2733
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -93,7 +93,7 @@ msgstr "Padre / Madre"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2245
+#: src/Shared/Frontend/DashboardShortcode.php:2250
 msgid "Team Manager"
 msgstr ""
 
@@ -196,7 +196,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:229
 #: src/Shared/Frontend/DashboardShortcode.php:262
-#: src/Shared/Frontend/DashboardShortcode.php:2239
+#: src/Shared/Frontend/DashboardShortcode.php:2244
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3308
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3385
@@ -276,7 +276,7 @@ msgstr "Entrenador"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2243
+#: src/Shared/Frontend/DashboardShortcode.php:2248
 #: src/Shared/Frontend/FrontendConfigurationView.php:2727
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1262,7 +1262,8 @@ msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:35
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:324
-#: src/Shared/Frontend/FrontendModulesView.php:292
+#: src/Shared/Frontend/Components/ProfileDiff.php:115
+#: src/Shared/Frontend/FrontendModulesView.php:317
 msgid "Module"
 msgstr ""
 
@@ -1911,7 +1912,7 @@ msgstr "Fisioterapeuta"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2244
+#: src/Shared/Frontend/DashboardShortcode.php:2249
 #: src/Shared/Frontend/FrontendConfigurationView.php:2731
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1994,7 +1995,7 @@ msgstr "Admin del club"
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2242
+#: src/Shared/Frontend/DashboardShortcode.php:2247
 msgid "Head Coach"
 msgstr "Entrenador principal"
 
@@ -2005,7 +2006,7 @@ msgstr "Entrenador principal"
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2241
+#: src/Shared/Frontend/DashboardShortcode.php:2246
 msgid "Assistant Coach"
 msgstr "Entrenador asistente"
 
@@ -5144,7 +5145,7 @@ msgstr "Actualizar"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
 #: src/Shared/Frontend/FrontendMatrixView.php:137
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
-#: src/Shared/Frontend/FrontendModulesView.php:400
+#: src/Shared/Frontend/FrontendModulesView.php:425
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2530
@@ -5264,7 +5265,7 @@ msgstr "Guardar"
 #: src/Shared/Admin/BulkActionsHelper.php:222
 #: src/Shared/Admin/BulkActionsHelper.php:225
 #: src/Shared/Frontend/FrontendMatrixView.php:465
-#: src/Shared/Frontend/FrontendModulesView.php:410
+#: src/Shared/Frontend/FrontendModulesView.php:435
 #: src/Shared/Mobile/MobileActionHandlers.php:46
 msgid "Unauthorized"
 msgstr "No autorizado"
@@ -7076,9 +7077,9 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:1019
 #: src/Shared/Frontend/DashboardShortcode.php:1251
 #: src/Shared/Frontend/DashboardShortcode.php:1260
-#: src/Shared/Frontend/DashboardShortcode.php:1642
-#: src/Shared/Frontend/DashboardShortcode.php:1650
-#: src/Shared/Frontend/DashboardShortcode.php:1658
+#: src/Shared/Frontend/DashboardShortcode.php:1647
+#: src/Shared/Frontend/DashboardShortcode.php:1655
+#: src/Shared/Frontend/DashboardShortcode.php:1663
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -7087,6 +7088,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:53
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
 #: src/Shared/Frontend/FrontendHolidaysView.php:148
+#: src/Shared/Frontend/FrontendInstallProfileView.php:44
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:36
 #: src/Shared/Frontend/FrontendMatrixView.php:81
@@ -7134,7 +7136,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:981
 #: src/Shared/CoreSurfaceRegistration.php:1919
 #: src/Shared/CoreSurfaceRegistration.php:2226
-#: src/Shared/Frontend/DashboardShortcode.php:1920
+#: src/Shared/Frontend/DashboardShortcode.php:1925
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
 msgstr ""
@@ -7911,6 +7913,7 @@ msgstr "— Ninguno —"
 #: src/Shared/Frontend/Components/FilterBar.php:276
 #: src/Shared/Frontend/Components/FilterBar.php:374
 #: src/Shared/Frontend/Components/FilterBar.php:576
+#: src/Shared/Frontend/FrontendInstallProfileView.php:120
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1552
 msgid "Apply"
 msgstr "Aplicar"
@@ -10002,6 +10005,8 @@ msgid "scope"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:36
+#: src/Shared/Frontend/FrontendInstallProfileView.php:45
+#: src/Shared/Frontend/FrontendInstallProfileView.php:196
 #: src/Shared/Frontend/FrontendModulesView.php:209
 msgid "You do not have permission to manage modules."
 msgstr ""
@@ -10009,9 +10014,10 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:52
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
 #: src/Shared/CoreSurfaceRegistration.php:2128
-#: src/Shared/Frontend/FrontendModulesView.php:228
-#: src/Shared/Frontend/FrontendModulesView.php:229
-#: src/Shared/Frontend/FrontendModulesView.php:483
+#: src/Shared/Frontend/FrontendInstallProfileView.php:269
+#: src/Shared/Frontend/FrontendModulesView.php:236
+#: src/Shared/Frontend/FrontendModulesView.php:237
+#: src/Shared/Frontend/FrontendModulesView.php:508
 msgid "Modules"
 msgstr ""
 
@@ -10087,7 +10093,7 @@ msgstr "Rendimiento"
 #: src/Shared/Frontend/FrontendConfigurationView.php:162
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
 #: src/Shared/Frontend/FrontendMatrixView.php:564
-#: src/Shared/Frontend/FrontendModulesView.php:497
+#: src/Shared/Frontend/FrontendModulesView.php:522
 #: src/Shared/Frontend/FrontendSetupView.php:389
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:681
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:92
@@ -10120,7 +10126,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
 #: src/Shared/Frontend/FrontendFeaturesView.php:301
-#: src/Shared/Frontend/FrontendModulesView.php:296
+#: src/Shared/Frontend/FrontendModulesView.php:321
 msgid "On"
 msgstr "Activado"
 
@@ -10129,7 +10135,7 @@ msgstr "Activado"
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1572
 #: src/Shared/Frontend/FrontendFeaturesView.php:301
-#: src/Shared/Frontend/FrontendModulesView.php:298
+#: src/Shared/Frontend/FrontendModulesView.php:323
 msgid "Off"
 msgstr "Desactivado"
 
@@ -10984,7 +10990,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2246
+#: src/Shared/Frontend/DashboardShortcode.php:2251
 msgid "Academy Admin"
 msgstr ""
 
@@ -13220,7 +13226,8 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:399
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:654
-#: src/Shared/Frontend/FrontendModulesView.php:359
+#: src/Shared/Frontend/Components/ProfileDiff.php:116
+#: src/Shared/Frontend/FrontendModulesView.php:384
 #: src/Shared/Frontend/FrontendUsageStatsView.php:234
 msgid "Feature"
 msgstr ""
@@ -17644,7 +17651,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2144
 #: src/Shared/CoreSurfaceRegistration.php:2331
 #: src/Shared/Frontend/CoachDashboardView.php:45
-#: src/Shared/Frontend/DashboardShortcode.php:2280
+#: src/Shared/Frontend/DashboardShortcode.php:2285
 #: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -19835,7 +19842,7 @@ msgstr "Imprimir"
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:235
-#: src/Shared/Frontend/DashboardShortcode.php:2285
+#: src/Shared/Frontend/DashboardShortcode.php:2290
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:159
 msgid "Close"
 msgstr "Cerrar"
@@ -27072,7 +27079,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:233
-#: src/Shared/Frontend/DashboardShortcode.php:2290
+#: src/Shared/Frontend/DashboardShortcode.php:2295
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -31580,8 +31587,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2195
-#: src/Shared/Frontend/DashboardShortcode.php:2196
+#: src/Shared/Frontend/DashboardShortcode.php:2200
+#: src/Shared/Frontend/DashboardShortcode.php:2201
 msgid "Help & docs"
 msgstr ""
 
@@ -34339,8 +34346,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1643
-#: src/Shared/Frontend/DashboardShortcode.php:1651
+#: src/Shared/Frontend/DashboardShortcode.php:1648
+#: src/Shared/Frontend/DashboardShortcode.php:1656
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -43824,10 +43831,10 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/DevelopmentPill.php:27
 #: src/Shared/Frontend/Components/DevelopmentPill.php:59
-#: src/Shared/Frontend/FrontendModulesView.php:301
-#: src/Shared/Frontend/FrontendModulesView.php:330
-#: src/Shared/Frontend/FrontendModulesView.php:361
-#: src/Shared/Frontend/FrontendModulesView.php:380
+#: src/Shared/Frontend/FrontendModulesView.php:326
+#: src/Shared/Frontend/FrontendModulesView.php:355
+#: src/Shared/Frontend/FrontendModulesView.php:386
+#: src/Shared/Frontend/FrontendModulesView.php:405
 msgid "Under development"
 msgstr ""
 
@@ -44184,6 +44191,26 @@ msgstr ""
 msgid "Filter by team"
 msgstr ""
 
+#: src/Shared/Frontend/Components/ProfileDiff.php:47
+msgid "Will be switched on"
+msgstr ""
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:53
+msgid "Will be switched off"
+msgstr ""
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:62
+msgid "Cannot be applied"
+msgstr ""
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:121
+msgid "Not part of your plan"
+msgstr ""
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:123
+msgid "Unavailable on this install"
+msgstr ""
+
 #: src/Shared/Frontend/Components/RatingInputComponent.php:45
 msgctxt "player rating"
 msgid "Insufficient"
@@ -44384,7 +44411,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:223
-#: src/Shared/Frontend/DashboardShortcode.php:2130
+#: src/Shared/Frontend/DashboardShortcode.php:2135
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -44565,84 +44592,84 @@ msgstr ""
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1659
+#: src/Shared/Frontend/DashboardShortcode.php:1664
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1871
-#: src/Shared/Frontend/DashboardShortcode.php:2264
+#: src/Shared/Frontend/DashboardShortcode.php:1876
+#: src/Shared/Frontend/DashboardShortcode.php:2269
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1922
+#: src/Shared/Frontend/DashboardShortcode.php:1927
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2058
+#: src/Shared/Frontend/DashboardShortcode.php:2063
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2061
+#: src/Shared/Frontend/DashboardShortcode.php:2066
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2064
+#: src/Shared/Frontend/DashboardShortcode.php:2069
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2087
+#: src/Shared/Frontend/DashboardShortcode.php:2092
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2150
+#: src/Shared/Frontend/DashboardShortcode.php:2155
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:2174
+#: src/Shared/Frontend/DashboardShortcode.php:2179
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2214
+#: src/Shared/Frontend/DashboardShortcode.php:2219
 #: src/Shared/Frontend/FrontendMySettingsView.php:54
 #: src/Shared/Frontend/FrontendMySettingsView.php:55
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:2221
+#: src/Shared/Frontend/DashboardShortcode.php:2226
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2233
+#: src/Shared/Frontend/DashboardShortcode.php:2238
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2236
+#: src/Shared/Frontend/DashboardShortcode.php:2241
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2260
+#: src/Shared/Frontend/DashboardShortcode.php:2265
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2282
+#: src/Shared/Frontend/DashboardShortcode.php:2287
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2354
+#: src/Shared/Frontend/DashboardShortcode.php:2359
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2355
+#: src/Shared/Frontend/DashboardShortcode.php:2360
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -47286,6 +47313,64 @@ msgstr ""
 msgid "Not now"
 msgstr ""
 
+#: src/Shared/Frontend/FrontendInstallProfileView.php:53
+#: src/Shared/Frontend/FrontendInstallProfileView.php:54
+#: src/Shared/Frontend/FrontendInstallProfileView.php:152
+msgid "Install profile"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:55
+msgid "That install profile does not exist. Pick one from the Modules page."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:91
+msgid "This install already matches this profile. There is nothing to change."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:98
+msgid ""
+"Everything below is ticked by default. Untick anything you would rather keep "
+"as it is — nothing is changed until you apply."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:101
+msgid ""
+"Switching a module off never deletes anything. Its records are kept and come "
+"back if you switch it on again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:116
+msgid "None of these changes can be applied on this install."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:121
+msgid "Applying..."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:122
+msgid "Applied"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:158
+msgid "Not on a profile"
+msgstr ""
+
+#. translators: %d is the number of modules and features that no longer match the install's profile.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:164
+#, php-format
+msgid "%d change since"
+msgid_plural "%d changes since"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:174
+msgid "Change profile"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:184
+msgid "Review changes"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:56
 msgid ""
 "No drifted lookup values remain. Every row matches its canonical English "
@@ -47804,37 +47889,48 @@ msgstr ""
 msgid "Core modules cannot be disabled."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:233
+#: src/Shared/Frontend/FrontendModulesView.php:241
 msgid "Module state saved. Reload open tabs to see the effect."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:250
+#. translators: %d is the number of modules and features that were switched on or off.
+#: src/Shared/Frontend/FrontendModulesView.php:251
+#, php-format
+msgid ""
+"Install profile applied — %d change made. Reload open tabs to see the effect."
+msgid_plural ""
+"Install profile applied — %d changes made. Reload open tabs to see the "
+"effect."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendModulesView.php:275
 msgid ""
 "Turn TalentTrack modules on or off. A disabled module registers no hooks, "
 "REST routes, pages, or capabilities until re-enabled. Core modules cannot be "
 "disabled."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:254
+#: src/Shared/Frontend/FrontendModulesView.php:279
 msgid "Search modules and features"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:259
+#: src/Shared/Frontend/FrontendModulesView.php:284
 msgid "Search modules and features…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:262
+#: src/Shared/Frontend/FrontendModulesView.php:287
 msgid ""
 "Change active modules now? Disabling a module hides its surfaces immediately "
 "— reload other open tabs after saving."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:294
+#: src/Shared/Frontend/FrontendModulesView.php:319
 msgid "Core"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:307
-#: src/Shared/Frontend/FrontendModulesView.php:344
+#: src/Shared/Frontend/FrontendModulesView.php:332
+#: src/Shared/Frontend/FrontendModulesView.php:369
 #, php-format
 msgid "%d feature"
 msgid_plural "%d features"
@@ -47843,17 +47939,17 @@ msgstr[1] ""
 
 #. translators: %s: module name
 #. translators: %s: feature name
-#: src/Shared/Frontend/FrontendModulesView.php:320
-#: src/Shared/Frontend/FrontendModulesView.php:370
+#: src/Shared/Frontend/FrontendModulesView.php:345
+#: src/Shared/Frontend/FrontendModulesView.php:395
 #, php-format
 msgid "Enable %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:395
+#: src/Shared/Frontend/FrontendModulesView.php:420
 msgid "No modules or features match your search."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:484
+#: src/Shared/Frontend/FrontendModulesView.php:509
 msgid "Turn TalentTrack modules on or off."
 msgstr ""
 
