@@ -82,11 +82,21 @@ A case stays "open" — visible to the assigned staff, counting against the head
 
 Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `Decline (with encouragement)`) plus the mandatory ≥ 30-character justification note. Recording the decision:
 
-- Flips the player's status (Admit → Active, Decline → Archived).
-- Generates the matching letter automatically.
+- Moves the player's status, per the table below.
+- Writes the matching entry on the player's journey — *Trial ended*, plus *Signed* on an admit or *Released* on a final decline.
 - Stamps `decision_made_at` + `decision_made_by` for the audit trail.
 
-Use this whenever you have a substantive answer for the family. The Parent meeting tab carries the rest of the conversation.
+| Decision | The player becomes | Archived? |
+| --- | --- | --- |
+| Admit | **Active** | no |
+| Decline (final) | **Released** | yes — the record goes to the recycle bin, where it can be restored |
+| Decline (with encouragement) | **Inactive** | **no** |
+
+The third row is the one worth reading twice. *Decline with encouragement* means "not now, come back" — so the player stays on the books, findable, and eligible for a future trial. Archiving that record would tell your own system the opposite of what you just told the family. Only a final decline ends the relationship.
+
+Only a player who is still on **Trial** status moves. If they were already promoted some other way, or the decision is recorded a second time, nothing changes — the decision cannot walk an active player backwards.
+
+The letter is **not** generated automatically. Go to the **Letter** tab and generate it when you are ready; someone should read a letter to a family before it exists. The Parent meeting tab carries the rest of the conversation.
 
 ### Archive (the "no answer needed" path)
 
