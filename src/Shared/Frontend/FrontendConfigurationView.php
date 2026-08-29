@@ -2413,65 +2413,161 @@ class FrontendConfigurationView extends FrontendViewBase {
      * logic lives in ProfileCardsConfig, not here.
      */
     /**
-     * #2603 — per-template on/off for every message TalentTrack sends.
+     * #2603 / #3112 — the Messages settings screen: what this academy
+     * sends, and how each message is allowed to reach people.
      *
-     * Built from `TemplateRegistry::all()` rather than a hardcoded list,
-     * so a template registered by a later release shows up here with no
-     * change to this view.
+     * Built from the SWITCHABLE registered templates rather than a
+     * hardcoded list, so a template registered by a later release shows
+     * up here with no change to this view. #3110 keeps account mail (the
+     * invitation email) out of that set, so it is absent rather than
+     * shown ticked and greyed — a disabled checkbox invites "why can't I
+     * change this"; absence does not raise the question at all.
+     *
+     * #3112 — the copy that says what each message is, who receives it
+     * and when it fires comes from `TemplateGuide`, NOT from this file:
+     * the setup-wizard step (#3113) shows the same messages in the same
+     * families, and two surfaces describing the same eighteen things in
+     * two sets of words is how they drift apart.
+     *
+     * Two controls per message, deliberately separate:
+     *   - the message's own switch — does this go at all;
+     *   - which channels it may use — how it is allowed to travel.
+     * A template with one supported channel gets no channel control,
+     * only a line of text; a checkbox that cannot be unticked is noise.
      *
      * Wizard plan: exemption — settings toggle list, single-field changes
      * per row (CLAUDE.md §3 exemption (a) analogue, ruled on #2603).
      * §6(a) likewise exempts it from Cancel + Save.
      *
      * Mirrors the profile-cards form (#2207): the checkboxes are synced
-     * into one hidden JSON field so the standard config-form submit
-     * handler ships a single value. Checked = enabled, and the STORED set
-     * is the unchecked one — see TemplateSwitch for why that direction.
-     *
-     * #3110 — built from the SWITCHABLE templates, so account mail (the
-     * invitation email) is absent rather than shown ticked and greyed. A
-     * disabled checkbox invites "why can't I change this"; absence does
-     * not raise the question at all.
+     * into hidden JSON fields so the standard config-form submit handler
+     * ships one value per key. Both stored sets are the NEGATIVE ones —
+     * the templates switched off, and the channels ruled out — so that an
+     * empty value means "nothing changed" and anything shipped in a later
+     * release lands in a defined state. See `TemplateSwitch` and
+     * `TemplateChannels` for why that direction.
      */
     private static function renderMessagesForm(): void {
+        wp_enqueue_style(
+            'tt-frontend-messages-config',
+            TT_PLUGIN_URL . 'assets/css/frontend-messages-config.css',
+            [],
+            TT_VERSION
+        );
+
         $templates = \TT\Modules\Comms\Template\TemplateSwitch::switchableTemplates();
         $disabled  = \TT\Modules\Comms\Template\TemplateSwitch::disabledKeys();
-        ksort( $templates );
+        $blocked   = \TT\Modules\Comms\Template\TemplateChannels::blocked();
+        $families  = \TT\Modules\Comms\Template\TemplateGuide::families();
+        $grouped   = \TT\Modules\Comms\Template\TemplateGuide::grouped( $templates );
         ?>
         <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="messages" data-tt-messages-form>
             <input type="hidden" name="config[comms_templates_disabled]" value="" data-tt-messages-json />
+            <input type="hidden" name="config[comms_template_channels_blocked]" value="" data-tt-messages-channels-json />
             <div class="tt-panel">
                 <p class="tt-field-hint">
-                    <?php esc_html_e( 'Choose which messages your academy sends. Unchecking one stops it being sent to anyone, for every channel. Nothing is lost: a message that was switched off is still recorded in the message log, so you can see it would have gone out.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'What your academy sends, and how. Switching a message off stops it reaching anyone; it is still written to the message log, so you can see it would have gone out.', 'talenttrack' ); ?>
                 </p>
 
                 <?php if ( empty( $templates ) ) : ?>
                     <p class="tt-notice"><?php esc_html_e( 'No message templates are registered.', 'talenttrack' ); ?></p>
                 <?php else : ?>
-                    <div class="tt-messages-list" role="group" aria-label="<?php esc_attr_e( 'Messages this academy sends', 'talenttrack' ); ?>">
-                        <?php foreach ( $templates as $key => $template ) :
-                            $key      = (string) $key;
-                            $is_off   = in_array( $key, $disabled, true );
-                            $field_id = 'tt-msg-tpl-' . sanitize_html_class( $key );
-                            $channels = implode( ', ', array_map( 'strval', $template->supportedChannels() ) );
-                        ?>
-                            <label class="tt-messages-row" for="<?php echo esc_attr( $field_id ); ?>">
-                                <input
-                                    type="checkbox"
-                                    id="<?php echo esc_attr( $field_id ); ?>"
-                                    data-tt-message-template="<?php echo esc_attr( $key ); ?>"
-                                    value="1"
-                                    <?php checked( ! $is_off ); ?>
-                                />
-                                <span class="tt-messages-label">
-                                    <strong><?php echo esc_html( $template->label() ); ?></strong>
-                                    <?php if ( $channels !== '' ) : ?>
-                                        <span class="tt-messages-channels"><?php echo esc_html( $channels ); ?></span>
-                                    <?php endif; ?>
-                                </span>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php foreach ( $grouped as $family_key => $group ) :
+                        $family = $families[ $family_key ] ?? null;
+                        if ( $family === null ) continue;
+                        $group_id = 'tt-msg-family-' . sanitize_html_class( (string) $family_key );
+                    ?>
+                        <section class="tt-messages-group" aria-labelledby="<?php echo esc_attr( $group_id ); ?>">
+                            <h3 class="tt-messages-group-title" id="<?php echo esc_attr( $group_id ); ?>">
+                                <?php echo esc_html( $family['label'] ); ?>
+                                <?php if ( ! empty( $family['recommended'] ) ) : ?>
+                                    <span class="tt-messages-recommended"><?php esc_html_e( 'Recommended', 'talenttrack' ); ?></span>
+                                <?php endif; ?>
+                            </h3>
+                            <p class="tt-messages-group-blurb"><?php echo esc_html( $family['blurb'] ); ?></p>
+
+                            <ul class="tt-messages-list">
+                                <?php foreach ( $group as $key => $template ) :
+                                    $key       = (string) $key;
+                                    $entry     = \TT\Modules\Comms\Template\TemplateGuide::forKey( $key );
+                                    $is_off    = in_array( $key, $disabled, true );
+                                    $field_id  = 'tt-msg-tpl-' . sanitize_html_class( $key );
+                                    $channels  = array_values( array_map( 'strval', $template->supportedChannels() ) );
+                                    $off_keys  = $blocked[ $key ] ?? [];
+                                ?>
+                                    <li class="tt-messages-row">
+                                        <div class="tt-messages-head">
+                                            <label class="tt-messages-toggle" for="<?php echo esc_attr( $field_id ); ?>">
+                                                <input
+                                                    type="checkbox"
+                                                    id="<?php echo esc_attr( $field_id ); ?>"
+                                                    data-tt-message-template="<?php echo esc_attr( $key ); ?>"
+                                                    value="1"
+                                                    <?php checked( ! $is_off ); ?>
+                                                />
+                                                <span class="tt-messages-name"><?php echo esc_html( $template->label() ); ?></span>
+                                            </label>
+                                            <?php if ( $entry !== null && empty( $entry['triggered'] ) ) : ?>
+                                                <span class="tt-messages-badge" title="<?php esc_attr_e( 'Nothing in TalentTrack sends this yet. Leaving it on changes nothing until it is wired up.', 'talenttrack' ); ?>">
+                                                    <?php esc_html_e( 'Not sent automatically yet', 'talenttrack' ); ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if ( $entry !== null ) : ?>
+                                            <p class="tt-messages-what"><?php echo esc_html( $entry['what'] ); ?></p>
+                                            <dl class="tt-messages-meta">
+                                                <dt><?php esc_html_e( 'Who gets it', 'talenttrack' ); ?></dt>
+                                                <dd><?php echo esc_html( $entry['who'] ); ?></dd>
+                                                <dt><?php esc_html_e( 'When', 'talenttrack' ); ?></dt>
+                                                <dd><?php echo esc_html( $entry['when'] ); ?></dd>
+                                            </dl>
+                                        <?php endif; ?>
+
+                                        <?php if ( count( $channels ) > 1 ) : ?>
+                                            <fieldset class="tt-messages-channels">
+                                                <legend><?php esc_html_e( 'Ways it may reach them', 'talenttrack' ); ?></legend>
+                                                <p class="tt-messages-channels-hint">
+                                                    <?php esc_html_e( 'One of these per person, in this order — whichever reaches them first. Untick a way you do not want used.', 'talenttrack' ); ?>
+                                                </p>
+                                                <div class="tt-messages-channel-set">
+                                                    <?php foreach ( $channels as $channel ) :
+                                                        $channel_id = $field_id . '-ch-' . sanitize_html_class( $channel );
+                                                    ?>
+                                                        <label class="tt-messages-channel" for="<?php echo esc_attr( $channel_id ); ?>">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="<?php echo esc_attr( $channel_id ); ?>"
+                                                                data-tt-message-channel="<?php echo esc_attr( $channel ); ?>"
+                                                                data-tt-message-channel-of="<?php echo esc_attr( $key ); ?>"
+                                                                value="1"
+                                                                <?php checked( ! in_array( $channel, $off_keys, true ) ); ?>
+                                                            />
+                                                            <span><?php echo esc_html( \TT\Modules\Comms\Template\TemplateGuide::channelLabel( $channel ) ); ?></span>
+                                                        </label>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </fieldset>
+                                        <?php elseif ( $channels !== [] ) : ?>
+                                            <p class="tt-messages-single-channel">
+                                                <?php
+                                                printf(
+                                                    /* translators: %s: channel name, e.g. Email */
+                                                    esc_html__( 'Sent by: %s', 'talenttrack' ),
+                                                    esc_html( \TT\Modules\Comms\Template\TemplateGuide::channelLabel( $channels[0] ) )
+                                                );
+                                                ?>
+                                            </p>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
+                    <?php endforeach; ?>
+
+                    <p class="tt-field-hint tt-messages-footnote">
+                        <?php esc_html_e( 'To stop a message completely, switch the message off rather than unticking every way it can travel — a message with nowhere to go is recorded as a failure, not as your decision.', 'talenttrack' ); ?>
+                    </p>
                 <?php endif; ?>
             </div>
             <div class="tt-form-actions">
@@ -2485,33 +2581,24 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * #2603 — keep the hidden `comms_templates_disabled` JSON field in
-     * sync with the per-template checkboxes (the UNchecked templates are
-     * the disabled set), so the standard config-form submit handler ships
-     * a single JSON value.
+     * #2603 / #3112 — keep the two hidden JSON fields in sync with the
+     * checkboxes: `comms_templates_disabled` from the UNticked messages,
+     * and `comms_template_channels_blocked` from the UNticked channels of
+     * each message. The standard config-form submit handler then ships
+     * one value per key.
+     *
+     * Enqueued rather than inlined (CLAUDE.md §2). Everything the script
+     * needs is already in `data-` attributes, so it needs no localised
+     * config and can be deferred.
      */
     private static function renderMessagesJs(): void {
-        ?>
-        <script>
-        (function(){
-            var form = document.querySelector('[data-tt-messages-form]');
-            if (!form) return;
-            var hidden = form.querySelector('[data-tt-messages-json]');
-            var boxes  = form.querySelectorAll('[data-tt-message-template]');
-
-            function sync(){
-                var off = [];
-                boxes.forEach(function(box){
-                    if (!box.checked) off.push(box.getAttribute('data-tt-message-template'));
-                });
-                hidden.value = JSON.stringify(off);
-            }
-
-            boxes.forEach(function(box){ box.addEventListener('change', sync); });
-            sync();
-        })();
-        </script>
-        <?php
+        wp_enqueue_script(
+            'tt-frontend-messages-config',
+            TT_PLUGIN_URL . 'assets/js/frontend-messages-config.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     private static function renderProfileCardsForm(): void {

@@ -57918,6 +57918,261 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "How to use TalentTrack."
 #~ msgstr "Hoe je TalentTrack gebruikt."
+msgid "People need to know now"
+msgstr "Dit moeten mensen nu weten"
+
+msgid "Something changed today and the family finds out too late if nobody tells them. Most academies want all of these on."
+msgstr "Er is vandaag iets veranderd en het gezin hoort het te laat als niemand het vertelt. De meeste academies willen deze allemaal aan."
+
+msgid "Somebody asked for it"
+msgstr "Iemand heeft erom gevraagd"
+
+msgid "A person clicked something and the message is what completes it. Switching one off makes the feature that sends it look broken."
+msgstr "Iemand heeft ergens op geklikt en het bericht maakt dat af. Zet je er een uit, dan lijkt de functie die hem verstuurt kapot."
+
+msgid "Moments in a player's season"
+msgstr "Momenten in het seizoen van een speler"
+
+msgid "A decision or a document a family has been waiting for. Whether these are emailed or handed over in a conversation is your academy's call."
+msgstr "Een besluit of een document waar een gezin op wacht. Of die per e-mail gaan of in een gesprek worden overhandigd, bepaalt jouw academie zelf."
+
+msgid "Reminders and summaries"
+msgstr "Herinneringen en samenvattingen"
+
+msgid "Useful once your academy is running, noisy while you are still entering data. These are the ones that teach people to ignore TalentTrack mail."
+msgstr "Nuttig zodra jullie draaien, storend zolang je nog gegevens invoert. Dit zijn de berichten waardoor mensen TalentTrack-mail gaan negeren."
+
+msgid "Text message"
+msgstr "Sms"
+
+msgid "WhatsApp link"
+msgstr "WhatsApp-link"
+
+msgid "Inside TalentTrack"
+msgstr "Binnen TalentTrack"
+
+msgid "Tells everyone expected at a training that it is off."
+msgstr "Laat iedereen die op een training verwacht wordt weten dat die niet doorgaat."
+
+msgid "The players in the squad and their parents, plus the staff assigned to it."
+msgstr "De spelers van de selectie en hun ouders, plus de begeleiding die eraan is toegewezen."
+
+msgid "When a training is cancelled."
+msgstr "Zodra een training wordt afgelast."
+
+msgid "Passes on a time, date or location change that came in from Spond."
+msgstr "Geeft een wijziging in tijd, datum of locatie door die uit Spond is binnengekomen."
+
+msgid "The players affected and their parents."
+msgstr "De spelers die het betreft en hun ouders."
+
+msgid "When a Spond sync brings in a changed training or match."
+msgstr "Zodra een Spond-synchronisatie een gewijzigde training of wedstrijd binnenhaalt."
+
+msgid "A safeguarding message the academy needs everyone to see."
+msgstr "Een veiligheidsbericht dat de academie bij iedereen wil krijgen."
+
+msgid "The group the sender chooses — often every parent and every member of staff."
+msgstr "De groep die de afzender kiest — vaak alle ouders en alle medewerkers."
+
+msgid "When somebody with safeguarding responsibility sends one."
+msgstr "Zodra iemand met een rol in veiligheid en welzijn er een verstuurt."
+
+msgid "Invites a player from another team to train with this one."
+msgstr "Nodigt een speler uit een ander team uit om mee te trainen."
+
+msgid "The guest player and their parents."
+msgstr "De gastspeler en zijn of haar ouders."
+
+msgid "When a coach invites a guest to a training."
+msgstr "Zodra een trainer een gastspeler uitnodigt voor een training."
+
+msgid "Welcomes a trialist and tells them what to bring and where to be."
+msgstr "Verwelkomt een speler op proef en vertelt wat mee te nemen en waar te zijn."
+
+msgid "The trial player and their parents."
+msgstr "De speler op proef en zijn of haar ouders."
+
+msgid "When a trial player is added."
+msgstr "Zodra een speler op proef wordt toegevoegd."
+
+msgid "Delivers a letter somebody wrote in TalentTrack."
+msgstr "Bezorgt een brief die iemand in TalentTrack heeft geschreven."
+
+msgid "The player and parents the letter is addressed to."
+msgstr "De speler en de ouders aan wie de brief gericht is."
+
+msgid "When a letter is sent."
+msgstr "Zodra een brief wordt verstuurd."
+
+msgid "An announcement written by the academy and sent to a group at once."
+msgstr "Een mededeling die de academie schrijft en in één keer naar een groep stuurt."
+
+msgid "The teams, age groups or roles the sender picks."
+msgstr "De teams, leeftijdsgroepen of rollen die de afzender kiest."
+
+msgid "When somebody sends an announcement."
+msgstr "Zodra iemand een mededeling verstuurt."
+
+msgid "An email a member of staff typed and sent from inside TalentTrack."
+msgstr "Een e-mail die een medewerker binnen TalentTrack heeft getypt en verstuurd."
+
+msgid "Whoever the sender addressed it to."
+msgstr "Degene aan wie de afzender hem gericht heeft."
+
+msgid "When a member of staff sends one."
+msgstr "Zodra een medewerker er een verstuurt."
+
+msgid "A confidential one-time link to a player report, for somebody outside the academy."
+msgstr "Een vertrouwelijke eenmalige link naar een spelersrapport, voor iemand buiten de academie."
+
+msgid "The scout the report was shared with."
+msgstr "De scout met wie het rapport is gedeeld."
+
+msgid "When a player report is shared with a scout."
+msgstr "Zodra een spelersrapport met een scout wordt gedeeld."
+
+msgid "Delivers a report on the schedule somebody set up, with the file attached."
+msgstr "Bezorgt een rapport volgens het schema dat iemand heeft ingesteld, met het bestand als bijlage."
+
+msgid "The recipients on that scheduled report."
+msgstr "De ontvangers van dat geplande rapport."
+
+msgid "On the report's own schedule."
+msgstr "Volgens het schema van het rapport zelf."
+
+msgid "Emails somebody a link to a screen that needs a bigger display."
+msgstr "Mailt iemand een link naar een scherm dat een groter beeld nodig heeft."
+
+msgid "The person who pressed the button, at their own address."
+msgstr "Degene die op de knop drukte, op het eigen adres."
+
+msgid "When somebody asks for the link on a phone."
+msgstr "Zodra iemand op een telefoon om de link vraagt."
+
+msgid "Tells a family the selection decision for next season."
+msgstr "Vertelt een gezin het selectiebesluit voor komend seizoen."
+
+msgid "The player and their parents."
+msgstr "De speler en zijn of haar ouders."
+
+msgid "When a selection letter is sent."
+msgstr "Zodra een selectiebrief wordt verstuurd."
+
+msgid "Says a development plan or evaluation is finished and ready to read."
+msgstr "Meldt dat een ontwikkelplan of evaluatie klaar is om te lezen."
+
+msgid "When a plan or evaluation is published."
+msgstr "Zodra een plan of evaluatie wordt gepubliceerd."
+
+msgid "Invites parents to a meeting about their child."
+msgstr "Nodigt ouders uit voor een gesprek over hun kind."
+
+msgid "The player's parents."
+msgstr "De ouders van de speler."
+
+msgid "When a parent meeting is arranged."
+msgstr "Zodra een oudergesprek wordt ingepland."
+
+msgid "Shares an activity plan or a piece of the academy methodology with a coach."
+msgstr "Deelt een activiteitenplan of een onderdeel van de academiemethodiek met een trainer."
+
+msgid "The coaching staff it was shared with."
+msgstr "De trainers met wie het gedeeld is."
+
+msgid "When a plan is delivered to a coach."
+msgstr "Zodra een plan bij een trainer wordt bezorgd."
+
+msgid "Reminds a player about a goal nobody has updated in a while."
+msgstr "Herinnert een speler aan een doel dat al een tijd niet is bijgewerkt."
+
+msgid "The player, and their parents when the player has no account."
+msgstr "De speler, en de ouders wanneer de speler geen account heeft."
+
+msgid "Daily check; sends for goals untouched for four weeks or more."
+msgstr "Dagelijkse controle; gaat de deur uit bij doelen die vier weken of langer onaangeroerd zijn."
+
+msgid "Flags a run of missed trainings so somebody asks why."
+msgstr "Signaleert een reeks gemiste trainingen, zodat iemand ernaar vraagt."
+
+msgid "The player's coach."
+msgstr "De trainer van de speler."
+
+msgid "Daily check; sends after three absences in a row."
+msgstr "Dagelijkse controle; gaat de deur uit na drie keer afwezig op rij."
+
+msgid "Nudges a parent who was given an account and has not used it."
+msgstr "Port een ouder die een account heeft gekregen en er nog niets mee heeft gedaan."
+
+msgid "The parent."
+msgstr "De ouder."
+
+msgid "Daily check; sends after 30 days without a sign-in."
+msgstr "Dagelijkse controle; gaat de deur uit na 30 dagen zonder inloggen."
+
+msgid "Reminds a member of staff that their own development review is due."
+msgstr "Herinnert een medewerker eraan dat het eigen ontwikkelgesprek eraan komt."
+
+msgid "The member of staff."
+msgstr "De medewerker."
+
+msgid "Daily check; sends in the week before the review date."
+msgstr "Dagelijkse controle; gaat de deur uit in de week voor de gespreksdatum."
+
+msgid "Chases staff whose verdict on a trial is still missing."
+msgstr "Port medewerkers van wie het oordeel over een proefperiode nog ontbreekt."
+
+msgid "The staff assigned to that trial."
+msgstr "De medewerkers die aan die proefperiode zijn toegewezen."
+
+msgid "While a trial is open and their input has not been given."
+msgstr "Zolang een proefperiode loopt en hun input nog ontbreekt."
+
+msgid "One email collecting the alerts raised since the last one, instead of an email each."
+msgstr "Eén e-mail met alle meldingen sinds de vorige, in plaats van een mail per melding."
+
+msgid "The staff those alerts are for."
+msgstr "De medewerkers voor wie die meldingen bedoeld zijn."
+
+msgid "On the digest schedule set under Alerts."
+msgstr "Volgens het schema dat onder Meldingen is ingesteld."
+
+msgid "Tells somebody about activity aimed at them — a new message in a conversation, a task, a reply to an idea."
+msgstr "Vertelt iemand over activiteit die voor hem of haar bedoeld is — een nieuw bericht in een gesprek, een taak, een reactie op een idee."
+
+msgid "The person the activity concerns."
+msgstr "De persoon die het betreft."
+
+msgid "When the activity happens."
+msgstr "Zodra de activiteit plaatsvindt."
+
+msgid "What your academy sends, and how. Switching a message off stops it reaching anyone; it is still written to the message log, so you can see it would have gone out."
+msgstr "Wat jouw academie verstuurt, en langs welke weg. Zet je een bericht uit, dan bereikt het niemand meer; het wordt nog wel vastgelegd in het berichtenlogboek, zodat je ziet dat het verstuurd zou zijn."
+
+msgid "Recommended"
+msgstr "Aanbevolen"
+
+msgid "Nothing in TalentTrack sends this yet. Leaving it on changes nothing until it is wired up."
+msgstr "Niets in TalentTrack verstuurt dit op dit moment. Aan laten staan verandert niets tot de aansluiting er is."
+
+msgid "Not sent automatically yet"
+msgstr "Wordt nog niet automatisch verstuurd"
+
+msgid "Who gets it"
+msgstr "Wie het krijgt"
+
+msgid "Ways it may reach them"
+msgstr "Wegen waarlangs het hen mag bereiken"
+
+msgid "One of these per person, in this order — whichever reaches them first. Untick a way you do not want used."
+msgstr "Eén hiervan per persoon, in deze volgorde — welke die persoon het eerst bereikt. Vink een weg uit die je niet gebruikt wilt zien."
+
+msgid "Sent by: %s"
+msgstr "Verstuurd via: %s"
+
+msgid "To stop a message completely, switch the message off rather than unticking every way it can travel — a message with nowhere to go is recorded as a failure, not as your decision."
+msgstr "Wil je een bericht helemaal stoppen, zet het bericht dan uit in plaats van elke weg uit te vinken — een bericht dat nergens heen kan wordt vastgelegd als een storing, niet als jouw keuze."
+
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"

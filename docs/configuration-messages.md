@@ -1,7 +1,7 @@
 ---
 title: Configuration — Messages
 group: configuration
-summary: Which messages your academy sends, one switch per message type.
+summary: Which messages your academy sends, and how each one may reach people.
 audience: [admin]
 views: [mail-compose]
 module: TT\Modules\Comms\CommsModule
@@ -12,9 +12,39 @@ order: 115
 
 **Dashboard → Configuration → Messages** (`?config_sub=messages`)
 
-Which messages your academy sends. Every outgoing message in TalentTrack — a cancelled training, a selection decision, a reminder to update a goal — comes from a named template, and this page lists them all with a switch each.
+Which messages your academy sends, and how each one is allowed to reach people. Every outgoing message in TalentTrack — a cancelled training, a selection decision, a reminder to update a goal — comes from a named message type, and this page lists them all.
 
-The list is built from the templates the plugin has registered, so a message type added in a later release appears here automatically. Requires `tt_edit_feature_toggles`; the setting is stored per club in `tt_config`, so a future multi-tenant install keeps each academy's choices separate.
+The list is built from the message types the plugin has registered, so one added in a later release appears here automatically. Requires `tt_edit_feature_toggles`; the settings are stored per club in `tt_config`, so a future multi-tenant install keeps each academy's choices separate.
+
+## How the page is laid out
+
+Messages are grouped by what they are, not by when they were built. Each group opens with a sentence about what belongs in it, and each message says in plain language what it is, who receives it, and what makes it send.
+
+- **People need to know now** — training cancelled, a schedule change, a safeguarding broadcast. Something changed today and the family finds out too late if nobody tells them. Most academies want all of these on; the setup wizard marks this group as recommended.
+- **Somebody asked for it** — an invite, a letter, an announcement, a report delivery. A person clicked something and the message is what completes it. Switching one off makes the feature that sends it look broken.
+- **Moments in a player's season** — a selection decision, a finished development plan, a parent meeting. Whether these are emailed or handed over in a conversation is your academy's call.
+- **Reminders and summaries** — goal nudges, attendance flags, the alert digest. Useful once your academy is running, noisy while you are still entering data, and the ones most likely to teach people to ignore TalentTrack mail.
+
+### "Not sent automatically yet"
+
+Some messages carry this label. It means the copy and the settings exist but nothing in TalentTrack currently fires them — they are sent by hand, or by a feature that has not been wired up yet.
+
+They are shown rather than hidden so you can see what exists and what is coming. Leaving one on changes nothing until the trigger lands; the label disappears from this page in the release that wires it.
+
+## Ways a message may reach people
+
+Underneath each message that has more than one option is a set of ways it can travel: email, push notification, text message, WhatsApp link, or inside TalentTrack.
+
+**A message goes to a person on one of these, not on all of them.** TalentTrack works down the list in the order shown and uses the first one it can actually reach that person on — someone with no mobile number falls through to email. So the list is a fallback order, not four copies of the same message.
+
+Untick a way you do not want used at all. An academy with no SMS credit, or one that would rather not message school-age players on WhatsApp, unticks it here and the next option in the order takes over.
+
+Two things worth knowing:
+
+- **Unticking every way is not how you stop a message.** It cannot be saved — a message with nowhere to go is recorded as a failure rather than as your decision. Use the message's own switch.
+- **A message with only one option shows it as text, not as a checkbox.** There is nothing to choose.
+
+Whether a message goes at all and how it is allowed to travel are two separate decisions, so they are two separate controls.
 
 ## Switching a message off
 
@@ -73,7 +103,7 @@ Password reset works the same way for the same reason, and never appeared on thi
 ## What this is not
 
 - **It is not an opt-out.** This is the academy's decision for everyone. An individual's own preferences live under **My settings → Messages you receive**.
-- **It is not a channel switch.** To stop a whole channel (SMS, say), use **Modules → Communication**.
+- **It is not a switch for a whole channel.** The ways listed under a message apply to that message only. To stop a channel across the entire academy (SMS, say), use **Modules → Communication**.
 - **It does not stop safeguarding messages.** Those are operational and are always delivered.
 
 ## Related
