@@ -93,6 +93,17 @@ class MatchAnalysisRestController {
             ],
         ] );
 
+        // #3096 — who opened the share link. Gated on the same capability
+        // that gates the analysis itself: the people who may read what was
+        // written may see whether it was read.
+        register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share-views', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'share_views' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
+
         // #2725 — the trend reads. One analysis is a note; these are the
         // same rows read across a period. Aggregation lives in
         // `MatchAnalysisTrends`, so the rendered report and a non-WordPress
@@ -303,6 +314,32 @@ class MatchAnalysisRestController {
 
         return RestResponse::success( [
             'share_url' => MatchAnalysisShareLink::urlFor( $analysis_id ),
+        ] );
+    }
+
+    /**
+     * #3096 — unique openers and when the last of them arrived.
+     *
+     * Reads through `ShareViewQuery`, the same object the rendered share
+     * block calls, so the two cannot answer differently. Returns zeroes for
+     * an analysis nobody has opened rather than 404 — "not read yet" is an
+     * answer, not a missing resource.
+     */
+    public static function share_views( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+
+        $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, false );
+        if ( $payload === null ) return self::not_a_match();
+
+        $summary = ( new \TT\Shared\Sharing\ShareViewQuery() )->summaryFor(
+            \TT\Shared\Sharing\ShareViewRecorder::SUBJECT_MATCH_ANALYSIS,
+            (int) $payload['analysis_id']
+        );
+
+        return RestResponse::success( [
+            'unique'       => (int) $summary['unique'],
+            'opens'        => (int) $summary['opens'],
+            'last_seen_at' => $summary['last_seen_at'],
         ] );
     }
 

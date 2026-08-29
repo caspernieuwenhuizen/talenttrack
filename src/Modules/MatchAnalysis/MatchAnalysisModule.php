@@ -81,6 +81,19 @@ class MatchAnalysisModule implements ModuleInterface {
         header( 'X-Robots-Tag: noindex, nofollow, noarchive', true );
         header( 'Referrer-Policy: no-referrer', true );
 
+        // #3096 — a per-recipient document naming minors has no business in
+        // a shared cache anyway, and a cached render would never reach the
+        // view counter, so the page would report an audience of one however
+        // many people opened it.
+        nocache_headers();
+
+        // Mint the visitor cookie here, while headers can still be sent —
+        // the view itself runs inside the_content. Keyed on the uuid from
+        // the URL, valid or not, so a forged link is answered identically.
+        \TT\Shared\Sharing\ShareViewRecorder::primeCookie(
+            isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : ''
+        );
+
         add_action( 'wp_head', [ \TT\Modules\MatchAnalysis\Frontend\FrontendMatchAnalysisView::class, 'noindexMeta' ], 1 );
     }
 }
