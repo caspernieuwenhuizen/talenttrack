@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T16:14:47+00:00\n"
+"POT-Creation-Date: 2026-08-29T16:25:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5535,7 +5535,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FormSaveButton.php:69
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
-#: src/Shared/Frontend/Components/MediaUploader.php:169
+#: src/Shared/Frontend/Components/MediaUploader.php:178
 #: src/Shared/Frontend/Components/SavedViews.php:205
 #: src/Shared/Frontend/DashboardShortcode.php:276
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3636
@@ -6974,7 +6974,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:391
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
 #: src/Modules/Workflow/TaskStatus.php:69
-#: src/Shared/Frontend/Components/MediaUploader.php:170
+#: src/Shared/Frontend/Components/MediaUploader.php:179
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2043
 msgid "Cancelled"
 msgstr "Abgebrochen"
@@ -18985,7 +18985,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/Components/MediaGallery.php:231
-#: src/Shared/Frontend/Components/MediaUploader.php:171
+#: src/Shared/Frontend/Components/MediaUploader.php:180
 #: src/Shared/Frontend/DashboardShortcode.php:270
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3595
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3629
@@ -26039,6 +26039,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Media/MediaAttachmentPolicy.php:106
+#: src/Shared/Frontend/Components/MediaUploader.php:187
 msgid "That kind of file cannot be attached here."
 msgstr ""
 
@@ -44209,75 +44210,85 @@ msgstr ""
 msgid "Could not load more. Try again."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:85
+#: src/Shared/Frontend/Components/MediaUploader.php:88
 msgid "Choose a document"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:86
+#: src/Shared/Frontend/Components/MediaUploader.php:89
 msgid "Choose photos or video"
 msgstr ""
 
 #. translators: %s is the largest file this server accepts, e.g. "64 MB".
-#: src/Shared/Frontend/Components/MediaUploader.php:93
+#: src/Shared/Frontend/Components/MediaUploader.php:96
 #, php-format
 msgid "Up to %s per file on this server."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:100
+#: src/Shared/Frontend/Components/MediaUploader.php:103
 msgid ""
 "PDF, Word, spreadsheet or plain text. Photos and video are not accepted here."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:118
+#: src/Shared/Frontend/Components/MediaUploader.php:109
+msgid "Or paste a screenshot."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:127
 msgid "Or paste a link to video hosted elsewhere"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:123
+#: src/Shared/Frontend/Components/MediaUploader.php:132
 msgid "https://…"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:126
+#: src/Shared/Frontend/Components/MediaUploader.php:135
 msgid "Add link"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:129
+#: src/Shared/Frontend/Components/MediaUploader.php:138
 msgid ""
 "Veo, Hudl, YouTube and Vimeo are recognised automatically. Anything else is "
 "saved as a plain link with a title you type."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:167
+#: src/Shared/Frontend/Components/MediaUploader.php:176
 msgid "Uploading…"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:168
+#: src/Shared/Frontend/Components/MediaUploader.php:177
 msgid "Added"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:172
+#: src/Shared/Frontend/Components/MediaUploader.php:181
 msgid "Could not be added"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:173
+#: src/Shared/Frontend/Components/MediaUploader.php:182
 msgid "This file is larger than the server accepts."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:174
+#: src/Shared/Frontend/Components/MediaUploader.php:183
 msgid ""
 "That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or "
 "MOV video."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:175
+#: src/Shared/Frontend/Components/MediaUploader.php:184
 msgid "Paste a web address first."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaUploader.php:176
+#. translators: %s is when the screenshot was pasted, e.g. "2026-08-29 14-32-07".
+#: src/Shared/Frontend/Components/MediaUploader.php:186
+#, php-format
+msgid "Screenshot %s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:188
 msgid "The upload failed. Check your connection and try again."
 msgstr ""
 
 #. translators: %d is how many files were added.
-#: src/Shared/Frontend/Components/MediaUploader.php:178
+#: src/Shared/Frontend/Components/MediaUploader.php:190
 #, php-format
 msgid "%d added"
 msgstr ""
