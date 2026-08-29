@@ -145,6 +145,17 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             return;
         }
 
+        // #3096 — count the open, now that the token has resolved and there
+        // is a document to show. Deliberately after both not-found returns:
+        // recording a failed probe would make this table the oracle that
+        // `renderShareNotFound()`'s identical wording exists to deny.
+        ( new \TT\Shared\Sharing\ShareViewRecorder() )->record(
+            \TT\Shared\Sharing\ShareViewRecorder::SUBJECT_MATCH_ANALYSIS,
+            (int) $analysis->id,
+            $club_id,
+            $uuid
+        );
+
         self::enqueueStyles();
 
         echo '<div class="tt-ma tt-ma--shared">';
@@ -424,6 +435,8 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         echo '<p class="tt-ma__hint">'
             . esc_html__( 'Anyone holding this link can read the analysis, including the player notes. It keeps working until you replace it.', 'talenttrack' )
             . '</p>';
+
+        self::renderSeenBy( $analysis_id );
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-ma__share-rotate">'
             . esc_html__( 'Replace link', 'talenttrack' )
             . '</button>';
@@ -433,6 +446,51 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         echo '</div>';
 
         echo '</div>';
+    }
+
+    /**
+     * "Seen by 4 people · last opened 2 days ago" (#3096).
+     *
+     * One line inside the block that already exists, not a screen and not a
+     * per-visit log. A coach wants to know whether the thing they sent
+     * landed; a document shared between colleagues should not read as a
+     * record of who looked at it and when.
+     *
+     * Silent until the first real visit. "Seen by 0 people" is a failure a
+     * coach cannot act on — it would be read as broken rather than as
+     * unread, and they would go looking for the bug instead of the staff.
+     *
+     * The numbers come from `ShareViewQuery`, which the REST endpoint also
+     * calls, so the page and the API cannot drift (CLAUDE.md §4).
+     */
+    private static function renderSeenBy( int $analysis_id ): void {
+        $summary = ( new \TT\Shared\Sharing\ShareViewQuery() )->summaryFor(
+            \TT\Shared\Sharing\ShareViewRecorder::SUBJECT_MATCH_ANALYSIS,
+            $analysis_id
+        );
+
+        $unique = (int) ( $summary['unique'] ?? 0 );
+        if ( $unique < 1 ) return;
+
+        $line = sprintf(
+            /* translators: %s: number of people who opened the share link. */
+            _n( 'Seen by %s person', 'Seen by %s people', $unique, 'talenttrack' ),
+            number_format_i18n( $unique )
+        );
+
+        $last = (string) ( $summary['last_seen_at'] ?? '' );
+        if ( $last !== '' ) {
+            $ts = strtotime( $last );
+            if ( $ts ) {
+                $line .= ' · ' . sprintf(
+                    /* translators: %s: human-readable time difference, e.g. "2 days" */
+                    __( 'last opened %s ago', 'talenttrack' ),
+                    human_time_diff( $ts, current_time( 'timestamp' ) )
+                );
+            }
+        }
+
+        echo '<p class="tt-ma__hint tt-ma__share-seen">' . esc_html( $line ) . '</p>';
     }
 
     // -----------------------------------------------------------------

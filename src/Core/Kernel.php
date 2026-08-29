@@ -150,6 +150,11 @@ class Kernel {
         // engine heartbeat (tt_workflow_cron_tick) rather than registering an
         // ad-hoc wp_cron (CLAUDE.md §4); self-throttles to once per day.
         \TT\Infrastructure\Archive\AutoPurgeCron::init();
+        // #3096 — 90-day purge of share-view rows, on the same heartbeat.
+        // Booted here rather than from the match analysis module: the rows
+        // are derived from an IP, so they must keep expiring even on an
+        // install that has since switched the surface that wrote them off.
+        \TT\Shared\Sharing\ShareViewRetentionCron::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();
         // #3037 — install-profile preview + apply handler. The only path

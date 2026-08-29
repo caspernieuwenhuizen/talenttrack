@@ -25463,6 +25463,20 @@ msgstr "Link vervangen"
 msgid "The current link stops working immediately."
 msgstr "De huidige link werkt direct niet meer."
 
+#. translators: %s: number of people who opened the share link.
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:477
+#, php-format
+msgid "Seen by %s person"
+msgid_plural "Seen by %s people"
+msgstr[0] "Gezien door %s persoon"
+msgstr[1] "Gezien door %s mensen"
+
+#. translators: %s: human-readable time difference, e.g. "2 days"
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:487
+#, php-format
+msgid "last opened %s ago"
+msgstr "laatst geopend %s geleden"
+
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:51
 msgid "Replace the share link? The current one stops working immediately."
 msgstr "De deellink vervangen? De huidige werkt dan direct niet meer."
