@@ -8,6 +8,8 @@ use TT\Modules\DemoData\DemoMode;
 use TT\Modules\DemoData\DemoDataCleaner;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoCoverage;
+use TT\Modules\DemoData\DemoRunPlan;
+use TT\Modules\DemoData\DemoRunState;
 
 /**
  * DemoDataPage — wp-admin entry point for the demo data generator.
@@ -83,6 +85,23 @@ class DemoDataPage {
             TT_VERSION,
             true
         );
+        // #3041 — the overlay drives the run one step per request through
+        // these routes rather than waiting on one long POST.
+        $run_id = isset( $_GET['tt_demo_run'] )
+            ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_run'] ) )
+            : '';
+        wp_localize_script( 'tt-demo-page', 'TTDemoRun', [
+            'root'    => esc_url_raw( rest_url( 'talenttrack/v1/demo-runs' ) ),
+            'nonce'   => wp_create_nonce( 'wp_rest' ),
+            'runId'   => $run_id,
+            'pageUrl' => self::pageUrl(),
+            'i18n'    => [
+                'step'       => __( 'Step %1$d of %2$d — %3$s', 'talenttrack' ),
+                'finishing'  => __( 'Finishing up…', 'talenttrack' ),
+                'failed'     => __( 'The run stopped. Reload the page to see how far it got.', 'talenttrack' ),
+                'discarding' => __( 'Discarding…', 'talenttrack' ),
+            ],
+        ] );
 
         $notice = isset( $_GET['tt_demo_msg'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_msg'] ) )   : '';
         $batch  = isset( $_GET['tt_demo_batch'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_batch'] ) ) : '';
@@ -120,6 +139,14 @@ class DemoDataPage {
             </p>
 
             <?php self::renderNotices( $notice, $batch, $error, $last_counts, $last_user_stats, $last_missing ); ?>
+            <?php
+            // #3041 — a run that never finished is named here rather than
+            // leaving a half-written dataset with nothing on screen to say so.
+            $active_run = DemoRunState::load();
+            if ( $active_run !== null && ! $active_run->isFinished() ) {
+                self::renderUnfinishedRun( $active_run );
+            }
+            ?>
             <?php self::renderModeSection( $mode ); ?>
             <?php self::renderFootprint( $counts ); ?>
             <?php self::renderCredentials( $last_accounts ); ?>
@@ -329,6 +356,11 @@ class DemoDataPage {
                 <div class="tt-runner-overlay-spinner" aria-hidden="true"></div>
                 <h3 id="tt-demo-overlay-title" class="tt-runner-overlay-title"><?php esc_html_e( 'Generating demo data…', 'talenttrack' ); ?></h3>
                 <p class="tt-runner-overlay-msg"><?php esc_html_e( 'This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes.', 'talenttrack' ); ?></p>
+                <?php // #3041 — real progress, not an indeterminate spinner. ?>
+                <p class="tt-runner-overlay-step" data-tt-demo-step aria-live="polite"></p>
+                <div class="tt-runner-overlay-bar" data-tt-demo-bar hidden>
+                    <span class="tt-runner-overlay-bar__fill" data-tt-demo-bar-fill></span>
+                </div>
             </div>
         </div>
 
@@ -1065,23 +1097,47 @@ class DemoDataPage {
             wp_raise_memory_limit( 'admin' );
         }
 
+        // #3041 — an unfinished run holds the batch this one would write
+        // into. Two concurrent generations race on every table they touch,
+        // so refuse rather than interleave; the page offers Resume / Discard.
+        $active = DemoRunState::load();
+        if ( $active !== null && $active->status() === DemoRunState::STATUS_RUNNING && ! $active->isStale() ) {
+            self::bounce( $redirect, __( 'A demo run is still unfinished. Resume or discard it before starting another.', 'talenttrack' ) );
+        }
+
+        // #3041 — chunked mode. The browser sets this hidden field, so a
+        // reader without JavaScript still gets the one-request behaviour the
+        // page has always had. With it, this request runs only the steps
+        // that need the password and the uploaded workbook, and the overlay
+        // walks the rest one request at a time — which is what stops the
+        // large preset dying on a gateway timeout.
+        $chunked = ! empty( $_POST['chunked'] );
+
+        $opts = array_merge( [
+            'preset'           => $preset,
+            'size'             => $size,
+            'domain'           => $domain,
+            'password'         => $password,
+            'seed'             => $seed,
+            'club_name'        => $club_name,
+            'content_language' => $content_language,
+            'source'           => $source,
+            'excel_path'       => $excel_path,
+            'gen_teams'        => $gen_teams,
+            'gen_people'       => $gen_people,
+            'gen_players'      => $gen_players,
+        ], $gen_dependent );
+
+        $state = null;
         try {
             // Generation paths should read tagged data across all batches.
             \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::NEUTRAL );
-            $result = DemoGenerator::run( array_merge( [
-                'preset'           => $preset,
-                'size'             => $size,
-                'domain'           => $domain,
-                'password'         => $password,
-                'seed'             => $seed,
-                'club_name'        => $club_name,
-                'content_language' => $content_language,
-                'source'           => $source,
-                'excel_path'       => $excel_path,
-                'gen_teams'        => $gen_teams,
-                'gen_people'       => $gen_people,
-                'gen_players'      => $gen_players,
-            ], $gen_dependent ) );
+            if ( $chunked ) {
+                $state  = DemoGenerator::begin( $opts );
+                $result = DemoGenerator::result( $state );
+            } else {
+                $result = DemoGenerator::run( $opts );
+            }
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
             \TT\Modules\DemoData\DemoMode::clearOverride();
@@ -1089,13 +1145,22 @@ class DemoDataPage {
         }
 
         if ( ! empty( $result['excel_blockers'] ) ) {
+            DemoRunState::clear();
             self::bounce( $redirect, 'Excel import failed: ' . implode( ' · ', (array) $result['excel_blockers'] ) );
         }
 
-        set_transient( self::TRANSIENT_ACCOUNTS,   $result['accounts'],   10 * MINUTE_IN_SECONDS );
-        set_transient( self::TRANSIENT_COUNTS,     $result['counts'],     10 * MINUTE_IN_SECONDS );
-        set_transient( self::TRANSIENT_USER_STATS, $result['user_stats'], 10 * MINUTE_IN_SECONDS );
-        set_transient( self::TRANSIENT_MISSING_COACH, $result['teams_missing_coach'] ?? [], 10 * MINUTE_IN_SECONDS );
+        if ( $chunked && $state !== null && ! $state->isFinished() ) {
+            // Hand the browser back to the page with the run id; the overlay
+            // takes it from here. The summary transients are written when the
+            // run finishes, not now.
+            wp_safe_redirect( add_query_arg(
+                [ 'tt_demo_run' => rawurlencode( $state->runId() ) ],
+                $redirect
+            ) );
+            exit;
+        }
+
+        self::finishRun( $result );
 
         $redirect = add_query_arg(
             [ 'tt_demo_msg' => 'generated', 'tt_demo_batch' => rawurlencode( $result['batch_id'] ) ],
@@ -1103,6 +1168,58 @@ class DemoDataPage {
         );
         wp_safe_redirect( $redirect );
         exit;
+    }
+
+    /**
+     * #3041 — the summary a finished run leaves behind, whether it ran in one
+     * request or thirty. Clearing the run state is what makes the page stop
+     * offering Resume.
+     *
+     * @param array<string,mixed> $result
+     */
+    public static function finishRun( array $result ): void {
+        set_transient( self::TRANSIENT_ACCOUNTS,   $result['accounts'],   10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_COUNTS,     $result['counts'],     10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_USER_STATS, $result['user_stats'], 10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_MISSING_COACH, $result['teams_missing_coach'] ?? [], 10 * MINUTE_IN_SECONDS );
+        DemoRunState::clear();
+    }
+
+    /**
+     * #3041 — an unfinished run, named. A tab closed mid-generation used to
+     * leave a half-written dataset with nothing on screen to say so; this is
+     * the operator's way to see it and either finish it or throw it away.
+     */
+    private static function renderUnfinishedRun( DemoRunState $state ): void {
+        $progress = $state->progress();
+        $notice   = $state->status() === DemoRunState::STATUS_FAILED ? 'notice-error' : 'notice-warning';
+        ?>
+        <div class="notice <?php echo esc_attr( $notice ); ?>" data-tt-demo-resume data-tt-run-id="<?php echo esc_attr( $progress['run_id'] ); ?>">
+            <p>
+                <strong><?php esc_html_e( 'A demo run is unfinished.', 'talenttrack' ); ?></strong>
+                <?php
+                echo esc_html( sprintf(
+                    /* translators: 1: completed steps, 2: total steps, 3: batch id */
+                    __( '%1$d of %2$d steps done, batch %3$s. Its rows are already tagged, so a wipe reaches them.', 'talenttrack' ),
+                    (int) $progress['completed'],
+                    (int) $progress['total'],
+                    $progress['batch_id']
+                ) );
+                ?>
+            </p>
+            <?php if ( $progress['error'] !== '' ) : ?>
+                <p><em><?php echo esc_html( $progress['error'] ); ?></em></p>
+            <?php endif; ?>
+            <p>
+                <button type="button" class="button button-primary" data-tt-demo-resume-start>
+                    <?php esc_html_e( 'Resume this run', 'talenttrack' ); ?>
+                </button>
+                <button type="button" class="button" data-tt-demo-resume-discard>
+                    <?php esc_html_e( 'Discard it', 'talenttrack' ); ?>
+                </button>
+            </p>
+        </div>
+        <?php
     }
 
     public static function handleWipeData(): void {
