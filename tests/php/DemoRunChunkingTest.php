@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Modules\DemoData\DemoCoverage;
+use TT\Modules\DemoData\DemoDataCleaner;
 use TT\Modules\DemoData\DemoGenerator;
 use TT\Modules\DemoData\DemoRunPlan;
 use TT\Modules\DemoData\DemoRunState;
@@ -136,6 +137,14 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
 
         $single = DemoGenerator::run( $opts );
         DemoRunState::clear();
+
+        // Several generators pick their subjects club-wide rather than from
+        // the batch they are writing — match analyses read every activity in
+        // the club, for one — so a second run into a database the first one
+        // populated collides with its unique keys and quietly writes fewer
+        // rows. Clear the first batch so the stepped run starts from the same
+        // ground the single pass did; otherwise the two are not comparable.
+        DemoDataCleaner::wipeData( null, (string) $single['batch_id'] );
 
         $state = DemoGenerator::begin( $opts );
         $steps = 0;
