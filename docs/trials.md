@@ -26,6 +26,10 @@ A **trial case** is a structured way to run a 2–6 week look at a prospective p
 
 From the **Trial cases** tile, pick *New trial case*. Choose the player (or create a new one first), pick a track (Standard / Scout / Goalkeeper, or any custom track the club added), set start and end dates, and assign initial staff. The player's status flips to **Trial** automatically.
 
+Opening the case writes **Trial started** to the player's journey, so the trial shows on their timeline from day one. If you created the player inline on this form — first name, last name and date of birth — that also writes **Joined the academy**, the same as adding them from the Players screen. The trial is where a trial player came from, and the timeline should say so without anyone having to add a note.
+
+Because the inline fields go through the normal player create, an academy that has made a custom player field **required** cannot use the shortcut: the form will say which field is missing. Add the player from the Players screen first, then pick them here.
+
 ### 2. Watch the case run
 
 The **Execution** tab on the case page aggregates everything that happens during the trial window — activities the player attended, evaluations written, goals created or updated, plus a small synthesis (rolling rating, evaluation count). Nothing is duplicated; the data sits in the normal places, the Execution tab just filters to the trial window.
@@ -78,11 +82,21 @@ A case stays "open" — visible to the assigned staff, counting against the head
 
 Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `Decline (with encouragement)`) plus the mandatory ≥ 30-character justification note. Recording the decision:
 
-- Flips the player's status (Admit → Active, Decline → Archived).
-- Generates the matching letter automatically.
+- Moves the player's status, per the table below.
+- Writes the matching entry on the player's journey — *Trial ended*, plus *Signed* on an admit or *Released* on a final decline.
 - Stamps `decision_made_at` + `decision_made_by` for the audit trail.
 
-Use this whenever you have a substantive answer for the family. The Parent meeting tab carries the rest of the conversation.
+| Decision | The player becomes | Archived? |
+| --- | --- | --- |
+| Admit | **Active** | no |
+| Decline (final) | **Released** | yes — the record goes to the recycle bin, where it can be restored |
+| Decline (with encouragement) | **Inactive** | **no** |
+
+The third row is the one worth reading twice. *Decline with encouragement* means "not now, come back" — so the player stays on the books, findable, and eligible for a future trial. Archiving that record would tell your own system the opposite of what you just told the family. Only a final decline ends the relationship.
+
+Only a player who is still on **Trial** status moves. If they were already promoted some other way, or the decision is recorded a second time, nothing changes — the decision cannot walk an active player backwards.
+
+The letter is **not** generated automatically. Go to the **Letter** tab and generate it when you are ready; someone should read a letter to a family before it exists. The Parent meeting tab carries the rest of the conversation.
 
 ### Archive (the "no answer needed" path)
 

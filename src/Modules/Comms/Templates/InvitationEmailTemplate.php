@@ -4,6 +4,7 @@ namespace TT\Modules\Comms\Templates;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Comms\Template\AbstractTemplate;
+use TT\Modules\Comms\Template\AccountMailTemplate;
 
 /**
  * #1902 — invitation email. When an admin creates a parent/player
@@ -14,9 +15,14 @@ use TT\Modules\Comms\Template\AbstractTemplate;
  * Transactional (`*_OPERATIONAL` message type) — never opt-out-able and
  * not rate-limited, so an invitee never loses their invite.
  *
+ * #3110 — account mail, so outside `TemplateSwitch` altogether: it sends
+ * because someone invited a person, and that is its only condition. See
+ * `AccountMailTemplate` for why that is a different thing from being on
+ * by default.
+ *
  * Tokens: {first_name} {inviter_name} {academy_name} {accept_url} {ttl_days}
  */
-final class InvitationEmailTemplate extends AbstractTemplate {
+final class InvitationEmailTemplate extends AbstractTemplate implements AccountMailTemplate {
 
     public function key(): string { return 'invitation_email'; }
     public function label(): string { return __( 'Invitation email', 'talenttrack' ); }

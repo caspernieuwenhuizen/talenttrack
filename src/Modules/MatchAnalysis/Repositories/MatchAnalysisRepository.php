@@ -134,6 +134,27 @@ class MatchAnalysisRepository {
         );
     }
 
+    /**
+     * Stamp the parent row's `updated_at` without changing anything else.
+     *
+     * #3007 — an analysis is four tables, and a section or player write
+     * only ever touched its own row. That left the parent's `updated_at`
+     * describing the last time the summary changed, which is not the same
+     * thing as the last time the analysis changed. Autosave needs the
+     * second: it is the version token the surface sends back as
+     * `base_updated_at` so a coach cannot compose over a document somebody
+     * else has already moved.
+     */
+    public function touch( int $analysis_id ): bool {
+        if ( $analysis_id <= 0 ) return false;
+
+        return false !== $this->wpdb->update(
+            $this->t_analysis,
+            [ 'updated_at' => current_time( 'mysql' ) ],
+            [ 'id' => $analysis_id, 'club_id' => CurrentClub::id() ]
+        );
+    }
+
     // -----------------------------------------------------------------
     // Sections
     // -----------------------------------------------------------------

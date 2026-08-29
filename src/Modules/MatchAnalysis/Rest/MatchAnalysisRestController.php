@@ -209,6 +209,33 @@ class MatchAnalysisRestController {
     // Write
     // -----------------------------------------------------------------
 
+    /**
+     * Write any subset of the analysis.
+     *
+     * ## Concurrency (#3007, epic #2881)
+     *
+     * Two people writing up the same match is plausible — a head coach in
+     * the stand and an assistant on the touchline. Since the surface
+     * autosaves, "last write wins" would mean the slower typist's document
+     * quietly replacing the faster one's, sentence by sentence, with
+     * neither of them told.
+     *
+     * So the write is **refused, not merged**. A client may send
+     * `base_updated_at`: the `updated_at` it last saw. If the stored value
+     * has moved on, nothing is written and the response is 409 — the coach
+     * is looking at a version the server no longer holds, and the honest
+     * answer is to say so and let them reload rather than to pick a winner.
+     *
+     * Opt-in by design: a client that sends no `base_updated_at` (the
+     * wizard, an integration, a script) keeps the previous last-write-wins
+     * behaviour, because it has no version to have been composed against.
+     *
+     * The resolution is one second, the resolution `DATETIME` has. Two
+     * writes inside the same second are not distinguishable and the second
+     * wins — a real hole, but a much smaller one than the every-keystroke
+     * race it replaces, and closing it properly needs a revision column,
+     * which is a migration this slice deliberately does not carry.
+     */
     public static function put( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
 
@@ -223,9 +250,34 @@ class MatchAnalysisRestController {
             return RestResponse::error( 'db_error', __( 'The analysis could not be created.', 'talenttrack' ), 500 );
         }
 
+        $body = self::body( $r );
+
+        // Query string first: the browser sends it there so the token stays
+        // out of the JSON the surface snapshots for undo and revert. The
+        // body is accepted too, for an API client that finds that more
+        // natural.
+        $base = trim( (string) ( $r->get_param( 'base_updated_at' ) ?? '' ) );
+        if ( $base === '' && isset( $body['base_updated_at'] ) ) {
+            $base = trim( (string) $body['base_updated_at'] );
+        }
+        if ( $base !== '' ) {
+            // Read the row rather than trusting the composed payload: the
+            // composer ran before this request's own find-or-create, so on
+            // a first write it would answer with the row it just made.
+            $row     = ( new MatchAnalysisRepository() )->find( $analysis_id );
+            $current = $row !== null ? (string) ( $row->updated_at ?? '' ) : '';
+            if ( $current !== '' && $current !== $base ) {
+                return RestResponse::error(
+                    'analysis_conflict',
+                    __( 'Someone else changed this analysis while you were writing. Reload the page to see their version.', 'talenttrack' ),
+                    409
+                );
+            }
+        }
+
         ( new MatchAnalysisWriter() )->apply(
             $analysis_id,
-            self::body( $r ),
+            $body,
             self::minutesByPlayer( $payload )
         );
 
@@ -410,6 +462,9 @@ class MatchAnalysisRestController {
             'analysis_id' => (int) $payload['analysis_id'],
             'exists'      => (int) $payload['analysis_id'] > 0,
             'status'      => (string) $payload['status'],
+            // #3007 — the version token. A client that autosaves sends the
+            // last value it saw back as `base_updated_at`; see `put()`.
+            'updated_at'  => (string) ( $payload['updated_at'] ?? '' ),
             'summary'     => (string) $payload['summary'],
             'match'       => [
                 'title'     => (string) ( $activity->title ?? '' ),
