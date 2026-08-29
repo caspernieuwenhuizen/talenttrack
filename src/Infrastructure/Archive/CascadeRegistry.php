@@ -316,6 +316,12 @@ final class CascadeRegistry {
                 [ 'tt_activity_principles', 'activity_id' ],
                 [ 'tt_match_prep', 'activity_id' ],
                 [ 'tt_match_execution', 'activity_id' ],
+                // #3094 — goal events hang off the activity directly now,
+                // and a manually recorded goal has no execution at all. The
+                // children entry above only reaches the ones a live match
+                // sheet wrote; without this, deleting a match would leave
+                // every typed-in goal behind as an orphan.
+                [ 'tt_match_execution_goal_events', 'activity_id' ],
                 [ 'tt_match_analyses', 'activity_id' ],
                 // A run means "this plan was executed at this activity" and
                 // is one-per-activity, so it cannot outlive it. Attendance

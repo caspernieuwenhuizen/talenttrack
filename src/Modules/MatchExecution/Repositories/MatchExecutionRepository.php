@@ -515,8 +515,14 @@ class MatchExecutionRepository {
             array_merge( $ids, [ CurrentClub::id() ] )
         ) );
 
+        // Seeded with both keys so a player who only scored and a player who
+        // only assisted come back the same shape — a caller reading
+        // `['assists']` should never have to guard against its absence.
         foreach ( $goals as $row ) {
-            $out[ (int) $row->activity_id ][ (int) $row->player_id ]['goals'] = (int) $row->n;
+            $out[ (int) $row->activity_id ][ (int) $row->player_id ] = [
+                'goals'   => (int) $row->n,
+                'assists' => 0,
+            ];
         }
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -529,7 +535,12 @@ class MatchExecutionRepository {
         ) );
 
         foreach ( $assists as $row ) {
-            $out[ (int) $row->activity_id ][ (int) $row->player_id ]['assists'] = (int) $row->n;
+            $aid = (int) $row->activity_id;
+            $pid = (int) $row->player_id;
+            if ( ! isset( $out[ $aid ][ $pid ] ) ) {
+                $out[ $aid ][ $pid ] = [ 'goals' => 0, 'assists' => 0 ];
+            }
+            $out[ $aid ][ $pid ]['assists'] = (int) $row->n;
         }
 
         return $out;

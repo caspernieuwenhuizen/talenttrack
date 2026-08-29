@@ -168,8 +168,8 @@ final class MinutesGridQuery {
                 $cells[ $pid ][ $aid ] = [
                     'minutes' => 0,
                     'squad'   => false,
-                    'goals'   => (int) ( $counts['goals'] ?? 0 ),
-                    'assists' => (int) ( $counts['assists'] ?? 0 ),
+                    'goals'   => (int) $counts['goals'],
+                    'assists' => (int) $counts['assists'],
                 ];
             }
         }

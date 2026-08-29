@@ -187,7 +187,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $players = $matrix['players'];
         /** @var list<array<string,mixed>> $activities */
         $activities = $matrix['activities'];
-        /** @var array<int,array<int,array{minutes:int,squad:bool}>> $cells */
+        /** @var array<int,array<int,array{minutes:int,squad:bool,goals:int,assists:int}>> $cells */
         $cells = $matrix['cells'];
 
         echo '<div class="tt-agrid-card">';
@@ -262,8 +262,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
                 $mins     = (int) $cell['minutes'];
                 $total   += $mins;
-                $goals   += (int) ( $cell['goals'] ?? 0 );
-                $assists += (int) ( $cell['assists'] ?? 0 );
+                $goals   += (int) $cell['goals'];
+                $assists += (int) $cell['assists'];
 
                 echo '<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
                 echo '<input class="tt-agrid-min-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="' . esc_attr( (string) $mins ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '" aria-label="' . esc_attr( sprintf(
@@ -274,13 +274,13 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 ) ) . '">';
                 echo '</td>';
 
-                self::renderStatCell( 'goals', $pid, $aid, (int) ( $cell['goals'] ?? 0 ), sprintf(
+                self::renderStatCell( 'goals', $pid, $aid, (int) $cell['goals'], sprintf(
                     /* translators: 1: player name, 2: match date. */
                     __( 'Goals for %1$s on %2$s', 'talenttrack' ),
                     $name,
                     $when
                 ) );
-                self::renderStatCell( 'assists', $pid, $aid, (int) ( $cell['assists'] ?? 0 ), sprintf(
+                self::renderStatCell( 'assists', $pid, $aid, (int) $cell['assists'], sprintf(
                     /* translators: 1: player name, 2: match date. */
                     __( 'Assists for %1$s on %2$s', 'talenttrack' ),
                     $name,

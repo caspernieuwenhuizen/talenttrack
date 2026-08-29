@@ -7445,12 +7445,12 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:prepare\\(\\) expects literal\\-string, non\\-falsy\\-string given\\.$#"
-			count: 21
+			count: 32
 			path: src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php
 
 		-
 			message: "#^Parameter \\#1 \\$query of method wpdb\\:\\:query\\(\\) expects string, string\\|null given\\.$#"
-			count: 7
+			count: 11
 			path: src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php
 
 		-
