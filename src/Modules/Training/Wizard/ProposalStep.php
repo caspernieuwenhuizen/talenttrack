@@ -134,7 +134,7 @@ final class ProposalStep implements WizardStepInterface {
             // invited them to go looking for a setting that will never
             // exist.
             case 'age_below_modelled_range':
-                return __( 'Trainings are not drafted automatically at this age. Load is not planned in numbers for the youngest groups — build the session yourself and the plan will hold it like any other.', 'talenttrack' );
+                return __( 'Trainings are not drafted automatically at this age. Load is not planned in numbers for the youngest groups — build the training yourself and the plan will hold it like any other.', 'talenttrack' );
             case 'over_weekly_envelope':
                 return __( 'This training pushes the team past its planned load for the week.', 'talenttrack' );
             case 'insufficient_recovery':

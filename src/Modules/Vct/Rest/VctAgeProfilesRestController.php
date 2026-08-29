@@ -91,7 +91,7 @@ class VctAgeProfilesRestController {
         if ( $age_group === '' || $minutes <= 0 || $band <= 0 ) {
             return RestResponse::error(
                 'bad_request',
-                __( 'An age profile needs an age group, a maximum session length and an intensity ceiling.', 'talenttrack' ),
+                __( 'An age profile needs an age group, a maximum training length and an intensity ceiling.', 'talenttrack' ),
                 400
             );
         }

@@ -76,7 +76,7 @@ the age-safe intensity ceiling and that is not something to guess at for
 children.
 
 The youngest groups are **deliberately** outside that range. Training load is not
-planned in numbers at U7–U9; the coach shapes the session. The generator will
+planned in numbers at U7–U9; the coach shapes the training. The generator will
 never draft for them, and it now says so as an answer rather than reporting a
 missing profile — the old message sent coaches looking for a setting that does
 not exist.
@@ -94,12 +94,12 @@ age group that does not have one yet.
 Nothing is pre-filled. These numbers decide how long and how hard children train,
 so a plausible-looking suggestion would be worse than an empty field — it invites
 agreement instead of a decision. The seeded profiles are on the same screen as
-the shape to follow, and the maximum session length and intensity ceiling are
+the shape to follow, and the maximum training length and intensity ceiling are
 required.
 
-Adding a profile also copies the **session shape** from the closest age group
+Adding a profile also copies the **training shape** from the closest age group
 that already has one — U15 inherits U14's blueprint, not U10's. That shape is a
-starting point; the limits you just typed are what actually cap the session. Both
+starting point; the limits you just typed are what actually cap the training. Both
 have to exist, which is why adding a profile alone would otherwise stop the
 draft one step later with a different message.
 

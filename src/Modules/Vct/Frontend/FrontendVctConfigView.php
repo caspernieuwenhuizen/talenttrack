@@ -411,7 +411,7 @@ class FrontendVctConfigView extends FrontendViewBase {
             return;
         }
 
-        echo '<p class="tt-help">' . esc_html__( 'Set the limits for an age group the planner cannot draft for yet. The session shape is copied from the closest age group that already has one; the limits below are yours.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-help">' . esc_html__( 'Set the limits for an age group the planner cannot draft for yet. The training shape is copied from the closest age group that already has one; the limits below are yours.', 'talenttrack' ) . '</p>';
 
         echo '<form method="POST" action="" class="tt-vct-form tt-vct-form-grid">';
         wp_nonce_field( 'tt_vct_cfg_age_create', '_tt_vct_cfg_nonce' );
@@ -625,8 +625,8 @@ class FrontendVctConfigView extends FrontendViewBase {
             self::notice(
                 'success',
                 $result['templates_copied'] > 0
-                    ? __( 'Age profile added. The session shape was copied from the closest age group, so the planner can draft for these teams now.', 'talenttrack' )
-                    : __( 'Age profile added. No session shape existed to copy, so the planner still needs a blueprint for this age group.', 'talenttrack' )
+                    ? __( 'Age profile added. The training shape was copied from the closest age group, so the planner can draft for these teams now.', 'talenttrack' )
+                    : __( 'Age profile added. No training shape existed to copy, so the planner still needs a blueprint for this age group.', 'talenttrack' )
             );
             return;
         }

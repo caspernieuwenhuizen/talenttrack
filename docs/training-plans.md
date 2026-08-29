@@ -103,14 +103,14 @@ Press **New plan**. Four short questions, then a finished session:
 
 ### Which age groups the generator drafts for
 
-Drafting needs an **age profile** — the maximum session length and intensity
+Drafting needs an **age profile** — the maximum training length and intensity
 ceiling for that age group. Without one there is nothing safe to plan inside, so
 the generator stops rather than guessing. Two different reasons it can stop, and
 they mean different things:
 
 - **The youngest groups have no load model, on purpose.** Training load is not
   planned in numbers at that age. The generator will never draft for them, and
-  it says so rather than implying a setting is missing. Build the session
+  it says so rather than implying a setting is missing. Build the training
   yourself; the plan holds it like any other.
 - **An age group above that range has no profile yet.** That one is fixable.
   Whoever holds the VCT configuration permission — normally the head of
