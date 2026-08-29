@@ -139,7 +139,7 @@ class MatchAnalysisRepository {
     // -----------------------------------------------------------------
 
     /**
-     * @return array<string, array{rating:?string, notes:string}> section key => row
+     * @return array<string, array{rating:?string, items:list<array{valence:string, body:string}>}> section key => row
      */
     public function listSections( int $analysis_id ): array {
         if ( $analysis_id <= 0 ) return [];
@@ -282,10 +282,10 @@ class MatchAnalysisRepository {
     private function insertNotes( int $analysis_id, string $scope, ?string $section_key, ?int $player_id, array $items ): void {
         $position = 0;
         foreach ( $items as $item ) {
-            $body = trim( (string) ( $item['body'] ?? '' ) );
+            $body = trim( (string) $item['body'] );
             if ( $body === '' ) continue;
 
-            $valence = (string) ( $item['valence'] ?? '' );
+            $valence = (string) $item['valence'];
             if ( ! MatchAnalysisEnums::isValence( $valence ) ) $valence = '';
 
             $this->wpdb->insert( $this->t_notes, [
@@ -362,7 +362,7 @@ class MatchAnalysisRepository {
     // -----------------------------------------------------------------
 
     /**
-     * @return array<int, array{marker:string, note:string, team_function:?string, minutes_played:?int}> player id => item
+     * @return array<int, array{marker:string, items:list<array{valence:string, body:string}>, team_function:?string, minutes_played:?int}> player id => item
      */
     public function listPlayerItems( int $analysis_id ): array {
         if ( $analysis_id <= 0 ) return [];
@@ -398,6 +398,8 @@ class MatchAnalysisRepository {
      *
      * Returns the row id on write, 0 on delete / no-op, so the caller can
      * decide whether a journey event should follow.
+     *
+     * @param list<array{valence:string, body:string}> $items
      */
     public function savePlayerItem(
         int $analysis_id,

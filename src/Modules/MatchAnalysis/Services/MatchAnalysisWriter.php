@@ -208,6 +208,8 @@ final class MatchAnalysisWriter {
      * @deprecated since #3091 — notes are rows now. Kept because the
      *             wizard's draft state and a queued request can still carry
      *             the old joined-text shape through one release.
+     *
+     * @param mixed $value
      */
     public static function cleanNotes( $value ): string {
         if ( is_array( $value ) ) {

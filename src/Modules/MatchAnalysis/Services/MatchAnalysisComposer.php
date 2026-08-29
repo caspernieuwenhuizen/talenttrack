@@ -285,7 +285,7 @@ final class MatchAnalysisComposer {
      */
     private static function joinBodies( array $items ): string {
         $bodies = array_map(
-            static fn( array $item ): string => (string) ( $item['body'] ?? '' ),
+            static fn( array $item ): string => (string) $item['body'],
             $items
         );
 

@@ -207,8 +207,8 @@ final class MatchAnalysisDocument {
      * @param array{valence:string, body:string} $item
      */
     private static function renderPoint( array $item ): void {
-        $body    = (string) ( $item['body'] ?? '' );
-        $valence = (string) ( $item['valence'] ?? '' );
+        $body    = (string) $item['body'];
+        $valence = (string) $item['valence'];
         if ( $body === '' ) return;
 
         printf( '<li data-valence="%s">', esc_attr( $valence ) );

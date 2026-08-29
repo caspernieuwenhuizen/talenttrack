@@ -57,7 +57,7 @@ final class SectionStepFields {
                 . '</p>';
         }
 
-        $items = is_array( $saved['notes'] ?? null ) ? array_values( $saved['notes'] ) : [];
+        $items = array_values( $saved['notes'] );
 
         echo '<ul class="tt-ma__bullets">';
         for ( $i = 0; $i < self::BULLETS; $i++ ) {

@@ -135,7 +135,11 @@ final class MatchAnalysisRosterTest extends WP_UnitTestCase {
     public function test_note_and_phase_inputs_render_for_an_unmarked_player(): void {
         $html = $this->render();
 
-        $this->assertStringContainsString( 'name="players[' . $this->player_id . '][note]"', $html );
+        // Two note rows since #3091, each with its own valence control, so
+        // a player can hold a plus and a minus in the same match.
+        $this->assertStringContainsString( 'name="players[' . $this->player_id . '][notes][0][body]"', $html );
+        $this->assertStringContainsString( 'name="players[' . $this->player_id . '][notes][1][body]"', $html );
+        $this->assertStringContainsString( 'name="players[' . $this->player_id . '][notes][0][valence]"', $html );
         $this->assertStringContainsString( 'name="players[' . $this->player_id . '][team_function]"', $html );
     }
 
