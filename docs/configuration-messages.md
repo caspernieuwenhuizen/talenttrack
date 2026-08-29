@@ -26,6 +26,24 @@ Untick a message and save. From then on:
 
 Everything is on by default, and a message type introduced by a later release arrives switched on. Turning one off is always a deliberate act.
 
+## Everything the academy sends is on this list
+
+Every outgoing email now comes from a named message type, including the ones that used to leave the building on their own:
+
+- **Trial input reminder** — nudges assigned staff whose input on a trial case is still missing.
+- **Scheduled report delivery** — the analytics export, with the file attached.
+- **Email written by a staff member** — anything typed into the in-product composer.
+- **Player report for a scout** — the confidential one-time link sent outside the academy.
+- **Desktop link you asked for** — the "email me the link" button on the desktop-only prompt.
+- **In-product notifications** — new thread messages, task assignments, development-idea updates.
+
+Because they are on the list, all of them obey the switch above, honour a person's own opt-out, wait for quiet hours to end, and leave a row in the message log. Before, none of that was true of them.
+
+Two emails deliberately stay outside this system:
+
+- **Password reset.** An opt-out, a quiet-hours window or a switch left off would lock someone out of their own account with no way to ask for another link.
+- **Backup delivery.** That is a file going to whoever holds your backups, not a message about a person, and it must never be held back.
+
 ## What this is not
 
 - **It is not an opt-out.** This is the academy's decision for everyone. An individual's own preferences live under **My settings → Messages you receive**.

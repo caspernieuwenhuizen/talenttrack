@@ -1,3 +1,5 @@
+# Phone page headers show two buttons, the rest behind a menu (#2809)
+
 Page headers on a phone now show two buttons and put the rest behind the **⋯**
 menu. The worst case was an activity page opening with nine full-width buttons
 stacked above anything you came to read; it now opens with the two that matter

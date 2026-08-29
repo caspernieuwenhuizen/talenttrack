@@ -19,11 +19,24 @@ the changelog stops being a merge-collision surface.
 
 ## Format
 
-First non-empty line is the title (a leading `#` is optional and stripped);
-everything after it is the human-readable description. Reference the issue
-with `#<number>` in the title so the release picks it up. Optionally add a
-`Bump: patch|minor|major` line (default `patch`) so the release step can
-work out the next version itself — it's stripped from the printed changelog.
+Three rules, all enforced by `tools/check-changelog-snippets.php` (the
+`changelog-snippet-check` gate runs it on every PR):
+
+1. **The first non-empty line must be an `# ` heading.** It becomes the
+   changelog entry's title, verbatim. Reference the issue with
+   `(#<number>)` in it so the release note carries a link.
+2. **The `Bump:` line must come after the heading**, never on the first
+   line, and at most once. `patch` | `minor` | `major`; omit it for
+   `patch`. It is stripped from the printed changelog.
+3. **There must be a body** below those two — otherwise the release
+   prints the title twice.
+
+Rule 2 is the one that bites. The release script takes the first
+non-empty line as the title and only *then* looks for the marker, so a
+snippet that opens with `Bump: minor` produces an entry literally titled
+"Bump: minor" *and* falls back to a patch bump. Seven of the nine
+snippets in the v4.108.0 batch were malformed this way (#3043), which is
+why it is checked rather than described.
 
 ```markdown
 # Weekly planner PDF: ISO week number in the badge (#1730)

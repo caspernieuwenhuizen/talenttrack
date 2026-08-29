@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-28T22:32:13+00:00\n"
+"POT-Creation-Date: 2026-08-29T07:48:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -15,7 +15,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: talenttrack.php src/Core/Activator.php:165
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
-#: src/Modules/Reports/ScoutDelivery.php:99 src/Shared/Admin/Menu.php:49
+#: src/Modules/Reports/ScoutDelivery.php:125 src/Shared/Admin/Menu.php:49
 msgid "TalentTrack"
 msgstr "TalentTrack"
 
@@ -5477,7 +5477,7 @@ msgstr "Opslaan"
 #: src/Shared/Admin/BulkActionsHelper.php:225
 #: src/Shared/Frontend/FrontendMatrixView.php:379
 #: src/Shared/Frontend/FrontendModulesView.php:410
-#: src/Shared/Mobile/MobileActionHandlers.php:40
+#: src/Shared/Mobile/MobileActionHandlers.php:46
 msgid "Unauthorized"
 msgstr "Geen toegang"
 
@@ -5862,7 +5862,7 @@ msgstr "Vanaf"
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2863
 #: src/Shared/Frontend/FrontendEvaluationsView.php:215
-#: src/Shared/Frontend/FrontendMailComposeView.php:120
+#: src/Shared/Frontend/FrontendMailComposeView.php:142
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:109
 #: src/Shared/Frontend/FrontendStandardReportsView.php:479
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1550
@@ -6251,7 +6251,7 @@ msgid "%s was invited but has never accepted."
 msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
 
 #: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:54
 msgid "Someone"
 msgstr "Iemand"
 
@@ -6916,7 +6916,7 @@ msgstr "Ontwikkelplannen"
 #: src/Shared/CoreSurfaceRegistration.php:1795
 #: src/Shared/CoreSurfaceRegistration.php:2140
 #: src/Shared/CoreSurfaceRegistration.php:2162
-#: src/Shared/Frontend/FrontendMailComposeView.php:49
+#: src/Shared/Frontend/FrontendMailComposeView.php:52
 #: src/Shared/Frontend/FrontendPeopleManageView.php:50
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
@@ -7273,22 +7273,6 @@ msgstr "Prospects per scout vastgelegd"
 msgid "Pending"
 msgstr "In behandeling"
 
-#. translators: 1: schedule name, 2: KPI label
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:69
-#, php-format
-msgid "TalentTrack scheduled report: %1$s (%2$s)"
-msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
-
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:73
-msgid ""
-"Your TalentTrack scheduled report is attached.\n"
-"\n"
-"See the dashboard for the live view."
-msgstr ""
-"Je TalentTrack-gepland-rapport is bijgevoegd.\n"
-"\n"
-"Ga naar het dashboard voor de live-weergave."
-
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:149
 #: src/Modules/Development/IdeaStatus.php:101
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:82
@@ -7437,7 +7421,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
 #: src/Shared/Frontend/FrontendHolidaysView.php:148
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
-#: src/Shared/Frontend/FrontendMailComposeView.php:33
+#: src/Shared/Frontend/FrontendMailComposeView.php:36
 #: src/Shared/Frontend/FrontendMatrixView.php:81
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:45
@@ -8950,7 +8934,7 @@ msgstr "[%s] Stel je wachtwoord opnieuw in"
 #. translators: %s: user display/login name
 #. translators: %s: assignee display name
 #: src/Modules/Auth/PasswordResetHandler.php:137
-#: src/Modules/Workflow/Notifications/TaskMailer.php:61
+#: src/Modules/Workflow/Notifications/TaskMailer.php:65
 #, php-format
 msgid "Hi %s,"
 msgstr "Hallo %s,"
@@ -12535,7 +12519,7 @@ msgstr ""
 "Kan niet terugzetten: snapshot is van versie %1$s, deze site draait %2$s. "
 "Terugzetten tussen verschillende hoofdversies wordt niet ondersteund."
 
-#: src/Modules/Backup/Destinations/EmailDestination.php:31
+#: src/Modules/Backup/Destinations/EmailDestination.php:41
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:489
 #: src/Modules/Configuration/Admin/FormSlugContract.php:79
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
@@ -12561,13 +12545,13 @@ msgid "Email"
 msgstr "E-mail"
 
 #. translators: 1: site name, 2: backup date
-#: src/Modules/Backup/Destinations/EmailDestination.php:59
+#: src/Modules/Backup/Destinations/EmailDestination.php:69
 #, php-format
 msgid "[%1$s] TalentTrack backup ready (too large to email): %2$s"
 msgstr "[%1$s] TalentTrack-back-up klaar (te groot voor e-mail): %2$s"
 
 #. translators: 1: backup date, 2: size in MB, 3: cap in MB
-#: src/Modules/Backup/Destinations/EmailDestination.php:65
+#: src/Modules/Backup/Destinations/EmailDestination.php:75
 #, php-format
 msgid ""
 "A TalentTrack backup was created at %1$s but is too large to email (%2$.1f "
@@ -12582,13 +12566,13 @@ msgstr ""
 "terug te zetten."
 
 #. translators: 1: site name, 2: backup date
-#: src/Modules/Backup/Destinations/EmailDestination.php:79
+#: src/Modules/Backup/Destinations/EmailDestination.php:89
 #, php-format
 msgid "[%1$s] TalentTrack backup: %2$s"
 msgstr "[%1$s] TalentTrack-back-up: %2$s"
 
 #. translators: 1: site name, 2: preset, 3: size in MB
-#: src/Modules/Backup/Destinations/EmailDestination.php:85
+#: src/Modules/Backup/Destinations/EmailDestination.php:95
 #, php-format
 msgid ""
 "Attached: TalentTrack backup for %1$s.\n"
@@ -12940,6 +12924,53 @@ msgstr ""
 "Mogelijk wil je opvolgen.\n"
 "\n"
 "Open: {deep_link}"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:25
+msgid "Desktop link you asked for"
+msgstr "Desktoplink die je hebt aangevraagd"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:32
+msgid "Your {site_name} desktop link"
+msgstr "Je desktoplink voor {site_name}"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:33
+msgid ""
+"You asked us to email you the link to a desktop-only TalentTrack page.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open this on a laptop or computer."
+msgstr ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:36
+msgid "Je desktoplink voor {site_name}"
+msgstr "Je desktoplink voor {site_name}"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:37
+msgid ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+msgstr ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+
+#: src/Modules/Comms/Templates/DirectMessageTemplate.php:31
+msgid "Email written by a staff member"
+msgstr "E-mail geschreven door een medewerker"
 
 #: src/Modules/Comms/Templates/GoalNudgeTemplate.php:24
 msgid "Goal nudge"
@@ -13508,6 +13539,86 @@ msgstr ""
 "\n"
 "Open: {deep_link}"
 
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:27
+msgid "Scheduled report delivery"
+msgstr "Levering gepland rapport"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:34
+msgid "Scheduled report: {schedule_name} ({kpi_label})"
+msgstr "Gepland rapport: {schedule_name} ({kpi_label})"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:35
+msgid ""
+"Your scheduled report \"{schedule_name}\" is attached.\n"
+"\n"
+"See the dashboard for the live view."
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:38
+msgid "Gepland rapport: {schedule_name} ({kpi_label})"
+msgstr "Gepland rapport: {schedule_name} ({kpi_label})"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:39
+msgid ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:26
+msgid "Player report for a scout"
+msgstr "Spelersrapport voor een scout"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:33
+msgid "{club_name} — Player report for {player_name}"
+msgstr "{club_name} — Spelersrapport van {player_name}"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:34
+msgid ""
+"Hello, you have been sent a confidential player report from {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"This link is valid until {expiry_date}. Do not forward."
+msgstr ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:37
+msgid "{club_name} — Spelersrapport van {player_name}"
+msgstr "{club_name} — Spelersrapport van {player_name}"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:38
+msgid ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+msgstr ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+
 #: src/Modules/Comms/Templates/SelectionLetterTemplate.php:25
 msgid "Selection decision letter"
 msgstr "Selectiebesluit-brief"
@@ -13685,6 +13796,62 @@ msgid ""
 msgstr ""
 "{activity_title} op {date} is afgelast. We laten je horen over een "
 "vervangende sessie."
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:28
+msgid "Trial input reminder"
+msgstr "Herinnering stage-input"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:35
+msgid "Trial input needed: {player_name}"
+msgstr "Stage-input gevraagd: {player_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:36
+msgid ""
+"Hi {recipient_first_name},\n"
+"\n"
+"The trial period for {player_name} runs to {end_date}, and your input on the "
+"case is still missing.\n"
+"\n"
+"Go to the case here: {case_url}\n"
+"\n"
+"Thanks,\n"
+"{club_name}"
+msgstr ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:39
+msgid "Stage-input gevraagd: {player_name}"
+msgstr "Stage-input gevraagd: {player_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:40
+msgid ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
+msgstr ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
 
 #: src/Modules/Comms/Templates/TrialPlayerWelcomeTemplate.php:20
 msgid "Trial player welcome"
@@ -15123,7 +15290,7 @@ msgid "Level"
 msgstr "Niveau"
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:104
-#: src/Shared/Frontend/FrontendMailComposeView.php:128
+#: src/Shared/Frontend/FrontendMailComposeView.php:150
 msgid "Message"
 msgstr "Bericht"
 
@@ -18789,13 +18956,13 @@ msgid "Needs triage"
 msgstr "Vereist triage"
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:49
+#: src/Modules/Development/Notifications/AuthorNotifier.php:50
 #, php-format
 msgid "[TalentTrack] Your idea \"%s\" was not accepted"
 msgstr "[TalentTrack] Je idee \"%s\" is niet geaccepteerd"
 
 #. translators: 1: idea title, 2: rejection note
-#: src/Modules/Development/Notifications/AuthorNotifier.php:55
+#: src/Modules/Development/Notifications/AuthorNotifier.php:56
 #, php-format
 msgid ""
 "Hi,\n"
@@ -18816,18 +18983,18 @@ msgstr ""
 "\n"
 "Je kunt op elk moment een nieuw idee indienen."
 
-#: src/Modules/Development/Notifications/AuthorNotifier.php:57
+#: src/Modules/Development/Notifications/AuthorNotifier.php:58
 msgid "(no note provided)"
 msgstr "(geen notitie meegegeven)"
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:63
+#: src/Modules/Development/Notifications/AuthorNotifier.php:64
 #, php-format
 msgid "[TalentTrack] Your idea \"%s\" was accepted"
 msgstr "[TalentTrack] Je idee \"%s\" is geaccepteerd"
 
 #. translators: 1: idea title, 2: filename
-#: src/Modules/Development/Notifications/AuthorNotifier.php:68
+#: src/Modules/Development/Notifications/AuthorNotifier.php:69
 #, php-format
 msgid ""
 "Hi,\n"
@@ -18845,13 +19012,13 @@ msgstr ""
 "Je krijgt nog een e-mail wanneer er aan begonnen wordt."
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:76
+#: src/Modules/Development/Notifications/AuthorNotifier.php:77
 #, php-format
 msgid "[TalentTrack] Work has started on \"%s\""
 msgstr "[TalentTrack] Er wordt gewerkt aan \"%s\""
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:81
+#: src/Modules/Development/Notifications/AuthorNotifier.php:82
 #, php-format
 msgid ""
 "Hi,\n"
@@ -36770,28 +36937,10 @@ msgid "All evaluations"
 msgstr "Alle evaluaties"
 
 #. translators: %s: recipient email address
-#: src/Modules/Reports/ScoutDelivery.php:78
+#: src/Modules/Reports/ScoutDelivery.php:92
 #, php-format
 msgid "Confidential — for %s only"
 msgstr "Vertrouwelijk — alleen voor %s"
-
-#. translators: 1: club name, 2: player name
-#: src/Modules/Reports/ScoutDelivery.php:103
-#, php-format
-msgid "%1$s — Player report for %2$s"
-msgstr "%1$s — Spelerrapport voor %2$s"
-
-#. translators: %s: club name
-#: src/Modules/Reports/ScoutDelivery.php:112
-#, php-format
-msgid "Hello, you have been sent a confidential player report from %s."
-msgstr "Hallo, je hebt een vertrouwelijk spelerrapport ontvangen van %s."
-
-#. translators: %s: human-readable expiry date
-#: src/Modules/Reports/ScoutDelivery.php:117
-#, php-format
-msgid "This link is valid until %s. Do not forward."
-msgstr "Deze link is geldig tot %s. Niet doorsturen."
 
 #: src/Modules/Reports/ScoutLinkRouter.php:36
 msgid "This scout link is unknown or has been removed."
@@ -39801,18 +39950,18 @@ msgid "Goal created: %s"
 msgstr "Doel aangemaakt: %s"
 
 #. translators: %s is a label like "Marcus's goal: Improve first-touch under pressure"
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:55
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:59
 #, php-format
 msgid "New message on %s"
 msgstr "Nieuw bericht op %s"
 
 #. translators: %s is the author's display name
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:60
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:64
 #, php-format
 msgid "%s wrote:"
 msgstr "%s schreef:"
 
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:67
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:71
 msgid "View:"
 msgstr "Bekijken:"
 
@@ -42016,7 +42165,7 @@ msgid "Acceptance-slip return deadline"
 msgstr "Retourdeadline acceptatiestrookje"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:98
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:100
+#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:139
 msgid "The club"
 msgstr "De club"
 
@@ -42077,34 +42226,6 @@ msgstr "Handtekening:"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
 msgid "Datum:"
 msgstr "Datum:"
-
-#. translators: 1: player name, 2: days remaining (negative if past)
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:91
-#, php-format
-msgid "Trial input needed: %1$s (%2$d days)"
-msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
-
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:96
-#, php-format
-msgid ""
-"Hi %1$s,\n"
-"\n"
-"The trial period for %2$s is ending. Your input on the case is still "
-"needed.\n"
-"\n"
-"Go to the case here: %3$s\n"
-"\n"
-"Thanks,\n"
-"%4$s"
-msgstr ""
-"Hoi %1$s,\n"
-"\n"
-"De stageperiode voor %2$s loopt af. Jouw input op het dossier is nog nodig.\n"
-"\n"
-"Ga naar het dossier hier: %3$s\n"
-"\n"
-"Groet,\n"
-"%4$s"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:53
 msgid "Extended"
@@ -42194,6 +42315,10 @@ msgstr "Ongeldig gebruiker-id."
 #: src/Modules/Trials/Rest/TrialsRestController.php:335
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:374
+msgid "No reminders were due."
+msgstr "Er stonden geen herinneringen open."
 
 # TrialGroupTeam
 #. translators: %s: age group label, e.g. "U13"
@@ -45080,34 +45205,34 @@ msgid ""
 msgstr ""
 "Speler met ouderzicht — taak voor de speler; ouder heeft alleen leestoegang."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:53
+#: src/Modules/Workflow/Notifications/TaskMailer.php:57
 #, php-format
 msgid "[%1$s] New task: %2$s"
 msgstr "[%1$s] Nieuwe taak: %2$s"
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:67
+#: src/Modules/Workflow/Notifications/TaskMailer.php:71
 #, php-format
 msgid "A new task has been assigned to you: %1$s. Deadline: %2$s."
 msgstr "Er is een nieuwe taak aan je toegewezen: %1$s. Deadline: %2$s."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:73
+#: src/Modules/Workflow/Notifications/TaskMailer.php:77
 msgid "Open your task inbox:"
 msgstr "Open je takeninbox:"
 
 #. translators: %s: site name
-#: src/Modules/Workflow/Notifications/TaskMailer.php:79
+#: src/Modules/Workflow/Notifications/TaskMailer.php:83
 #, php-format
 msgid "— %s"
 msgstr "— %s"
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:110
+#: src/Modules/Workflow/Notifications/TaskMailer.php:122
 #, php-format
 msgid "New task: %1$s. Deadline: %2$s."
 msgstr "Nieuwe taak: %1$s. Deadline: %2$s."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:129
+#: src/Modules/Workflow/Notifications/TaskMailer.php:141
 msgid "no deadline"
 msgstr "geen deadline"
 
@@ -50589,53 +50714,53 @@ msgid "History: %1$d rewrite(s) applied, %2$d row(s) skipped."
 msgstr ""
 "Geschiedenis: %1$d herschrijving(en) toegepast, %2$d rij(en) overgeslagen."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:34
+#: src/Shared/Frontend/FrontendMailComposeView.php:37
 msgid "You do not have permission to send email through TalentTrack."
 msgstr "Je hebt geen permissie om e-mail te versturen via TalentTrack."
 
 #. translators: %s: person display name
 #. translators: %s = recipient name
-#: src/Shared/Frontend/FrontendMailComposeView.php:47
-#: src/Shared/Frontend/FrontendMailComposeView.php:97
+#: src/Shared/Frontend/FrontendMailComposeView.php:50
+#: src/Shared/Frontend/FrontendMailComposeView.php:104
 #, php-format
 msgid "Compose email to %s"
 msgstr "E-mail opstellen voor %s"
 
 # #0063 — q2 polish epic
-#: src/Shared/Frontend/FrontendMailComposeView.php:54
-#: src/Shared/Frontend/FrontendMailComposeView.php:67
+#: src/Shared/Frontend/FrontendMailComposeView.php:57
+#: src/Shared/Frontend/FrontendMailComposeView.php:70
 msgid "Compose email"
 msgstr "E-mail opstellen"
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:68
+#: src/Shared/Frontend/FrontendMailComposeView.php:71
 msgid "No recipient on file."
 msgstr "Geen ontvanger geregistreerd."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:78
+#: src/Shared/Frontend/FrontendMailComposeView.php:83
 msgid "Security check failed. Please reload the page and try again."
 msgstr "Beveiligingscontrole mislukt. Herlaad de pagina en probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:83
+#: src/Shared/Frontend/FrontendMailComposeView.php:88
 msgid "Subject and message body are both required."
 msgstr "Onderwerp en berichttekst zijn beide verplicht."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:103
+#: src/Shared/Frontend/FrontendMailComposeView.php:110
 msgid "Email sent. A copy has been logged to the audit trail."
 msgstr "E-mail verstuurd. Een kopie is in het auditlogboek opgenomen."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:107
+#: src/Shared/Frontend/FrontendMailComposeView.php:114
 msgid ""
-"wp_mail returned false. The audit log captured the attempt; check the site's "
-"SMTP / mailer configuration."
+"The message was not sent. The attempt is in the message log; the line below "
+"says why."
 msgstr ""
-"wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; controleer "
-"de SMTP-/mailerconfiguratie van de site."
+"Het bericht is niet verzonden. De poging staat in het berichtenlogboek; "
+"hieronder staat waarom."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:124
+#: src/Shared/Frontend/FrontendMailComposeView.php:146
 msgid "Subject"
 msgstr "Onderwerp"
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:130
+#: src/Shared/Frontend/FrontendMailComposeView.php:152
 msgid ""
 "Sends from the academy's configured email address. Every send is recorded in "
 "the audit log."
@@ -50643,7 +50768,7 @@ msgstr ""
 "Verzonden vanaf het ingestelde e-mailadres van de academie. Elke verzending "
 "wordt vastgelegd in het auditlogboek."
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:133
+#: src/Shared/Frontend/FrontendMailComposeView.php:155
 msgid "Send email"
 msgstr "E-mail versturen"
 
@@ -56003,29 +56128,6 @@ msgstr "Federation — marineblauw en goud"
 msgid "Leon Hutten — black and cyan"
 msgstr "Leon Hutten — zwart en cyaan"
 
-#. translators: %s site name
-#: src/Shared/Mobile/MobileActionHandlers.php:81
-#, php-format
-msgid "Your %s desktop link"
-msgstr "Je %s desktop-link"
-
-#. translators: %s the safe URL
-#: src/Shared/Mobile/MobileActionHandlers.php:86
-#, php-format
-msgid ""
-"You asked us to email you the link to a desktop-only TalentTrack page.\n"
-"\n"
-"%s\n"
-"\n"
-"Open this on a laptop or computer."
-msgstr ""
-"Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
-"desktop te mailen.\n"
-"\n"
-"%s\n"
-"\n"
-"Open hem op een laptop of computer."
-
 #: src/Shared/Modules/ModuleMetadata.php:45
 msgid "Player data"
 msgstr "Spelersgegevens"
@@ -56702,6 +56804,82 @@ msgstr[1] "Installatieprofiel toegepast — %d wijzigingen doorgevoerd. Herlaad 
 
 
 
+#, php-format
+#~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
+#~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
+
+#~ msgid ""
+#~ "Your TalentTrack scheduled report is attached.\n"
+#~ "\n"
+#~ "See the dashboard for the live view."
+#~ msgstr ""
+#~ "Je TalentTrack-gepland-rapport is bijgevoegd.\n"
+#~ "\n"
+#~ "Ga naar het dashboard voor de live-weergave."
+
+#, php-format
+#~ msgid "%1$s — Player report for %2$s"
+#~ msgstr "%1$s — Spelerrapport voor %2$s"
+
+#, php-format
+#~ msgid "Hello, you have been sent a confidential player report from %s."
+#~ msgstr "Hallo, je hebt een vertrouwelijk spelerrapport ontvangen van %s."
+
+#, php-format
+#~ msgid "This link is valid until %s. Do not forward."
+#~ msgstr "Deze link is geldig tot %s. Niet doorsturen."
+
+#, php-format
+#~ msgid "Trial input needed: %1$s (%2$d days)"
+#~ msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
+
+#, php-format
+#~ msgid ""
+#~ "Hi %1$s,\n"
+#~ "\n"
+#~ "The trial period for %2$s is ending. Your input on the case is still "
+#~ "needed.\n"
+#~ "\n"
+#~ "Go to the case here: %3$s\n"
+#~ "\n"
+#~ "Thanks,\n"
+#~ "%4$s"
+#~ msgstr ""
+#~ "Hoi %1$s,\n"
+#~ "\n"
+#~ "De stageperiode voor %2$s loopt af. Jouw input op het dossier is nog "
+#~ "nodig.\n"
+#~ "\n"
+#~ "Ga naar het dossier hier: %3$s\n"
+#~ "\n"
+#~ "Groet,\n"
+#~ "%4$s"
+
+#~ msgid ""
+#~ "wp_mail returned false. The audit log captured the attempt; check the "
+#~ "site's SMTP / mailer configuration."
+#~ msgstr ""
+#~ "wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; "
+#~ "controleer de SMTP-/mailerconfiguratie van de site."
+
+#, php-format
+#~ msgid "Your %s desktop link"
+#~ msgstr "Je %s desktop-link"
+
+#, php-format
+#~ msgid ""
+#~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Open this on a laptop or computer."
+#~ msgstr ""
+#~ "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
+#~ "desktop te mailen.\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Open hem op een laptop of computer."
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"

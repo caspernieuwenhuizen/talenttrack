@@ -26,6 +26,24 @@ Vink een bericht uit en sla op. Vanaf dat moment:
 
 Alles staat standaard aan, en een berichtsoort die in een latere versie bijkomt komt aan staan binnen. Iets uitzetten is altijd een bewuste keuze.
 
+## Alles wat de academie verstuurt staat op deze lijst
+
+Elke uitgaande e-mail komt nu uit een berichtsoort met een naam, ook de berichten die vroeger op eigen houtje de deur uit gingen:
+
+- **Herinnering stage-input** — port toegewezen medewerkers die hun input op een stagedossier nog niet hebben ingevuld.
+- **Levering gepland rapport** — de analyse-export, met het bestand als bijlage.
+- **E-mail geschreven door een medewerker** — alles wat via de opsteller in het product wordt getypt.
+- **Spelersrapport voor een scout** — de vertrouwelijke eenmalige link naar buiten de academie.
+- **Desktoplink die je hebt aangevraagd** — de knop "Mail mij de link" op de melding voor desktop-only pagina's.
+- **Meldingen in het product** — nieuwe berichten in een gesprek, toegewezen taken, updates op ingediende ideeën.
+
+Doordat ze op de lijst staan, volgen ze allemaal de schakelaar hierboven, respecteren ze de afmelding van een persoon, wachten ze op het einde van de stille uren en laten ze een regel achter in het berichtenlogboek. Daarvoor gold dat voor geen van deze berichten.
+
+Twee e-mails blijven hier bewust buiten:
+
+- **Wachtwoord herstellen.** Een afmelding, stille uren of een uitgezette schakelaar zouden iemand buitensluiten uit het eigen account, zonder manier om een nieuwe link te vragen.
+- **Levering van back-ups.** Dat is een bestand naar degene die je back-ups bewaart, geen bericht over een persoon, en het mag nooit worden tegengehouden.
+
 ## Wat dit niet is
 
 - **Het is geen afmelding.** Dit is de keuze van de academie, voor iedereen. De eigen voorkeuren van een gebruiker staan onder **Mijn instellingen → Berichten die je ontvangt**.
