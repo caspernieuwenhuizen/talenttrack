@@ -163,7 +163,7 @@ class CoachForms {
                   echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
                       $rest_path,
                       $rest_method,
-                      'evaluation:' . (int) $existing_eval->id
+                      'evaluation:' . $rest_path
                   );
               } else {
                   printf(

@@ -1161,7 +1161,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                   echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
                       $rest_path,
                       'PATCH',
-                      'pdp-conversation:' . (int) $conv->id
+                      'pdp-conversation:' . $rest_path
                   );
               } else {
                   printf(
@@ -1233,13 +1233,9 @@ class FrontendPdpManageView extends FrontendViewBase {
                 <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) ); ?></p>
             <?php endif; ?>
 
-            <?php if ( ! $is_locked ) : ?>
+            <?php if ( $autosaves ) : ?>
                 <div class="tt-form-actions">
-                    <?php if ( $autosaves ) {
-                        \TT\Shared\Frontend\Components\SaveState::render();
-                    } else { ?>
-                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save conversation', 'talenttrack' ); ?></button>
-                    <?php } ?>
+                    <?php \TT\Shared\Frontend\Components\SaveState::render(); ?>
                 </div>
             <?php endif; ?>
             <div class="tt-form-msg"></div>

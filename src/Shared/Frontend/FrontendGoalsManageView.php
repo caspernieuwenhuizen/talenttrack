@@ -481,7 +481,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
                   echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
                       $rest_path,
                       $rest_meth,
-                      'goal:' . (int) $goal->id
+                      'goal:' . $rest_path
                   );
               } else {
                   printf(
