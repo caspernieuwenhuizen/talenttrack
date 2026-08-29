@@ -55,6 +55,13 @@ TalentTrack's built-in Backup module exports the plugin's own tables on a schedu
  there is anything to report; check it against what the hosting actually provides.
 - If the academy will not use media at all, switch the module off under Modules rather than leaving it available and unused.
 
+## 5c. What else the plugin writes into `uploads/`
+
+Two things, and neither is a report you need to go and clean up.
+
+- **Scheduled report CSVs are no longer staged in `uploads/` at all.** A scheduled report is rendered into the server's private temporary directory, under a randomly named folder, attached to the email, and deleted immediately — including when the send fails. Nothing about it is ever reachable over the web. If you are upgrading an install that ran scheduled reports before this change, delete any leftover `wp-content/uploads/tt-report-*.csv` once; nothing writes them any more.
+- **PDP pre-delete snapshots stay in `uploads/tt-pdp-deletes/`, deliberately.** They are the record of what a permanent deletion removed, so they are meant to survive. The folder carries the same deny-all rule the media folder does, with the same Apache-only caveat — on nginx, add a `location` block denying `/wp-content/uploads/tt-pdp-deletes/` alongside the media one.
+
 ## 6. Day-one support plan
 
 - Who do coaches message when something breaks during the first week, and who escalates to the developer/host?
