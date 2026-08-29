@@ -81,17 +81,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-
 
-      # Non-fatal for the reason given in php-tests.yml: this step measures,
-      # it does not gate.
-      - name: Pre-pull container images (timed)
-        continue-on-error: true
-        run: |
-          start=$( date +%s )
-          for image in wordpress:latest wordpress:cli mariadb:lts; do
-            docker pull --quiet "$image" || echo "TT_TIMING image_pull_skipped=$image"
-          done
-          echo "TT_TIMING image_pull_seconds=$(( $( date +%s ) - start ))"
-
+      # See php-tests.yml: a pre-pull step was measured here too and removed.
+      # It cost 28s and saved nothing, because wp-env pulls its own tags.
       - name: Start wp-env (timed)
         run: |
           set -e

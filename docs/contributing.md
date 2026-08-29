@@ -326,13 +326,14 @@ The cache key carries a hash of `.wp-env.json` **and** the run id, with `restore
 Both workflows print timing markers so the cost stays visible rather than having to be reconstructed with a stopwatch. Grep a run's log for `TT_TIMING`:
 
 ```
-TT_TIMING image_pull_seconds=…    # container images only
 TT_TIMING core_cache_hit=…        # was ~/.wp-env restored?
 TT_TIMING wp_env_dir_size=…       # how big the restored tree is
-TT_TIMING wp_env_start_seconds=…  # everything wp-env does after the pull
+TT_TIMING wp_env_start_seconds=…  # the whole of wp-env's startup
 ```
 
-If `wp_env_start_seconds` climbs back toward 95s with `core_cache_hit=true`, the clone is no longer the dominant cost and the next candidate — wp-env starting a `dev` instance the PHPUnit job never uses — is the one to look at. The image pre-pull step is measurement, not a gate: it is `continue-on-error` on purpose, because a moved tag must not turn a stopwatch into an outage.
+**Container image pull is about 28s of that, and pre-pulling does not help.** A step that pulled `wordpress`, `wordpress:cli` and `mariadb:lts` ahead of wp-env was tried and removed: it cost 28s and took nothing off wp-env's own 92s, because wp-env resolves and pulls its own tags regardless. Net effect +25s. That is worth knowing before anyone tries it again — it is the first candidate everybody reaches for.
+
+If `wp_env_start_seconds` climbs back toward 95s with `core_cache_hit=true`, the clone is no longer the dominant cost and the next candidate is wp-env starting a `dev` instance that the PHPUnit job never touches.
 
 ### Mandatory: a smoke test for every new REST endpoint
 

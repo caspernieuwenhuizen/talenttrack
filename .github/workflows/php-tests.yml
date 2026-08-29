@@ -105,20 +105,13 @@ jobs:
       # markers separate the image pull from everything wp-env does after it,
       # and report whether the core cache was warm, which is the difference
       # the cache above is meant to make.
-      # Deliberately non-fatal. These pulls exist to SEPARATE the image
-      # download from the rest of wp-env's startup so the log says which is
-      # which; wp-env pulls whatever it actually needs a moment later
-      # regardless. A tag that has moved must therefore not fail the build —
-      # it would turn a measurement into an outage.
-      - name: Pre-pull container images (timed)
-        continue-on-error: true
-        run: |
-          start=$( date +%s )
-          for image in wordpress:latest wordpress:cli mariadb:lts; do
-            docker pull --quiet "$image" || echo "TT_TIMING image_pull_skipped=$image"
-          done
-          echo "TT_TIMING image_pull_seconds=$(( $( date +%s ) - start ))"
-
+      # A pre-pull step was tried here and REMOVED after measuring it —
+      # candidate 1 in #2417, ruled out with a number rather than an
+      # opinion. Pulling `wordpress` / `wordpress:cli` / `mariadb:lts` ahead
+      # of wp-env cost 28s and took nothing off wp-env's own 92s, because
+      # wp-env resolves its own tags and pulls them regardless. Net effect
+      # was +25s. Image pull is roughly 28s of the startup; it is not the
+      # part worth attacking, and the way to find that out was to try it.
       - name: Start wp-env (timed)
         run: |
           set -e
