@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Cron;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
+use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\ScheduledReportsRepository;
@@ -70,37 +71,128 @@ final class ScheduledReportsRunner {
 
             $kpi = KpiRegistry::find( $kpi_key );
 
-            $upload_dir = wp_upload_dir();
-            $filename   = 'tt-report-' . sanitize_key( $kpi_key ) . '-' . gmdate( 'Y-m-d' ) . '.csv';
-            $tmp_path   = trailingslashit( $upload_dir['basedir'] ) . $filename;
-            file_put_contents( $tmp_path, $csv );
+            // #3080 — the CSV is staged outside the web root, in a
+            // directory whose name nobody can guess. See `stagingDir()`.
+            $dir = self::stagingDir();
+            if ( $dir === '' ) {
+                self::auditLog( $schedule, count( $recipients ), false );
+                $repo->markRun( (int) $schedule['id'], $now );
+                continue;
+            }
 
-            // #2604 — through Comms rather than a direct `wp_mail()`, so the
-            // send is audited and an operator who muted scheduled reports
-            // stops receiving them. The rendered CSV rides along on the
-            // request's attachment paths; it is deleted the moment the
-            // synchronous send returns.
-            $results = CommsDispatcher::dispatchSync(
-                ScheduledReportTemplate::KEY,
-                [
-                    'schedule_name' => (string) $schedule['name'],
-                    'kpi_label'     => $kpi ? $kpi->label : $kpi_key,
-                ],
-                $recipients,
-                [
-                    'message_type'   => MessageType::SCHEDULED_REPORT,
-                    'sender_user_id' => 0,
-                    'attachments'    => [ $tmp_path ],
-                ]
+            $filename = 'tt-report-' . sanitize_key( $kpi_key ) . '-' . gmdate( 'Y-m-d' ) . '.csv';
+            $tmp_path = $dir . '/' . $filename;
+
+            try {
+                // A failed write used to pass unnoticed: the adapter drops
+                // an unreadable attachment silently, so the operator got a
+                // "here is your report" email with no report in it. Treat
+                // it as a failed run instead.
+                if ( file_put_contents( $tmp_path, $csv ) === false ) {
+                    Logger::error(
+                        'Scheduled report: could not write the CSV, send skipped.',
+                        [ 'schedule_id' => (int) $schedule['id'], 'kpi_key' => $kpi_key ]
+                    );
+                    self::auditLog( $schedule, count( $recipients ), false );
+                    $repo->markRun( (int) $schedule['id'], $now );
+                    continue;
+                }
+
+                // #2604 — through Comms rather than a direct `wp_mail()`, so
+                // the send is audited and an operator who muted scheduled
+                // reports stops receiving them. The rendered CSV rides along
+                // on the request's attachment paths.
+                $results = CommsDispatcher::dispatchSync(
+                    ScheduledReportTemplate::KEY,
+                    [
+                        'schedule_name' => (string) $schedule['name'],
+                        'kpi_label'     => $kpi ? $kpi->label : $kpi_key,
+                    ],
+                    $recipients,
+                    [
+                        'message_type'   => MessageType::SCHEDULED_REPORT,
+                        'sender_user_id' => 0,
+                        'attachments'    => [ $tmp_path ],
+                    ]
+                );
+
+                self::auditLog( $schedule, count( $recipients ), CommsOutcomeSummary::sentCount( $results ) > 0 );
+                $repo->markRun( (int) $schedule['id'], $now );
+            } finally {
+                // `finally`, not the happy path: a throw anywhere above used
+                // to leave the file behind for good. A leftover nobody is
+                // told about is what turns a short window into a permanent
+                // one, so the failure is logged rather than suppressed.
+                self::discardStagingDir( $dir );
+            }
+        }
+    }
+
+    /**
+     * A private, single-use directory to render one report into.
+     *
+     * The CSV used to be written straight into `wp_upload_dir()['basedir']`
+     * — the served root of `wp-content/uploads/` — under the fully
+     * predictable name `tt-report-<kpi>-<date>.csv`, and removed with a
+     * suppressed `@unlink()`. Anyone who knew the site could guess today's
+     * URL for any KPI, and a failed unlink left it there indefinitely.
+     * These are reports about minors.
+     *
+     * Three properties, in the order they matter:
+     *
+     * - **Not served.** `get_temp_dir()` resolves `WP_TEMP_DIR`, then
+     *   `sys_get_temp_dir()`, then PHP's upload tmp dir before its
+     *   last-resort `WP_CONTENT_DIR` fallback. On any normal install the
+     *   file is outside the web root entirely.
+     * - **Not guessable.** The 20-character random directory component
+     *   closes the hole even on an install that lands on that fallback,
+     *   and two runs on the same day for the same KPI cannot collide.
+     * - **Still a sensible attachment.** The human-readable filename lives
+     *   *inside* the random directory. This is why it is not
+     *   `wp_tempnam()`: that names the file `<stem>-<random>.tmp`, and the
+     *   adapter passes the path straight to `wp_mail()`, so the recipient
+     *   would receive a `.tmp` they cannot open.
+     *
+     * @return string Absolute path with no trailing slash, or '' on failure.
+     */
+    private static function stagingDir(): string {
+        $dir = trailingslashit( get_temp_dir() ) . 'tt-report-' . wp_generate_password( 20, false );
+
+        if ( ! wp_mkdir_p( $dir ) ) {
+            Logger::error(
+                'Scheduled report: could not create the staging directory, send skipped.',
+                [ 'dir' => $dir ]
             );
+            return '';
+        }
 
-            // Best-effort cleanup; file resides in the WP uploads dir
-            // under `tt-report-*.csv`. A future hardening pass moves
-            // it to a private subdir + scheduled cleanup.
-            @unlink( $tmp_path );
+        return untrailingslashit( $dir );
+    }
 
-            self::auditLog( $schedule, count( $recipients ), CommsOutcomeSummary::sentCount( $results ) > 0 );
-            $repo->markRun( (int) $schedule['id'], $now );
+    /**
+     * Remove a staging directory and everything in it. Called from a
+     * `finally`, so it must not throw; a failure is logged instead, because
+     * a leftover file that nobody is told about is the actual problem.
+     */
+    private static function discardStagingDir( string $dir ): void {
+        if ( $dir === '' || ! is_dir( $dir ) ) return;
+
+        $leftovers = glob( $dir . '/*' );
+        foreach ( is_array( $leftovers ) ? $leftovers : [] as $path ) {
+            if ( ! is_file( $path ) ) continue;
+            if ( ! unlink( $path ) ) {
+                Logger::error(
+                    'Scheduled report: could not delete the staged CSV. It is outside the web root, but remove it by hand.',
+                    [ 'path' => $path ]
+                );
+            }
+        }
+
+        if ( ! rmdir( $dir ) ) {
+            Logger::warning(
+                'Scheduled report: could not remove the staging directory.',
+                [ 'dir' => $dir ]
+            );
         }
     }
 

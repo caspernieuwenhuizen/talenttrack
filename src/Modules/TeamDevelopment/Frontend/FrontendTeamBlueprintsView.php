@@ -33,11 +33,15 @@ use TT\Shared\Wizards\WizardEntryPoint;
 class FrontendTeamBlueprintsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // #3104 — one refusal shape, addressed by feature key. The
+        // blueprint board rides on the `team_chemistry` entitlement, so
+        // the panel names that feature rather than inventing a second
+        // name for the same line on the plan.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'team_chemistry' )
         ) {
             self::renderHeader( __( 'Team blueprint', 'talenttrack' ) );
-            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Team blueprint', 'talenttrack' ), 'pro' );
+            echo \TT\Modules\License\UpgradePanel::render( 'team_chemistry' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
             return;
         }
 

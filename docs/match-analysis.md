@@ -250,8 +250,11 @@ Once it exists you get the URL itself with **Copy link** beside it — send
 it to an assistant coach, a scout, or whoever else on the staff needs to
 read it. It opens the analysis read-only, without a login.
 
-Two things to know before you send one:
+Three things to know before you send one:
 
+- It shows the analysis **only once you have marked it final**. Send the
+ link whenever you like — until then it says the analysis is not finished
+ yet, and starts showing the document the moment you publish it.
 - It shows the **player notes in full**, including who fell short. It is a
  staff document, and the page says so on its face. It is not indexed by
  search engines.
@@ -298,9 +301,56 @@ and why a page naming children is not sitting in a shared cache somewhere.
 
 ## Saving
 
-**Save analysis** leaves you exactly where you were, with everything you
-typed still on screen. Nothing navigates away, and the print and share
-actions stay where they are.
+**There is no Save button.** The analysis saves itself as you write it. A
+status line at the foot of the form says where it got to — *Unsaved
+changes…*, *Saving…*, *All changes saved* — and it is the same line, in the
+same words, as every other screen in TalentTrack that saves as you work.
+
+This is the surface most worth protecting: you are usually writing it on a
+phone, after the final whistle, over several minutes. Losing a paragraph to
+a tapped Back button is the failure that matters here, not saving a
+sentence you were not sure about.
+
+Beside the status line sit two ways back:
+
+- **Undo** takes back the last change that was saved.
+- **Revert changes** puts the whole form back to how it was when you opened
+ the screen. It asks first, and says how many fields it will restore.
+
+Both are described in full under *Save behaviour* on the
+[match preparation](match-prep.md) page — they behave identically here.
+
+There is no **Cancel**, because there is nothing uncommitted to cancel.
+Leaving the page leaves a draft, which is a real and readable state: see
+below.
+
+### Draft and final
+
+Every analysis starts as a **draft**. Autosave only ever writes the draft —
+nothing you type is published by typing it.
+
+**Mark as final** is the one deliberate action left on the form. It is a
+publish, not a save: it says the write-up is finished and lets the staff
+share link show it.
+
+- Until you mark it final, the share link stays valid but shows *This
+ analysis is not finished yet* rather than a half-written sentence about a
+ named child.
+- An analysis that is already final **stays final** if you go back in and
+ fix a typo. Reopening a published document does not unpublish it from the
+ people who were sent the link.
+
+### If someone else is writing the same one
+
+A head coach in the stand and an assistant on the touchline can both open
+the same analysis. If the other person saves while you are writing, your
+next save is **refused rather than merged**, and the status line says
+*Someone else changed this analysis. Reload the page to see their version.*
+
+Nothing you typed is removed from the screen — but nothing more is saved
+either, so copy anything you want to keep before you reload. Refusing is
+deliberate: quietly overwriting a colleague's write-up of a child, sentence
+by sentence, with neither of you told, is the worse outcome.
 
 ## What you can't do here
 

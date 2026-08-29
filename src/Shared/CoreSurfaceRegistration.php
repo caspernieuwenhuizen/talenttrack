@@ -12,7 +12,7 @@ use TT\Shared\Tiles\TileRegistry;
  * every tile + wp-admin menu surface that the plugin renders.
  *
  * The historical literals lived inline in `FrontendTileGrid::buildGroups()`
- * and `Menu::register()` / `Menu::renderDashboardTiles()`. They are now
+ * and `Menu::register()`. They are now
  * declaratively re-homed here, each tagged with the owning
  * `module_class` so the registries' built-in `ModuleRegistry::isEnabled`
  * filter takes effect.
@@ -74,7 +74,6 @@ final class CoreSurfaceRegistration {
         self::registerSlugOwnerships();
         self::registerCrossViewLinkGates();
         self::registerAdminSubmenu();
-        self::registerAdminDashboardTiles();
         self::registerMobileClasses();
     }
 
@@ -1768,18 +1767,10 @@ final class CoreSurfaceRegistration {
             'sort'         => $msort( 5 ),
         ]);
 
-        // v3.90.0 — top-level "TalentTrack" click now lands on Account.
-        // Keep the legacy stats-and-tiles dashboard reachable via its
-        // own submenu so admins can still get the at-a-glance view.
-        AdminMenuRegistry::register([
-            'module_class' => null,
-            'parent'       => 'talenttrack',
-            'title'        => __( 'Dashboard', 'talenttrack' ),
-            'cap'          => 'read',
-            'slug'         => 'tt-dashboard',
-            'callback'     => [ \TT\Shared\Admin\Menu::class, 'renderDashboardTiles' ],
-            'sort'         => $msort( 6 ),
-        ]);
+        // #2979 — the "Dashboard" submenu that used to sit here is gone.
+        // It was a second dashboard, and the frontend root is the one
+        // people use. `Menu::redirectRetiredDashboard()` sends the old
+        // bookmark there.
 
         // v3.70.1 hotfix — Demo data submenu was registered only in
         // DemoDataPage::registerMenu (its own admin_menu callback),
@@ -2206,188 +2197,4 @@ final class CoreSurfaceRegistration {
         ]);
     }
 
-    /* ───────────────────────────────────────────────────────────
-       wp-admin DASHBOARD TILES — quick-link cards on the
-       `?page=tt-dashboard` tile view. Stat cards stay in
-       Menu::renderDashboardTiles() since they are bound to specific
-       count + delta queries.
-       ─────────────────────────────────────────────────────────── */
-
-    private static function registerAdminDashboardTiles(): void {
-        $admin = static fn ( string $slug ): string => admin_url( "admin.php?page={$slug}" );
-
-        $people = __( 'People', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_TEAMS,
-            'group'        => $people, 'group_accent' => '#1d7874', 'group_order' => 10, 'order' => 10,
-            'label' => __( 'Teams', 'talenttrack' ),
-            'desc'  => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ),
-            'icon'  => 'teams',
-            'url'   => $admin( 'tt-teams' ),
-            'cap'   => 'tt_view_teams',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_PLAYERS,
-            'group'        => $people, 'group_accent' => '#1d7874', 'group_order' => 10, 'order' => 20,
-            'label' => __( 'Players', 'talenttrack' ),
-            'desc'  => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ),
-            'icon'  => 'players',
-            'url'   => $admin( 'tt-players' ),
-            'cap'   => 'tt_view_players',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_PEOPLE,
-            'group'        => $people, 'group_accent' => '#1d7874', 'group_order' => 10, 'order' => 30,
-            'label' => __( 'People', 'talenttrack' ),
-            'desc'  => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ),
-            'icon'  => 'people',
-            'url'   => $admin( 'tt-people' ),
-            'cap'   => 'tt_view_people',
-        ]);
-
-        $performance = __( 'Performance', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_EVALUATIONS,
-            'group'        => $performance, 'group_accent' => '#7c3a9e', 'group_order' => 20, 'order' => 10,
-            'label' => __( 'Evaluations', 'talenttrack' ),
-            'desc'  => __( 'Rate players across training and match activities.', 'talenttrack' ),
-            'icon'  => 'evaluations',
-            'url'   => $admin( 'tt-evaluations' ),
-            'cap'   => 'tt_view_evaluations',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_ACTIVITIES,
-            'group'        => $performance, 'group_accent' => '#7c3a9e', 'group_order' => 20, 'order' => 20,
-            'label' => __( 'Activities', 'talenttrack' ),
-            'desc'  => __( 'Record training activities and attendance.', 'talenttrack' ),
-            'icon'  => 'activities',
-            'url'   => $admin( 'tt-activities' ),
-            'cap'   => 'tt_view_activities',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_GOALS,
-            'group'        => $performance, 'group_accent' => '#7c3a9e', 'group_order' => 20, 'order' => 30,
-            'label' => __( 'Goals', 'talenttrack' ),
-            'desc'  => __( 'Set and track development goals per player.', 'talenttrack' ),
-            'icon'  => 'goals',
-            'url'   => $admin( 'tt-goals' ),
-            'cap'   => 'tt_view_goals',
-        ]);
-
-        $analytics = __( 'Analytics', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_REPORTS,
-            'group'        => $analytics, 'group_accent' => '#2271b1', 'group_order' => 30, 'order' => 10,
-            'label' => __( 'Reports', 'talenttrack' ),
-            'desc'  => __( 'Saved report presets and exports.', 'talenttrack' ),
-            'icon'  => 'reports',
-            'url'   => $admin( 'tt-reports' ),
-            'cap'   => 'tt_view_reports',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_STATS,
-            'group'        => $analytics, 'group_accent' => '#2271b1', 'group_order' => 30, 'order' => 20,
-            'label' => __( 'Player Rate Cards', 'talenttrack' ),
-            'desc'  => __( 'Per-player rate cards with trends and charts.', 'talenttrack' ),
-            'icon'  => 'rate-card',
-            'url'   => $admin( 'tt-rate-cards' ),
-            'cap'   => 'tt_view_reports',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_STATS,
-            'group'        => $analytics, 'group_accent' => '#2271b1', 'group_order' => 30, 'order' => 30,
-            'label' => __( 'Player Comparison', 'talenttrack' ),
-            'desc'  => __( 'Side-by-side comparison of up to 4 players.', 'talenttrack' ),
-            'icon'  => 'compare',
-            'url'   => $admin( 'tt-compare' ),
-            'cap'   => 'tt_view_reports',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_STATS,
-            'group'        => $analytics, 'group_accent' => '#2271b1', 'group_order' => 30, 'order' => 40,
-            'label' => __( 'Usage Statistics', 'talenttrack' ),
-            'desc'  => __( 'Logins, active users, most-visited pages.', 'talenttrack' ),
-            'icon'  => 'usage-stats',
-            'url'   => $admin( 'tt-usage-stats' ),
-            'cap'   => 'tt_view_settings',
-        ]);
-
-        $configuration = __( 'Configuration', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_CONFIG,
-            'group'        => $configuration, 'group_accent' => '#555', 'group_order' => 40, 'order' => 10,
-            'label' => __( 'Configuration', 'talenttrack' ),
-            'desc'  => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ),
-            'icon'  => 'settings',
-            'url'   => $admin( 'tt-config' ),
-            'cap'   => 'tt_view_settings',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_CONFIG,
-            'group'        => $configuration, 'group_accent' => '#555', 'group_order' => 40, 'order' => 20,
-            'label' => __( 'Custom Fields', 'talenttrack' ),
-            'desc'  => __( 'Add club-specific fields to any entity.', 'talenttrack' ),
-            'icon'  => 'custom-fields',
-            'url'   => $admin( 'tt-custom-fields' ),
-            'cap'   => 'tt_view_custom_fields',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_EVALUATIONS,
-            'group'        => $configuration, 'group_accent' => '#555', 'group_order' => 40, 'order' => 30,
-            'label' => __( 'Evaluation Categories', 'talenttrack' ),
-            'desc'  => __( 'Main + subcategories used in evaluations.', 'talenttrack' ),
-            'icon'  => 'categories',
-            'url'   => $admin( 'tt-eval-categories' ),
-            'cap'   => 'tt_view_evaluation_categories',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_EVALUATIONS,
-            'group'        => $configuration, 'group_accent' => '#555', 'group_order' => 40, 'order' => 40,
-            'label' => __( 'Category Weights', 'talenttrack' ),
-            'desc'  => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ),
-            'icon'  => 'weights',
-            'url'   => $admin( 'tt-category-weights' ),
-            'cap'   => 'tt_view_category_weights',
-        ]);
-
-        $access = __( 'Access Control', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_AUTHORIZATION,
-            'group'        => $access, 'group_accent' => '#b32d2e', 'group_order' => 50, 'order' => 10,
-            'label' => __( 'Roles & Permissions', 'talenttrack' ),
-            'desc'  => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ),
-            'icon'  => 'roles',
-            'url'   => $admin( 'tt-roles' ),
-            'cap'   => 'tt_view_settings',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_AUTHORIZATION,
-            'group'        => $access, 'group_accent' => '#b32d2e', 'group_order' => 50, 'order' => 20,
-            'label' => __( 'Functional Roles', 'talenttrack' ),
-            'desc'  => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ),
-            'icon'  => 'functional-roles',
-            'url'   => $admin( 'tt-functional-roles' ),
-            'cap'   => 'tt_view_functional_roles',
-        ]);
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_AUTHORIZATION,
-            'group'        => $access, 'group_accent' => '#b32d2e', 'group_order' => 50, 'order' => 30,
-            'label' => __( 'Permission Debug', 'talenttrack' ),
-            'desc'  => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ),
-            'icon'  => 'permission-debug',
-            'url'   => $admin( 'tt-roles-debug' ),
-            'cap'   => 'tt_view_settings',
-        ]);
-
-        $help = __( 'Help', 'talenttrack' );
-        AdminMenuRegistry::registerDashboardTile([
-            'module_class' => self::M_DOCUMENTATION,
-            'group'        => $help, 'group_accent' => '#888', 'group_order' => 60, 'order' => 10,
-            'label' => __( 'Help & Docs', 'talenttrack' ),
-            'desc'  => __( 'How to use TalentTrack.', 'talenttrack' ),
-            'icon'  => 'docs',
-            'url'   => $admin( 'tt-docs' ),
-            'cap'   => 'read',
-        ]);
-    }
 }

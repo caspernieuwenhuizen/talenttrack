@@ -56,6 +56,13 @@ De ingebouwde Backup-module van TalentTrack exporteert volgens schema de eigen t
  zodra er iets te melden valt; zet dat af tegen wat de hosting daadwerkelijk biedt.
 - Gaat de academie helemaal geen media gebruiken, zet de module dan uit onder Modules in plaats van hem ongebruikt te laten staan.
 
+## 5c. Wat de plugin verder in `uploads/` schrijft
+
+Twee dingen, en geen van beide is een rapport dat je zelf moet opruimen.
+
+- **CSV's van geplande rapporten komen helemaal niet meer in `uploads/`.** Een gepland rapport wordt weggeschreven in de privé-tijdelijke map van de server, in een map met een willekeurige naam, aan de e-mail gehangen en direct verwijderd — ook als het versturen mislukt. Niets ervan is ooit via het web bereikbaar. Werk je een installatie bij die eerder geplande rapporten draaide, verwijder dan eenmalig eventuele achtergebleven `wp-content/uploads/tt-report-*.csv`; er wordt niets meer weggeschreven.
+- **POP-momentopnames vóór verwijdering blijven bewust in `uploads/tt-pdp-deletes/` staan.** Ze zijn de vastlegging van wat een definitieve verwijdering heeft weggehaald en horen dus te blijven bestaan. De map krijgt dezelfde deny-all-regel als de mediamap, met hetzelfde Apache-voorbehoud — voeg op nginx naast die van media ook een `location`-blok toe dat `/wp-content/uploads/tt-pdp-deletes/` weigert.
+
 ## 6. Supportplan voor dag één
 
 - Wie appen coaches als er iets stuk gaat in de eerste week, en wie escaleert naar de ontwikkelaar/host?

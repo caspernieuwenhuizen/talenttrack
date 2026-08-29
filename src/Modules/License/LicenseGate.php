@@ -129,16 +129,44 @@ class LicenseGate {
      *
      *   $blocked = LicenseGate::enforceFeatureRest( 'trial_module' );
      *   if ( $blocked ) return $blocked;
+     *
+     * **402, never 403** (#3104). The two refusals are different facts
+     * and a caller has to be able to tell them apart from the status
+     * line alone, in a log or a support ticket:
+     *
+     *   - `403` — the capability model said no. This user may not do
+     *     this, on any plan. Retrying after an upgrade changes nothing.
+     *   - `402` — the plan said no. This user may do it; the install is
+     *     not entitled to the feature. An upgrade is the fix.
+     *
+     * Sharing a status between them is what makes "why did this fail?"
+     * unanswerable, so nothing in this class ever returns 403.
      */
     public static function enforceFeatureRest( string $feature ): ?\WP_REST_Response {
         if ( self::allows( $feature ) ) return null;
-        $tier = self::requiredTierFor( $feature );
+        return self::planRefusal( $feature );
+    }
+
+    /**
+     * The 402 envelope itself, built without consulting entitlement.
+     *
+     * Public because the refusal *shape* is the thing #3104 is fixing:
+     * one body, one code, one status, whoever is emitting it. Callers
+     * that have already decided the answer is no — a controller with its
+     * own reason to refuse, a test pinning the contract — build it here
+     * rather than hand-rolling a second envelope that says nearly the
+     * same thing.
+     */
+    public static function planRefusal( string $feature ): \WP_REST_Response {
+        $tier       = self::requiredTierFor( $feature );
         $tier_label = FeatureMap::tierLabel( $tier );
+
         return \TT\Infrastructure\REST\RestResponse::error(
             'license_required',
             sprintf(
-                /* translators: %s required tier label */
-                __( 'This feature is part of the %s plan. Upgrade your TalentTrack license to enable it.', 'talenttrack' ),
+                /* translators: 1: feature name, 2: required plan label */
+                __( '%1$s is part of the %2$s plan, which this install is not on.', 'talenttrack' ),
+                FeatureMap::featureLabel( $feature ),
                 $tier_label
             ),
             402,
@@ -147,20 +175,90 @@ class LicenseGate {
     }
 
     /**
+     * The write-verb gate (#3104).
+     *
+     * #3017's third decision: a record already in the database stays
+     * **readable** when its feature leaves the plan. A club dropping from
+     * Pro keeps reading and exporting the match analyses it wrote while
+     * it was on Pro; what it loses is the ability to write new ones. So
+     * the refusal belongs on the mutating verbs and on the creation entry
+     * point, never on `GET`.
+     *
+     * That asymmetry is one rule, so it lives in one helper rather than
+     * being re-derived correctly-by-inspection in every controller:
+     *
+     *   $blocked = LicenseGate::enforceWriteRest( 'match_analysis', $request );
+     *   if ( $blocked ) return $blocked;
+     *
+     * A feature with no stored records (`analytics_explorer`, the grids)
+     * has nothing to keep readable and locks whole — those callers use
+     * `enforceFeatureRest()` directly, on every verb.
+     *
+     * @param string                    $feature FeatureMap feature key.
+     * @param \WP_REST_Request|string   $request The request, or its method.
+     */
+    public static function enforceWriteRest( string $feature, $request ): ?\WP_REST_Response {
+        if ( self::allows( $feature ) ) return null;
+
+        $method = is_string( $request )
+            ? $request
+            : ( is_object( $request ) && method_exists( $request, 'get_method' ) ? (string) $request->get_method() : '' );
+
+        return self::refusalForMethod( $feature, $method );
+    }
+
+    /**
+     * The asymmetry on its own: what an out-of-plan feature answers to a
+     * given verb. `null` for a read, a 402 for a write.
+     *
+     * Split out from `enforceWriteRest()` so the rule can be stated and
+     * tested without an entitlement state to arrange — the property that
+     * matters ("a read of an existing record survives its feature leaving
+     * the plan") is about the verb, not about which tier the install is
+     * on, and it should be provable as such.
+     */
+    public static function refusalForMethod( string $feature, string $method ): ?\WP_REST_Response {
+        return self::isWriteMethod( $method ) ? self::planRefusal( $feature ) : null;
+    }
+
+    /**
+     * Whether an HTTP method mutates. Anything that is not a documented
+     * safe method counts as a write: an unknown verb reaching a gated
+     * controller is refused rather than waved through, because the
+     * failure mode of the other default is a silent write on an
+     * unentitled install.
+     */
+    public static function isWriteMethod( string $method ): bool {
+        $method = strtoupper( trim( $method ) );
+        if ( $method === '' ) return false;
+        return ! in_array( $method, [ 'GET', 'HEAD', 'OPTIONS' ], true );
+    }
+
+    /**
      * REST cap-enforcement. Returns null when below cap; returns a
      * 402 envelope when at/over. Used by REST POST /players + /teams.
      */
     public static function enforceCapRest( string $cap_type ): ?\WP_REST_Response {
         if ( ! self::capsExceeded( $cap_type ) ) return null;
-        $message = $cap_type === 'teams'
-            ? __( 'You have reached the free-tier limit of 1 team. Upgrade to Standard to add more.', 'talenttrack' )
-            : __( 'You have reached the free-tier limit of 25 players. Upgrade to Standard to add more.', 'talenttrack' );
         return \TT\Infrastructure\REST\RestResponse::error(
             'license_cap_' . $cap_type,
-            $message,
+            self::capMessage( $cap_type ),
             402,
             [ 'cap_type' => $cap_type ]
         );
+    }
+
+    /**
+     * The sentence a cap refusal says, wherever it is said. Shared by the
+     * REST envelope and the on-screen panel so a club reading one and
+     * then the other is not told two different things.
+     *
+     * @param string $cap_type 'teams' | 'players'
+     */
+    public static function capMessage( string $cap_type ): string {
+        return $cap_type === 'teams'
+            ? __( 'You have reached the limit of 1 team on this plan.', 'talenttrack' )
+            : __( 'You have reached the limit of 25 players on this plan.', 'talenttrack' );
     }
 
     /**

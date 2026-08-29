@@ -30,6 +30,12 @@ class Activator {
         // so tt_config exists, and only when the key is not already present.
         if ( $is_fresh_install ) {
             self::seedAuthorizationActiveDefault();
+            // #3111 — a new academy sends nothing until the setup wizard
+            // says otherwise. Fresh installs only: seeding on upgrade
+            // would silently switch off messages an academy is already
+            // relying on. See TemplateSwitch::seedFreshInstallDefault()
+            // for why this is a seed rather than a read-time rule.
+            \TT\Modules\Comms\Template\TemplateSwitch::seedFreshInstallDefault();
         }
 
         flush_rewrite_rules();
