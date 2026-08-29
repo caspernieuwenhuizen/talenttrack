@@ -173,11 +173,10 @@ final class MatchAnalysisJourney {
         $parts = [];
 
         foreach ( $notes as $note ) {
-            if ( ! is_array( $note ) ) continue;
-            $body = trim( (string) ( $note['body'] ?? '' ) );
+            $body = trim( (string) $note['body'] );
             if ( $body === '' ) continue;
 
-            $glyph   = MatchAnalysisEnums::valenceGlyph( (string) ( $note['valence'] ?? '' ) );
+            $glyph   = MatchAnalysisEnums::valenceGlyph( (string) $note['valence'] );
             $parts[] = $glyph !== '' ? $glyph . ' ' . $body : $body;
         }
 
