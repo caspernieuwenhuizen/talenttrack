@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T21:23:03+00:00\n"
+"POT-Creation-Date: 2026-08-29T21:44:40+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -194,10 +194,10 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/CoachDashboardView.php:271
 #: src/Shared/Frontend/CoachDashboardView.php:307
 #: src/Shared/Frontend/CoachDashboardView.php:325
-#: src/Shared/Frontend/CoachForms.php:181
-#: src/Shared/Frontend/CoachForms.php:536
-#: src/Shared/Frontend/CoachForms.php:583
-#: src/Shared/Frontend/CoachForms.php:608
+#: src/Shared/Frontend/CoachForms.php:214
+#: src/Shared/Frontend/CoachForms.php:580
+#: src/Shared/Frontend/CoachForms.php:627
+#: src/Shared/Frontend/CoachForms.php:652
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:35
 #: src/Shared/Frontend/Components/GuestAddModal.php:68
 #: src/Shared/Frontend/Components/ParentChildSwitcher.php:139
@@ -221,7 +221,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:290
 #: src/Shared/Frontend/FrontendGoalsManageView.php:354
 #: src/Shared/Frontend/FrontendGoalsManageView.php:379
-#: src/Shared/Frontend/FrontendGoalsManageView.php:484
+#: src/Shared/Frontend/FrontendGoalsManageView.php:507
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:94
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:152
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
@@ -334,7 +334,7 @@ msgstr "Staf"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:181
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 #: src/Shared/Frontend/CoachDashboardView.php:337
-#: src/Shared/Frontend/CoachForms.php:623
+#: src/Shared/Frontend/CoachForms.php:667
 #: src/Shared/Frontend/Components/FrontendThreadView.php:172
 #: src/Shared/Frontend/Components/SavedViews.php:204
 #: src/Shared/Frontend/DashboardShortcode.php:278
@@ -1921,7 +1921,7 @@ msgstr "Hoog"
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:522
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1479
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1529
 #: src/Modules/People/Admin/PeoplePage.php:165
 #: src/Modules/People/Admin/PeoplePage.php:245
 #: src/Modules/People/Admin/PeoplePage.php:365
@@ -2131,7 +2131,7 @@ msgstr "Overig"
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
 #: src/Modules/Goals/Admin/GoalsPage.php:85
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:523
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1799
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1849
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
 #: src/Modules/People/Admin/PeoplePage.php:213
@@ -2529,9 +2529,9 @@ msgstr "Gepubliceerd"
 #: src/Modules/Knowledge/Frontend/LearningReports.php:67
 #: src/Modules/Knowledge/Frontend/LearningReports.php:332
 #: src/Modules/Knowledge/Frontend/LearningReports.php:365
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:471
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1480
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1798
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:499
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1530
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1848
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
@@ -2648,7 +2648,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:50
 #: src/Shared/Frontend/CoachDashboardView.php:265
-#: src/Shared/Frontend/CoachForms.php:525
+#: src/Shared/Frontend/CoachForms.php:569
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:230
 #: src/Shared/Frontend/DashboardShortcode.php:264
@@ -2743,7 +2743,7 @@ msgstr "Activiteit"
 #: src/Modules/Threads/Adapters/GoalThreadAdapter.php:97
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
 #: src/Shared/Frontend/CoachDashboardView.php:325
-#: src/Shared/Frontend/CoachForms.php:608
+#: src/Shared/Frontend/CoachForms.php:652
 #: src/Shared/Frontend/FrontendGoalsManageView.php:259
 #: src/Shared/Frontend/FrontendGoalsManageView.php:355
 msgid "Goal"
@@ -3251,9 +3251,9 @@ msgid "You can only request your own evaluations."
 msgstr "Je kunt alleen je eigen evaluaties opvragen."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:495
-#: src/Infrastructure/REST/EvaluationsRestController.php:675
-#: src/Infrastructure/REST/EvaluationsRestController.php:688
-#: src/Infrastructure/REST/EvaluationsRestController.php:695
+#: src/Infrastructure/REST/EvaluationsRestController.php:706
+#: src/Infrastructure/REST/EvaluationsRestController.php:719
+#: src/Infrastructure/REST/EvaluationsRestController.php:726
 msgid "Evaluation not found."
 msgstr "Evaluatie niet gevonden."
 
@@ -3263,7 +3263,7 @@ msgid "Player and date are required."
 msgstr "Speler en datum zijn verplicht."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:509
-#: src/Infrastructure/REST/EvaluationsRestController.php:571
+#: src/Infrastructure/REST/EvaluationsRestController.php:584
 msgid "You can only evaluate players in your team."
 msgstr "U kunt alleen spelers in uw eigen team evalueren."
 
@@ -3276,23 +3276,23 @@ msgid "The evaluation was saved but some ratings failed."
 msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen zijn mislukt."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:552
-#: src/Infrastructure/REST/EvaluationsRestController.php:641
-#: src/Infrastructure/REST/EvaluationsRestController.php:673
-#: src/Infrastructure/REST/EvaluationsRestController.php:682
+#: src/Infrastructure/REST/EvaluationsRestController.php:672
+#: src/Infrastructure/REST/EvaluationsRestController.php:704
+#: src/Infrastructure/REST/EvaluationsRestController.php:713
 msgid "Invalid evaluation id."
 msgstr "Ongeldig evaluatie-id."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:579
+#: src/Infrastructure/REST/EvaluationsRestController.php:595
 msgid "The evaluation could not be updated."
 msgstr "De evaluatie kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:621
+#: src/Infrastructure/REST/EvaluationsRestController.php:638
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden "
 "opgeslagen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:663
+#: src/Infrastructure/REST/EvaluationsRestController.php:694
 msgid "The evaluation could not be archived."
 msgstr "De evaluatie kon niet worden gearchiveerd."
 
@@ -3939,8 +3939,8 @@ msgstr "Niet gevonden."
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
 #: src/Shared/Frontend/CoachDashboardView.php:271
 #: src/Shared/Frontend/CoachDashboardView.php:326
-#: src/Shared/Frontend/CoachForms.php:536
-#: src/Shared/Frontend/CoachForms.php:609
+#: src/Shared/Frontend/CoachForms.php:580
+#: src/Shared/Frontend/CoachForms.php:653
 #: src/Shared/Frontend/DashboardShortcode.php:261
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1187
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3297
@@ -3956,7 +3956,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendGoalsManageView.php:271
 #: src/Shared/Frontend/FrontendGoalsManageView.php:358
 #: src/Shared/Frontend/FrontendGoalsManageView.php:390
-#: src/Shared/Frontend/FrontendGoalsManageView.php:519
+#: src/Shared/Frontend/FrontendGoalsManageView.php:542
 #: src/Shared/Frontend/FrontendMigrationsView.php:73
 #: src/Shared/Frontend/FrontendPersonDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:506
@@ -4127,8 +4127,8 @@ msgstr "Seizoen"
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:151
 #: src/Shared/Frontend/CoachDashboardView.php:215
 #: src/Shared/Frontend/CoachDashboardView.php:264
-#: src/Shared/Frontend/CoachForms.php:223
-#: src/Shared/Frontend/CoachForms.php:524
+#: src/Shared/Frontend/CoachForms.php:256
+#: src/Shared/Frontend/CoachForms.php:568
 #: src/Shared/Frontend/Components/DateInputComponent.php:30
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:58
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1182
@@ -4184,7 +4184,7 @@ msgstr "Datum"
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:209
-#: src/Shared/Frontend/CoachForms.php:217
+#: src/Shared/Frontend/CoachForms.php:250
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:60
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1185
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2015
@@ -4909,7 +4909,7 @@ msgstr "Alle types"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:336
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1395
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1445
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:95
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:145
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:252
@@ -5033,10 +5033,10 @@ msgstr "Filteren"
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/CoachDashboardView.php:263
 #: src/Shared/Frontend/CoachDashboardView.php:311
-#: src/Shared/Frontend/CoachForms.php:523
-#: src/Shared/Frontend/CoachForms.php:589
+#: src/Shared/Frontend/CoachForms.php:567
+#: src/Shared/Frontend/CoachForms.php:633
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2979
-#: src/Shared/Frontend/FrontendGoalsManageView.php:500
+#: src/Shared/Frontend/FrontendGoalsManageView.php:523
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:97
 #: src/Shared/Frontend/FrontendTeamDetailView.php:849
 #: src/Shared/Frontend/FrontendTrialCaseView.php:549
@@ -5213,7 +5213,7 @@ msgstr ""
 #: src/Modules/Wizards/Activity/ReviewStep.php:78
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachDashboardView.php:268
-#: src/Shared/Frontend/CoachForms.php:530
+#: src/Shared/Frontend/CoachForms.php:574
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3061
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:100
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:191
@@ -5263,8 +5263,8 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/CoachDashboardView.php:237
 #: src/Shared/Frontend/CoachDashboardView.php:269
 #: src/Shared/Frontend/CoachDashboardView.php:271
-#: src/Shared/Frontend/CoachForms.php:531
-#: src/Shared/Frontend/CoachForms.php:536
+#: src/Shared/Frontend/CoachForms.php:575
+#: src/Shared/Frontend/CoachForms.php:580
 #: src/Shared/Frontend/DashboardShortcode.php:265
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:775
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3067
@@ -5322,7 +5322,7 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Modules/Reports/PlayerReportRenderer.php:396
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:22
 #: src/Shared/Frontend/CoachDashboardView.php:270
-#: src/Shared/Frontend/CoachForms.php:532
+#: src/Shared/Frontend/CoachForms.php:576
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1564
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3367
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:830
@@ -5395,7 +5395,7 @@ msgstr "Bijwerken"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1248
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:426
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:131
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:163
@@ -5411,7 +5411,7 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/CoachDashboardView.php:238
 #: src/Shared/Frontend/CoachDashboardView.php:280
 #: src/Shared/Frontend/CoachForms.php:127
-#: src/Shared/Frontend/CoachForms.php:548
+#: src/Shared/Frontend/CoachForms.php:592
 #: src/Shared/Frontend/Components/FormSaveButton.php:52
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
 #: src/Shared/Frontend/Components/SavedViews.php:134
@@ -6982,7 +6982,7 @@ msgstr "Activiteiten en aanwezigheid"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:566
 #: src/Modules/License/FeatureMap.php:377
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1366
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1416
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:94
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:146
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:250
@@ -7303,12 +7303,12 @@ msgstr "Beoordelaar"
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
 #: src/Shared/Frontend/CoachDashboardView.php:313
 #: src/Shared/Frontend/CoachDashboardView.php:326
-#: src/Shared/Frontend/CoachForms.php:591
-#: src/Shared/Frontend/CoachForms.php:609
+#: src/Shared/Frontend/CoachForms.php:635
+#: src/Shared/Frontend/CoachForms.php:653
 #: src/Shared/Frontend/FrontendGoalsManageView.php:278
 #: src/Shared/Frontend/FrontendGoalsManageView.php:356
 #: src/Shared/Frontend/FrontendGoalsManageView.php:401
-#: src/Shared/Frontend/FrontendGoalsManageView.php:504
+#: src/Shared/Frontend/FrontendGoalsManageView.php:527
 #: src/Shared/Frontend/FrontendTrialCaseView.php:549
 msgid "Priority"
 msgstr "Prioriteit"
@@ -7326,7 +7326,7 @@ msgid "Trial decisions"
 msgstr "Stagebesluiten"
 
 #: src/Modules/Analytics/AnalyticsModule.php:196
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1309
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1359
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:101
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:154
@@ -7469,7 +7469,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:623
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:500
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:294
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:389
@@ -7881,7 +7881,7 @@ msgstr "Aantal"
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1481
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1531
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
 #: src/Shared/Frontend/Components/FrontendListTable.php:412
@@ -8081,7 +8081,7 @@ msgstr "POP-gesprekken"
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:149
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:312
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1290
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1340
 msgid "Verdict"
 msgstr "Eindoordeel"
 
@@ -8409,7 +8409,7 @@ msgstr "Groeperen op:"
 #: src/Modules/People/Admin/PeoplePage.php:354
 #: src/Modules/Players/Admin/PlayersPage.php:420
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
-#: src/Shared/Frontend/FrontendGoalsManageView.php:587
+#: src/Shared/Frontend/FrontendGoalsManageView.php:610
 #: src/Shared/Frontend/FrontendPeopleManageView.php:198
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:180
 #: src/Shared/Frontend/FrontendTranslationsView.php:73
@@ -9206,9 +9206,9 @@ msgstr "Gebruiker:"
 #: src/Shared/Frontend/CoachDashboardView.php:210
 #: src/Shared/Frontend/CoachDashboardView.php:221
 #: src/Shared/Frontend/CoachDashboardView.php:308
-#: src/Shared/Frontend/CoachForms.php:218
-#: src/Shared/Frontend/CoachForms.php:229
-#: src/Shared/Frontend/CoachForms.php:584
+#: src/Shared/Frontend/CoachForms.php:251
+#: src/Shared/Frontend/CoachForms.php:262
+#: src/Shared/Frontend/CoachForms.php:628
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:35
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:38
 #: src/Shared/Frontend/CustomFieldRenderer.php:131
@@ -9690,13 +9690,13 @@ msgstr "Sleutel"
 #: src/Modules/Wizards/Goal/DetailsStep.php:16
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:251
 #: src/Shared/Frontend/CoachDashboardView.php:312
-#: src/Shared/Frontend/CoachForms.php:590
+#: src/Shared/Frontend/CoachForms.php:634
 #: src/Shared/Frontend/FrontendConfigurationView.php:886
 #: src/Shared/Frontend/FrontendConfigurationView.php:1023
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:206
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:278
 #: src/Shared/Frontend/FrontendGoalsManageView.php:226
-#: src/Shared/Frontend/FrontendGoalsManageView.php:533
+#: src/Shared/Frontend/FrontendGoalsManageView.php:556
 #: src/Shared/Frontend/FrontendMyGoalsView.php:227
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:194
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
@@ -14785,7 +14785,7 @@ msgstr "Wedstrijd-subtype"
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:140
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:296
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:141
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1710
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1760
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:244
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:384
 #: src/Modules/Wizards/Goal/LinkStep.php:73
@@ -16304,7 +16304,7 @@ msgstr "Activiteitdatum"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:122
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
-#: src/Shared/Frontend/FrontendGoalsManageView.php:495
+#: src/Shared/Frontend/FrontendGoalsManageView.php:518
 msgid "Due date"
 msgstr "Deadline"
 
@@ -16327,7 +16327,7 @@ msgstr "Evaluatiedatum"
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:119
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:163
 #: src/Shared/Frontend/CoachDashboardView.php:217
-#: src/Shared/Frontend/CoachForms.php:225
+#: src/Shared/Frontend/CoachForms.php:258
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1166
 #: src/Shared/Frontend/FrontendEvaluationsView.php:303
 #: src/Shared/Frontend/FrontendEvaluationsView.php:478
@@ -16340,7 +16340,7 @@ msgstr "Tegenstander"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:54
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:156
 #: src/Shared/Frontend/CoachDashboardView.php:219
-#: src/Shared/Frontend/CoachForms.php:227
+#: src/Shared/Frontend/CoachForms.php:260
 msgid "Competition"
 msgstr "Competitie"
 
@@ -16351,7 +16351,7 @@ msgstr "Wedstrijdresultaat"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:132
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Shared/Frontend/CoachDashboardView.php:228
-#: src/Shared/Frontend/CoachForms.php:236
+#: src/Shared/Frontend/CoachForms.php:269
 msgid "Home/Away"
 msgstr "Thuis/Uit"
 
@@ -16498,7 +16498,7 @@ msgstr "Clubstandaard gebruiken (%s)"
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:236
-#: src/Shared/Frontend/CoachForms.php:279
+#: src/Shared/Frontend/CoachForms.php:312
 msgid "Detailed"
 msgstr "Gedetailleerd"
 
@@ -17732,7 +17732,7 @@ msgid "Open goals"
 msgstr "Openstaande doelen"
 
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:27
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1708
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1758
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:123
 #: src/Modules/Wizards/Goal/LinkStep.php:71
@@ -18098,7 +18098,7 @@ msgstr "De naam van de instelling."
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:199
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:379
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:445
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1711
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1761
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
 #: src/Shared/Admin/OptionSetEditor.php:47
@@ -18302,7 +18302,7 @@ msgstr "Indeling genereerformulier"
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:369
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:235
-#: src/Shared/Frontend/CoachForms.php:278
+#: src/Shared/Frontend/CoachForms.php:311
 msgid "Basic"
 msgstr "Basis"
 
@@ -20297,7 +20297,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:271
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:227
-#: src/Shared/Frontend/CoachForms.php:235
+#: src/Shared/Frontend/CoachForms.php:268
 #: src/Shared/Frontend/FrontendEvaluationsView.php:482
 msgid "Result"
 msgstr "Uitslag"
@@ -20308,7 +20308,7 @@ msgstr "Uitslag"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1089
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachDashboardView.php:228
-#: src/Shared/Frontend/CoachForms.php:236
+#: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1170
 #: src/Shared/Frontend/FrontendMyTeamView.php:114
 msgid "Home"
@@ -20319,14 +20319,14 @@ msgstr "Thuis"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1090
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachDashboardView.php:228
-#: src/Shared/Frontend/CoachForms.php:236
+#: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1172
 #: src/Shared/Frontend/FrontendMyTeamView.php:114
 msgid "Away"
 msgstr "Uit"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:406
-#: src/Shared/Frontend/CoachForms.php:237
+#: src/Shared/Frontend/CoachForms.php:270
 #: src/Shared/Frontend/FrontendEvaluationsView.php:490
 msgid "Minutes Played"
 msgstr "Gespeelde minuten"
@@ -20335,7 +20335,7 @@ msgstr "Gespeelde minuten"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:755
 #: src/Modules/Reports/AudienceDefaults.php:106
 #: src/Shared/Frontend/CoachDashboardView.php:231
-#: src/Shared/Frontend/CoachForms.php:239
+#: src/Shared/Frontend/CoachForms.php:272
 #: src/Shared/Frontend/FrontendEvaluationsView.php:497
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1669
 #: src/Shared/Frontend/PlayerDashboardView.php:109
@@ -22118,13 +22118,13 @@ msgstr "Doel bewerken"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:145
 #: src/Shared/Frontend/CoachDashboardView.php:305
 #: src/Shared/Frontend/CoachDashboardView.php:318
-#: src/Shared/Frontend/CoachForms.php:581
-#: src/Shared/Frontend/CoachForms.php:600
+#: src/Shared/Frontend/CoachForms.php:625
+#: src/Shared/Frontend/CoachForms.php:644
 #: src/Shared/Frontend/DashboardShortcode.php:243
 #: src/Shared/Frontend/FrontendGoalsManageView.php:48
 #: src/Shared/Frontend/FrontendGoalsManageView.php:60
 #: src/Shared/Frontend/FrontendGoalsManageView.php:157
-#: src/Shared/Frontend/FrontendGoalsManageView.php:616
+#: src/Shared/Frontend/FrontendGoalsManageView.php:649
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1611
 msgid "Add goal"
 msgstr "Doel toevoegen"
@@ -22143,7 +22143,7 @@ msgstr "De database heeft het opslaan afgewezen. Er is geen doel aangemaakt."
 
 #: src/Modules/Goals/Admin/GoalsPage.php:148
 #: src/Shared/Frontend/CoachDashboardView.php:316
-#: src/Shared/Frontend/CoachForms.php:596
+#: src/Shared/Frontend/CoachForms.php:640
 msgid "Due Date"
 msgstr "Deadline"
 
@@ -22161,7 +22161,7 @@ msgstr ""
 "zich op dit doel richten."
 
 #: src/Modules/Goals/Admin/GoalsPage.php:185
-#: src/Shared/Frontend/FrontendGoalsManageView.php:585
+#: src/Shared/Frontend/FrontendGoalsManageView.php:608
 msgid "Linked football action"
 msgstr "Gekoppelde voetbalhandeling"
 
@@ -23683,7 +23683,7 @@ msgid "Show full history"
 msgstr "Volledige geschiedenis tonen"
 
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:178
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1477
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1527
 msgid "Show:"
 msgstr "Toon:"
 
@@ -24447,7 +24447,7 @@ msgid "Course"
 msgstr "Cursus"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:94
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1589
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1639
 #: src/Shared/Frontend/Components/GoalDetailFields.php:38
 #: src/Shared/Frontend/Components/GoalDetailFields.php:52
 #: src/Shared/Frontend/PlayerDashboardView.php:50
@@ -24459,7 +24459,7 @@ msgstr "Voortgang"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachDashboardView.php:327
-#: src/Shared/Frontend/CoachForms.php:610
+#: src/Shared/Frontend/CoachForms.php:654
 #: src/Shared/Frontend/FrontendGoalsManageView.php:284
 #: src/Shared/Frontend/FrontendGoalsManageView.php:369
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2439
@@ -26177,40 +26177,40 @@ msgstr[1] "Gezien door %s mensen"
 msgid "last opened %s ago"
 msgstr "laatst geopend %s geleden"
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:62
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:66
 msgid "Replace the share link? The current one stops working immediately."
 msgstr "De deellink vervangen? De huidige werkt dan direct niet meer."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:63
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:67
 msgid "Share link created."
 msgstr "Deellink aangemaakt."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:64
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:68
 msgid "Link copied."
 msgstr "Link gekopieerd."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:65
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
 msgid "A new link has been issued. The previous one no longer works."
 msgstr "Er is een nieuwe link uitgegeven. De vorige werkt niet meer."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:66
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
 msgid "That did not work. Try again."
 msgstr "Dat is niet gelukt. Probeer het nog eens."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:73
 msgid ""
 "Someone else changed this analysis. Reload the page to see their version."
 msgstr ""
 "Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om hun versie "
 "te zien."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:74
 msgid ""
 "Mark this analysis final? Anyone holding the share link can then read it."
 msgstr ""
 "Deze analyse definitief markeren? Iedereen met de deellink kan hem dan lezen."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:71
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:75
 msgid "The analysis could not be marked final. Try again."
 msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
 
@@ -33135,7 +33135,7 @@ msgid "Conducted %s"
 msgstr "Gevoerd %s"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1164
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1193
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
@@ -33226,27 +33226,27 @@ msgstr ""
 "Het reflectievenster opent 2 weken vóór het gesprek. Kom dichter bij de "
 "geplande datum terug."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:396
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:420
 msgid "Add or update your self-reflection"
 msgstr "Voeg je zelfreflectie toe of werk hem bij"
 
 #. translators: %s = last-saved timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:439
 #, php-format
 msgid "Last saved · %s"
 msgstr "Laatst opgeslagen · %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:418
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:446
 msgid "No reflection saved yet."
 msgstr "Nog geen reflectie opgeslagen."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:427
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:455
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:987
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr "Eindeseizoens­oordeel"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:428
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:456
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:989
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 msgid "Decision:"
@@ -33254,39 +33254,39 @@ msgstr "Beslissing:"
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:436
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:464
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:999
 #, php-format
 msgid "Signed off on %s"
 msgstr "Ondertekend op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:474
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:502
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2207
 msgid "Later"
 msgstr "Later"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:487
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1806
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:515
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1856
 msgid "Start of season"
 msgstr "Begin seizoen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:488
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1807
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:516
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1857
 msgid "Mid season"
 msgstr "Mid-seizoen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:489
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1808
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:517
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1858
 msgid "Mid-season A"
 msgstr "Mid-seizoen A"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:490
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1809
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:518
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1859
 msgid "Mid-season B"
 msgstr "Mid-seizoen B"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:491
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1810
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:519
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1860
 msgid "End of season"
 msgstr "Einde seizoen"
 
@@ -33340,10 +33340,10 @@ msgstr "POP-bestand details"
 # #0028 — Conversational goals (thread primitive + goal adapter)
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:114
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1063
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1640
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1690
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:242
-#: src/Shared/Frontend/FrontendGoalsManageView.php:628
+#: src/Shared/Frontend/FrontendGoalsManageView.php:662
 #: src/Shared/Frontend/FrontendMyGoalsView.php:250
 msgid "Conversation"
 msgstr "Gesprek"
@@ -33625,7 +33625,7 @@ msgid "Held"
 msgstr "Gehouden"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:883
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1204
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1233
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:268
 msgid "Signed off"
 msgstr "Ondertekend"
@@ -33679,8 +33679,8 @@ msgid "Conversation sections"
 msgstr "Gesprek-secties"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1067
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1349
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1598
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1399
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1648
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:251
 msgid "Evidence"
 msgstr "Bewijs"
@@ -33727,57 +33727,69 @@ msgstr ""
 "Totdat het vorige gesprek is afgetekend, kan hier alleen de geplande datum "
 "worden gewijzigd."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1145
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1174
 msgid "Scheduled at"
 msgstr "Gepland op"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1150
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1179
 msgid "Conducted at"
 msgstr "Gevoerd op"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1153
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1182
 msgid "Fill in once the conversation has happened."
 msgstr "Vul in zodra het gesprek heeft plaatsgevonden."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1156
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1185
 msgid "Agenda (pre-meeting)"
 msgstr "Agenda (voor het gesprek)"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1160
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1189
 msgid "Notes (post-meeting)"
 msgstr "Notities (na het gesprek)"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1177
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1206
 msgid "Goals discussed in this talk"
 msgstr "Doelen besproken in dit gesprek"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1198
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1227
 msgid "Player self-reflection"
 msgstr "Zelfreflectie van de speler"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1209
-msgid "Sign off this conversation now"
-msgstr "Onderteken dit gesprek nu"
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1263
+msgid ""
+"Sign off this conversation? It becomes read-only for everyone — open a new "
+"conversation if a follow-up edit is needed."
+msgstr ""
+"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
+"open een nieuw gesprek als er nog een wijziging nodig is."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1216
-msgid "Save conversation"
-msgstr "Gesprek opslaan"
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1266
+msgid "Sign off"
+msgstr "Ondertekenen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1233
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1267
+msgid ""
+"Everything above is already saved. Signing off closes the conversation for "
+"editing."
+msgstr ""
+"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
+"bewerken."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1283
 msgid "Acknowledgements"
 msgstr "Bevestigingen"
 
 #. translators: %s = acknowledgement timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1238
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1288
 #, php-format
 msgid "Player acknowledged on %s"
 msgstr "Speler heeft bevestigd op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1243
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1293
 msgid "Record player acknowledgement"
 msgstr "Bevestiging speler vastleggen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1244
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1294
 msgid ""
 "Confirm only if the player acknowledged this conversation with you in "
 "person. This records it on their behalf."
@@ -33786,16 +33798,16 @@ msgstr ""
 "Dit legt het namens hen vast."
 
 #. translators: %s = acknowledgement timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1251
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1301
 #, php-format
 msgid "Parent acknowledged on %s"
 msgstr "Ouder heeft bevestigd op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1256
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1306
 msgid "Record parent acknowledgement"
 msgstr "Bevestiging ouder vastleggen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1257
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1307
 msgid ""
 "Confirm only if the parent acknowledged this conversation with you in "
 "person. This records it on their behalf."
@@ -33803,120 +33815,120 @@ msgstr ""
 "Bevestig alleen als de ouder dit gesprek persoonlijk met u heeft bevestigd. "
 "Dit legt het namens hen vast."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1291
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1341
 msgid "Only head of academy or head coach roles can record a verdict."
 msgstr ""
 "Alleen het hoofd academie of hoofdcoach kunnen een eindoordeel vastleggen."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1295
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1345
 msgid "Edit end-of-season verdict"
 msgstr "Eindeseizoens­oordeel bewerken"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1295
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1345
 msgid "Record end-of-season verdict"
 msgstr "Eindeseizoens­oordeel vastleggen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1301
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1351
 msgid "Promote to next age group"
 msgstr "Doorstroom naar volgende leeftijdscategorie"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1302
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1352
 msgid "Retain in current group"
 msgstr "Behouden in huidige groep"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1303
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1353
 msgid "Release from academy"
 msgstr "Uitsluiten uit academie"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1304
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1354
 msgid "Transfer to another team / club"
 msgstr "Transfer naar ander team / club"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1311
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1361
 msgid "— Select decision —"
 msgstr "— Kies beslissing —"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1318
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1368
 msgid "Summary / rationale"
 msgstr "Samenvatting / motivatie"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1324
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1374
 msgid "Sign off this verdict now"
 msgstr "Onderteken dit eindoordeel nu"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1328
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1378
 msgid "Save verdict"
 msgstr "Eindoordeel opslaan"
 
 #. translators: %s = date
 #. translators: %s: localized date the recap window starts at
 #. translators: %s is a date.
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1354
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1404
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:61
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2315
 #, php-format
 msgid "Since %s"
 msgstr "Sinds %s"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1374
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1424
 msgid "No evaluations in this window."
 msgstr "Geen evaluaties in deze periode."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1405
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1455
 msgid "No activities in this window."
 msgstr "Geen activiteiten in dit venster."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1416
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1466
 msgid "Goal changes"
 msgstr "Doelwijzigingen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1425
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1475
 msgid "No goal changes in this window."
 msgstr "Geen doelwijzigingen in dit venster."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1465
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1515
 msgid "Linked goals"
 msgstr "Gekoppelde doelen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1486
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1536
 msgid "No goals match this filter."
 msgstr "Geen doelen die aan dit filter voldoen."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1568
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1618
 msgid "Messages in this goal’s conversation"
 msgstr "Berichten in het gesprek van dit doel"
 
 #. translators: 1: date, 2: score
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1605
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1655
 #, php-format
 msgid "Assessment %1$s · %2$s"
 msgstr "Beoordeling %1$s · %2$s"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1614
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1664
 msgid "Linked to"
 msgstr "Gekoppeld aan"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1627
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1677
 #, php-format
 msgid "Last mentioned in conversation on %s"
 msgstr "Laatst genoemd in gesprek op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1635
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1685
 msgid "Open goal"
 msgstr "Doel openen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1641
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1691
 msgid "player & coach"
 msgstr "speler & coach"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1709
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1759
 #: src/Modules/Wizards/Goal/LinkStep.php:72
 #: src/Modules/Wizards/Goal/LinkStep.php:107
 msgid "Football action"
 msgstr "Voetbalhandeling"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1797
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1847
 msgctxt "PDP file status"
 msgid "Open"
 msgstr "Open"
@@ -40646,7 +40658,7 @@ msgstr ""
 "opnieuw berekend."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:252
-#: src/Shared/Frontend/FrontendGoalsManageView.php:638
+#: src/Shared/Frontend/FrontendGoalsManageView.php:672
 #: src/Shared/Frontend/FrontendMyGoalsView.php:253
 msgid "How does this work?"
 msgstr "Hoe werkt dit?"
@@ -45006,7 +45018,7 @@ msgstr "Zoek een gastspeler"
 
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:177
 #: src/Modules/Wizards/Team/StaffStep.php:52
-#: src/Shared/Frontend/CoachForms.php:184
+#: src/Shared/Frontend/CoachForms.php:217
 #: src/Shared/Frontend/Components/GuestAddModal.php:75
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:53
@@ -45431,30 +45443,30 @@ msgstr "Geleend van een ander team voor deze wedstrijd."
 
 #. translators: %s: main category label
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:245
-#: src/Shared/Frontend/CoachForms.php:315
+#: src/Shared/Frontend/CoachForms.php:348
 #, php-format
 msgid "%s detail mode"
 msgstr "%s detail-modus"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:275
-#: src/Shared/Frontend/CoachForms.php:342
+#: src/Shared/Frontend/CoachForms.php:375
 msgid "Internal notes (staff only)"
 msgstr "Interne notities (alleen staf)"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:281
-#: src/Shared/Frontend/CoachForms.php:342
+#: src/Shared/Frontend/CoachForms.php:375
 msgid "Not shown to the player — staff-only."
 msgstr "Niet zichtbaar voor de speler — alleen staf."
 
 # #1386 - player-visible evaluation feedback (v4.20.130). i18n-sync will
 # merge these into the proper position on next run.
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:290
-#: src/Shared/Frontend/CoachForms.php:344
+#: src/Shared/Frontend/CoachForms.php:377
 msgid "Feedback for the player"
 msgstr "Feedback voor de speler"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:296
-#: src/Shared/Frontend/CoachForms.php:344
+#: src/Shared/Frontend/CoachForms.php:377
 msgid ""
 "Optional — what they did well and what to work on next. Shown to the player "
 "and their parents."
@@ -48066,17 +48078,17 @@ msgid "Submit Evaluation"
 msgstr "Evaluatie verzenden"
 
 #: src/Shared/Frontend/CoachDashboardView.php:261
-#: src/Shared/Frontend/CoachForms.php:521
+#: src/Shared/Frontend/CoachForms.php:565
 msgid "Record Training Activity"
 msgstr "Training vastleggen"
 
 #: src/Shared/Frontend/CoachDashboardView.php:321
-#: src/Shared/Frontend/CoachForms.php:603
+#: src/Shared/Frontend/CoachForms.php:647
 msgid "Current Goals"
 msgstr "Huidige doelen"
 
 #: src/Shared/Frontend/CoachDashboardView.php:322
-#: src/Shared/Frontend/CoachForms.php:605
+#: src/Shared/Frontend/CoachForms.php:649
 msgid "No goals yet."
 msgstr "Nog geen doelen."
 
@@ -48086,19 +48098,19 @@ msgstr "Nog geen doelen."
 msgid "Edit evaluation"
 msgstr "Evaluatie bewerken"
 
-#: src/Shared/Frontend/CoachForms.php:153
+#: src/Shared/Frontend/CoachForms.php:186
 #, php-format
 msgid "Editing evaluation of %s."
 msgstr "Evaluatie van %s aan het bewerken."
 
 # v3.110.3 — Player profile polish: evaluation form preset headline
-#: src/Shared/Frontend/CoachForms.php:159
+#: src/Shared/Frontend/CoachForms.php:192
 #, php-format
 msgid "Recording evaluation for %s."
 msgstr "Evaluatie vastleggen voor %s."
 
 #. translators: %s is the threshold value
-#: src/Shared/Frontend/CoachForms.php:352
+#: src/Shared/Frontend/CoachForms.php:385
 #, php-format
 msgid ""
 "One or more ratings are at or below %s — please add a comment explaining the "
@@ -48107,7 +48119,7 @@ msgstr ""
 "Een of meer beoordelingen zijn %s of lager — voeg een opmerking toe die de "
 "lage score toelicht."
 
-#: src/Shared/Frontend/CoachForms.php:534
+#: src/Shared/Frontend/CoachForms.php:578
 msgid "No players on your teams yet."
 msgstr "Nog geen spelers in je teams."
 
@@ -52157,19 +52169,19 @@ msgstr ""
 msgid "Add first goal"
 msgstr "Eerste doel toevoegen"
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:539
+#: src/Shared/Frontend/FrontendGoalsManageView.php:562
 msgid "Progress (%)"
 msgstr "Voortgang (%)"
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:540
+#: src/Shared/Frontend/FrontendGoalsManageView.php:563
 msgid "e.g. 60"
 msgstr "bijv. 60"
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:552
+#: src/Shared/Frontend/FrontendGoalsManageView.php:575
 msgid "Evidence (evaluations)"
 msgstr "Bewijslast (beoordelingen)"
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:553
+#: src/Shared/Frontend/FrontendGoalsManageView.php:576
 msgid ""
 "Tick the evaluations that evidence this goal — they show as scored chips on "
 "the POP card."
@@ -52177,13 +52189,9 @@ msgstr ""
 "Vink de beoordelingen aan die dit doel onderbouwen — ze verschijnen als "
 "scorechips op de POP-kaart."
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:604
+#: src/Shared/Frontend/FrontendGoalsManageView.php:627
 msgid "Optional. Anchor this goal to a single football action."
 msgstr "Optioneel. Verbind dit doel aan één voetbalhandeling."
-
-#: src/Shared/Frontend/FrontendGoalsManageView.php:616
-msgid "Update goal"
-msgstr "Doel bijwerken"
 
 #: src/Shared/Frontend/FrontendHolidaysView.php:26
 msgid "You do not have permission to view holidays."
@@ -58537,23 +58545,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
-msgid ""
-"Sign off this conversation? It becomes read-only for everyone — open a new "
-"conversation if a follow-up edit is needed."
-msgstr ""
-"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
-"open een nieuw gesprek als er nog een wijziging nodig is."
+#~ msgid "Sign off this conversation now"
+#~ msgstr "Onderteken dit gesprek nu"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1239
-msgid "Sign off"
-msgstr "Ondertekenen"
+#~ msgid "Save conversation"
+#~ msgstr "Gesprek opslaan"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1240
-msgid "Everything above is already saved. Signing off closes the conversation for editing."
-msgstr ""
-"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
-"bewerken."
+#~ msgid "Update goal"
+#~ msgstr "Doel bijwerken"
 
 #~ msgid ""
 #~ "Choose which messages your academy sends. Unchecking one stops it being "
