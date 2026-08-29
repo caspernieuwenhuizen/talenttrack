@@ -107,6 +107,10 @@ Elke vertaalbare entiteit heeft een ergonomische wrapper die de resolver consume
 
 Geef het entity_id mee zodra je het hebt. String-only callers blijven werken via de gettext-fallback.
 
+**Uitzondering — `LookupTranslator` heeft geen gettext-stap (#3082).** `name()` en `description()` lossen op via `tt_translations` en retourneren daarna de canonieke `tt_lookups`-kolom. Een runtime-waarde aan `__()` geven vraagt de catalogus om welke msgid dan ook die op die string matcht, in de betekenis waarin die geschreven is: de `foot_option`-rij `Left` werd op Nederlandse installaties *Vertrokken*, omdat de enige `msgid "Left"` bij de vertrekkolom van media-retentie hoorde (#3031). De stille variant van dezelfde fout is hoofdlettergebruik en woordsoort — een bijvoeglijk naamwoord of een kleingeschreven middenzinswoord dat in een labelvak belandt.
+
+De afweging: een niet-geseede lookup rendert zijn canonieke Engels. Zichtbaar onvertaald Engels wordt gemeld; een echt Nederlands woord met de verkeerde betekenis niet. Vaste labels horen in `LookupTranslationSeeds` en komen via een migratie in de database — de enige plek waar een label vanuit de broncode te beoordelen is. Migratie `0247` repareert rijen die de backfill van de ingetrokken fallback (migratie `0086`) al verkeerd had weggeschreven — die overschrijft alleen een waarde die teken voor teken is wat een kale `__()` retourneert én niet de vaste seed is, zodat het eigen label van een academie onaangeroerd blijft.
+
 ### Een taal toevoegen
 
 Eén regel:
