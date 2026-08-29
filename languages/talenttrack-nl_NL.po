@@ -56945,6 +56945,27 @@ msgstr "Afgeronde doelen · %d"
 msgid "No active goals — every goal on this player is finished."
 msgstr "Geen actieve doelen — alle doelen van deze speler zijn afgerond."
 
+#: src/Shared/Frontend/Components/GoalPrinciplePicker.php
+#: src/Modules/Goals/Admin/GoalsPage.php
+msgid "What does this goal develop?"
+msgstr "Wat ontwikkelt dit doel?"
+
+#: src/Shared/Frontend/Components/GoalPrinciplePicker.php
+msgid ""
+"Pick the methodology principles this goal works on. Optional, but tagging it "
+"is what lets training plans and reports aim at this goal."
+msgstr ""
+"Kies de methodiekprincipes waar dit doel aan werkt. Optioneel, maar door het "
+"te koppelen kunnen trainingsplannen en rapportages zich op dit doel richten."
+
+#: src/Modules/Goals/Admin/GoalsPage.php
+msgid ""
+"Optional, but tagging it is what lets training plans and reports aim at this "
+"goal."
+msgstr ""
+"Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages "
+"zich op dit doel richten."
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 
