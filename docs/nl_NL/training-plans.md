@@ -104,6 +104,27 @@ Druk op **Nieuw plan**. Vier korte vragen, dan een kant-en-klare training:
  leeg en staat erbij waarom** — in plaats van het op te vullen met iets dat
  er niet bij hoort.
 
+### Voor welke leeftijdscategorieën de generator een concept maakt
+
+Een concept maken vraagt om een **leeftijdsprofiel**: de maximale trainingsduur
+en het intensiteitsplafond voor die categorie. Zonder profiel is er niets veiligs
+om binnen te plannen, dus de generator stopt in plaats van te gokken. Er zijn
+twee verschillende redenen om te stoppen, met een verschillende betekenis:
+
+- **De jongste categorieën hebben bewust geen belastingmodel.** Op die leeftijd
+  wordt trainingsbelasting niet in getallen gepland. De generator maakt voor hen
+  nooit een concept, en zegt dat ook zo — in plaats van te suggereren dat er een
+  instelling ontbreekt. Bouw de training zelf; het plan houdt hem net als elke
+  andere.
+- **Een categorie boven dat bereik heeft nog geen profiel.** Dat is wél op te
+  lossen. Wie het recht op VCT-configuratie heeft — normaal gesproken de Hoofd
+  Opleiding — voegt het profiel toe onder **VCT-configuratie → Leeftijdsprofielen**,
+  en vanaf dan werkt het concept voor die teams.
+
+Standaard loopt het gemodelleerde bereik van JO10 tot en met JO14. JO15 en hoger
+toevoegen is een beslissing over de belastingplafonds van je eigen academie, en
+juist daarom zijn die getallen van jou en worden ze niet meegeleverd.
+
 ### Waarom de ene training beter bij je spelers past dan de andere
 
 De generator geeft voorrang aan oefeningen die een principe trainen waar je

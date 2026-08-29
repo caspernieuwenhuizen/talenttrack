@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T20:07:58+00:00\n"
+"POT-Creation-Date: 2026-08-29T20:53:46+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Plugin Name of the plugin
-#: talenttrack.php src/Core/Activator.php:165
+#: talenttrack.php src/Core/Activator.php:171
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
 #: src/Modules/Reports/ScoutDelivery.php:125 src/Shared/Admin/Menu.php:51
 msgid "TalentTrack"
@@ -236,8 +236,8 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTileGrid.php:706
 #: src/Shared/Frontend/FrontendTileGrid.php:725
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
-#: src/Shared/Frontend/FrontendTrialsManageView.php:409
-#: src/Shared/Frontend/FrontendTrialsManageView.php:443
+#: src/Shared/Frontend/FrontendTrialsManageView.php:467
+#: src/Shared/Frontend/FrontendTrialsManageView.php:501
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:301
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:652
 #: src/Shared/Frontend/FrontendUsageStatsView.php:373
@@ -303,7 +303,7 @@ msgstr "Hoofd opleiding"
 #: src/Shared/Frontend/FrontendRolesView.php:83
 #: src/Shared/Frontend/FrontendTeamDetailView.php:671
 #: src/Shared/Frontend/FrontendTeamsManageView.php:483
-#: src/Shared/Frontend/FrontendTrialsManageView.php:414
+#: src/Shared/Frontend/FrontendTrialsManageView.php:472
 msgid "Staff"
 msgstr "Staf"
 
@@ -2635,7 +2635,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:279
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/Training/Wizard/WhenStep.php:34
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:154
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:155
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
 #: src/Modules/Vct/Wizard/WhenStep.php:52
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
@@ -2716,7 +2716,7 @@ msgstr "Evaluatie"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:119
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:569
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:574
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:634
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:333
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -3531,7 +3531,7 @@ msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
 #: src/Infrastructure/REST/GoalsRestController.php:439
-#: src/Shared/Frontend/FrontendTrialsManageView.php:178
+#: src/Shared/Frontend/FrontendTrialsManageView.php:168
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
@@ -3969,8 +3969,8 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendTrialCaseView.php:356
 #: src/Shared/Frontend/FrontendTrialCaseView.php:549
 #: src/Shared/Frontend/FrontendTrialCaseView.php:737
-#: src/Shared/Frontend/FrontendTrialsManageView.php:316
-#: src/Shared/Frontend/FrontendTrialsManageView.php:412
+#: src/Shared/Frontend/FrontendTrialsManageView.php:374
+#: src/Shared/Frontend/FrontendTrialsManageView.php:470
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/PlayerDashboardView.php:178
 msgid "Status"
@@ -4013,7 +4013,7 @@ msgstr "Rugnummer"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1241
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
 #: src/Shared/Frontend/FrontendPlayersManageView.php:371
-#: src/Shared/Frontend/FrontendTrialsManageView.php:457
+#: src/Shared/Frontend/FrontendTrialsManageView.php:515
 msgid "Date of birth"
 msgstr "Geboortedatum"
 
@@ -4036,7 +4036,7 @@ msgstr "Geboortedatum"
 #: src/Modules/License/Admin/AccountPage.php:561
 #: src/Modules/License/Admin/AccountPage.php:640
 #: src/Modules/License/FeatureMap.php:374
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:312
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:368
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:26
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
@@ -4074,8 +4074,8 @@ msgstr "Spelers"
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:151
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:380
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:152
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:472
 #: src/Shared/Frontend/FrontendConfigurationView.php:2634
 #: src/Shared/Frontend/FrontendSeasonsView.php:77
 msgid "Season"
@@ -4309,6 +4309,7 @@ msgid "Invalid player id."
 msgstr "Ongeldige speler-id."
 
 #: src/Infrastructure/REST/PlayersRestController.php:505
+#: src/Shared/Frontend/FrontendTrialsManageView.php:254
 msgid "The player could not be created."
 msgstr "De speler kon niet worden aangemaakt."
 
@@ -4710,7 +4711,7 @@ msgstr[1] "%d minuten"
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:533
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:857
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:174
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:175
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:69
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:133
@@ -4902,7 +4903,7 @@ msgstr "Alle types"
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1263
 #: src/Modules/License/FeatureMap.php:380
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:569
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:629
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:336
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
@@ -5097,7 +5098,7 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendSeasonsView.php:81
 #: src/Shared/Frontend/FrontendTeamDetailView.php:293
 #: src/Shared/Frontend/FrontendTrialCaseView.php:284
-#: src/Shared/Frontend/FrontendTrialsManageView.php:415
+#: src/Shared/Frontend/FrontendTrialsManageView.php:473
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:151
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:371
 msgid "Actions"
@@ -5283,7 +5284,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:521
 #: src/Shared/Frontend/FrontendTrialCaseView.php:605
 #: src/Shared/Frontend/FrontendTrialCaseView.php:641
-#: src/Shared/Frontend/FrontendTrialsManageView.php:486
+#: src/Shared/Frontend/FrontendTrialsManageView.php:544
 #: src/Shared/Frontend/PlayerDashboardView.php:179
 msgid "Notes"
 msgstr "Notities"
@@ -5401,9 +5402,9 @@ msgstr "Bijwerken"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:496
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:354
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:442
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:223
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:356
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:534
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:374
 #: src/Shared/Frontend/CoachDashboardView.php:238
 #: src/Shared/Frontend/CoachDashboardView.php:280
@@ -5574,7 +5575,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1343
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:288
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:289
 #: src/Shared/Frontend/Components/SaveState.php:91
 #: src/Shared/Frontend/FrontendBackupsView.php:249
 #: src/Shared/Frontend/FrontendConfigurationView.php:515
@@ -5908,7 +5909,7 @@ msgstr "Datumbereik"
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Frontend/Components/FilterBar.php:554
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:208
@@ -5935,7 +5936,7 @@ msgstr "Vanaf"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:527
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
 #: src/Shared/Frontend/Components/FilterBar.php:555
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
@@ -6077,7 +6078,7 @@ msgstr "A"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:535
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2046
-#: src/Shared/Frontend/FrontendTrialsManageView.php:346
+#: src/Shared/Frontend/FrontendTrialsManageView.php:404
 msgid "Show"
 msgstr "Toon"
 
@@ -6749,8 +6750,8 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/DashboardShortcode.php:234
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:180
-#: src/Shared/Frontend/FrontendTrialsManageView.php:389
-#: src/Shared/Frontend/FrontendTrialsManageView.php:425
+#: src/Shared/Frontend/FrontendTrialsManageView.php:447
+#: src/Shared/Frontend/FrontendTrialsManageView.php:483
 msgid "Open"
 msgstr "Openen"
 
@@ -7325,8 +7326,8 @@ msgstr "Stagebesluiten"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1461
 #: src/Shared/Frontend/FrontendTrialCaseView.php:209
 #: src/Shared/Frontend/FrontendTrialCaseView.php:361
-#: src/Shared/Frontend/FrontendTrialsManageView.php:334
-#: src/Shared/Frontend/FrontendTrialsManageView.php:413
+#: src/Shared/Frontend/FrontendTrialsManageView.php:392
+#: src/Shared/Frontend/FrontendTrialsManageView.php:471
 msgid "Decision"
 msgstr "Beslissing"
 
@@ -7459,7 +7460,7 @@ msgid "Cancelled"
 msgstr "Geannuleerd"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:563
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:623
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
@@ -7531,7 +7532,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:49
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:63
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:66
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:194
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:208
@@ -7558,7 +7559,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:53
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:46
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:58
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:45
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:46
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:40
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:65
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
@@ -7884,8 +7885,8 @@ msgstr "Aantal"
 #: src/Shared/Frontend/FrontendExportsView.php:196
 #: src/Shared/Frontend/FrontendExportsView.php:240
 #: src/Shared/Frontend/FrontendExportsView.php:648
-#: src/Shared/Frontend/FrontendTrialsManageView.php:319
-#: src/Shared/Frontend/FrontendTrialsManageView.php:328
+#: src/Shared/Frontend/FrontendTrialsManageView.php:377
+#: src/Shared/Frontend/FrontendTrialsManageView.php:386
 msgid "All"
 msgstr "Alle"
 
@@ -8197,7 +8198,7 @@ msgstr ""
 #: src/Modules/Teams/Admin/TeamsPage.php:142
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:46
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:276
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:163
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:313
@@ -11161,7 +11162,7 @@ msgstr "Selecteer persoon"
 #: src/Shared/Frontend/FrontendHolidaysView.php:190
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:502
-#: src/Shared/Frontend/FrontendTrialsManageView.php:469
+#: src/Shared/Frontend/FrontendTrialsManageView.php:527
 msgid "Start date"
 msgstr "Startdatum"
 
@@ -11176,7 +11177,7 @@ msgstr "Startdatum"
 #: src/Shared/Frontend/FrontendHolidaysView.php:194
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:508
-#: src/Shared/Frontend/FrontendTrialsManageView.php:470
+#: src/Shared/Frontend/FrontendTrialsManageView.php:528
 msgid "End date"
 msgstr "Einddatum"
 
@@ -12955,6 +12956,22 @@ msgstr[0] "%d bericht kon niet worden verstuurd. De fout is vastgelegd."
 msgstr[1] ""
 "%d berichten konden niet worden verstuurd. De fouten zijn vastgelegd."
 
+#: src/Modules/Comms/Rest/CommsRestController.php:280
+msgid "That message is not in your inbox."
+msgstr "Dat bericht staat niet in je inbox."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:287
+msgid "The message could not be updated."
+msgstr "Het bericht kon niet worden bijgewerkt."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:342
+msgid "No such message template."
+msgstr "Dit berichtsjabloon bestaat niet."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:374
+msgid "Expected a list of message types."
+msgstr "Er werd een lijst met berichtsoorten verwacht."
+
 #: src/Modules/Comms/Templates/AlertDigestTemplate.php:31
 msgid "Alert summary"
 msgstr "Meldingsoverzicht"
@@ -13539,15 +13556,15 @@ msgstr ""
 "\n"
 "{coach_name}"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:22
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:28
 msgid "PDP / evaluation ready to read"
 msgstr "POP / evaluatie klaar om te lezen"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:30
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:36
 msgid "{player_name}'s PDP is ready"
 msgstr "Het ontwikkelingsplan van {player_name} is klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:31
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:37
 msgid ""
 "Hi {recipient_first_name},\n"
 "\n"
@@ -13566,11 +13583,11 @@ msgstr ""
 "\n"
 "Het coaching team"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:34
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:40
 msgid "Het ontwikkelingsplan van {player_name} is klaar"
 msgstr "Het ontwikkelingsplan van {player_name} is klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:35
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
 msgid ""
 "Hoi {recipient_first_name},\n"
 "\n"
@@ -13590,19 +13607,19 @@ msgstr ""
 "\n"
 "Het coaching team"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:47
 msgid "PDP ready"
 msgstr "POP klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:42
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:48
 msgid "{player_name}'s development plan for {season_name} is ready to read."
 msgstr "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:45
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:51
 msgid "Plan klaar"
 msgstr "Plan klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:46
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:52
 msgid "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 msgstr "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 
@@ -15490,7 +15507,7 @@ msgstr "Toon details"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:170
 #: src/Shared/Frontend/FrontendPlayersManageView.php:362
 #: src/Shared/Frontend/FrontendSetupView.php:236
-#: src/Shared/Frontend/FrontendTrialsManageView.php:453
+#: src/Shared/Frontend/FrontendTrialsManageView.php:511
 msgid "First name"
 msgstr "Voornaam"
 
@@ -15526,7 +15543,7 @@ msgstr "Voornaam"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:174
 #: src/Shared/Frontend/FrontendPlayersManageView.php:366
 #: src/Shared/Frontend/FrontendSetupView.php:242
-#: src/Shared/Frontend/FrontendTrialsManageView.php:455
+#: src/Shared/Frontend/FrontendTrialsManageView.php:513
 msgid "Last name"
 msgstr "Achternaam"
 
@@ -15638,6 +15655,7 @@ msgstr "Roltype"
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:421
 #: src/Modules/Wizards/Team/BasicsStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:20
 #: src/Shared/Frontend/FrontendComparisonView.php:369
@@ -19588,7 +19606,7 @@ msgstr "Speler of notities"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:118
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
-#: src/Shared/Frontend/FrontendTrialsManageView.php:337
+#: src/Shared/Frontend/FrontendTrialsManageView.php:395
 msgid "Any"
 msgstr "Alle"
 
@@ -20689,7 +20707,7 @@ msgstr "Dupliceren"
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:284
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/Components/MediaGallery.php:231
 #: src/Shared/Frontend/Components/MediaUploader.php:180
@@ -25268,9 +25286,9 @@ msgid "Object-storage backup"
 msgstr "Back-up naar objectopslag"
 
 #: src/Modules/License/FeatureMap.php:399
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:208
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:579
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:59
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:257
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:639
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:82
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:87
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:213
@@ -25382,32 +25400,32 @@ msgid_plural "%1$s was played %2$d days ago and has no analysis yet."
 msgstr[0] "%1$s is %2$d dag geleden gespeeld en heeft nog geen analyse."
 msgstr[1] "%1$s is %2$d dagen geleden gespeeld en heeft nog geen analyse."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:48
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:60
 msgid "Match analysis is switched off for this academy."
 msgstr "Wedstrijdanalyse staat uit voor deze academie."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:55
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:67
 msgid "Match analysis is restricted to coaches and admins."
 msgstr "Wedstrijdanalyse is alleen voor trainers en beheerders."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:62
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:74
 msgid "Open Match analysis from a match activity's detail page."
 msgstr ""
 "Open de wedstrijdanalyse vanaf de detailpagina van een wedstrijdactiviteit."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:70
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:438
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:82
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:493
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:37
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:91
 msgid "A match analysis can only be written for a match activity."
 msgstr ""
 "Een wedstrijdanalyse kun je alleen schrijven bij een wedstrijdactiviteit."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:81
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:93
 msgid "This match has not been played yet. The analysis opens once it has."
 msgstr "Deze wedstrijd is nog niet gespeeld. De analyse gaat daarna open."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:168
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:197
 msgid ""
 "Shared staff document. It names players and what they were told; please do "
 "not forward it outside the staff."
@@ -25415,12 +25433,24 @@ msgstr ""
 "Gedeeld stafdocument. Er staan namen van spelers in en wat hun is gezegd; "
 "stuur het niet buiten de staf door."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:191
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:229
+msgid "This analysis is not finished yet"
+msgstr "Deze analyse is nog niet af"
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:231
+msgid ""
+"The coach is still writing it. The link stays valid — open it again once "
+"they have marked it final."
+msgstr ""
+"De trainer is er nog mee bezig. De link blijft geldig — open hem opnieuw "
+"zodra de analyse definitief is gemarkeerd."
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:240
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:88
 msgid "This link is no longer valid"
 msgstr "Deze link is niet meer geldig"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:193
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:242
 msgid ""
 "The analysis may have been removed, or the link may have been reissued. Ask "
 "the coach who shared it for a new one."
@@ -25429,18 +25459,18 @@ msgstr ""
 "de trainer die hem deelde om een nieuwe."
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:225
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:274
 #, php-format
 msgid "Away at %s"
 msgstr "Uit bij %s"
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:227
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:276
 #, php-format
 msgid "Against %s"
 msgstr "Tegen %s"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:240
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:289
 msgid ""
 "This match was not prepped or run in the app, so there is nothing to pre-"
 "fill. Write it from what you saw."
@@ -25448,55 +25478,59 @@ msgstr ""
 "Deze wedstrijd is niet in de app voorbereid of gevolgd, dus er valt niets "
 "vooraf in te vullen. Schrijf op wat je zag."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:273
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:329
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:67
 msgid "How did the match go, in a few sentences?"
 msgstr "Hoe ging de wedstrijd, in een paar zinnen?"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:319
-msgid "Save analysis"
-msgstr "Analyse opslaan"
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:386
+msgid "Mark as final"
+msgstr "Markeren als definitief"
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:391
+msgid "Marked final. Anyone holding the share link can read it."
+msgstr "Definitief gemarkeerd. Iedereen met de deellink kan hem lezen."
 
 #. translators: 1: section name, 2: bullet number
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:355
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:426
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:67
 #, php-format
 msgid "%1$s — point %2$d"
 msgstr "%1$s — punt %2$d"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:376
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:447
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:88
 msgid "One short point…"
 msgstr "Eén kort punt…"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:404
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:475
 msgid "Print or save as PDF"
 msgstr "Printen of opslaan als PDF"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:433
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:504
 msgid "Share with the staff"
 msgstr "Delen met de staf"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:440
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:511
 msgid ""
 "No link exists yet, so this analysis cannot be opened by anyone outside the "
 "app."
 msgstr ""
 "Er bestaat nog geen link, dus niemand kan deze analyse buiten de app openen."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:443
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:514
 msgid "Create share link"
 msgstr "Deellink aanmaken"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:455
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:526
 msgid "Staff share link"
 msgstr "Stafdeellink"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:458
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:529
 msgid "Copy link"
 msgstr "Link kopiëren"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:462
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:533
 msgid ""
 "Anyone holding this link can read the analysis, including the player notes. "
 "It keeps working until you replace it."
@@ -25504,16 +25538,16 @@ msgstr ""
 "Iedereen met deze link kan de analyse lezen, inclusief de spelersnotities. "
 "Hij blijft werken totdat je hem vervangt."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:467
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:538
 msgid "Replace link"
 msgstr "Link vervangen"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:470
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:541
 msgid "The current link stops working immediately."
 msgstr "De huidige link werkt direct niet meer."
 
 #. translators: %s: number of people who opened the share link.
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:503
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:574
 #, php-format
 msgid "Seen by %s person"
 msgid_plural "Seen by %s people"
@@ -25521,30 +25555,47 @@ msgstr[0] "Gezien door %s persoon"
 msgstr[1] "Gezien door %s mensen"
 
 #. translators: %s: human-readable time difference, e.g. "2 days"
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:513
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:584
 #, php-format
 msgid "last opened %s ago"
 msgstr "laatst geopend %s geleden"
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:51
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:62
 msgid "Replace the share link? The current one stops working immediately."
 msgstr "De deellink vervangen? De huidige werkt dan direct niet meer."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:52
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:63
 msgid "Share link created."
 msgstr "Deellink aangemaakt."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:53
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:64
 msgid "Link copied."
 msgstr "Link gekopieerd."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:54
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:65
 msgid "A new link has been issued. The previous one no longer works."
 msgstr "Er is een nieuwe link uitgegeven. De vorige werkt niet meer."
 
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:55
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:66
 msgid "That did not work. Try again."
 msgstr "Dat is niet gelukt. Probeer het nog eens."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
+msgid ""
+"Someone else changed this analysis. Reload the page to see their version."
+msgstr ""
+"Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om hun versie "
+"te zien."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
+msgid ""
+"Mark this analysis final? Anyone holding the share link can then read it."
+msgstr ""
+"Deze analyse definitief markeren? Iedereen met de deellink kan hem dan lezen."
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:71
+msgid "The analysis could not be marked final. Try again."
+msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
 
 #. translators: %s: opponent name
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:96
@@ -25859,11 +25910,19 @@ msgstr "Onbekende speler."
 msgid "You do not have permission to view this player."
 msgstr "Je hebt geen permissie om deze speler te bekijken."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:223
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:250
 msgid "The analysis could not be created."
 msgstr "De analyse kon niet worden aangemaakt."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:244
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:272
+msgid ""
+"Someone else changed this analysis while you were writing. Reload the page "
+"to see their version."
+msgstr ""
+"Iemand anders heeft deze analyse gewijzigd terwijl jij aan het schrijven "
+"was. Herlaad de pagina om hun versie te zien."
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:296
 msgid "That is not a section of a match analysis."
 msgstr "Dat is geen onderdeel van een wedstrijdanalyse."
 
@@ -30401,7 +30460,7 @@ msgid "Week"
 msgstr "Week"
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:213
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:284
 msgid "Speelwijze-thema"
 msgstr "Speelwijze-thema"
 
@@ -33190,7 +33249,7 @@ msgstr "Nog geen POP-dossiers voor dit seizoen."
 
 #. translators: %d = block number, 1-indexed
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:114
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:272
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
 #: src/Shared/Frontend/FrontendConfigurationView.php:2697
 #, php-format
 msgid "Block %d"
@@ -33420,7 +33479,7 @@ msgstr "Blok %d heeft een ongeldig datumformaat. Gebruik JJJJ-MM-DD."
 
 #. translators: %d = block number
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:153
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:299
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:300
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:79
 #: src/Shared/Frontend/FrontendConfigurationView.php:2710
 #, php-format
@@ -37195,8 +37254,8 @@ msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:273
 #: src/Shared/Frontend/FrontendReportDetailView.php:167
-#: src/Shared/Frontend/FrontendTrialsManageView.php:392
-#: src/Shared/Frontend/FrontendTrialsManageView.php:411
+#: src/Shared/Frontend/FrontendTrialsManageView.php:450
+#: src/Shared/Frontend/FrontendTrialsManageView.php:469
 msgid "Window"
 msgstr "Venster"
 
@@ -41860,12 +41919,12 @@ msgstr ""
 "Gesorteerd op hoeveel open spelerdoelen van dit team elke oefening bedient."
 
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:350
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
 msgid "Move up"
 msgstr "Omhoog"
 
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:351
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:279
 msgid "Move down"
 msgstr "Omlaag"
 
@@ -42192,30 +42251,43 @@ msgstr ""
 #: src/Modules/Training/Wizard/ProposalStep.php:131
 msgid ""
 "This age group has no training profile yet, so there is no age-safe "
-"intensity ceiling to plan inside. Only age groups that have a profile can be "
-"drafted automatically."
+"intensity ceiling to plan inside. Someone with the VCT configuration "
+"permission — normally the head of development — can add one under VCT "
+"configuration → Age profiles, and drafting will work from then on."
 msgstr ""
 "Deze leeftijdscategorie heeft nog geen trainingsprofiel, dus er is geen "
-"leeftijdsveilig intensiteitsplafond om binnen te plannen. Alleen "
-"leeftijdscategorieën met een profiel kunnen automatisch worden opgesteld."
+"leeftijdsveilig intensiteitsplafond om binnen te plannen. Wie het recht op "
+"VCT-configuratie heeft — normaal gesproken de Hoofd Opleiding — voegt er een "
+"toe onder VCT-configuratie → Leeftijdsprofielen, en vanaf dan werkt het "
+"opstellen wel."
 
-#: src/Modules/Training/Wizard/ProposalStep.php:133
+#: src/Modules/Training/Wizard/ProposalStep.php:137
+msgid ""
+"Trainings are not drafted automatically at this age. Load is not planned in "
+"numbers for the youngest groups — build the training yourself and the plan "
+"will hold it like any other."
+msgstr ""
+"Op deze leeftijd worden trainingen niet automatisch opgesteld. Bij de "
+"jongste categorieën wordt de belasting niet in getallen gepland — bouw de "
+"training zelf op, dan houdt het plan hem net als elke andere."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:139
 msgid "This training pushes the team past its planned load for the week."
 msgstr ""
 "Deze training brengt het team boven de geplande belasting voor deze week."
 
-#: src/Modules/Training/Wizard/ProposalStep.php:135
+#: src/Modules/Training/Wizard/ProposalStep.php:141
 msgid "This falls too soon after a hard training for this age group."
 msgstr "Dit valt te kort na een zware training voor deze leeftijdscategorie."
 
-#: src/Modules/Training/Wizard/ProposalStep.php:137
+#: src/Modules/Training/Wizard/ProposalStep.php:143
 msgid ""
 "A player is flagged for a growth spurt, so the intensity has been held back."
 msgstr ""
 "Er staat een groeispurt-vlag bij een speler, dus de intensiteit is "
 "teruggebracht."
 
-#: src/Modules/Training/Wizard/ProposalStep.php:164
+#: src/Modules/Training/Wizard/ProposalStep.php:170
 msgid ""
 "This training cannot be drafted as asked. Go back and change the length or "
 "the theme."
@@ -43020,39 +43092,39 @@ msgstr "Er stonden geen herinneringen open."
 msgid "Trial group %s"
 msgstr "Stagegroep %s"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:46
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:62
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:47
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:63
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:64
 #: src/Shared/Configuration/ConfigurationSurfaces.php:457
 msgid "VCT configuration"
 msgstr "VCT-configuratie"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:47
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:48
 msgid "You do not have access to the VCT configuration tile."
 msgstr "Je hebt geen toegang tot het VCT-configuratietegel."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:77
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:78
 msgid "Macro-blocks"
 msgstr "Macroblokken"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:78
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:79
 msgid "Age profiles"
 msgstr "Leeftijdsprofielen"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:79
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:80
 msgid "Team schedules"
 msgstr "Teamschema's"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:81
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:82
 msgid "VCT configuration sections"
 msgstr "VCT-configuratieonderdelen"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:108
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:109
 #: src/Shared/Frontend/FrontendConfigurationView.php:2640
 msgid "current"
 msgstr "huidig"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:120
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:121
 msgid ""
 "No seasons configured yet. Add a season under Configuration → Seasons first, "
 "then come back here."
@@ -43060,12 +43132,12 @@ msgstr ""
 "Er zijn nog geen seizoenen ingesteld. Voeg eerst een seizoen toe onder "
 "Configuratie → Seizoenen en kom dan hier terug."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:121
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:122
 #: src/Shared/Frontend/FrontendConfigurationView.php:2606
 msgid "Manage seasons"
 msgstr "Seizoenen beheren"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:130
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 msgid ""
 "Define the macro-block calendar for a season. The club default applies to "
 "every team; pick a team to set an override."
@@ -43073,7 +43145,7 @@ msgstr ""
 "Stel de macro-blokkenkalender voor een seizoen in. De clubstandaard geldt "
 "voor elk team; kies een team om een uitzondering in te stellen."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:145
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:146
 msgid ""
 "Define the macro-block calendar for a season. The club default applies to "
 "every team; pick a team to set an override just for them."
@@ -43082,50 +43154,50 @@ msgstr ""
 "voor elk team; kies een team om er alleen voor hen een uitzondering in te "
 "stellen."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:156
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:157
 msgid "Club default (all teams)"
 msgstr "Clubstandaard (alle teams)"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:168
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:381
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:169
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:473
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:174
 msgid "Load"
 msgstr "Laden"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:173
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:174
 msgid "Reference phase profiles"
 msgstr "Referentie-fase-profielen"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:174
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:175
 msgid "Weeks"
 msgstr "Weken"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:206
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:207
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:92
 msgid "Club default"
 msgstr "Clubstandaard"
 
 #. translators: %s = the scope being edited (a team name or "Club default")
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:211
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:212
 #, php-format
 msgid "Macro-blocks — %s"
 msgstr "Macro-blokken — %s"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:218
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:219
 msgid "Add block"
 msgstr "Blok toevoegen"
 
 #. translators: %d = team id for a team no longer in the list
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:246
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:247
 #, php-format
 msgid "Team #%d"
 msgstr "Team #%d"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:279
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:280
 msgid "Advanced: weekly phase profile (JSON)"
 msgstr "Geavanceerd: wekelijks faseprofiel (JSON)"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:280
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:281
 msgid ""
 "Optional. Array of { week, phase, multiplier, tactical_theme } objects. "
 "Leave blank for the default profile."
@@ -43133,11 +43205,11 @@ msgstr ""
 "Optioneel. Array van { week, phase, multiplier, tactical_theme }-objecten. "
 "Laat leeg voor het standaardprofiel."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:281
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:282
 msgid "Speelwijze-thema per week"
 msgstr "Speelwijze-thema per week"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:282
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
 msgid ""
 "Optionally tag each week with a playing-style theme. Weeks come from the "
 "phase profile above."
@@ -43145,90 +43217,89 @@ msgstr ""
 "Label elke week optioneel met een speelwijze-thema. De weken komen uit het "
 "faseprofiel hierboven."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:284
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:285
 msgid "— geen —"
 msgstr "— geen —"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:285
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:286
 #, php-format
 msgid "Week %d"
 msgstr "Week %d"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:286
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
 msgid "Add weeks to the phase profile above to tag themes."
 msgstr "Voeg weken toe aan het faseprofiel hierboven om thema's te labelen."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:288
 msgid "e.g. Build-up block"
 msgstr "bijv. Opbouwblok"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:289
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:290
 msgid "Block set saved."
 msgstr "Blokkenset opgeslagen."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:290
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:291
 #: src/Shared/Frontend/FrontendConfigurationView.php:2702
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:177
 #: src/Shared/Frontend/FrontendTeamDetailView.php:466
 msgid "Could not save. Try again."
 msgstr "Opslaan mislukt. Probeer het opnieuw."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:291
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:292
 msgid "No macro-blocks yet. Add the first block to start the season calendar."
 msgstr ""
 "Nog geen macro-blokken. Voeg het eerste blok toe om de seizoenskalender te "
 "starten."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:292
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:293
 msgid "Add at least one block before saving."
 msgstr "Voeg minstens één blok toe voordat je opslaat."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:293
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:294
 #, php-format
 msgid "The advanced phase profile for block %d is not valid JSON."
 msgstr "Het geavanceerde faseprofiel voor blok %d is geen geldige JSON."
 
 #. translators: %d = block number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:295
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:296
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:64
 #, php-format
 msgid "Block %d needs a name."
 msgstr "Blok %d heeft een naam nodig."
 
 #. translators: %d = block number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:297
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:298
 #, php-format
 msgid "Block %d needs a start and end date."
 msgstr "Blok %d heeft een start- en einddatum nodig."
 
 #. translators: 1: block A number, 2: block B number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:301
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:302
 #: src/Shared/Frontend/FrontendConfigurationView.php:2706
 #, php-format
 msgid "Block %1$d overlaps with block %2$d."
 msgstr "Blok %1$d overlapt met blok %2$d."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:302
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:303
 msgid "Looks good — no overlaps, all dates valid."
 msgstr "Ziet er goed uit — geen overlap, alle datums geldig."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:313
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:314
 msgid "No age profiles are set up yet."
 msgstr "Er zijn nog geen leeftijdsprofielen ingesteld."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:314
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:315
 msgid ""
 "Age profiles cap how long and how intensely each team can train safely, by "
-"age group. Until they exist, the VCT planner can't build a training. Ask "
-"your academy administrator to add them — they're part of the standard VCT "
-"setup for your club."
+"age group. Until they exist, the VCT planner can't build a training. Add the "
+"first one below — they're part of the standard VCT setup for your club."
 msgstr ""
 "Leeftijdsprofielen bepalen hoe lang en hoe intensief elk team per "
 "leeftijdsgroep veilig kan trainen. Zolang die er niet zijn, kan de VCT-"
-"planner geen training opbouwen. Vraag je academybeheerder om ze toe te "
-"voegen — ze horen bij de standaard VCT-inrichting van je club."
+"planner geen training opbouwen. Voeg hieronder de eerste toe — ze horen bij "
+"de standaard VCT-inrichting van je club."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:319
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:321
 msgid ""
 "Tune the per-age workload envelope. Coaches see the resulting ceiling on the "
 "wizard's Duration step + the engine enforces it everywhere."
@@ -43238,44 +43309,90 @@ msgstr ""
 
 #. translators: 1: minutes max, 2: intensity ceiling
 #. translators: 1: minutes, 2: intensity band
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:327
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:329
 #: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:90
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:223
 #, php-format
 msgid "%1$d min · band %2$d"
 msgstr "%1$d min · niveau %2$d"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:335
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:337
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:429
 msgid "Minutes per training (max)"
 msgstr "Minuten per training (max)"
 
 #. translators: 1: lowest intensity band, 2: highest intensity band.
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:337
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:339
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:431
 #, php-format
 msgid "Intensity band max (%1$d-%2$d)"
 msgstr "Maximaal intensiteitsniveau (%1$d-%2$d)"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:343
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:345
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:433
 msgid "Min recovery hours between high"
 msgstr "Min. herstelturen tussen hoog"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:344
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:346
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:434
 msgid "PHV load reduction %"
 msgstr "PHV belastingsreductie %"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:345
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
 msgid "Weekly load envelope"
 msgstr "Wekelijks belastingsbereik"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:349
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:438
 msgid "Match load multiplier per minute"
 msgstr "Wedstrijdbelasting-multiplier per minuut"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:351
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:353
 msgid "MD logic enabled (off for U10/U11 per Appendix A)"
 msgstr "MD-logica ingeschakeld (uit voor U10/U11 volgens Bijlage A)"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:365
+#. translators: %s is an age group, e.g. U13.
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:369
+#, php-format
+msgid "Remove %s profile"
+msgstr "%s-profiel verwijderen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:373
+msgid ""
+"Teams in this age group stop getting drafted trainings. Trainings already "
+"planned are unaffected."
+msgstr ""
+"Teams in deze leeftijdscategorie krijgen geen conceptrainingen meer. Al "
+"geplande trainingen blijven ongewijzigd."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:405
+msgid "Add an age profile"
+msgstr "Leeftijdsprofiel toevoegen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:409
+msgid "Every age group already has a profile."
+msgstr "Elke leeftijdscategorie heeft al een profiel."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:414
+msgid ""
+"Set the limits for an age group the planner cannot draft for yet. The "
+"training shape is copied from the closest age group that already has one; "
+"the limits below are yours."
+msgstr ""
+"Stel de grenzen in voor een leeftijdscategorie waarvoor de planner nog geen "
+"concept kan maken. De trainingsvorm wordt gekopieerd van de dichtstbijzijnde "
+"categorie die er al een heeft; de grenzen hieronder zijn van jou."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:443
+msgid "MD logic enabled (off for the youngest groups per Appendix A)"
+msgstr "MD-logica aan (uit voor de jongste categorieën volgens bijlage A)"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:447
+msgid "Add profile"
+msgstr "Profiel toevoegen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:457
 msgid ""
 "Set per-team weekly VCT training days. Drives the wizard's date-default to "
 "the next configured weekday."
@@ -43283,7 +43400,7 @@ msgstr ""
 "Stel wekelijkse VCT-trainingsdagen per team in. Bepaalt de standaarddatum "
 "van de wizard op de volgende geconfigureerde weekdag."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:392
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:484
 msgid ""
 "No teams yet. Create your teams under Teams first, then come back here to "
 "set their training days."
@@ -43291,74 +43408,97 @@ msgstr ""
 "Nog geen teams. Maak eerst je teams aan onder Teams en kom daarna hier terug "
 "om hun trainingsdagen in te stellen."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:985
 msgid "Mon"
 msgstr "Ma"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:986
 msgid "Tue"
 msgstr "Di"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:987
 msgid "Wed"
 msgstr "Wo"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:988
 msgid "Thu"
 msgstr "Do"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:989
 msgid "Fri"
 msgstr "Vr"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:990
 msgid "Sat"
 msgstr "Za"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:488
 #: src/Shared/Frontend/FrontendTeamDetailView.php:991
 msgid "Sun"
 msgstr "Zo"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:421
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:513
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1004
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1005
 msgid "Training days"
 msgstr "Trainingsdagen"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:432
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:524
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1020
 msgid "Default start time"
 msgstr "Standaardstarttijd"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:436
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:528
 msgid "Default duration (minutes)"
 msgstr "Standaardduur (minuten)"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:477
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:501
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:580
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:607
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:637
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:652
 msgid "Save failed: your form expired. Please reload."
 msgstr "Opslaan mislukt: je formulier is verlopen. Laad de pagina opnieuw."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:595
 msgid "Age profile updated."
 msgstr "Leeftijdsprofiel bijgewerkt."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:595
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:669
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2621
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1098
 msgid "Save failed: database error."
 msgstr "Opslaan mislukt: databasefout."
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:628
+msgid ""
+"Age profile added. The training shape was copied from the closest age group, "
+"so the planner can draft for these teams now."
+msgstr ""
+"Leeftijdsprofiel toegevoegd. De trainingsvorm is gekopieerd van de "
+"dichtstbijzijnde leeftijdscategorie, dus de planner kan nu concepten maken "
+"voor deze teams."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:629
+msgid ""
+"Age profile added. No training shape existed to copy, so the planner still "
+"needs a blueprint for this age group."
+msgstr ""
+"Leeftijdsprofiel toegevoegd. Er was geen trainingsvorm om te kopiëren, dus "
+"de planner heeft nog een sjabloon nodig voor deze leeftijdscategorie."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:643
+msgid "Age profile removed."
+msgstr "Leeftijdsprofiel verwijderd."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:669
 msgid "Team schedule saved."
 msgstr "Teamschema opgeslagen."
 
@@ -43646,7 +43786,16 @@ msgstr "Gepubliceerd. Gekoppelde Activiteit aangemaakt."
 msgid "VCT training — %1$s (%2$s)"
 msgstr "VCT-training — %1$s (%2$s)"
 
-#: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:74
+#: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:94
+msgid ""
+"An age profile needs an age group, a maximum training length and an "
+"intensity ceiling."
+msgstr ""
+"Een leeftijdsprofiel heeft een leeftijdscategorie, een maximale "
+"trainingsduur en een intensiteitsplafond nodig."
+
+#: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:146
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:82
 msgid "The age profile could not be saved."
 msgstr "Het leeftijdsprofiel kon niet worden opgeslagen."
 
@@ -43710,7 +43859,16 @@ msgstr ""
 "Voor deze leeftijdsgroep is nog geen trainingsprofiel ingesteld, dus de "
 "veilige belastingsgrenzen zijn onbekend."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:43
+#: src/Modules/Vct/Rules/RuleMessages.php:46
+msgid ""
+"Structured load planning does not apply at this age, so trainings for this "
+"age group are shaped by the coach rather than drafted."
+msgstr ""
+"Op deze leeftijd wordt de belasting niet in getallen gepland; trainingen "
+"voor deze leeftijdscategorie bouwt de trainer zelf op in plaats van dat ze "
+"worden opgesteld."
+
+#: src/Modules/Vct/Rules/RuleMessages.php:49
 msgid ""
 "This team's age group isn't recognised, so the engine can't pick suitable "
 "exercises."
@@ -43718,7 +43876,7 @@ msgstr ""
 "De leeftijdsgroep van dit team wordt niet herkend, dus er kunnen geen "
 "passende oefeningen worden gekozen."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:46
+#: src/Modules/Vct/Rules/RuleMessages.php:52
 msgid ""
 "No session blueprint exists for this age group and match-day context, so "
 "there is nothing to build the training from."
@@ -43726,7 +43884,7 @@ msgstr ""
 "Er is geen trainingsblauwdruk voor deze leeftijdsgroep en "
 "wedstrijddagcontext, dus er is niets om de training mee op te bouwen."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:49
+#: src/Modules/Vct/Rules/RuleMessages.php:55
 msgid ""
 "One block was more intense than this age group allows, so it was capped to "
 "the safe ceiling."
@@ -43735,7 +43893,7 @@ msgstr ""
 "afgetopt tot de veilige bovengrens."
 
 #. translators: %s is the exercise slot category
-#: src/Modules/Vct/Rules/RuleMessages.php:56
+#: src/Modules/Vct/Rules/RuleMessages.php:62
 #, php-format
 msgid ""
 "No suitable exercise was found for the \"%s\" slot at this age, theme, and "
@@ -43744,7 +43902,7 @@ msgstr ""
 "Er is geen passende oefening gevonden voor het slot \"%s\" bij deze "
 "leeftijd, dit thema en deze wedstrijddagcontext."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:60
+#: src/Modules/Vct/Rules/RuleMessages.php:66
 msgid ""
 "No suitable exercise was found for one of the slots at this age, theme, and "
 "match-day context."
@@ -43753,7 +43911,7 @@ msgstr ""
 "leeftijd, dit thema en deze wedstrijddagcontext."
 
 #. translators: %d is the recommended recovery hours
-#: src/Modules/Vct/Rules/RuleMessages.php:67
+#: src/Modules/Vct/Rules/RuleMessages.php:73
 #, php-format
 msgid ""
 "Some players trained hard less than %d hours ago and may not be fully "
@@ -43762,13 +43920,13 @@ msgstr ""
 "Sommige spelers hebben minder dan %d uur geleden zwaar getraind en zijn "
 "mogelijk nog niet volledig hersteld."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:71
+#: src/Modules/Vct/Rules/RuleMessages.php:77
 msgid "Some players trained hard recently and may not be fully recovered."
 msgstr ""
 "Sommige spelers hebben onlangs zwaar getraind en zijn mogelijk nog niet "
 "volledig hersteld."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:74
+#: src/Modules/Vct/Rules/RuleMessages.php:80
 msgid ""
 "This training adds a lot of load for the week — keep an eye on the team's "
 "total."
@@ -43777,7 +43935,7 @@ msgstr ""
 "van het team in de gaten."
 
 #. translators: %d is the age-safe maximum minutes
-#: src/Modules/Vct/Rules/RuleMessages.php:81
+#: src/Modules/Vct/Rules/RuleMessages.php:87
 #, php-format
 msgid ""
 "The duration was shortened to %d minutes, the safe maximum for this age "
@@ -43786,11 +43944,11 @@ msgstr ""
 "De duur is ingekort tot %d minuten, het veilige maximum voor deze "
 "leeftijdsgroep."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:85
+#: src/Modules/Vct/Rules/RuleMessages.php:91
 msgid "The duration was shortened to the safe maximum for this age group."
 msgstr "De duur is ingekort tot het veilige maximum voor deze leeftijdsgroep."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:88
+#: src/Modules/Vct/Rules/RuleMessages.php:94
 msgid ""
 "No season periodisation block applies here, so a neutral training load was "
 "used."
@@ -43799,7 +43957,7 @@ msgstr ""
 "trainingsbelasting gebruikt."
 
 #. translators: %d is the percentage the load was reduced by
-#: src/Modules/Vct/Rules/RuleMessages.php:95
+#: src/Modules/Vct/Rules/RuleMessages.php:101
 #, php-format
 msgid ""
 "The load was eased by %d%% because some players are flagged for a growth "
@@ -43808,14 +43966,14 @@ msgstr ""
 "De belasting is met %d%% verlaagd omdat sommige spelers gemarkeerd zijn voor "
 "een groeispurt (PHV)."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:99
+#: src/Modules/Vct/Rules/RuleMessages.php:105
 msgid ""
 "The load was eased because some players are flagged for a growth spurt (PHV)."
 msgstr ""
 "De belasting is verlaagd omdat sommige spelers gemarkeerd zijn voor een "
 "groeispurt (PHV)."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:103
+#: src/Modules/Vct/Rules/RuleMessages.php:109
 msgid ""
 "The engine flagged something about this training. Review the blocks before "
 "publishing."
@@ -43823,14 +43981,16 @@ msgstr ""
 "Er is iets gemarkeerd bij deze training. Controleer de blokken voordat je "
 "publiceert."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:118
+#: src/Modules/Vct/Rules/RuleMessages.php:124
 msgid ""
-"Open VCT configuration → Age profiles and set up this age group's limits."
+"Open VCT configuration → Age profiles and add this age group's limits. You "
+"need the VCT configuration permission, which the head of development holds."
 msgstr ""
-"Open VCT-configuratie → Leeftijdsprofielen en stel de grenzen voor deze "
-"leeftijdsgroep in."
+"Open VCT-configuratie → Leeftijdsprofielen en voeg de grenzen voor deze "
+"leeftijdscategorie toe. Daarvoor heb je het recht op VCT-configuratie nodig, "
+"dat bij de Hoofd Opleiding ligt."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:121
+#: src/Modules/Vct/Rules/RuleMessages.php:133
 msgid ""
 "Set this team's age group (for example U13) in its team settings, then try "
 "again."
@@ -43838,7 +43998,7 @@ msgstr ""
 "Stel de leeftijdsgroep van dit team (bijvoorbeeld U13) in bij de "
 "teaminstellingen en probeer het opnieuw."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:124
+#: src/Modules/Vct/Rules/RuleMessages.php:136
 msgid ""
 "Pick a different date so the match-day context changes, or ask an admin to "
 "add a session blueprint for this age group."
@@ -43846,11 +44006,45 @@ msgstr ""
 "Kies een andere datum zodat de wedstrijddagcontext verandert, of vraag een "
 "beheerder om een trainingsblauwdruk voor deze leeftijdsgroep toe te voegen."
 
-#: src/Modules/Vct/Rules/RuleMessages.php:127
+#: src/Modules/Vct/Rules/RuleMessages.php:139
 msgid ""
 "No action needed — the block was already capped to the safe ceiling for you."
 msgstr ""
 "Geen actie nodig — het blok is al voor je afgetopt tot de veilige bovengrens."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:66
+msgid "Pick an age group."
+msgstr "Kies een leeftijdscategorie."
+
+#. translators: %s is an age group, e.g. U15.
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:74
+#, php-format
+msgid "%s already has a profile. Edit that one instead."
+msgstr "%s heeft al een profiel. Pas dat profiel aan."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:97
+msgid "That age profile no longer exists."
+msgstr "Dat leeftijdsprofiel bestaat niet meer."
+
+#. translators: 1: number of teams, 2: age group, e.g. U13.
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:107
+#, php-format
+msgid ""
+"Cannot remove this profile: %1$d team is in %2$s and would lose automatic "
+"training drafts."
+msgid_plural ""
+"Cannot remove this profile: %1$d teams are in %2$s and would lose automatic "
+"training drafts."
+msgstr[0] ""
+"Dit profiel kan niet worden verwijderd: %1$d team zit in %2$s en zou geen "
+"conceptrainingen meer krijgen."
+msgstr[1] ""
+"Dit profiel kan niet worden verwijderd: %1$d teams zitten in %2$s en zouden "
+"geen conceptrainingen meer krijgen."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:120
+msgid "The age profile could not be removed."
+msgstr "Het leeftijdsprofiel kon niet worden verwijderd."
 
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:51
 msgid "A season must have between 1 and 12 macro-blocks."
@@ -44119,7 +44313,7 @@ msgstr "Zoek een gastspeler"
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:53
 #: src/Shared/Frontend/FrontendTrialCaseView.php:444
-#: src/Shared/Frontend/FrontendTrialsManageView.php:479
+#: src/Shared/Frontend/FrontendTrialsManageView.php:537
 msgid "Type a name to search…"
 msgstr "Typ een naam om te zoeken…"
 
@@ -48073,49 +48267,6 @@ msgstr "%d velden worden hersteld."
 #: src/Shared/Frontend/Components/SaveState.php:109
 msgid "Revert failed — nothing changed"
 msgstr "Terugdraaien mislukt — er is niets gewijzigd"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:386
-msgid "Mark as final"
-msgstr "Markeren als definitief"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:391
-msgid "Marked final. Anyone holding the share link can read it."
-msgstr "Definitief gemarkeerd. Iedereen met de deellink kan hem lezen."
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:229
-msgid "This analysis is not finished yet"
-msgstr "Deze analyse is nog niet af"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:231
-msgid ""
-"The coach is still writing it. The link stays valid — open it again once "
-"they have marked it final."
-msgstr ""
-"De trainer is er nog mee bezig. De link blijft geldig — open hem opnieuw "
-"zodra de analyse definitief is gemarkeerd."
-
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:262
-msgid ""
-"Someone else changed this analysis while you were writing. Reload the page "
-"to see their version."
-msgstr ""
-"Iemand anders heeft deze analyse gewijzigd terwijl jij aan het schrijven "
-"was. Herlaad de pagina om hun versie te zien."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:69
-msgid "Someone else changed this analysis. Reload the page to see their version."
-msgstr ""
-"Iemand anders heeft deze analyse gewijzigd. Herlaad de pagina om hun versie "
-"te zien."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:70
-msgid "Mark this analysis final? Anyone holding the share link can then read it."
-msgstr ""
-"Deze analyse definitief markeren? Iedereen met de deellink kan hem dan lezen."
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:71
-msgid "The analysis could not be marked final. Try again."
-msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
 
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
@@ -56169,10 +56320,10 @@ msgstr ""
 "verlengingen verwijderd en dit kan niet ongedaan worden gemaakt."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:348
-#: src/Shared/Frontend/FrontendTrialsManageView.php:325
-#: src/Shared/Frontend/FrontendTrialsManageView.php:391
-#: src/Shared/Frontend/FrontendTrialsManageView.php:410
-#: src/Shared/Frontend/FrontendTrialsManageView.php:462
+#: src/Shared/Frontend/FrontendTrialsManageView.php:383
+#: src/Shared/Frontend/FrontendTrialsManageView.php:449
+#: src/Shared/Frontend/FrontendTrialsManageView.php:468
+#: src/Shared/Frontend/FrontendTrialsManageView.php:520
 msgid "Track"
 msgstr "Traject"
 
@@ -56218,7 +56369,7 @@ msgid "Justification"
 msgstr "Motivatie"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:446
-#: src/Shared/Frontend/FrontendTrialsManageView.php:481
+#: src/Shared/Frontend/FrontendTrialsManageView.php:539
 msgid "Role label (optional)"
 msgstr "Rolomschrijving (optioneel)"
 
@@ -56585,8 +56736,8 @@ msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:75
 #: src/Shared/Frontend/FrontendTrialsManageView.php:80
 #: src/Shared/Frontend/FrontendTrialsManageView.php:83
-#: src/Shared/Frontend/FrontendTrialsManageView.php:256
-#: src/Shared/Frontend/FrontendTrialsManageView.php:496
+#: src/Shared/Frontend/FrontendTrialsManageView.php:314
+#: src/Shared/Frontend/FrontendTrialsManageView.php:554
 msgid "Add case"
 msgstr "Nieuw stagedossier"
 
@@ -56594,7 +56745,7 @@ msgstr "Nieuw stagedossier"
 msgid "You do not have permission to create trial cases."
 msgstr "Je hebt geen rechten om stagedossiers aan te maken."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:161
+#: src/Shared/Frontend/FrontendTrialsManageView.php:150
 msgid ""
 "Please pick a player (or fill in first name, last name and date of birth to "
 "create one), a track, and start/end dates."
@@ -56602,39 +56753,39 @@ msgstr ""
 "Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een "
 "aan te maken), een traject en start-/einddata."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:193
+#: src/Shared/Frontend/FrontendTrialsManageView.php:183
 msgid "Could not create the case. Please try again."
 msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:300
+#: src/Shared/Frontend/FrontendTrialsManageView.php:358
 msgid "Archived included"
 msgstr "Inclusief gearchiveerd"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:343
+#: src/Shared/Frontend/FrontendTrialsManageView.php:401
 msgid "Include archived"
 msgstr "Inclusief gearchiveerd"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:353
+#: src/Shared/Frontend/FrontendTrialsManageView.php:411
 msgid "No trial cases match those filters yet."
 msgstr "Nog geen stagedossiers die aan deze filters voldoen."
 
 #. translators: %d: number of assigned staff.
-#: src/Shared/Frontend/FrontendTrialsManageView.php:400
+#: src/Shared/Frontend/FrontendTrialsManageView.php:458
 #, php-format
 msgid "%d staff"
 msgid_plural "%d staff"
 msgstr[0] "%d staflid"
 msgstr[1] "%d stafleden"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:446
+#: src/Shared/Frontend/FrontendTrialsManageView.php:504
 msgid "Existing player"
 msgstr "Bestaande speler"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:451
+#: src/Shared/Frontend/FrontendTrialsManageView.php:509
 msgid "Or create a new player here"
 msgstr "Of maak hier een nieuwe speler aan"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:452
+#: src/Shared/Frontend/FrontendTrialsManageView.php:510
 msgid ""
 "Fill in at least first name, last name and date of birth. The new player "
 "record will be created with status \"trial\" before the case is opened."
@@ -56643,11 +56794,11 @@ msgstr ""
 "spelerrecord wordt aangemaakt met status \"trial\" voordat de case wordt "
 "geopend."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:472
+#: src/Shared/Frontend/FrontendTrialsManageView.php:530
 msgid "Initial staff (optional)"
 msgstr "Aanvankelijke staf (optioneel)"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:477
+#: src/Shared/Frontend/FrontendTrialsManageView.php:535
 #, php-format
 msgid "Staff slot %d"
 msgstr "Stafplek %d"
@@ -57651,6 +57802,9 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Save analysis"
+#~ msgstr "Analyse opslaan"
 
 #~ msgid "admin dashboard tile"
 #~ msgstr "beheer-dashboardtegel"

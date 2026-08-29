@@ -327,7 +327,31 @@ The `push: branches: [main]` triggers are unchanged. They are the post-merge net
 
 **So: a green column on a PR now means the suites actually ran.** Before this change it did not, and the difference was invisible from the PR page. If you are reading a PR opened before it landed, check the checks list for "PHPUnit (wp-env)" and "Playwright (Chromium)" by name rather than trusting the overall tick.
 
-The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rather than by testing — see #2417, which is the lever that makes this cheap.
+The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rather than by testing — which the next section is about.
+
+### Why wp-env startup is cached, and how to read the timings (#2417)
+
+`Start wp-env` was the single largest cost in CI — 95s of a 151s PHPUnit job, so 63% setup against 14% testing — and it is paid by both gating workflows.
+
+Most of it is not Docker. `.wp-env.json` sets `"core": "WordPress/WordPress"`, which tells wp-env to **git-clone the WordPress repository** rather than use the released image, and to keep the clone under `~/.wp-env/<hash>/WordPress` for reuse. On a developer's machine that reuse happens once and never again; on a CI runner the directory is cold on every single run, so the clone is paid every time. Both workflows now cache that source tree through `actions/cache`, which turns the clone into a restore.
+
+**The cached path is the `WordPress` subdirectory, not `~/.wp-env` itself.** That distinction was learned the expensive way: `~/.wp-env` also holds wp-env's own state, including the generated docker-compose project. Restoring the lot convinces wp-env the environment is already up while the containers and the database volume are not — startup looked 58s faster and the job then died on `Error establishing a database connection`. A fast start with no database is not a saving, and a startup step that returns quickly is not evidence on its own. Check the job went green before believing a timing.
+
+The cache key carries a hash of `.wp-env.json` **and** the run id, with `restore-keys` falling back to the most recent entry for the same config. That combination means an entry is reused but also rewritten on every run, so the cached WordPress ages out instead of pinning the suites to whatever trunk looked like on the day the cache was first written. Change `.wp-env.json` and the key changes with it.
+
+Both jobs set **`WP_ENV_HOME`** explicitly rather than relying on wp-env's default. That is not tidiness: the first version of this cache silently saved nothing at all, because `~/.wp-env` is only the default on some platforms and versions, and `actions/cache` reports a missing path as a warning rather than a failure. Naming the directory makes the cache path and the tool agree by construction, and survives a wp-env upgrade that moves the default again. If you ever see `Path Validation Error: Path(s) specified in the action for caching do(es) not exist` in a post-job step, this is that bug returning.
+
+Both workflows print timing markers so the cost stays visible rather than having to be reconstructed with a stopwatch. Grep a run's log for `TT_TIMING`:
+
+```
+TT_TIMING core_cache_hit=…        # was ~/.wp-env restored?
+TT_TIMING wp_env_dir_size=…       # how big the restored tree is
+TT_TIMING wp_env_start_seconds=…  # the whole of wp-env's startup
+```
+
+**Container image pull is about 28s of that, and pre-pulling does not help.** A step that pulled `wordpress`, `wordpress:cli` and `mariadb:lts` ahead of wp-env was tried and removed: it cost 28s and took nothing off wp-env's own 92s, because wp-env resolves and pulls its own tags regardless. Net effect +25s. That is worth knowing before anyone tries it again — it is the first candidate everybody reaches for.
+
+If `wp_env_start_seconds` climbs back toward 95s with `core_cache_hit=true`, the clone is no longer the dominant cost and the next candidate is wp-env starting a `dev` instance that the PHPUnit job never touches.
 
 ### Mandatory: a smoke test for every new REST endpoint
 
