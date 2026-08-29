@@ -1,0 +1,223 @@
+/*
+ * frontend-methodology-vocabulary.css (#2976)
+ *
+ * The one surface an academy maintains its own methodology on: a picker
+ * across nine vocabularies, a list, and an inline editor whose multilingual
+ * fields sit side by side.
+ *
+ * Mobile-first (CLAUDE.md §2): everything stacks at 360px; the row goes
+ * two-column at 480px and the NL/EN pair goes side by side at 768px, which
+ * is the first width where two text columns are readable. Every target
+ * clears 48px. Design tokens only, no raw hex.
+ */
+
+.tt-mv-intro {
+    margin: 0 0 var(--tt-sp-3, 16px);
+}
+
+/* The `classic`-shell picker. Only one of this and the RecordSpine tab
+   strip is ever on the page. */
+.tt-mv-picker {
+    list-style: none;
+    margin: 0 0 var(--tt-sp-3, 16px);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-1, 8px);
+}
+
+.tt-mv-picker-item a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-2, 12px);
+    border: 1px solid var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+    text-decoration: none;
+    color: var(--tt-ink, #1a2b32);
+    touch-action: manipulation;
+}
+
+.tt-mv-picker-item.is-active a {
+    border-color: var(--tt-primary, #1d7874);
+    font-weight: 600;
+}
+
+.tt-mv-picker-item a:active {
+    background: var(--tt-surface-2, #f2f5f6);
+}
+
+.tt-mv {
+    margin-top: var(--tt-sp-3, 16px);
+}
+
+.tt-mv-title {
+    font-size: 1.15rem;
+    margin: 0 0 var(--tt-sp-1, 8px);
+    color: var(--tt-ink, #1a2b32);
+}
+
+.tt-mv-blurb {
+    margin: 0 0 var(--tt-sp-3, 16px);
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mv-status {
+    margin: 0 0 var(--tt-sp-2, 12px);
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mv-listhead {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--tt-sp-2, 12px);
+}
+
+.tt-mv-empty {
+    margin: 0;
+    padding: var(--tt-sp-3, 16px);
+    border: 1px dashed var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mv-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 12px);
+}
+
+.tt-mv-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 12px);
+    align-items: center;
+    padding: var(--tt-sp-2, 12px);
+    border: 1px solid var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-mv-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.tt-mv-row-title {
+    font-weight: 600;
+    color: var(--tt-ink, #1a2b32);
+}
+
+.tt-mv-row-sub {
+    font-size: 0.85rem;
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mv-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-1, 8px);
+    align-items: center;
+}
+
+.tt-mv-row-actions .tt-btn {
+    min-height: 48px;
+}
+
+.tt-mv-shipped {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ── editor ─────────────────────────────────────────────────────── */
+
+.tt-mv-editor {
+    margin-top: var(--tt-sp-3, 16px);
+    padding: var(--tt-sp-3, 16px);
+    border: 1px solid var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface, #fff);
+}
+
+.tt-mv-form-title {
+    margin: 0 0 var(--tt-sp-2, 12px);
+    font-size: 1rem;
+    color: var(--tt-ink, #1a2b32);
+}
+
+.tt-mv-field {
+    margin-bottom: var(--tt-sp-3, 16px);
+}
+
+.tt-mv-field .tt-input {
+    width: 100%;
+    min-height: 48px;
+    /* 16px keeps iOS from zooming the page on focus. */
+    font-size: 1rem;
+}
+
+.tt-mv-field textarea.tt-input {
+    min-height: 96px;
+}
+
+.tt-mv-i18n {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 12px);
+}
+
+.tt-mv-i18n-locale {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted, #5b6e75);
+    margin-bottom: 4px;
+}
+
+.tt-mv-form-msg {
+    margin: var(--tt-sp-2, 12px) 0 0;
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mv-form-msg--error {
+    color: var(--tt-danger, #b3261e);
+}
+
+.tt-mv-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 12px);
+    margin-top: var(--tt-sp-3, 16px);
+}
+
+/* Cancel renders first in the DOM (least-committal first for the keyboard)
+   and sits left; Save takes the right, where a thumb finds the commit
+   action. Matches FormSaveButton's own arrangement. */
+.tt-mv-form-actions .tt-btn-primary {
+    order: 2;
+    margin-left: auto;
+}
+
+.tt-mv-form-actions .tt-btn {
+    min-height: 48px;
+}
+
+@media (min-width: 480px) {
+    .tt-mv-row {
+        grid-template-columns: 1fr auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-mv-i18n {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--tt-sp-3, 16px);
+    }
+}

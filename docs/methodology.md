@@ -3,7 +3,7 @@ title: Methodology
 group: performance
 summary: Football framework primer, principles, set pieces, positions, voetbalhandelingen.
 audience: [user, admin]
-views: [methodology]
+views: [methodology, methodology-vocabulary]
 module: TT\Modules\Methodology\MethodologyModule
 capability: tt_view_methodology
 order: 90
@@ -39,6 +39,20 @@ The **Periodisation** tab combines the methodology with the VCT conditioning cyc
 - the **intensity multiplier** — how hard the week is relative to a normal week.
 
 The tab is read-only. The weekly cycle itself — the macro-blocks and, per week, the theme — is authored on the VCT configuration tile (**Configuration → VCT → Macro-blocks**). If no club-default cycle exists yet for the current season, the tab shows a short prompt and (for admins) a link to set it up. The tab only appears while the VCT module is enabled; with VCT off there is no cycle to show.
+
+## Editing the methodology
+
+The Methodology tabs above are the **reading** surface. Editing your academy's own words happens on **Methodology vocabulary** (`?tt_view=methodology-vocabulary`), reachable from **Configuration → Methodology**. Everything an academy authors lives on that one screen, with a picker across the nine vocabularies:
+
+**Vision · Principles · Phases · Influence factors · Positions · Learning goals · Set pieces · Primer · Football actions**
+
+Pick one and you get its entries, with an inline form to add, edit or remove. Two of them — Vision and Primer — are single records for the whole academy, so they offer editing only.
+
+Every field that a coach reads is written **twice, once per language**, side by side: Dutch and English. Filling in only one is allowed and shows plainly which one you filled in, rather than leaving you to discover the gap in someone else's locale.
+
+**Positions** are the exception in shape: they belong to a formation, so you pick the formation first and then work through its shirt numbers.
+
+The screen needs the *edit methodology* permission — a narrower group than the coaches who read it. Everyone who can read the methodology sees the Methodology tile; only your methodology authors see this one.
 
 ## Two kinds of content
 
