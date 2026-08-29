@@ -32,6 +32,15 @@ class ProfileService {
     /** `tt_config` key holding the slug of the profile this install is on. */
     public const CONFIG_KEY = 'install_profile';
 
+    /**
+     * `tt_config` key holding the confirmation watermark (#3039): the rows
+     * the operator was last shown for this profile, and what the profile
+     * intended for each at that moment. It is what tells "the profile
+     * changed" apart from "the operator changed something", which
+     * divergence alone cannot.
+     */
+    public const SEEN_KEY = 'install_profile_seen';
+
     /** Row-id prefixes. A diff mixes both kinds, so ids must not collide. */
     private const ID_MODULE  = 'module:';
     private const ID_FEATURE = 'feature:';
@@ -148,7 +157,11 @@ class ProfileService {
 
         $excluded = array_flip( array_map( 'strval', $exclusions ) );
 
-        foreach ( self::diff( $slug ) as $row ) {
+        // Captured before anything is written: this is the set of rows the
+        // operator was shown, which is what the watermark has to record.
+        $shown = self::diff( $slug );
+
+        foreach ( $shown as $row ) {
             $entry = [
                 'kind'  => $row['kind'],
                 'id'    => $row['id'],
@@ -181,7 +194,119 @@ class ProfileService {
         // say which one, with the divergence alongside it.
         self::setCurrent( $slug );
 
+        // Every row the operator was shown joins the watermark, applied or
+        // excluded alike — "I have seen this and decided" is the fact
+        // #3039 needs, not "I agreed".
+        $seen = [];
+        foreach ( $shown as $row ) {
+            $seen[ $row['id'] ] = $row['to'];
+        }
+        self::writeWatermark( $slug, $seen );
+
         return $summary;
+    }
+
+    // ------------------------------------------------------------------
+    // Release-time drift (#3039)
+    // ------------------------------------------------------------------
+
+    /**
+     * Changes that came from the profile definition moving, not from an
+     * operator moving a switch.
+     *
+     * Divergence alone cannot tell the two apart: both look like "the
+     * install does not match the profile". The watermark is what
+     * separates them — it records, for every row the operator was last
+     * shown, the *intent* the profile had at that moment. So:
+     *
+     *   - a row absent from the watermark is new since the operator last
+     *     looked, which is a profile change (or a module that did not
+     *     exist yet);
+     *   - a row present with a **different** intent is the profile having
+     *     changed its mind about it — also a profile change;
+     *   - a row present with the **same** intent is one the operator has
+     *     already seen and left alone. Their divergence, not the
+     *     profile's.
+     *
+     * Returns nothing at all when the install is on no profile, or when
+     * the watermark was written for a different profile than the one the
+     * install is on now. A comparison against a watermark that does not
+     * describe this shape cannot be interpreted, and raising a notice out
+     * of data we cannot read is worse than staying quiet.
+     *
+     * @return list<array{kind:string, id:string, key:string, label:string, from:bool, to:bool, skipped_reason:?string}>
+     */
+    public static function pending(): array {
+        $slug = self::current();
+        if ( $slug === null ) return [];
+
+        $mark = self::watermark();
+        if ( $mark === null || $mark['profile'] !== $slug ) return [];
+
+        $out = [];
+        foreach ( self::diff( $slug ) as $row ) {
+            // A row the install cannot apply is not a change to review.
+            if ( $row['skipped_reason'] !== null ) continue;
+            if ( array_key_exists( $row['id'], $mark['rows'] )
+                && $mark['rows'][ $row['id'] ] === $row['to'] ) {
+                continue;
+            }
+            $out[] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * Mark pending rows as seen without applying them.
+     *
+     * Dismissing is a decision, and re-raising it on the next unrelated
+     * release would make the notice something an operator learns to
+     * ignore. The row joins the watermark carrying the profile's *current*
+     * intent, so a later release that changes its mind about the same row
+     * raises it again — which is the one case where nagging is right.
+     *
+     * @param list<string> $ids
+     */
+    public static function dismiss( array $ids ): void {
+        $slug = self::current();
+        if ( $slug === null || $ids === [] ) return;
+
+        $mark = self::watermark();
+        $rows = ( $mark !== null && $mark['profile'] === $slug ) ? $mark['rows'] : [];
+
+        $wanted = array_flip( array_map( 'strval', $ids ) );
+        foreach ( self::diff( $slug ) as $row ) {
+            if ( ! isset( $wanted[ $row['id'] ] ) ) continue;
+            $rows[ $row['id'] ] = $row['to'];
+        }
+
+        self::writeWatermark( $slug, $rows );
+    }
+
+    /**
+     * @return array{profile:string, rows:array<string,bool>}|null
+     */
+    private static function watermark(): ?array {
+        $raw = self::config()->get( self::SEEN_KEY, '' );
+        if ( $raw === '' ) return null;
+
+        $decoded = json_decode( $raw, true );
+        if ( ! is_array( $decoded ) ) return null;
+
+        $profile = (string) ( $decoded['profile'] ?? '' );
+        if ( $profile === '' ) return null;
+
+        $rows = [];
+        foreach ( (array) ( $decoded['rows'] ?? [] ) as $id => $to ) {
+            $rows[ (string) $id ] = (bool) $to;
+        }
+        return [ 'profile' => $profile, 'rows' => $rows ];
+    }
+
+    /** @param array<string,bool> $rows */
+    private static function writeWatermark( string $slug, array $rows ): void {
+        $json = wp_json_encode( [ 'profile' => $slug, 'rows' => $rows ] );
+        self::config()->set( self::SEEN_KEY, is_string( $json ) ? $json : '' );
     }
 
     /**

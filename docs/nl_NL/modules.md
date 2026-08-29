@@ -70,7 +70,22 @@ Alles in de eerste twee groepen staat aangevinkt. Vink uit wat je liever laat zo
 
 Een profiel dat niets zou wijzigen toont een korte "komt al overeen"-regel en geen knop Toepassen.
 
+### Als een release wijzigt wat je profiel omvat
+
+Een profiel is een levende koppeling, geen kopie die één keer is gemaakt. Elke nieuwe module komt standaard aan, dus zonder dit zou een academie die bewust op Basis is gezet stilletjes weer schermen verzamelen waar ze nooit om heeft gevraagd, release na release.
+
+Wijzigt een release dus wat je profiel omvat, dan meldt de strook op de Modulespagina dat — *"Basis omvat nu Trainingsplannen. Er is nog niets gewijzigd."* — met twee knoppen:
+
+- **Bekijken** opent het voorbeeldscherm met **alleen** die wijzigingen, waar je ze op dezelfde manier toepast als alle andere.
+- **Negeren** legt vast dat je ze hebt gezien en er niets mee wilt, en de melding stopt. Hij komt niet terug bij de volgende, niet-gerelateerde release. Verandert een latere release opnieuw van gedachten over hetzelfde, dan verschijnt hij wél weer — dat is een nieuwe beslissing, niet dezelfde nog eens.
+
+Er wordt nooit automatisch iets toegepast. Een release gebeurt zonder dat iemand meekijkt, en dat is precies het verkeerde moment om ongevraagd iets aan te zetten.
+
+De melding kan de twee soorten verschil uit elkaar houden: een module die **jij** hebt uitgezet is jouw beslissing en wordt nooit als profielwijziging gemeld, en een module die het **profiel** er nieuw bij neemt wordt nooit gemeld als iets wat jij hebt gedaan. Een installatie op Volledige academie, of zonder profiel, ziet helemaal geen melding.
+
 *Doelgroep: ontwikkelaars.* De profielen zelf staan in `config/profiles.php` en zijn niet tijdens gebruik te bewerken — veranderen wat Basis betekent is een release, om dezelfde reden als de abonnementskaart. Een profiel benoemt zijn modules volledig (elke klasse in `config/modules.php`, zodat een module die in een release bijkomt geplaatst moet worden in plaats van er door weglating aan te staan) en zijn functies alleen als afwijkingen (de catalogus bouwt de export- en rapportsleutels in lussen op, dus ze uitschrijven zou verouderen zodra er een rapport bijkomt). `TT\Shared\Modules\ProfileRegistry` leest het bestand; `TT\Shared\Modules\ProfileService` vergelijkt het met de live-status (`diff()`, `divergence()`) en past het toe (`apply()`) via `ModuleRegistry` en `FeatureRegistry`, zodat elke schrijfactie hetzelfde auditspoor krijgt als een handmatig omgezette schakelaar. `tools/check-module-toggles.php` laat de build falen wanneer een profiel iets benoemt dat niet oplost, een schakelbare module mist, of een altijd-aan module probeert uit te zetten.
+
+Driftdetectie hangt aan een **bevestigingsmarkering** die naast de profielslug in `tt_config` staat: voor elke rij die de operator als laatste te zien kreeg, de bedoeling die het profiel er op dat moment mee had. De afwijking alleen kan "de operator heeft dit uitgezet" niet scheiden van "het profiel heeft dit aangezet" — beide lezen als "de installatie komt niet overeen" — en alleen de markering kan dat wel. Een diff-rij die ontbreekt in de markering, of er met een andere bedoeling in staat, is een profielwijziging; een rij met dezelfde bedoeling is de eigen afwijking van de operator. `apply()` schrijft de markering vanuit de diff die is getoond (toegepaste én uitgesloten rijen — het vastgelegde feit is "gezien en besloten", niet "akkoord"); `dismiss()` voegt rijen toe met de huidige bedoeling van het profiel. Een markering die voor een ander profiel is geschreven dan waarop de installatie staat, wordt helemaal niet geïnterpreteerd en levert niets op. Detectie is een vergelijking bij het laden van de pagina — **geen cron, geen geplande taak**, en een test bewijst dat de profielschermen er geen registreren.
 
 ## Waarom een module uitschakelen?
 
