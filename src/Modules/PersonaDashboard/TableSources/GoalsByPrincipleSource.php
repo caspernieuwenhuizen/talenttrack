@@ -46,13 +46,25 @@ final class GoalsByPrincipleSource implements TableRowSource {
         // goals still surface (LEFT-JOIN NULL preservation); a WHERE
         // filter would convert the join to an inner join.
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        // #2566 — a goal reaches a principle through `tt_goal_links` now (many
+        // per goal), with the legacy single column still honoured for rows
+        // written before the move. The join condition carries both so a
+        // principle with zero goals still surfaces as a zero row.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pr.id, pr.code, pr.title_json,
-                    SUM(CASE WHEN g.status NOT IN ('completed','cancelled') THEN 1 ELSE 0 END) AS active,
-                    SUM(CASE WHEN g.status = 'completed' THEN 1 ELSE 0 END) AS completed
+                    COUNT(DISTINCT CASE WHEN g.status IS NULL OR g.status NOT IN ('completed','cancelled') THEN g.id END) AS active,
+                    COUNT(DISTINCT CASE WHEN g.status = 'completed' THEN g.id END) AS completed
                FROM {$p}tt_principles pr
-          LEFT JOIN {$p}tt_goals g ON g.linked_principle_id = pr.id AND g.club_id = pr.club_id {$scope}
+          LEFT JOIN {$p}tt_goals g
+                 ON g.club_id = pr.club_id
+                AND ( g.linked_principle_id = pr.id
+                      OR EXISTS ( SELECT 1 FROM {$p}tt_goal_links gl
+                                   WHERE gl.goal_id = g.id
+                                     AND gl.link_type = 'principle'
+                                     AND gl.link_id = pr.id
+                                     AND gl.club_id = g.club_id ) )
+                {$scope}
               WHERE pr.club_id = %d
               GROUP BY pr.id, pr.code, pr.title_json
               ORDER BY pr.code ASC",

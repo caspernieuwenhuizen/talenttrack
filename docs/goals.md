@@ -55,7 +55,13 @@ player's record.
 
 ## Methodology linkage
 
-Goals can now be linked to a methodology principle and/or a single football action from both the public goal form and the wp-admin form. The link is optional but unlocks per-principle reporting on the persona dashboard (the new Goals-by-principle widget shows active and completed goal counts per principle, and a Goals-tagged-to-principle KPI tracks rolling-90-day coverage).
+Every screen where a goal is written — the goal form, the quick-add box on the coach dashboard, the new-goal wizard and the wp-admin form — asks **What does this goal develop?** and offers the principles of the club's active methodology. Tick as many as apply: a goal can serve more than one principle, and forcing a single pick would make a coach choose arbitrarily.
+
+The picker is **optional**. A goal without a principle ("be a better team-mate") is still a good goal, and nothing blocks you from saving one. But tagging is what lets the rest of the system aim at the goal: training plans rank exercises by how many of a squad's open development targets they touch, and the per-principle reporting on the persona dashboard (the Goals-by-principle widget and the rolling-90-day Goals-tagged-to-principle KPI) counts only tagged goals.
+
+A goal can also be linked to a single football action, from the goal form and the wp-admin form.
+
+Goals written before the picker existed keep whatever single principle they carried; nothing is guessed or backfilled, so a thin coverage panel is telling you the truth about how many goals have been tagged so far. It fills up as goals are re-authored.
 
 ## Player-created goals with approval
 

@@ -56731,6 +56731,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "What does this goal develop?"
+msgstr "Wat ontwikkelt dit doel?"
+
+msgid "Pick the methodology principles this goal works on. Optional, but tagging it is what lets training plans and reports aim at this goal."
+msgstr "Kies de methodiekprincipes waar dit doel aan werkt. Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages zich op dit doel richten."
+
+msgid "Optional, but tagging it is what lets training plans and reports aim at this goal."
+msgstr "Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages zich op dit doel richten."
+
 #~ msgid "Data & vocabularies"
 #~ msgstr "Gegevens & vocabulaires"
 
@@ -58232,3 +58241,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+

@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\GoalPrinciplePicker;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
@@ -566,28 +567,13 @@ class FrontendGoalsManageView extends FrontendViewBase {
             endif; ?>
 
             <?php
-            // #0077 M3 — methodology linkage. Mirrors GoalsPage admin
-            // form lines ~149-202. Both selects are optional; defaults
-            // to the saved value on edit, or "— None —" on create.
-            if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) :
-                $principles    = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
-                $linked_pr_id  = (int) ( $goal->linked_principle_id ?? 0 );
-                if ( ! empty( $principles ) ) : ?>
-                <div class="tt-field">
-                    <label class="tt-field-label" for="tt-goal-principle"><?php esc_html_e( 'Linked principle', 'talenttrack' ); ?></label>
-                    <select id="tt-goal-principle" class="tt-input" name="linked_principle_id">
-                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $principles as $pr ) :
-                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
-                            ?>
-                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( $linked_pr_id, (int) $pr->id ); ?>>
-                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="tt-field-hint"><?php esc_html_e( 'Optional. Anchor this goal to a methodology principle.', 'talenttrack' ); ?></p>
-                </div>
-            <?php endif; endif; ?>
+            // #2566 — the principle picker. Was a single "— None — " select
+            // writing `tt_goals.linked_principle_id`, which was set on zero
+            // of 109 goals on a real install. It is now a prominent
+            // multi-select over the active methodology, writing the
+            // canonical `tt_goal_links` shape the Training generator reads.
+            echo GoalPrinciplePicker::render( [ 'goal_id' => $is_edit ? (int) $goal->id : 0 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes its own output.
+            ?>
 
             <?php
             if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\FootballActionsRepository' ) ) :
