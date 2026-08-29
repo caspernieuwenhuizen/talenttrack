@@ -11,6 +11,16 @@ use TT\Modules\Backup\BackupSettings;
  * Uses wp_mail() under the hood so it inherits whatever transport the
  * site has set up (often a transactional-email plugin in production).
  *
+ * #2604 — the second of two sanctioned `wp_mail()` callers outside the
+ * Comms email adapter, alongside `Auth\PasswordResetHandler`. This is a
+ * backup *destination*: the archive is the payload, the recipient is
+ * whoever the operator nominated to hold it, and nothing here is a
+ * message about a player. Routing it through Comms would let an
+ * academy-wide template switch, a quiet-hours window or a per-user
+ * opt-out silently drop a backup — a class of failure an operator would
+ * discover only when they needed the file. Comms is for human
+ * communication; this is infrastructure.
+ *
  * Size cap (~10MB attachment) — over that, we send a notice-only email
  * pointing the admin at the local copy and surface a flag in store()'s
  * StoreResult so the UI can show "stored locally only."

@@ -56596,6 +56596,201 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:28
+msgid "Trial input reminder"
+msgstr "Herinnering stage-input"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:35
+msgid "Trial input needed: {player_name}"
+msgstr "Stage-input gevraagd: {player_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:36
+msgid ""
+"Hi {recipient_first_name},\n"
+"\n"
+"The trial period for {player_name} runs to {end_date}, and your input on the "
+"case is still missing.\n"
+"\n"
+"Go to the case here: {case_url}\n"
+"\n"
+"Thanks,\n"
+"{club_name}"
+msgstr ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:39
+msgid "Stage-input gevraagd: {player_name}"
+msgstr "Stage-input gevraagd: {player_name}"
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:40
+msgid ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
+msgstr ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het "
+"dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:29
+msgid "Scheduled report delivery"
+msgstr "Levering gepland rapport"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:36
+msgid "Scheduled report: {schedule_name} ({kpi_label})"
+msgstr "Gepland rapport: {schedule_name} ({kpi_label})"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:37
+msgid ""
+"Your scheduled report \"{schedule_name}\" is attached.\n"
+"\n"
+"See the dashboard for the live view."
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:40
+msgid "Gepland rapport: {schedule_name} ({kpi_label})"
+msgstr "Gepland rapport: {schedule_name} ({kpi_label})"
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:41
+msgid ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+msgstr ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:27
+msgid "Player report for a scout"
+msgstr "Spelersrapport voor een scout"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:34
+msgid "{club_name} — Player report for {player_name}"
+msgstr "{club_name} — Spelersrapport van {player_name}"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:35
+msgid ""
+"Hello, you have been sent a confidential player report from {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"This link is valid until {expiry_date}. Do not forward."
+msgstr ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:38
+msgid "{club_name} — Spelersrapport van {player_name}"
+msgstr "{club_name} — Spelersrapport van {player_name}"
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:39
+msgid ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+msgstr ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:26
+msgid "Desktop link you asked for"
+msgstr "Desktoplink die je hebt aangevraagd"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:33
+msgid "Your {site_name} desktop link"
+msgstr "Je desktoplink voor {site_name}"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:34
+msgid ""
+"You asked us to email you the link to a desktop-only TalentTrack page.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open this on a laptop or computer."
+msgstr ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:37
+msgid "Je desktoplink voor {site_name}"
+msgstr "Je desktoplink voor {site_name}"
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:38
+msgid ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+msgstr ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te "
+"mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+
+#: src/Modules/Comms/Templates/DirectMessageTemplate.php:31
+msgid "Email written by a staff member"
+msgstr "E-mail geschreven door een medewerker"
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:375
+msgid "No reminders were due."
+msgstr "Er stonden geen herinneringen open."
+
+#: src/Shared/Frontend/FrontendMailComposeView.php:117
+msgid ""
+"The message was not sent. The attempt is in the message log; the line below "
+"says why."
+msgstr ""
+"Het bericht is niet verzonden. De poging staat in het berichtenlogboek; "
+"hieronder staat waarom."
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 

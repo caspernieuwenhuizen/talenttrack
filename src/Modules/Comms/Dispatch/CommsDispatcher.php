@@ -39,6 +39,9 @@ use TT\Modules\Comms\Domain\Recipient;
  *     - `urgent` (bool)
  *     - `attached_export_id` (int|null)
  *     - `locale_override` (string|null)
+ *     - `attachments` (string[]) — absolute paths to files already
+ *       written by the caller; adapters that cannot carry a file
+ *       ignore them.
  *
  * Returns are non-blocking — failures audit-log without throwing so
  * the caller's UX flow (e.g. activity-cancelled save) never depends
@@ -167,7 +170,8 @@ final class CommsDispatcher {
             isset( $options['force_channel'] ) ? (string) $options['force_channel'] : null,
             (bool) ( $options['urgent'] ?? false ),
             isset( $options['attached_export_id'] ) ? (int) $options['attached_export_id'] : null,
-            isset( $options['locale_override'] ) ? (string) $options['locale_override'] : null
+            isset( $options['locale_override'] ) ? (string) $options['locale_override'] : null,
+            isset( $options['attachments'] ) ? array_values( array_map( 'strval', (array) $options['attachments'] ) ) : []
         );
     }
 }
