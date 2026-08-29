@@ -24,6 +24,10 @@
  *   5. Every FeatureRegistry `module_class` resolves to a module that is
  *      actually declared. A feature pointing at a missing class gates
  *      nothing, silently.
+ *   6. Every install profile in `config/profiles.php` names only modules
+ *      and features that exist, names every switchable module, and never
+ *      tries to disable an always-on one. A typo in a profile would
+ *      otherwise be a row that silently does nothing at apply time.
  *
  * Assertion 3 is grandfathered: the surfaces that predate this gate are
  * listed as `grandfathered` in the manifest. A slug added afterwards has
@@ -238,6 +242,63 @@ foreach ( $features as $key => $entry ) {
 }
 
 // ---------------------------------------------------------------
+// 6. Install profiles resolve, and are complete (#3035)
+// ---------------------------------------------------------------
+//
+// A profile is a complete statement about modules and a partial one about
+// features, so the two halves are checked differently: every switchable
+// module must be named, while only the features a profile actually
+// overrides appear. Both halves must resolve.
+
+$profiles_file = $root . '/config/profiles.php';
+/** @var array<string, array<string, mixed>> $profiles */
+$profiles = is_file( $profiles_file ) ? (array) require $profiles_file : [];
+
+$switchable = array_values( array_diff( $declared_classes, $always_on ) );
+
+foreach ( $profiles as $slug => $profile ) {
+    $slug = (string) $slug;
+
+    if ( ! is_array( $profile ) ) {
+        $errors[] = "Install profile `{$slug}` is not an array.";
+        continue;
+    }
+    foreach ( [ 'label', 'description' ] as $field ) {
+        if ( (string) ( $profile[ $field ] ?? '' ) !== '' ) continue;
+        $errors[] = "Install profile `{$slug}` has no {$field} — the Setup wizard and the Modules page both read it from here rather than hardcoding copy.";
+    }
+
+    /** @var array<string, mixed> $profile_modules */
+    $profile_modules = (array) ( $profile['modules'] ?? [] );
+    $named = [];
+    foreach ( $profile_modules as $class => $enabled ) {
+        $class   = ltrim( (string) $class, '\\' );
+        $named[] = $class;
+
+        if ( ! in_array( $class, $declared_classes, true ) ) {
+            $errors[] = "Install profile `{$slug}` names module `{$class}`, which is not declared in config/modules.php — applying the profile would silently skip it.";
+            continue;
+        }
+        if ( in_array( $class, $always_on, true ) && ! $enabled ) {
+            $errors[] = "Install profile `{$slug}` sets always-on module `{$class}` to false. It can never be disabled, so the profile would promise a change it cannot make.";
+        }
+    }
+
+    foreach ( $switchable as $class ) {
+        if ( in_array( $class, $named, true ) ) continue;
+        $errors[] = "Install profile `{$slug}` does not name module `{$class}`. A profile's module map is complete by contract, so a module added in a release has to be placed in every profile rather than arriving switched on by omission.";
+    }
+
+    /** @var array<string, mixed> $profile_features */
+    $profile_features = (array) ( $profile['features'] ?? [] );
+    foreach ( array_keys( $profile_features ) as $key ) {
+        $key = (string) $key;
+        if ( isset( $features[ $key ] ) ) continue;
+        $errors[] = "Install profile `{$slug}` overrides feature `{$key}`, which is not in the FeatureRegistry catalog — the override does nothing.";
+    }
+}
+
+// ---------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------
 
@@ -255,12 +316,13 @@ if ( $errors !== [] ) {
 }
 
 printf(
-    "check-module-toggles OK — %d modules (%d always-on), %d features, %d tile surfaces, %d always-on surfaces.\n",
+    "check-module-toggles OK — %d modules (%d always-on), %d features, %d tile surfaces, %d always-on surfaces, %d install profiles.\n",
     count( $declared_classes ),
     count( $always_on ),
     count( $features ),
     count( $tile_slugs ),
-    count( $always_on_surfaces )
+    count( $always_on_surfaces ),
+    count( $profiles )
 );
 exit( 0 );
 

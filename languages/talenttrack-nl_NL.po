@@ -56698,6 +56698,24 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: config/profiles.php:59
+msgctxt "install profile name"
+msgid "Basics"
+msgstr "Basis"
+
+#: config/profiles.php:60
+msgid "The development loop: players, teams, evaluations, goals, measurements, the journey and the reports that read them back. Match day, training plans, integrations and the developer surfaces stay off until you ask for them."
+msgstr "De ontwikkelcyclus: spelers, teams, evaluaties, doelen, metingen, de reis en de rapportages die dat alles teruglezen. Wedstrijddag, trainingsplannen, koppelingen en de ontwikkelaarsschermen blijven uit tot je erom vraagt."
+
+#: config/profiles.php:193
+msgctxt "install profile name"
+msgid "Full academy"
+msgstr "Volledige academie"
+
+#: config/profiles.php:194
+msgid "Everything the plugin ships: match day, training plans, the knowledge library, the integrations and the developer surfaces alongside the development loop. What an install gets when no profile is chosen."
+msgstr "Alles wat de plug-in meelevert: wedstrijddag, trainingsplannen, de kennisbibliotheek, de koppelingen en de ontwikkelaarsschermen naast de ontwikkelcyclus. Wat een installatie krijgt als er geen profiel is gekozen."
+
 #, php-format
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
