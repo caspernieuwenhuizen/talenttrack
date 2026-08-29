@@ -58537,9 +58537,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:700
-msgid "Messages sent"
-msgstr "Verstuurde berichten"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
 msgid ""
 "Sign off this conversation? It becomes read-only for everyone — open a new "
