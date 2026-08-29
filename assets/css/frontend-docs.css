@@ -107,3 +107,98 @@
     color: var(--tt-muted, #6a6d66);
     font-size: var(--tt-fs-sm, 0.85rem);
 }
+
+/* ── the topic body itself (#2663) ─────────────────────────────────────
+ *
+ * The renderer used to emit inline `style="…"` attributes carrying
+ * hardcoded wp-admin greys. Those never survived the frontend help reader's
+ * club colour scheme, and they are exactly what the inline-style gate
+ * (#1389) exists to stop. The values below are the ones the topics used to
+ * carry, kept as the fallbacks so wp-admin looks unchanged, with the token
+ * in front so the frontend reader picks up the club's palette.
+ *
+ * This sheet loads on both surfaces — the wp-admin Help & Docs page and the
+ * dashboard (full page and drawer) — so one set of rules covers both. */
+
+.tt-doc-h1,
+.tt-doc-h2,
+.tt-doc-h3 {
+    margin: 18px 0 8px;
+    color: var(--tt-ink, #1a1d21);
+    line-height: 1.25;
+}
+
+.tt-doc-list {
+    margin: 8px 0 8px 24px;
+    padding-left: 0;
+}
+
+.tt-doc-list li {
+    margin-bottom: 4px;
+}
+
+.tt-doc-quote {
+    margin: 10px 0;
+    padding: 8px 14px;
+    border-left: 3px solid var(--tt-primary, #2271b1);
+    background: var(--tt-bg-soft, #f6fafe);
+    color: var(--tt-muted, #555);
+}
+
+.tt-doc-inline-code,
+.tt-doc-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.tt-doc-inline-code {
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--tt-bg-soft, #f0f0f1);
+    font-size: 0.92em;
+}
+
+.tt-doc-code {
+    padding: 10px 14px;
+    border-left: 3px solid var(--tt-line, #dcdcde);
+    background: var(--tt-bg-soft, #f6f7f7);
+    overflow-x: auto;
+}
+
+/* Topics gained pipe tables with the shared renderer. A wide table scrolls
+   inside its own box; the page body never scrolls sideways (CLAUDE.md §2). */
+.tt-doc-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #dcdcde);
+    border-radius: var(--tt-radius, 4px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-doc-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 32rem;
+    font-size: 0.92em;
+}
+
+.tt-doc-table th,
+.tt-doc-table td {
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--tt-line-soft, #f0f0f1);
+}
+
+.tt-doc-table thead th {
+    border-bottom: 1px solid var(--tt-line, #dcdcde);
+    white-space: nowrap;
+}
+
+.tt-doc-table tbody th {
+    font-weight: 600;
+}
+
+.tt-doc-table tbody tr:last-child th,
+.tt-doc-table tbody tr:last-child td {
+    border-bottom: 0;
+}
