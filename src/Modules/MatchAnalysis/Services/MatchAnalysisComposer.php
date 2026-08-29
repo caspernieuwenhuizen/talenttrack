@@ -119,8 +119,10 @@ final class MatchAnalysisComposer {
             // #3007 — the version token an autosaving surface sends back as
             // `base_updated_at`. Empty for an analysis that does not exist
             // yet, which is the signal that there is nothing to conflict
-            // with.
-            'updated_at'  => (string) ( $analysis->updated_at ?? '' ),
+            // with. Read through an array cast: the row is an untyped
+            // `object`, and naming a property on one is what the static
+            // analyser objects to.
+            'updated_at'  => (string) ( ( (array) $analysis )['updated_at'] ?? '' ),
             'summary'     => (string) ( $analysis->summary ?? '' ),
             'result'      => self::resultFor( $activity, $exec ),
             'sections'    => $this->sectionsFor( $analysis_id, $prep ),
