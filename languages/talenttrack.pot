@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-29T08:26:21+00:00\n"
+"POT-Creation-Date: 2026-08-29T08:42:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1632,7 +1632,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendHolidaysView.php:97
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:130
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2507
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2538
 #: src/Shared/Frontend/FrontendPlayersManageView.php:261
 #: src/Shared/Frontend/FrontendTeamDetailView.php:254
 #: src/Shared/Frontend/FrontendTeamsManageView.php:188
@@ -2380,7 +2380,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:89
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:746
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:73
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1683
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1714
 msgid "Evaluation"
 msgstr ""
 
@@ -2478,7 +2478,7 @@ msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:56
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:160
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2243
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2274
 msgid "Injury"
 msgstr ""
 
@@ -2667,7 +2667,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
-#: src/Infrastructure/REST/GoalsRestController.php:539
+#: src/Infrastructure/REST/GoalsRestController.php:542
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:259
 msgid "No fields to update."
@@ -3141,51 +3141,51 @@ msgstr ""
 msgid "This section has been kept private."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:412
+#: src/Infrastructure/REST/GoalsRestController.php:415
 msgid "Player and title are required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:436
+#: src/Infrastructure/REST/GoalsRestController.php:439
 #: src/Shared/Frontend/FrontendTrialsManageView.php:178
 msgid "Player not found in your club."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:440
+#: src/Infrastructure/REST/GoalsRestController.php:443
 msgid "You can only set goals for players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:450
+#: src/Infrastructure/REST/GoalsRestController.php:453
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:509
-#: src/Infrastructure/REST/GoalsRestController.php:583
-#: src/Infrastructure/REST/GoalsRestController.php:635
-#: src/Infrastructure/REST/GoalsRestController.php:649
-#: src/Infrastructure/REST/GoalsRestController.php:662
+#: src/Infrastructure/REST/GoalsRestController.php:512
+#: src/Infrastructure/REST/GoalsRestController.php:586
+#: src/Infrastructure/REST/GoalsRestController.php:638
+#: src/Infrastructure/REST/GoalsRestController.php:652
+#: src/Infrastructure/REST/GoalsRestController.php:665
 msgid "Invalid goal id."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:548
+#: src/Infrastructure/REST/GoalsRestController.php:551
 msgid "The goal could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:587
+#: src/Infrastructure/REST/GoalsRestController.php:590
 msgid "Status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:604
+#: src/Infrastructure/REST/GoalsRestController.php:607
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:615
+#: src/Infrastructure/REST/GoalsRestController.php:618
 msgid "Status update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:640
-#: src/Infrastructure/REST/GoalsRestController.php:653
-#: src/Infrastructure/REST/GoalsRestController.php:670
-#: src/Infrastructure/REST/GoalsRestController.php:678
+#: src/Infrastructure/REST/GoalsRestController.php:643
+#: src/Infrastructure/REST/GoalsRestController.php:656
+#: src/Infrastructure/REST/GoalsRestController.php:673
+#: src/Infrastructure/REST/GoalsRestController.php:681
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:627
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:641
 msgid "Goal not found."
@@ -3542,7 +3542,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:496
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1266
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2506
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2537
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendSpondView.php:217
 #: src/Shared/Frontend/FrontendTeamDetailView.php:614
@@ -4782,7 +4782,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:544
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:167
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:238
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2517
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2548
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:190
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:267
@@ -4932,7 +4932,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendModulesView.php:400
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2499
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2530
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
 #: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
@@ -6096,7 +6096,7 @@ msgid "Alert"
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2507
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2538
 msgid "Cleared"
 msgstr ""
 
@@ -6668,7 +6668,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:389
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:469
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1860
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1891
 msgid "Planned"
 msgstr ""
 
@@ -7259,7 +7259,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:172
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:734
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1968
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1999
 msgid "Open file"
 msgstr ""
 
@@ -8829,7 +8829,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:67
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:153
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2509
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2540
 msgid "Reason"
 msgstr ""
 
@@ -15179,7 +15179,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2225
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2256
 msgid "Injuries"
 msgstr ""
 
@@ -18580,7 +18580,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:59
 #: src/Shared/Frontend/FrontendGoalsManageView.php:156
 #: src/Shared/Frontend/FrontendGoalsManageView.php:630
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1568
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1578
 msgid "Add goal"
 msgstr ""
 
@@ -19798,8 +19798,8 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:57
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:145
 #: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2215
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2228
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2246
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2259
 msgid "Record injury"
 msgstr ""
 
@@ -19815,7 +19815,7 @@ msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:119
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:201
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2254
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2285
 msgid "Recovered"
 msgstr ""
 
@@ -19855,7 +19855,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
 #: src/Modules/Workflow/TaskStatus.php:67
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2260
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2291
 msgid "Overdue"
 msgstr ""
 
@@ -20017,7 +20017,7 @@ msgid "Unsure — flag for medical review"
 msgstr ""
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:62
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2492
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2523
 msgid "Notes (optional)"
 msgstr ""
 
@@ -20608,9 +20608,9 @@ msgstr ""
 #: src/Shared/Frontend/CoachForms.php:607
 #: src/Shared/Frontend/FrontendGoalsManageView.php:283
 #: src/Shared/Frontend/FrontendGoalsManageView.php:368
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2375
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2379
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2386
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2406
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2410
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2417
 msgid "Due"
 msgstr ""
 
@@ -28445,7 +28445,7 @@ msgstr ""
 #. translators: %s is a date.
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1354
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:61
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2251
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2282
 #, php-format
 msgid "Since %s"
 msgstr ""
@@ -37400,7 +37400,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2580
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2611
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1098
 msgid "Save failed: database error."
 msgstr ""
@@ -38296,7 +38296,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:58
 #: src/Shared/Frontend/FrontendEvaluationsView.php:61
 #: src/Shared/Frontend/FrontendEvaluationsView.php:118
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1660
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1691
 msgid "New evaluation"
 msgstr ""
 
@@ -40970,7 +40970,7 @@ msgid "No TalentTrack record needed. Fill in the basics; the guest is recorded a
 msgstr ""
 
 #: src/Shared/Frontend/Components/MediaGallery.php:97
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2184
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2215
 msgid "No photos or video yet"
 msgstr ""
 
@@ -43553,7 +43553,7 @@ msgid "Evaluations capture how each player performed in a training or match. Rec
 msgstr ""
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:239
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1631
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1662
 msgid "Record first evaluation"
 msgstr ""
 
@@ -43940,7 +43940,7 @@ msgid "That goal no longer exists."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:120
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1566
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1576
 msgid "Print doelenintake"
 msgstr ""
 
@@ -43990,7 +43990,7 @@ msgid "Goals capture what each player is working on this season. Set the first o
 msgstr ""
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:432
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1531
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1541
 msgid "Add first goal"
 msgstr ""
 
@@ -45683,7 +45683,7 @@ msgstr ""
 #. translators: %d: number of assists the player has been credited with
 #. translators: %d: number of assists the player made in this match
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:962
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1902
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1933
 #, php-format
 msgid "%d assist"
 msgid_plural "%d assists"
@@ -45787,314 +45787,324 @@ msgstr ""
 msgid "This player has no team yet — typical after a trial admission. Pick a team to place them on the roster."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1529
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1539
 msgid "No goals yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1530
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1540
 msgid "Goals capture what the player is working on this season — start with one."
 msgstr ""
 
 #. translators: %d: number of active goals
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1549
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1559
 #, php-format
 msgid "Active goals · %d"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1555
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1656
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1565
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1687
 #: src/Shared/Frontend/FrontendStandardReportsView.php:273
 #: src/Shared/Frontend/FrontendTeamDetailView.php:840
 msgid "Explorer →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1615
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1583
+msgid "No active goals — every goal on this player is finished."
+msgstr ""
+
+#. translators: %d: number of completed or cancelled goals
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1594
+#, php-format
+msgid "Completed goals · %d"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1646
 msgid "You do not have permission to view evaluations for this player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1629
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1660
 msgid "No evaluations yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1630
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1661
 msgid "Evaluations track how the player is developing across your rating categories. Record one after a training or match."
 msgstr ""
 
 #. translators: %d: number of recent evaluations
 #. translators: %d: number of recent activities
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1650
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1844
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1681
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1875
 #, php-format
 msgid "Recent · %d"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1714
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1745
 msgid "You do not have permission to view measurements for this player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1770
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1801
 msgid "BMI-for-age"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1809
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1821
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1840
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1852
 msgid "No attended activities yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1810
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1841
 msgid "Activities are recorded at the team level. Schedule one for the player's team and the player will appear in the roster."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1811
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1842
 msgid "Plan a team activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1822
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1853
 msgid "Activities are recorded at the team level. Assign this player to a team first; activities planned for that team will then surface here."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1847
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1878
 msgid "View all"
 msgstr ""
 
 #. translators: %d: number of goals the player scored in this match
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1891
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1922
 #, php-format
 msgid "%d goal scored"
 msgid_plural "%d goals scored"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1929
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1960
 msgid "You do not have permission to view PDP files for this player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1938
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1969
 msgid "No PDP cycle yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1939
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1970
 msgid "A Personal Development Plan documents what the player is focusing on, agreed with parents and the coach. Open one to start the cycle."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1940
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1971
 msgid "Start PDP cycle"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1966
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1997
 msgid "Active cycle"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1974
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2005
 msgid "PDP progress"
 msgstr ""
 
 #. translators: %s: date the PDP cycle was created
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1983
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2014
 #, php-format
 msgid "Created %s"
 msgstr ""
 
 #. translators: %d: number of past PDP cycles
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1996
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2027
 #, php-format
 msgid "Past cycles · %d"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2079
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2110
 msgid "You do not have permission to view trial cases for this player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2088
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2119
 msgid "No trial history for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2090
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2121
 msgid "A trial case tracks the prospect from first training through to the academy decision. Open one when you want to evaluate this player formally."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2091
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2122
 msgid "This player is not currently on trial, so there is no trial history to show."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2094
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2125
 msgid "Open trial case"
 msgstr ""
 
 #. translators: %d: number of trial cases
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2110
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2141
 #, php-format
 msgid "Trial cases · %d"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2185
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2216
 msgid "A clip of a moment in training says more about how a player is developing than a score does. Anything added here sits on their timeline under the day it was taken."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2192
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2223
 msgid "Injuries are not in your scope"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2193
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2224
 msgid "Injury records are medical data and stay with the coaching staff responsible for this player. Talk to your academy admin if you should have access."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2213
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2244
 msgid "No injuries recorded"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2214
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2245
 msgid "Recording an injury puts it on this player's journey, so a coach reading the file next season can see what they came back from."
 msgstr ""
 
 #. translators: %s is a date.
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2258
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2289
 #, php-format
 msgid "Expected back %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2263
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2294
 msgid "Return date not set"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2276
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2307
 msgid "Record return"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2297
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2328
 msgid "Date the player returned to play (yyyy-mm-dd):"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2298
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2329
 msgid "Could not save the return date. Try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2299
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2330
 msgid "Enter the date as yyyy-mm-dd."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2319
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2350
 msgid "Notes are staff-only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2320
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2351
 msgid "A running log of staff observations about this player. You don't have access — talk to your academy admin if you should."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2328
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2359
 msgid "Not in scope for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2329
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2360
 msgid "You have notes access in general, but not for this player's team. Talk to your academy admin if you should."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2336
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2367
 msgid "Staff notes"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2340
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2371
 msgid "A running log staff use to share observations about this player. Notes are visible to staff only — never to the player or their parents."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2420
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2451
 msgid "— Pick a reason —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2421
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2452
 msgid "Injury — knee"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2422
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2453
 msgid "Injury — ankle"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2423
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2454
 msgid "Asthma"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2424
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2455
 msgid "Cardiac condition"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2425
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2456
 msgid "Other medical reason"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2426
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2457
 msgid "Temporary fatigue"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2429
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2460
 msgid "1 — recovery only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2430
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2461
 msgid "2 — low"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2431
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2462
 msgid "3 — medium"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2432
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2463
 msgid "4 — high"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2446
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2477
 msgid "PHV — Physical / Health / Vitality"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2457
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2488
 msgid "Player has a PHV flag"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2459
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2490
 msgid "Automatically excluded from VCT blocks above the configured intensity ceiling."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2466
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2497
 msgid "Reason (short, for the coach)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2474
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2505
 msgid "Visible to staff on the coach view; not visible to other parents."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2480
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2511
 msgid "Intensity ceiling (max intensity band)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2483
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2514
 msgid "— None set —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2494
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2525
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2513
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2544
 msgid "Intensity ceiling"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2523
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2554
 msgid "Where the PHV flag appears:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2524
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2555
 msgid "Hero pill next to the name · VCT session wizard workload check · coach-view sideline banner · match prep per-player attention."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2552
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2583
 msgid "You do not have permission to edit PHV flags."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2556
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2587
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1075
 msgid "Save failed: session expired. Reload and try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2579
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2610
 msgid "PHV flag saved."
 msgstr ""
 
