@@ -16,10 +16,21 @@ order: 20
 A **team** is a squad at a specific age group (e.g. "U13 Blue", "U15 Red"). Each team has:
 
 - A name and optional age group label
+- A **football form** — how many a side it plays
 - A head coach (from your **People** roster)
 - Assigned players
 
 Create teams in the **Teams** admin page. The age group field matters because [category weights](eval-categories-weights.md) are defined per age group.
+
+### Football form
+
+Six-a-side, eight-a-side and eleven-a-side are different games, and TalentTrack needs to know which one a team plays — otherwise the [team blueprint](team-blueprint.md) offers a U9 squad a back four and a front three.
+
+The **Football form** field on the team is set to *Follow the age group* by default, and the form it lands on comes from **Configuration → Football form**. That covers almost every team, so you normally never touch it. Set it explicitly for the exception: a club that runs its U13 at 8v8, or an U12 already at 11v11.
+
+The form decides which formations that team's blueprint offers. A 6v6 team is shown six-player shapes and cannot be given an eleven-a-side one.
+
+TalentTrack ships with 6v6, 8v8 and 11v11. If your federation plays 4v4, 7v7 or 9v9, add them under **Configuration → Lookups → Football forms** and they become available everywhere, including in the age-category defaults.
 
 ### The Teams list (v4.40.0 — #1614)
 

@@ -1,0 +1,68 @@
+/*
+ * frontend-football-form.css (#3044)
+ *
+ * Configuration -> Football form sub-form: one row per age category with a
+ * select naming how many a side that category plays.
+ *
+ * Mobile-first (CLAUDE.md §2): the row stacks on the smallest viewport and
+ * switches to a two-column grid from 480px up. Every target clears 48px.
+ * Reads the shared design tokens (tokens.css); no raw hex.
+ */
+
+.tt-ff-intro {
+    margin: 0 0 var(--tt-sp-3, 16px);
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-ff-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 12px);
+}
+
+/* Column headings are redundant while each row is stacked and labelled. */
+.tt-ff-head {
+    display: none;
+}
+
+.tt-ff-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1, 8px);
+    align-items: center;
+    padding: var(--tt-sp-2, 12px);
+    border: 1px solid var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-ff-group {
+    font-weight: 600;
+    color: var(--tt-ink, #1a2b32);
+}
+
+.tt-ff-input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+.tt-ff-actions {
+    margin-top: var(--tt-sp-3, 16px);
+}
+
+@media (min-width: 480px) {
+    .tt-ff-head,
+    .tt-ff-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: var(--tt-sp-3, 16px);
+        align-items: center;
+    }
+
+    .tt-ff-head {
+        padding: 0 var(--tt-sp-2, 12px);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--tt-muted, #5b6e75);
+    }
+}

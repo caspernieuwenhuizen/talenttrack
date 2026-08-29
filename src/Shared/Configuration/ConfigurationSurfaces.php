@@ -272,6 +272,15 @@ final class ConfigurationSurfaces {
             'url'   => $sub( 'pdp-blocks' ),
             'icon'  => 'calendar',
         ] ];
+        // #3044 — how many a side each age category plays. A Teams setting:
+        // it pre-fills the team record's own football form, which is where a
+        // club that runs one team differently says so.
+        $out[] = [ 'TT\\Modules\\Teams\\TeamsModule', [
+            'title' => __( 'Football form', 'talenttrack' ),
+            'desc'  => __( 'How many a side each age category plays — 6v6, 8v8, 11v11. Pre-fills a new team and decides which formations its blueprint offers.', 'talenttrack' ),
+            'url'   => $sub( 'football-form' ),
+            'icon'  => 'teams',
+        ] ];
         // #1727 — central per-age-category default match minutes. Owned by
         // Activities rather than Match prep: it still governs the
         // match-completion minutes entry on an install with prep switched off.

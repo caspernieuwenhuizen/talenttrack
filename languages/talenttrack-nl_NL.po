@@ -56740,6 +56740,45 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Football form"
+msgstr "Speelvorm"
+
+msgid "Football forms"
+msgstr "Speelvormen"
+
+msgid "Follow the age group (%s)"
+msgstr "Volg de leeftijdscategorie (%s)"
+
+msgid "How many a side this team plays. It decides which formations the team blueprint offers."
+msgstr "Met hoeveel spelers dit team speelt. Bepaalt welke opstellingen de teamblauwdruk aanbiedt."
+
+msgid "How many a side does each age category play? A new team is pre-filled with its age category's form, and any team can be set differently on the team itself. The form decides which formations the team blueprint offers."
+msgstr "Met hoeveel spelers speelt elke leeftijdscategorie? Een nieuw team wordt vooringevuld met de speelvorm van zijn leeftijdscategorie, en elk team kan op het team zelf anders worden ingesteld. De speelvorm bepaalt welke opstellingen de teamblauwdruk aanbiedt."
+
+msgid "No football forms configured yet. Add them under Lookups, then come back to set a default per age category."
+msgstr "Nog geen speelvormen ingesteld. Voeg ze toe onder Lookuplijsten en kom daarna terug om per leeftijdscategorie een standaard te kiezen."
+
+msgid "No age categories configured yet. Add age groups first, then come back to set their football form."
+msgstr "Nog geen leeftijdscategorieën ingesteld. Voeg eerst leeftijdsgroepen toe en kom daarna terug om hun speelvorm te kiezen."
+
+msgid "Default football form per age category"
+msgstr "Standaard speelvorm per leeftijdscategorie"
+
+msgid "6v6, 8v8, 11v11 — how many a side a team plays. Add 4v4, 7v7 or 9v9 if your federation uses them."
+msgstr "6 tegen 6, 8 tegen 8, 11 tegen 11 — met hoeveel spelers een team speelt. Voeg 4 tegen 4, 7 tegen 7 of 9 tegen 9 toe als jouw bond die gebruikt."
+
+msgid "How many a side each age category plays — 6v6, 8v8, 11v11. Pre-fills a new team and decides which formations its blueprint offers."
+msgstr "Met hoeveel spelers elke leeftijdscategorie speelt — 6 tegen 6, 8 tegen 8, 11 tegen 11. Vult een nieuw team vooraf in en bepaalt welke opstellingen de blauwdruk aanbiedt."
+
+msgid "Grouped by football form. Pick one that matches how many a side the team plays."
+msgstr "Gegroepeerd op speelvorm. Kies er een die past bij met hoeveel spelers het team speelt."
+
+msgid "That formation is for %1$s and this team plays %2$s. Pick a formation from the team's own group."
+msgstr "Die opstelling is voor %1$s en dit team speelt %2$s. Kies een opstelling uit de groep van het team zelf."
+
+msgid "Every match in the tournament is played by this team, in the football form set on the team record."
+msgstr "Elke wedstrijd in het toernooi wordt door dit team gespeeld, in de speelvorm die op het team is ingesteld."
+
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
 
@@ -58253,3 +58292,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
