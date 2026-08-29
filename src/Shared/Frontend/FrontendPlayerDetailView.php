@@ -685,6 +685,29 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                             },
                             [ 'ctx' => [ 'player_id' => $player_id ] ]
                         );
+                        // #2606 (epic #2600) — "what has this family been
+                        // told?", asked from the player rather than from a
+                        // global log somebody then narrows (§1). Carries
+                        // `tt_back` so the message log renders the pill back
+                        // to this record. Gated through the registry, which
+                        // resolves to the log's own read capability.
+                        \TT\Shared\Frontend\Components\CrossViewLink::render(
+                            'messages',
+                            static function () use ( $player_id ): void {
+                                $messages_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                                    add_query_arg(
+                                        [ 'tt_view' => 'messages', 'player_id' => $player_id ],
+                                        RecordLink::dashboardUrl()
+                                    )
+                                );
+                                ?>
+                                <a class="tt-player-action" href="<?php echo esc_url( $messages_url ); ?>" role="menuitem">
+                                    <?php esc_html_e( 'Messages sent', 'talenttrack' ); ?>
+                                </a>
+                                <?php
+                            },
+                            [ 'ctx' => [ 'player_id' => $player_id ] ]
+                        );
                         ?>
                         <button type="button"
                                 class="tt-player-action tt-player-action--danger"

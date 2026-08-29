@@ -95,6 +95,38 @@ final class CommsLogRepository {
     }
 
     /**
+     * The players this club's log has ever carried a message about, with
+     * their names, ordered by name.
+     *
+     * A filter offering every player in the academy would be a long list
+     * of options that return nothing. This offers the ones a reader can
+     * actually find something under.
+     *
+     * @return array<int,string> player id => display name
+     */
+    public function playersInLog(): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT l.recipient_player_id AS id, pl.first_name, pl.last_name
+               FROM {$this->table} l
+               JOIN {$p}tt_players pl ON pl.id = l.recipient_player_id AND pl.club_id = l.club_id
+              WHERE l.club_id = %d AND l.recipient_player_id IS NOT NULL
+              ORDER BY pl.last_name ASC, pl.first_name ASC",
+            CurrentClub::id()
+        ), ARRAY_A );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $id = (int) ( $row['id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            $name = trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) );
+            $out[ $id ] = $name !== '' ? $name : '#' . $id;
+        }
+        return $out;
+    }
+
+    /**
      * @param array<string,mixed> $filters
      * @return array{0:string,1:array<int,mixed>}
      */

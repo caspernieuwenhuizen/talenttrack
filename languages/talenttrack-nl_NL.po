@@ -57728,6 +57728,211 @@ msgstr "Dit berichtsjabloon bestaat niet."
 msgid "Expected a list of message types."
 msgstr "Er werd een lijst met berichtsoorten verwacht."
 
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:47
+msgctxt "message send outcome"
+msgid "Queued"
+msgstr "In de wachtrij"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:48
+msgctxt "message send outcome"
+msgid "Sent"
+msgstr "Verzonden"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:49
+msgctxt "message send outcome"
+msgid "Delivered"
+msgstr "Afgeleverd"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:50
+msgctxt "message send outcome"
+msgid "Bounced"
+msgstr "Onbestelbaar"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:51
+msgctxt "message send outcome"
+msgid "Failed"
+msgstr "Mislukt"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:52
+msgctxt "message send outcome"
+msgid "Opted out"
+msgstr "Afgemeld"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:53
+msgctxt "message send outcome"
+msgid "Held until morning"
+msgstr "Wacht tot de ochtend"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:54
+msgctxt "message send outcome"
+msgid "Held — sending limit reached"
+msgstr "Vastgehouden — verzendlimiet bereikt"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:55
+msgctxt "message send outcome"
+msgid "Nobody to send to"
+msgstr "Geen ontvangers"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:56
+msgctxt "message send outcome"
+msgid "Template switched off"
+msgstr "Sjabloon staat uit"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:57
+msgctxt "message send outcome"
+msgid "Error while sending"
+msgstr "Fout bij het versturen"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:59
+msgctxt "message send outcome"
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:69
+msgid "Nobody on the player record had an address this channel could reach."
+msgstr "Niemand op het spelersdossier had een adres dat dit kanaal kon bereiken."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:73
+msgid "The recipient asked not to receive this kind of message."
+msgstr "De ontvanger heeft aangegeven dit soort bericht niet te willen."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:75
+msgid "It fell inside the quiet-hours window and was not urgent."
+msgstr "Het viel binnen de stiltetijden en was niet urgent."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:77
+msgid "This kind of message is switched off for the academy."
+msgstr "Dit soort bericht staat uit voor de academie."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:79
+msgid "One sender passed the hourly limit."
+msgstr "Eén afzender is over de limiet per uur gegaan."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:84
+msgid "The message could not be delivered. Check the address on the record."
+msgstr "Het bericht kon niet worden bezorgd. Controleer het adres op het dossier."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:104
+msgid "No email address on file"
+msgstr "Geen e-mailadres bekend"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:106
+msgid "No usable channel"
+msgstr "Geen bruikbaar kanaal"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:107
+msgid "Channel not configured"
+msgstr "Kanaal niet ingesteld"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:108
+msgid "Recipient has no account"
+msgstr "Ontvanger heeft geen account"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:109
+msgid "In-app inbox unavailable"
+msgstr "Inbox in de app niet beschikbaar"
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:78
+msgid "Message log"
+msgstr "Berichtenlogboek"
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:82
+msgid "You do not have permission to read the message log."
+msgstr "Je hebt geen rechten om het berichtenlogboek te lezen."
+
+#. translators: %s: the player's name
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:96
+#, php-format
+msgid "Messages about %s"
+msgstr "Berichten over %s"
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:154
+msgid "Some scheduled messages are not being worked out."
+msgstr "Sommige geplande berichten worden niet meer bepaald."
+
+#. translators: 1: date and time of the last run, 2: the error reported
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:163
+#, php-format
+msgid "last run %1$s, failed with: %2$s"
+msgstr "laatste keer gedraaid op %1$s, mislukt met: %2$s"
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:256
+msgid "No messages match these filters. If you expected one, nothing was attempted — which is a different problem from a message that failed to arrive."
+msgstr "Geen berichten die aan deze filters voldoen. Verwachtte je er een, dan is er niets geprobeerd — en dat is een ander probleem dan een bericht dat niet is aangekomen."
+
+#. translators: 1: first row index, 2: last row index, 3: total count
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:262
+#, php-format
+msgid "Showing %1$d–%2$d of %3$d messages."
+msgstr "%1$d–%2$d van %3$d berichten."
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:280
+msgid "Channel"
+msgstr "Kanaal"
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
+msgid "Nobody reachable"
+msgstr "Niemand bereikbaar"
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:65
+msgctxt "an in-app message that has been opened"
+msgid "Read"
+msgstr "Gelezen"
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:66
+msgid "That did not save. Try again."
+msgstr "Dat is niet opgeslagen. Probeer het opnieuw."
+
+#. translators: %d: number of unread messages
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:68
+#, php-format
+msgid "%d unread"
+msgstr "%d ongelezen"
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:69
+msgid "All read"
+msgstr "Alles gelezen"
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:78
+msgid "My messages"
+msgstr "Mijn berichten"
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:82
+msgid "You need to be signed in to read your messages."
+msgstr "Je moet ingelogd zijn om je berichten te lezen."
+
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:99
+msgid "You have no messages yet."
+msgstr "Je hebt nog geen berichten."
+
+#. translators: %d: number of unread messages
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:117
+#, php-format
+msgid "%d unread message"
+msgid_plural "%d unread messages"
+msgstr[0] "%d ongelezen bericht"
+msgstr[1] "%d ongelezen berichten"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php:71
+msgid "Back to Message log"
+msgstr "Terug naar Berichtenlogboek"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php:72
+msgid "Back to My messages"
+msgstr "Terug naar Mijn berichten"
+
+#: src/Shared/CoreSurfaceRegistration.php:1382
+msgid "Every message the academy sent, who received it and whether it arrived."
+msgstr "Elk bericht dat de academie heeft verstuurd, wie het kreeg en of het is aangekomen."
+
+#: src/Shared/CoreSurfaceRegistration.php:511
+msgid "Messages the academy sent you."
+msgstr "Berichten die de academie je heeft gestuurd."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:700
+msgid "Messages sent"
+msgstr "Verstuurde berichten"
+
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
 

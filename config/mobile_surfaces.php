@@ -64,7 +64,7 @@ if ( ! defined( 'ABSPATH' ) && PHP_SAPI !== 'cli' ) exit;
 
 return [
 
-    /* ---- native (31) -------------------------------------------------- */
+    /* ---- native (32) -------------------------------------------------- */
     'accept-invite'                 => [ 'native', 'A parent or player accepting an invitation, from an email, on a phone.' ],
     'activities'                    => [ 'native', 'Attendance is three trainings and a match every week, taken standing up with a ball under one arm. The most repeated action in the product.' ],
     'evaluations'                   => [ 'native', 'Submitting a periodic evaluation — head-coach action 9.' ],
@@ -80,6 +80,7 @@ return [
     'my-goals'                      => [ 'native', 'A player’s own goals, checked between sessions.' ],
     'my-journey'                    => [ 'native', 'One player, chronological, read-only. The most phone-shaped surface in the product.' ],
     'my-pdp'                        => [ 'native', 'A player’s own development plan.' ],
+    'my-messages'                   => [ 'native', 'A parent reading what the academy sent them. The phone is where that message was going to be read anyway.' ],
     'my-tasks'                      => [ 'native', 'The personal task list, cleared in dead time on a phone.' ],
     'my-team'                       => [ 'native', 'A player’s own squad.' ],
     'overview'                      => [ 'native', 'The player’s own profile. One player, read-mostly, and the people who open it are phone-first.' ],
@@ -97,7 +98,7 @@ return [
     'training-run'                  => [ 'native', 'The sideline view — running a training as it happens. Named as such in TrainingRunsRestController.' ],
     'wizard'                        => [ 'native', 'Every record-creation flow routes through this aggregator, and creation happens where the thing happened.' ],
 
-    /* ---- viewable (36) ------------------------------------------------ */
+    /* ---- viewable (37) ------------------------------------------------ */
     'alerts'                        => [ 'viewable', 'A queue, scannable one item at a time.' ],
     'attendance-leaderboard'        => [ 'viewable', 'A ranked table with nothing on it to edit — read_only would be a label with no behaviour behind it.' ],
     'docs'                          => [ 'viewable', 'Help topics. Long-form reading works on a phone.' ],
@@ -109,6 +110,7 @@ return [
     'ideas-refine'                  => [ 'viewable', 'Editing a submitted idea.' ],
     'courses'                       => [ 'viewable', 'The course library index.' ],
     'mail-compose'                  => [ 'viewable', 'Writing a message. Usable on a phone; not frequent enough to design for.' ],
+    'messages'                      => [ 'viewable', 'A filtered log, and normally a wide one — but "did the parents get told?" is asked pitch-side as often as at a desk, so the table stacks to one card per message rather than being gated away.' ],
     'match-analysis-share'          => [ 'viewable', 'A token-gated link, opened wherever the recipient is. Reading a document is not authoring it.' ],
     'match-prep-share'              => [ 'viewable', 'The same shape as match-analysis-share, and read on match day at the ground more often than at a desk (#2892).' ],
     'my-learning'                   => [ 'viewable', 'A coach’s own course progress.' ],

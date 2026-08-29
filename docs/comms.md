@@ -3,6 +3,7 @@ title: Messaging
 group: configuration
 summary: How the academy's outgoing messages work — templates, channels, quiet hours, opt-outs and the send log.
 audience: [user, admin]
+views: [messages, my-messages]
 order: 55
 ---
 
@@ -56,7 +57,15 @@ There is a second, coarser switch under Modules: **Scheduled messaging** turns o
 
 ## The send log
 
+**Configuration → Message log**, or from a player's record under **⋯ → Messages sent**.
+
 Every send attempt writes a row, whatever the outcome. The row records who sent it, who received it, which player it was about, which template and channel, the subject line, and the status.
+
+The screen filters by player, kind of message, outcome and date range. The player filter offers only players the log has actually carried a message about — a list of every player in the academy would mostly be options that return nothing.
+
+Outcomes are shown in words, not in database keys, and in three tones rather than two: delivered, deliberately withheld, and a problem. An opt-out the product honoured and an address that bounced are both "not delivered" and want opposite reactions, so they are not painted the same colour.
+
+If a scheduled detector has been failing, a warning sits above the table naming it and when it last ran. That is the only place that difference shows: a detector with nothing to send and a detector crashing every night both leave no rows behind.
 
 **The message body is never stored.** The log keeps a fingerprint of it so the record cannot be quietly altered, and nothing more. This is a deliberate limit: it means the log can tell you that a message about a child was sent, to whom, and whether it arrived — and cannot be used to read what a coach wrote about them.
 
@@ -64,7 +73,9 @@ Log rows are kept for **18 months** by default. After that a daily job blanks th
 
 ## The in-app inbox
 
-Messages sent on the in-app channel land in the recipient's own inbox rather than in their email. They carry an unread count, and opening one marks it read.
+**My messages**, under Me on your dashboard. The tile carries the unread count.
+
+Messages sent on the in-app channel land in the recipient's own inbox rather than in their email. Unread ones are marked, and **Mark as read** clears the marker without reloading the page.
 
 A person only ever sees their own inbox. A parent sees messages about their own child and never another family's — that is enforced by the query itself, not by a permission check that could be worked around.
 
@@ -80,9 +91,9 @@ Messages fall into three groups.
 
 ## When someone says they did not get it
 
-Work down the list:
+Work down the list — start on the player's record, open **⋯ → Messages sent**, and you are already filtered to them:
 
-1. **Find the message in the send log**, filtered to the player. If there is no row at all, nothing was attempted — the trigger did not fire, and that is a different problem from a delivery failure.
+1. **Find the message in the send log.** If there is no row at all, nothing was attempted — the trigger did not fire, and that is a different problem from a delivery failure.
 2. **Read the status.** Opted out, deferred, template disabled and no-address each say plainly what happened, and each has a different fix.
 3. **Check the address on the record.** "No address" means nobody on the player's record — parent or player — had a usable one for that channel.
 4. **Check the template switch** if the status says the template was disabled.
