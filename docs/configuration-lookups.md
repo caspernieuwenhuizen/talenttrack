@@ -98,7 +98,18 @@ Practical consequences:
 
 - New rows added via the admin grid: the Internal key field is required; type a lowercase ASCII string with no spaces (e.g. `match`, `training`, `in_progress`).
 - Existing rows: the Internal key field is read-only. To change it, a code migration is required so every `WHERE name = ...` reference across the codebase is updated atomically.
-- Dashboards never read `tt_lookups.name` directly. They go through `LookupTranslator::name($row)`, which resolves via `tt_translations` for the current locale, then the gettext domain, and only as the last-resort backstop returns the raw `name`.
+- Dashboards never read `tt_lookups.name` directly. They go through `LookupTranslator::name($row)`, which resolves via `tt_translations` for the current locale and otherwise returns the raw `name` as the backstop.
+
+### Why an unseeded lookup shows English
+
+There used to be a middle step: if no translation row existed, the label was handed to the plugin's translation catalogue as a plain phrase, and whatever matched was displayed. That step was removed, because a phrase written for the middle of a sentence carries its own meaning into a label slot. A player's preferred foot `Left` was displayed in Dutch as *Vertrokken* — "departed" — because that was the only place the word `Left` appeared in the catalogue. Quieter versions of the same fault put lowercase words and adjectives into status pills.
+
+So a lookup value with no translation row now shows its English key. That is deliberate: obviously untranslated English gets reported, while a real Dutch word meaning the wrong thing does not. Fix it in one of two ways:
+
+- **One club, one label** — edit the value in Configuration → the relevant lookup list and fill in the label per language.
+- **Every install** — the label belongs in the plugin's curated seed list and reaches the database through an update. Ask your developer; it is a small change.
+
+An automatic repair runs once when you update, correcting labels the old behaviour had already written incorrectly. It only replaces a value that is exactly what the catalogue would have produced — a label your club typed itself is never overwritten.
 
 ## Drift review tool
 

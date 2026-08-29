@@ -162,9 +162,17 @@
     // therefore undoable in one step. Role picks are not: they write on their
     // own endpoint through `send()`, which retires the offer rather than
     // letting Undo revert something older than the coach's last action.
+    //
+    // #3006 adds `storageKey`: the payload as this page load found it is
+    // snapshotted into `localStorage`, so "revert to how it was when I
+    // opened this" survives a reload and dies with the sitting. Role picks
+    // retire the offer for the same reason they retire undo — they write
+    // state the full payload cannot restore.
     var saver = TT.Autosave.create({
-        stateEl: $('[data-tt-save-state]'),
-        undoEl:  $('[data-tt-save-undo]'),
+        stateEl:  $('[data-tt-save-state]'),
+        undoEl:   $('[data-tt-save-undo]'),
+        revertEl: $('[data-tt-save-revert]'),
+        storageKey: 'match-prep:' + state.activityId,
         nonce:   cfg.rest_nonce || '',
         delay:   250,
         i18n:    (window.TT_Autosave && window.TT_Autosave.i18n) || {},

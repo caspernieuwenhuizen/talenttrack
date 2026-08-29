@@ -107,6 +107,10 @@ Each translatable entity has an ergonomic wrapper that consumes the resolver:
 
 Pass the entity_id when you have it. String-only callers continue to work via the gettext fallback.
 
+**Exception — `LookupTranslator` has no gettext step (#3082).** `name()` and `description()` resolve `tt_translations` and then return the canonical `tt_lookups` column. Handing a runtime value to `__()` asks the catalogue for whatever msgid happens to match that string, in whatever sense it was written: the `foot_option` row `Left` rendered as *Vertrokken* on Dutch installs because the only `msgid "Left"` belonged to the media-retention departure column (#3031). The quiet version of the same fault is case and part of speech — an adjective or a lowercase mid-sentence word landing in a label slot.
+
+The trade: an unseeded lookup renders its canonical English. Obviously untranslated English gets reported; a real Dutch word meaning the wrong thing does not. Curated labels belong in `LookupTranslationSeeds` and reach the database through a migration, which is the one place a label is reviewable from the source tree. Migration `0247` repairs rows the retired fallback's backfill (migration `0086`) had already written wrongly — it overwrites only a value that is character-for-character what a bare `__()` returns and is not the curated seed, so an academy's own label is untouched.
+
 ### Adding a locale
 
 Single line edit:

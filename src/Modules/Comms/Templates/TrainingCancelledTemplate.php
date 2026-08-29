@@ -12,9 +12,11 @@ use TT\Modules\Comms\Template\AbstractTemplate;
  * get a push + SMS fallback within 60s. `urgent=true` bypasses
  * quiet-hours per the operational-emergency exception in MessageType.
  *
- * Trigger: hook on `tt_activity_cancelled` (fires from the activities
- * module when `plan_state` flips to 'cancelled' — wires from the owning
- * module's first send).
+ * Trigger: `Send\TrainingCancelledSend` listens on `tt_activity_cancelled`,
+ * which `ActivitiesRepository` fires from both of its cancellation write
+ * paths (the detail view's Cancel button and an edit that sets the status
+ * to cancelled, whether from REST or wp-admin). The hook carries the
+ * activity id; the send resolves the planned roster and its families.
  *
  * Editable per club (top-5 per spec Q7 lean) — clubs personalise copy
  * to match their tone of voice.
@@ -23,7 +25,9 @@ use TT\Modules\Comms\Template\AbstractTemplate;
  */
 final class TrainingCancelledTemplate extends AbstractTemplate {
 
-    public function key(): string { return 'training_cancelled'; }
+    public const KEY = 'training_cancelled';
+
+    public function key(): string { return self::KEY; }
 
     public function label(): string { return __( 'Training cancelled', 'talenttrack' ); }
 

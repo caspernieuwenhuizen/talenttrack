@@ -62,6 +62,33 @@ These are how an academy meets its obligations to the children in it. Selling ch
 
 For the same reason, a club whose plan has lapsed keeps the dashboard, player cards, local backup and export. You can always read and take out your own data.
 
+## What a feature you are not on looks like
+
+Three answers, and they are deliberate. Together they are why a plan change never feels like something breaking.
+
+### It is locked, not hidden
+
+A feature your plan does not include still appears where it lives. Open it and you get a panel naming the feature, naming the plan it is on, and linking to the account page — not a missing menu item and not an error.
+
+Hiding it would be tidier and worse. A coach who cannot find match analysis has no way to tell whether the club never had it, whether it was switched off, or whether something is broken. Locked-and-visible answers that question on the spot, and it means the Plan tab's feature matrix matches what people actually see.
+
+### What you already recorded stays readable
+
+Dropping to a plan without a feature does not take away what that feature produced. Old match analyses, old training plans, old media stay readable and exportable exactly as they were. What stops is writing new ones — a save, an upload, a create button.
+
+So a club that moves from Pro to Standard loses capability, never history. Nothing is deleted, hidden, or held back, and nothing needs restoring if the club moves back.
+
+### "Not on your plan" and "not allowed" are different answers
+
+Two different refusals exist and they never share a sentence:
+
+| You see | What it means | What fixes it |
+| - | - | - |
+| A locked panel naming a plan | The install is not on that plan | Ask your operator about the plan |
+| A permission message | Your role does not have this, on any plan | Ask an academy admin about your permissions |
+
+An integration reading the API sees the same split: a plan refusal comes back as HTTP **402 Payment Required**, a permission refusal as **403 Forbidden**. If something fails and you cannot tell which happened, that is a bug worth reporting.
+
 ## Usage limits
 
 Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.

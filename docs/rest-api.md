@@ -212,6 +212,25 @@ Successful responses return `{ data: <payload>, ... }` via `RestResponse::succes
 
 Common codes: `bad_id`, `missing_fields`, `not_found`, `db_error`, `partial_save`, `invariant`.
 
+### Plan refusals are 402, permission refusals are 403 (#3104)
+
+Two different refusals exist and they never share a status:
+
+| Status | Code | Meaning |
+| - | - | - |
+| `403` | whatever the controller's `permission_callback` emits | The capability model said no. This user may not do this on any plan. |
+| `402` | `license_required` | The **plan** said no. This user may do it; the install is not entitled to the feature. `details` carries `feature` and `required_tier`. |
+| `402` | `license_cap_teams` / `license_cap_players` | A usage cap, not a feature. `details` carries `cap_type`. |
+
+Build both through `LicenseGate` rather than by hand — `enforceFeatureRest( $feature )` for a surface that locks whole, `enforceWriteRest( $feature, $request )` for one that keeps its reads. Both return `null` when allowed, so the caller pattern is:
+
+```php
+$blocked = LicenseGate::enforceWriteRest( 'match_analysis', $request );
+if ( $blocked ) return $blocked;
+```
+
+**A read of an existing record survives its feature leaving the plan.** A club that drops from Pro keeps `GET`-ing and exporting the records it wrote while it was on Pro; only `POST` / `PUT` / `PATCH` / `DELETE` are refused. That asymmetry lives in `enforceWriteRest()`, so a controller never re-derives it. Features with no stored records — the dimension explorer, the bulk-entry grids — have nothing to keep readable and use `enforceFeatureRest()` on every verb.
+
 ### Pagination + filters
 
 List endpoints follow the Sprint 2 contract used by `FrontendListTable`:

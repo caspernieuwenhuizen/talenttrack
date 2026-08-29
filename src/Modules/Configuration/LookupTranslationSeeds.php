@@ -109,6 +109,10 @@ final class LookupTranslationSeeds {
 
             'goal_status' => [
                 'Pending'     => [ 'nl_NL' => 'Wachtend',     'fr_FR' => 'En attente', 'de_DE' => 'Ausstehend',     'es_ES' => 'Pendiente' ],
+                // #3082 — seeded by migration 0058 for the player-self-create
+                // approval flow, never added here. It read English on every
+                // non-Dutch locale and leaned on gettext for Dutch.
+                'Pending Approval' => [ 'nl_NL' => 'Wacht op goedkeuring', 'fr_FR' => 'En attente d\'approbation', 'de_DE' => 'Wartet auf Genehmigung', 'es_ES' => 'Pendiente de aprobación' ],
                 'In Progress' => [ 'nl_NL' => 'Bezig',        'fr_FR' => 'En cours',   'de_DE' => 'In Bearbeitung', 'es_ES' => 'En curso' ],
                 'Completed'   => [ 'nl_NL' => 'Voltooid',     'fr_FR' => 'Terminé',    'de_DE' => 'Abgeschlossen',  'es_ES' => 'Completado' ],
                 'On Hold'     => [ 'nl_NL' => 'In de wacht',  'fr_FR' => 'Suspendu',   'de_DE' => 'Pausiert',       'es_ES' => 'En espera' ],
@@ -120,7 +124,12 @@ final class LookupTranslationSeeds {
 
             'goal_priority' => [
                 'Low'    => [ 'nl_NL' => 'Laag',   'fr_FR' => 'Faible',  'de_DE' => 'Niedrig', 'es_ES' => 'Baja' ],
-                'Medium' => [ 'nl_NL' => 'Middel', 'fr_FR' => 'Moyenne', 'de_DE' => 'Mittel',  'es_ES' => 'Media' ],
+                // #3082 — was 'Middel', which means "means / remedy / waist",
+                // not a middling priority. The gettext catalogue had this
+                // right all along (`msgstr "Gemiddeld"`); the curated seed
+                // was the wrong one, which is why the repair migration
+                // treats 'Middel' as a known-bad stored value too.
+                'Medium' => [ 'nl_NL' => 'Gemiddeld', 'fr_FR' => 'Moyenne', 'de_DE' => 'Mittel',  'es_ES' => 'Media' ],
                 'High'   => [ 'nl_NL' => 'Hoog',   'fr_FR' => 'Élevée',  'de_DE' => 'Hoch',    'es_ES' => 'Alta' ],
             ],
 
@@ -151,6 +160,15 @@ final class LookupTranslationSeeds {
                 'Transfer'           => [ 'nl_NL' => 'Transfer',           'fr_FR' => 'Transfert',               'de_DE' => 'Transfer',               'es_ES' => 'Traspaso' ],
                 'Loan'               => [ 'nl_NL' => 'Verhuur',            'fr_FR' => 'Prêt',                    'de_DE' => 'Leihe',                  'es_ES' => 'Cesión' ],
                 'Recall'             => [ 'nl_NL' => 'Terughalen',         'fr_FR' => 'Rappel',                  'de_DE' => 'Rückruf',                'es_ES' => 'Regreso' ],
+
+                // #3082 — the two observation types added after this map was
+                // written (migrations 0224 / 0230, epics #2493 and #2704).
+                // Keyed in snake_case because that is what `tt_lookups.name`
+                // actually holds for this vocabulary; the Title Case entries
+                // above match no live row at all, which is #3117's subject
+                // and deliberately not touched here.
+                'training_observed'  => [ 'nl_NL' => 'Waargenomen tijdens training', 'fr_FR' => "Observé à l'entraînement", 'de_DE' => 'Im Training beobachtet', 'es_ES' => 'Observado en entrenamiento' ],
+                'match_observed'     => [ 'nl_NL' => 'Waargenomen in een wedstrijd', 'fr_FR' => 'Observé en match',        'de_DE' => 'Im Spiel beobachtet',    'es_ES' => 'Observado en partido' ],
             ],
 
             'player_value' => [

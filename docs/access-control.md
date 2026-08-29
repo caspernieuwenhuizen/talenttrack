@@ -236,6 +236,24 @@ The advanced authorization pages — Authorization Matrix, Activate access contr
 
 A Club Admin editing from the frontend cannot change their own persona row, nor the entities that govern the permission model, the schema or the backups; those cells are locked and stay administrator-only. The wp-admin page is unchanged and remains the recovery path if a matrix edit hides the frontend. `docs/authorization-matrix.md` has the full table of who may do what.
 
+## What still needs the WordPress admin, and why
+
+Running an academy should not require a WordPress account. Almost everything an academy admin does — players, teams, permissions, seasons, modules, evaluation weights, the methodology vocabulary, the persona dashboards — has a frontend surface, and every trip into the WordPress admin is one accidental click away from the plugin, user and settings screens that the capability model does not describe.
+
+Twelve pages stay there deliberately. If you land on one, the page tells you why. The reasons come in four kinds, and the first one is the load-bearing one.
+
+**Recovery — it has to work when the app does not.** The permission matrix, the database-update screen and the error log all have frontend equivalents, and the WordPress-admin copies are kept anyway. They are the way back in when a permission change locks everyone out of the app, or a failed update stops it loading. That is exactly the moment you need them, and it is the moment the frontend cannot help. Removing a duplicate would look tidy right up until the day it mattered.
+
+**Diagnostics — asking a broken system to describe its own breakage.** Permission Chain Debug, Roles Debug, Compare Users and Matrix Preview all answer "why is this person seeing the wrong thing?" Putting them inside the app they are diagnosing would make their answer depend on the thing under investigation.
+
+**Setup and support.** The demo-data tools, the seed review and the welcome screen are one-off jobs during setup, done by someone who is already an operator. Impersonation lives here too, on purpose: viewing the app as somebody else is a support action, and keeping it outside the app makes it obvious when it is in use.
+
+**Developer instrumentation.** The module-completeness report is development tooling and is not academy work.
+
+The list itself lives in `config/admin_only_surfaces.php`, one line of operator-facing reasoning per page, and the same sentence is what the page shows you. Adding a page to it is a decision, not a formality: the question is never "is this hard to port?" but "would porting it make the product worse, or make recovery impossible when the frontend is broken?"
+
+Anything **not** on that list and not reachable from the app is a gap rather than a decision. `wp tt admin-routes --unrouted` lists them from a running install.
+
 ## Revoking a role assignment
 
 From **Access Control → Roles** (or the per-person edit panel) every assigned role has a **Revoke** action.

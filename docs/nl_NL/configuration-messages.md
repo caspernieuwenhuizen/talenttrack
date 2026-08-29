@@ -44,6 +44,18 @@ Twee e-mails blijven hier bewust buiten:
 - **Wachtwoord herstellen.** Een afmelding, stille uren of een uitgezette schakelaar zouden iemand buitensluiten uit het eigen account, zonder manier om een nieuwe link te vragen.
 - **Levering van back-ups.** Dat is een bestand naar degene die je back-ups bewaart, geen bericht over een persoon, en het mag nooit worden tegengehouden.
 
+## Accountmail staat niet op deze lijst
+
+De **uitnodigingsmail** — de mail met de link waarmee een ouder, speler of medewerker een wachtwoord instelt en voor het eerst inlogt — staat hier niet bij en heeft geen schakelaar.
+
+Het is geen bericht dat jouw academie kiest te versturen over een speler. Het is de manier waarop iemand überhaupt een account krijgt. Een schakelaar ervoor zou eruitzien als een keuze over berichten en werken als een storing in de aanmelding: wie hem uitvinkt legt het verband niet tussen "we hebben een bericht uitgezet" en "nieuwe ouders kunnen niet inloggen", omdat dat niet op hetzelfde lijkt.
+
+Daarom staat hij er niet — niet aangevinkt en op slot, maar helemaal afwezig. Hij gaat de deur uit omdat iemand een persoon heeft uitgenodigd, en dat is de enige voorwaarde. Verder verandert er niets aan: hij wordt nog steeds vastgelegd in het berichtenlogboek, de ontvanger wordt op dezelfde manier bepaald, en de eigen voorkeuren van een persoon blijven gelden waar dat wettelijk hoort.
+
+Had jouw academie de uitnodigingsmail eerder uitgevinkt, dan heeft die keuze geen effect meer en wordt hij opgeruimd zodra je deze pagina de volgende keer opslaat.
+
+Wachtwoord herstellen werkt om dezelfde reden zo, en heeft nooit op deze lijst gestaan.
+
 ## Wat dit niet is
 
 - **Het is geen afmelding.** Dit is de keuze van de academie, voor iedereen. De eigen voorkeuren van een gebruiker staan onder **Mijn instellingen → Berichten die je ontvangt**.
