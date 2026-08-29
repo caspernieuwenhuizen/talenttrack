@@ -273,8 +273,11 @@ class FeatureRegistry {
             // the ?tt_view=minutes-grid route. Gated by view-slug only; reuses
             // the activities entity + tt_edit_activities cap.
             'minutes_grid' => [
-                'label'           => __( 'Minutes grid', 'talenttrack' ),
-                'description'     => __( 'The desktop minutes-entry grid (players × matches) — a spreadsheet way to record and correct match minutes across a period. The per-match minutes editor stays available when this is off.', 'talenttrack' ),
+                // #3094 — the key stays `minutes_grid`; only the words a
+                // human reads change. Renaming the key would break every
+                // install's stored toggle to say the same thing.
+                'label'           => __( 'Minutes + statistics', 'talenttrack' ),
+                'description'     => __( 'The desktop entry grid (players × matches) — a spreadsheet way to record match minutes, goals and assists across a period, including for matches that were never run on the live match sheet. The per-match minutes editor stays available when this is off.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Activities\\ActivitiesModule',
                 'default_enabled' => true,
                 'view_slugs'      => [ 'minutes-grid' ],

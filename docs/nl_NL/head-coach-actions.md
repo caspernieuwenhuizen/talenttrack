@@ -78,7 +78,7 @@ gebeuren.
 ### Leg de uitslag en de minuten vast
 
 Vul na afloop de uitslag in en de minuten van elke speler. Gebruikte je het
-live-scherm niet, dan doet het [minutenraster](minutes-grid.md) een hele selectie
+live-scherm niet, dan doet het [raster Minuten + statistieken](minutes-grid.md) een hele selectie
 in één keer.
 
 Speelminuten zijn wat je in staat stelt om *"verdeel ik de speeltijd echt

@@ -122,7 +122,7 @@ Nothing new becomes reachable by being folded away: every action keeps the permi
 
 The menu opens on click, on Enter and on Space, closes on Escape or a click outside, and returns you to the ⋯ button when it closes. On a phone it spans the width of the header rather than hanging off the right edge.
 
-**The three grids and Sync from Spond are icons.** *Attendance grid*, *Minutes grid* and *Ratings grid* are shortcuts into the same bulk surface rather than three separate decisions, and re-pulling a Spond calendar is maintenance. In the header they would be four text buttons competing with Complete and Cancel; inside the menu they get their words back. Every one of them still names itself to a screen reader and on hover.
+**The three grids and Sync from Spond are icons.** *Attendance grid*, *Minutes + statistics* and *Ratings grid* are shortcuts into the same bulk surface rather than three separate decisions, and re-pulling a Spond calendar is maintenance. In the header they would be four text buttons competing with Complete and Cancel; inside the menu they get their words back. Every one of them still names itself to a screen reader and on hover.
 
 **Match analysis waits for completion.** *Write the match analysis* appears once you complete the activity, not when the date arrives — there is nothing to review while the match is still being played.
 

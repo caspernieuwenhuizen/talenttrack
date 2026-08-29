@@ -131,6 +131,8 @@ class Kernel {
         // breakdown over REST (same hardened MinutesQuery the reports use).
         \TT\Infrastructure\REST\MinutesRestController::init();
         \TT\Infrastructure\REST\GoalContributionsRestController::init();
+        // #3094 — which statistic columns the minutes grid shows, per user.
+        \TT\Infrastructure\REST\MinutesGridPreferencesRestController::init();
         // #2458 — cross-entity search behind the command palette, and
         // read-only record summaries behind the peek panel. Registered here
         // rather than from a module: both span players, teams and

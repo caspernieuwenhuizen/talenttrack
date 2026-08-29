@@ -217,6 +217,18 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
             ],
         ] );
+        // #3094 — goals and assists per player for one match, entered as
+        // counts. Resource-oriented per CLAUDE.md §4, and separate from
+        // `/minutes/bulk` on purpose: minutes go through the ownership
+        // arbiter and these do not, so folding them into one endpoint would
+        // mean one handler with two unrelated write rules in it.
+        register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/contributions', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'put_contributions' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
+            ],
+        ] );
     }
 
     public static function can_view( ?\WP_REST_Request $r = null ): bool {
@@ -591,6 +603,67 @@ class ActivitiesRestController {
         }
 
         return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped, 'failed' => $failed ] );
+    }
+
+    /**
+     * #3094 — PUT /activities/{id}/contributions. Body:
+     * `{ players: [ { player_id, goals, assists } ] }`.
+     *
+     * Counts in, events out. The reconciliation rules — insert manual rows,
+     * reverse rather than delete, attach an assist to a goal that has not got
+     * one — live in `MatchExecutionRepository::setContributions()`, not here:
+     * this is the transport, and a future front end calling it must get the
+     * same answers the grid does (CLAUDE.md §4).
+     *
+     * Scoped exactly like `/minutes/bulk`: the activity's team has to be one
+     * the caller may edit, and a player has to belong to it. Recording a goal
+     * for someone else's player is not a lesser mistake than recording their
+     * minutes.
+     *
+     * The scoreline is never written. A mismatch between attributed goals and
+     * `home_score` is information the grid shows in its footer, not an error
+     * to correct behind the coach's back.
+     */
+    public static function put_contributions( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        $players     = $r['players'] ?? null;
+
+        if ( $activity_id <= 0 || ! is_array( $players ) ) {
+            return RestResponse::error( 'bad_request', __( 'No contributions supplied.', 'talenttrack' ), 400 );
+        }
+
+        $repo = self::repo();
+        $team = $repo->activityTeamId( $activity_id );
+        if ( $team <= 0 ) {
+            return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
+        }
+
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
+        }
+
+        $exec    = new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository();
+        $saved   = 0;
+        $skipped = 0;
+
+        foreach ( $players as $row ) {
+            if ( ! is_array( $row ) ) { $skipped++; continue; }
+
+            $pid = absint( $row['player_id'] ?? 0 );
+            if ( $pid <= 0 || $repo->playerTeamId( $pid ) !== $team ) { $skipped++; continue; }
+
+            // Capped rather than refused: a coach who holds a key down should
+            // get a number, not an error dialog. 99 is far beyond any real
+            // youth match and still obviously a typo when it appears.
+            $goals   = min( 99, absint( $row['goals'] ?? 0 ) );
+            $assists = min( 99, absint( $row['assists'] ?? 0 ) );
+
+            $exec->setContributions( $activity_id, $pid, $goals, $assists );
+            $saved++;
+        }
+
+        return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped ] );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */

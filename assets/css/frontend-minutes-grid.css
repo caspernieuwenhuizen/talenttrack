@@ -35,3 +35,118 @@
   text-transform: uppercase;
   color: #e8b624;
 }
+
+/* ================================================================
+   Statistics sub-columns (#3094)
+   Min | G | A under every match. The separator line falls before the
+   minutes cell, so the eye groups each match's three boxes together
+   rather than reading eighteen undifferentiated columns.
+   ================================================================ */
+
+.tt-agrid__sub {
+  padding: 2px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--tt-ink-soft, #6a6d66);
+  text-align: center;
+}
+
+.tt-agrid-cell--sep,
+.tt-agrid__sub.tt-agrid-cell--sep {
+  border-left: 2px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-agrid-cell.tt-agrid-stat { padding: 3px; }
+
+/*
+ * Narrower than the minutes box: two digits is the whole range, and a box
+ * sized for its content is what keeps eighteen columns readable.
+ */
+.tt-agrid-stat-in {
+  width: 34px;
+  min-height: 40px;
+  text-align: center;
+  border: 1px solid var(--tt-line, #e3e6e1);
+  border-radius: 6px;
+  font-size: 15px;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-agrid-stat-in:focus-visible { outline: 2px solid #e8b624; outline-offset: -1px; }
+
+/* ---- the column switches ---------------------------------------- */
+
+.tt-agrid-statpick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tt-sp-2, 8px);
+  padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+  border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-agrid-statpick__label {
+  font-size: var(--tt-fs-sm, 0.85rem);
+  color: var(--tt-ink-soft, #6a6d66);
+}
+
+/*
+ * A real checkbox inside the label, not a styled div: the state is the
+ * input's, the keyboard works before any script loads, and the whole chip
+ * is the 48px target.
+ */
+.tt-agrid-statchip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tt-sp-1, 4px);
+  min-height: 48px;
+  padding: 0 var(--tt-sp-3, 12px);
+  border: 1px solid var(--tt-line, #e3e6e1);
+  border-radius: 999px;
+  background: var(--tt-paper, #fff);
+  font-size: var(--tt-fs-sm, 0.85rem);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tt-agrid-statchip:has( input:checked ) {
+  border-color: var(--tt-success, #2f9e5e);
+  background: var(--tt-success-subtle, #dff5e1);
+}
+
+.tt-agrid-statchip:focus-within {
+  outline: 2px solid var(--tt-info, #2d6fb3);
+  outline-offset: 2px;
+}
+
+/* ---- the reconciliation footer ---------------------------------- */
+
+/*
+ * "2/3" — attributed goals against the recorded scoreline. Information,
+ * never a validation gate: "we do not know who scored the third" is a true
+ * state of the world, and the grid's job is to show it rather than forbid
+ * it.
+ */
+.tt-agrid-recon {
+  background: var(--tt-bg-soft, #f4f6f3);
+  font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-agrid-recon__cell {
+  text-align: center;
+  color: var(--tt-ink-soft, #6a6d66);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shape as well as colour — the flag carries the meaning on its own. */
+.tt-agrid-recon__cell.is-mismatch {
+  color: var(--tt-warning, #e8902b);
+  font-weight: 700;
+}
+
+.tt-agrid-recon__flag {
+  font-weight: 800;
+}

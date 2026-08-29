@@ -218,13 +218,21 @@ final class GoalContributionQuery {
             $params[] = $player;
         }
 
+        // #3094 — joined on the goal's own `activity_id` rather than through
+        // its execution. The old INNER JOIN was what made a goal impossible
+        // to record without a live match sheet: no execution, no row in the
+        // result, and a club that does its admin on a Sunday evening had
+        // players whose output was permanently blank.
+        //
+        // A manual goal has no half and no minute, so both sort NULL. MySQL
+        // sorts NULL first ascending, which puts a remembered goal ahead of
+        // the observed ones within its own match — the honest order, since
+        // nobody knows when it happened.
         $sql = "SELECT ge.player_id, ge.assist_player_id, ge.is_own_goal, ge.team,
                        a.id AS activity_id, a.session_date, a.team_id
                   FROM {$p}tt_match_execution_goal_events ge
-            INNER JOIN {$p}tt_match_execution e
-                    ON e.id = ge.execution_id AND e.club_id = ge.club_id
             INNER JOIN {$p}tt_activities a
-                    ON a.id = e.activity_id AND a.club_id = e.club_id
+                    ON a.id = ge.activity_id AND a.club_id = ge.club_id
                  WHERE {$where}
               ORDER BY a.session_date ASC, ge.half ASC, ge.minute_in_half ASC, ge.id ASC";
 

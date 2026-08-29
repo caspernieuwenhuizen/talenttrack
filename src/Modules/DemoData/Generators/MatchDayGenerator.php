@@ -265,12 +265,20 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             'created_by'              => $author,
         ] );
 
+        // #3094 — one match in four has its output filled in afterwards
+        // rather than logged live. The goals are the same goals and the
+        // scoreline is the same scoreline; what they lack is a minute,
+        // because the coach typing them up on Sunday evening does not know
+        // it. Without this the demo academy would only ever show the live
+        // path, and the surface built for every other club would look empty.
+        $filled_in_later = mt_rand( 1, 4 ) === 1;
+
         // Our goals get a scorer from the XI; the opponent's don't.
         // #2856 — roughly half carry an assist and one in eight has no
         // scorer at all, so the demo academy shows the states a real match
         // produces: an attributed goal, a goal nobody could attribute, and
         // the "needs a scorer" prompt the review raises for the latter.
-        for ( $i = 0; $i < $home_goals; $i++ ) {
+        for ( $i = 0; $i < ( $filled_in_later ? 0 : $home_goals ); $i++ ) {
             $unattributed = mt_rand( 1, 8 ) === 1;
             $scorer = $unattributed ? 0 : (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
 
@@ -296,7 +304,18 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         for ( $i = 0; $i < $away_goals; $i++ ) {
             $exec_repo->logGoalEvent( $execution_id, self::uuid(), 0, mt_rand( 1, 2 ), mt_rand( 1, self::HALF_LENGTH ), 'away' );
         }
-        $this->tagRowsFor( 'match_goal_event', 'tt_match_execution_goal_events', 'execution_id', $execution_id );
+
+        // The other three matches in four logged their goals live above; this
+        // one records the same goals as counts, which is what a coach doing
+        // the admin afterwards actually enters. Same scoreline, no minutes.
+        if ( $filled_in_later ) {
+            $this->recordContributionsAfterTheFact( $exec_repo, $activity_id, $starting, $home_goals );
+        }
+
+        // Tagged by activity rather than execution since #3094: a manually
+        // recorded goal has no execution_id, and an untagged demo row is a
+        // permanent orphan on an operator's install.
+        $this->tagRowsFor( 'match_goal_event', 'tt_match_execution_goal_events', 'activity_id', $activity_id );
         $total += $home_goals + $away_goals;
 
         // Substitutions: each bench player replaces a distinct starter, so a
@@ -475,6 +494,55 @@ class MatchDayGenerator implements DependentGeneratorInterface {
      * Tag every untagged row a repository just wrote for one parent, so rows
      * the domain layer inserted are still reachable by the wipe.
      */
+    /**
+     * #3094 — a match whose output was typed up afterwards.
+     *
+     * Distributes the same number of goals across the XI as counts and
+     * writes them through the reconciliation path a coach's Save uses, so
+     * the demo exercises the real writer rather than a fixture that only
+     * looks like its output. Roughly half the goals carry an assist, as on
+     * the live path.
+     *
+     * The result reconciles: attributed goals equal `home_score`, so the
+     * grid's footer reads `3/3` rather than flagging a mismatch the demo
+     * never intended to show.
+     *
+     * @param list<int> $starting
+     */
+    private function recordContributionsAfterTheFact(
+        \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository $exec_repo,
+        int $activity_id,
+        array $starting,
+        int $home_goals
+    ): void {
+        if ( $activity_id <= 0 || $home_goals <= 0 || count( $starting ) < 2 ) return;
+
+        $goals   = [];
+        $assists = [];
+
+        for ( $i = 0; $i < $home_goals; $i++ ) {
+            $scorer = (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
+            $goals[ $scorer ] = ( $goals[ $scorer ] ?? 0 ) + 1;
+
+            if ( mt_rand( 0, 1 ) !== 1 ) continue;
+
+            do {
+                $candidate = (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
+            } while ( $candidate === $scorer );
+
+            $assists[ $candidate ] = ( $assists[ $candidate ] ?? 0 ) + 1;
+        }
+
+        foreach ( array_unique( array_merge( array_keys( $goals ), array_keys( $assists ) ) ) as $player_id ) {
+            $exec_repo->setContributions(
+                $activity_id,
+                (int) $player_id,
+                (int) ( $goals[ $player_id ] ?? 0 ),
+                (int) ( $assists[ $player_id ] ?? 0 )
+            );
+        }
+    }
+
     private function tagRowsFor( string $entity_type, string $table, string $parent_column, int $parent_id ): void {
         global $wpdb;
 
