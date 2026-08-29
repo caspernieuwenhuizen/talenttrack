@@ -38,8 +38,8 @@ opslaanknop staat een statusregel die vertelt hoe ver dat is —
 
 Ernaast draait **Ongedaan maken** de laatst opgeslagen wijziging terug en zet
 **Wijzigingen terugdraaien** het formulier terug naar hoe het was toen je het
-opende. Beide staan volledig beschreven onder *Opslaggedrag* op de pagina
-[wedstrijdvoorbereiding](match-prep.md).
+opende. Beide staan volledig beschreven in
+[hoe opslaan werkt](save-model.md).
 
 Er is geen Annuleren meer op het bewerkformulier, want er staat niets open om
 te annuleren. Toevoegen vraagt nog wel om Opslaan, en dat is met opzet: er

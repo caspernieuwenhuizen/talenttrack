@@ -328,8 +328,8 @@ Naast de statusregel staan twee manieren terug:
  toen je het scherm opende. Hij vraagt het eerst en noemt hoeveel velden hij
  herstelt.
 
-Beide staan volledig beschreven onder *Opslaggedrag* op de pagina
-[wedstrijdvoorbereiding](match-prep.md) — hier werken ze precies zo.
+Beide staan volledig beschreven in
+[hoe opslaan werkt](save-model.md) — hier werken ze precies zo.
 
 Er is geen **Annuleren**, want er staat niets open om te annuleren. De
 pagina verlaten laat een concept achter, en dat is een echte, leesbare

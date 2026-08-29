@@ -60,7 +60,7 @@ De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen
 
 ### Het gespreksformulier slaat zichzelf op
 
-Er is geen knop **Gesprek opslaan** meer. Het formulier slaat op terwijl je schrijft, en op de plek van de knop staat een statusregel die vertelt hoe ver dat is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*. **Ongedaan maken** en **Wijzigingen terugdraaien** staan ernaast, net als op elk ander automatisch opslaand scherm; beide staan volledig beschreven onder *Opslaggedrag* op de pagina [wedstrijdvoorbereiding](match-prep.md).
+Er is geen knop **Gesprek opslaan** meer. Het formulier slaat op terwijl je schrijft, en op de plek van de knop staat een statusregel die vertelt hoe ver dat is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen opgeslagen*. **Ongedaan maken** en **Wijzigingen terugdraaien** staan ernaast, net als op elk ander automatisch opslaand scherm; beide staan volledig beschreven in [hoe opslaan werkt](save-model.md).
 
 De **zelfreflectie** van de speler werkt hetzelfde, zolang het venster open staat. Buiten het venster is het veld uitgeschakeld, zoals eerder, en wordt er niets opgeslagen.
 
