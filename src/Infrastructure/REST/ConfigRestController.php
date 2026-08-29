@@ -124,6 +124,11 @@ class ConfigRestController {
         // (admins / club admins), consistent with the other academy-wide
         // settings above.
         'match_minutes_by_age_group',
+        // #3044 — JSON map `{ "<age_group>": "<football_form>" }`: how many a
+        // side each age category plays, and therefore what a new team in it
+        // is pre-filled with. Un-mapped in KEY_AREA_MAP → tt_edit_settings,
+        // like the match lengths above.
+        'football_form_by_age_group',
         // #2835 — the minimum share of a team's played minutes every player
         // should reach. Saved from the same Match minutes sub-form as the
         // lengths above, because those set the denominator and this draws the
@@ -259,6 +264,12 @@ class ConfigRestController {
             // stale payload can't disable a template that no longer exists.
             if ( $key === 'comms_templates_disabled' ) {
                 $clean = \TT\Modules\Comms\Template\TemplateSwitch::normaliseStored( $clean );
+            }
+            // #3044 — drop age groups and forms that do not exist, so a stale
+            // payload cannot leave a team resolving to a form this academy
+            // does not play and an empty blueprint picker with it.
+            if ( $key === 'football_form_by_age_group' ) {
+                $clean = \TT\Modules\Teams\FootballFormResolver::normaliseStored( $clean );
             }
             QueryHelpers::set_config( $key, $clean );
             $written++;

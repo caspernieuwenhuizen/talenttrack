@@ -465,7 +465,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // --- Formation selector (stays a labelled dropdown). ---
         // #1649 — shared, request-memoised fetch (see formationTemplates());
         // the dropdown reads id/name/formation_shape, a subset of the row.
-        $templates = self::formationTemplates();
+        $templates = self::formationTemplates( (int) ( $bp['team_id'] ?? 0 ) );
         $current_template_id = (int) ( $bp['formation_template_id'] ?? 0 );
         echo '<div class="tt-bpe-ab-formation">';
         echo '<label class="tt-bpe-ab-formation-label" for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
@@ -1087,15 +1087,34 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      *
      * @return object[]
      */
-    private static function formationTemplates(): array {
-        static $cache = null;
-        if ( $cache !== null ) return $cache;
+    private static function formationTemplates( int $team_id = 0 ): array {
+        static $cache = [];
+        if ( isset( $cache[ $team_id ] ) ) return $cache[ $team_id ];
         global $wpdb; $p = $wpdb->prefix;
-        $cache = (array) $wpdb->get_results(
-            "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
-              WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
-        );
-        return $cache;
+
+        // #3044 — offer the shapes this team can actually field. A six-a-side
+        // team was being shown a back four and a front three, which is not a
+        // choice a coach can make. When the team is unknown (or the column
+        // predates this install's migration run) the unfiltered list stands,
+        // because an empty picker is worse than a wide one.
+        $form = $team_id > 0 ? \TT\Modules\Teams\FootballFormResolver::forTeam( $team_id ) : '';
+        $rows = [];
+        if ( $form !== '' ) {
+            $rows = (array) $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
+                  WHERE archived_at IS NULL AND football_form = %s ORDER BY is_seeded DESC, name ASC",
+                $form
+            ) );
+        }
+        if ( $rows === [] ) {
+            $rows = (array) $wpdb->get_results(
+                "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
+                  WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
+            );
+        }
+
+        $cache[ $team_id ] = $rows;
+        return $rows;
     }
 
     private static function enqueueBlueprintAssets(): void {
@@ -1234,7 +1253,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // from the previous formation stay in `assignment_refs` —
         // round-tripping back to the old formation restores them.
         // #1649 — shared, request-memoised fetch (see formationTemplates()).
-        $tpl_rows = self::formationTemplates();
+        $tpl_rows = self::formationTemplates( $team_id );
         $formation_templates = [];
         foreach ( (array) $tpl_rows as $row ) {
             $decoded = json_decode( (string) ( $row->slots_json ?? '[]' ), true );

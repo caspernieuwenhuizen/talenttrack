@@ -68,6 +68,13 @@ class TeamDevelopmentRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_templates' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => [
+                    'team_id' => [
+                        'type'              => 'integer',
+                        'required'          => false,
+                        'sanitize_callback' => 'absint',
+                    ],
+                ],
             ],
         ] );
 
@@ -349,20 +356,47 @@ class TeamDevelopmentRestController {
         ] );
     }
 
-    public static function list_templates(): \WP_REST_Response {
+    /**
+     * Formation templates, optionally narrowed to one team's football form.
+     *
+     * #3044 — `?team_id=N` returns only the shapes that team can field, so a
+     * consumer building a picker does not have to know the rule. Without the
+     * parameter the full catalogue is returned, unchanged.
+     */
+    public static function list_templates( \WP_REST_Request $r ): \WP_REST_Response {
         global $wpdb; $p = $wpdb->prefix;
-        $rows = $wpdb->get_results(
-            "SELECT id, name, formation_shape, slots_json, is_seeded
-               FROM {$p}tt_formation_templates
-              WHERE archived_at IS NULL
-              ORDER BY is_seeded DESC, name ASC"
-        );
+
+        $team_id = absint( $r['team_id'] ?? 0 );
+        $form    = $team_id > 0 ? \TT\Modules\Teams\FootballFormResolver::forTeam( $team_id ) : '';
+
+        $rows = [];
+        if ( $form !== '' ) {
+            $rows = (array) $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name, formation_shape, football_form, slots_json, is_seeded
+                   FROM {$p}tt_formation_templates
+                  WHERE archived_at IS NULL AND football_form = %s
+                  ORDER BY is_seeded DESC, name ASC",
+                $form
+            ) );
+        }
+        // An empty result for a known form means this academy has no shapes
+        // for it yet; a wide list beats an empty picker.
+        if ( $rows === [] ) {
+            $rows = (array) $wpdb->get_results(
+                "SELECT id, name, formation_shape, football_form, slots_json, is_seeded
+                   FROM {$p}tt_formation_templates
+                  WHERE archived_at IS NULL
+                  ORDER BY is_seeded DESC, name ASC"
+            );
+        }
+
         $out = [];
-        foreach ( (array) $rows as $row ) {
+        foreach ( $rows as $row ) {
             $out[] = [
                 'id'              => (int) $row->id,
                 'name'            => \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $row->name ),
                 'formation_shape' => (string) $row->formation_shape,
+                'football_form'   => (string) ( $row->football_form ?? '' ),
                 'is_seeded'       => (int) $row->is_seeded === 1,
                 'slots'           => self::decodeSlots( (string) $row->slots_json ),
             ];

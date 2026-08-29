@@ -21,7 +21,7 @@ Coaches and head-of-academy users see a **Team blueprint** tile in the *Performa
 Click **+ New blueprint**. A wizard asks:
 
 1. **Team** — usually pre-filled when you arrive from the team's blueprint list.
-2. **Formation** — pick from the seven seeded templates (4-3-3 in four play-style flavours, plus 4-4-2 / 3-5-2 / 4-2-3-1 neutral).
+2. **Formation** — grouped by football form. Eleven-a-side teams get the seven eleven-player templates (4-3-3 in four play-style flavours, plus 4-4-2 / 3-5-2 / 4-2-3-1 neutral); a 6v6 team gets 3-2-1 and 2-3-1; an 8v8 team gets 3-3-1 and 3-2-2. Picking a formation from the wrong group is refused, because a six-a-side team cannot field a back four.
 3. **Blueprint name** — anything that helps you find it later (e.g. "Cup final starting XI").
 
 Click **Create** and you land on the editor with empty slots, ready to fill.

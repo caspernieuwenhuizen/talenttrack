@@ -51,6 +51,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
                 // #1727 — central per-age-category default match minutes.
                 'match-minutes' => __( 'Match minutes', 'talenttrack' ),
+                // #3044 — how many a side each age group plays.
+                'football-form' => __( 'Football form', 'talenttrack' ),
                 // #2207 — which player-profile cards are shown club-wide.
                 'profile-cards' => __( 'Profile cards', 'talenttrack' ),
                 // #2540 — download the configuration as a JSON file.
@@ -100,6 +102,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'Match minutes', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderMatchMinutesForm();
+                return;
+            case 'football-form':
+                // #3044 — the default form (6v6 / 8v8 / 11v11) per age group.
+                self::renderHeader( __( 'Football form', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderFootballFormForm();
                 return;
             case 'menus':
                 self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
@@ -181,6 +189,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Positions',          'talenttrack' ), __( 'Football positions players can be tagged with.',                    'talenttrack' ), 'positions',       'compare' ],
             [ __( 'Preferred foot',     'talenttrack' ), __( 'Left, right, both — used on the player edit form.',                  'talenttrack' ), 'foot_options',    'players' ],
             [ __( 'Age groups',         'talenttrack' ), __( 'U7, U8, … U23 — feed the team age-group dropdown and weights.',     'talenttrack' ), 'age_groups',      'teams' ],
+            [ __( 'Football forms',     'talenttrack' ), __( '6v6, 8v8, 11v11 — how many a side a team plays. Add 4v4, 7v7 or 9v9 if your federation uses them.', 'talenttrack' ), 'football_forms', 'teams' ],
             [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses',   'goals' ],
             [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities', 'goals' ],
             [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses',    'inbox' ],
@@ -261,7 +270,7 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         $groups = [
             [ 'label' => __( 'Activities & attendance', 'talenttrack' ), 'slugs' => [ 'activity_types', 'activity_statuses', 'game_subtypes', 'competition_types', 'att_statuses' ] ],
-            [ 'label' => __( 'Players & teams', 'talenttrack' ),         'slugs' => [ 'positions', 'foot_options', 'age_groups', 'journey_event_types' ] ],
+            [ 'label' => __( 'Players & teams', 'talenttrack' ),         'slugs' => [ 'positions', 'foot_options', 'age_groups', 'football_forms', 'journey_event_types' ] ],
             [ 'label' => __( 'Evaluations & development', 'talenttrack' ),'slugs' => [ 'eval_types', '__rating', 'behaviour_ratings', 'potential_bands', 'player_values', 'pdp_verdict_decisions' ] ],
             [ 'label' => __( 'Goals', 'talenttrack' ),                   'slugs' => [ 'goal_statuses', 'goal_priorities', 'goal_approval_decisions' ] ],
             [ 'label' => __( 'Scouting & trials', 'talenttrack' ),       'slugs' => [ 'trial_case_statuses', 'trial_case_decisions', 'scouting_visit_statuses' ] ],
@@ -306,6 +315,9 @@ class FrontendConfigurationView extends FrontendViewBase {
             'positions'       => [ 'label' => __( 'Positions',           'talenttrack' ), 'type' => 'position',          'show_desc' => false, 'show_color' => false ],
             'foot_options'    => [ 'label' => __( 'Preferred foot',      'talenttrack' ), 'type' => 'foot_option',       'show_desc' => false, 'show_color' => false ],
             'age_groups'      => [ 'label' => __( 'Age groups',          'talenttrack' ), 'type' => 'age_group',         'show_desc' => false, 'show_color' => false ],
+            // #3044 — how many a side a team plays. The description carries
+            // the keeper and pitch-size implication, so it is editable here.
+            'football_forms'  => [ 'label' => __( 'Football forms',      'talenttrack' ), 'type' => 'football_form',     'show_desc' => true,  'show_color' => false ],
             'goal_statuses'   => [ 'label' => __( 'Goal statuses',       'talenttrack' ), 'type' => 'goal_status',       'show_desc' => false, 'show_color' => true  ],
             'goal_priorities' => [ 'label' => __( 'Goal priorities',     'talenttrack' ), 'type' => 'goal_priority',     'show_desc' => false, 'show_color' => false ],
             'att_statuses'    => [ 'label' => __( 'Attendance statuses', 'talenttrack' ), 'type' => 'attendance_status', 'show_desc' => false, 'show_color' => true  ],
@@ -2196,6 +2208,95 @@ class FrontendConfigurationView extends FrontendViewBase {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * #3044 — the default football form per age category.
+     *
+     * One select per `age_group` lookup value, offering the forms this
+     * academy plays. The per-row values are assembled by
+     * `assets/js/components/football-form-defaults.js` into a single JSON map
+     * and saved under `football_form_by_age_group` via `POST /v1/config` —
+     * the same shape the match-minutes form uses, because the config handler
+     * stores one scalar per key.
+     *
+     * A team may still override its own form on the team record; this is only
+     * what a new team is pre-filled with.
+     *
+     * Save-only — settings sub-form (CLAUDE.md §6a exemption).
+     */
+    private static function renderFootballFormForm(): void {
+        wp_enqueue_style(
+            'tt-frontend-football-form',
+            TT_PLUGIN_URL . 'assets/css/frontend-football-form.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-football-form-defaults',
+            TT_PLUGIN_URL . 'assets/js/components/football-form-defaults.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        $age_groups = QueryHelpers::get_lookup_names( 'age_group' );
+        $forms      = \TT\Modules\Teams\FootballFormResolver::forms();
+        $current    = \TT\Modules\Teams\FootballFormResolver::configuredMap();
+        ?>
+        <p class="tt-ff-intro">
+            <?php esc_html_e( 'How many a side does each age category play? A new team is pre-filled with its age category\'s form, and any team can be set differently on the team itself. The form decides which formations the team blueprint offers.', 'talenttrack' ); ?>
+        </p>
+
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="football-form" data-tt-ff-form>
+            <input type="hidden" name="config[football_form_by_age_group]" value="" data-tt-ff-json />
+            <div class="tt-panel">
+                <?php if ( empty( $forms ) ) : ?>
+                    <p class="tt-notice">
+                        <?php esc_html_e( 'No football forms configured yet. Add them under Lookups, then come back to set a default per age category.', 'talenttrack' ); ?>
+                    </p>
+                <?php elseif ( empty( $age_groups ) ) : ?>
+                    <p class="tt-notice">
+                        <?php esc_html_e( 'No age categories configured yet. Add age groups first, then come back to set their football form.', 'talenttrack' ); ?>
+                    </p>
+                <?php else : ?>
+                    <div class="tt-ff-list" role="group" aria-label="<?php esc_attr_e( 'Default football form per age category', 'talenttrack' ); ?>">
+                        <div class="tt-ff-head" aria-hidden="true">
+                            <span><?php esc_html_e( 'Age category', 'talenttrack' ); ?></span>
+                            <span><?php esc_html_e( 'Football form', 'talenttrack' ); ?></span>
+                        </div>
+                        <?php foreach ( $age_groups as $i => $group ) :
+                            $group    = (string) $group;
+                            $value    = (string) ( $current[ $group ] ?? \TT\Modules\Teams\FootballFormResolver::bandFor( $group ) );
+                            $field_id = 'tt-ff-' . sanitize_html_class( (string) $i );
+                        ?>
+                            <div class="tt-ff-row">
+                                <label class="tt-ff-group" for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $group ); ?></label>
+                                <select
+                                    id="<?php echo esc_attr( $field_id ); ?>"
+                                    class="tt-input tt-ff-input"
+                                    data-tt-ff-select
+                                    data-tt-ff-group="<?php echo esc_attr( $group ); ?>"
+                                >
+                                    <?php foreach ( $forms as $form ) : ?>
+                                        <option value="<?php echo esc_attr( (string) $form ); ?>" <?php selected( $value, (string) $form ); ?>>
+                                            <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', (string) $form ) ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="tt-form-actions tt-ff-actions">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderConfigJs( false );
     }
 
     private static function renderMenusForm(): void {
