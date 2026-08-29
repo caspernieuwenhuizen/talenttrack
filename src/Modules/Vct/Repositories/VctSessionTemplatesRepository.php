@@ -54,7 +54,9 @@ class VctSessionTemplatesRepository {
             "SELECT DISTINCT age_group FROM {$this->table} WHERE club_id = %d",
             CurrentClub::id()
         ) );
-        return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
+        // `get_col()` is typed as always returning an array, so an
+        // `is_array()` guard here is dead code PHPStan reports as such.
+        return array_values( array_map( 'strval', $rows ) );
     }
 
     /**
