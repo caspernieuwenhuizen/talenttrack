@@ -146,6 +146,25 @@ Named filter combinations a user re-applies with one click, for any surface that
 - **The `filters` payload is opaque.** #2385 whitelisted six report params here; that cannot scale to every FilterBar surface, and on a surface the list doesn't know about it silently stores nothing. The controller now applies structural limits only — key matches `^[a-z0-9_]+(\[[a-z0-9_]+\])?$` (flat params plus `FrontendListTable`'s `filter[<key>]` shape), values are scalar and `sanitize_text_field`'d, max 20 keys, max 200 chars each. The consuming view sanitises its own `$_GET` when the preset is re-applied, which is the layer that knows what each param means.
 - **Storage:** `tt_saved_filters`, club- and user-scoped with a `uuid`. Migration 0211 renamed `report_key` → `view_key` and added `is_default` (column only; the auto-apply behaviour is #2450).
 
+## Install profiles (#3035 / #3036)
+
+A named shape for a whole install — which modules and features a club runs — so the choice can be made once instead of fifty times. The domain lives in `ProfileRegistry` + `ProfileService` (`src/Shared/Modules/`); the REST surface is `ProfilesRestController` (`src/Infrastructure/REST/ProfilesRestController.php`), registered from `ConfigurationModule` because Configuration is always-on and the routes that reshape an install must not themselves be switchable off.
+
+Deliberately **not** added to `FrontendModulesView`, where `/modules` and `/features` currently live. A view file registering REST routes is the coupling §4 asks new code not to extend. Moving those two is worth doing and is a separate change.
+
+- **Cap:** all three routes gate on `tt_manage_modules` — the same capability the modules and features endpoints use.
+- **Routes:**
+  - `GET /profiles` — `{ profiles: [ { slug, label, description, is_current } ], current, divergence }`. `current` is `null` for an install that predates profiles or was never put on one, and `divergence` is `null` with it. That is a neutral state, not an error.
+  - `GET /profiles/{slug}` — the profile plus its full diff against live state: `{ slug, label, description, is_current, divergence, changes: [ { id, kind, label, from, to, skipped_reason } ] }`. **This is the preview.** There is no separate preview route: a diff is a pure read, so `GET` is the honest verb, and one route means the screen and the API cannot drift.
+  - `POST /profiles/{slug}/apply` — body `{ "exclude": ["<row id>", …] }`. Returns `{ profile, applied: [ … ], skipped: [ { …, reason } ], divergence }`.
+- **Row ids** are `module:<FQCN>` or `feature:<key>` — a diff mixes both kinds, so the id has to carry which. `kind` repeats it as a first-class field so a consumer never has to parse the id.
+- **`changes` holds only rows that would move.** A module or feature already in the profile's shape is not a row. `divergence` counts the rows that would actually be written, so it is the number a UI shows, not `count(changes)`.
+- **`skipped_reason` travels with the row** (`null` or `tier`) rather than being dropped, so a consumer can explain the gap instead of silently under-applying. `apply` echoes the same information back as `reason`, adding `excluded` for a row the caller asked to hold.
+- **An unknown slug is 404, not 400.** The slug names a resource; asking for one that does not exist is a missing resource, not a malformed request.
+- **Applying with every row excluded is a 200 no-op** with an empty `applied` list. The caller asked for nothing to happen and got it.
+- **`GET /profiles/{slug}` writes nothing**, and the smoke suite asserts it against a snapshot of live module and feature state rather than by inspection — the preview being read-only is the property the whole "nothing is written without a human seeing the diff" decision rests on.
+- **No WP-isms in the payload.** The response exposes what a caller may do via the capability gate, never a role name.
+
 ## Common conventions
 
 ### Response envelope
