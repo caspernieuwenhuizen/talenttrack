@@ -42,6 +42,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // share of the minutes the team actually played did each player get.
         'minutes-share'                => 'Team · Minutes share',
         'team-squad-evaluation-summary' => 'Team · Squad evaluation summary',
+        // #2725 — a season of match analyses read as a per-phase trend.
+        'match-analysis-trends'        => 'Team · Match analysis trends',
         'season-summary'               => 'Season · Summary',
         'season-trial-funnel'          => 'Season · Trial funnel',
         'scout-report-card'            => 'Scout · Report card',
@@ -150,6 +152,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'team-minutes-distribution':    self::renderTeamMinutesDistribution(); break;
             case 'minutes-share':                self::renderMinutesShare(); break;
             case 'team-squad-evaluation-summary': self::renderSquadEvaluationSummary(); break;
+            case 'match-analysis-trends':        self::renderMatchAnalysisTrends(); break;
             case 'season-summary':               self::renderSeasonSummary(); break;
             case 'season-trial-funnel':          self::renderSeasonTrialFunnel(); break;
             case 'scout-report-card':            self::renderScoutReportCard(); break;
@@ -1147,6 +1150,89 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td class="num">' . ( $avg !== null ? esc_html( (string) $avg ) : '—' ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->eval_count ) . '</td>';
             echo '<td>' . esc_html( $last ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
+    }
+
+    // ── #2725 Match analysis trends ─────────────────────────────────
+
+    /**
+     * How each phase of play has gone across a period.
+     *
+     * The aggregation is `MatchAnalysisTrends`'; this composes. It counts
+     * occurrences and never averages — three ordered ratings are not a
+     * number, and a 1–3 mean would invent precision no coach entered.
+     */
+    private static function renderMatchAnalysisTrends(): void {
+        $title   = __( 'Team · Match analysis trends', 'talenttrack' );
+        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
+        if ( $team === null ) {
+            self::renderHeader( $title );
+            self::renderTeamPicker( 'match-analysis-trends' );
+            return;
+        }
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( $team_id, $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( $title );
+            self::renderEmpty();
+            return;
+        }
+
+        $win    = self::resolveReportWindow();
+        $from   = $win['from'];
+        $to     = $win['to'];
+        $period = $win['period'];
+
+        $trends = ( new \TT\Modules\MatchAnalysis\Services\MatchAnalysisTrends() )
+            ->forTeams( [ $team_id ], $from, $to );
+
+        self::renderPageHead(
+            /* translators: %s = team name */
+            sprintf( __( 'Match analysis trends — %s', 'talenttrack' ), (string) ( $team->name ?? '' ) ),
+            self::windowLabel( $from, $to ),
+            ''
+        );
+        self::renderPeriodFilterBar( 'match-analysis-trends', $from, $to, $period, [ 'team_id' => $team_id ] );
+
+        $ratings = \TT\Modules\MatchAnalysis\MatchAnalysisEnums::ratings();
+
+        self::renderKpiStrip( [
+            [ 'num' => (string) $trends['rated_matches'], 'label' => __( 'Matches with a rated phase', 'talenttrack' ) ],
+        ] );
+
+        if ( ! $trends['meets_floor'] ) {
+            self::renderEmpty( sprintf(
+                /* translators: 1: matches rated so far, 2: minimum needed */
+                __( 'Not enough matches yet — %1$d rated in this window, %2$d needed before a trend means anything. Keep writing analyses up; this fills in on its own.', 'talenttrack' ),
+                (int) $trends['rated_matches'],
+                \TT\Modules\MatchAnalysis\Services\MatchAnalysisTrends::MIN_RATED_MATCHES
+            ) );
+            return;
+        }
+
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per phase of play', 'talenttrack' ) . '</h2>'
+            . '<span class="tt-rep-section__hint">' . esc_html__( 'How often each phase was rated each way. A phase a coach left alone counts as nothing.', 'talenttrack' ) . '</span></div>';
+
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
+        echo '<th>' . esc_html__( 'Phase', 'talenttrack' ) . '</th>';
+        foreach ( $ratings as $label ) {
+            echo '<th class="num">' . esc_html( $label ) . '</th>';
+        }
+        echo '<th class="num">' . esc_html__( 'Rated', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ( $trends['sections'] as $section ) {
+            echo '<tr>';
+            echo '<td>' . esc_html( $section['label'] ) . '</td>';
+            foreach ( array_keys( $ratings ) as $rating_key ) {
+                $n = (int) ( $section['counts'][ $rating_key ] ?? 0 );
+                echo '<td class="num">' . ( $section['total'] > 0 ? esc_html( (string) $n ) : '—' ) . '</td>';
+            }
+            echo '<td class="num">' . ( $section['total'] > 0 ? esc_html( (string) $section['total'] ) : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

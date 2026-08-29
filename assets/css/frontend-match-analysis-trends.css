@@ -1,0 +1,47 @@
+/* frontend-match-analysis-trends.css — the player-file match analysis
+ * summary (#2725).
+ *
+ * A fact strip over a per-phase table. Mobile-first: the strip is a
+ * two-column grid at 360px and widens with the viewport; the table scrolls
+ * inside its own wrapper rather than pushing the page sideways.
+ */
+
+.tt-matrend__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0 var(--tt-gap-lg, 16px) var(--tt-gap, 12px);
+}
+
+@media (min-width: 480px) {
+    .tt-matrend__facts {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.tt-matrend__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-matrend__fact-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-matrend__fact-label {
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* The three markers are ordered, so they carry the ordered colour
+   vocabulary the rest of the product uses for good / neutral / poor. */
+.tt-matrend__fact[data-marker="stood_out"] .tt-matrend__fact-value { color: var(--tt-success, #2f9e5e); }
+.tt-matrend__fact[data-marker="below_par"] .tt-matrend__fact-value { color: var(--tt-danger, #d8453b); }

@@ -57336,6 +57336,95 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Core/FeatureRegistry.php
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Team · Match analysis trends"
+msgstr "Team · Trends uit wedstrijdanalyses"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid ""
+"How often each phase of play was rated went well, mixed or needs work across "
+"the period."
+msgstr ""
+"Hoe vaak elke spelfase in de periode is beoordeeld als ging goed, wisselend "
+"of moet beter."
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Match analysis trends — %s"
+msgstr "Trends uit wedstrijdanalyses — %s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Matches with a rated phase"
+msgstr "Wedstrijden met een beoordeelde fase"
+
+#. translators: 1: matches rated so far, 2: minimum needed
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid ""
+"Not enough matches yet — %1$d rated in this window, %2$d needed before a "
+"trend means anything. Keep writing analyses up; this fills in on its own."
+msgstr ""
+"Nog te weinig wedstrijden — %1$d beoordeeld in deze periode, %2$d nodig "
+"voordat een trend iets zegt. Blijf analyses schrijven; dit vult zichzelf."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per phase of play"
+msgstr "Per spelfase"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid ""
+"How often each phase was rated each way. A phase a coach left alone counts as "
+"nothing."
+msgstr ""
+"Hoe vaak elke fase welke beoordeling kreeg. Een fase die een coach heeft "
+"overgeslagen telt nergens mee."
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Phase"
+msgstr "Spelfase"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+msgid "You do not have permission to see match analyses."
+msgstr "Je hebt geen rechten om wedstrijdanalyses te bekijken."
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+msgid "Match analysis over the last 12 months"
+msgstr "Wedstrijdanalyse over de afgelopen 12 maanden"
+
+#. translators: 1: matches this player was marked in, 2: minimum needed before a trend is shown
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+#, php-format
+msgid ""
+"Not enough matches yet — marked in %1$d, %2$d needed before a pattern means "
+"anything."
+msgstr ""
+"Nog te weinig wedstrijden — genoemd in %1$d, %2$d nodig voordat een patroon "
+"iets zegt."
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+msgid "Matches marked in"
+msgstr "Wedstrijden waarin genoemd"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php
+msgid ""
+"None of these were tagged to a phase of play, so there is nothing to break "
+"down yet."
+msgstr ""
+"Geen daarvan is aan een spelfase gekoppeld, dus er valt nog niets uit te "
+"splitsen."
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php
+msgid "Unknown team."
+msgstr "Onbekend team."
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php
+msgid "Unknown player."
+msgstr "Onbekende speler."
+
 #~ msgid "Authoring path"
 #~ msgstr "Auteurspad"
 
@@ -58856,3 +58945,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+

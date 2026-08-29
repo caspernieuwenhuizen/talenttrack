@@ -355,6 +355,13 @@ figure is never a silent guess:
  longer history is never dropped without notice.
 - **Team · Squad evaluation summary** shows a **Last evaluated** date per
  player, so a stale row is visible at a glance.
+- **Team · Match analysis trends** counts how often each phase of play was
+ rated *Went well*, *Mixed* or *Needs work* across the period. It counts and
+ never averages — three ordered words are not a score — a phase a coach left
+ unrated is excluded rather than treated as neutral, and below three rated
+ matches it says *"not enough matches yet"* instead of drawing a trend through
+ one data point. See [Match analysis](match-analysis.md) for the per-player
+ half of the same data.
 - **Season summary** per-team match counts ignore soft-archived activities on
  the join itself (not just in the count), removing a source of inflated joins.
 

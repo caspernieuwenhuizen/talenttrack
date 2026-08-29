@@ -565,6 +565,8 @@ class FeatureRegistry {
             // #2835 — share of the available minutes, against the academy target.
             'minutes_share'                 => __( 'Team · Minutes share', 'talenttrack' ),
             'team_squad_evaluation_summary' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
+            // #2725 — a season of match analyses read per phase of play.
+            'match_analysis_trends'         => __( 'Team · Match analysis trends', 'talenttrack' ),
             'season_summary'                => __( 'Season · Summary', 'talenttrack' ),
             'season_trial_funnel'           => __( 'Season · Trial funnel', 'talenttrack' ),
             'scout_report_card'             => __( 'Scout · Report card', 'talenttrack' ),

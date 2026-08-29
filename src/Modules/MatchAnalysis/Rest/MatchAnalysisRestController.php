@@ -8,6 +8,7 @@ use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisShareLink;
+use TT\Modules\MatchAnalysis\Services\MatchAnalysisTrends;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisWriter;
 
 /**
@@ -91,6 +92,26 @@ class MatchAnalysisRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+
+        // #2725 — the trend reads. One analysis is a note; these are the
+        // same rows read across a period. Aggregation lives in
+        // `MatchAnalysisTrends`, so the rendered report and a non-WordPress
+        // front end get the same answer (CLAUDE.md §4).
+        register_rest_route( self::NS, '/match-analysis-trends/teams/(?P<team_id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'team_trends' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/match-analysis-trends/players/(?P<player_id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'player_trends' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
     }
 
     public static function can_view(): bool {
@@ -114,6 +135,63 @@ class MatchAnalysisRestController {
         }
 
         return RestResponse::success( self::shape( $payload ) );
+    }
+
+    /**
+     * GET /match-analysis-trends/teams/<id>?from=&to=
+     *
+     * Counts, never averages — see `MatchAnalysisTrends`. `meets_floor`
+     * tells the consumer whether there is enough of a sample to draw a
+     * trend at all; below it, render "not enough matches yet" rather than
+     * a thin line.
+     */
+    public static function team_trends( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['team_id'] );
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team', __( 'Unknown team.', 'talenttrack' ), 400 );
+        }
+        [ $from, $to ] = self::window( $r );
+
+        return RestResponse::success( array_merge(
+            ( new MatchAnalysisTrends() )->forTeams( [ $team_id ], $from, $to ),
+            [ 'from' => $from, 'to' => $to, 'min_rated_matches' => MatchAnalysisTrends::MIN_RATED_MATCHES ]
+        ) );
+    }
+
+    /** GET /match-analysis-trends/players/<id>?from=&to= */
+    public static function player_trends( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = absint( $r['player_id'] );
+        if ( $player_id <= 0 ) {
+            return RestResponse::error( 'bad_player', __( 'Unknown player.', 'talenttrack' ), 400 );
+        }
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have permission to view this player.', 'talenttrack' ), 403 );
+        }
+        [ $from, $to ] = self::window( $r );
+
+        return RestResponse::success( array_merge(
+            ( new MatchAnalysisTrends() )->forPlayer( $player_id, $from, $to ),
+            [ 'from' => $from, 'to' => $to, 'min_rated_matches' => MatchAnalysisTrends::MIN_RATED_MATCHES ]
+        ) );
+    }
+
+    /**
+     * The requested window, defaulting to the last twelve months — long
+     * enough for a season, short enough that last season's shape does not
+     * blur into this one's.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function window( \WP_REST_Request $r ): array {
+        $to   = sanitize_text_field( (string) ( $r['to'] ?? '' ) );
+        $from = sanitize_text_field( (string) ( $r['from'] ?? '' ) );
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) ) {
+            $to = gmdate( 'Y-m-d' );
+        }
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) {
+            $from = gmdate( 'Y-m-d', (int) strtotime( $to . ' -12 months' ) );
+        }
+        return [ $from, $to ];
     }
 
     // -----------------------------------------------------------------
