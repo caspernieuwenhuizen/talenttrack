@@ -56,7 +56,13 @@ verhuisd — niet uit het dossier van de speler.
 
 ## Methodologiekoppeling
 
-Doelen kunnen nu worden gekoppeld aan een methodologie-principe en/of één voetbalhandeling vanuit zowel het publieke doel-formulier als het wp-admin-formulier. De koppeling is optioneel maar maakt rapportage per principe mogelijk op het persona-dashboard (de nieuwe Doelen-per-principe-widget toont actieve en afgeronde doelen per principe; een Doelen-gekoppeld-aan-principe KPI volgt de dekking over de afgelopen 90 dagen).
+Overal waar een doel geschreven wordt — het doelformulier, het snelinvoerblok op het coachdashboard, de nieuw-doel-wizard en het wp-admin-formulier — staat de vraag **Wat ontwikkelt dit doel?** met de principes van de actieve methodiek van de club. Vink er zoveel aan als van toepassing zijn: een doel kan meer dan één principe dienen, en één verplichte keuze zou de coach dwingen willekeurig te kiezen.
+
+De keuze is **optioneel**. Een doel zonder principe ("een betere teamgenoot zijn") is nog steeds een goed doel en niets houdt je tegen het zo op te slaan. Maar juist door te koppelen kan de rest van het systeem zich op het doel richten: trainingsplannen rangschikken oefeningen op hoeveel openstaande ontwikkeldoelen van een selectie ze raken, en de rapportage per principe op het persona-dashboard (de Doelen-per-principe-widget en de KPI Doelen-gekoppeld-aan-principe over de afgelopen 90 dagen) telt alleen gekoppelde doelen.
+
+Een doel kan daarnaast aan één voetbalhandeling gekoppeld worden, vanuit het doelformulier en het wp-admin-formulier.
+
+Doelen van vóór deze koppeling houden het principe dat ze al hadden; er wordt niets geraden of achteraf ingevuld. Een dun dekkingsoverzicht vertelt je dus de waarheid over hoeveel doelen tot nu toe gekoppeld zijn — het vult zich vanzelf naarmate doelen opnieuw geschreven worden.
 
 ## Door spelers gemaakte doelen met goedkeuring
 
