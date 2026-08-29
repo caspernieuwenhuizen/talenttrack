@@ -106,10 +106,16 @@ final class MediaSurfacesTest extends WP_UnitTestCase {
     }
 
     /**
-     * The control has to read as current state. A blank form would invite
-     * a coach to re-tick someone already tagged.
+     * The control has to read as current state. A blank field would invite
+     * a coach to re-tag someone already tagged.
+     *
+     * #3093 — the checkbox list became a chip field, so what is asserted
+     * is the chip: it exists for the tagged player, carries the link id
+     * the untag call needs, and does not exist for anyone untagged. The
+     * roster still carries everyone, because that is what the typeahead
+     * offers.
      */
-    public function test_already_tagged_players_are_checked_and_carry_their_link_id(): void {
+    public function test_already_tagged_players_have_a_chip_carrying_their_link_id(): void {
         $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
         $this->grant( 'head_coach', MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_TEAM );
 
@@ -130,19 +136,20 @@ final class MediaSurfacesTest extends WP_UnitTestCase {
             $untagged => 'Untagged Player',
         ] );
 
-        // Matched with a pattern rather than a literal: `checked()` emits
-        // its own leading space, and asserting on exact whitespace makes
+        // Matched with a pattern rather than a literal: attribute order is
+        // the component's business, and asserting on exact whitespace makes
         // the test fail for a reason that has nothing to do with tagging.
         $this->assertMatchesRegularExpression(
-            '/data-player-id="' . $tagged . '"\s+data-link-id="' . $link_id . '"\s+checked/',
+            '/class="tt-tagfield__chip"[^>]*data-player-id="' . $tagged . '"\s+data-link-id="' . $link_id . '"/',
             $html,
-            'an already-tagged player must render ticked, carrying the link id the untag call needs'
+            'an already-tagged player must render as a chip carrying the link id the untag call needs'
         );
-        $this->assertMatchesRegularExpression(
-            '/data-player-id="' . $untagged . '"\s+data-link-id="0"\s*\/?/',
-            $html
+        $this->assertDoesNotMatchRegularExpression(
+            '/class="tt-tagfield__chip"[^>]*data-player-id="' . $untagged . '"/',
+            $html,
+            'an untagged player has no chip — they are offered by the typeahead instead'
         );
-        $this->assertStringNotContainsString( 'data-player-id="' . $untagged . '" data-link-id="0" checked', $html );
+        $this->assertStringContainsString( '&quot;id&quot;:' . $untagged, $html, 'the roster still offers them' );
         $this->assertStringContainsString( '1 player tagged', $html );
     }
 
