@@ -327,7 +327,30 @@ The `push: branches: [main]` triggers are unchanged. They are the post-merge net
 
 **So: a green column on a PR now means the suites actually ran.** Before this change it did not, and the difference was invisible from the PR page. If you are reading a PR opened before it landed, check the checks list for "PHPUnit (wp-env)" and "Playwright (Chromium)" by name rather than trusting the overall tick.
 
-The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rather than by testing — see #2417, which is the lever that makes this cheap.
+The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rather than by testing — which the next section is about.
+
+### Why wp-env startup is ~90s, and what has already been ruled out (#2417)
+
+`Start wp-env` is the single largest cost in CI — around 90s of a ~150s PHPUnit job, so roughly 60% setup against 15% testing — and both gating workflows pay it.
+
+**Two fixes were tried and both measured worse than doing nothing.** They are recorded here because they are the two anybody would reach for first, and each cost a CI cycle to disprove.
+
+**1. Pre-pulling the container images: +25s net.** A step pulling `wordpress`, `wordpress:cli` and `mariadb:lts` ahead of wp-env cost 28s and took nothing at all off wp-env's own 92s, because wp-env resolves and pulls its own tags regardless of what is already local under those names. Image pull is about 28s of the startup; it is real, but it is not separately attackable.
+
+**2. Caching the WordPress source tree: slower, not faster.** `.wp-env.json` sets `"core": "WordPress/WordPress"`, so wp-env git-clones the WordPress repository into `~/.wp-env/<hash>/WordPress` rather than using the released image. On a CI runner that directory is cold every run, which makes "cache the clone" look obvious. Measured on `main`: cold startup ~90s, warm startup with the 391MB tree restored **103s and 129s**. Restoring the tree costs more than cloning it, and wp-env does its own work either way.
+
+An earlier variant of that experiment cached `~/.wp-env` **wholesale** and appeared to cut startup to 44s. It had not: that directory also holds wp-env's own generated docker-compose project, so restoring it convinced wp-env the environment was already up while the containers and database volume were not, and the job died a step later on `Error establishing a database connection`. **A startup step that returns quickly is not evidence. Check the job went green before believing a timing.**
+
+That attempt also failed silently in a second way worth knowing: pointed at `~/.wp-env`, which is only wp-env's default on some platforms and versions, `actions/cache` reported `Path Validation Error: Path(s) specified in the action for caching do(es) not exist` — a **warning**, on a green job, having cached nothing. Both jobs now pin `WP_ENV_HOME` so the timing marker below measures the directory wp-env actually uses.
+
+**What is left.** The startup appears to be genuinely ~90s of work rather than one avoidable step. The remaining untested candidate is that `wp-env start` boots both a `dev` and a `tests` instance while `php-tests.yml` only ever uses `tests-cli`; if the dev instance can be skipped, that is potentially close to half.
+
+Both workflows print timing markers so the cost stays visible instead of being reconstructed with a stopwatch. Grep a run's log for `TT_TIMING`:
+
+```
+TT_TIMING wp_env_dir_size=…       # what was on disk before startup
+TT_TIMING wp_env_start_seconds=…  # the whole of wp-env's startup
+```
 
 ### Mandatory: a smoke test for every new REST endpoint
 

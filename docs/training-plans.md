@@ -101,6 +101,26 @@ Press **New plan**. Four short questions, then a finished session:
  is left blank and says so** rather than being padded out with something
  that does not fit.
 
+### Which age groups the generator drafts for
+
+Drafting needs an **age profile** — the maximum training length and intensity
+ceiling for that age group. Without one there is nothing safe to plan inside, so
+the generator stops rather than guessing. Two different reasons it can stop, and
+they mean different things:
+
+- **The youngest groups have no load model, on purpose.** Training load is not
+  planned in numbers at that age. The generator will never draft for them, and
+  it says so rather than implying a setting is missing. Build the training
+  yourself; the plan holds it like any other.
+- **An age group above that range has no profile yet.** That one is fixable.
+  Whoever holds the VCT configuration permission — normally the head of
+  development — adds it under **VCT configuration → Age profiles**, and drafting
+  works for those teams from then on.
+
+Out of the box the modelled range is U10–U14. Adding U15 and up is a decision
+about your own academy's load ceilings, which is why the numbers are yours to
+set rather than shipped.
+
 ### Why some sessions suit your players better than others
 
 The generator prefers exercises that train a principle your players actually

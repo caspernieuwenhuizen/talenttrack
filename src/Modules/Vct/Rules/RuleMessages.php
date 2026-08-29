@@ -39,6 +39,12 @@ final class RuleMessages {
             case 'missing_age_profile':
                 return __( 'No training profile is set up for this age group yet, so the safe-load limits are unknown.', 'talenttrack' );
 
+            // #2601 — the deliberate half of "no profile". Not a gap
+            // somebody forgot to fill; the position is that load is not
+            // planned in numbers at this age.
+            case 'age_below_modelled_range':
+                return __( 'Structured load planning does not apply at this age, so trainings for this age group are shaped by the coach rather than drafted.', 'talenttrack' );
+
             case 'unrecognised_age_group_for_selection':
                 return __( "This team's age group isn't recognised, so the engine can't pick suitable exercises.", 'talenttrack' );
 
@@ -115,7 +121,13 @@ final class RuleMessages {
 
         switch ( $code ) {
             case 'missing_age_profile':
-                return __( "Open VCT configuration → Age profiles and set up this age group's limits.", 'talenttrack' );
+                return __( "Open VCT configuration → Age profiles and add this age group's limits. You need the VCT configuration permission, which the head of development holds.", 'talenttrack' );
+
+            // Deliberately no hint: there is nothing to do about it, and
+            // offering an action would reopen the question the answer
+            // closes. Build the session in the plan yourself.
+            case 'age_below_modelled_range':
+                return '';
 
             case 'unrecognised_age_group_for_selection':
                 return __( "Set this team's age group (for example U13) in its team settings, then try again.", 'talenttrack' );

@@ -55,6 +55,14 @@ jobs:
     name: PHPUnit (wp-env)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # #2417 — pin where wp-env keeps its working files instead of trusting
+      # the default, which is only `~/.wp-env` on some platforms and
+      # versions. Kept after the cache experiment was reverted: the timing
+      # step below reports the size of that directory, and a marker that
+      # silently measures the wrong path is worse than no marker. It cost a
+      # cycle to learn that once already.
+      WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
 
@@ -88,8 +96,39 @@ jobs:
       - name: Install JS dependencies
         run: npm ci || npm install
 
-      - name: Start wp-env
-        run: npm run wp-env:start
+      # #2417 — the breakdown the issue asked for, recorded in the log of
+      # every run rather than reconstructed after the fact from a stopwatch.
+      # `Start wp-env` was one 95s block with no internal detail.
+      #
+      # TWO fixes were tried here and BOTH removed after measuring them.
+      #
+      # A pre-pull step was tried here and REMOVED after measuring it —
+      # candidate 1 in #2417, ruled out with a number rather than an
+      # opinion. Pulling `wordpress` / `wordpress:cli` / `mariadb:lts` ahead
+      # of wp-env cost 28s and took nothing off wp-env's own 92s, because
+      # wp-env resolves its own tags and pulls them regardless. Net effect
+      # was +25s. Image pull is roughly 28s of the startup; it is not the
+      # part worth attacking, and the way to find that out was to try it.
+      #
+      # An `actions/cache` of the WordPress source tree was then tried, on
+      # the theory that `"core": "WordPress/WordPress"` git-cloning
+      # WordPress every run was the dominant cost. It is not. Measured on
+      # `main`: cold startup ~90s, warm startup with the 391MB tree restored
+      # **103s and 129s**. Restoring the tree costs more than cloning it,
+      # and wp-env does its own work either way. Removed. The startup is
+      # simply ~90s of work, and candidate 2 in #2417 — wp-env booting a
+      # `dev` instance this job never touches — is the remaining lead.
+      - name: Start wp-env (timed)
+        run: |
+          set -e
+          if [ -d "$HOME/.wp-env" ]; then
+            echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
+          else
+            echo "TT_TIMING wp_env_dir_size=absent"
+          fi
+          start=$( date +%s )
+          npm run wp-env:start
+          echo "TT_TIMING wp_env_start_seconds=$(( $( date +%s ) - start ))"
 
       - name: Run PHPUnit (Tier 1)
         # wp-env mounts the plugin (incl. the host-installed vendor/) into

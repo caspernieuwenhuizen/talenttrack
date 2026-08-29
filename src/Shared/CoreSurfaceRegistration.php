@@ -62,6 +62,7 @@ final class CoreSurfaceRegistration {
     private const M_VCT           = 'TT\\Modules\\Vct\\VctModule';
     private const M_JOURNEY       = 'TT\\Modules\\Journey\\JourneyModule';
     private const M_DATABROWSER   = 'TT\\Modules\\DataBrowser\\DataBrowserModule';
+    private const M_COMMS         = 'TT\\Modules\\Comms\\CommsModule';
 
     /**
      * Run all registrations. Idempotent — call once during boot.
@@ -100,6 +101,15 @@ final class CoreSurfaceRegistration {
         // to the permissive fallback so the chip's gate is stated, and so a
         // future capability on that view has one place to land.
         $reg::register( 'alerts', static fn( int $uid ): bool => $uid > 0 );
+
+        // #2606 — the message log, linked from the player record. Its gate
+        // is the capability the view and the REST routes both check, stated
+        // here so the link does not appear for someone the destination
+        // would refuse.
+        $reg::register(
+            'messages',
+            static fn( int $uid ): bool => user_can( $uid, \TT\Modules\Comms\Rest\CommsRestController::CAP_READ_LOG )
+        );
 
         // team-planner view guard: tt_view_plan.
         $reg::register( 'team-planner', 'tt_view_plan' );
@@ -492,6 +502,30 @@ final class CoreSurfaceRegistration {
             'icon'         => 'goals',
             'color'        => '#0d9488',
             'cap_callback' => $is_player_or_parent_cb,
+        ]);
+
+        // #2606 (epic #2600) — a person's own in-app messages, in "Me"
+        // beside the rest of what belongs to them. No capability beyond
+        // being signed in: the list is scoped to `recipient_user_id = me`
+        // in SQL, so the question "may I see this" was answered when the
+        // message was addressed. Names CommsModule, so an academy that
+        // switches messaging off loses the tile with it. The badge is the
+        // unread count — the reason to open it.
+        TileRegistry::register([
+            'module_class' => self::M_COMMS,
+            'view_slug'    => 'my-messages',
+            'group'        => $me_group,
+            'kind'         => 'work',
+            'order'        => 65,
+            'label'        => __( 'My messages', 'talenttrack' ),
+            'description'  => __( 'Messages the academy sent you.', 'talenttrack' ),
+            'icon'         => 'inbox',
+            'color'        => '#5b6e75',
+            'cap_callback' => static fn ( int $user_id ): bool => $user_id > 0,
+            'badge_callback' => static function ( int $user_id ): int {
+                if ( ! class_exists( '\\TT\\Modules\\Comms\\Repositories\\CommsInboxRepository' ) ) return 0;
+                return ( new \TT\Modules\Comms\Repositories\CommsInboxRepository() )->unreadCount( $user_id );
+            },
         ]);
 
         // ── Tasks group — workflow inbox + dashboards. ──
@@ -1358,6 +1392,23 @@ final class CoreSurfaceRegistration {
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_audit_log',
             'desktop_preferred' => true,
+        ]);
+        // #2606 — the message log. Names CommsModule so switching Comms
+        // off takes the tile with it: with no module there are no sends to
+        // read about. Gates on the audit-log cap, the same one the REST
+        // log routes use, so the screen and the API refuse the same people.
+        TileRegistry::register([
+            'module_class' => self::M_COMMS,
+            'view_slug'    => 'messages',
+            'entity'       => 'audit_log',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 31,
+            'label'        => __( 'Message log', 'talenttrack' ),
+            'description'  => __( 'Every message the academy sent, who received it and whether it arrived.', 'talenttrack' ),
+            'icon'         => 'audit-log',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_view_audit_log',
         ]);
         // #1859 — Data Browser. Read-only browser over the live tt_* schema,
         // matrix/academy-admin only. Pure cap-gated (no matrix entity) on the

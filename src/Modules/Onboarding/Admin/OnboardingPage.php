@@ -80,6 +80,7 @@ class OnboardingPage {
             case 'first_team':  self::renderFirstTeam();  break;
             case 'first_admin': self::renderFirstAdmin(); break;
             case 'staff':       self::renderStaff();      break;
+            case 'messaging':   self::renderMessaging();  break;
             case 'dashboard':   self::renderDashboard();  break;
             case 'done':        self::renderDone();       break;
             default:
@@ -692,6 +693,118 @@ class OnboardingPage {
         <?php
     }
 
+    /**
+     * #3113 (epic #3049) — the step that turns messaging on.
+     *
+     * #3111 seeds a new academy with every message switched off, so that
+     * TalentTrack does not mail the parents of minors before anybody
+     * decided it should. That default is only defensible if choosing is
+     * something the install actually asks for — otherwise the outcome is
+     * not "conservative", it is a club that quietly never tells anybody
+     * anything and concludes the product is broken when a cancelled
+     * training goes unannounced.
+     *
+     * So this is the load-bearing step of that epic, not the polish one.
+     *
+     * Three things it does deliberately:
+     *
+     *   - **Nothing is pre-ticked.** The operator is choosing what to
+     *     switch on, which is the honest framing of the decision, and it
+     *     matches the state the install is actually in.
+     *   - **It recommends without pre-selecting.** The urgent family is
+     *     marked Recommended in a sentence; marking a recommendation is
+     *     not the same as ticking it on somebody's behalf.
+     *   - **Skipping says what skipping means** — "no messages will be
+     *     sent" — rather than "you can change this later", which reads as
+     *     "it is fine either way". It is not.
+     *
+     * The copy comes from `TemplateGuide`, the same source the Messages
+     * settings screen (#3112) reads: one set of words, two surfaces. The
+     * invitation email is absent because it is account plumbing and sits
+     * outside the switch entirely (#3110) — staff invited on the previous
+     * step still get their invitations whatever is chosen here.
+     */
+    private static function renderMessaging(): void {
+        $templates = \TT\Modules\Comms\Template\TemplateSwitch::switchableTemplates();
+        $families  = \TT\Modules\Comms\Template\TemplateGuide::families();
+        $grouped   = \TT\Modules\Comms\Template\TemplateGuide::grouped( $templates );
+        ?>
+        <h2><?php esc_html_e( 'What TalentTrack tells people', 'talenttrack' ); ?></h2>
+        <p>
+            <?php esc_html_e( 'Right now your academy sends nothing. Tick the messages you want TalentTrack to send on your behalf; leave the rest for later.', 'talenttrack' ); ?>
+        </p>
+        <p>
+            <?php esc_html_e( 'Most academies want the first group at least — those are the messages people are annoyed not to get. You can change any of this afterwards under Configuration → Messages.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( empty( $templates ) ) : ?>
+            <p><?php esc_html_e( 'No messages are available on this install.', 'talenttrack' ); ?></p>
+        <?php endif; ?>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_onboarding_messaging', 'tt_onboarding_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_onboarding_messaging" />
+
+            <?php foreach ( $grouped as $family_key => $group ) :
+                $family = $families[ $family_key ] ?? null;
+                if ( $family === null ) continue;
+            ?>
+                <fieldset class="tt-onboarding-msg-group">
+                    <legend class="tt-onboarding-msg-group__title">
+                        <?php echo esc_html( $family['label'] ); ?>
+                        <?php if ( ! empty( $family['recommended'] ) ) : ?>
+                            <span class="tt-onboarding-msg-recommended"><?php esc_html_e( 'Recommended', 'talenttrack' ); ?></span>
+                        <?php endif; ?>
+                    </legend>
+                    <p class="tt-onboarding-msg-group__blurb"><?php echo esc_html( $family['blurb'] ); ?></p>
+
+                    <?php foreach ( $group as $key => $template ) :
+                        $key      = (string) $key;
+                        $entry    = \TT\Modules\Comms\Template\TemplateGuide::forKey( $key );
+                        $field_id = 'tt_ob_msg_' . sanitize_html_class( $key );
+                    ?>
+                        <div class="tt-onboarding-msg">
+                            <label class="tt-onboarding-msg__toggle" for="<?php echo esc_attr( $field_id ); ?>">
+                                <input
+                                    type="checkbox"
+                                    id="<?php echo esc_attr( $field_id ); ?>"
+                                    name="enabled[]"
+                                    value="<?php echo esc_attr( $key ); ?>"
+                                />
+                                <span class="tt-onboarding-msg__name"><?php echo esc_html( $template->label() ); ?></span>
+                            </label>
+                            <?php if ( $entry !== null ) : ?>
+                                <p class="tt-onboarding-msg__what"><?php echo esc_html( $entry['what'] ); ?></p>
+                                <p class="tt-onboarding-msg__who">
+                                    <?php echo esc_html( $entry['who'] ); ?>
+                                    <?php echo esc_html( $entry['when'] ); ?>
+                                </p>
+                                <?php if ( empty( $entry['triggered'] ) ) : ?>
+                                    <p class="tt-onboarding-msg__pending">
+                                        <?php esc_html_e( 'Not sent automatically yet — ticking it changes nothing until that is wired up.', 'talenttrack' ); ?>
+                                    </p>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </fieldset>
+            <?php endforeach; ?>
+
+            <div class="tt-onboarding-actions">
+                <?php submit_button( __( 'Send these and continue', 'talenttrack' ), 'primary', 'submit', false ); ?>
+                <a class="button" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_skip_messaging' ) ); ?>">
+                    <?php esc_html_e( 'Skip — send nothing for now', 'talenttrack' ); ?>
+                </a>
+            </div>
+        </form>
+
+        <p class="tt-onboarding-skip">
+            <strong><?php esc_html_e( 'If you skip this, no messages will be sent.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Not even a cancelled training. Nobody is told anything until you tick something here or under Configuration → Messages.', 'talenttrack' ); ?>
+        </p>
+        <?php
+    }
+
     private static function renderDashboard(): void {
         $existing = get_posts( [
             'post_type'   => 'page',
@@ -729,6 +842,14 @@ class OnboardingPage {
         $team    = OnboardingState::payloadFor( 'first_team' );
         $admin   = OnboardingState::payloadFor( 'first_admin' );
         $dash    = OnboardingState::payloadFor( 'dashboard' );
+        // #3113 — how many messages the academy switched on. Read from the
+        // switch rather than from the wizard payload, so an operator who
+        // changed their mind on the settings screen mid-wizard sees the
+        // truth rather than what they clicked here.
+        $messages_on = 0;
+        foreach ( array_keys( \TT\Modules\Comms\Template\TemplateSwitch::switchableTemplates() ) as $tpl_key ) {
+            if ( \TT\Modules\Comms\Template\TemplateSwitch::isEnabled( (string) $tpl_key ) ) $messages_on++;
+        }
 
         // Land on the frontend dashboard page when one was created/reused
         // during the wizard; otherwise fall back to the wp-admin dashboard.
@@ -767,6 +888,27 @@ class OnboardingPage {
                     );
                 ?></li>
             <?php endif; ?>
+            <li>
+                <?php if ( $messages_on > 0 ) : ?>
+                    <?php
+                    printf(
+                        esc_html(
+                            /* translators: %d: number of message types switched on */
+                            _n(
+                                'Messages: %d type switched on.',
+                                'Messages: %d types switched on.',
+                                $messages_on,
+                                'talenttrack'
+                            )
+                        ),
+                        (int) $messages_on
+                    );
+                    ?>
+                <?php else : ?>
+                    <strong><?php esc_html_e( 'Messages: nothing is being sent.', 'talenttrack' ); ?></strong>
+                    <?php esc_html_e( 'Not even a cancelled training. Choose what your academy sends under Configuration → Messages.', 'talenttrack' ); ?>
+                <?php endif; ?>
+            </li>
         </ul>
 
         <h3 style="margin-top:32px;"><?php esc_html_e( 'Recommended next steps', 'talenttrack' ); ?></h3>
@@ -823,6 +965,7 @@ class OnboardingPage {
             'first_team'  => __( 'First team', 'talenttrack' ),
             'first_admin' => __( 'First admin', 'talenttrack' ),
             'staff'       => __( 'Add your staff', 'talenttrack' ),
+            'messaging'   => __( 'What we send', 'talenttrack' ),
             'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
             'done'        => __( 'Done', 'talenttrack' ),
         ];
@@ -870,6 +1013,7 @@ class OnboardingPage {
             'imported'   => __( 'Your squad has been imported.', 'talenttrack' ),
             'staff_added' => __( 'Added. Their invitation is ready but not sent yet.', 'talenttrack' ),
             'invites_sent' => __( 'Invitations sent.', 'talenttrack' ),
+            'messaging_saved' => __( 'Saved. Those messages will now be sent.', 'talenttrack' ),
             'admin_made' => __( 'Admin record created.', 'talenttrack' ),
             'reset'      => __( 'Wizard reset.', 'talenttrack' ),
             'page_made'  => __( 'Frontend dashboard page created.', 'talenttrack' ),

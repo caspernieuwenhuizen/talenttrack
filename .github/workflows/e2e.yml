@@ -18,6 +18,11 @@ jobs:
     name: Playwright (Chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # #2417 — pin wp-env's working directory rather than trusting its
+      # default, so the timing marker below measures the directory wp-env
+      # actually uses. See the longer note in php-tests.yml.
+      WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
 
@@ -68,8 +73,23 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      - name: Start wp-env
-        run: npm run wp-env:start
+      # #2417 — see php-tests.yml. Two candidate fixes were tried here and
+      # both removed after measuring them: pre-pulling the container images
+      # (+25s net) and caching the WordPress source tree (warm startup
+      # measured SLOWER than cold — 103s and 129s against ~90s, because
+      # restoring 391MB costs more than cloning it). The timing markers
+      # stay, because they are what made both answers visible.
+      - name: Start wp-env (timed)
+        run: |
+          set -e
+          if [ -d "$HOME/.wp-env" ]; then
+            echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
+          else
+            echo "TT_TIMING wp_env_dir_size=absent"
+          fi
+          start=$( date +%s )
+          npm run wp-env:start
+          echo "TT_TIMING wp_env_start_seconds=$(( $( date +%s ) - start ))"
 
       - name: Activate plugin + run migrations on tests instance
         # wp-env mounts the plugin but doesn't auto-activate it in the

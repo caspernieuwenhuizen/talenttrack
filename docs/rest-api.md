@@ -89,6 +89,10 @@ PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcem
 | Goal contributions (#2859, epic #2855) | `GET /players/{id}/goal-contributions` (optional `from` / `to` as `Y-m-d`; a partial range is ignored rather than half-applied, and no range means the player's whole record). Returns `{ player_id, from, to, goals, assists, own_goals, contributions, matches[] }`, each match carrying `activity_id`, `session_date`, `goals`, `assists`. Reads the same `GoalContributionQuery` the player profile's *Goals scored* tile and the Team · Minutes report's columns read, so a non-WordPress front end gets the rendered pages' numbers rather than its own arithmetic over the raw goal log. The counting rules live there and are the substance of the endpoint: a goal with no scorer recorded (`player_id = 0`) counts toward the **score** but toward **no player**; an **own goal** is recorded against the player but never added to their goal tally; a **reversed** goal counts for nobody; assists are credited from `assist_player_id` independently of who scored. Gated on `tt_view_players` via `AuthorizationService::userCanOrMatrix`. | `GoalContributionsRestController.php` |
 | Match execution — goals (#2856, epic #2855) | `POST /match-execution/{activity_id}/goal-event` `{event_uuid, team, half, minute, player_id, assist_player_id, is_own_goal}`, `PATCH /match-execution/{activity_id}/goal-event/{event_uuid}`, `DELETE /match-execution/{activity_id}/goal-event/{event_uuid}`. `team` is `home` (ours) or `away` (theirs). Attribution is optional on both: `player_id` **0** means “no scorer recorded”, which is what the live goal sheet writes when the coach could not see the final touch — refusing the goal instead only pushed them onto a score control that recorded no event at all. `assist_player_id` is one of our players or omitted, and may not equal `player_id`. `is_own_goal` marks a goal put in by the side it counts against. A named `player_id` / `assist_player_id` must belong to the match squad (the prep's availability rows plus its lineup), otherwise `player_not_in_squad`. The **PATCH is partial in two independent halves**: a payload carrying only `half` + `minute` leaves the attribution untouched, and one carrying only attribution keys leaves the timing untouched — so correcting a minute cannot silently drop a scorer. Sending `assist_player_id: 0` clears the assist. Every write is refused once the match is finalized (re-open first). Gated on `tt_edit_activities`. | `MatchExecutionRestController.php` |
 
+| Messages (#2605, epic #2600) | `GET /comms/messages` (the send log, filterable by `player_id`, `user_id`, `template_key`, `message_type`, `status`, `channel`, `date_from`, `date_to`; paginated through `X-WP-Total` / `X-WP-TotalPages`, and the payload also carries `statuses_in_use` so a filter offers the statuses that actually occurred rather than every one the vocabulary defines), `GET /players/{id}/messages` (the same log scoped to one player — the player-centric alias, and the URL segment **wins** over a conflicting `player_id` parameter, because on this data answering for the wrong child is the worst available bug). **The body is never returned, and neither is its hash**: the log stores a SHA-256 of the rendered message and nothing else, so a reader can see who was told what kind of thing and when, and cannot read a coach's words about a child out of the audit trail. Gated on `tt_view_audit_log` — the same read-only operator-log audience the audit log and the error log use, and deliberately **not** `tt_send_email`: being allowed to send is not being allowed to read what everyone else sent. | `src/Modules/Comms/Rest/CommsRestController.php` |
+| In-app inbox (#2605, epic #2600) | `GET /comms/inbox` (the caller's own in-app messages, `unread_only` + paging, with `unread_count` in the payload), `PATCH /comms/inbox/{id}` (body `{ read: true|false }`). Logged-in only and scoped to `recipient_user_id = me` **in SQL** — there is no route here capable of reading another person's inbox, which is how the no-cross-family guarantee is structural rather than a capability check. A message that is not yours answers **404, not 403**: a 403 would confirm it exists, which is itself a fact about another family. Marking read is idempotent — the first stamp stands, so opening on a second device does not rewrite when the message was first read. | same controller |
+| Message templates + preferences (#2605, epic #2600) | `GET /comms/templates` (every registered template with its label, channels, editability and whether the academy-wide switch has it on), `PATCH /comms/templates/{key}` (body `{ enabled }`; an unknown key is a 404 rather than a stored value, so a typo cannot switch off a template that does not exist) — both gated on `tt_edit_settings`, since turning a template off is a configuration change for the whole academy. `GET /comms/preferences` and `PUT /comms/preferences` (body `{ opted_out: [...] }`) read and replace the **caller's own** per-message-type opt-outs; the PUT states the complete list, so a type left out is one the user wants to hear about again. Operational types are never offered and never stored — safeguarding email is not something a recipient can mute, and rendering a switch that silently does nothing would be worse than rendering none. | same controller |
+
 The list is generated by walking `register_rest_route()` calls in the REST controllers. When you add a new route, add a row here.
 
 ## Recycle bin (#2021 / #2024, epic #2018)
@@ -164,6 +168,41 @@ Deliberately **not** added to `FrontendModulesView`, where `/modules` and `/feat
 - **Applying with every row excluded is a 200 no-op** with an empty `applied` list. The caller asked for nothing to happen and got it.
 - **`GET /profiles/{slug}` writes nothing**, and the smoke suite asserts it against a snapshot of live module and feature state rather than by inspection — the preview being read-only is the property the whole "nothing is written without a human seeing the diff" decision rests on.
 - **No WP-isms in the payload.** The response exposes what a caller may do via the capability gate, never a role name.
+
+## VCT age profiles (#2601)
+
+The per-age workload envelope the training generator plans inside: maximum
+session length, intensity ceiling, weekly load envelope, recovery gap, PHV
+reduction. `VctAgeProfilesRestController`
+(`src/Modules/Vct/Rest/VctAgeProfilesRestController.php`).
+
+- **Caps:** read on `tt_vct_plan` — a coach needs to know the ceiling they are
+  planning under. Write on `tt_vct_admin_config`, which is head-of-development,
+  not general administration: these numbers govern how hard minors are worked.
+- **Routes:** `GET /vct/age-profiles`, `POST /vct/age-profiles`,
+  `PATCH /vct/age-profiles/{id}`, `DELETE /vct/age-profiles/{id}`.
+- **`POST` requires `age_group`, `session_minutes_max` and
+  `intensity_band_max`.** The two ceilings carry the age safety, and nothing
+  here defaults them — an endpoint that invented load limits for children would
+  be the bug. The rest fall back to the seeded conventions (48h recovery, 20%
+  PHV reduction, 7.0 match multiplier). Duplicate age group → 400 with a message
+  naming it; `uniq_club_age` makes a second row impossible anyway.
+- **`POST` also copies session templates** from the nearest age group that has
+  them, and reports `templates_copied`. A profile clears the age rule (pass 1);
+  the template clears the composition rule (pass 3). Creating only the profile
+  would move the block rather than remove it, and there is no operator surface
+  for templates. Ties break downwards — a new U15 takes U14's shape, the more
+  conservative neighbour.
+- **`DELETE` is 409 while a live team is in that age group.** Those teams would
+  quietly stop getting drafted trainings with nothing connecting the effect to
+  the cause. Saved plans are never affected: a plan carries its own blocks, and
+  the profile is only read while drafting.
+- **Deleting leaves the session templates in place.** They are inert without a
+  profile, and keeping them means re-adding the profile restores the academy's
+  own blueprint rather than silently re-copying a neighbour's.
+- The create/delete decisions live in `AgeProfileAdminService`, not in the
+  controller, so this route and `FrontendVctConfigView` cannot answer
+  differently.
 
 ## Common conventions
 
