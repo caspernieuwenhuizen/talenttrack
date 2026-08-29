@@ -56953,6 +56953,13 @@ msgstr "Volledige academie"
 msgid "Everything the plugin ships: match day, training plans, the knowledge library, the integrations and the developer surfaces alongside the development loop. What an install gets when no profile is chosen."
 msgstr "Alles wat de plug-in meelevert: wedstrijddag, trainingsplannen, de kennisbibliotheek, de koppelingen en de ontwikkelaarsschermen naast de ontwikkelcyclus. Wat een installatie krijgt als er geen profiel is gekozen."
 
+#. translators: %s is the requested install-profile slug.
+#: src/Infrastructure/REST/ProfilesRestController.php:196
+#, php-format
+msgid "No install profile named \"%s\"."
+msgstr "Geen installatieprofiel met de naam \"%s\"."
+
+
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
