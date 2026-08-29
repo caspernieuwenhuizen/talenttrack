@@ -22,7 +22,8 @@ use TT\Modules\Comms\Domain\Recipient;
  * the adapter logs the result accordingly.
  *
  *   add_filter( 'tt_comms_email_send', function ( $accepted, $args ) {
- *     // $args = [ 'uuid', 'to', 'subject', 'body', 'recipient', 'request' ]
+ *     // $args = [ 'uuid', 'to', 'subject', 'body', 'headers',
+ *     //           'attachments', 'recipient', 'request' ]
  *     // … call your transport, return true on accept, false on reject …
  *     return $accepted;
  *   }, 10, 2 );
@@ -55,24 +56,34 @@ final class EmailChannelAdapter implements ChannelAdapterInterface {
             'X-TT-Template: ' . $request->templateKey,
         ];
 
+        // #2604 — only paths that still exist are passed on. A caller that
+        // renders to a temp file and deletes it before the send returns
+        // would otherwise make `wp_mail()` fail for every recipient, and a
+        // missing attachment is a better outcome than a missing message.
+        $attachments = array_values( array_filter(
+            $request->attachmentPaths,
+            static fn ( string $path ): bool => $path !== '' && is_readable( $path )
+        ) );
+
         // Pluggable transport hook — default is `wp_mail`.
         $accepted = apply_filters(
             'tt_comms_email_send',
             null,
             [
-                'uuid'      => $uuid,
-                'to'        => $to,
-                'subject'   => $renderedSubject,
-                'body'      => $renderedBody,
-                'headers'   => $headers,
-                'recipient' => $recipient,
-                'request'   => $request,
+                'uuid'        => $uuid,
+                'to'          => $to,
+                'subject'     => $renderedSubject,
+                'body'        => $renderedBody,
+                'headers'     => $headers,
+                'attachments' => $attachments,
+                'recipient'   => $recipient,
+                'request'     => $request,
             ]
         );
 
         if ( $accepted === null ) {
             // Default path: use wp_mail.
-            $accepted = (bool) wp_mail( $to, $renderedSubject, $renderedBody, $headers );
+            $accepted = (bool) wp_mail( $to, $renderedSubject, $renderedBody, $headers, $attachments );
         } else {
             $accepted = (bool) $accepted;
         }

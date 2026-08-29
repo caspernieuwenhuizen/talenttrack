@@ -3,6 +3,7 @@ namespace TT\Modules\Development\Notifications;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Comms\Send\NotificationSend;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 
@@ -10,8 +11,8 @@ use TT\Modules\Development\IdeaStatus;
  * AuthorNotifier — emails the original submitter on key status
  * transitions.
  *
- * Hooks `tt_dev_idea_status_changed` and sends a `wp_mail()` for the
- * three transitions that author actually cares about:
+ * Hooks `tt_dev_idea_status_changed` and sends an email through Comms
+ * (#2604) for the three transitions that author actually cares about:
  *   - rejected     → "your idea was not accepted, here's why"
  *   - promoted     → "your idea is now #NNNN, here's the commit"
  *   - in-progress  → "we've started building it"
@@ -38,8 +39,8 @@ class AuthorNotifier {
         $idea = $repo->find( $ideaId );
         if ( ! $idea ) return;
 
-        $author = get_userdata( (int) ( $idea->author_user_id ?? 0 ) );
-        if ( ! $author || empty( $author->user_email ) ) return;
+        $recipient = NotificationSend::recipientForUser( (int) ( $idea->author_user_id ?? 0 ) );
+        if ( $recipient === null ) return;
 
         $title = (string) $idea->title;
         switch ( $status ) {
@@ -86,6 +87,10 @@ class AuthorNotifier {
                 return;
         }
 
-        wp_mail( $author->user_email, $subject, $body );
+        NotificationSend::send( [
+            'title' => $subject,
+            'body'  => $body,
+            'event' => 'dev_idea_status_changed',
+        ], [ $recipient ] );
     }
 }

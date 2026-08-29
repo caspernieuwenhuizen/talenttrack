@@ -115,6 +115,22 @@ underline, so no length test can tell the two apart. Since git always writes all
 three markers together, finding either angle marker is enough — `=======` is
 reported only as context inside a file that already tripped one.
 
+A third small gate sits beside those two. `changelog-snippet-check.yml` runs
+`tools/check-changelog-snippets.php` over `changelog.d/`:
+
+```
+php tools/check-changelog-snippets.php
+```
+
+It reads each release-note snippet rather than only counting it: the first
+non-empty line must be an `# ` heading, `Bump:` must come after it and appear
+at most once, and there must be a body. Without those, `tools/release.ps1`
+takes the first line as the entry title — so a snippet opening with
+`Bump: minor` produced a changelog entry titled "Bump: minor" that then bumped
+the patch version, which is how seven malformed snippets reached the v4.108.0
+release diff (#3043). A title with no `(#123)` is a warning, not a failure.
+The full shape is in `changelog.d/README.md`.
+
 | # | Rule | Scope |
 | --- | --- | --- |
 | 1 | Front matter, or the dev-only allowlist above. No third state. | corpus |
