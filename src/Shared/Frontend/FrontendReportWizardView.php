@@ -391,6 +391,13 @@ class FrontendReportWizardView extends FrontendViewBase {
                 . esc_html__( 'Could not send the link. Check the email address and your site mail settings, then try again.', 'talenttrack' )
                 . '</p>';
         }
+
+        // #2602 / #2604 — say what became of the send, not just whether it
+        // worked. "Held until quiet hours end" and "the recipient has opted
+        // out" both read as success above and as failure below without this.
+        foreach ( $result['outcome'] as $line ) {
+            echo '<p class="tt-notice tt-rwz-outcome">' . esc_html( (string) $line ) . '</p>';
+        }
     }
 
 }

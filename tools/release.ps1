@@ -85,6 +85,23 @@ foreach ($s in $snips) {
         Write-Warning "Snippet $($s.Name) is empty — skipped."
         continue
     }
+
+    # #3043 — refuse a malformed snippet rather than guessing at it.
+    #
+    # The title is the first non-empty line and the `Bump:` scan starts
+    # below it, so a snippet whose first line IS the marker produces an
+    # entry titled "Bump: minor" that then falls back to a patch bump.
+    # Four such entries and a wrong version number nearly shipped in
+    # v4.108.0; the release diff is the wrong place to notice that.
+    # `tools/check-changelog-snippets.php` fails the PR that introduces
+    # one; this catches a stale snippet carried on an older branch.
+    if ($lines[$ti] -match '^\s*Bump:') {
+        throw "Malformed snippet changelog.d/$($s.Name): the first line is a 'Bump:' marker. Put a '# Title (#issue)' heading above it — see changelog.d/README.md."
+    }
+    if ($lines[$ti] -notmatch '^\s*#\s+\S') {
+        throw "Malformed snippet changelog.d/$($s.Name): the first line is not a '# Title' heading, and the release would use it verbatim as the changelog entry title. See changelog.d/README.md."
+    }
+
     $titleLine = ($lines[$ti] -replace '^\s*#\s*', '').Trim()
 
     # Bump marker: a `Bump: patch|minor|major` line anywhere in the body.

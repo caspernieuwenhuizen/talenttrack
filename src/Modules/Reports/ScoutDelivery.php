@@ -4,6 +4,11 @@ namespace TT\Modules\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Comms\Dispatch\CommsDispatcher;
+use TT\Modules\Comms\Domain\CommsOutcomeSummary;
+use TT\Modules\Comms\Domain\MessageType;
+use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
 
 /**
  * ScoutDelivery — generates a one-time scout link, persists the
@@ -16,7 +21,11 @@ use TT\Infrastructure\Query\QueryHelpers;
 class ScoutDelivery {
 
     /**
-     * @return array{ok: bool, report_id?: int, error?: string}
+     * `outcome` carries the sentences to show the sender — a send this
+     * deliberate should never report a bare success or a bare failure
+     * (#2602).
+     *
+     * @return array{ok: bool, report_id?: int, error?: string, outcome: string[]}
      */
     public function emailLink( object $player, ReportConfig $config, string $recipient_email, int $expiry_days, string $cover_message ): array {
         $expiry_days = max( 1, min( 60, $expiry_days ) );
@@ -39,9 +48,11 @@ class ScoutDelivery {
         $token   = $this->generateToken();
         $expires = ( new \DateTimeImmutable( 'now' ) )->modify( '+' . $expiry_days . ' days' );
 
+        $player_id = (int) $player->id;
+
         $repo = new ScoutReportsRepository();
         $id   = $repo->createEmailedLink(
-            (int) $player->id,
+            $player_id,
             $config->generated_by,
             $config,
             $html,
@@ -51,20 +62,23 @@ class ScoutDelivery {
             $expires
         );
         if ( $id === false ) {
-            return [ 'ok' => false, 'error' => 'persist_failed' ];
+            return [ 'ok' => false, 'error' => 'persist_failed', 'outcome' => [] ];
         }
 
-        $sent = $this->sendEmail(
+        $results = $this->sendEmail(
             $recipient_email,
+            $player_id,
             $token,
             (string) QueryHelpers::player_display_name( $player ),
             $cover_message,
             $expires
         );
-        if ( ! $sent ) {
-            return [ 'ok' => false, 'error' => 'mail_failed', 'report_id' => $id ];
+        $outcome = CommsOutcomeSummary::lines( $results );
+
+        if ( CommsOutcomeSummary::sentCount( $results ) === 0 ) {
+            return [ 'ok' => false, 'error' => 'mail_failed', 'report_id' => $id, 'outcome' => $outcome ];
         }
-        return [ 'ok' => true, 'report_id' => $id ];
+        return [ 'ok' => true, 'report_id' => $id, 'outcome' => $outcome ];
     }
 
     /**
@@ -94,38 +108,35 @@ class ScoutDelivery {
         return bin2hex( random_bytes( 32 ) );
     }
 
-    private function sendEmail( string $to, string $token, string $player_name, string $cover_message, \DateTimeImmutable $expires_at ): bool {
+    /**
+     * #2604 — through Comms, not `wp_mail()`.
+     *
+     * The recipient is a scout at another club with no account here, so
+     * the send carries no user id: opt-out has nothing to check and
+     * locale falls back to the site's. What it does gain is the audit
+     * row, which for a confidential report about a minor leaving the
+     * academy is the point.
+     *
+     * @param int $player_id  the player the report is about, recorded on the audit row
+     * @return \TT\Modules\Comms\Domain\CommsResult[]
+     */
+    private function sendEmail( string $to, int $player_id, string $token, string $player_name, string $cover_message, \DateTimeImmutable $expires_at ): array {
         $club_name = trim( (string) QueryHelpers::get_config( 'academy_name', '' ) );
         $club      = $club_name !== '' ? $club_name : __( 'TalentTrack', 'talenttrack' );
 
-        $subject = sprintf(
-            /* translators: 1: club name, 2: player name */
-            __( '%1$s — Player report for %2$s', 'talenttrack' ),
-            $club,
-            $player_name
+        $recipient = new Recipient( 0, Recipient::KIND_SYSTEM, $player_id, $to );
+
+        return CommsDispatcher::dispatchSync(
+            ScoutReportDeliveryTemplate::KEY,
+            [
+                'club_name'     => $club,
+                'player_name'   => $player_name,
+                'report_url'    => add_query_arg( 'tt_scout_token', $token, home_url( '/' ) ),
+                'expiry_date'   => wp_date( get_option( 'date_format' ) ?: 'Y-m-d', $expires_at->getTimestamp() ),
+                'cover_message' => $cover_message,
+            ],
+            [ $recipient ],
+            [ 'message_type' => MessageType::SCOUT_REPORT_DELIVERY ]
         );
-
-        $link = add_query_arg( 'tt_scout_token', $token, home_url( '/' ) );
-
-        $intro = sprintf(
-            /* translators: %s: club name */
-            __( 'Hello, you have been sent a confidential player report from %s.', 'talenttrack' ),
-            $club
-        );
-        $expiry_line = sprintf(
-            /* translators: %s: human-readable expiry date */
-            __( 'This link is valid until %s. Do not forward.', 'talenttrack' ),
-            wp_date( get_option( 'date_format' ) ?: 'Y-m-d', $expires_at->getTimestamp() )
-        );
-
-        $body  = $intro . "\n\n";
-        if ( $cover_message !== '' ) {
-            $body .= $cover_message . "\n\n";
-        }
-        $body .= $link . "\n\n";
-        $body .= $expiry_line . "\n";
-
-        $headers = [];
-        return (bool) wp_mail( $to, $subject, $body, $headers );
     }
 }
