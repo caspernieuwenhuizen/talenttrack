@@ -945,6 +945,10 @@ final class ActivitiesRepository {
         if ( $uid > 0 ) {
             $data['updated_by'] = $uid;
         }
+        // #3081 — the write is the only place that still knows what the
+        // row said before it. Read it only when the payload could be a
+        // cancellation, so the common edit keeps its single query.
+        $was_cancelled = $this->wasCancelledBefore( $activity_id, $data );
         $ok = $wpdb->update(
             "{$p}tt_activities",
             $data,
@@ -954,7 +958,71 @@ final class ActivitiesRepository {
         /** This event documented on {@see self::create()}. */
         if ( $ok ) do_action( 'tt_activity_saved', $activity_id, $data );
 
+        if ( $ok && $was_cancelled === false ) $this->announceCancellation( $activity_id );
+
         return $ok;
+    }
+
+    /**
+     * #3081 — did this row already read `cancelled` before the write?
+     *
+     * Returns null when the payload is not a cancellation at all, which
+     * is the signal to skip the transition check entirely; false when the
+     * payload cancels a row that was not cancelled (the transition worth
+     * announcing); true when it re-saves one that already was.
+     *
+     * @param array<string,mixed> $data Columns about to be written.
+     */
+    private function wasCancelledBefore( int $activity_id, array $data ): ?bool {
+        if ( $activity_id <= 0 ) return null;
+        if ( ! array_key_exists( 'activity_status_key', $data ) ) return null;
+        if ( (string) $data['activity_status_key'] !== ActivityStatusKey::CANCELLED ) return null;
+        return $this->statusKey( $activity_id ) === ActivityStatusKey::CANCELLED;
+    }
+
+    /**
+     * #3081 — the activity's current `activity_status_key` (club-scoped),
+     * or ''. Sibling of `planState()`; the two lifecycle columns each
+     * need their own pre-write read.
+     */
+    public function statusKey( int $activity_id ): string {
+        if ( $activity_id <= 0 ) return '';
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT activity_status_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #3081 — say that an activity was cancelled.
+     *
+     * Fired from the repository for the reason `announceAttendanceChange()`
+     * gives above: cancellation has two independent write paths —
+     * `setStatus()` behind the detail view's Cancel button, and `update()`
+     * behind both the REST edit form and the wp-admin activities page —
+     * and an event only one of them emits is worse than none. A family told
+     * about half the cancellations is the failure this exists to prevent.
+     *
+     * Fires on the transition, never on the state: both callers establish
+     * that the row did not already read `cancelled`, so re-saving a
+     * cancelled activity does not re-notify a parent who was told
+     * yesterday.
+     */
+    private function announceCancellation( int $activity_id ): void {
+        if ( $activity_id <= 0 ) return;
+
+        /**
+         * An activity moved into `cancelled` from a non-cancelled state.
+         *
+         * Carries the id only; a listener that needs the title, date or
+         * team re-reads. The row has already been written when this
+         * fires, so the read sees the cancelled state.
+         *
+         * @param int $activity_id
+         */
+        do_action( 'tt_activity_cancelled', $activity_id );
     }
 
     /**
@@ -1836,7 +1904,9 @@ final class ActivitiesRepository {
         // a `planned` status maps to the `scheduled` plan_state so the
         // planner's "what's coming up" bucket picks the row back up.
         $plan_state = $status_key === ActivityStatusKey::PLANNED ? 'scheduled' : $status_key;
-        return $wpdb->update(
+        // #3081 — see `announceCancellation()`.
+        $was_cancelled = $this->wasCancelledBefore( $activity_id, [ 'activity_status_key' => $status_key ] );
+        $ok = $wpdb->update(
             "{$p}tt_activities",
             [
                 'activity_status_key' => $status_key,
@@ -1844,6 +1914,10 @@ final class ActivitiesRepository {
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
+
+        if ( $ok && $was_cancelled === false ) $this->announceCancellation( $activity_id );
+
+        return $ok;
     }
 
     /**
