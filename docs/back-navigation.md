@@ -71,6 +71,22 @@ They may only be rendered by the shared spine component (`\TT\Shared\Frontend\Co
 
 **Grandfathered:** tab strips that predate this rule aren't violations until migrated. `FrontendPlayerDetailView` is the one such surface — its capability-gated, counted strip predates the spine and works well, and rewriting it to reach the same markup would be churn on the most trafficked view in the plugin. The rule binds **new** surfaces; existing strips migrate when there's a reason to touch them, not on principle.
 
+**Tabs that are the only route to a view's sections:** pass `'tabs_always' => true`. The identity strip is app-shell chrome and stays app-only, but a section switcher is not — a surface whose sections are unreachable under `classic` is broken rather than degraded. The flag also lets a surface with no record identity use the strip without inventing a name to satisfy the identity guard.
+
+### A mode switcher is not a record tab strip
+
+Some surfaces carry a control that changes **what the screen is showing** rather than which facet of one record you're looking at, and several have no record at all. Putting those on `RecordSpine` would stretch the rule above to cover something it wasn't written for, and would leave the next reader believing those surfaces are record-scoped when they aren't.
+
+They use `\TT\Shared\Frontend\Components\SegmentedControl` instead — one shared control, meeting the same 48px floor as the spine, deliberately *not* `role="tablist"` because its options navigate to different URLs. Two surfaces hand-rolling the same switcher is the debt the rule is about; one shared control settles it without misfiling what the control is.
+
+**Recorded exemptions** (#2822), each because the control is a mode switcher rather than a record-scoped tab strip:
+
+| surface | control |
+| --- | --- |
+| `attendance-grid` | Attendance \| Minutes |
+| `minutes-grid` | Attendance \| Minutes |
+| `custom-css` | Frontend dashboard \| wp-admin pages — this one picks the *record*, so it can't be a tab within one |
+
 ## Why
 
 Breadcrumbs show where a record sits in the canonical hierarchy

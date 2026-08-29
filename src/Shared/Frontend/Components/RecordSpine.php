@@ -58,6 +58,13 @@ use TT\Shared\Frontend\ShellPreference;
  * behaviour — it carries a duplicate Edit / Done header action purely
  * because its navigating tabs vanish under `classic`.
  *
+ * `tabs_always` extends that to a **navigating** strip whose tabs are
+ * likewise the only route to the view's sections (#2822). It also lets a
+ * surface with no record identity — a settings page whose sections are
+ * genuinely facets of one subject — use the strip without inventing a name
+ * to satisfy the identity guard. The identity strip itself still obeys the
+ * app-only rule either way.
+ *
  * **Panels belong to the caller.** This component does not create them.
  * The caller renders each panel itself and passes its element id:
  *
@@ -91,20 +98,25 @@ final class RecordSpine {
      *   initials?: string,
      *   status?: string,
      *   meta?: string,
+     *   tabs_always?: bool,
      *   tabs?: list<array{label?: string, url?: string, panel?: string, active?: bool}>
      * } $config
      */
     public static function render( array $config ): void {
         $tabs    = is_array( $config['tabs'] ?? null ) ? $config['tabs'] : [];
         $in_page = self::isInPage( $tabs );
+        // #2822 — a navigating strip the caller has declared to be the only
+        // route to its sections survives `classic` and an absent identity,
+        // the same way an in-page strip always has.
+        $survives = $in_page || ! empty( $config['tabs_always'] );
 
         // Under `classic` the identity strip does not render — it is app
         // shell chrome. In-page tabs still do: they are the only route to
         // the panels behind them.
         if ( ! ShellPreference::isApp() ) {
-            if ( $in_page ) {
+            if ( $survives ) {
                 echo '<div class="tt-spine tt-spine--tabs-only">';
-                self::renderTabs( $tabs, true );
+                self::renderTabs( $tabs, $in_page );
                 echo '</div>';
             }
             return;
@@ -115,9 +127,9 @@ final class RecordSpine {
             // Without an identity there is nothing to pin. In-page tabs
             // are still the way into the panels, so they survive an
             // identity-less config the same way they survive `classic`.
-            if ( $in_page ) {
+            if ( $survives ) {
                 echo '<div class="tt-spine tt-spine--tabs-only">';
-                self::renderTabs( $tabs, true );
+                self::renderTabs( $tabs, $in_page );
                 echo '</div>';
             }
             return;
