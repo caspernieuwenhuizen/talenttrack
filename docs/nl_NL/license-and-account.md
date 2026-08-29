@@ -62,6 +62,33 @@ Zo voldoet een academie aan haar verplichtingen tegenover de kinderen die erin z
 
 Om diezelfde reden houdt een club met een verlopen pakket het dashboard, spelerskaarten, lokale back-up en export. Je eigen gegevens kun je altijd inzien en meenemen.
 
+## Hoe een functie eruitziet die niet in je pakket zit
+
+Drie antwoorden, alle drie bewust gekozen. Samen zorgen ze ervoor dat een pakketwijziging nooit voelt alsof er iets stukgaat.
+
+### Op slot, niet verborgen
+
+Een functie die niet in je pakket zit, blijft staan waar hij hoort. Open je hem, dan krijg je een paneel dat de functie noemt, het pakket noemt waar hij bij hoort, en doorlinkt naar de accountpagina — geen verdwenen menu-item en geen foutmelding.
+
+Verbergen zou netter ogen en slechter zijn. Een trainer die wedstrijdanalyse niet kan vinden, kan niet zien of de club het nooit had, of het uitgezet is, of dat er iets kapot is. Zichtbaar-op-slot beantwoordt die vraag meteen, en het betekent dat de functiematrix op het tabblad Pakket overeenkomt met wat mensen daadwerkelijk zien.
+
+### Wat al is vastgelegd, blijft leesbaar
+
+Overstappen naar een pakket zonder een bepaalde functie neemt niet weg wat die functie heeft opgeleverd. Oude wedstrijdanalyses, oude trainingsplannen, oude media blijven leesbaar en exporteerbaar precies zoals ze waren. Wat stopt, is het schrijven van nieuwe — een opslagactie, een upload, een aanmaakknop.
+
+Een club die van Pro naar Standard gaat, verliest dus mogelijkheden, nooit historie. Er wordt niets verwijderd, verborgen of achtergehouden, en er hoeft niets teruggezet te worden als de club later weer terugstapt.
+
+### "Zit niet in je pakket" en "mag je niet" zijn verschillende antwoorden
+
+Er bestaan twee soorten weigeringen en ze delen nooit dezelfde zin:
+
+| Wat je ziet | Wat het betekent | Wat het oplost |
+| - | - | - |
+| Een paneel op slot met een pakketnaam | De installatie zit niet op dat pakket | Vraag je operator naar het pakket |
+| Een rechtenmelding | Jouw rol heeft dit niet, op geen enkel pakket | Vraag een academiebeheerder naar je rechten |
+
+Een koppeling die de API leest, ziet dezelfde scheiding: een pakketweigering komt terug als HTTP **402 Payment Required**, een rechtenweigering als **403 Forbidden**. Gaat er iets mis en kun je niet zien welke van de twee het was, dan is dat een bug die het melden waard is.
+
 ## Gebruikslimieten
 
 Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.

@@ -23,11 +23,13 @@ class FrontendScoutHistoryView extends FrontendViewBase {
         );
         self::renderHeader( __( 'Scout reports history', 'talenttrack' ) );
 
-        // v3.85.5 — Scout access is Pro-tier per FeatureMap.
+        // v3.85.5 — Scout access is Pro-tier per FeatureMap. #3104 — the
+        // refusal renders through the shared panel, addressed by feature
+        // key so it names the feature the way the account page does.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'scout_access' )
         ) {
-            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Scout access', 'talenttrack' ), 'pro' );
+            echo \TT\Modules\License\UpgradePanel::render( 'scout_access' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
             return;
         }
 

@@ -25339,9 +25339,58 @@ msgstr ""
 "Beschikbaar vanaf %s. Open je accountpagina om te zien wat het pakket "
 "toevoegt."
 
-#: src/Modules/License/Admin/UpgradeNudge.php:59
+#: src/Modules/License/UpgradePanel.php:108
 msgid "Open account page"
 msgstr "Accountpagina openen"
+
+#. translators: %s: plan name, e.g. "Pro"
+#: src/Modules/License/UpgradePanel.php:132
+#, php-format
+msgid "On the %s plan"
+msgstr "Zit in het %s-pakket"
+
+#. translators: 1: feature name, 2: plan name
+#: src/Modules/License/UpgradePanel.php:142
+#, php-format
+msgid ""
+"%1$s is part of the %2$s plan, so it is switched off on this install. The "
+"screen stays here rather than disappearing, so you can see what the plan "
+"adds."
+msgstr ""
+"%1$s hoort bij het %2$s-pakket en staat op deze installatie dus uit. Het "
+"scherm blijft staan in plaats van te verdwijnen, zodat je kunt zien wat het "
+"pakket toevoegt."
+
+#: src/Modules/License/UpgradePanel.php:150
+msgid ""
+"Anything already recorded here stays readable and exportable. Only new "
+"entries are blocked."
+msgstr ""
+"Alles wat hier al is vastgelegd, blijft leesbaar en exporteerbaar. Alleen "
+"nieuwe invoer wordt geblokkeerd."
+
+#: src/Modules/License/UpgradePanel.php:104
+msgid ""
+"Nothing has been removed — everything already recorded stays exactly as it "
+"is. You just cannot add past the limit until the plan changes."
+msgstr ""
+"Er is niets verwijderd — alles wat al is vastgelegd, blijft precies zoals "
+"het is. Je kunt alleen niets meer toevoegen boven de limiet totdat het "
+"pakket verandert."
+
+#. translators: 1: feature name, 2: required plan label
+#: src/Modules/License/LicenseGate.php:158
+#, php-format
+msgid "%1$s is part of the %2$s plan, which this install is not on."
+msgstr "%1$s hoort bij het %2$s-pakket, waar deze installatie niet op zit."
+
+#: src/Modules/License/LicenseGate.php:229
+msgid "You have reached the limit of 1 team on this plan."
+msgstr "Je hebt de limiet van 1 team op dit pakket bereikt."
+
+#: src/Modules/License/LicenseGate.php:230
+msgid "You have reached the limit of 25 players on this plan."
+msgstr "Je hebt de limiet van 25 spelers op dit pakket bereikt."
 
 #: src/Modules/License/Admin/UpgradeNudge.php:75
 #: src/Modules/License/LicenseGate.php:156
