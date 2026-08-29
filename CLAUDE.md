@@ -390,13 +390,67 @@ touches frontend routing.
 
 ---
 
-## 6. Always-on principle — Save + Cancel on every record-mutating form
+## 6. Always-on principle — one save model per surface, and Save + Cancel where Save is the commit
 
-Every form that creates or edits a record **MUST** offer a Cancel
-affordance alongside Save. A user who has started filling in a form and
+There are **three** ways a surface commits work, and a surface uses
+exactly one of them. Which one is not a matter of taste — it follows
+from what the surface is. Before this was written down (epic #2881) it
+was decided per surface, differently each time, and signalled
+inconsistently, which is how the match analysis ended up on the wrong
+side of a rule nobody had stated.
+
+Full surface lists, the reasoning, and the user-facing description live
+in `docs/save-model.md`. The short version:
+
+**A. Autosave** — the surface saves as the user works, shows the shared
+save state, and offers undo + revert. For surfaces where somebody
+**composes**: sentences and judgements written over minutes, usually on
+a phone. Match prep, match analysis, evaluation *edit*, goal *edit*,
+PDP conversation, PDP self-reflection. Use
+`\TT\Shared\Frontend\Components\FormAutosave` +
+`\TT\Shared\Frontend\Components\SaveState`; never hand-roll a debounce
+or a second save loop.
+
+**B. Explicit Save, with a real Cancel** — the contract below. For
+surfaces where a **half-finished commit is worse than a lost one**: the
+three grids (attendance, minutes, ratings), where a coach rating a squad
+on a flaky connection gets one commit point and Cancel means cancel; and
+short record forms, where the fields are a known set and Save is a
+useful pause. This is a deliberate choice, not a surface autosave has
+not reached yet.
+
+**C. Draft, then submit** — wizards. Autosaved into a draft, committed
+on the final step, nothing written to the live record before then.
+
+Three rules that hold whichever model applies:
+
+- **Creating a record is never autosave.** Autosave writes *to* a
+  record and there is none yet; a create form that autosaved would leave
+  an empty row behind everyone who opened it and thought better of it.
+  Create is B or C.
+- **The endpoint must accept partial updates before autosave points at
+  it.** An endpoint that rebuilds the whole row from the request, plus a
+  debounce, is a data-loss bug that looks like a coach's write-up
+  vanishing when they edit a different field. Add a test that an omitted
+  field is left alone — `tests/php/AutosaveWriteContractTest.php` is the
+  pattern.
+- **An irreversible commit is never a field on an autosaving form.**
+  Publishing, signing off, submitting: its own control, its own confirm,
+  outside the form. A checkbox that locks a player's record forever must
+  not fire because a debounce elapsed.
+
+### Save + Cancel — the explicit-Save branch (model B)
+
+Every form whose commit **is** a Save button **MUST** offer a Cancel
+affordance alongside it. A user who has started filling in a form and
 changes their mind needs an obvious, one-click way out that doesn't
 discard their context — leaving them on a half-filled form with only
 a Save button is hostile UX.
+
+An autosaving surface (model A) is **not exempt from this** — it is
+outside its scope. There is nothing uncommitted to cancel, so Cancel has
+nothing to mean; undo and revert are what "I did not mean that" looks
+like there, and they reach further than abandoning a form ever did.
 
 The contract:
 
@@ -448,10 +502,15 @@ that didn't strictly need one is zero; the cost of omitting one on
 a form that needed it is a frustrated user re-loading the page to
 escape.
 
-Reference implementation: `CoachForms::renderEvalForm` (eval edit
-form, v3.110.58 onward); `FrontendPlayersManageView::renderForm`;
-`FrontendTeamsManageView::renderForm`. The shared helper is
+Reference implementation: `FrontendPlayersManageView::renderForm`;
+`FrontendTeamsManageView::renderForm`; `CoachForms::renderEvalForm` in
+its **create** branch. The shared helper is
 `\TT\Shared\Frontend\Components\FormSaveButton`.
+
+Reference implementation for model A: `FrontendMatchAnalysisView`, and
+`CoachForms::renderEvalForm` in its **edit** branch — the same method
+renders both models, which is the clearest illustration of where the
+line falls.
 
 ---
 
@@ -700,6 +759,7 @@ duplicate their content here.
 | Driving the workflow            | `AGENTS.md` (one agent vs. two, parallel sessions, decision tree) |
 | Frontend nav / new view         | `docs/back-navigation.md` (two-affordance contract, `tt_back` mechanism, label resolver) |
 | Button label / UI copy          | `docs/ui-copy.md` (sentence case, one verb per action, length limit, English msgids) |
+| Any form that commits work      | `docs/save-model.md` (the three save models, which surfaces are in each, how to choose for a new one) |
 
 If a doc you'd expect doesn't exist, **say so before writing code** — don't
 guess at conventions. The lead developer would rather add a doc than have
@@ -790,13 +850,29 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] If this PR is exempt: the exemption is justified in the spec's
       "Wizard plan" section.
 
-**Save + Cancel (`CLAUDE.md` § 6 — record-mutating forms):**
-- [ ] Every create or edit form for a record offers Cancel + Save via
-      `FormSaveButton::render()` with a `cancel_url` argument.
+**Save model (`CLAUDE.md` § 6 — any form that commits work):**
+- [ ] The surface picks one of the three models deliberately, and the
+      PR says which and why. Composing → autosave; a half-finished
+      commit worse than a lost one → explicit Save; creating a record →
+      never autosave.
+- [ ] An autosaving surface uses `FormAutosave` + `SaveState`, not a
+      hand-rolled debounce or a second save loop.
+- [ ] The target endpoint accepts partial updates, with a test that an
+      omitted field is left alone.
+- [ ] No irreversible commit (publish, sign-off, submit) is a field on
+      an autosaving form.
+- [ ] `docs/save-model.md` and its Dutch twin list the new surface under
+      the right model.
+
+**Save + Cancel (`CLAUDE.md` § 6 — explicit-Save forms):**
+- [ ] Every create or edit form whose commit is a Save button offers
+      Cancel + Save via `FormSaveButton::render()` with a `cancel_url`
+      argument.
 - [ ] Cancel target: detail page in edit mode, list view in create
       mode. `tt_back` overrides both when present.
 - [ ] If exempt (settings sub-form, inline lookup editor, wizard step):
-      exemption matches one of the categories in § 6.
+      exemption matches one of the categories in § 6. An autosaving
+      surface is out of scope rather than exempt.
 
 **Switchability (`#2599` — new module or new routable surface):**
 - [ ] New module is declared in `config/modules.php` and has a

@@ -140,6 +140,10 @@ fixed.
 
 ## Save behaviour
 
+This screen is one of the ones that saves itself. [How saving works](save-model.md)
+sets out the three models TalentTrack uses and which screens are in each; this
+section is the detail for this one.
+
 Every edit live-saves over REST — there is no Save button to press.
 The toolbar's right side shows the current save state ("All changes
 saved", "Unsaved changes…", "Saving…", "Save failed — retry").
