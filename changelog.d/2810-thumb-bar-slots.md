@@ -1,3 +1,5 @@
+# The bottom bar's four shortcuts are now chosen per role (#2810)
+
 The four shortcuts in the bar at the bottom of a phone screen are now chosen per
 role instead of being whatever happened to come first in the menu. A head coach
 gets Activities, Players, Teams and My tasks; a parent gets their child's
