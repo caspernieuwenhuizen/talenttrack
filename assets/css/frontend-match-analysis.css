@@ -783,9 +783,31 @@
 
 /* ---- Actions ------------------------------------------------ */
 
+/*
+ * #3007 — the row that used to hold Save + Cancel. It now holds the shared
+ * save state, the undo/revert pair that travels with it, and the one
+ * deliberate commit left on the surface: Mark as final, which is a publish
+ * rather than a save.
+ *
+ * Mobile-first column, so on a phone the status line reads above the button
+ * that acts on it rather than being squeezed beside it.
+ */
 .tt-ma__actions {
     display: flex;
     flex-direction: column;
+    gap: var(--tt-sp-2);
+    align-items: flex-start;
+}
+
+.tt-ma__final-note {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-muted, #6a7570);
+}
+
+.tt-ma__final-note[hidden],
+.tt-ma__finalise[hidden] {
+    display: none;
 }
 
 .tt-ma__outputs {
@@ -948,6 +970,7 @@
 
     .tt-ma__actions {
         flex-direction: row;
+        align-items: center;
         justify-content: flex-end;
     }
 }

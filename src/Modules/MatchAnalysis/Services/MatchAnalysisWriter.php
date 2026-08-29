@@ -75,6 +75,14 @@ final class MatchAnalysisWriter {
                 );
             }
         }
+
+        // #3007 — every apply moves the parent's clock, whether or not the
+        // parent row itself changed. The analysis is four tables and the
+        // surface needs one answer to "when did this last change"; without
+        // this, a section write left `updated_at` describing the last
+        // summary edit, and the concurrency check in the REST controller
+        // would wave through a write composed against a stale document.
+        $this->repo->touch( $analysis_id );
     }
 
     /**
