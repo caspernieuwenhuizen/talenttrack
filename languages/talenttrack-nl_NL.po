@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T18:49:53+00:00\n"
+"POT-Creation-Date: 2026-08-29T20:06:20+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5580,7 +5580,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:288
-#: src/Shared/Frontend/Components/SaveState.php:70
+#: src/Shared/Frontend/Components/SaveState.php:91
 #: src/Shared/Frontend/FrontendBackupsView.php:249
 #: src/Shared/Frontend/FrontendConfigurationView.php:515
 #: src/Shared/Frontend/FrontendConfigurationView.php:904
@@ -5601,8 +5601,8 @@ msgstr "Opslaan…"
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:55
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:63
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:54
-#: src/Shared/Frontend/Components/SaveState.php:71
-#: src/Shared/Frontend/Components/SaveState.php:105
+#: src/Shared/Frontend/Components/SaveState.php:92
+#: src/Shared/Frontend/Components/SaveState.php:137
 msgid "All changes saved"
 msgstr "Alle wijzigingen opgeslagen"
 
@@ -5832,6 +5832,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/Components/MediaUploader.php:178
 #: src/Shared/Frontend/Components/SavedViews.php:205
+#: src/Shared/Frontend/Components/SaveState.php:108
 #: src/Shared/Frontend/DashboardShortcode.php:276
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3636
 #: src/Shared/Frontend/FrontendBackupsView.php:252
@@ -20669,7 +20670,7 @@ msgstr "Afspelen"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:645
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1550
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:99
-#: src/Shared/Frontend/Components/SaveState.php:114
+#: src/Shared/Frontend/Components/SaveState.php:146
 #: src/Shared/Frontend/DashboardShortcode.php:281
 msgid "Undo"
 msgstr "Ongedaan maken"
@@ -48214,15 +48215,15 @@ msgid "Delete this saved view? This cannot be undone."
 msgstr ""
 "Deze opgeslagen weergave verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: src/Shared/Frontend/Components/SaveState.php:69
+#: src/Shared/Frontend/Components/SaveState.php:90
 msgid "Unsaved changes…"
 msgstr "Niet-opgeslagen wijzigingen…"
 
-#: src/Shared/Frontend/Components/SaveState.php:72
+#: src/Shared/Frontend/Components/SaveState.php:93
 msgid "Save failed — retry"
 msgstr "Opslaan mislukt — probeer opnieuw"
 
-#: src/Shared/Frontend/Components/SaveState.php:77
+#: src/Shared/Frontend/Components/SaveState.php:98
 msgid "Undo failed — nothing changed"
 msgstr "Ongedaan maken mislukt — er is niets gewijzigd"
 
@@ -48243,6 +48244,7 @@ msgid "1 field will be restored."
 msgstr "1 veld wordt hersteld."
 
 #: src/Shared/Frontend/Components/SaveState.php:107
+#, php-format
 msgid "%d fields will be restored."
 msgstr "%d velden worden hersteld."
 
