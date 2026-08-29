@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-29T16:36:27+00:00\n"
+"POT-Creation-Date: 2026-08-29T16:44:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1026,14 +1026,14 @@ msgid "Additional information"
 msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:20
-#: src/Modules/DemoData/Admin/DemoDataPage.php:69
-#: src/Modules/DemoData/Admin/DemoDataPage.php:962
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1110
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1163
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1200
+#: src/Modules/DemoData/Admin/DemoDataPage.php:71
+#: src/Modules/DemoData/Admin/DemoDataPage.php:994
 #: src/Modules/DemoData/Admin/DemoDataPage.php:1227
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1260
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1300
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1280
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1317
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1344
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1377
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1417
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:24
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:20
 #: src/Modules/Development/Frontend/IdeaRejectHandler.php:19
@@ -1588,7 +1588,7 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:41
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:156
-#: src/Modules/DemoData/Admin/DemoDataPage.php:688
+#: src/Modules/DemoData/Admin/DemoDataPage.php:720
 #: src/Modules/Wizards/Goal/DetailsStep.php:20
 msgid "Medium"
 msgstr ""
@@ -3624,6 +3624,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
 #: src/Modules/DemoData/DemoCoverage.php:1254
+#: src/Modules/DemoData/DemoRunPlan.php:109
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:561
 #: src/Modules/License/Admin/AccountPage.php:640
@@ -6891,8 +6892,9 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/Admin/DemoDataPage.php:511
+#: src/Modules/DemoData/Admin/DemoDataPage.php:543
 #: src/Modules/DemoData/DemoCoverage.php:1252
+#: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
 #: src/Modules/License/Admin/AccountPage.php:556
@@ -9536,7 +9538,7 @@ msgid "Import token expired. Re-upload the file."
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:687
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1342
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1459
 #: src/Shared/Frontend/DashboardShortcode.php:268
 msgid "Import failed."
 msgstr ""
@@ -10573,7 +10575,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:175
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:297
-#: src/Modules/DemoData/Admin/DemoDataPage.php:464
+#: src/Modules/DemoData/Admin/DemoDataPage.php:496
 #: src/Shared/Frontend/FrontendBackupsView.php:184
 #: src/Shared/Frontend/FrontendBackupsView.php:272
 #: src/Shared/Frontend/FrontendBackupsView.php:290
@@ -10699,7 +10701,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:296
 #: src/Modules/DataBrowser/SemanticRegistry.php:205
-#: src/Modules/DemoData/Admin/DemoDataPage.php:927
+#: src/Modules/DemoData/Admin/DemoDataPage.php:959
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:129
@@ -10714,7 +10716,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:298
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:808
-#: src/Modules/DemoData/Admin/DemoDataPage.php:496
+#: src/Modules/DemoData/Admin/DemoDataPage.php:528
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:416
 #: src/Shared/Frontend/FrontendBackupsView.php:273
 #: src/Shared/Frontend/FrontendBackupsView.php:291
@@ -12673,7 +12675,7 @@ msgid "Action (e.g. player.saved)"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:507
-#: src/Modules/DemoData/Admin/DemoDataPage.php:277
+#: src/Modules/DemoData/Admin/DemoDataPage.php:304
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:40
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:111
 #: src/Shared/Frontend/FrontendExportsView.php:214
@@ -15309,532 +15311,571 @@ msgstr ""
 msgid "Updated by"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:113
+#: src/Modules/DemoData/Admin/DemoDataPage.php:99
+#, php-format
+msgid "Step %1$d of %2$d — %3$s"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:100
+msgid "Finishing up…"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:101
+msgid "The run stopped. Reload the page to see how far it got."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:102
+msgid "Discarding…"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:132
 msgid "TalentTrack Demo Data"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:116
+#: src/Modules/DemoData/Admin/DemoDataPage.php:135
 msgid "Generate a realistic Dutch-academy dataset for demos, toggle a site-wide demo mode that hides real club data, and wipe cleanly when the demo is over."
 msgstr ""
 
 #. translators: 1: batch id, 2: data counts, 3: user counts
-#: src/Modules/DemoData/Admin/DemoDataPage.php:169
+#: src/Modules/DemoData/Admin/DemoDataPage.php:196
 #, php-format
 msgid "Generation complete. Batch: %1$s. Data: %2$s. %3$s."
 msgstr ""
 
 #. translators: %s is a comma-separated list of team names.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:181
+#: src/Modules/DemoData/Admin/DemoDataPage.php:208
 #, php-format
 msgid "No head coach is recorded for: %s. Their generated work is attributed to you instead — assign a head coach on the team and re-run for a truer picture."
 msgstr ""
 
 #. translators: 1: row count, 2: comma-list of categories
-#: src/Modules/DemoData/Admin/DemoDataPage.php:199
+#: src/Modules/DemoData/Admin/DemoDataPage.php:226
 #, php-format
 msgid "Demo data wiped — %1$d rows across %2$s."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:204
+#: src/Modules/DemoData/Admin/DemoDataPage.php:231
 msgid "Demo data wiped."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:212
+#: src/Modules/DemoData/Admin/DemoDataPage.php:239
 msgid "Demo users removed."
 msgstr ""
 
 #. translators: %d is the row-walk count across evaluations + goals + verdicts + players + trials
-#: src/Modules/DemoData/Admin/DemoDataPage.php:221
+#: src/Modules/DemoData/Admin/DemoDataPage.php:248
 #, php-format
 msgid "Journey events rebuilt — walked %d source rows. New events were inserted where missing; existing events were left untouched."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:229
+#: src/Modules/DemoData/Admin/DemoDataPage.php:256
 msgid "Demo mode updated."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:240
+#: src/Modules/DemoData/Admin/DemoDataPage.php:267
 msgid "Demo mode"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:244
+#: src/Modules/DemoData/Admin/DemoDataPage.php:271
 msgid " — real club data is hidden from every read path. Only demo rows are visible elsewhere in the plugin."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:246
+#: src/Modules/DemoData/Admin/DemoDataPage.php:273
 msgid "OFF"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:247
+#: src/Modules/DemoData/Admin/DemoDataPage.php:274
 msgid " — demo data is hidden from every read path. Normal operation."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:256
+#: src/Modules/DemoData/Admin/DemoDataPage.php:283
 msgid "Type EXIT DEMO to confirm"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:258
+#: src/Modules/DemoData/Admin/DemoDataPage.php:285
 msgid "Exit demo mode"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:261
+#: src/Modules/DemoData/Admin/DemoDataPage.php:288
 msgid "Enter demo mode"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:270
+#: src/Modules/DemoData/Admin/DemoDataPage.php:297
 msgid "Current demo footprint"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:272
+#: src/Modules/DemoData/Admin/DemoDataPage.php:299
 msgid "No demo data exists yet."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:278
+#: src/Modules/DemoData/Admin/DemoDataPage.php:305
 msgid "Tagged rows"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:297
+#: src/Modules/DemoData/Admin/DemoDataPage.php:324
 msgid "Accounts from the last run"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:298
+#: src/Modules/DemoData/Admin/DemoDataPage.php:325
 msgid "Shown once, then cleared on next page load. Copy these now if you need them."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:309
+#: src/Modules/DemoData/Admin/DemoDataPage.php:336
 msgid "Generate"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:314
+#: src/Modules/DemoData/Admin/DemoDataPage.php:341
 msgid "Demo users already exist from a previous run."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:315
+#: src/Modules/DemoData/Admin/DemoDataPage.php:342
 msgid "No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, activities, goals)."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:321
+#: src/Modules/DemoData/Admin/DemoDataPage.php:348
 msgid "First run."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:322
+#: src/Modules/DemoData/Admin/DemoDataPage.php:349
 msgid "This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must be one whose inbox you control (a catch-all is best — see below for details)."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:330
+#: src/Modules/DemoData/Admin/DemoDataPage.php:357
 msgid "Generating demo data…"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:331
+#: src/Modules/DemoData/Admin/DemoDataPage.php:358
 msgid "This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:335
+#: src/Modules/DemoData/Admin/DemoDataPage.php:367
 msgid "Generate-form layout"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:337
+#: src/Modules/DemoData/Admin/DemoDataPage.php:369
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:235
 #: src/Shared/Frontend/CoachForms.php:278
 msgid "Basic"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:340
+#: src/Modules/DemoData/Admin/DemoDataPage.php:372
 #: src/Shared/CoreSurfaceRegistration.php:1671
 #: src/Shared/Frontend/FrontendConfigurationView.php:1772
 msgid "Advanced"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:350
+#: src/Modules/DemoData/Admin/DemoDataPage.php:382
 msgid "Step 0 — Source"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:353
+#: src/Modules/DemoData/Admin/DemoDataPage.php:385
 msgid "Procedural for a fast, believable academy. Excel for a deterministic dataset matching the prospect's real teams. Hybrid for the best of both — Excel where you have it, procedural fills the rest."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:357
+#: src/Modules/DemoData/Admin/DemoDataPage.php:389
 msgid "Procedural only"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:358
+#: src/Modules/DemoData/Admin/DemoDataPage.php:390
 msgid "pick a preset and let the generator do everything."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:362
+#: src/Modules/DemoData/Admin/DemoDataPage.php:394
 msgid "Excel upload"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:363
+#: src/Modules/DemoData/Admin/DemoDataPage.php:395
 msgid "use only what's in the workbook; nothing is generated."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:367
+#: src/Modules/DemoData/Admin/DemoDataPage.php:399
 msgid "Hybrid: upload + procedural top-up"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:368
+#: src/Modules/DemoData/Admin/DemoDataPage.php:400
 msgid "Excel sheets win; the procedural generator fills any sheet you left blank."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:374
+#: src/Modules/DemoData/Admin/DemoDataPage.php:406
 msgid "Download template (.xlsx)"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:379
+#: src/Modules/DemoData/Admin/DemoDataPage.php:411
 msgid "v1.5: Teams, People, Players, Trial cases, Activities (Sessions), Attendance, Evaluations, Eval ratings, Goals, Player-journey events. Reference sheets (Eval categories, Category weights, Lookups) are documentation-only — admin-edit those via the existing Configuration surfaces."
 msgstr ""
 
 #. translators: 1: upload_max_filesize, 2: post_max_size, 3: memory_limit
-#: src/Modules/DemoData/Admin/DemoDataPage.php:385
+#: src/Modules/DemoData/Admin/DemoDataPage.php:417
 #, php-format
 msgid "Server limits on this install: upload_max_filesize = %1$s · post_max_size = %2$s · memory_limit = %3$s. Workbooks above the smaller of the first two will be rejected by PHP before the plugin sees them."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:397
+#: src/Modules/DemoData/Admin/DemoDataPage.php:429
 msgid "Step 0.5 — What to generate"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:402
+#: src/Modules/DemoData/Admin/DemoDataPage.php:434
 msgid "Master data — uncheck to use the rows already in your club instead of generating new ones. These three toggles only apply to the procedural source (Excel + hybrid read master data from the workbook regardless)."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:406
+#: src/Modules/DemoData/Admin/DemoDataPage.php:438
 msgid "Generate teams"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:407
+#: src/Modules/DemoData/Admin/DemoDataPage.php:439
 msgid "uncheck to use existing teams in the club."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:411
+#: src/Modules/DemoData/Admin/DemoDataPage.php:443
 msgid "Generate people + WP users"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:412
+#: src/Modules/DemoData/Admin/DemoDataPage.php:444
 msgid "uncheck to skip the 36-account creation. Existing People rows + their WP users stay untouched."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:416
+#: src/Modules/DemoData/Admin/DemoDataPage.php:448
 msgid "Generate players"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:417
+#: src/Modules/DemoData/Admin/DemoDataPage.php:449
 msgid "uncheck to use existing players in the club."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:422
+#: src/Modules/DemoData/Admin/DemoDataPage.php:454
 msgid "Dependent entities — uncheck any to skip generating that category on top of whatever master data ends up present. Applies to every source (procedural, Excel, hybrid)."
 msgstr ""
 
 #. translators: %s is a demo-data category, e.g. "Activities".
-#: src/Modules/DemoData/Admin/DemoDataPage.php:435
+#: src/Modules/DemoData/Admin/DemoDataPage.php:467
 #, php-format
 msgid "Generate %s"
 msgstr ""
 
 #. translators: 1: preset name, 2: number of teams, 3: players per team, 4: weeks of activity
-#: src/Modules/DemoData/Admin/DemoDataPage.php:475
+#: src/Modules/DemoData/Admin/DemoDataPage.php:507
 #, php-format
 msgid "%1$s — %2$d team, %3$d players/team, %4$d weeks"
 msgid_plural "%1$s — %2$d teams, %3$d players/team, %4$d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:491
+#: src/Modules/DemoData/Admin/DemoDataPage.php:523
 msgid "Pick a preset, or open the size fields below to set your own numbers."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:512
+#: src/Modules/DemoData/Admin/DemoDataPage.php:544
 msgid "Players per team"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:513
+#: src/Modules/DemoData/Admin/DemoDataPage.php:545
 msgid "Weeks of history"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:517
+#: src/Modules/DemoData/Admin/DemoDataPage.php:549
 msgid "Set my own numbers"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:519
+#: src/Modules/DemoData/Admin/DemoDataPage.php:551
 msgid "Leave a field empty to use the preset value. Larger numbers take longer to generate."
 msgstr ""
 
 #. translators: 1: number of teams, 2: players per team, 3: total players, 4: weeks of history
-#: src/Modules/DemoData/Admin/DemoDataPage.php:545
+#: src/Modules/DemoData/Admin/DemoDataPage.php:577
 #, php-format
 msgid "%1$d teams x %2$d players = %3$d players and demo accounts, over %4$d weeks of history."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:579
+#: src/Modules/DemoData/Admin/DemoDataPage.php:611
 msgid "Club name for this demo"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:582
+#: src/Modules/DemoData/Admin/DemoDataPage.php:614
 msgid "Used as the prefix for every generated team name (e.g. \"FC Groningen JO11\"). Defaults to the academy name from Configuration. Only affects this generate run — your Configuration setting is not changed."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:586
+#: src/Modules/DemoData/Admin/DemoDataPage.php:618
 msgid "Demo email domain"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:591
+#: src/Modules/DemoData/Admin/DemoDataPage.php:623
 msgid "Ignored — users already exist. Kept for reference; change only if you plan to wipe users and recreate."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:593
+#: src/Modules/DemoData/Admin/DemoDataPage.php:625
 msgid "Every demo account will be <slot>@<this-domain> (e.g. coach1@demo.example.com)."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:594
+#: src/Modules/DemoData/Admin/DemoDataPage.php:626
 msgid "WordPress will email welcome credentials to each address."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:595
+#: src/Modules/DemoData/Admin/DemoDataPage.php:627
 msgid "Pick a domain whose inbox you actually receive — a catch-all (anything@yourdomain.tld → real inbox) is the safest, since 36 different addresses are generated. Loopback values like demo.talenttrack.local work locally but bounce on a real server. If your DNS doesn't support catch-all, see the manual user list below and create the WordPress users yourself first."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:601
+#: src/Modules/DemoData/Admin/DemoDataPage.php:633
 msgid "Shared password"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:606
+#: src/Modules/DemoData/Admin/DemoDataPage.php:638
 msgid "Ignored — existing accounts keep their current password. Only used when new users are created."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:608
+#: src/Modules/DemoData/Admin/DemoDataPage.php:640
 msgid "Applied to all 36 demo accounts on first creation."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:615
+#: src/Modules/DemoData/Admin/DemoDataPage.php:647
 msgid "I confirm this domain catches mail I own"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:619
+#: src/Modules/DemoData/Admin/DemoDataPage.php:651
 msgid "Required — 36 WP welcome emails will be sent."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:627
+#: src/Modules/DemoData/Admin/DemoDataPage.php:659
 msgid "Skip user creation — show me the list to create manually"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:630
+#: src/Modules/DemoData/Admin/DemoDataPage.php:662
 msgid "Prefer to create the WordPress users yourself (e.g. your hosting environment doesn't support catch-all email)? Create the 36 accounts below before running the generator. Use any role for now — TalentTrack reassigns roles based on slot during data generation. Once they all exist, this page will detect them and skip the user-creation step automatically."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:639
+#: src/Modules/DemoData/Admin/DemoDataPage.php:671
 msgid "Replace <your-domain> with the value you typed in the field above. After creating them, refresh this page — the warning above turns to \"Demo users already exist\"."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:649
+#: src/Modules/DemoData/Admin/DemoDataPage.php:681
 msgid "Seed"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:652
+#: src/Modules/DemoData/Admin/DemoDataPage.php:684
 msgid "Fixed default 20260504 — produces the same roster every run. Change for a different roster."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:656
+#: src/Modules/DemoData/Admin/DemoDataPage.php:688
 msgid "Content language"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:670
+#: src/Modules/DemoData/Admin/DemoDataPage.php:702
 msgid "(site locale)"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:674
+#: src/Modules/DemoData/Admin/DemoDataPage.php:706
 msgid "Language the generated content (goal titles, descriptions, activity titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator constants to support a new one."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:679
+#: src/Modules/DemoData/Admin/DemoDataPage.php:711
 msgid "Generate demo data"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:687
+#: src/Modules/DemoData/Admin/DemoDataPage.php:719
 msgid "Small"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:689
+#: src/Modules/DemoData/Admin/DemoDataPage.php:721
 msgid "Large"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:731
-#: src/Modules/DemoData/Admin/DemoDataPage.php:738
+#: src/Modules/DemoData/Admin/DemoDataPage.php:763
+#: src/Modules/DemoData/Admin/DemoDataPage.php:770
 msgid "Rebuild journey events"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:733
+#: src/Modules/DemoData/Admin/DemoDataPage.php:765
 msgid "Walk every evaluation, goal, PDP verdict, player join-date, and trial case in this club and emit any missing journey events. Idempotent — re-running is safe and fills only the gap. Use this after a demo run on installs that pre-date the v3.91.7 generator hooks, or anytime a bulk import bypassed the runtime save hooks."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:762
+#: src/Modules/DemoData/Admin/DemoDataPage.php:794
 msgid "Wipe"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:764
+#: src/Modules/DemoData/Admin/DemoDataPage.php:796
 msgid "Wipe demo data"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:766
+#: src/Modules/DemoData/Admin/DemoDataPage.php:798
 msgid "Pick which categories of demo-tagged rows to remove. Each box wipes the category plus its dependents (e.g. \"Teams\" also wipes the activities + attendance + evaluations + eval-ratings tied to those teams). Non-demo data is never touched. The 36 persistent demo WP users are preserved across this action — use \"Wipe demo users too\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:769
+#: src/Modules/DemoData/Admin/DemoDataPage.php:801
 msgid "Counts shown are the demo-tagged rows that match the cascade right now. Double-counts across overlapping categories are deduplicated server-side at delete time."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:778
+#: src/Modules/DemoData/Admin/DemoDataPage.php:810
 msgid "Batch"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:781
+#: src/Modules/DemoData/Admin/DemoDataPage.php:813
 msgid "All batches"
 msgstr ""
 
 #. translators: 1: batch id, 2: created-at timestamp, 3: total tag count.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:787
+#: src/Modules/DemoData/Admin/DemoDataPage.php:819
 #, php-format
 msgid "%1$s — %2$s (%3$d tagged rows)"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:797
+#: src/Modules/DemoData/Admin/DemoDataPage.php:829
 msgid "Pick a batch to scope the wipe to that batch only. \"All batches\" preserves the historical behaviour."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:804
+#: src/Modules/DemoData/Admin/DemoDataPage.php:836
 msgid "Categories to wipe"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:809
+#: src/Modules/DemoData/Admin/DemoDataPage.php:841
 msgid "Master data"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:810
+#: src/Modules/DemoData/Admin/DemoDataPage.php:842
 msgid "Dependent entities"
 msgstr ""
 
 #. translators: 1: row count, 2: what else the cascade reaches.
-#: src/Modules/DemoData/Admin/DemoDataPage.php:830
+#: src/Modules/DemoData/Admin/DemoDataPage.php:862
 #, php-format
 msgid "%1$d demo rows. %2$s"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:841
+#: src/Modules/DemoData/Admin/DemoDataPage.php:873
 msgid "Type WIPE to confirm"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:843
+#: src/Modules/DemoData/Admin/DemoDataPage.php:875
 msgid "Wipe selected categories"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:845
-#: src/Modules/DemoData/Admin/DemoDataPage.php:869
+#: src/Modules/DemoData/Admin/DemoDataPage.php:877
+#: src/Modules/DemoData/Admin/DemoDataPage.php:901
 msgid "Nothing selected."
 msgstr ""
 
 #. translators: 1: total cascade row count, 2: number of selected categories
-#: src/Modules/DemoData/Admin/DemoDataPage.php:867
+#: src/Modules/DemoData/Admin/DemoDataPage.php:899
 #, php-format
 msgid "Will wipe ~%1$d rows across %2$d categories."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:894
+#: src/Modules/DemoData/Admin/DemoDataPage.php:926
 msgid "Wipe demo users too"
 msgstr ""
 
 #. translators: %d is the count of persistent demo users
-#: src/Modules/DemoData/Admin/DemoDataPage.php:898
+#: src/Modules/DemoData/Admin/DemoDataPage.php:930
 #, php-format
 msgid "Removes the persistent set of %d demo WP users. Rare — typically only when changing demo domain or uninstalling. Three safety rails fire per user (domain match, not-current-user, not-last-admin)."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:906
+#: src/Modules/DemoData/Admin/DemoDataPage.php:938
 msgid "Expected email domain (e.g. demo.talenttrack.local)"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:909
+#: src/Modules/DemoData/Admin/DemoDataPage.php:941
 msgid "Type WIPE USERS to confirm"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:911
+#: src/Modules/DemoData/Admin/DemoDataPage.php:943
 msgid "Wipe demo users"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:919
+#: src/Modules/DemoData/Admin/DemoDataPage.php:951
 msgid "Past batches"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:921
+#: src/Modules/DemoData/Admin/DemoDataPage.php:953
 msgid "No batches yet."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:926
+#: src/Modules/DemoData/Admin/DemoDataPage.php:958
 msgid "Batch id"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:928
+#: src/Modules/DemoData/Admin/DemoDataPage.php:960
 msgid "Tagged entities"
 msgstr ""
 
 #. translators: %s: post_max_size from php.ini, e.g. "8M"
-#: src/Modules/DemoData/Admin/DemoDataPage.php:956
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1294
+#: src/Modules/DemoData/Admin/DemoDataPage.php:988
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1411
 #, php-format
 msgid "Upload exceeded the server's POST size limit (post_max_size = %s). Ask your hoster to raise it, or split the workbook into smaller pieces."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1051
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1083
 msgid "Excel and Hybrid sources require an uploaded workbook."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1059
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1316
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1091
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1433
 msgid "Invalid upload."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1306
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1105
+msgid "A demo run is still unfinished. Resume or discard it before starting another."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1199
+msgid "A demo run is unfinished."
+msgstr ""
+
+#. translators: 1: completed steps, 2: total steps, 3: batch id
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1203
+#, php-format
+msgid "%1$d of %2$d steps done, batch %3$s. Its rows are already tagged, so a wipe reaches them."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1215
+msgid "Resume this run"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1218
+msgid "Discard it"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1423
 msgid "No file uploaded."
 msgstr ""
 
 #. translators: %s: error message
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1336
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1453
 #, php-format
 msgid "Excel import crashed: %s. The plugin caught it before WordPress fell over, but the workbook was not imported. Check the TalentTrack log for details."
 msgstr ""
 
 #. translators: %s: upload_max_filesize value
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1381
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1498
 #, php-format
 msgid "Upload exceeded the server's upload_max_filesize (%s). Ask your hoster to raise it, or split the workbook."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1385
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1502
 msgid "Upload exceeded the form's declared maximum size."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1387
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1504
 msgid "Upload was interrupted mid-transfer. Try again on a stable connection."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1389
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1506
 msgid "No file was selected for upload."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1391
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1508
 msgid "PHP could not write to its temporary directory. Ask your hoster to fix `upload_tmp_dir`."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1393
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1510
 msgid "PHP could not write the uploaded file to disk."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1395
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1512
 msgid "A PHP extension blocked the upload."
 msgstr ""
 
 #. translators: %d: PHP UPLOAD_ERR_* code
-#: src/Modules/DemoData/Admin/DemoDataPage.php:1399
+#: src/Modules/DemoData/Admin/DemoDataPage.php:1516
 #, php-format
 msgid "Upload failed (error code %d)."
 msgstr ""
@@ -16114,10 +16155,26 @@ msgstr ""
 msgid "Staff enrolled on the shipped courses, with a mixed spread: some finished, some mid-course, one overdue and one assignment awaiting review. The courses themselves ship with the plugin and are never generated."
 msgstr ""
 
+#: src/Modules/DemoData/DemoRunPlan.php:103
+msgid "Accounts and staff"
+msgstr ""
+
+#: src/Modules/DemoData/DemoRunPlan.php:105
+msgid "Importing the workbook"
+msgstr ""
+
+#: src/Modules/DemoData/DemoRunPlan.php:111
+msgid "Tagging journey events"
+msgstr ""
+
 #. translators: 1: demo persona slot, 2: the underlying WordPress error.
 #: src/Modules/DemoData/Generators/UserGenerator.php:126
 #, php-format
 msgid "Failed to create demo user %1$s: %2$s"
+msgstr ""
+
+#: src/Modules/DemoData/Rest/DemoRunRestController.php:83
+msgid "That demo run is no longer on file."
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:23
@@ -16721,7 +16778,7 @@ msgid "This help topic has not been translated yet, so it is shown in English."
 msgstr ""
 
 #. translators: %s: link text
-#: src/Modules/Documentation/Markdown.php:243
+#: src/Modules/Documentation/Markdown.php:125
 #, php-format
 msgid "%s (opens the WordPress admin)"
 msgstr ""
