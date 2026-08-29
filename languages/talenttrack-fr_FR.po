@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T20:48:54+00:00\n"
+"POT-Creation-Date: 2026-08-29T20:53:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -12166,6 +12166,22 @@ msgid_plural "%d messages could not be sent. The failures have been logged."
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/Modules/Comms/Rest/CommsRestController.php:280
+msgid "That message is not in your inbox."
+msgstr ""
+
+#: src/Modules/Comms/Rest/CommsRestController.php:287
+msgid "The message could not be updated."
+msgstr ""
+
+#: src/Modules/Comms/Rest/CommsRestController.php:342
+msgid "No such message template."
+msgstr ""
+
+#: src/Modules/Comms/Rest/CommsRestController.php:374
+msgid "Expected a list of message types."
+msgstr ""
+
 #: src/Modules/Comms/Templates/AlertDigestTemplate.php:31
 msgid "Alert summary"
 msgstr ""
@@ -12575,15 +12591,15 @@ msgid ""
 "{coach_name}"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:22
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:28
 msgid "PDP / evaluation ready to read"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:30
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:36
 msgid "{player_name}'s PDP is ready"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:31
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:37
 msgid ""
 "Hi {recipient_first_name},\n"
 "\n"
@@ -12594,11 +12610,11 @@ msgid ""
 "The coaching team"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:34
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:40
 msgid "Het ontwikkelingsplan van {player_name} is klaar"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:35
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
 msgid ""
 "Hoi {recipient_first_name},\n"
 "\n"
@@ -12610,19 +12626,19 @@ msgid ""
 "Het coaching team"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:47
 msgid "PDP ready"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:42
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:48
 msgid "{player_name}'s development plan for {season_name} is ready to read."
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:45
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:51
 msgid "Plan klaar"
 msgstr ""
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:46
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:52
 msgid "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 msgstr ""
 

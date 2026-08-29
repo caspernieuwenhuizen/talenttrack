@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T20:48:54+00:00\n"
+"POT-Creation-Date: 2026-08-29T20:53:46+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -12956,6 +12956,22 @@ msgstr[0] "%d bericht kon niet worden verstuurd. De fout is vastgelegd."
 msgstr[1] ""
 "%d berichten konden niet worden verstuurd. De fouten zijn vastgelegd."
 
+#: src/Modules/Comms/Rest/CommsRestController.php:280
+msgid "That message is not in your inbox."
+msgstr "Dat bericht staat niet in je inbox."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:287
+msgid "The message could not be updated."
+msgstr "Het bericht kon niet worden bijgewerkt."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:342
+msgid "No such message template."
+msgstr "Dit berichtsjabloon bestaat niet."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:374
+msgid "Expected a list of message types."
+msgstr "Er werd een lijst met berichtsoorten verwacht."
+
 #: src/Modules/Comms/Templates/AlertDigestTemplate.php:31
 msgid "Alert summary"
 msgstr "Meldingsoverzicht"
@@ -13540,15 +13556,15 @@ msgstr ""
 "\n"
 "{coach_name}"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:22
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:28
 msgid "PDP / evaluation ready to read"
 msgstr "POP / evaluatie klaar om te lezen"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:30
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:36
 msgid "{player_name}'s PDP is ready"
 msgstr "Het ontwikkelingsplan van {player_name} is klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:31
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:37
 msgid ""
 "Hi {recipient_first_name},\n"
 "\n"
@@ -13567,11 +13583,11 @@ msgstr ""
 "\n"
 "Het coaching team"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:34
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:40
 msgid "Het ontwikkelingsplan van {player_name} is klaar"
 msgstr "Het ontwikkelingsplan van {player_name} is klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:35
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
 msgid ""
 "Hoi {recipient_first_name},\n"
 "\n"
@@ -13591,19 +13607,19 @@ msgstr ""
 "\n"
 "Het coaching team"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:41
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:47
 msgid "PDP ready"
 msgstr "POP klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:42
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:48
 msgid "{player_name}'s development plan for {season_name} is ready to read."
 msgstr "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:45
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:51
 msgid "Plan klaar"
 msgstr "Plan klaar"
 
-#: src/Modules/Comms/Templates/PdpReadyTemplate.php:46
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:52
 msgid "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 msgstr "Het ontwikkelingsplan van {player_name} voor {season_name} is klaar."
 
@@ -57902,22 +57918,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "How to use TalentTrack."
 #~ msgstr "Hoe je TalentTrack gebruikt."
-#: src/Modules/Comms/Rest/CommsRestController.php:279
-#: src/Modules/Comms/Rest/CommsRestController.php:280
-msgid "That message is not in your inbox."
-msgstr "Dat bericht staat niet in je inbox."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:287
-msgid "The message could not be updated."
-msgstr "Het bericht kon niet worden bijgewerkt."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:342
-msgid "No such message template."
-msgstr "Dit berichtsjabloon bestaat niet."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:374
-msgid "Expected a list of message types."
-msgstr "Er werd een lijst met berichtsoorten verwacht."
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
