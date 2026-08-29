@@ -33,6 +33,12 @@ class FunctionalRolesPage {
 
     private const CAP = 'tt_view_settings';
 
+    /**
+     * #3023 sweep — the capability that authorises the write, as distinct
+     * from the one that authorises the read above.
+     */
+    private const CAP_EDIT = 'tt_manage_functional_roles_admin';
+
     // Router
 
     public static function render(): void {
@@ -274,7 +280,13 @@ class FunctionalRolesPage {
     // Handlers
 
     public static function handleSaveMapping(): void {
-        if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #3023 sweep — this writes the mapping that decides which
+        // authorization roles a functional role carries, i.e. what every
+        // holder of it can do. `self::CAP` is `tt_view_settings`, a read
+        // capability; `tt_manage_functional_roles_admin` already exists
+        // and is what the surface is really about. The render gate keeps
+        // its view capability — reading the mapping is not editing it.
+        if ( ! current_user_can( self::CAP_EDIT ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
 
         $functional_role_id = isset( $_POST['functional_role_id'] ) ? absint( wp_unslash( (string) $_POST['functional_role_id'] ) ) : 0;
         check_admin_referer( 'tt_save_functional_role_mapping_' . $functional_role_id, 'tt_nonce' );

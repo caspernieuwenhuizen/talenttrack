@@ -27,12 +27,25 @@ use TT\Shared\Admin\BackButton;
  */
 class EvalCategoriesPage {
 
-    private const CAP = 'tt_view_settings';
+    /**
+     * #3023 sweep — a read capability used to authorise the write.
+     *
+     * The same shape the category-weights page had: render and both
+     * handlers gated on `tt_view_settings`, while the menu entry that
+     * leads here is gated on `tt_view_evaluation_categories`. So a view
+     * capability decided who could rename or retire a category every
+     * evaluation in the academy is scored against.
+     *
+     * Both narrower capabilities already existed; only this page did not
+     * consult them.
+     */
+    private const CAP_VIEW = 'tt_view_evaluation_categories';
+    private const CAP_EDIT = 'tt_edit_evaluation_categories';
 
     // Router
 
     public static function render(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_VIEW ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -339,7 +352,7 @@ class EvalCategoriesPage {
     // Handlers
 
     public static function handleSave(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_save_eval_category', 'tt_nonce' );
@@ -400,7 +413,7 @@ class EvalCategoriesPage {
     }
 
     public static function handleToggle(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;

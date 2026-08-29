@@ -313,16 +313,30 @@ class FrontendCustomCssView extends FrontendViewBase {
         }
     }
 
+    /**
+     * Which stylesheet you are editing — the frontend dashboard's or
+     * wp-admin's. #2822: this picks the **record**, so it is a mode
+     * switcher rather than a tab strip within one, and it uses the shared
+     * `SegmentedControl` instead of `RecordSpine`. Its old `role="tablist"`
+     * claimed otherwise and was wrong.
+     */
     private static function renderSurfaceSwitcher( string $surface ): void {
         $base = remove_query_arg( [ 'surface', 'tab', '_wp_http_referer' ] );
-        $front_url = esc_url( add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_FRONTEND ], $base ) );
-        $admin_url = esc_url( add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_ADMIN ], $base ) );
-        echo '<nav class="tt-tabbar" role="tablist" aria-label="' . esc_attr__( 'Surface', 'talenttrack' ) . '" style="margin-bottom:14px;">';
-        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_FRONTEND ? ' tt-tab-active' : '' ) . '" href="' . $front_url . '">'
-            . esc_html__( 'Frontend dashboard', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_ADMIN ? ' tt-tab-active' : '' ) . '" href="' . $admin_url . '">'
-            . esc_html__( 'wp-admin pages', 'talenttrack' ) . '</a>';
-        echo '</nav>';
+        \TT\Shared\Frontend\Components\SegmentedControl::render( [
+            'label'   => __( 'Surface', 'talenttrack' ),
+            'options' => [
+                [
+                    'label'   => __( 'Frontend dashboard', 'talenttrack' ),
+                    'url'     => add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_FRONTEND ], $base ), /* tt-xview-ok — same view, switching which stylesheet it edits */
+                    'current' => $surface === CustomCssRepository::SURFACE_FRONTEND,
+                ],
+                [
+                    'label'   => __( 'wp-admin pages', 'talenttrack' ),
+                    'url'     => add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_ADMIN ], $base ), /* tt-xview-ok — same view, switching which stylesheet it edits */
+                    'current' => $surface === CustomCssRepository::SURFACE_ADMIN,
+                ],
+            ],
+        ] );
     }
 
     /**
@@ -358,22 +372,37 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '</form>';
     }
 
+    /**
+     * The authoring paths into one surface's stylesheet. #2822 — these are
+     * facets of one subject, so the strip comes from the shared spine
+     * (CLAUDE.md §5c). `tabs_always` because they are the only route to the
+     * five panes and must survive the `classic` shell.
+     */
     private static function renderTabBar( string $surface, string $current ): void {
         $base = remove_query_arg( [ 'tab', '_wp_http_referer', 'prefill' ] );
-        $tabs = [
+        $labels = [
             'visual'  => __( 'Visual settings', 'talenttrack' ),
             'editor'  => __( 'CSS editor', 'talenttrack' ),
             'classes' => __( 'Classes', 'talenttrack' ),
             'upload'  => __( 'Upload + templates', 'talenttrack' ),
             'history' => __( 'History', 'talenttrack' ),
         ];
-        echo '<nav class="tt-tabbar" role="tablist" aria-label="' . esc_attr__( 'Authoring path', 'talenttrack' ) . '">';
-        foreach ( $tabs as $slug => $label ) {
-            $url = esc_url( add_query_arg( [ 'tab' => $slug ], $base ) );
-            $cls = $slug === $current ? 'tt-tab tt-tab-active' : 'tt-tab';
-            echo '<a class="' . esc_attr( $cls ) . '" href="' . $url . '">' . esc_html( $label ) . '</a>';
+        $tabs = [];
+        foreach ( $labels as $slug => $label ) {
+            $tabs[] = [
+                'label'  => $label,
+                'url'    => add_query_arg( [ 'tab' => $slug ], $base ), /* tt-xview-ok — same view, switching its own section */
+                'active' => $slug === $current,
+            ];
         }
-        echo '</nav>';
+        \TT\Shared\Frontend\Components\RecordSpine::render( [
+            'name'        => $surface === CustomCssRepository::SURFACE_ADMIN
+                ? __( 'wp-admin pages', 'talenttrack' )
+                : __( 'Frontend dashboard', 'talenttrack' ),
+            'meta'        => __( 'Custom CSS', 'talenttrack' ),
+            'tabs_always' => true,
+            'tabs'        => $tabs,
+        ] );
     }
 
     /**

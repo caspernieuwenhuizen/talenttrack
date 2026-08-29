@@ -10,6 +10,24 @@
  *
  * The entity column is sticky, because a row of R/C/D toggles means nothing
  * once the name it belongs to has scrolled off the left edge.
+ *
+ * #3047 — the grid no longer has a vertical scrollbar of its own. It used
+ * to carry `max-height: 70vh; overflow-y: auto` above 768px, which put a
+ * second scrollport inside a page that already scrolled: reading one
+ * persona's grants meant dragging two scrollbars, and the headers left the
+ * screen on the way. The page owns the vertical axis now.
+ *
+ * Two consequences worth knowing before "fixing" the header:
+ *
+ *   - A `position: sticky` header row CANNOT pin to the viewport from
+ *     inside this container. `overflow-x: auto` forces `overflow-y` to
+ *     compute to `auto`, so the container is a scrollport in both axes;
+ *     with no vertical overflow it never scrolls, and `top: 0` therefore
+ *     never engages. The `thead` rule below is kept because it is free and
+ *     correct, not because it does the work.
+ *   - So the CATEGORY BAND carries the persona names. Column identity is
+ *     never more than a band away, on any viewport, with no second
+ *     scrollbar to reach it.
  */
 
 .tt-matrix-intro {
@@ -118,15 +136,70 @@
     word-break: break-all;
 }
 
+/* #3047 — the category band doubles as the column legend, so the persona
+   a column belongs to is always within a band rather than only at the top
+   of the table. Only the entity cell is sticky; the persona names scroll
+   sideways with the columns they name, which is the whole point of them. */
 .tt-matrix-cat th {
-    position: sticky;
-    left: 0;
     background: var(--tt-surface-sunken, #f2f4f0);
     font-size: var(--tt-fs-xs, 0.75rem);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--tt-ink-soft, #6a6d66);
+    white-space: nowrap;
+}
+
+.tt-matrix-cat .tt-matrix-cat-name {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+.tt-matrix-cat-persona {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- the per-entity scope row (#3047) ---- */
+
+/* The button that collapses it. Hidden in the markup and revealed by the
+   script, so a no-JS reader never meets a control that does nothing. */
+.tt-matrix-scope-toggle {
+    display: inline-flex;
+    align-items: center;
+    margin-top: var(--tt-sp-1, 4px);
+    min-height: 48px;
+    padding: 0 var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line, #e2e5df);
+    border-radius: var(--tt-radius, 8px);
+    background: transparent;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-xs, 0.75rem);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-matrix-scope-toggle[hidden] { display: none; }
+
+.tt-matrix-scope-toggle:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-matrix-scope-row.is-collapsed { display: none; }
+
+.tt-matrix-scope-head {
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 400;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-matrix-scope-cell.is-locked .tt-matrix-scope select {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 /* ---- one cell ---- */
@@ -186,15 +259,13 @@
 
 .tt-matrix-toggle input:disabled { cursor: not-allowed; }
 
-.tt-matrix-cell.is-locked .tt-matrix-toggle,
-.tt-matrix-cell.is-locked .tt-matrix-scope select {
+.tt-matrix-cell.is-locked .tt-matrix-toggle {
     opacity: 0.45;
     cursor: not-allowed;
 }
 
 .tt-matrix-scope {
     display: block;
-    margin-top: 8px;
 }
 
 .tt-matrix-scope select {
@@ -231,10 +302,13 @@
 
 .tt-matrix-dirty[hidden] { display: none; }
 
-@media (min-width: 768px) {
-    /* Room for the grid to breathe once there is any. */
-    .tt-matrix-scroll { max-height: 70vh; overflow-y: auto; }
-}
+/* #3047 — the `max-height: 70vh; overflow-y: auto` that used to live here
+   gave the grid its own viewport inside the page: a horizontal scrollbar
+   along the bottom of a box and a vertical one down its right, inside a
+   page that also scrolled. Reading one persona's grants meant dragging two
+   scrollbars. The page is the only vertical scroller now; the grid keeps
+   its horizontal one, which is the normal way to read a grid that is
+   legitimately wider than a laptop. */
 
 @media (prefers-reduced-motion: reduce) {
     .tt-matrix-toggle:active { transform: none; }

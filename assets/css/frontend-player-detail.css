@@ -685,6 +685,48 @@
 .tt-player-kv__v { font-weight: 600; word-break: break-word; }
 .tt-player-kv__v a { color: var(--tt-accent); text-decoration: none; }
 
+/* ---------- Goals tab: finished goals, collapsed (#3033) ---------- *
+ * Native <details> so it opens without JS and answers to Enter/Space;
+ * the summary is a 48px tap target. */
+
+.tt-player-card__empty {
+    margin: 0;
+    padding: 0 var(--tt-gap-lg) var(--tt-gap);
+    font-size: 0.875rem;
+    color: var(--tt-ink-soft);
+}
+.tt-player-goals-closed {
+    border-top: 1px solid var(--tt-line-soft);
+}
+.tt-player-goals-closed__toggle {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--tt-gap-lg);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-accent);
+    list-style: none;
+    touch-action: manipulation;
+}
+.tt-player-goals-closed__toggle::-webkit-details-marker { display: none; }
+.tt-player-goals-closed__toggle::before {
+    content: "\25B8";
+    margin-right: 8px;
+    transition: transform var(--tt-motion-duration) var(--tt-motion-easing);
+}
+.tt-player-goals-closed[open] .tt-player-goals-closed__toggle::before {
+    transform: rotate(90deg);
+}
+.tt-player-goals-closed__toggle:focus-visible {
+    outline: 2px solid var(--tt-accent);
+    outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-player-goals-closed__toggle::before { transition: none; }
+}
+
 /* ---------- List rows used in Goals / Evals / Activities / PDP / Trials ---------- */
 
 .tt-player-list { list-style: none; margin: 0; padding: 0; }

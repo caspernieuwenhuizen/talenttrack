@@ -138,6 +138,40 @@ zou onnodig gesleutel zijn aan de drukst bezochte view van de plugin.
 De regel bindt **nieuwe** oppervlakken; bestaande strips migreren
 wanneer er een aanleiding is om ze aan te raken, niet uit principe.
 
+**Tabs die de enige route naar de secties van een view zijn:** geef
+`'tabs_always' => true` mee. De identiteitsstrip is chrome van de
+app-shell en blijft app-only, maar een sectieschakelaar niet — een
+oppervlak waarvan de secties onder `classic` onbereikbaar zijn is
+kapot, niet uitgekleed. De vlag laat een oppervlak zonder
+recordidentiteit de strip ook gebruiken zonder een naam te verzinnen
+om langs de identiteitscontrole te komen.
+
+### Een modusschakelaar is geen record-tabstrip
+
+Sommige oppervlakken hebben een knoppenrij die verandert **wat het
+scherm toont** in plaats van naar welke kant van één record je kijkt,
+en meerdere hebben helemaal geen record. Die op `RecordSpine` zetten
+zou de regel hierboven oprekken tot iets waarvoor hij niet geschreven
+is, en de volgende lezer laten denken dat die oppervlakken
+record-gebonden zijn terwijl dat niet zo is.
+
+Zij gebruiken in plaats daarvan
+`\TT\Shared\Frontend\Components\SegmentedControl` — één gedeelde
+knoppenrij met dezelfde 48px-ondergrens als de spine, bewust *geen*
+`role="tablist"` omdat de opties naar verschillende URL's navigeren.
+Twee oppervlakken die dezelfde schakelaar zelf schrijven is de
+schuld waar de regel over gaat; één gedeelde component lost dat op
+zonder verkeerd te labelen wat de knoppenrij is.
+
+**Vastgelegde uitzonderingen** (#2822), telkens omdat het een
+modusschakelaar is en geen record-gebonden tabstrip:
+
+| oppervlak | knoppenrij |
+| --- | --- |
+| `attendance-grid` | Aanwezigheid \| Speelminuten |
+| `minutes-grid` | Aanwezigheid \| Speelminuten |
+| `custom-css` | Frontend-dashboard \| wp-admin-pagina's — deze kiest het *record*, dus kan het geen tab bínnen een record zijn |
+
 ## Waarom
 
 Broodkruimels tonen waar een record in de canonieke hiërarchie staat

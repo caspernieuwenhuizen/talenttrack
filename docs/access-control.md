@@ -45,6 +45,23 @@ The pre-v3 capabilities still exist and still work:
 
 This means custom code or plugins checking legacy cap names continue to work without modification. Purely-view users (the Observer role) correctly fail legacy `manage` checks because they lack the edit counterpart.
 
+## A view capability never authorises a write
+
+Reading something and changing it are two different permissions, and the wp-admin pages now agree with that everywhere a narrower capability exists to say so.
+
+Five wp-admin screens used to gate their **save** on a capability whose name says *view*: Category Weights, Custom Fields, Evaluation Categories, Eval Type Categories, and People. On each, the menu entry that leads there was already gated on the narrower read capability, so the page was reachable by URL for a user the entry point deliberately hides it from — and the write behind it was authorised by permission to read.
+
+**Who this changes things for.** Chiefly **Head of Development**. `tt_view_settings` is a roll-up: a user holds it when they hold all the per-area view capabilities. Head of Development holds those by design — they can inspect Configuration — and had their `tt_edit_*` capabilities deliberately removed when the settings capabilities were split. The wp-admin pages handed the edit back through the view umbrella. It no longer does. A Head of Development who genuinely needs to change category weights, custom fields or evaluation categories should be granted the matching `tt_edit_*` capability, which is a deliberate act rather than a side effect.
+
+Club Admin and administrator are unaffected: both already hold every edit capability involved. Coaches and team managers are unaffected: they never held `tt_view_settings`.
+
+Two write handlers still name a read capability, and both are recorded rather than quietly widened, because the right capability does not exist yet and inventing one is a change to the permission model in its own right:
+
+| Handler | Gates on | Why it is still open |
+| - | - | - |
+| Granting / revoking a role on a person | `tt_view_settings` | There is no capability for granting a role. The nearest, `tt_manage_authorization`, means "edit the permission matrix" — a different act. |
+| Archiving a scheduled report | `tt_view_analytics` | There is no analytics write capability. |
+
 ## The pre-built roles
 
 | Role | View | Edit |

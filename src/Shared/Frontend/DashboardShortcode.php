@@ -1299,6 +1299,13 @@ class DashboardShortcode {
             case 'methodology':
                 \TT\Modules\Methodology\Frontend\MethodologyView::render();
                 return true;
+            // #2976 — the authoring side of the same subject: one surface
+            // with a picker across the nine vocabularies, replacing nine
+            // wp-admin editors. Gates on tt_edit_methodology inside; the
+            // REST controllers it drives gate on the same capability.
+            case \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::SLUG:
+                \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::render( $user_id, $is_admin );
+                return true;
             case 'player-journey':
                 $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;
@@ -1435,14 +1442,7 @@ class DashboardShortcode {
             // #2977 — per-age-group weighting for the overall rating. Gates
             // on tt_view_category_weights inside; writes re-check
             // tt_edit_category_weights at the handler and the REST layer.
-            //
-            // Spelled as a literal rather than the class's SLUG constant on
-            // purpose: `tools/check-docs.php` derives the routable set with a
-            // `case '<slug>':` scan and cannot resolve a constant arm, so a
-            // constant here would make the route invisible to the help-topic
-            // gate. `tools/check-mobile-classes.php` resolves both. Unifying
-            // the two derivers is filed separately.
-            case 'eval-category-weights':
+            case \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::SLUG:
                 \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::render( $user_id, $is_admin );
                 return true;
             case 'roles':

@@ -314,6 +314,7 @@ class CoachDashboardView {
                 <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>"><?php echo esc_html( LabelTranslator::goalPriority( $pr ) ); ?></option><?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
+            <?php echo \TT\Shared\Frontend\Components\GoalPrinciplePicker::render( [ 'id' => 'tt-coachdash-principles', 'legacy_rows' => true ] ); // #2566 — phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes its own output. ?>
             <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add goal', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>

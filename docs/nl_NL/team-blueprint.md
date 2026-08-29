@@ -21,7 +21,7 @@ Coaches en hoofd-academie zien een **Teamblauwdruk**-tegel in de *Performance*-g
 Klik op **+ Nieuwe blauwdruk**. Een wizard vraagt:
 
 1. **Team** — meestal al ingevuld als je vanuit de team-blauwdruklijst komt.
-2. **Formatie** — kies uit de zeven meegeleverde sjablonen (4-3-3 in vier speelstijl-varianten, plus 4-4-2 / 3-5-2 / 4-2-3-1 neutraal).
+2. **Formatie** — gegroepeerd op speelvorm. Elftallen krijgen de zeven elfmanssjablonen (4-3-3 in vier speelstijl-varianten, plus 4-4-2 / 3-5-2 / 4-2-3-1 neutraal); een team dat 6 tegen 6 speelt krijgt 3-2-1 en 2-3-1; bij 8 tegen 8 zijn dat 3-3-1 en 3-2-2. Een formatie uit de verkeerde groep wordt geweigerd, want een team van zes kan geen viermansverdediging opstellen.
 3. **Naam blauwdruk** — alles wat je later helpt herkennen (bv. "Bekerfinale basiself").
 
 Klik op **Aanmaken** en je komt direct in de editor met lege posities, klaar om in te vullen.

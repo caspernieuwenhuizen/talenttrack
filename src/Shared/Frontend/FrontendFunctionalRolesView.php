@@ -143,20 +143,33 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
     }
 
+    /**
+     * #2822 — the section strip comes from the shared spine (CLAUDE.md §5c)
+     * rather than a hand-rolled row of `.tt-tab` links. `tabs_always`
+     * because these tabs are the only route to the two sections and there
+     * is no record identity to pin above them.
+     */
     private static function renderTabs( string $tab, bool $can_types, bool $can_assignments ): void {
         $base = remove_query_arg( [ 'action', 'id', 'type_id', 'tab' ] );
-        echo '<div class="tt-tabs" style="margin-bottom:var(--tt-sp-4);">';
+        $tabs = [];
         if ( $can_assignments ) {
-            $href = add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'assignments' ], $base );
-            $cls  = $tab === 'assignments' ? ' tt-tab-active' : '';
-            echo '<a class="tt-tab' . $cls . '" href="' . esc_url( $href ) . '">' . esc_html__( 'Assignments', 'talenttrack' ) . '</a>';
+            $tabs[] = [
+                'label'  => __( 'Assignments', 'talenttrack' ),
+                'url'    => add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'assignments' ], $base ), /* tt-xview-ok — same view, switching its own section */
+                'active' => $tab === 'assignments',
+            ];
         }
         if ( $can_types ) {
-            $href = add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'types' ], $base );
-            $cls  = $tab === 'types' ? ' tt-tab-active' : '';
-            echo '<a class="tt-tab' . $cls . '" href="' . esc_url( $href ) . '">' . esc_html__( 'Role types', 'talenttrack' ) . '</a>';
+            $tabs[] = [
+                'label'  => __( 'Role types', 'talenttrack' ),
+                'url'    => add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'types' ], $base ), /* tt-xview-ok — same view, switching its own section */
+                'active' => $tab === 'types',
+            ];
         }
-        echo '</div>';
+        \TT\Shared\Frontend\Components\RecordSpine::render( [
+            'tabs_always' => true,
+            'tabs'        => $tabs,
+        ] );
     }
 
     // Role types tab

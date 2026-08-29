@@ -12,7 +12,7 @@ When you log in as a coach you land on a tile grid. Each tile opens one part of 
 
 ## Layout on desktop
 
-On a wide screen (1024px and up) the **Today's work** section splits into two columns. The work groups run down the left in a fixed order — **Performance → People → Planning & tactics → Development → Reference**, then any remaining groups (such as Tasks or Analytics). Your personal shortcuts gather on the right in a sticky **My work** panel: compact rows with an icon and a title, one per personal tile, that stay in view as you scroll the left column. On narrower screens everything collapses to a single column and the **My work** panel moves to the bottom. The collapsed **Setup & administration** section stays full-width below.
+On a wide screen (1024px and up) the **Today's work** section splits into two columns. The work groups run down the left in a fixed order — **Performance → People → Planning & tactics → Development → Reference**, then any remaining groups (such as Tasks or Analytics). Your personal shortcuts gather on the right in a sticky **My work** panel: compact rows with an icon and a title, one per personal tile, that stay in view as you scroll the left column. On narrower screens everything collapses to a single column and the **My work** panel moves to the bottom. The collapsed **Setup & administration** section stays full-width below. Only setup screens appear there: a group that holds both — Trials, say, with its cases list and its trial tracks — now splits, so the cases list stays in Today's work and the tracks move down.
 
 ## Tiles you'll use most
 

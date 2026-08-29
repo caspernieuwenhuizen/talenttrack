@@ -20,7 +20,37 @@
         if ( !form ) { return; }
 
         paintOnChange( form );
+        wireScopeRows( form );
         wireSearch( form );
+    }
+
+    /**
+     * #3047 — the per-entity scope row.
+     *
+     * The markup ships expanded so a reader without JavaScript can still
+     * set a scope. With the script running, every row collapses on load —
+     * that is what makes an entity one line tall instead of two, which is
+     * the whole reason the selects moved out of the cells — and its
+     * disclosure button appears in the entity cell.
+     */
+    function wireScopeRows( form ) {
+        var rows = Array.prototype.slice.call( form.querySelectorAll( '[data-tt-matrix-scope-row]' ) );
+        if ( !rows.length ) { return; }
+
+        rows.forEach( function ( row ) { row.classList.add( 'is-collapsed' ); } );
+
+        var buttons = Array.prototype.slice.call( form.querySelectorAll( '[data-tt-matrix-scope-toggle]' ) );
+        buttons.forEach( function ( button ) {
+            button.hidden = false;
+            button.setAttribute( 'aria-expanded', 'false' );
+
+            button.addEventListener( 'click', function () {
+                var row = document.getElementById( button.getAttribute( 'data-tt-matrix-scope-toggle' ) );
+                if ( !row ) { return; }
+                var open = row.classList.toggle( 'is-collapsed' ) === false;
+                button.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+            } );
+        } );
     }
 
     /**
@@ -75,6 +105,14 @@
                 var match = tokens.every( function ( t ) { return hay.indexOf( t ) !== -1; } );
                 row.hidden = !match;
                 if ( match ) { visible++; }
+
+                // #3047 — an entity's scope row travels with it. It uses
+                // `hidden` for the search and a class for the collapse, so
+                // the two never fight over one attribute.
+                var scopes = row.nextElementSibling;
+                if ( scopes && scopes.hasAttribute( 'data-tt-matrix-scope-row' ) ) {
+                    scopes.hidden = !match;
+                }
             } );
 
             heads.forEach( function ( head ) {

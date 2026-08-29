@@ -32,9 +32,14 @@ final class SetupStep implements WizardStepInterface {
               ORDER BY name ASC LIMIT 200",
             CurrentClub::id()
         ) );
+        // #3044 — carry each shape's football form so the picker can group by
+        // it. Team and formation are chosen on the same step, so the list
+        // cannot be filtered to the team server-side; grouping shows a coach
+        // which shapes belong to their game, and validate() refuses a
+        // mismatch rather than letting a 6v6 team save an eleven-a-side shape.
         $templates = $wpdb->get_results(
-            "SELECT id, name, formation_shape FROM {$p}tt_formation_templates
-              WHERE archived_at IS NULL ORDER BY formation_shape ASC, name ASC"
+            "SELECT id, name, formation_shape, football_form FROM {$p}tt_formation_templates
+              WHERE archived_at IS NULL ORDER BY football_form ASC, formation_shape ASC, name ASC"
         );
 
         $current_team     = (int) ( $state['team_id'] ?? ( isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0 ) );
@@ -65,11 +70,23 @@ final class SetupStep implements WizardStepInterface {
 
         echo '<label><span>' . esc_html__( 'Formation', 'talenttrack' ) . ' *</span><select name="formation_template_id" required>';
         echo '<option value="0">' . esc_html__( '— pick a formation —', 'talenttrack' ) . '</option>';
+        $open_form = null;
         foreach ( (array) $templates as $tpl ) {
+            $form = (string) ( $tpl->football_form ?? '' );
+            if ( $form !== $open_form ) {
+                if ( $open_form !== null ) echo '</optgroup>';
+                echo '<optgroup label="' . esc_attr(
+                    \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', $form )
+                ) . '">';
+                $open_form = $form;
+            }
             echo '<option value="' . (int) $tpl->id . '" ' . selected( $current_template, (int) $tpl->id, false ) . '>'
                 . esc_html( \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $tpl->name ) ) . '</option>'; // #1523 — localise the seeded formation name.
         }
-        echo '</select></label>';
+        if ( $open_form !== null ) echo '</optgroup>';
+        echo '</select>';
+        echo '<span class="ttw-hint">' . esc_html__( 'Grouped by football form. Pick one that matches how many a side the team plays.', 'talenttrack' ) . '</span>';
+        echo '</label>';
 
         echo '<label><span>' . esc_html__( 'Blueprint name', 'talenttrack' ) . ' *</span><input type="text" name="blueprint_name" required maxlength="120" placeholder="' . esc_attr__( 'e.g. Cup final starting XI', 'talenttrack' ) . '" value="' . esc_attr( $current_name ) . '"></label>';
     }
@@ -91,6 +108,24 @@ final class SetupStep implements WizardStepInterface {
         if ( $name === '' ) {
             return new \WP_Error( 'bad_name', __( 'Give this blueprint a name.', 'talenttrack' ) );
         }
+
+        // #3044 — a shape the team cannot field is not a choice. The picker
+        // groups by form; this is what stops a 6v6 team saving a back four.
+        global $wpdb;
+        $tpl_form = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT football_form FROM {$wpdb->prefix}tt_formation_templates WHERE id = %d",
+            $template_id
+        ) );
+        $team_form = \TT\Modules\Teams\FootballFormResolver::forTeam( $team_id );
+        if ( $tpl_form !== '' && $team_form !== '' && $tpl_form !== $team_form ) {
+            return new \WP_Error( 'form_mismatch', sprintf(
+                /* translators: 1: the formation's football form, 2: the team's football form. */
+                __( 'That formation is for %1$s and this team plays %2$s. Pick a formation from the team\'s own group.', 'talenttrack' ),
+                \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', $tpl_form ),
+                \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', $team_form )
+            ) );
+        }
+
         return [
             'team_id'               => $team_id,
             'formation_template_id' => $template_id,

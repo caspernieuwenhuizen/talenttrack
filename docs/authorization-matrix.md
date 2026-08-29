@@ -53,6 +53,19 @@ Each cell on the grid is `(persona, entity, activity, scope)`:
 - **D** — create / delete. Add new rows + delete existing rows. One verb because the blast radius is similar.
 - **Scope** — `global` (everywhere), `team` (only teams the user is assigned to), `player` (only the user's own player record / their child / their assigned trial player), `self` (only the user's own user record).
 
+## Reading the grid
+
+The grid is wide — ten personas across, one row per entity — and it scrolls sideways inside its own frame. **The page does not.** Vertically there is one scrollbar, the page's own: the grid no longer has a viewport of its own inside the page, so reading one persona's grants from top to bottom is one continuous scroll rather than two.
+
+Two things keep you oriented:
+
+- **The entity column stays put** while the persona columns move under it, so a row of R / C / D always has the name it belongs to beside it.
+- **Each category band repeats the persona names**, so the column you are looking at is always identified within a band rather than only at the very top of the table.
+
+**Scope sits on its own line.** Each entity row shows a small **Scope** button; pressing it opens a row underneath with one scope dropdown per persona. It is still a scope per persona per entity — a coach can read players at team scope while a scout reads them globally — it simply no longer makes every entity two rows tall whether you are looking at it or not. With JavaScript unavailable the scope row is open from the start, so it is always reachable.
+
+The matrix is a desktop screen by design: a phone visitor is told so, and told why, rather than being handed a grid whose rows and columns *are* the content, reflowed into a column.
+
 ## Default vs admin-edited
 
 - Cells filled from the shipped seed render **dimmed**.

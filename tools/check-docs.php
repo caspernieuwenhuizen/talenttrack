@@ -96,40 +96,29 @@ $identicalByDesign = [
     'Modules',
 ];
 
-/** Every routable `?tt_view=` slug, read out of the dispatcher. */
-$routable = ( static function () use ( $root ): array {
-    $tokens = token_get_all( (string) file_get_contents( $root . '/src/Shared/Frontend/DashboardShortcode.php' ) );
-    $slugs  = [];
-    $inFn   = false;
-    $depth  = 0;
+/**
+ * Every routable `?tt_view=` slug, read out of the dispatcher.
+ *
+ * The deriver is shared with the mobile-class and tile-route gates
+ * (#3022). This gate used to carry its own `case '<literal>':` scan, which
+ * saw eight fewer routes than the shared one — constant `case` arms and
+ * the pre-auth comparisons above the dispatch chain — so "every routable
+ * view declares a help topic" held only for the routes it could parse, and
+ * writing an arm as `case SomeView::SLUG:` bought an exemption from the
+ * requirement.
+ */
+require_once __DIR__ . '/lib/routable-slugs.php';
 
-    for ( $i = 0; $i < count( $tokens ); $i++ ) {
-        $t = $tokens[ $i ];
+[ $routable, $unresolvedRoutes ] = tt_routable_slugs( $root, $root . '/src/Shared/Frontend/DashboardShortcode.php' );
 
-        if ( is_array( $t ) && $t[0] === T_FUNCTION ) {
-            $name = '';
-            for ( $j = $i + 1; $j < count( $tokens ); $j++ ) {
-                if ( is_array( $tokens[ $j ] ) && $tokens[ $j ][0] === T_STRING ) { $name = $tokens[ $j ][1]; break; }
-            }
-            $inFn  = (bool) preg_match( '/^dispatch\w*View$/', $name );
-            $depth = 0;
-            continue;
-        }
-        if ( $t === '{' ) { $depth++; continue; }
-        if ( $t === '}' ) { $depth--; if ( $depth <= 0 ) $inFn = false; continue; }
+if ( $routable === [] ) {
+    fwrite( STDERR, "check-docs: parsed no routable slugs at all — the dispatcher shape has changed and rule 4/5 are blind\n" );
+    exit( 2 );
+}
 
-        if ( $inFn && is_array( $t ) && $t[0] === T_CASE ) {
-            for ( $j = $i + 1; $j < $i + 5 && $j < count( $tokens ); $j++ ) {
-                if ( is_array( $tokens[ $j ] ) && $tokens[ $j ][0] === T_CONSTANT_ENCAPSED_STRING ) {
-                    $v = trim( $tokens[ $j ][1], "'\"" );
-                    if ( preg_match( '/^[a-z0-9][a-z0-9-]*$/', $v ) ) $slugs[ $v ] = true;
-                    break;
-                }
-            }
-        }
-    }
-    return $slugs;
-} )();
+foreach ( $unresolvedRoutes as $where ) {
+    echo "note: route at {$where} is built from something this gate cannot resolve statically. Claim its topic by hand if it is reachable.\n";
+}
 
 $featureSrc = (string) file_get_contents( $root . '/src/Core/FeatureRegistry.php' );
 $capsSrc    = '';

@@ -148,25 +148,29 @@ class GoalsPage {
                     <tr><th><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></th><td><input type="date" name="due_date" value="<?php echo esc_attr( $goal->due_date ?? '' ); ?>" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'due_date' ); ?>
                     <?php
-                    // #0027 — optional principle linkage.
+                    // #0027 — principle linkage. #2566 moved it off the single
+                    // `linked_principle_id` column onto `tt_goal_links`, so a
+                    // goal can name every principle it develops and wp-admin
+                    // writes the same shape the frontend does.
                     if ( class_exists( '\TT\Modules\Methodology\Repositories\PrinciplesRepository' ) ) :
                         $principles = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
-                        $linked     = (int) ( $goal->linked_principle_id ?? 0 );
+                        $linked_ids = ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->principleIdsForGoal( (int) ( $goal->id ?? 0 ) );
                         if ( ! empty( $principles ) ) : ?>
                             <tr>
-                                <th><?php esc_html_e( 'Linked principle', 'talenttrack' ); ?></th>
+                                <th><?php esc_html_e( 'What does this goal develop?', 'talenttrack' ); ?></th>
                                 <td>
-                                    <select name="linked_principle_id">
-                                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                                    <fieldset>
                                         <?php foreach ( $principles as $pr ) :
                                             $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                                            $pr_id = (int) ( $pr->id ?? 0 );
                                             ?>
-                                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( $linked, (int) $pr->id ); ?>>
+                                            <label for="tt-goal-principle-<?php echo esc_attr( (string) $pr_id ); ?>">
+                                                <input type="checkbox" id="tt-goal-principle-<?php echo esc_attr( (string) $pr_id ); ?>" name="principle_ids[]" value="<?php echo esc_attr( (string) $pr_id ); ?>" <?php checked( in_array( $pr_id, $linked_ids, true ) ); ?> />
                                                 <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
-                                            </option>
+                                            </label><br />
                                         <?php endforeach; ?>
-                                    </select>
-                                    <p class="description"><?php esc_html_e( 'Optional. Links this goal to a methodology principle.', 'talenttrack' ); ?></p>
+                                    </fieldset>
+                                    <p class="description"><?php esc_html_e( 'Optional, but tagging it is what lets training plans and reports aim at this goal.', 'talenttrack' ); ?></p>
                                 </td>
                             </tr>
                     <?php endif; endif; ?>
@@ -222,9 +226,6 @@ class GoalsPage {
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : GoalStatus::PENDING,
             'priority' => isset( $_POST['priority'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['priority'] ) ) : GoalPriority::MEDIUM,
             'due_date' => ! empty( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['due_date'] ) ) : null,
-            'linked_principle_id' => isset( $_POST['linked_principle_id'] ) && (int) $_POST['linked_principle_id'] > 0
-                ? (int) $_POST['linked_principle_id']
-                : null,
             'linked_action_id'    => isset( $_POST['linked_action_id'] ) && (int) $_POST['linked_action_id'] > 0
                 ? (int) $_POST['linked_action_id']
                 : null,
@@ -255,6 +256,16 @@ class GoalsPage {
             );
             wp_safe_redirect( $back );
             exit;
+        }
+
+        // #2566 — the principles this goal develops, in the canonical
+        // `tt_goal_links` shape. `syncPrinciples` touches only principle
+        // rows, so a football action attached by the goal wizard survives.
+        if ( $id > 0 ) {
+            $submitted = isset( $_POST['principle_ids'] ) && is_array( $_POST['principle_ids'] )
+                ? array_map( 'absint', wp_unslash( $_POST['principle_ids'] ) )
+                : [];
+            ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->syncPrinciples( $id, $submitted );
         }
 
         // Persist custom field values. Native save already succeeded; any

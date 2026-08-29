@@ -53,6 +53,19 @@ Elke cel op het raster is `(persona, entiteit, actie, scope)`:
 - **D** — aanmaken / verwijderen. Nieuwe regels toevoegen + bestaande verwijderen. Eén werkwoord omdat de impact vergelijkbaar is.
 - **Scope** — `global` (overal), `team` (alleen teams waaraan de gebruiker is toegewezen), `player` (alleen het eigen profiel / het kind / de toegewezen proefspeler), `self` (alleen het eigen gebruikersaccount).
 
+## Het raster lezen
+
+Het raster is breed — tien persona's naast elkaar, één rij per entiteit — en schuift zijwaarts binnen zijn eigen kader. **De pagina niet.** Verticaal is er één schuifbalk, die van de pagina zelf: het raster heeft geen eigen venster meer binnen de pagina, dus de rechten van één persona van boven naar beneden lezen is één doorlopende beweging in plaats van twee.
+
+Twee dingen houden je georiënteerd:
+
+- **De entiteitkolom blijft staan** terwijl de personakolommen eronderdoor schuiven, zodat bij een rij R / C / D altijd de naam staat waar die bij hoort.
+- **Elke categoriebalk herhaalt de personanamen**, zodat de kolom waar je naar kijkt binnen een balk te herkennen is en niet alleen helemaal boven aan de tabel.
+
+**Bereik staat op een eigen regel.** Elke entiteitrij heeft een kleine knop **Bereik**; die opent eronder een rij met per persona één keuzelijst voor het bereik. Het blijft een bereik per persona per entiteit — een trainer kan spelers op teamniveau lezen terwijl een scout ze wereldwijd leest — het maakt alleen niet langer elke entiteit twee rijen hoog of je er nu naar kijkt of niet. Zonder JavaScript staat de bereikrij vanaf het begin open, zodat die altijd bereikbaar is.
+
+De matrix is bewust een bureaubladscherm: een bezoeker op een telefoon krijgt dat te horen, met de reden erbij, in plaats van een raster waarvan de rijen en kolommen *de inhoud zijn* in één kolom geperst.
+
 ## Standaard versus beheerder-bewerkt
 
 - Cellen uit het meegeleverde seed-bestand zijn **gedimd** weergegeven.

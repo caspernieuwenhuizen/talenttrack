@@ -594,6 +594,9 @@ class CoachForms {
                 <?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
+            <?php // #2566 — quick-add asks what the goal develops too, or the
+                  // coach's fastest path is also the one that never tags. ?>
+            <?php echo \TT\Shared\Frontend\Components\GoalPrinciplePicker::render( [ 'id' => 'tt-coachform-principles', 'legacy_rows' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes its own output. ?>
             <?php echo FormSaveButton::render( [ 'label' => __( 'Add goal', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
