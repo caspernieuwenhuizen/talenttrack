@@ -56885,6 +56885,12 @@ msgstr "Profiel wijzigen"
 msgid "Review changes"
 msgstr "Wijzigingen bekijken"
 
+#: src/Shared/Frontend/FrontendInstallProfileView.php:164
+msgid "%d change since"
+msgid_plural "%d changes since"
+msgstr[0] "%d wijziging sinds"
+msgstr[1] "%d wijzigingen sinds"
+
 #~ msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team age group."
 #~ msgstr ""
 #~ "Formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het "
@@ -58403,3 +58409,4 @@ msgstr "Wijzigingen bekijken"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
