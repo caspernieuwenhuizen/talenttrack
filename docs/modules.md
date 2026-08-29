@@ -37,6 +37,27 @@ The badge appears on a dashboard tile whenever the tile's own feature is flagged
 
 Each feature row carries a second control next to its on/off switch: an **Under development** checkbox. Tick it and every view that feature owns shows a small amber **Under development** pill at the top, so anyone using the surface — coaches, players and parents alike — knows it's still being built and may change. The pill is purely informational: it never disables or hides anything, and the feature keeps working exactly as before. It's independent of the on/off switch, so a feature can be live *and* flagged, or you can turn the flag off again without touching whether the feature is enabled. Only admins who can manage modules (`tt_manage_modules`) see or change the flag; the pill itself is visible to every user of the flagged surface. The flag is also readable and settable through the `/talenttrack/v1/features` REST endpoint.
 
+## Install profiles
+
+Deciding module by module is the fine-grained control. An **install profile** is the coarse one: a named shape for the whole install, so a club can say "we run the development loop" once instead of making fifty separate decisions on their first afternoon.
+
+Two profiles ship:
+
+| Profile | What it is |
+| - | - |
+| **Basics** | The development loop and the surfaces that feed it — players, teams, people, evaluations, goals, activities, measurements, the journey, and the reports and exports that read them back. Match day, training plans, the knowledge library, the integrations and the developer surfaces stay off. |
+| **Full academy** | Everything the plugin ships, at its default settings. This is what an install gets when no profile is chosen, so it is also the way back. |
+
+Two things about Basics are worth knowing because they look like mistakes and are not. **Analytics stays on** — the reports and the dashboard figures read the analytics engine directly, and only the separate Analytics explorer surface is switched off. **Communication stays on** — it is what invitations and account mail travel over; only its two cost-bearing extras (scheduled sends and the SMS channel) are switched off.
+
+A profile is an association, not a copy. The install remembers which profile it is on, and how far it has drifted from it — a count of the modules and features that no longer match. Drift is worked out fresh every time it is shown, so switching something back into line clears it immediately, with nothing to reset.
+
+Choosing a profile never overrules your plan. A module or feature that is not part of what this install is entitled to is reported as skipped, with the reason, rather than being switched on and failing later.
+
+Applying a profile changes only which surfaces are switched on. **No data is deleted, ever.** A module switched off by a profile keeps every row it owns, and switching it back on restores access to all of it.
+
+*Audience: developers.* The profiles themselves live in `config/profiles.php` and are not editable at runtime — changing what Basics means is a release, for the same reason the plan map is. A profile states its modules in full (every class in `config/modules.php`, so a module added in a release has to be placed rather than arriving on by omission) and its features as overrides only (the catalog builds the export and report keys from loops, so enumerating them would go stale the day a report is added). `TT\Shared\Modules\ProfileRegistry` reads the file; `TT\Shared\Modules\ProfileService` compares it against live state (`diff()`, `divergence()`) and applies it (`apply()`) through `ModuleRegistry` and `FeatureRegistry`, so every write carries the same audit trail a hand-thrown switch does. `tools/check-module-toggles.php` fails the build when a profile names something that does not resolve, misses a switchable module, or tries to disable an always-on one.
+
 ## Why turn a module off?
 
 - **Demo to a non-paying prospect.** Disable License so the upgrade banner stays out of the way.
