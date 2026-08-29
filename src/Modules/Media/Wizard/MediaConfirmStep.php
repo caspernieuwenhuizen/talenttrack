@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
+use TT\Modules\Media\MediaTagRoster;
+use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -59,6 +61,23 @@ final class MediaConfirmStep implements WizardStepInterface {
         }
         echo '</ul>';
 
+        // Tagging puts this on somebody else's record too, so it is said
+        // out loud before it happens rather than discovered afterwards.
+        $tagged = self::taggedIds( $state );
+        if ( $tagged !== [] ) {
+            $roster = MediaTagRoster::for( $type, $id );
+            $names  = [];
+            foreach ( $tagged as $player_id ) $names[] = (string) $roster[ $player_id ];
+
+            echo '<p class="description">' . esc_html(
+                sprintf(
+                    /* translators: %s is a comma-separated list of player names. */
+                    __( 'Also added to the records of: %s.', 'talenttrack' ),
+                    implode( ', ', $names )
+                )
+            ) . '</p>';
+        }
+
         $captured = (string) ( $state['media_captured_at'] ?? '' );
         if ( $captured !== '' ) {
             echo '<p class="description">' . esc_html(
@@ -95,12 +114,27 @@ final class MediaConfirmStep implements WizardStepInterface {
             $fields['captured_at'] = (string) $state['media_captured_at'] . ' 12:00:00';
         }
 
+        // Checked against the roster once, not per item: every item in the
+        // batch is going to the same record, so the answer cannot differ.
+        $tagged = self::taggedIds( $state );
+        $links  = new MediaLinksRepository();
+
         foreach ( $uuids as $uuid ) {
             $media = $repo->findByUuid( (string) $uuid );
             if ( ! $media ) continue;
             if ( ! $access->canEdit( $user, $media ) ) continue;
 
-            if ( $fields !== [] ) $repo->update( (int) $media->id, $fields );
+            $media_id = (int) $media->id;
+
+            if ( $fields !== [] ) $repo->update( $media_id, $fields );
+
+            foreach ( $tagged as $player_id ) {
+                // Idempotent: a coach who steps back and finishes again
+                // must not end up with the same player attached twice.
+                if ( $links->findLink( $media_id, MediaEntityType::PLAYER, $player_id ) ) continue;
+                $links->link( $media_id, MediaEntityType::PLAYER, $player_id );
+            }
+
             $applied++;
         }
 
@@ -118,6 +152,34 @@ final class MediaConfirmStep implements WizardStepInterface {
      * Back to the record the media was added to — the coach's mental
      * "done" is seeing it on the player, not landing on a media list.
      */
+    /**
+     * The tags carried from step 3, re-checked against the roster here.
+     *
+     * The details step already filtered them, but the state travels
+     * through the client between steps, so this is the write path's own
+     * check rather than a repeat of somebody else's.
+     *
+     * @param array<string, mixed> $state
+     * @return array<int, int>
+     */
+    private static function taggedIds( array $state ): array {
+        $wanted = (array) ( $state['media_tag_player_ids'] ?? [] );
+        if ( $wanted === [] ) return [];
+
+        $roster = MediaTagRoster::for(
+            (string) ( $state['entity_type'] ?? '' ),
+            (int) ( $state['entity_id'] ?? 0 )
+        );
+
+        $out = [];
+        foreach ( $wanted as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id > 0 && isset( $roster[ $player_id ] ) ) $out[ $player_id ] = $player_id;
+        }
+
+        return array_values( $out );
+    }
+
     private static function recordUrl( string $type, int $id ): string {
         $slug = 'players';
         if ( $type === MediaEntityType::TEAM )     $slug = 'teams';

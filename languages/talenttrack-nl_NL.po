@@ -57537,6 +57537,47 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Trial sections"
 #~ msgstr "Stagesecties"
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:99
+msgid "Type a name, or @"
+msgstr "Typ een naam, of @"
+
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:104
+msgid "Players you can tag"
+msgstr "Spelers die je kunt taggen"
+
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:170
+msgid "No players match"
+msgstr "Geen spelers gevonden"
+
+#. translators: %s is a player's name.
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:174
+#, php-format
+msgid "%s tagged"
+msgstr "%s getagd"
+
+#. translators: %s is a player's name.
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:176
+#, php-format
+msgid "%s untagged"
+msgstr "%s niet meer getagd"
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:95
+msgid "Tagged players"
+msgstr "Getagde spelers"
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:99
+msgid ""
+"Type a name, or type @ in the description. Everyone you tag gets this on "
+"their own record."
+msgstr ""
+"Typ een naam, of typ @ in de omschrijving. Iedereen die je tagt, krijgt dit "
+"op zijn eigen record."
+
+#. translators: %s is a comma-separated list of player names.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:78
+#, php-format
+msgid "Also added to the records of: %s."
+msgstr "Komt ook op het record van: %s."
 
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"

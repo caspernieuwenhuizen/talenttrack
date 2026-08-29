@@ -58,9 +58,20 @@ Een training of wedstrijd heeft een eigen sectie **Media**, en daar gebeurt het 
 
 ### De spelers op een foto taggen
 
-Bij een training of wedstrijd biedt elke foto **Spelers taggen**, met de selectie van dat team. Vink de spelers aan die erop staan en de foto
-verschijnt ook op hun profiel — één upload, hoeveel records het ook betreft. Geen opslaanknop: elk vinkje wordt meteen bewaard, en gaat terug als
-dat niet lukt.
+Bij een training of wedstrijd kun je benoemen welke spelers op een foto staan; de foto verschijnt dan ook op hun profiel — één upload, hoeveel
+records het ook betreft.
+
+Taggen kan op twee momenten, met hetzelfde veld:
+
+- **Tijdens het toevoegen.** Stap 3 van de wizard heeft een veld **Getagde spelers**. Wat je daar kiest geldt voor alles wat je in die ronde
+  toevoegde, dus acht foto's van één training tag je één keer in plaats van acht keer.
+- **Achteraf.** Elke foto bij de training heeft **Spelers taggen**, met wie er nu getagd is.
+
+Typ een naam en kies uit de lijst, of typ **@** in de omschrijving en kies daar — de naam komt in je zin te staan en de speler wordt getagd. De
+tags zijn de blokjes onder het veld, niet de woorden in de tekst: een naam uit je zin halen tagt niemand uit, een blokje weghalen wel. Gebruik de
+× op een blokje om iemand te untaggen.
+
+Bij een foto wordt elke wijziging meteen bewaard — er is geen opslaanknop, en een tag gaat terug als hij niet bewaard kan worden.
 
 Een speler untaggen haalt de foto alleen bij die speler weg. De foto blijft bij de training staan en bij iedereen die je verder getagd hebt.
 
@@ -73,7 +84,7 @@ Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft 
 
 1. **Voor wie** — al ingevuld als je vanaf een record begon, dus er valt niets te kiezen.
 2. **Bestanden** — kies foto's of video, of plak een link naar video die ergens anders staat. Op een telefoon zit de camera één tik verderop.
-3. **Details** — een titel, eventueel een omschrijving, en de datum waarop het gemaakt is.
+3. **Details** — een titel, eventueel een omschrijving, de datum waarop het gemaakt is, en bij een training of wedstrijd wie erop staat.
 4. **Bevestigen** — wat er wordt opgeslagen, en waar het verschijnt.
 
 **Uploads worden bewaard zodra ze klaar zijn**, dus vóór je de laatste stap bereikt. Dat is een bewuste keuze: een wegvallende verbinding of een

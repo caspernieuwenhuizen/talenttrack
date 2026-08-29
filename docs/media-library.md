@@ -54,9 +54,19 @@ A training or match has its own **Media** section, and that is where tagging hap
 
 ### Tagging the players in a photo
 
-On a training or match, each photo offers **Tag players**, listing that team's squad. Tick the players who are in the picture and it appears on
-their profiles too — one upload, however many records it belongs to. No Save button: each tick is stored as you make it, and reverts if it cannot
-be.
+On a training or match you can name the players in a photo, and it appears on their profiles too — one upload, however many records it belongs to.
+
+Tagging is offered twice, with the same control both times:
+
+- **While you add it.** Step 3 of the wizard has a **Tagged players** field. What you pick there applies to everything you added in that batch, so
+  eight photos from one training are tagged once rather than eight times.
+- **Afterwards.** Each photo on the training carries **Tag players**, showing who is tagged now.
+
+Start typing a name and pick from the list, or type **@** in the description and pick from there — the name goes into your sentence and the player
+is tagged. The tags themselves are the chips under the field, not the words in the text: removing the name from a sentence you wrote does not
+untag anyone, and removing a chip does. Use the × on a chip to untag.
+
+On a photo, each change is stored as you make it — there is no Save button, and a tag reverts if it cannot be saved.
 
 Untagging one player removes it from that player only. The photo stays on the training and on everyone else you tagged.
 
@@ -68,7 +78,7 @@ Use **Add media** from a player, team or training. The wizard has four steps:
 
 1. **Who for** — prefilled when you started from a record, so there is nothing to pick.
 2. **Files** — choose photos or video, or paste a link to video hosted elsewhere. On a phone the camera is one tap away.
-3. **Details** — a title, an optional description, and the date it was taken.
+3. **Details** — a title, an optional description, the date it was taken, and, on a training or match, who is in it.
 4. **Confirm** — what will be saved, and where it will appear.
 
 **Uploads are saved as soon as they finish**, before you reach the last step. That is deliberate: it means a dropped connection or a closed tab

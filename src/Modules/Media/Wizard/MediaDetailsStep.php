@@ -3,7 +3,9 @@ namespace TT\Modules\Media\Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Media\MediaTagRoster;
 use TT\Modules\Media\Repositories\MediaRepository;
+use TT\Shared\Frontend\Components\MediaPlayerTagField;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -62,6 +64,46 @@ final class MediaDetailsStep implements WizardStepInterface {
         echo '<p class="description">'
             . esc_html__( 'The date decides where this sits on the player\'s timeline — so it is the day of the training or match, not the day you uploaded it.', 'talenttrack' )
             . '</p>';
+
+        self::renderTagField( $state );
+    }
+
+    /**
+     * Who is in it (#3093).
+     *
+     * Asked here rather than only afterwards on each tile, because the
+     * coach knows who is in the photo at the moment they add it and is
+     * gone by the time the grid renders. Absent where nothing can be
+     * tagged — a photo on a player is already about that player, and a
+     * team's roster is a list of everyone.
+     *
+     * @param array<string, mixed> $state
+     */
+    private static function renderTagField( array $state ): void {
+        $players = MediaTagRoster::for(
+            (string) ( $state['entity_type'] ?? '' ),
+            (int) ( $state['entity_id'] ?? 0 )
+        );
+
+        if ( $players === [] ) return;
+
+        $selected = [];
+        foreach ( (array) ( $state['media_tag_player_ids'] ?? [] ) as $player_id ) {
+            if ( isset( $players[ (int) $player_id ] ) ) $selected[ (int) $player_id ] = 0;
+        }
+
+        MediaPlayerTagField::render( [
+            'mode'       => 'wizard',
+            'players'    => $players,
+            'selected'   => $selected,
+            'field_name' => 'media_tag_player_ids',
+            'mentions'   => '#tt-media-description',
+            'label'      => __( 'Tagged players', 'talenttrack' ),
+        ] );
+
+        echo '<p class="description">'
+            . esc_html__( 'Type a name, or type @ in the description. Everyone you tag gets this on their own record.', 'talenttrack' )
+            . '</p>';
     }
 
     public function validate( array $post, array $state ) {
@@ -72,15 +114,45 @@ final class MediaDetailsStep implements WizardStepInterface {
         }
 
         return [
-            'media_title'       => isset( $post['media_title'] ) ? sanitize_text_field( (string) $post['media_title'] ) : '',
-            'media_description' => isset( $post['media_description'] ) ? sanitize_textarea_field( (string) $post['media_description'] ) : '',
-            'media_captured_at' => $captured,
+            'media_title'          => isset( $post['media_title'] ) ? sanitize_text_field( (string) $post['media_title'] ) : '',
+            'media_description'    => isset( $post['media_description'] ) ? sanitize_textarea_field( (string) $post['media_description'] ) : '',
+            'media_captured_at'    => $captured,
+            'media_tag_player_ids' => self::taggedIds( $post, $state ),
         ];
     }
 
     public function nextStep( array $state ): ?string { return 'confirm'; }
 
     public function submit( array $state ) { return null; }
+
+    /**
+     * The posted tags, kept to the roster this target actually offers.
+     *
+     * The field is client-supplied, so the ids are checked against the
+     * roster rather than trusted — a step boundary is not an
+     * authorization boundary, and the confirm step re-checks per item.
+     *
+     * @param array<string, mixed> $post
+     * @param array<string, mixed> $state
+     * @return array<int, int>
+     */
+    private static function taggedIds( array $post, array $state ): array {
+        $raw = isset( $post['media_tag_player_ids'] ) ? (string) $post['media_tag_player_ids'] : '';
+        if ( trim( $raw ) === '' ) return [];
+
+        $roster = MediaTagRoster::for(
+            (string) ( $state['entity_type'] ?? '' ),
+            (int) ( $state['entity_id'] ?? 0 )
+        );
+
+        $out = [];
+        foreach ( explode( ',', $raw ) as $candidate ) {
+            $player_id = (int) trim( $candidate );
+            if ( $player_id > 0 && isset( $roster[ $player_id ] ) ) $out[ $player_id ] = $player_id;
+        }
+
+        return array_values( $out );
+    }
 
     /**
      * Capture date of the first item that has one, as `Y-m-d`.
