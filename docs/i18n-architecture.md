@@ -111,6 +111,22 @@ Pass the entity_id when you have it. String-only callers continue to work via th
 
 The trade: an unseeded lookup renders its canonical English. Obviously untranslated English gets reported; a real Dutch word meaning the wrong thing does not. Curated labels belong in `LookupTranslationSeeds` and reach the database through a migration, which is the one place a label is reviewable from the source tree. Migration `0247` repairs rows the retired fallback's backfill (migration `0086`) had already written wrongly — it overwrites only a value that is character-for-character what a bare `__()` returns and is not the curated seed, so an academy's own label is untouched.
 
+### The seed map is keyed on `tt_lookups.name` — and will not tell you when it isn't (#3117)
+
+`LookupTranslationSeeds::map()` is keyed `lookup_type => canonical name => locale => label`, and the canonical name has to be exactly what `tt_lookups.name` holds. Migration `0248` (like `0151` before it) walks the map and `INSERT IGNORE`s a row per locale, so **a key that matches no row is a no-op with no error.**
+
+That failure mode ran for a long time. 68 entries matched nothing, and `0151` seeded nothing at all for 13 of the 20 types it claims to cover, because the vocabularies were renamed underneath the map: `journey_event_type` moved to snake_case keys, `activity_type` from `Match` to `game`, `competition_type` was renamed wholesale to `game_subtype` (migration `0027`), `behaviour_rating_label` and `potential_band` were rewritten by `0153`, and `eval_category` left `tt_lookups` entirely for `tt_eval_categories` in `0008`.
+
+`LookupSeedMapCoverageTest` now guards both directions on a freshly migrated database:
+
+1. every map entry resolves to a live row;
+2. every live row inside a curated type has an entry, unless it is listed in `LookupTranslationSeeds::LOCALE_INVARIANT_ROWS` (UEFA grades and the like);
+3. a curated type with no rows at all has to be declared in `UNSEEDED_VOCABULARIES` with a reason — because "retired vocabulary, delete the entries" and "declared vocabulary nobody seeds yet, the missing rows are the bug" look identical from the map and need a human to tell apart.
+
+Rule 2 is not optional politeness. `LookupTranslator` and migration `0247` both treat the curated seed as the known-good value, and that has to be true per type rather than on average: a type curated halfway is worse than one curated not at all, because the missing half looks covered.
+
+A `lookup_type` absent from the map is uncurated on purpose (positions, injury kinds, the VCT vocabularies) and the test ignores it. Listing a type is the promise.
+
 ### Adding a locale
 
 Single line edit:
