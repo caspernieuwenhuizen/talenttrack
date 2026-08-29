@@ -56876,6 +56876,10 @@ msgstr "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor 
 msgid "Grid"
 msgstr "Raster"
 
+msgctxt "segmented control label: which of the two data-entry grids"
+msgid "Grid"
+msgstr "Raster"
+
 #~ msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team age group."
 #~ msgstr ""
 #~ "Formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het "
