@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Comms\Template\TemplateChannels;
 
 /**
  * ConfigRestController — /wp-json/talenttrack/v1/config
@@ -163,6 +164,14 @@ class ConfigRestController {
         // Stored as the DISABLED set so a template that ships in a later
         // release is on by default. Mapped to feature_toggles below.
         'comms_templates_disabled',
+        // #3112 — club-wide map of channels each Comms template may NOT
+        // use (JSON `{ "<template_key>": ["sms"] }`). Written from the
+        // same Messages sub-form; narrows the fallback order inside
+        // CommsService::resolveChannel. Stored as the BLOCKED set for the
+        // same reason the switch is: a channel added to a template in a
+        // later release is allowed on upgrade. Mapped to feature_toggles
+        // below.
+        'comms_template_channels_blocked',
     ];
 
     /**
@@ -195,6 +204,9 @@ class ConfigRestController {
         // #2603 — switching a message template off is a per-club feature
         // toggle, gated by the same sub-cap pair.
         'comms_templates_disabled' => 'feature_toggles',
+        // #3112 — the per-template channel block list is saved from the
+        // same sub-form and gated by the same sub-cap pair.
+        'comms_template_channels_blocked' => 'feature_toggles',
     ];
 
     /**
@@ -264,6 +276,14 @@ class ConfigRestController {
             // stale payload can't disable a template that no longer exists.
             if ( $key === 'comms_templates_disabled' ) {
                 $clean = \TT\Modules\Comms\Template\TemplateSwitch::normaliseStored( $clean );
+            }
+            // #3112 — the per-template channel block list. Same treatment,
+            // plus: an entry that would block every channel a template has
+            // is dropped, so a forged payload can't turn a channel
+            // preference into a message that fails with no channel to send
+            // on. Switching the message off is the way to stop it.
+            if ( $key === TemplateChannels::CONFIG_KEY ) {
+                $clean = TemplateChannels::normaliseStored( $clean );
             }
             // #3044 — drop age groups and forms that do not exist, so a stale
             // payload cannot leave a team resolving to a form this academy

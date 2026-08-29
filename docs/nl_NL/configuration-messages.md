@@ -12,9 +12,39 @@ order: 115
 
 **Dashboard → Configuratie → Berichten** (`?config_sub=messages`)
 
-Welke berichten jouw academie verstuurt. Elk uitgaand bericht in TalentTrack — een afgelaste training, een selectiebesluit, een herinnering om een doel bij te werken — komt uit een template met een naam, en op deze pagina staan ze allemaal met een schakelaar erbij.
+Welke berichten jouw academie verstuurt, en langs welke weg elk bericht iemand mag bereiken. Elk uitgaand bericht in TalentTrack — een afgelaste training, een selectiebesluit, een herinnering om een doel bij te werken — komt uit een berichtsoort met een naam, en op deze pagina staan ze allemaal.
 
-De lijst wordt opgebouwd uit de templates die de plugin heeft geregistreerd, dus een berichtsoort die in een latere versie bijkomt verschijnt hier vanzelf. Vereist `tt_edit_feature_toggles`; de instelling wordt per club opgeslagen in `tt_config`, zodat een toekomstige multi-tenant installatie de keuzes van elke academie gescheiden houdt.
+De lijst wordt opgebouwd uit de berichtsoorten die de plugin heeft geregistreerd, dus een berichtsoort die in een latere versie bijkomt verschijnt hier vanzelf. Vereist `tt_edit_feature_toggles`; de instellingen worden per club opgeslagen in `tt_config`, zodat een toekomstige multi-tenant installatie de keuzes van elke academie gescheiden houdt.
+
+## Hoe de pagina is ingedeeld
+
+Berichten staan gegroepeerd naar wat ze zijn, niet naar wanneer ze gebouwd zijn. Elke groep begint met een zin over wat erin thuishoort, en bij elk bericht staat in gewone taal wat het is, wie het krijgt en waardoor het verstuurd wordt.
+
+- **Dit moeten mensen nu weten** — training afgelast, een wijziging in het schema, een veiligheidsbericht. Er is vandaag iets veranderd en het gezin hoort het te laat als niemand het vertelt. De meeste academies willen deze allemaal aan; de installatiewizard markeert deze groep als aanbevolen.
+- **Iemand heeft erom gevraagd** — een uitnodiging, een brief, een aankondiging, de levering van een rapport. Iemand heeft ergens op geklikt en het bericht maakt dat af. Zet je er een uit, dan lijkt de functie die hem verstuurt kapot.
+- **Momenten in het seizoen van een speler** — een selectiebesluit, een afgerond ontwikkelplan, een oudergesprek. Of die per e-mail gaan of in een gesprek worden overhandigd, bepaalt jouw academie zelf.
+- **Herinneringen en samenvattingen** — doelherinneringen, aanwezigheidssignalen, de samenvatting van meldingen. Nuttig zodra jullie draaien, storend zolang je nog gegevens invoert, en het soort bericht waardoor mensen TalentTrack-mail gaan negeren.
+
+### "Wordt nog niet automatisch verstuurd"
+
+Bij sommige berichten staat dit label. Dat betekent dat de tekst en de instellingen bestaan, maar dat niets in TalentTrack ze op dit moment in gang zet — ze gaan met de hand de deur uit, of via een functie die nog niet is aangesloten.
+
+Ze staan er wél, in plaats van verborgen, zodat je ziet wat er bestaat en wat eraan komt. Zo'n bericht aan laten staan verandert niets tot de aansluiting er is; het label verdwijnt van deze pagina in de versie waarin dat gebeurt.
+
+## Langs welke weg een bericht iemand mag bereiken
+
+Onder elk bericht met meer dan één mogelijkheid staat de lijst met wegen: e-mail, pushmelding, sms, WhatsApp-link of binnen TalentTrack.
+
+**Een bericht gaat langs één van die wegen naar een persoon, niet langs allemaal.** TalentTrack loopt de lijst af in de getoonde volgorde en gebruikt de eerste weg waarlangs die persoon echt bereikbaar is — bij iemand zonder mobiel nummer valt het terug op e-mail. De lijst is dus een terugvalvolgorde, geen vier kopieën van hetzelfde bericht.
+
+Vink een weg uit die je helemaal niet gebruikt wilt zien. Een academie zonder sms-tegoed, of een die schoolgaande spelers liever niet via WhatsApp benadert, vinkt dat hier uit en de volgende weg in de volgorde neemt het over.
+
+Twee dingen om te weten:
+
+- **Alle wegen uitvinken is niet de manier om een bericht te stoppen.** Dat kan niet worden opgeslagen — een bericht dat nergens heen kan wordt vastgelegd als een storing, niet als jouw keuze. Gebruik de schakelaar van het bericht zelf.
+- **Een bericht met maar één mogelijkheid toont die als tekst, niet als vinkje.** Er valt niets te kiezen.
+
+Of een bericht überhaupt verstuurd wordt en langs welke weg het mag reizen zijn twee losse keuzes, dus staan er twee losse knoppen voor.
 
 ## Een bericht uitzetten
 
