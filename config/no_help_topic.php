@@ -26,4 +26,18 @@ if ( ! defined( 'ABSPATH' ) && PHP_SAPI !== 'cli' ) exit;
 return [
     'docs'        => 'The help surface itself. A topic pointing at the page you are already reading is a loop, not help.',
     'my-settings' => 'Personal account settings — notification preferences, password, locale. Nothing here is academy behaviour to document; the mobile and notification setup topics cover the parts that need explaining.',
+
+    // Pre-auth screens. Each of these renders before the login guard (or,
+    // for the MFA prompt, before a half-authenticated session is allowed
+    // through), returning its own minimal chrome rather than the dashboard
+    // shell. There is no help button on the page, so a topic mapping here
+    // would map a screen the drawer cannot open. They became visible to
+    // this gate in #3022, when the three routable-slug derivers were
+    // unified; they were always routes, just unparseable ones.
+    'accept-invite'        => 'Invitation acceptance, rendered before the login guard because the token is the credential and the recipient may have no account yet. No shell, so no help drawer to open.',
+    'match-analysis-share' => 'A signed share link to one match analysis, opened by a coach outside the academy. Pre-auth, single-purpose, and deliberately noindex — a help topic here would document the product to someone who is not using it.',
+    'match-prep-share'     => 'The same arrangement for match preparation: a signed link for an assistant coach, analyst or keeper coach who may have no account here. Pre-auth, no shell.',
+    'lost-password'        => 'The branded "email me a reset link" form. Renders before the login guard and carries its own instructions; the password-reset topic documents the flow for anyone reading the corpus.',
+    'reset-password'       => 'The branded "choose a new password" form, reached from the emailed link. Pre-auth and self-explanatory, for the same reason as lost-password.',
+    'mfa-prompt'           => 'The second-factor challenge. The session is half-authenticated, chrome is stripped to the prompt itself, and anything but entering the code is a distraction at this step.',
 ];

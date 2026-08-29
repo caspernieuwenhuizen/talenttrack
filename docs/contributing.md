@@ -133,6 +133,10 @@ reported only as context inside a file that already tripped one.
 | 14 | The twin's `title` and `summary` are translated; its `group`, `audience` and `order` match the English. | corpus |
 | 15 | Every file is valid UTF-8. | corpus |
 
+Rules 4, 5 and 10 all turn on "routable", and that set is derived from `DashboardShortcode` by `tools/lib/routable-slugs.php` — one deriver, shared with `check-mobile-classes.php` and `check-tile-routes.php`. It resolves three shapes: a literal `case '<slug>':`, a constant arm such as `case SomeView::SLUG:` (by reading the constant out of the class the arm names), and the `$tt_view_param === …` comparisons that route pre-auth screens above the dispatch chain. Anything it cannot follow statically is reported as a note rather than dropped.
+
+Write a dispatcher arm whichever way reads better; both are visible to every gate. Before this was shared, each gate derived the set for itself and they disagreed by eight live routes, so a constant arm was invisible to the help-topic rule — an arm written the better way exempted itself from the requirement.
+
 Rules 13-14 were held back until the translation pass brought the corpus to parity — enforcing them earlier would have meant an exempt label on every PR, which is the same as no rule.
 
 `group`, `audience` and `order` must be *identical* in both files, because they key off one registry entry; only `title` and `summary` are translated. A Dutch `title` identical to the English one is treated as untranslated, since that is nearly always what it means. For the handful of words that genuinely do not change — *Modules* — add them to `$identicalByDesign` in `tools/check-docs.php`, so each one is a decision somebody made rather than a hole in the rule.
