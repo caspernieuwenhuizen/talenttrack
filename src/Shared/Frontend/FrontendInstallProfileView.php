@@ -32,9 +32,11 @@ class FrontendInstallProfileView extends FrontendViewBase {
     public const CAP  = 'tt_manage_modules';
     public const SLUG = 'install-profile';
 
-    /** Wire the apply handler. Called from Kernel::boot alongside the Modules view. */
+    /** Wire the apply + dismiss handlers. Called from Kernel::boot alongside the Modules view. */
     public static function init(): void {
         add_action( 'admin_post_tt_install_profile_apply', [ self::class, 'handleApply' ] );
+        // #3039 — dismissing a pending change is a decision, not an apply.
+        add_action( 'admin_post_tt_install_profile_dismiss', [ self::class, 'handleDismiss' ] );
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
@@ -168,6 +170,7 @@ class FrontendInstallProfileView extends FrontendViewBase {
                     ?>
                 </p>
             </div>
+            <?php self::renderPendingNotice( $current ); ?>
             <form method="get" action="<?php echo esc_url( RecordLink::dashboardUrl() ); ?>" class="tt-profile-strip__pick">
                 <input type="hidden" name="tt_view" value="<?php echo esc_attr( self::SLUG ); ?>" />
                 <label class="tt-profile-strip__label" for="tt-profile-strip-select">
@@ -186,6 +189,106 @@ class FrontendInstallProfileView extends FrontendViewBase {
             </form>
         </section>
         <?php
+    }
+
+    /**
+     * #3039 — a release changed what this profile includes.
+     *
+     * Every new module ships on by default, so an academy deliberately put
+     * on Basics would silently re-accumulate surfaces it was never sold,
+     * one release at a time. This notice is what stops that, and it
+     * **applies nothing**: it opens the preview with only the pending rows
+     * showing, because a release happens with no operator present and
+     * nothing is written without a human seeing the diff.
+     *
+     * Detection is this comparison, on a page an admin is already looking
+     * at. Deliberately no cron and no scheduled event.
+     */
+    private static function renderPendingNotice( ?string $current ): void {
+        if ( $current === null ) return;
+
+        $pending = ProfileService::pending();
+        if ( $pending === [] ) return;
+
+        $labels = array_column( $pending, 'label' );
+        $shown  = array_slice( $labels, 0, 3 );
+        $rest   = count( $labels ) - count( $shown );
+        $ids    = array_column( $pending, 'id' );
+        $profile = ProfileRegistry::get( $current );
+        $name    = $profile === null ? $current : $profile['label'];
+
+        // Not a cross-view affordance needing its own gate: it points at
+        // this same view, from a strip that is already behind the same
+        // capability.
+        $review_url = add_query_arg( [ 'tt_view' => self::SLUG, 'profile' => $current, 'rows' => implode( ',', $ids ) ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
+
+        $summary = implode( ', ', $shown );
+        if ( $rest > 0 ) {
+            $summary .= ' ' . sprintf(
+                /* translators: %d is how many further changed items are not named in the notice. */
+                __( 'and %d more', 'talenttrack' ),
+                $rest
+            );
+        }
+        ?>
+        <div class="tt-profile-pending" role="status">
+            <p class="tt-profile-pending__text">
+                <?php
+                printf(
+                    /* translators: 1: install profile name, e.g. "Basics"; 2: a comma-separated list of module and feature names. */
+                    esc_html__( '%1$s now covers %2$s. Nothing has changed yet.', 'talenttrack' ),
+                    esc_html( $name ),
+                    esc_html( $summary )
+                );
+                ?>
+            </p>
+            <div class="tt-profile-pending__actions">
+                <a class="tt-btn tt-btn-primary tt-profile-pending__review" href="<?php echo esc_url( $review_url ); ?>">
+                    <?php
+                    // `_x`, not `__`: the bare "Review" msgid is the wizard
+                    // step name and reads as "check this over". Here it
+                    // means "open the diff", which is a different sense and
+                    // a different Dutch word.
+                    echo esc_html( _x( 'Review', 'install profile drift notice action', 'talenttrack' ) );
+                    ?>
+                </a>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( 'tt_install_profile_dismiss', 'tt_nonce' ); ?>
+                    <input type="hidden" name="action" value="tt_install_profile_dismiss" />
+                    <input type="hidden" name="rows" value="<?php echo esc_attr( implode( ',', $ids ) ); ?>" />
+                    <button type="submit" class="tt-btn tt-btn-secondary">
+                        <?php
+                        // The bare "Dismiss" msgid renders as "hide", which
+                        // is what a flash message does. This one records a
+                        // decision, so it gets its own key.
+                        echo esc_html( _x( 'Dismiss', 'install profile drift notice action', 'talenttrack' ) );
+                        ?>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Record pending rows as seen, without applying any of them.
+     *
+     * Dismissing is a choice; re-raising it on the next unrelated release
+     * would turn the notice into something an operator learns to ignore.
+     */
+    public static function handleDismiss(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'You do not have permission to manage modules.', 'talenttrack' ), 403 );
+        }
+        check_admin_referer( 'tt_install_profile_dismiss', 'tt_nonce' );
+
+        $raw = isset( $_POST['rows'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['rows'] ) ) : '';
+        $ids = array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ) ) );
+
+        ProfileService::dismiss( $ids );
+
+        wp_safe_redirect( self::modulesUrl() );
+        exit;
     }
 
     /**
