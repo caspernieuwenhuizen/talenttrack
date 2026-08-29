@@ -11,6 +11,7 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
 use TT\Modules\Vct\Repositories\VctMacroBlocksRepository;
 use TT\Modules\Vct\Repositories\VctTeamSchedulesRepository;
+use TT\Modules\Vct\Services\AgeProfileAdminService;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -311,8 +312,9 @@ class FrontendVctConfigView extends FrontendViewBase {
         if ( ! $profiles ) {
             echo '<div class="tt-notice tt-notice--info tt-vct-empty">';
             echo '<p><strong>' . esc_html__( 'No age profiles are set up yet.', 'talenttrack' ) . '</strong></p>';
-            echo '<p>' . esc_html__( 'Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can\'t build a training. Ask your academy administrator to add them — they\'re part of the standard VCT setup for your club.', 'talenttrack' ) . '</p>';
+            echo '<p>' . esc_html__( 'Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can\'t build a training. Add the first one below — they\'re part of the standard VCT setup for your club.', 'talenttrack' ) . '</p>';
             echo '</div>';
+            self::renderAddAgeProfileForm( [] );
             return;
         }
 
@@ -354,8 +356,98 @@ class FrontendVctConfigView extends FrontendViewBase {
             echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
             echo '</div>';
             echo '</form>';
+
+            // Removal is its own form: a destructive action inside the
+            // save form would submit on Enter from any number field.
+            echo '<form method="POST" action="" class="tt-vct-form tt-vct-form-danger">';
+            wp_nonce_field( 'tt_vct_cfg_age_delete_' . (int) $p['id'], '_tt_vct_cfg_nonce' );
+            echo '<input type="hidden" name="_tt_action" value="delete_age_profile">';
+            echo '<input type="hidden" name="id"         value="' . esc_attr( (string) $p['id'] ) . '">';
+            echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html(
+                sprintf(
+                    /* translators: %s is an age group, e.g. U13. */
+                    __( 'Remove %s profile', 'talenttrack' ),
+                    (string) $p['age_group']
+                )
+            ) . '</button>';
+            echo '<p class="tt-help">' . esc_html__( 'Teams in this age group stop getting drafted trainings. Trainings already planned are unaffected.', 'talenttrack' ) . '</p>';
+            echo '</form>';
             echo '</details>';
         }
+
+        self::renderAddAgeProfileForm( $profiles );
+    }
+
+    /**
+     * #2601 — the add path. Until this existed, five profiles shipped
+     * seeded and an academy fielding U15-U19 had a generator that refused
+     * to draft for any of them, with nowhere to go.
+     *
+     * Nothing is pre-filled with a suggested ceiling. These numbers govern
+     * how hard minors are worked, and a plausible-looking default is worse
+     * than an empty field — it invites acceptance without a decision. The
+     * seeded profiles above are visible on the same screen as the shape to
+     * follow.
+     *
+     * @param list<array<string,mixed>> $existing
+     */
+    private static function renderAddAgeProfileForm( array $existing ): void {
+        $covered = array_map( static fn( $p ) => (string) $p['age_group'], $existing );
+        $options = [];
+        foreach ( QueryHelpers::get_lookups( 'age_group' ) as $row ) {
+            $name = (string) ( $row->name ?? '' );
+            if ( $name === '' || in_array( $name, $covered, true ) ) continue;
+            $options[ $name ] = LookupTranslator::name( $row );
+        }
+
+        echo '<details class="tt-vct-accordion tt-vct-accordion--add">';
+        echo '<summary class="tt-vct-accordion-summary">';
+        echo '<span class="tt-vct-accordion-title">' . esc_html__( 'Add an age profile', 'talenttrack' ) . '</span>';
+        echo '</summary>';
+
+        if ( ! $options ) {
+            echo '<p class="tt-help">' . esc_html__( 'Every age group already has a profile.', 'talenttrack' ) . '</p>';
+            echo '</details>';
+            return;
+        }
+
+        echo '<p class="tt-help">' . esc_html__( 'Set the limits for an age group the planner cannot draft for yet. The training shape is copied from the closest age group that already has one; the limits below are yours.', 'talenttrack' ) . '</p>';
+
+        echo '<form method="POST" action="" class="tt-vct-form tt-vct-form-grid">';
+        wp_nonce_field( 'tt_vct_cfg_age_create', '_tt_vct_cfg_nonce' );
+        echo '<input type="hidden" name="_tt_action" value="create_age_profile">';
+
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt_new_age_group">' . esc_html__( 'Age group', 'talenttrack' ) . '</label>';
+        echo '<select class="tt-input" id="tt_new_age_group" name="age_group" required>';
+        foreach ( $options as $value => $label ) {
+            echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $label ) . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+
+        self::renderNumberInput( 'session_minutes_max', __( 'Minutes per training (max)', 'talenttrack' ), null, 30, 180, 'new' );
+        /* translators: 1: lowest intensity band, 2: highest intensity band. */
+        $band_max_label = sprintf( __( 'Intensity band max (%1$d-%2$d)', 'talenttrack' ), ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
+        self::renderNumberInput( 'intensity_band_max',              $band_max_label,                                        null, ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX, 'new' );
+        self::renderNumberInput( 'min_recovery_hours_between_high', __( 'Min recovery hours between high', 'talenttrack' ), 48,   12, 168,   'new' );
+        self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'PHV load reduction %',            'talenttrack' ), 20,   0,  50,    'new' );
+        self::renderNumberInput( 'weekly_load_envelope',            __( 'Weekly load envelope',            'talenttrack' ), null, 50, 10000, 'new' );
+
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt_new_match_multiplier">' . esc_html__( 'Match load multiplier per minute', 'talenttrack' ) . '</label>';
+        echo '<input class="tt-input" id="tt_new_match_multiplier" type="number" inputmode="decimal" step="0.1" min="0" max="20" name="match_load_multiplier_per_minute" value="7.0">';
+        echo '</div>';
+
+        echo '<label class="tt-vct-check tt-vct-form-full"><input type="checkbox" name="md_logic_enabled" value="1"> '
+            . esc_html__( 'MD logic enabled (off for the youngest groups per Appendix A)', 'talenttrack' )
+            . '</label>';
+
+        echo '<div class="tt-form-actions tt-vct-form-full">';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Add profile', 'talenttrack' ) . '</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</details>';
     }
 
     // ── SCHEDULES ────────────────────────────────────────────────────
@@ -459,10 +551,21 @@ class FrontendVctConfigView extends FrontendViewBase {
         return implode( ' · ', $out );
     }
 
-    private static function renderNumberInput( string $name, string $label, int $value, int $min, int $max ): void {
+    /**
+     * @param int|null $value Null renders an empty field — #2601's add
+     *                        form deliberately suggests no load ceiling,
+     *                        because a plausible-looking default invites
+     *                        acceptance without a decision, and these
+     *                        numbers govern how hard children are worked.
+     * @param string   $id_suffix Keeps the `for`/`id` pair unique when the
+     *                        same field name appears in more than one form
+     *                        on the page.
+     */
+    private static function renderNumberInput( string $name, string $label, ?int $value, int $min, int $max, string $id_suffix = '' ): void {
+        $id = $name . ( $id_suffix !== '' ? '_' . $id_suffix : '' );
         echo '<div class="tt-field">';
-        echo '<label class="tt-field-label" for="' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
-        echo '<input class="tt-input" type="number" inputmode="numeric" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" min="' . esc_attr( (string) $min ) . '" max="' . esc_attr( (string) $max ) . '" value="' . esc_attr( (string) $value ) . '" required>';
+        echo '<label class="tt-field-label" for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+        echo '<input class="tt-input" type="number" inputmode="numeric" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" min="' . esc_attr( (string) $min ) . '" max="' . esc_attr( (string) $max ) . '" value="' . esc_attr( $value === null ? '' : (string) $value ) . '" required>';
         echo '</div>';
     }
 
@@ -490,6 +593,54 @@ class FrontendVctConfigView extends FrontendViewBase {
             self::notice(
                 $ok ? 'success' : 'error',
                 $ok ? __( 'Age profile updated.', 'talenttrack' ) : __( 'Save failed: database error.', 'talenttrack' )
+            );
+            return;
+        }
+
+        // #2601 — bring an age group the planner cannot draft for into
+        // range. Both handlers delegate to `AgeProfileAdminService`, so
+        // this view and the REST route make the same decisions about
+        // duplicates, the copied session blueprint, and what blocks a
+        // removal.
+        if ( $action === 'create_age_profile' ) {
+            if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_cfg_nonce'] ?? '' ), 'tt_vct_cfg_age_create' ) ) {
+                self::notice( 'error', __( 'Save failed: your form expired. Please reload.', 'talenttrack' ) );
+                return;
+            }
+            $result = ( new AgeProfileAdminService() )->create( [
+                'age_group'                        => sanitize_text_field( wp_unslash( (string) ( $_POST['age_group'] ?? '' ) ) ),
+                'session_minutes_max'              => (int)   ( $_POST['session_minutes_max']              ?? 0 ),
+                'intensity_band_max'               => (int)   ( $_POST['intensity_band_max']               ?? 0 ),
+                'md_logic_enabled'                 => ! empty( $_POST['md_logic_enabled'] ) ? 1 : 0,
+                'min_recovery_hours_between_high'  => (int)   ( $_POST['min_recovery_hours_between_high']  ?? 48 ),
+                'growth_spurt_load_reduction_pct'  => (int)   ( $_POST['growth_spurt_load_reduction_pct']  ?? 20 ),
+                'weekly_load_envelope'             => (int)   ( $_POST['weekly_load_envelope']             ?? 0 ),
+                'match_load_multiplier_per_minute' => (float) ( $_POST['match_load_multiplier_per_minute'] ?? 7.0 ),
+            ] );
+
+            if ( $result['id'] <= 0 ) {
+                self::notice( 'error', $result['error'] );
+                return;
+            }
+            self::notice(
+                'success',
+                $result['templates_copied'] > 0
+                    ? __( 'Age profile added. The training shape was copied from the closest age group, so the planner can draft for these teams now.', 'talenttrack' )
+                    : __( 'Age profile added. No training shape existed to copy, so the planner still needs a blueprint for this age group.', 'talenttrack' )
+            );
+            return;
+        }
+
+        if ( $action === 'delete_age_profile' ) {
+            $id = absint( $_POST['id'] ?? 0 );
+            if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_cfg_nonce'] ?? '' ), 'tt_vct_cfg_age_delete_' . $id ) ) {
+                self::notice( 'error', __( 'Save failed: your form expired. Please reload.', 'talenttrack' ) );
+                return;
+            }
+            $result = ( new AgeProfileAdminService() )->delete( $id );
+            self::notice(
+                $result['deleted'] ? 'success' : 'error',
+                $result['deleted'] ? __( 'Age profile removed.', 'talenttrack' ) : $result['error']
             );
             return;
         }

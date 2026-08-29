@@ -169,6 +169,41 @@ Deliberately **not** added to `FrontendModulesView`, where `/modules` and `/feat
 - **`GET /profiles/{slug}` writes nothing**, and the smoke suite asserts it against a snapshot of live module and feature state rather than by inspection — the preview being read-only is the property the whole "nothing is written without a human seeing the diff" decision rests on.
 - **No WP-isms in the payload.** The response exposes what a caller may do via the capability gate, never a role name.
 
+## VCT age profiles (#2601)
+
+The per-age workload envelope the training generator plans inside: maximum
+session length, intensity ceiling, weekly load envelope, recovery gap, PHV
+reduction. `VctAgeProfilesRestController`
+(`src/Modules/Vct/Rest/VctAgeProfilesRestController.php`).
+
+- **Caps:** read on `tt_vct_plan` — a coach needs to know the ceiling they are
+  planning under. Write on `tt_vct_admin_config`, which is head-of-development,
+  not general administration: these numbers govern how hard minors are worked.
+- **Routes:** `GET /vct/age-profiles`, `POST /vct/age-profiles`,
+  `PATCH /vct/age-profiles/{id}`, `DELETE /vct/age-profiles/{id}`.
+- **`POST` requires `age_group`, `session_minutes_max` and
+  `intensity_band_max`.** The two ceilings carry the age safety, and nothing
+  here defaults them — an endpoint that invented load limits for children would
+  be the bug. The rest fall back to the seeded conventions (48h recovery, 20%
+  PHV reduction, 7.0 match multiplier). Duplicate age group → 400 with a message
+  naming it; `uniq_club_age` makes a second row impossible anyway.
+- **`POST` also copies session templates** from the nearest age group that has
+  them, and reports `templates_copied`. A profile clears the age rule (pass 1);
+  the template clears the composition rule (pass 3). Creating only the profile
+  would move the block rather than remove it, and there is no operator surface
+  for templates. Ties break downwards — a new U15 takes U14's shape, the more
+  conservative neighbour.
+- **`DELETE` is 409 while a live team is in that age group.** Those teams would
+  quietly stop getting drafted trainings with nothing connecting the effect to
+  the cause. Saved plans are never affected: a plan carries its own blocks, and
+  the profile is only read while drafting.
+- **Deleting leaves the session templates in place.** They are inert without a
+  profile, and keeping them means re-adding the profile restores the academy's
+  own blueprint rather than silently re-copying a neighbour's.
+- The create/delete decisions live in `AgeProfileAdminService`, not in the
+  controller, so this route and `FrontendVctConfigView` cannot answer
+  differently.
+
 ## Common conventions
 
 ### Response envelope

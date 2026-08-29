@@ -68,6 +68,51 @@ WordPress render and a future SaaS front end get identical answers.
 The **Reference phase profiles** read-only table above the editor lists
 the seeded template profiles for reference.
 
+## Which age groups are modelled, and why not the youngest
+
+Five profiles ship seeded: **U10, U11, U12, U13 and U14**. The training generator
+only drafts for an age group that has one, because the profile is what supplies
+the age-safe intensity ceiling and that is not something to guess at for
+children.
+
+The youngest groups are **deliberately** outside that range. Training load is not
+planned in numbers at U7–U9; the coach shapes the training. The generator will
+never draft for them, and it now says so as an answer rather than reporting a
+missing profile — the old message sent coaches looking for a setting that does
+not exist.
+
+Everything above the range is a different story: it simply has no profile yet,
+and you can add one. The line between the two is not a fixed list of age groups —
+it is the youngest profile your club actually has. Add a U9 profile and U9 stops
+being "below the range" from that moment on.
+
+## Adding and removing an age profile
+
+At the bottom of the **Age profiles** tab, **Add an age profile** offers every
+age group that does not have one yet.
+
+Nothing is pre-filled. These numbers decide how long and how hard children train,
+so a plausible-looking suggestion would be worse than an empty field — it invites
+agreement instead of a decision. The seeded profiles are on the same screen as
+the shape to follow, and the maximum training length and intensity ceiling are
+required.
+
+Adding a profile also copies the **training shape** from the closest age group
+that already has one — U15 inherits U14's blueprint, not U10's. That shape is a
+starting point; the limits you just typed are what actually cap the training. Both
+have to exist, which is why adding a profile alone would otherwise stop the
+draft one step later with a different message.
+
+**Removing** a profile is refused while a team is still in that age group: those
+teams would quietly stop getting drafted trainings, and nobody would connect that
+to a click on this screen weeks later. Move or archive the teams first. Trainings
+already planned are never affected — a saved plan carries its own blocks, and the
+profile is only read while drafting.
+
+Both actions need the VCT configuration permission, which the head of development
+holds. These are the ceilings that govern how hard minors are worked, so they are
+not part of general administration.
+
 ## Editing age profiles and team schedules
 
 Both tabs use polished `<details>` accordions — one per age band / team.
