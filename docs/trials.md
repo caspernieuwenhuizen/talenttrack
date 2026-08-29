@@ -26,6 +26,10 @@ A **trial case** is a structured way to run a 2–6 week look at a prospective p
 
 From the **Trial cases** tile, pick *New trial case*. Choose the player (or create a new one first), pick a track (Standard / Scout / Goalkeeper, or any custom track the club added), set start and end dates, and assign initial staff. The player's status flips to **Trial** automatically.
 
+Opening the case writes **Trial started** to the player's journey, so the trial shows on their timeline from day one. If you created the player inline on this form — first name, last name and date of birth — that also writes **Joined the academy**, the same as adding them from the Players screen. The trial is where a trial player came from, and the timeline should say so without anyone having to add a note.
+
+Because the inline fields go through the normal player create, an academy that has made a custom player field **required** cannot use the shortcut: the form will say which field is missing. Add the player from the Players screen first, then pick them here.
+
 ### 2. Watch the case run
 
 The **Execution** tab on the case page aggregates everything that happens during the trial window — activities the player attended, evaluations written, goals created or updated, plus a small synthesis (rolling rating, evaluation count). Nothing is duplicated; the data sits in the normal places, the Execution tab just filters to the trial window.
