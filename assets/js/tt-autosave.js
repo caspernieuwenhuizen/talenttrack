@@ -119,6 +119,22 @@
  * renders, still offers undo. The snapshot is also size-bounded: a record too
  * large to store is the same "not available", never a half-written key or a
  * quota exception thrown into the save path.
+ *
+ * ## Halting (#3007, epic #2881)
+ *
+ * `halt(message)` is the terminal state, for the failure that retrying makes
+ * worse. Match analysis uses it when the server answers 409: the record moved
+ * underneath the surface, so every further autosave would overwrite somebody
+ * else's work with a document composed against a different starting point.
+ *
+ * Nothing writes again afterwards — `change()`, `saveNow()` and `send()` all
+ * return immediately, and undo and revert stop being offered, because both
+ * would write. The edits stay in the fields; a reload is the way out, because
+ * a reload is the only thing that puts the coach back on the version that
+ * exists.
+ *
+ * `onError` receives an `Error` carrying `.status`, which is how a surface
+ * tells a 409 from a 500 in the first place.
  */
 (function () {
 	'use strict';
@@ -276,6 +292,19 @@
 		}
 	}
 
+	/**
+	 * A failed response, as an Error that still says which failure it was.
+	 * `onError` handlers need the status: a 409 from a record someone else
+	 * has moved is a different sentence to a 500, and a component that
+	 * flattened both into "Save failed" would make the useful one
+	 * unreachable (#3007).
+	 */
+	function httpError(r) {
+		var err = new Error('HTTP ' + r.status);
+		err.status = r.status;
+		return err;
+	}
+
 	var REVERT_DIALOG_ID = 'tt-autosave-revert-dialog';
 
 	function escapeHtml(s) {
@@ -347,6 +376,11 @@
 		// to snapshot. All three degrade the same way: no offer.
 		this.sitting      = null;
 		this.revertFailed = false;
+
+		// #3007 — a terminal state. Set by `halt()` when carrying on would
+		// do harm; nothing writes again until the page is reloaded.
+		this.halted      = false;
+		this.haltMessage = '';
 
 		this._prepareStateEl();
 		this._prepareUndoEl();
@@ -441,8 +475,33 @@
 		this.render();
 	};
 
+	/**
+	 * Stop writing, permanently, and say why (#3007).
+	 *
+	 * For the failure that retrying makes worse. The case it was built for
+	 * is a record that moved underneath the surface: the coach is looking at
+	 * a version the server no longer holds, so every further autosave would
+	 * overwrite somebody else's work with a document composed against a
+	 * different starting point.
+	 *
+	 * Deliberately terminal, and deliberately not a "retry" state. The only
+	 * way out is a reload, because a reload is the only thing that gets the
+	 * coach back onto the version that exists. The edits stay in the fields
+	 * either way — nothing on screen is thrown away.
+	 */
+	Autosave.prototype.halt = function (message) {
+		this.halted      = true;
+		this.haltMessage = String(message || this.words.error);
+
+		if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+		this.queued = false;
+		this.render();
+	};
+
 	/** Something changed. Debounce, then save. */
 	Autosave.prototype.change = function (delay) {
+		if (this.halted) return;
+
 		this.dirty        = true;
 		this.failed       = false;
 		this.undoFailed   = false;
@@ -464,6 +523,7 @@
 	 * the moment they act rather than a beat later.
 	 */
 	Autosave.prototype.saveNow = function () {
+		if (this.halted) return Promise.resolve(null);
 		if (this.timer) { clearTimeout(this.timer); this.timer = null; }
 
 		// One request at a time. A change made during a save is remembered
@@ -497,7 +557,7 @@
 			},
 			body: req.body != null ? JSON.stringify(req.body) : null
 		}).then(function (r) {
-			if (!r.ok) throw new Error('HTTP ' + r.status);
+			if (!r.ok) throw httpError(r);
 			return r.status === 204 ? null : r.json();
 		}).then(function (resp) {
 			self.inFlight = false;
@@ -546,6 +606,7 @@
 	 * cannot race each other on the same record.
 	 */
 	Autosave.prototype.send = function (req) {
+		if (this.halted) return Promise.resolve(null);
 		if (!req || !req.url) return Promise.resolve(null);
 
 		var self = this;
@@ -584,7 +645,7 @@
 			},
 			body: req.body != null ? JSON.stringify(req.body) : null
 		}).then(function (r) {
-			if (!r.ok) throw new Error('HTTP ' + r.status);
+			if (!r.ok) throw httpError(r);
 			return r.status === 204 ? null : r.json();
 		}).then(function (resp) {
 			self.inFlight = false;
@@ -607,7 +668,8 @@
 	 * record with a snapshot behind it and somewhere to put it.
 	 */
 	Autosave.prototype.canUndo = function () {
-		return !!this.undoTarget
+		return !this.halted
+			&& !!this.undoTarget
 			&& typeof this.opts.apply === 'function'
 			&& !this.inFlight
 			&& !this.queued
@@ -678,7 +740,8 @@
 	 * to replace.
 	 */
 	Autosave.prototype.canRevert = function () {
-		return !!this.sitting
+		return !this.halted
+			&& !!this.sitting
 			&& typeof this.opts.apply === 'function'
 			&& !this.inFlight
 			&& !this.queued
@@ -823,6 +886,13 @@
 
 		el.classList.remove('is-dirty', 'is-saving', 'is-saved', 'is-error');
 
+		// Terminal, so it outranks everything below it — including a
+		// half-finished "Saving…" from the request that produced it.
+		if (this.halted) {
+			el.classList.add('is-error');
+			el.textContent = this.haltMessage;
+			return;
+		}
 		if (this.revertFailed) {
 			el.classList.add('is-error');
 			el.textContent = this.words.revertError;

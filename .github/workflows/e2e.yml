@@ -1,9 +1,11 @@
 name: TalentTrack E2E (#12)
 
 on:
+  # #3090 — deliberately no `branches:` filter here. See the note in
+  # php-tests.yml: `pull_request` only fires for pull requests, so the
+  # filter's whole effect was to skip stacked PRs, which are the ones that
+  # were merging untested behind a green column. The `push` filter stays.
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main

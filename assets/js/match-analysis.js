@@ -125,4 +125,171 @@
                 });
         }
     });
+
+    // -----------------------------------------------------------------
+    // Autosave (#3007, epic #2881)
+    // -----------------------------------------------------------------
+
+    /**
+     * The analysis form used to be a `tt-ajax-form` with a Save button.
+     * A coach writing up a game on a phone after the final whistle is
+     * composing over minutes, not filling in a record, so it autosaves —
+     * through the same `TT.Autosave` component match prep uses, which
+     * brings the save state, undo and revert with it.
+     *
+     * Three things this wiring owns and the component does not:
+     *
+     *  - **Serialising the form.** `TT.formToJSON` is public.js's own
+     *    bracket expansion, exposed rather than reimplemented so an
+     *    autosave and a submit cannot reach the same endpoint with two
+     *    different shapes.
+     *  - **The version token.** Every write carries `base_updated_at`, the
+     *    `updated_at` last seen, and every response refreshes it. A 409
+     *    means a second coach has written since, and the surface halts
+     *    rather than composing over them.
+     *  - **Marking final.** The one deliberate commit left on the page. It
+     *    is a publish, not a save — see the share-link behaviour.
+     */
+    (function () {
+        var form = document.querySelector('[data-tt-ma-form]');
+        if (!form || !window.TT || !TT.Autosave || typeof TT.formToJSON !== 'function') return;
+
+        var url      = restBase() + String(form.getAttribute('data-rest-path') || '');
+        var finalise = form.querySelector('[data-tt-ma-finalise]');
+        var note     = form.querySelector('[data-tt-ma-final-note]');
+        var base     = String(form.getAttribute('data-updated') || '');
+
+        function body() {
+            return TT.formToJSON(form);
+        }
+
+        /**
+         * The version token rides in the query string, not in the body.
+         *
+         * That is not cosmetic: the body is also what undo and revert
+         * snapshot, and a token that changed on every save would show up in
+         * the diff as a changed field — so the surface would offer to
+         * revert a record nobody had touched. Empty means "no version to
+         * have been composed against", which is a first write, and the
+         * server treats an absent token as opt-out.
+         */
+        function endpoint() {
+            return base ? url + '?base_updated_at=' + encodeURIComponent(base) : url;
+        }
+
+        function remember(resp) {
+            var data = resp && resp.data;
+            if (data && typeof data.updated_at === 'string') base = data.updated_at;
+        }
+
+        var saver = TT.Autosave.create({
+            stateEl:  form.querySelector('[data-tt-save-state]'),
+            undoEl:   form.querySelector('[data-tt-save-undo]'),
+            revertEl: form.querySelector('[data-tt-save-revert]'),
+            storageKey: 'match-analysis:' + String(form.getAttribute('data-rest-path') || ''),
+            nonce:    (window.TT && TT.rest_nonce) || '',
+            delay:    600,
+            i18n:     (window.TT_Autosave && window.TT_Autosave.i18n) || {},
+            serialise: function () {
+                return { method: 'PUT', url: endpoint(), body: body() };
+            },
+            apply: function (payload) { mount(payload); },
+            onSaved: remember,
+            onError: function (err) {
+                // 409 is the one failure retrying makes worse: the record
+                // moved, so every further write would overwrite whoever
+                // moved it. Stop, and say so.
+                if (err && err.status === 409) {
+                    saver.halt(t('conflict', 'Someone else changed this analysis. Reload the page to see their version.'));
+                }
+            }
+        });
+
+        /**
+         * Put a previously committed body back into the form — the inverse
+         * of `TT.formToJSON`, and what makes undo and revert reach this
+         * surface. Walks the payload rather than the DOM so a field the
+         * snapshot does not mention is left alone rather than blanked.
+         */
+        function mount(payload) {
+            if (!payload) return;
+
+            Array.prototype.forEach.call(form.elements, function (el) {
+                if (!el.name || el.disabled) return;
+
+                var value = lookup(payload, el.name);
+
+                // Absent is meaningful, not "skip": a rating the snapshot
+                // does not carry is a rating that was not chosen, and an
+                // undo that left it standing would restore three fields out
+                // of four. Disabled controls are exempt because they were
+                // never in the serialisation to begin with.
+                if (el.type === 'radio' || el.type === 'checkbox') {
+                    el.checked = value !== undefined && String(el.value) === String(value);
+                    return;
+                }
+                el.value = value === undefined ? '' : value;
+            });
+
+            // The roster's chips and counters are drawn from the radios, so
+            // they have to be told the radios moved.
+            form.dispatchEvent(new CustomEvent('tt:ma-remounted', { bubbles: true }));
+        }
+
+        /** `players[12][marker]` -> payload.players['12'].marker */
+        function lookup(payload, name) {
+            var match = name.match(/^([^\[]+)((?:\[[^\]]*\])*)$/);
+            if (!match) return undefined;
+
+            var cursor = payload[match[1]];
+            var keys   = [];
+            match[2].replace(/\[([^\]]*)\]/g, function (_m, k) { keys.push(k); return ''; });
+
+            for (var i = 0; i < keys.length; i++) {
+                if (cursor == null || typeof cursor !== 'object') return undefined;
+                cursor = cursor[keys[i]];
+            }
+            return cursor === undefined || cursor === null ? undefined : cursor;
+        }
+
+        saver.seed(body());
+
+        form.addEventListener('input',  function () { saver.change(); });
+        // Radios, selects and the roster's chips settle the moment they are
+        // pressed, so they skip the typing debounce.
+        form.addEventListener('change', function () { saver.change(60); });
+
+        // Nothing on this form submits any more, but a stray Enter in a
+        // text input still tries to. Swallow it and let the save that is
+        // already queued do the work.
+        form.addEventListener('submit', function (e) { e.preventDefault(); });
+
+        if (finalise) {
+            finalise.addEventListener('click', function () {
+                if (!window.confirm(t('confirmFinal', 'Mark this analysis final? Anyone holding the share link can then read it.'))) return;
+
+                finalise.disabled = true;
+
+                // Flush what is in the fields first, so the document being
+                // published is the one on screen rather than the one the
+                // debounce had got to.
+                saver.saveNow().then(function () {
+                    return saver.send({
+                        method: 'PUT',
+                        url: endpoint(),
+                        body: { status: 'final' }
+                    });
+                }).then(function (resp) {
+                    finalise.disabled = false;
+                    if (!resp || !resp.success) {
+                        flash('error', t('finalFailed', 'The analysis could not be marked final. Try again.'));
+                        return;
+                    }
+                    remember(resp);
+                    finalise.hidden = true;
+                    if (note) note.hidden = false;
+                });
+            });
+        }
+    }());
 }());

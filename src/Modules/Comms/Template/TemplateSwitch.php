@@ -68,6 +68,58 @@ final class TemplateSwitch {
     }
 
     /**
+     * #3111 — seed a fresh install with every switchable template off.
+     *
+     * A new academy sends nothing until somebody decides it should. The
+     * setup wizard is where that decision is made; until then TalentTrack
+     * does not mail the parents of minors on an academy's behalf.
+     *
+     * ## Why this is a seed and not a rule
+     *
+     * `isEnabled()` is deliberately untouched, and so is the meaning of
+     * the stored value. Three situations look identical to a read-time
+     * rule and must not be conflated:
+     *
+     *   - an install created before #3111 stores `''` and means
+     *     "everything on";
+     *   - an install whose operator opened the settings screen and ticked
+     *     every box also stores `''`, and means "everything on",
+     *     deliberately;
+     *   - a fresh install should mean "everything off".
+     *
+     * Writing the disabled set at activation gives the third case its own
+     * stored value, so the first two keep meaning exactly what they meant
+     * and no second "has the operator seen this?" flag is needed — a flag
+     * would be a second source of truth for the same question, and would
+     * drift from the set it describes.
+     *
+     * The upgrade guarantee survives intact as a consequence: a template
+     * shipped in release N+1 is in nobody's stored disabled set, so it
+     * lands enabled on every install that already existed, and disabled
+     * only on installs activated from N+1 onward, whose seed is computed
+     * from the catalogue as it stands at that moment.
+     *
+     * Defensive on both sides: only ever called for a fresh install, and
+     * writes nothing when a value is already present, so a re-activation
+     * never clobbers an academy's choices.
+     *
+     * @return bool whether a value was written
+     */
+    public static function seedFreshInstallDefault(): bool {
+        if ( trim( (string) QueryHelpers::get_config( self::CONFIG_KEY, '' ) ) !== '' ) {
+            return false;
+        }
+
+        // Read from the catalogue, not the registry: activation runs long
+        // after `init`, so no module has booted and the registry is empty.
+        QueryHelpers::set_config(
+            self::CONFIG_KEY,
+            (string) wp_json_encode( TemplateCatalog::shippedSwitchableKeys() )
+        );
+        return true;
+    }
+
+    /**
      * Whether this template is the academy's decision to make (#3110).
      *
      * An unregistered key is switchable — the stored set is the disabled
