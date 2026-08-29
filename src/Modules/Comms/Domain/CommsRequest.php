@@ -24,6 +24,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * caller renders the file via Export, gets back an export id, and
  * passes it here so the dispatcher attaches the rendered bytes.
  *
+ * `attachmentPaths` is the simpler sibling (#2604): absolute paths to
+ * files the caller has already written, handed straight to the channel
+ * adapter. Scheduled reports use it — they render a CSV to a temporary
+ * path and delete it as soon as the send returns, which never involves
+ * the Export module at all. Adapters that cannot carry a file ignore it.
+ *
  * Immutable.
  */
 final class CommsRequest {
@@ -31,6 +37,7 @@ final class CommsRequest {
     /**
      * @param Recipient[] $recipients
      * @param array<string,scalar|null> $payload  template variable bag
+     * @param list<string> $attachmentPaths  absolute paths, already written by the caller
      */
     public function __construct(
         public string $templateKey,
@@ -42,6 +49,7 @@ final class CommsRequest {
         public ?string $forceChannel = null,
         public bool $urgent = false,
         public ?int $attachedExportId = null,
-        public ?string $localeOverride = null
+        public ?string $localeOverride = null,
+        public array $attachmentPaths = []
     ) {}
 }
