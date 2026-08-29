@@ -224,7 +224,6 @@ class FrontendMatrixView extends FrontendViewBase {
         ];
         $user_id = get_current_user_id();
         $grouped = MatrixEntityCatalog::groupByCategory( $entities );
-        $span    = 1 + max( 1, count( $personas ) );
         ?>
         <div class="tt-matrix-scroll" tabindex="0" role="region"
              aria-label="<?php esc_attr_e( 'Authorization matrix', 'talenttrack' ); ?>">
@@ -239,20 +238,47 @@ class FrontendMatrixView extends FrontendViewBase {
                 </thead>
                 <tbody>
                 <?php foreach ( $grouped as $category => $rows ) : ?>
+                    <?php
+                    /*
+                     * The category band doubles as the column legend.
+                     *
+                     * A `position: sticky` header row cannot pin to the
+                     * viewport from inside a horizontal scroll container:
+                     * `overflow-x: auto` forces `overflow-y` to `auto` too,
+                     * so the header sticks to a scrollport that never
+                     * scrolls once the grid's own vertical scrollbar is
+                     * gone. Repeating the persona names on every category
+                     * band gives the same answer — "which persona is this
+                     * column?" — without a second scrollbar to reach it.
+                     */
+                    ?>
                     <tr class="tt-matrix-cat">
-                        <th scope="colgroup" colspan="<?php echo (int) $span; ?>">
+                        <th scope="row" class="tt-matrix-entity tt-matrix-cat-name">
                             <?php echo esc_html( (string) $category ); ?>
                         </th>
+                        <?php foreach ( $personas as $persona ) : ?>
+                            <th scope="col" class="tt-matrix-cat-persona">
+                                <?php echo esc_html( MatrixEditService::personaLabel( $persona ) ); ?>
+                            </th>
+                        <?php endforeach; ?>
                     </tr>
                     <?php foreach ( $rows as $row ) :
-                        $entity = (string) $row['entity'];
-                        $label  = MatrixEntityCatalog::entityLabel( $entity );
-                        $module = MatrixEntityCatalog::shortModule( (string) $row['module_class'] );
+                        $entity    = (string) $row['entity'];
+                        $label     = MatrixEntityCatalog::entityLabel( $entity );
+                        $module    = MatrixEntityCatalog::shortModule( (string) $row['module_class'] );
+                        $haystack  = strtolower( $entity . ' ' . $label . ' ' . $module );
+                        $scope_id  = 'tt-matrix-scope-' . sanitize_html_class( $entity );
                         ?>
-                        <tr data-tt-matrix-haystack="<?php echo esc_attr( strtolower( $entity . ' ' . $label . ' ' . $module ) ); ?>">
+                        <tr data-tt-matrix-haystack="<?php echo esc_attr( $haystack ); ?>">
                             <th scope="row" class="tt-matrix-entity">
                                 <span class="tt-matrix-entity-label"><?php echo esc_html( $label ); ?></span>
                                 <code class="tt-matrix-entity-slug"><?php echo esc_html( $entity ); ?></code>
+                                <button type="button" class="tt-matrix-scope-toggle"
+                                        data-tt-matrix-scope-toggle="<?php echo esc_attr( $scope_id ); ?>"
+                                        aria-controls="<?php echo esc_attr( $scope_id ); ?>"
+                                        aria-expanded="true" hidden>
+                                    <?php echo esc_html( _x( 'Scope', 'matrix per-entity scope row', 'talenttrack' ) ); ?>
+                                </button>
                             </th>
                             <?php foreach ( $personas as $persona ) :
                                 self::renderCell(
@@ -264,6 +290,7 @@ class FrontendMatrixView extends FrontendViewBase {
                                 );
                             endforeach; ?>
                         </tr>
+                        <?php self::renderScopeRow( $scope_id, $haystack, $entity, $personas, $grid, $activities, $user_id ); ?>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
                 </tbody>
@@ -284,13 +311,6 @@ class FrontendMatrixView extends FrontendViewBase {
      * @param array<string, string>                                   $activities
      */
     private static function renderCell( string $persona, string $entity, array $cell, array $activities, bool $can_edit ): void {
-        $scope = 'global';
-        foreach ( array_keys( $activities ) as $activity ) {
-            if ( isset( $cell[ $activity ]['scope_kind'] ) ) {
-                $scope = (string) $cell[ $activity ]['scope_kind'];
-                break;
-            }
-        }
         $locked_title = $can_edit
             ? ''
             : __( 'Locked: only a WordPress administrator can change this.', 'talenttrack' );
@@ -320,27 +340,93 @@ class FrontendMatrixView extends FrontendViewBase {
                     </label>
                 <?php endforeach; ?>
             </div>
-            <label class="tt-matrix-scope">
-                <span class="tt-screen-reader-text">
-                    <?php
-                    printf(
-                        /* translators: 1: persona name, 2: entity name */
-                        esc_html__( 'Scope for %1$s on %2$s', 'talenttrack' ),
-                        esc_html( MatrixEditService::personaLabel( $persona ) ),
-                        esc_html( MatrixEntityCatalog::entityLabel( $entity ) )
-                    );
-                    ?>
-                </span>
-                <select name="scope[<?php echo esc_attr( $persona . '|' . $entity ); ?>]" <?php disabled( ! $can_edit ); ?>>
-                    <?php foreach ( self::scopeLabels() as $kind => $scope_label ) : ?>
-                        <option value="<?php echo esc_attr( $kind ); ?>" <?php selected( $scope, $kind ); ?>>
-                            <?php echo esc_html( $scope_label ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
         </td>
         <?php
+    }
+
+    /**
+     * The scope controls for one entity, on their own row under it.
+     *
+     * They used to sit inside every cell, under the three toggles, which
+     * is what made each entity two rows tall — the single biggest reason
+     * the grid needed a viewport of its own to be read at all.
+     *
+     * **One select per persona, not one per row.** Scope is stored per
+     * (persona, entity) — a coach may read players at team scope while a
+     * scout reads them globally — so collapsing the row to a single
+     * control would change what the matrix can express. The row is a
+     * summary of where the controls live, not of what they mean.
+     *
+     * Rendered expanded, and collapsed by the script on load: without
+     * JavaScript the scopes stay reachable, which they would not be if
+     * the markup shipped hidden behind a button nothing could press.
+     *
+     * @param list<string>                                                                            $personas
+     * @param array<string, array<string, array<string, array{scope_kind:string, is_default:int}>>>   $grid
+     * @param array<string, string>                                                                   $activities
+     */
+    private static function renderScopeRow(
+        string $scope_id,
+        string $haystack,
+        string $entity,
+        array $personas,
+        array $grid,
+        array $activities,
+        int $user_id
+    ): void {
+        ?>
+        <tr class="tt-matrix-scope-row" id="<?php echo esc_attr( $scope_id ); ?>"
+            data-tt-matrix-scope-row
+            data-tt-matrix-haystack-follow="<?php echo esc_attr( $haystack ); ?>">
+            <th scope="row" class="tt-matrix-entity tt-matrix-scope-head">
+                <?php echo esc_html( _x( 'Scope', 'matrix per-entity scope row', 'talenttrack' ) ); ?>
+            </th>
+            <?php foreach ( $personas as $persona ) :
+                $cell     = $grid[ $persona ][ $entity ] ?? [];
+                $scope    = self::cellScope( $cell, $activities );
+                $can_edit = MatrixEditService::canEditCell( $user_id, $persona, $entity );
+                ?>
+                <td class="tt-matrix-scope-cell<?php echo $can_edit ? '' : ' is-locked'; ?>">
+                    <label class="tt-matrix-scope">
+                        <span class="tt-screen-reader-text">
+                            <?php
+                            printf(
+                                /* translators: 1: persona name, 2: entity name */
+                                esc_html__( 'Scope for %1$s on %2$s', 'talenttrack' ),
+                                esc_html( MatrixEditService::personaLabel( $persona ) ),
+                                esc_html( MatrixEntityCatalog::entityLabel( $entity ) )
+                            );
+                            ?>
+                        </span>
+                        <select name="scope[<?php echo esc_attr( $persona . '|' . $entity ); ?>]" <?php disabled( ! $can_edit ); ?>>
+                            <?php foreach ( self::scopeLabels() as $kind => $scope_label ) : ?>
+                                <option value="<?php echo esc_attr( $kind ); ?>" <?php selected( $scope, $kind ); ?>>
+                                    <?php echo esc_html( $scope_label ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                </td>
+            <?php endforeach; ?>
+        </tr>
+        <?php
+    }
+
+    /**
+     * A cell's scope: the first activity that carries one. Every activity
+     * on a (persona, entity) pair shares a scope in practice, and this
+     * read is unchanged from when the select lived inside the cell.
+     *
+     * @param array<string, array{scope_kind:string, is_default:int}> $cell
+     * @param array<string, string>                                   $activities
+     */
+    private static function cellScope( array $cell, array $activities ): string {
+        foreach ( array_keys( $activities ) as $activity ) {
+            if ( isset( $cell[ $activity ]['scope_kind'] ) ) {
+                return (string) $cell[ $activity ]['scope_kind'];
+            }
+        }
+        return 'global';
     }
 
     /** @return array<string, string> */

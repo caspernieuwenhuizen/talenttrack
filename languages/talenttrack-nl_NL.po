@@ -56734,6 +56734,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix per-entity scope row"
+msgid "Scope"
+msgstr "Bereik"
+
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
 
