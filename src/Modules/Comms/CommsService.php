@@ -12,6 +12,7 @@ use TT\Modules\Comms\OptOut\OptOutPolicy;
 use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
 use TT\Modules\Comms\RateLimit\RateLimiter;
 use TT\Modules\Comms\Template\TemplateRegistry;
+use TT\Modules\Comms\Template\TemplateChannels;
 use TT\Modules\Comms\Template\TemplateSwitch;
 
 /**
@@ -299,9 +300,22 @@ final class CommsService {
      * (b) `canReach($recipient)`
      * wins — registration order = preference order.
      *
+     * #3112 — `$templateChannels` is narrowed to what the academy allows
+     * for this template first, so a club that has ruled out SMS falls
+     * through to the next channel it can reach the person on rather than
+     * texting them anyway. `TemplateChannels` never returns an empty set,
+     * so this cannot turn a channel preference into a dead send.
+     *
+     * `forceChannel` is deliberately NOT narrowed: it is set by a caller
+     * that has already decided (a WhatsApp share link, a preview send),
+     * and silently redirecting it would be worse than the explicit
+     * failure the caller already handles.
+     *
      * @param string[] $templateChannels
      */
     private function resolveChannel( CommsRequest $request, Recipient $recipient, array $templateChannels ): ?string {
+        $templateChannels = TemplateChannels::allowedFor( $request->templateKey, $templateChannels );
+
         if ( $request->forceChannel !== null ) {
             $adapter = ChannelAdapterRegistry::get( $request->forceChannel );
             if ( $adapter !== null && $adapter->canReach( $recipient ) ) {
