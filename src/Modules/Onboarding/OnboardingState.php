@@ -29,7 +29,12 @@ class OnboardingState {
     // the academy, then decides how much product they are running, then
     // brings their squad in. Choosing after the import would mean importing
     // into a shape that is about to change.
-    public const STEPS = [ 'welcome', 'academy', 'profile', 'import', 'first_team', 'first_admin', 'staff', 'dashboard', 'done' ];
+    // #3113 — `messaging` comes after `staff`, because it is the only
+    // step that decides what TalentTrack tells the people the previous
+    // steps just brought in. It is also the step a fresh install cannot
+    // do without: #3111 seeds a new academy with every message switched
+    // off, so until this step runs, nobody is told anything.
+    public const STEPS = [ 'welcome', 'academy', 'profile', 'import', 'first_team', 'first_admin', 'staff', 'messaging', 'dashboard', 'done' ];
 
     private const STATE_OPT     = 'tt_onboarding_state';
     private const COMPLETED_OPT = 'tt_onboarding_completed_at';

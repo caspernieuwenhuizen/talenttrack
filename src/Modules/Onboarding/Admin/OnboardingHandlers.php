@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Comms\Template\TemplateSwitch;
 use TT\Modules\Import\ImportService;
 use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationService;
@@ -40,6 +41,8 @@ class OnboardingHandlers {
         add_action( 'admin_post_tt_onboarding_staff',                [ self::class, 'handleStaff' ] );
         add_action( 'admin_post_tt_onboarding_skip_staff',           [ self::class, 'handleSkipStaff' ] );
         add_action( 'admin_post_tt_onboarding_send_invites',         [ self::class, 'handleSendInvites' ] );
+        add_action( 'admin_post_tt_onboarding_messaging',            [ self::class, 'handleMessaging' ] );
+        add_action( 'admin_post_tt_onboarding_skip_messaging',       [ self::class, 'handleSkipMessaging' ] );
         add_action( 'admin_post_tt_onboarding_skip_import',          [ self::class, 'handleSkipImport' ] );
         add_action( 'admin_post_tt_onboarding_first_team',           [ self::class, 'handleFirstTeam' ] );
         add_action( 'admin_post_tt_onboarding_first_admin',          [ self::class, 'handleFirstAdmin' ] );
@@ -277,6 +280,62 @@ class OnboardingHandlers {
     public static function handleSkipStaff(): void {
         self::guard( 'tt_onboarding_skip_staff' );
 
+        OnboardingState::setStep( 'messaging' );
+        self::redirectToPage();
+    }
+
+    /**
+     * #3113 — record which messages this academy wants to send.
+     *
+     * Writes through `TemplateSwitch::setDisabled()`, the same domain
+     * writer the Messages settings screen's payload is normalised by, so
+     * there is no second representation of what the stored value means.
+     * The stored set is the DISABLED one, so what is submitted here is
+     * inverted: everything registered and switchable that was NOT ticked.
+     *
+     * Reading the registered set rather than the submitted one matters —
+     * a template that exists but was not rendered (a family the operator
+     * never scrolled to, a checkbox a browser dropped) has to end up
+     * switched off, which is where it already was. Trusting the POST to
+     * be exhaustive would switch such a template on by omission.
+     */
+    public static function handleMessaging(): void {
+        self::guard( 'tt_onboarding_messaging' );
+
+        $submitted = isset( $_POST['enabled'] ) && is_array( $_POST['enabled'] )
+            ? array_map( 'sanitize_key', array_map( 'strval', wp_unslash( $_POST['enabled'] ) ) )
+            : [];
+
+        $switchable = array_keys( TemplateSwitch::switchableTemplates() );
+        $enabled    = array_values( array_intersect( $switchable, $submitted ) );
+        $disabled   = array_values( array_diff( $switchable, $enabled ) );
+
+        TemplateSwitch::setDisabled( $disabled );
+
+        OnboardingState::recordPayload( 'messaging', [
+            'enabled' => $enabled,
+            'skipped' => false,
+        ] );
+        do_action( 'tt_onboarding_step_completed', 'messaging', [ 'enabled' => count( $enabled ) ] );
+
+        OnboardingState::setStep( 'dashboard' );
+        self::redirectToPage( [ 'tt_ob_msg' => 'messaging_saved' ] );
+    }
+
+    /**
+     * #3113 — skipping leaves every message switched off.
+     *
+     * Deliberately writes nothing. The seeded state from #3111 already
+     * says "send nothing", and re-asserting it here would be a second
+     * writer claiming the same authority — and would quietly re-disable
+     * anything an operator had switched on before re-entering the wizard.
+     */
+    public static function handleSkipMessaging(): void {
+        self::guard( 'tt_onboarding_skip_messaging' );
+
+        OnboardingState::recordPayload( 'messaging', [ 'skipped' => true ] );
+        do_action( 'tt_onboarding_step_completed', 'messaging', [ 'skipped' => true ] );
+
         OnboardingState::setStep( 'dashboard' );
         self::redirectToPage();
     }
@@ -298,7 +357,7 @@ class OnboardingHandlers {
         $payload['skipped'] = count( $result['skipped'] );
         OnboardingState::recordPayload( 'staff', $payload );
 
-        OnboardingState::setStep( 'dashboard' );
+        OnboardingState::setStep( 'messaging' );
         self::redirectToPage( [ 'tt_ob_msg' => 'invites_sent' ] );
     }
 
