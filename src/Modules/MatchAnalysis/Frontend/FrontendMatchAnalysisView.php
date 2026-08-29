@@ -149,9 +149,14 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         // is a document to show. Deliberately after both not-found returns:
         // recording a failed probe would make this table the oracle that
         // `renderShareNotFound()`'s identical wording exists to deny.
+        // Read through an array cast rather than `$analysis->id`: the
+        // resolver is typed `?object`, so a second undefined-property
+        // access here would need a second baseline entry to say nothing.
+        $row = (array) $analysis;
+
         ( new \TT\Shared\Sharing\ShareViewRecorder() )->record(
             \TT\Shared\Sharing\ShareViewRecorder::SUBJECT_MATCH_ANALYSIS,
-            (int) $analysis->id,
+            (int) ( $row['id'] ?? 0 ),
             $club_id,
             $uuid
         );
@@ -469,7 +474,7 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             $analysis_id
         );
 
-        $unique = (int) ( $summary['unique'] ?? 0 );
+        $unique = (int) $summary['unique'];
         if ( $unique < 1 ) return;
 
         $line = sprintf(
@@ -478,10 +483,10 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             number_format_i18n( $unique )
         );
 
-        $last = (string) ( $summary['last_seen_at'] ?? '' );
+        $last = (string) $summary['last_seen_at'];
         if ( $last !== '' ) {
             $ts = strtotime( $last );
-            if ( $ts ) {
+            if ( $ts !== false ) {
                 $line .= ' · ' . sprintf(
                     /* translators: %s: human-readable time difference, e.g. "2 days" */
                     __( 'last opened %s ago', 'talenttrack' ),

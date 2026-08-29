@@ -83,7 +83,10 @@ final class ShareViewQuery {
         $views  = $wpdb->prefix . 'tt_share_views';
         $totals = $wpdb->prefix . 'tt_share_view_totals';
 
-        $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( $now . ' -' . max( 1, $days ) . ' days' ) );
+        $from = strtotime( $now . ' -' . max( 1, $days ) . ' days' );
+        if ( $from === false ) return 0;
+
+        $cutoff = gmdate( 'Y-m-d H:i:s', $from );
 
         $stale = $wpdb->get_results( $wpdb->prepare(
             "SELECT subject_type, subject_id,
