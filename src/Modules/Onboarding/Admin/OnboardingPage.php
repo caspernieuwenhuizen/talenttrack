@@ -5,6 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Onboarding\OnboardingState;
+use TT\Shared\Modules\ModuleMetadata;
+use TT\Shared\Modules\ProfileRegistry;
+use TT\Shared\Modules\ProfileService;
 
 /**
  * OnboardingPage — renders the `TalentTrack → Welcome` wizard.
@@ -72,6 +75,7 @@ class OnboardingPage {
         switch ( $step ) {
             case 'welcome':     self::renderWelcome();    break;
             case 'academy':     self::renderAcademy();    break;
+            case 'profile':     self::renderProfile();    break;
             case 'import':      self::renderImport();     break;
             case 'first_team':  self::renderFirstTeam();  break;
             case 'first_admin': self::renderFirstAdmin(); break;
@@ -170,6 +174,172 @@ class OnboardingPage {
      * spreadsheet skips in one click; a workbook that fails validation
      * leaves the wizard exactly where it was, with the reasons shown.
      */
+    /**
+     * #3038 — how much of the product this academy is running.
+     *
+     * Asked here because this is the only moment it is cheap: before
+     * there is any state to diverge from. Labels and descriptions come
+     * from `ProfileRegistry`, never from copy written here, so this step
+     * and the Modules page cannot drift apart.
+     *
+     * Two states. Before a choice, the cards. After one, the summary of
+     * what was applied — the operator sees what happened before moving
+     * on, rather than the wizard silently reshaping their install and
+     * advancing.
+     */
+    private static function renderProfile(): void {
+        $payload = OnboardingState::payloadFor( 'profile' );
+        $applied = isset( $payload['applied'] ) ? (int) $payload['applied'] : null;
+        $chosen  = (string) ( $payload['profile'] ?? '' );
+
+        if ( $applied !== null && ProfileRegistry::exists( $chosen ) ) {
+            self::renderProfileApplied( $chosen, $applied, (int) ( $payload['skipped'] ?? 0 ) );
+            return;
+        }
+
+        // Re-running Setup on an install somebody has already shaped is a
+        // real path (`docs/onboarding-setup.md` § "Run again"). Applying
+        // silently there would undo their decisions without showing them,
+        // so that case routes through the preview screen instead.
+        $configured = ProfileService::hasOperatorChanges();
+        ?>
+        <h2><?php esc_html_e( 'How much product are you running?', 'talenttrack' ); ?></h2>
+        <p>
+            <?php esc_html_e( 'TalentTrack ships a lot. Most academies want the development loop first and can turn the rest on whenever they need it. Nothing here is permanent — you can change it any time from Modules.', 'talenttrack' ); ?>
+        </p>
+        <p>
+            <strong><?php esc_html_e( 'Skipping gives you the full academy.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'That is every module switched on, which is what an install gets when no profile is chosen.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $configured ) : ?>
+            <div class="notice notice-warning">
+                <p>
+                    <?php esc_html_e( 'This install has already been configured by hand, so choosing here would overwrite decisions somebody made. Review the changes on the Modules page instead, where you can see exactly what would happen before anything is written.', 'talenttrack' ); ?>
+                </p>
+                <?php
+                // Two conditions, and both are load-bearing. The preview
+                // lives on the frontend dashboard page, which does not
+                // exist until the wizard's last step — so on a first run
+                // there is nowhere to send anyone. And the preview is
+                // gated on `tt_manage_modules` while this wizard is gated
+                // on `tt_edit_settings`: someone holding the second and
+                // not the first must not be offered a link into a screen
+                // that will refuse them.
+                $dashboard_page = \TT\Shared\Frontend\Components\RecordLink::dashboardPageId();
+                if ( $dashboard_page > 0 && current_user_can( 'tt_manage_modules' ) ) :
+                    $preview_base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+                    ?>
+                    <p>
+                        <?php foreach ( ProfileRegistry::all() as $slug => $profile ) : ?>
+                            <a class="button button-secondary"
+                               href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'install-profile', 'profile' => $slug ], $preview_base ) ); ?>">
+                                <?php
+                                printf(
+                                    /* translators: %s is an install profile name, e.g. "Basics". */
+                                    esc_html__( 'Review %s', 'talenttrack' ),
+                                    esc_html( $profile['label'] )
+                                );
+                                ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="tt-onboarding-profiles">
+            <?php foreach ( ProfileRegistry::all() as $slug => $profile ) : ?>
+                <section class="tt-onboarding-profile">
+                    <h3 class="tt-onboarding-profile__name"><?php echo esc_html( $profile['label'] ); ?></h3>
+                    <p class="tt-onboarding-profile__desc"><?php echo esc_html( $profile['description'] ); ?></p>
+
+                    <details class="tt-onboarding-profile__includes">
+                        <summary><?php esc_html_e( 'What it includes', 'talenttrack' ); ?></summary>
+                        <?php
+                        $categories = ModuleMetadata::categories();
+                        foreach ( ProfileRegistry::includedByCategory( $slug ) as $category => $labels ) :
+                            ?>
+                            <p class="tt-onboarding-profile__group">
+                                <strong><?php echo esc_html( (string) ( $categories[ $category ] ?? $category ) ); ?>:</strong>
+                                <?php echo esc_html( implode( ', ', $labels ) ); ?>
+                            </p>
+                        <?php endforeach; ?>
+                    </details>
+
+                    <?php if ( ! $configured ) : ?>
+                        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-onboarding-actions">
+                            <?php wp_nonce_field( 'tt_onboarding_profile', 'tt_onboarding_nonce' ); ?>
+                            <input type="hidden" name="action" value="tt_onboarding_profile" />
+                            <input type="hidden" name="profile" value="<?php echo esc_attr( $slug ); ?>" />
+                            <button type="submit" class="button button-primary">
+                                <?php
+                                printf(
+                                    /* translators: %s is an install profile name, e.g. "Basics". */
+                                    esc_html__( 'Use %s', 'talenttrack' ),
+                                    esc_html( $profile['label'] )
+                                );
+                                ?>
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </section>
+            <?php endforeach; ?>
+        </div>
+
+        <p class="tt-onboarding-skip">
+            <a href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_skip_profile' ) ); ?>">
+                <?php esc_html_e( 'Skip — give me everything', 'talenttrack' ); ?>
+            </a>
+        </p>
+        <?php
+    }
+
+    /** The what-just-happened half of the profile step. */
+    private static function renderProfileApplied( string $slug, int $applied, int $skipped ): void {
+        $profile = ProfileRegistry::get( $slug );
+        ?>
+        <h2><?php esc_html_e( 'How much product are you running?', 'talenttrack' ); ?></h2>
+        <p>
+            <?php
+            printf(
+                /* translators: 1: install profile name, e.g. "Basics"; 2: number of modules and features changed. */
+                esc_html( _n(
+                    'This install is now on %1$s. %2$d module or feature was switched.',
+                    'This install is now on %1$s. %2$d modules and features were switched.',
+                    $applied,
+                    'talenttrack'
+                ) ),
+                esc_html( $profile === null ? $slug : $profile['label'] ),
+                (int) $applied
+            );
+            ?>
+        </p>
+        <?php if ( $skipped > 0 ) : ?>
+            <p>
+                <?php
+                printf(
+                    /* translators: %d is the number of changes that could not be applied. */
+                    esc_html( _n(
+                        '%d change could not be applied because it is not part of your plan.',
+                        '%d changes could not be applied because they are not part of your plan.',
+                        $skipped,
+                        'talenttrack'
+                    ) ),
+                    (int) $skipped
+                );
+                ?>
+            </p>
+        <?php endif; ?>
+        <p><?php esc_html_e( 'Nothing was deleted. You can change this any time from Modules.', 'talenttrack' ); ?></p>
+        <p class="tt-onboarding-actions">
+            <a class="button button-primary" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_advance', [ 'from' => 'profile' ] ) ); ?>">
+                <?php esc_html_e( 'Continue', 'talenttrack' ); ?>
+            </a>
+        </p>
+        <?php
+    }
+
     private static function renderImport(): void {
         $payload   = OnboardingState::payloadFor( 'import' );
         $blockers  = (array) ( $payload['blockers'] ?? [] );
@@ -648,6 +818,7 @@ class OnboardingPage {
         $titles = [
             'welcome'     => __( 'Welcome', 'talenttrack' ),
             'academy'     => __( 'Academy basics', 'talenttrack' ),
+            'profile'     => __( 'How much product', 'talenttrack' ),
             'import'      => __( 'Import your squad', 'talenttrack' ),
             'first_team'  => __( 'First team', 'talenttrack' ),
             'first_admin' => __( 'First admin', 'talenttrack' ),

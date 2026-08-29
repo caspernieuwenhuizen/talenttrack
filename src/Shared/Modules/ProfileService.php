@@ -185,6 +185,31 @@ class ProfileService {
     }
 
     /**
+     * Has anybody already shaped this install by hand?
+     *
+     * True as soon as one module or feature row carries an `updated_by` —
+     * somebody has been to the Modules page, or a profile has already been
+     * applied. The Setup wizard (#3038) uses it to decide whether choosing
+     * a profile can be applied on the spot: on a fresh install the diff is
+     * uncontroversial, and on a configured one it is not, so re-running
+     * Setup routes through the preview screen instead of quietly undoing
+     * an operator's decisions.
+     *
+     * A missing state table reads as untouched — an install mid-migration
+     * has certainly not been configured.
+     */
+    public static function hasOperatorChanges(): bool {
+        global $wpdb;
+        foreach ( [ 'tt_module_state', 'tt_feature_state' ] as $suffix ) {
+            $table = $wpdb->prefix . $suffix;
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) continue;
+            $n = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE updated_by IS NOT NULL AND updated_by > 0" );
+            if ( $n > 0 ) return true;
+        }
+        return false;
+    }
+
+    /**
      * Is this row above the install's entitlement?
      *
      * Switchability and plan are two independent axes and neither derives

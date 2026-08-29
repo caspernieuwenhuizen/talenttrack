@@ -10,6 +10,8 @@ use TT\Modules\Import\ImportService;
 use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Onboarding\OnboardingState;
+use TT\Shared\Modules\ProfileRegistry;
+use TT\Shared\Modules\ProfileService;
 
 /**
  * OnboardingHandlers — admin-post.php endpoints for the wizard.
@@ -31,6 +33,8 @@ class OnboardingHandlers {
     public static function init(): void {
         add_action( 'admin_post_tt_onboarding_advance',              [ self::class, 'handleAdvance' ] );
         add_action( 'admin_post_tt_onboarding_academy',              [ self::class, 'handleAcademy' ] );
+        add_action( 'admin_post_tt_onboarding_profile',              [ self::class, 'handleProfile' ] );
+        add_action( 'admin_post_tt_onboarding_skip_profile',         [ self::class, 'handleSkipProfile' ] );
         add_action( 'admin_post_tt_onboarding_import',               [ self::class, 'handleImport' ] );
         add_action( 'admin_post_tt_onboarding_roster_template',      [ self::class, 'handleRosterTemplate' ] );
         add_action( 'admin_post_tt_onboarding_staff',                [ self::class, 'handleStaff' ] );
@@ -53,6 +57,10 @@ class OnboardingHandlers {
         $from = isset( $_GET['from'] ) ? sanitize_key( (string) $_GET['from'] ) : '';
         if ( $from === 'welcome' ) {
             OnboardingState::setStep( 'academy' );
+        } elseif ( $from === 'profile' ) {
+            // #3038 — Continue from the applied-summary half of the
+            // profile step. The apply already happened; this only moves on.
+            OnboardingState::setStep( 'import' );
         } elseif ( $from === 'first_team' && isset( $_GET['skip'] ) ) {
             OnboardingState::setStep( 'first_admin' );
             do_action( 'tt_onboarding_step_completed', 'first_team', [ 'skipped' => true ] );
@@ -76,6 +84,59 @@ class OnboardingHandlers {
         ] );
 
         self::redirectToPage( [ 'tt_ob_msg' => 'saved' ] );
+    }
+
+    /**
+     * The install-profile step (#3038).
+     *
+     * On a fresh install the diff is uncontroversial — nothing has been
+     * configured yet, so there is nothing an apply could quietly undo —
+     * and the step applies directly. On an install somebody has already
+     * shaped, it refuses and leaves them to the preview screen, which is
+     * the only surface that shows the diff before writing.
+     *
+     * The step does NOT advance here. The operator sees the summary of
+     * what was applied and presses Continue, so nothing about the shape
+     * of their install happens off-screen.
+     */
+    public static function handleProfile(): void {
+        self::guard( 'tt_onboarding_profile' );
+
+        $slug = sanitize_key( wp_unslash( (string) ( $_POST['profile'] ?? '' ) ) );
+        if ( ! ProfileRegistry::exists( $slug ) || ProfileService::hasOperatorChanges() ) {
+            self::redirectToPage();
+            return;
+        }
+
+        $summary = ProfileService::apply( $slug );
+
+        OnboardingState::recordPayload( 'profile', [
+            'profile' => $slug,
+            'applied' => count( $summary['applied'] ),
+            'skipped' => count( $summary['skipped'] ),
+        ] );
+        do_action( 'tt_onboarding_step_completed', 'profile', [ 'profile' => $slug ] );
+
+        self::redirectToPage();
+    }
+
+    /**
+     * Skip the profile step. Skipping means Full academy — today's
+     * behaviour — which is reached by applying nothing at all, so the
+     * operator who skips gets exactly what they get now.
+     */
+    public static function handleSkipProfile(): void {
+        self::guard( 'tt_onboarding_skip_profile' );
+
+        // `step_skipped`, not `skipped` — the applied-summary payload uses
+        // `skipped` for a count of rows the plan would not allow, and one
+        // key holding a bool on one path and an int on another is how a
+        // later reader gets it wrong.
+        OnboardingState::recordPayload( 'profile', [ 'step_skipped' => true ] );
+        OnboardingState::setStep( 'import' );
+        do_action( 'tt_onboarding_step_completed', 'profile', [ 'skipped' => true ] );
+
+        self::redirectToPage();
     }
 
     /**
@@ -323,7 +384,8 @@ class OnboardingHandlers {
         QueryHelpers::set_config( 'date_format_pref', $payload['date_format'] );
 
         OnboardingState::recordPayload( 'academy', $payload );
-        OnboardingState::setStep( 'import' );
+        // #3038 — the install-profile step comes next.
+        OnboardingState::setStep( 'profile' );
         do_action( 'tt_onboarding_step_completed', 'academy', $payload );
 
         return $payload;
