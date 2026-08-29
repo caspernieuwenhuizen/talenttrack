@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T09:06:54+00:00\n"
+"POT-Creation-Date: 2026-08-29T09:14:43+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5511,7 +5511,7 @@ msgstr "Opslaan"
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:267
 #: src/Shared/Admin/BulkActionsHelper.php:222
 #: src/Shared/Admin/BulkActionsHelper.php:225
-#: src/Shared/Frontend/FrontendMatrixView.php:379
+#: src/Shared/Frontend/FrontendMatrixView.php:465
 #: src/Shared/Frontend/FrontendModulesView.php:410
 #: src/Shared/Mobile/MobileActionHandlers.php:46
 msgid "Unauthorized"
@@ -9282,7 +9282,7 @@ msgstr "Persona"
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:92
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:100
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:125
-#: src/Shared/Frontend/FrontendMatrixView.php:234
+#: src/Shared/Frontend/FrontendMatrixView.php:233
 msgid "Entity"
 msgstr "Entiteit"
 
@@ -9878,8 +9878,8 @@ msgstr "Frontend-beheer"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:129
 #: src/Shared/Frontend/FrontendMatrixView.php:103
 #: src/Shared/Frontend/FrontendMatrixView.php:104
-#: src/Shared/Frontend/FrontendMatrixView.php:230
-#: src/Shared/Frontend/FrontendMatrixView.php:462
+#: src/Shared/Frontend/FrontendMatrixView.php:229
+#: src/Shared/Frontend/FrontendMatrixView.php:548
 #: src/Shared/Frontend/FrontendRolesView.php:143
 msgid "Authorization matrix"
 msgstr "Authorisatie­matrix"
@@ -10629,7 +10629,7 @@ msgstr "Prestaties"
 #: src/Shared/Frontend/FrontendConfigurationView.php:41
 #: src/Shared/Frontend/FrontendConfigurationView.php:154
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
-#: src/Shared/Frontend/FrontendMatrixView.php:478
+#: src/Shared/Frontend/FrontendMatrixView.php:564
 #: src/Shared/Frontend/FrontendModulesView.php:497
 #: src/Shared/Frontend/FrontendSetupView.php:389
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:681
@@ -50854,58 +50854,64 @@ msgstr "Entiteiten zoeken"
 msgid "Search entities…"
 msgstr "Entiteiten zoeken…"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:296
+#: src/Shared/Frontend/FrontendMatrixView.php:280
+#: src/Shared/Frontend/FrontendMatrixView.php:382
+msgctxt "matrix per-entity scope row"
+msgid "Scope"
+msgstr "Bereik"
+
+#: src/Shared/Frontend/FrontendMatrixView.php:316
 msgid "Locked: only a WordPress administrator can change this."
 msgstr "Op slot: alleen een WordPress-administrator kan dit wijzigen."
 
 #. translators: 1: persona name, 2: entity name
-#: src/Shared/Frontend/FrontendMatrixView.php:328
+#: src/Shared/Frontend/FrontendMatrixView.php:395
 #, php-format
 msgid "Scope for %1$s on %2$s"
 msgstr "Scope voor %1$s op %2$s"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:349
+#: src/Shared/Frontend/FrontendMatrixView.php:435
 msgctxt "matrix scope"
 msgid "global"
 msgstr "global"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:350
+#: src/Shared/Frontend/FrontendMatrixView.php:436
 msgctxt "matrix scope"
 msgid "team"
 msgstr "team"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:351
+#: src/Shared/Frontend/FrontendMatrixView.php:437
 msgctxt "matrix scope"
 msgid "player"
 msgstr "player"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:352
+#: src/Shared/Frontend/FrontendMatrixView.php:438
 msgctxt "matrix scope"
 msgid "self"
 msgstr "self"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:361
+#: src/Shared/Frontend/FrontendMatrixView.php:447
 msgctxt "matrix activity, as a verb"
 msgid "read"
 msgstr "lezen"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:362
+#: src/Shared/Frontend/FrontendMatrixView.php:448
 msgctxt "matrix activity, as a verb"
 msgid "change"
 msgstr "wijzigen"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:363
+#: src/Shared/Frontend/FrontendMatrixView.php:449
 msgctxt "matrix activity, as a verb"
 msgid "create and delete"
 msgstr "aanmaken en verwijderen"
 
 #. translators: 1: persona name, 2: what they may do, 3: entity name
-#: src/Shared/Frontend/FrontendMatrixView.php:368
+#: src/Shared/Frontend/FrontendMatrixView.php:454
 #, php-format
 msgid "%1$s may %2$s %3$s"
 msgstr "%1$s mag %3$s %2$s"
 
-#: src/Shared/Frontend/FrontendMatrixView.php:463
+#: src/Shared/Frontend/FrontendMatrixView.php:549
 msgid "What each persona may do with each kind of record."
 msgstr "Wat elke persona mag met elk soort gegeven."
 
@@ -56733,11 +56739,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Shared/Frontend/FrontendMatrixView.php
-msgctxt "matrix per-entity scope row"
-msgid "Scope"
-msgstr "Bereik"
 
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
