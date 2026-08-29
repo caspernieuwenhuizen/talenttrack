@@ -3,11 +3,8 @@ namespace TT\Modules\Push\Dispatchers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Comms\Domain\CommsResult;
-use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
-use TT\Modules\Comms\Dispatch\CommsDispatcher;
-use TT\Modules\Comms\Templates\NotificationTemplate;
+use TT\Modules\Comms\Send\NotificationSend;
 
 /**
  * NotificationDelivery (#2604) — the email dispatchers' hand-off to Comms.
@@ -34,6 +31,11 @@ use TT\Modules\Comms\Templates\NotificationTemplate;
  * Only a genuine failure — no usable address, no adapter, an exception —
  * returns false, which is the case the chain's fall-through was built
  * for.
+ *
+ * The send itself moved to `Comms\Send\NotificationSend` once Threads,
+ * Workflow and Development needed the same hand-off; what stays here is
+ * the boolean the dispatcher chain reads, and the reasoning above for
+ * why it is what it is.
  */
 final class NotificationDelivery {
 
@@ -44,41 +46,6 @@ final class NotificationDelivery {
     public static function send( array $context, array $recipients ): bool {
         if ( $recipients === [] ) return false;
 
-        $results = CommsDispatcher::dispatchSync(
-            NotificationTemplate::KEY,
-            [
-                'title' => (string) ( $context['title'] ?? '' ),
-                'body'  => (string) ( $context['body']  ?? '' ),
-                'url'   => (string) ( $context['url']   ?? '' ),
-                // Carried into the audit row so a log reader can tell a
-                // task assignment from a thread reply — the copy itself
-                // is caller-composed and never stored.
-                'event' => (string) ( $context['event'] ?? '' ),
-            ],
-            $recipients,
-            [
-                'message_type'   => MessageType::NOTIFICATION,
-                'force_channel'  => 'email',
-                'sender_user_id' => 0,
-            ]
-        );
-
-        return self::claimed( $results );
-    }
-
-    /**
-     * True when Comms took responsibility for at least one recipient —
-     * sent it, or deliberately declined to. False only when every
-     * recipient genuinely failed.
-     *
-     * @param CommsResult[] $results
-     */
-    private static function claimed( array $results ): bool {
-        foreach ( $results as $result ) {
-            if ( $result->isSuccess() || $result->isSkipped() ) {
-                return true;
-            }
-        }
-        return false;
+        return NotificationSend::claimed( NotificationSend::send( $context, $recipients ) );
     }
 }

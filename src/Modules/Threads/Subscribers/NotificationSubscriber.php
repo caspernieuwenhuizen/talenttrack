@@ -3,20 +3,24 @@ namespace TT\Modules\Threads\Subscribers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Comms\Send\NotificationSend;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadTypeRegistry;
 
 /**
  * NotificationSubscriber (#0028) — fans out tt_thread_message_posted
- * to participants via email (v1) or push (when #0042 ships).
+ * to participants via email.
  *
  * Author is excluded from the fan-out. private_to_coach messages are
  * sent only to coaches + admins (`tt_view_settings` or
  * `tt_edit_evaluations`).
  *
  * Each recipient receives one short message with a link back to the
- * goal detail. wp_mail() is the v1 transport; #0042's PushDispatcher
- * wraps this layer when push subscriptions exist.
+ * goal detail. Delivery goes through Comms (#2604), so a participant who
+ * has muted notifications is honoured and every fan-out leaves an audit
+ * row — including one for a thread whose participants all turned out to
+ * be unreachable, which used to be indistinguishable from a send that
+ * worked.
  */
 final class NotificationSubscriber {
 
@@ -66,13 +70,14 @@ final class NotificationSubscriber {
         $body = $intro . "\n\n" . $message_body;
         if ( $deep_link !== '' ) $body .= "\n\n" . __( 'View:', 'talenttrack' ) . ' ' . $deep_link;
 
-        foreach ( $recipients as $uid ) {
-            $u = get_user_by( 'id', $uid );
-            if ( ! $u instanceof \WP_User ) continue;
-            $email = \TT\Infrastructure\Identity\ContactResolver::emailForUser( (int) $u->ID );
-            if ( $email === null ) continue;
-            wp_mail( $email, $subject, $body );
-        }
+        NotificationSend::send(
+            [
+                'title' => $subject,
+                'body'  => $body,
+                'event' => 'thread_message_posted',
+            ],
+            NotificationSend::recipientsForUsers( $recipients )
+        );
     }
 
     private static function messagePreview( int $msg_id ): string {

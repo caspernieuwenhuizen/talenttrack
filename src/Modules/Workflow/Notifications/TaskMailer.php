@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Notifications;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Comms\Send\NotificationSend;
 use TT\Modules\Push\DispatcherChain;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
@@ -17,9 +18,12 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * Channel selection comes from the template's
  * `tt_workflow_template_config.dispatcher_chain` value (#0042 Sprint 5).
- * NULL or `email` keeps the legacy behaviour — a single `wp_mail` to
- * the assignee. Push-aware presets route through `DispatcherChain`,
- * which falls back to email only if push is unavailable for the user.
+ * NULL or `email` sends one email to the assignee; push-aware presets
+ * route through `DispatcherChain`, which falls back to email only if
+ * push is unavailable for the user. Both paths now reach email through
+ * Comms (#2604) rather than calling `wp_mail()` themselves, so an
+ * assignee's notification opt-out and the academy's quiet hours apply
+ * either way.
  *
  * Idempotency: the engine fires the action exactly once per persisted
  * task row, so duplicate sends are not a concern at this layer.
@@ -88,14 +92,22 @@ class TaskMailer {
         $chain  = (string) ( $config['dispatcher_chain'] ?? '' );
 
         if ( $chain === '' || $chain === DispatcherChain::PRESET_EMAIL_ONLY ) {
-            $to = \TT\Infrastructure\Identity\ContactResolver::emailForUser( (int) $user->ID );
-            if ( $to === null ) return;
-            $sent = wp_mail( $to, $subject, $body );
-            if ( ! $sent && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            $recipient = NotificationSend::recipientForUser( (int) $user->ID );
+            if ( $recipient === null ) return;
+
+            // No `url`: the inbox link is already inside `$body`, and the
+            // notification template appends the one it is given.
+            $results = NotificationSend::send( [
+                'title' => $subject,
+                'body'  => $body,
+                'event' => 'workflow_task_created',
+            ], [ $recipient ] );
+
+            if ( ! NotificationSend::claimed( $results ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                 error_log( sprintf(
-                    '[TalentTrack workflow] TaskMailer: wp_mail returned false for task %d to %s',
+                    '[TalentTrack workflow] TaskMailer: Comms could not deliver task %d to user %d',
                     $task_id,
-                    $to
+                    (int) $user->ID
                 ) );
             }
             return;

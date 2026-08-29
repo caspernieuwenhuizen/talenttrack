@@ -6,16 +6,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Kernel;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Modules\Comms\Domain\CommsOutcomeSummary;
+use TT\Modules\Comms\Send\DirectMessageSender;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
 /**
  * FrontendMailComposeView — in-product email composer (#0063).
  *
- * Reachable via `?tt_view=mail-compose&person_id=N`. Sends via
- * `wp_mail()` (so the academy's configured SMTP / mailer plugin
- * handles deliverability). Every send writes a `mail_sent` audit
- * row keyed on the recipient person id, with subject + first 256
- * chars of the body in the payload.
+ * Reachable via `?tt_view=mail-compose&person_id=N`. Sending goes
+ * through `DirectMessageSender`, so a hand-written email obeys the same
+ * opt-out, quiet-hours and academy-wide switch as an automated one and
+ * lands in the same message log (#2604). Every send also writes a
+ * `mail_sent` audit row keyed on the recipient person id, with subject
+ * + first 256 chars of the body in the payload.
  *
  * Cap-gated on `tt_send_email`. Granted to admin / club_admin /
  * head_dev / coach. Replaces the bare `mailto:` link the People
@@ -73,6 +76,8 @@ final class FrontendMailComposeView extends FrontendViewBase {
         // user sees the confirmation banner inline rather than a redirect.
         $sent_ok = null;
         $error   = '';
+        /** @var string[] $outcome */
+        $outcome = [];
         if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST[ self::NONCE_FIELD ] ) ) {
             if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION ) ) {
                 $error = __( 'Security check failed. Please reload the page and try again.', 'talenttrack' );
@@ -82,7 +87,9 @@ final class FrontendMailComposeView extends FrontendViewBase {
                 if ( $subject === '' || trim( wp_strip_all_tags( $body ) ) === '' ) {
                     $error = __( 'Subject and message body are both required.', 'talenttrack' );
                 } else {
-                    $sent_ok = (bool) wp_mail( $email, $subject, $body );
+                    $results = ( new DirectMessageSender() )->sendToPerson( $person_id, $subject, $body );
+                    $outcome = CommsOutcomeSummary::lines( $results );
+                    $sent_ok = CommsOutcomeSummary::sentCount( $results ) > 0;
                     self::recordAudit( (int) $person->id, $subject, $body, $sent_ok );
                 }
             }
@@ -104,11 +111,26 @@ final class FrontendMailComposeView extends FrontendViewBase {
                 . '</div>';
         } elseif ( $sent_ok === false ) {
             echo '<div class="tt-notice tt-notice-error">'
-                . esc_html__( "wp_mail returned false. The audit log captured the attempt; check the site's SMTP / mailer configuration.", 'talenttrack' )
+                . esc_html__( 'The message was not sent. The attempt is in the message log; the line below says why.', 'talenttrack' )
                 . '</div>';
+        }
+        // #2602 — one line per outcome. "Held until quiet hours end" and
+        // "this person has opted out" are neither a success nor a mail
+        // failure, and the sender has to be told which happened.
+        foreach ( $outcome as $line ) {
+            echo '<div class="tt-notice">' . esc_html( $line ) . '</div>';
         }
         if ( $error !== '' ) {
             echo '<div class="tt-notice tt-notice-error">' . esc_html( $error ) . '</div>';
+        }
+
+        // Warn before the click, not only after it (Gate E).
+        if ( $sent_ok === null ) {
+            foreach ( CommsOutcomeSummary::warnings(
+                ( new DirectMessageSender() )->preflightForPerson( $person_id )
+            ) as $warning ) {
+                echo '<div class="tt-notice tt-notice-warning">' . esc_html( $warning ) . '</div>';
+            }
         }
 
         $persisted_subject = $sent_ok ? '' : (string) ( $_POST['subject'] ?? '' );
