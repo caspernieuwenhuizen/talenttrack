@@ -534,7 +534,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true )
                     && \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
-                        'label'     => __( 'Minutes grid', 'talenttrack' ),
+                        'label'     => __( 'Minutes + statistics', 'talenttrack' ),
                         'href'      => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
                         'icon'      => \TT\Shared\Icons\IconRenderer::render( 'clock', [ 'width' => 20, 'height' => 20 ] ),
                         'icon_only' => true,

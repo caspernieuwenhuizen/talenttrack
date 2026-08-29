@@ -6008,6 +6008,112 @@ msgstr "Niet in selectie"
 msgid "Minutes for %1$s on %2$s"
 msgstr "Minuten voor %1$s op %2$s"
 
+#. translators: 1: player name, 2: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:279
+#, php-format
+msgid "Goals for %1$s on %2$s"
+msgstr "Doelpunten voor %1$s op %2$s"
+
+#. translators: 1: player name, 2: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:285
+#, php-format
+msgid "Assists for %1$s on %2$s"
+msgstr "Assists voor %1$s op %2$s"
+
+#: src/Core/FeatureRegistry.php:279
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:88
+#: src/Modules/License/Admin/AccountPage.php:745
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:537
+msgid "Minutes + statistics"
+msgstr "Minuten + statistieken"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
+msgid "Minutes + stats"
+msgstr "Minuten + stats"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:326
+msgctxt "minutes column, abbreviated"
+msgid "Min"
+msgstr "Min"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:334
+msgctxt "goals column, abbreviated"
+msgid "G"
+msgstr "D"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:339
+msgctxt "assists column, abbreviated"
+msgid "A"
+msgstr "A"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:410
+msgid "Attributed / score"
+msgstr "Toegekend / stand"
+
+#. translators: %d: goals attributed to a named scorer.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:423
+#, php-format
+msgid "%d attributed"
+msgid_plural "%d attributed"
+msgstr[0] "%d toegekend"
+msgstr[1] "%d toegekend"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:198
+msgid "fill the cells per match, then Save"
+msgstr "vul de velden per wedstrijd in en sla op"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:89
+msgid ""
+"Record match minutes, goals and assists for a whole period at once. Rows are "
+"players, columns are matches; fill the cells and Save. Only players in a "
+"match squad can be edited, and recording output here never changes the "
+"scoreline."
+msgstr ""
+"Leg in één keer minuten, doelpunten en assists van een hele periode vast. "
+"Rijen zijn spelers, kolommen zijn wedstrijden; vul de velden in en sla op. "
+"Alleen spelers in een wedstrijdselectie zijn te bewerken, en wat je hier "
+"vastlegt verandert nooit de uitslag."
+
+#: src/Core/FeatureRegistry.php:280
+msgid ""
+"The desktop entry grid (players × matches) — a spreadsheet way to record "
+"match minutes, goals and assists across a period, including for matches that "
+"were never run on the live match sheet. The per-match minutes editor stays "
+"available when this is off."
+msgstr ""
+"Het desktop-invoerraster (spelers × wedstrijden) — een spreadsheetmanier om "
+"speelminuten, doelpunten en assists over een periode vast te leggen, ook "
+"voor wedstrijden die nooit via het live wedstrijdformulier gespeeld zijn. De "
+"per-wedstrijd minuten-editor blijft beschikbaar als dit uit staat."
+
+#: src/Infrastructure/REST/MinutesGridPreferencesRestController.php:80
+msgid "Expected a list under `stats`."
+msgstr "Er werd een lijst onder `stats` verwacht."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:597
+msgid "No contributions supplied."
+msgstr "Geen bijdragen meegegeven."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:603
+msgid "Unknown match."
+msgstr "Onbekende wedstrijd."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:608
+msgid "Not your team."
+msgstr "Niet jouw team."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:437
+msgid "Every goal in this match has a scorer against it."
+msgstr "Elk doelpunt in deze wedstrijd heeft een maker op naam."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:438
+msgid ""
+"Some goals in this match have no scorer against anyone yet. The scoreline is "
+"unchanged."
+msgstr ""
+"Sommige doelpunten in deze wedstrijd staan nog op niemands naam. De uitslag "
+"blijft ongewijzigd."
+
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:56
 msgid "Network error — try again"
 msgstr "Netwerkfout — probeer het opnieuw"

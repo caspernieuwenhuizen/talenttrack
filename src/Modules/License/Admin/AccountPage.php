@@ -742,7 +742,7 @@ class AccountPage {
             'strava_integration'   => __( 'Strava integration', 'talenttrack' ),
             'push_notifications'   => __( 'Push notifications', 'talenttrack' ),
             'attendance_grid'      => __( 'Attendance grid', 'talenttrack' ),
-            'minutes_grid'         => __( 'Minutes grid', 'talenttrack' ),
+            'minutes_grid'         => __( 'Minutes + statistics', 'talenttrack' ),
             'ratings_grid'         => __( 'Ratings grid', 'talenttrack' ),
         ];
 

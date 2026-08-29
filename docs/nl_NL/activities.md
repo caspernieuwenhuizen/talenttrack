@@ -122,7 +122,7 @@ Er wordt niets nieuws bereikbaar door het weg te vouwen: elke actie houdt de rec
 
 Het menu opent met een klik, met Enter en met de spatiebalk, sluit met Escape of een klik ernaast, en zet je bij het sluiten terug op de ⋯-knop. Op een telefoon beslaat het de breedte van de koptekst in plaats van rechts uit te steken.
 
-**De drie rasters en Synchroniseren vanuit Spond zijn iconen.** *Aanwezigheidsraster*, *Minutenraster* en *Beoordelingsraster* zijn snelkoppelingen naar hetzelfde bulkscherm en geen drie aparte beslissingen, en een Spond-agenda opnieuw ophalen is onderhoud. In de koptekst zouden het vier tekstknoppen zijn die concurreren met Voltooien en Annuleren; in het menu krijgen ze hun woorden terug. Alle vier noemen zichzelf nog steeds voor een schermlezer en bij hoveren.
+**De drie rasters en Synchroniseren vanuit Spond zijn iconen.** *Aanwezigheidsraster*, *Minuten + statistieken* en *Beoordelingsraster* zijn snelkoppelingen naar hetzelfde bulkscherm en geen drie aparte beslissingen, en een Spond-agenda opnieuw ophalen is onderhoud. In de koptekst zouden het vier tekstknoppen zijn die concurreren met Voltooien en Annuleren; in het menu krijgen ze hun woorden terug. Alle vier noemen zichzelf nog steeds voor een schermlezer en bij hoveren.
 
 **De wedstrijdanalyse wacht op voltooien.** Die verscheen voorheen zodra de datum was aangebroken, waardoor een wedstrijd die om zeven uur 's avonds begon *wedstrijdanalyse schrijven* aanbood naast *activiteit voltooien*. Voltooi de activiteit en de knop verschijnt.
 

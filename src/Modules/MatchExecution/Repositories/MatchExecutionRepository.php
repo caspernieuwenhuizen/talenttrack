@@ -243,22 +243,37 @@ class MatchExecutionRepository {
         // indistinguishable from "player 0", which is a real value here.
         // Writing both out keeps each query a literal string, which is what
         // the static analyser wants to see too.
+        // #3094 — the row carries its activity directly now, so a reader does
+        // not have to go through the execution to find out which match a goal
+        // belongs to. Resolved here rather than passed in: every caller
+        // already has the execution and none of them should have to learn a
+        // second id to keep the column true.
+        $activity_id = $this->activityForExecution( $execution_id );
+
         $ok = $assist === null
             ? $this->wpdb->query( $this->wpdb->prepare(
                 "INSERT IGNORE INTO {$this->t_goals}
-                   (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-                 VALUES (%s, %d, %d, %s, %d, NULL, %d, %d, %d)",
-                $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+                 VALUES (%s, %d, %d, %d, %s, %d, NULL, %d, %d, %d)",
+                $event_uuid, CurrentClub::id(), $activity_id, $execution_id, $team, $player_id,
                 $is_own_goal ? 1 : 0, $half, max( 0, $minute )
             ) )
             : $this->wpdb->query( $this->wpdb->prepare(
                 "INSERT IGNORE INTO {$this->t_goals}
-                   (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-                 VALUES (%s, %d, %d, %s, %d, %d, %d, %d, %d)",
-                $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+                 VALUES (%s, %d, %d, %d, %s, %d, %d, %d, %d, %d)",
+                $event_uuid, CurrentClub::id(), $activity_id, $execution_id, $team, $player_id,
                 $assist, $is_own_goal ? 1 : 0, $half, max( 0, $minute )
             ) );
         return $ok !== false;
+    }
+
+    private function activityForExecution( int $execution_id ): int {
+        if ( $execution_id <= 0 ) return 0;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT activity_id FROM {$this->t_exec} WHERE id = %d AND club_id = %d",
+            $execution_id, CurrentClub::id()
+        ) );
     }
 
     /**
@@ -293,6 +308,274 @@ class MatchExecutionRepository {
                 $player_id, $assist, $is_own_goal ? 1 : 0, $event_uuid, CurrentClub::id()
             ) );
         return $ok !== false;
+    }
+
+    // -----------------------------------------------------------------
+    // Counts-in, events-out (#3094)
+    // -----------------------------------------------------------------
+
+    /**
+     * Set one player's goals and assists for a match from **counts**.
+     *
+     * The minutes grid enters numbers; this table stores events. Everything
+     * hard about #3094 is in the gap between those two, so the rules are
+     * written down here rather than discovered in a diff.
+     *
+     * ## Goals
+     *
+     * Compare the entered count against the player's non-reversed, non-own
+     * goals for this activity on our side.
+     *
+     *   - **Count up** → insert manual rows: `execution_id NULL`, `half
+     *     NULL`, `minute_in_half NULL`. A fabricated minute would flow into
+     *     the match timeline as though someone had watched it happen.
+     *   - **Count down** → set `reversed_at` on the newest matching rows,
+     *     **manual rows before live ones**. Never `DELETE`: `reversed_at` is
+     *     the existing convention and it keeps the correction auditable, and
+     *     preferring manual rows means a typed correction never destroys
+     *     something that was actually observed at the time.
+     *
+     * ## Assists
+     *
+     * An assist is a *column on a goal row*, not a row of its own. Inserting
+     * a row per assist would inflate the team's goal count, which is the
+     * mistake this method exists to not make.
+     *
+     *   - **Count up** → attach to a goal in this activity whose
+     *     `assist_player_id` is NULL, preferring manual rows, then live ones,
+     *     and never the player's own goal. If nothing is free, insert a
+     *     manual goal with `player_id = 0` — the "no scorer recorded"
+     *     convention migration 0235 established — carrying the assist. That
+     *     is the honest record of "somebody scored from his pass and I do not
+     *     remember who".
+     *   - **Count down** → clear `assist_player_id` on the newest matching
+     *     rows; if a cleared row is one of those unattributed placeholders,
+     *     reverse it entirely rather than leaving a goal nobody claims.
+     *
+     * Goals are reconciled before assists, so an assist can attach to a goal
+     * this same call has just created.
+     *
+     * The scoreline is never touched. `tt_activities.home_score` is what
+     * happened; attribution is what we know about it, and letting the second
+     * rewrite the first is how the two came to disagree in the first place.
+     */
+    public function setContributions( int $activity_id, int $player_id, int $goals, int $assists ): void {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return;
+
+        $this->reconcileGoals( $activity_id, $player_id, max( 0, $goals ) );
+        $this->reconcileAssists( $activity_id, $player_id, max( 0, $assists ) );
+    }
+
+    private function reconcileGoals( int $activity_id, int $player_id, int $target ): void {
+        // Manual rows first in the ordering, so a count-down reverses what
+        // was typed before what was observed.
+        $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT event_uuid FROM {$this->t_goals}
+              WHERE activity_id = %d AND club_id = %d AND player_id = %d
+                AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
+           ORDER BY (execution_id IS NULL) DESC, id DESC",
+            $activity_id, CurrentClub::id(), $player_id
+        ) );
+
+        $current = count( $rows );
+        if ( $current === $target ) return;
+
+        if ( $current < $target ) {
+            for ( $i = $current; $i < $target; $i++ ) {
+                $this->insertManualGoal( $activity_id, $player_id, null );
+            }
+            return;
+        }
+
+        foreach ( array_slice( $rows, 0, $current - $target ) as $row ) {
+            $this->reverseGoalEvent( (string) $row->event_uuid );
+        }
+    }
+
+    private function reconcileAssists( int $activity_id, int $player_id, int $target ): void {
+        $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT event_uuid, player_id, execution_id FROM {$this->t_goals}
+              WHERE activity_id = %d AND club_id = %d AND assist_player_id = %d
+                AND reversed_at IS NULL
+           ORDER BY (execution_id IS NULL) DESC, id DESC",
+            $activity_id, CurrentClub::id(), $player_id
+        ) );
+
+        $current = count( $rows );
+        if ( $current === $target ) return;
+
+        if ( $current < $target ) {
+            for ( $i = $current; $i < $target; $i++ ) {
+                $this->attachAssist( $activity_id, $player_id );
+            }
+            return;
+        }
+
+        foreach ( array_slice( $rows, 0, $current - $target ) as $row ) {
+            // A placeholder exists only to carry this assist. Clearing it
+            // would leave a goal on the record that nobody scored and nobody
+            // set up, which is worse than the gap it was filling.
+            $is_placeholder = (int) $row->player_id === 0 && $row->execution_id === null;
+
+            if ( $is_placeholder ) {
+                $this->reverseGoalEvent( (string) $row->event_uuid );
+                continue;
+            }
+
+            $this->wpdb->query( $this->wpdb->prepare(
+                "UPDATE {$this->t_goals} SET assist_player_id = NULL
+                  WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+                (string) $row->event_uuid, CurrentClub::id()
+            ) );
+        }
+    }
+
+    /**
+     * Hang the assist on a goal that has not got one. Manual rows first, and
+     * never the assister's own goal — the live sheet already refuses that
+     * contradiction and so does {@see logGoalEvent}.
+     */
+    private function attachAssist( int $activity_id, int $player_id ): void {
+        $free = $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT event_uuid FROM {$this->t_goals}
+              WHERE activity_id = %d AND club_id = %d
+                AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
+                AND assist_player_id IS NULL AND player_id <> %d
+           ORDER BY (execution_id IS NULL) DESC, id ASC
+              LIMIT 1",
+            $activity_id, CurrentClub::id(), $player_id
+        ) );
+
+        if ( $free !== null && $free !== '' ) {
+            $this->wpdb->query( $this->wpdb->prepare(
+                "UPDATE {$this->t_goals} SET assist_player_id = %d
+                  WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+                $player_id, (string) $free, CurrentClub::id()
+            ) );
+            return;
+        }
+
+        // Nothing free. `player_id = 0` says "scorer not recorded", which is
+        // the truth rather than a name borrowed to make the row valid.
+        $this->insertManualGoal( $activity_id, 0, $player_id );
+    }
+
+    /**
+     * A goal with no execution, half or minute — everything a coach filling
+     * this in on a Sunday evening actually knows, and nothing they do not.
+     */
+    private function insertManualGoal( int $activity_id, int $player_id, ?int $assist_player_id ): void {
+        $uuid   = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : uniqid( 'g', true );
+        $assist = ( $assist_player_id !== null && $assist_player_id > 0 ) ? (int) $assist_player_id : null;
+
+        // Two literal statements rather than one interpolated: a null
+        // placeholder becomes an empty string that a BIGINT stores as 0,
+        // which is indistinguishable from "player 0" — a real value here.
+        if ( $assist === null ) {
+            $this->wpdb->query( $this->wpdb->prepare(
+                "INSERT INTO {$this->t_goals}
+                   (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+                 VALUES (%s, %d, %d, NULL, 'home', %d, NULL, 0, NULL, NULL)",
+                $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id )
+            ) );
+            return;
+        }
+
+        $this->wpdb->query( $this->wpdb->prepare(
+            "INSERT INTO {$this->t_goals}
+               (event_uuid, club_id, activity_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+             VALUES (%s, %d, %d, NULL, 'home', %d, %d, 0, NULL, NULL)",
+            $uuid, CurrentClub::id(), $activity_id, max( 0, $player_id ), $assist
+        ) );
+    }
+
+    /**
+     * Goals and assists per player for a set of matches, for the grid.
+     *
+     * Reads by `activity_id`, so a manually recorded goal counts exactly
+     * like one logged live — which is the entire point of #3094.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, array<int, array{goals:int, assists:int}>> activity => player => counts
+     */
+    public function contributionsByActivity( array $activity_ids ): array {
+        $ids = array_values( array_filter( array_map( 'intval', $activity_ids ), static fn( int $id ): bool => $id > 0 ) );
+        if ( $ids === [] ) return [];
+
+        $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $out = [];
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $goals = (array) $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT activity_id, player_id, COUNT(*) AS n FROM {$this->t_goals}
+              WHERE activity_id IN ($in) AND club_id = %d
+                AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
+                AND player_id > 0
+              GROUP BY activity_id, player_id",
+            array_merge( $ids, [ CurrentClub::id() ] )
+        ) );
+
+        // Seeded with both keys so a player who only scored and a player who
+        // only assisted come back the same shape — a caller reading
+        // `['assists']` should never have to guard against its absence.
+        foreach ( $goals as $row ) {
+            $out[ (int) $row->activity_id ][ (int) $row->player_id ] = [
+                'goals'   => (int) $row->n,
+                'assists' => 0,
+            ];
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $assists = (array) $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT activity_id, assist_player_id AS player_id, COUNT(*) AS n FROM {$this->t_goals}
+              WHERE activity_id IN ($in) AND club_id = %d
+                AND reversed_at IS NULL AND assist_player_id IS NOT NULL
+              GROUP BY activity_id, assist_player_id",
+            array_merge( $ids, [ CurrentClub::id() ] )
+        ) );
+
+        foreach ( $assists as $row ) {
+            $aid = (int) $row->activity_id;
+            $pid = (int) $row->player_id;
+            if ( ! isset( $out[ $aid ][ $pid ] ) ) {
+                $out[ $aid ][ $pid ] = [ 'goals' => 0, 'assists' => 0 ];
+            }
+            $out[ $aid ][ $pid ]['assists'] = (int) $row->n;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Attributed goals per match — the numerator of the grid's `2/3` footer.
+     *
+     * Own goals and the opponent's are excluded: the row asks how much of
+     * *our* scoreline has somebody's name against it.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int,int> activity id => attributed goals
+     */
+    public function attributedGoalsByActivity( array $activity_ids ): array {
+        $ids = array_values( array_filter( array_map( 'intval', $activity_ids ), static fn( int $id ): bool => $id > 0 ) );
+        if ( $ids === [] ) return [];
+
+        $in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT activity_id, COUNT(*) AS n FROM {$this->t_goals}
+              WHERE activity_id IN ($in) AND club_id = %d
+                AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
+                AND player_id > 0
+              GROUP BY activity_id",
+            array_merge( $ids, [ CurrentClub::id() ] )
+        ) );
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $out[ (int) $row->activity_id ] = (int) $row->n;
+        }
+        return $out;
     }
 
     public function reverseGoalEvent( string $event_uuid ): bool {

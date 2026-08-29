@@ -18,6 +18,12 @@ use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
  * on the non-guest attendance row — the exact value the Minutes-audit matrix
  * and the Minutes-played report show, so all three reconcile.
  *
+ * Since #3094 a cell also carries the player's **goals and assists** for that
+ * match, read from the goal-event log by `activity_id`. That is what lets a
+ * club record output without having run the live match sheet: the surface
+ * measures exposure and output side by side, which is how a coach reads a
+ * season anyway.
+ *
  * A cell is only editable when the player is in that match's squad (has a
  * non-guest attendance row); non-squad cells are informational (hatched),
  * mirroring the audit matrix. Per activity, `owned_by_execution` tells the
@@ -29,9 +35,9 @@ final class MinutesGridQuery {
 
     /**
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, attributed_goals:int }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
-     *   cells: array<int, array<int, array{minutes:int, squad:bool}>>,
+     *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int}>>,
      *   summary: array{ total_activities:int, total_players:int }
      * }
      */
@@ -54,7 +60,7 @@ final class MinutesGridQuery {
         //    set the Minutes-audit matrix uses, so the two reconcile.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, {$date_col} AS session_date, title
+            "SELECT id, game_subtype_key, home_score, {$date_col} AS session_date, title
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -77,6 +83,11 @@ final class MinutesGridQuery {
                 'title'              => (string) ( $a->title ?? '' ),
                 'type_key'           => (string) ( $a->game_subtype_key ?? '' ),
                 'owned_by_execution' => $exec->existsForActivity( (int) $a->id ),
+                // #3094 — the scoreline, for the reconciliation footer. Null
+                // where none was recorded, which is not the same as 0-0 and
+                // must not read as it.
+                'home_score'         => $a->home_score !== null ? (int) $a->home_score : null,
+                'attributed_goals'   => 0,
             ];
         }
 
@@ -124,6 +135,16 @@ final class MinutesGridQuery {
             array_merge( $activity_ids, [ $club_id ] )
         ) );
 
+        // 4. Goals + assists per (activity, player), read by `activity_id` so
+        //    a goal typed into this grid counts exactly like one logged live
+        //    on the touchline (#3094).
+        $contributions = $exec->contributionsByActivity( $activity_ids );
+        $attributed    = $exec->attributedGoalsByActivity( $activity_ids );
+
+        foreach ( $activities as $i => $a ) {
+            $activities[ $i ]['attributed_goals'] = $attributed[ $a['activity_id'] ] ?? 0;
+        }
+
         $cells = [];
         foreach ( (array) $att_rows as $r ) {
             $pid = (int) $r->player_id;
@@ -132,7 +153,25 @@ final class MinutesGridQuery {
             $cells[ $pid ][ $aid ] = [
                 'minutes' => $r->minutes !== null ? (int) $r->minutes : 0,
                 'squad'   => true,
+                'goals'   => (int) ( $contributions[ $aid ][ $pid ]['goals'] ?? 0 ),
+                'assists' => (int) ( $contributions[ $aid ][ $pid ]['assists'] ?? 0 ),
             ];
+        }
+
+        // A player can be credited with a goal in a match whose attendance
+        // row is missing — a live sheet writes the goal, the register was
+        // never filled in. Surfacing the cell is better than hiding output
+        // the reports already count.
+        foreach ( $contributions as $aid => $by_player ) {
+            foreach ( $by_player as $pid => $counts ) {
+                if ( isset( $cells[ $pid ][ $aid ] ) ) continue;
+                $cells[ $pid ][ $aid ] = [
+                    'minutes' => 0,
+                    'squad'   => false,
+                    'goals'   => (int) $counts['goals'],
+                    'assists' => (int) $counts['assists'],
+                ];
+            }
         }
 
         return [

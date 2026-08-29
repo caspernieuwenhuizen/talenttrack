@@ -52,6 +52,11 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         );
         wp_localize_script( 'tt-frontend-minutes-grid', 'TTMinutesGrid', [
             'restBulk' => esc_url_raw( rest_url( 'talenttrack/v1/minutes/bulk' ) ),
+            // #3094 — goals + assists are a separate resource: minutes go
+            // through the ownership arbiter and these do not.
+            'restStats' => esc_url_raw( rest_url( 'talenttrack/v1/activities/' ) ),
+            'restPrefs' => esc_url_raw( rest_url( 'talenttrack/v1/me/preferences/minutes-grid' ) ),
+            'stats'     => self::visibleStats(),
             'nonce'    => wp_create_nonce( 'wp_rest' ),
             'i18n'     => [
                 'saving'    => __( 'Saving…', 'talenttrack' ),
@@ -80,9 +85,9 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         }
 
         self::crumbs();
-        self::renderHeader( __( 'Minutes grid', 'talenttrack' ) );
+        self::renderHeader( __( 'Minutes + statistics', 'talenttrack' ) );
         echo '<p class="tt-agrid-lead">' . esc_html__(
-            'Record match minutes for a whole period at once. Rows are players, columns are matches; type the minutes per cell and Save. Only players in a match squad can be edited.',
+            'Record match minutes, goals and assists for a whole period at once. Rows are players, columns are matches; fill the cells and Save. Only players in a match squad can be edited, and recording output here never changes the scoreline.',
             'talenttrack'
         ) . '</p>';
 
@@ -140,7 +145,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
     private static function crumbs(): void {
         FrontendBreadcrumbs::fromDashboard(
-            __( 'Minutes grid', 'talenttrack' ),
+            __( 'Minutes + statistics', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ) ]
         );
     }
@@ -166,7 +171,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 'url'   => add_query_arg( $att_args, $dash ),
             ];
         }
-        $options[] = [ 'label' => __( 'Minutes', 'talenttrack' ), 'current' => true ];
+        $options[] = [ 'label' => __( 'Minutes + stats', 'talenttrack' ), 'current' => true ];
 
         \TT\Shared\Frontend\Components\SegmentedControl::render( [
             'label'   => _x( 'Grid', 'segmented control label: which of the two data-entry grids', 'talenttrack' ),
@@ -182,24 +187,31 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $players = $matrix['players'];
         /** @var list<array<string,mixed>> $activities */
         $activities = $matrix['activities'];
-        /** @var array<int,array<int,array{minutes:int,squad:bool}>> $cells */
+        /** @var array<int,array<int,array{minutes:int,squad:bool,goals:int,assists:int}>> $cells */
         $cells = $matrix['cells'];
 
         echo '<div class="tt-agrid-card">';
         echo '<div class="tt-agrid-card__head">';
-        echo '<h2 class="tt-agrid-card__title">' . esc_html__( 'Minutes', 'talenttrack' ) . '</h2>';
-        echo '<span class="tt-agrid-card__hint">' . esc_html__( 'type minutes per match, then Save', 'talenttrack' ) . '</span>';
+        echo '<h2 class="tt-agrid-card__title">' . esc_html__( 'Minutes + statistics', 'talenttrack' ) . '</h2>';
+        echo '<span class="tt-agrid-card__hint">' . esc_html__( 'fill the cells per match, then Save', 'talenttrack' ) . '</span>';
         echo '</div>';
 
+        self::renderStatChips();
+
         echo '<div class="tt-agrid-scroll">';
-        echo '<table class="tt-agrid">';
-        echo '<thead><tr>';
-        echo '<th class="tt-agrid__player" scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<table class="tt-agrid tt-agrid--stats">';
+
+        // Two header rows: the match, then Min / G / A under it. A spreadsheet
+        // user needs no explanation for that, which is the whole premise of
+        // this surface being the alternative to the wizard.
+        echo '<thead>';
+        echo '<tr>';
+        echo '<th class="tt-agrid__player" scope="col" rowspan="2">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         foreach ( $activities as $a ) {
             $date  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
             $label = (string) $a['title'] !== '' ? (string) $a['title'] : __( 'Match', 'talenttrack' );
             $owned = ! empty( $a['owned_by_execution'] );
-            echo '<th class="tt-agrid__act is-match" scope="col" title="' . esc_attr( $label ) . '">';
+            echo '<th class="tt-agrid__act is-match" scope="colgroup" colspan="3" title="' . esc_attr( $label ) . '">';
             echo '<span class="tt-agrid__act-date">' . esc_html( $date ) . '</span>';
             // #2993 — icon-set glyph, not an emoji.
             echo '<span class="tt-agrid__act-type" aria-hidden="true">'
@@ -210,8 +222,16 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             }
             echo '</th>';
         }
-        echo '<th class="tt-agrid__rate" scope="col">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+        echo '<th class="tt-agrid__rate" scope="colgroup" colspan="3">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
+        echo '</tr>';
+
+        echo '<tr class="tt-agrid__subhead">';
+        foreach ( $activities as $a ) {
+            self::renderSubHeadCells();
+        }
+        self::renderSubHeadCells();
+        echo '</tr>';
+        echo '</thead><tbody>';
 
         foreach ( $players as $pl ) {
             $pid    = (int) $pl['player_id'];
@@ -225,31 +245,58 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             echo '<span class="tt-agrid__nm">' . esc_html( $name ) . '</span>';
             echo '</span></th>';
 
-            $total = 0;
+            $total   = 0;
+            $goals   = 0;
+            $assists = 0;
+
             foreach ( $activities as $a ) {
                 $aid  = (int) $a['activity_id'];
                 $cell = $cells[ $pid ][ $aid ] ?? null;
+                $when = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
+
                 if ( $cell === null ) {
                     // Not in this match's squad — informational, not editable.
-                    echo '<td class="tt-agrid-cell tt-agrid-cell--na" aria-label="' . esc_attr__( 'Not in squad', 'talenttrack' ) . '">&mdash;</td>';
+                    echo '<td class="tt-agrid-cell tt-agrid-cell--na tt-agrid-cell--sep" colspan="3" aria-label="' . esc_attr__( 'Not in squad', 'talenttrack' ) . '">&mdash;</td>';
                     continue;
                 }
-                $mins = (int) $cell['minutes'];
-                $total += $mins;
-                echo '<td class="tt-agrid-cell tt-agrid-min" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
+
+                $mins     = (int) $cell['minutes'];
+                $total   += $mins;
+                $goals   += (int) $cell['goals'];
+                $assists += (int) $cell['assists'];
+
+                echo '<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
                 echo '<input class="tt-agrid-min-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="' . esc_attr( (string) $mins ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '" aria-label="' . esc_attr( sprintf(
                     /* translators: 1: player name, 2: match date. */
                     __( 'Minutes for %1$s on %2$s', 'talenttrack' ),
                     $name,
-                    $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : ''
+                    $when
                 ) ) . '">';
                 echo '</td>';
+
+                self::renderStatCell( 'goals', $pid, $aid, (int) $cell['goals'], sprintf(
+                    /* translators: 1: player name, 2: match date. */
+                    __( 'Goals for %1$s on %2$s', 'talenttrack' ),
+                    $name,
+                    $when
+                ) );
+                self::renderStatCell( 'assists', $pid, $aid, (int) $cell['assists'], sprintf(
+                    /* translators: 1: player name, 2: match date. */
+                    __( 'Assists for %1$s on %2$s', 'talenttrack' ),
+                    $name,
+                    $when
+                ) );
             }
-            echo '<td class="tt-agrid__rate">' . esc_html( (string) number_format_i18n( $total ) ) . '</td>';
+
+            echo '<td class="tt-agrid__rate tt-agrid-cell--sep">' . esc_html( (string) number_format_i18n( $total ) ) . '</td>';
+            echo '<td class="tt-agrid__rate tt-agrid-stat" data-stat="goals">' . esc_html( (string) number_format_i18n( $goals ) ) . '</td>';
+            echo '<td class="tt-agrid__rate tt-agrid-stat" data-stat="assists">' . esc_html( (string) number_format_i18n( $assists ) ) . '</td>';
             echo '</tr>';
         }
 
-        echo '</tbody></table></div>';
+        echo '</tbody>';
+        self::renderReconciliationFoot( $activities );
+        echo '</table></div>';
 
         $cancel_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
         $back = \TT\Shared\Frontend\Components\BackLink::resolve();
@@ -265,6 +312,147 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '</div>';
 
         echo '</div>'; // .tt-agrid-card
+    }
+
+    /**
+     * The `Min | G | A` sub-header, repeated under every match and under the
+     * totals. Abbreviated because it is repeated once per match; the full
+     * word is on every cell's `aria-label`, where a screen reader needs it.
+     */
+    private static function renderSubHeadCells(): void {
+        printf(
+            '<th class="tt-agrid__sub tt-agrid-cell--sep" scope="col" title="%s">%s</th>',
+            esc_attr__( 'Minutes', 'talenttrack' ),
+            esc_html_x( 'Min', 'minutes column, abbreviated', 'talenttrack' )
+        );
+        // `_x` with the vocabulary the minutes report already uses: the bare
+        // msgid "Goals" is the development-goal sense in this product and
+        // comes back as "Doelen", which is not what a G column means.
+        printf(
+            '<th class="tt-agrid__sub tt-agrid-stat" scope="col" data-stat="goals" title="%s">%s</th>',
+            esc_attr_x( 'Goals scored', 'goals scored in matches', 'talenttrack' ),
+            esc_html_x( 'G', 'goals column, abbreviated', 'talenttrack' )
+        );
+        printf(
+            '<th class="tt-agrid__sub tt-agrid-stat" scope="col" data-stat="assists" title="%s">%s</th>',
+            esc_attr_x( 'Assists', 'who created a goal', 'talenttrack' ),
+            esc_html_x( 'A', 'assists column, abbreviated', 'talenttrack' )
+        );
+    }
+
+    private static function renderStatCell( string $stat, int $player_id, int $activity_id, int $value, string $label ): void {
+        printf(
+            '<td class="tt-agrid-cell tt-agrid-stat" data-stat="%1$s">'
+            . '<input class="tt-agrid-stat-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="%2$s"'
+            . ' data-stat="%1$s" data-player="%3$d" data-activity="%4$d" aria-label="%5$s"></td>',
+            esc_attr( $stat ),
+            esc_attr( $value > 0 ? (string) $value : '' ),
+            $player_id,
+            $activity_id,
+            esc_attr( $label )
+        );
+    }
+
+    /**
+     * The Goals / Assists column switches.
+     *
+     * Sub-columns triple the grid's width, and a coach who only records
+     * minutes should be able to get today's grid back. The choice is per
+     * user (`user_meta`) rather than per club: it is how one person likes to
+     * look at the screen, not a decision about the academy.
+     *
+     * Rendered as checkboxes rather than buttons so the state is real and
+     * the control works with a keyboard before any script loads.
+     */
+    private static function renderStatChips(): void {
+        $shown = self::visibleStats();
+
+        echo '<div class="tt-agrid-statpick" data-agrid-statpick>';
+        echo '<span class="tt-agrid-statpick__label">' . esc_html__( 'Show', 'talenttrack' ) . '</span>';
+
+        $labels = [
+            'goals'   => _x( 'Goals scored', 'goals scored in matches', 'talenttrack' ),
+            'assists' => _x( 'Assists', 'who created a goal', 'talenttrack' ),
+        ];
+
+        foreach ( $labels as $stat => $label ) {
+            printf(
+                '<label class="tt-agrid-statchip"><input type="checkbox" data-agrid-stattoggle value="%1$s"%2$s> %3$s</label>',
+                esc_attr( $stat ),
+                in_array( $stat, $shown, true ) ? ' checked' : '',
+                esc_html( $label )
+            );
+        }
+
+        echo '</div>';
+    }
+
+    /**
+     * Which stat columns this user wants. Resolved by the same class the
+     * REST route uses, so the rendered page and an API consumer cannot
+     * disagree about what this user asked for (CLAUDE.md §4).
+     *
+     * @return list<string>
+     */
+    private static function visibleStats(): array {
+        return \TT\Infrastructure\REST\MinutesGridPreferencesRestController::forUser( get_current_user_id() );
+    }
+
+    /**
+     * `Attributed / score` per match.
+     *
+     * Attributed goals summed against `tt_activities.home_score`, with a
+     * marker on a mismatch. `2/3` says a goal in that match has no scorer
+     * against anyone's name yet.
+     *
+     * It costs one row and makes the data self-auditing, which is exactly
+     * the drift migration 0235's docblock was written about. Deliberately
+     * **not** a validation gate: no cell is blocked by a mismatch, because
+     * "we do not know who scored the third" is a true state of the world and
+     * the grid's job is to show it, not to forbid it.
+     *
+     * @param list<array<string,mixed>> $activities
+     */
+    private static function renderReconciliationFoot( array $activities ): void {
+        echo '<tfoot><tr class="tt-agrid-recon">';
+        echo '<th class="tt-agrid__player" scope="row">' . esc_html__( 'Attributed / score', 'talenttrack' ) . '</th>';
+
+        foreach ( $activities as $a ) {
+            $attributed = (int) ( $a['attributed_goals'] ?? 0 );
+            $score      = $a['home_score'];
+
+            if ( $score === null ) {
+                // No scoreline recorded. Not the same as 0-0, and saying
+                // "0/0" would invent an agreement that was never tested.
+                printf(
+                    '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-recon__cell" colspan="3">%s</td>',
+                    esc_html( sprintf(
+                        /* translators: %d: goals attributed to a named scorer. */
+                        _n( '%d attributed', '%d attributed', $attributed, 'talenttrack' ),
+                        $attributed
+                    ) )
+                );
+                continue;
+            }
+
+            $score   = (int) $score;
+            $matches = $attributed === $score;
+
+            printf(
+                '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-recon__cell%1$s" colspan="3" title="%2$s">%3$s%4$s</td>',
+                $matches ? '' : ' is-mismatch',
+                esc_attr(
+                    $matches
+                        ? __( 'Every goal in this match has a scorer against it.', 'talenttrack' )
+                        : __( 'Some goals in this match have no scorer against anyone yet. The scoreline is unchanged.', 'talenttrack' )
+                ),
+                esc_html( sprintf( '%d/%d', $attributed, $score ) ),
+                $matches ? '' : ' <span class="tt-agrid-recon__flag" aria-hidden="true">!</span>'
+            );
+        }
+
+        echo '<td class="tt-agrid-cell tt-agrid-cell--sep" colspan="3"></td>';
+        echo '</tr></tfoot>';
     }
 
     /**
