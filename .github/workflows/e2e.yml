@@ -18,6 +18,11 @@ jobs:
     name: Playwright (Chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # #2417 — pin wp-env's working directory so the cache below and the
+      # tool agree on it. See the longer note in php-tests.yml: trusting the
+      # default cached nothing at all, silently.
+      WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
 

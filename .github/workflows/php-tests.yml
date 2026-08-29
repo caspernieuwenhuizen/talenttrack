@@ -55,6 +55,15 @@ jobs:
     name: PHPUnit (wp-env)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # #2417 — pin where wp-env keeps its working files instead of trusting
+      # the default. The first attempt at the cache below silently saved
+      # nothing ("Path Validation Error: Path(s) specified in the action for
+      # caching do(es) not exist"), because `~/.wp-env` is only wp-env's
+      # default on some platforms and versions. Naming it makes the cache
+      # path and the tool agree by construction rather than by coincidence,
+      # and survives a wp-env upgrade that moves the default again.
+      WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
 

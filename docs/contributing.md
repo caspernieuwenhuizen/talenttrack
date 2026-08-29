@@ -337,6 +337,8 @@ Most of it is not Docker. `.wp-env.json` sets `"core": "WordPress/WordPress"`, w
 
 The cache key carries a hash of `.wp-env.json` **and** the run id, with `restore-keys` falling back to the most recent entry for the same config. That combination means an entry is reused but also rewritten on every run, so the cached WordPress ages out instead of pinning the suites to whatever trunk looked like on the day the cache was first written. Change `.wp-env.json` and the key changes with it.
 
+Both jobs set **`WP_ENV_HOME`** explicitly rather than relying on wp-env's default. That is not tidiness: the first version of this cache silently saved nothing at all, because `~/.wp-env` is only the default on some platforms and versions, and `actions/cache` reports a missing path as a warning rather than a failure. Naming the directory makes the cache path and the tool agree by construction, and survives a wp-env upgrade that moves the default again. If you ever see `Path Validation Error: Path(s) specified in the action for caching do(es) not exist` in a post-job step, this is that bug returning.
+
 Both workflows print timing markers so the cost stays visible rather than having to be reconstructed with a stopwatch. Grep a run's log for `TT_TIMING`:
 
 ```
