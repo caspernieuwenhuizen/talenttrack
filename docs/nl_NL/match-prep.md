@@ -150,9 +150,32 @@ recordprobleem is verholpen.
 
 Iedere wijziging wordt live opgeslagen via REST — er is geen
 opslaanknop. De rechterkant van de werkbalk toont de huidige status
-("Alle wijzigingen opgeslagen.", "Niet-opgeslagen wijzigingen…",
-"Opslaan…", "Opslaan mislukt. Probeer opnieuw."). Mislukt een save
+("Alle wijzigingen opgeslagen", "Niet-opgeslagen wijzigingen…",
+"Opslaan…", "Opslaan mislukt — probeer opnieuw"). Mislukt een save
 dan kun je de wijziging opnieuw doen; het netwerk kan kuren hebben.
+
+### De laatste wijziging ongedaan maken
+
+Omdat er geen opslaanknop is, staat een misklik meteen vast zodra hij
+is verwerkt. Naast *Alle wijzigingen opgeslagen* verschijnt de knop
+**Ongedaan maken**, die de laatst opgeslagen wijziging terugdraait — de
+opstellingsplek die je zojuist vulde, de speelhelft-lengte die je net
+intypte, het aandachtspunt dat je net schreef.
+
+Drie dingen om te weten:
+
+- **Eén stap, geen historie.** Je draait de laatste opgeslagen
+  wijziging terug. Daarna verdwijnt de knop; wil je hem alsnog, voer de
+  wijziging dan opnieuw in.
+- **Het terugdraaien wordt zelf opgeslagen.** Herlaad de pagina en de
+  wijziging blijft teruggedraaid — het is geen schermtruc.
+- **De knop verschijnt alleen bij rust.** Zolang de werkbalk *Opslaan…*
+  of *Niet-opgeslagen wijzigingen…* toont is hij verborgen, zodat hij
+  nooit botst met een save die nog onderweg is.
+
+Aanvoerder en standaardsituatie-nemers worden apart opgeslagen; kies je
+er een, dan vervalt het aanbod. Bij je volgende gewone wijziging staat
+de knop er weer.
 
 ## Afdrukken (of opslaan als PDF)
 

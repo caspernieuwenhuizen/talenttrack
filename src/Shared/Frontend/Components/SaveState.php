@@ -70,15 +70,26 @@ final class SaveState {
                 'saving' => __( 'Saving…', 'talenttrack' ),
                 'saved'  => __( 'All changes saved', 'talenttrack' ),
                 'error'  => __( 'Save failed — retry', 'talenttrack' ),
+
+                // #3005 — a failed undo is worth its own sentence. The
+                // record is unchanged, so telling a coach to retry a save
+                // would point them at the wrong thing.
+                'undoError' => __( 'Undo failed — nothing changed', 'talenttrack' ),
             ],
         ] );
     }
 
     /**
-     * The status line itself.
+     * The status line itself, and the undo control beside it.
      *
      * Renders in the saved state, because that is true of a surface nobody
      * has touched yet. `TT.Autosave` takes it over on first change.
+     *
+     * The Undo button ships hidden and stays hidden until there is a
+     * committed change to take back — see `TT.Autosave.canUndo()`. It is
+     * rendered here rather than by each surface for the same reason the
+     * words are: a coach should find the way out of a mis-tap in the same
+     * place on every autosaving screen.
      *
      * @param string $extra_class Optional surface-specific hook. Positioning
      *                            belongs to the surface; appearance does not.
@@ -87,10 +98,22 @@ final class SaveState {
         $classes = 'tt-save-state is-saved';
         if ( $extra_class !== '' ) $classes .= ' ' . $extra_class;
         ?>
-        <span class="<?php echo esc_attr( $classes ); ?>"
-              data-tt-save-state
-              role="status"
-              aria-live="polite"><?php esc_html_e( 'All changes saved', 'talenttrack' ); ?></span>
+        <span class="tt-save-state-group">
+            <span class="<?php echo esc_attr( $classes ); ?>"
+                  data-tt-save-state
+                  role="status"
+                  aria-live="polite"><?php esc_html_e( 'All changes saved', 'talenttrack' ); ?></span>
+            <button type="button"
+                    class="tt-save-undo"
+                    data-tt-save-undo
+                    hidden><?php
+                    // Plain `__()` on purpose: "Undo" is already a msgid in
+                    // this plugin, already correct in Dutch, and already on
+                    // five other buttons. A context here would fork it into a
+                    // second string that can only drift from those.
+                    esc_html_e( 'Undo', 'talenttrack' );
+            ?></button>
+        </span>
         <?php
     }
 }

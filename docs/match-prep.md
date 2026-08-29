@@ -142,8 +142,29 @@ fixed.
 
 Every edit live-saves over REST — there is no Save button to press.
 The toolbar's right side shows the current save state ("All changes
-saved.", "Unsaved changes…", "Saving…", "Save failed. Try again.").
+saved", "Unsaved changes…", "Saving…", "Save failed — retry").
 If a save fails, retry the edit; the network may have hiccuped.
+
+### Undoing the last change
+
+Because there is no Save button, a mis-tap is stored the moment it
+settles. An **Undo** button appears next to *All changes saved* and
+takes back the last change that was saved — the lineup slot you just
+filled, the half length you just typed, the focus note you just wrote.
+
+Three things are worth knowing:
+
+- **It is one step, not a history.** Undo takes back the last saved
+  change. Once you undo, the button goes away; make the edit again if
+  you want it back.
+- **The undo is itself saved.** Reload the page and the change stays
+  undone — you are not looking at a screen-only revert.
+- **It only shows on a settled screen.** While the toolbar says
+  *Saving…* or *Unsaved changes…* the button is hidden, so it can
+  never fight with a save that is still on its way.
+
+Captain and set-piece takers save on their own, so picking one clears
+the offer: the button reappears with your next ordinary edit.
 
 ## Print to paper (or PDF)
 

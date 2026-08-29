@@ -47927,6 +47927,10 @@ msgstr "Niet-opgeslagen wijzigingen…"
 msgid "Save failed — retry"
 msgstr "Opslaan mislukt — probeer opnieuw"
 
+#: src/Shared/Frontend/Components/SaveState.php:77
+msgid "Undo failed — nothing changed"
+msgstr "Ongedaan maken mislukt — er is niets gewijzigd"
+
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
 msgid "Staff member"
