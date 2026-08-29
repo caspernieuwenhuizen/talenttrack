@@ -315,6 +315,25 @@ npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/php
 
 **CI:** `.github/workflows/php-tests.yml` runs the suite on every code PR and is a **required, blocking gate** — a red suite blocks merge. A deliberately broken authz grant or a migration that stops surfacing failures fails the build.
 
+### Why wp-env startup is cached, and how to read the timings (#2417)
+
+`Start wp-env` was the single largest cost in CI — 95s of a 151s PHPUnit job, so 63% setup against 14% testing — and it is paid by both gating workflows.
+
+Most of it is not Docker. `.wp-env.json` sets `"core": "WordPress/WordPress"`, which tells wp-env to **git-clone the WordPress repository** rather than use the released image, and to keep the clone under `~/.wp-env` for reuse. On a developer's machine that reuse happens once and never again; on a CI runner the directory is cold on every single run, so the clone is paid every time. Both workflows now cache `~/.wp-env` through `actions/cache`, which turns that clone into a restore.
+
+The cache key carries a hash of `.wp-env.json` **and** the run id, with `restore-keys` falling back to the most recent entry for the same config. That combination means an entry is reused but also rewritten on every run, so the cached WordPress ages out instead of pinning the suites to whatever trunk looked like on the day the cache was first written. Change `.wp-env.json` and the key changes with it.
+
+Both workflows print timing markers so the cost stays visible rather than having to be reconstructed with a stopwatch. Grep a run's log for `TT_TIMING`:
+
+```
+TT_TIMING image_pull_seconds=…    # container images only
+TT_TIMING core_cache_hit=…        # was ~/.wp-env restored?
+TT_TIMING wp_env_dir_size=…       # how big the restored tree is
+TT_TIMING wp_env_start_seconds=…  # everything wp-env does after the pull
+```
+
+If `wp_env_start_seconds` climbs back toward 95s with `core_cache_hit=true`, the clone is no longer the dominant cost and the next candidate — wp-env starting a `dev` instance the PHPUnit job never uses — is the one to look at. The image pre-pull step is measurement, not a gate: it is `continue-on-error` on purpose, because a moved tag must not turn a stopwatch into an outage.
+
 ### Mandatory: a smoke test for every new REST endpoint
 
 When you add a `register_rest_route(...)`, add a smoke test for it in `tests/php/` in the same PR. The bar is low — assert the **status code** and the **envelope shape** for at least the **denial path** (an unauthorised caller gets the expected 401/403) and the happy path. This is the cheapest insurance against the authorization-coverage bug class; full-content assertions are not required. (Trivial copy-only changes to an existing endpoint don't.)

@@ -78,8 +78,59 @@ jobs:
       - name: Install JS dependencies
         run: npm ci || npm install
 
-      - name: Start wp-env
-        run: npm run wp-env:start
+      # #2417 — wp-env's own working directory. `.wp-env.json` sets
+      # `"core": "WordPress/WordPress"`, so wp-env git-clones the WordPress
+      # repository into `~/.wp-env/<hash>/WordPress` and reuses it forever
+      # after. On a CI runner "forever after" never arrives: the clone is
+      # cold on every single run. Caching that directory is what turns the
+      # clone into a restore.
+      #
+      # The key carries a week stamp as well as the config hash, so a cache
+      # entry ages out after seven days rather than pinning the suites to
+      # whatever trunk looked like the day it was written. `restore-keys`
+      # lets a stale entry still be used as a starting point while the fresh
+      # one is being written.
+      - name: Cache wp-env core + downloads
+        id: wp-env-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.wp-env
+          key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-
+
+      # #2417 — the breakdown the issue asked for, recorded in the log of
+      # every run rather than reconstructed after the fact from a stopwatch.
+      # `Start wp-env` was one 95s block with no internal detail; these
+      # markers separate the image pull from everything wp-env does after it,
+      # and report whether the core cache was warm, which is the difference
+      # the cache above is meant to make.
+      # Deliberately non-fatal. These pulls exist to SEPARATE the image
+      # download from the rest of wp-env's startup so the log says which is
+      # which; wp-env pulls whatever it actually needs a moment later
+      # regardless. A tag that has moved must therefore not fail the build —
+      # it would turn a measurement into an outage.
+      - name: Pre-pull container images (timed)
+        continue-on-error: true
+        run: |
+          start=$( date +%s )
+          for image in wordpress:latest wordpress:cli mariadb:lts; do
+            docker pull --quiet "$image" || echo "TT_TIMING image_pull_skipped=$image"
+          done
+          echo "TT_TIMING image_pull_seconds=$(( $( date +%s ) - start ))"
+
+      - name: Start wp-env (timed)
+        run: |
+          set -e
+          echo "TT_TIMING core_cache_hit=${{ steps.wp-env-cache.outputs.cache-hit || 'false' }}"
+          if [ -d "$HOME/.wp-env" ]; then
+            echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
+          else
+            echo "TT_TIMING wp_env_dir_size=absent"
+          fi
+          start=$( date +%s )
+          npm run wp-env:start
+          echo "TT_TIMING wp_env_start_seconds=$(( $( date +%s ) - start ))"
 
       - name: Run PHPUnit (Tier 1)
         # wp-env mounts the plugin (incl. the host-installed vendor/) into
