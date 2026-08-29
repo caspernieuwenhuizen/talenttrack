@@ -525,7 +525,6 @@ class MatrixPage {
         $type_label = [
             'tile'             => __( 'frontend tile', 'talenttrack' ),
             'admin_menu'       => __( 'admin menu', 'talenttrack' ),
-            'admin_dashboard'  => __( 'admin dashboard tile', 'talenttrack' ),
             // v4.20.9 (#1159) — synthetic descriptor emitted by
             // MatrixEntityCatalog::adminOnlyDescriptor() for entities on
             // the whitelist of legitimately admin-only surfaces.
