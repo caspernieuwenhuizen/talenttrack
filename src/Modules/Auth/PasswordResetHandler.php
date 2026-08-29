@@ -146,6 +146,15 @@ class PasswordResetHandler {
             $academy,
         ];
 
+        // #2604 — one of two sanctioned `wp_mail()` calls outside the Comms
+        // email adapter, and deliberately so. Comms applies opt-outs, quiet
+        // hours and a per-template academy switch; any of the three
+        // suppressing a password reset locks someone out of their own
+        // account with no way to ask for another one. The audit value of
+        // logging a reset is lower than for anything player-facing, and the
+        // reset itself is already recorded by the auth audit trail.
+        // Do not route this through CommsService.
+        //
         // Deliberately the ACCOUNT address, not ContactResolver::emailForUser().
         // Recovery mail belongs to the account, not to the person record — if
         // it resolved through tt_people, editing a contact email on the People

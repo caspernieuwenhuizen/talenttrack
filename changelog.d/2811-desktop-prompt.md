@@ -1,3 +1,5 @@
+# The "this needs a desktop" page says which screen, and why (#2811)
+
 The "this needs a desktop" page now tells you something useful. It names the
 screen you were trying to open, says why that particular screen needs the width
 — a roster grid, a printed team sheet and a settings page all get different
