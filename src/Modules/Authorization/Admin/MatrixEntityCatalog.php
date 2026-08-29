@@ -272,20 +272,11 @@ final class MatrixEntityCatalog {
                     'view_slug'       => (string) ( $entry['slug'] ?? '' ),
                 ];
             }
-            foreach ( AdminMenuRegistry::allDashboardTiles() as $tile ) {
-                $cap = (string) ( $tile['cap'] ?? '' );
-                if ( $cap === '' || ! isset( $caps_set[ $cap ] ) ) continue;
-                $label = (string) ( $tile['label'] ?? '' );
-                if ( $label === '' ) continue;
-                $out[] = [
-                    'type'            => 'admin_dashboard',
-                    'label'           => $label,
-                    'cap'             => $cap,
-                    'entity_declared' => null,
-                    'cap_callback'    => null,
-                    'view_slug'       => (string) ( $tile['slug'] ?? '' ),
-                ];
-            }
+            // #2979 — the wp-admin dashboard tiles that used to be read
+            // here are gone with the page they lived on. Every one of them
+            // pointed at an admin page that is also an `allEntries()` row,
+            // so the capability coverage above is unchanged; what stops
+            // appearing is a second chip for the same surface.
         }
 
         // Dedupe by (type|label) — the same surface may be registered

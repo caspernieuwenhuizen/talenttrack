@@ -32,6 +32,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * The words come from `TT_Autosave.i18n`, localised once here, so a surface
  * does not pass its own copy of them and cannot drift.
+ *
+ * ## What travels with the line
+ *
+ * Two controls, both hidden until they apply, both rendered here rather than
+ * per surface so a coach finds the way out of a mistake in the same place on
+ * every screen that saves as they work:
+ *
+ *   - **Undo** (#3005) — the last committed change.
+ *   - **Revert changes** (#3006) — back to how the record was when this
+ *     sitting opened. Needs `storageKey` on the saver; without it the
+ *     component has nowhere to keep the snapshot and never offers it.
  */
 final class SaveState {
 
@@ -43,10 +54,14 @@ final class SaveState {
      * inside a record, say) call it without coordinating.
      */
     public static function enqueue(): void {
+        // Depends on `tt-public` for the `.tt-modal` rules the revert
+        // confirm (#3006) reuses. Every autosaving surface is a dashboard
+        // view, so this is already loaded — declaring it means the component
+        // stops relying on that being true.
         wp_enqueue_style(
             'tt-autosave',
             TT_PLUGIN_URL . 'assets/css/tt-autosave.css',
-            [],
+            [ 'tt-public' ],
             TT_VERSION
         );
 
@@ -62,6 +77,12 @@ final class SaveState {
         self::$enqueued = true;
 
         wp_localize_script( 'tt-autosave', 'TT_Autosave', [
+            // #3006 — the sitting snapshot is keyed per user as well as per
+            // record. Academy laptops get shared; a coach must never be
+            // offered "how it was when you opened this" for a sitting that
+            // was somebody else's.
+            'user' => (string) get_current_user_id(),
+
             'i18n' => [
                 // The four states, in one place. A surface that wants
                 // different words is a surface arguing with the rule; the
@@ -75,6 +96,17 @@ final class SaveState {
                 // record is unchanged, so telling a coach to retry a save
                 // would point them at the wrong thing.
                 'undoError' => __( 'Undo failed — nothing changed', 'talenttrack' ),
+
+                // #3006 — the revert confirm. Two count strings rather than
+                // one plural form because the count is decided in the
+                // browser: WordPress cannot pick the form for a number it
+                // never sees, and a single "%d field(s)" reads as a bug.
+                'revert'       => __( 'Revert changes', 'talenttrack' ),
+                'revertBody'   => __( 'Restore this record to how it was when you opened it? This cannot be undone.', 'talenttrack' ),
+                'revertOne'    => __( '1 field will be restored.', 'talenttrack' ),
+                'revertMany'   => __( '%d fields will be restored.', 'talenttrack' ),
+                'revertCancel' => __( 'Cancel', 'talenttrack' ),
+                'revertError'  => __( 'Revert failed — nothing changed', 'talenttrack' ),
             ],
         ] );
     }
@@ -113,6 +145,18 @@ final class SaveState {
                     // second string that can only drift from those.
                     esc_html_e( 'Undo', 'talenttrack' );
             ?></button>
+            <?php
+            // #3006 — the second range of undo, beside the first. Also
+            // hidden until it applies: it appears only when the record is
+            // settled, the sitting snapshot exists, and something actually
+            // differs from it. "Revert changes" rather than a bare "Revert"
+            // because it stands next to "Undo" and the pair has to be
+            // tellable apart at a glance.
+            ?>
+            <button type="button"
+                    class="tt-save-revert"
+                    data-tt-save-revert
+                    hidden><?php esc_html_e( 'Revert changes', 'talenttrack' ); ?></button>
         </span>
         <?php
     }

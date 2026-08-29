@@ -9,23 +9,15 @@ use TT\Core\ModuleRegistry;
  * AdminMenuRegistry (#0033 finalisation) — single source of truth for
  * the wp-admin TalentTrack sidebar.
  *
- * Two surface families are managed here:
+ * **Submenu pages** (`add_submenu_page` calls). Each entry is tagged with
+ * its owning `module_class`. `applyAll()` filters by
+ * `ModuleRegistry::isEnabled` so disabled modules' pages are not
+ * registered (menu item gone, URL stops resolving).
  *
- *   - **Submenu pages** (`add_submenu_page` calls). Each entry is
- *     tagged with its owning `module_class`. `applyAll()` filters by
- *     `ModuleRegistry::isEnabled` so disabled modules' pages are not
- *     registered (menu item gone, URL stops resolving).
- *
- *   - **wp-admin dashboard tiles** (the grouped quick-link cards on
- *     `?page=talenttrack`). Each tile carries a label / desc / icon /
- *     color plus the matching admin URL and capability. Same
- *     module-enabled gating applies via `dashboardTilesForUser()`.
- *
- * Stat cards on the wp-admin dashboard (Players / Teams / Evaluations
- * / Activities / Goals counts with weekly delta) are intentionally NOT
- * managed here — they couple tightly to per-entity SQL queries and
- * stay in `Menu::renderDashboardTiles()` with their existing per-card
- * cap + module-enabled filter.
+ * #2979 — this used to manage a second family: the quick-link tiles and
+ * stat cards on the wp-admin dashboard. That page is retired, and the tile
+ * registry went with it. Every tile pointed at a page that is also a
+ * submenu entry above, so nothing that consumed the tiles lost a surface.
  */
 final class AdminMenuRegistry {
 
@@ -45,22 +37,6 @@ final class AdminMenuRegistry {
      * }>
      */
     private static array $entries = [];
-
-    /**
-     * @var list<array{
-     *   module_class: ?string,
-     *   group: string,
-     *   group_accent: string,
-     *   group_order: int,
-     *   label: string,
-     *   desc: string,
-     *   icon: string,
-     *   url: string,
-     *   cap: string,
-     *   order: int
-     * }>
-     */
-    private static array $dashboardTiles = [];
 
     /**
      * Register a wp-admin submenu page entry.
@@ -118,38 +94,6 @@ final class AdminMenuRegistry {
             'sort'         => $sort,
             'is_separator' => true,
         ];
-    }
-
-    /**
-     * Register a wp-admin dashboard quick-link tile.
-     *
-     * @param array{
-     *   module_class?: ?string,
-     *   group: string,
-     *   group_accent?: string,
-     *   group_order?: int,
-     *   label: string,
-     *   desc?: string,
-     *   icon?: string,
-     *   url: string,
-     *   cap: string,
-     *   order?: int
-     * } $tile
-     */
-    public static function registerDashboardTile( array $tile ): void {
-        $defaults = [
-            'module_class' => null,
-            'group_accent' => '#5b6e75',
-            'group_order'  => 100,
-            'desc'         => '',
-            'icon'         => '',
-            'order'        => 100,
-        ];
-        $tile = array_merge( $defaults, $tile );
-        if ( empty( $tile['group'] ) || empty( $tile['label'] ) || empty( $tile['url'] ) || empty( $tile['cap'] ) ) {
-            return;
-        }
-        self::$dashboardTiles[] = $tile;
     }
 
     /**
@@ -222,57 +166,9 @@ final class AdminMenuRegistry {
     }
 
     /**
-     * Returns dashboard tiles grouped by their `group` label, in
-     * group_order then within-group order. Module-disabled tiles are
-     * filtered out. Cap checks are deferred to the renderer.
-     *
-     * @return list<array{label: string, accent: string, tiles: list<array>}>
-     */
-    public static function dashboardTilesForUser(): array {
-        $by_group = [];
-        $group_meta = [];
-        foreach ( self::$dashboardTiles as $tile ) {
-            if ( ! self::moduleEnabled( $tile['module_class'] ) ) continue;
-            $g = (string) $tile['group'];
-            if ( ! isset( $by_group[ $g ] ) ) {
-                $by_group[ $g ] = [];
-                $group_meta[ $g ] = [
-                    'accent' => (string) $tile['group_accent'],
-                    'order'  => (int) $tile['group_order'],
-                ];
-            }
-            $by_group[ $g ][] = $tile;
-        }
-        // Sort tiles within each group.
-        foreach ( $by_group as $g => &$tiles ) {
-            usort( $tiles, static function ( $a, $b ) {
-                $o = ( (int) $a['order'] ) <=> ( (int) $b['order'] );
-                if ( $o !== 0 ) return $o;
-                return strcmp( (string) $a['label'], (string) $b['label'] );
-            } );
-        }
-        unset( $tiles );
-        // Sort groups by group_order.
-        $group_keys = array_keys( $by_group );
-        usort( $group_keys, static function ( $a, $b ) use ( $group_meta ) {
-            return ( $group_meta[ $a ]['order'] <=> $group_meta[ $b ]['order'] );
-        } );
-        $out = [];
-        foreach ( $group_keys as $g ) {
-            $out[] = [
-                'label'  => $g,
-                'accent' => $group_meta[ $g ]['accent'],
-                'tiles'  => $by_group[ $g ],
-            ];
-        }
-        return $out;
-    }
-
-    /**
-     * Lookup helper used by `Menu::statCardBelongsToDisabledModule`.
-     * Returns the owning module class for a given admin slug, or null
-     * when no entry claims that slug (top-level dashboard, tt-sep-*
-     * separators, unmapped legacy URLs).
+     * The owning module class for a given admin slug, or null when no
+     * entry claims that slug (the top-level page, tt-sep-* separators,
+     * unmapped legacy URLs). Read by `wp tt admin-routes` (#2981).
      */
     public static function moduleForAdminSlug( string $slug ): ?string {
         if ( $slug === '' ) return null;
@@ -285,16 +181,9 @@ final class AdminMenuRegistry {
         return null;
     }
 
-    public static function isAdminSlugDisabled( string $slug ): bool {
-        $owner = self::moduleForAdminSlug( $slug );
-        if ( $owner === null ) return false;
-        return ! ModuleRegistry::isEnabled( $owner );
-    }
-
-    /** Drop every registration. Tests use this between scenarios. */
     /**
-     * Read-only snapshots used by the matrix admin UI to compute
-     * "which surfaces consume entity X".
+     * Read-only snapshot used by the matrix admin UI to compute "which
+     * surfaces consume entity X", and by `wp tt admin-routes`.
      *
      * @return list<array<string,mixed>>
      */
@@ -302,14 +191,9 @@ final class AdminMenuRegistry {
         return self::$entries;
     }
 
-    /** @return list<array<string,mixed>> */
-    public static function allDashboardTiles(): array {
-        return self::$dashboardTiles;
-    }
-
+    /** Drop every registration. Tests use this between scenarios. */
     public static function clear(): void {
-        self::$entries        = [];
-        self::$dashboardTiles = [];
+        self::$entries = [];
     }
 
     private static function moduleEnabled( ?string $module_class ): bool {

@@ -10,20 +10,36 @@ use TT\Modules\I18n\TranslationsRepository;
  * LookupTranslator — picks the right display text for a `tt_lookups` row
  * in the current user's locale.
  *
- * Resolution chain (#0090 Phase 6 — v3.110.30):
+ * Resolution chain (#0090 Phase 6 — v3.110.30; gettext step retired in
+ * #3082):
  *   1. `tt_translations` row for `(entity_type='lookup', entity_id, field, locale)`
  *      — the canonical store, populated by migrations 0082 (JSON
  *      backfill, Phase 2) and 0086 (gettext backfill, Phase 6) and
  *      maintained by the seed-review Excel round-trip (Phase 5) +
  *      `ConfigurationPage::handle_save_lookup()`.
- *   2. `__( $lookup->name, 'talenttrack' )` — vestigial gettext path.
- *      Migration 0086 backfilled every gettext-resolvable label into
- *      `tt_translations`, so this fallback fires only when the
- *      migration hasn't run yet (mid-deploy upgrade window) or when
- *      a brand-new lookup row was just created in a session whose
- *      cache hasn't bumped through the resolver yet. Phase 8 will
- *      strip the migrated msgids from `nl_NL.po`; this fallback
- *      remains for non-migrated msgids forever.
+ *   2. The canonical `tt_lookups` column itself.
+ *
+ * There is no gettext step. There used to be: `__( $lookup->name,
+ * 'talenttrack' )`, described by migration 0086's own docblock as
+ * something Phase 6 was "preparing to drop". It was never dropped, and
+ * #3082 finally does it.
+ *
+ * Handing a runtime value to `__()` asks the catalogue for whatever
+ * msgid happens to match that string, in whatever sense it was written.
+ * A lookup name is a label; a bare msgid is usually mid-sentence prose.
+ * The loud failure was the `foot_option` row `Left` rendering as
+ * *Vertrokken* ("departed") on Dutch installs (#3031), because the only
+ * `msgid "Left"` in the catalogue belonged to the media-retention
+ * departure column. The quiet failures are case and part of speech:
+ * `Technical` matching an adjective, `overdue` matching a lowercase
+ * `te laat` inside a status pill.
+ *
+ * The trade made in #3082: an unseeded lookup now renders its canonical
+ * English value. English that is obviously untranslated gets reported by
+ * an operator; a real Dutch word meaning the wrong thing does not.
+ * Curated labels belong in `LookupTranslationSeeds` and reach the
+ * database through a migration — that is the one place a label is
+ * reviewable from the source tree.
  *
  * The legacy `tt_lookups.translations` JSON column was dropped by
  * migration 0087 in this same ship — its contents are fully
@@ -68,8 +84,7 @@ class LookupTranslator {
             if ( $tx !== '' && $tx !== $raw ) return $tx;
         }
 
-        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-        return (string) __( $raw, 'talenttrack' );
+        return $raw;
     }
 
     /**
@@ -93,8 +108,7 @@ class LookupTranslator {
             if ( $tx !== '' && $tx !== $raw ) return $tx;
         }
 
-        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-        return (string) __( $raw, 'talenttrack' );
+        return $raw;
     }
 
     /**
@@ -113,6 +127,17 @@ class LookupTranslator {
             // Stored value doesn't match any current lookup row —
             // probably renamed. Best-effort: hand it to __() so the
             // .po can still translate seeded values.
+            //
+            // #3082 retired the gettext step from `name()` and
+            // `description()` but deliberately left it here. Those two
+            // resolve a lookup ROW, which has a `tt_translations` slot
+            // and a curated seed to be right from; this branch fires
+            // only when there is no row at all, so gettext is the sole
+            // remaining source rather than a shortcut past a better one.
+            // The wrong-sense risk is the same, but it is bounded to
+            // orphaned stored values — data drift, which #2863's
+            // normaliser and the `tools/` normalisation pass exist to
+            // remove — instead of applying to the whole vocabulary.
             // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             return (string) __( $stored_name, 'talenttrack' );
         }

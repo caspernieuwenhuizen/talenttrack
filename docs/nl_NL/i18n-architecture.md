@@ -107,6 +107,26 @@ Elke vertaalbare entiteit heeft een ergonomische wrapper die de resolver consume
 
 Geef het entity_id mee zodra je het hebt. String-only callers blijven werken via de gettext-fallback.
 
+**Uitzondering — `LookupTranslator` heeft geen gettext-stap (#3082).** `name()` en `description()` lossen op via `tt_translations` en retourneren daarna de canonieke `tt_lookups`-kolom. Een runtime-waarde aan `__()` geven vraagt de catalogus om welke msgid dan ook die op die string matcht, in de betekenis waarin die geschreven is: de `foot_option`-rij `Left` werd op Nederlandse installaties *Vertrokken*, omdat de enige `msgid "Left"` bij de vertrekkolom van media-retentie hoorde (#3031). De stille variant van dezelfde fout is hoofdlettergebruik en woordsoort — een bijvoeglijk naamwoord of een kleingeschreven middenzinswoord dat in een labelvak belandt.
+
+De afweging: een niet-geseede lookup rendert zijn canonieke Engels. Zichtbaar onvertaald Engels wordt gemeld; een echt Nederlands woord met de verkeerde betekenis niet. Vaste labels horen in `LookupTranslationSeeds` en komen via een migratie in de database — de enige plek waar een label vanuit de broncode te beoordelen is. Migratie `0247` repareert rijen die de backfill van de ingetrokken fallback (migratie `0086`) al verkeerd had weggeschreven — die overschrijft alleen een waarde die teken voor teken is wat een kale `__()` retourneert én niet de vaste seed is, zodat het eigen label van een academie onaangeroerd blijft.
+
+### De seed-map is gekoppeld aan `tt_lookups.name` — en meldt niet wanneer dat misgaat (#3117)
+
+`LookupTranslationSeeds::map()` heeft als sleutel `lookup_type => canonieke naam => locale => label`, en die canonieke naam moet exact zijn wat er in `tt_lookups.name` staat. Migratie `0248` (net als `0151` daarvoor) loopt over de map en doet per locale een `INSERT IGNORE`, dus **een sleutel die geen rij raakt is een no-op zonder foutmelding.**
+
+Die faalwijze heeft lang doorgelopen. 68 entries raakten niets, en `0151` seedde helemaal niets voor 13 van de 20 types die het claimt te dekken, omdat de vocabulaires eronder hernoemd waren: `journey_event_type` ging naar snake_case-sleutels, `activity_type` van `Match` naar `game`, de competition-type-vocabulaire werd in migratie `0027` in zijn geheel hernoemd naar `game_subtype`, `behaviour_rating_label` en `potential_band` werden door `0153` herschreven, en `eval_category` verliet `tt_lookups` volledig voor `tt_eval_categories` in `0008`.
+
+`LookupSeedMapCoverageTest` bewaakt nu beide richtingen op een vers gemigreerde database:
+
+1. elke map-entry lost op naar een bestaande rij;
+2. elke bestaande rij binnen een gecureerd type heeft een entry, tenzij die in `LookupTranslationSeeds::LOCALE_INVARIANT_ROWS` staat (UEFA-graden en dergelijke);
+3. een gecureerd type zonder rijen moet in `UNSEEDED_VOCABULARIES` staan met een reden — want "ingetrokken vocabulaire, entries weg" en "gedeclareerde vocabulaire die niemand seedt, de ontbrekende rijen zijn de bug" zien er vanuit de map identiek uit en vragen om een mens.
+
+Regel 2 is geen beleefdheid. `LookupTranslator` en migratie `0247` behandelen de vaste seed allebei als de bekend-goede waarde, en dat moet per type kloppen in plaats van gemiddeld: een half gecureerd type is erger dan een niet-gecureerd type, omdat de ontbrekende helft gedekt lijkt.
+
+Een `lookup_type` die niet in de map staat is bewust ongecureerd (posities, blessuretypes, de VCT-vocabulaires) en wordt door de test genegeerd. Een type opnemen ís de belofte.
+
 ### Een taal toevoegen
 
 Eén regel:

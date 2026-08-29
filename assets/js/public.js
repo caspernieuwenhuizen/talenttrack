@@ -102,6 +102,12 @@
     window.TT = window.TT || {};
     window.TT.Loading = Loading;
 
+    // #3007 — exposed because a surface that autosaves has to build the
+    // same body this file's submit handler builds, without submitting.
+    // Two implementations of the bracket expansion would be two ways for
+    // the same form to reach the same endpoint with different shapes.
+    window.TT.formToJSON = formToJSON;
+
     function restRequest(path, method, body) {
         var base = (window.TT && TT.rest_url) ? TT.rest_url : '/wp-json/talenttrack/v1/';
         var url = base.replace(/\/+$/, '/') + path.replace(/^\/+/, '');

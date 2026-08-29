@@ -29,11 +29,12 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My scouted players', 'talenttrack' ) );
         self::renderHeader( __( 'My players', 'talenttrack' ) );
 
-        // v3.85.5 — Scout access is Pro-tier per FeatureMap.
+        // v3.85.5 — Scout access is Pro-tier per FeatureMap. #3104 — the
+        // refusal renders through the shared panel.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'scout_access' )
         ) {
-            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Scout access', 'talenttrack' ), 'pro' );
+            echo \TT\Modules\License\UpgradePanel::render( 'scout_access' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
             return;
         }
 

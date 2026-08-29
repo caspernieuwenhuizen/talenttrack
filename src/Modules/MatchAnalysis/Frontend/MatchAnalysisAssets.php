@@ -40,10 +40,21 @@ final class MatchAnalysisAssets {
             TT_VERSION
         );
 
+        // #3007 — `tt-autosave` is a hard dependency now, not merely
+        // enqueued alongside: the autosave wiring in `match-analysis.js`
+        // reads `TT.Autosave` at load, and `tt-public` supplies the
+        // `TT.formToJSON` it serialises the form with.
+        //
+        // Registered here rather than from the form renderer, and on every
+        // surface rather than only the editable one. A dependency that is
+        // not registered by print time does not delay a script, it drops
+        // it — so gating this on "is this the edit view" would silently
+        // take the share-link buttons off the read-only page.
+        \TT\Shared\Frontend\Components\SaveState::enqueue();
         wp_enqueue_script(
             'tt-match-analysis',
             TT_PLUGIN_URL . 'assets/js/match-analysis.js',
-            [ 'tt-public' ],
+            [ 'tt-public', 'tt-autosave' ],
             TT_VERSION,
             true
         );
@@ -53,6 +64,11 @@ final class MatchAnalysisAssets {
             'copied'        => __( 'Link copied.', 'talenttrack' ),
             'rotated'       => __( 'A new link has been issued. The previous one no longer works.', 'talenttrack' ),
             'failed'        => __( 'That did not work. Try again.', 'talenttrack' ),
+
+            // #3007 — autosave.
+            'conflict'      => __( 'Someone else changed this analysis. Reload the page to see their version.', 'talenttrack' ),
+            'confirmFinal'  => __( 'Mark this analysis final? Anyone holding the share link can then read it.', 'talenttrack' ),
+            'finalFailed'   => __( 'The analysis could not be marked final. Try again.', 'talenttrack' ),
         ] );
 
         wp_enqueue_script(

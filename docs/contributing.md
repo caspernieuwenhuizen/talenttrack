@@ -315,6 +315,20 @@ npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/php
 
 **CI:** `.github/workflows/php-tests.yml` runs the suite on every code PR and is a **required, blocking gate** — a red suite blocks merge. A deliberately broken authz grant or a migration that stops surfacing failures fails the build.
 
+### What the two suites run on (#3090)
+
+The two heavy gates — `php-tests.yml` (PHPUnit) and `e2e.yml` (Playwright) — run on **every pull request, whatever its base branch**, and on every push to `main`.
+
+That distinction used to matter, and getting it wrong was expensive. Both workflows carried `branches: [main]` under `pull_request`, so a PR opened against a feature branch ran **neither suite** — and its checks column still went green, because the other dozen lint gates have no such filter. A stacked PR could be reviewed, ticked and merged without either suite ever having executed; the failure only surfaced later, on the push to `main`, attributed to whoever merged last.
+
+`pull_request` only fires for pull requests in the first place, so that filter's entire effect was to skip the case that most needed covering. It is gone. A list of feature-branch glob patterns was considered and rejected for the same reason: it would keep a filter whose only remaining job is to be incomplete, and it would fail silently the first time somebody stacked onto a base the pattern missed — the same bug, one branch name later.
+
+The `push: branches: [main]` triggers are unchanged. They are the post-merge net, and there is no reason to run them on every branch push.
+
+**So: a green column on a PR now means the suites actually ran.** Before this change it did not, and the difference was invisible from the PR page. If you are reading a PR opened before it landed, check the checks list for "PHPUnit (wp-env)" and "Playwright (Chromium)" by name rather than trusting the overall tick.
+
+The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rather than by testing — see #2417, which is the lever that makes this cheap.
+
 ### Mandatory: a smoke test for every new REST endpoint
 
 When you add a `register_rest_route(...)`, add a smoke test for it in `tests/php/` in the same PR. The bar is low — assert the **status code** and the **envelope shape** for at least the **denial path** (an unauthorised caller gets the expected 401/403) and the happy path. This is the cheapest insurance against the authorization-coverage bug class; full-content assertions are not required. (Trivial copy-only changes to an existing endpoint don't.)

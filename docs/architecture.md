@@ -105,6 +105,31 @@ Authorization helpers live in `src/Infrastructure/Security/`:
 
 Functional roles (`tt_functional_role_*`) are a separate per-team-per-person assignment model layered on top of WP roles; they don't grant caps directly but feed the resolver.
 
+### Team scoping — what a reviewer actually has to check (#2009)
+
+A capability says *whether* you may read players. Team scope says *which* players. Getting the second one wrong is a safeguarding matter, not a UX blemish — these are minors, and an out-of-context child in a picker is a disclosure.
+
+The canonical helpers, in the order you should reach for them:
+
+| Helper | Question it answers |
+| - | - |
+| `QueryHelpers::get_teams_in_scope( $user_id, $is_admin )` | "Which teams may this viewer choose from?" **Use this for pickers.** It resolves from the viewer's actual scope, so a head of development — who coaches nothing — is not handed an empty list. |
+| `QueryHelpers::get_teams_for_coach( $user_id )` | "Which teams does this person coach?" The assistant-coach question. |
+| `QueryHelpers::coach_owns_player( $user_id, $player_id )` | Per-record check for one player. |
+| `AllTeamsScope::canSeeAllTeams()` / `canSeeAllTeamsReports()` | Does the matrix grant this persona a global read? |
+
+**The test is not whether the file mentions a helper.** A file can call `get_teams_for_coach()` for one data set and query another globally two methods later; the surface that produced #2009 does exactly that. Read the SQL and ask what leaves the database.
+
+Three outcomes, and only one of them is a bug:
+
+- **Scoped** — the `WHERE` clause itself is constrained to the viewer's teams. This is what to write.
+- **Narrowed in PHP** — the query loads every active player and the result is filtered afterwards. The viewer sees the right thing, so it is **not** a leak, but on a large roster it is a real cost and it is one edit away from becoming one the day somebody adds a code path between the fetch and the filter. Worth a comment saying so.
+- **Leak** — loads globally, and the viewer sees out-of-scope rows.
+
+**Fix the endpoint as well as the view.** A view that scopes correctly while its REST sibling returns the whole club is not fixed; it is fixed on one of two doors. Every list, search and typeahead route needs the same clause the render path has.
+
+**Carry `club_id` even though it is a no-op.** New reads on tenant-scoped tables filter on `club_id` (`CurrentClub::id()`) whether or not the install has a second tenant, per the SaaS-readiness scaffold below. A query that is coach-scoped but not club-scoped is correct today and a cross-tenant leak later, and finding them costs nothing while you are already writing the clause.
+
 ## Frontend (post-#0019)
 
 The plugin ships a fully frontend-first UI on top of the `[talenttrack_dashboard]` shortcode. `DashboardShortcode` renders the tile grid landing and dispatches into one of three view groups based on `?tt_view=`:

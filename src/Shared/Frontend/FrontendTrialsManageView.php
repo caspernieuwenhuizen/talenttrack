@@ -137,22 +137,11 @@ class FrontendTrialsManageView extends FrontendViewBase {
             $new_last  = isset( $_POST['new_player_last_name'] )  ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_last_name'] ) )  : '';
             $new_dob   = isset( $_POST['new_player_dob'] )        ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_dob'] ) )        : '';
             if ( $new_first !== '' && $new_last !== '' && $new_dob !== '' ) {
-                global $wpdb;
-                $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', [
-                    'club_id'       => CurrentClub::id(),
-                    'first_name'    => $new_first,
-                    'last_name'     => $new_last,
-                    'date_of_birth' => $new_dob,
-                    'status'        => PlayerStatus::TRIAL,
-                    'created_at'    => current_time( 'mysql' ),
-                    'updated_at'    => current_time( 'mysql' ),
-                ] );
-                if ( $ok ) {
-                    $player_id = (int) $wpdb->insert_id;
-                    // Auto-tag demo-on rows — mirror of PlayersPage v3.76.2.
-                    if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
-                        \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id );
-                    }
+                $created   = self::createTrialPlayer( $new_first, $new_last, $new_dob );
+                $player_id = $created['id'];
+                if ( $player_id <= 0 ) {
+                    echo '<div class="tt-notice tt-notice-error">' . esc_html( $created['error'] ) . '</div>';
+                    return;
                 }
             }
         }
@@ -171,8 +160,9 @@ class FrontendTrialsManageView extends FrontendViewBase {
         // breaking the trial cascade (player-status updates downstream
         // silently no-op on a foreign row because they're club-scoped).
         // Verify the player belongs to the current club before
-        // proceeding. The inline-create path above is already
-        // safe — it INSERTs with `club_id = CurrentClub::id()`.
+        // proceeding. The inline-create path above is already safe — the
+        // canonical create it delegates to stamps
+        // `club_id = CurrentClub::id()` itself (#3115).
         $player_row = QueryHelpers::get_player( $player_id );
         if ( ! $player_row || (int) ( $player_row->club_id ?? 0 ) !== (int) CurrentClub::id() ) {
             echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Player not found in your club.', 'talenttrack' ) . '</div>';
@@ -198,6 +188,14 @@ class FrontendTrialsManageView extends FrontendViewBase {
         global $wpdb;
         $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => PlayerStatus::TRIAL ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
 
+        // #3115 — the same hook `TrialsRestController::create_case()` fires.
+        // `JourneyEventSubscriber` listens on it and emits `trial_started`;
+        // without this the timeline of a player whose trial was opened from
+        // the UI had no record of the trial at all, while one opened through
+        // the API did. A trial is where an academy player's journey begins,
+        // so it is the one transition that must not be implied.
+        do_action( 'tt_trial_started', $case_id, $player_id );
+
         // Initial staff assignments (parallel arrays).
         $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];
         $staff_roles = isset( $_POST['staff_role_label'] ) ? (array) $_POST['staff_role_label'] : [];
@@ -212,6 +210,66 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', $case_id );
         wp_safe_redirect( $detail_url ?: \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         exit;
+    }
+
+    /**
+     * #3115 — create the inline trial player through the canonical player
+     * create, rather than reimplementing it with a raw `$wpdb->insert`.
+     *
+     * The old inline insert wrote a row and nothing else: no
+     * `tt_player_created`, so the player's own arrival was missing from
+     * the timeline — for exactly the players whose journey begins with a
+     * trial — and no custom-field defaults, consent stamp, parent link or
+     * licence check either. Every one of those was a separate thing to
+     * remember, on a second write path that had already collected a
+     * cross-club pointing bug of its own (#1201).
+     *
+     * So this calls `PlayersRestController::create_player()` in-process
+     * instead of copying more of it. Not through `rest_do_request()`: that
+     * would apply the players endpoint's own `permission_callback`, and
+     * this surface is gated on `tt_manage_trials` — a trials manager who
+     * can open a case today would lose the ability to create the player
+     * the case is about. The gate that belongs here already ran in
+     * `handlePost()`.
+     *
+     * One consequence worth knowing: an install with a *required* player
+     * custom field now rejects the inline create, because the canonical
+     * path validates those and this three-field form cannot supply them.
+     * That is the same answer every other player-create path gives, and
+     * the reason to route through one place rather than have the trials
+     * form quietly be the one that skips validation. The rejection
+     * message says which field is missing.
+     *
+     * @return array{id: int, error: string} Player id, or 0 with a message.
+     */
+    private static function createTrialPlayer( string $first_name, string $last_name, string $date_of_birth ): array {
+        $request = new \WP_REST_Request( 'POST', '/talenttrack/v1/players' );
+        $request->set_param( 'first_name',    $first_name );
+        $request->set_param( 'last_name',     $last_name );
+        $request->set_param( 'date_of_birth', $date_of_birth );
+        $request->set_param( 'status',        PlayerStatus::TRIAL );
+
+        // Same msgid the players endpoint uses for this failure, so the
+        // two surfaces say the same sentence.
+        $generic  = __( 'The player could not be created.', 'talenttrack' );
+        $response = \TT\Infrastructure\REST\PlayersRestController::create_player( $request );
+        if ( ! $response instanceof \WP_REST_Response ) {
+            return [ 'id' => 0, 'error' => $generic ];
+        }
+
+        $body = (array) $response->get_data();
+
+        if ( $response->get_status() >= 300 ) {
+            $first = is_array( $body['errors'] ?? null ) ? reset( $body['errors'] ) : null;
+            $msg   = is_array( $first ) ? (string) ( $first['message'] ?? '' ) : '';
+            return [ 'id' => 0, 'error' => $msg !== '' ? $msg : $generic ];
+        }
+
+        // RestResponse::success() nests the payload under `data`.
+        $player = is_array( $body['data'] ?? null ) ? $body['data'] : $body;
+        $id     = isset( $player['id'] ) ? (int) $player['id'] : 0;
+
+        return [ 'id' => $id, 'error' => $id > 0 ? '' : $generic ];
     }
 
     private static function renderList( int $user_id, bool $is_admin, bool $can_manage ): void {
