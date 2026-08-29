@@ -115,6 +115,35 @@ final class PdpHardDeleteAdminPost {
      * calendar-link row, every PDP-block row, and every pdp_conversation
      * goal-link row.
      */
+    /**
+     * Access guards for `uploads/tt-pdp-deletes/`.
+     *
+     * These snapshots are deliberately retained operator artefacts, so
+     * unlike the scheduled-report CSV (#3080) they stay in `uploads/`.
+     * That makes them web-reachable under a name built from a known file
+     * id and a timestamp, and the directory previously carried only an
+     * `index.html` — which stops a directory listing and nothing else.
+     *
+     * So it gets the same two guards the private media store writes
+     * (`LocalPrivateStorage::ensureRoot()`): an `index.php` and a deny-all
+     * `.htaccess`. Idempotent, so calling it on every write is free.
+     *
+     * `.htaccess` is Apache-only. On nginx this is defence in depth rather
+     * than a boundary — the same caveat `docs/go-live-runbook.md` §5b
+     * already records for the media store.
+     */
+    private static function guardDirectory( string $dir ): void {
+        $index = $dir . '/index.php';
+        if ( ! file_exists( $index ) ) {
+            @file_put_contents( $index, "<?php\n// Silence is golden.\n" );
+        }
+
+        $htaccess = $dir . '/.htaccess';
+        if ( ! file_exists( $htaccess ) ) {
+            @file_put_contents( $htaccess, "Order Deny,Allow\nDeny from all\n" );
+        }
+    }
+
     private static function writePreDeleteCsv( object $file ): string {
         $upload = wp_upload_dir();
         if ( ! empty( $upload['error'] ) ) {
@@ -124,12 +153,7 @@ final class PdpHardDeleteAdminPost {
         if ( ! wp_mkdir_p( $dir ) ) {
             throw new \RuntimeException( 'Could not create directory: ' . $dir );
         }
-        // Drop an index.html guard against directory listing — same
-        // pattern wp-content/uploads/ subdirs use.
-        $guard = $dir . '/index.html';
-        if ( ! file_exists( $guard ) ) {
-            @file_put_contents( $guard, '<!-- TalentTrack PDP pre-delete CSVs. Silence is golden. -->' );
-        }
+        self::guardDirectory( $dir );
 
         $file_id   = (int) $file->id;
         $timestamp = gmdate( 'Ymd-His' );

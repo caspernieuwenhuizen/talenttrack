@@ -11,6 +11,7 @@ use TT\Modules\Comms\Domain\CommsResult;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
+use TT\Modules\Comms\Template\AccountMailTemplate;
 use TT\Modules\Comms\Template\TemplateInterface;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
@@ -41,6 +42,7 @@ final class CommsTemplateSwitchTest extends WP_UnitTestCase {
         TemplateRegistry::clear();
         ChannelAdapterRegistry::clear();
         TemplateRegistry::register( new SwitchSpyTemplate() );
+        TemplateRegistry::register( new AccountMailSpyTemplate() );
         $this->adapter = new SwitchSpyAdapter();
         ChannelAdapterRegistry::register( $this->adapter );
         QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
@@ -60,11 +62,11 @@ final class CommsTemplateSwitchTest extends WP_UnitTestCase {
         return $wpdb->get_results( "SELECT * FROM {$this->table}" );
     }
 
-    private function request(): CommsRequest {
+    private function request( string $template_key = 'switch_spy' ): CommsRequest {
         // urgent: quiet hours must not decide the outcome of these tests.
         return new CommsRequest(
-            'switch_spy',
-            'switch_spy',
+            $template_key,
+            $template_key,
             1,
             0,
             [ Recipient::parent( 0, 42, 'parent@example.test' ) ],
@@ -173,6 +175,57 @@ final class CommsTemplateSwitchTest extends WP_UnitTestCase {
         $this->assertCount( 0, $this->rows(), 'Preflight must not write audit rows.' );
     }
 
+    // -- account mail is outside the switch (#3110) ------------------------
+
+    /**
+     * The property #3111 leans on: a fresh install with every switchable
+     * template off still gets people their logins. If account mail were
+     * merely "on by default" this would fail the moment the seeded
+     * disabled set arrived.
+     */
+    public function test_account_mail_sends_with_every_template_disabled(): void {
+        TemplateSwitch::setDisabled( [ 'switch_spy', 'account_mail_spy' ] );
+
+        $results = ( new CommsService() )->send( $this->request( 'account_mail_spy' ) );
+
+        $this->assertSame( CommsResult::STATUS_SENT, $results[0]->status );
+        $this->assertSame( 1, $this->adapter->sendCalls );
+    }
+
+    public function test_account_mail_is_not_switchable(): void {
+        $this->assertFalse( TemplateSwitch::isSwitchable( 'account_mail_spy' ) );
+        $this->assertTrue( TemplateSwitch::isSwitchable( 'switch_spy' ) );
+        $this->assertTrue(
+            TemplateSwitch::isSwitchable( 'some_future_template' ),
+            'An unregistered key stays switchable — the stored set is the disabled one.'
+        );
+    }
+
+    /**
+     * The Messages settings screen builds its list from this, so account
+     * mail is absent rather than shown ticked and greyed.
+     */
+    public function test_account_mail_is_absent_from_the_switchable_list(): void {
+        $keys = array_keys( TemplateSwitch::switchableTemplates() );
+
+        $this->assertContains( 'switch_spy', $keys );
+        $this->assertNotContains( 'account_mail_spy', $keys );
+    }
+
+    /**
+     * An install that stored `invitation_email` before this change keeps
+     * the row until its next save; the row does nothing in the meantime.
+     */
+    public function test_a_legacy_account_mail_entry_is_inert_and_dropped_on_save(): void {
+        QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '["switch_spy","account_mail_spy"]' );
+
+        $this->assertTrue( TemplateSwitch::isEnabled( 'account_mail_spy' ) );
+        $this->assertFalse( TemplateSwitch::isEnabled( 'switch_spy' ) );
+
+        $stored = TemplateSwitch::normaliseStored( (string) QueryHelpers::get_config( TemplateSwitch::CONFIG_KEY, '' ) );
+        $this->assertSame( [ 'switch_spy' ], json_decode( $stored, true ) );
+    }
+
     // -- stored-value hygiene ---------------------------------------------
 
     public function test_unregistered_keys_are_dropped_on_normalise(): void {
@@ -232,6 +285,22 @@ final class CommsTemplateSwitchTest extends WP_UnitTestCase {
 final class SwitchSpyTemplate implements TemplateInterface {
     public function key(): string { return 'switch_spy'; }
     public function label(): string { return 'Switch spy'; }
+    public function supportedChannels(): array { return [ 'switch_spy_channel' ]; }
+    public function isEditable(): bool { return false; }
+    public function render( string $channelKey, CommsRequest $request, Recipient $recipient, string $locale ): array {
+        return [ 'Subject', 'Body' ];
+    }
+}
+
+/**
+ * #3110 — stands in for the invitation email: account plumbing, so
+ * outside the switch entirely.
+ *
+ * @phpstan-ignore-next-line test double
+ */
+final class AccountMailSpyTemplate implements AccountMailTemplate {
+    public function key(): string { return 'account_mail_spy'; }
+    public function label(): string { return 'Account mail spy'; }
     public function supportedChannels(): array { return [ 'switch_spy_channel' ]; }
     public function isEditable(): bool { return false; }
     public function render( string $channelKey, CommsRequest $request, Recipient $recipient, string $locale ): array {

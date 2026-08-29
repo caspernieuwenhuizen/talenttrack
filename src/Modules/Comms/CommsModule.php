@@ -15,6 +15,7 @@ use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Cron\CommsScheduledCron;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
+use TT\Modules\Comms\Send\TrainingCancelledSend;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Templates\AttendanceFlagTemplate;
 use TT\Modules\Comms\Templates\GoalNudgeTemplate;
@@ -166,6 +167,14 @@ class CommsModule implements ModuleInterface {
         // calls CommsService. Saves every owning module from importing
         // the full Comms domain when all they want is "send X to Y."
         CommsDispatcher::init();
+
+        // #3081 — use case 1's trigger. The template has shipped since
+        // v3.110.18 naming `tt_activity_cancelled`, a hook nothing raised;
+        // ActivitiesRepository now fires it from both of its cancellation
+        // write paths and this is the listener. Registered here rather
+        // than from Activities so the full set of Comms triggers reads
+        // from one place, as the templates and adapters above do.
+        TrainingCancelledSend::init();
 
         // Schedule-driven triggers — wp-cron once a day. Each triggers
         // its own template's send loop scoped per club:

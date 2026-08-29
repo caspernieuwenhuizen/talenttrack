@@ -166,6 +166,37 @@ Three things are worth knowing:
 Captain and set-piece takers save on their own, so picking one clears
 the offer: the button reappears with your next ordinary edit.
 
+### Going back to how it was when you opened the screen
+
+Undo answers the mis-tap you spot straight away. For the one you spot
+ten minutes later, a **Revert changes** button sits beside it. It puts
+the whole screen back to the state it was in when you opened it —
+lineup, half length, formation, tactical goals and per-player notes, all
+at once.
+
+It asks first. The confirm says how many fields it will restore and
+warns that the restore cannot itself be undone; press Escape or
+**Cancel** to back out.
+
+What it reaches, and what it does not:
+
+- **It survives a reload.** Refresh the page, or close the tab by
+  accident and come back, and the button is still there offering the
+  same starting point.
+- **It is tied to this device and this sitting.** The starting point is
+  kept in your browser, not on the server. Open the same match on
+  another device — or come back the next morning — and you get the saved
+  plan with no revert offered. The sitting ended.
+- **A private window, a cleared browser or a browser that blocks storage
+  means no revert.** Everything else on the screen works exactly as
+  before, including autosave and Undo; only this one offer is missing.
+- **Captain and set-piece picks end it.** They save on their own
+  endpoint, so a revert could not put them back — rather than restore
+  part of the screen and quietly leave those standing, the button
+  retires for the rest of the sitting.
+- **It only shows when there is something to revert**, and only on a
+  settled screen, for the same reason Undo does.
+
 ## Print to paper (or PDF)
 
 The **Export as PDF (A4)** button in the toolbar takes a picture of the

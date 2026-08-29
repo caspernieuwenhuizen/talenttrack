@@ -177,6 +177,40 @@ Aanvoerder en standaardsituatie-nemers worden apart opgeslagen; kies je
 er een, dan vervalt het aanbod. Bij je volgende gewone wijziging staat
 de knop er weer.
 
+### Terug naar hoe het was toen je het scherm opende
+
+Ongedaan maken is voor de misklik die je meteen ziet. Voor die je pas
+tien minuten later ziet, staat ernaast de knop **Wijzigingen
+terugdraaien**. Die zet het hele scherm terug in de staat waarin je het
+opende — opstelling, speelhelftduur, formatie, wedstrijddoelen en
+notities per speler, in één keer.
+
+Hij vraagt het eerst. De bevestiging noemt hoeveel velden hij herstelt
+en waarschuwt dat het herstel zelf niet ongedaan te maken is; druk op
+Escape of op **Annuleren** om ervan af te zien.
+
+Wat hij wel en niet bereikt:
+
+- **Hij overleeft een herlaadbeurt.** Ververs de pagina, of sluit het
+  tabblad per ongeluk en kom terug: de knop staat er nog, met hetzelfde
+  startpunt.
+- **Hij hoort bij dit apparaat en deze sessie.** Het startpunt staat in
+  je browser, niet op de server. Open je dezelfde wedstrijd op een ander
+  apparaat — of kom je de volgende ochtend terug — dan krijg je het
+  opgeslagen plan zonder aanbod om terug te draaien. De sessie is
+  voorbij.
+- **Een privévenster, een geleegde browser of een browser die opslag
+  blokkeert betekent geen terugdraaien.** De rest van het scherm werkt
+  precies als anders, inclusief automatisch opslaan en Ongedaan maken;
+  alleen dit ene aanbod ontbreekt.
+- **Aanvoerder- en standaardsituatiekeuzes beëindigen het.** Die worden
+  via hun eigen endpoint opgeslagen, dus terugdraaien zou ze niet kunnen
+  herstellen. In plaats van een deel van het scherm te herstellen en die
+  keuzes stilletjes te laten staan, vervalt de knop voor de rest van de
+  sessie.
+- **Hij verschijnt alleen als er iets terug te draaien is**, en alleen
+  op een rustig scherm, om dezelfde reden als Ongedaan maken.
+
 ## Afdrukken (of opslaan als PDF)
 
 De knop **Exporteren als PDF (A4)** in de werkbalk maakt een afbeelding
