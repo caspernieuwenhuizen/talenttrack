@@ -91,7 +91,12 @@ final class CommsSurfacesTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'Training cancelled', $html, 'the template label, not its key' );
         $this->assertStringContainsString( 'Held until morning', $html );
-        $this->assertStringNotContainsString( 'quiet_hours', $html, 'a raw status key is not an outcome a reader can act on' );
+        // The raw key is checked as rendered *text*, not as a substring of
+        // the whole page: the filter dropdown carries `value="quiet_hours"`
+        // quite correctly, because that is the query parameter the form
+        // submits. What must never happen is the key appearing where a
+        // reader is meant to read words.
+        $this->assertStringNotContainsString( '>quiet_hours<', $html, 'a raw status key is not an outcome a reader can act on' );
         $this->assertStringContainsString( 'Ann Parent', $html, 'the recipient by name where there is one' );
     }
 
