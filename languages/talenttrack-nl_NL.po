@@ -57198,44 +57198,6 @@ msgid_plural "Install profile applied — %d changes made. Reload open tabs to s
 msgstr[0] "Installatieprofiel toegepast — %d wijziging doorgevoerd. Herlaad open tabbladen om het effect te zien."
 msgstr[1] "Installatieprofiel toegepast — %d wijzigingen doorgevoerd. Herlaad open tabbladen om het effect te zien."
 
-#~ msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team age group."
-#~ msgstr ""
-#~ "Formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het "
-#~ "team."
-
-#~ msgid "Linked principle"
-#~ msgstr "Gekoppeld principe"
-
-#~ msgid "Optional. Links this goal to a methodology principle."
-#~ msgstr "Optioneel. Koppelt dit doel aan een methodologiepricipe."
-
-#~ msgid "Connected principle"
-#~ msgstr "Gekoppeld principe"
-
-#~ msgid "Optional. Anchor this goal to a methodology principle."
-#~ msgstr "Optioneel. Verbind dit doel aan een methodologie-principe."
-
-#~ msgid "Data & vocabularies"
-#~ msgstr "Gegevens & vocabulaires"
-
-#~ msgid "Methodology & cycles"
-#~ msgstr "Methodiek & cycli"
-
-#, php-format
-#~ msgid ""
-#~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open this on a laptop or computer."
-#~ msgstr ""
-#~ "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
-#~ "desktop te mailen.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open hem op een laptop of computer."
-
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
 
