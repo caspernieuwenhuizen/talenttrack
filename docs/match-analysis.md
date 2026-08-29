@@ -317,8 +317,8 @@ Beside the status line sit two ways back:
 - **Revert changes** puts the whole form back to how it was when you opened
  the screen. It asks first, and says how many fields it will restore.
 
-Both are described in full under *Save behaviour* on the
-[match preparation](match-prep.md) page — they behave identically here.
+Both are described in full in
+[how saving works](save-model.md) — they behave identically here.
 
 There is no **Cancel**, because there is nothing uncommitted to cancel.
 Leaving the page leaves a draft, which is a real and readable state: see

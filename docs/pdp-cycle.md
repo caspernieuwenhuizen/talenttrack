@@ -60,7 +60,7 @@ The player can fill in their self-reflection any time before the coach signs off
 
 ### The conversation form saves itself
 
-There is no **Save conversation** button. The form saves as you write, and a status line where the button used to be says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full under *Save behaviour* on the [match preparation](match-prep.md) page.
+There is no **Save conversation** button. The form saves as you write, and a status line where the button used to be says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full in [how saving works](save-model.md).
 
 The player's **self-reflection** works the same way, while its window is open. Outside the window the field is disabled, as before, and nothing saves.
 

@@ -148,6 +148,10 @@ recordprobleem is verholpen.
 
 ## Opslaan
 
+Dit is een van de schermen die zichzelf opslaan. [Hoe opslaan werkt](save-model.md)
+zet de drie modellen uiteen die TalentTrack gebruikt en welke schermen in welk
+model vallen; dit hoofdstuk is de uitwerking voor dit scherm.
+
 Iedere wijziging wordt live opgeslagen via REST — er is geen
 opslaanknop. De rechterkant van de werkbalk toont de huidige status
 ("Alle wijzigingen opgeslagen", "Niet-opgeslagen wijzigingen…",

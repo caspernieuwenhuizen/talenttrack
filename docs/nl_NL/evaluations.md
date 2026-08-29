@@ -38,8 +38,8 @@ Ernaast staan de twee manieren terug die bij elk automatisch opslaand scherm
 in TalentTrack horen: **Ongedaan maken** draait de laatst opgeslagen
 wijziging terug en **Wijzigingen terugdraaien** zet het formulier terug naar
 hoe het was toen je het opende, na eerst te vragen. Beide staan volledig
-beschreven onder *Opslaggedrag* op de pagina
-[wedstrijdvoorbereiding](match-prep.md).
+beschreven in
+[hoe opslaan werkt](save-model.md).
 
 Er is geen Annuleren meer op het bewerkformulier, want er staat niets open om
 te annuleren. Aanmaken vraagt nog wel om Opslaan, en dat is met opzet: er mag

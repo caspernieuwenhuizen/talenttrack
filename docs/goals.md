@@ -37,7 +37,7 @@ where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*.
 
 Beside it, **Undo** takes back the last saved change and **Revert changes**
 puts the form back to how it was when you opened it. Both are described in
-full under *Save behaviour* on the [match preparation](match-prep.md) page.
+full in [how saving works](save-model.md).
 
 There is no Cancel on the edit form any more, because there is nothing
 uncommitted to cancel. Adding still needs Save, deliberately — nothing
