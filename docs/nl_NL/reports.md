@@ -377,6 +377,14 @@ cijfer nooit een stille gok is:
  ongemerkt wegvalt.
 - **Team · Teambeoordelingsoverzicht** toont per speler een datum **Laatst
  beoordeeld**, zodat een verouderde rij in één oogopslag zichtbaar is.
+- **Team · Trends uit wedstrijdanalyses** telt hoe vaak elke spelfase in de
+ periode is beoordeeld als *Ging goed*, *Wisselend* of *Moet beter*. Het telt
+ en middelt nooit — drie geordende woorden zijn geen cijfer — een fase die de
+ coach niet beoordeeld heeft valt buiten de telling in plaats van als neutraal
+ mee te tellen, en onder drie beoordeelde wedstrijden staat er *"nog te weinig
+ wedstrijden"* in plaats van een lijn door één punt. Zie
+ [Wedstrijdanalyse](match-analysis.md) voor de spelerskant van dezelfde
+ gegevens.
 - **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
  wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
  waardoor een bron van opgeblazen joins verdwijnt.

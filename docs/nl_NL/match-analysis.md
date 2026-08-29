@@ -162,6 +162,36 @@ doelpunten toont helemaal geen doelpuntenblok: een lege lijst zou beweren
 dat er niet gescoord is, terwijl het meestal betekent dat de wedstrijd nooit
 via het live scherm is gespeeld.
 
+## Een seizoen aan analyses teruglezen
+
+Eén analyse is een notitie. Tien analyses zijn een trend, en die trend lees je
+op twee plekken terug zonder elke wedstrijd te openen.
+
+**Per team** — Rapportages → **Team · Trends uit wedstrijdanalyses**. Voor het
+gekozen team en de gekozen periode zie je hoe vaak elke spelfase is beoordeeld
+als *Ging goed*, *Wisselend* of *Moet beter*. "Omschakelen naar verdedigen was
+zes van de laatste acht keer moet beter" is precies de zin waar het
+trainingsthema van volgende maand uit volgt.
+
+**Per speler** — het tabblad **Wedstrijdanalyse** op het spelersdossier. In
+hoeveel wedstrijden de speler de afgelopen twaalf maanden genoemd is, hoe vaak
+elke markering gebruikt is, en aan welke spelfases die markeringen gekoppeld
+waren. De losse notities staan al op de tijdlijn; dit is de samenvatting
+erboven.
+
+Drie dingen doen beide overzichten bewust:
+
+- **Ze tellen; ze middelen nooit.** *Ging goed* / *Wisselend* / *Moet beter*
+  zijn drie geordende woorden, geen cijfer. Er een 1,8 van maken suggereert een
+  nauwkeurigheid die niemand heeft ingevuld.
+- **Een fase die je hebt overgeslagen telt nergens mee.** Niet als neutraal,
+  niet als middenwaarde — hij valt buiten de telling. Een fase niet beoordelen
+  is een echt antwoord en de rapportages respecteren dat.
+- **Onder drie beoordeelde wedstrijden is er geen trend.** Je krijgt dan
+  "nog te weinig wedstrijden" in plaats van een lijn door één punt. Bij een
+  nieuwe academie zie je dat als eerste, en dat klopt: de gegevens worden
+  verzameld, en dit is de drempel.
+
 ## Printen of opslaan als PDF
 
 **Printen of opslaan als PDF** opent de analyse als een schone **liggende

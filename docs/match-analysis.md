@@ -158,6 +158,34 @@ place for them to be wrong. A match with no logged goals shows no goal
 section at all: an empty list would claim nobody scored, when usually it
 just means the match was never run through the live screen.
 
+## Reading a season of them
+
+One analysis is a note. Ten of them are a trend, and there are two ways to
+read the trend without opening every match.
+
+**Per team** — Reports → **Team · Match analysis trends**. For the team and
+period you pick, it shows how often each phase of play was rated *Went well*,
+*Mixed* or *Needs work*. "Switching to defending was rated needs work in six of
+the last eight" is the sentence that should drive next month's training theme.
+
+**Per player** — the **Match analysis** tab on a player's file. How many
+matches they have been marked in over the last twelve months, how often each
+marker was used, and which phases those markers were tagged to. The individual
+notes are already on their journey; this is the summary above them.
+
+Three things both surfaces do on purpose:
+
+- **They count; they never average.** *Went well* / *Mixed* / *Needs work* are
+  three ordered words, not a score. Turning them into a number like 1.8 would
+  invent a precision nobody typed.
+- **A phase you left alone counts as nothing.** Not neutral, not a middle
+  value — excluded. Leaving a phase unrated is a real answer and the reports
+  honour it.
+- **Below three rated matches there is no trend.** You get an explicit "not
+  enough matches yet" instead of a line drawn through one data point. On a new
+  academy that is what you will see first, and it is telling you the truth:
+  the data is being collected, and this is the threshold.
+
 ## Print, or save as PDF
 
 **Print or save as PDF** opens the analysis as a clean **landscape A4** in

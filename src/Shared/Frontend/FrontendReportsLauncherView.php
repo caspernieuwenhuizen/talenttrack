@@ -165,6 +165,15 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-player average rating and evaluation count over the last 6 months.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-squad-evaluation-summary' ], $base_url ),
             ],
+            // #2725 — one match analysis is a note; a season of them is the
+            // sentence that should drive next month's training theme.
+            [
+                'slug'  => 'match-analysis-trends',
+                'label' => __( 'Team · Match analysis trends', 'talenttrack' ),
+                'desc'  => __( 'How often each phase of play was rated went well, mixed or needs work across the period.', 'talenttrack' ),
+                'cap'   => 'tt_view_activities',
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'match-analysis-trends' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own cap (§7) */
+            ],
             // #2650 — the knowledge library's roll-up. Three lenses on one
             // dataset rather than one page with tabs: a head of development
             // chasing overdue courses and one asking whether the U13 staff
