@@ -50,6 +50,41 @@
  * `serialise()` returning null means "nothing to send" — the surface is not
  * ready, or there is genuinely no change. That is not an error and not a
  * failure state.
+ *
+ * ## Undo (#3005, epic #2881)
+ *
+ * Autosave commits a mis-tap the moment it debounces, so the surface owes a
+ * coach a way back out of the slip they noticed straight away. That is what
+ * `undo()` is: **one level**, the last committed change, not a history stack.
+ *
+ * The mechanism is a snapshot of the payload, not a diff. Every successful
+ * full save records the body it sent; the body it *replaced* becomes the undo
+ * target. Undoing hands that older body back to the surface through
+ * `apply()`, then pushes it through the same save path — so an undo is itself
+ * saved, and survives a reload.
+ *
+ *     var saver = TT.Autosave.create({
+ *         stateEl:   …,
+ *         undoEl:    document.querySelector('[data-tt-save-undo]'),
+ *         serialise: function () { return { … , body: payload() }; },
+ *         apply:     function (body) { mountPayload(body); renderAll(); }
+ *     });
+ *     saver.seed(payload());   // the state as loaded, so the first edit is undoable
+ *
+ * `apply()` is what makes undo available: without it the component has
+ * somewhere to send the old value but nowhere to put it, so the control is
+ * never offered.
+ *
+ * When the control is *not* offered, deliberately:
+ *
+ *   - while anything is unsaved, saving or failed. Undo is only ever shown on
+ *     a settled record, which is also why it cannot race a save in flight.
+ *   - after `send()`. That is a write on another endpoint carrying state the
+ *     full payload does not describe (match prep's role picks), so the
+ *     snapshot no longer represents the coach's last change — offering it
+ *     would undo something older than the thing they just did.
+ *   - after an undo commits. One level means one level; the way back to the
+ *     value just reverted is to make the edit again.
  */
 (function () {
 	'use strict';
@@ -73,16 +108,32 @@
 	function words(i18n) {
 		var t = i18n || {};
 		return {
-			dirty:  t.dirty  || 'Unsaved changes…',
-			saving: t.saving || 'Saving…',
-			saved:  t.saved  || 'All changes saved',
-			error:  t.error  || 'Save failed — retry'
+			dirty:     t.dirty     || 'Unsaved changes…',
+			saving:    t.saving    || 'Saving…',
+			saved:     t.saved     || 'All changes saved',
+			error:     t.error     || 'Save failed — retry',
+			undoError: t.undoError || 'Undo failed — nothing changed'
 		};
+	}
+
+	/**
+	 * Snapshot a payload. A save body is JSON on its way out anyway, so this
+	 * cannot meet anything it fails to copy — and a structural copy is the
+	 * point: the surface keeps mutating the object the payload was built from.
+	 */
+	function snapshot(body) {
+		if (body == null) return null;
+		try {
+			return JSON.parse(JSON.stringify(body));
+		} catch (e) {
+			return null;
+		}
 	}
 
 	function Autosave(opts) {
 		this.opts     = opts || {};
 		this.stateEl  = this.opts.stateEl || null;
+		this.undoEl   = this.opts.undoEl || null;
 		this.delay    = typeof this.opts.delay === 'number' ? this.opts.delay : DEFAULT_DELAY;
 		this.words    = words(this.opts.i18n);
 
@@ -92,7 +143,16 @@
 		this.dirty    = false;
 		this.failed   = false;
 
+		// The last body this surface committed, and the one it replaced.
+		// `undoTarget` is what `undo()` sends; null means there is nothing
+		// safe to offer.
+		this.committed  = null;
+		this.undoTarget = null;
+		this.undoFailed = false;
+		this._undoing   = false;
+
 		this._prepareStateEl();
+		this._prepareUndoEl();
 		this.render();
 	}
 
@@ -110,10 +170,35 @@
 		this.stateEl.setAttribute('role', 'status');
 	};
 
+	/**
+	 * A real `<button>`, so Enter and Space come free and the control is in
+	 * the tab order without any of it being re-implemented here. Hidden until
+	 * there is something to undo.
+	 */
+	Autosave.prototype._prepareUndoEl = function () {
+		if (!this.undoEl) return;
+		var self = this;
+		this.undoEl.hidden = true;
+		this.undoEl.addEventListener('click', function (e) {
+			e.preventDefault();
+			self.undo();
+		});
+	};
+
+	/**
+	 * The state as loaded, before anyone touched it. Without it the first
+	 * autosave of a session has nothing to fall back to and undo stays hidden
+	 * until the second — which is the one mis-tap most worth catching.
+	 */
+	Autosave.prototype.seed = function (body) {
+		this.committed = snapshot(body);
+	};
+
 	/** Something changed. Debounce, then save. */
 	Autosave.prototype.change = function (delay) {
-		this.dirty  = true;
-		this.failed = false;
+		this.dirty      = true;
+		this.failed     = false;
+		this.undoFailed = false;
 		this.render();
 
 		if (this.timer) clearTimeout(this.timer);
@@ -171,6 +256,12 @@
 			self.dirty    = false;
 			self.failed   = false;
 
+			// What this save replaced becomes the way back. An undo's own
+			// save is excluded — reverting a revert is a redo, and this is
+			// one level by design.
+			self.undoTarget = self._undoing ? null : self.committed;
+			self.committed  = snapshot(req.body);
+
 			if (typeof self.opts.onSaved === 'function') self.opts.onSaved(resp);
 
 			if (self.queued) { self.queued = false; self.dirty = true; self.render(); return self.saveNow(); }
@@ -218,6 +309,12 @@
 			});
 		}
 
+		// This writes state the full payload does not carry, so the snapshot
+		// stops describing the coach's last change. Offering undo now would
+		// revert something older than what they just did.
+		this.undoTarget = null;
+		this.undoFailed = false;
+
 		this.inFlight = true;
 		this.failed   = false;
 		this.render();
@@ -250,17 +347,94 @@
 		});
 	};
 
+	/**
+	 * Is there a change that can still be taken back? True only on a settled
+	 * record with a snapshot behind it and somewhere to put it.
+	 */
+	Autosave.prototype.canUndo = function () {
+		return !!this.undoTarget
+			&& typeof this.opts.apply === 'function'
+			&& !this.inFlight
+			&& !this.queued
+			&& !this.dirty
+			&& !this.failed
+			&& !this.timer;
+	};
+
+	/**
+	 * Take back the last committed change.
+	 *
+	 * The old body goes back to the surface first, then through the save
+	 * path, because a revert that only repainted the screen would be a lie
+	 * the next reload exposes.
+	 *
+	 * If that save fails, the surface is put back to the value it had before
+	 * the undo. That is the un-undone value, and it is the truth — the server
+	 * still holds it. Showing the reverted one would leave a coach believing
+	 * a change was taken back when it was not.
+	 */
+	Autosave.prototype.undo = function () {
+		if (!this.canUndo()) return Promise.resolve(null);
+
+		var self    = this;
+		var target  = this.undoTarget;
+		var before  = this.committed;
+
+		this.undoTarget = null;
+		this.undoFailed = false;
+		this._undoing   = true;
+		this.dirty      = true;
+		this.render();
+
+		this.opts.apply(target);
+
+		return this.saveNow().then(function (resp) {
+			self._undoing = false;
+
+			if (self.failed) {
+				self.opts.apply(before);
+				self.committed  = before;
+				self.dirty      = false;
+				self.undoFailed = true;
+				self.render();
+			}
+
+			return resp;
+		});
+	};
+
 	/** Are there edits not yet stored? Used by beforeunload guards. */
 	Autosave.prototype.isPending = function () {
 		return this.dirty || this.inFlight || this.queued;
 	};
 
 	Autosave.prototype.render = function () {
+		this._renderState();
+		this._renderUndo();
+	};
+
+	/**
+	 * Shown only in the settled state — see `canUndo()`. That is the rule the
+	 * component's contract makes: undo is an offer about a record that is
+	 * currently saved, so it cannot appear beside "Saving…" and cannot race
+	 * the request that word refers to.
+	 */
+	Autosave.prototype._renderUndo = function () {
+		if (!this.undoEl) return;
+		this.undoEl.hidden = !this.canUndo();
+	};
+
+	Autosave.prototype._renderState = function () {
 		var el = this.stateEl;
 		if (!el) return;
 
 		el.classList.remove('is-dirty', 'is-saving', 'is-saved', 'is-error');
 
+		if (this.undoFailed) {
+			el.classList.add('is-error');
+			el.textContent = this.words.undoError;
+			return;
+		}
 		if (this.failed) {
 			el.classList.add('is-error');
 			el.textContent = this.words.error;

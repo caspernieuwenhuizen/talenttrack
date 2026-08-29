@@ -11,6 +11,18 @@
  * carry the state, and the dot repeats it.
  */
 
+/*
+ * The status line and the undo control travel together (#3005): a coach
+ * reads "All changes saved" and finds the way back out of a mis-tap in the
+ * same glance, rather than hunting the toolbar for it.
+ */
+.tt-save-state-group {
+	display: inline-flex;
+	gap: var(--tt-sp-2, 0.5rem);
+	align-items: center;
+	flex-wrap: wrap;
+}
+
 .tt-save-state {
 	display: inline-flex;
 	gap: var(--tt-sp-2, 0.5rem);
@@ -67,4 +79,52 @@
 @keyframes tt-save-pulse {
 	0%, 100% { opacity: 1; }
 	50%      { opacity: 0.35; }
+}
+
+/* -------------------------------------------------------------------
+ * Undo (#3005, epic #2881)
+ * ------------------------------------------------------------------- */
+
+/*
+ * Full touch target even though it sits in a compact status line. A control
+ * offered for exactly one moment — the beat after a mis-tap — is the last
+ * one that should need a precise finger.
+ */
+.tt-save-undo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	min-width: 48px;
+	padding: 0 var(--tt-sp-3, 0.75rem);
+	border: 1px solid transparent;
+	border-radius: var(--tt-radius, 8px);
+	background: none;
+	font: inherit;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	font-weight: 600;
+	color: var(--tt-info, #2d6fb3);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-save-undo[hidden] {
+	display: none;
+}
+
+/*
+ * Hover is decoration here; the button reads as an action from its colour
+ * and its words alone, which is what a touch device gets.
+ */
+.tt-save-undo:hover {
+	text-decoration: underline;
+}
+
+.tt-save-undo:active {
+	background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-save-undo:focus-visible {
+	outline: 2px solid var(--tt-info, #2d6fb3);
+	outline-offset: 2px;
 }

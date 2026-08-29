@@ -155,16 +155,32 @@
     // was composed second — so a fast typist could watch a character vanish.
     // The component keeps one request in flight and fires exactly one more
     // afterwards, carrying the state as it is by then.
+    //
+    // #3005 adds `apply`: the component keeps the payload each save replaced
+    // and hands it back here when a coach undoes. Everything the full payload
+    // covers — lineup, half length, formation, goals, per-player focus — is
+    // therefore undoable in one step. Role picks are not: they write on their
+    // own endpoint through `send()`, which retires the offer rather than
+    // letting Undo revert something older than the coach's last action.
     var saver = TT.Autosave.create({
         stateEl: $('[data-tt-save-state]'),
+        undoEl:  $('[data-tt-save-undo]'),
         nonce:   cfg.rest_nonce || '',
         delay:   250,
         i18n:    (window.TT_Autosave && window.TT_Autosave.i18n) || {},
         serialise: function () {
             if (state.activityId <= 0) return null;
             return { method: 'PUT', url: baseUrl + state.activityId, body: buildFullPayload() };
+        },
+        apply: function (payload) {
+            mountFullPayload(payload);
+            renderAll();
         }
     });
+
+    // Named once because two functions walk them now — the payload builder
+    // and the undo that puts a payload back (#3005).
+    var GOAL_FIELDS = ['goals_general','goals_attack','goals_defend','goals_attack_setpiece','goals_defend_setpiece'];
 
     function buildFullPayload() {
         var lineupOut = { '1': {}, '2': {} };
@@ -185,9 +201,8 @@
                 analyst_appointed: !!state.analyst[pid]
             };
         });
-        var goalFields = ['goals_general','goals_attack','goals_defend','goals_attack_setpiece','goals_defend_setpiece'];
         var goals = {};
-        goalFields.forEach(function (field) {
+        GOAL_FIELDS.forEach(function (field) {
             var inputs = $$('[data-tt-mp-goal="' + field + '"]');
             goals[field] = inputs.map(function (i) { return String(i.value || ''); }).join('\n').replace(/\n+$/, '');
         });
@@ -199,6 +214,75 @@
         };
         Object.keys(goals).forEach(function (k) { payload[k] = goals[k]; });
         return payload;
+    }
+
+    /**
+     * The inverse of buildFullPayload(): a previously committed payload goes
+     * back into `state` and into the toolbar controls that hold their value
+     * in the DOM rather than in state.
+     *
+     * renderAll() repaints everything drawn from state — roster, pitches,
+     * player focus — so only the fields it does not own are written here:
+     * the half-length box, the formation select and the tactical-goal
+     * inputs. Undo (#3005) is the only caller.
+     */
+    function mountFullPayload(payload) {
+        if (!payload) return;
+
+        var halflen = parseInt(payload.half_length_minutes, 10);
+        if (!isNaN(halflen) && halflen > 0) {
+            state.halfLength = halflen;
+            var hl = $('[data-tt-mp-halflen]');
+            if (hl) hl.value = state.halfLength;
+        }
+
+        // Same three side-effects the select's own change handler has: the
+        // shape drives the pitch layout, the root attribute and the KPI tile.
+        var sel = $('[data-tt-mp-formation]');
+        if (sel) {
+            var tplId = parseInt(payload.formation_template_id, 10) || 0;
+            sel.value = tplId ? String(tplId) : '';
+            state.formationTemplateId = tplId;
+            var opt = sel.selectedOptions && sel.selectedOptions[0];
+            var shape = opt ? (opt.getAttribute('data-shape') || '') : '';
+            if (shape) {
+                state.formationShape = shape;
+                root.setAttribute('data-formation-shape', shape);
+                var kpiVal = document.querySelector('[data-tt-mp-formation-kpi] .tt-kpi__val');
+                if (kpiVal) kpiVal.textContent = shape;
+            }
+        }
+
+        var lineup = payload.lineup || {};
+        ['1', '2'].forEach(function (half) {
+            var map = state.lineup[half];
+            map.clear();
+            var src = lineup[half] || {};
+            Object.keys(src).forEach(function (slot) {
+                map.set(parseInt(slot, 10), parseInt(src[slot], 10));
+            });
+        });
+
+        // Replaced wholesale rather than merged: a player dropped from the
+        // payload had their row cleared, and merging would leave it standing.
+        state.attention = {};
+        state.specific  = {};
+        state.analyst   = {};
+        var rows = payload.player_goals || {};
+        Object.keys(rows).forEach(function (pid) {
+            var row = rows[pid] || {};
+            state.attention[String(pid)] = String(row.attention_text || '');
+            state.specific[String(pid)]  = !!row.is_specific_goal;
+            state.analyst[String(pid)]   = !!row.analyst_appointed;
+        });
+
+        // Goal boxes live in the DOM, one line per input, which is how the
+        // payload joined them.
+        GOAL_FIELDS.forEach(function (field) {
+            var inputs = $$('[data-tt-mp-goal="' + field + '"]');
+            var lines  = String(payload[field] == null ? '' : payload[field]).split('\n');
+            inputs.forEach(function (inp, i) { inp.value = lines[i] != null ? lines[i] : ''; });
+        });
     }
 
     // Debounced full save — for inputs typed into rapidly (attention text,
@@ -862,4 +946,9 @@
     // ---------------------------------------------------------------------
 
     renderAll();
+
+    // #3005 — the record as it arrived, so the very first edit of a session
+    // has something to be undone back to. Seeded after the initial render
+    // because the goal inputs are read out of the DOM.
+    saver.seed(buildFullPayload());
 })();
