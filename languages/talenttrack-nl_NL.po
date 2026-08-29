@@ -56699,6 +56699,13 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #, php-format
+
+#: src/Shared/Frontend/FrontendMatrixView.php:268
+#: src/Shared/Frontend/FrontendMatrixView.php:388
+msgctxt "matrix per-entity scope row"
+msgid "Scope"
+msgstr "Bereik"
+
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
 
