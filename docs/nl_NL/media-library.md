@@ -85,6 +85,16 @@ hebt geüpload. Draagt een foto zijn eigen datum, dan wordt die alvast ingevuld.
 
 Van elk bestand zie je de voortgang tijdens het uploaden, en je kunt er één annuleren die te lang duurt zonder de rest kwijt te raken.
 
+### Een schermafbeelding plakken
+
+Op een computer kun je een afbeelding rechtstreeks vanaf het klembord plakken, zonder hem eerst op te slaan. Maak de schermafbeelding, ga naar het
+mediatabblad van het record of naar stap 2 van de wizard, en druk op Ctrl+V (Cmd+V op een Mac). Hij komt in dezelfde uploadlijst als elk ander
+bestand.
+
+Een geplakte afbeelding krijgt de naam van het moment waarop je hem plakte — *Schermafbeelding 2026-08-29 14-32-07* — zodat een scherm vol
+afbeeldingen leesbaar blijft. Hernoem hem daarna vanaf het record als dat moment niet het nuttige deel is. Plakken in het videolinkveld plakt daar
+gewoon tekst, en een plakactie zonder afbeelding doet niets.
+
 ### Videolinks
 
 Plak het webadres van een video en TalentTrack bepaalt waar die gehost wordt. Veo, Hudl, YouTube en Vimeo worden herkend; bij YouTube en Vimeo

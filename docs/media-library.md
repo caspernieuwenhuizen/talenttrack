@@ -80,6 +80,15 @@ uploaded it. When a photo carries its own date, that date is filled in for you.
 
 Each file's progress is shown while it uploads, and you can cancel one that is taking too long without losing the others.
 
+### Pasting a screenshot
+
+On a computer you can paste an image straight from the clipboard instead of saving it to disk first. Take the screenshot, open the record's media
+tab or step 2 of the wizard, and press Ctrl+V (Cmd+V on a Mac). It joins the upload list like any other file.
+
+A pasted image is named after the moment you pasted it — *Screenshot 2026-08-29 14-32-07* — so a screen full of them stays readable. Rename it from
+the record afterwards if the moment is not the useful part. Pasting into the video-link box still pastes text there, and a paste that carries no
+image does nothing at all.
+
 ### Video links
 
 Paste the web address of a video and TalentTrack works out where it is hosted. Veo, Hudl, YouTube and Vimeo are recognised; for YouTube and Vimeo

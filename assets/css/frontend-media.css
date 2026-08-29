@@ -71,6 +71,21 @@
 }
 
 /*
+ * Paste needs a keyboard and a clipboard that can hold an image, so the
+ * hint is for a desktop pointer only — on a phone it would advertise a
+ * route that does not exist there (#3092).
+ */
+.tt-media-dropzone__hint--paste {
+	display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.tt-media-dropzone__hint--paste {
+		display: block;
+	}
+}
+
+/*
  * Visually hidden rather than display:none — a hidden input cannot be
  * focused, which would take the control away from keyboard users.
  */
