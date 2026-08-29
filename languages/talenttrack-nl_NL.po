@@ -56738,12 +56738,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgstr "Methodiek & cycli"
 
 #, php-format
-
-#: src/Shared/Frontend/FrontendMatrixView.php:268
-#: src/Shared/Frontend/FrontendMatrixView.php:388
-msgctxt "matrix per-entity scope row"
-msgid "Scope"
-msgstr "Bereik"
 #~ msgid ""
 #~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
 #~ "\n"
