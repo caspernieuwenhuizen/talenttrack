@@ -24,7 +24,21 @@ Vink een bericht uit en sla op. Vanaf dat moment:
 - Wordt het **nog steeds vastgelegd** in het berichtenlogboek, met de status *uitgezet*. Je ziet dus dat een bericht verstuurd zou zijn en dat niet is — dat telt op het moment dat iemand vraagt waarom een gezin niets gehoord heeft.
 - Krijgt iemand die het handmatig probeert te versturen **vooraf** te zien dat het uitstaat, en een foutmelding in plaats van een stille bevestiging als er alsnog verstuurd wordt.
 
-Alles staat standaard aan, en een berichtsoort die in een latere versie bijkomt komt aan staan binnen. Iets uitzetten is altijd een bewuste keuze.
+## Waarmee een gloednieuwe academie begint
+
+**Er wordt niets verstuurd.** Een academie die TalentTrack voor het eerst installeert begint met elk bericht op deze pagina uitgezet, en dat blijft zo tot iemand een keuze maakt.
+
+Dat is bewust zo. Dit zijn berichten aan de ouders van minderjarigen, en "standaard aan" is een keuze die niemand gemaakt heeft. De installatiewizard vraagt welke berichten jouw academie wil, zodat het eerste bericht dat een ouder krijgt er een is die jullie zelf gekozen hebben. Heb je die stap overgeslagen, dan maak je de keuze hier — en tot dat moment hoort niemand iets, ook niet over een afgelaste training.
+
+**Academies die al draaiden merken hier niets van.** Bijwerken naar de versie waarin dit is ingevoerd verandert niets: elk bericht dat eerst verstuurd werd, wordt daarna nog steeds verstuurd. De nieuwe standaard geldt voor installaties vanaf die versie, nooit met terugwerkende kracht.
+
+## Wat er gebeurt met een berichtsoort uit een latere versie
+
+Een nieuwe berichtsoort komt **aan** staan binnen bij een academie die al bestond, en **uit** bij een academie die pas na die versie is geïnstalleerd.
+
+Dat komt doordat deze pagina de lijst bewaart van berichten die je hebt **uitgezet**, nooit de lijst die je hebt aangezet. Een berichtsoort die nog niemand gezien heeft staat op niemands uit-lijst, dus gedraagt hij zich zoals de rest van jouw installatie: hij verstuurt. Bij een nieuwe installatie wordt die uit-lijst weggeschreven zodra de plugin voor het eerst geactiveerd wordt, met de berichtsoorten die op dat moment bestaan — wat later bijkomt sluit op dezelfde manier aan.
+
+Praktisch gevolg: kijk na een update even op deze pagina als een releasenotitie een nieuwe berichtsoort noemt. Die staat dan al aan.
 
 ## Alles wat de academie verstuurt staat op deze lijst
 

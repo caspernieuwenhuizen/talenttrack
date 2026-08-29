@@ -16,30 +16,8 @@ use TT\Modules\Comms\Cron\CommsScheduledCron;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
+use TT\Modules\Comms\Template\TemplateCatalog;
 use TT\Modules\Comms\Template\TemplateRegistry;
-use TT\Modules\Comms\Templates\AttendanceFlagTemplate;
-use TT\Modules\Comms\Templates\GoalNudgeTemplate;
-use TT\Modules\Comms\Templates\GuestPlayerInviteTemplate;
-use TT\Modules\Comms\Templates\LetterDeliveryTemplate;
-use TT\Modules\Comms\Templates\InvitationEmailTemplate;
-use TT\Modules\Comms\Templates\MassAnnouncementTemplate;
-use TT\Modules\Comms\Templates\MethodologyDeliveredTemplate;
-use TT\Modules\Comms\Templates\AlertDigestTemplate;
-use TT\Modules\Comms\Templates\DesktopLinkTemplate;
-use TT\Modules\Comms\Templates\DirectMessageTemplate;
-use TT\Modules\Comms\Templates\NotificationTemplate;
-use TT\Modules\Comms\Templates\ScheduledReportTemplate;
-use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
-use TT\Modules\Comms\Templates\TrialInputReminderTemplate;
-use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
-use TT\Modules\Comms\Templates\ParentMeetingInviteTemplate;
-use TT\Modules\Comms\Templates\PdpReadyTemplate;
-use TT\Modules\Comms\Templates\SafeguardingBroadcastTemplate;
-use TT\Modules\Comms\Templates\ScheduleChangeFromSpondTemplate;
-use TT\Modules\Comms\Templates\SelectionLetterTemplate;
-use TT\Modules\Comms\Templates\StaffDevelopmentReminderTemplate;
-use TT\Modules\Comms\Templates\TrainingCancelledTemplate;
-use TT\Modules\Comms\Templates\TrialPlayerWelcomeTemplate;
 
 /**
  * CommsModule (#0066) — central authority for outbound messages.
@@ -121,7 +99,7 @@ class CommsModule implements ModuleInterface {
         // while keeping the row for safeguarding evidence.
         CommsRetentionCron::init();
 
-        // v3.110.18 — register all 15 use-case templates. Closes #0066.
+        // v3.110.18 — register every shipped template. Closes #0066.
         // Template copy is hardcoded EN + NL; the top-5 marked
         // editable (training_cancelled / selection_letter / pdp_ready /
         // letter_delivery / mass_announcement) honour per-club
@@ -131,35 +109,14 @@ class CommsModule implements ModuleInterface {
         // generic `tt_comms_dispatch` action hook + `CommsDispatcher`
         // give owning modules a one-call path to fire any template
         // without having to wire CommsService directly.
-        TemplateRegistry::register( new TrainingCancelledTemplate() );          // use case 1
-        TemplateRegistry::register( new SelectionLetterTemplate() );            // use case 2
-        TemplateRegistry::register( new PdpReadyTemplate() );                   // use case 3
-        TemplateRegistry::register( new ParentMeetingInviteTemplate() );        // use case 4
-        TemplateRegistry::register( new TrialPlayerWelcomeTemplate() );         // use case 5
-        TemplateRegistry::register( new GuestPlayerInviteTemplate() );          // use case 6
-        TemplateRegistry::register( new GoalNudgeTemplate() );                  // use case 7
-        TemplateRegistry::register( new AttendanceFlagTemplate() );             // use case 8
-        TemplateRegistry::register( new ScheduleChangeFromSpondTemplate() );    // use case 9 (gated on #0062)
-        TemplateRegistry::register( new MethodologyDeliveredTemplate() );       // use case 10
-        TemplateRegistry::register( new OnboardingNudgeInactiveTemplate() );    // use case 11
-        TemplateRegistry::register( new StaffDevelopmentReminderTemplate() );   // use case 12
-        TemplateRegistry::register( new LetterDeliveryTemplate() );             // use case 13
-        TemplateRegistry::register( new MassAnnouncementTemplate() );           // use case 14
-        TemplateRegistry::register( new SafeguardingBroadcastTemplate() );      // use case 15
-        TemplateRegistry::register( new InvitationEmailTemplate() );            // #1902 invitation email
-        TemplateRegistry::register( new NotificationTemplate() );               // #2604 caller-composed copy
-        TemplateRegistry::register( new AlertDigestTemplate() );                // #2634 alerts roll-up
-
-        // #2604 — the last of the direct `wp_mail()` senders, each now
-        // routed through the same opt-out / quiet-hours / rate-limit /
-        // audit path as everything else. Registered here rather than from
-        // their owning modules for the reason the channel adapters are:
-        // one place to read the full set from.
-        TemplateRegistry::register( new TrialInputReminderTemplate() );
-        TemplateRegistry::register( new ScheduledReportTemplate() );
-        TemplateRegistry::register( new DirectMessageTemplate() );
-        TemplateRegistry::register( new ScoutReportDeliveryTemplate() );
-        TemplateRegistry::register( new DesktopLinkTemplate() );
+        //
+        // #3111 — the list itself moved to `TemplateCatalog`, which is
+        // readable without the plugin having booted. Activation seeds a
+        // fresh install's disabled set from it, and activation runs long
+        // after `init`, so it cannot read the runtime registry.
+        foreach ( TemplateCatalog::shipped() as $template ) {
+            TemplateRegistry::register( $template );
+        }
 
         // Generic event-driven dispatch hook. Owning modules fire
         //   do_action( 'tt_comms_dispatch', $template_key, $payload, $recipients, $options );

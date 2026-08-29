@@ -24,7 +24,21 @@ Untick a message and save. From then on:
 - It is **still recorded** in the message log, with the status *switched off*. You can see that a message would have gone out and did not, which matters when someone asks why a family was not told.
 - If a person tries to trigger it by hand, they are told it is switched off **before** they write the message, and get an error rather than a silent success if they send anyway.
 
-Everything is on by default, and a message type introduced by a later release arrives switched on. Turning one off is always a deliberate act.
+## What a brand-new academy starts with
+
+**Nothing is sent.** An academy installing TalentTrack for the first time starts with every message on this page switched off, and stays that way until somebody chooses otherwise.
+
+That is deliberate. These are messages to the parents of minors, and "on by default" is a decision nobody made. The setup wizard asks which of them your academy wants, so the first message a parent receives is one you chose to send. If you skipped that step, this page is where you make the choice instead — and until you do, nobody hears anything, including about a cancelled training.
+
+**Academies that were already running are not affected.** Upgrading to the release that introduced this changes nothing: every message that was being sent before is still being sent afterwards. The new default applies to installations created from that release onward, never retroactively.
+
+## What happens to a message type added in a later release
+
+A new message type arrives **switched on** for an academy that already exists, and **switched off** for an academy that installs after it shipped.
+
+The reason is that this page stores the list of messages you have switched *off*, never the list you have switched on. A message type nobody has ever seen is on nobody's off-list, so it behaves the way everything else on your install behaves — it sends. A fresh install gets its off-list written when the plugin is first activated, from the message types that exist at that moment, so anything shipped later joins the same way.
+
+The practical consequence worth knowing: after upgrading, check this page when a release note mentions a new message type. It is already on.
 
 ## Everything the academy sends is on this list
 
