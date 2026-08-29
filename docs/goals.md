@@ -29,6 +29,21 @@ A **goal** is something a player is working on — for example "improve weak-foo
 3. Fill in title, description, status, priority and optionally a target date.
 4. Save.
 
+## Editing a goal saves itself
+
+Adding a goal ends with **Save**, as above. **Editing** one does not: it
+saves as you write, and a status line where the Save button used to be says
+where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*.
+
+Beside it, **Undo** takes back the last saved change and **Revert changes**
+puts the form back to how it was when you opened it. Both are described in
+full under *Save behaviour* on the [match preparation](match-prep.md) page.
+
+There is no Cancel on the edit form any more, because there is nothing
+uncommitted to cancel. Adding still needs Save, deliberately — nothing
+should be able to leave an empty goal on a player's file just because you
+opened the form and changed your mind.
+
 ## Tracking progress
 
 Update the status and description over time as the player makes progress. The **Status** filter on the Goals list groups goals into **Active**, **Achieved** and **Missed**, and defaults to Active so the list opens on what's still being worked on. Archived goals are separate from that: the list opens on unarchived goals, and the **⋯** button at the end of the filter row switches to the archived ones.

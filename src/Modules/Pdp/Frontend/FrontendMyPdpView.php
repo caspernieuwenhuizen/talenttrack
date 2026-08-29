@@ -392,11 +392,39 @@ class FrontendMyPdpView extends FrontendViewBase {
         $rest_path = 'pdp-conversations/' . $cid;
         $disabled  = $open ? '' : ' disabled';
         ?>
-        <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
+        <?php
+        // #3008 (epic #2881) — the reflection saves itself while the window
+        // is open, and stops with the window. A player writing about their
+        // own season is composing, and a teenager typing on a phone is the
+        // last person who should lose a paragraph to a mis-tap.
+        //
+        // Closed window means no autosave *and* no Save button: the field
+        // is disabled either way, and the endpoint would answer 403.
+        if ( $open ) {
+            \TT\Shared\Frontend\Components\FormAutosave::enqueue();
+        }
+        ?>
+        <form class="<?php echo $open ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              <?php if ( $open ) {
+                  echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
+                      $rest_path,
+                      'PATCH',
+                      'pdp-reflection:' . $cid
+                  );
+              } else {
+                  printf(
+                      'data-rest-path="%s" data-rest-method="PATCH" data-redirect-after-save="reload"',
+                      esc_attr( $rest_path )
+                  );
+              } ?>>
             <label class="tt-field-label" for="tt-myrefl-<?php echo (int) $cid; ?>"><?php esc_html_e( 'Add or update your self-reflection', 'talenttrack' ); ?></label>
             <textarea id="tt-myrefl-<?php echo (int) $cid; ?>" name="player_reflection" class="tt-input" rows="5" inputmode="text"<?php echo $disabled; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static literal ?>><?php echo esc_textarea( $saved ); ?></textarea>
             <div class="tt-form-actions">
-                <button type="submit" class="tt-btn tt-btn-primary"<?php echo $disabled; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static literal ?>><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
+                <?php if ( $open ) {
+                    \TT\Shared\Frontend\Components\SaveState::render();
+                } else { ?>
+                    <button type="submit" class="tt-btn tt-btn-primary" disabled><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
+                <?php } ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>

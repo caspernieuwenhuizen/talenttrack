@@ -26,6 +26,33 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 9. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
 10. Opslaan.
 
+## Een evaluatie bewerken slaat zichzelf op
+
+Een nieuwe evaluatie vastleggen eindigt met **Opslaan**, zoals hierboven. Een
+bestaande evaluatie **bewerken** niet: die slaat op terwijl je schrijft, en
+op de plek van de opslaanknop staat een statusregel die vertelt hoe ver dat
+is — *Niet-opgeslagen wijzigingen…*, *Opslaan…*, *Alle wijzigingen
+opgeslagen*.
+
+Ernaast staan de twee manieren terug die bij elk automatisch opslaand scherm
+in TalentTrack horen: **Ongedaan maken** draait de laatst opgeslagen
+wijziging terug en **Wijzigingen terugdraaien** zet het formulier terug naar
+hoe het was toen je het opende, na eerst te vragen. Beide staan volledig
+beschreven onder *Opslaggedrag* op de pagina
+[wedstrijdvoorbereiding](match-prep.md).
+
+Er is geen Annuleren meer op het bewerkformulier, want er staat niets open om
+te annuleren. Aanmaken vraagt nog wel om Opslaan, en dat is met opzet: er mag
+geen lege evaluatie in het dossier van een speler achterblijven omdat je het
+formulier opende en er toch van afzag.
+
+**Eén ding om te weten over het feedbackveld.** Omdat het bewerkformulier
+opslaat terwijl je schrijft, is een bericht in **Feedback voor de speler**
+zichtbaar voor de speler en de ouders zodra het is opgeslagen — niet pas als
+je op een knop drukt. Wil je de formulering eerst rustig uitwerken, doe dat
+dan ergens anders, of in het veld **Interne notities**, en verplaats het
+zodra je tevreden bent.
+
 ## Wat de speler ziet
 
 Spelers (en hun ouders) zien alleen de scores en het bericht **Feedback voor de speler** — nooit je interne Notities. Laat je het feedbackveld leeg, dan ziet de speler enkel de scores.
