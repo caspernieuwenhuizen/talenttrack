@@ -264,8 +264,8 @@ class MatchAnalysisRestController {
             // Read the row rather than trusting the composed payload: the
             // composer ran before this request's own find-or-create, so on
             // a first write it would answer with the row it just made.
-            $row     = ( new MatchAnalysisRepository() )->find( $analysis_id );
-            $current = $row !== null ? (string) ( $row->updated_at ?? '' ) : '';
+            $row     = (array) ( new MatchAnalysisRepository() )->find( $analysis_id );
+            $current = (string) ( $row['updated_at'] ?? '' );
             if ( $current !== '' && $current !== $base ) {
                 return RestResponse::error(
                     'analysis_conflict',
