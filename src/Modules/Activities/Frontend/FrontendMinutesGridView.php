@@ -145,18 +145,33 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         );
     }
 
-    /** Segmented Attendance | Minutes toggle across the two grid surfaces. */
+    /**
+     * Segmented Attendance | Minutes toggle across the two grid surfaces.
+     *
+     * #2822 — a mode switcher, not a record-scoped tab strip, so it is
+     * exempt from CLAUDE.md §5c's `RecordSpine` requirement. See the twin
+     * method on `FrontendAttendanceGridView` for the reasoning; both now
+     * render the same shared `SegmentedControl`.
+     */
     private static function renderModeNav(): void {
         $dash = RecordLink::dashboardUrl();
         $team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         $att_args = [ 'tt_view' => 'attendance-grid' ]; /* tt-xview-ok — sibling grid, gated by the attendance_grid feature below */
         if ( $team > 0 ) $att_args['team_id'] = $team;
-        echo '<div class="tt-agrid-modes" role="tablist">';
+
+        $options = [];
         if ( \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) {
-            echo '<a class="tt-agrid-mode" href="' . esc_url( add_query_arg( $att_args, $dash ) ) . '">' . esc_html__( 'Attendance', 'talenttrack' ) . '</a>';
+            $options[] = [
+                'label' => __( 'Attendance', 'talenttrack' ),
+                'url'   => add_query_arg( $att_args, $dash ),
+            ];
         }
-        echo '<span class="tt-agrid-mode is-on" aria-current="page">' . esc_html__( 'Minutes', 'talenttrack' ) . '</span>';
-        echo '</div>';
+        $options[] = [ 'label' => __( 'Minutes', 'talenttrack' ), 'current' => true ];
+
+        \TT\Shared\Frontend\Components\SegmentedControl::render( [
+            'label'   => _x( 'Grid', 'segmented control label: which of the two data-entry grids', 'talenttrack' ),
+            'options' => $options,
+        ] );
     }
 
     /**

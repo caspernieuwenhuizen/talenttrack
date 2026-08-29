@@ -229,4 +229,50 @@ class RecordSpineTest extends WP_UnitTestCase {
     public function test_tab_id_is_derived_from_the_panel_id(): void {
         $this->assertSame( 'tt-tab-tt-panel-squad', RecordSpine::tabId( 'tt-panel-squad' ) );
     }
+
+    /* ---- #2822: tabs that are the only route to a view's sections ---- */
+
+    public function test_tabs_always_keeps_navigating_tabs_alive_under_classic(): void {
+        ShellPreference::setClubDefault( ShellPreference::CLASSIC );
+
+        $html = $this->render( [
+            'name'        => 'Ajax JO15-1',
+            'tabs_always' => true,
+            'tabs'        => [ [ 'label' => 'Overview', 'url' => '/x?tab=overview', 'active' => true ] ],
+        ] );
+
+        $this->assertStringContainsString( 'tt-spine--tabs-only', $html );
+        $this->assertStringContainsString( 'Overview', $html );
+        // Navigating tabs stay links; the flag changes when they render,
+        // not what kind of control they are.
+        $this->assertStringContainsString( '<a ', $html );
+        $this->assertStringNotContainsString( 'role="tablist"', $html );
+        // The identity strip is shell chrome and still does not survive.
+        $this->assertStringNotContainsString( 'Ajax JO15-1', $html );
+    }
+
+    public function test_tabs_always_lets_a_surface_with_no_identity_use_the_strip(): void {
+        $html = $this->render( [
+            'tabs_always' => true,
+            'tabs'        => [
+                [ 'label' => 'Assignments', 'url' => '/x?tab=assignments', 'active' => true ],
+                [ 'label' => 'Role types', 'url' => '/x?tab=types' ],
+            ],
+        ] );
+
+        $this->assertStringContainsString( 'tt-spine--tabs-only', $html );
+        $this->assertStringContainsString( 'Assignments', $html );
+        $this->assertStringContainsString( 'Role types', $html );
+    }
+
+    public function test_navigating_tabs_without_the_flag_still_vanish_under_classic(): void {
+        ShellPreference::setClubDefault( ShellPreference::CLASSIC );
+
+        $html = $this->render( [
+            'name' => 'Ajax JO15-1',
+            'tabs' => [ [ 'label' => 'Overview', 'url' => '/x?tab=overview' ] ],
+        ] );
+
+        $this->assertSame( '', $html, 'the flag is opt-in; existing callers are unchanged' );
+    }
 }

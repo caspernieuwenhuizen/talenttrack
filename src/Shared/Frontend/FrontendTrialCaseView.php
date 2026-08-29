@@ -134,22 +134,28 @@ class FrontendTrialCaseView extends FrontendViewBase {
             </div>
 
             <div class="tt-player-detail__main">
-                <nav class="tt-player-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Trial sections', 'talenttrack' ); ?>">
-                    <?php foreach ( $tabs as $key => $label ) :
-                        $url       = add_query_arg( [ 'tab' => $key ], $base_url );
-                        $is_active = $key === $active_tab;
-                        $classes   = 'tt-player-tab';
-                        if ( $is_active ) $classes .= ' tt-player-tab--active';
-                        ?>
-                        <a href="<?php echo esc_url( $url ); ?>"
-                           class="<?php echo esc_attr( $classes ); ?>"
-                           role="tab"
-                           aria-current="<?php echo $is_active ? 'true' : 'false'; ?>"
-                           aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>">
-                            <?php echo esc_html( $label ); ?>
-                        </a>
-                    <?php endforeach; ?>
-                </nav>
+                <?php
+                // #2822 — the section strip comes from the shared spine
+                // (CLAUDE.md §5c): these tabs move between facets of one
+                // trial case without leaving its subject. `tabs_always`
+                // because they are the only route to those sections, so
+                // they must survive the `classic` shell.
+                \TT\Shared\Frontend\Components\RecordSpine::render( [
+                    'name'        => $name,
+                    'photo_url'   => $player ? (string) ( $player->photo_url ?? '' ) : '',
+                    'meta'        => $trials_label,
+                    'tabs_always' => true,
+                    'tabs'        => array_values( array_map(
+                        static fn( string $key, string $label ): array => [
+                            'label'  => $label,
+                            'url'    => add_query_arg( [ 'tab' => $key ], $base_url ),
+                            'active' => $key === $active_tab,
+                        ],
+                        array_keys( $tabs ),
+                        array_values( $tabs )
+                    ) ),
+                ] );
+                ?>
 
                 <section class="tt-player-tab-panel">
                     <?php
