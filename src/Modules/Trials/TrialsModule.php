@@ -34,6 +34,10 @@ class TrialsModule implements ModuleInterface {
 
         TrialsRestController::init();
         TrialReminderScheduler::init();
+        // #3116 — makes the player record agree with the decision. Its own
+        // class rather than a branch in `JourneyEventSubscriber`: the
+        // journey entry records the transition, this one performs it.
+        TrialDecisionPlayerStatusSubscriber::init();
     }
 
     /**

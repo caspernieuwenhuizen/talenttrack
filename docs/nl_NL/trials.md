@@ -82,11 +82,21 @@ Een dossier blijft "open" — zichtbaar voor toegewezen staf, telt mee voor de w
 
 Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / `Afwijzen (definitief)` / `Afwijzen (met aanmoediging)`) plus de verplichte motivatie van ≥ 30 tekens. Het vastleggen:
 
-- Verandert de status van de speler (Aannemen → Actief, Afwijzen → Gearchiveerd).
-- Genereert automatisch de bijpassende brief.
+- Verandert de status van de speler, volgens de tabel hieronder.
+- Schrijft de bijbehorende regel op de tijdlijn van de speler — *Stage afgerond*, plus *Vastgelegd* bij aannemen of *Afscheid genomen* bij een definitieve afwijzing.
 - Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
 
-Gebruik dit altijd als je een inhoudelijk antwoord aan het gezin verschuldigd bent. De rest van het gesprek loopt via het tabblad Oudergesprek.
+| Beslissing | De speler wordt | Gearchiveerd? |
+| --- | --- | --- |
+| Aannemen | **Actief** | nee |
+| Afwijzen (definitief) | **Vertrokken** | ja — het dossier gaat naar de prullenbak en is daar te herstellen |
+| Afwijzen (met aanmoediging) | **Inactief** | **nee** |
+
+De derde regel is het lezen waard. *Afwijzen met aanmoediging* betekent "nu niet, kom terug" — de speler blijft dus in beeld, vindbaar, en in aanmerking komen voor een volgende stage. Dat dossier archiveren zou je eigen systeem het tegenovergestelde vertellen van wat je zojuist tegen het gezin zei. Alleen een definitieve afwijzing beëindigt de relatie.
+
+Alleen een speler die nog op **Stage** staat verandert. Is hij al langs een andere route doorgestroomd, of wordt de beslissing een tweede keer vastgelegd, dan gebeurt er niets — een beslissing kan een actieve speler niet terugzetten.
+
+De brief wordt **niet** automatisch gegenereerd. Ga naar het tabblad **Brief** en maak hem aan wanneer je zover bent; een brief aan een gezin hoort gelezen te zijn voordat hij bestaat. De rest van het gesprek loopt via het tabblad Oudergesprek.
 
 ### Archiveren (het "geen antwoord nodig" pad)
 
