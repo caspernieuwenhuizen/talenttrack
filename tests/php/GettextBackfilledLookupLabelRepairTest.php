@@ -32,6 +32,13 @@ final class GettextBackfilledLookupLabelRepairTest extends WP_UnitTestCase {
         global $wpdb;
         $this->p = $wpdb->prefix;
 
+        // Run as a Dutch install. That is the case the repair is for, and
+        // it is also the branch of `gettextByLocale()` that has to work
+        // without `switch_to_locale()` — that function returns false when
+        // asked for the locale already in effect, so on a Dutch site the
+        // most important locale is precisely the one it will not switch to.
+        add_filter( 'locale', static fn () => 'nl_NL' );
+
         // Fixture rows of our own: the migration walks every curated row
         // on the install, and asserting against seeded data would couple
         // the test to whatever that install happens to hold.
