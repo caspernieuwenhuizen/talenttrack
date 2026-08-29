@@ -14,7 +14,9 @@ use TT\Modules\Comms\Channel\Adapters\WhatsappLinkChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Cron\CommsScheduledCron;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
+use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
+use TT\Modules\Comms\Send\PdpReadySend;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
 use TT\Modules\Comms\Template\TemplateCatalog;
 use TT\Modules\Comms\Template\TemplateRegistry;
@@ -99,6 +101,14 @@ class CommsModule implements ModuleInterface {
         // while keeping the row for safeguarding evidence.
         CommsRetentionCron::init();
 
+        // #2605 — the module's REST surface. Comms recorded every send
+        // from the start and exposed none of it, which left the audit
+        // table readable only by SQL and put the module outside
+        // CLAUDE.md §4. The controller composes; the queries live in
+        // `Repositories\`, so a non-WordPress front end and the rendered
+        // surfaces get the same answers.
+        CommsRestController::init();
+
         // v3.110.18 — register every shipped template. Closes #0066.
         // Template copy is hardcoded EN + NL; the top-5 marked
         // editable (training_cancelled / selection_letter / pdp_ready /
@@ -132,6 +142,11 @@ class CommsModule implements ModuleInterface {
         // than from Activities so the full set of Comms triggers reads
         // from one place, as the templates and adapters above do.
         TrainingCancelledSend::init();
+
+        // #2605 — use case 3. A PDP has no "published" state, so this
+        // listens on the verdict sign-off: the point at which the plan
+        // stops being a working draft. See `PdpReadySend`.
+        PdpReadySend::init();
 
         // Schedule-driven triggers — wp-cron once a day. Each triggers
         // its own template's send loop scoped per club:

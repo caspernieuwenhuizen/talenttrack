@@ -57902,6 +57902,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "How to use TalentTrack."
 #~ msgstr "Hoe je TalentTrack gebruikt."
+#: src/Modules/Comms/Rest/CommsRestController.php:279
+#: src/Modules/Comms/Rest/CommsRestController.php:280
+msgid "That message is not in your inbox."
+msgstr "Dat bericht staat niet in je inbox."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:287
+msgid "The message could not be updated."
+msgstr "Het bericht kon niet worden bijgewerkt."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:342
+msgid "No such message template."
+msgstr "Dit berichtsjabloon bestaat niet."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:374
+msgid "Expected a list of message types."
+msgstr "Er werd een lijst met berichtsoorten verwacht."
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
