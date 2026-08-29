@@ -233,6 +233,24 @@ De geavanceerde autorisatiepagina's — Autorisatiematrix, Toegangsbeheer active
 
 Een Clubbeheerder die vanaf de frontend werkt, kan de eigen persona-rij niet wijzigen, en ook niet de entiteiten die het rechtenmodel, het databaseschema of de back-ups bepalen; die cellen staan op slot en blijven voorbehouden aan een administrator. De wp-admin-pagina is ongewijzigd en blijft de weg terug als een matrixwijziging de frontend verbergt. In `docs/nl_NL/authorization-matrix.md` staat de volledige tabel met wie wat mag.
 
+## Wat nog wp-admin nodig heeft, en waarom
+
+Een academie draaien zou geen WordPress-account moeten vereisen. Vrijwel alles wat een academiebeheerder doet — spelers, teams, rechten, seizoenen, modules, evaluatiewegingen, de methodiek-woordenlijst, de personadashboards — heeft een frontend-scherm, en elke gang naar wp-admin is één misklik verwijderd van de plugin-, gebruikers- en instellingenschermen die het rechtenmodel niet beschrijft.
+
+Twaalf pagina's blijven daar bewust staan. Kom je er terecht, dan vertelt de pagina zelf waarom. De redenen komen in vier soorten, en de eerste is de dragende.
+
+**Herstel — het moet werken als de app dat niet doet.** De rechtenmatrix, het scherm met database-updates en het foutenlogboek hebben allemaal een frontend-equivalent, en de wp-admin-kopieën blijven toch bestaan. Ze zijn de weg terug als een rechtenwijziging iedereen uit de app sluit, of als een mislukte update de app niet meer laat laden. Dat is precies het moment waarop je ze nodig hebt, en precies het moment waarop de frontend je niet kan helpen. Een dubbeling weghalen oogt netjes tot de dag dat het ertoe doet.
+
+**Diagnostiek — een kapot systeem vragen zijn eigen storing te beschrijven.** Permission Chain Debug, Roles Debug, Gebruikers vergelijken en Matrixvoorbeeld beantwoorden allemaal de vraag "waarom ziet deze persoon het verkeerde?". Zet je ze ín de app die je onderzoekt, dan hangt hun antwoord af van datgene wat je aan het onderzoeken bent.
+
+**Inrichting en support.** De demodata-tools, de zaadcontrole en het welkomstscherm zijn eenmalige klussen tijdens het inrichten, gedaan door iemand die al operator is. Ook impersonatie hoort hier thuis, met opzet: de app bekijken als iemand anders is een supporthandeling, en die buiten de app houden maakt zichtbaar wanneer hij gebruikt wordt.
+
+**Ontwikkelaarsinstrumentatie.** Het volledigheidsrapport per module is ontwikkelgereedschap en geen academiewerk.
+
+De lijst zelf staat in `config/admin_only_surfaces.php`, met per pagina één regel uitleg in operatorstaal — dezelfde zin die de pagina je laat zien. Een pagina daaraan toevoegen is een besluit, geen formaliteit: de vraag is nooit "is dit lastig om over te zetten?" maar "wordt het product er slechter van, of wordt herstel onmogelijk als de frontend stuk is?"
+
+Staat een pagina **niet** op die lijst en is hij ook niet vanuit de app te bereiken, dan is dat een gat en geen besluit. `wp tt admin-routes --unrouted` haalt ze op uit een draaiende installatie.
+
 ## Een rol-toewijzing intrekken
 
 Via **Toegangsbeheer → Rollen** (of het bewerkpaneel per persoon) heeft elke toegekende rol een **Intrekken**-actie.
