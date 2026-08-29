@@ -135,6 +135,16 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             'gen_players' => true,
         ];
 
+        global $wpdb;
+
+        // `MatchAnalysisGenerator` reads every activity in the club and leans
+        // on the `uk_activity` unique key to reject an activity that already
+        // has an analysis. That prints a wpdb error, which PHPUnit counts as
+        // unexpected output and marks the whole test risky — so quieten the
+        // driver for the two runs. Filed as its own follow-up; the generator
+        // should skip those activities rather than let the insert fail.
+        $show_errors = $wpdb->hide_errors();
+
         $single = DemoGenerator::run( $opts );
         DemoRunState::clear();
 
@@ -153,6 +163,8 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             $steps++;
         }
         $chunked = DemoGenerator::result( $state );
+
+        if ( $show_errors ) $wpdb->show_errors();
 
         $this->assertTrue( $state->isFinished() );
         $this->assertGreaterThan( 1, $steps, 'a run of one step is not chunked' );
