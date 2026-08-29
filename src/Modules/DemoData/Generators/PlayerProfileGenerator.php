@@ -286,10 +286,15 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
 
     /**
      * Link about half the generated goals to an evaluation of the same
-     * player, so the goal → evidence trail is visible rather than implied.
+     * player, so the goal → evidence trail is visible rather than implied,
+     * and tag most goals with the methodology principles they develop
+     * (#2566) so a demo academy shows the coverage mechanism working
+     * instead of an empty panel.
      */
     private function generateGoalLinks(): int {
         global $wpdb;
+
+        $principle_ids = $this->clubPrincipleIds();
 
         $total = 0;
         foreach ( $this->players as $p ) {
@@ -304,6 +309,8 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
                 CurrentClub::id(), $player_id, CurrentClub::id()
             ) );
             if ( ! $goals ) continue;
+
+            $total += $this->linkPrinciples( $goals, $principle_ids );
 
             $evals = $wpdb->get_col( $wpdb->prepare(
                 "SELECT e.id FROM {$wpdb->prefix}tt_evaluations e
@@ -333,6 +340,60 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * #2566 — the principles a demo goal develops. Four of five goals get
+     * one or two, which is roughly what a coaching staff manages in
+     * practice; leaving a fifth untagged keeps the coverage panel honest
+     * about the goals nobody got to.
+     *
+     * @param list<int|string> $goal_ids
+     * @param list<int>        $principle_ids
+     */
+    private function linkPrinciples( array $goal_ids, array $principle_ids ): int {
+        global $wpdb;
+        if ( ! $principle_ids ) return 0;
+
+        $total = 0;
+        foreach ( $goal_ids as $goal_id ) {
+            if ( mt_rand( 1, 100 ) > 80 ) continue;
+
+            $wanted = mt_rand( 1, 2 );
+            $picked = [];
+            for ( $i = 0; $i < $wanted; $i++ ) {
+                $pid = (int) $principle_ids[ mt_rand( 0, count( $principle_ids ) - 1 ) ];
+                if ( isset( $picked[ $pid ] ) ) continue;
+                $picked[ $pid ] = true;
+
+                // uniq_goal_target makes a repeat pairing a no-op.
+                $ok = $wpdb->query( $wpdb->prepare(
+                    "INSERT IGNORE INTO {$wpdb->prefix}tt_goal_links (goal_id, link_type, link_id, club_id)
+                     VALUES (%d, 'principle', %d, %d)",
+                    (int) $goal_id, $pid, CurrentClub::id()
+                ) );
+                $id = (int) $wpdb->insert_id;
+                if ( $ok && $id ) {
+                    $this->registry->tag( 'goal_link', $id );
+                    $total++;
+                }
+            }
+        }
+        return $total;
+    }
+
+    /** @return list<int> the club's non-archived principles. */
+    private function clubPrincipleIds(): array {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_principles';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return [];
+        }
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$table} WHERE club_id = %d AND archived_at IS NULL ORDER BY code ASC",
+            CurrentClub::id()
+        ) );
+        return array_values( array_filter( array_map( 'intval', (array) $ids ) ) );
     }
 
     private function teamForAgeGroup( string $age_group ): int {

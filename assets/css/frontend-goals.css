@@ -306,6 +306,42 @@ a.tt-goal-card:focus-visible {
     }
 }
 
+/* #2566 — "what does this goal develop?" principle picker. Same shape as
+ * the evidence list below it, but each option is a 48px tap target: this is
+ * the field the whole training-coverage chain hangs off, so it must be easy
+ * to hit on a phone. */
+.tt-goal-principle-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.25rem 0.6rem;
+}
+.tt-goal-principle-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 48px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-goal-principle-opt + .tt-goal-principle-opt {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-goal-principle-opt input {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+.tt-goal-principle-opt:active { background: var(--tt-bg-soft, #f4f6f3); }
+.tt-goal-principle-opt:focus-within {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
 /* #1717 — evidence (evaluations) picker on the goal form. */
 .tt-goal-evidence-list { display: flex; flex-direction: column; gap: 0.3rem; max-height: 220px; overflow-y: auto; border: 1px solid #e3e6e1; border-radius: 8px; padding: 0.5rem 0.6rem; }
 .tt-goal-evidence-opt { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; min-height: 32px; }

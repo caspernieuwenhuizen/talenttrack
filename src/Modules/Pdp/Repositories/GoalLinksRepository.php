@@ -83,6 +83,62 @@ class GoalLinksRepository {
         return true;
     }
 
+    // ── #2566 — methodology principles, the canonical goal ↔ principle shape ──
+
+    public const TYPE_PRINCIPLE = 'principle';
+
+    /**
+     * The principles a goal develops.
+     *
+     * `tt_goal_links` is the canonical shape (#2566): a goal can serve more
+     * than one principle, and the polymorphic table already carries the
+     * football actions and positions beside them.
+     *
+     * @return list<int>
+     */
+    public function principleIdsForGoal( int $goal_id ): array {
+        $out = [];
+        foreach ( $this->listForGoal( $goal_id ) as $link ) {
+            if ( $link['type'] === self::TYPE_PRINCIPLE ) {
+                $out[] = $link['id'];
+            }
+        }
+        return array_values( array_unique( $out ) );
+    }
+
+    /**
+     * Replace a goal's principle links with the given set.
+     *
+     * Unlike `sync()` this touches only the `principle` rows, so saving a
+     * goal form that carries a principle picker cannot wipe a football
+     * action or position the goal wizard attached.
+     *
+     * @param array<int|string> $principle_ids
+     */
+    public function syncPrinciples( int $goal_id, array $principle_ids ): bool {
+        if ( $goal_id <= 0 ) return false;
+
+        $this->wpdb->delete( $this->table, [
+            'goal_id'   => $goal_id,
+            'link_type' => self::TYPE_PRINCIPLE,
+            'club_id'   => CurrentClub::id(),
+        ] );
+
+        $seen = [];
+        foreach ( $principle_ids as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid <= 0 || isset( $seen[ $pid ] ) ) continue;
+            $seen[ $pid ] = true;
+            $this->wpdb->insert( $this->table, [
+                'club_id'   => CurrentClub::id(),
+                'goal_id'   => $goal_id,
+                'link_type' => self::TYPE_PRINCIPLE,
+                'link_id'   => $pid,
+            ] );
+        }
+        return true;
+    }
+
     // ── #1853 — goal ↔ PDP conversation links ─────────────────────────
 
     /** @return list<int> goal IDs linked to a conversation. */

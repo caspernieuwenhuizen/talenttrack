@@ -475,6 +475,13 @@ class GoalsRestController {
             ( new GoalLinksRepository() )->sync( $goal_id, self::extractLinks( $r['links'] ) );
         }
 
+        // #2566 — the principle picker every goal-authoring surface carries.
+        // Narrower than `links` on purpose: it replaces only the principle
+        // rows, so a football action the goal wizard attached survives.
+        if ( isset( $r['principle_ids'] ) && is_array( $r['principle_ids'] ) ) {
+            ( new GoalLinksRepository() )->syncPrinciples( $goal_id, $r['principle_ids'] );
+        }
+
         return RestResponse::success( [ 'id' => $goal_id ] );
     }
 
@@ -538,20 +545,29 @@ class GoalsRestController {
             $v = $r['linked_action_id'];
             $data['linked_action_id'] = ( ! empty( $v ) && (int) $v > 0 ) ? (int) $v : null;
         }
-        if ( ! $data ) {
+        // #2566 — a PATCH carrying only relations (principles, links,
+        // evidence) is a real update; it just has nothing to write to the
+        // `tt_goals` row itself.
+        $relations = array_intersect(
+            [ 'principle_ids', 'links', 'evidence' ],
+            array_keys( (array) $r->get_params() )
+        );
+        if ( ! $data && ! $relations ) {
             return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
 
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
-            Logger::error( 'goal.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
-            return RestResponse::error(
-                'db_error',
-                __( 'The goal could not be updated.', 'talenttrack' ),
-                500,
-                [ 'db_error' => $err ]
-            );
+        if ( $data ) {
+            $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
+            if ( $ok === false ) {
+                $err = (string) $wpdb->last_error;
+                Logger::error( 'goal.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
+                return RestResponse::error(
+                    'db_error',
+                    __( 'The goal could not be updated.', 'talenttrack' ),
+                    500,
+                    [ 'db_error' => $err ]
+                );
+            }
         }
         // #0025 — re-detect source language for any updated free-text
         // fields. detectAndCache is idempotent on unchanged content.
@@ -566,6 +582,13 @@ class GoalsRestController {
         // `links` means "leave existing links alone."
         if ( isset( $r['links'] ) && is_array( $r['links'] ) ) {
             ( new GoalLinksRepository() )->sync( $goal_id, self::extractLinks( $r['links'] ) );
+        }
+
+        // #2566 — principle picker. Absent key leaves the links alone; an
+        // empty array clears them, which is what unticking every box means.
+        if ( array_key_exists( 'principle_ids', (array) $r->get_params() ) ) {
+            $pids = $r['principle_ids'];
+            ( new GoalLinksRepository() )->syncPrinciples( $goal_id, is_array( $pids ) ? $pids : [] );
         }
 
         // #1717 — evaluation evidence ("Bewijslast"). Absent key leaves it alone.
