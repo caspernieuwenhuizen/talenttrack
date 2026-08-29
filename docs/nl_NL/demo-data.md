@@ -72,7 +72,8 @@ tijdens het typen hoeveel spelers en accounts dat oplevert. Waarden worden
 begrensd tot wat een run kan afmaken.
 
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
-elke keer dezelfde academie op.
+elke keer dezelfde academie op — en dezelfde academie of je hem nu in één keer
+of stap voor stap laat maken.
 
 Gespeelde wedstrijden krijgen **speelminuten**, afgeleid uit de wissels: een
 basisspeler die niet gewisseld is krijgt de hele wedstrijd, wie eruit gaat de
@@ -81,6 +82,31 @@ bank bleef krijgt géén minuten in plaats van nul — "niet in actie gekomen" e
 "nul minuten gespeeld" zijn verschillende feiten, en juist daarvoor bestaan de
 minutenschermen. Wedstrijden in de toekomst leveren geen minuten op; die zijn
 nog niet gespeeld.
+
+## Hoe een run verloopt
+
+Een run is een reeks stappen, geen lange wachttijd. De overlay noemt de stap
+waar hij mee bezig is — *Stap 7 van 24 — Beoordelingen* — en elke stap is een
+eigen korte aanvraag aan de server. Daardoor loopt de grote preset niet meer
+vast op de tijdslimiet die je hosting op één aanvraag zet. Precies dat was de
+**Proxy Error** bij de grote preset.
+
+Laat het tabblad open tot de overlay klaar is. Sluit je het, of valt de
+verbinding weg, dan stopt de run waar hij was en blijven de al weggeschreven
+rijen staan — gelabeld, dus een wipe haalt ze alsnog weg. De volgende keer dat
+je de pagina opent, staat dat er ook:
+
+> **Een demogeneratie is niet afgemaakt.** 14 van 24 stappen klaar, batch
+> `large-20260504`.
+
+**Deze generatie hervatten** pakt de draad op bij de volgende stap.
+**Verwerpen** vergeet de run; de rijen die hij schreef blijven in de club tot
+je ze wist. Je kunt geen tweede run starten zolang er één openstaat — twee
+generaties die tegelijk schrijven, botsen op elke tabel die ze raken.
+
+Staat JavaScript uit in je browser, dan gebeurt de hele run in die ene aanvraag
+zoals voorheen. Voor de kleinere presets werkt dat prima; de grote preset is
+degene die de stappen nodig heeft.
 
 ## Kiezen wat je genereert
 

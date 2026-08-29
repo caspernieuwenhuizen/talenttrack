@@ -107,7 +107,32 @@ parent persona to sign in and see a populated dashboard; the rest of the
 roster has no linked guardian, which is also what a real academy looks like.
 
 Generation is reproducible: the same seed, preset and content language
-produce the same academy every time.
+produce the same academy every time — and the same academy whether it was
+generated in one go or a step at a time.
+
+## How a run progresses
+
+A run is a list of steps, not one long wait. The overlay names the step it is
+on — *Step 7 of 24 — Evaluations* — and each step is its own short request to
+the server, so the large preset no longer runs into the timeout your hosting's
+proxy applies to a single request. That is what the **Proxy Error** on the
+large preset used to be.
+
+Leave the tab open until the overlay finishes. If you close it, or the
+connection drops, the run stops where it was and the rows it had already
+written stay — tagged, so a wipe still reaches them. Next time you open the
+page it says so:
+
+> **A demo run is unfinished.** 14 of 24 steps done, batch `large-20260504`.
+
+**Resume this run** picks up at the next step. **Discard it** forgets the run;
+the rows it wrote stay in the club until you wipe them. You cannot start a
+second run while one is unfinished — two generations writing at once would
+race on every table they touch.
+
+If your browser has JavaScript switched off, the whole run happens in the one
+request as before. That still works for the smaller presets; the large one is
+what needs the steps.
 
 ## Choosing what to generate
 

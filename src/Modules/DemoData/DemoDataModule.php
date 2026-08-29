@@ -27,6 +27,11 @@ class DemoDataModule implements ModuleInterface {
             // #1272 PR2 — wire the convert form's admin-post handler.
             Admin\DemoReviewPage::init();
         }
+        // #3041 — the generate page's overlay advances a run one step per
+        // request through these routes, so a large preset never has to
+        // outlive a gateway timeout. REST rather than admin-ajax because
+        // that is where the rest of the plugin's write surface lives.
+        Rest\DemoRunRestController::init();
         DemoBanner::init();
     }
 }
