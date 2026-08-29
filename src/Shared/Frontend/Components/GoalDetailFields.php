@@ -60,18 +60,40 @@ final class GoalDetailFields {
         echo '</div>';
     }
 
+    /**
+     * #2566 — a goal can develop several principles, held in `tt_goal_links`.
+     * The legacy single `linked_principle_id` column is still read here so
+     * goals written before the picker moved shape keep rendering; nothing
+     * writes it any more.
+     */
     private static function renderPrinciple( object $goal ): void {
-        $id = (int) ( $goal->linked_principle_id ?? 0 );
-        if ( $id <= 0 || ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) {
+        if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) {
             return;
         }
-        $name = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->displayName( $id );
-        if ( $name === '' ) {
+
+        $ids = ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )
+            ->principleIdsForGoal( (int) ( $goal->id ?? 0 ) );
+        $legacy = (int) ( $goal->linked_principle_id ?? 0 );
+        if ( $legacy > 0 && ! in_array( $legacy, $ids, true ) ) {
+            $ids[] = $legacy;
+        }
+        if ( ! $ids ) {
             return;
         }
+
+        $repo  = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
+        $names = [];
+        foreach ( $ids as $id ) {
+            $name = $repo->displayName( (int) $id );
+            if ( $name !== '' ) $names[] = $name;
+        }
+        if ( ! $names ) {
+            return;
+        }
+
         echo '<div class="tt-goal-detail-field">';
-        echo '<span class="tt-goal-detail-field__label">' . esc_html__( 'Connected principle', 'talenttrack' ) . '</span>';
-        echo '<div class="tt-goal-detail-field__value">' . esc_html( $name ) . '</div>';
+        echo '<span class="tt-goal-detail-field__label">' . esc_html__( 'Connected principles', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-goal-detail-field__value">' . esc_html( implode( ' · ', $names ) ) . '</div>';
         echo '</div>';
     }
 

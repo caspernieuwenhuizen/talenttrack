@@ -62,9 +62,20 @@ class GoalsByPrincipleKpi extends AbstractKpiDataSource {
         ) );
         if ( $total === 0 ) return KpiValue::of( '0%' );
 
+        // #2566 — a goal's principles live in `tt_goal_links` now; the legacy
+        // single column is still counted so goals written before the move
+        // keep showing as tagged. EXISTS rather than a join so a goal
+        // carrying three principles still counts once.
+        $links = $wpdb->prefix . 'tt_goal_links';
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $tagged = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} g WHERE g.club_id = %d AND g.created_at >= %s AND g.linked_principle_id IS NOT NULL {$scope}",
+            "SELECT COUNT(*) FROM {$table} g
+              WHERE g.club_id = %d AND g.created_at >= %s {$scope}
+                AND ( g.linked_principle_id IS NOT NULL
+                      OR EXISTS ( SELECT 1 FROM {$links} gl
+                                   WHERE gl.goal_id = g.id
+                                     AND gl.link_type = 'principle'
+                                     AND gl.club_id = g.club_id ) )",
             $club_id, $cutoff
         ) );
         $pct = (int) round( ( $tagged / $total ) * 100 );
