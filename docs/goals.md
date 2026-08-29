@@ -39,6 +39,20 @@ Update the status and description over time as the player makes progress. The **
 - Coaches see goals for the players on the teams they coach.
 - Admins see all goals.
 
+## On the player's file
+
+The **Goals** tab of a player's file opens on the goals the player is still
+working on, in urgency order — nearest target date first, undated goals last.
+Goals that have been achieved or abandoned are no longer mixed into that list;
+they sit below it under **Completed goals**, closed by default. Open it to see
+the player's goal history without leaving the profile.
+
+The number on the tab, the **Active goals** heading and the goals figure in the
+player's at-a-glance panel all count the same thing: goals that are neither
+archived, achieved nor abandoned. If a goal disappears from the tab's list after
+you mark it achieved, it has moved into the collapsed section, not out of the
+player's record.
+
 ## Methodology linkage
 
 Goals can now be linked to a methodology principle and/or a single football action from both the public goal form and the wp-admin form. The link is optional but unlocks per-principle reporting on the persona dashboard (the new Goals-by-principle widget shows active and completed goal counts per principle, and a Goals-tagged-to-principle KPI tracks rolling-90-day coverage).

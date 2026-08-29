@@ -56596,6 +56596,16 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %d: number of completed or cancelled goals
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Completed goals · %d"
+msgstr "Afgeronde doelen · %d"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No active goals — every goal on this player is finished."
+msgstr "Geen actieve doelen — alle doelen van deze speler zijn afgerond."
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 

@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Goals;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -34,6 +35,65 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 class GoalsRepository {
 
     /**
+     * Terminal goal statuses. A goal carrying one of these is finished —
+     * it is history, not something the player is still working on.
+     *
+     * #3033 — the plugin had grown four hand-written copies of this list
+     * and one surface with no status filter at all, so the Goals tab
+     * badge, its list header and the profile KPI could each show a
+     * different number for the same player. Everything that asks "is
+     * this goal active?" now goes through `activeStatusClause()` /
+     * `closedStatusClause()` below, so the answer cannot drift again.
+     *
+     * @var list<string>
+     */
+    public const CLOSED_STATUSES = [ GoalStatus::COMPLETED, GoalStatus::CANCELLED ];
+
+    /**
+     * SQL predicate for "this goal is still being worked on".
+     *
+     * Contains no caller-supplied data — the status codes are class
+     * constants — so it is safe to concatenate into a prepared statement
+     * without a placeholder.
+     */
+    public static function activeStatusClause( string $alias = '' ): string {
+        return sprintf(
+            '( %1$s IS NULL OR %1$s NOT IN ( %2$s ) )',
+            self::statusColumn( $alias ),
+            self::closedStatusList()
+        );
+    }
+
+    /** The exact negation of `activeStatusClause()`, so no goal falls in neither list. */
+    public static function closedStatusClause( string $alias = '' ): string {
+        return sprintf(
+            '( %1$s IS NOT NULL AND %1$s IN ( %2$s ) )',
+            self::statusColumn( $alias ),
+            self::closedStatusList()
+        );
+    }
+
+    /**
+     * Club scope for `tt_goals`. Tolerates a NULL `club_id` because rows
+     * written before the tenancy column existed carry one.
+     */
+    public static function clubScopeClause( string $alias = '' ): string {
+        $col = $alias !== '' ? "{$alias}.club_id" : 'club_id';
+        return sprintf( '( %1$s = %2$d OR %1$s IS NULL )', $col, CurrentClub::id() );
+    }
+
+    private static function statusColumn( string $alias ): string {
+        return $alias !== '' ? "{$alias}.status" : 'status';
+    }
+
+    private static function closedStatusList(): string {
+        return implode( ', ', array_map(
+            static fn( string $code ): string => "'" . $code . "'",
+            self::CLOSED_STATUSES
+        ) );
+    }
+
+    /**
      * Which principles a squad currently has open goals on (#2497).
      *
      * The Training module's generator ranks candidate exercises by how many
@@ -61,9 +121,7 @@ class GoalsRepository {
         $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
 
-        $ph     = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
-        $closed = [ 'completed', 'cancelled', 'achieved' ];
-        $sph    = implode( ',', array_fill( 0, count( $closed ), '%s' ) );
+        $ph = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
 
         // One pass over both link shapes. COALESCE picks whichever of the
         // two carries a principle for that row; the outer filter drops the
@@ -78,10 +136,10 @@ class GoalsRepository {
                  WHERE g.player_id IN ({$ph})
                    AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                    AND ( g.club_id = %d OR g.club_id IS NULL )
-                   AND ( g.status IS NULL OR g.status NOT IN ({$sph}) )
+                   AND " . self::activeStatusClause( 'g' ) . "
                 HAVING principle_id IS NOT NULL";
 
-        $params = array_merge( $player_ids, [ $club_id ], $closed );
+        $params = array_merge( $player_ids, [ $club_id ] );
 
         $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         if ( ! is_array( $rows ) ) return [];
@@ -154,7 +212,7 @@ class GoalsRepository {
               WHERE g.player_id = %d
                 AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
-                AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
+                AND " . self::activeStatusClause( 'g' ) . "
               ORDER BY ( g.due_date IS NULL ), g.due_date ASC, g.id DESC
               LIMIT %d",
             $player_id, CurrentClub::id(), $limit
@@ -201,11 +259,13 @@ class GoalsRepository {
     }
 
     /**
-     * #1358 — every non-archived goal for the player-profile Goals
-     * tab (completed/cancelled rows included — the tab shows the full
-     * picture; only the KPI counts filter by status), ordered by
-     * urgency: dated goals first by nearest due date, undated last by
-     * recency.
+     * #1358 — the player-profile Goals tab list, ordered by urgency:
+     * dated goals first by nearest due date, undated last by recency.
+     *
+     * #3033 — completed and cancelled goals are no longer in here. The
+     * tab heading says "Active goals", so the list holds active goals;
+     * the finished ones come back from `listClosedForPlayer()` into
+     * their own collapsed section on the same tab.
      *
      * @return array<int, object>
      */
@@ -220,10 +280,43 @@ class GoalsRepository {
             "SELECT g.*
                FROM {$p}tt_goals g
               WHERE g.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
-                AND ( g.club_id = %d OR g.club_id IS NULL )
+                AND " . self::clubScopeClause( 'g' ) . "
+                AND " . self::activeStatusClause( 'g' ) . "
               ORDER BY g.due_date IS NULL, g.due_date ASC, g.created_at DESC
               LIMIT %d",
-            $player_id, CurrentClub::id(), $limit
+            $player_id, $limit
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+        foreach ( $rows as $row ) {
+            self::hydrate( $row );
+        }
+        return $rows;
+    }
+
+    /**
+     * #3033 — the finished half of the player's goal history: completed
+     * and cancelled goals, most recently closed first. A finished goal is
+     * part of what the player has done (CLAUDE.md §1), so it stays on the
+     * player's file rather than being reachable only from the goals list.
+     *
+     * @return array<int, object>
+     */
+    public function listClosedForPlayer( int $player_id, int $limit = 50 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 100, $limit ) );
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT g.*
+               FROM {$p}tt_goals g
+              WHERE g.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
+                AND " . self::clubScopeClause( 'g' ) . "
+                AND " . self::closedStatusClause( 'g' ) . "
+              ORDER BY g.updated_at DESC, g.id DESC
+              LIMIT %d",
+            $player_id, $limit
         ) );
         if ( ! is_array( $rows ) ) return [];
         foreach ( $rows as $row ) {
@@ -234,7 +327,8 @@ class GoalsRepository {
 
     /**
      * #1358 — count of active (non-archived, not completed/cancelled)
-     * goals, for the player-profile "Goals" KPI.
+     * goals, for the player-profile "Goals" KPI, the Goals tab badge and
+     * the tab's list heading. One number, three surfaces (#3033).
      */
     public function countActiveForPlayer( int $player_id ): int {
         if ( $player_id <= 0 ) return 0;
@@ -245,9 +339,25 @@ class GoalsRepository {
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_goals
               WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
-                AND ( club_id = %d OR club_id IS NULL )
-                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
-            $player_id, CurrentClub::id()
+                AND " . self::clubScopeClause() . "
+                AND " . self::activeStatusClause(),
+            $player_id
+        ) );
+    }
+
+    /** #3033 — count behind the collapsed "Completed goals" section heading. */
+    public function countClosedForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_goals
+              WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "
+                AND " . self::clubScopeClause() . "
+                AND " . self::closedStatusClause(),
+            $player_id
         ) );
     }
 
@@ -268,7 +378,7 @@ class GoalsRepository {
                 AND ( club_id = %d OR club_id IS NULL )
                 AND due_date IS NOT NULL
                 AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL %d DAY)
-                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
+                AND " . self::activeStatusClause(),
             $player_id, CurrentClub::id(), $days
         ) );
     }
@@ -310,7 +420,7 @@ class GoalsRepository {
               WHERE g.player_id = %d AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
                 AND ( g.club_id = %d OR g.club_id IS NULL )
                 AND g.due_date IS NOT NULL
-                AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
+                AND " . self::activeStatusClause( 'g' ) . "
               ORDER BY g.due_date ASC
               LIMIT 1",
             $player_id, CurrentClub::id()
