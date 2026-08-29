@@ -57033,6 +57033,247 @@ msgstr ""
 "Elke wedstrijd in het toernooi wordt door dit team gespeeld, in de speelvorm "
 "die op het team is ingesteld."
 
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Methodology vocabulary"
+msgstr "Methodiekvocabulaire"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid ""
+"Edit the vision, principles, phases, positions and the rest of your "
+"academy's own words."
+msgstr ""
+"Bewerk de visie, principes, fases, posities en de rest van de eigen woorden "
+"van je academie."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "You do not have permission to edit the methodology."
+msgstr "Je hebt geen rechten om de methodiek te bewerken."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid ""
+"Your academy describes its football in its own words. Everything here is "
+"that vocabulary — the words every learning goal, exercise and evaluation is "
+"written in."
+msgstr ""
+"Je academie beschrijft haar voetbal in eigen woorden. Alles hier is dat "
+"vocabulaire — de woorden waarin elk leerdoel, elke oefening en elke "
+"beoordeling wordt geschreven."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "The academy's own words"
+msgstr "De eigen woorden van de academie"
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Dutch"
+msgstr "Nederlands"
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "English"
+msgstr "Engels"
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Could not load this vocabulary. Reload the page to try again."
+msgstr "Dit vocabulaire kon niet worden geladen. Herlaad de pagina om het opnieuw te proberen."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Could not save. Check the fields and try again."
+msgstr "Opslaan is niet gelukt. Controleer de velden en probeer het opnieuw."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Could not delete this entry."
+msgstr "Dit item kon niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid ""
+"This academy has no record here yet. It appears once the methodology is set "
+"up."
+msgstr ""
+"Deze academie heeft hier nog geen record. Het verschijnt zodra de methodiek "
+"is ingericht."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Add entry"
+msgstr "Item toevoegen"
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "New entry"
+msgstr "Nieuw item"
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Delete this entry? This cannot be undone."
+msgstr "Dit item verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Shipped reference content is read-only. Clone it to edit."
+msgstr "Meegeleverde referentie-inhoud is alleen-lezen. Maak een kopie om te bewerken."
+
+#: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php
+msgid "Untitled"
+msgstr "Zonder titel"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Vision"
+msgstr "Visie"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"How your academy wants to play, in its own words. One record for the whole "
+"academy."
+msgstr ""
+"Hoe je academie wil spelen, in eigen woorden. Eén record voor de hele "
+"academie."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"The game principles your coaching is built on, one per team function and "
+"task."
+msgstr ""
+"De spelprincipes waarop je coaching is gebouwd, één per teamfunctie en "
+"teamtaak."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Phases"
+msgstr "Fases"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "The phases of play the primer walks through, attacking and defending."
+msgstr "De spelfases die de primer doorloopt, aanvallend en verdedigend."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Influence factors"
+msgstr "Beïnvloedende factoren"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"What your academy believes moves a performance — the factors coaches weigh."
+msgstr ""
+"Wat volgens je academie een prestatie beweegt — de factoren die coaches "
+"meewegen."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"What each shirt is asked to do, per formation. Pick a formation to see its "
+"positions."
+msgstr ""
+"Wat er van elk rugnummer wordt gevraagd, per formatie. Kies een formatie om "
+"de posities te zien."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Learning goals"
+msgstr "Leerdoelen"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"What a player should be able to do by the end of a phase, in your own "
+"wording."
+msgstr ""
+"Wat een speler aan het eind van een fase moet kunnen, in je eigen woorden."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"Corners, free kicks, throw-ins and penalties — how your academy takes and "
+"defends them."
+msgstr ""
+"Corners, vrije trappen, inworpen en penalty's — hoe je academie ze neemt en "
+"verdedigt."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Primer"
+msgstr "Primer"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"The introduction a new coach reads first, and the text between each section "
+"of the methodology."
+msgstr ""
+"De inleiding die een nieuwe coach als eerste leest, en de tekst tussen elk "
+"onderdeel van de methodiek."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid ""
+"The actions a player performs on the pitch. Goals and evaluations are "
+"written in these words."
+msgstr ""
+"De handelingen die een speler op het veld uitvoert. Doelen en beoordelingen "
+"worden in deze woorden geschreven."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Important traits"
+msgstr "Belangrijke eigenschappen"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "One trait per line."
+msgstr "Eén eigenschap per regel."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Short reference used in exercises and evaluations."
+msgstr "Korte verwijzing die in oefeningen en beoordelingen wordt gebruikt."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Team function"
+msgstr "Teamfunctie"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Team task"
+msgstr "Teamtaak"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Team guidance"
+msgstr "Teamrichtlijn"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Attacking tasks"
+msgstr "Aanvallende taken"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Defending tasks"
+msgstr "Verdedigende taken"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "One task per line."
+msgstr "Eén taak per regel."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "One bullet per line."
+msgstr "Eén punt per regel."
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Introduction"
+msgstr "Inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Football model — introduction"
+msgstr "Voetbalmodel — inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Football actions — introduction"
+msgstr "Voetbalhandelingen — inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Phases — introduction"
+msgstr "Fases — inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Learning goals — introduction"
+msgstr "Leerdoelen — inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Influence factors — introduction"
+msgstr "Beïnvloedende factoren — inleiding"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Reflection"
+msgstr "Reflectie"
+
+#: src/Modules/Methodology/VocabularyCatalog.php
+msgid "Looking ahead"
+msgstr "Vooruitblik"
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 

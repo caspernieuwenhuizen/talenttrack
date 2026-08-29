@@ -122,6 +122,13 @@ final class CoreSurfaceRegistration {
         // methodology view guard: tt_view_methodology.
         $reg::register( 'methodology', 'tt_view_methodology' );
 
+        // #2976 — the authoring surface guards on the edit capability, which
+        // is a narrower set than the readers of the methodology itself.
+        $reg::register(
+            \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::SLUG,
+            \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::CAP
+        );
+
         // #2495 — the exercise library. Mirrors the view's own early
         // return, so the Exercises action on the Training page hides for
         // anyone who would only be shown a "not authorized" notice.
@@ -838,6 +845,27 @@ final class CoreSurfaceRegistration {
             'icon'         => 'methodology',
             'color'        => '#1d7874',
             'cap'          => 'tt_view_methodology',
+        ]);
+        // #2976 — the maintenance side of the same subject, grouped with the
+        // read tile it belongs to. `setup` kind, so it lands in Configuration
+        // under Methodology rather than on a coach's landing page: reading the
+        // methodology is everyone's job, rewriting it is not.
+        TileRegistry::register([
+            'module_class' => self::M_METHODOLOGY,
+            // Spelled out rather than read from the view's SLUG constant:
+            // the switchability gate scans this file for literal view_slugs
+            // and cannot resolve a constant, so a constant here would leave
+            // the surface unchecked.
+            'view_slug'    => 'methodology-vocabulary',
+            'entity'       => 'methodology',
+            'group'        => __( 'Reference', 'talenttrack' ),
+            'kind'         => 'setup',
+            'order'        => 20,
+            'label'        => __( 'Methodology vocabulary', 'talenttrack' ),
+            'description'  => __( 'Edit the vision, principles, phases, positions and the rest of your academy\'s own words.', 'talenttrack' ),
+            'icon'         => 'methodology',
+            'color'        => '#1d7874',
+            'cap'          => \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::CAP,
         ]);
 
         // ── Trials group (#0017) ──

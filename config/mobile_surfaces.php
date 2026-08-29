@@ -186,6 +186,7 @@ return [
     'measurements-coverage'         => [ 'desktop_only', 'A coverage matrix over a squad’s tests.' ],
     'media-retention'               => [ 'desktop_only', 'Retention policy for stored media.' ],
     'methodology'                   => [ 'desktop_only', 'The printed methodology reference.' ],
+    'methodology-vocabulary'        => [ 'desktop_only', 'Authoring an academy’s own football language — long bilingual prose in two columns per field. Writing it is desk work; the read surface it feeds is the one a coach opens on a phone.' ],
     'migrations'                    => [ 'desktop_only', 'Schema migrations. A phone is the wrong place to run one.' ],
     'minutes-audit'                 => [ 'desktop_only', 'Team, date range, type and gap filters over a wide table.' ],
     'minutes-grid'                  => [ 'desktop_only', 'The same, for minutes.' ],
