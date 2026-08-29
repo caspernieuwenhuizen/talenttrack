@@ -57478,6 +57478,29 @@ msgstr "Onbekende speler."
 
 #~ msgid "Data & vocabularies"
 #~ msgstr "Gegevens & vocabulaires"
+#. translators: %d is how many further changed items are not named in the notice.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:288
+#, php-format
+msgid "and %d more"
+msgstr "en nog %d"
+
+#. translators: 1: install profile name, e.g. "Basics"; 2: a comma-separated list of module and feature names.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:298
+#, php-format
+msgid "%1$s now covers %2$s. Nothing has changed yet."
+msgstr "%1$s omvat nu %2$s. Er is nog niets gewijzigd."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:312
+msgctxt "install profile drift notice action"
+msgid "Review"
+msgstr "Bekijken"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:325
+msgctxt "install profile drift notice action"
+msgid "Dismiss"
+msgstr "Negeren"
+
+
 
 #~ msgid "Methodology & cycles"
 #~ msgstr "Methodiek & cycli"

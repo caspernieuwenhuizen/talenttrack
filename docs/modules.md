@@ -70,7 +70,22 @@ Everything in the first two groups is ticked. Untick anything you would rather k
 
 A profile that would change nothing shows a short "already matches" line and no Apply button.
 
+### When a release changes what your profile includes
+
+A profile is a living association, not a copy taken once. Every new module ships switched on, so without this an academy deliberately put on Basics would quietly re-accumulate surfaces it never asked for, one release at a time.
+
+So when a release changes what your profile covers, the strip on the Modules page says so — *"Basics now covers Training plans. Nothing has changed yet."* — with two buttons:
+
+- **Review** opens the preview showing **only** those changes, where you apply them the same way as any others.
+- **Dismiss** records that you have seen them and decided against, and the notice stops. It does not come back on the next unrelated release. If a later release changes its mind about the same thing again, it is raised again — that is a new decision, not the same one repeated.
+
+Nothing is ever applied automatically. A release happens with nobody watching, so a release is exactly the wrong moment for something to be switched on unasked.
+
+The notice can tell the two kinds of difference apart: a module *you* switched off is your decision and is never reported as a profile change, and a module the *profile* newly includes is never reported as something you did. An install on Full academy, or on no profile, sees no notice at all.
+
 *Audience: developers.* The profiles themselves live in `config/profiles.php` and are not editable at runtime — changing what Basics means is a release, for the same reason the plan map is. A profile states its modules in full (every class in `config/modules.php`, so a module added in a release has to be placed rather than arriving on by omission) and its features as overrides only (the catalog builds the export and report keys from loops, so enumerating them would go stale the day a report is added). `TT\Shared\Modules\ProfileRegistry` reads the file; `TT\Shared\Modules\ProfileService` compares it against live state (`diff()`, `divergence()`) and applies it (`apply()`) through `ModuleRegistry` and `FeatureRegistry`, so every write carries the same audit trail a hand-thrown switch does. `tools/check-module-toggles.php` fails the build when a profile names something that does not resolve, misses a switchable module, or tries to disable an always-on one.
+
+Drift detection hangs off a **confirmation watermark** stored beside the profile slug in `tt_config`: for every row the operator was last shown, the intent the profile had for it at that moment. Divergence alone cannot separate "the operator turned this off" from "the profile turned this on" — both read as "the install does not match" — and the watermark is the only thing that can. A diff row absent from the watermark, or present with a different intent, is a profile change; one present with the same intent is the operator's own divergence. `apply()` writes the watermark from the diff it showed (applied and excluded rows alike — the recorded fact is "seen and decided", not "agreed"); `dismiss()` adds rows to it carrying the profile's current intent. A watermark written for a different profile than the install is on is not interpreted at all, and raises nothing. Detection is a comparison on page load — **no cron, no scheduled event**, and a test asserts the profile surfaces register none.
 
 ## Why turn a module off?
 

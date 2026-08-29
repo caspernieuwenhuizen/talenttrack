@@ -21,6 +21,10 @@
  *     .tt-profile-strip__label       — visible label for the select
  *     .tt-profile-strip__select      — profile chooser
  *     .tt-profile-strip__go          — submit into the preview
+ *     .tt-profile-pending           — release-time drift notice
+ *     .tt-profile-pending__text     — "Basics now covers …"
+ *     .tt-profile-pending__actions  — Review + Dismiss
+ *     .tt-profile-pending__review   — link into the pre-filtered preview
  *
  *   Preview — FrontendInstallProfileView::render()
  *     .tt-profile-preview__intro     — the profile's own description
@@ -116,6 +120,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
     .tt-profile-strip__pick {
         flex-wrap: nowrap;
@@ -123,6 +128,46 @@
     .tt-profile-strip__label {
         flex: 0 0 auto;
     }
+    /* The pending notice takes the full width of the strip on any
+     * viewport — it is a message, not a third column. */
+    .tt-profile-pending {
+        flex: 1 1 100%;
+        order: 1;
+    }
+}
+
+/* Release-time drift notice. Warning-toned rather than danger: a release
+ * adding a module to the profile is expected, not a fault. */
+.tt-profile-pending {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-warning-subtle);
+    border: 1px solid var(--tt-warning);
+    border-radius: var(--tt-radius);
+}
+
+.tt-profile-pending__text {
+    margin: 0;
+    color: var(--tt-ink);
+}
+
+.tt-profile-pending__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2);
+}
+
+.tt-profile-pending__actions .tt-btn,
+.tt-profile-pending__actions button {
+    min-height: 48px;
+    min-width: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
 }
 
 /* =============================================================
