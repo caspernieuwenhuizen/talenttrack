@@ -87,16 +87,18 @@ Het canvas neemt alleen de pagina over waarop de shortcode `[talenttrack_dashboa
 
 ## Configuratiesecties in de frontend
 
-De frontend-Configuratielandingspagina groepeert de tegels in doelgerichte secties in plaats van één plat raster; een sectie zonder zichtbare (toegestane) tegels toont geen kop:
+Configuratie groepeert de onderdelen **per module waar ze bij horen**. Zoek de module — Proeftrainingen, Workflow, Beoordelingen, Spond — en alle instellingen ervan staan bij elkaar onder die kop, wat voor scherm het ook is.
 
-- **Vormgeving** — het samengevoegde Vormgeving-scherm + Aangepaste CSS.
-- **Dashboard** — Standaarddashboard, plus de via een filter aangedragen tegels Dashboard-indelingen / Aangepaste widgets.
-- **Gegevens & vocabulaires** — Lookups, Beoordelingsschaal, Spelers-CSV-import, Lookup canonieke-taalcontrole.
-- **Methodiek & cycli** — POP-cyclusblokken, Seizoenen, Methodiek spelerstatus en de VCT-configuratietegels.
-- **Integraties** — Spond.
-- **Systeem** — Algemeen, Functieschakelaars, Back-ups, Vertalingen, Auditlog, Setup-wizard, wp-admin-menu's, Modules.
+De eerste sectie is **Academiebreed**: de instellingen die bij de hele installatie horen in plaats van bij één module — Vormgeving, Algemeen (datumnotatie, eerste dag van de week, tijdzone, taal), Lookups, Seizoenen, Back-ups, het auditlog, de wp-admin-menu's, de configuratie-export en de prullenbak. Daarna volgen de modulesecties, in dezelfde volgorde als op de Modules-pagina.
 
-Tegels die in wp-admin openen (Spond, Functieschakelaars, Back-ups, Vertalingen, Auditlog, Setup-wizard) hebben een externe-link-markering zodat de contextwissel verwacht is; de frontend-tegels niet. De weergave loopt via de gedeelde `FrontendSectionedTileGrid`.
+Twee regels houden dit weg van een archiveringskeuze:
+
+- **De instellingen van een module staan onder die module.** Proeftrainingstrajecten en brieftemplates zijn instellingen van Proeftrainingen en staan dus onder Proeftrainingen — niet naast de operationele lijst met proeftrainingsdossiers. Workflow-templates staan onder Workflow.
+- **Inrichtingsschermen horen hier, werkschermen op het dashboard.** Elk scherm dat een module als inrichtingsscherm registreert verschijnt hier automatisch; het dashboard houdt de schermen waarmee je het werk van de dag doet. Er hoeft niets met de hand ingedeeld te worden, dus de instellingen van een nieuwe module verschijnen hier vanzelf.
+
+Een module uitzetten neemt de bijbehorende Configuratiesectie mee, precies zoals dat met de dashboardtegels gebeurt. Een sectie zonder onderdelen die jij mag openen toont helemaal geen kop, dus wat je ziet is wat je kunt gebruiken.
+
+Onderdelen die in wp-admin openen hebben een externe-link-markering zodat de contextwissel verwacht is; frontend-onderdelen niet.
 
 ## Tabbladen
 

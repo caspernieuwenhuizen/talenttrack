@@ -87,16 +87,18 @@ The canvas only takes over the page that hosts the `[talenttrack_dashboard]` sho
 
 ## Frontend Configuration sections
 
-The frontend Configuration landing groups its tiles into purpose-based sections instead of one flat grid; a section with no visible (permitted) tiles renders no heading:
+Configuration groups its entries **by the module they belong to**. Look for the module — Trials, Workflow, Evaluations, Spond — and its settings are together under that heading, whatever kind of screen each one is.
 
-- **Appearance** — the consolidated Appearance surface + Custom CSS.
-- **Dashboard** — Default dashboard, plus the filter-contributed Dashboard layouts / Custom widgets tiles.
-- **Data & vocabularies** — Lookups, Rating scale, Players CSV import, Lookup canonical-language review.
-- **Methodology & cycles** — PDP cycle blocks, Seasons, Player status methodology, and the VCT config tiles.
-- **Integrations** — Spond.
-- **System** — General, Feature toggles, Backups, Translations, Audit log, Setup wizard, wp-admin menus, Modules.
+The first section is **Academy-wide**: the settings that belong to the whole install rather than to any one module — Appearance, General (date notation, first day of the week, timezone, locale), Lookups, Seasons, Backups, the audit log, wp-admin menus, the configuration export and the recycle bin. After it come the module sections, ordered the way the Modules page orders them.
 
-Tiles that open in wp-admin (Spond, Feature toggles, Backups, Translations, Audit log, Setup wizard) carry an external-link marker so the context switch is expected; the frontend tiles do not. Rendering goes through the shared `FrontendSectionedTileGrid`.
+Two rules keep this from drifting back into a filing decision:
+
+- **A module's settings live under that module.** Trial tracks and trial letter templates are Trials settings, so they sit under Trials — not next to the operational Trial cases list. Workflow templates sit under Workflow.
+- **Setup screens belong here, working screens belong on the dashboard.** Every screen a module registers as a setup screen appears in Configuration automatically; the dashboard keeps the screens you use to do the day's work. Nothing needs to be filed by hand, so a new module's settings show up here on their own.
+
+Switching a module off takes its Configuration section with it, exactly as it takes its dashboard tiles. A section with no entries you are permitted to open renders no heading at all, so what you see is what you can use.
+
+Entries that open in wp-admin carry an external-link marker so the context switch is expected; frontend entries do not.
 
 ## Tabs
 
