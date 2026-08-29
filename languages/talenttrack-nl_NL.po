@@ -56837,6 +56837,45 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "TalentTrack scheduled report: %1$s (%2$s)"
+msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
+
+msgid "Your TalentTrack scheduled report is attached.\n\nSee the dashboard for the live view."
+msgstr "Je TalentTrack-gepland-rapport is bijgevoegd.\n\nGa naar het dashboard voor de live-weergave."
+
+msgid "%1$s — Player report for %2$s"
+msgstr "%1$s — Spelerrapport voor %2$s"
+
+msgid "Hello, you have been sent a confidential player report from %s."
+msgstr "Hallo, je hebt een vertrouwelijk spelerrapport ontvangen van %s."
+
+msgid "This link is valid until %s. Do not forward."
+msgstr "Deze link is geldig tot %s. Niet doorsturen."
+
+msgid "Trial input needed: %1$s (%2$d days)"
+msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
+
+msgid "Hi %1$s,\n\nThe trial period for %2$s is ending. Your input on the case is still needed.\n\nGo to the case here: %3$s\n\nThanks,\n%4$s"
+msgstr "Hoi %1$s,\n\nDe stageperiode voor %2$s loopt af. Jouw input op het dossier is nog nodig.\n\nGa naar het dossier hier: %3$s\n\nGroet,\n%4$s"
+
+msgid "Data & vocabularies"
+msgstr "Gegevens & vocabulaires"
+
+msgid "Methodology & cycles"
+msgstr "Methodiek & cycli"
+
+msgid "wp_mail returned false. The audit log captured the attempt; check the site's SMTP / mailer configuration."
+msgstr "wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; controleer de SMTP-/mailerconfiguratie van de site."
+
+msgid "Your %s desktop link"
+msgstr "Je %s desktop-link"
+
+msgid "You asked us to email you the link to a desktop-only TalentTrack page.\n\n%s\n\nOpen this on a laptop or computer."
+msgstr "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor desktop te mailen.\n\n%s\n\nOpen hem op een laptop of computer."
+
+msgid "Grid"
+msgstr "Raster"
+
 #~ msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team age group."
 #~ msgstr ""
 #~ "Formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het "
@@ -56935,42 +56974,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 #~ msgid "Your %s desktop link"
 #~ msgstr "Je %s desktop-link"
-#. translators: %d: number of completed or cancelled goals
-#: src/Shared/Frontend/FrontendPlayerDetailView.php
-#, php-format
-msgid "Completed goals · %d"
-msgstr "Afgeronde doelen · %d"
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php
-msgid "No active goals — every goal on this player is finished."
-msgstr "Geen actieve doelen — alle doelen van deze speler zijn afgerond."
-
-#: src/Shared/Frontend/Components/GoalPrinciplePicker.php
-#: src/Modules/Goals/Admin/GoalsPage.php
-msgid "What does this goal develop?"
-msgstr "Wat ontwikkelt dit doel?"
-
-#: src/Shared/Frontend/Components/GoalPrinciplePicker.php
-msgid ""
-"Pick the methodology principles this goal works on. Optional, but tagging it "
-"is what lets training plans and reports aim at this goal."
-msgstr ""
-"Kies de methodiekprincipes waar dit doel aan werkt. Optioneel, maar door het "
-"te koppelen kunnen trainingsplannen en rapportages zich op dit doel richten."
-
-#: src/Modules/Goals/Admin/GoalsPage.php
-msgid ""
-"Optional, but tagging it is what lets training plans and reports aim at this "
-"goal."
-msgstr ""
-"Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages "
-"zich op dit doel richten."
-
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
-msgctxt "segmented control label: which of the two data-entry grids"
-msgid "Grid"
-msgstr "Raster"
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
@@ -58391,3 +58394,4 @@ msgstr "Raster"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
