@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-29T16:28:37+00:00\n"
+"POT-Creation-Date: 2026-08-29T16:36:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -6815,7 +6815,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:53
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
 #: src/Shared/Frontend/FrontendHolidaysView.php:148
-#: src/Shared/Frontend/FrontendInstallProfileView.php:44
+#: src/Shared/Frontend/FrontendInstallProfileView.php:46
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:36
 #: src/Shared/Frontend/FrontendMatrixView.php:81
@@ -7616,7 +7616,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FilterBar.php:276
 #: src/Shared/Frontend/Components/FilterBar.php:374
 #: src/Shared/Frontend/Components/FilterBar.php:576
-#: src/Shared/Frontend/FrontendInstallProfileView.php:120
+#: src/Shared/Frontend/FrontendInstallProfileView.php:122
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1638
 msgid "Apply"
 msgstr ""
@@ -9576,8 +9576,9 @@ msgid "scope"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:36
-#: src/Shared/Frontend/FrontendInstallProfileView.php:45
-#: src/Shared/Frontend/FrontendInstallProfileView.php:196
+#: src/Shared/Frontend/FrontendInstallProfileView.php:47
+#: src/Shared/Frontend/FrontendInstallProfileView.php:281
+#: src/Shared/Frontend/FrontendInstallProfileView.php:299
 #: src/Shared/Frontend/FrontendModulesView.php:209
 msgid "You do not have permission to manage modules."
 msgstr ""
@@ -9585,7 +9586,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:52
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
 #: src/Shared/CoreSurfaceRegistration.php:2128
-#: src/Shared/Frontend/FrontendInstallProfileView.php:269
+#: src/Shared/Frontend/FrontendInstallProfileView.php:372
 #: src/Shared/Frontend/FrontendModulesView.php:236
 #: src/Shared/Frontend/FrontendModulesView.php:237
 #: src/Shared/Frontend/FrontendModulesView.php:508
@@ -44571,58 +44572,80 @@ msgstr ""
 msgid "Not now"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:53
-#: src/Shared/Frontend/FrontendInstallProfileView.php:54
-#: src/Shared/Frontend/FrontendInstallProfileView.php:152
+#: src/Shared/Frontend/FrontendInstallProfileView.php:55
+#: src/Shared/Frontend/FrontendInstallProfileView.php:56
+#: src/Shared/Frontend/FrontendInstallProfileView.php:154
 msgid "Install profile"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:55
+#: src/Shared/Frontend/FrontendInstallProfileView.php:57
 msgid "That install profile does not exist. Pick one from the Modules page."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:91
+#: src/Shared/Frontend/FrontendInstallProfileView.php:93
 msgid "This install already matches this profile. There is nothing to change."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:98
+#: src/Shared/Frontend/FrontendInstallProfileView.php:100
 msgid "Everything below is ticked by default. Untick anything you would rather keep as it is — nothing is changed until you apply."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:101
+#: src/Shared/Frontend/FrontendInstallProfileView.php:103
 msgid "Switching a module off never deletes anything. Its records are kept and come back if you switch it on again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:116
+#: src/Shared/Frontend/FrontendInstallProfileView.php:118
 msgid "None of these changes can be applied on this install."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:121
+#: src/Shared/Frontend/FrontendInstallProfileView.php:123
 msgid "Applying..."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:122
+#: src/Shared/Frontend/FrontendInstallProfileView.php:124
 msgid "Applied"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:158
+#: src/Shared/Frontend/FrontendInstallProfileView.php:160
 msgid "Not on a profile"
 msgstr ""
 
 #. translators: %d is the number of modules and features that no longer match the install's profile.
-#: src/Shared/Frontend/FrontendInstallProfileView.php:164
+#: src/Shared/Frontend/FrontendInstallProfileView.php:166
 #, php-format
 msgid "%d change since"
 msgid_plural "%d changes since"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:174
+#: src/Shared/Frontend/FrontendInstallProfileView.php:177
 msgid "Change profile"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallProfileView.php:184
+#: src/Shared/Frontend/FrontendInstallProfileView.php:187
 msgid "Review changes"
+msgstr ""
+
+#. translators: %d is how many further changed items are not named in the notice.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:229
+#, php-format
+msgid "and %d more"
+msgstr ""
+
+#. translators: 1: install profile name, e.g. "Basics"; 2: a comma-separated list of module and feature names.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:239
+#, php-format
+msgid "%1$s now covers %2$s. Nothing has changed yet."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:252
+msgctxt "install profile drift notice action"
+msgid "Review"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:264
+msgctxt "install profile drift notice action"
+msgid "Dismiss"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:56
