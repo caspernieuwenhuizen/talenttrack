@@ -33,3 +33,5 @@ docs/nl_NL/alerts.md  merge=union
 # versions of a conflicting line and silently break the code. union is
 # only safe for append-only text. The version constant lives in
 # talenttrack.php (NOT unioned) and is owned solely by the release step.
+docs/comms.md        merge=union
+docs/nl_NL/comms.md  merge=union
