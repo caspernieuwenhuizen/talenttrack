@@ -1299,6 +1299,13 @@ class DashboardShortcode {
             case 'methodology':
                 \TT\Modules\Methodology\Frontend\MethodologyView::render();
                 return true;
+            // #2976 — the authoring side of the same subject: one surface
+            // with a picker across the nine vocabularies, replacing nine
+            // wp-admin editors. Gates on tt_edit_methodology inside; the
+            // REST controllers it drives gate on the same capability.
+            case \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::SLUG:
+                \TT\Modules\Methodology\Frontend\FrontendMethodologyVocabularyView::render( $user_id, $is_admin );
+                return true;
             case 'player-journey':
                 $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;

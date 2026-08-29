@@ -3,7 +3,7 @@ title: Methodologie
 group: performance
 summary: Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen.
 audience: [user, admin]
-views: [methodology]
+views: [methodology, methodology-vocabulary]
 module: TT\Modules\Methodology\MethodologyModule
 capability: tt_view_methodology
 order: 90
@@ -39,6 +39,20 @@ Het tabblad **Periodisering** combineert de methodologie met de VCT-conditiecycl
 - de **intensiteitsfactor** — hoe zwaar de week is ten opzichte van een normale week.
 
 Het tabblad is alleen-lezen. De weekcyclus zelf — de macroblokken en, per week, het thema — wordt beheerd op de VCT-configuratietegel (**Configuratie → VCT → Macroblokken**). Bestaat er nog geen clubstandaard-cyclus voor het huidige seizoen, dan toont het tabblad een korte hint en (voor beheerders) een link om die in te stellen. Het tabblad verschijnt alleen zolang de VCT-module is ingeschakeld; met VCT uit is er geen cyclus om te tonen.
+
+## De methodiek bewerken
+
+De tabbladen hierboven zijn het **lees**-scherm. Het bewerken van de eigen woorden van je academie gebeurt op **Methodiekvocabulaire** (`?tt_view=methodology-vocabulary`), te bereiken via **Configuratie → Methodiek**. Alles wat een academie zelf schrijft staat op dat ene scherm, met een keuzestrook over de negen vocabulaires:
+
+**Visie · Principes · Fases · Beïnvloedende factoren · Posities · Leerdoelen · Standaardsituaties · Primer · Voetbalhandelingen**
+
+Kies er een en je krijgt de items, met een formulier eronder om toe te voegen, te bewerken of te verwijderen. Twee ervan — Visie en Primer — zijn één record voor de hele academie en bieden dus alleen bewerken.
+
+Elk veld dat een coach leest schrijf je **twee keer, één keer per taal**, naast elkaar: Nederlands en Engels. Alleen de ene invullen mag en laat meteen zien wélke je hebt ingevuld, in plaats van dat het gat pas opvalt in de taal van iemand anders.
+
+**Posities** wijken qua vorm af: ze horen bij een formatie, dus je kiest eerst de formatie en werkt daarna de rugnummers af.
+
+Het scherm vraagt het recht *methodiek bewerken* — een kleinere groep dan de coaches die haar lezen. Iedereen die de methodiek mag lezen ziet de Methodiek-tegel; alleen wie de methodiek schrijft ziet deze.
 
 ## Twee soorten inhoud
 

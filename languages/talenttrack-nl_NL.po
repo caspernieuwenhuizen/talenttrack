@@ -56837,104 +56837,205 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "TalentTrack scheduled report: %1$s (%2$s)"
+msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
+
+msgid "Your TalentTrack scheduled report is attached.\n\nSee the dashboard for the live view."
+msgstr "Je TalentTrack-gepland-rapport is bijgevoegd.\n\nGa naar het dashboard voor de live-weergave."
+
+msgid "Linked principle"
+msgstr "Gekoppeld principe"
+
+msgid "Optional. Links this goal to a methodology principle."
+msgstr "Optioneel. Koppelt dit doel aan een methodologiepricipe."
+
+msgid "%1$s — Player report for %2$s"
+msgstr "%1$s — Spelerrapport voor %2$s"
+
+msgid "Hello, you have been sent a confidential player report from %s."
+msgstr "Hallo, je hebt een vertrouwelijk spelerrapport ontvangen van %s."
+
+msgid "This link is valid until %s. Do not forward."
+msgstr "Deze link is geldig tot %s. Niet doorsturen."
+
+msgid "Trial input needed: %1$s (%2$d days)"
+msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
+
+msgid "Hi %1$s,\n\nThe trial period for %2$s is ending. Your input on the case is still needed.\n\nGo to the case here: %3$s\n\nThanks,\n%4$s"
+msgstr "Hoi %1$s,\n\nDe stageperiode voor %2$s loopt af. Jouw input op het dossier is nog nodig.\n\nGa naar het dossier hier: %3$s\n\nGroet,\n%4$s"
+
+msgid "Connected principle"
+msgstr "Gekoppeld principe"
+
+msgid "Data & vocabularies"
+msgstr "Gegevens & vocabulaires"
+
+msgid "Methodology & cycles"
+msgstr "Methodiek & cycli"
+
+msgid "Optional. Anchor this goal to a methodology principle."
+msgstr "Optioneel. Verbind dit doel aan een methodologie-principe."
+
+msgid "wp_mail returned false. The audit log captured the attempt; check the site's SMTP / mailer configuration."
+msgstr "wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; controleer de SMTP-/mailerconfiguratie van de site."
+
+msgid "Your %s desktop link"
+msgstr "Je %s desktop-link"
+
+msgid "You asked us to email you the link to a desktop-only TalentTrack page.\n\n%s\n\nOpen this on a laptop or computer."
+msgstr "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor desktop te mailen.\n\n%s\n\nOpen hem op een laptop of computer."
+
+msgid "Methodology vocabulary"
+msgstr "Methodiekvocabulaire"
+
+msgid "Edit the vision, principles, phases, positions and the rest of your academy's own words."
+msgstr "Bewerk de visie, principes, fases, posities en de rest van de eigen woorden van je academie."
+
+msgid "You do not have permission to edit the methodology."
+msgstr "Je hebt geen rechten om de methodiek te bewerken."
+
+msgid "Your academy describes its football in its own words. Everything here is that vocabulary — the words every learning goal, exercise and evaluation is written in."
+msgstr "Je academie beschrijft haar voetbal in eigen woorden. Alles hier is dat vocabulaire — de woorden waarin elk leerdoel, elke oefening en elke beoordeling wordt geschreven."
+
+msgid "The academy's own words"
+msgstr "De eigen woorden van de academie"
+
+msgid "Dutch"
+msgstr "Nederlands"
+
+msgid "English"
+msgstr "Engels"
+
+msgid "Could not load this vocabulary. Reload the page to try again."
+msgstr "Dit vocabulaire kon niet worden geladen. Herlaad de pagina om het opnieuw te proberen."
+
+msgid "Could not save. Check the fields and try again."
+msgstr "Opslaan is niet gelukt. Controleer de velden en probeer het opnieuw."
+
+msgid "Could not delete this entry."
+msgstr "Dit item kon niet worden verwijderd."
+
+msgid "This academy has no record here yet. It appears once the methodology is set up."
+msgstr "Deze academie heeft hier nog geen record. Het verschijnt zodra de methodiek is ingericht."
+
+msgid "Add entry"
+msgstr "Item toevoegen"
+
+msgid "New entry"
+msgstr "Nieuw item"
+
+msgid "Delete this entry? This cannot be undone."
+msgstr "Dit item verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "Shipped reference content is read-only. Clone it to edit."
+msgstr "Meegeleverde referentie-inhoud is alleen-lezen. Maak een kopie om te bewerken."
+
+msgid "Untitled"
+msgstr "Zonder titel"
+
+msgid "Vision"
+msgstr "Visie"
+
+msgid "How your academy wants to play, in its own words. One record for the whole academy."
+msgstr "Hoe je academie wil spelen, in eigen woorden. Eén record voor de hele academie."
+
+msgid "The game principles your coaching is built on, one per team function and task."
+msgstr "De spelprincipes waarop je coaching is gebouwd, één per teamfunctie en teamtaak."
+
+msgid "Phases"
+msgstr "Fases"
+
+msgid "The phases of play the primer walks through, attacking and defending."
+msgstr "De spelfases die de primer doorloopt, aanvallend en verdedigend."
+
+msgid "Influence factors"
+msgstr "Beïnvloedende factoren"
+
+msgid "What your academy believes moves a performance — the factors coaches weigh."
+msgstr "Wat volgens je academie een prestatie beweegt — de factoren die coaches meewegen."
+
+msgid "What each shirt is asked to do, per formation. Pick a formation to see its positions."
+msgstr "Wat er van elk rugnummer wordt gevraagd, per formatie. Kies een formatie om de posities te zien."
+
+msgid "Learning goals"
+msgstr "Leerdoelen"
+
+msgid "What a player should be able to do by the end of a phase, in your own wording."
+msgstr "Wat een speler aan het eind van een fase moet kunnen, in je eigen woorden."
+
+msgid "Corners, free kicks, throw-ins and penalties — how your academy takes and defends them."
+msgstr "Corners, vrije trappen, inworpen en penalty's — hoe je academie ze neemt en verdedigt."
+
+msgid "Primer"
+msgstr "Primer"
+
+msgid "The introduction a new coach reads first, and the text between each section of the methodology."
+msgstr "De inleiding die een nieuwe coach als eerste leest, en de tekst tussen elk onderdeel van de methodiek."
+
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+msgid "The actions a player performs on the pitch. Goals and evaluations are written in these words."
+msgstr "De handelingen die een speler op het veld uitvoert. Doelen en beoordelingen worden in deze woorden geschreven."
+
+msgid "Important traits"
+msgstr "Belangrijke eigenschappen"
+
+msgid "One trait per line."
+msgstr "Eén eigenschap per regel."
+
+msgid "Short reference used in exercises and evaluations."
+msgstr "Korte verwijzing die in oefeningen en beoordelingen wordt gebruikt."
+
+msgid "Team function"
+msgstr "Teamfunctie"
+
+msgid "Team task"
+msgstr "Teamtaak"
+
+msgid "Team guidance"
+msgstr "Teamrichtlijn"
+
+msgid "Attacking tasks"
+msgstr "Aanvallende taken"
+
+msgid "Defending tasks"
+msgstr "Verdedigende taken"
+
+msgid "One task per line."
+msgstr "Eén taak per regel."
+
+msgid "One bullet per line."
+msgstr "Eén punt per regel."
+
+msgid "Introduction"
+msgstr "Inleiding"
+
+msgid "Football model — introduction"
+msgstr "Voetbalmodel — inleiding"
+
+msgid "Football actions — introduction"
+msgstr "Voetbalhandelingen — inleiding"
+
+msgid "Phases — introduction"
+msgstr "Fases — inleiding"
+
+msgid "Learning goals — introduction"
+msgstr "Leerdoelen — inleiding"
+
+msgid "Influence factors — introduction"
+msgstr "Beïnvloedende factoren — inleiding"
+
+msgid "Reflection"
+msgstr "Reflectie"
+
+msgid "Looking ahead"
+msgstr "Vooruitblik"
+
 #~ msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team age group."
 #~ msgstr ""
 #~ "Formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het "
 #~ "team."
-
-#~ msgid "Linked principle"
-#~ msgstr "Gekoppeld principe"
-
-#~ msgid "Optional. Links this goal to a methodology principle."
-#~ msgstr "Optioneel. Koppelt dit doel aan een methodologiepricipe."
-
-#~ msgid "Connected principle"
-#~ msgstr "Gekoppeld principe"
-
-#~ msgid "Optional. Anchor this goal to a methodology principle."
-#~ msgstr "Optioneel. Verbind dit doel aan een methodologie-principe."
-
-#~ msgid "Data & vocabularies"
-#~ msgstr "Gegevens & vocabulaires"
-
-#~ msgid "Methodology & cycles"
-#~ msgstr "Methodiek & cycli"
-
-#, php-format
-#~ msgid ""
-#~ "You asked us to email you the link to a desktop-only TalentTrack page.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open this on a laptop or computer."
-#~ msgstr ""
-#~ "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor "
-#~ "desktop te mailen.\n"
-#~ "\n"
-#~ "%s\n"
-#~ "\n"
-#~ "Open hem op een laptop of computer."
-
-#~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
-#~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
-
-#~ msgid ""
-#~ "Your TalentTrack scheduled report is attached.\n"
-#~ "\n"
-#~ "See the dashboard for the live view."
-#~ msgstr ""
-#~ "Je TalentTrack-gepland-rapport is bijgevoegd.\n"
-#~ "\n"
-#~ "Ga naar het dashboard voor de live-weergave."
-
-#, php-format
-#~ msgid "%1$s — Player report for %2$s"
-#~ msgstr "%1$s — Spelerrapport voor %2$s"
-
-#, php-format
-#~ msgid "Hello, you have been sent a confidential player report from %s."
-#~ msgstr "Hallo, je hebt een vertrouwelijk spelerrapport ontvangen van %s."
-
-#, php-format
-#~ msgid "This link is valid until %s. Do not forward."
-#~ msgstr "Deze link is geldig tot %s. Niet doorsturen."
-
-#, php-format
-#~ msgid "Trial input needed: %1$s (%2$d days)"
-#~ msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
-
-#, php-format
-#~ msgid ""
-#~ "Hi %1$s,\n"
-#~ "\n"
-#~ "The trial period for %2$s is ending. Your input on the case is still "
-#~ "needed.\n"
-#~ "\n"
-#~ "Go to the case here: %3$s\n"
-#~ "\n"
-#~ "Thanks,\n"
-#~ "%4$s"
-#~ msgstr ""
-#~ "Hoi %1$s,\n"
-#~ "\n"
-#~ "De stageperiode voor %2$s loopt af. Jouw input op het dossier is nog "
-#~ "nodig.\n"
-#~ "\n"
-#~ "Ga naar het dossier hier: %3$s\n"
-#~ "\n"
-#~ "Groet,\n"
-#~ "%4$s"
-
-#~ msgid ""
-#~ "wp_mail returned false. The audit log captured the attempt; check the "
-#~ "site's SMTP / mailer configuration."
-#~ msgstr ""
-#~ "wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; "
-#~ "controleer de SMTP-/mailerconfiguratie van de site."
-
-#, php-format
-#~ msgid "Your %s desktop link"
-#~ msgstr "Je %s desktop-link"
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
@@ -58355,3 +58456,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
