@@ -106,6 +106,34 @@ final class MessageType {
     public const DESKTOP_LINK                = 'desktop_link_OPERATIONAL';
 
     /**
+     * Every message type this build knows about.
+     *
+     * #2605 — the REST preference routes need the list, and reading it
+     * off the class's own constants is the only version that cannot fall
+     * behind: a type added above appears here on the same commit. Sorted
+     * as declared, so the operational ones stay last.
+     *
+     * @return list<string>
+     */
+    public static function all(): array {
+        /** @var array<string,string> $constants */
+        $constants = ( new \ReflectionClass( self::class ) )->getConstants();
+        return array_values( array_map( 'strval', $constants ) );
+    }
+
+    /**
+     * The types a recipient is allowed to mute — everything except the
+     * operational tier. This is the list a preferences surface should
+     * offer; offering an operational type would render a switch that
+     * silently does nothing.
+     *
+     * @return list<string>
+     */
+    public static function optOutable(): array {
+        return array_values( array_filter( self::all(), static fn ( string $t ): bool => ! self::isOperational( $t ) ) );
+    }
+
+    /**
      * True when the message type is operational (opt-out forbidden).
      * Convention: any constant ending in `_OPERATIONAL`.
      */
