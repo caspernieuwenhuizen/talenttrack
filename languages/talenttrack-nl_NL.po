@@ -56627,6 +56627,12 @@ msgstr ""
 "Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages "
 "zich op dit doel richten."
 
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
+msgctxt "segmented control label: which of the two data-entry grids"
+msgid "Grid"
+msgstr "Raster"
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 

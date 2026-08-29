@@ -537,3 +537,44 @@
     max-width: 640px;
     margin: 0 0 12px;
 }
+
+/* ---- Segmented mode switcher (#2822) ------------------------------- *
+ * SegmentedControl: a mode switcher, not a record tab strip. Same 48px
+ * floor and the same active-state vocabulary as `.tt-spine__tab`, so the
+ * two read as one system without one pretending to be the other. */
+.tt-segmented {
+    display: inline-flex;
+    max-width: 100%;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    overflow: hidden;
+    margin: 0 0 16px;
+}
+.tt-segmented__opt {
+    flex: 0 1 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 48px minimum touch target (CLAUDE.md §2). */
+    min-height: 48px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-paper, #fff);
+    border-left: 1px solid var(--tt-line, #e3e6e1);
+    touch-action: manipulation;
+}
+.tt-segmented__opt:first-child { border-left: 0; }
+.tt-segmented__opt:active { background: var(--tt-bg-soft, #f4f6f3); }
+.tt-segmented__opt.is-on {
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+.tt-segmented__opt:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}

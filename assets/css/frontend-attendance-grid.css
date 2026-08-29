@@ -13,28 +13,6 @@
   max-width: 70ch;
 }
 
-/* Attendance | Minutes segmented toggle, shared by both grid surfaces. */
-.tt-agrid-modes {
-  display: inline-flex;
-  border: 1px solid #e3e6e1;
-  border-radius: 8px;
-  overflow: hidden;
-  margin: 0 0 16px;
-}
-.tt-agrid-modes > * {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 16px;
-  font-weight: 700;
-  font-size: 13px;
-  text-decoration: none;
-  color: #123a2b;
-  background: #fff;
-  border-left: 1px solid #e3e6e1;
-}
-.tt-agrid-modes > *:first-child { border-left: 0; }
-.tt-agrid-modes .is-on { background: #123a2b; color: #fff; }
 
 /* ---- Card shell ---------------------------------------------- */
 .tt-agrid-card {
