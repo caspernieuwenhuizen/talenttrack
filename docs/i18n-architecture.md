@@ -115,7 +115,7 @@ The trade: an unseeded lookup renders its canonical English. Obviously untransla
 
 `LookupTranslationSeeds::map()` is keyed `lookup_type => canonical name => locale => label`, and the canonical name has to be exactly what `tt_lookups.name` holds. Migration `0248` (like `0151` before it) walks the map and `INSERT IGNORE`s a row per locale, so **a key that matches no row is a no-op with no error.**
 
-That failure mode ran for a long time. 68 entries matched nothing, and `0151` seeded nothing at all for 13 of the 20 types it claims to cover, because the vocabularies were renamed underneath the map: `journey_event_type` moved to snake_case keys, `activity_type` from `Match` to `game`, `competition_type` was renamed wholesale to `game_subtype` (migration `0027`), `behaviour_rating_label` and `potential_band` were rewritten by `0153`, and `eval_category` left `tt_lookups` entirely for `tt_eval_categories` in `0008`.
+That failure mode ran for a long time. 68 entries matched nothing, and `0151` seeded nothing at all for 13 of the 20 types it claims to cover, because the vocabularies were renamed underneath the map: `journey_event_type` moved to snake_case keys, `activity_type` from `Match` to `game`, the competition-type vocabulary was renamed wholesale to `game_subtype` (migration `0027`), `behaviour_rating_label` and `potential_band` were rewritten by `0153`, and `eval_category` left `tt_lookups` entirely for `tt_eval_categories` in `0008`.
 
 `LookupSeedMapCoverageTest` now guards both directions on a freshly migrated database:
 

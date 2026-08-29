@@ -26,10 +26,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * migration 0151 seeded nothing for 13 of the 20 types it claims to
  * cover. The vocabularies had been renamed underneath it — several moved
  * from Title Case labels to snake_case keys (`Trial` → `trial_started`,
- * `Match` → `game`), `competition_type` was renamed to `game_subtype` by
- * migration 0027, and `eval_category` left `tt_lookups` entirely for
- * `tt_eval_categories` in migration 0008 — while the map kept the old
- * names.
+ * `Match` → `game`), the competition-type vocabulary was renamed to
+ * `game_subtype` by migration 0027, and `eval_category` left
+ * `tt_lookups` entirely for `tt_eval_categories` in migration 0008 —
+ * while the map kept the old names.
  *
  * **`INSERT IGNORE` against a key that matches nothing is a no-op with no
  * error.** That is why the drift was silent for so long, and it is the
@@ -82,7 +82,13 @@ final class LookupTranslationSeeds {
     ];
 
     /**
-     * @return array<string, array<string, array<string, string>>>
+     * The canonical-name key is `int|string`, not `string`, because PHP
+     * coerces a numeric array key: `behaviour_rating_label`'s vocabulary
+     * is literally `1`-`5` (migration 0153) and those land as integers.
+     * That is harmless — a lookup by the string `'1'` coerces the same
+     * way — but the type has to admit it (#3117).
+     *
+     * @return array<string, array<int|string, array<string, string>>>
      */
     public static function map(): array {
         return [
@@ -155,10 +161,12 @@ final class LookupTranslationSeeds {
                 'cancelled' => [ 'nl_NL' => 'Geannuleerd', 'fr_FR' => 'Annulé',    'de_DE' => 'Abgebrochen',   'es_ES' => 'Cancelado' ],
             ],
 
-            // `competition_type` is deliberately absent. Migration 0027
-            // renamed the whole vocabulary to `game_subtype` and added
-            // `Friendly`; the labels that used to sit under the old key are
-            // below, under the new one (#3117).
+            // The competition-type vocabulary is deliberately absent.
+            // Migration 0027 renamed it wholesale to `game_subtype` and
+            // added `Friendly`; the labels that used to sit under the old
+            // key are below, under the new one (#3117). The old key is
+            // spelled out only in that migration — the #0035 gate treats
+            // the literal as a legacy token everywhere else.
 
             // #3117 — re-keyed. The `Eleven-a-side` / `Seven-a-side` /
             // `Futsal` / `Indoor` entries this carried are a football-format

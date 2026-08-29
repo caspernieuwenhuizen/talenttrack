@@ -115,7 +115,7 @@ De afweging: een niet-geseede lookup rendert zijn canonieke Engels. Zichtbaar on
 
 `LookupTranslationSeeds::map()` heeft als sleutel `lookup_type => canonieke naam => locale => label`, en die canonieke naam moet exact zijn wat er in `tt_lookups.name` staat. Migratie `0248` (net als `0151` daarvoor) loopt over de map en doet per locale een `INSERT IGNORE`, dus **een sleutel die geen rij raakt is een no-op zonder foutmelding.**
 
-Die faalwijze heeft lang doorgelopen. 68 entries raakten niets, en `0151` seedde helemaal niets voor 13 van de 20 types die het claimt te dekken, omdat de vocabulaires eronder hernoemd waren: `journey_event_type` ging naar snake_case-sleutels, `activity_type` van `Match` naar `game`, `competition_type` werd in migratie `0027` in zijn geheel hernoemd naar `game_subtype`, `behaviour_rating_label` en `potential_band` werden door `0153` herschreven, en `eval_category` verliet `tt_lookups` volledig voor `tt_eval_categories` in `0008`.
+Die faalwijze heeft lang doorgelopen. 68 entries raakten niets, en `0151` seedde helemaal niets voor 13 van de 20 types die het claimt te dekken, omdat de vocabulaires eronder hernoemd waren: `journey_event_type` ging naar snake_case-sleutels, `activity_type` van `Match` naar `game`, de competition-type-vocabulaire werd in migratie `0027` in zijn geheel hernoemd naar `game_subtype`, `behaviour_rating_label` en `potential_band` werden door `0153` herschreven, en `eval_category` verliet `tt_lookups` volledig voor `tt_eval_categories` in `0008`.
 
 `LookupSeedMapCoverageTest` bewaakt nu beide richtingen op een vers gemigreerde database:
 
