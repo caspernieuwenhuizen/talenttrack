@@ -128,7 +128,13 @@ final class ProposalStep implements WizardStepInterface {
             case 'unrecognised_age_group_for_selection':
                 return __( 'This team has no usable age group, so exercises cannot be checked as age-safe.', 'talenttrack' );
             case 'missing_age_profile':
-                return __( 'This age group has no training profile yet, so there is no age-safe intensity ceiling to plan inside. Only age groups that have a profile can be drafted automatically.', 'talenttrack' );
+                return __( 'This age group has no training profile yet, so there is no age-safe intensity ceiling to plan inside. Someone with the VCT configuration permission — normally the head of development — can add one under VCT configuration → Age profiles, and drafting will work from then on.', 'talenttrack' );
+            // #2601 — the other half. Reads as an answer, not an omission:
+            // the old copy told a U8 coach the profile was missing, which
+            // invited them to go looking for a setting that will never
+            // exist.
+            case 'age_below_modelled_range':
+                return __( 'Trainings are not drafted automatically at this age. Load is not planned in numbers for the youngest groups — build the session yourself and the plan will hold it like any other.', 'talenttrack' );
             case 'over_weekly_envelope':
                 return __( 'This training pushes the team past its planned load for the week.', 'talenttrack' );
             case 'insufficient_recovery':

@@ -42218,12 +42218,15 @@ msgstr ""
 #: src/Modules/Training/Wizard/ProposalStep.php:131
 msgid ""
 "This age group has no training profile yet, so there is no age-safe "
-"intensity ceiling to plan inside. Only age groups that have a profile can be "
-"drafted automatically."
+"intensity ceiling to plan inside. Someone with the VCT configuration "
+"permission — normally the head of development — can add one under VCT "
+"configuration → Age profiles, and drafting will work from then on."
 msgstr ""
 "Deze leeftijdscategorie heeft nog geen trainingsprofiel, dus er is geen "
-"leeftijdsveilig intensiteitsplafond om binnen te plannen. Alleen "
-"leeftijdscategorieën met een profiel kunnen automatisch worden opgesteld."
+"leeftijdsveilig intensiteitsplafond om binnen te plannen. Wie het recht op "
+"VCT-configuratie heeft — normaal gesproken de Hoofd Opleiding — voegt er een "
+"toe onder VCT-configuratie → Leeftijdsprofielen, en vanaf dan werkt het "
+"opstellen wel."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:133
 msgid "This training pushes the team past its planned load for the week."
@@ -43245,14 +43248,13 @@ msgstr "Er zijn nog geen leeftijdsprofielen ingesteld."
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:314
 msgid ""
 "Age profiles cap how long and how intensely each team can train safely, by "
-"age group. Until they exist, the VCT planner can't build a training. Ask "
-"your academy administrator to add them — they're part of the standard VCT "
-"setup for your club."
+"age group. Until they exist, the VCT planner can't build a training. Add the "
+"first one below — they're part of the standard VCT setup for your club."
 msgstr ""
 "Leeftijdsprofielen bepalen hoe lang en hoe intensief elk team per "
 "leeftijdsgroep veilig kan trainen. Zolang die er niet zijn, kan de VCT-"
-"planner geen training opbouwen. Vraag je academybeheerder om ze toe te "
-"voegen — ze horen bij de standaard VCT-inrichting van je club."
+"planner geen training opbouwen. Voeg hieronder de eerste toe — ze horen bij "
+"de standaard VCT-inrichting van je club."
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:319
 msgid ""
@@ -43851,10 +43853,12 @@ msgstr ""
 
 #: src/Modules/Vct/Rules/RuleMessages.php:118
 msgid ""
-"Open VCT configuration → Age profiles and set up this age group's limits."
+"Open VCT configuration → Age profiles and add this age group's limits. You "
+"need the VCT configuration permission, which the head of development holds."
 msgstr ""
-"Open VCT-configuratie → Leeftijdsprofielen en stel de grenzen voor deze "
-"leeftijdsgroep in."
+"Open VCT-configuratie → Leeftijdsprofielen en voeg de grenzen voor deze "
+"leeftijdscategorie toe. Daarvoor heb je het recht op VCT-configuratie nodig, "
+"dat bij de Hoofd Opleiding ligt."
 
 #: src/Modules/Vct/Rules/RuleMessages.php:121
 msgid ""
@@ -57711,6 +57715,128 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:66
+msgid "Pick an age group."
+msgstr "Kies een leeftijdscategorie."
+
+#. translators: %s is an age group, e.g. U15.
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:74
+#, php-format
+msgid "%s already has a profile. Edit that one instead."
+msgstr "%s heeft al een profiel. Pas dat profiel aan."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:97
+msgid "That age profile no longer exists."
+msgstr "Dat leeftijdsprofiel bestaat niet meer."
+
+#. translators: 1: number of teams, 2: age group, e.g. U13.
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:106
+#, php-format
+msgid ""
+"Cannot remove this profile: %1$d team is in %2$s and would lose automatic "
+"training drafts."
+msgid_plural ""
+"Cannot remove this profile: %1$d teams are in %2$s and would lose automatic "
+"training drafts."
+msgstr[0] ""
+"Dit profiel kan niet worden verwijderd: %1$d team zit in %2$s en zou geen "
+"conceptrainingen meer krijgen."
+msgstr[1] ""
+"Dit profiel kan niet worden verwijderd: %1$d teams zitten in %2$s en zouden "
+"geen conceptrainingen meer krijgen."
+
+#: src/Modules/Vct/Services/AgeProfileAdminService.php:119
+msgid "The age profile could not be removed."
+msgstr "Het leeftijdsprofiel kon niet worden verwijderd."
+
+#: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:82
+msgid ""
+"An age profile needs an age group, a maximum session length and an intensity "
+"ceiling."
+msgstr ""
+"Een leeftijdsprofiel heeft een leeftijdscategorie, een maximale "
+"trainingsduur en een intensiteitsplafond nodig."
+
+#: src/Modules/Vct/Rules/RuleMessages.php:44
+msgid ""
+"Structured load planning does not apply at this age, so trainings for this "
+"age group are shaped by the coach rather than drafted."
+msgstr ""
+"Op deze leeftijd wordt de belasting niet in getallen gepland; trainingen "
+"voor deze leeftijdscategorie bouwt de trainer zelf op in plaats van dat ze "
+"worden opgesteld."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:136
+msgid ""
+"Trainings are not drafted automatically at this age. Load is not planned in "
+"numbers for the youngest groups — build the session yourself and the plan "
+"will hold it like any other."
+msgstr ""
+"Op deze leeftijd worden trainingen niet automatisch opgesteld. Bij de "
+"jongste categorieën wordt de belasting niet in getallen gepland — bouw de "
+"training zelf op, dan houdt het plan hem net als elke andere."
+
+#. translators: %s is an age group, e.g. U13.
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:357
+#, php-format
+msgid "Remove %s profile"
+msgstr "%s-profiel verwijderen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:363
+msgid ""
+"Teams in this age group stop getting drafted trainings. Trainings already "
+"planned are unaffected."
+msgstr ""
+"Teams in deze leeftijdscategorie krijgen geen conceptrainingen meer. Al "
+"geplande trainingen blijven ongewijzigd."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:399
+msgid "Add an age profile"
+msgstr "Leeftijdsprofiel toevoegen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:404
+msgid "Every age group already has a profile."
+msgstr "Elke leeftijdscategorie heeft al een profiel."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:409
+msgid ""
+"Set the limits for an age group the planner cannot draft for yet. The "
+"session shape is copied from the closest age group that already has one; the "
+"limits below are yours."
+msgstr ""
+"Stel de grenzen in voor een leeftijdscategorie waarvoor de planner nog geen "
+"concept kan maken. De trainingsvorm wordt gekopieerd van de dichtstbijzijnde "
+"categorie die er al een heeft; de grenzen hieronder zijn van jou."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:429
+msgid "MD logic enabled (off for the youngest groups per Appendix A)"
+msgstr "MD-logica aan (uit voor de jongste categorieën volgens bijlage A)"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:433
+msgid "Add profile"
+msgstr "Profiel toevoegen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:522
+msgid ""
+"Age profile added. The session shape was copied from the closest age group, "
+"so the planner can draft for these teams now."
+msgstr ""
+"Leeftijdsprofiel toegevoegd. De trainingsvorm is gekopieerd van de "
+"dichtstbijzijnde leeftijdscategorie, dus de planner kan nu concepten maken "
+"voor deze teams."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:523
+msgid ""
+"Age profile added. No session shape existed to copy, so the planner still "
+"needs a blueprint for this age group."
+msgstr ""
+"Leeftijdsprofiel toegevoegd. Er was geen trainingsvorm om te kopiëren, dus "
+"de planner heeft nog een sjabloon nodig voor deze leeftijdscategorie."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:537
+msgid "Age profile removed."
+msgstr "Leeftijdsprofiel verwijderd."
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
