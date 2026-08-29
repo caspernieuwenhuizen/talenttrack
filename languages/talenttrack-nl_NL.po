@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T08:20:40+00:00\n"
+"POT-Creation-Date: 2026-08-29T08:26:21+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -42,6 +42,36 @@ msgstr ""
 #: talenttrack.php
 msgid "https://github.com/caspernieuwenhuizen"
 msgstr ""
+
+#: config/profiles.php:59
+msgctxt "install profile name"
+msgid "Basics"
+msgstr "Basis"
+
+#: config/profiles.php:60
+msgid ""
+"The development loop: players, teams, evaluations, goals, measurements, the "
+"journey and the reports that read them back. Match day, training plans, "
+"integrations and the developer surfaces stay off until you ask for them."
+msgstr ""
+"De ontwikkelcyclus: spelers, teams, evaluaties, doelen, metingen, de reis en "
+"de rapportages die dat alles teruglezen. Wedstrijddag, trainingsplannen, "
+"koppelingen en de ontwikkelaarsschermen blijven uit tot je erom vraagt."
+
+#: config/profiles.php:196
+msgctxt "install profile name"
+msgid "Full academy"
+msgstr "Volledige academie"
+
+#: config/profiles.php:197
+msgid ""
+"Everything the plugin ships: match day, training plans, the knowledge "
+"library, the integrations and the developer surfaces alongside the "
+"development loop. What an install gets when no profile is chosen."
+msgstr ""
+"Alles wat de plug-in meelevert: wedstrijddag, trainingsplannen, de "
+"kennisbibliotheek, de koppelingen en de ontwikkelaarsschermen naast de "
+"ontwikkelcyclus. Wat een installatie krijgt als er geen profiel is gekozen."
 
 #: database/migrations/0025_invitations.php:129
 #: src/Infrastructure/Query/LabelTranslator.php:90

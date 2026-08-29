@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-29T08:20:40+00:00\n"
+"POT-Creation-Date: 2026-08-29T08:26:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -41,6 +41,24 @@ msgstr ""
 #. Author URI of the plugin
 #: talenttrack.php
 msgid "https://github.com/caspernieuwenhuizen"
+msgstr ""
+
+#: config/profiles.php:59
+msgctxt "install profile name"
+msgid "Basics"
+msgstr ""
+
+#: config/profiles.php:60
+msgid "The development loop: players, teams, evaluations, goals, measurements, the journey and the reports that read them back. Match day, training plans, integrations and the developer surfaces stay off until you ask for them."
+msgstr ""
+
+#: config/profiles.php:196
+msgctxt "install profile name"
+msgid "Full academy"
+msgstr ""
+
+#: config/profiles.php:197
+msgid "Everything the plugin ships: match day, training plans, the knowledge library, the integrations and the developer surfaces alongside the development loop. What an install gets when no profile is chosen."
 msgstr ""
 
 #: database/migrations/0025_invitations.php:129
