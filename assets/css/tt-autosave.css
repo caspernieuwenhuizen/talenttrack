@@ -82,7 +82,7 @@
 }
 
 /* -------------------------------------------------------------------
- * Undo (#3005, epic #2881)
+ * Undo + revert (#3005 / #3006, epic #2881)
  * ------------------------------------------------------------------- */
 
 /*
@@ -90,7 +90,8 @@
  * offered for exactly one moment — the beat after a mis-tap — is the last
  * one that should need a precise finger.
  */
-.tt-save-undo {
+.tt-save-undo,
+.tt-save-revert {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -108,7 +109,8 @@
 	touch-action: manipulation;
 }
 
-.tt-save-undo[hidden] {
+.tt-save-undo[hidden],
+.tt-save-revert[hidden] {
 	display: none;
 }
 
@@ -116,15 +118,33 @@
  * Hover is decoration here; the button reads as an action from its colour
  * and its words alone, which is what a touch device gets.
  */
-.tt-save-undo:hover {
+.tt-save-undo:hover,
+.tt-save-revert:hover {
 	text-decoration: underline;
 }
 
-.tt-save-undo:active {
+.tt-save-undo:active,
+.tt-save-revert:active {
 	background: var(--tt-bg-soft, #f4f6f3);
 }
 
-.tt-save-undo:focus-visible {
+.tt-save-undo:focus-visible,
+.tt-save-revert:focus-visible {
 	outline: 2px solid var(--tt-info, #2d6fb3);
 	outline-offset: 2px;
+}
+
+/*
+ * Revert is the heavier of the two and the rarer, so it reads as the
+ * quieter one: muted rather than accented, so a coach reaching for Undo in
+ * a hurry does not land on the control that throws away ten minutes. The
+ * weight it does carry is in the confirm, not in the colour.
+ */
+.tt-save-revert {
+	color: var(--tt-muted, #6a7570);
+	font-weight: 500;
+}
+
+.tt-save-revert:focus-visible {
+	outline-color: var(--tt-muted, #6a7570);
 }
