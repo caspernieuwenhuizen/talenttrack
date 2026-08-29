@@ -57438,6 +57438,7 @@ msgstr "Of plak een schermafbeelding."
 #, php-format
 msgid "Screenshot %s"
 msgstr "Schermafbeelding %s"
+
 #~ msgid "Authoring path"
 #~ msgstr "Auteurspad"
 
