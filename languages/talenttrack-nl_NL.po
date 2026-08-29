@@ -56959,6 +56959,87 @@ msgstr "Alles wat de plug-in meelevert: wedstrijddag, trainingsplannen, de kenni
 msgid "No install profile named \"%s\"."
 msgstr "Geen installatieprofiel met de naam \"%s\"."
 
+#: src/Shared/Frontend/Components/ProfileDiff.php:46
+msgid "Will be switched on"
+msgstr "Wordt ingeschakeld"
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:52
+msgid "Will be switched off"
+msgstr "Wordt uitgeschakeld"
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:62
+msgid "Cannot be applied"
+msgstr "Kan niet worden toegepast"
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:122
+msgid "Not part of your plan"
+msgstr "Valt buiten je abonnement"
+
+#: src/Shared/Frontend/Components/ProfileDiff.php:124
+msgid "Unavailable on this install"
+msgstr "Niet beschikbaar op deze installatie"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:53
+msgid "Install profile"
+msgstr "Installatieprofiel"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:55
+msgid "That install profile does not exist. Pick one from the Modules page."
+msgstr "Dat installatieprofiel bestaat niet. Kies er een op de Modulespagina."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:89
+msgid "This install already matches this profile. There is nothing to change."
+msgstr "Deze installatie komt al overeen met dit profiel. Er valt niets te wijzigen."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:98
+msgid "Everything below is ticked by default. Untick anything you would rather keep as it is — nothing is changed until you apply."
+msgstr "Alles hieronder staat standaard aangevinkt. Vink uit wat je liever laat zoals het is — er wordt niets gewijzigd totdat je toepast."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:101
+msgid "Switching a module off never deletes anything. Its records are kept and come back if you switch it on again."
+msgstr "Een module uitschakelen verwijdert nooit iets. De gegevens blijven bewaard en komen terug zodra je hem weer inschakelt."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:115
+msgid "None of these changes can be applied on this install."
+msgstr "Geen van deze wijzigingen kan op deze installatie worden toegepast."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:122
+msgid "Applying..."
+msgstr "Bezig met toepassen..."
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:123
+msgid "Applied"
+msgstr "Toegepast"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:158
+msgid "Not on a profile"
+msgstr "Niet op een profiel"
+
+#. translators: %d is the number of modules and features that no longer match the install's profile.
+#: src/Shared/Frontend/FrontendInstallProfileView.php:164
+#, php-format
+msgid "%d change since"
+msgid_plural "%d changes since"
+msgstr[0] "%d wijziging sinds"
+msgstr[1] "%d wijzigingen sinds"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:175
+msgid "Change profile"
+msgstr "Profiel wijzigen"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:186
+msgid "Review changes"
+msgstr "Wijzigingen bekijken"
+
+#. translators: %d is the number of modules and features that were switched on or off.
+#: src/Shared/Frontend/FrontendModulesView.php:251
+#, php-format
+msgid "Install profile applied — %d change made. Reload open tabs to see the effect."
+msgid_plural "Install profile applied — %d changes made. Reload open tabs to see the effect."
+msgstr[0] "Installatieprofiel toegepast — %d wijziging doorgevoerd. Herlaad open tabbladen om het effect te zien."
+msgstr[1] "Installatieprofiel toegepast — %d wijzigingen doorgevoerd. Herlaad open tabbladen om het effect te zien."
+
+
 
 
 #~ msgid "Or use the dashboard:"

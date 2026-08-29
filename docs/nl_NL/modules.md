@@ -3,7 +3,7 @@ title: Modules
 group: frontend
 summary: Module-toggles per installatie — schakel Methodology, Workflow, License, etc. uit zonder code aan te raken.
 audience: [admin]
-views: [modules, features]
+views: [modules, features, install-profile]
 order: 80
 ---
 
@@ -55,6 +55,20 @@ Een profiel is een koppeling, geen kopie. De installatie onthoudt op welk profie
 Een profiel kiezen gaat nooit boven je abonnement. Een module of functie waar deze installatie geen recht op heeft, wordt met reden gemeld als overgeslagen in plaats van aangezet en later stukgelopen.
 
 Een profiel toepassen verandert alleen welke schermen aanstaan. **Er wordt nooit data verwijderd.** Een module die een profiel uitzet behoudt al zijn rijen, en weer aanzetten herstelt de toegang tot alles.
+
+### Waar je het ziet, en hoe je het wijzigt
+
+Boven aan de Modulespagina staat een strook met **Installatieprofiel** en daaronder het profiel waarop je staat plus het aantal wijzigingen sindsdien — *Basis · 3 wijzigingen sinds* — of **Niet op een profiel** voor een installatie van vóór de profielen. Ernaast staan een keuzelijst en de knop **Wijzigingen bekijken**.
+
+Wijzigingen bekijken opent het voorbeeldscherm, en dat is het **enige** scherm in het product dat een profiel toepast. Het toont in drie groepen wat er zou gebeuren:
+
+1. **Wordt ingeschakeld**
+2. **Wordt uitgeschakeld**
+3. **Kan niet worden toegepast** — alles wat buiten je abonnement valt, met de reden erbij. Dit is leestekst en geen uitgevinkt vakje, want het is geen keuze die je hebt.
+
+Alles in de eerste twee groepen staat aangevinkt. Vink uit wat je liever laat zoals het is en het blijft ongemoeid; de bevestiging daarna zegt hoeveel wijzigingen er zijn doorgevoerd. Er wordt niets weggeschreven tot je op **Toepassen** drukt — het voorbeeldscherm openen en wegnavigeren verandert helemaal niets. **Annuleren** brengt je terug naar de Modulespagina, of naar de plek waar je vandaan kwam als je ergens anders vandaan komt.
+
+Een profiel dat niets zou wijzigen toont een korte "komt al overeen"-regel en geen knop Toepassen.
 
 *Doelgroep: ontwikkelaars.* De profielen zelf staan in `config/profiles.php` en zijn niet tijdens gebruik te bewerken — veranderen wat Basis betekent is een release, om dezelfde reden als de abonnementskaart. Een profiel benoemt zijn modules volledig (elke klasse in `config/modules.php`, zodat een module die in een release bijkomt geplaatst moet worden in plaats van er door weglating aan te staan) en zijn functies alleen als afwijkingen (de catalogus bouwt de export- en rapportsleutels in lussen op, dus ze uitschrijven zou verouderen zodra er een rapport bijkomt). `TT\Shared\Modules\ProfileRegistry` leest het bestand; `TT\Shared\Modules\ProfileService` vergelijkt het met de live-status (`diff()`, `divergence()`) en past het toe (`apply()`) via `ModuleRegistry` en `FeatureRegistry`, zodat elke schrijfactie hetzelfde auditspoor krijgt als een handmatig omgezette schakelaar. `tools/check-module-toggles.php` laat de build falen wanneer een profiel iets benoemt dat niet oplost, een schakelbare module mist, of een altijd-aan module probeert uit te zetten.
 

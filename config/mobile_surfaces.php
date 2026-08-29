@@ -176,6 +176,7 @@ return [
     'functional-roles'              => [ 'desktop_only', 'Functional-role assignment.' ],
     'import-history'                => [ 'desktop_only', 'Undoing a whole spreadsheet batch. A data operation reaching well past one record, and not one to fat-finger on a phone.' ],
     'injuries'                      => [ 'desktop_only', 'Sensitive medical data, permission-gated and audit-logged. A considered desk entry is the safeguarding position.' ],
+    'install-profile'               => [ 'desktop_only', 'Reshaping the whole install in one action — dozens of modules and features at once. Blast radius, and it sits beside `modules`, which is classified the same way for the same reason.' ],
     'invitations-config'            => [ 'desktop_only', 'Invitation settings.' ],
     'lesson'                        => [ 'desktop_only', 'Lesson reading. Gated with `course`, for the same reason, and both name that reason on the prompt rather than saying "best on desktop".' ],
     'lookup-normalisation'          => [ 'desktop_only', 'Merging vocabulary values across the database.' ],
