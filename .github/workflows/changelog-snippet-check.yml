@@ -10,6 +10,13 @@ name: Changelog snippet check
 # Escape hatch: label the PR `no-changelog` when there is genuinely no
 # user-facing change (pure internal refactor, test-only, tooling).
 #
+# #3043 — the check also validates the SHAPE of every snippet in the
+# folder, not only that a new one exists. It used to never open one, so a
+# heading-less snippet became a changelog entry titled "Bump: minor" that
+# then bumped the patch version, and the failure surfaced weeks later in a
+# release diff. Every snippet is checked rather than only the added ones:
+# one carried on a long-lived branch reaches a release the same way.
+#
 # Scope: only runs when code/asset paths change. Docs-only, i18n-only, and
 # .github-only PRs don't trigger it. Release and i18n-sync commits go
 # straight to main (no PR), so they're unaffected.
@@ -22,6 +29,8 @@ on:
       - 'assets/**'
       - 'templates/**'
       - 'talenttrack.php'
+      - 'changelog.d/**'
+      - 'tools/check-changelog-snippets.php'
 
 permissions:
   contents: read
@@ -86,3 +95,21 @@ jobs:
           gh pr comment "${{ github.event.pull_request.number }}" --body-file comment.md || true
           echo "::error::No changelog.d snippet found. Add one (see changelog.d/README.md) or label the PR 'no-changelog'."
           exit 1
+
+  snippet-shape:
+    name: changelog.d snippets parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      # Runs regardless of the `no-changelog` label: opting out of writing
+      # a snippet is not opting out of the ones already in the folder being
+      # readable by the release script.
+      - name: Validate every snippet's shape
+        run: php tools/check-changelog-snippets.php
