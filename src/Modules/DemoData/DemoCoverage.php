@@ -602,6 +602,8 @@ class DemoCoverage {
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
         'tt_import_batches' => [ 'exempt' => 'The record of a REAL spreadsheet import (#2956). Deliberately outside the demo registry — anything the demo cleaner can reach, it can delete, and these rows account for a club\'s actual squad.' ],
         'tt_import_tags'    => [ 'exempt' => 'Which rows a real import created (#2956). Same reason as tt_import_batches: the demo cleaner must not be able to see, let alone wipe, a club\'s imported records.' ],
+        'tt_share_views' => [ 'exempt' => 'One row per browser that opened a real share link (#3096). Seeding it would tell an operator that people had read a document nobody has opened, which is the one thing the count exists to answer honestly.' ],
+        'tt_share_view_totals' => [ 'exempt' => 'What the 90-day purge folded away from tt_share_views (#3096). Same reason as the table it summarises: a fabricated total is a fabricated audience.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
         'tt_error_log'   => [ 'exempt' => 'Error log. Synthetic errors would send operators chasing bugs that never happened.' ],
         // #2631 — derived state, not content. Rows are written only by the

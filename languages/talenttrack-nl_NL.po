@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T16:45:49+00:00\n"
+"POT-Creation-Date: 2026-08-29T18:11:36+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -886,7 +886,7 @@ msgstr ""
 "van inzetbaarheid, gelijke speelminuten en spreiding van basisplaatsen. "
 "Handmatig wisselen via klikken blijft beschikbaar als dit uit staat."
 
-#: src/Core/FeatureRegistry.php:501 src/Modules/DemoData/DemoCoverage.php:1274
+#: src/Core/FeatureRegistry.php:501 src/Modules/DemoData/DemoCoverage.php:1276
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -2491,7 +2491,7 @@ msgid "Mixed"
 msgstr "Gemengd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1267
+#: src/Modules/DemoData/DemoCoverage.php:1269
 #: src/Modules/Documentation/HelpTopics.php:186
 #: src/Shared/Frontend/FrontendConfigurationView.php:1888
 msgid "Match day"
@@ -2717,7 +2717,7 @@ msgstr "Evaluatie"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:119
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:569
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:500
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:563
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:333
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -4015,13 +4015,13 @@ msgstr "Geboortedatum"
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1254
+#: src/Modules/DemoData/DemoCoverage.php:1256
 #: src/Modules/DemoData/DemoRunPlan.php:109
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:561
 #: src/Modules/License/Admin/AccountPage.php:640
 #: src/Modules/License/Admin/AccountPage.php:704
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:292
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:308
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:25
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
@@ -4886,9 +4886,9 @@ msgstr "Alle types"
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1255
+#: src/Modules/DemoData/DemoCoverage.php:1257
 #: src/Modules/License/Admin/AccountPage.php:710
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:495
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:558
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:336
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
@@ -6873,7 +6873,7 @@ msgstr "Activiteiten en aanwezigheid"
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1256
+#: src/Modules/DemoData/DemoCoverage.php:1258
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:566
 #: src/Modules/License/Admin/AccountPage.php:707
@@ -6926,7 +6926,7 @@ msgstr "Evaluaties"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1257
+#: src/Modules/DemoData/DemoCoverage.php:1259
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:708
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:302
@@ -6969,7 +6969,7 @@ msgstr "Ontwikkelplannen"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
-#: src/Modules/DemoData/DemoCoverage.php:1253
+#: src/Modules/DemoData/DemoCoverage.php:1255
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:151
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -7071,7 +7071,7 @@ msgstr ""
 
 #. translators: %s: player name
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
-#: src/Modules/DemoData/DemoCoverage.php:1264
+#: src/Modules/DemoData/DemoCoverage.php:1266
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:881
@@ -7274,7 +7274,7 @@ msgid "Promoted"
 msgstr "Gepromoveerd"
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1258
+#: src/Modules/DemoData/DemoCoverage.php:1260
 msgid "Journey events"
 msgstr "Reisgebeurtenissen"
 
@@ -7366,7 +7366,7 @@ msgid "Cancelled"
 msgstr "Geannuleerd"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:479
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:542
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:54
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
@@ -7575,7 +7575,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:543
-#: src/Modules/DemoData/DemoCoverage.php:1252
+#: src/Modules/DemoData/DemoCoverage.php:1254
 #: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
@@ -9986,7 +9986,7 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1259
+#: src/Modules/DemoData/DemoCoverage.php:1261
 #: src/Modules/License/Admin/AccountPage.php:717
 #: src/Shared/CoreSurfaceRegistration.php:880
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -10008,7 +10008,7 @@ msgstr "Stage-samenvatting"
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1272
+#: src/Modules/DemoData/DemoCoverage.php:1274
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -10127,7 +10127,7 @@ msgid "Impersonation"
 msgstr "Impersonatie"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1268
+#: src/Modules/DemoData/DemoCoverage.php:1270
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr "Proeftrainingen"
@@ -17345,7 +17345,7 @@ msgid "The kind of transition."
 msgstr "Het soort overgang."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1261
+#: src/Modules/DemoData/DemoCoverage.php:1263
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:236
@@ -18384,40 +18384,40 @@ msgstr "Geen batches geselecteerd."
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1260
+#: src/Modules/DemoData/DemoCoverage.php:1262
 msgid "Guardians"
 msgstr "Verzorgers"
 
-#: src/Modules/DemoData/DemoCoverage.php:1262
+#: src/Modules/DemoData/DemoCoverage.php:1264
 #: src/Shared/Frontend/FrontendTrialCaseView.php:244
 msgid "Player profile"
 msgstr "Spelersprofiel"
 
-#: src/Modules/DemoData/DemoCoverage.php:1263
+#: src/Modules/DemoData/DemoCoverage.php:1265
 msgid "Player reports"
 msgstr "Spelersrapporten"
 
-#: src/Modules/DemoData/DemoCoverage.php:1265
+#: src/Modules/DemoData/DemoCoverage.php:1267
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:227
 msgid "PDP cycle"
 msgstr "PDP-cyclus"
 
-#: src/Modules/DemoData/DemoCoverage.php:1266
+#: src/Modules/DemoData/DemoCoverage.php:1268
 msgid "Training content"
 msgstr "Trainingsinhoud"
 
-#: src/Modules/DemoData/DemoCoverage.php:1269
+#: src/Modules/DemoData/DemoCoverage.php:1271
 #: src/Shared/Frontend/FrontendTeamsManageView.php:548
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr "Teamontwikkeling"
 
-#: src/Modules/DemoData/DemoCoverage.php:1270
+#: src/Modules/DemoData/DemoCoverage.php:1272
 msgid "Scouting pipeline"
 msgstr "Scoutingpijplijn"
 
 # v3.110.131+ — #0093 Tournament planner
-#: src/Modules/DemoData/DemoCoverage.php:1271
+#: src/Modules/DemoData/DemoCoverage.php:1273
 #: src/Modules/License/Admin/AccountPage.php:732
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
@@ -18426,11 +18426,11 @@ msgstr "Scoutingpijplijn"
 msgid "Tournaments"
 msgstr "Toernooien"
 
-#: src/Modules/DemoData/DemoCoverage.php:1273
+#: src/Modules/DemoData/DemoCoverage.php:1275
 msgid "Messages and operator records"
 msgstr "Berichten en beheerdersgegevens"
 
-#: src/Modules/DemoData/DemoCoverage.php:1282
+#: src/Modules/DemoData/DemoCoverage.php:1284
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
@@ -18438,7 +18438,7 @@ msgstr ""
 "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en "
 "beoordelingen van die teams."
 
-#: src/Modules/DemoData/DemoCoverage.php:1283
+#: src/Modules/DemoData/DemoCoverage.php:1285
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
@@ -18446,7 +18446,7 @@ msgstr ""
 "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven "
 "staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
 
-#: src/Modules/DemoData/DemoCoverage.php:1284
+#: src/Modules/DemoData/DemoCoverage.php:1286
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
@@ -18454,25 +18454,25 @@ msgstr ""
 "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, "
 "tijdlijngebeurtenissen en proefdossiers van die spelers."
 
-#: src/Modules/DemoData/DemoCoverage.php:1285
+#: src/Modules/DemoData/DemoCoverage.php:1287
 msgid "Also wipes attendance for those activities."
 msgstr "Wist ook de aanwezigheid bij die activiteiten."
 
-#: src/Modules/DemoData/DemoCoverage.php:1286
+#: src/Modules/DemoData/DemoCoverage.php:1288
 msgid "Also wipes per-category eval_ratings."
 msgstr "Wist ook de beoordelingen per categorie."
 
-#: src/Modules/DemoData/DemoCoverage.php:1287
+#: src/Modules/DemoData/DemoCoverage.php:1289
 msgid "Per-player development goals."
 msgstr "Ontwikkeldoelen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1288
+#: src/Modules/DemoData/DemoCoverage.php:1290
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber "
 "zijn geschreven."
 
-#: src/Modules/DemoData/DemoCoverage.php:1289
+#: src/Modules/DemoData/DemoCoverage.php:1291
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
@@ -18480,12 +18480,12 @@ msgstr ""
 "Historische proefdossiers van bestaande spelers plus enkele lopende "
 "dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1290
+#: src/Modules/DemoData/DemoCoverage.php:1292
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1291
+#: src/Modules/DemoData/DemoCoverage.php:1293
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
@@ -18493,7 +18493,7 @@ msgstr ""
 "Een toernooi per team met selectie, streefminuten, wedstrijden en "
 "opstellingen per periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1292
+#: src/Modules/DemoData/DemoCoverage.php:1294
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
@@ -18501,7 +18501,7 @@ msgstr ""
 "Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, en "
 "mentorkoppels voor de staf van de club."
 
-#: src/Modules/DemoData/DemoCoverage.php:1293
+#: src/Modules/DemoData/DemoCoverage.php:1295
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
@@ -18509,7 +18509,7 @@ msgstr ""
 "Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, "
 "workflowtaken en uitnodigingen. Er wordt nooit e-mail verstuurd."
 
-#: src/Modules/DemoData/DemoCoverage.php:1294
+#: src/Modules/DemoData/DemoCoverage.php:1296
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
@@ -18517,7 +18517,7 @@ msgstr ""
 "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de "
 "zichtbaarheidsinstellingen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1295
+#: src/Modules/DemoData/DemoCoverage.php:1297
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
@@ -18525,7 +18525,7 @@ msgstr ""
 "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit "
 "volgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1296
+#: src/Modules/DemoData/DemoCoverage.php:1298
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
@@ -18533,13 +18533,13 @@ msgstr ""
 "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club "
 "met hun waarden, en koppelingen tussen doelen en evaluaties."
 
-#: src/Modules/DemoData/DemoCoverage.php:1297
+#: src/Modules/DemoData/DemoCoverage.php:1299
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers "
 "aangemaakt."
 
-#: src/Modules/DemoData/DemoCoverage.php:1298
+#: src/Modules/DemoData/DemoCoverage.php:1300
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
@@ -18547,7 +18547,7 @@ msgstr ""
 "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team "
 "en één resultaat per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1299
+#: src/Modules/DemoData/DemoCoverage.php:1301
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
@@ -18555,7 +18555,7 @@ msgstr ""
 "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, "
 "agendakoppelingen en eindoordelen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1300
+#: src/Modules/DemoData/DemoCoverage.php:1302
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
@@ -18563,7 +18563,7 @@ msgstr ""
 "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per "
 "team, en de vakantieperiodes van het seizoen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1301
+#: src/Modules/DemoData/DemoCoverage.php:1303
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
@@ -18572,14 +18572,14 @@ msgstr ""
 "rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels "
 "voor de gespeelde wedstrijden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1302
+#: src/Modules/DemoData/DemoCoverage.php:1304
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend "
 "per leeftijdsgroep."
 
-#: src/Modules/DemoData/DemoCoverage.php:1303
+#: src/Modules/DemoData/DemoCoverage.php:1305
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
@@ -18588,7 +18588,7 @@ msgstr ""
 "opstelling, door de trainer gemarkeerde koppels, en een chemiereeks over de "
 "periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1304
+#: src/Modules/DemoData/DemoCoverage.php:1306
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
@@ -25054,8 +25054,8 @@ msgstr "Back-up naar objectopslag"
 
 #: src/Modules/License/Admin/AccountPage.php:729
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:192
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:505
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:208
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:568
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:82
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:87
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:213
@@ -25347,7 +25347,7 @@ msgstr ""
 "Open de wedstrijdanalyse vanaf de detailpagina van een wedstrijdactiviteit."
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:70
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:397
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:434
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:37
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:91
 msgid "A match analysis can only be written for a match activity."
@@ -25358,7 +25358,7 @@ msgstr ""
 msgid "This match has not been played yet. The analysis opens once it has."
 msgstr "Deze wedstrijd is nog niet gespeeld. De analyse gaat daarna open."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:152
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:168
 msgid ""
 "Shared staff document. It names players and what they were told; please do "
 "not forward it outside the staff."
@@ -25366,12 +25366,12 @@ msgstr ""
 "Gedeeld stafdocument. Er staan namen van spelers in en wat hun is gezegd; "
 "stuur het niet buiten de staf door."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:175
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:191
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:88
 msgid "This link is no longer valid"
 msgstr "Deze link is niet meer geldig"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:177
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:193
 msgid ""
 "The analysis may have been removed, or the link may have been reissued. Ask "
 "the coach who shared it for a new one."
@@ -25380,18 +25380,18 @@ msgstr ""
 "de trainer die hem deelde om een nieuwe."
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:209
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:225
 #, php-format
 msgid "Away at %s"
 msgstr "Uit bij %s"
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:211
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:227
 #, php-format
 msgid "Against %s"
 msgstr "Tegen %s"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:224
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:240
 msgid ""
 "This match was not prepped or run in the app, so there is nothing to pre-"
 "fill. Write it from what you saw."
@@ -25399,22 +25399,22 @@ msgstr ""
 "Deze wedstrijd is niet in de app voorbereid of gevolgd, dus er valt niets "
 "vooraf in te vullen. Schrijf op wat je zag."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:257
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:273
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:67
 msgid "How did the match go, in a few sentences?"
 msgstr "Hoe ging de wedstrijd, in een paar zinnen?"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:299
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:315
 msgid "Save analysis"
 msgstr "Analyse opslaan"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:336
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:352
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:68
 msgid "One short point…"
 msgstr "Eén kort punt…"
 
 #. translators: 1: section name, 2: bullet number
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:339
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:355
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:71
 #, php-format
 msgid "%1$s — point %2$d"
@@ -25465,33 +25465,34 @@ msgid "And the other side of it…"
 msgstr "En de andere kant ervan…"
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:367
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:383
 msgid "Print or save as PDF"
 msgstr "Printen of opslaan als PDF"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:396
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:412
 msgid "Share with the staff"
 msgstr "Delen met de staf"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:403
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:419
 msgid ""
 "No link exists yet, so this analysis cannot be opened by anyone outside the "
 "app."
 msgstr ""
 "Er bestaat nog geen link, dus niemand kan deze analyse buiten de app openen."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:406
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:422
 msgid "Create share link"
 msgstr "Deellink aanmaken"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:418
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:434
 msgid "Staff share link"
 msgstr "Stafdeellink"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:421
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:437
 msgid "Copy link"
 msgstr "Link kopiëren"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:425
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:441
 msgid ""
 "Anyone holding this link can read the analysis, including the player notes. "
 "It keeps working until you replace it."
@@ -25499,13 +25500,27 @@ msgstr ""
 "Iedereen met deze link kan de analyse lezen, inclusief de spelersnotities. "
 "Hij blijft werken totdat je hem vervangt."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:428
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:446
 msgid "Replace link"
 msgstr "Link vervangen"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:431
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:449
 msgid "The current link stops working immediately."
 msgstr "De huidige link werkt direct niet meer."
+
+#. translators: %s: number of people who opened the share link.
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:482
+#, php-format
+msgid "Seen by %s person"
+msgid_plural "Seen by %s people"
+msgstr[0] "Gezien door %s persoon"
+msgstr[1] "Gezien door %s mensen"
+
+#. translators: %s: human-readable time difference, e.g. "2 days"
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:492
+#, php-format
+msgid "last opened %s ago"
+msgstr "laatst geopend %s geleden"
 
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:51
 msgid "Replace the share link? The current one stops working immediately."
@@ -25791,24 +25806,24 @@ msgstr "Wedstrijdanalyse — printen"
 msgid "Nothing has been written for this match yet."
 msgstr "Er is nog niets geschreven over deze wedstrijd."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:151
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:162
 msgid "Unknown team."
 msgstr "Onbekend team."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:165
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:176
 msgid "Unknown player."
 msgstr "Onbekende speler."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:168
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:179
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:267
 msgid "You do not have permission to view this player."
 msgstr "Je hebt geen permissie om deze speler te bekijken."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:212
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:223
 msgid "The analysis could not be created."
 msgstr "De analyse kon niet worden aangemaakt."
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:233
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:244
 msgid "That is not a section of a match analysis."
 msgstr "Dat is geen onderdeel van een wedstrijdanalyse."
 

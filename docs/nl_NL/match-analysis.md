@@ -266,6 +266,44 @@ Twee dingen om te weten voordat je hem verstuurt:
  af — gebruik dat als een link verder is gereisd dan de bedoeling was, of
  als iemand de staf verlaat.
 
+### Heeft iemand hem geopend?
+
+Zodra dat gebeurd is verschijnt er een regel onder de link: *Gezien door 4
+mensen · laatst geopend 2 dagen geleden*. Vóór het eerste bezoek staat er
+niets, dus een lege plek betekent "nog niet", niet "stuk".
+
+Wat wel en niet geteld wordt:
+
+- **Browsers, geen namen.** Op een deelpagina log je niet in, dus er is
+ niets om een naam aan te hangen. Eén persoon op telefoon én laptop telt
+ als twee; twee mensen op één computer tellen als één.
+- **Niet wát iemand las, of wanneer precies.** Er is geen logboek per
+ bezoek en je kunt niet opvragen wie hem opende. Een document dat je met
+ collega's deelt hoort geen registratie te zijn van wie er keek.
+- **Geen linkvoorbeelden.** WhatsApp, Slack en dergelijke halen een URL op
+ zodra je hem in een chat plakt. Die verzoeken worden genegeerd.
+- **De link vervangen zet de teller niet terug.** De teller hoort bij de
+ analyse, niet bij de URL die ernaartoe wees.
+
+**Hoe een terugkerende lezer wordt herkend.** Bij het eerste bezoek wordt in
+de browser van de lezer een kleine cookie gezet met een willekeurig getal en
+verder niets. Die bestaat alleen zodat twee keer openen niet twee keer telt.
+Het is een first-party cookie zonder identificatie die elders werkt, en
+daarom is er geen toestemmingsmelding voor nodig. Weigert een browser
+cookies, dan dient een eenrichtings-, gezouten vingerafdruk van de
+verbinding als vervanging — het adres en de browserversie worden gebruikt om
+die te berekenen en geen van beide wordt opgeslagen.
+
+**Na 90 dagen wordt alles gewist.** De manier waarop een terugkerende lezer
+wordt herkend is afgeleid van de verbinding en wordt daarom niet onbeperkt
+bewaard: na 90 dagen verdwijnen die gegevens en blijven alleen de totalen op
+het scherm over. De teller loopt dus nooit terug; een lezer die veel later
+terugkomt telt gewoon als een nieuwe.
+
+De deelpagina wordt bovendien nooit gecachet. Dat maakt de teller
+betrouwbaar — en houdt een pagina waarop kinderen bij naam staan uit
+gedeelde caches.
+
 ## Opslaan
 
 **Analyse opslaan** laat je precies staan waar je stond, met alles wat je

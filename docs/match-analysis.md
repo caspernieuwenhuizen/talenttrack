@@ -260,6 +260,42 @@ Two things to know before you send one:
  immediately — use it when a link has travelled further than you meant, or
  after someone leaves the staff.
 
+### Has anyone opened it?
+
+Once someone has, a line appears under the link: *Seen by 4 people · last
+opened 2 days ago*. Before the first visit it says nothing at all, so an
+empty space means "not yet", not "broken".
+
+What it counts, and what it does not:
+
+- **Browsers, not names.** There is no login on a share page, so there is
+ nothing to put a name to. One person on a phone and a laptop counts as
+ two; two people sharing one computer count as one.
+- **Not what anyone read, or when they read it.** There is no per-visit
+ log and no way to ask who opened it. A document you share with
+ colleagues should not double as a record of who looked at it.
+- **Not link previews.** WhatsApp, Slack and the like fetch a URL the
+ moment it is pasted into a chat. Those fetches are ignored.
+- **Replacing the link does not reset the count.** The count belongs to
+ the analysis, not to the URL that addressed it.
+
+**How it recognises a returning reader.** A small cookie is set in the
+reader's browser on their first visit, holding a random number and nothing
+else. It exists only so that opening the page twice does not count twice.
+It is first-party, carries no identifier that works anywhere else, and
+needs no consent banner for that reason. Where a browser refuses cookies,
+a one-way, salted fingerprint of the connection stands in — the address and
+the browser version are used to compute it and neither is stored.
+
+**Everything is deleted after 90 days.** The way a returning reader is
+recognised is derived from their connection, so it is not kept
+indefinitely: after 90 days those records are removed and only the totals
+you see on screen remain. The count therefore never goes down; a reader who
+comes back long afterwards is simply counted as a new one.
+
+The share page is also never cached, which is why the count is reliable —
+and why a page naming children is not sitting in a shared cache somewhere.
+
 ## Saving
 
 **Save analysis** leaves you exactly where you were, with everything you

@@ -68,6 +68,18 @@
     line-height: var(--tt-lh-body);
 }
 
+/*
+ * #3096 — "Seen by 4 people · last opened 2 days ago". A hint, but the one
+ * the coach came to the block to read, so it carries the body ink rather
+ * than the muted grey the surrounding warnings use. No icon and no badge:
+ * this is a fact about a document, not a metric.
+ */
+.tt-ma__share-seen {
+    margin-top: var(--tt-sp-2);
+    color: var(--tt-ink);
+    font-weight: 600;
+}
+
 .tt-ma__share-note {
     margin: 0;
     padding: var(--tt-sp-3);
