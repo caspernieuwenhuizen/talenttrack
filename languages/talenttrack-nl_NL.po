@@ -56813,6 +56813,13 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "%s\n"
 #~ "\n"
 #~ "Open hem op een laptop of computer."
+#. translators: %s is the requested install-profile slug.
+#: src/Infrastructure/REST/ProfilesRestController.php:196
+#, php-format
+msgid "No install profile named \"%s\"."
+msgstr "Geen installatieprofiel met de naam \"%s\"."
+
+
 
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
