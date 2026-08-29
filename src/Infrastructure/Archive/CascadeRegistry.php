@@ -309,6 +309,10 @@ final class CascadeRegistry {
                 // ahead of it exactly like the match-prep children above.
                 [ 'tt_match_analysis_sections', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
                 [ 'tt_match_analysis_players', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
+                // #3091 — the notes hang off the analysis by `analysis_id`
+                // whichever scope they are in, so one entry covers both the
+                // section bullets and the player notes.
+                [ 'tt_match_analysis_notes', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
             ],
             'cascade'      => [
                 [ 'tt_attendance', 'activity_id' ],

@@ -7,22 +7,38 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 
 /**
- * MatchAnalysisRepository — CRUD across the three match-analysis tables
- * introduced by migration 0229.
+ * MatchAnalysisRepository — CRUD across the match-analysis tables
+ * introduced by migration 0229 and extended by 0245.
  *
  * One class for the whole aggregate, following `MatchPrepRepository`: the
- * surface is small and the three tables are never read apart from each
- * other, so per-table repositories would only add indirection.
+ * surface is small and the tables are never read apart from each other, so
+ * per-table repositories would only add indirection.
+ *
+ * ## Notes are their own table now (#3091)
+ *
+ * `sections.notes` and `players.note` are no longer written. Each note is a
+ * row in `tt_match_analysis_notes` carrying its own optional + / −, because
+ * the mark has to be countable in SQL for #2725's trends and a prefix
+ * convention inside a TEXT column is not. The old columns keep their
+ * pre-migration content as a rollback net for one release, which is why
+ * nothing here updates them — overwriting them would spend the net.
  *
  * Every read and write is club-scoped. That is a no-op on a single-tenant
  * install and load-bearing the day it is not (CLAUDE.md §4).
  */
 class MatchAnalysisRepository {
 
+    /** How many notes one player item can hold (#3091). */
+    public const PLAYER_NOTES = 2;
+
+    public const SCOPE_SECTION = 'section';
+    public const SCOPE_PLAYER  = 'player';
+
     private \wpdb $wpdb;
     private string $t_analysis;
     private string $t_sections;
     private string $t_players;
+    private string $t_notes;
 
     public function __construct() {
         global $wpdb;
@@ -30,6 +46,7 @@ class MatchAnalysisRepository {
         $this->t_analysis = $wpdb->prefix . 'tt_match_analyses';
         $this->t_sections = $wpdb->prefix . 'tt_match_analysis_sections';
         $this->t_players  = $wpdb->prefix . 'tt_match_analysis_players';
+        $this->t_notes    = $wpdb->prefix . 'tt_match_analysis_notes';
     }
 
     public function findByActivity( int $activity_id ): ?object {
@@ -128,34 +145,187 @@ class MatchAnalysisRepository {
         if ( $analysis_id <= 0 ) return [];
 
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT section_key, rating, notes FROM {$this->t_sections}
+            "SELECT section_key, rating FROM {$this->t_sections}
               WHERE analysis_id = %d AND club_id = %d",
             $analysis_id, CurrentClub::id()
         ) );
 
+        $notes = $this->sectionNotes( $analysis_id );
+
         $out = [];
         foreach ( (array) $rows as $row ) {
-            $out[ (string) $row->section_key ] = [
+            $key = (string) $row->section_key;
+            $out[ $key ] = [
                 'rating' => $row->rating !== null && $row->rating !== '' ? (string) $row->rating : null,
-                'notes'  => (string) ( $row->notes ?? '' ),
+                'items'  => $notes[ $key ] ?? [],
+            ];
+            unset( $notes[ $key ] );
+        }
+
+        // A section can carry notes without a rating — the section row is
+        // still written in that case, but a stale install or a partial
+        // write should not make a coach's bullets invisible.
+        foreach ( $notes as $key => $items ) {
+            $out[ (string) $key ] = [ 'rating' => null, 'items' => $items ];
+        }
+
+        return $out;
+    }
+
+    // -----------------------------------------------------------------
+    // Notes (#3091)
+    // -----------------------------------------------------------------
+
+    /**
+     * @return array<string, list<array{valence:string, body:string}>> section key => notes in order
+     */
+    public function sectionNotes( int $analysis_id ): array {
+        if ( $analysis_id <= 0 ) return [];
+
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT section_key, valence, body FROM {$this->t_notes}
+              WHERE analysis_id = %d AND club_id = %d AND scope = %s
+              ORDER BY section_key ASC, position ASC, id ASC",
+            $analysis_id, CurrentClub::id(), self::SCOPE_SECTION
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $key = (string) ( $row->section_key ?? '' );
+            if ( $key === '' ) continue;
+            $out[ $key ][] = [
+                'valence' => (string) ( $row->valence ?? '' ),
+                'body'    => (string) ( $row->body ?? '' ),
             ];
         }
         return $out;
     }
 
     /**
-     * Upsert one section. An empty rating AND empty notes deletes the row:
-     * a section a coach cleared should read as "nothing to say here", which
+     * @return array<int, list<array{valence:string, body:string}>> player id => notes in order
+     */
+    public function playerNotes( int $analysis_id ): array {
+        if ( $analysis_id <= 0 ) return [];
+
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT player_id, valence, body FROM {$this->t_notes}
+              WHERE analysis_id = %d AND club_id = %d AND scope = %s
+              ORDER BY player_id ASC, position ASC, id ASC",
+            $analysis_id, CurrentClub::id(), self::SCOPE_PLAYER
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $pid = (int) ( $row->player_id ?? 0 );
+            if ( $pid <= 0 ) continue;
+            $out[ $pid ][] = [
+                'valence' => (string) ( $row->valence ?? '' ),
+                'body'    => (string) ( $row->body ?? '' ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Replace every note on one section.
+     *
+     * Delete-then-insert rather than a per-row diff. A note has no identity
+     * a coach can see — they are the bullets under a phase, reordered and
+     * rewritten freely — so matching old rows to new ones would be guessing
+     * at an identity that does not exist. What is read back is the set and
+     * its order, and both survive.
+     *
+     * @param list<array{valence:string, body:string}> $items
+     */
+    public function saveSectionNotes( int $analysis_id, string $section_key, array $items ): void {
+        if ( $analysis_id <= 0 || ! MatchAnalysisEnums::isSectionKey( $section_key ) ) return;
+
+        $this->wpdb->delete( $this->t_notes, [
+            'analysis_id' => $analysis_id,
+            'club_id'     => CurrentClub::id(),
+            'scope'       => self::SCOPE_SECTION,
+            'section_key' => $section_key,
+        ] );
+
+        $this->insertNotes( $analysis_id, self::SCOPE_SECTION, $section_key, null, $items );
+    }
+
+    /**
+     * Replace every note on one player item. Capped at `PLAYER_NOTES` —
+     * the surface offers two rows and the server is not obliged to believe
+     * a client that posts twelve.
+     *
+     * @param list<array{valence:string, body:string}> $items
+     */
+    public function savePlayerNotes( int $analysis_id, int $player_id, array $items ): void {
+        if ( $analysis_id <= 0 || $player_id <= 0 ) return;
+
+        $this->wpdb->delete( $this->t_notes, [
+            'analysis_id' => $analysis_id,
+            'club_id'     => CurrentClub::id(),
+            'scope'       => self::SCOPE_PLAYER,
+            'player_id'   => $player_id,
+        ] );
+
+        $this->insertNotes(
+            $analysis_id,
+            self::SCOPE_PLAYER,
+            null,
+            $player_id,
+            array_slice( $items, 0, self::PLAYER_NOTES )
+        );
+    }
+
+    /**
+     * @param list<array{valence:string, body:string}> $items
+     */
+    private function insertNotes( int $analysis_id, string $scope, ?string $section_key, ?int $player_id, array $items ): void {
+        $position = 0;
+        foreach ( $items as $item ) {
+            $body = trim( (string) ( $item['body'] ?? '' ) );
+            if ( $body === '' ) continue;
+
+            $valence = (string) ( $item['valence'] ?? '' );
+            if ( ! MatchAnalysisEnums::isValence( $valence ) ) $valence = '';
+
+            $this->wpdb->insert( $this->t_notes, [
+                'uuid'        => wp_generate_uuid4(),
+                'club_id'     => CurrentClub::id(),
+                'analysis_id' => $analysis_id,
+                'scope'       => $scope,
+                'section_key' => $section_key,
+                'player_id'   => $player_id,
+                'valence'     => $valence,
+                'body'        => mb_substr( $body, 0, 255 ),
+                'position'    => $position,
+                'updated_at'  => current_time( 'mysql' ),
+            ] );
+            $position++;
+        }
+    }
+
+    /**
+     * Upsert one section. An empty rating AND no notes deletes the row: a
+     * section a coach cleared should read as "nothing to say here", which
      * is the same state as never having written it, not as a row full of
      * blanks that later aggregation has to filter out.
+     *
+     * Since #3091 the notes live in their own table, so "empty notes" is a
+     * question about that table rather than about this row's text column —
+     * and the notes are written first, so the emptiness test reads what was
+     * actually just stored rather than what the caller believed it sent.
+     *
+     * @param list<array{valence:string, body:string}> $items
      */
-    public function saveSection( int $analysis_id, string $section_key, ?string $rating, string $notes ): bool {
+    public function saveSection( int $analysis_id, string $section_key, ?string $rating, array $items ): bool {
         if ( $analysis_id <= 0 || ! MatchAnalysisEnums::isSectionKey( $section_key ) ) return false;
 
         $rating = $rating !== null && MatchAnalysisEnums::isRating( $rating ) ? $rating : null;
-        $notes  = trim( $notes );
 
-        if ( $rating === null && $notes === '' ) {
+        $this->saveSectionNotes( $analysis_id, $section_key, $items );
+        $has_notes = ( $this->sectionNotes( $analysis_id )[ $section_key ] ?? [] ) !== [];
+
+        if ( $rating === null && ! $has_notes ) {
             return false !== $this->wpdb->delete( $this->t_sections, [
                 'analysis_id' => $analysis_id,
                 'section_key' => $section_key,
@@ -169,9 +339,10 @@ class MatchAnalysisRepository {
             $analysis_id, $section_key, CurrentClub::id()
         ) );
 
+        // `notes` is deliberately absent: the old column keeps its
+        // pre-migration text as a rollback net for one release.
         $data = [
             'rating'     => $rating,
-            'notes'      => $notes,
             'updated_at' => current_time( 'mysql' ),
         ];
 
@@ -197,11 +368,13 @@ class MatchAnalysisRepository {
         if ( $analysis_id <= 0 ) return [];
 
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT player_id, marker, note, team_function, minutes_played
+            "SELECT player_id, marker, team_function, minutes_played
                FROM {$this->t_players}
               WHERE analysis_id = %d AND club_id = %d",
             $analysis_id, CurrentClub::id()
         ) );
+
+        $notes = $this->playerNotes( $analysis_id );
 
         $out = [];
         foreach ( (array) $rows as $row ) {
@@ -209,7 +382,7 @@ class MatchAnalysisRepository {
             if ( $pid <= 0 ) continue;
             $out[ $pid ] = [
                 'marker'         => (string) ( $row->marker ?? '' ),
-                'note'           => (string) ( $row->note ?? '' ),
+                'items'          => $notes[ $pid ] ?? [],
                 'team_function'  => $row->team_function !== null && $row->team_function !== '' ? (string) $row->team_function : null,
                 'minutes_played' => $row->minutes_played !== null ? (int) $row->minutes_played : null,
             ];
@@ -230,19 +403,21 @@ class MatchAnalysisRepository {
         int $analysis_id,
         int $player_id,
         string $marker,
-        string $note,
+        array $items,
         ?string $team_function,
         ?int $minutes_played
     ): int {
         if ( $analysis_id <= 0 || $player_id <= 0 ) return 0;
 
         $marker        = MatchAnalysisEnums::isMarker( $marker ) ? $marker : '';
-        $note          = trim( $note );
         $team_function = $team_function !== null && MatchAnalysisEnums::isPlayerItemTag( $team_function )
             ? $team_function
             : null;
 
-        if ( $marker === '' && $note === '' ) {
+        $this->savePlayerNotes( $analysis_id, $player_id, $items );
+        $has_notes = ( $this->playerNotes( $analysis_id )[ $player_id ] ?? [] ) !== [];
+
+        if ( $marker === '' && ! $has_notes ) {
             $this->deletePlayerItem( $analysis_id, $player_id );
             return 0;
         }
@@ -253,9 +428,10 @@ class MatchAnalysisRepository {
             $analysis_id, $player_id, CurrentClub::id()
         ) );
 
+        // `note` is deliberately absent — see the class docblock: the old
+        // column is the rollback net, so it is read never and written never.
         $data = [
             'marker'         => $marker,
-            'note'           => $note,
             'team_function'  => $team_function,
             'minutes_played' => $minutes_played,
             'updated_at'     => current_time( 'mysql' ),
@@ -277,6 +453,16 @@ class MatchAnalysisRepository {
 
     public function deletePlayerItem( int $analysis_id, int $player_id ): bool {
         if ( $analysis_id <= 0 || $player_id <= 0 ) return false;
+
+        // The notes go with the item. Leaving them would resurrect a
+        // withdrawn note the next time the composer read the player.
+        $this->wpdb->delete( $this->t_notes, [
+            'analysis_id' => $analysis_id,
+            'club_id'     => CurrentClub::id(),
+            'scope'       => self::SCOPE_PLAYER,
+            'player_id'   => $player_id,
+        ] );
+
         return false !== $this->wpdb->delete( $this->t_players, [
             'analysis_id' => $analysis_id,
             'player_id'   => $player_id,

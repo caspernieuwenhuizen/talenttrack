@@ -229,12 +229,22 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'analysis_id' => $analysis_id,
                     'section_key' => $key,
                     'rating'      => $ratings[ ( $activity_id + $i ) % count( $ratings ) ],
-                    'notes'       => implode( "\n", array_slice( $notes, 0, 1 + ( ( $activity_id + $i ) % 2 ) ) ),
                     'updated_at'  => $when,
                 ] );
                 if ( $ok !== false ) {
                     $this->registry->tag( 'match_analysis_section', (int) $wpdb->insert_id, [] );
                     $total++;
+
+                    $total += $this->writeNotes(
+                        $club,
+                        $analysis_id,
+                        'section',
+                        $key,
+                        null,
+                        array_slice( $notes, 0, 1 + ( ( $activity_id + $i ) % 2 ) ),
+                        $activity_id + $i,
+                        $when
+                    );
                 }
             }
 
@@ -259,7 +269,6 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'analysis_id'    => $analysis_id,
                     'player_id'      => $player_id,
                     'marker'         => $markers[ $n % count( $markers ) ],
-                    'note'           => self::PLAYER_NOTES[ $lang ][ $n % count( self::PLAYER_NOTES[ $lang ] ) ],
                     'team_function'  => $sections[ ( $player_id + $activity_id ) % count( $sections ) ],
                     'minutes_played' => $row->minutes !== null ? (int) $row->minutes : null,
                     'updated_at'     => $when,
@@ -271,10 +280,87 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'player_id' => $player_id,
                 ] );
                 $total++;
+
+                // Two notes for roughly half of the marked players — the
+                // case #3091 exists for. One note for the rest, because a
+                // demo where every player has a plus and a minus reads as
+                // a form to fill in rather than as a coach's attention.
+                $pool  = self::PLAYER_NOTES[ $lang ];
+                $bodies = [ $pool[ $n % count( $pool ) ] ];
+                if ( ( $player_id + $activity_id ) % 2 === 0 ) {
+                    $bodies[] = $pool[ ( $n + 3 ) % count( $pool ) ];
+                }
+
+                $total += $this->writeNotes(
+                    $club,
+                    $analysis_id,
+                    'player',
+                    null,
+                    $player_id,
+                    $bodies,
+                    $n,
+                    $when
+                );
             }
         }
 
         return $total;
+    }
+
+    /**
+     * Notes for one section or one player, with their marks (#3091).
+     *
+     * The valence rotates rather than being random: a demo academy should
+     * show all three states — plus, minus and unmarked — because an
+     * evaluator looking at the surface needs to see that neutral is
+     * allowed. `$seed` is the caller's own counter, so the same install
+     * regenerates identically.
+     *
+     * @param list<string> $bodies
+     * @return int rows written
+     */
+    private function writeNotes(
+        int $club,
+        int $analysis_id,
+        string $scope,
+        ?string $section_key,
+        ?int $player_id,
+        array $bodies,
+        int $seed,
+        string $when
+    ): int {
+        global $wpdb;
+
+        $valences = [ 'plus', '', 'minus' ];
+        $written  = 0;
+        $position = 0;
+
+        foreach ( $bodies as $body ) {
+            $body = trim( (string) $body );
+            if ( $body === '' ) continue;
+
+            $ok = $wpdb->insert( "{$wpdb->prefix}tt_match_analysis_notes", [
+                'uuid'        => self::uuid(),
+                'club_id'     => $club,
+                'analysis_id' => $analysis_id,
+                'scope'       => $scope,
+                'section_key' => $section_key,
+                'player_id'   => $player_id,
+                'valence'     => $valences[ ( $seed + $position ) % count( $valences ) ],
+                'body'        => mb_substr( $body, 0, 255 ),
+                'position'    => $position,
+                'updated_at'  => $when,
+            ] );
+
+            if ( $ok !== false ) {
+                $this->registry->tag( 'match_analysis_note', (int) $wpdb->insert_id, [] );
+                $written++;
+            }
+
+            $position++;
+        }
+
+        return $written;
     }
 
     private static function uuid(): string {

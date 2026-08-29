@@ -235,11 +235,13 @@ final class MatchAnalysisComposer {
         $out    = [];
 
         foreach ( MatchAnalysisEnums::sectionKeys() as $key ) {
+            $items = self::noteItems( $saved[ $key ] ?? [] );
             $out[ $key ] = [
                 'key'     => $key,
                 'label'   => MatchAnalysisEnums::sectionLabel( $key ),
                 'rating'  => $saved[ $key ]['rating'] ?? null,
-                'notes'   => (string) ( $saved[ $key ]['notes'] ?? '' ),
+                'notes'   => self::joinBodies( $items ),
+                'note_items' => $items,
                 'planned' => self::plannedTextFor( $key, $prep ),
                 'rated'   => in_array( $key, $rated, true ),
             ];
@@ -247,17 +249,47 @@ final class MatchAnalysisComposer {
 
         $legacy = MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY;
         if ( isset( $saved[ $legacy ] ) ) {
+            $items = self::noteItems( $saved[ $legacy ] );
             $out[ $legacy ] = [
                 'key'     => $legacy,
                 'label'   => MatchAnalysisEnums::sectionLabel( $legacy ),
                 'rating'  => $saved[ $legacy ]['rating'] ?? null,
-                'notes'   => (string) ( $saved[ $legacy ]['notes'] ?? '' ),
+                'notes'   => self::joinBodies( $items ),
+                'note_items' => $items,
                 'planned' => '',
                 'rated'   => false,
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * @param array<string,mixed> $saved
+     * @return list<array{valence:string, body:string}>
+     */
+    private static function noteItems( array $saved ): array {
+        $items = $saved['items'] ?? [];
+        return is_array( $items ) ? array_values( $items ) : [];
+    }
+
+    /**
+     * The bullets as one newline-joined string (#3091).
+     *
+     * Kept in the payload because it is what `notes` has always meant to
+     * every reader of it — the print sheet, the share page, an integration.
+     * It is now derived rather than stored, so it cannot drift from the
+     * rows, and anything that wants the marks reads `note_items` instead.
+     *
+     * @param list<array{valence:string, body:string}> $items
+     */
+    private static function joinBodies( array $items ): string {
+        $bodies = array_map(
+            static fn( array $item ): string => (string) ( $item['body'] ?? '' ),
+            $items
+        );
+
+        return implode( "\n", array_filter( $bodies, static fn( string $b ): bool => $b !== '' ) );
     }
 
     /**
@@ -345,7 +377,10 @@ final class MatchAnalysisComposer {
                 'full_name'      => (string) QueryHelpers::player_display_name( $player ),
                 'minutes'        => $minutes[ $pid ] ?? ( $item['minutes_played'] ?? null ),
                 'marker'         => (string) ( $item['marker'] ?? '' ),
-                'note'           => (string) ( $item['note'] ?? '' ),
+                // `note` stays as the first line so every existing reader
+                // keeps working; `note_items` is where the marks are.
+                'note'           => self::joinBodies( self::noteItems( (array) ( $item ?? [] ) ) ),
+                'note_items'     => self::noteItems( (array) ( $item ?? [] ) ),
                 'team_function'  => $item['team_function'] ?? null,
                 'prep_focus'     => (string) ( $tracked[ $pid ]['attention_text'] ?? '' ),
                 'prep_specific'  => (bool) ( $tracked[ $pid ]['is_specific_goal'] ?? false ),

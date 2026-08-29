@@ -83,6 +83,7 @@ final class MatchAnalysisRosterTest extends WP_UnitTestCase {
                 'minutes'       => 65,
                 'marker'        => '',
                 'note'          => '',
+                'note_items'    => [],
                 'team_function' => null,
                 'prep_focus'    => '',
                 'prep_specific' => false,
@@ -201,7 +202,7 @@ final class MatchAnalysisRosterTest extends WP_UnitTestCase {
             'players'     => [
                 $this->player_id => [
                     'marker'        => MatchAnalysisEnums::MARKER_BELOW_PAR,
-                    'note'          => 'Zakte te ver in.',
+                    'notes'         => [ [ 'valence' => 'minus', 'body' => 'Zakte te ver in.' ] ],
                     'team_function' => null,
                 ],
             ],

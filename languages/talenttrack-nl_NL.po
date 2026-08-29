@@ -25420,6 +25420,50 @@ msgstr "Eén kort punt…"
 msgid "%1$s — point %2$d"
 msgstr "%1$s — punt %2$d"
 
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:236
+msgctxt "match analysis note"
+msgid "Good"
+msgstr "Goed"
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:237
+msgctxt "match analysis note"
+msgid "Needs work"
+msgstr "Moet beter"
+
+#. translators: %s: what the note is about, e.g. "Aanvallen — point 2"
+#: src/Modules/MatchAnalysis/Frontend/NoteValenceControl.php:54
+#, php-format
+msgid "Mark this point — %s"
+msgstr "Markeer dit punt — %s"
+
+#. translators: 1: "Good" or "Needs work", 2: what the note is about
+#: src/Modules/MatchAnalysis/Frontend/NoteValenceControl.php:76
+#, php-format
+msgctxt "note mark option"
+msgid "%1$s — %2$s"
+msgstr "%1$s — %2$s"
+
+#. translators: %s: what the note is about
+#: src/Modules/MatchAnalysis/Frontend/NoteValenceControl.php:94
+#, php-format
+msgid "No mark — %s"
+msgstr "Geen markering — %s"
+
+#: src/Modules/MatchAnalysis/Frontend/NoteValenceControl.php:97
+msgctxt "clear the mark on a note"
+msgid "×"
+msgstr "×"
+
+#. translators: 1: player name, 2: note number
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:178
+#, php-format
+msgid "%1$s — note %2$d"
+msgstr "%1$s — notitie %2$d"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:203
+msgid "And the other side of it…"
+msgstr "En de andere kant ervan…"
+
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:367
 msgid "Print or save as PDF"
 msgstr "Printen of opslaan als PDF"

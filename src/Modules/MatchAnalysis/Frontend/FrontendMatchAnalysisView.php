@@ -273,6 +273,10 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         // phases, instead of printing the three words on every one of them.
         echo '<div class="tt-ma__group-head tt-ma__group-head--chains">';
         SectionRatingControl::renderLegend();
+        // #3091 — and what the + / − in front of each bullet mean. Same
+        // place, same reason: state the vocabulary once rather than on
+        // every one of the thirty controls that use it.
+        NoteValenceControl::renderLegend();
         echo '</div>';
 
         echo '<div class="tt-ma__chains">';
@@ -311,7 +315,7 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
      */
     private static function renderSectionFields( string $key, array $section ): void {
         $current = (string) ( $section['rating'] ?? '' );
-        $lines   = self::bulletLines( (string) $section['notes'] );
+        $items   = is_array( $section['note_items'] ?? null ) ? array_values( $section['note_items'] ) : [];
 
         echo '<section class="tt-ma__section">';
 
@@ -327,20 +331,37 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
 
         echo '<ul class="tt-ma__bullets">';
         for ( $i = 0; $i < self::BULLETS; $i++ ) {
-            $value = $lines[ $i ] ?? '';
+            $item    = $items[ $i ] ?? [];
+            $value   = (string) ( $item['body'] ?? '' );
+            $valence = (string) ( $item['valence'] ?? '' );
+            $context = sprintf(
+                /* translators: 1: section name, 2: bullet number */
+                __( '%1$s — point %2$d', 'talenttrack' ),
+                (string) $section['label'],
+                $i + 1
+            );
+
+            echo '<li class="tt-ma__bullet-row">';
+
+            // #3091 — the mark sits in front of the sentence it qualifies,
+            // so a phase rated "mixed" reads as the two halves it was.
+            NoteValenceControl::render(
+                sprintf( 'sections[%s][notes][%d]', $key, $i ),
+                $valence,
+                'tt-ma-' . sanitize_key( $key ) . '-n' . $i,
+                $context
+            );
+
             printf(
-                '<li><input type="text" class="tt-input tt-ma__bullet" name="sections[%1$s][notes][%2$d]" value="%3$s" maxlength="180" placeholder="%4$s" aria-label="%5$s" /></li>',
+                '<input type="text" class="tt-input tt-ma__bullet" name="sections[%1$s][notes][%2$d][body]" value="%3$s" maxlength="180" placeholder="%4$s" aria-label="%5$s" />',
                 esc_attr( $key ),
                 $i,
                 esc_attr( $value ),
                 esc_attr__( 'One short point…', 'talenttrack' ),
-                esc_attr( sprintf(
-                    /* translators: 1: section name, 2: bullet number */
-                    __( '%1$s — point %2$d', 'talenttrack' ),
-                    (string) $section['label'],
-                    $i + 1
-                ) )
+                esc_attr( $context )
             );
+
+            echo '</li>';
         }
         echo '</ul>';
         echo '</section>';
@@ -479,16 +500,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         echo '<span class="tt-ma__planned-label">' . esc_html__( 'Planned', 'talenttrack' ) . '</span> ';
         echo esc_html( str_replace( "\n", ' · ', $planned ) );
         echo '</p>';
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function bulletLines( string $notes ): array {
-        $lines = preg_split( '/\r\n|\r|\n/', $notes ) ?: [];
-        $lines = array_map( 'trim', $lines );
-
-        return array_values( array_filter( $lines, static fn( string $l ): bool => $l !== '' ) );
     }
 
     private static function renderBreadcrumbs( ?object $activity ): void {

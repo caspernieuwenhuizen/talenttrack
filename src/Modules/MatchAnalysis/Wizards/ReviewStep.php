@@ -65,8 +65,8 @@ final class ReviewStep implements WizardStepInterface {
 
             if ( $notes ) {
                 echo '<ul class="tt-ma__read-bullets">';
-                foreach ( $notes as $line ) {
-                    echo '<li>' . esc_html( (string) $line ) . '</li>';
+                foreach ( $notes as $note ) {
+                    self::renderReadNote( $note );
                 }
                 echo '</ul>';
             }
@@ -96,8 +96,13 @@ final class ReviewStep implements WizardStepInterface {
                         esc_html( MatchAnalysisEnums::markerLabel( $marker ) )
                     );
                 }
-                if ( trim( (string) ( $item['note'] ?? '' ) ) !== '' ) {
-                    echo '<p class="tt-ma__read-note">' . esc_html( (string) $item['note'] ) . '</p>';
+                $notes = isset( $item['notes'] ) && is_array( $item['notes'] ) ? array_values( $item['notes'] ) : [];
+                if ( $notes ) {
+                    echo '<ul class="tt-ma__read-bullets">';
+                    foreach ( $notes as $note ) {
+                        self::renderReadNote( $note );
+                    }
+                    echo '</ul>';
                 }
                 echo '</li>';
             }
@@ -161,6 +166,43 @@ final class ReviewStep implements WizardStepInterface {
                 RecordLink::dashboardUrl()
             ),
         ];
+    }
+
+    /**
+     * One note in the read-back, carrying its + / − if it has one (#3091).
+     *
+     * The review step is where a coach checks what they are about to
+     * commit, so a mark they set two steps ago has to be visible here or
+     * the check is incomplete.
+     *
+     * @param mixed $note
+     */
+    private static function renderReadNote( $note ): void {
+        $body    = '';
+        $valence = '';
+
+        if ( is_array( $note ) ) {
+            $body    = trim( (string) ( $note['body'] ?? '' ) );
+            $valence = (string) ( $note['valence'] ?? '' );
+        } else {
+            $body = trim( (string) $note );
+        }
+
+        if ( $body === '' ) return;
+
+        printf( '<li data-valence="%s">', esc_attr( $valence ) );
+
+        if ( MatchAnalysisEnums::isValence( $valence ) ) {
+            printf(
+                '<span class="tt-ma__read-mark" data-valence="%s"><span aria-hidden="true">%s</span><span class="tt-ma__sr">%s</span></span> ',
+                esc_attr( $valence ),
+                esc_html( MatchAnalysisEnums::valenceGlyph( $valence ) ),
+                esc_html( MatchAnalysisEnums::valenceLabel( $valence ) )
+            );
+        }
+
+        echo esc_html( $body );
+        echo '</li>';
     }
 
     /**

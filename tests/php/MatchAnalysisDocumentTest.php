@@ -187,7 +187,22 @@ final class MatchAnalysisDocumentTest extends WP_UnitTestCase {
             'analysis_id' => $analysis_id,
             'section_key' => MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY,
             'rating'      => MatchAnalysisEnums::RATING_MIXED,
-            'notes'       => 'Van voor de splitsing',
+            'updated_at'  => current_time( 'mysql' ),
+        ] );
+
+        // The note lives in its own table since #3091, which is where
+        // migration 0245 puts the text a pre-split row was carrying. Written
+        // the same way here so the fixture matches what a real install has
+        // after upgrading.
+        $wpdb->insert( $wpdb->prefix . 'tt_match_analysis_notes', [
+            'uuid'        => wp_generate_uuid4(),
+            'club_id'     => CurrentClub::id(),
+            'analysis_id' => $analysis_id,
+            'scope'       => 'section',
+            'section_key' => MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY,
+            'valence'     => '',
+            'body'        => 'Van voor de splitsing',
+            'position'    => 0,
             'updated_at'  => current_time( 'mysql' ),
         ] );
 

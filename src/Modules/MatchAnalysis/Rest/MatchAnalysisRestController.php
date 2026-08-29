@@ -244,7 +244,11 @@ class MatchAnalysisRestController {
             (int) $payload['analysis_id'],
             $section_key,
             $body['rating'] ?? null,
-            $body['notes'] ?? ''
+            // #3091 — notes arrive as `[{body, valence}]`, and the writer
+            // also still reads the flat list an older client sends. Every
+            // valence is checked against the enum on the way in; an unknown
+            // string is stored as neutral, never as itself.
+            $body['notes'] ?? []
         );
 
         return RestResponse::success( [ 'section_key' => $section_key ] );

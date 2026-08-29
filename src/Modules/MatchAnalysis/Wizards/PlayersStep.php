@@ -7,6 +7,7 @@ use TT\Modules\MatchAnalysis\Frontend\MatchAnalysisAssets;
 use TT\Modules\MatchAnalysis\Frontend\PlayerTallyRoster;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
+use TT\Modules\MatchAnalysis\Services\MatchAnalysisWriter;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -50,7 +51,9 @@ final class PlayersStep implements WizardStepInterface {
             if ( ! isset( $saved[ $pid ] ) || ! is_array( $saved[ $pid ] ) ) continue;
 
             $players[ $index ]['marker']        = (string) ( $saved[ $pid ]['marker'] ?? '' );
-            $players[ $index ]['note']          = (string) ( $saved[ $pid ]['note'] ?? '' );
+            $players[ $index ]['note_items']    = is_array( $saved[ $pid ]['notes'] ?? null )
+                ? array_values( $saved[ $pid ]['notes'] )
+                : [];
             $players[ $index ]['team_function'] = $saved[ $pid ]['team_function'] ?? null;
         }
 
@@ -66,16 +69,18 @@ final class PlayersStep implements WizardStepInterface {
             if ( $player_id <= 0 || ! is_array( $item ) ) continue;
 
             $marker = sanitize_key( (string) ( $item['marker'] ?? '' ) );
-            $note   = sanitize_text_field( (string) ( $item['note'] ?? '' ) );
             $tag    = sanitize_key( (string) ( $item['team_function'] ?? '' ) );
+            $notes  = MatchAnalysisWriter::cleanNoteItems(
+                array_key_exists( 'notes', $item ) ? $item['notes'] : ( $item['note'] ?? [] )
+            );
 
             // Only carry the rows that say something. The rest are the
             // roster's resting state and never become records.
-            if ( $marker === '' && trim( $note ) === '' ) continue;
+            if ( $marker === '' && $notes === [] ) continue;
 
             $out[ $player_id ] = [
                 'marker'        => MatchAnalysisEnums::isMarker( $marker ) ? $marker : '',
-                'note'          => $note,
+                'notes'         => $notes,
                 'team_function' => MatchAnalysisEnums::isPlayerItemTag( $tag ) ? $tag : null,
             ];
         }

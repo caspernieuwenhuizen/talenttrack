@@ -62,6 +62,17 @@ final class MatchAnalysisEnums {
     public const MARKER_AS_EXPECTED = 'as_expected';
     public const MARKER_BELOW_PAR   = 'below_par';
 
+    /**
+     * The mark on a single note (#3091). Plus, minus, or nothing.
+     *
+     * Neutral is a first-class answer and is the default. "Speelde als
+     * rechtsback" is an observation, not a judgement, and forcing a
+     * good/bad call on it would repeat the mistake the section rating
+     * already avoids by letting "nothing selected" be the resting state.
+     */
+    public const VALENCE_PLUS  = 'plus';
+    public const VALENCE_MINUS = 'minus';
+
     public const STATUS_DRAFT = 'draft';
     public const STATUS_FINAL = 'final';
 
@@ -215,6 +226,58 @@ final class MatchAnalysisEnums {
 
     public static function isRating( string $value ): bool {
         return isset( self::ratings()[ $value ] );
+    }
+
+    /**
+     * The two marks a note can carry (#3091).
+     *
+     * `_x` on both: "Good" and "Needs work" are short enough that Dutch
+     * would otherwise inherit whichever sense happens to be first in the
+     * catalogue, and here they qualify one sentence a coach wrote rather
+     * than grading anything.
+     *
+     * @return array<string,string> valence key => label
+     */
+    public static function valences(): array {
+        return [
+            self::VALENCE_PLUS  => _x( 'Good', 'match analysis note', 'talenttrack' ),
+            self::VALENCE_MINUS => _x( 'Needs work', 'match analysis note', 'talenttrack' ),
+        ];
+    }
+
+    public static function isValence( string $value ): bool {
+        return isset( self::valences()[ $value ] );
+    }
+
+    public static function valenceLabel( string $value ): string {
+        $valences = self::valences();
+        return $valences[ $value ] ?? '';
+    }
+
+    /**
+     * The sign a marked note carries.
+     *
+     * Deliberately NOT the ▲ ● ▼ of the section rating and the player
+     * marker. The page already has one visual language for "how did this
+     * go" at phase and player level; a note is a different granularity, and
+     * reusing the triangles would make a note-level mark and a
+     * section-level rating look identical inside the same card. U+2212 for
+     * the minus so it reads as a sign rather than as a hyphen a coach
+     * typed.
+     *
+     * @return array<string,string>
+     */
+    public static function valenceGlyphs(): array {
+        return [
+            ''                  => '',
+            self::VALENCE_PLUS  => '+',
+            self::VALENCE_MINUS => "\u{2212}",
+        ];
+    }
+
+    public static function valenceGlyph( string $value ): string {
+        $glyphs = self::valenceGlyphs();
+        return $glyphs[ $value ] ?? '';
     }
 
     /** @return array<string,string> marker key => label */

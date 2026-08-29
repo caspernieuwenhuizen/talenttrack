@@ -166,7 +166,7 @@ final class MatchAnalysisDocument {
      */
     private static function renderTile( string $key, array $section ): void {
         $rating = $section['rating'] ?? null;
-        $lines  = self::lines( (string) ( $section['notes'] ?? '' ) );
+        $items  = self::noteItems( $section );
         $label  = (string) ( $section['label'] ?? MatchAnalysisEnums::sectionLabel( $key ) );
 
         printf( '<section class="tt-mad__tile" data-rating="%s">', esc_attr( (string) $rating ) );
@@ -185,15 +185,66 @@ final class MatchAnalysisDocument {
         echo '</span>';
         echo '</div>';
 
-        if ( $lines ) {
+        if ( $items ) {
             echo '<ul class="tt-mad__points">';
-            foreach ( $lines as $line ) {
-                echo '<li>' . esc_html( $line ) . '</li>';
+            foreach ( $items as $item ) {
+                self::renderPoint( $item );
             }
             echo '</ul>';
         }
 
         echo '</section>';
+    }
+
+    /**
+     * One bullet, with its mark if it has one (#3091).
+     *
+     * The sign is a real character in the text rather than a colour on the
+     * row: this document is read on a share page, and printed, and the
+     * printer is often monochrome. It also carries the word in the
+     * accessible name, because "+" read aloud is not a judgement.
+     *
+     * @param array{valence:string, body:string} $item
+     */
+    private static function renderPoint( array $item ): void {
+        $body    = (string) ( $item['body'] ?? '' );
+        $valence = (string) ( $item['valence'] ?? '' );
+        if ( $body === '' ) return;
+
+        printf( '<li data-valence="%s">', esc_attr( $valence ) );
+
+        if ( MatchAnalysisEnums::isValence( $valence ) ) {
+            printf(
+                '<span class="tt-mad__point-mark" data-valence="%s"><span aria-hidden="true">%s</span><span class="tt-mad__sr">%s</span></span> ',
+                esc_attr( $valence ),
+                esc_html( MatchAnalysisEnums::valenceGlyph( $valence ) ),
+                esc_html( MatchAnalysisEnums::valenceLabel( $valence ) )
+            );
+        }
+
+        echo esc_html( $body );
+        echo '</li>';
+    }
+
+    /**
+     * @param array<string,mixed> $carrier a composed section or player
+     * @return list<array{valence:string, body:string}>
+     */
+    private static function noteItems( array $carrier ): array {
+        $items = $carrier['note_items'] ?? null;
+        if ( ! is_array( $items ) ) return [];
+
+        $out = [];
+        foreach ( $items as $item ) {
+            if ( ! is_array( $item ) ) continue;
+            $body = trim( (string) ( $item['body'] ?? '' ) );
+            if ( $body === '' ) continue;
+            $out[] = [
+                'valence' => (string) ( $item['valence'] ?? '' ),
+                'body'    => $body,
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -207,7 +258,7 @@ final class MatchAnalysisDocument {
     private static function renderLegacySetPieces( array $sections ): void {
         $legacy = $sections[ MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY ] ?? null;
         if ( ! is_array( $legacy ) ) return;
-        if ( ( $legacy['rating'] ?? null ) === null && trim( (string) ( $legacy['notes'] ?? '' ) ) === '' ) return;
+        if ( ( $legacy['rating'] ?? null ) === null && self::noteItems( $legacy ) === [] ) return;
 
         echo '<div class="tt-mad__legacy">';
         self::renderTile( MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY, $legacy );
@@ -220,7 +271,7 @@ final class MatchAnalysisDocument {
     private static function renderPlayers( array $players ): void {
         $mentioned = array_values( array_filter(
             $players,
-            static fn( array $p ): bool => (string) $p['marker'] !== '' || trim( (string) $p['note'] ) !== ''
+            static fn( array $p ): bool => (string) $p['marker'] !== '' || self::noteItems( $p ) !== []
         ) );
 
         echo '<div class="tt-mad__players">';
@@ -276,8 +327,15 @@ final class MatchAnalysisDocument {
             }
             echo '</div>';
 
-            if ( trim( (string) $player['note'] ) !== '' ) {
-                echo '<p class="tt-mad__player-note">' . esc_html( (string) $player['note'] ) . '</p>';
+            // #3091 — a player can hold a plus and a minus in the same
+            // match, so this is a list rather than a paragraph.
+            $notes = self::noteItems( $player );
+            if ( $notes ) {
+                echo '<ul class="tt-mad__player-notes">';
+                foreach ( $notes as $note ) {
+                    self::renderPoint( $note );
+                }
+                echo '</ul>';
             }
 
             echo '</div>';
@@ -353,13 +411,4 @@ final class MatchAnalysisDocument {
         echo '</footer>';
     }
 
-    /**
-     * @return list<string>
-     */
-    private static function lines( string $notes ): array {
-        $lines = preg_split( '/\r\n|\r|\n/', $notes ) ?: [];
-        $lines = array_map( 'trim', $lines );
-
-        return array_values( array_filter( $lines, static fn( string $l ): bool => $l !== '' ) );
-    }
 }
