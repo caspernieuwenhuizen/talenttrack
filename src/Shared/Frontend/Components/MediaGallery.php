@@ -238,14 +238,15 @@ final class MediaGallery {
     /**
      * Tag the players in this photo, from the activity's own roster.
      *
-     * A `<details>` with checkboxes rather than a modal: it degrades to
-     * a plain disclosure with no JavaScript, it needs no focus
-     * management, and on a phone it pushes the page down instead of
-     * covering the photo the coach is looking at while they decide who
-     * is in it.
+     * A `<details>` rather than a modal: on a phone it pushes the page
+     * down instead of covering the photo the coach is looking at while
+     * they decide who is in it, and it needs no focus management.
      *
-     * Already-attached players are checked, so the control reads as the
-     * current state rather than as a blank form that silently re-adds.
+     * What is inside it is the shared chip field (#3093) — the same
+     * control the wizard's Details step offers, so tagging looks and
+     * behaves the same whether it happens while adding or afterwards.
+     * The summary keeps the count, because a collapsed control still has
+     * to say whether anyone is tagged.
      *
      * @param array<int, string> $players
      */
@@ -268,19 +269,13 @@ final class MediaGallery {
                 )
         ) . '</summary>';
 
-        echo '<ul class="tt-media-tag__list">';
-        foreach ( $players as $player_id => $name ) {
-            $is_on = isset( $attached[ $player_id ] );
-            printf(
-                '<li class="tt-media-tag__item"><label class="tt-media-tag__label">'
-                    . '<input type="checkbox" data-role="tag-player" data-player-id="%1$d" data-link-id="%2$d" %3$s /> %4$s</label></li>',
-                (int) $player_id,
-                (int) ( $attached[ $player_id ] ?? 0 ),
-                checked( $is_on, true, false ),
-                esc_html( $name )
-            );
-        }
-        echo '</ul>';
+        MediaPlayerTagField::render( [
+            'mode'     => 'tile',
+            'players'  => $players,
+            'selected' => $attached,
+            'uuid'     => (string) $item->uuid,
+        ] );
+
         echo '</details>';
     }
 
@@ -400,11 +395,6 @@ final class MediaGallery {
             'i18n'  => [
                 'confirmDelete' => __( 'Remove this permanently? The file is deleted, not archived.', 'talenttrack' ),
                 'deleteFailed'  => __( 'It could not be removed.', 'talenttrack' ),
-                'tagFailed'     => __( 'That tag could not be saved.', 'talenttrack' ),
-                'tagNone'       => __( 'Tag players', 'talenttrack' ),
-                /* translators: %d is how many players are tagged. */
-                'tagCount'      => __( '%d players tagged', 'talenttrack' ),
-                'tagOne'        => __( '1 player tagged', 'talenttrack' ),
                 'loading'       => __( 'Loading…', 'talenttrack' ),
                 'moreLoaded'    => __( 'More photos and video loaded.', 'talenttrack' ),
                 'moreFailed'    => __( 'Could not load more. Try again.', 'talenttrack' ),

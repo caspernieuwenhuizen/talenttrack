@@ -525,31 +525,134 @@
 	touch-action: manipulation;
 }
 
-.tt-media-tag__list {
-	max-height: 14rem;
-	overflow-y: auto;
+/* ── Tag field (#3093) ────────────────────────────────────────────── */
+
+.tt-tagfield {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-tagfield__label {
+	font-size: var(--tt-fs-sm, 0.875rem);
+	font-weight: 600;
+	color: var(--tt-ink, #1c2126);
+}
+
+.tt-tagfield__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tt-sp-2, 0.5rem);
 	margin: 0;
 	padding: 0;
 	list-style: none;
-	/* A long roster must scroll inside the control, not stretch the tile. */
-	overscroll-behavior: contain;
 }
 
-.tt-media-tag__label {
+/* Empty until something is tagged — no placeholder row, no reserved gap. */
+.tt-tagfield__chips:empty {
+	display: none;
+}
+
+.tt-tagfield__chip {
 	display: flex;
-	gap: var(--tt-sp-2, 0.5rem);
 	align-items: center;
+	gap: var(--tt-sp-1, 0.25rem);
 	min-height: 48px;
-	font-size: var(--tt-fs-sm, 0.875rem);
+	padding-left: var(--tt-sp-3, 0.75rem);
+	border: 1px solid var(--tt-line, #d4d6db);
+	border-radius: 999px;
+	background: var(--tt-bg-soft, #f7f8f9);
 	color: var(--tt-ink, #1c2126);
+	font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+/* Saving, not saved: the chip is on screen before the server has agreed. */
+.tt-tagfield__chip.is-saving {
+	opacity: 0.6;
+}
+
+.tt-tagfield__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	min-height: 48px;
+	padding: 0;
+	border: 0;
+	border-radius: 999px;
+	background: none;
+	color: var(--tt-ink-soft, #5b6470);
+	font-size: var(--tt-fs-body, 1rem);
+	line-height: 1;
 	cursor: pointer;
 	touch-action: manipulation;
 }
 
-.tt-media-tag__label input {
-	width: 1.25rem;
-	height: 1.25rem;
-	flex: 0 0 auto;
+.tt-tagfield__remove:hover,
+.tt-tagfield__remove:focus-visible {
+	color: var(--tt-danger, #a4262c);
+}
+
+.tt-tagfield__entry {
+	position: relative;
+}
+
+.tt-tagfield__input {
+	width: 100%;
+	min-height: 48px;
+}
+
+.tt-tagfield__list {
+	position: absolute;
+	z-index: 20;
+	top: calc(100% + 0.25rem);
+	left: 0;
+	width: 100%;
+	max-height: 14rem;
+	margin: 0;
+	padding: 0;
+	overflow-y: auto;
+	border: 1px solid var(--tt-line, #d4d6db);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+	box-shadow: var(--tt-shadow, 0 4px 12px rgba(0, 0, 0, 0.12));
+	list-style: none;
+	/* A long roster scrolls inside the list, not against the page. */
+	overscroll-behavior: contain;
+}
+
+/*
+ * Opened against the description box, the list belongs under that box —
+ * which sits above this field, so it is anchored from the top edge.
+ */
+.tt-tagfield__list--mentions {
+	top: auto;
+	bottom: calc(100% + 0.25rem);
+}
+
+.tt-tagfield__option,
+.tt-tagfield__none {
+	display: flex;
+	align-items: center;
+	min-height: 48px;
+	padding: 0 var(--tt-sp-3, 0.75rem);
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-ink, #1c2126);
+}
+
+.tt-tagfield__option {
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-tagfield__option:hover,
+.tt-tagfield__option.is-active {
+	background: var(--tt-bg-soft, #f7f8f9);
+}
+
+.tt-tagfield__none {
+	color: var(--tt-muted, #77808c);
 }
 
 /* ── Activity + team sections ─────────────────────────────────────── */

@@ -295,6 +295,109 @@ final class MediaWizardTest extends WP_UnitTestCase {
         );
     }
 
+    // ── tagging (#3093) ────────────────────────────────────────────────
+
+    /**
+     * The field is client-supplied like every other, so an id that is not
+     * on this target's roster is dropped rather than trusted — otherwise
+     * the control would be a way to attach a photograph to any player id
+     * somebody cared to type.
+     */
+    public function test_tags_are_kept_to_the_targets_own_roster(): void {
+        $team     = 8401;
+        $activity = $this->makeActivity( $team );
+        $mine     = $this->makePlayer( $team );
+        $stranger = $this->makePlayer( 8402 );
+
+        $result = ( new MediaDetailsStep() )->validate(
+            [ 'media_tag_player_ids' => $mine . ',' . $stranger . ',999999' ],
+            [ 'entity_type' => MediaEntityType::ACTIVITY, 'entity_id' => $activity ]
+        );
+
+        $this->assertIsArray( $result );
+        $this->assertSame( [ $mine ], $result['media_tag_player_ids'] );
+    }
+
+    public function test_a_target_that_offers_no_tagging_drops_every_tag(): void {
+        $result = ( new MediaDetailsStep() )->validate(
+            [ 'media_tag_player_ids' => '11,12' ],
+            [ 'entity_type' => MediaEntityType::TEAM, 'entity_id' => 8403 ]
+        );
+
+        $this->assertIsArray( $result );
+        $this->assertSame( [], $result['media_tag_player_ids'] );
+    }
+
+    /**
+     * One set of tags, applied to everything in the batch — and applying
+     * them twice must not attach the same player twice, because stepping
+     * back and finishing again is an ordinary thing to do.
+     */
+    public function test_tags_reach_every_item_and_do_not_duplicate(): void {
+        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'head_coach', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
+
+        $team     = 8404;
+        $activity = $this->makeActivity( $team );
+        $player   = $this->makePlayer( $team );
+
+        wp_set_current_user( $this->makeCoachScopedToTeam( $team ) );
+
+        $first  = $this->makeMedia( MediaEntityType::ACTIVITY, $activity );
+        $second = $this->makeMedia( MediaEntityType::ACTIVITY, $activity );
+
+        $state = [
+            'entity_type'          => MediaEntityType::ACTIVITY,
+            'entity_id'            => $activity,
+            'media_uuids'          => [ $first->uuid, $second->uuid ],
+            'media_tag_player_ids' => [ $player ],
+        ];
+
+        $this->assertIsArray( ( new MediaConfirmStep() )->submit( $state ) );
+        $this->assertIsArray( ( new MediaConfirmStep() )->submit( $state ) );
+
+        foreach ( [ $first, $second ] as $media ) {
+            $tagged = 0;
+            foreach ( ( new MediaLinksRepository() )->listForMedia( (int) $media->id ) as $link ) {
+                if ( (string) $link->entity_type === MediaEntityType::PLAYER
+                    && (int) $link->entity_id === $player ) {
+                    $tagged++;
+                }
+            }
+
+            $this->assertSame( 1, $tagged, 'the player is attached exactly once' );
+        }
+    }
+
+    /**
+     * The details step already filtered these, but the state travelled
+     * through the client in between. The write path checks for itself.
+     */
+    public function test_a_tag_smuggled_past_the_details_step_is_still_dropped(): void {
+        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'head_coach', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
+
+        $team = 8405;
+        wp_set_current_user( $this->makeCoachScopedToTeam( $team ) );
+
+        $media = $this->makeMedia( MediaEntityType::TEAM, $team );
+
+        ( new MediaConfirmStep() )->submit( [
+            'entity_type'          => MediaEntityType::TEAM,
+            'entity_id'            => $team,
+            'media_uuids'          => [ $media->uuid ],
+            'media_tag_player_ids' => [ $this->makePlayer( 8406 ) ],
+        ] );
+
+        foreach ( ( new MediaLinksRepository() )->listForMedia( (int) $media->id ) as $link ) {
+            $this->assertNotSame(
+                MediaEntityType::PLAYER,
+                (string) $link->entity_type,
+                'a team target offers no roster, so no player may be attached through it'
+            );
+        }
+    }
+
     // ── helpers ────────────────────────────────────────────────────────
 
     private function grant( string $persona, string $activity, string $scope ): void {
@@ -317,6 +420,33 @@ final class MediaWizardTest extends WP_UnitTestCase {
         }
 
         return $repo->find( $id );
+    }
+
+    private function makeActivity( int $team_id ): int {
+        global $wpdb;
+
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id'      => 1,
+            'title'        => 'Tag test',
+            'session_date' => '2026-08-29',
+            'team_id'      => $team_id,
+        ] );
+
+        return (int) $wpdb->insert_id;
+    }
+
+    private function makePlayer( int $team_id ): int {
+        global $wpdb;
+
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [
+            'club_id'    => 1,
+            'team_id'    => $team_id,
+            'first_name' => 'Tag',
+            'last_name'  => 'Target',
+            'status'     => 'active',
+        ] );
+
+        return (int) $wpdb->insert_id;
     }
 
     private function makeCoachScopedToTeam( int $team_id ): int {
