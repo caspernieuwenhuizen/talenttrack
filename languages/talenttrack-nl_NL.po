@@ -48177,6 +48177,30 @@ msgstr "Opslaan mislukt — probeer opnieuw"
 msgid "Undo failed — nothing changed"
 msgstr "Ongedaan maken mislukt — er is niets gewijzigd"
 
+#: src/Shared/Frontend/Components/SaveState.php:104
+#: src/Shared/Frontend/Components/SaveState.php:159
+msgid "Revert changes"
+msgstr "Wijzigingen terugdraaien"
+
+#: src/Shared/Frontend/Components/SaveState.php:105
+msgid ""
+"Restore this record to how it was when you opened it? This cannot be undone."
+msgstr ""
+"Dit item terugzetten naar hoe het was toen je het opende? Dit kun je niet "
+"ongedaan maken."
+
+#: src/Shared/Frontend/Components/SaveState.php:106
+msgid "1 field will be restored."
+msgstr "1 veld wordt hersteld."
+
+#: src/Shared/Frontend/Components/SaveState.php:107
+msgid "%d fields will be restored."
+msgstr "%d velden worden hersteld."
+
+#: src/Shared/Frontend/Components/SaveState.php:109
+msgid "Revert failed — nothing changed"
+msgstr "Terugdraaien mislukt — er is niets gewijzigd"
+
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
 msgid "Staff member"
