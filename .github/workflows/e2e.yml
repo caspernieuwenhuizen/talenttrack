@@ -73,20 +73,19 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      # #2417 — see the longer note in php-tests.yml. `.wp-env.json` sets
-      # `"core": "WordPress/WordPress"`, so wp-env git-clones WordPress into
-      # `~/.wp-env` and reuses it; on a runner that reuse never happens
-      # because the directory is cold every run. This makes the clone a
-      # cache restore. Keyed with the run id and a config hash so an entry
-      # ages out rather than pinning the suite to one snapshot of trunk.
-      - name: Cache wp-env core + downloads
+      # #2417 — the WordPress source tree only; see the longer note in
+      # php-tests.yml for why the path is the `WordPress` subdirectory and
+      # not `~/.wp-env` itself (caching wp-env's own state restores a
+      # docker-compose project with no containers behind it, and the job
+      # dies on "Error establishing a database connection").
+      - name: Cache the WordPress source wp-env clones
         id: wp-env-cache
         uses: actions/cache@v4
         with:
-          path: ~/.wp-env
-          key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
+          path: ~/.wp-env/**/WordPress
+          key: ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-
+            ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-
 
       # See php-tests.yml: a pre-pull step was measured here too and removed.
       # It cost 28s and saved nothing, because wp-env pulls its own tags.

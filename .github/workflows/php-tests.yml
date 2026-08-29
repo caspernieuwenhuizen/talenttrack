@@ -97,26 +97,34 @@ jobs:
       - name: Install JS dependencies
         run: npm ci || npm install
 
-      # #2417 — wp-env's own working directory. `.wp-env.json` sets
-      # `"core": "WordPress/WordPress"`, so wp-env git-clones the WordPress
-      # repository into `~/.wp-env/<hash>/WordPress` and reuses it forever
-      # after. On a CI runner "forever after" never arrives: the clone is
-      # cold on every single run. Caching that directory is what turns the
-      # clone into a restore.
+      # #2417 — the WordPress source tree, and ONLY that.
       #
-      # The key carries a week stamp as well as the config hash, so a cache
-      # entry ages out after seven days rather than pinning the suites to
-      # whatever trunk looked like the day it was written. `restore-keys`
-      # lets a stale entry still be used as a starting point while the fresh
-      # one is being written.
-      - name: Cache wp-env core + downloads
+      # `.wp-env.json` sets `"core": "WordPress/WordPress"`, so wp-env
+      # git-clones the WordPress repository into `~/.wp-env/<hash>/WordPress`
+      # and reuses it forever after. On a CI runner "forever after" never
+      # arrives: the clone is cold on every single run, on both workflows.
+      # This turns that clone into a restore.
+      #
+      # The path is the `WordPress` subdirectory and not `~/.wp-env` itself,
+      # which was measured and rejected: wp-env keeps its own state there
+      # too, including the generated docker-compose project. Restoring that
+      # convinces wp-env the environment is already up while the containers
+      # and the database volume are not, and the job dies later with
+      # "Error establishing a database connection" after a startup that
+      # looked 58s faster. A fast start and no database is not a saving.
+      #
+      # The key carries the config hash and the run id, with `restore-keys`
+      # falling back to the newest entry for the same config, so the entry
+      # is reused but rewritten each run and the cached tree ages forward
+      # instead of freezing one snapshot of trunk into CI.
+      - name: Cache the WordPress source wp-env clones
         id: wp-env-cache
         uses: actions/cache@v4
         with:
-          path: ~/.wp-env
-          key: ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
+          path: ~/.wp-env/**/WordPress
+          key: ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-wp-env-${{ hashFiles('.wp-env.json') }}-
+            ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-
 
       # #2417 — the breakdown the issue asked for, recorded in the log of
       # every run rather than reconstructed after the fact from a stopwatch.
