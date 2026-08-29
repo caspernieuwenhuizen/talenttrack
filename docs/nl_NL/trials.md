@@ -26,6 +26,10 @@ Een **stagedossier** is een gestructureerde manier om gedurende 2–6 weken naar
 
 Klik op de tegel **Stagedossiers** en kies *Nieuw stagedossier*. Selecteer de speler (of maak deze eerst aan), kies een traject (Standaard / Scout / Keeper, of een door de club toegevoegd traject), zet de start- en einddatum en wijs eventueel direct staf toe. De status van de speler wordt automatisch op **Stage** gezet.
 
+Bij het openen van het dossier wordt **Stage gestart** op de tijdlijn van de speler geschreven, zodat de stage vanaf dag één in zijn verloop zichtbaar is. Heb je de speler direct op dit formulier aangemaakt — voornaam, achternaam en geboortedatum — dan komt daar ook **Bij de academie gekomen** bij, net als wanneer je hem via het spelersscherm toevoegt. Bij een stagespeler ís de stage waar hij vandaan komt, en dat hoort op de tijdlijn te staan zonder dat iemand er een notitie voor hoeft te maken.
+
+Omdat die velden de gewone spelersaanmaak gebruiken, werkt de snelle route niet bij een academie die een eigen spelersveld **verplicht** heeft gemaakt: het formulier zegt dan welk veld ontbreekt. Maak de speler dan eerst via het spelersscherm aan en selecteer hem hier.
+
 ### 2. De stage volgen
 
 Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt — activiteiten waar de speler bij was, geschreven evaluaties, doelen die zijn aangemaakt of bijgewerkt, plus een korte synthese (rolling rating, aantal evaluaties). Niets wordt gedupliceerd; de gegevens blijven op hun gebruikelijke plek staan, dit tabblad filtert alleen op het stagevenster.
@@ -78,11 +82,21 @@ Een dossier blijft "open" — zichtbaar voor toegewezen staf, telt mee voor de w
 
 Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / `Afwijzen (definitief)` / `Afwijzen (met aanmoediging)`) plus de verplichte motivatie van ≥ 30 tekens. Het vastleggen:
 
-- Verandert de status van de speler (Aannemen → Actief, Afwijzen → Gearchiveerd).
-- Genereert automatisch de bijpassende brief.
+- Verandert de status van de speler, volgens de tabel hieronder.
+- Schrijft de bijbehorende regel op de tijdlijn van de speler — *Stage afgerond*, plus *Vastgelegd* bij aannemen of *Afscheid genomen* bij een definitieve afwijzing.
 - Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
 
-Gebruik dit altijd als je een inhoudelijk antwoord aan het gezin verschuldigd bent. De rest van het gesprek loopt via het tabblad Oudergesprek.
+| Beslissing | De speler wordt | Gearchiveerd? |
+| --- | --- | --- |
+| Aannemen | **Actief** | nee |
+| Afwijzen (definitief) | **Vertrokken** | ja — het dossier gaat naar de prullenbak en is daar te herstellen |
+| Afwijzen (met aanmoediging) | **Inactief** | **nee** |
+
+De derde regel is het lezen waard. *Afwijzen met aanmoediging* betekent "nu niet, kom terug" — de speler blijft dus in beeld, vindbaar, en in aanmerking komen voor een volgende stage. Dat dossier archiveren zou je eigen systeem het tegenovergestelde vertellen van wat je zojuist tegen het gezin zei. Alleen een definitieve afwijzing beëindigt de relatie.
+
+Alleen een speler die nog op **Stage** staat verandert. Is hij al langs een andere route doorgestroomd, of wordt de beslissing een tweede keer vastgelegd, dan gebeurt er niets — een beslissing kan een actieve speler niet terugzetten.
+
+De brief wordt **niet** automatisch gegenereerd. Ga naar het tabblad **Brief** en maak hem aan wanneer je zover bent; een brief aan een gezin hoort gelezen te zijn voordat hij bestaat. De rest van het gesprek loopt via het tabblad Oudergesprek.
 
 ### Archiveren (het "geen antwoord nodig" pad)
 
