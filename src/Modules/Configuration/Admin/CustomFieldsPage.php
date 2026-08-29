@@ -34,12 +34,26 @@ use TT\Shared\Admin\BackButton;
  */
 class CustomFieldsPage {
 
-    private const CAP = 'tt_view_settings';
+    /**
+     * #3023 sweep — a read capability used to authorise the write.
+     *
+     * The same shape the category-weights page had: render and both
+     * handlers gated on `tt_view_settings`, while the menu entry that
+     * leads here is gated on `tt_view_custom_fields`. So the page was
+     * reachable by URL for a user the entry point deliberately hides it
+     * from, and a view capability decided who could add a field to every
+     * player record.
+     *
+     * Both narrower capabilities already existed and are already used by
+     * the frontend surface; only this page did not consult them.
+     */
+    private const CAP_VIEW = 'tt_view_custom_fields';
+    private const CAP_EDIT = 'tt_edit_custom_fields';
 
     // Router
 
     public static function render(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_VIEW ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -332,7 +346,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
     // Handlers
 
     public static function handleSave(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_save_custom_field', 'tt_nonce' );
@@ -410,7 +424,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
     }
 
     public static function handleToggle(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;

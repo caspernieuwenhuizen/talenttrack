@@ -42,22 +42,23 @@ $root = dirname( __DIR__ );
 
 /* ---- routable slugs: the dispatcher's case arms ---------------------- */
 
-$dispatcher = (string) @file_get_contents(
-    $root . '/src/Shared/Frontend/DashboardShortcode.php'
-);
-if ( $dispatcher === '' ) {
+// Shared with the docs and mobile-class gates (#3022). This check used to
+// regex for `case '<literal>':` and carry a hand-maintained list of the
+// constant arms a regex cannot see, which meant every new constant arm was
+// a build failure waiting for somebody to remember the list.
+require_once __DIR__ . '/lib/routable-slugs.php';
+
+$dispatcherPath = $root . '/src/Shared/Frontend/DashboardShortcode.php';
+if ( ! is_file( $dispatcherPath ) ) {
     fwrite( STDERR, "check-tile-routes: cannot read DashboardShortcode.php\n" );
     exit( 1 );
 }
 
-preg_match_all( "/case\s+'([a-z0-9\-]+)'\s*:/i", $dispatcher, $m );
-$routable = array_flip( $m[1] );
+[ $routable ] = tt_routable_slugs( $root, $dispatcherPath );
 
-// Arms that dispatch on a class constant rather than a literal — a regex
-// cannot see the value, so the constant's owner is trusted. Listed rather
-// than pattern-matched so adding one is a decision.
-foreach ( [ 'alert-settings', 'alert-policy' ] as $constant_slug ) {
-    $routable[ $constant_slug ] = true;
+if ( $routable === [] ) {
+    fwrite( STDERR, "check-tile-routes: parsed no routable slugs at all — the dispatcher shape has changed and this gate is blind\n" );
+    exit( 1 );
 }
 
 /* ---- tile registrations --------------------------------------------- */

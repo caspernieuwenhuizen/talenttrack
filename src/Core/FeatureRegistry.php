@@ -615,6 +615,48 @@ class FeatureRegistry {
     }
 
     /**
+     * The catalog entry for one feature, or null for an unknown key.
+     *
+     * `allWithState()` is the read model for the management UI and drops
+     * every feature whose parent module is off. Callers that need to
+     * describe a feature regardless of live state — the install-profile
+     * diff (#3035), which has to label a feature under a module it is
+     * about to switch on — need the catalog itself.
+     *
+     * @return array{
+     *   label: string,
+     *   description: string,
+     *   module_class: string,
+     *   default_enabled: bool,
+     *   view_slugs: list<string>,
+     *   entities: list<string>
+     * }|null
+     */
+    public static function describe( string $key ): ?array {
+        $catalog = self::catalog();
+        return $catalog[ $key ] ?? null;
+    }
+
+    /**
+     * The feature's own configured state, ignoring whether its parent
+     * module is on: the stored row when there is one, the catalog
+     * default otherwise. Unknown keys are treated as enabled, matching
+     * `isEnabled()`.
+     *
+     * This is what a profile diff must compare against. `isEnabled()`
+     * folds the parent module in, so a profile that switches a module on
+     * and leaves its features alone would otherwise read every one of
+     * them as a change.
+     */
+    public static function configuredState( string $key ): bool {
+        $catalog = self::catalog();
+        if ( ! isset( $catalog[ $key ] ) ) return true;
+        $state = self::loadStateCache();
+        if ( array_key_exists( $key, $state ) ) return $state[ $key ];
+        return (bool) $catalog[ $key ]['default_enabled'];
+    }
+
+    /**
      * Is the feature on? Unknown keys are treated as enabled so callers
      * can guard a surface unconditionally without first checking the
      * catalog. Catalogued features fall back to `default_enabled` when

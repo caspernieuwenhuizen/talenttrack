@@ -1514,16 +1514,26 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         <?php
     }
 
-    /** Goals tab — card-row list of every non-archived goal. */
+    /**
+     * Goals tab — the player's active goals, with their finished ones in a
+     * collapsed section underneath (#3033).
+     */
     private static function renderGoalsTab( int $player_id ): void {
         // #1358 — list shape lives in GoalsRepository (urgency order:
         // dated goals by nearest due date, undated last by recency).
-        $rows = ( new \TT\Infrastructure\Goals\GoalsRepository() )->listActiveByDueDateForPlayer( $player_id, 50 );
+        $goals_repo = new \TT\Infrastructure\Goals\GoalsRepository();
+        $rows       = $goals_repo->listActiveByDueDateForPlayer( $player_id, 50 );
+        // #3033 — the heading count comes from the repository rather than
+        // from `count( $rows )`, so it stays equal to the tab badge and the
+        // profile KPI even for a player past the 50-row list window.
+        $active_total = $goals_repo->countActiveForPlayer( $player_id );
+        $closed_rows  = $goals_repo->listClosedForPlayer( $player_id, 50 );
+        $closed_total = $goals_repo->countClosedForPlayer( $player_id );
         $add_url = add_query_arg(
             [ 'tt_view' => 'goals', 'action' => 'new', 'player_id' => $player_id ],
             RecordLink::dashboardUrl()
         );
-        if ( empty( $rows ) ) {
+        if ( empty( $rows ) && empty( $closed_rows ) ) {
             EmptyStateCard::render( [
                 'icon'      => 'goals',
                 'headline'  => __( 'No goals yet for this player', 'talenttrack' ),
@@ -1546,7 +1556,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <h3 class="tt-player-card__title">
                     <?php
                     /* translators: %d: number of active goals */
-                    echo esc_html( sprintf( __( 'Active goals · %d', 'talenttrack' ), count( $rows ) ) );
+                    echo esc_html( sprintf( __( 'Active goals · %d', 'talenttrack' ), $active_total ) );
                     ?>
                 </h3>
                 <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
@@ -1569,38 +1579,59 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php endif; ?>
                 </div>
             </div>
-            <ul class="tt-player-list">
-                <?php foreach ( $rows as $g ) :
-                    $url      = RecordLink::detailUrlForWithBack( 'goals', (int) $g->id );
-                    $date_bit = self::dueDateBadge( (string) ( $g->due_date ?? '' ) );
-                    ?>
-                    <li>
-                        <a class="tt-player-row" href="<?php echo esc_url( $url ); ?>">
-                            <div class="tt-player-row__date <?php echo esc_attr( $date_bit['class'] ); ?>">
-                                <span class="tt-player-row__date-m"><?php echo esc_html( $date_bit['m'] ); ?></span>
-                                <span class="tt-player-row__date-d"><?php echo $date_bit['d']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped ?></span>
-                            </div>
-                            <div class="tt-player-row__body">
-                                <p class="tt-player-row__title"><?php echo esc_html( (string) $g->title ); ?></p>
-                                <p class="tt-player-row__meta">
-                                    <?php if ( ! empty( $g->priority ) ) : ?>
-                                        <span class="tt-player-row__pill" data-priority="<?php echo esc_attr( (string) $g->priority ); ?>">
-                                            <?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) $g->priority ) ); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                    <?php if ( ! empty( $g->status ) ) : ?>
-                                        <span class="tt-player-row__pill" data-status="<?php echo esc_attr( (string) $g->status ); ?>">
-                                            <?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) $g->status ) ); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </p>
-                            </div>
-                            <span class="tt-player-row__chev" aria-hidden="true">›</span>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
+            <?php if ( empty( $rows ) ) : ?>
+                <p class="tt-player-card__empty"><?php esc_html_e( 'No active goals — every goal on this player is finished.', 'talenttrack' ); ?></p>
+            <?php else : ?>
+                <ul class="tt-player-list">
+                    <?php foreach ( $rows as $g ) { self::renderGoalRow( $g ); } ?>
+                </ul>
+            <?php endif; ?>
+            <?php if ( ! empty( $closed_rows ) ) : ?>
+                <details class="tt-player-goals-closed">
+                    <summary class="tt-player-goals-closed__toggle">
+                        <?php
+                        /* translators: %d: number of completed or cancelled goals */
+                        echo esc_html( sprintf( __( 'Completed goals · %d', 'talenttrack' ), $closed_total ) );
+                        ?>
+                    </summary>
+                    <ul class="tt-player-list">
+                        <?php foreach ( $closed_rows as $g ) { self::renderGoalRow( $g ); } ?>
+                    </ul>
+                </details>
+            <?php endif; ?>
         </div>
+        <?php
+    }
+
+    /** One goal row on the player-file Goals tab — active and finished lists share it (#3033). */
+    private static function renderGoalRow( object $g ): void {
+        $url      = RecordLink::detailUrlForWithBack( 'goals', (int) $g->id );
+        $date_bit = self::dueDateBadge( (string) ( $g->due_date ?? '' ) );
+        ?>
+        <li>
+            <a class="tt-player-row" href="<?php echo esc_url( $url ); ?>">
+                <div class="tt-player-row__date <?php echo esc_attr( $date_bit['class'] ); ?>">
+                    <span class="tt-player-row__date-m"><?php echo esc_html( $date_bit['m'] ); ?></span>
+                    <span class="tt-player-row__date-d"><?php echo $date_bit['d']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped ?></span>
+                </div>
+                <div class="tt-player-row__body">
+                    <p class="tt-player-row__title"><?php echo esc_html( (string) $g->title ); ?></p>
+                    <p class="tt-player-row__meta">
+                        <?php if ( ! empty( $g->priority ) ) : ?>
+                            <span class="tt-player-row__pill" data-priority="<?php echo esc_attr( (string) $g->priority ); ?>">
+                                <?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) $g->priority ) ); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ( ! empty( $g->status ) ) : ?>
+                            <span class="tt-player-row__pill" data-status="<?php echo esc_attr( (string) $g->status ); ?>">
+                                <?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) $g->status ) ); ?>
+                            </span>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <span class="tt-player-row__chev" aria-hidden="true">›</span>
+            </a>
+        </li>
         <?php
     }
 

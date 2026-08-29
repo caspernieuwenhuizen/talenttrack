@@ -39,6 +39,21 @@ Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vor
 - Coaches zien de doelen van spelers in de teams die zij coachen.
 - Beheerders zien alle doelen.
 
+## Op het spelersdossier
+
+Het tabblad **Doelen** van een spelersdossier opent op de doelen waar de speler
+nog aan werkt, op urgentie: eerst de dichtstbijzijnde streefdatum, doelen zonder
+datum onderaan. Behaalde en gestaakte doelen staan niet langer door die lijst
+heen; ze staan eronder onder **Afgeronde doelen**, standaard dichtgeklapt. Klap
+het open om de doelhistorie van de speler te zien zonder het profiel te
+verlaten.
+
+Het getal op het tabblad, de kop **Actieve doelen** en het doelencijfer in het
+overzichtspaneel van de speler tellen alle drie hetzelfde: doelen die niet
+gearchiveerd, niet behaald en niet gestaakt zijn. Verdwijnt een doel uit de
+lijst nadat je het op behaald zet, dan is het naar het dichtgeklapte blok
+verhuisd — niet uit het dossier van de speler.
+
 ## Methodologiekoppeling
 
 Doelen kunnen nu worden gekoppeld aan een methodologie-principe en/of één voetbalhandeling vanuit zowel het publieke doel-formulier als het wp-admin-formulier. De koppeling is optioneel maar maakt rapportage per principe mogelijk op het persona-dashboard (de nieuwe Doelen-per-principe-widget toont actieve en afgeronde doelen per principe; een Doelen-gekoppeld-aan-principe KPI volgt de dekking over de afgelopen 90 dagen).

@@ -486,21 +486,6 @@ class FrontendTileGrid {
     }
 
     /**
-     * Split rendered groups into work + setup buckets by each tile's
-     * `kind` field. A group bucket = work if any of its tiles is `kind=work`;
-     * otherwise setup.
-     *
-     * v3.92.0 — was a label-based heuristic that hardcoded "Development"
-     * and "Administration" as setup. That collided with the player-
-     * development "Development" group (PDP + PDP planning, both `kind=work`)
-     * registered in #0079 — which then rendered under Setup despite its
-     * tiles being work. The label-based rule also hid the kind field's
-     * intent: tiles declare their own kind, the renderer should respect it.
-     *
-     * @param array<int, array{label:string, tiles:array}> $groups
-     * @return array{0: array<int, array>, 1: array<int, array>}
-     */
-    /**
      * #1821 — true when the user's active (or only) persona is `player`.
      * Mirrors PersonaLandingRenderer::resolvePersona so the legacy grid and
      * the persona dashboard agree on who is a player. Respects the persona
@@ -518,22 +503,37 @@ class FrontendTileGrid {
         return ( $available[0] ?? null ) === 'player';
     }
 
+    /**
+     * Split rendered groups into work + setup buckets by each tile's own
+     * `kind`, keeping the group heading on both sides when a group holds
+     * some of each.
+     *
+     * v3.92.0 replaced a label-based heuristic ("Development" and
+     * "Administration" are setup) with the tile's declared kind, but bucketed
+     * whole groups: one `kind=work` tile pulled the entire group into
+     * "Today's work". That is how trial tracks and letter templates — both
+     * `setup`, both settings for the Trials module — came to sit beside the
+     * operational Trial cases list (#3046). Splitting per tile is what lets
+     * Configuration own the setup half without the work half following it.
+     *
+     * @param array<int, array{label:string, tiles:array}> $groups
+     * @return array{0: list<array{label:string, tiles:list<array<string,mixed>>}>, 1: list<array{label:string, tiles:list<array<string,mixed>>}>}
+     */
     private static function splitByKind( array $groups ): array {
-        $work = [];
+        $work  = [];
         $setup = [];
         foreach ( $groups as $g ) {
-            $bucket = 'setup';
+            $w = [];
+            $s = [];
             foreach ( $g['tiles'] as $t ) {
-                if ( ( $t['kind'] ?? 'work' ) === 'work' ) {
-                    $bucket = 'work';
-                    break;
+                if ( ( $t['kind'] ?? 'work' ) === 'setup' ) {
+                    $s[] = $t;
+                } else {
+                    $w[] = $t;
                 }
             }
-            if ( $bucket === 'setup' ) {
-                $setup[] = $g;
-            } else {
-                $work[] = $g;
-            }
+            if ( $w !== [] ) $work[]  = [ 'label' => $g['label'], 'tiles' => $w ];
+            if ( $s !== [] ) $setup[] = [ 'label' => $g['label'], 'tiles' => $s ];
         }
         return [ $work, $setup ];
     }
@@ -546,7 +546,7 @@ class FrontendTileGrid {
      * `null` for the rail when no Me group is visible for this user.
      *
      * @param array<int, array{label:string, tiles:array}> $groups
-     * @return array{0: array<int, array>, 1: array<string, mixed>|null}
+     * @return array{0: list<array{label:string, tiles:array}>, 1: array<string, mixed>|null}
      */
     private static function peelMeGroup( array $groups ): array {
         $me_label = __( 'Me', 'talenttrack' );
