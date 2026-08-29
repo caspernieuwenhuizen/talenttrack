@@ -56772,6 +56772,7 @@ msgstr "Die opstelling is voor %1$s en dit team speelt %2$s. Kies een opstelling
 
 msgid "Every match in the tournament is played by this team, in the football form set on the team record."
 msgstr "Elke wedstrijd in het toernooi wordt door dit team gespeeld, in de speelvorm die op het team is ingesteld."
+
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
 
