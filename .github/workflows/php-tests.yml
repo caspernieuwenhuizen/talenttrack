@@ -57,12 +57,11 @@ jobs:
     timeout-minutes: 30
     env:
       # #2417 — pin where wp-env keeps its working files instead of trusting
-      # the default. The first attempt at the cache below silently saved
-      # nothing ("Path Validation Error: Path(s) specified in the action for
-      # caching do(es) not exist"), because `~/.wp-env` is only wp-env's
-      # default on some platforms and versions. Naming it makes the cache
-      # path and the tool agree by construction rather than by coincidence,
-      # and survives a wp-env upgrade that moves the default again.
+      # the default, which is only `~/.wp-env` on some platforms and
+      # versions. Kept after the cache experiment was reverted: the timing
+      # step below reports the size of that directory, and a marker that
+      # silently measures the wrong path is worse than no marker. It cost a
+      # cycle to learn that once already.
       WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
@@ -97,41 +96,12 @@ jobs:
       - name: Install JS dependencies
         run: npm ci || npm install
 
-      # #2417 — the WordPress source tree, and ONLY that.
-      #
-      # `.wp-env.json` sets `"core": "WordPress/WordPress"`, so wp-env
-      # git-clones the WordPress repository into `~/.wp-env/<hash>/WordPress`
-      # and reuses it forever after. On a CI runner "forever after" never
-      # arrives: the clone is cold on every single run, on both workflows.
-      # This turns that clone into a restore.
-      #
-      # The path is the `WordPress` subdirectory and not `~/.wp-env` itself,
-      # which was measured and rejected: wp-env keeps its own state there
-      # too, including the generated docker-compose project. Restoring that
-      # convinces wp-env the environment is already up while the containers
-      # and the database volume are not, and the job dies later with
-      # "Error establishing a database connection" after a startup that
-      # looked 58s faster. A fast start and no database is not a saving.
-      #
-      # The key carries the config hash and the run id, with `restore-keys`
-      # falling back to the newest entry for the same config, so the entry
-      # is reused but rewritten each run and the cached tree ages forward
-      # instead of freezing one snapshot of trunk into CI.
-      - name: Cache the WordPress source wp-env clones
-        id: wp-env-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.wp-env/**/WordPress
-          key: ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-
-
       # #2417 — the breakdown the issue asked for, recorded in the log of
       # every run rather than reconstructed after the fact from a stopwatch.
-      # `Start wp-env` was one 95s block with no internal detail; these
-      # markers separate the image pull from everything wp-env does after it,
-      # and report whether the core cache was warm, which is the difference
-      # the cache above is meant to make.
+      # `Start wp-env` was one 95s block with no internal detail.
+      #
+      # TWO fixes were tried here and BOTH removed after measuring them.
+      #
       # A pre-pull step was tried here and REMOVED after measuring it —
       # candidate 1 in #2417, ruled out with a number rather than an
       # opinion. Pulling `wordpress` / `wordpress:cli` / `mariadb:lts` ahead
@@ -139,10 +109,18 @@ jobs:
       # wp-env resolves its own tags and pulls them regardless. Net effect
       # was +25s. Image pull is roughly 28s of the startup; it is not the
       # part worth attacking, and the way to find that out was to try it.
+      #
+      # An `actions/cache` of the WordPress source tree was then tried, on
+      # the theory that `"core": "WordPress/WordPress"` git-cloning
+      # WordPress every run was the dominant cost. It is not. Measured on
+      # `main`: cold startup ~90s, warm startup with the 391MB tree restored
+      # **103s and 129s**. Restoring the tree costs more than cloning it,
+      # and wp-env does its own work either way. Removed. The startup is
+      # simply ~90s of work, and candidate 2 in #2417 — wp-env booting a
+      # `dev` instance this job never touches — is the remaining lead.
       - name: Start wp-env (timed)
         run: |
           set -e
-          echo "TT_TIMING core_cache_hit=${{ steps.wp-env-cache.outputs.cache-hit || 'false' }}"
           if [ -d "$HOME/.wp-env" ]; then
             echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
           else

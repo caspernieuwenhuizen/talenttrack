@@ -19,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # #2417 — pin wp-env's working directory so the cache below and the
-      # tool agree on it. See the longer note in php-tests.yml: trusting the
-      # default cached nothing at all, silently.
+      # #2417 — pin wp-env's working directory rather than trusting its
+      # default, so the timing marker below measures the directory wp-env
+      # actually uses. See the longer note in php-tests.yml.
       WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
@@ -73,26 +73,15 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      # #2417 — the WordPress source tree only; see the longer note in
-      # php-tests.yml for why the path is the `WordPress` subdirectory and
-      # not `~/.wp-env` itself (caching wp-env's own state restores a
-      # docker-compose project with no containers behind it, and the job
-      # dies on "Error establishing a database connection").
-      - name: Cache the WordPress source wp-env clones
-        id: wp-env-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.wp-env/**/WordPress
-          key: ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-
-
-      # See php-tests.yml: a pre-pull step was measured here too and removed.
-      # It cost 28s and saved nothing, because wp-env pulls its own tags.
+      # #2417 — see php-tests.yml. Two candidate fixes were tried here and
+      # both removed after measuring them: pre-pulling the container images
+      # (+25s net) and caching the WordPress source tree (warm startup
+      # measured SLOWER than cold — 103s and 129s against ~90s, because
+      # restoring 391MB costs more than cloning it). The timing markers
+      # stay, because they are what made both answers visible.
       - name: Start wp-env (timed)
         run: |
           set -e
-          echo "TT_TIMING core_cache_hit=${{ steps.wp-env-cache.outputs.cache-hit || 'false' }}"
           if [ -d "$HOME/.wp-env" ]; then
             echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
           else
