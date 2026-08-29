@@ -26,6 +26,10 @@ Een **stagedossier** is een gestructureerde manier om gedurende 2–6 weken naar
 
 Klik op de tegel **Stagedossiers** en kies *Nieuw stagedossier*. Selecteer de speler (of maak deze eerst aan), kies een traject (Standaard / Scout / Keeper, of een door de club toegevoegd traject), zet de start- en einddatum en wijs eventueel direct staf toe. De status van de speler wordt automatisch op **Stage** gezet.
 
+Bij het openen van het dossier wordt **Stage gestart** op de tijdlijn van de speler geschreven, zodat de stage vanaf dag één in zijn verloop zichtbaar is. Heb je de speler direct op dit formulier aangemaakt — voornaam, achternaam en geboortedatum — dan komt daar ook **Bij de academie gekomen** bij, net als wanneer je hem via het spelersscherm toevoegt. Bij een stagespeler ís de stage waar hij vandaan komt, en dat hoort op de tijdlijn te staan zonder dat iemand er een notitie voor hoeft te maken.
+
+Omdat die velden de gewone spelersaanmaak gebruiken, werkt de snelle route niet bij een academie die een eigen spelersveld **verplicht** heeft gemaakt: het formulier zegt dan welk veld ontbreekt. Maak de speler dan eerst via het spelersscherm aan en selecteer hem hier.
+
 ### 2. De stage volgen
 
 Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt — activiteiten waar de speler bij was, geschreven evaluaties, doelen die zijn aangemaakt of bijgewerkt, plus een korte synthese (rolling rating, aantal evaluaties). Niets wordt gedupliceerd; de gegevens blijven op hun gebruikelijke plek staan, dit tabblad filtert alleen op het stagevenster.

@@ -14,8 +14,18 @@ name: PHP tests (#1388)
 # a smoke test (contributing.md policy).
 
 on:
+  # #3090 — no `branches:` filter on `pull_request`. The event only fires
+  # for pull requests in the first place, so the filter's entire effect was
+  # to skip PRs whose base is not `main` — which is exactly the case that
+  # needs covering. A stacked PR ran neither suite and still showed a green
+  # column, which is worse than showing none. A glob of feature-branch
+  # patterns was considered and rejected: it keeps a filter whose only
+  # remaining job is to be incomplete, and it fails silently the first time
+  # somebody stacks onto a base the pattern misses.
+  #
+  # The `push` trigger below keeps its `branches: [main]`. That one is the
+  # post-merge net and is correct as it stands.
   pull_request:
-    branches: [main]
     paths:
       - 'src/**'
       - 'tests/php/**'
