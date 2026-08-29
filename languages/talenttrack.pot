@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-29T16:44:53+00:00\n"
+"POT-Creation-Date: 2026-08-29T16:45:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -4553,7 +4553,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
 #: src/Modules/Goals/Admin/GoalsPage.php:138
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:44
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:46
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
 #: src/Modules/Methodology/Admin/MethodologyPage.php:423
@@ -8716,7 +8716,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
 #: src/Modules/Goals/Admin/GoalsPage.php:140
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:50
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:52
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:151
@@ -14738,7 +14738,7 @@ msgid "Name and save"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/Components/MediaGallery.php:325
+#: src/Shared/Frontend/Components/MediaGallery.php:322
 #: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr ""
@@ -16466,7 +16466,7 @@ msgid "A short summary of the idea"
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:67
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:24
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:26
 #: src/Modules/Wizards/Activity/DetailsStep.php:23
 #: src/Modules/Wizards/Goal/DetailsStep.php:12
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:322
@@ -18783,7 +18783,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FilterBar.php:119
 #: src/Shared/Frontend/Components/FilterBar.php:358
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/Components/MediaGallery.php:326
+#: src/Shared/Frontend/Components/MediaGallery.php:323
 #: src/Shared/Frontend/DashboardShortcode.php:235
 #: src/Shared/Frontend/DashboardShortcode.php:2290
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:159
@@ -24668,47 +24668,61 @@ msgstr ""
 msgid "Unnamed player"
 msgstr ""
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:29
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:31
 msgid "Confirm"
 msgstr ""
 
 #. translators: %s is the player, team or training the media was added to.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:42
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:44
 #, php-format
 msgid "This will appear on %s."
 msgstr ""
 
+#. translators: %s is a comma-separated list of player names.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:75
+#, php-format
+msgid "Also added to the records of: %s."
+msgstr ""
+
 #. translators: %s is a date.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:67
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:86
 #, php-format
 msgid "Filed under %s on the timeline."
 msgstr ""
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:83
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:102
 msgid "Nothing was added."
 msgstr ""
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:110
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:144
 msgid "The uploads could not be updated. They are still saved on the record."
 msgstr ""
 
 #. translators: %d is how many items were added.
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:38
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:40
 #, php-format
 msgid "These details apply to the %d item you added."
 msgid_plural "These details apply to all %d items you added."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:56
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:58
 msgid "When was this taken?"
 msgstr ""
 
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:63
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:65
 msgid "The date decides where this sits on the player's timeline — so it is the day of the training or match, not the day you uploaded it."
 msgstr ""
 
-#: src/Modules/Media/Wizard/MediaDetailsStep.php:71
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:101
+msgid "Tagged players"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:105
+msgid "Type a name, or type @ in the description. Everyone you tag gets this on their own record."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:113
 msgid "That date could not be read. Use the date picker."
 msgstr ""
 
@@ -25707,7 +25721,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:191
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
-#: src/Shared/Frontend/Components/MediaGallery.php:408
+#: src/Shared/Frontend/Components/MediaGallery.php:400
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:233
 #: src/Shared/Frontend/DashboardShortcode.php:2295
@@ -31678,7 +31692,7 @@ msgid "WordPress user to link"
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:291
-#: src/Shared/Frontend/Components/MediaGallery.php:375
+#: src/Shared/Frontend/Components/MediaGallery.php:372
 msgid "Link"
 msgstr ""
 
@@ -35936,8 +35950,11 @@ msgid "Pick at least one player for the squad."
 msgstr ""
 
 #. translators: %s is the title of the photo or video.
+#. translators: %s is a player's name.
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:41
 #: src/Shared/Frontend/Components/MediaGallery.php:227
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:137
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:172
 #, php-format
 msgid "Remove %s"
 msgstr ""
@@ -41610,59 +41627,83 @@ msgstr ""
 msgid "Show more"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:263
-#: src/Shared/Frontend/Components/MediaGallery.php:404
+#: src/Shared/Frontend/Components/MediaGallery.php:266
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:166
 msgid "Tag players"
 msgstr ""
 
 #. translators: %d is how many players are tagged in this photo or video.
-#: src/Shared/Frontend/Components/MediaGallery.php:266
+#: src/Shared/Frontend/Components/MediaGallery.php:269
 #, php-format
 msgid "%d player tagged"
 msgid_plural "%d players tagged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:320
+#: src/Shared/Frontend/Components/MediaGallery.php:317
 msgid "Media viewer"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:323
+#: src/Shared/Frontend/Components/MediaGallery.php:320
 msgid "Previous"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:333
+#: src/Shared/Frontend/Components/MediaGallery.php:330
 msgid "Add photos or video"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:401
+#: src/Shared/Frontend/Components/MediaGallery.php:398
 msgid "Remove this permanently? The file is deleted, not archived."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:402
+#: src/Shared/Frontend/Components/MediaGallery.php:399
 msgid "It could not be removed."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:403
+#: src/Shared/Frontend/Components/MediaGallery.php:401
+msgid "More photos and video loaded."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaGallery.php:402
+msgid "Could not load more. Try again."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:99
+msgid "Type a name, or @"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:104
+msgid "Players you can tag"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:165
 msgid "That tag could not be saved."
 msgstr ""
 
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:167
+msgid "1 player tagged"
+msgstr ""
+
 #. translators: %d is how many players are tagged.
-#: src/Shared/Frontend/Components/MediaGallery.php:406
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:169
 #, php-format
 msgid "%d players tagged"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:407
-msgid "1 player tagged"
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:170
+msgid "No players match"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:409
-msgid "More photos and video loaded."
+#. translators: %s is a player's name.
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:174
+#, php-format
+msgid "%s tagged"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:410
-msgid "Could not load more. Try again."
+#. translators: %s is a player's name.
+#: src/Shared/Frontend/Components/MediaPlayerTagField.php:176
+#, php-format
+msgid "%s untagged"
 msgstr ""
 
 #: src/Shared/Frontend/Components/MediaUploader.php:88
