@@ -198,6 +198,31 @@
     font-weight: 700;
 }
 
+/*
+ * #3091 — the + / - on a point. A real character in the flow of the text,
+ * not a colour on the row: this document is printed, often in monochrome,
+ * and read on a share page by someone who never sees the form. The word
+ * behind it goes to a screen reader via .tt-mad__sr.
+ */
+.tt-mad__point-mark {
+    font-weight: 700;
+}
+
+.tt-mad__point-mark[data-valence="plus"]  { color: var(--tt-success); }
+.tt-mad__point-mark[data-valence="minus"] { color: var(--tt-warning); }
+
+.tt-mad__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .tt-mad__legacy { margin-top: var(--tt-sp-2); }
 
 /* ---- Players ------------------------------------------------ */
@@ -242,6 +267,32 @@
     margin: 0;
     color: var(--tt-ink-soft);
     line-height: var(--tt-lh-body);
+}
+
+/* A player can hold a plus and a minus in the same match (#3091), so their
+ * notes are a list on the same chevron as a phase's points. */
+.tt-mad__player-notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--tt-ink-soft);
+}
+
+.tt-mad__player-notes li {
+    position: relative;
+    margin: 2px 0;
+    padding-left: 14px;
+    line-height: var(--tt-lh-body);
+}
+
+.tt-mad__player-notes li::before {
+    content: "›";
+    position: absolute;
+    left: 2px;
+    top: -1px;
+    color: var(--tt-muted);
+    font-size: 1.05em;
+    font-weight: 700;
 }
 
 .tt-mad__none { margin: 0; color: var(--tt-muted); font-size: var(--tt-fs-sm); }

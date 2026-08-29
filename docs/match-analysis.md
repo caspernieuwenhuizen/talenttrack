@@ -72,6 +72,31 @@ score. Once you have set a rating, a small **Clear** appears next to it.
 On the printed sheet and the share page the rating is still written out in
 words — there it appears once per phase, so there is nothing to crowd.
 
+#### Marking a point good or bad
+
+In front of every point sit two small buttons: **+** and **−**. Use them to
+say which of your points were the good half and which were the problem.
+
+A phase rated *Mixed* with four points under it used to read as four
+undifferentiated sentences six weeks later, and to whoever you sent the
+share link. You knew which was which while typing; this is how the surface
+keeps it.
+
+- **Leaving a point unmarked is normal**, and is the state every point
+  starts in. "Played at right-back" is an observation, not a verdict, and
+  nothing forces you to grade it.
+- Once you have marked a point, a small **×** appears beside it to take the
+  mark off again.
+- The **+** and **−** are deliberately not the ▲ ● ▼ of the phase rating.
+  Those grade the whole phase; these qualify one sentence, and giving them
+  the same shapes would make the two impossible to tell apart in one card.
+- The marks show on the printed sheet and the share page, in front of the
+  point they belong to.
+
+The marks are stored as their own field, not as characters typed into the
+sentence — so a point beginning with a hyphen stays a hyphen, and the
+trends further down this page can count them.
+
 Where the match plan asked for something in that phase, it appears as
 **Planned**, so you are reviewing against what you asked for rather than
 against memory. Each of the plan's four goal boxes lands beside its own
@@ -93,7 +118,20 @@ the ball in the half-turn under pressure" — not a verdict) and, if it
 belongs to one, the **phase** it belongs to. Tap the name again to change
 your mind, or choose **Clear** to take the mark off.
 
-Only the players you marked get a note field, so a squad of fourteen fits
+**Two note lines per player**, each with its own **+** / **−**, for the
+common case: a player who did one thing well and one thing badly in the
+same match. Before, one note had to serve both and the marker above it
+could only be one or the other, so you had to pick.
+
+Two is the limit on purpose — a fourteen-player squad with an open-ended
+list would put twenty-eight text boxes on a phone screen, which is what
+this roster was rebuilt to avoid. Leave the second line empty whenever
+there is only one thing to say.
+
+The ▲ ● ▼ marker stays what it always was: your read on the player's whole
+match. The notes are the evidence under it.
+
+Only the players you marked get note fields, so a squad of fourteen fits
 on one phone screen and an analysis you have not started yet has no text
 boxes on it at all.
 
@@ -122,6 +160,11 @@ Deciding what the player is told is a separate, deliberate act.
 
 Clear a note and the timeline entry goes with it. Rewrite it and the entry
 is rewritten, not duplicated.
+
+A player with two notes still gets **one** timeline entry for the match,
+with both notes on it and each carrying its mark — one game is one moment
+in a player's season, and two entries would count them twice in every view
+built on the timeline.
 
 ## Reading it back
 

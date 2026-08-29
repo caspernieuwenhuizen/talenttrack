@@ -177,9 +177,12 @@ final class MatchAnalysisTest extends WP_UnitTestCase {
             $sections[ MethodologyEnums::FUNCTION_AANVALLEN ]['rating']
         );
         $this->assertSame(
-            "Patient build-up\nSwitch to the far winger worked",
-            $sections[ MethodologyEnums::FUNCTION_AANVALLEN ]['notes'],
-            'blank bullet inputs must not become empty lines'
+            [
+                [ 'valence' => '', 'body' => 'Patient build-up' ],
+                [ 'valence' => '', 'body' => 'Switch to the far winger worked' ],
+            ],
+            $sections[ MethodologyEnums::FUNCTION_AANVALLEN ]['items'],
+            'blank bullet inputs must not become empty notes'
         );
     }
 

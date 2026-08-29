@@ -3,6 +3,7 @@ namespace TT\Modules\MatchAnalysis\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\MatchAnalysis\Frontend\NoteValenceControl;
 use TT\Modules\MatchAnalysis\Frontend\SectionRatingControl;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
@@ -56,23 +57,39 @@ final class SectionStepFields {
                 . '</p>';
         }
 
-        $lines = is_array( $saved['notes'] ?? null ) ? array_values( $saved['notes'] ) : [];
+        $items = array_values( $saved['notes'] );
 
         echo '<ul class="tt-ma__bullets">';
         for ( $i = 0; $i < self::BULLETS; $i++ ) {
+            $item    = is_array( $items[ $i ] ?? null ) ? $items[ $i ] : [];
+            $context = sprintf(
+                /* translators: 1: section name, 2: bullet number */
+                __( '%1$s — point %2$d', 'talenttrack' ),
+                $label,
+                $i + 1
+            );
+
+            echo '<li class="tt-ma__bullet-row">';
+
+            // #3091 — the same control the flat form uses, so the two
+            // paths cannot grow different ideas of what a marked note is.
+            NoteValenceControl::render(
+                sprintf( 'sections[%s][notes][%d]', $section_key, $i ),
+                (string) ( $item['valence'] ?? '' ),
+                'tt-maw-' . sanitize_key( $section_key ) . '-n' . $i,
+                $context
+            );
+
             printf(
-                '<li><input type="text" class="tt-input tt-ma__bullet" name="sections[%1$s][notes][%2$d]" value="%3$s" maxlength="180" placeholder="%4$s" aria-label="%5$s" /></li>',
+                '<input type="text" class="tt-input tt-ma__bullet" name="sections[%1$s][notes][%2$d][body]" value="%3$s" maxlength="180" placeholder="%4$s" aria-label="%5$s" />',
                 esc_attr( $section_key ),
                 $i,
-                esc_attr( (string) ( $lines[ $i ] ?? '' ) ),
+                esc_attr( (string) ( $item['body'] ?? '' ) ),
                 esc_attr__( 'One short point…', 'talenttrack' ),
-                esc_attr( sprintf(
-                    /* translators: 1: section name, 2: bullet number */
-                    __( '%1$s — point %2$d', 'talenttrack' ),
-                    $label,
-                    $i + 1
-                ) )
+                esc_attr( $context )
             );
+
+            echo '</li>';
         }
         echo '</ul>';
         echo '</fieldset>';
@@ -96,12 +113,12 @@ final class SectionStepFields {
         foreach ( $section_keys as $key ) {
             $row = isset( $posted[ $key ] ) && is_array( $posted[ $key ] ) ? $posted[ $key ] : [];
 
-            $notes = isset( $row['notes'] ) && is_array( $row['notes'] ) ? $row['notes'] : [];
-            $notes = array_map( static fn( $line ): string => sanitize_text_field( (string) $line ), $notes );
-
+            // #3091 — one shared normaliser, so a note written in the
+            // wizard and one written on the flat form are the same shape by
+            // the time either reaches the draft state.
             $sections[ $key ] = [
                 'rating' => MatchAnalysisWriter::cleanRating( $row['rating'] ?? null ),
-                'notes'  => array_values( array_filter( $notes, static fn( string $l ): bool => trim( $l ) !== '' ) ),
+                'notes'  => MatchAnalysisWriter::cleanNoteItems( $row['notes'] ?? [] ),
             ];
         }
 
@@ -110,7 +127,7 @@ final class SectionStepFields {
 
     /**
      * @param array<string,mixed> $state
-     * @return array{rating:?string, notes:list<string>}
+     * @return array{rating:?string, notes:list<array{valence:string, body:string}>}
      */
     private static function savedFor( string $section_key, array $state ): array {
         $sections = isset( $state['sections'] ) && is_array( $state['sections'] ) ? $state['sections'] : [];

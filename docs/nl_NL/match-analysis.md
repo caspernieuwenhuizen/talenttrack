@@ -73,6 +73,31 @@ verschijnt er een kleine **Wissen** naast.
 Op het afdrukvel en de deelpagina staat het oordeel nog wel voluit — daar
 komt het één keer per fase voor, dus valt er niets weg te drukken.
 
+#### Een punt als goed of minder markeren
+
+Vóór ieder punt staan twee kleine knoppen: **+** en **−**. Daarmee geef je
+aan welke van je punten de goede helft waren en welke het probleem.
+
+Een fase met het oordeel *Wisselend* en vier punten eronder las zes weken
+later — en voor wie je de deellink stuurde — als vier onderling
+ononderscheidbare zinnen. Tijdens het typen wist je welke welke was; zo
+houdt het scherm dat vast.
+
+- **Een punt onbemarkeerd laten is normaal**, en is de stand waarin elk punt
+  begint. "Speelde als rechtsback" is een waarneming, geen oordeel, en niets
+  dwingt je er een cijfer aan te hangen.
+- Zodra je een punt gemarkeerd hebt verschijnt er een kleine **×** naast om
+  de markering weer weg te halen.
+- De **+** en **−** zijn bewust niet de ▲ ● ▼ van het faseoordeel. Die
+  beoordelen de hele fase; deze kwalificeren één zin, en met dezelfde vormen
+  zouden ze in dezelfde tegel niet uit elkaar te houden zijn.
+- De markeringen staan ook op het afdrukvel en de deelpagina, vóór het punt
+  waar ze bij horen.
+
+De markering wordt als eigen veld bewaard en niet als teken in de zin — dus
+een punt dat met een streepje begint blijft een streepje, en de trends
+verderop op deze pagina kunnen ze tellen.
+
 Waar het wedstrijdplan iets vroeg in die fase, staat dat als **Gepland**,
 zodat je terugkijkt op wat je gevraagd hebt en niet alleen op je geheugen.
 Elk van de vier doelenvakken van het plan komt naast zijn eigen fase te
@@ -95,7 +120,20 @@ druk in de draai aannemen" — geen eindoordeel) en, als het ergens bij hoort,
 de **fase**. Tik nog eens op de naam om het te wijzigen, of kies **Wissen**
 om de markering eraf te halen.
 
-Alleen de spelers die je markeert krijgen een notitieveld, dus een selectie
+**Twee notitieregels per speler**, elk met een eigen **+** / **−**, voor het
+veelvoorkomende geval: een speler die in dezelfde wedstrijd iets goed deed
+én iets niet. Voorheen moest één notitie beide dekken en kon de markering
+erboven maar één kant op, dus moest je kiezen.
+
+Twee is bewust het maximum — bij een selectie van veertien zou een
+onbeperkte lijst achtentwintig tekstvakken op een telefoonscherm zetten, en
+juist dat is waarvoor dit spelersraster herbouwd is. Laat de tweede regel
+leeg als er maar één ding te melden is.
+
+De markering ▲ ● ▼ blijft wat hij was: jouw beeld van de hele wedstrijd van
+die speler. De notities zijn de onderbouwing eronder.
+
+Alleen de spelers die je markeert krijgen notitievelden, dus een selectie
 van veertien past op één telefoonscherm en een analyse waar je nog niet aan
 begonnen bent bevat helemaal geen tekstvakken.
 
@@ -124,6 +162,11 @@ beoordeling. Wat de speler zelf te horen krijgt is een aparte, bewuste keuze.
 
 Verwijder je een notitie, dan verdwijnt de tijdlijnregel mee. Herschrijf je
 hem, dan wordt de regel bijgewerkt en niet verdubbeld.
+
+Een speler met twee notities krijgt nog steeds **één** tijdlijnregel voor de
+wedstrijd, met beide notities erop en elk met zijn markering — één wedstrijd
+is één moment in het seizoen van een speler, en twee regels zouden hem
+dubbel tellen in alles wat op de tijdlijn gebouwd is.
 
 ## Teruglezen
 

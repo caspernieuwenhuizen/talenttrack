@@ -392,6 +392,12 @@ class DemoCoverage {
             'written_by'  => MatchAnalysisGenerator::class,
             'depends_on'  => [ 'match_analysis', 'player' ],
         ],
+        'tt_match_analysis_notes' => [
+            'entity_type' => 'match_analysis_note',
+            'category'    => 'match_analyses',
+            'written_by'  => MatchAnalysisGenerator::class,
+            'depends_on'  => [ 'match_analysis' ],
+        ],
         'tt_match_execution_goal_events' => [
             'entity_type' => 'match_goal_event',
             'category'    => 'match_day',
@@ -1021,7 +1027,7 @@ class DemoCoverage {
         'match_analyses' => [
             'tier'      => 'dependent',
             'run_order' => 240,
-            'cascade'   => [ 'match_analysis_player', 'match_analysis_section', 'match_analysis' ],
+            'cascade'   => [ 'match_analysis_note', 'match_analysis_player', 'match_analysis_section', 'match_analysis' ],
         ],
         'knowledge' => [
             'tier'      => 'dependent',

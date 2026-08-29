@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Journey\EventEmitter;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
+use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 
 /**
  * MatchAnalysisJourney (#2707) — keeps a player item and its timeline
@@ -47,7 +48,7 @@ final class MatchAnalysisJourney {
         global $wpdb;
 
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT p.marker, p.note, p.team_function, a.activity_id, ac.session_date
+            "SELECT p.marker, p.team_function, a.activity_id, ac.session_date
                FROM {$wpdb->prefix}tt_match_analysis_players p
           LEFT JOIN {$wpdb->prefix}tt_match_analyses a
                  ON a.id = p.analysis_id AND a.club_id = p.club_id
@@ -66,7 +67,12 @@ final class MatchAnalysisJourney {
         if ( strlen( $when ) === 10 ) $when .= ' 00:00:00';
         if ( $when === '' ) $when = current_time( 'mysql' );
 
-        $summary = self::summaryFor( (string) ( $row->marker ?? '' ), (string) ( $row->note ?? '' ) );
+        // #3091 — a player can hold a plus and a minus in the same match,
+        // but this stays ONE timeline entry. Two entries for one game would
+        // double-count the player in every count built on the timeline, and
+        // read as two separate observations when it was one write-up.
+        $notes   = ( new MatchAnalysisRepository() )->playerNotes( $analysis_id )[ $player_id ] ?? [];
+        $summary = self::summaryFor( (string) ( $row->marker ?? '' ), $notes );
 
         $existing = self::existingEventId( $item_id );
         if ( $existing > 0 ) {
@@ -121,13 +127,22 @@ final class MatchAnalysisJourney {
 
     /**
      * The timeline line itself. The marker alone ("Stood out") says nothing
-     * a coach can act on six weeks later, so the note carries the entry and
-     * the marker only prefixes it. An item with a marker and no note falls
+     * a coach can act on six weeks later, so the notes carry the entry and
+     * the marker only prefixes it. An item with a marker and no notes falls
      * back to the marker — that is the whole content there is.
+     *
+     * Since #3091 there can be two notes, each with its own mark. They are
+     * joined into one line with their signs in front, because the timeline
+     * is a chronological read of a player's season and a single match
+     * should occupy a single line in it. The 120-character budget is on the
+     * joined text, not per note, for the same reason.
+     *
+     * @param string|list<array{valence:string, body:string}> $notes a note
+     *        list, or the joined text a caller written before #3091 passes
      */
-    public static function summaryFor( string $marker, string $note ): string {
-        $note  = trim( $note );
+    public static function summaryFor( string $marker, $notes ): string {
         $label = $marker !== '' ? MatchAnalysisEnums::markerLabel( $marker ) : '';
+        $note  = is_array( $notes ) ? self::joinNotes( $notes ) : trim( (string) $notes );
 
         if ( $note === '' ) {
             return $label !== '' ? $label : __( 'Observed in a match', 'talenttrack' );
@@ -143,6 +158,29 @@ final class MatchAnalysisJourney {
                 $trimmed
             )
             : $trimmed;
+    }
+
+    /**
+     * "+ Kept the ball under pressure · − Lost his man twice at corners".
+     *
+     * The sign goes in front of the sentence it belongs to. Without it a
+     * reader six weeks later cannot tell which half of a two-note entry was
+     * the good one, which is the whole reason the marks exist.
+     *
+     * @param list<array{valence:string, body:string}> $notes
+     */
+    private static function joinNotes( array $notes ): string {
+        $parts = [];
+
+        foreach ( $notes as $note ) {
+            $body = trim( (string) $note['body'] );
+            if ( $body === '' ) continue;
+
+            $glyph   = MatchAnalysisEnums::valenceGlyph( (string) $note['valence'] );
+            $parts[] = $glyph !== '' ? $glyph . ' ' . $body : $body;
+        }
+
+        return implode( ' · ', $parts );
     }
 
     private static function existingEventId( int $item_id ): int {

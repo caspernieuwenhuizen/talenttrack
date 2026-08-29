@@ -58,7 +58,7 @@ final class MatchAnalysisWriter {
                     $analysis_id,
                     sanitize_key( (string) $key ),
                     $section['rating'] ?? null,
-                    $section['notes'] ?? ''
+                    $section['notes'] ?? []
                 );
             }
         }
@@ -88,7 +88,7 @@ final class MatchAnalysisWriter {
             $analysis_id,
             $section_key,
             self::cleanRating( $rating ),
-            self::cleanNotes( $notes )
+            self::cleanNoteItems( $notes )
         );
     }
 
@@ -103,14 +103,19 @@ final class MatchAnalysisWriter {
         if ( $analysis_id <= 0 || $player_id <= 0 ) return;
 
         $marker = isset( $item['marker'] ) ? sanitize_key( (string) $item['marker'] ) : '';
-        $note   = self::cleanNotes( $item['note'] ?? '' );
         $tag    = isset( $item['team_function'] ) ? sanitize_key( (string) $item['team_function'] ) : '';
+
+        // `notes` is the shape since #3091; `note` is what every client
+        // written before it sends, and a single note is just a one-item
+        // list. Accepting both keeps the endpoint's promise that a client
+        // which knows less cannot destroy what it does not understand.
+        $notes = array_key_exists( 'notes', $item ) ? $item['notes'] : ( $item['note'] ?? [] );
 
         $item_id = $this->repo->savePlayerItem(
             $analysis_id,
             $player_id,
             $marker,
-            $note,
+            self::cleanNoteItems( $notes ),
             $tag !== '' ? $tag : null,
             $minutes
         );
@@ -142,6 +147,67 @@ final class MatchAnalysisWriter {
      * Notes arrive either as text or as the form's four bullet inputs.
      * Blank inputs are dropped rather than kept as empty lines: a printed
      * sheet would otherwise render the gaps a coach left between points.
+     *
+     * @param mixed $value
+     */
+    /**
+     * Notes, each with its optional + / − (#3091).
+     *
+     * Three input shapes are accepted, because three exist in the wild:
+     *
+     *   - `[ ['body' => '…', 'valence' => 'plus'], … ]` — what the form and
+     *     the wizard post now;
+     *   - `[ '…', '…' ]` — a flat list of bullets, which is what every
+     *     client written before this shipped sends;
+     *   - `"a\nb"` — a single text blob, one note per line, which is how
+     *     the notes were stored before they had a table.
+     *
+     * The older two are read as unmarked notes rather than rejected. A
+     * client that has not heard of valence should be able to write a note
+     * without one, not fail; that is the same courtesy `apply()` extends by
+     * leaving absent keys alone.
+     *
+     * Blank bodies are dropped rather than kept as empty rows: a printed
+     * sheet would otherwise render the gaps a coach left between points.
+     * An unknown valence string is stored as neutral, never as itself.
+     *
+     * @param mixed $value
+     * @return list<array{valence:string, body:string}>
+     */
+    public static function cleanNoteItems( $value ): array {
+        if ( is_string( $value ) ) {
+            $value = preg_split( '/\r\n|\r|\n/', $value ) ?: [];
+        }
+        if ( ! is_array( $value ) ) return [];
+
+        $out = [];
+        foreach ( $value as $entry ) {
+            $body    = '';
+            $valence = '';
+
+            if ( is_array( $entry ) ) {
+                $body    = sanitize_text_field( (string) ( $entry['body'] ?? '' ) );
+                $valence = sanitize_key( (string) ( $entry['valence'] ?? '' ) );
+            } else {
+                $body = sanitize_text_field( (string) $entry );
+            }
+
+            $body = trim( $body );
+            if ( $body === '' ) continue;
+
+            $out[] = [
+                'valence' => MatchAnalysisEnums::isValence( $valence ) ? $valence : '',
+                'body'    => $body,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * @deprecated since #3091 — notes are rows now. Kept because the
+     *             wizard's draft state and a queued request can still carry
+     *             the old joined-text shape through one release.
      *
      * @param mixed $value
      */

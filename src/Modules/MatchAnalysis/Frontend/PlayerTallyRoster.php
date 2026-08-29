@@ -4,6 +4,7 @@ namespace TT\Modules\MatchAnalysis\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
+use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 
 /**
  * PlayerTallyRoster (#2726) — the roster half of a match analysis, rendered
@@ -57,6 +58,7 @@ final class PlayerTallyRoster {
         echo '<div class="tt-ma__roster" data-tt-tally data-prefix="' . esc_attr( $id_prefix ) . '">';
 
         self::renderLegend();
+        NoteValenceControl::renderLegend();
 
         echo '<p class="tt-ma__hint tt-ma__roster-intro">'
             . esc_html__( 'Everyone who played is listed. Mark the players worth a word — the rest stay untouched, which is the normal case.', 'talenttrack' )
@@ -135,17 +137,7 @@ final class PlayerTallyRoster {
 
         self::renderMarkerRadios( $pid, $marker, $markers, $prefix, $name );
 
-        printf(
-            '<input type="text" class="tt-input tt-ma__player-note" name="players[%1$d][note]" value="%2$s" maxlength="240" placeholder="%3$s" aria-label="%4$s" />',
-            $pid,
-            esc_attr( (string) $player['note'] ),
-            esc_attr__( 'What exactly did they do?', 'talenttrack' ),
-            esc_attr( sprintf(
-                /* translators: %s: player name */
-                __( 'Note about %s', 'talenttrack' ),
-                $name
-            ) )
-        );
+        self::renderNotes( $pid, $player, $prefix, $name );
 
         printf(
             '<select class="tt-input tt-ma__player-tag" name="players[%1$d][team_function]" aria-label="%2$s">',
@@ -172,6 +164,71 @@ final class PlayerTallyRoster {
         echo '</select>';
 
         echo '</li>';
+    }
+
+    /**
+     * Two note rows per player, each with its own + / − (#3091).
+     *
+     * ## Why two, and why fixed
+     *
+     * One note per player was the reason the three-way marker was enough:
+     * with a single sentence, the marker *was* the verdict on it. The case
+     * this change exists for is the player who did one thing well and one
+     * thing badly, and that needs two.
+     *
+     * It stops at two on purpose. A fourteen-player squad with an
+     * open-ended list is twenty-eight text inputs on a phone screen, which
+     * is precisely what #2726 rebuilt this roster to avoid. Nothing in the
+     * schema caps it, so a third row is a change here and nowhere else if a
+     * coach ever asks for one.
+     *
+     * The marker stays. It is the player-level judgement; these are the
+     * evidence under it, and #2725 aggregates the marker.
+     *
+     * @param array<string,mixed> $player
+     */
+    private static function renderNotes( int $pid, array $player, string $prefix, string $name ): void {
+        $items = is_array( $player['note_items'] ?? null ) ? array_values( $player['note_items'] ) : [];
+
+        echo '<div class="tt-ma__player-notes">';
+
+        for ( $i = 0; $i < MatchAnalysisRepository::PLAYER_NOTES; $i++ ) {
+            $item    = $items[ $i ] ?? [];
+            $body    = (string) ( $item['body'] ?? '' );
+            $valence = (string) ( $item['valence'] ?? '' );
+            $context = sprintf(
+                /* translators: 1: player name, 2: note number */
+                __( '%1$s — note %2$d', 'talenttrack' ),
+                $name,
+                $i + 1
+            );
+
+            echo '<div class="tt-ma__player-note-row">';
+
+            NoteValenceControl::render(
+                sprintf( 'players[%d][notes][%d]', $pid, $i ),
+                $valence,
+                'tt-' . $prefix . '-p' . $pid . '-n' . $i,
+                $context
+            );
+
+            printf(
+                '<input type="text" class="tt-input tt-ma__player-note" name="players[%1$d][notes][%2$d][body]" value="%3$s" maxlength="240" placeholder="%4$s" aria-label="%5$s" />',
+                $pid,
+                $i,
+                esc_attr( $body ),
+                esc_attr(
+                    $i === 0
+                        ? __( 'What exactly did they do?', 'talenttrack' )
+                        : __( 'And the other side of it…', 'talenttrack' )
+                ),
+                esc_attr( $context )
+            );
+
+            echo '</div>';
+        }
+
+        echo '</div>';
     }
 
     /**
