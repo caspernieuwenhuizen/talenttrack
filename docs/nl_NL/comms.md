@@ -3,6 +3,7 @@ title: Berichten
 group: configuration
 summary: Hoe de berichten van de academie werken — sjablonen, kanalen, stiltetijden, afmeldingen en het verzendlogboek.
 audience: [user, admin]
+views: [messages, my-messages]
 order: 55
 ---
 
@@ -56,7 +57,15 @@ Er is nog een tweede, grovere schakelaar onder Modules: **Geplande berichten** z
 
 ## Het verzendlogboek
 
+**Instellingen → Berichtenlogboek**, of vanaf het spelersdossier via **⋯ → Verstuurde berichten**.
+
 Elke verzendpoging schrijft een regel, wat de uitkomst ook is. Die regel legt vast wie het stuurde, wie het kreeg, over welke speler het ging, welk sjabloon en kanaal, de onderwerpregel en de status.
+
+Het scherm filtert op speler, soort bericht, uitkomst en datumbereik. Het spelersfilter biedt alleen spelers aan waar het logboek daadwerkelijk een bericht over heeft gedragen — een lijst met elke speler van de academie zou vooral bestaan uit keuzes die niets opleveren.
+
+Uitkomsten staan er in gewone taal, niet als databasesleutel, en in drie tinten in plaats van twee: bezorgd, bewust tegengehouden, en een probleem. Een afmelding die het product netjes heeft gerespecteerd en een adres dat bounced zijn allebei "niet bezorgd" en vragen om een tegengestelde reactie, dus ze krijgen niet dezelfde kleur.
+
+Als een geplande detectie blijft mislukken, staat er een waarschuwing boven de tabel met welke het is en wanneer die voor het laatst liep. Dat is de enige plek waar dat verschil zichtbaar wordt: een detectie zonder iets te versturen en een detectie die elke nacht crasht laten allebei geen regels achter.
 
 **De inhoud van het bericht wordt nooit opgeslagen.** Het logboek bewaart er een vingerafdruk van, zodat de regel niet ongemerkt kan worden aangepast, en verder niets. Dat is een bewuste grens: het logboek kan je vertellen dát er een bericht over een kind is verstuurd, aan wie, en of het is aangekomen — en kan niet worden gebruikt om te lezen wat een trainer over dat kind heeft geschreven.
 
@@ -64,7 +73,9 @@ Regels blijven standaard **18 maanden** staan. Daarna maakt een dagelijkse taak 
 
 ## De inbox in de app
 
-Berichten die via het in-app-kanaal gaan, komen in de eigen inbox van de ontvanger terecht in plaats van in de mail. Ze hebben een teller voor ongelezen berichten, en een bericht openen markeert het als gelezen.
+**Mijn berichten**, onder Ik op je dashboard. De tegel toont het aantal ongelezen berichten.
+
+Berichten die via het in-app-kanaal gaan, komen in de eigen inbox van de ontvanger terecht in plaats van in de mail. Ongelezen berichten zijn gemarkeerd, en **Markeer als gelezen** haalt die markering weg zonder de pagina opnieuw te laden.
 
 Iedereen ziet alleen zijn eigen inbox. Een ouder ziet berichten over het eigen kind en nooit die van een ander gezin — dat wordt afgedwongen door de zoekopdracht zelf, niet door een rechtencontrole die te omzeilen zou zijn.
 
@@ -80,9 +91,9 @@ Berichten vallen in drie groepen.
 
 ## Als iemand zegt dat hij het niet heeft gekregen
 
-Werk de lijst af:
+Werk de lijst af — begin op het spelersdossier, open **⋯ → Verstuurde berichten**, dan is er al op die speler gefilterd:
 
-1. **Zoek het bericht in het verzendlogboek**, gefilterd op de speler. Staat er helemaal geen regel, dan is er niets geprobeerd — de trigger is niet afgegaan, en dat is een ander probleem dan een mislukte bezorging.
+1. **Zoek het bericht in het verzendlogboek.** Staat er helemaal geen regel, dan is er niets geprobeerd — de trigger is niet afgegaan, en dat is een ander probleem dan een mislukte bezorging.
 2. **Lees de status.** Afgemeld, uitgesteld, sjabloon uitgezet en geen-adres zeggen elk precies wat er is gebeurd, en elk vraagt om een andere oplossing.
 3. **Controleer het adres op het dossier.** "Geen adres" betekent dat niemand op het spelersdossier — ouder of speler — een bruikbaar adres had voor dat kanaal.
 4. **Controleer de sjabloonschakelaar** als de status zegt dat het sjabloon uit stond.

@@ -1,0 +1,145 @@
+/*
+ * frontend-message-log.css (#2606) — the staff message log.
+ *
+ * Mobile-first per CLAUDE.md §2. On a phone the table collapses to one
+ * stacked card per message, labelled from each cell's `data-label`, so the
+ * page never scrolls sideways at 360px. The real table returns at 768px,
+ * where the five columns fit.
+ */
+
+.tt-msglog-summary {
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.875rem;
+}
+
+.tt-msglog-health {
+    margin-bottom: var(--tt-sp-4, 1rem);
+}
+
+.tt-msglog-health ul {
+    margin: var(--tt-sp-2, 0.5rem) 0 0;
+    padding-inline-start: 1.25rem;
+}
+
+/* Wide content scrolls inside its own box, never the page body (§2). */
+.tt-msglog-table {
+    width: 100%;
+    font-size: 0.875rem;
+}
+
+.tt-msglog-subject {
+    display: block;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+}
+
+.tt-msglog-status {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+/* Three tones, not two. An honoured opt-out and a bounced address are
+   both "not delivered" and want opposite reactions from the reader; one
+   red for both teaches people to ignore red. */
+.tt-msglog-status--ok {
+    background: var(--tt-ok-bg, #e4f0e6);
+    color: var(--tt-ok-fg, #1f5130);
+}
+
+.tt-msglog-status--withheld {
+    background: var(--tt-muted-bg, #eceee9);
+    color: var(--tt-muted, #55584f);
+}
+
+.tt-msglog-status--problem {
+    background: var(--tt-warn-bg, #fbe6e2);
+    color: var(--tt-warn-fg, #8a2c1c);
+}
+
+.tt-msglog-hint {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+}
+
+.tt-msglog-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 0.5rem);
+    align-items: center;
+    margin-top: var(--tt-sp-3, 0.75rem);
+    font-size: 0.875rem;
+}
+
+.tt-msglog-pagination .tt-btn {
+    min-height: 48px;
+}
+
+/* --- phone: one card per message ------------------------------------- */
+
+.tt-msglog-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.tt-msglog-table tr {
+    display: block;
+    margin-bottom: var(--tt-sp-3, 0.75rem);
+    padding: var(--tt-sp-3, 0.75rem);
+    border: 1px solid var(--tt-border, #dcdfd9);
+    border-radius: var(--tt-radius, 0.375rem);
+}
+
+.tt-msglog-table td {
+    display: flex;
+    gap: var(--tt-sp-2, 0.5rem);
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border: 0;
+}
+
+.tt-msglog-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .tt-msglog-table thead {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        clip-path: none;
+    }
+
+    .tt-msglog-table tr {
+        display: table-row;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .tt-msglog-table td {
+        display: table-cell;
+        padding: 0.5rem;
+        vertical-align: top;
+    }
+
+    .tt-msglog-table td::before {
+        content: none;
+    }
+}

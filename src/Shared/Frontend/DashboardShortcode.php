@@ -991,6 +991,15 @@ class DashboardShortcode {
             case 'alerts':
                 \TT\Modules\Alerts\Frontend\FrontendAlertsInboxView::render( $user_id );
                 return true;
+            // #2606 — a signed-in user's own in-app messages. In the
+            // account group for the same reason `alerts` is: the rows are
+            // written per recipient and the query is scoped to "me" in SQL,
+            // so being signed in is the whole of the question. The staff
+            // message log is a different surface with a different audience
+            // and lives in the admin group.
+            case 'my-messages':
+                \TT\Modules\Comms\Frontend\FrontendMyMessagesView::render( $user_id );
+                return true;
             default:
                 return false;
         }
@@ -1482,6 +1491,12 @@ class DashboardShortcode {
                 return true;
             case 'audit-log':
                 FrontendAuditLogView::render( $user_id, $is_admin );
+                return true;
+            // #2606 — the staff message log. Cap-gated inside the view on
+            // the same capability the REST log routes use, so the screen
+            // and the API refuse the same people.
+            case 'messages':
+                \TT\Modules\Comms\Frontend\FrontendMessageLogView::render( $user_id, $is_admin );
                 return true;
             case 'translations':
                 // #1935 — frontend port of the wp-admin Configuration →
