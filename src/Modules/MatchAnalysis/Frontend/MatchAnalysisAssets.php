@@ -42,7 +42,7 @@ final class MatchAnalysisAssets {
 
         // #3007 — `tt-autosave` is a hard dependency now, not merely
         // enqueued alongside: the autosave wiring in `match-analysis.js`
-        // reads `TT.Autosave` at load, and `tt-public` supplies the
+        // reads `TT.FormAutosave` at load, and `tt-public` supplies the
         // `TT.formToJSON` it serialises the form with.
         //
         // Registered here rather than from the form renderer, and on every
@@ -50,11 +50,15 @@ final class MatchAnalysisAssets {
         // not registered by print time does not delay a script, it drops
         // it — so gating this on "is this the edit view" would silently
         // take the share-link buttons off the read-only page.
-        \TT\Shared\Frontend\Components\SaveState::enqueue();
+        // #3008 — `FormAutosave` pulls `SaveState` in behind it, and adds
+        // the generic form driver `match-analysis.js` now leans on for
+        // serialising, remounting and listener wiring.
+        \TT\Shared\Frontend\Components\FormAutosave::enqueue();
+
         wp_enqueue_script(
             'tt-match-analysis',
             TT_PLUGIN_URL . 'assets/js/match-analysis.js',
-            [ 'tt-public', 'tt-autosave' ],
+            [ 'tt-public', 'tt-autosave', 'tt-form-autosave' ],
             TT_VERSION,
             true
         );

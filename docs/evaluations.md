@@ -26,6 +26,31 @@ An **evaluation** is your rating of a player on a specific date, across the cate
 9. If the type is a match, fill in opponent, competition, result, home/away and minutes played.
 10. Save.
 
+## Editing an evaluation saves itself
+
+Recording a new evaluation ends with **Save**, as above. **Editing** an
+existing one does not: it saves as you write, and a status line where the
+Save button used to be says where it got to — *Unsaved changes…*, *Saving…*,
+*All changes saved*.
+
+Beside it are the two ways back that come with every autosaving screen in
+TalentTrack: **Undo** takes back the last saved change, and **Revert
+changes** puts the form back to how it was when you opened it, after asking
+first. Both are described in full under *Save behaviour* on the
+[match preparation](match-prep.md) page.
+
+There is no Cancel on the edit form any more, because there is nothing
+uncommitted to cancel. Creating still needs Save, deliberately — nothing
+should be able to leave an empty evaluation on a player's file just because
+you opened the form and thought better of it.
+
+**One thing worth knowing about the feedback field.** Because the edit form
+saves as you write, a **Feedback for the player** message becomes visible to
+the player and their parents from the moment it settles — not when you press
+a button. If you want to draft the wording before anyone reads it, write it
+somewhere else first, or write it in the **Internal notes** field and move it
+across when you are happy with it.
+
 ## What the player sees
 
 Players (and their parents) only ever see the scores and the **Feedback for the player** message — never your internal Notes. If you leave the feedback field blank, the player just sees the ratings.

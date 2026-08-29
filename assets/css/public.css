@@ -958,6 +958,21 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-pdp-signed-off { margin: 8px 0; color: var(--tt-color-success, #16a34a); font-weight: 600; }
 .tt-pdp-acked em { font-style: italic; font-weight: 500; }
 
+/* #3008 — sign-off moved out of the conversation form and became its own
+ * confirmed action, so it needs its own separation from the form above it.
+ * Set apart deliberately: it is the one control on the screen that cannot
+ * be taken back. */
+.tt-pdp-signoff {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--tt-border, #e2e6e1);
+}
+.tt-pdp-signoff .tt-help-text {
+    margin: 0.5rem 0 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-muted, #6a7570);
+}
+
 /* v3.92.5 — activity detail card chrome. Mirrors `tt-goal-detail` so
  * the two surfaces feel consistent. Pilot operator: "the display page
  * of an activity is visually not very appealing." */

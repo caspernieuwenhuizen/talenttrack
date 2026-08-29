@@ -137,8 +137,41 @@ class CoachForms {
             $hide_pickers = true;
         }
         ?>
+        <?php
+        // #3008 (epic #2881) — an evaluation being edited autosaves; one
+        // being written for the first time does not.
+        //
+        // The split is not squeamishness. Autosave writes to a record, and
+        // in create mode there is no record yet — pointing it at `POST
+        // /evaluations` would spawn a row on the first keystroke and leave
+        // an empty evaluation on a player's file behind every coach who
+        // opened the form and thought better of it. Creation stays a
+        // deliberate act (the wizard owns it where wizards are on).
+        //
+        // Editing is the composing case the pilot asked about: a coach
+        // rewriting what they said about a child, where losing the
+        // paragraph is what stops them writing the next one.
+        $autosaves = $is_edit;
+        if ( $autosaves ) {
+            \TT\Shared\Frontend\Components\FormAutosave::enqueue();
+        }
+        ?>
         <h3><?php echo esc_html( $title_text ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_method ); ?>" data-redirect-after-save="1">
+        <form id="tt-eval-form"
+              class="<?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              <?php if ( $autosaves ) {
+                  echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
+                      $rest_path,
+                      $rest_method,
+                      'evaluation:' . (int) $existing_eval->id
+                  );
+              } else {
+                  printf(
+                      'data-rest-path="%s" data-rest-method="%s" data-redirect-after-save="1"',
+                      esc_attr( $rest_path ),
+                      esc_attr( $rest_method )
+                  );
+              } ?>>
             <?php if ( $hide_pickers ) :
                 $hidden_player_id = $is_edit ? $existing_player : $preset_player_id;
                 $hidden_player    = $is_edit ? QueryHelpers::get_player( $existing_player ) : $preset_player;
@@ -367,7 +400,18 @@ class CoachForms {
                 : $list_url;
             $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
             $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
-            echo FormSaveButton::render( [ 'label' => $submit_label, 'cancel_url' => $cancel_url ] );
+
+            if ( $autosaves ) {
+                // #3008 — the save state replaces Save + Cancel. Two commit
+                // affordances on one form is worse than either alone, and
+                // §6's Cancel governs a form where Save is the commit;
+                // there is nothing uncommitted here to walk away from.
+                echo '<div class="tt-form-actions">';
+                \TT\Shared\Frontend\Components\SaveState::render();
+                echo '</div>';
+            } else {
+                echo FormSaveButton::render( [ 'label' => $submit_label, 'cancel_url' => $cancel_url ] );
+            }
             ?>
             <div class="tt-form-msg"></div>
         </form>

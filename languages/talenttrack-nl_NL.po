@@ -48244,6 +48244,24 @@ msgstr ""
 msgid "The analysis could not be marked final. Try again."
 msgstr "De analyse kon niet definitief worden gemarkeerd. Probeer het opnieuw."
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1236
+msgid ""
+"Sign off this conversation? It becomes read-only for everyone — open a new "
+"conversation if a follow-up edit is needed."
+msgstr ""
+"Dit gesprek ondertekenen? Het wordt daarmee voor iedereen alleen-lezen — "
+"open een nieuw gesprek als er nog een wijziging nodig is."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1239
+msgid "Sign off"
+msgstr "Ondertekenen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1240
+msgid "Everything above is already saved. Signing off closes the conversation for editing."
+msgstr ""
+"Alles hierboven is al opgeslagen. Ondertekenen sluit het gesprek voor "
+"bewerken."
+
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:442
 msgid "Staff member"

@@ -133,16 +133,14 @@
     /**
      * The analysis form used to be a `tt-ajax-form` with a Save button.
      * A coach writing up a game on a phone after the final whistle is
-     * composing over minutes, not filling in a record, so it autosaves —
-     * through the same `TT.Autosave` component match prep uses, which
-     * brings the save state, undo and revert with it.
+     * composing over minutes, not filling in a record, so it autosaves.
      *
-     * Three things this wiring owns and the component does not:
+     * #3008 moved the generic half of this — serialising the form, putting
+     * an old payload back into it for undo and revert, and the listener
+     * wiring — into `TT.FormAutosave`, because four more surfaces needed
+     * exactly the same thing. What is left here is what is genuinely this
+     * surface's:
      *
-     *  - **Serialising the form.** `TT.formToJSON` is public.js's own
-     *    bracket expansion, exposed rather than reimplemented so an
-     *    autosave and a submit cannot reach the same endpoint with two
-     *    different shapes.
      *  - **The version token.** Every write carries `base_updated_at`, the
      *    `updated_at` last seen, and every response refreshes it. A 409
      *    means a second coach has written since, and the surface halts
@@ -152,16 +150,12 @@
      */
     (function () {
         var form = document.querySelector('[data-tt-ma-form]');
-        if (!form || !window.TT || !TT.Autosave || typeof TT.formToJSON !== 'function') return;
+        if (!form || !window.TT || !TT.FormAutosave) return;
 
         var url      = restBase() + String(form.getAttribute('data-rest-path') || '');
         var finalise = form.querySelector('[data-tt-ma-finalise]');
         var note     = form.querySelector('[data-tt-ma-final-note]');
         var base     = String(form.getAttribute('data-updated') || '');
-
-        function body() {
-            return TT.formToJSON(form);
-        }
 
         /**
          * The version token rides in the query string, not in the body.
@@ -182,19 +176,10 @@
             if (data && typeof data.updated_at === 'string') base = data.updated_at;
         }
 
-        var saver = TT.Autosave.create({
-            stateEl:  form.querySelector('[data-tt-save-state]'),
-            undoEl:   form.querySelector('[data-tt-save-undo]'),
-            revertEl: form.querySelector('[data-tt-save-revert]'),
+        var saver = TT.FormAutosave.attach(form, {
+            endpoint:   endpoint,
             storageKey: 'match-analysis:' + String(form.getAttribute('data-rest-path') || ''),
-            nonce:    (window.TT && TT.rest_nonce) || '',
-            delay:    600,
-            i18n:     (window.TT_Autosave && window.TT_Autosave.i18n) || {},
-            serialise: function () {
-                return { method: 'PUT', url: endpoint(), body: body() };
-            },
-            apply: function (payload) { mount(payload); },
-            onSaved: remember,
+            onSaved:    remember,
             onError: function (err) {
                 // 409 is the one failure retrying makes worse: the record
                 // moved, so every further write would overwrite whoever
@@ -204,65 +189,7 @@
                 }
             }
         });
-
-        /**
-         * Put a previously committed body back into the form — the inverse
-         * of `TT.formToJSON`, and what makes undo and revert reach this
-         * surface. Walks the payload rather than the DOM so a field the
-         * snapshot does not mention is left alone rather than blanked.
-         */
-        function mount(payload) {
-            if (!payload) return;
-
-            Array.prototype.forEach.call(form.elements, function (el) {
-                if (!el.name || el.disabled) return;
-
-                var value = lookup(payload, el.name);
-
-                // Absent is meaningful, not "skip": a rating the snapshot
-                // does not carry is a rating that was not chosen, and an
-                // undo that left it standing would restore three fields out
-                // of four. Disabled controls are exempt because they were
-                // never in the serialisation to begin with.
-                if (el.type === 'radio' || el.type === 'checkbox') {
-                    el.checked = value !== undefined && String(el.value) === String(value);
-                    return;
-                }
-                el.value = value === undefined ? '' : value;
-            });
-
-            // The roster's chips and counters are drawn from the radios, so
-            // they have to be told the radios moved.
-            form.dispatchEvent(new CustomEvent('tt:ma-remounted', { bubbles: true }));
-        }
-
-        /** `players[12][marker]` -> payload.players['12'].marker */
-        function lookup(payload, name) {
-            var match = name.match(/^([^\[]+)((?:\[[^\]]*\])*)$/);
-            if (!match) return undefined;
-
-            var cursor = payload[match[1]];
-            var keys   = [];
-            match[2].replace(/\[([^\]]*)\]/g, function (_m, k) { keys.push(k); return ''; });
-
-            for (var i = 0; i < keys.length; i++) {
-                if (cursor == null || typeof cursor !== 'object') return undefined;
-                cursor = cursor[keys[i]];
-            }
-            return cursor === undefined || cursor === null ? undefined : cursor;
-        }
-
-        saver.seed(body());
-
-        form.addEventListener('input',  function () { saver.change(); });
-        // Radios, selects and the roster's chips settle the moment they are
-        // pressed, so they skip the typing debounce.
-        form.addEventListener('change', function () { saver.change(60); });
-
-        // Nothing on this form submits any more, but a stray Enter in a
-        // text input still tries to. Swallow it and let the save that is
-        // already queued do the work.
-        form.addEventListener('submit', function (e) { e.preventDefault(); });
+        if (!saver) return;
 
         if (finalise) {
             finalise.addEventListener('click', function () {

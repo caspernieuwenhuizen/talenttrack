@@ -58,6 +58,16 @@ The conversations run in order: only the **active** conversation — the earlies
 
 The player can fill in their self-reflection any time before the coach signs off. Once the coach signs off, the field locks.
 
+### The conversation form saves itself
+
+There is no **Save conversation** button. The form saves as you write, and a status line where the button used to be says where it got to — *Unsaved changes…*, *Saving…*, *All changes saved*. **Undo** and **Revert changes** sit beside it, exactly as on every other autosaving screen; both are described in full under *Save behaviour* on the [match preparation](match-prep.md) page.
+
+The player's **self-reflection** works the same way, while its window is open. Outside the window the field is disabled, as before, and nothing saves.
+
+**Sign-off is now its own button, not a checkbox on the form.** It used to be a tick you saved along with everything else. On a form that saves itself that would be one accidental tap away from locking the conversation for everyone, permanently — so it is a separate **Sign off** button below the form, behind a confirm. Everything above it is already saved by the time you press it; signing off is what closes the conversation for editing.
+
+A **content-locked** conversation — a later talk in the cycle — still autosaves its planned date, which is the only field it lets you change. A **signed-off** conversation autosaves nothing, because there is nothing left to write.
+
 ### 3. Acknowledgement
 
 After sign-off the conversation appears on the player's *My PDP* view (and the parent's, if they're linked). Both can click *Acknowledge* — a lightweight "I've seen this" timestamp.
