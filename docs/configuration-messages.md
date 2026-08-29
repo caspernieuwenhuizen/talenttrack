@@ -44,6 +44,18 @@ Two emails deliberately stay outside this system:
 - **Password reset.** An opt-out, a quiet-hours window or a switch left off would lock someone out of their own account with no way to ask for another link.
 - **Backup delivery.** That is a file going to whoever holds your backups, not a message about a person, and it must never be held back.
 
+## Account mail is not on this list
+
+The **invitation email** — the one carrying the link a parent, player or staff member uses to set a password and log in for the first time — is not listed here and has no switch.
+
+It is not a message your academy chooses to send about a player. It is how somebody gets an account at all. A switch for it would look like a messaging decision and behave like an onboarding outage: nobody who unticked it would connect "we switched off a message" to "new parents cannot log in", because those do not look like the same thing.
+
+So it is absent rather than shown ticked and locked. It sends because somebody invited a person, and that is its only condition. Everything else about it is unchanged — it is still recorded in the message log, still resolves its recipient the same way, and still respects a person's own preferences wherever those legally apply.
+
+If your academy previously unticked the invitation email, that choice no longer has any effect and is cleared the next time you save this page.
+
+Password reset works the same way for the same reason, and never appeared on this list.
+
 ## What this is not
 
 - **It is not an opt-out.** This is the academy's decision for everyone. An individual's own preferences live under **My settings → Messages you receive**.

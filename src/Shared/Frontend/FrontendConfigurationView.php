@@ -2427,9 +2427,14 @@ class FrontendConfigurationView extends FrontendViewBase {
      * into one hidden JSON field so the standard config-form submit
      * handler ships a single value. Checked = enabled, and the STORED set
      * is the unchecked one — see TemplateSwitch for why that direction.
+     *
+     * #3110 — built from the SWITCHABLE templates, so account mail (the
+     * invitation email) is absent rather than shown ticked and greyed. A
+     * disabled checkbox invites "why can't I change this"; absence does
+     * not raise the question at all.
      */
     private static function renderMessagesForm(): void {
-        $templates = \TT\Modules\Comms\Template\TemplateRegistry::all();
+        $templates = \TT\Modules\Comms\Template\TemplateSwitch::switchableTemplates();
         $disabled  = \TT\Modules\Comms\Template\TemplateSwitch::disabledKeys();
         ksort( $templates );
         ?>

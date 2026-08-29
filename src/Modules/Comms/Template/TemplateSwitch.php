@@ -33,6 +33,16 @@ use TT\Infrastructure\Query\QueryHelpers;
  * switch suppresses the message, never the evidence.
  *
  * Club-scoped for free: `QueryHelpers::get_config` namespaces per club.
+ *
+ * ## Account mail is outside the switch (#3110)
+ *
+ * A template marked `AccountMailTemplate` is not switchable at all: it
+ * exists to make an account work rather than to tell a family something,
+ * so `isEnabled()` answers `true` for it whatever is stored, and it is
+ * absent from the settings screen. An install that already has such a
+ * key in its stored disabled set keeps the row — it is simply inert —
+ * and it is dropped the next time the set is saved, because
+ * `normaliseStored()` only keeps switchable keys.
  */
 final class TemplateSwitch {
 
@@ -49,7 +59,37 @@ final class TemplateSwitch {
     }
 
     public static function isEnabled( string $templateKey ): bool {
+        // #3110 — account mail sends because someone asked for an account,
+        // and that is its only condition. Checked before the stored set so
+        // a legacy row naming it cannot suppress an invitation.
+        if ( ! self::isSwitchable( $templateKey ) ) return true;
+
         return ! in_array( $templateKey, self::disabledKeys(), true );
+    }
+
+    /**
+     * Whether this template is the academy's decision to make (#3110).
+     *
+     * An unregistered key is switchable — the stored set is the disabled
+     * one, so an unknown key has to keep behaving as it did before.
+     */
+    public static function isSwitchable( string $templateKey ): bool {
+        $template = TemplateRegistry::get( $templateKey );
+        return ! ( $template instanceof AccountMailTemplate );
+    }
+
+    /**
+     * Registered templates an academy can switch, in registration order.
+     * The Messages settings screen and the setup wizard both build their
+     * list from this, so account mail never appears on either.
+     *
+     * @return array<string, TemplateInterface>
+     */
+    public static function switchableTemplates(): array {
+        return array_filter(
+            TemplateRegistry::all(),
+            static fn ( TemplateInterface $t ): bool => ! ( $t instanceof AccountMailTemplate )
+        );
     }
 
     /**
@@ -64,13 +104,15 @@ final class TemplateSwitch {
 
     /**
      * Normalise a stored / submitted value to canonical JSON of known
-     * template keys. Accepts a JSON array or a comma-separated list, and
-     * discards anything that isn't a registered template — a malformed or
-     * stale payload can't poison the stored value, and can't silently
-     * switch off a template that no longer exists.
+     * switchable template keys. Accepts a JSON array or a comma-separated
+     * list, and discards anything that isn't a registered switchable
+     * template — a malformed or stale payload can't poison the stored
+     * value, can't silently switch off a template that no longer exists,
+     * and (#3110) can't name account mail, which is not the academy's
+     * decision to make.
      */
     public static function normaliseStored( string $raw ): string {
-        $known = array_keys( TemplateRegistry::all() );
+        $known = array_keys( self::switchableTemplates() );
         $clean = array_values( array_intersect( self::decode( $raw ), $known ) );
         return (string) wp_json_encode( $clean );
     }
