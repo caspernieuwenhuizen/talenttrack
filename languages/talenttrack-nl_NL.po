@@ -58540,6 +58540,52 @@ msgstr "Verstuurde berichten"
 
 #~ msgid "How to use TalentTrack."
 #~ msgstr "Hoe je TalentTrack gebruikt."
+msgid "What TalentTrack tells people"
+msgstr "Wat TalentTrack aan mensen laat weten"
+
+msgid "Right now your academy sends nothing. Tick the messages you want TalentTrack to send on your behalf; leave the rest for later."
+msgstr "Op dit moment verstuurt jouw academie niets. Vink de berichten aan die TalentTrack namens jullie mag versturen; de rest laat je voor later."
+
+msgid "Most academies want the first group at least — those are the messages people are annoyed not to get. You can change any of this afterwards under Configuration → Messages."
+msgstr "De meeste academies willen op zijn minst de eerste groep — dat zijn de berichten waarvan mensen balen als ze die niet krijgen. Je kunt dit later allemaal aanpassen onder Configuratie → Berichten."
+
+msgid "No messages are available on this install."
+msgstr "Op deze installatie zijn geen berichten beschikbaar."
+
+msgid "Not sent automatically yet — ticking it changes nothing until that is wired up."
+msgstr "Wordt nog niet automatisch verstuurd — aanvinken verandert niets tot de aansluiting er is."
+
+msgid "Send these and continue"
+msgstr "Deze versturen en doorgaan"
+
+msgid "Skip — send nothing for now"
+msgstr "Overslaan — voorlopig niets versturen"
+
+msgid "If you skip this, no messages will be sent."
+msgstr "Sla je dit over, dan wordt er geen enkel bericht verstuurd."
+
+msgid "Not even a cancelled training. Nobody is told anything until you tick something here or under Configuration → Messages."
+msgstr "Ook geen afgelaste training. Niemand hoort iets tot je hier of onder Configuratie → Berichten iets aanvinkt."
+
+msgid "Messages: nothing is being sent."
+msgstr "Berichten: er wordt niets verstuurd."
+
+msgid "Not even a cancelled training. Choose what your academy sends under Configuration → Messages."
+msgstr "Ook geen afgelaste training. Kies onder Configuratie → Berichten wat jouw academie verstuurt."
+
+msgid "What we send"
+msgstr "Wat we versturen"
+
+msgid "Saved. Those messages will now be sent."
+msgstr "Opgeslagen. Die berichten worden vanaf nu verstuurd."
+
+#, php-format
+msgid "Messages: %d type switched on."
+msgid_plural "Messages: %d types switched on."
+msgstr[0] "Berichten: %d soort staat aan."
+msgstr[1] "Berichten: %d soorten staan aan."
+
+
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"

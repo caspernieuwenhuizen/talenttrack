@@ -31,8 +31,21 @@ The wizard is reachable from four places — pick whichever you find first.
 4. **First team** — name + age group. Creates one row in `tt_teams`. You can skip this step and add teams later from the Teams view (players — not teams — support bulk CSV import).
 5. **First admin** — confirms your WP account, creates a `tt_people` staff record linked to it, and (optionally) grants you the *Club Admin* role.
 6. **Add your staff** — the coaches and staff who will use TalentTrack. An invitation is prepared for each of them and held; nobody is emailed until you send them.
-7. **Dashboard page** — creates a WordPress page holding the `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so signing in lands straight on the dashboard. If a page with the shortcode already exists it is reused (and published if it was a draft), never duplicated. You can skip this step, and you can change the homepage later under Settings → Reading.
-8. **Done** — summary of what was set up and "Recommended next steps" cards (add players, invite first coach, customize branding, set up backups). The **Go to dashboard** button opens the frontend dashboard page created in step 7 (or the wp-admin dashboard if you skipped it).
+7. **What we send** — which messages TalentTrack sends on your academy's behalf. Nothing is ticked when you arrive, because nothing is being sent: a new install starts silent by design. Tick what you want; the first group is marked *Recommended*. You can skip, and skipping means exactly what it says — see below.
+8. **Dashboard page** — creates a WordPress page holding the `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so signing in lands straight on the dashboard. If a page with the shortcode already exists it is reused (and published if it was a draft), never duplicated. You can skip this step, and you can change the homepage later under Settings → Reading.
+9. **Done** — summary of what was set up, including how many message types are switched on, and "Recommended next steps" cards (add players, invite first coach, customize branding, set up backups). The **Go to dashboard** button opens the frontend dashboard page created in the previous step (or the wp-admin dashboard if you skipped it).
+
+## The messaging step is the one not to skip
+
+A brand-new academy sends nothing at all. That is deliberate — these are messages to the parents of minors, and TalentTrack does not start mailing them on an academy's behalf before somebody decided it should.
+
+The consequence is worth being blunt about: **if you skip this step, no messages are sent.** Not a cancelled training, not a schedule change, not a safeguarding broadcast. A club that skips it and later cancels a session will find that nobody was told, and will reasonably read that as the product being broken.
+
+Nothing is pre-ticked, because the honest framing is that you are choosing what to switch on rather than what to leave alone. The first group — training cancelled, schedule change, safeguarding broadcast — is marked *Recommended*, which is a recommendation and not a tick made on your behalf.
+
+Whatever you choose here, you can change under **Configuration → Messages**, which is the same setting shown in a fuller form. The step and that screen write the same stored value; there is no second place the decision lives.
+
+**Invitations are not affected.** The invitation email — the one that gets your staff and parents their logins — is account plumbing rather than a message you choose to send, so it is outside this step entirely and outside the Messages screen. Staff you invited on the previous step get their invitations whatever you pick here.
 
 The Done screen shows once, when you finish. Opening the wizard again afterwards shows a short "Setup is complete" line with the reset link, not the summary.
 
