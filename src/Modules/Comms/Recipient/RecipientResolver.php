@@ -130,7 +130,15 @@ final class RecipientResolver {
 
         $out = [];
         foreach ( $rows as $row ) {
-            $uid = (int) ( is_array( $row ) ? ( $row['parent_user_id'] ?? $row['user_id'] ?? 0 ) : 0 );
+            // #3081 — `parentsForPlayer()` returns a list of parent user
+            // ids, not row arrays. The scalar branch used to yield 0 and
+            // `continue`, so a player WITH linked parents resolved to no
+            // recipients at all — and having rows also suppressed the
+            // legacy-guardian fallback below, so nobody was reachable.
+            // Nothing sent through this resolver until now, which is why
+            // it went unnoticed. Both shapes are accepted so a caller
+            // injecting a repository that returns rows still works.
+            $uid = (int) ( is_array( $row ) ? ( $row['parent_user_id'] ?? $row['user_id'] ?? 0 ) : $row );
             if ( $uid <= 0 ) continue;
             $email  = (string) ( ContactResolver::emailForUser( $uid ) ?? '' );
             $phone  = (string) ( ContactResolver::phoneForUser( $uid ) ?? '' );

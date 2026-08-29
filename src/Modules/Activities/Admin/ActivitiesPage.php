@@ -14,6 +14,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Activities\Services\ActivityLifecycle;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -478,6 +479,18 @@ class ActivitiesPage {
                 ? absint( $_POST['tournament_id'] )
                 : null,
         ];
+
+        // #3081 — this form posts `activity_status_key` and no
+        // `plan_state`, so cancelling here used to write
+        // `activity_status_key = 'cancelled'` while `plan_state` stayed
+        // `scheduled` and the planner kept offering the session. Same
+        // terminal-status implication #1349 applied to the REST payload;
+        // the rule itself now lives in `ActivityLifecycle` so the two
+        // save paths cannot drift apart again.
+        $implied_plan_state = ActivityLifecycle::planStateForTerminalStatus( $status );
+        if ( $implied_plan_state !== null ) {
+            $data['plan_state'] = $implied_plan_state;
+        }
 
         if ( $id ) {
             $ok = $repo->update( $id, $data );
