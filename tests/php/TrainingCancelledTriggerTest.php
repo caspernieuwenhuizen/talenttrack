@@ -168,7 +168,7 @@ final class TrainingCancelledTriggerTest extends WP_UnitTestCase {
         ( new PlayerParentsRepository() )->link( $player, $parent, true );
         $this->insertExpectedAttendance( $activity, $player );
 
-        $results = TrainingCancelledSend::handle( $activity );
+        $results = TrainingCancelledSend::send( $activity );
 
         $this->assertCount( 1, $results );
         $this->assertSame( CommsResult::STATUS_SENT, $results[0]->status );
@@ -195,7 +195,7 @@ final class TrainingCancelledTriggerTest extends WP_UnitTestCase {
             $this->insertExpectedAttendance( $activity, $player );
         }
 
-        $results = TrainingCancelledSend::handle( $activity );
+        $results = TrainingCancelledSend::send( $activity );
 
         $this->assertCount( 1, $results );
         $this->assertSame( $parent, $results[0]->recipient->userId );
@@ -204,7 +204,7 @@ final class TrainingCancelledTriggerTest extends WP_UnitTestCase {
     public function test_an_activity_nobody_is_planned_for_still_leaves_a_row(): void {
         $activity = $this->insertActivity( 'planned', 'scheduled' );
 
-        $results = TrainingCancelledSend::handle( $activity );
+        $results = TrainingCancelledSend::send( $activity );
 
         $this->assertCount( 1, $results );
         $this->assertSame( CommsResult::STATUS_NO_RECIPIENTS, $results[0]->status );

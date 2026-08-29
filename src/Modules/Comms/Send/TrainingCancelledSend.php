@@ -37,11 +37,19 @@ final class TrainingCancelledSend {
     }
 
     /**
-     * @return CommsResult[] Discarded by the action hook; returned so a
-     *                       test (or a future sync caller) can read the
-     *                       per-recipient outcome.
+     * Action-hook entry point. Returns nothing, because `do_action()`
+     * has nowhere to put a return value — the obligation here is the
+     * audit trail, not an answer.
      */
-    public static function handle( int $activity_id ): array {
+    public static function handle( int $activity_id ): void {
+        self::send( $activity_id );
+    }
+
+    /**
+     * @return CommsResult[] One per recipient, so a test (or a future
+     *                       user-triggered caller) can read the outcome.
+     */
+    public static function send( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
 
         $repo     = new ActivitiesRepository();
