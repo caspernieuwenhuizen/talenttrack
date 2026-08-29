@@ -21,10 +21,12 @@ final class PlayerFileCounts {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $goals = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND " . ArchiveRepository::filterClause( 'active' ),
-            $player_id
-        ) );
+        // #3033 — the badge used to hand-roll its own filter, which had
+        // neither the club scope nor the status filter, so it could differ
+        // from both the tab's list heading and the profile KPI on the same
+        // player. All three now read one definition of "an active goal"
+        // from GoalsRepository.
+        $goals = ( new \TT\Infrastructure\Goals\GoalsRepository() )->countActiveForPlayer( $player_id );
         // The evaluation badge count and the evaluations-tab list query
         // (FrontendPlayerDetailView::renderEvaluationsTab) must agree
         // on the same scope, otherwise the operator sees a non-zero

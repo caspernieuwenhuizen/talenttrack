@@ -297,7 +297,10 @@ class GoalsRestController {
     private static function statusWhereClause( string $status ): ?array {
         switch ( $status ) {
             case 'active':
-                return [ "( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )", [] ];
+                // #3033 — same predicate the player-profile Goals tab
+                // renders, so `?filter[player_id]=N&filter[status]=active`
+                // returns exactly what the tab shows.
+                return [ \TT\Infrastructure\Goals\GoalsRepository::activeStatusClause( 'g' ), [] ];
             case 'achieved':
                 return [ 'g.status = %s', [ 'completed' ] ];
             case 'missed':

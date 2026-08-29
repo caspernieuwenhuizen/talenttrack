@@ -56729,6 +56729,14 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #, php-format
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No active goals — every goal on this player is finished."
+msgstr "Geen actieve doelen — elk doel van deze speler is afgerond."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Completed goals · %d"
+msgstr "Afgeronde doelen · %d"
+
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
 
