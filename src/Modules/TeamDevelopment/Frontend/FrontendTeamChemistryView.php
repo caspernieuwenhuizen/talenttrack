@@ -52,7 +52,8 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         ) {
             FrontendBreadcrumbs::fromDashboard( $chem_label );
             self::renderHeader( $chem_label );
-            echo \TT\Modules\License\Admin\UpgradeNudge::inline( $chem_label, 'pro' );
+            // #3104 — one refusal shape, addressed by feature key.
+            echo \TT\Modules\License\UpgradePanel::render( 'team_chemistry' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
             return;
         }
 

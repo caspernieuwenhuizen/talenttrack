@@ -1,0 +1,111 @@
+/**
+ * TalentTrack — the locked-feature panel (#3104)
+ *
+ * One shape for every plan refusal. `UpgradePanel` renders it on frontend
+ * views and inside wp-admin, so the sheet is self-contained: it styles its
+ * own call to action rather than borrowing `.tt-btn`, which only exists
+ * under `.tt-dashboard` on the frontend.
+ *
+ * Mobile-first per CLAUDE.md §2 — base rules target ~360px and scale up at
+ * 480px. Colours come from tokens.css; the brand shades read
+ * var(--tt-primary, …) so the operator's club-colour editor re-themes the
+ * panel along with everything else.
+ */
+
+.tt-upgrade-panel {
+    display: block;
+    margin: var(--tt-sp-4, 16px) 0;
+    padding: var(--tt-sp-5, 20px) var(--tt-sp-4, 16px);
+    max-width: 42rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    font-size: var(--tt-fs-body, 1rem);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+.tt-upgrade-panel__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-2, 8px);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tt-upgrade-panel__lock {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.tt-upgrade-panel__title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    color: var(--tt-primary, #0b3d2e);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.tt-upgrade-panel__body {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-upgrade-panel__body--reassure {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-upgrade-panel__actions {
+    margin: var(--tt-sp-4, 16px) 0 0;
+}
+
+.tt-upgrade-panel__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-5, 20px);
+    border: 1px solid transparent;
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #ffffff;
+    font-size: var(--tt-fs-body, 1rem);
+    font-weight: 600;
+    text-decoration: none;
+    touch-action: manipulation;
+    transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
+}
+
+.tt-upgrade-panel__cta:hover,
+.tt-upgrade-panel__cta:active {
+    background: var(--tt-primary-ink, #072a20);
+    color: #ffffff;
+}
+
+.tt-upgrade-panel__cta:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+/* The cap variant leads with the sentence, so it has no eyebrow to
+   separate the title from the panel edge. */
+.tt-upgrade-panel--cap .tt-upgrade-panel__title {
+    font-size: var(--tt-fs-lg, 1.125rem);
+}
+
+@media (min-width: 480px) {
+    .tt-upgrade-panel {
+        padding: var(--tt-sp-6, 24px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-upgrade-panel__cta {
+        transition: none;
+    }
+}
