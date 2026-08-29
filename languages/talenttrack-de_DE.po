@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T16:25:03+00:00\n"
+"POT-Creation-Date: 2026-08-29T16:28:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5321,7 +5321,7 @@ msgstr "Speichern…"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:58
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:54
 #: src/Shared/Frontend/Components/SaveState.php:71
-#: src/Shared/Frontend/Components/SaveState.php:93
+#: src/Shared/Frontend/Components/SaveState.php:105
 msgid "All changes saved"
 msgstr ""
 
@@ -18938,6 +18938,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:645
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1550
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:99
+#: src/Shared/Frontend/Components/SaveState.php:114
 #: src/Shared/Frontend/DashboardShortcode.php:281
 msgid "Undo"
 msgstr ""
@@ -44472,6 +44473,10 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/SaveState.php:72
 msgid "Save failed — retry"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SaveState.php:77
+msgid "Undo failed — nothing changed"
 msgstr ""
 
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
