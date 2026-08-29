@@ -32,9 +32,16 @@ final class LookupSeedMapCoverageTest extends WP_UnitTestCase {
         parent::set_up();
         global $wpdb;
 
+        // Club-scoped like every other read of this table. A row belonging
+        // to another tenant is not part of this install's vocabulary, and
+        // letting one in would fail the coverage assertion with a name
+        // nobody here recognises.
         $rows = $wpdb->get_results(
-            "SELECT lookup_type, name FROM {$wpdb->prefix}tt_lookups
-              WHERE name IS NOT NULL AND name <> ''",
+            $wpdb->prepare(
+                "SELECT lookup_type, name FROM {$wpdb->prefix}tt_lookups
+                  WHERE club_id = %d AND name IS NOT NULL AND name <> ''",
+                \TT\Infrastructure\Tenancy\CurrentClub::id()
+            ),
             ARRAY_A
         );
         foreach ( (array) $rows as $row ) {
