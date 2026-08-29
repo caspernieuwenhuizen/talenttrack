@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T20:53:46+00:00\n"
+"POT-Creation-Date: 2026-08-29T21:04:40+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -92,7 +92,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:408
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:2245
-#: src/Shared/Frontend/FrontendConfigurationView.php:2738
+#: src/Shared/Frontend/FrontendConfigurationView.php:2825
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
 msgid "Parent"
@@ -212,7 +212,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3548
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3571
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3626
-#: src/Shared/Frontend/FrontendConfigurationView.php:2737
+#: src/Shared/Frontend/FrontendConfigurationView.php:2824
 #: src/Shared/Frontend/FrontendEvaluationsView.php:187
 #: src/Shared/Frontend/FrontendEvaluationsView.php:201
 #: src/Shared/Frontend/FrontendEvaluationsView.php:296
@@ -285,7 +285,7 @@ msgstr "Trainer"
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:2248
-#: src/Shared/Frontend/FrontendConfigurationView.php:2732
+#: src/Shared/Frontend/FrontendConfigurationView.php:2819
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
 msgid "Head of Development"
@@ -2033,7 +2033,7 @@ msgstr "Afgemeld"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
 #: src/Modules/Teams/Admin/TeamsPage.php:51
 #: src/Modules/Wizards/Team/StaffStep.php:34
-#: src/Shared/Frontend/FrontendConfigurationView.php:2733
+#: src/Shared/Frontend/FrontendConfigurationView.php:2820
 #: src/Shared/Frontend/FrontendTeamDetailView.php:492
 msgid "Head coach"
 msgstr "Hoofdtrainer"
@@ -2046,7 +2046,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
 #: src/Modules/Teams/Admin/TeamsPage.php:52
 #: src/Modules/Wizards/Team/StaffStep.php:35
-#: src/Shared/Frontend/FrontendConfigurationView.php:2734
+#: src/Shared/Frontend/FrontendConfigurationView.php:2821
 #: src/Shared/Frontend/FrontendPeopleManageView.php:285
 msgid "Assistant coach"
 msgstr "Assistent-trainer"
@@ -2059,7 +2059,7 @@ msgstr "Assistent-trainer"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
 #: src/Modules/Teams/Admin/TeamsPage.php:53
 #: src/Modules/Wizards/Team/StaffStep.php:36
-#: src/Shared/Frontend/FrontendConfigurationView.php:2735
+#: src/Shared/Frontend/FrontendConfigurationView.php:2822
 msgid "Team manager"
 msgstr "Teammanager"
 
@@ -2091,7 +2091,7 @@ msgstr "Fysio"
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
 #: src/Shared/Frontend/DashboardShortcode.php:2249
-#: src/Shared/Frontend/FrontendConfigurationView.php:2736
+#: src/Shared/Frontend/FrontendConfigurationView.php:2823
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1435
@@ -3130,7 +3130,7 @@ msgstr "Een team is vereist."
 msgid "You do not have access to this team."
 msgstr "Je hebt geen toegang tot dit team."
 
-#: src/Infrastructure/REST/ConfigRestController.php:240
+#: src/Infrastructure/REST/ConfigRestController.php:252
 msgid "Expected an object under `config`."
 msgstr "Verwacht een object onder `config`."
 
@@ -4076,7 +4076,7 @@ msgstr "Spelers"
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:152
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:472
-#: src/Shared/Frontend/FrontendConfigurationView.php:2634
+#: src/Shared/Frontend/FrontendConfigurationView.php:2721
 #: src/Shared/Frontend/FrontendSeasonsView.php:77
 msgid "Season"
 msgstr "Seizoen"
@@ -5423,9 +5423,9 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/FrontendConfigurationView.php:2162
 #: src/Shared/Frontend/FrontendConfigurationView.php:2294
 #: src/Shared/Frontend/FrontendConfigurationView.php:2321
-#: src/Shared/Frontend/FrontendConfigurationView.php:2554
-#: src/Shared/Frontend/FrontendConfigurationView.php:2675
-#: src/Shared/Frontend/FrontendConfigurationView.php:2808
+#: src/Shared/Frontend/FrontendConfigurationView.php:2641
+#: src/Shared/Frontend/FrontendConfigurationView.php:2762
+#: src/Shared/Frontend/FrontendConfigurationView.php:2895
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:455
 #: src/Shared/Frontend/FrontendMatrixView.php:137
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
@@ -5581,7 +5581,7 @@ msgstr "Onbekende databasefout."
 #: src/Shared/Frontend/FrontendConfigurationView.php:515
 #: src/Shared/Frontend/FrontendConfigurationView.php:904
 #: src/Shared/Frontend/FrontendConfigurationView.php:1092
-#: src/Shared/Frontend/FrontendConfigurationView.php:2700
+#: src/Shared/Frontend/FrontendConfigurationView.php:2787
 #: src/Shared/Frontend/FrontendHolidaysView.php:343
 #: src/Shared/Frontend/FrontendSeasonsView.php:186
 #: src/Shared/Frontend/FrontendSetupView.php:161
@@ -5914,7 +5914,7 @@ msgstr "Datumbereik"
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:208
 #: src/Shared/Frontend/FrontendAuditLogView.php:508
-#: src/Shared/Frontend/FrontendConfigurationView.php:2698
+#: src/Shared/Frontend/FrontendConfigurationView.php:2785
 #: src/Shared/Frontend/FrontendEvaluationsView.php:214
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:108
 #: src/Shared/Frontend/FrontendReportWizardView.php:209
@@ -5940,7 +5940,7 @@ msgstr "Vanaf"
 #: src/Shared/Frontend/Components/FilterBar.php:555
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
-#: src/Shared/Frontend/FrontendConfigurationView.php:2699
+#: src/Shared/Frontend/FrontendConfigurationView.php:2786
 #: src/Shared/Frontend/FrontendEvaluationsView.php:215
 #: src/Shared/Frontend/FrontendMailComposeView.php:142
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:109
@@ -6713,6 +6713,7 @@ msgid "In the summary email"
 msgstr "In de samenvattingsmail"
 
 #: src/Modules/Alerts/Domain/Surface.php:106
+#: src/Modules/Comms/Template/TemplateGuide.php:121
 msgid "Push notification"
 msgstr "Pushbericht"
 
@@ -9372,7 +9373,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:320
 #: src/Modules/Authorization/Admin/MatrixPage.php:483
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:86
-#: src/Shared/Frontend/FrontendConfigurationView.php:2782
+#: src/Shared/Frontend/FrontendConfigurationView.php:2869
 msgid "Persona"
 msgstr "Persona"
 
@@ -10472,6 +10473,7 @@ msgstr "Nog geen matrix-wijzigingen."
 #: src/Modules/Vct/Wizard/WhenStep.php:27
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/FrontendAuditLogView.php:546
+#: src/Shared/Frontend/FrontendConfigurationView.php:2522
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:190
 msgid "When"
 msgstr "Wanneer"
@@ -12655,6 +12657,7 @@ msgstr ""
 "Terugzetten tussen verschillende hoofdversies wordt niet ondersteund."
 
 #: src/Modules/Backup/Destinations/EmailDestination.php:41
+#: src/Modules/Comms/Template/TemplateGuide.php:120
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:503
 #: src/Modules/Configuration/Admin/FormSlugContract.php:79
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
@@ -12971,6 +12974,365 @@ msgstr "Dit berichtsjabloon bestaat niet."
 #: src/Modules/Comms/Rest/CommsRestController.php:374
 msgid "Expected a list of message types."
 msgstr "Er werd een lijst met berichtsoorten verwacht."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:57
+msgid "People need to know now"
+msgstr "Dit moeten mensen nu weten"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:58
+msgid ""
+"Something changed today and the family finds out too late if nobody tells "
+"them. Most academies want all of these on."
+msgstr ""
+"Er is vandaag iets veranderd en het gezin hoort het te laat als niemand het "
+"vertelt. De meeste academies willen deze allemaal aan."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:62
+msgid "Somebody asked for it"
+msgstr "Iemand heeft erom gevraagd"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:63
+msgid ""
+"A person clicked something and the message is what completes it. Switching "
+"one off makes the feature that sends it look broken."
+msgstr ""
+"Iemand heeft ergens op geklikt en het bericht maakt dat af. Zet je er een "
+"uit, dan lijkt de functie die hem verstuurt kapot."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:67
+msgid "Moments in a player's season"
+msgstr "Momenten in het seizoen van een speler"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:68
+msgid ""
+"A decision or a document a family has been waiting for. Whether these are "
+"emailed or handed over in a conversation is your academy's call."
+msgstr ""
+"Een besluit of een document waar een gezin op wacht. Of die per e-mail gaan "
+"of in een gesprek worden overhandigd, bepaalt jouw academie zelf."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:72
+msgid "Reminders and summaries"
+msgstr "Herinneringen en samenvattingen"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:73
+msgid ""
+"Useful once your academy is running, noisy while you are still entering "
+"data. These are the ones that teach people to ignore TalentTrack mail."
+msgstr ""
+"Nuttig zodra jullie draaien, storend zolang je nog gegevens invoert. Dit "
+"zijn de berichten waardoor mensen TalentTrack-mail gaan negeren."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:122
+msgid "Text message"
+msgstr "Sms"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:123
+msgid "WhatsApp link"
+msgstr "WhatsApp-link"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:124
+msgid "Inside TalentTrack"
+msgstr "Binnen TalentTrack"
+
+#: src/Modules/Comms/Template/TemplateGuide.php:139
+msgid "Tells everyone expected at a training that it is off."
+msgstr ""
+"Laat iedereen die op een training verwacht wordt weten dat die niet doorgaat."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:140
+msgid ""
+"The players in the squad and their parents, plus the staff assigned to it."
+msgstr ""
+"De spelers van de selectie en hun ouders, plus de begeleiding die eraan is "
+"toegewezen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:141
+msgid "When a training is cancelled."
+msgstr "Zodra een training wordt afgelast."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:146
+msgid "Passes on a time, date or location change that came in from Spond."
+msgstr ""
+"Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
+"binnengekomen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:147
+msgid "The players affected and their parents."
+msgstr "De spelers die het betreft en hun ouders."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:148
+msgid "When a Spond sync brings in a changed training or match."
+msgstr ""
+"Zodra een Spond-synchronisatie een gewijzigde training of wedstrijd "
+"binnenhaalt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:153
+msgid "A safeguarding message the academy needs everyone to see."
+msgstr "Een veiligheidsbericht dat de academie bij iedereen wil krijgen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:154
+msgid ""
+"The group the sender chooses — often every parent and every member of staff."
+msgstr "De groep die de afzender kiest — vaak alle ouders en alle medewerkers."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:155
+msgid "When somebody with safeguarding responsibility sends one."
+msgstr "Zodra iemand met een rol in veiligheid en welzijn er een verstuurt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:163
+msgid "Invites a player from another team to train with this one."
+msgstr "Nodigt een speler uit een ander team uit om mee te trainen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:164
+msgid "The guest player and their parents."
+msgstr "De gastspeler en zijn of haar ouders."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:165
+msgid "When a coach invites a guest to a training."
+msgstr "Zodra een trainer een gastspeler uitnodigt voor een training."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:170
+msgid "Welcomes a trialist and tells them what to bring and where to be."
+msgstr ""
+"Verwelkomt een speler op proef en vertelt wat mee te nemen en waar te zijn."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:171
+msgid "The trial player and their parents."
+msgstr "De speler op proef en zijn of haar ouders."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:172
+msgid "When a trial player is added."
+msgstr "Zodra een speler op proef wordt toegevoegd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:177
+msgid "Delivers a letter somebody wrote in TalentTrack."
+msgstr "Bezorgt een brief die iemand in TalentTrack heeft geschreven."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:178
+msgid "The player and parents the letter is addressed to."
+msgstr "De speler en de ouders aan wie de brief gericht is."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:179
+msgid "When a letter is sent."
+msgstr "Zodra een brief wordt verstuurd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:184
+msgid "An announcement written by the academy and sent to a group at once."
+msgstr ""
+"Een mededeling die de academie schrijft en in één keer naar een groep stuurt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:185
+msgid "The teams, age groups or roles the sender picks."
+msgstr "De teams, leeftijdsgroepen of rollen die de afzender kiest."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:186
+msgid "When somebody sends an announcement."
+msgstr "Zodra iemand een mededeling verstuurt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:191
+msgid "An email a member of staff typed and sent from inside TalentTrack."
+msgstr ""
+"Een e-mail die een medewerker binnen TalentTrack heeft getypt en verstuurd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:192
+msgid "Whoever the sender addressed it to."
+msgstr "Degene aan wie de afzender hem gericht heeft."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:193
+msgid "When a member of staff sends one."
+msgstr "Zodra een medewerker er een verstuurt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:198
+msgid ""
+"A confidential one-time link to a player report, for somebody outside the "
+"academy."
+msgstr ""
+"Een vertrouwelijke eenmalige link naar een spelersrapport, voor iemand "
+"buiten de academie."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:199
+msgid "The scout the report was shared with."
+msgstr "De scout met wie het rapport is gedeeld."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:200
+msgid "When a player report is shared with a scout."
+msgstr "Zodra een spelersrapport met een scout wordt gedeeld."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:205
+msgid ""
+"Delivers a report on the schedule somebody set up, with the file attached."
+msgstr ""
+"Bezorgt een rapport volgens het schema dat iemand heeft ingesteld, met het "
+"bestand als bijlage."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:206
+msgid "The recipients on that scheduled report."
+msgstr "De ontvangers van dat geplande rapport."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:207
+msgid "On the report's own schedule."
+msgstr "Volgens het schema van het rapport zelf."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:212
+msgid "Emails somebody a link to a screen that needs a bigger display."
+msgstr ""
+"Mailt iemand een link naar een scherm dat een groter beeld nodig heeft."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:213
+msgid "The person who pressed the button, at their own address."
+msgstr "Degene die op de knop drukte, op het eigen adres."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:214
+msgid "When somebody asks for the link on a phone."
+msgstr "Zodra iemand op een telefoon om de link vraagt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:222
+msgid "Tells a family the selection decision for next season."
+msgstr "Vertelt een gezin het selectiebesluit voor komend seizoen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:223
+#: src/Modules/Comms/Template/TemplateGuide.php:230
+msgid "The player and their parents."
+msgstr "De speler en zijn of haar ouders."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:224
+msgid "When a selection letter is sent."
+msgstr "Zodra een selectiebrief wordt verstuurd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:229
+msgid "Says a development plan or evaluation is finished and ready to read."
+msgstr "Meldt dat een ontwikkelplan of evaluatie klaar is om te lezen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:231
+msgid "When a plan or evaluation is published."
+msgstr "Zodra een plan of evaluatie wordt gepubliceerd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:236
+msgid "Invites parents to a meeting about their child."
+msgstr "Nodigt ouders uit voor een gesprek over hun kind."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:237
+msgid "The player's parents."
+msgstr "De ouders van de speler."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:238
+msgid "When a parent meeting is arranged."
+msgstr "Zodra een oudergesprek wordt ingepland."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:243
+msgid ""
+"Shares an activity plan or a piece of the academy methodology with a coach."
+msgstr ""
+"Deelt een activiteitenplan of een onderdeel van de academiemethodiek met een "
+"trainer."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:244
+msgid "The coaching staff it was shared with."
+msgstr "De trainers met wie het gedeeld is."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:245
+msgid "When a plan is delivered to a coach."
+msgstr "Zodra een plan bij een trainer wordt bezorgd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:253
+msgid "Reminds a player about a goal nobody has updated in a while."
+msgstr "Herinnert een speler aan een doel dat al een tijd niet is bijgewerkt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:254
+msgid "The player, and their parents when the player has no account."
+msgstr "De speler, en de ouders wanneer de speler geen account heeft."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:255
+msgid "Daily check; sends for goals untouched for four weeks or more."
+msgstr ""
+"Dagelijkse controle; gaat de deur uit bij doelen die vier weken of langer "
+"onaangeroerd zijn."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:260
+msgid "Flags a run of missed trainings so somebody asks why."
+msgstr "Signaleert een reeks gemiste trainingen, zodat iemand ernaar vraagt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:261
+msgid "The player's coach."
+msgstr "De trainer van de speler."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:262
+msgid "Daily check; sends after three absences in a row."
+msgstr "Dagelijkse controle; gaat de deur uit na drie keer afwezig op rij."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:267
+msgid "Nudges a parent who was given an account and has not used it."
+msgstr ""
+"Port een ouder die een account heeft gekregen en er nog niets mee heeft "
+"gedaan."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:268
+msgid "The parent."
+msgstr "De ouder."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:269
+msgid "Daily check; sends after 30 days without a sign-in."
+msgstr "Dagelijkse controle; gaat de deur uit na 30 dagen zonder inloggen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:274
+msgid "Reminds a member of staff that their own development review is due."
+msgstr ""
+"Herinnert een medewerker eraan dat het eigen ontwikkelgesprek eraan komt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:275
+msgid "The member of staff."
+msgstr "De medewerker."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:276
+msgid "Daily check; sends in the week before the review date."
+msgstr ""
+"Dagelijkse controle; gaat de deur uit in de week voor de gespreksdatum."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:281
+msgid "Chases staff whose verdict on a trial is still missing."
+msgstr ""
+"Port medewerkers van wie het oordeel over een proefperiode nog ontbreekt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:282
+msgid "The staff assigned to that trial."
+msgstr "De medewerkers die aan die proefperiode zijn toegewezen."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:283
+msgid "While a trial is open and their input has not been given."
+msgstr "Zolang een proefperiode loopt en hun input nog ontbreekt."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:288
+msgid ""
+"One email collecting the alerts raised since the last one, instead of an "
+"email each."
+msgstr ""
+"Eén e-mail met alle meldingen sinds de vorige, in plaats van een mail per "
+"melding."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:289
+msgid "The staff those alerts are for."
+msgstr "De medewerkers voor wie die meldingen bedoeld zijn."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:290
+msgid "On the digest schedule set under Alerts."
+msgstr "Volgens het schema dat onder Meldingen is ingesteld."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:295
+msgid ""
+"Tells somebody about activity aimed at them — a new message in a "
+"conversation, a task, a reply to an idea."
+msgstr ""
+"Vertelt iemand over activiteit die voor hem of haar bedoeld is — een nieuw "
+"bericht in een gesprek, een taak, een reactie op een idee."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:296
+msgid "The person the activity concerns."
+msgstr "De persoon die het betreft."
+
+#: src/Modules/Comms/Template/TemplateGuide.php:297
+msgid "When the activity happens."
+msgstr "Zodra de activiteit plaatsvindt."
 
 #: src/Modules/Comms/Templates/AlertDigestTemplate.php:31
 msgid "Alert summary"
@@ -15036,7 +15398,7 @@ msgstr "Logo selecteren"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1012
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
 #: src/Modules/Players/Admin/PlayersPage.php:432
-#: src/Shared/Frontend/FrontendConfigurationView.php:2844
+#: src/Shared/Frontend/FrontendConfigurationView.php:2931
 #: src/Shared/Frontend/FrontendPlayersManageView.php:326
 msgid "Use"
 msgstr "Gebruik"
@@ -16371,7 +16733,7 @@ msgid "Overlays"
 msgstr "Overlays"
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:285
-#: src/Shared/Frontend/FrontendConfigurationView.php:2796
+#: src/Shared/Frontend/FrontendConfigurationView.php:2883
 msgid "Persona dashboard"
 msgstr "Persona-dashboard"
 
@@ -25211,7 +25573,7 @@ msgstr "Inzageverzoeken"
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
 #: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:48
-#: src/Shared/Frontend/FrontendConfigurationView.php:2783
+#: src/Shared/Frontend/FrontendConfigurationView.php:2870
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:324
 #: src/Shared/Frontend/FrontendReportDetailView.php:61
 #: src/Shared/Frontend/FrontendTrialCaseView.php:109
@@ -31446,7 +31808,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:378
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:291
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:346
-#: src/Shared/Frontend/FrontendConfigurationView.php:2731
+#: src/Shared/Frontend/FrontendConfigurationView.php:2818
 msgid "Academy admin"
 msgstr "Academiebeheerder"
 
@@ -31458,7 +31820,7 @@ msgstr "Hoofd opleiding"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:379
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:292
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:347
-#: src/Shared/Frontend/FrontendConfigurationView.php:2739
+#: src/Shared/Frontend/FrontendConfigurationView.php:2826
 msgid "Read-only observer"
 msgstr "Read-only waarnemer"
 
@@ -33250,7 +33612,7 @@ msgstr "Nog geen POP-dossiers voor dit seizoen."
 #. translators: %d = block number, 1-indexed
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:114
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
-#: src/Shared/Frontend/FrontendConfigurationView.php:2697
+#: src/Shared/Frontend/FrontendConfigurationView.php:2784
 #, php-format
 msgid "Block %d"
 msgstr "Blok %d"
@@ -33481,14 +33843,14 @@ msgstr "Blok %d heeft een ongeldig datumformaat. Gebruik JJJJ-MM-DD."
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:153
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:300
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:79
-#: src/Shared/Frontend/FrontendConfigurationView.php:2710
+#: src/Shared/Frontend/FrontendConfigurationView.php:2797
 #, php-format
 msgid "Block %d ends before it starts."
 msgstr "Blok %d eindigt voordat het begint."
 
 #. translators: 1: block number, 2: season start, 3: season end
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:160
-#: src/Shared/Frontend/FrontendConfigurationView.php:2704
+#: src/Shared/Frontend/FrontendConfigurationView.php:2791
 #, php-format
 msgid "Block %1$d extends outside the season window (%2$s – %3$s)."
 msgstr "Blok %1$d valt buiten het seizoensvenster (%2$s – %3$s)."
@@ -43120,7 +43482,7 @@ msgid "VCT configuration sections"
 msgstr "VCT-configuratieonderdelen"
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:109
-#: src/Shared/Frontend/FrontendConfigurationView.php:2640
+#: src/Shared/Frontend/FrontendConfigurationView.php:2727
 msgid "current"
 msgstr "huidig"
 
@@ -43133,7 +43495,7 @@ msgstr ""
 "Configuratie → Seizoenen en kom dan hier terug."
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:122
-#: src/Shared/Frontend/FrontendConfigurationView.php:2606
+#: src/Shared/Frontend/FrontendConfigurationView.php:2693
 msgid "Manage seasons"
 msgstr "Seizoenen beheren"
 
@@ -43239,7 +43601,7 @@ msgid "Block set saved."
 msgstr "Blokkenset opgeslagen."
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:291
-#: src/Shared/Frontend/FrontendConfigurationView.php:2702
+#: src/Shared/Frontend/FrontendConfigurationView.php:2789
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:177
 #: src/Shared/Frontend/FrontendTeamDetailView.php:466
 msgid "Could not save. Try again."
@@ -43275,7 +43637,7 @@ msgstr "Blok %d heeft een start- en einddatum nodig."
 
 #. translators: 1: block A number, 2: block B number
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:302
-#: src/Shared/Frontend/FrontendConfigurationView.php:2706
+#: src/Shared/Frontend/FrontendConfigurationView.php:2793
 #, php-format
 msgid "Block %1$d overlaps with block %2$d."
 msgstr "Blok %1$d overlapt met blok %2$d."
@@ -50484,31 +50846,73 @@ msgstr ""
 msgid "Download JSON"
 msgstr "Configuratie downloaden (JSON)"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2445
+#: src/Shared/Frontend/FrontendConfigurationView.php:2469
 msgid ""
-"Choose which messages your academy sends. Unchecking one stops it being sent "
-"to anyone, for every channel. Nothing is lost: a message that was switched "
-"off is still recorded in the message log, so you can see it would have gone "
-"out."
+"What your academy sends, and how. Switching a message off stops it reaching "
+"anyone; it is still written to the message log, so you can see it would have "
+"gone out."
 msgstr ""
-"Kies welke berichten jouw academie verstuurt. Vink je er een uit, dan wordt "
-"het naar niemand meer verstuurd, via geen enkel kanaal. Er gaat niets "
-"verloren: een uitgezet bericht wordt nog steeds vastgelegd in het "
-"berichtenlogboek, zodat je kunt zien dat het verstuurd zou zijn."
+"Wat jouw academie verstuurt, en langs welke weg. Zet je een bericht uit, dan "
+"bereikt het niemand meer; het wordt nog wel vastgelegd in het "
+"berichtenlogboek, zodat je ziet dat het verstuurd zou zijn."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2449
+#: src/Shared/Frontend/FrontendConfigurationView.php:2473
 msgid "No message templates are registered."
 msgstr "Er zijn geen berichttemplates geregistreerd."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2451
-msgid "Messages this academy sends"
-msgstr "Berichten die deze academie verstuurt"
+#: src/Shared/Frontend/FrontendConfigurationView.php:2484
+msgid "Recommended"
+msgstr "Aanbevolen"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2478
+#: src/Shared/Frontend/FrontendConfigurationView.php:2511
+msgid ""
+"Nothing in TalentTrack sends this yet. Leaving it on changes nothing until "
+"it is wired up."
+msgstr ""
+"Niets in TalentTrack verstuurt dit op dit moment. Aan laten staan verandert "
+"niets tot de aansluiting er is."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2512
+msgid "Not sent automatically yet"
+msgstr "Wordt nog niet automatisch verstuurd"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2520
+msgid "Who gets it"
+msgstr "Wie het krijgt"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2529
+msgid "Ways it may reach them"
+msgstr "Wegen waarlangs het hen mag bereiken"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2531
+msgid ""
+"One of these per person, in this order — whichever reaches them first. "
+"Untick a way you do not want used."
+msgstr ""
+"Eén hiervan per persoon, in deze volgorde — welke die persoon het eerst "
+"bereikt. Vink een weg uit die je niet gebruikt wilt zien."
+
+#. translators: %s: channel name, e.g. Email
+#: src/Shared/Frontend/FrontendConfigurationView.php:2556
+#, php-format
+msgid "Sent by: %s"
+msgstr "Verstuurd via: %s"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2569
+msgid ""
+"To stop a message completely, switch the message off rather than unticking "
+"every way it can travel — a message with nowhere to go is recorded as a "
+"failure, not as your decision."
+msgstr ""
+"Wil je een bericht helemaal stoppen, zet het bericht dan uit in plaats van "
+"elke weg uit te vinken — een bericht dat nergens heen kan wordt vastgelegd "
+"als een storing, niet als jouw keuze."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2574
 msgid "Save messages"
 msgstr "Berichten opslaan"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2532
+#: src/Shared/Frontend/FrontendConfigurationView.php:2619
 msgid ""
 "Choose which cards the player-profile Profile tab shows for the whole "
 "academy. Uncheck a card to hide it everywhere. The Identity card (name, date "
@@ -50519,11 +50923,11 @@ msgstr ""
 "Identiteit (naam, geboortedatum, positie) wordt altijd getoond en kan niet "
 "worden verborgen."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2534
+#: src/Shared/Frontend/FrontendConfigurationView.php:2621
 msgid "Visible profile cards"
 msgstr "Zichtbare profielkaarten"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2605
+#: src/Shared/Frontend/FrontendConfigurationView.php:2692
 msgid ""
 "No seasons configured yet. Add a season under Configuration → Seasons first, "
 "then come back here to set its PDP blocks."
@@ -50531,7 +50935,7 @@ msgstr ""
 "Nog geen seizoenen ingesteld. Voeg eerst een seizoen toe onder Configuratie "
 "→ Seizoenen en kom dan hier terug om de PDP-blokken in te stellen."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2627
+#: src/Shared/Frontend/FrontendConfigurationView.php:2714
 msgid ""
 "Configure the dates of each PDP cycle block for a season. Coaches opening a "
 "new PDP file pick how many blocks (2, 3 or 4); the file's conversation "
@@ -50541,37 +50945,37 @@ msgstr ""
 "POP-dossier openen kiezen hoeveel blokken (2, 3 of 4); de gespreksvensters "
 "van het dossier gebruiken de hier ingestelde datums."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2647
+#: src/Shared/Frontend/FrontendConfigurationView.php:2734
 msgid "Number of blocks"
 msgstr "Aantal blokken"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2648
+#: src/Shared/Frontend/FrontendConfigurationView.php:2735
 msgid "Number of blocks in the cycle"
 msgstr "Aantal blokken in de cyclus"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2661
+#: src/Shared/Frontend/FrontendConfigurationView.php:2748
 msgid "Block dates"
 msgstr "Blokdatums"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2666
+#: src/Shared/Frontend/FrontendConfigurationView.php:2753
 msgid "Year timeline"
 msgstr "Jaartijdlijn"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2701
+#: src/Shared/Frontend/FrontendConfigurationView.php:2788
 msgid "Blocks saved."
 msgstr "Blokken opgeslagen."
 
 #. translators: 1: gap start date, 2: gap end date
-#: src/Shared/Frontend/FrontendConfigurationView.php:2708
+#: src/Shared/Frontend/FrontendConfigurationView.php:2795
 #, php-format
 msgid "%1$s to %2$s is not covered by any block."
 msgstr "%1$s tot %2$s wordt door geen enkel blok gedekt."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2711
+#: src/Shared/Frontend/FrontendConfigurationView.php:2798
 msgid "All dates inside the season; no overlaps; no gaps."
 msgstr "Alle datums vallen binnen het seizoen; geen overlap; geen gaten."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2749
+#: src/Shared/Frontend/FrontendConfigurationView.php:2836
 msgid ""
 "Choose what every user sees when they open the dashboard. The persona "
 "dashboard is the configurable per-role landing built in #0060; the classic "
@@ -50581,11 +50985,11 @@ msgstr ""
 "dashboard is de instelbare landing per rol uit #0060; het klassieke "
 "tegelraster is het oude menu met alle beschikbare schermen."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2755
+#: src/Shared/Frontend/FrontendConfigurationView.php:2842
 msgid "Persona dashboard (recommended)"
 msgstr "Persona-dashboard (aanbevolen)"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2758
+#: src/Shared/Frontend/FrontendConfigurationView.php:2845
 msgid ""
 "Each user lands on a layout tailored to their persona (player, parent, "
 "coach, head of development, club admin, scout, observer). Layouts are edited "
@@ -50595,12 +50999,12 @@ msgstr ""
 "coach, hoofd ontwikkeling, clubbeheerder, scout, observer). Layouts worden "
 "bewerkt onder wp-admin → Configuratie → Dashboard-layouts."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2763
-#: src/Shared/Frontend/FrontendConfigurationView.php:2797
+#: src/Shared/Frontend/FrontendConfigurationView.php:2850
+#: src/Shared/Frontend/FrontendConfigurationView.php:2884
 msgid "Classic tile grid"
 msgstr "Klassiek tegelraster"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2766
+#: src/Shared/Frontend/FrontendConfigurationView.php:2853
 msgid ""
 "Falls back to the original tile grid (every user sees the same menu of "
 "tiles, filtered by capability). Use this if a customer is not yet ready to "
@@ -50611,11 +51015,11 @@ msgstr ""
 "is voor het persona-dashboard of een blokkade tegenkomt."
 
 # #0069 — HoD + tiles + docs
-#: src/Shared/Frontend/FrontendConfigurationView.php:2773
+#: src/Shared/Frontend/FrontendConfigurationView.php:2860
 msgid "Per-persona overrides"
 msgstr "Persona-specifieke overrides"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2776
+#: src/Shared/Frontend/FrontendConfigurationView.php:2863
 msgid ""
 "Optional. Force a specific dashboard for a single persona — useful for "
 "testing one persona at a time on a real install without flipping the whole "
@@ -50625,11 +51029,11 @@ msgstr ""
 "persona tegelijk te testen op een echte installatie zonder de hele site te "
 "flippen. \"Overerven\" volgt de standaardinstelling hierboven."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2795
+#: src/Shared/Frontend/FrontendConfigurationView.php:2882
 msgid "Inherit (use global default)"
 msgstr "Overerven (gebruik standaardinstelling)"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2843
+#: src/Shared/Frontend/FrontendConfigurationView.php:2930
 msgid "Select logo"
 msgstr "Logo kiezen"
 
@@ -58007,6 +58411,19 @@ msgstr "Berichten die de academie je heeft gestuurd."
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:700
 msgid "Messages sent"
 msgstr "Verstuurde berichten"
+#~ msgid ""
+#~ "Choose which messages your academy sends. Unchecking one stops it being "
+#~ "sent to anyone, for every channel. Nothing is lost: a message that was "
+#~ "switched off is still recorded in the message log, so you can see it "
+#~ "would have gone out."
+#~ msgstr ""
+#~ "Kies welke berichten jouw academie verstuurt. Vink je er een uit, dan "
+#~ "wordt het naar niemand meer verstuurd, via geen enkel kanaal. Er gaat "
+#~ "niets verloren: een uitgezet bericht wordt nog steeds vastgelegd in het "
+#~ "berichtenlogboek, zodat je kunt zien dat het verstuurd zou zijn."
+
+#~ msgid "Messages this academy sends"
+#~ msgstr "Berichten die deze academie verstuurt"
 
 #~ msgid "Save analysis"
 #~ msgstr "Analyse opslaan"
@@ -58123,261 +58540,6 @@ msgstr "Verstuurde berichten"
 
 #~ msgid "How to use TalentTrack."
 #~ msgstr "Hoe je TalentTrack gebruikt."
-msgid "People need to know now"
-msgstr "Dit moeten mensen nu weten"
-
-msgid "Something changed today and the family finds out too late if nobody tells them. Most academies want all of these on."
-msgstr "Er is vandaag iets veranderd en het gezin hoort het te laat als niemand het vertelt. De meeste academies willen deze allemaal aan."
-
-msgid "Somebody asked for it"
-msgstr "Iemand heeft erom gevraagd"
-
-msgid "A person clicked something and the message is what completes it. Switching one off makes the feature that sends it look broken."
-msgstr "Iemand heeft ergens op geklikt en het bericht maakt dat af. Zet je er een uit, dan lijkt de functie die hem verstuurt kapot."
-
-msgid "Moments in a player's season"
-msgstr "Momenten in het seizoen van een speler"
-
-msgid "A decision or a document a family has been waiting for. Whether these are emailed or handed over in a conversation is your academy's call."
-msgstr "Een besluit of een document waar een gezin op wacht. Of die per e-mail gaan of in een gesprek worden overhandigd, bepaalt jouw academie zelf."
-
-msgid "Reminders and summaries"
-msgstr "Herinneringen en samenvattingen"
-
-msgid "Useful once your academy is running, noisy while you are still entering data. These are the ones that teach people to ignore TalentTrack mail."
-msgstr "Nuttig zodra jullie draaien, storend zolang je nog gegevens invoert. Dit zijn de berichten waardoor mensen TalentTrack-mail gaan negeren."
-
-msgid "Text message"
-msgstr "Sms"
-
-msgid "WhatsApp link"
-msgstr "WhatsApp-link"
-
-msgid "Inside TalentTrack"
-msgstr "Binnen TalentTrack"
-
-msgid "Tells everyone expected at a training that it is off."
-msgstr "Laat iedereen die op een training verwacht wordt weten dat die niet doorgaat."
-
-msgid "The players in the squad and their parents, plus the staff assigned to it."
-msgstr "De spelers van de selectie en hun ouders, plus de begeleiding die eraan is toegewezen."
-
-msgid "When a training is cancelled."
-msgstr "Zodra een training wordt afgelast."
-
-msgid "Passes on a time, date or location change that came in from Spond."
-msgstr "Geeft een wijziging in tijd, datum of locatie door die uit Spond is binnengekomen."
-
-msgid "The players affected and their parents."
-msgstr "De spelers die het betreft en hun ouders."
-
-msgid "When a Spond sync brings in a changed training or match."
-msgstr "Zodra een Spond-synchronisatie een gewijzigde training of wedstrijd binnenhaalt."
-
-msgid "A safeguarding message the academy needs everyone to see."
-msgstr "Een veiligheidsbericht dat de academie bij iedereen wil krijgen."
-
-msgid "The group the sender chooses — often every parent and every member of staff."
-msgstr "De groep die de afzender kiest — vaak alle ouders en alle medewerkers."
-
-msgid "When somebody with safeguarding responsibility sends one."
-msgstr "Zodra iemand met een rol in veiligheid en welzijn er een verstuurt."
-
-msgid "Invites a player from another team to train with this one."
-msgstr "Nodigt een speler uit een ander team uit om mee te trainen."
-
-msgid "The guest player and their parents."
-msgstr "De gastspeler en zijn of haar ouders."
-
-msgid "When a coach invites a guest to a training."
-msgstr "Zodra een trainer een gastspeler uitnodigt voor een training."
-
-msgid "Welcomes a trialist and tells them what to bring and where to be."
-msgstr "Verwelkomt een speler op proef en vertelt wat mee te nemen en waar te zijn."
-
-msgid "The trial player and their parents."
-msgstr "De speler op proef en zijn of haar ouders."
-
-msgid "When a trial player is added."
-msgstr "Zodra een speler op proef wordt toegevoegd."
-
-msgid "Delivers a letter somebody wrote in TalentTrack."
-msgstr "Bezorgt een brief die iemand in TalentTrack heeft geschreven."
-
-msgid "The player and parents the letter is addressed to."
-msgstr "De speler en de ouders aan wie de brief gericht is."
-
-msgid "When a letter is sent."
-msgstr "Zodra een brief wordt verstuurd."
-
-msgid "An announcement written by the academy and sent to a group at once."
-msgstr "Een mededeling die de academie schrijft en in één keer naar een groep stuurt."
-
-msgid "The teams, age groups or roles the sender picks."
-msgstr "De teams, leeftijdsgroepen of rollen die de afzender kiest."
-
-msgid "When somebody sends an announcement."
-msgstr "Zodra iemand een mededeling verstuurt."
-
-msgid "An email a member of staff typed and sent from inside TalentTrack."
-msgstr "Een e-mail die een medewerker binnen TalentTrack heeft getypt en verstuurd."
-
-msgid "Whoever the sender addressed it to."
-msgstr "Degene aan wie de afzender hem gericht heeft."
-
-msgid "When a member of staff sends one."
-msgstr "Zodra een medewerker er een verstuurt."
-
-msgid "A confidential one-time link to a player report, for somebody outside the academy."
-msgstr "Een vertrouwelijke eenmalige link naar een spelersrapport, voor iemand buiten de academie."
-
-msgid "The scout the report was shared with."
-msgstr "De scout met wie het rapport is gedeeld."
-
-msgid "When a player report is shared with a scout."
-msgstr "Zodra een spelersrapport met een scout wordt gedeeld."
-
-msgid "Delivers a report on the schedule somebody set up, with the file attached."
-msgstr "Bezorgt een rapport volgens het schema dat iemand heeft ingesteld, met het bestand als bijlage."
-
-msgid "The recipients on that scheduled report."
-msgstr "De ontvangers van dat geplande rapport."
-
-msgid "On the report's own schedule."
-msgstr "Volgens het schema van het rapport zelf."
-
-msgid "Emails somebody a link to a screen that needs a bigger display."
-msgstr "Mailt iemand een link naar een scherm dat een groter beeld nodig heeft."
-
-msgid "The person who pressed the button, at their own address."
-msgstr "Degene die op de knop drukte, op het eigen adres."
-
-msgid "When somebody asks for the link on a phone."
-msgstr "Zodra iemand op een telefoon om de link vraagt."
-
-msgid "Tells a family the selection decision for next season."
-msgstr "Vertelt een gezin het selectiebesluit voor komend seizoen."
-
-msgid "The player and their parents."
-msgstr "De speler en zijn of haar ouders."
-
-msgid "When a selection letter is sent."
-msgstr "Zodra een selectiebrief wordt verstuurd."
-
-msgid "Says a development plan or evaluation is finished and ready to read."
-msgstr "Meldt dat een ontwikkelplan of evaluatie klaar is om te lezen."
-
-msgid "When a plan or evaluation is published."
-msgstr "Zodra een plan of evaluatie wordt gepubliceerd."
-
-msgid "Invites parents to a meeting about their child."
-msgstr "Nodigt ouders uit voor een gesprek over hun kind."
-
-msgid "The player's parents."
-msgstr "De ouders van de speler."
-
-msgid "When a parent meeting is arranged."
-msgstr "Zodra een oudergesprek wordt ingepland."
-
-msgid "Shares an activity plan or a piece of the academy methodology with a coach."
-msgstr "Deelt een activiteitenplan of een onderdeel van de academiemethodiek met een trainer."
-
-msgid "The coaching staff it was shared with."
-msgstr "De trainers met wie het gedeeld is."
-
-msgid "When a plan is delivered to a coach."
-msgstr "Zodra een plan bij een trainer wordt bezorgd."
-
-msgid "Reminds a player about a goal nobody has updated in a while."
-msgstr "Herinnert een speler aan een doel dat al een tijd niet is bijgewerkt."
-
-msgid "The player, and their parents when the player has no account."
-msgstr "De speler, en de ouders wanneer de speler geen account heeft."
-
-msgid "Daily check; sends for goals untouched for four weeks or more."
-msgstr "Dagelijkse controle; gaat de deur uit bij doelen die vier weken of langer onaangeroerd zijn."
-
-msgid "Flags a run of missed trainings so somebody asks why."
-msgstr "Signaleert een reeks gemiste trainingen, zodat iemand ernaar vraagt."
-
-msgid "The player's coach."
-msgstr "De trainer van de speler."
-
-msgid "Daily check; sends after three absences in a row."
-msgstr "Dagelijkse controle; gaat de deur uit na drie keer afwezig op rij."
-
-msgid "Nudges a parent who was given an account and has not used it."
-msgstr "Port een ouder die een account heeft gekregen en er nog niets mee heeft gedaan."
-
-msgid "The parent."
-msgstr "De ouder."
-
-msgid "Daily check; sends after 30 days without a sign-in."
-msgstr "Dagelijkse controle; gaat de deur uit na 30 dagen zonder inloggen."
-
-msgid "Reminds a member of staff that their own development review is due."
-msgstr "Herinnert een medewerker eraan dat het eigen ontwikkelgesprek eraan komt."
-
-msgid "The member of staff."
-msgstr "De medewerker."
-
-msgid "Daily check; sends in the week before the review date."
-msgstr "Dagelijkse controle; gaat de deur uit in de week voor de gespreksdatum."
-
-msgid "Chases staff whose verdict on a trial is still missing."
-msgstr "Port medewerkers van wie het oordeel over een proefperiode nog ontbreekt."
-
-msgid "The staff assigned to that trial."
-msgstr "De medewerkers die aan die proefperiode zijn toegewezen."
-
-msgid "While a trial is open and their input has not been given."
-msgstr "Zolang een proefperiode loopt en hun input nog ontbreekt."
-
-msgid "One email collecting the alerts raised since the last one, instead of an email each."
-msgstr "Eén e-mail met alle meldingen sinds de vorige, in plaats van een mail per melding."
-
-msgid "The staff those alerts are for."
-msgstr "De medewerkers voor wie die meldingen bedoeld zijn."
-
-msgid "On the digest schedule set under Alerts."
-msgstr "Volgens het schema dat onder Meldingen is ingesteld."
-
-msgid "Tells somebody about activity aimed at them — a new message in a conversation, a task, a reply to an idea."
-msgstr "Vertelt iemand over activiteit die voor hem of haar bedoeld is — een nieuw bericht in een gesprek, een taak, een reactie op een idee."
-
-msgid "The person the activity concerns."
-msgstr "De persoon die het betreft."
-
-msgid "When the activity happens."
-msgstr "Zodra de activiteit plaatsvindt."
-
-msgid "What your academy sends, and how. Switching a message off stops it reaching anyone; it is still written to the message log, so you can see it would have gone out."
-msgstr "Wat jouw academie verstuurt, en langs welke weg. Zet je een bericht uit, dan bereikt het niemand meer; het wordt nog wel vastgelegd in het berichtenlogboek, zodat je ziet dat het verstuurd zou zijn."
-
-msgid "Recommended"
-msgstr "Aanbevolen"
-
-msgid "Nothing in TalentTrack sends this yet. Leaving it on changes nothing until it is wired up."
-msgstr "Niets in TalentTrack verstuurt dit op dit moment. Aan laten staan verandert niets tot de aansluiting er is."
-
-msgid "Not sent automatically yet"
-msgstr "Wordt nog niet automatisch verstuurd"
-
-msgid "Who gets it"
-msgstr "Wie het krijgt"
-
-msgid "Ways it may reach them"
-msgstr "Wegen waarlangs het hen mag bereiken"
-
-msgid "One of these per person, in this order — whichever reaches them first. Untick a way you do not want used."
-msgstr "Eén hiervan per persoon, in deze volgorde — welke die persoon het eerst bereikt. Vink een weg uit die je niet gebruikt wilt zien."
-
-msgid "Sent by: %s"
-msgstr "Verstuurd via: %s"
-
-msgid "To stop a message completely, switch the message off rather than unticking every way it can travel — a message with nowhere to go is recorded as a failure, not as your decision."
-msgstr "Wil je een bericht helemaal stoppen, zet het bericht dan uit in plaats van elke weg uit te vinken — een bericht dat nergens heen kan wordt vastgelegd als een storing, niet als jouw keuze."
-
 
 #~ msgid "Minutes grid"
 #~ msgstr "Minutenraster"
