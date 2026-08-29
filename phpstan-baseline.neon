@@ -17943,11 +17943,6 @@ parameters:
 			path: src/Shared/Frontend/FrontendTileGrid.php
 
 		-
-			message: "#^Method TT\\\\Shared\\\\Frontend\\\\FrontendTileGrid\\:\\:splitByKind\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Shared/Frontend/FrontendTileGrid.php
-
-		-
 			message: "#^Offset 'child_noun' on array\\{view_slug\\: string, child_noun\\: string, icon\\: string, color\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
 			path: src/Shared/Frontend/FrontendTileGrid.php

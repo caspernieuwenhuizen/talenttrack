@@ -1491,194 +1491,24 @@ class FrontendConfigurationView extends FrontendViewBase {
         echo \TT\Shared\Frontend\Components\TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
     }
 
+    /**
+     * #3046 — the Configuration landing grid, grouped by module.
+     *
+     * Which entries exist, which module each belongs to and whether the
+     * viewer may open it are all decided in
+     * {@see \TT\Shared\Configuration\ConfigurationSurfaces}; this method
+     * resolves the two base URLs from the current request and paints.
+     */
     private static function renderTileGrid(): void {
-        $base      = remove_query_arg( [ 'config_sub' ] );
-        $admin_url = admin_url( 'admin.php?page=tt-config' );
-        $sub  = static fn ( string $s ): string => add_query_arg( [ 'config_sub' => $s ], $base );
-        $view = static fn ( string $slug ): string => add_query_arg( [ 'tt_view' => $slug ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
-
-        // #1532 — group the Configuration tiles into purpose-based sections
-        // (rendered via the shared FrontendSectionedTileGrid, which auto-
-        // hides any section left empty). Section order is fixed below.
-        $sections = [
-            'appearance'   => [ 'label' => __( 'Appearance', 'talenttrack' ),           'tiles' => [] ],
-            'dashboard'    => [ 'label' => __( 'Dashboard', 'talenttrack' ),            'tiles' => [] ],
-            'data'         => [ 'label' => __( 'Data & vocabularies', 'talenttrack' ),  'tiles' => [] ],
-            'methodology'  => [ 'label' => __( 'Methodology & cycles', 'talenttrack' ), 'tiles' => [] ],
-            'integrations' => [ 'label' => __( 'Integrations', 'talenttrack' ),         'tiles' => [] ],
-            'system'       => [ 'label' => __( 'System', 'talenttrack' ),               'tiles' => [] ],
-        ];
-
-        // Appearance
-        $sections['appearance']['tiles'][] = [ 'title' => __( 'Appearance', 'talenttrack' ), 'desc' => __( 'Academy name, logo, all brand colours, fonts and theme inheritance — in one place.', 'talenttrack' ), 'url' => $sub( 'appearance' ), 'icon' => 'rate-card' ];
-        $sections['appearance']['tiles'][] = [ 'title' => __( 'Custom CSS', 'talenttrack' ), 'desc' => __( 'Per-club custom styling: visual + code editor, file upload, starter templates, revertable history.', 'talenttrack' ), 'url' => $view( 'custom-css' ), 'icon' => 'edit' ];
-
-        // Dashboard
-        $sections['dashboard']['tiles'][] = [ 'title' => __( 'Default dashboard', 'talenttrack' ), 'desc' => __( 'Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid.', 'talenttrack' ), 'url' => $sub( 'dashboard' ), 'icon' => 'dashboard' ];
-
-        // Data & vocabularies
-        $sections['data']['tiles'][] = [ 'title' => __( 'Lookups', 'talenttrack' ), 'desc' => __( 'Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place.', 'talenttrack' ), 'url' => $sub( 'lookups' ), 'icon' => 'categories' ];
-        $sections['data']['tiles'][] = [ 'title' => __( 'Rating scale', 'talenttrack' ), 'desc' => __( 'Min, max and step for evaluation ratings.', 'talenttrack' ), 'url' => $sub( 'rating' ), 'icon' => 'weights' ];
-        // #2207 — which cards the player-profile "Profile" tab shows academy-wide.
-        $sections['data']['tiles'][] = [ 'title' => __( 'Profile cards', 'talenttrack' ), 'desc' => __( 'Choose which cards the player-profile Profile tab shows academy-wide. Hide the ones you do not use (e.g. Discovery). Identity always stays.', 'talenttrack' ), 'url' => $sub( 'profile-cards' ), 'icon' => 'players' ];
-        if ( current_user_can( 'tt_edit_players' ) ) {
-            $sections['data']['tiles'][] = [ 'title' => __( 'Players CSV import', 'talenttrack' ), 'desc' => __( 'Bulk-import players from a spreadsheet. Map columns, choose duplicate-handling, preview before commit.', 'talenttrack' ), 'url' => $view( 'players-import' ), 'icon' => 'import' ];
-        }
-        // #2569 — the drift tile links into lookup normalisation, which is a
-        // curation surface behind tt_edit_lookups. Gate the tile on the same
-        // cap so it never advertises a screen the viewer can't open.
-        if ( current_user_can( 'tt_edit_lookups' ) && self::pendingLookupDriftCount() > 0 ) {
-            $pending = self::pendingLookupDriftCount();
-            $sections['data']['tiles'][] = [
-                'title' => __( 'Lookup canonical-language review', 'talenttrack' ),
-                'desc'  => sprintf(
-                    /* translators: %d is the number of lookup rows pending canonical-language review. */
-                    _n( '%d lookup row drifted from its canonical English internal key. Review the suggestion and accept the rewrite, or skip.', '%d lookup rows drifted from their canonical English internal key. Review each suggestion and accept the rewrite, or skip.', $pending, 'talenttrack' ),
-                    $pending
-                ),
-                'url'  => $view( 'lookup-normalisation' ),
-                'icon' => 'docs',
-            ];
-        }
-
-        // Methodology & cycles
-        $sections['methodology']['tiles'][] = [ 'title' => __( 'PDP cycle blocks', 'talenttrack' ), 'desc' => __( 'Date ranges for each block in a PDP cycle, per season. Configure 2, 3 or 4 blocks with date pairs validated against the season window.', 'talenttrack' ), 'url' => $sub( 'pdp-blocks' ), 'icon' => 'calendar' ];
-        // #1727 — central per-age-category default match minutes.
-        $sections['methodology']['tiles'][] = [ 'title' => __( 'Match minutes', 'talenttrack' ), 'desc' => __( 'Default match length per age category (minutes per half, total 2 x N). Prefills match prep and the match-completion minutes entry.', 'talenttrack' ), 'url' => $sub( 'match-minutes' ), 'icon' => 'hourglass' ];
-        $sections['methodology']['tiles'][] = [ 'title' => __( 'Seasons', 'talenttrack' ), 'desc' => __( 'Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season.', 'talenttrack' ), 'url' => $view( 'seasons' ), 'icon' => 'calendar' ];
-        if ( current_user_can( 'tt_edit_settings' ) ) {
-            // #1548 — Player status methodology lives here, off the dashboard.
-            $sections['methodology']['tiles'][] = [ 'title' => __( 'Player status methodology', 'talenttrack' ), 'desc' => __( 'Weights and thresholds for the player traffic-light status, per age group.', 'talenttrack' ), 'url' => $view( 'player-status-methodology' ), 'icon' => 'settings' ];
-        }
-        foreach ( self::vctConfigTiles() as $vct ) {
-            $sections['methodology']['tiles'][] = $vct;
-        }
-
-        // Integrations
-        // #1936 — the wp-admin Spond page (?page=tt-spond) is retired in
-        // favour of the frontend view (?tt_view=spond, FrontendSpondView),
-        // mirroring the #1533 Feature-toggles / Audit-log / Translations
-        // retirements. The wp-admin page stays as the power-user fallback.
-        // Cap-gated to tt_edit_teams (the view's own gate).
-        if ( current_user_can( 'tt_edit_teams' ) ) {
-            $sections['integrations']['tiles'][] = [ 'title' => __( 'Spond integration', 'talenttrack' ), 'desc' => __( 'Per-team calendar sync status, "Refresh now", encrypted account credentials, and the API endpoint override.', 'talenttrack' ), 'url' => $view( 'spond' ), 'icon' => 'sessions' ];
-        }
-        // #2127 — Strava operator console: app credentials, the club-wide
-        // webhook subscription, and the connected-players roster. Matrix-
-        // gated on tt_view_strava (the view's own read gate).
-        if ( current_user_can( 'tt_view_strava' ) ) {
-            $sections['integrations']['tiles'][] = [ 'title' => __( 'Strava integration', 'talenttrack' ), 'desc' => __( 'Register the Strava app credentials, manage the webhook subscription, and see which players have connected their accounts.', 'talenttrack' ), 'url' => $view( 'strava-admin' ), 'icon' => 'sessions' ];
-        }
-
-        // System
-        $sections['system']['tiles'][] = [ 'title' => __( 'General', 'talenttrack' ), 'desc' => __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'url' => $sub( 'general' ), 'icon' => 'settings' ];
-        // #1533 — the wp-admin "Feature toggles" tile (tab=toggles) is
-        // retired: the frontend Modules view (?tt_view=modules, contributed
-        // via FrontendModulesView::addConfigTile) is the canonical
-        // per-module enable/disable surface, so Configuration no longer
-        // bounces here into wp-admin.
-        // #1937 — the wp-admin "Backups" tile (tab=backups) is retired in
-        // favour of the frontend view (?tt_view=backups, FrontendBackupsView),
-        // mirroring the #1533 Feature-toggles / Audit-log / Translations /
-        // Spond retirements above. The wp-admin tab stays as the power-user
-        // fallback (and still owns the partial-restore picker). Cap-gated to
-        // tt_manage_backups (the view's own gate).
-        if ( current_user_can( 'tt_manage_backups' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Scheduled and on-demand database backups: download, restore, and the .ttmig data migration export and import flow.', 'talenttrack' ), 'url' => $view( 'backups' ), 'icon' => 'migrations' ];
-        }
-        // #1935 — the wp-admin "Translations" tile (tab=translations) is
-        // retired in favour of the frontend view (?tt_view=translations,
-        // FrontendTranslationsView), mirroring the #1533 Feature-toggles +
-        // Audit-log retirements above. The wp-admin tab stays as the
-        // power-user fallback. Cap-gated to tt_view_translations.
-        if ( current_user_can( 'tt_view_translations' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Auto-translation engine (DeepL / Google), monthly usage, and cache.', 'talenttrack' ), 'url' => $view( 'translations' ), 'icon' => 'docs' ];
-        }
-        // #1918 — the wp-admin "Audit log" tile (tab=audit) is retired in
-        // favour of the frontend read-only view (?tt_view=audit-log,
-        // FrontendAuditLogView), mirroring the #1533 Feature-toggles
-        // retirement above. Configuration no longer bounces here into
-        // wp-admin; the wp-admin tab stays as the power-user fallback.
-        // Cap-gated to tt_view_audit_log so the tile only appears for
-        // holders who can actually read the log.
-        if ( current_user_can( 'tt_view_audit_log' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Who changed what, when. Filterable, paginated.', 'talenttrack' ), 'url' => $view( 'audit-log' ), 'icon' => 'audit-log' ];
-        }
-        // #1938 — the wp-admin Setup wizard (?page=tt-welcome, surfaced via
-        // tab=wizard) is retired in favour of the frontend Setup flow
-        // (?tt_view=setup, FrontendSetupView), mirroring the #1533
-        // Translations / Spond retirements above. Configuration no longer
-        // bounces into wp-admin; the wp-admin wizard stays as the
-        // power-user fallback. Cap-gated to tt_edit_settings (the flow's
-        // own gate, matching OnboardingPage::CAP).
-        if ( current_user_can( 'tt_edit_settings' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Setup', 'talenttrack' ), 'desc' => __( 'Run or re-run first-time setup: academy basics, your first team, your admin profile, and the dashboard page.', 'talenttrack' ), 'url' => $view( 'setup' ), 'icon' => 'lightbulb' ];
-        }
-        // #2603 — per-template on/off for outgoing messages. Cap-gated to
-        // tt_edit_feature_toggles, matching the sub-cap the underlying
-        // `comms_templates_disabled` config key resolves to, so the tile
-        // never offers a screen whose save the REST layer would refuse.
-        if ( current_user_can( 'tt_edit_feature_toggles' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Messages', 'talenttrack' ), 'desc' => __( 'Choose which messages your academy sends — cancellations, nudges, reminders and letters. Switching one off stops it for everyone; the message log still records that it would have gone out.', 'talenttrack' ), 'url' => $sub( 'messages' ), 'icon' => 'docs' ];
-        }
-        $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
-        // #2540 — configuration snapshot as JSON. Cap-gated to
-        // tt_edit_settings, matching the exporter's own gate, so the tile
-        // never offers a download the export pipeline would refuse. Also
-        // gated on the Export module: it owns the `admin_post_tt_export`
-        // handler this posts to, so with the module off the tile would
-        // dead-end on a 400.
-        if ( current_user_can( 'tt_edit_settings' ) && self::exportModuleEnabled() ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Export configuration', 'talenttrack' ), 'desc' => __( 'Download every setting plus which modules and features are on or off, as a JSON file. Credentials are redacted; no player data.', 'talenttrack' ), 'url' => $sub( 'export' ), 'icon' => 'share' ];
-        }
-        // #2024 — centralized recycle bin. Settings-area entry point (no
-        // dashboard tile). Cap-gated to tt_manage_recycle_bin so the tile
-        // only appears for the academy admins who can actually manage the
-        // bin; the view re-checks the same cap.
-        if ( current_user_can( 'tt_manage_recycle_bin' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Recycle bin', 'talenttrack' ), 'desc' => __( 'Records staged for permanent deletion. Restore them to the archive, or delete them now. Purged after the retention window.', 'talenttrack' ), 'url' => $view( 'recycle-bin' ), 'icon' => 'migrations' ];
-        }
-        // #2880 — the authorization matrix shipped in #2654 with every piece
-        // of plumbing in place except a way in: no tile anywhere pointed at
-        // `?tt_view=matrix`, so the only route was typing the URL. The whole
-        // premise of #2654 was that an academy admin could fix an over-broad
-        // permission grant WITHOUT a WordPress account — and an admin who
-        // cannot find the screen is exactly where they were before it
-        // shipped. A feature that is complete and unreachable is worse than
-        // one that is unbuilt, because the board says it is done.
-        //
-        // Settings rather than a dashboard tile, matching the recycle bin
-        // above: this is an operator surface, reached deliberately, not
-        // something a coach should meet on their landing page. The cap is the
-        // same one the view re-checks.
-        if ( current_user_can( 'tt_manage_authorization' ) ) {
-            $sections['system']['tiles'][] = [ 'title' => __( 'Access control matrix', 'talenttrack' ), 'desc' => __( 'Who may read and change each kind of record, per persona. The grants behind player evaluations, notes and medical fields.', 'talenttrack' ), 'url' => $view( 'matrix' ), 'icon' => 'roles' ];
-        }
-
-        // #1539 — tiles contributed via the tt_config_tile_groups filter
-        // (Modules, Dashboard layouts, Custom widgets). Route them into a
-        // section by destination; dedupe against what's already placed.
-        $seen = [];
-        foreach ( $sections as $sec ) {
-            foreach ( $sec['tiles'] as $t ) $seen[ (string) ( $t['url'] ?? '' ) ] = true;
-        }
-        foreach ( self::contributedConfigTiles( $seen ) as $tile ) {
-            $dashboardish = strpos( (string) $tile['url'], 'dashboard' ) !== false
-                || strpos( (string) $tile['url'], 'widgets' ) !== false;
-            $key = $dashboardish ? 'dashboard' : 'system';
-            $sections[ $key ]['tiles'][] = $tile;
-        }
-
-        // Mark wp-admin destinations so the context switch is expected.
-        foreach ( $sections as $sk => $sec ) {
-            foreach ( $sec['tiles'] as $ti => $t ) {
-                $sections[ $sk ]['tiles'][ $ti ]['external'] = strpos( (string) ( $t['url'] ?? '' ), '/wp-admin/' ) !== false;
-            }
-        }
+        $sections = \TT\Shared\Configuration\ConfigurationSurfaces::groups(
+            get_current_user_id(),
+            (string) remove_query_arg( [ 'config_sub' ] ),
+            (string) remove_query_arg( [ 'tt_view', 'config_sub' ] )
+        );
 
         self::tileGridStyles();
         \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::render(
-            array_values( $sections ),
+            $sections,
             [ 'grid_inline' => false, 'tile_renderer' => [ self::class, 'renderConfigTile' ] ]
         );
     }
@@ -1721,106 +1551,6 @@ class FrontendConfigurationView extends FrontendViewBase {
             echo '<div class="tt-cfg-tile-count">' . esc_html( (string) $tile['count'] ) . '</div>';
         }
         echo '</a>';
-    }
-
-    /**
-     * #1539 — render Configuration tiles contributed via the
-     * `tt_config_tile_groups` filter. Each tile is
-     * `{ label, description, icon, url, cap }`; contributors use an emoji
-     * icon. wp-admin destinations get the external-link marker.
-     *
-     * @param array<string,bool> $seen_urls URLs already rendered on the grid.
-     */
-    private static function contributedConfigTiles( array $seen_urls ): array {
-        $out    = [];
-        $groups = (array) apply_filters( 'tt_config_tile_groups', [] );
-        foreach ( $groups as $group ) {
-            $tiles = is_array( $group['tiles'] ?? null ) ? $group['tiles'] : [];
-            foreach ( $tiles as $tile ) {
-                $cap = (string) ( $tile['cap'] ?? 'tt_view_settings' );
-                if ( ! current_user_can( $cap ) ) continue;
-                $url = (string) ( $tile['url'] ?? '' );
-                if ( $url === '' || isset( $seen_urls[ $url ] ) ) continue;
-                $seen_urls[ $url ] = true;
-                $out[] = [
-                    'title' => (string) ( $tile['label'] ?? '' ),
-                    'desc'  => (string) ( $tile['description'] ?? '' ),
-                    'url'   => $url,
-                    'icon'  => (string) ( $tile['icon'] ?? '' ),
-                    'emoji' => true, // contributors use an emoji icon, not a slug
-                ];
-            }
-        }
-        return $out;
-    }
-
-    /**
-     * #1546 — emit a single "VCT configuration" tile inline in the
-     * Configuration grid. It opens `?tt_view=vct-config` at the default
-     * tab; the destination view's own tab bar (Macro-blocks / Age
-     * profiles / Team schedules) handles sub-navigation, so all three
-     * tabs — including Schedules, which never had a tile — are now
-     * reachable from one entry point. The count line summarises the
-     * macro-block templates + age bands configured.
-     *
-     * Gated on `tt_vct_admin_config` because the destination view
-     * re-checks the same capability and silent denials are worse than
-     * hiding the tile.
-     */
-    private static function vctConfigTiles(): array {
-        $user_id = get_current_user_id();
-        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_config' ) ) {
-            return [];
-        }
-
-        $base = remove_query_arg( [ 'tt_view', 'config_sub' ] );
-
-        $blocks_count = count( ( new \TT\Modules\Vct\Repositories\VctMacroBlocksRepository() )->listReferenceTemplates() );
-        $ages_count   = count( ( new \TT\Modules\Vct\Repositories\VctAgeProfilesRepository() )->listAll() );
-
-        return [
-            [
-                'url'   => add_query_arg( [ 'tt_view' => 'vct-config' ], $base ),
-                'title' => __( 'VCT configuration', 'talenttrack' ),
-                'desc'  => __( 'Macro-block calendar, per-age workload envelopes and per-team training days for the Variabel Coachen-template planner — all on one screen.', 'talenttrack' ),
-                'icon'  => 'methodology',
-                'vct'   => true,
-                'count' => sprintf(
-                    /* translators: 1: number of macro-block templates, 2: number of age bands. */
-                    __( '%1$d block templates · %2$d age bands', 'talenttrack' ),
-                    $blocks_count,
-                    $ages_count
-                ),
-            ],
-        ];
-    }
-
-    /**
-     * #987 v4.12.0 — count `tt_audit_log` rows flagged for
-     * canonical-language review that have not yet been resolved
-     * (accepted or skipped). Drives the conditional rendering of
-     * the drift-review tile.
-     */
-    private static function pendingLookupDriftCount(): int {
-        global $wpdb;
-        $table = $wpdb->prefix . 'tt_audit_log';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return 0;
-        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
-        $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} n
-              WHERE n.action     = %s
-                AND n.entity_type = 'lookup'
-                AND n.club_id     = %d
-                AND NOT EXISTS (
-                    SELECT 1 FROM {$table} r
-                     WHERE r.entity_type = 'lookup'
-                       AND r.entity_id   = n.entity_id
-                       AND r.club_id     = n.club_id
-                       AND r.action IN ('lookup.normalisation.applied', 'lookup.normalisation.skipped')
-                )",
-            'lookup.needs_review', $club_id
-        ) );
-        return $count;
     }
 
     /**
