@@ -56722,6 +56722,66 @@ msgstr "Onbekend team."
 msgid "Unknown player."
 msgstr "Onbekende speler."
 
+#: src/Modules/DemoData/DemoRunPlan.php
+msgid "Accounts and staff"
+msgstr "Accounts en staf"
+
+#: src/Modules/DemoData/DemoRunPlan.php
+msgid "Importing the workbook"
+msgstr "Werkboek importeren"
+
+#: src/Modules/DemoData/DemoRunPlan.php
+msgid "Tagging journey events"
+msgstr "Tijdlijngebeurtenissen labelen"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "A demo run is still unfinished. Resume or discard it before starting another."
+msgstr "Er loopt nog een onafgemaakte demogeneratie. Hervat of verwerp die eerst."
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "A demo run is unfinished."
+msgstr "Een demogeneratie is niet afgemaakt."
+
+#. translators: 1: completed steps, 2: total steps, 3: batch id
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+#, php-format
+msgid ""
+"%1$d of %2$d steps done, batch %3$s. Its rows are already tagged, so a wipe "
+"reaches them."
+msgstr ""
+"%1$d van %2$d stappen klaar, batch %3$s. De rijen zijn al gelabeld, dus een "
+"wipe haalt ze weg."
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "Resume this run"
+msgstr "Deze generatie hervatten"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "Discard it"
+msgstr "Verwerpen"
+
+#. translators: 1: current step number, 2: total steps, 3: step name
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+#, php-format
+msgid "Step %1$d of %2$d — %3$s"
+msgstr "Stap %1$d van %2$d — %3$s"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "Finishing up…"
+msgstr "Afronden…"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "The run stopped. Reload the page to see how far it got."
+msgstr "De generatie is gestopt. Herlaad de pagina om te zien hoe ver hij kwam."
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php
+msgid "Discarding…"
+msgstr "Verwerpen…"
+
+#: src/Modules/DemoData/Rest/DemoRunRestController.php
+msgid "That demo run is no longer on file."
+msgstr "Die demogeneratie staat niet meer geregistreerd."
+
 #~ msgid "Or use the dashboard:"
 #~ msgstr "Of gebruik het dashboard:"
 

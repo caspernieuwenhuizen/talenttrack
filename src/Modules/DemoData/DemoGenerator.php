@@ -35,18 +35,42 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, size?:array{teams?:int, players_per_team?:int, weeks?:int}, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
-     * @return array{
-     *   batch_id:string,
-     *   users:array<string,int>,
-     *   accounts:array<string,array{user_id:int,email:string}>,
-     *   teams:object[],
-     *   players:object[],
-     *   counts:array<string,int>,
-     *   user_stats:array{created:int, reused:int}
-     * }
+     * @param array<string,mixed> $opts preset, size, domain, password, seed,
+     *                                  club_name, content_language, source,
+     *                                  excel_path, and the `gen_*` toggles
+     * @return array<string,mixed> batch_id, users, accounts, teams, players,
+     *                             counts, user_stats
      */
     public static function run( array $opts ): array {
+        $state = self::begin( $opts );
+        if ( $state->status() === DemoRunState::STATUS_FAILED ) {
+            return self::result( $state );
+        }
+
+        while ( $state->nextStep() !== null ) {
+            self::advance( $state );
+            if ( $state->status() === DemoRunState::STATUS_FAILED ) break;
+        }
+
+        return self::result( $state );
+    }
+
+    /**
+     * Start a run: everything that can only happen inside the request that
+     * submitted the form (#3041).
+     *
+     * The WP users need the typed password and the workbook needs the
+     * uploaded temp file, and neither may be written down between requests —
+     * so both run here, before any state is persisted. What the returned
+     * state carries is ids and counts.
+     *
+     * The remaining steps are then advanceable one request at a time by
+     * `advance()`, which is how the large preset stops being a single
+     * request the gateway can time out.
+     *
+     * @param array<string,mixed> $opts see `run()`
+     */
+    public static function begin( array $opts ): DemoRunState {
         $source      = isset( $opts['source'] ) ? (string) $opts['source'] : 'procedural';
         $excel_path  = isset( $opts['excel_path'] ) ? (string) $opts['excel_path'] : '';
         $preset      = $opts['preset'] ?? 'small';
@@ -73,8 +97,16 @@ class DemoGenerator {
             $config[ $key ] = min( $max, $value );
         }
 
-        $seed   = (int) ( $opts['seed'] ?? 20260504 );
-        mt_srand( $seed );
+        $seed = (int) ( $opts['seed'] ?? 20260504 );
+
+        // #3041 — every step seeds the RNG from `(seed, step)` rather than
+        // the run seeding it once and every generator drawing from one
+        // stream. A stream cannot be carried across a request, so a run
+        // spread over thirty requests could never have reproduced a run done
+        // in one; deriving a stream per step makes the two identical by
+        // construction. The `run_order` contract is unaffected — the
+        // generators still run in the manifest's order.
+        self::seedStep( $seed, DemoRunPlan::STEP_PEOPLE );
 
         // v3.85.0 / v3.90.1 — selective generation: when running procedurally,
         // the operator can opt out of any of the six demo-data categories so
@@ -128,123 +160,296 @@ class DemoGenerator {
             $importer = new ExcelImporter(
                 static fn( string $id ): ImportTagSink => new DemoBatchRegistry( $id )
             );
+            self::seedStep( $seed, DemoRunPlan::STEP_EXCEL );
             $excel = $importer->importFile( $excel_path, basename( $excel_path ), $batch_id );
             if ( ! $excel['ok'] ) {
-                return [
-                    'batch_id'   => $batch_id,
+                $failed = DemoRunState::create( $batch_id, [], [
+                    'seed'       => $seed,
                     'users'      => $users,
-                    'accounts'   => $userGen->accounts(),
-                    'teams'      => [],
-                    'players'    => [],
-                    'counts'     => array_merge( [ 'users' => count( $users ), 'persons' => count( $persons ) ], $excel['imported'] ),
-                    'user_stats' => [
-                        'created' => $userGen->createdCount(),
-                        'reused'  => $userGen->reusedCount(),
-                    ],
+                    'persons'    => $persons,
+                    'accounts'   => $userGen ? $userGen->accounts() : [],
+                    'user_stats' => $user_stats,
+                    'counts'     => array_merge(
+                        [ 'users' => count( $users ), 'persons' => count( $persons ) ],
+                        $excel['imported']
+                    ),
                     'excel_blockers' => $excel['blockers'],
-                ];
+                ] );
+                $failed->fail( implode( ' · ', (array) $excel['blockers'] ) );
+                return $failed;
             }
             $excel_present_sheets = $excel['present_sheets'];
             $excel_imported       = $excel['imported'];
-        }
-
-        $teams   = [];
-        $players = [];
-        $teams_missing_coach = [];
-        if ( $source === 'procedural' ) {
-            if ( $gen_teams ) {
-                $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
-                $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
-                $teams     = $teamGen->generate();
-            } else {
-                // Selective mode: use whatever teams already exist in the
-                // current club. Activities + evaluations + goals attach to
-                // these directly and read `head_coach_user_id` off the team,
-                // so loadAllTeams() resolves it from the roster and falls
-                // back to the run's author for a team with no head coach.
-                $teams = self::loadAllTeams(
-                    (int) ( $users['hjo'] ?? $users['admin'] ?? self::firstAdministratorId() )
-                );
-                $teams_missing_coach = self::teamsMissingCoach( $teams );
-            }
-
-            if ( $gen_players ) {
-                $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
-                $players   = $playerGen->generate();
-            } else {
-                $players = self::loadAllPlayers();
-            }
-        } else {
-            // For excel + hybrid: load whatever the Excel importer just
-            // inserted as native objects so the downstream generators can
-            // write related entities.
-            $teams   = self::loadDemoTaggedTeams( $batch_id );
-            $players = self::loadDemoTaggedPlayers( $batch_id );
         }
 
         $content_language = isset( $opts['content_language'] ) && (string) $opts['content_language'] !== ''
             ? (string) $opts['content_language']
             : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
 
-        // Dependent generators are resolved from `DemoCoverage` rather than
-        // hardcoded here, so a new wave's generator only has to declare
-        // itself in the manifest. Master data (users, people, teams,
-        // players) stays explicit above: each one produces the entity set
-        // the next needs, and only those three carry the "use the club's
-        // existing rows instead" opt-out.
-        $ctx = new GeneratorContext(
+        $steps = DemoRunPlan::build( [
+            'source'               => $source,
+            'gen_people'           => $gen_people,
+            'gen_flags'            => $gen_flags,
+            'excel_present_sheets' => $excel_present_sheets,
+        ] );
+
+        $state = DemoRunState::create( $batch_id, $steps, [
+            'seed'                 => $seed,
+            'source'               => $source,
+            'config'               => $config,
+            'content_language'     => $content_language,
+            'club_name'            => isset( $opts['club_name'] ) ? (string) $opts['club_name'] : '',
+            'gen_teams'            => $gen_teams,
+            'gen_players'          => $gen_players,
+            'gen_flags'            => $gen_flags,
+            'excel_present_sheets' => $excel_present_sheets,
+            'users'                => $users,
+            'persons'              => $persons,
+            'accounts'             => $userGen ? $userGen->accounts() : [],
+            'user_stats'           => $user_stats,
+            'teams_missing_coach'  => [],
+            'counts'               => array_merge(
+                [ 'users' => count( $users ), 'persons' => count( $persons ) ],
+                $excel_imported
+            ),
+        ] );
+
+        // The two inline steps have already run — they had to, in this
+        // request. Everything after them is advanceable one request at a
+        // time.
+        foreach ( $steps as $step ) {
+            if ( DemoRunPlan::isInline( $step ) ) {
+                $state->markDone( $step );
+            }
+        }
+        $state->persist();
+
+        return $state;
+    }
+
+    /**
+     * Run exactly one pending step of a run, then persist.
+     *
+     * Master data is re-read from the database rather than carried in the
+     * state: `tt_teams` and `tt_players` rows are the run's own output, the
+     * batch id identifies them, and a row object is not something to write
+     * into an option.
+     */
+    public static function advance( DemoRunState $state ): void {
+        $step = $state->nextStep();
+        if ( $step === null ) {
+            return;
+        }
+
+        $seed     = (int) $state->get( 'seed', 0 );
+        $batch_id = $state->batchId();
+        $registry = new DemoBatchRegistry( $batch_id );
+
+        self::seedStep( $seed, $step );
+
+        try {
+            switch ( $step ) {
+                case DemoRunPlan::STEP_TEAMS:
+                    self::stepTeams( $state, $registry );
+                    break;
+
+                case DemoRunPlan::STEP_PLAYERS:
+                    self::stepPlayers( $state, $registry );
+                    break;
+
+                case DemoRunPlan::STEP_JOURNEY:
+                    // Journey events are written by JourneyEventSubscriber off
+                    // the hooks the generators fire, so nothing tags them at
+                    // insert time. Sweep them up — an untagged demo row is one
+                    // the wipe can never reach.
+                    $state->addCounts( [
+                        'journey' => self::tagUntaggedJourneyEvents( $registry, self::playersFor( $state ) ),
+                    ] );
+                    break;
+
+                default:
+                    self::stepDependent( $state, $registry, $step );
+                    break;
+            }
+        } catch ( \Throwable $e ) {
+            $state->fail( $e->getMessage() );
+            $state->persist();
+            return;
+        }
+
+        $state->markDone( $step );
+        $state->persist();
+    }
+
+    private static function stepTeams( DemoRunState $state, DemoBatchRegistry $registry ): void {
+        if ( (string) $state->get( 'source', 'procedural' ) !== 'procedural' ) {
+            // Excel + hybrid: the workbook wrote them; nothing to generate.
+            $state->addCounts( [ 'teams' => count( self::teamsFor( $state ) ) ] );
+            return;
+        }
+
+        if ( ! $state->get( 'gen_teams', true ) ) {
+            // Selective mode: the operator set the teams up themselves.
+            $teams = self::teamsFor( $state );
+            $state->set( 'teams_missing_coach', self::teamsMissingCoach( $teams ) );
+            $state->addCounts( [ 'teams' => count( $teams ) ] );
+            return;
+        }
+
+        /** @var array<string,int> $users */
+        $users = (array) $state->get( 'users', [] );
+        /** @var array<string,int> $persons */
+        $persons   = (array) $state->get( 'persons', [] );
+        $config    = (array) $state->get( 'config', [] );
+        $club_name = (string) $state->get( 'club_name', '' );
+
+        $teamGen = new TeamGenerator(
             $registry,
             $users,
             $persons,
-            $teams,
-            $players,
-            $config,
-            $content_language
+            (int) ( $config['teams'] ?? 0 ),
+            $club_name !== '' ? $club_name : null
         );
+        $state->addCounts( [ 'teams' => count( $teamGen->generate() ) ] );
+    }
 
-        // Per-category opt-out (`$gen_flags`, built above). Excel-sourced runs
-        // also skip procedural fill for any sheet the workbook covered; a
-        // pure-Excel run skips all of it.
-        $dependent_counts = [];
-        foreach ( DemoCoverage::dependentGenerators() as $category => $generator_class ) {
-            $dependent_counts[ $category ] = 0;
-
-            if ( $source === 'excel' ) continue;
-            if ( ! ( $gen_flags[ $category ] ?? true ) ) continue;
-
-            $sheet = DemoCoverage::excelSheetFor( $category );
-            if ( $sheet !== null && in_array( $sheet, $excel_present_sheets, true ) ) continue;
-
-            if ( ! self::contextSatisfies( $generator_class, $ctx ) ) continue;
-
-            /** @var \TT\Modules\DemoData\Generators\DependentGeneratorInterface $gen */
-            $gen = $generator_class::fromContext( $ctx );
-            $dependent_counts[ $category ] = (int) $gen->generate();
+    private static function stepPlayers( DemoRunState $state, DemoBatchRegistry $registry ): void {
+        if ( (string) $state->get( 'source', 'procedural' ) !== 'procedural'
+            || ! $state->get( 'gen_players', true )
+        ) {
+            $state->addCounts( [ 'players' => count( self::playersFor( $state ) ) ] );
+            return;
         }
 
-        // Journey events are written by JourneyEventSubscriber off the hooks
-        // the generators fire, so nothing tags them at insert time. Sweep
-        // them up here — an untagged demo row is one the wipe can never
-        // reach.
-        $journey_count = self::tagUntaggedJourneyEvents( $registry, $players );
+        /** @var array<string,int> $users */
+        $users  = (array) $state->get( 'users', [] );
+        $config = (array) $state->get( 'config', [] );
 
-        return [
-            'batch_id' => $batch_id,
-            'users'    => $users,
-            'accounts' => $userGen ? $userGen->accounts() : [],
-            'teams'    => $teams,
-            'players'  => $players,
-            'counts'   => array_merge( [
-                'users'   => count( $users ),
-                'persons' => count( $persons ),
-                'teams'   => count( $teams ),
-                'players' => count( $players ),
-                'journey' => $journey_count,
-            ], $dependent_counts, $excel_imported ),
-            'user_stats' => $user_stats,
-            'excel_present_sheets' => $excel_present_sheets,
-            'teams_missing_coach'  => $teams_missing_coach,
+        $playerGen = new PlayerGenerator(
+            $registry,
+            self::teamsFor( $state ),
+            $users,
+            (int) ( $config['players_per_team'] ?? 0 )
+        );
+        $state->addCounts( [ 'players' => count( $playerGen->generate() ) ] );
+    }
+
+    private static function stepDependent( DemoRunState $state, DemoBatchRegistry $registry, string $step ): void {
+        $category = DemoRunPlan::categoryOf( $step );
+        if ( $category === null ) {
+            return;
+        }
+
+        $generators = DemoCoverage::dependentGenerators();
+        if ( ! isset( $generators[ $category ] ) ) {
+            return;
+        }
+        $generator_class = $generators[ $category ];
+
+        $ctx = self::contextFor( $state, $registry );
+        if ( ! self::contextSatisfies( $generator_class, $ctx ) ) {
+            $state->addCounts( [ $category => 0 ] );
+            return;
+        }
+
+        /** @var \TT\Modules\DemoData\Generators\DependentGeneratorInterface $gen */
+        $gen = $generator_class::fromContext( $ctx );
+        $state->addCounts( [ $category => (int) $gen->generate() ] );
+    }
+
+    /**
+     * Everything a dependent generator needs, rebuilt from the run state and
+     * the database rather than carried between requests.
+     */
+    private static function contextFor( DemoRunState $state, DemoBatchRegistry $registry ): GeneratorContext {
+        /** @var array<string,int> $users */
+        $users = (array) $state->get( 'users', [] );
+        /** @var array<string,int> $persons */
+        $persons = (array) $state->get( 'persons', [] );
+        /** @var array{teams:int, players_per_team:int, weeks:int} $config */
+        $config = array_merge(
+            [ 'teams' => 0, 'players_per_team' => 0, 'weeks' => 0 ],
+            (array) $state->get( 'config', [] )
+        );
+
+        return new GeneratorContext(
+            $registry,
+            $users,
+            $persons,
+            self::teamsFor( $state ),
+            self::playersFor( $state ),
+            $config,
+            (string) $state->get( 'content_language', 'en_US' )
+        );
+    }
+
+    /**
+     * The run's teams. Batch-scoped when the run generated them, club-wide
+     * when the operator opted out of generating teams.
+     *
+     * Both go through `loadTeams()`, which synthesises `head_coach_user_id`
+     * — the property `TeamGenerator` puts on the objects it returns and every
+     * dependent generator reads. #2503 fixed that for the selective path; the
+     * Excel path had the same gap and is fixed here by using one loader.
+     *
+     * @return object[]
+     */
+    private static function teamsFor( DemoRunState $state ): array {
+        /** @var array<string,int> $users */
+        $users    = (array) $state->get( 'users', [] );
+        $fallback = (int) ( $users['hjo'] ?? $users['admin'] ?? self::firstAdministratorId() );
+
+        $scoped = (string) $state->get( 'source', 'procedural' ) !== 'procedural'
+            || (bool) $state->get( 'gen_teams', true );
+
+        return self::loadTeams( $scoped ? $state->batchId() : null, $fallback );
+    }
+
+    /** @return object[] */
+    private static function playersFor( DemoRunState $state ): array {
+        $scoped = (string) $state->get( 'source', 'procedural' ) !== 'procedural'
+            || (bool) $state->get( 'gen_players', true );
+
+        return self::loadPlayers( $scoped ? $state->batchId() : null );
+    }
+
+    /**
+     * The shape `run()` has always returned, assembled from a finished (or
+     * failed) run.
+     *
+     * @return array<string,mixed>
+     */
+    public static function result( DemoRunState $state ): array {
+        $out = [
+            'batch_id'   => $state->batchId(),
+            'users'      => (array) $state->get( 'users', [] ),
+            'accounts'   => (array) $state->get( 'accounts', [] ),
+            'teams'      => self::teamsFor( $state ),
+            'players'    => self::playersFor( $state ),
+            'counts'     => array_map( 'intval', (array) $state->get( 'counts', [] ) ),
+            'user_stats' => (array) $state->get( 'user_stats', [ 'created' => 0, 'reused' => 0 ] ),
+            'excel_present_sheets' => (array) $state->get( 'excel_present_sheets', [] ),
+            'teams_missing_coach'  => (array) $state->get( 'teams_missing_coach', [] ),
         ];
+
+        $blockers = $state->get( 'excel_blockers', [] );
+        if ( is_array( $blockers ) && $blockers ) {
+            $out['excel_blockers'] = $blockers;
+            $out['teams']          = [];
+            $out['players']        = [];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Seed the RNG for one step from `(seed, step)`.
+     *
+     * Deterministic and independent of how many requests the run is spread
+     * over, which is the whole reason the run can be chunked at all (#3041).
+     */
+    private static function seedStep( int $seed, string $step ): void {
+        mt_srand( ( $seed + (int) sprintf( '%u', crc32( $step ) ) ) & 0x7FFFFFFF );
     }
 
     /**
@@ -296,34 +501,40 @@ class DemoGenerator {
         return $tagged;
     }
 
-    /** Load the teams that this batch's Excel importer just inserted. */
-    private static function loadDemoTaggedTeams( string $batch_id ): array {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
-              JOIN {$wpdb->prefix}tt_demo_tags d
-                ON d.entity_type = 'team' AND d.entity_id = t.id
-             WHERE d.batch_id = %s AND d.club_id = %d",
-            $batch_id, CurrentClub::id()
-        ) );
-        return is_array( $rows ) ? $rows : [];
-    }
-
     /**
-     * v3.85.0 — load every team in the current club, regardless of demo
-     * tag. Used by selective generation when `gen_teams=false` (the
-     * operator has set up teams themselves and wants the dependent
-     * entities generated on top).
+     * The teams a run works with.
+     *
+     * `$batch_id` narrows to what this run wrote; null means every team in
+     * the club, which is what selective generation (`gen_teams=false`) works
+     * against.
+     *
+     * v3.85.0 / #3041. `head_coach_user_id` is not a column on tt_teams —
+     * TeamGenerator synthesises it on the objects it returns, and every
+     * dependent generator reads it off the team. Resolving it here is what
+     * lets a step re-read its teams from the database instead of carrying row
+     * objects between requests. Without it the property is simply absent:
+     * activities land on coach 0 and the evaluation generator skips every
+     * team in silence (#2503).
+     *
+     * @return object[]
      */
-    private static function loadAllTeams( int $fallback_coach_id = 0 ): array {
+    private static function loadTeams( ?string $batch_id, int $fallback_coach_id = 0 ): array {
         global $wpdb;
 
-        // `head_coach_user_id` is not a column on tt_teams — TeamGenerator
-        // synthesises it on the objects it returns, and every dependent
-        // generator reads it off the team. Resolve it from the roster so the
-        // selective path hands back the same shape. Without this the property
-        // is simply absent: activities land on coach 0 and the evaluation
-        // generator skips every team in silence (#2503).
+        $where  = [ 't.club_id = %d', 't.archived_at IS NULL' ];
+        $params = [ CurrentClub::id() ];
+
+        if ( $batch_id !== null ) {
+            $where[]  = "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_demo_tags d
+                                   WHERE d.entity_type = 'team'
+                                     AND d.entity_id = t.id
+                                     AND d.club_id = t.club_id
+                                     AND d.batch_id = %s )";
+            $params[] = $batch_id;
+        }
+        $where_sql = implode( ' AND ', $where );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.*,
                     COALESCE( (
@@ -338,8 +549,9 @@ class DemoGenerator {
                          LIMIT 1
                     ), 0 ) AS head_coach_user_id
                FROM {$wpdb->prefix}tt_teams t
-              WHERE t.club_id = %d AND t.archived_at IS NULL",
-            CurrentClub::id()
+              WHERE {$where_sql}
+              ORDER BY t.id",
+            $params
         ) );
         if ( ! is_array( $rows ) ) return [];
 
@@ -374,19 +586,36 @@ class DemoGenerator {
     }
 
     /**
-     * v3.85.0 — load every active player in the current club, regardless
-     * of demo tag. Used by selective generation when `gen_players=false`.
+     * The active players a run works with. `$batch_id` narrows to what this
+     * run wrote; null means every active player in the club, which is what
+     * selective generation (`gen_players=false`) works against.
+     *
+     * @return object[]
      */
-    private static function loadAllPlayers(): array {
+    private static function loadPlayers( ?string $batch_id ): array {
         global $wpdb;
+
+        $where  = [ 'p.club_id = %d', "p.status = 'active'" ];
+        $params = [ CurrentClub::id() ];
+
+        if ( $batch_id !== null ) {
+            $where[]  = "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_demo_tags d
+                                   WHERE d.entity_type = 'player'
+                                     AND d.entity_id = p.id
+                                     AND d.club_id = p.club_id
+                                     AND d.batch_id = %s )";
+            $params[] = $batch_id;
+        }
+        $where_sql = implode( ' AND ', $where );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.* FROM {$wpdb->prefix}tt_players p
-              WHERE p.club_id = %d AND p.status = 'active'",
-            CurrentClub::id()
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE {$where_sql} ORDER BY p.id",
+            $params
         ) );
         if ( ! is_array( $rows ) ) return [];
 
-        // Same shape problem as loadAllTeams(): `archetype` is not a column,
+        // Same shape problem as loadTeams(): `archetype` is not a column,
         // it is written to tt_demo_tags.extra_json by PlayerGenerator and read
         // back off the player object by EvaluationGenerator. Recover it for
         // players a previous batch generated; anything else keeps the neutral
@@ -424,19 +653,6 @@ class DemoGenerator {
         if ( $current > 0 ) return $current;
         $admins = get_users( [ 'role' => 'administrator', 'fields' => 'ID', 'number' => 1 ] );
         return is_array( $admins ) && $admins ? (int) $admins[0] : 0;
-    }
-
-    /** Load the players that this batch's Excel importer just inserted. */
-    private static function loadDemoTaggedPlayers( string $batch_id ): array {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.* FROM {$wpdb->prefix}tt_players p
-              JOIN {$wpdb->prefix}tt_demo_tags d
-                ON d.entity_type = 'player' AND d.entity_id = p.id
-             WHERE d.batch_id = %s AND d.club_id = %d",
-            $batch_id, CurrentClub::id()
-        ) );
-        return is_array( $rows ) ? $rows : [];
     }
 
     /**

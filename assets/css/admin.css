@@ -108,6 +108,35 @@
 @keyframes tt-runner-spin {
     to { transform: rotate(360deg); }
 }
+/* #3041 — real progress. A run is a list of steps now, so the overlay can
+   name the one it is on instead of spinning indeterminately for a minute. */
+.tt-runner-overlay-step {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0e1a14;
+    min-height: 1.2em;
+}
+.tt-runner-overlay-bar {
+    margin-top: 10px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(34, 113, 177, 0.18);
+    overflow: hidden;
+}
+.tt-runner-overlay-bar[hidden] { display: none; }
+.tt-runner-overlay-bar__fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: #2271b1;
+    transition: width 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-runner-overlay-spinner { animation: none; }
+    .tt-runner-overlay-bar__fill { transition: none; }
+}
 
 /*  Onboarding wizard polish (#5) 
    Replaces the inline style attributes peppered through
