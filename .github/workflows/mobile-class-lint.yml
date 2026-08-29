@@ -34,6 +34,7 @@ on:
       - 'src/Shared/CoreSurfaceRegistration.php'
       - 'src/Modules/**'
       - 'tools/check-mobile-classes.php'
+      - 'tools/lib/routable-slugs.php'
       - 'bin/mobile-class-selfcheck.php'
       - '.github/workflows/mobile-class-lint.yml'
 

@@ -28,6 +28,7 @@ on:
       - 'src/Shared/Frontend/DashboardShortcode.php'
       - 'src/Core/FeatureRegistry.php'
       - 'tools/check-docs.php'
+      - 'tools/lib/routable-slugs.php'
       - '.github/workflows/docs-lint.yml'
   push:
     branches:
@@ -38,6 +39,7 @@ on:
       - 'src/Modules/Documentation/**'
       - 'src/Shared/Frontend/DashboardShortcode.php'
       - 'tools/check-docs.php'
+      - 'tools/lib/routable-slugs.php'
 
 permissions:
   contents: read

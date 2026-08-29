@@ -38,12 +38,16 @@ $failures = 0;
 function tt_run_against( string $root, callable $mutate ): array {
     $scratch = sys_get_temp_dir() . '/tt-mobile-selfcheck-' . bin2hex( random_bytes( 6 ) );
 
-    foreach ( [ '/config', '/tools', '/src/Shared/Frontend' ] as $dir ) {
+    foreach ( [ '/config', '/tools/lib', '/src/Shared/Frontend' ] as $dir ) {
         @mkdir( $scratch . $dir, 0777, true );
     }
 
     copy( $root . '/config/mobile_surfaces.php', $scratch . '/config/mobile_surfaces.php' );
     copy( $root . '/tools/check-mobile-classes.php', $scratch . '/tools/check-mobile-classes.php' );
+    // #3022 — the routable-slug deriver moved out of this gate and is shared
+    // with the docs and tile-route gates. The scratch tree is what the gate
+    // actually runs against, so it needs the library too.
+    copy( $root . '/tools/lib/routable-slugs.php', $scratch . '/tools/lib/routable-slugs.php' );
     copy(
         $root . '/src/Shared/Frontend/DashboardShortcode.php',
         $scratch . '/src/Shared/Frontend/DashboardShortcode.php'

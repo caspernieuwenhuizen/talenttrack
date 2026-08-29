@@ -357,9 +357,27 @@ class TrialsRestController {
         return RestResponse::success( [ 'tracks' => $tracks ] );
     }
 
+    /**
+     * "Send reminders now". A user is waiting on this, so it reports per
+     * recipient rather than returning a bare count (#2602 / #2604) — a
+     * reminder held for quiet hours or refused by an opt-out is not a
+     * failure, but it is not a send either, and the caller has to be able
+     * to tell the operator which.
+     */
     public static function run_reminders(): \WP_REST_Response {
-        $sent = TrialReminderScheduler::dispatch();
-        return RestResponse::success( [ 'sent' => $sent ] );
+        $results = TrialReminderScheduler::run();
+
+        // No results means no case was due a reminder — a different thing
+        // from a send that reached nobody, which is what the shared
+        // summariser says for an empty list.
+        $outcome = $results === []
+            ? [ __( 'No reminders were due.', 'talenttrack' ) ]
+            : \TT\Modules\Comms\Domain\CommsOutcomeSummary::lines( $results );
+
+        return RestResponse::success( [
+            'sent'    => \TT\Modules\Comms\Domain\CommsOutcomeSummary::sentCount( $results ),
+            'outcome' => $outcome,
+        ] );
     }
 
     /**

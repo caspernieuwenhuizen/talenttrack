@@ -115,6 +115,22 @@ underline, so no length test can tell the two apart. Since git always writes all
 three markers together, finding either angle marker is enough — `=======` is
 reported only as context inside a file that already tripped one.
 
+A third small gate sits beside those two. `changelog-snippet-check.yml` runs
+`tools/check-changelog-snippets.php` over `changelog.d/`:
+
+```
+php tools/check-changelog-snippets.php
+```
+
+It reads each release-note snippet rather than only counting it: the first
+non-empty line must be an `# ` heading, `Bump:` must come after it and appear
+at most once, and there must be a body. Without those, `tools/release.ps1`
+takes the first line as the entry title — so a snippet opening with
+`Bump: minor` produced a changelog entry titled "Bump: minor" that then bumped
+the patch version, which is how seven malformed snippets reached the v4.108.0
+release diff (#3043). A title with no `(#123)` is a warning, not a failure.
+The full shape is in `changelog.d/README.md`.
+
 | # | Rule | Scope |
 | --- | --- | --- |
 | 1 | Front matter, or the dev-only allowlist above. No third state. | corpus |
@@ -132,6 +148,10 @@ reported only as context inside a file that already tripped one.
 | 13 | Every `user` / `player` / `parent` / `admin` topic has an `nl_NL` twin. | corpus |
 | 14 | The twin's `title` and `summary` are translated; its `group`, `audience` and `order` match the English. | corpus |
 | 15 | Every file is valid UTF-8. | corpus |
+
+Rules 4, 5 and 10 all turn on "routable", and that set is derived from `DashboardShortcode` by `tools/lib/routable-slugs.php` — one deriver, shared with `check-mobile-classes.php` and `check-tile-routes.php`. It resolves three shapes: a literal `case '<slug>':`, a constant arm such as `case SomeView::SLUG:` (by reading the constant out of the class the arm names), and the `$tt_view_param === …` comparisons that route pre-auth screens above the dispatch chain. Anything it cannot follow statically is reported as a note rather than dropped.
+
+Write a dispatcher arm whichever way reads better; both are visible to every gate. Before this was shared, each gate derived the set for itself and they disagreed by eight live routes, so a constant arm was invisible to the help-topic rule — an arm written the better way exempted itself from the requirement.
 
 Rules 13-14 were held back until the translation pass brought the corpus to parity — enforcing them earlier would have meant an exempt label on every PR, which is the same as no rule.
 

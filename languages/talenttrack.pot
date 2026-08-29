@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T22:32:13+00:00\n"
+"POT-Creation-Date: 2026-08-29T08:20:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: talenttrack.php
 #: src/Core/Activator.php:165
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
-#: src/Modules/Reports/ScoutDelivery.php:99
+#: src/Modules/Reports/ScoutDelivery.php:125
 #: src/Shared/Admin/Menu.php:49
 msgid "TalentTrack"
 msgstr ""
@@ -61,7 +61,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:408
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2240
+#: src/Shared/Frontend/DashboardShortcode.php:2233
 #: src/Shared/Frontend/FrontendConfigurationView.php:2902
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -71,7 +71,7 @@ msgstr ""
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2245
+#: src/Shared/Frontend/DashboardShortcode.php:2238
 msgid "Team Manager"
 msgstr ""
 
@@ -174,7 +174,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:229
 #: src/Shared/Frontend/DashboardShortcode.php:262
-#: src/Shared/Frontend/DashboardShortcode.php:2239
+#: src/Shared/Frontend/DashboardShortcode.php:2232
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3308
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3385
@@ -256,7 +256,7 @@ msgstr ""
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2243
+#: src/Shared/Frontend/DashboardShortcode.php:2236
 #: src/Shared/Frontend/FrontendConfigurationView.php:2896
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1757,7 +1757,7 @@ msgstr ""
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2244
+#: src/Shared/Frontend/DashboardShortcode.php:2237
 #: src/Shared/Frontend/FrontendConfigurationView.php:2900
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1840,7 +1840,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2242
+#: src/Shared/Frontend/DashboardShortcode.php:2235
 msgid "Head Coach"
 msgstr ""
 
@@ -1850,7 +1850,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2241
+#: src/Shared/Frontend/DashboardShortcode.php:2234
 msgid "Assistant Coach"
 msgstr ""
 
@@ -5032,7 +5032,7 @@ msgstr ""
 #: src/Shared/Admin/BulkActionsHelper.php:225
 #: src/Shared/Frontend/FrontendMatrixView.php:379
 #: src/Shared/Frontend/FrontendModulesView.php:410
-#: src/Shared/Mobile/MobileActionHandlers.php:40
+#: src/Shared/Mobile/MobileActionHandlers.php:46
 msgid "Unauthorized"
 msgstr ""
 
@@ -5389,7 +5389,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2863
 #: src/Shared/Frontend/FrontendEvaluationsView.php:215
-#: src/Shared/Frontend/FrontendMailComposeView.php:120
+#: src/Shared/Frontend/FrontendMailComposeView.php:142
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:109
 #: src/Shared/Frontend/FrontendStandardReportsView.php:479
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1550
@@ -5711,7 +5711,7 @@ msgid "%s was invited but has never accepted."
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:54
 msgid "Someone"
 msgstr ""
 
@@ -6269,7 +6269,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1795
 #: src/Shared/CoreSurfaceRegistration.php:2140
 #: src/Shared/CoreSurfaceRegistration.php:2162
-#: src/Shared/Frontend/FrontendMailComposeView.php:49
+#: src/Shared/Frontend/FrontendMailComposeView.php:52
 #: src/Shared/Frontend/FrontendPeopleManageView.php:50
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
@@ -6615,19 +6615,6 @@ msgstr ""
 msgid "Pending"
 msgstr ""
 
-#. translators: 1: schedule name, 2: KPI label
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:69
-#, php-format
-msgid "TalentTrack scheduled report: %1$s (%2$s)"
-msgstr ""
-
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:73
-msgid ""
-"Your TalentTrack scheduled report is attached.\n"
-"\n"
-"See the dashboard for the live view."
-msgstr ""
-
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:149
 #: src/Modules/Development/IdeaStatus.php:101
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:82
@@ -6763,9 +6750,9 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:1019
 #: src/Shared/Frontend/DashboardShortcode.php:1251
 #: src/Shared/Frontend/DashboardShortcode.php:1260
-#: src/Shared/Frontend/DashboardShortcode.php:1642
-#: src/Shared/Frontend/DashboardShortcode.php:1650
-#: src/Shared/Frontend/DashboardShortcode.php:1658
+#: src/Shared/Frontend/DashboardShortcode.php:1635
+#: src/Shared/Frontend/DashboardShortcode.php:1643
+#: src/Shared/Frontend/DashboardShortcode.php:1651
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -6775,7 +6762,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
 #: src/Shared/Frontend/FrontendHolidaysView.php:148
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
-#: src/Shared/Frontend/FrontendMailComposeView.php:33
+#: src/Shared/Frontend/FrontendMailComposeView.php:36
 #: src/Shared/Frontend/FrontendMatrixView.php:81
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:45
@@ -6820,7 +6807,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:953
 #: src/Shared/CoreSurfaceRegistration.php:1891
 #: src/Shared/CoreSurfaceRegistration.php:2198
-#: src/Shared/Frontend/DashboardShortcode.php:1920
+#: src/Shared/Frontend/DashboardShortcode.php:1913
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
 msgstr ""
@@ -8182,7 +8169,7 @@ msgstr ""
 #. translators: %s: user display/login name
 #. translators: %s: assignee display name
 #: src/Modules/Auth/PasswordResetHandler.php:137
-#: src/Modules/Workflow/Notifications/TaskMailer.php:61
+#: src/Modules/Workflow/Notifications/TaskMailer.php:65
 #, php-format
 msgid "Hi %s,"
 msgstr ""
@@ -10409,7 +10396,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2246
+#: src/Shared/Frontend/DashboardShortcode.php:2239
 msgid "Academy Admin"
 msgstr ""
 
@@ -11184,7 +11171,7 @@ msgstr ""
 msgid "Cannot restore: snapshot is from version %1$s, this site runs %2$s. Cross-major-version restores are not supported."
 msgstr ""
 
-#: src/Modules/Backup/Destinations/EmailDestination.php:31
+#: src/Modules/Backup/Destinations/EmailDestination.php:41
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:489
 #: src/Modules/Configuration/Admin/FormSlugContract.php:79
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
@@ -11210,13 +11197,13 @@ msgid "Email"
 msgstr ""
 
 #. translators: 1: site name, 2: backup date
-#: src/Modules/Backup/Destinations/EmailDestination.php:59
+#: src/Modules/Backup/Destinations/EmailDestination.php:69
 #, php-format
 msgid "[%1$s] TalentTrack backup ready (too large to email): %2$s"
 msgstr ""
 
 #. translators: 1: backup date, 2: size in MB, 3: cap in MB
-#: src/Modules/Backup/Destinations/EmailDestination.php:65
+#: src/Modules/Backup/Destinations/EmailDestination.php:75
 #, php-format
 msgid ""
 "A TalentTrack backup was created at %1$s but is too large to email (%2$.1f MB > %3$.0f MB cap).\n"
@@ -11225,13 +11212,13 @@ msgid ""
 msgstr ""
 
 #. translators: 1: site name, 2: backup date
-#: src/Modules/Backup/Destinations/EmailDestination.php:79
+#: src/Modules/Backup/Destinations/EmailDestination.php:89
 #, php-format
 msgid "[%1$s] TalentTrack backup: %2$s"
 msgstr ""
 
 #. translators: 1: site name, 2: preset, 3: size in MB
-#: src/Modules/Backup/Destinations/EmailDestination.php:85
+#: src/Modules/Backup/Destinations/EmailDestination.php:95
 #, php-format
 msgid ""
 "Attached: TalentTrack backup for %1$s.\n"
@@ -11485,6 +11472,40 @@ msgid ""
 "{player_name} ({team_name}) heeft {missed_count} activiteiten op rij gemist. Mogelijk wil je opvolgen.\n"
 "\n"
 "Open: {deep_link}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:25
+msgid "Desktop link you asked for"
+msgstr ""
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:32
+msgid "Your {site_name} desktop link"
+msgstr ""
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:33
+msgid ""
+"You asked us to email you the link to a desktop-only TalentTrack page.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open this on a laptop or computer."
+msgstr ""
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:36
+msgid "Je desktoplink voor {site_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/DesktopLinkTemplate.php:37
+msgid ""
+"Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te mailen.\n"
+"\n"
+"{link}\n"
+"\n"
+"Open deze op een laptop of computer."
+msgstr ""
+
+#: src/Modules/Comms/Templates/DirectMessageTemplate.php:31
+msgid "Email written by a staff member"
 msgstr ""
 
 #: src/Modules/Comms/Templates/GoalNudgeTemplate.php:24
@@ -11881,6 +11902,66 @@ msgid ""
 "Open: {deep_link}"
 msgstr ""
 
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:27
+msgid "Scheduled report delivery"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:34
+msgid "Scheduled report: {schedule_name} ({kpi_label})"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:35
+msgid ""
+"Your scheduled report \"{schedule_name}\" is attached.\n"
+"\n"
+"See the dashboard for the live view."
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:38
+msgid "Gepland rapport: {schedule_name} ({kpi_label})"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScheduledReportTemplate.php:39
+msgid ""
+"Je geplande rapport \"{schedule_name}\" zit als bijlage bij deze e-mail.\n"
+"\n"
+"Bekijk het dashboard voor de actuele cijfers."
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:26
+msgid "Player report for a scout"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:33
+msgid "{club_name} — Player report for {player_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:34
+msgid ""
+"Hello, you have been sent a confidential player report from {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"This link is valid until {expiry_date}. Do not forward."
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:37
+msgid "{club_name} — Spelersrapport van {player_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/ScoutReportDeliveryTemplate.php:38
+msgid ""
+"Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n"
+"\n"
+"{cover_message}\n"
+"\n"
+"{report_url}\n"
+"\n"
+"Deze link is geldig tot {expiry_date}. Niet doorsturen."
+msgstr ""
+
 #: src/Modules/Comms/Templates/SelectionLetterTemplate.php:25
 msgid "Selection decision letter"
 msgstr ""
@@ -11998,6 +12079,42 @@ msgstr ""
 
 #: src/Modules/Comms/Templates/TrainingCancelledTemplate.php:64
 msgid "{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie."
+msgstr ""
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:28
+msgid "Trial input reminder"
+msgstr ""
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:35
+msgid "Trial input needed: {player_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:36
+msgid ""
+"Hi {recipient_first_name},\n"
+"\n"
+"The trial period for {player_name} runs to {end_date}, and your input on the case is still missing.\n"
+"\n"
+"Go to the case here: {case_url}\n"
+"\n"
+"Thanks,\n"
+"{club_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:39
+msgid "Stage-input gevraagd: {player_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/TrialInputReminderTemplate.php:40
+msgid ""
+"Hoi {recipient_first_name},\n"
+"\n"
+"De stageperiode van {player_name} loopt tot {end_date} en jouw input op het dossier ontbreekt nog.\n"
+"\n"
+"Ga naar het dossier: {case_url}\n"
+"\n"
+"Dank,\n"
+"{club_name}"
 msgstr ""
 
 #: src/Modules/Comms/Templates/TrialPlayerWelcomeTemplate.php:20
@@ -13229,7 +13346,7 @@ msgid "Level"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:104
-#: src/Shared/Frontend/FrontendMailComposeView.php:128
+#: src/Shared/Frontend/FrontendMailComposeView.php:150
 msgid "Message"
 msgstr ""
 
@@ -16375,13 +16492,13 @@ msgid "Needs triage"
 msgstr ""
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:49
+#: src/Modules/Development/Notifications/AuthorNotifier.php:50
 #, php-format
 msgid "[TalentTrack] Your idea \"%s\" was not accepted"
 msgstr ""
 
 #. translators: 1: idea title, 2: rejection note
-#: src/Modules/Development/Notifications/AuthorNotifier.php:55
+#: src/Modules/Development/Notifications/AuthorNotifier.php:56
 #, php-format
 msgid ""
 "Hi,\n"
@@ -16394,18 +16511,18 @@ msgid ""
 "You can submit a new idea at any time."
 msgstr ""
 
-#: src/Modules/Development/Notifications/AuthorNotifier.php:57
+#: src/Modules/Development/Notifications/AuthorNotifier.php:58
 msgid "(no note provided)"
 msgstr ""
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:63
+#: src/Modules/Development/Notifications/AuthorNotifier.php:64
 #, php-format
 msgid "[TalentTrack] Your idea \"%s\" was accepted"
 msgstr ""
 
 #. translators: 1: idea title, 2: filename
-#: src/Modules/Development/Notifications/AuthorNotifier.php:68
+#: src/Modules/Development/Notifications/AuthorNotifier.php:69
 #, php-format
 msgid ""
 "Hi,\n"
@@ -16416,13 +16533,13 @@ msgid ""
 msgstr ""
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:76
+#: src/Modules/Development/Notifications/AuthorNotifier.php:77
 #, php-format
 msgid "[TalentTrack] Work has started on \"%s\""
 msgstr ""
 
 #. translators: %s = idea title
-#: src/Modules/Development/Notifications/AuthorNotifier.php:81
+#: src/Modules/Development/Notifications/AuthorNotifier.php:82
 #, php-format
 msgid ""
 "Hi,\n"
@@ -16462,7 +16579,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2116
 #: src/Shared/CoreSurfaceRegistration.php:2303
 #: src/Shared/Frontend/CoachDashboardView.php:45
-#: src/Shared/Frontend/DashboardShortcode.php:2280
+#: src/Shared/Frontend/DashboardShortcode.php:2273
 #: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -18536,7 +18653,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:235
-#: src/Shared/Frontend/DashboardShortcode.php:2285
+#: src/Shared/Frontend/DashboardShortcode.php:2278
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:159
 msgid "Close"
 msgstr ""
@@ -29412,8 +29529,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2195
-#: src/Shared/Frontend/DashboardShortcode.php:2196
+#: src/Shared/Frontend/DashboardShortcode.php:2188
+#: src/Shared/Frontend/DashboardShortcode.php:2189
 msgid "Help & docs"
 msgstr ""
 
@@ -31997,8 +32114,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1643
-#: src/Shared/Frontend/DashboardShortcode.php:1651
+#: src/Shared/Frontend/DashboardShortcode.php:1636
+#: src/Shared/Frontend/DashboardShortcode.php:1644
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -32292,27 +32409,9 @@ msgid "All evaluations"
 msgstr ""
 
 #. translators: %s: recipient email address
-#: src/Modules/Reports/ScoutDelivery.php:78
+#: src/Modules/Reports/ScoutDelivery.php:92
 #, php-format
 msgid "Confidential — for %s only"
-msgstr ""
-
-#. translators: 1: club name, 2: player name
-#: src/Modules/Reports/ScoutDelivery.php:103
-#, php-format
-msgid "%1$s — Player report for %2$s"
-msgstr ""
-
-#. translators: %s: club name
-#: src/Modules/Reports/ScoutDelivery.php:112
-#, php-format
-msgid "Hello, you have been sent a confidential player report from %s."
-msgstr ""
-
-#. translators: %s: human-readable expiry date
-#: src/Modules/Reports/ScoutDelivery.php:117
-#, php-format
-msgid "This link is valid until %s. Do not forward."
 msgstr ""
 
 #: src/Modules/Reports/ScoutLinkRouter.php:36
@@ -33497,7 +33596,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:233
-#: src/Shared/Frontend/DashboardShortcode.php:2290
+#: src/Shared/Frontend/DashboardShortcode.php:2283
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -35022,18 +35121,18 @@ msgid "Goal created: %s"
 msgstr ""
 
 #. translators: %s is a label like "Marcus's goal: Improve first-touch under pressure"
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:55
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:59
 #, php-format
 msgid "New message on %s"
 msgstr ""
 
 #. translators: %s is the author's display name
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:60
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:64
 #, php-format
 msgid "%s wrote:"
 msgstr ""
 
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:67
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:71
 msgid "View:"
 msgstr ""
 
@@ -36832,7 +36931,7 @@ msgid "Acceptance-slip return deadline"
 msgstr ""
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:98
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:100
+#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:139
 msgid "The club"
 msgstr ""
 
@@ -36892,25 +36991,6 @@ msgstr ""
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
 msgid "Datum:"
-msgstr ""
-
-#. translators: 1: player name, 2: days remaining (negative if past)
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:91
-#, php-format
-msgid "Trial input needed: %1$s (%2$d days)"
-msgstr ""
-
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:96
-#, php-format
-msgid ""
-"Hi %1$s,\n"
-"\n"
-"The trial period for %2$s is ending. Your input on the case is still needed.\n"
-"\n"
-"Go to the case here: %3$s\n"
-"\n"
-"Thanks,\n"
-"%4$s"
 msgstr ""
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:53
@@ -37000,6 +37080,10 @@ msgstr ""
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:335
 msgid "Not assigned to this case."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:374
+msgid "No reminders were due."
 msgstr ""
 
 #. translators: %s: age group label, e.g. "U13"
@@ -39444,34 +39528,34 @@ msgstr ""
 msgid "Player with parent visibility — task to the player; parent has read-only view."
 msgstr ""
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:53
+#: src/Modules/Workflow/Notifications/TaskMailer.php:57
 #, php-format
 msgid "[%1$s] New task: %2$s"
 msgstr ""
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:67
+#: src/Modules/Workflow/Notifications/TaskMailer.php:71
 #, php-format
 msgid "A new task has been assigned to you: %1$s. Deadline: %2$s."
 msgstr ""
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:73
+#: src/Modules/Workflow/Notifications/TaskMailer.php:77
 msgid "Open your task inbox:"
 msgstr ""
 
 #. translators: %s: site name
-#: src/Modules/Workflow/Notifications/TaskMailer.php:79
+#: src/Modules/Workflow/Notifications/TaskMailer.php:83
 #, php-format
 msgid "— %s"
 msgstr ""
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:110
+#: src/Modules/Workflow/Notifications/TaskMailer.php:122
 #, php-format
 msgid "New task: %1$s. Deadline: %2$s."
 msgstr ""
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:129
+#: src/Modules/Workflow/Notifications/TaskMailer.php:141
 msgid "no deadline"
 msgstr ""
 
@@ -41236,7 +41320,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:223
-#: src/Shared/Frontend/DashboardShortcode.php:2130
+#: src/Shared/Frontend/DashboardShortcode.php:2123
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -41417,76 +41501,76 @@ msgstr ""
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1659
+#: src/Shared/Frontend/DashboardShortcode.php:1652
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1871
-#: src/Shared/Frontend/DashboardShortcode.php:2264
+#: src/Shared/Frontend/DashboardShortcode.php:1864
+#: src/Shared/Frontend/DashboardShortcode.php:2257
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1922
+#: src/Shared/Frontend/DashboardShortcode.php:1915
 msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2058
+#: src/Shared/Frontend/DashboardShortcode.php:2051
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2061
+#: src/Shared/Frontend/DashboardShortcode.php:2054
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2064
+#: src/Shared/Frontend/DashboardShortcode.php:2057
 msgid "The administrator has temporarily turned off this part of TalentTrack. Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2087
+#: src/Shared/Frontend/DashboardShortcode.php:2080
 msgid "TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2150
+#: src/Shared/Frontend/DashboardShortcode.php:2143
 msgid "Search results"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2174
+#: src/Shared/Frontend/DashboardShortcode.php:2167
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2214
+#: src/Shared/Frontend/DashboardShortcode.php:2207
 #: src/Shared/Frontend/FrontendMySettingsView.php:54
 #: src/Shared/Frontend/FrontendMySettingsView.php:55
 msgid "My settings"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2221
+#: src/Shared/Frontend/DashboardShortcode.php:2214
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2233
+#: src/Shared/Frontend/DashboardShortcode.php:2226
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2236
+#: src/Shared/Frontend/DashboardShortcode.php:2229
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2260
+#: src/Shared/Frontend/DashboardShortcode.php:2253
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2282
+#: src/Shared/Frontend/DashboardShortcode.php:2275
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2354
+#: src/Shared/Frontend/DashboardShortcode.php:2347
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2355
+#: src/Shared/Frontend/DashboardShortcode.php:2348
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -44091,52 +44175,52 @@ msgstr ""
 msgid "History: %1$d rewrite(s) applied, %2$d row(s) skipped."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:34
+#: src/Shared/Frontend/FrontendMailComposeView.php:37
 msgid "You do not have permission to send email through TalentTrack."
 msgstr ""
 
 #. translators: %s: person display name
 #. translators: %s = recipient name
-#: src/Shared/Frontend/FrontendMailComposeView.php:47
-#: src/Shared/Frontend/FrontendMailComposeView.php:97
+#: src/Shared/Frontend/FrontendMailComposeView.php:50
+#: src/Shared/Frontend/FrontendMailComposeView.php:104
 #, php-format
 msgid "Compose email to %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:54
-#: src/Shared/Frontend/FrontendMailComposeView.php:67
+#: src/Shared/Frontend/FrontendMailComposeView.php:57
+#: src/Shared/Frontend/FrontendMailComposeView.php:70
 msgid "Compose email"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:68
+#: src/Shared/Frontend/FrontendMailComposeView.php:71
 msgid "No recipient on file."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:78
+#: src/Shared/Frontend/FrontendMailComposeView.php:83
 msgid "Security check failed. Please reload the page and try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:83
+#: src/Shared/Frontend/FrontendMailComposeView.php:88
 msgid "Subject and message body are both required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:103
+#: src/Shared/Frontend/FrontendMailComposeView.php:110
 msgid "Email sent. A copy has been logged to the audit trail."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:107
-msgid "wp_mail returned false. The audit log captured the attempt; check the site's SMTP / mailer configuration."
+#: src/Shared/Frontend/FrontendMailComposeView.php:114
+msgid "The message was not sent. The attempt is in the message log; the line below says why."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:124
+#: src/Shared/Frontend/FrontendMailComposeView.php:146
 msgid "Subject"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:130
+#: src/Shared/Frontend/FrontendMailComposeView.php:152
 msgid "Sends from the academy's configured email address. Every send is recorded in the audit log."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMailComposeView.php:133
+#: src/Shared/Frontend/FrontendMailComposeView.php:155
 msgid "Send email"
 msgstr ""
 
@@ -48629,23 +48713,6 @@ msgstr ""
 
 #: src/Shared/Frontend/ThemePreference.php:171
 msgid "Leon Hutten — black and cyan"
-msgstr ""
-
-#. translators: %s site name
-#: src/Shared/Mobile/MobileActionHandlers.php:81
-#, php-format
-msgid "Your %s desktop link"
-msgstr ""
-
-#. translators: %s the safe URL
-#: src/Shared/Mobile/MobileActionHandlers.php:86
-#, php-format
-msgid ""
-"You asked us to email you the link to a desktop-only TalentTrack page.\n"
-"\n"
-"%s\n"
-"\n"
-"Open this on a laptop or computer."
 msgstr ""
 
 #: src/Shared/Modules/ModuleMetadata.php:45
