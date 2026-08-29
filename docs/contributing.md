@@ -203,6 +203,8 @@ Dutch literals (`'Annuleren'`, `'Opslaan'`, `'Doelen…'`) as `msgid`s in PHP so
 - Code samples in fenced blocks with a language tag (`php`, `json`, `bash`, …).
 - Inline `<code>` for slugs, capability names, table names, function names.
 
+Topics render through the plugin's one markdown renderer (`Shared\Content\MarkdownRenderer`), which the course reader shares. Pipe tables and fence language tags both render in-product; a wide table scrolls inside its own box rather than pushing the page sideways. A list item may wrap across lines — an indented continuation belongs to the item above it, so emphasis can span a line break.
+
 ## Links
 
 Four link shapes are recognised. Anything else renders as plain text.
