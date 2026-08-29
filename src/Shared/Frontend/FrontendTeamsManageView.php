@@ -248,6 +248,38 @@ class FrontendTeamsManageView extends FrontendViewBase {
             </div>
 
             <?php
+            // #3044 — how many a side this team plays. Blank means "follow
+            // the age group's default", which is the right answer for almost
+            // every team; the override exists for the club that runs its U13
+            // at 8v8 or its U12 already at 11v11.
+            $forms = \TT\Modules\Teams\FootballFormResolver::forms();
+            if ( ! empty( $forms ) ) :
+                $current_form = (string) ( $team->football_form ?? '' );
+                $default_form = \TT\Modules\Teams\FootballFormResolver::forAgeGroup( (string) ( $team->age_group ?? '' ) );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-team-football-form"><?php esc_html_e( 'Football form', 'talenttrack' ); ?></label>
+                    <select id="tt-team-football-form" class="tt-input" name="football_form" aria-describedby="tt-team-football-form-help">
+                        <option value="" <?php selected( $current_form, '' ); ?>>
+                            <?php echo esc_html( sprintf(
+                                /* translators: %s is a football form such as 8v8. */
+                                __( 'Follow the age group (%s)', 'talenttrack' ),
+                                \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', $default_form )
+                            ) ); ?>
+                        </option>
+                        <?php foreach ( $forms as $form ) : ?>
+                            <option value="<?php echo esc_attr( (string) $form ); ?>" <?php selected( $current_form, (string) $form ); ?>>
+                                <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'football_form', (string) $form ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="tt-field-help" id="tt-team-football-form-help">
+                        <?php esc_html_e( 'How many a side this team plays. It decides which formations the team blueprint offers.', 'talenttrack' ); ?>
+                    </span>
+                </div>
+            <?php endif; ?>
+
+            <?php
             // #2320 — per-team methodology set override (epic #2316). An
             // empty / 0 value clears the override so the team falls back to
             // the install default (ActiveMethodologyResolver::forInstall()).

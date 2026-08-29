@@ -58,6 +58,26 @@ final class MessageType {
     public const NOTIFICATION                = 'notification';
 
     /**
+     * #2604 — the reminder to a staff member that their trial input is
+     * still outstanding. Fixed, translatable copy, so it carries its own
+     * template rather than sharing the notification passthrough.
+     */
+    public const TRIAL_INPUT_REMINDER        = 'trial_input_reminder';
+
+    /** #2604 — the scheduled analytics export, delivered with the file attached. */
+    public const SCHEDULED_REPORT            = 'scheduled_report';
+
+    /**
+     * #2604 — a message a staff member composed and sent by hand from the
+     * in-product composer. Opt-outable: someone who has asked the academy
+     * not to email them means it here too.
+     */
+    public const DIRECT_MESSAGE              = 'direct_message';
+
+    /** #2604 — a confidential player report sent to an external scout. */
+    public const SCOUT_REPORT_DELIVERY       = 'scout_report_delivery';
+
+    /**
      * #2634 — the periodic roll-up of a user's open alerts.
      *
      * Deliberately ONE type for every alert, not one per alert key. A
@@ -72,6 +92,18 @@ final class MessageType {
     // Operational — opt-out forbidden.
     public const SAFEGUARDING_BROADCAST      = 'safeguarding_broadcast_OPERATIONAL';
     public const ACCOUNT_RECOVERY            = 'account_recovery_OPERATIONAL';
+
+    /**
+     * #2604 — the "email me this link" hand-off from the desktop-only
+     * prompt on a phone.
+     *
+     * Operational because the user asked for it seconds ago and is waiting
+     * on it: an opt-out they set months back, or a quiet-hours window,
+     * would turn a button that appears to work into one that does nothing.
+     * It is addressed to the requester's own account and carries no copy
+     * about anyone else.
+     */
+    public const DESKTOP_LINK                = 'desktop_link_OPERATIONAL';
 
     /**
      * True when the message type is operational (opt-out forbidden).

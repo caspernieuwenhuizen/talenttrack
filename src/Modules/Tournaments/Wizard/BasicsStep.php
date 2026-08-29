@@ -52,7 +52,11 @@ final class BasicsStep implements WizardStepInterface {
             echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
         }
         echo '</select>';
-        echo '<span class="ttw-hint">' . esc_html__( 'Format (7v7 / 9v9 / 11v11) is inferred from the team age group.', 'talenttrack' ) . '</span>';
+        // #3044 — this used to promise "format is inferred from the team age
+        // group", which described behaviour that was never built. The team's
+        // football form is a real, recorded field now, so the hint names
+        // where it comes from and stops claiming an inference happens here.
+        echo '<span class="ttw-hint">' . esc_html__( 'Every match in the tournament is played by this team, in the football form set on the team record.', 'talenttrack' ) . '</span>';
         echo '</div>';
 
         echo '<div class="ttw-field">';

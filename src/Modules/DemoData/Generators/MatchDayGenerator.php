@@ -32,19 +32,6 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
     private const HALF_LENGTH = 35;      // youth football, per half
 
-    /**
-     * Players on the pitch by age. Youth football is small-sided until the
-     * early teens — an under-8 team fields six or seven, not eleven, and a
-     * twelve-player squad can never put out an eleven anyway.
-     *
-     * Keyed by the oldest age the size applies to.
-     */
-    private const SQUAD_SIZE_BY_AGE = [
-        9  => 6,
-        12 => 8,
-        99 => 11,
-    ];
-
     /** Roles the prep screen assigns. */
     private const ROLES = [ 'captain', 'penalties', 'corners', 'free_kicks' ];
 
@@ -374,16 +361,15 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         return $total;
     }
 
-    /** Players on the pitch for this age group. */
+    /**
+     * Players on the pitch for this age group.
+     *
+     * #3044 — reads the product's own resolver rather than a private copy of
+     * the ladder. The demo data now agrees with what the academy configured,
+     * which is the point of demo data.
+     */
     private static function squadSizeFor( string $age_group ): int {
-        $age = 12;
-        if ( preg_match( '/(\d+)/', $age_group, $m ) ) {
-            $age = (int) $m[1];
-        }
-        foreach ( self::SQUAD_SIZE_BY_AGE as $max_age => $size ) {
-            if ( $age <= $max_age ) return $size;
-        }
-        return 11;
+        return \TT\Modules\Teams\FootballFormResolver::squadSizeForAgeGroup( $age_group );
     }
 
     /** Youth scorelines skew low; blowouts are rare but not impossible. */

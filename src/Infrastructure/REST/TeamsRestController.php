@@ -585,6 +585,20 @@ class TeamsRestController {
             $data['methodology_id'] = $mid > 0 ? $mid : null;
         }
 
+        // #3044 — how many a side this team plays. Only written when the
+        // field is present, so a caller that does not manage it (the team
+        // wizard, an integration) leaves the column alone; blank clears the
+        // override (NULL) and the team follows its age group's default. An
+        // unknown value is refused rather than stored, because a team
+        // resolving to a form nobody plays would silently empty the
+        // blueprint picker.
+        if ( $r->has_param( 'football_form' ) ) {
+            $form = sanitize_text_field( (string) $r['football_form'] );
+            $data['football_form'] = in_array( $form, \TT\Modules\Teams\FootballFormResolver::forms(), true )
+                ? $form
+                : null;
+        }
+
         return $data;
     }
 
@@ -657,6 +671,12 @@ class TeamsRestController {
             'name'            => $name,
             'name_link_html'  => $name_link_html,
             'age_group'       => $age_group,
+            // #3044 — `football_form` is the team's own override (empty when
+            // it has none); `football_form_resolved` is what the team
+            // actually plays, so a consumer never has to re-derive the
+            // age-group fallback.
+            'football_form'          => (string) ( $t->football_form ?? '' ),
+            'football_form_resolved' => \TT\Modules\Teams\FootballFormResolver::forTeamRow( $t ),
             'coach_name'      => $coach,
             'coach_person_id' => $coach_person_id,
             'coach_link_html' => $coach_link_html,

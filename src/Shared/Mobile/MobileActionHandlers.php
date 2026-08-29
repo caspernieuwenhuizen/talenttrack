@@ -3,6 +3,12 @@ namespace TT\Shared\Mobile;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Comms\Dispatch\CommsDispatcher;
+use TT\Modules\Comms\Domain\CommsOutcomeSummary;
+use TT\Modules\Comms\Domain\MessageType;
+use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Templates\DesktopLinkTemplate;
+
 /**
  * MobileActionHandlers — admin-post endpoints for the mobile prompt page
  * (#0084 Child 1).
@@ -76,18 +82,26 @@ final class MobileActionHandlers {
             self::redirectBack( $safe_url, 'mobile_link_failed' );
         }
 
-        $subject = sprintf(
-            /* translators: %s site name */
-            __( 'Your %s desktop link', 'talenttrack' ),
-            (string) get_bloginfo( 'name' )
-        );
-        $body    = sprintf(
-            /* translators: %s the safe URL */
-            __( "You asked us to email you the link to a desktop-only TalentTrack page.\n\n%s\n\nOpen this on a laptop or computer.", 'talenttrack' ),
-            $safe_url
+        // #2604 — through Comms so the send is audited like every other.
+        // The message type is operational: the user asked for this link
+        // seconds ago and is waiting on it, so neither an old opt-out nor a
+        // quiet-hours window may hold it back.
+        $results = CommsDispatcher::dispatchSync(
+            DesktopLinkTemplate::KEY,
+            [
+                'site_name' => (string) get_bloginfo( 'name' ),
+                'link'      => $safe_url,
+            ],
+            [ Recipient::self(
+                (int) $user->ID,
+                $to,
+                '',
+                (string) get_user_meta( (int) $user->ID, 'locale', true )
+            ) ],
+            [ 'message_type' => MessageType::DESKTOP_LINK ]
         );
 
-        $sent = wp_mail( $to, $subject, $body );
+        $sent = CommsOutcomeSummary::sentCount( $results ) > 0;
 
         self::redirectBack( $safe_url, $sent ? 'mobile_link_sent' : 'mobile_link_failed' );
     }

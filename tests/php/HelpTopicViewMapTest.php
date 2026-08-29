@@ -40,41 +40,23 @@ final class HelpTopicViewMapTest extends WP_UnitTestCase {
         return $id;
     }
 
-    /** Every `?tt_view=` slug the dispatcher routes. */
+    /**
+     * Every `?tt_view=` slug the dispatcher routes.
+     *
+     * #3022 — the same deriver the docs, mobile-class and tile-route gates
+     * use. This test used to carry a fourth copy that saw only literal `case`
+     * arms, so a route written as `case SomeView::SLUG:` read as a phantom
+     * claim and a topic that legitimately served it failed the assertion.
+     *
+     * @return list<string>
+     */
     private function dispatcherSlugs(): array {
-        $src    = (string) file_get_contents( TT_PATH . 'src/Shared/Frontend/DashboardShortcode.php' );
-        $tokens = token_get_all( $src );
+        require_once TT_PATH . 'tools/lib/routable-slugs.php';
 
-        $slugs = [];
-        $inFn  = false;
-        $depth = 0;
-
-        for ( $i = 0; $i < count( $tokens ); $i++ ) {
-            $t = $tokens[ $i ];
-
-            if ( is_array( $t ) && $t[0] === T_FUNCTION ) {
-                $name = '';
-                for ( $j = $i + 1; $j < count( $tokens ); $j++ ) {
-                    if ( is_array( $tokens[ $j ] ) && $tokens[ $j ][0] === T_STRING ) { $name = $tokens[ $j ][1]; break; }
-                }
-                $inFn  = (bool) preg_match( '/^dispatch\w*View$/', $name );
-                $depth = 0;
-                continue;
-            }
-
-            if ( $t === '{' ) { $depth++; continue; }
-            if ( $t === '}' ) { $depth--; if ( $depth <= 0 ) $inFn = false; continue; }
-
-            if ( $inFn && is_array( $t ) && $t[0] === T_CASE ) {
-                for ( $j = $i + 1; $j < $i + 5 && $j < count( $tokens ); $j++ ) {
-                    if ( is_array( $tokens[ $j ] ) && $tokens[ $j ][0] === T_CONSTANT_ENCAPSED_STRING ) {
-                        $v = trim( $tokens[ $j ][1], "'\"" );
-                        if ( preg_match( '/^[a-z0-9][a-z0-9-]*$/', $v ) ) $slugs[ $v ] = true;
-                        break;
-                    }
-                }
-            }
-        }
+        [ $slugs ] = tt_routable_slugs(
+            rtrim( TT_PATH, '/\\' ),
+            TT_PATH . 'src/Shared/Frontend/DashboardShortcode.php'
+        );
 
         return array_keys( $slugs );
     }

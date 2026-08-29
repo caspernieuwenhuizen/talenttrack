@@ -20,7 +20,15 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 class EvalTypeCategoriesPage {
 
-    private const CAP = 'tt_view_settings';
+    /**
+     * #3023 sweep — a read capability used to authorise the write.
+     *
+     * Same pair as the evaluation-categories page this one hangs off: it
+     * decides which categories each evaluation type scores against, which
+     * is the same act of configuration on the same vocabulary.
+     */
+    private const CAP_VIEW = 'tt_view_evaluation_categories';
+    private const CAP_EDIT = 'tt_edit_evaluation_categories';
 
     public static function init(): void {
         add_action( 'admin_menu', [ __CLASS__, 'registerMenu' ] );
@@ -36,14 +44,14 @@ class EvalTypeCategoriesPage {
             null,
             __( 'Eval Type Categories', 'talenttrack' ),
             __( 'Eval Type Categories', 'talenttrack' ),
-            self::CAP,
+            self::CAP_VIEW,
             'tt-eval-type-categories',
             [ __CLASS__, 'render' ]
         );
     }
 
     public static function render(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_VIEW ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -108,7 +116,7 @@ class EvalTypeCategoriesPage {
     }
 
     public static function handleSave(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( self::CAP_EDIT ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $tid = isset( $_POST['eval_type_id'] ) ? absint( $_POST['eval_type_id'] ) : 0;

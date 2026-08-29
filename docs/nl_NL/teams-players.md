@@ -16,10 +16,21 @@ order: 20
 Een **team** is een selectie binnen een specifieke leeftijdscategorie (bijv. "U13 Blauw", "U15 Rood"). Elk team heeft:
 
 - Een naam en een optioneel label voor de leeftijdscategorie
+- Een **speelvorm** — met hoeveel spelers het team speelt
 - Een hoofdcoach (uit je **Personen**-register)
 - Toegewezen spelers
 
 Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](eval-categories-weights.md) per leeftijdscategorie worden gedefinieerd.
+
+### Speelvorm
+
+6 tegen 6, 8 tegen 8 en 11 tegen 11 zijn verschillende spellen, en TalentTrack moet weten welke een team speelt — anders biedt de [teamblauwdruk](team-blueprint.md) een JO9-selectie een viermansverdediging en drie spitsen aan.
+
+Het veld **Speelvorm** op het team staat standaard op *Volg de leeftijdscategorie*, en de speelvorm die daar uitkomt stel je in onder **Configuratie → Speelvorm**. Dat klopt voor bijna elk team, dus normaal raak je het veld nooit aan. Zet het expliciet voor de uitzondering: een club die de JO13 op 8 tegen 8 laat spelen, of een JO12 die al 11 tegen 11 speelt.
+
+De speelvorm bepaalt welke opstellingen de blauwdruk van dat team aanbiedt. Een team dat 6 tegen 6 speelt krijgt zesmansopstellingen te zien en kan geen elftalopstelling krijgen.
+
+TalentTrack levert 6 tegen 6, 8 tegen 8 en 11 tegen 11 mee. Speelt jouw bond 4 tegen 4, 7 tegen 7 of 9 tegen 9, voeg die dan toe onder **Configuratie → Lookuplijsten → Speelvormen**; daarna zijn ze overal beschikbaar, ook bij de standaarden per leeftijdscategorie.
 
 ### De Teams-lijst (v4.40.0 — #1614)
 

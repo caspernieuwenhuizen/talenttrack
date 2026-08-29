@@ -3,7 +3,7 @@ title: Modules
 group: frontend
 summary: Module-toggles per installatie — schakel Methodology, Workflow, License, etc. uit zonder code aan te raken.
 audience: [admin]
-views: [modules, features]
+views: [modules, features, install-profile]
 order: 80
 ---
 
@@ -36,6 +36,41 @@ Een **zoekbalk** boven aan de frontendpagina (`?tt_view=modules`, v4.x+) filtert
 Het label verschijnt op een dashboardtegel zodra de functie van de tegel gemarkeerd is **of** de bijbehorende module, zodat beide niveaus voor de gebruiker hetzelfde werken. Tegels op het persona-dashboard, het klassieke tegeloverzicht, de "Mijn werk"-kolom en de kindtegels van een ouder tonen het label allemaal.
 
 Elke functierij heeft naast de aan/uit-schakelaar een tweede besturingselement: een **In ontwikkeling**-selectievakje. Vink je het aan, dan toont elke weergave die de functie bezit boven aan een klein amberkleurig **In ontwikkeling**-label, zodat iedereen die het scherm gebruikt — coaches, spelers én ouders — weet dat het nog wordt gebouwd en kan veranderen. Het label is puur informatief: het schakelt niets uit en verbergt niets, en de functie blijft precies zo werken als voorheen. Het staat los van de aan/uit-schakelaar, dus een functie kan live *en* gemarkeerd zijn, en je kunt de markering weer uitzetten zonder te raken aan of de functie aanstaat. Alleen beheerders die modules mogen beheren (`tt_manage_modules`) zien of wijzigen de markering; het label zelf is zichtbaar voor elke gebruiker van het gemarkeerde scherm. De markering is ook te lezen en te zetten via het REST-endpoint `/talenttrack/v1/features`.
+
+## Installatieprofielen
+
+Module voor module beslissen is de fijnmazige besturing. Een **installatieprofiel** is de grove: een benoemde vorm voor de hele installatie, zodat een club één keer kan zeggen "wij draaien de ontwikkelcyclus" in plaats van op de eerste middag vijftig losse beslissingen te nemen.
+
+Er worden twee profielen meegeleverd:
+
+| Profiel | Wat het is |
+| - | - |
+| **Basis** | De ontwikkelcyclus en de schermen die daarop aansluiten — spelers, teams, personen, evaluaties, doelen, activiteiten, metingen, de reis, en de rapportages en exports die dat terugleiden. Wedstrijddag, trainingsplannen, de kennisbibliotheek, de koppelingen en de ontwikkelaarsschermen blijven uit. |
+| **Volledige academie** | Alles wat de plug-in meelevert, op de standaardinstellingen. Dit is wat een installatie krijgt als er geen profiel is gekozen, en dus ook de weg terug. |
+
+Twee dingen aan Basis lijken fouten en zijn dat niet. **Analyse blijft aan** — de rapportages en de dashboardcijfers lezen de analyse-engine rechtstreeks; alleen het aparte scherm Analyse-verkenner gaat uit. **Communicatie blijft aan** — daar reizen uitnodigingen en accountmail overheen; alleen de twee kostendragende extra's (geplande verzendingen en het sms-kanaal) gaan uit.
+
+Een profiel is een koppeling, geen kopie. De installatie onthoudt op welk profiel hij staat, en hoe ver hij daarvan is afgedreven — een telling van de modules en functies die niet meer overeenkomen. Die afwijking wordt telkens opnieuw berekend, dus iets terugzetten laat hem meteen verdwijnen; er valt niets te herstellen.
+
+Een profiel kiezen gaat nooit boven je abonnement. Een module of functie waar deze installatie geen recht op heeft, wordt met reden gemeld als overgeslagen in plaats van aangezet en later stukgelopen.
+
+Een profiel toepassen verandert alleen welke schermen aanstaan. **Er wordt nooit data verwijderd.** Een module die een profiel uitzet behoudt al zijn rijen, en weer aanzetten herstelt de toegang tot alles.
+
+### Waar je het ziet, en hoe je het wijzigt
+
+Boven aan de Modulespagina staat een strook met **Installatieprofiel** en daaronder het profiel waarop je staat plus het aantal wijzigingen sindsdien — *Basis · 3 wijzigingen sinds* — of **Niet op een profiel** voor een installatie van vóór de profielen. Ernaast staan een keuzelijst en de knop **Wijzigingen bekijken**.
+
+Wijzigingen bekijken opent het voorbeeldscherm, en dat is het **enige** scherm in het product dat een profiel toepast. Het toont in drie groepen wat er zou gebeuren:
+
+1. **Wordt ingeschakeld**
+2. **Wordt uitgeschakeld**
+3. **Kan niet worden toegepast** — alles wat buiten je abonnement valt, met de reden erbij. Dit is leestekst en geen uitgevinkt vakje, want het is geen keuze die je hebt.
+
+Alles in de eerste twee groepen staat aangevinkt. Vink uit wat je liever laat zoals het is en het blijft ongemoeid; de bevestiging daarna zegt hoeveel wijzigingen er zijn doorgevoerd. Er wordt niets weggeschreven tot je op **Toepassen** drukt — het voorbeeldscherm openen en wegnavigeren verandert helemaal niets. **Annuleren** brengt je terug naar de Modulespagina, of naar de plek waar je vandaan kwam als je ergens anders vandaan komt.
+
+Een profiel dat niets zou wijzigen toont een korte "komt al overeen"-regel en geen knop Toepassen.
+
+*Doelgroep: ontwikkelaars.* De profielen zelf staan in `config/profiles.php` en zijn niet tijdens gebruik te bewerken — veranderen wat Basis betekent is een release, om dezelfde reden als de abonnementskaart. Een profiel benoemt zijn modules volledig (elke klasse in `config/modules.php`, zodat een module die in een release bijkomt geplaatst moet worden in plaats van er door weglating aan te staan) en zijn functies alleen als afwijkingen (de catalogus bouwt de export- en rapportsleutels in lussen op, dus ze uitschrijven zou verouderen zodra er een rapport bijkomt). `TT\Shared\Modules\ProfileRegistry` leest het bestand; `TT\Shared\Modules\ProfileService` vergelijkt het met de live-status (`diff()`, `divergence()`) en past het toe (`apply()`) via `ModuleRegistry` en `FeatureRegistry`, zodat elke schrijfactie hetzelfde auditspoor krijgt als een handmatig omgezette schakelaar. `tools/check-module-toggles.php` laat de build falen wanneer een profiel iets benoemt dat niet oplost, een schakelbare module mist, of een altijd-aan module probeert uit te zetten.
 
 ## Waarom een module uitschakelen?
 

@@ -24,7 +24,12 @@ use TT\Modules\Comms\Templates\InvitationEmailTemplate;
 use TT\Modules\Comms\Templates\MassAnnouncementTemplate;
 use TT\Modules\Comms\Templates\MethodologyDeliveredTemplate;
 use TT\Modules\Comms\Templates\AlertDigestTemplate;
+use TT\Modules\Comms\Templates\DesktopLinkTemplate;
+use TT\Modules\Comms\Templates\DirectMessageTemplate;
 use TT\Modules\Comms\Templates\NotificationTemplate;
+use TT\Modules\Comms\Templates\ScheduledReportTemplate;
+use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
+use TT\Modules\Comms\Templates\TrialInputReminderTemplate;
 use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
 use TT\Modules\Comms\Templates\ParentMeetingInviteTemplate;
 use TT\Modules\Comms\Templates\PdpReadyTemplate;
@@ -143,6 +148,17 @@ class CommsModule implements ModuleInterface {
         TemplateRegistry::register( new InvitationEmailTemplate() );            // #1902 invitation email
         TemplateRegistry::register( new NotificationTemplate() );               // #2604 caller-composed copy
         TemplateRegistry::register( new AlertDigestTemplate() );                // #2634 alerts roll-up
+
+        // #2604 — the last of the direct `wp_mail()` senders, each now
+        // routed through the same opt-out / quiet-hours / rate-limit /
+        // audit path as everything else. Registered here rather than from
+        // their owning modules for the reason the channel adapters are:
+        // one place to read the full set from.
+        TemplateRegistry::register( new TrialInputReminderTemplate() );
+        TemplateRegistry::register( new ScheduledReportTemplate() );
+        TemplateRegistry::register( new DirectMessageTemplate() );
+        TemplateRegistry::register( new ScoutReportDeliveryTemplate() );
+        TemplateRegistry::register( new DesktopLinkTemplate() );
 
         // Generic event-driven dispatch hook. Owning modules fire
         //   do_action( 'tt_comms_dispatch', $template_key, $payload, $recipients, $options );
