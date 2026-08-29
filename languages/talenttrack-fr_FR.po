@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T08:54:35+00:00\n"
+"POT-Creation-Date: 2026-08-29T09:06:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -76,7 +76,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:244
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
-#: src/Modules/People/Admin/PeoplePage.php:505
+#: src/Modules/People/Admin/PeoplePage.php:517
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:285
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
@@ -184,11 +184,11 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:203
 #: src/Shared/Frontend/CoachDashboardView.php:271
 #: src/Shared/Frontend/CoachDashboardView.php:307
-#: src/Shared/Frontend/CoachDashboardView.php:324
+#: src/Shared/Frontend/CoachDashboardView.php:325
 #: src/Shared/Frontend/CoachForms.php:181
 #: src/Shared/Frontend/CoachForms.php:536
 #: src/Shared/Frontend/CoachForms.php:583
-#: src/Shared/Frontend/CoachForms.php:605
+#: src/Shared/Frontend/CoachForms.php:608
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:35
 #: src/Shared/Frontend/Components/GuestAddModal.php:68
 #: src/Shared/Frontend/Components/ParentChildSwitcher.php:139
@@ -209,10 +209,10 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:201
 #: src/Shared/Frontend/FrontendEvaluationsView.php:296
 #: src/Shared/Frontend/FrontendEvaluationsView.php:452
-#: src/Shared/Frontend/FrontendGoalsManageView.php:289
-#: src/Shared/Frontend/FrontendGoalsManageView.php:353
-#: src/Shared/Frontend/FrontendGoalsManageView.php:378
-#: src/Shared/Frontend/FrontendGoalsManageView.php:483
+#: src/Shared/Frontend/FrontendGoalsManageView.php:290
+#: src/Shared/Frontend/FrontendGoalsManageView.php:354
+#: src/Shared/Frontend/FrontendGoalsManageView.php:379
+#: src/Shared/Frontend/FrontendGoalsManageView.php:484
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:94
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:152
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
@@ -242,7 +242,7 @@ msgstr "Joueur"
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:154
-#: src/Modules/People/Admin/PeoplePage.php:497
+#: src/Modules/People/Admin/PeoplePage.php:509
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:437
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/Reports/Admin/ReportsPage.php:295
@@ -269,7 +269,7 @@ msgstr "Entraîneur"
 #: src/Infrastructure/Query/LabelTranslator.php:170
 #: src/Infrastructure/Security/RolesService.php:274
 #: src/Modules/Authorization/Admin/RolesPage.php:432
-#: src/Modules/People/Admin/PeoplePage.php:501
+#: src/Modules/People/Admin/PeoplePage.php:513
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:376
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:289
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:344
@@ -287,7 +287,7 @@ msgstr "Responsable du développement"
 #: src/Infrastructure/Security/RolesService.php:406
 #: src/Infrastructure/Teams/TeamDetailSections.php:61
 #: src/Modules/Invitations/InvitationKind.php:54
-#: src/Modules/People/Admin/PeoplePage.php:502
+#: src/Modules/People/Admin/PeoplePage.php:514
 #: src/Modules/People/Admin/TeamStaffPanel.php:40
 #: src/Modules/Wizards/Team/StaffStep.php:30
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:156
@@ -323,8 +323,8 @@ msgstr "Personnel"
 #: src/Modules/Players/Admin/PlayersPage.php:184
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:177
 #: src/Modules/Teams/Admin/TeamsPage.php:114
-#: src/Shared/Frontend/CoachDashboardView.php:336
-#: src/Shared/Frontend/CoachForms.php:620
+#: src/Shared/Frontend/CoachDashboardView.php:337
+#: src/Shared/Frontend/CoachForms.php:623
 #: src/Shared/Frontend/Components/FrontendThreadView.php:172
 #: src/Shared/Frontend/Components/SavedViews.php:204
 #: src/Shared/Frontend/DashboardShortcode.php:278
@@ -1164,11 +1164,11 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:605
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:765
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:808
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:128
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:142
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:98
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:99
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:123
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:163
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:136
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:176
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:242
 #: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:462
@@ -1192,7 +1192,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:98
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:110
 #: src/Modules/Pdp/Admin/SeasonsPage.php:88
-#: src/Modules/People/Admin/PeoplePage.php:239
+#: src/Modules/People/Admin/PeoplePage.php:251
 #: src/Modules/Players/Admin/PlayersPage.php:184
 #: src/Modules/Players/Admin/PlayersPage.php:288
 #: src/Modules/Players/Admin/PlayersPage.php:447
@@ -1211,7 +1211,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:387
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:227
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:307
-#: src/Shared/Frontend/FrontendGoalsManageView.php:103
+#: src/Shared/Frontend/FrontendGoalsManageView.php:104
 #: src/Shared/Frontend/FrontendHolidaysView.php:108
 #: src/Shared/Frontend/FrontendHolidaysView.php:259
 #: src/Shared/Frontend/FrontendPersonDetailView.php:77
@@ -1728,21 +1728,21 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:49
 #: src/Infrastructure/Query/LabelTranslator.php:102
 #: src/Modules/Analytics/ScheduledReportsRepository.php:67
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:122
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:136
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:92
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:35
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:34
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:117
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:157
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:130
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:170
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:203
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:201
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:522
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1479
-#: src/Modules/People/Admin/PeoplePage.php:153
-#: src/Modules/People/Admin/PeoplePage.php:233
-#: src/Modules/People/Admin/PeoplePage.php:353
+#: src/Modules/People/Admin/PeoplePage.php:165
+#: src/Modules/People/Admin/PeoplePage.php:245
+#: src/Modules/People/Admin/PeoplePage.php:365
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:91
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
@@ -1761,8 +1761,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1923
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:201
 #: src/Shared/Frontend/FrontendEvaluationsView.php:224
-#: src/Shared/Frontend/FrontendGoalsManageView.php:393
-#: src/Shared/Frontend/FrontendGoalsManageView.php:418
+#: src/Shared/Frontend/FrontendGoalsManageView.php:394
+#: src/Shared/Frontend/FrontendGoalsManageView.php:419
 #: src/Shared/Frontend/FrontendHolidaysView.php:97
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:130
@@ -1778,15 +1778,15 @@ msgstr "Actif"
 
 #: src/Infrastructure/Query/LabelTranslator.php:50
 #: src/Infrastructure/Query/LabelTranslator.php:103
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:124
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:138
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:94
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:119
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:159
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:132
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:172
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:206
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
-#: src/Modules/People/Admin/PeoplePage.php:154
-#: src/Modules/People/Admin/PeoplePage.php:235
-#: src/Modules/People/Admin/PeoplePage.php:354
+#: src/Modules/People/Admin/PeoplePage.php:166
+#: src/Modules/People/Admin/PeoplePage.php:247
+#: src/Modules/People/Admin/PeoplePage.php:366
 #: src/Modules/Players/Admin/PlayersPage.php:232
 msgid "Inactive"
 msgstr "Inactif"
@@ -1846,7 +1846,7 @@ msgstr "Excusé"
 
 #: src/Infrastructure/Query/LabelTranslator.php:82
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
-#: src/Modules/People/Admin/PeoplePage.php:499
+#: src/Modules/People/Admin/PeoplePage.php:511
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:286
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
@@ -1859,7 +1859,7 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:83
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
-#: src/Modules/People/Admin/PeoplePage.php:498
+#: src/Modules/People/Admin/PeoplePage.php:510
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
@@ -1885,9 +1885,9 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:88
 #: src/Infrastructure/Query/LabelTranslator.php:136
 #: src/Infrastructure/Query/LabelTranslator.php:169
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:320
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:332
 #: src/Modules/Authorization/Admin/RolesPage.php:436
-#: src/Modules/People/Admin/PeoplePage.php:503
+#: src/Modules/People/Admin/PeoplePage.php:515
 #: src/Modules/Wizards/Team/StaffStep.php:37
 #: src/Shared/Frontend/FrontendPeopleManageView.php:289
 msgid "Physio"
@@ -1901,7 +1901,7 @@ msgstr "Kinésithérapeute"
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:271
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
-#: src/Modules/People/Admin/PeoplePage.php:504
+#: src/Modules/People/Admin/PeoplePage.php:516
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:377
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:290
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:345
@@ -1920,12 +1920,12 @@ msgstr "Recruteur"
 #: src/Infrastructure/Query/LabelTranslator.php:91
 #: src/Infrastructure/Query/LabelTranslator.php:172
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:287
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:321
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:333
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:522
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:538
 #: src/Modules/Authorization/Admin/ModulesPage.php:95
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:491
-#: src/Modules/People/Admin/PeoplePage.php:506
+#: src/Modules/People/Admin/PeoplePage.php:518
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:317
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:508
 #: src/Modules/Stats/Admin/UsageStatsPage.php:146
@@ -1952,7 +1952,7 @@ msgstr "Autre"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1799
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
-#: src/Modules/People/Admin/PeoplePage.php:201
+#: src/Modules/People/Admin/PeoplePage.php:213
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:148
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
@@ -1967,7 +1967,7 @@ msgstr "Autre"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2249
 #: src/Shared/Frontend/FrontendEvaluationsView.php:225
 #: src/Shared/Frontend/FrontendExportsView.php:124
-#: src/Shared/Frontend/FrontendGoalsManageView.php:419
+#: src/Shared/Frontend/FrontendGoalsManageView.php:420
 #: src/Shared/Frontend/FrontendHolidaysView.php:98
 #: src/Shared/Frontend/FrontendPeopleManageView.php:131
 #: src/Shared/Frontend/FrontendPlayersManageView.php:262
@@ -1988,7 +1988,7 @@ msgstr "Admin du club"
 
 #: src/Infrastructure/Query/LabelTranslator.php:133
 #: src/Infrastructure/Query/LabelTranslator.php:166
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:317
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:329
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
@@ -1999,7 +1999,7 @@ msgstr "Entraîneur principal"
 # ─── v2.9.1 — Role labels & descriptions translated at display time ───
 #: src/Infrastructure/Query/LabelTranslator.php:134
 #: src/Infrastructure/Query/LabelTranslator.php:167
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:318
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:330
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
@@ -2009,9 +2009,9 @@ msgstr "Entraîneur adjoint"
 
 #: src/Infrastructure/Query/LabelTranslator.php:135
 #: src/Infrastructure/Query/LabelTranslator.php:168
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:319
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:331
 #: src/Modules/Authorization/Admin/RolesPage.php:435
-#: src/Modules/People/Admin/PeoplePage.php:500
+#: src/Modules/People/Admin/PeoplePage.php:512
 #: src/Shared/Frontend/FrontendPeopleManageView.php:286
 msgid "Manager"
 msgstr "Manager"
@@ -2383,7 +2383,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:436
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:435
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:252
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:159
 #: src/Modules/Authorization/Admin/RolesPage.php:232
 #: src/Modules/Authorization/Admin/RolesPage.php:350
@@ -2436,7 +2436,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:567
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:668
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:111
-#: src/Modules/People/Admin/PeoplePage.php:387
+#: src/Modules/People/Admin/PeoplePage.php:399
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
@@ -2483,7 +2483,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:333
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:376
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:382
-#: src/Shared/Frontend/FrontendGoalsManageView.php:373
+#: src/Shared/Frontend/FrontendGoalsManageView.php:374
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:99
 #: src/Shared/Frontend/FrontendMyProfileView.php:97
 #: src/Shared/Frontend/FrontendPeopleManageView.php:122
@@ -2554,16 +2554,16 @@ msgstr "Activité"
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:166
 #: src/Modules/Threads/Adapters/GoalThreadAdapter.php:97
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
-#: src/Shared/Frontend/CoachDashboardView.php:324
-#: src/Shared/Frontend/CoachForms.php:605
-#: src/Shared/Frontend/FrontendGoalsManageView.php:258
-#: src/Shared/Frontend/FrontendGoalsManageView.php:354
+#: src/Shared/Frontend/CoachDashboardView.php:325
+#: src/Shared/Frontend/CoachForms.php:608
+#: src/Shared/Frontend/FrontendGoalsManageView.php:259
+#: src/Shared/Frontend/FrontendGoalsManageView.php:355
 msgid "Goal"
 msgstr "Objectif"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:48
 #: src/Modules/Authorization/Admin/DebugPage.php:98
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:245
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:251
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:161
 #: src/Modules/Authorization/Admin/RolesPage.php:189
 #: src/Modules/Authorization/Admin/RolesPage.php:364
@@ -2809,7 +2809,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
-#: src/Infrastructure/REST/GoalsRestController.php:542
+#: src/Infrastructure/REST/GoalsRestController.php:556
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:259
 msgid "No fields to update."
@@ -3314,34 +3314,34 @@ msgstr ""
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:512
-#: src/Infrastructure/REST/GoalsRestController.php:586
-#: src/Infrastructure/REST/GoalsRestController.php:638
-#: src/Infrastructure/REST/GoalsRestController.php:652
-#: src/Infrastructure/REST/GoalsRestController.php:665
+#: src/Infrastructure/REST/GoalsRestController.php:519
+#: src/Infrastructure/REST/GoalsRestController.php:609
+#: src/Infrastructure/REST/GoalsRestController.php:661
+#: src/Infrastructure/REST/GoalsRestController.php:675
+#: src/Infrastructure/REST/GoalsRestController.php:688
 msgid "Invalid goal id."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:551
+#: src/Infrastructure/REST/GoalsRestController.php:566
 msgid "The goal could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:590
+#: src/Infrastructure/REST/GoalsRestController.php:613
 msgid "Status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:607
+#: src/Infrastructure/REST/GoalsRestController.php:630
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:618
+#: src/Infrastructure/REST/GoalsRestController.php:641
 msgid "Status update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:643
-#: src/Infrastructure/REST/GoalsRestController.php:656
-#: src/Infrastructure/REST/GoalsRestController.php:673
-#: src/Infrastructure/REST/GoalsRestController.php:681
+#: src/Infrastructure/REST/GoalsRestController.php:666
+#: src/Infrastructure/REST/GoalsRestController.php:679
+#: src/Infrastructure/REST/GoalsRestController.php:696
+#: src/Infrastructure/REST/GoalsRestController.php:704
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:627
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:641
 msgid "Goal not found."
@@ -3616,7 +3616,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:307
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:246
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:100
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:114
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
 #: src/Modules/Configuration/Admin/FormSlugContract.php:71
 #: src/Modules/Configuration/Admin/FormSlugContract.php:83
@@ -3631,8 +3631,8 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:107
 #: src/Modules/Development/Frontend/IdeasRefineView.php:117
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:109
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:100
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:308
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:137
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:47
@@ -3657,8 +3657,8 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:196
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:299
-#: src/Modules/People/Admin/PeoplePage.php:176
-#: src/Modules/People/Admin/PeoplePage.php:350
+#: src/Modules/People/Admin/PeoplePage.php:188
+#: src/Modules/People/Admin/PeoplePage.php:362
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
@@ -3686,9 +3686,9 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
 #: src/Shared/Frontend/CoachDashboardView.php:271
-#: src/Shared/Frontend/CoachDashboardView.php:325
+#: src/Shared/Frontend/CoachDashboardView.php:326
 #: src/Shared/Frontend/CoachForms.php:536
-#: src/Shared/Frontend/CoachForms.php:606
+#: src/Shared/Frontend/CoachForms.php:609
 #: src/Shared/Frontend/DashboardShortcode.php:261
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1187
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3297
@@ -3701,10 +3701,10 @@ msgstr ""
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
-#: src/Shared/Frontend/FrontendGoalsManageView.php:270
-#: src/Shared/Frontend/FrontendGoalsManageView.php:357
-#: src/Shared/Frontend/FrontendGoalsManageView.php:389
-#: src/Shared/Frontend/FrontendGoalsManageView.php:518
+#: src/Shared/Frontend/FrontendGoalsManageView.php:271
+#: src/Shared/Frontend/FrontendGoalsManageView.php:358
+#: src/Shared/Frontend/FrontendGoalsManageView.php:390
+#: src/Shared/Frontend/FrontendGoalsManageView.php:519
 #: src/Shared/Frontend/FrontendMigrationsView.php:73
 #: src/Shared/Frontend/FrontendPersonDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:496
@@ -3777,7 +3777,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:493
 #: src/Modules/Authorization/Admin/RolesPage.php:488
 #: src/Modules/Backup/MigrationExporter.php:34
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
 #: src/Modules/DemoData/DemoCoverage.php:1254
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
@@ -3833,7 +3833,7 @@ msgstr ""
 #: src/Infrastructure/REST/PeekRestController.php:164
 #: src/Modules/Activities/Admin/ActivitiesPage.php:91
 #: src/Modules/Activities/Admin/ActivitiesPage.php:317
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:501
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:102
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:25
@@ -3905,8 +3905,8 @@ msgstr "Date"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:467
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:390
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:110
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:232
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:192
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:23
@@ -3955,7 +3955,7 @@ msgid "Type"
 msgstr "Type"
 
 #: src/Infrastructure/REST/PeopleRestController.php:180
-#: src/Modules/People/Admin/PeoplePage.php:96
+#: src/Modules/People/Admin/PeoplePage.php:108
 msgid "Person not found."
 msgstr ""
 
@@ -4620,7 +4620,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:495
 #: src/Modules/Authorization/Admin/RolesPage.php:492
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1255
 #: src/Modules/License/Admin/AccountPage.php:710
@@ -4657,30 +4657,30 @@ msgstr "Activités"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:555
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:786
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:73
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/Goals/Admin/GoalsPage.php:46
-#: src/Modules/People/Admin/PeoplePage.php:140
+#: src/Modules/People/Admin/PeoplePage.php:152
 #: src/Modules/Players/Admin/PlayersPage.php:77
 #: src/Modules/Teams/Admin/TeamsPage.php:39
 msgid "Add New"
 msgstr "Ajouter"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:67
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:354
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:366
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:132
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:565
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:443
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:579
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:456
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:96
 #: src/Modules/Goals/Admin/GoalsPage.php:47
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:697
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
-#: src/Modules/People/Admin/PeoplePage.php:520
+#: src/Modules/People/Admin/PeoplePage.php:532
 #: src/Modules/Players/Admin/PlayersPage.php:78
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1321
@@ -4703,7 +4703,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:134
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:221
 #: src/Modules/Methodology/Admin/MethodologyPage.php:161
-#: src/Modules/People/Admin/PeoplePage.php:160
+#: src/Modules/People/Admin/PeoplePage.php:172
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:154
 msgid "Filter"
 msgstr "Filtrer"
@@ -4749,7 +4749,7 @@ msgstr "Filtrer"
 #: src/Shared/Frontend/CoachForms.php:523
 #: src/Shared/Frontend/CoachForms.php:589
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2979
-#: src/Shared/Frontend/FrontendGoalsManageView.php:499
+#: src/Shared/Frontend/FrontendGoalsManageView.php:500
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:97
 #: src/Shared/Frontend/FrontendTeamDetailView.php:849
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
@@ -4779,12 +4779,12 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:299
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:566
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:798
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:101
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:115
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:73
 #: src/Modules/Configuration/Admin/MigrationsPage.php:91
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:780
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:76
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:101
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Import/Frontend/FrontendImportHistoryView.php:55
@@ -4797,7 +4797,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:651
 #: src/Modules/Methodology/Admin/MethodologyPage.php:690
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:501
-#: src/Modules/People/Admin/PeoplePage.php:177
+#: src/Modules/People/Admin/PeoplePage.php:189
 #: src/Modules/People/Admin/TeamStaffPanel.php:55
 #: src/Modules/Players/Admin/PlayersPage.php:129
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:90
@@ -4999,6 +4999,7 @@ msgstr "Notes"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:100
+#: src/Shared/Frontend/Components/GoalDetailFields.php:95
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3106
 msgid "Connected principles"
 msgstr ""
@@ -5072,7 +5073,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
-#: src/Modules/Goals/Admin/GoalsPage.php:207
+#: src/Modules/Goals/Admin/GoalsPage.php:211
 #: src/Shared/Frontend/FrontendBackupsView.php:443
 msgid "Update"
 msgstr "Mettre à jour"
@@ -5086,7 +5087,7 @@ msgstr "Mettre à jour"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:110
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:417
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
@@ -5147,8 +5148,8 @@ msgstr "Enregistrer"
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:116
 #: src/Modules/Authorization/Admin/DebugPage.php:23
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:40
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:277
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:46
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:289
 #: src/Modules/Authorization/Admin/MatrixPage.php:436
 #: src/Modules/Authorization/Admin/MatrixPage.php:454
 #: src/Modules/Authorization/Admin/MatrixPage.php:624
@@ -5169,9 +5170,9 @@ msgstr "Enregistrer"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1036
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1052
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1145
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:43
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:336
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:414
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:57
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:350
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:428
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:261
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:337
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:354
@@ -5179,18 +5180,18 @@ msgstr "Enregistrer"
 #: src/Modules/Configuration/Admin/MigrationsPage.php:30
 #: src/Modules/Configuration/Admin/MigrationsPage.php:214
 #: src/Modules/Configuration/Admin/MigrationsPage.php:234
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:34
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:182
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:220
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:36
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:343
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:404
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:47
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:112
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:53
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:201
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:239
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:49
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:356
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:417
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:55
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:120
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:856
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
-#: src/Modules/Goals/Admin/GoalsPage.php:214
-#: src/Modules/Goals/Admin/GoalsPage.php:277
+#: src/Modules/Goals/Admin/GoalsPage.php:218
+#: src/Modules/Goals/Admin/GoalsPage.php:288
 #: src/Modules/License/Admin/AccountPage.php:56
 #: src/Modules/License/Admin/AccountPage.php:68
 #: src/Modules/License/Admin/DevOverridePage.php:52
@@ -5223,10 +5224,10 @@ msgstr "Enregistrer"
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:541
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
-#: src/Modules/People/Admin/PeoplePage.php:82
-#: src/Modules/People/Admin/PeoplePage.php:415
-#: src/Modules/People/Admin/PeoplePage.php:461
-#: src/Modules/People/Admin/PeoplePage.php:477
+#: src/Modules/People/Admin/PeoplePage.php:94
+#: src/Modules/People/Admin/PeoplePage.php:427
+#: src/Modules/People/Admin/PeoplePage.php:473
+#: src/Modules/People/Admin/PeoplePage.php:489
 #: src/Modules/People/PeopleModule.php:68
 #: src/Modules/Players/Admin/PlayersPage.php:478
 #: src/Modules/Players/Admin/PlayersPage.php:482
@@ -5256,7 +5257,7 @@ msgstr "Non autorisé"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:506
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:887
-#: src/Modules/Goals/Admin/GoalsPage.php:251
+#: src/Modules/Goals/Admin/GoalsPage.php:252
 #: src/Modules/Players/Admin/PlayersPage.php:572
 msgid "Unknown database error."
 msgstr ""
@@ -5492,7 +5493,7 @@ msgstr ""
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:378
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:735
-#: src/Modules/People/Admin/PeoplePage.php:58
+#: src/Modules/People/Admin/PeoplePage.php:70
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:428
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:307
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:135
@@ -5575,7 +5576,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:461
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:460
 #: src/Modules/Authorization/Admin/DebugPage.php:157
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:253
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:56
 #: src/Modules/Authorization/Admin/RolesPage.php:192
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:127
@@ -5583,7 +5584,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:522
-#: src/Modules/People/Admin/PeoplePage.php:389
+#: src/Modules/People/Admin/PeoplePage.php:401
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
@@ -6462,7 +6463,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:496
 #: src/Modules/Authorization/Admin/RolesPage.php:491
 #: src/Modules/Backup/MigrationExporter.php:37
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
 #: src/Modules/DemoData/DemoCoverage.php:1256
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
@@ -6515,7 +6516,7 @@ msgstr "Évaluations"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Authorization/Admin/RolesPage.php:493
 #: src/Modules/Backup/MigrationExporter.php:39
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1257
 #: src/Modules/Goals/Admin/GoalsPage.php:46
@@ -6535,11 +6536,11 @@ msgstr "Évaluations"
 #: src/Shared/Frontend/DashboardShortcode.php:878
 #: src/Shared/Frontend/FrontendConfigurationView.php:266
 #: src/Shared/Frontend/FrontendExportsView.php:367
-#: src/Shared/Frontend/FrontendGoalsManageView.php:44
-#: src/Shared/Frontend/FrontendGoalsManageView.php:48
-#: src/Shared/Frontend/FrontendGoalsManageView.php:51
-#: src/Shared/Frontend/FrontendGoalsManageView.php:54
-#: src/Shared/Frontend/FrontendGoalsManageView.php:162
+#: src/Shared/Frontend/FrontendGoalsManageView.php:45
+#: src/Shared/Frontend/FrontendGoalsManageView.php:49
+#: src/Shared/Frontend/FrontendGoalsManageView.php:52
+#: src/Shared/Frontend/FrontendGoalsManageView.php:55
+#: src/Shared/Frontend/FrontendGoalsManageView.php:163
 #: src/Shared/Frontend/FrontendMySettingsView.php:486
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:198
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:809
@@ -6559,10 +6560,10 @@ msgstr ""
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:351
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
 #: src/Modules/DemoData/DemoCoverage.php:1253
 #: src/Modules/Journey/JourneyModule.php:67
-#: src/Modules/People/Admin/PeoplePage.php:139
+#: src/Modules/People/Admin/PeoplePage.php:151
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
 #: src/Modules/Stats/Admin/UsageStatsPage.php:350
@@ -6786,13 +6787,13 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
 #: src/Shared/Frontend/CoachDashboardView.php:313
-#: src/Shared/Frontend/CoachDashboardView.php:325
+#: src/Shared/Frontend/CoachDashboardView.php:326
 #: src/Shared/Frontend/CoachForms.php:591
-#: src/Shared/Frontend/CoachForms.php:606
-#: src/Shared/Frontend/FrontendGoalsManageView.php:277
-#: src/Shared/Frontend/FrontendGoalsManageView.php:355
-#: src/Shared/Frontend/FrontendGoalsManageView.php:400
-#: src/Shared/Frontend/FrontendGoalsManageView.php:503
+#: src/Shared/Frontend/CoachForms.php:609
+#: src/Shared/Frontend/FrontendGoalsManageView.php:278
+#: src/Shared/Frontend/FrontendGoalsManageView.php:356
+#: src/Shared/Frontend/FrontendGoalsManageView.php:401
+#: src/Shared/Frontend/FrontendGoalsManageView.php:504
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
 msgid "Priority"
 msgstr "Priorité"
@@ -7149,7 +7150,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:494
 #: src/Modules/Authorization/Admin/RolesPage.php:489
 #: src/Modules/Backup/MigrationExporter.php:35
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:511
 #: src/Modules/DemoData/DemoCoverage.php:1252
@@ -7158,7 +7159,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:556
 #: src/Modules/License/Admin/AccountPage.php:639
 #: src/Modules/License/Admin/AccountPage.php:705
-#: src/Modules/People/Admin/PeoplePage.php:175
+#: src/Modules/People/Admin/PeoplePage.php:187
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:247
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:370
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:175
@@ -7664,7 +7665,7 @@ msgstr ""
 #: src/Modules/Pdp/Admin/SeasonsPage.php:64
 #: src/Modules/Pdp/Admin/SeasonsPage.php:109
 #: src/Modules/Pdp/Admin/SeasonsPage.php:150
-#: src/Modules/People/Admin/PeoplePage.php:171
+#: src/Modules/People/Admin/PeoplePage.php:183
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/Players/Admin/PlayersPage.php:126
@@ -7833,10 +7834,10 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:97
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:606
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:766
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:167
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:181
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:157
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:200
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:224
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:237
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:350
 #: src/Shared/Admin/BackButton.php:44
 msgid "← Back"
@@ -7864,8 +7865,7 @@ msgid "Group by:"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:168
-#: src/Modules/Goals/Admin/GoalsPage.php:160
-#: src/Modules/Goals/Admin/GoalsPage.php:184
+#: src/Modules/Goals/Admin/GoalsPage.php:188
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:74
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:124
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:94
@@ -7874,11 +7874,10 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:170
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:63
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:74
-#: src/Modules/People/Admin/PeoplePage.php:342
+#: src/Modules/People/Admin/PeoplePage.php:354
 #: src/Modules/Players/Admin/PlayersPage.php:420
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
-#: src/Shared/Frontend/FrontendGoalsManageView.php:579
-#: src/Shared/Frontend/FrontendGoalsManageView.php:601
+#: src/Shared/Frontend/FrontendGoalsManageView.php:587
 #: src/Shared/Frontend/FrontendPeopleManageView.php:198
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:180
 #: src/Shared/Frontend/FrontendTranslationsView.php:73
@@ -8437,8 +8436,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2036
 #: src/Shared/Frontend/FrontendEvaluationsView.php:222
 #: src/Shared/Frontend/FrontendEvaluationsView.php:393
-#: src/Shared/Frontend/FrontendGoalsManageView.php:127
-#: src/Shared/Frontend/FrontendGoalsManageView.php:416
+#: src/Shared/Frontend/FrontendGoalsManageView.php:128
+#: src/Shared/Frontend/FrontendGoalsManageView.php:417
 #: src/Shared/Frontend/FrontendHolidaysView.php:95
 #: src/Shared/Frontend/FrontendHolidaysView.php:113
 #: src/Shared/Frontend/FrontendPeopleManageView.php:128
@@ -8915,8 +8914,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:80
 #: src/Modules/Methodology/Admin/MethodologyPage.php:356
 #: src/Modules/Methodology/Frontend/MethodologyView.php:651
-#: src/Modules/People/Admin/PeoplePage.php:172
-#: src/Modules/People/Admin/PeoplePage.php:388
+#: src/Modules/People/Admin/PeoplePage.php:184
+#: src/Modules/People/Admin/PeoplePage.php:400
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:120
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:481
 #: src/Modules/Wizards/Person/ReviewStep.php:35
@@ -8942,10 +8941,10 @@ msgid "Permissions granted"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/DebugPage.php:158
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:248
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:254
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:57
 #: src/Modules/Authorization/Admin/RolesPage.php:193
-#: src/Modules/People/Admin/PeoplePage.php:390
+#: src/Modules/People/Admin/PeoplePage.php:402
 #: src/Modules/People/Admin/TeamStaffPanel.php:54
 #: src/Modules/Reports/PlayerReportRenderer.php:691
 #: src/Shared/Frontend/FrontendReportWizardView.php:213
@@ -8995,7 +8994,7 @@ msgstr ""
 msgid "Legacy bridge: head_coach_id (retired)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:61
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:67
 #: src/Modules/Authorization/Admin/RolesPage.php:71
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:298
 #: src/Shared/Admin/BackNavigator.php:142
@@ -9004,7 +9003,7 @@ msgstr ""
 msgid "Functional Roles"
 msgstr "Rôles fonctionnels"
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:66
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:72
 msgid ""
 "Per-team staff assignments. A user can hold many functional roles at once — "
 "head coach of one team, assistant of another. Each functional role is mapped "
@@ -9014,7 +9013,7 @@ msgid ""
 msgstr ""
 
 #. translators: %s: link to roles & rights page
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:72
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:78
 #, php-format
 msgid ""
 "For academy-wide roles (Head of Development, Club Admin, Coach, Player, "
@@ -9022,7 +9021,7 @@ msgid ""
 msgstr ""
 
 # v3.47.0 — Roles & rights / Functional roles labelling
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:73
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:79
 #: src/Modules/Authorization/Admin/RolesPage.php:59
 #: src/Shared/CoreSurfaceRegistration.php:2025
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:135
@@ -9030,20 +9029,20 @@ msgstr ""
 msgid "Roles & rights"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:81
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:87
 #: src/Modules/People/Admin/TeamStaffPanel.php:143
 #: src/Shared/Frontend/FrontendPersonDetailView.php:185
 msgid "Functional role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:82
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:88
 #: src/Modules/Authorization/Admin/RolesPage.php:81
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:95
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:202
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:109
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:216
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:69
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:178
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:84
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:261
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:97
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:274
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:94
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:142
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:176
@@ -9053,8 +9052,8 @@ msgstr ""
 msgid "Key"
 msgstr "Clé"
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:83
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:179
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:89
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:185
 #: src/Modules/Authorization/Admin/RolesPage.php:82
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:400
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:565
@@ -9063,7 +9062,7 @@ msgstr "Clé"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:796
 #: src/Modules/Configuration/Admin/FormSlugContract.php:115
 #: src/Modules/DataBrowser/SemanticRegistry.php:138
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:276
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:289
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
 #: src/Modules/Goals/Admin/GoalsPage.php:140
@@ -9084,53 +9083,53 @@ msgstr "Clé"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1011
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:206
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:265
-#: src/Shared/Frontend/FrontendGoalsManageView.php:225
-#: src/Shared/Frontend/FrontendGoalsManageView.php:532
+#: src/Shared/Frontend/FrontendGoalsManageView.php:226
+#: src/Shared/Frontend/FrontendGoalsManageView.php:533
 #: src/Shared/Frontend/FrontendMyGoalsView.php:227
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:194
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 msgid "Description"
 msgstr "Description"
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:84
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:90
 msgid "Maps to authorization roles"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:85
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:91
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:71
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:152
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:184
 msgid "Assignments"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:86
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:92
 #: src/Modules/Authorization/Admin/RolesPage.php:84
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:320
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:86
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:99
 msgid "System"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:91
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:97
 msgid "No functional roles configured."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:102
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:108
 msgid "(none — grants no permissions)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:131
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:137
 msgid "Functional role not found."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:155
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:161
 msgid "← Back to all functional roles"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:163
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:169
 msgid "Authorization roles this functional role grants"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:166
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:172
 msgid ""
 "When someone is assigned to a team with this functional role, they receive "
 "every authorization role ticked below, scoped to that team. Tick multiple to "
@@ -9138,62 +9137,62 @@ msgid ""
 "physio-level information."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:178
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:184
 msgid "Authorization role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:180
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:186
 #: src/Modules/Authorization/Admin/RolesPage.php:83
 msgid "Permissions"
 msgstr "Permissions"
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:185
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:191
 msgid "No team-scoped authorization roles available."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:212
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:218
 msgid "Save mapping"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:216
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:222
 msgid "Current assignments using this functional role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:238
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:244
 msgid "No one is currently assigned to a team with this functional role."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:336
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:348
 msgid ""
 "Lead coach for a team. Owns methodology, selection, and activity planning."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:338
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:350
 msgid "Supports the head coach with training and evaluations within a team."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:340
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:352
 msgid ""
 "Handles logistics, roster, activities, and team settings. Not an evaluator."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:342
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:354
 msgid "Medical / physical support staff attached to a team."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:344
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:356
 msgid ""
 "Anything that does not fit the other categories. Minimal read-only access by "
 "default."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:356
+#: src/Modules/Authorization/Admin/FunctionalRolesPage.php:368
 #: src/Modules/Authorization/Admin/RolesPage.php:512
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:575
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:264
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:452
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:589
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:283
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:465
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:364
-#: src/Modules/People/Admin/PeoplePage.php:524
+#: src/Modules/People/Admin/PeoplePage.php:536
 msgid "Something went wrong."
 msgstr ""
 
@@ -10619,7 +10618,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:510
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:132
-#: src/Modules/People/Admin/PeoplePage.php:522
+#: src/Modules/People/Admin/PeoplePage.php:534
 msgid "Deleted."
 msgstr "Supprimé."
 
@@ -11805,15 +11804,15 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Backup/Destinations/EmailDestination.php:41
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:489
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:503
 #: src/Modules/Configuration/Admin/FormSlugContract.php:79
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:86
 #: src/Modules/Invitations/Frontend/InviteButton.php:133
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:444
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:479
-#: src/Modules/People/Admin/PeoplePage.php:173
-#: src/Modules/People/Admin/PeoplePage.php:312
+#: src/Modules/People/Admin/PeoplePage.php:185
+#: src/Modules/People/Admin/PeoplePage.php:324
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:94
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:314
@@ -13036,7 +13035,7 @@ msgid "Min / max / step for evaluation ratings; low-rating comment policy."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:269
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:62
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:75
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:538
 #: src/Modules/Stats/Admin/UsageStatsPage.php:358
 #: src/Shared/Admin/BackNavigator.php:137
@@ -13052,7 +13051,7 @@ msgstr ""
 
 # ===== v2.13.0 — Weighted overall rating + per-age-group weights =====
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:272
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:46
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:65
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:539
 #: src/Modules/Stats/Admin/UsageStatsPage.php:359
 #: src/Shared/Admin/BackNavigator.php:140
@@ -13148,7 +13147,7 @@ msgstr ""
 
 # ===== v2.11.0 — Sprint 1H: Custom fields framework =====
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:339
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:71
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:85
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:537
 #: src/Modules/Stats/Admin/UsageStatsPage.php:357
 #: src/Shared/Admin/BackNavigator.php:134
@@ -13175,8 +13174,8 @@ msgid "Upload a CSV to create players in bulk."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:376
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:570
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:448
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:584
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:461
 msgid "Label is required."
 msgstr ""
 
@@ -13376,7 +13375,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:563
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:794
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:85
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:98
 msgid "Order"
 msgstr "Ordre"
 
@@ -13411,7 +13410,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:765
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
-#: src/Modules/Goals/Admin/GoalsPage.php:207
+#: src/Modules/Goals/Admin/GoalsPage.php:211
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:604
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
@@ -13761,23 +13760,23 @@ msgstr ""
 msgid "Deletion blocked"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:83
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:97
 msgid ""
 "Define extra attributes you want to capture for this entity. Each custom "
 "field appears on the edit form at the position you pick — between native "
 "fields, or at the end."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:101
 msgid "No custom fields defined yet for this entity."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:94
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:191
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:108
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:205
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:68
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:171
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:83
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:251
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:96
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:264
 #: src/Shared/Admin/OptionSetEditor.php:46
 #: src/Shared/Frontend/FrontendConfigurationView.php:859
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:93
@@ -13788,103 +13787,103 @@ msgstr ""
 msgid "Label"
 msgstr "Étiquette"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:97
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:111
 msgid "Inserts after"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:98
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:112
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:451
 msgid "Sort"
 msgstr "Trier"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:99
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:284
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:113
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:298
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:71
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:208
 msgid "Required"
 msgstr "Requis"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:132
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:146
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:102
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:129
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:167
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:142
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:180
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:175
-#: src/Modules/People/Admin/PeoplePage.php:186
+#: src/Modules/People/Admin/PeoplePage.php:198
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:133
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:147
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:103
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:130
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:168
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:143
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:181
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:175
-#: src/Modules/People/Admin/PeoplePage.php:186
+#: src/Modules/People/Admin/PeoplePage.php:198
 msgid "Activate"
 msgstr "Activer"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:164
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:178
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:155
 #: src/Shared/Admin/BackNavigator.php:136
 msgid "Edit Custom Field"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:165
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:179
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:155
 #: src/Shared/Admin/BackNavigator.php:135
 msgid "New Custom Field"
 msgstr ""
 
 #. translators: %s is an entity label like Players or Teams.
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:176
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:190
 #, php-format
 msgid "This custom field will appear on the %s edit form."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:196
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:210
 msgid ""
 "The label shown next to the field on the form. Use the language you want it "
 "displayed in — no translation system for user-defined fields."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:209
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:223
 msgid "The stable identifier for this field. Cannot be changed after creation."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:211
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:225
 msgid ""
 "Auto-generated from the label if left blank. Used internally; must be unique "
 "per entity."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:232
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:246
 msgid "Type cannot be changed after creation."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:234
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:248
 msgid "Determines what input is shown on the form."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:241
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:255
 msgid "Insert after"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:244
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:258
 msgid "(at end of form)"
 msgstr ""
 
 #. translators: %s is a form field label, e.g. "First name".
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:249
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:263
 #, php-format
 msgid "After: %s"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:256
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:270
 msgid ""
 "Choose where on the form this field appears. \"(at end)\" places it below "
 "all native fields."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:262
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:276
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:64
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:66
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:98
@@ -13895,41 +13894,41 @@ msgstr ""
 msgid "Sort order"
 msgstr "Ordre de tri"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:267
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:281
 msgid ""
 "When multiple custom fields share the same \"Insert after\" slug, lower sort "
 "order renders first."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:273
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:287
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:217
 msgid "Options"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:278
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:292
 msgid ""
 "One option per line. Use \"value|Label\" to give a stored value a different "
 "display label. Lines with no pipe use the same string as both value and "
 "label."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:288
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:302
 msgid "Required on the form"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:296
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:310
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:176
 msgid "Update field"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:296
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:310
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:35
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:43
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:67
 msgid "Add field"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:481
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:495
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:393
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:120
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:270
@@ -13937,39 +13936,39 @@ msgid "Text"
 msgstr ""
 
 # Field type labels
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:482
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:496
 msgid "Long text"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:497
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:394
 msgid "Number"
 msgstr "Numéro"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:498
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:395
 msgid "Select (dropdown)"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:499
 msgid "Multi-select"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:500
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:396
 msgid "Checkbox"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:502
 msgid "URL"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:490
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:504
 #: src/Modules/Configuration/Admin/FormSlugContract.php:80
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:43
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:87
-#: src/Modules/People/Admin/PeoplePage.php:174
-#: src/Modules/People/Admin/PeoplePage.php:317
+#: src/Modules/People/Admin/PeoplePage.php:186
+#: src/Modules/People/Admin/PeoplePage.php:329
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:121
 #: src/Modules/Wizards/Person/BasicsStep.php:38
 #: src/Modules/Wizards/Person/ReviewStep.php:42
@@ -13978,25 +13977,25 @@ msgstr ""
 msgid "Phone"
 msgstr "Téléphone"
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:503
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:517
 msgid "(at end)"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:506
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:520
 msgid "missing"
 msgstr ""
 
 # Entity labels
 # Error / notice messages
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:571
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:585
 msgid "That field type is not supported."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:572
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:586
 msgid "That entity type is not supported."
 msgstr ""
 
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:573
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:587
 msgid "Select and multi-select fields require at least one option."
 msgstr ""
 
@@ -14167,7 +14166,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:140
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:386
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:471
-#: src/Modules/People/Admin/PeoplePage.php:302
+#: src/Modules/People/Admin/PeoplePage.php:314
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
@@ -14203,7 +14202,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:144
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:390
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:475
-#: src/Modules/People/Admin/PeoplePage.php:307
+#: src/Modules/People/Admin/PeoplePage.php:319
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
@@ -14356,7 +14355,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:122
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
-#: src/Shared/Frontend/FrontendGoalsManageView.php:494
+#: src/Shared/Frontend/FrontendGoalsManageView.php:495
 msgid "Due date"
 msgstr ""
 
@@ -17692,7 +17691,7 @@ msgstr ""
 msgid "%s (opens the WordPress admin)"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:51
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:70
 msgid ""
 "Configure how much each main category contributes to the overall rating per "
 "age group. Weights are percentages — the four values must sum to 100. Age "
@@ -17700,88 +17699,88 @@ msgid ""
 "25% for four mains)."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:55
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:74
 msgid "No active main categories found."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:60
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:79
 msgid ""
 "No age groups configured. Add some under Configuration → Age Groups first."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:76
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:95
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:272
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:104
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:228
 msgid "Configured"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:78
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:97
 msgid "Equal fallback in use"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:113
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:132
 msgid "Total:"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:124
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:143
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:327
 msgid "Save weights"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:130
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:149
 msgid "Reset to equal weights?"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:131
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:150
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:323
 msgid "Reset to equal"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:142
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:161
 msgid "Sum is 100 — ready to save"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:143
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:162
 #, php-format
 msgid "Must equal 100 (current: %d)"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:246
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:265
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:339
 msgid "Weights saved."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:248
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:267
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:341
 msgid "Weights reset to equal."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:256
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:275
 #, php-format
 msgid "Weights must sum to 100%%. Current total: %d%%."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:261
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:280
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:151
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:358
 msgid "Missing age group."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:262
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:450
+#: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:281
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:463
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:178
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:359
 msgid "The database rejected the save. Try again."
 msgstr ""
 
 # ===== v2.12.0 — Sprint 1I: Evaluation subcategories =====
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:64
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:221
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:77
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:234
 msgid "Add main category"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:72
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:85
 msgid ""
 "Main categories group high-level evaluation dimensions. Subcategories let "
 "coaches rate specific skills within each dimension. On the evaluation form, "
@@ -17789,112 +17788,112 @@ msgid ""
 "subcategories — both options are available per evaluation."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:76
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:89
 msgid ""
 "No evaluation categories configured. This is unusual — the plugin normally "
 "seeds four defaults (Technical, Tactical, Physical, Mental) on activation. "
 "Add one to get started."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:125
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:138
 msgid "Add sub"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:178
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:191
 msgid ""
 "System categories (marked ✓) are seeded by the plugin. They can be renamed, "
 "reordered, and deactivated but not deleted. Deactivating a category hides it "
 "from new evaluations while preserving the ratings already stored against it."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:199
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:212
 msgid "Cannot nest subcategories more than two levels deep."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:216
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:229
 msgid "Edit subcategory"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:217
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:230
 msgid "Edit main category"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:220
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:233
 msgid "Add subcategory"
 msgstr ""
 
 #. translators: %s is a main category label.
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:234
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:247
 #, php-format
 msgid "This subcategory sits under: %s"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:256
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:269
 msgid "The display name coaches see on the evaluation form."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:268
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:281
 msgid ""
 "Stable identifier. Cannot be changed after creation (ratings reference it)."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:270
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:283
 msgid ""
 "Auto-generated from the label if blank. Must be globally unique across all "
 "categories."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:280
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:293
 msgid "Optional. Not shown to coaches — for your own reference."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:285
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:298
 msgid "Display order"
 msgstr "Ordre d'affichage"
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:290
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:303
 msgid ""
 "Lower numbers render first. Convention: increments of 10 so you have room to "
 "insert between items later."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:299
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:312
 msgid "Active (shown on evaluation forms)"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:303
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:316
 msgid ""
 "This is a system category. It can be renamed and deactivated but not deleted."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:312
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:325
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:211
 msgid "Update category"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:312
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:325
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:71
 msgid "Add category"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:449
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:462
 msgid "That key is already used by another category. Pick a different one."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:37
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:38
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:60
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:45
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:46
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:68
 msgid "Eval Type Categories"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:62
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:70
 msgid ""
 "Per evaluatietype: vink de categorieën die in het rating-formulier moeten "
 "verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen "
 "(terugval-gedrag, gelijk aan vóór #819)."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:66
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:74
 msgid "Mapping opgeslagen."
 msgstr ""
 
@@ -19699,14 +19698,14 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:99
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:145
 #: src/Shared/Frontend/CoachDashboardView.php:305
-#: src/Shared/Frontend/CoachDashboardView.php:317
+#: src/Shared/Frontend/CoachDashboardView.php:318
 #: src/Shared/Frontend/CoachForms.php:581
-#: src/Shared/Frontend/CoachForms.php:597
+#: src/Shared/Frontend/CoachForms.php:600
 #: src/Shared/Frontend/DashboardShortcode.php:243
-#: src/Shared/Frontend/FrontendGoalsManageView.php:47
-#: src/Shared/Frontend/FrontendGoalsManageView.php:59
-#: src/Shared/Frontend/FrontendGoalsManageView.php:156
-#: src/Shared/Frontend/FrontendGoalsManageView.php:630
+#: src/Shared/Frontend/FrontendGoalsManageView.php:48
+#: src/Shared/Frontend/FrontendGoalsManageView.php:60
+#: src/Shared/Frontend/FrontendGoalsManageView.php:157
+#: src/Shared/Frontend/FrontendGoalsManageView.php:616
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1578
 msgid "Add goal"
 msgstr ""
@@ -19727,21 +19726,23 @@ msgstr ""
 msgid "Due Date"
 msgstr "Date d'échéance"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:157
-#: src/Shared/Frontend/FrontendGoalsManageView.php:577
-msgid "Linked principle"
+#: src/Modules/Goals/Admin/GoalsPage.php:160
+#: src/Shared/Frontend/Components/GoalPrinciplePicker.php:61
+msgid "What does this goal develop?"
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:169
-msgid "Optional. Links this goal to a methodology principle."
+#: src/Modules/Goals/Admin/GoalsPage.php:173
+msgid ""
+"Optional, but tagging it is what lets training plans and reports aim at this "
+"goal."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:181
-#: src/Shared/Frontend/FrontendGoalsManageView.php:599
+#: src/Modules/Goals/Admin/GoalsPage.php:185
+#: src/Shared/Frontend/FrontendGoalsManageView.php:585
 msgid "Linked football action"
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:201
+#: src/Modules/Goals/Admin/GoalsPage.php:205
 msgid ""
 "Optional. Links this goal to a single football action (voetbalhandeling)."
 msgstr ""
@@ -21876,10 +21877,10 @@ msgstr "Progression"
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:197
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
-#: src/Shared/Frontend/CoachDashboardView.php:326
-#: src/Shared/Frontend/CoachForms.php:607
-#: src/Shared/Frontend/FrontendGoalsManageView.php:283
-#: src/Shared/Frontend/FrontendGoalsManageView.php:368
+#: src/Shared/Frontend/CoachDashboardView.php:327
+#: src/Shared/Frontend/CoachForms.php:610
+#: src/Shared/Frontend/FrontendGoalsManageView.php:284
+#: src/Shared/Frontend/FrontendGoalsManageView.php:369
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2406
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2410
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2417
@@ -29643,8 +29644,8 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1063
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1640
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
-#: src/Shared/Frontend/FrontendGoalsManageView.php:241
-#: src/Shared/Frontend/FrontendGoalsManageView.php:642
+#: src/Shared/Frontend/FrontendGoalsManageView.php:242
+#: src/Shared/Frontend/FrontendGoalsManageView.php:628
 #: src/Shared/Frontend/FrontendMyGoalsView.php:250
 msgid "Conversation"
 msgstr "Conversation"
@@ -30697,164 +30698,164 @@ msgid ""
 "academy."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:56
+#: src/Modules/People/Admin/PeoplePage.php:68
 #, php-format
 msgid "You are about to permanently delete %d person(s):"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:57
+#: src/Modules/People/Admin/PeoplePage.php:69
 #, php-format
 msgid "Delete %d person(s)"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:59
+#: src/Modules/People/Admin/PeoplePage.php:71
 msgid "Confirm delete"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:60
+#: src/Modules/People/Admin/PeoplePage.php:72
 msgid "Preview failed"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:61
+#: src/Modules/People/Admin/PeoplePage.php:73
 msgid "No persons in the selection."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:62
+#: src/Modules/People/Admin/PeoplePage.php:74
 msgid "No related records."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:63
+#: src/Modules/People/Admin/PeoplePage.php:75
 msgid ""
 "The associated WordPress user accounts are NOT affected — they can still log "
 "in until deleted separately via WP’s Users admin."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:64
+#: src/Modules/People/Admin/PeoplePage.php:76
 msgid "Type DELETE to confirm this destructive action:"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:65
+#: src/Modules/People/Admin/PeoplePage.php:77
 #, php-format
 msgid "Will be removed as %s from team %s."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:66
+#: src/Modules/People/Admin/PeoplePage.php:78
 #, php-format
 msgid "%d functional-role scope grant(s) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:67
+#: src/Modules/People/Admin/PeoplePage.php:79
 #, php-format
 msgid "%d staff-development entry(ies) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:68
+#: src/Modules/People/Admin/PeoplePage.php:80
 #, php-format
 msgid "%d staff certification record(s) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:69
+#: src/Modules/People/Admin/PeoplePage.php:81
 #, php-format
 msgid "%d staff evaluation(s) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:70
+#: src/Modules/People/Admin/PeoplePage.php:82
 #, php-format
 msgid "%d staff goal(s) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:71
+#: src/Modules/People/Admin/PeoplePage.php:83
 #, php-format
 msgid "%d mentorship pairing(s) will be removed."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:72
+#: src/Modules/People/Admin/PeoplePage.php:84
 #, php-format
 msgid "%d pending invitation(s) to this person will be cancelled."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:73
+#: src/Modules/People/Admin/PeoplePage.php:85
 #, php-format
 msgid ""
 "%d functional-role grant(s) attribution will become unknown (grants stay)."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:74
+#: src/Modules/People/Admin/PeoplePage.php:86
 #, php-format
 msgid ""
 "%d accepted invitation(s) will keep the historical record; target reference "
 "cleared."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:75
+#: src/Modules/People/Admin/PeoplePage.php:87
 #, php-format
 msgid "Will be removed as parent contact from player %s."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:150
+#: src/Modules/People/Admin/PeoplePage.php:162
 msgid "Search name or email"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:152
+#: src/Modules/People/Admin/PeoplePage.php:164
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:132
 msgid "All statuses"
 msgstr "Tous les statuts"
 
-#: src/Modules/People/Admin/PeoplePage.php:158
+#: src/Modules/People/Admin/PeoplePage.php:170
 msgid "Only staff (assigned to at least one team)"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:182
+#: src/Modules/People/Admin/PeoplePage.php:194
 msgid "No people yet."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:268
+#: src/Modules/People/Admin/PeoplePage.php:280
 #: src/Shared/Admin/BackNavigator.php:117
 msgid "Edit Person"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:268
-#: src/Modules/People/Admin/PeoplePage.php:362
+#: src/Modules/People/Admin/PeoplePage.php:280
+#: src/Modules/People/Admin/PeoplePage.php:374
 msgid "Add Person"
 msgstr "Ajouter une personne"
 
-#: src/Modules/People/Admin/PeoplePage.php:289
+#: src/Modules/People/Admin/PeoplePage.php:301
 msgid ""
 "The person was saved, but one or more custom fields had invalid values and "
 "were not updated."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:322
+#: src/Modules/People/Admin/PeoplePage.php:334
 msgid "Primary role"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:331
+#: src/Modules/People/Admin/PeoplePage.php:343
 msgid ""
 "Default role if this person isn't assigned to a specific team. Team "
 "assignments can override this per-team."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:336
+#: src/Modules/People/Admin/PeoplePage.php:348
 msgid "Linked WordPress user"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:345
+#: src/Modules/People/Admin/PeoplePage.php:357
 msgid "Optional. Link to a WordPress user account for login access."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:362
+#: src/Modules/People/Admin/PeoplePage.php:374
 msgid "Update Person"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:379
+#: src/Modules/People/Admin/PeoplePage.php:391
 msgid "Team assignments"
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:381
+#: src/Modules/People/Admin/PeoplePage.php:393
 msgid "This person is not currently assigned to any team."
 msgstr ""
 
-#: src/Modules/People/Admin/PeoplePage.php:383
+#: src/Modules/People/Admin/PeoplePage.php:395
 msgid "To add new assignments, edit the team and use the Staff section there."
 msgstr ""
 
@@ -36480,7 +36481,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:251
-#: src/Shared/Frontend/FrontendGoalsManageView.php:652
+#: src/Shared/Frontend/FrontendGoalsManageView.php:638
 #: src/Shared/Frontend/FrontendMyGoalsView.php:253
 msgid "How does this work?"
 msgstr ""
@@ -43190,13 +43191,13 @@ msgstr ""
 msgid "Record Training Activity"
 msgstr ""
 
-#: src/Shared/Frontend/CoachDashboardView.php:320
-#: src/Shared/Frontend/CoachForms.php:600
+#: src/Shared/Frontend/CoachDashboardView.php:321
+#: src/Shared/Frontend/CoachForms.php:603
 msgid "Current Goals"
 msgstr ""
 
-#: src/Shared/Frontend/CoachDashboardView.php:321
-#: src/Shared/Frontend/CoachForms.php:602
+#: src/Shared/Frontend/CoachDashboardView.php:322
+#: src/Shared/Frontend/CoachForms.php:605
 msgid "No goals yet."
 msgstr ""
 
@@ -43661,12 +43662,14 @@ msgstr ""
 msgid "Edit window has expired."
 msgstr ""
 
-#: src/Shared/Frontend/Components/GoalDetailFields.php:73
-msgid "Connected principle"
+#: src/Shared/Frontend/Components/GoalDetailFields.php:110
+msgid "Connected football action"
 msgstr ""
 
-#: src/Shared/Frontend/Components/GoalDetailFields.php:88
-msgid "Connected football action"
+#: src/Shared/Frontend/Components/GoalPrinciplePicker.php:63
+msgid ""
+"Pick the methodology principles this goal works on. Optional, but tagging it "
+"is what lets training plans and reports aim at this goal."
 msgstr ""
 
 #: src/Shared/Frontend/Components/GuestAddModal.php:53
@@ -46727,115 +46730,111 @@ msgstr ""
 msgid "Update assignment"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:50
+#: src/Shared/Frontend/FrontendGoalsManageView.php:51
 msgid "Edit goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:53
+#: src/Shared/Frontend/FrontendGoalsManageView.php:54
 #: src/Shared/Frontend/FrontendMyGoalsView.php:29
 msgid "Goal detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:70
+#: src/Shared/Frontend/FrontendGoalsManageView.php:71
 #, php-format
 msgid "Edit goal — %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:70
-#: src/Shared/Frontend/FrontendGoalsManageView.php:139
+#: src/Shared/Frontend/FrontendGoalsManageView.php:71
+#: src/Shared/Frontend/FrontendGoalsManageView.php:140
 #: src/Shared/Frontend/FrontendMyGoalsView.php:201
 msgid "Goal not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:72
-#: src/Shared/Frontend/FrontendGoalsManageView.php:143
+#: src/Shared/Frontend/FrontendGoalsManageView.php:73
+#: src/Shared/Frontend/FrontendGoalsManageView.php:144
 msgid "That goal no longer exists."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:120
+#: src/Shared/Frontend/FrontendGoalsManageView.php:121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1576
 msgid "Print doelenintake"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:133
+#: src/Shared/Frontend/FrontendGoalsManageView.php:134
 msgid "Archive this goal? It will be hidden but the data is preserved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:202
+#: src/Shared/Frontend/FrontendGoalsManageView.php:203
 #: src/Shared/Frontend/FrontendMyGoalsView.php:102
 #: src/Shared/Frontend/FrontendMyGoalsView.php:222
 #: src/Shared/Frontend/PlayerDashboardView.php:147
 msgid "Due:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:394
+#: src/Shared/Frontend/FrontendGoalsManageView.php:395
 #: src/Shared/Frontend/FrontendMyGoalsView.php:62
 msgid "Achieved"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:395
+#: src/Shared/Frontend/FrontendGoalsManageView.php:396
 #: src/Shared/Frontend/FrontendMyGoalsView.php:63
 msgid "Missed"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:407
+#: src/Shared/Frontend/FrontendGoalsManageView.php:408
 msgid "Due from"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:408
+#: src/Shared/Frontend/FrontendGoalsManageView.php:409
 msgid "Due to"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:424
+#: src/Shared/Frontend/FrontendGoalsManageView.php:425
 msgid "Search title, description, player…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:426
+#: src/Shared/Frontend/FrontendGoalsManageView.php:427
 msgid "No goals match your filters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:430
+#: src/Shared/Frontend/FrontendGoalsManageView.php:431
 msgid "No goals yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:431
+#: src/Shared/Frontend/FrontendGoalsManageView.php:432
 msgid ""
 "Goals capture what each player is working on this season. Set the first one "
 "to give training a direction."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:432
+#: src/Shared/Frontend/FrontendGoalsManageView.php:433
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1541
 msgid "Add first goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:538
+#: src/Shared/Frontend/FrontendGoalsManageView.php:539
 msgid "Progress (%)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:539
+#: src/Shared/Frontend/FrontendGoalsManageView.php:540
 msgid "e.g. 60"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:551
+#: src/Shared/Frontend/FrontendGoalsManageView.php:552
 msgid "Evidence (evaluations)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:552
+#: src/Shared/Frontend/FrontendGoalsManageView.php:553
 msgid ""
 "Tick the evaluations that evidence this goal — they show as scored chips on "
 "the POP card."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:588
-msgid "Optional. Anchor this goal to a methodology principle."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendGoalsManageView.php:618
+#: src/Shared/Frontend/FrontendGoalsManageView.php:604
 msgid "Optional. Anchor this goal to a single football action."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:630
+#: src/Shared/Frontend/FrontendGoalsManageView.php:616
 msgid "Update goal"
 msgstr ""
 
