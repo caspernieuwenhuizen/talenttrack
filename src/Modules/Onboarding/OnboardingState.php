@@ -25,7 +25,11 @@ class OnboardingState {
     // #2965 — `staff` comes after first_admin: the admin establishes
     // themselves before adding anyone else, and by then any teams from the
     // import step exist to assign people to.
-    public const STEPS = [ 'welcome', 'academy', 'import', 'first_team', 'first_admin', 'staff', 'dashboard', 'done' ];
+    // #3038 — `profile` sits between academy and import: the operator names
+    // the academy, then decides how much product they are running, then
+    // brings their squad in. Choosing after the import would mean importing
+    // into a shape that is about to change.
+    public const STEPS = [ 'welcome', 'academy', 'profile', 'import', 'first_team', 'first_admin', 'staff', 'dashboard', 'done' ];
 
     private const STATE_OPT     = 'tt_onboarding_state';
     private const COMPLETED_OPT = 'tt_onboarding_completed_at';

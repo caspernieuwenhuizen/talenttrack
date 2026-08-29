@@ -57329,6 +57329,70 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Grid"
 #~ msgstr "Raster"
 
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:820
+msgid "How much product"
+msgstr "Hoeveel product"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:206
+msgid "How much product are you running?"
+msgstr "Hoeveel product draai je?"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:208
+msgid "TalentTrack ships a lot. Most academies want the development loop first and can turn the rest on whenever they need it. Nothing here is permanent — you can change it any time from Modules."
+msgstr "TalentTrack levert veel mee. De meeste academies willen eerst de ontwikkelcyclus en zetten de rest aan zodra ze die nodig hebben. Niets hiervan is definitief — je kunt het altijd wijzigen via Modules."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:211
+msgid "Skipping gives you the full academy."
+msgstr "Overslaan geeft je de volledige academie."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:212
+msgid "That is every module switched on, which is what an install gets when no profile is chosen."
+msgstr "Dat is elke module aan, en dat is wat een installatie krijgt als er geen profiel is gekozen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:218
+msgid "This install has already been configured by hand, so choosing here would overwrite decisions somebody made. Review the changes on the Modules page instead, where you can see exactly what would happen before anything is written."
+msgstr "Deze installatie is al met de hand ingericht, dus hier kiezen zou beslissingen van iemand anders overschrijven. Bekijk de wijzigingen liever op de Modulespagina, waar je precies ziet wat er zou gebeuren voordat er iets wordt weggeschreven."
+
+#. translators: %s is an install profile name, e.g. "Basics".
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:232
+#, php-format
+msgid "Review %s"
+msgstr "%s bekijken"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:250
+msgid "What it includes"
+msgstr "Wat erin zit"
+
+#. translators: %s is an install profile name, e.g. "Basics".
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:272
+#, php-format
+msgid "Use %s"
+msgstr "%s gebruiken"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:286
+msgid "Skip — give me everything"
+msgstr "Overslaan — geef mij alles"
+
+#. translators: 1: install profile name, e.g. "Basics"; 2: number of modules and features changed.
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:299
+#, php-format
+msgid "This install is now on %1$s. %2$d module or feature was switched."
+msgid_plural "This install is now on %1$s. %2$d modules and features were switched."
+msgstr[0] "Deze installatie staat nu op %1$s. Er is %2$d module of functie omgezet."
+msgstr[1] "Deze installatie staat nu op %1$s. Er zijn %2$d modules en functies omgezet."
+
+#. translators: %d is the number of changes that could not be applied.
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:314
+#, php-format
+msgid "%d change could not be applied because it is not part of your plan."
+msgid_plural "%d changes could not be applied because they are not part of your plan."
+msgstr[0] "%d wijziging kon niet worden toegepast omdat die buiten je abonnement valt."
+msgstr[1] "%d wijzigingen konden niet worden toegepast omdat die buiten je abonnement vallen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:324
+msgid "Nothing was deleted. You can change this any time from Modules."
+msgstr "Er is niets verwijderd. Je kunt dit altijd wijzigen via Modules."
+
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
 

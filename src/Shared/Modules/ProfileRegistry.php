@@ -58,6 +58,44 @@ class ProfileRegistry {
     }
 
     /**
+     * The modules a profile keeps, as human labels grouped under the
+     * `ModuleMetadata` categories the Modules page already uses.
+     *
+     * "What it includes" has to be readable — a raw list of fifty
+     * fully-qualified class names tells an operator choosing a shape for
+     * their academy nothing at all. Derived here rather than in a view so
+     * the Setup step and any future surface answer identically.
+     *
+     * @return array<string, list<string>> category key => module labels
+     */
+    public static function includedByCategory( string $slug ): array {
+        $profile = self::get( $slug );
+        if ( $profile === null ) return [];
+
+        $out = [];
+        foreach ( array_keys( ModuleMetadata::categories() ) as $category ) {
+            $out[ $category ] = [];
+        }
+
+        foreach ( $profile['modules'] as $class => $enabled ) {
+            if ( ! $enabled ) continue;
+            $meta     = ModuleMetadata::for( $class );
+            $category = isset( $out[ $meta['category'] ] ) ? $meta['category'] : ModuleMetadata::CAT_ADVANCED;
+            $out[ $category ][] = (string) $meta['label'];
+        }
+
+        foreach ( $out as $category => $labels ) {
+            if ( $labels === [] ) {
+                unset( $out[ $category ] );
+                continue;
+            }
+            sort( $labels );
+            $out[ $category ] = $labels;
+        }
+        return $out;
+    }
+
+    /**
      * Module classes are written with a leading-backslash-free FQCN
      * everywhere else in the codebase; normalise so a hand-edited profile
      * that writes `\TT\…` still lines up with `config/modules.php`.
