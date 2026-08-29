@@ -57139,6 +57139,65 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Will be switched on"
+msgstr "Wordt ingeschakeld"
+
+msgid "Will be switched off"
+msgstr "Wordt uitgeschakeld"
+
+msgid "Cannot be applied"
+msgstr "Kan niet worden toegepast"
+
+msgid "Not part of your plan"
+msgstr "Valt buiten je abonnement"
+
+msgid "Unavailable on this install"
+msgstr "Niet beschikbaar op deze installatie"
+
+msgid "Install profile"
+msgstr "Installatieprofiel"
+
+msgid "That install profile does not exist. Pick one from the Modules page."
+msgstr "Dat installatieprofiel bestaat niet. Kies er een op de Modulespagina."
+
+msgid "This install already matches this profile. There is nothing to change."
+msgstr "Deze installatie komt al overeen met dit profiel. Er valt niets te wijzigen."
+
+msgid "Everything below is ticked by default. Untick anything you would rather keep as it is — nothing is changed until you apply."
+msgstr "Alles hieronder staat standaard aangevinkt. Vink uit wat je liever laat zoals het is — er wordt niets gewijzigd totdat je toepast."
+
+msgid "Switching a module off never deletes anything. Its records are kept and come back if you switch it on again."
+msgstr "Een module uitschakelen verwijdert nooit iets. De gegevens blijven bewaard en komen terug zodra je hem weer inschakelt."
+
+msgid "None of these changes can be applied on this install."
+msgstr "Geen van deze wijzigingen kan op deze installatie worden toegepast."
+
+msgid "Applying..."
+msgstr "Bezig met toepassen..."
+
+msgid "Applied"
+msgstr "Toegepast"
+
+msgid "Not on a profile"
+msgstr "Niet op een profiel"
+
+msgid "Change profile"
+msgstr "Profiel wijzigen"
+
+msgid "Review changes"
+msgstr "Wijzigingen bekijken"
+
+#: src/Shared/Frontend/FrontendInstallProfileView.php:164
+msgid "%d change since"
+msgid_plural "%d changes since"
+msgstr[0] "%d wijziging sinds"
+msgstr[1] "%d wijzigingen sinds"
+
+msgid "Install profile applied — %d change made. Reload open tabs to see the effect."
+msgid_plural "Install profile applied — %d changes made. Reload open tabs to see the effect."
+msgstr[0] "Installatieprofiel toegepast — %d wijziging doorgevoerd. Herlaad open tabbladen om het effect te zien."
+msgstr[1] "Installatieprofiel toegepast — %d wijzigingen doorgevoerd. Herlaad open tabbladen om het effect te zien."
+
 #~ msgid "TalentTrack scheduled report: %1$s (%2$s)"
 #~ msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
 
@@ -58650,3 +58709,4 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+

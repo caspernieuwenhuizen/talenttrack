@@ -152,6 +152,9 @@ class Kernel {
         \TT\Infrastructure\Archive\AutoPurgeCron::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();
+        // #3037 — install-profile preview + apply handler. The only path
+        // in the product that applies a profile.
+        \TT\Shared\Frontend\FrontendInstallProfileView::init();
         // #2654 — frontend authorization matrix (cap-ensure + save handler
         // + config tile + REST). wp-admin's page stays as it was.
         \TT\Shared\Frontend\FrontendMatrixView::init();
