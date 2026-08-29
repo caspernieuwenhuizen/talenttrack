@@ -1,6 +1,6 @@
 <?php
 /**
- * Migration 0242 — a team's football form (#3044).
+ * Migration 0243 — a team's football form (#3044).
  *
  * Six-a-side, eight-a-side and eleven-a-side are different games, and until
  * now the product only knew the third one. Every seeded formation template
@@ -39,7 +39,7 @@ return new class extends Migration {
     private const BANDS = [ 9 => '6v6', 12 => '8v8', 99 => '11v11' ];
 
     public function getName(): string {
-        return '0242_team_football_form';
+        return '0243_team_football_form';
     }
 
     public function up(): void {
@@ -54,7 +54,7 @@ return new class extends Migration {
         $this->seedAgeGroupDefaults( $p . 'tt_lookups' );
         $seeded = $this->seedTemplates( $p . 'tt_formation_templates' );
 
-        Logger::info( 'migration.0242.summary', [
+        Logger::info( 'migration.0243.summary', [
             'forms_seeded'     => count( $ids ),
             'templates_seeded' => $seeded,
         ] );
@@ -65,7 +65,7 @@ return new class extends Migration {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return;
 
         if ( ! MigrationHelpers::addColumnIfMissing( $table, 'football_form', "VARCHAR(50) DEFAULT NULL", 'age_group' ) ) {
-            throw new \RuntimeException( '0242: failed to add football_form to tt_teams' );
+            throw new \RuntimeException( '0243: failed to add football_form to tt_teams' );
         }
     }
 
@@ -76,7 +76,7 @@ return new class extends Migration {
         // Existing shapes are all eleven-a-side, so the default is the
         // truthful value for every row already there.
         if ( ! MigrationHelpers::addColumnIfMissing( $table, 'football_form', "VARCHAR(50) NOT NULL DEFAULT '11v11'", 'formation_shape' ) ) {
-            throw new \RuntimeException( '0242: failed to add football_form to tt_formation_templates' );
+            throw new \RuntimeException( '0243: failed to add football_form to tt_formation_templates' );
         }
 
         $exists = (int) $wpdb->get_var( $wpdb->prepare(
