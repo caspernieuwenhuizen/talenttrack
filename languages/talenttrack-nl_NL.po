@@ -56738,6 +56738,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgctxt "matrix per-entity scope row"
 msgid "Scope"
 msgstr "Bereik"
+
 #~ msgid "Linked principle"
 #~ msgstr "Gekoppeld principe"
 
