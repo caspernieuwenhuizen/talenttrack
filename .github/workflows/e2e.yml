@@ -18,6 +18,11 @@ jobs:
     name: Playwright (Chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # #2417 — pin wp-env's working directory so the cache below and the
+      # tool agree on it. See the longer note in php-tests.yml: trusting the
+      # default cached nothing at all, silently.
+      WP_ENV_HOME: /home/runner/.wp-env
     steps:
       - uses: actions/checkout@v5
 
@@ -68,8 +73,34 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      - name: Start wp-env
-        run: npm run wp-env:start
+      # #2417 — the WordPress source tree only; see the longer note in
+      # php-tests.yml for why the path is the `WordPress` subdirectory and
+      # not `~/.wp-env` itself (caching wp-env's own state restores a
+      # docker-compose project with no containers behind it, and the job
+      # dies on "Error establishing a database connection").
+      - name: Cache the WordPress source wp-env clones
+        id: wp-env-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.wp-env/**/WordPress
+          key: ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-wp-core-${{ hashFiles('.wp-env.json') }}-
+
+      # See php-tests.yml: a pre-pull step was measured here too and removed.
+      # It cost 28s and saved nothing, because wp-env pulls its own tags.
+      - name: Start wp-env (timed)
+        run: |
+          set -e
+          echo "TT_TIMING core_cache_hit=${{ steps.wp-env-cache.outputs.cache-hit || 'false' }}"
+          if [ -d "$HOME/.wp-env" ]; then
+            echo "TT_TIMING wp_env_dir_size=$( du -sh "$HOME/.wp-env" | cut -f1 )"
+          else
+            echo "TT_TIMING wp_env_dir_size=absent"
+          fi
+          start=$( date +%s )
+          npm run wp-env:start
+          echo "TT_TIMING wp_env_start_seconds=$(( $( date +%s ) - start ))"
 
       - name: Activate plugin + run migrations on tests instance
         # wp-env mounts the plugin but doesn't auto-activate it in the
