@@ -74,6 +74,18 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | --- | --- | --- |
 | **Geen meting dit seizoen** | Voor een speler is dit seizoen nog geen enkele meting vastgelegd. | *Waar komt deze speler vandaan?* — lichamelijk. Groeidata is het enige deel van het dossier dat geen mening is, en een seizoen zonder meting laat een blijvend gat in de curve. Achteraf invullen kan niet: de speler is al gegroeid. |
 
+### Ontwikkeling
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Potentieel niet herzien** | Al twee kwartalen heeft niemand het potentieel van een speler vastgelegd of bevestigd — of er is nooit een potentieel vastgelegd. | *Waar gaat deze speler naartoe?* Het potentieel is het antwoord van de academie op die vraag, en een antwoord van achttien maanden geleden is dat niet. Het telt nog steeds mee in de status van de speler, in de teamchemie en in het ontwikkelingsplan, dus een verouderde inschatting stuurt stilletjes beslissingen die niemand opnieuw bekijkt. |
+
+De klok loopt vanaf wat het laatste is: de laatste keer dat iemand het potentieel heeft vastgelegd, of de dag dat de speler binnenkwam. Een speler die drie weken geleden is aangemeld is dus niet te laat, en een speler die nog nooit is ingeschat valt onder dezelfde melding in plaats van onzichtbaar te blijven.
+
+De melding gaat naar de mensen die het potentieel ook echt kunnen vastleggen — standaard het hoofd opleiding en de clubbeheerder, plus elke hoofdtrainer aan wie jullie dat recht hebben gegeven. Een hoofdtrainer die het potentieel alleen mag *lezen* krijgt de melding niet, want die zou er niets mee kunnen.
+
+Spelers op proef vallen erbuiten: een proefperiode heeft een eigen traject en een eigen ritme.
+
 ### Datakwaliteit
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
@@ -122,6 +134,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
 | `alerts_measurement_grace_days` | 60 dagen | Hoe ver in een seizoen voordat "nog geen meting" een melding wordt. In week één zou hij voor elke speler in de academie tegelijk afgaan, en dat komt op hetzelfde neer als niets zeggen. |
+| `alerts_potential_stale_days` | 180 dagen | Hoe lang het potentieel van een speler onaangeroerd mag blijven. Twee gemiste kwartalen bij een kwartaalritme: één gemist kwartaal is een druk seizoen, twee is niemand die kijkt. Hanteert jullie academie een ander ritme, dan is dit het getal om aan te passen. |
 | `alerts_player_without_team_grace_days` | 7 dagen | Hoe lang een nieuw toegevoegde speler zonder team mag blijven voordat de melding verschijnt. Het team toewijzen is vaak de volgende stap in dezelfde sessie. |
 | `alerts_invitation_stale_days` | 14 dagen | Hoe lang een uitnodiging voor een speler of staflid ongeaccepteerd mag blijven voordat de melding verschijnt. |
 

@@ -74,6 +74,18 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | --- | --- | --- |
 | **No measurement this season** | A player has no measurement recorded in the current season. | *Where has this player come from?* — physically. Growth data is the only part of a player's record that is not somebody's opinion, and a season with no measurement leaves a permanent hole in the curve. You cannot fill it later: the player has already grown. |
 
+### Development
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Potential not revisited** | Nobody has set or confirmed a player's potential for two quarters — or has never set one at all. | *Where is this player going?* Potential is the academy's own answer to that, and an answer from eighteen months ago is not one. It still counts toward the player's status, their team-chemistry score and their development plan, so an out-of-date band quietly shapes decisions nobody is re-examining. |
+
+The clock runs from whichever is later: the last time somebody set the potential, or the day the player joined. So a player who signed three weeks ago is not overdue, and a player nobody has ever assessed is covered by the same alert rather than staying invisible.
+
+It goes to the people who can actually set potential — the head of development and the club admin by default, plus any head coach your academy has granted that right. A head coach who can only *read* potential is not told, because there would be nothing they could do about it.
+
+Trial players are left out: a trial has its own process and its own cadence.
+
 ### Data quality
 
 | Alert | What it means | Which player question it answers |
@@ -122,6 +134,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
 | `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
+| `alerts_potential_stale_days` | 180 days | How long a player's potential may go without being revisited. Two missed quarters against a quarterly cadence: one missed quarter is a busy season, two is nobody looking. If your academy reviews potential on a different rhythm, this is the number to change. |
 | `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
 | `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted before the alert appears. |
 
