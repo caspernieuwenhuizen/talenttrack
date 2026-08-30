@@ -32,8 +32,19 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
  * Navigation is tab-based (Overview · Execution · Inputs · Decision ·
  * Letter · Parent meeting). Per-tab visibility is enforced via
  * `TrialCaseAccessPolicy`: the Decision and Letter tabs are
- * manager-only; Inputs is visible to assigned staff (own input only)
- * and managers (everyone's, with release control).
+ * manager-only; Execution needs `canViewSynthesis()` because it
+ * aggregates other coaches' input; Inputs is visible to assigned staff
+ * (own input, plus released ones) and managers (everyone's, with release
+ * control).
+ *
+ * #3222 — entry is gated on `canOpenCase()`, the union of "may read the
+ * synthesis" and "may write an input". It used to be the synthesis alone,
+ * which locked out an assigned assistant coach: the seed grants that
+ * persona `trial_inputs: change` and no `trial_synthesis`, so they were
+ * entitled to write an input and could not open the screen holding the
+ * field. Widening entry does not widen what anybody reads — Execution
+ * still checks the synthesis gate, in the tab list and again when the
+ * body renders, since `?tab=execution` is a URL anyone can type.
  *
  * Composition only — all data comes from repositories / QueryHelpers,
  * all visibility/decision logic lives in the domain layer (CLAUDE.md §4).
@@ -84,7 +95,11 @@ class FrontendTrialCaseView extends FrontendViewBase {
             return;
         }
 
-        if ( ! TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id ) ) {
+        // #3222 — the union of "may read the synthesis" and "may write an
+        // input", both of which already require assignment. Gating entry on
+        // the synthesis alone locked out the one persona whose only job on
+        // a case is to submit input.
+        if ( ! TrialCaseAccessPolicy::canOpenCase( $user_id, $case_id ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Trial case', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You are not assigned to this case.', 'talenttrack' ) . '</p>';
@@ -112,8 +127,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
         ] );
 
         $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
+        // #3222 — Execution aggregates other coaches' input, so it follows
+        // the synthesis gate rather than mere entry to the case. An
+        // input-only assistant coach gets Overview and Staff inputs.
+        $sees_synthesis = TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id );
 
-        $tabs       = self::tabSet( $case, $is_manager );
+        $tabs       = self::tabSet( $case, $is_manager, $sees_synthesis );
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : self::TAB_OVERVIEW;
         if ( ! array_key_exists( $active_tab, $tabs ) ) {
             $active_tab = self::TAB_OVERVIEW;
@@ -160,7 +179,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 <section class="tt-player-tab-panel">
                     <?php
                     switch ( $active_tab ) {
-                        case self::TAB_EXECUTION: self::renderExecutionTab( $case ); break;
+                        case self::TAB_EXECUTION:
+                            // #3222 — re-checked rather than trusted to the
+                            // tab list: `?tab=execution` is a URL anybody
+                            // who reached the case can type.
+                            if ( $sees_synthesis ) { self::renderExecutionTab( $case ); }
+                            break;
                         case self::TAB_INPUTS:    self::renderInputsTab( $case, $user_id ); break;
                         case self::TAB_DECISION:
                             if ( $is_manager ) { self::renderDecisionTab( $case ); }
@@ -199,12 +223,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
      *
      * @return array<string,string>
      */
-    private static function tabSet( object $case, bool $is_manager ): array {
-        $tabs = [
-            self::TAB_OVERVIEW  => __( 'Overview', 'talenttrack' ),
-            self::TAB_EXECUTION => __( 'Execution', 'talenttrack' ),
-            self::TAB_INPUTS    => __( 'Staff inputs', 'talenttrack' ),
-        ];
+    private static function tabSet( object $case, bool $is_manager, bool $sees_synthesis = true ): array {
+        $tabs = [ self::TAB_OVERVIEW => __( 'Overview', 'talenttrack' ) ];
+        if ( $sees_synthesis ) {
+            $tabs[ self::TAB_EXECUTION ] = __( 'Execution', 'talenttrack' );
+        }
+        $tabs[ self::TAB_INPUTS ] = __( 'Staff inputs', 'talenttrack' );
         if ( $is_manager ) {
             $tabs[ self::TAB_DECISION ] = __( 'Decision', 'talenttrack' );
             $tabs[ self::TAB_LETTER ]   = __( 'Letter', 'talenttrack' );

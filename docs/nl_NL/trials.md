@@ -17,8 +17,15 @@ Een **stagedossier** is een gestructureerde manier om gedurende 2–6 weken naar
 
 - **Hoofd opleiding / Clubbeheer** — volledig beheer. Dossiers openen, verlengen, besluiten, archiveren. Trajecten en briefsjablonen aanpassen. Staf-input vrijgeven.
 - **Hoofdcoaches** — kunnen de tegel **Stagedossiers** openen en de lijst met dossiers bekijken voor spelers van hun eigen teams. Ze kunnen geen dossiers aanmaken of verwijderen (geen knop *Nieuw stagedossier*), maar houden het leesrecht dat hun rol geeft. Aanmaken, besluiten en archiveren blijven bij het hoofd opleiding.
-- **Coaches die zijn toegewezen aan een dossier** — zien het overzicht plus de uitvoering, en geven op het tabblad **Staf-input** hun eigen input. Andere inputs zien ze pas nadat het hoofd opleiding heeft vrijgegeven.
-- **Overige coaches** — zien het dossier niet, tenzij ze zijn toegewezen.
+- **Coaches die zijn toegewezen aan een dossier** — zien het overzicht en geven op het tabblad **Staf-input** hun eigen input. Andere inputs zien ze pas nadat het hoofd opleiding die heeft vrijgegeven. Of ze ook het tabblad **Uitvoering** krijgen, hangt van hun rol af: daar staat bij elkaar wat de andere coaches hebben opgeschreven, dus daarvoor geldt hetzelfde recht als voor het lezen van vrijgegeven input. Een assistent-trainer die aan een dossier is toegewezen krijgt Overzicht en Staf-input.
+- **Overige coaches** — zien het dossier niet.
+
+Twee daarvan werken onderwater anders, en dat is precies wat je wilt weten als je je afvraagt waarom iemand iets niet ziet:
+
+- **Of een rol überhaupt stagedossiers mag inzien, is een recht van die rol** — je stelt dat in de rechtenmatrix in, en je krijgt het niet doordat iemand aan een dossier wordt toegewezen. Een assistent-trainer aan een dossier toewijzen geeft diegene het recht om er input op te schrijven; het maakt van een rol zonder stagerechten geen rol mét.
+- **Toewijzing beperkt het daarna verder.** Ook een rol die stagedossiers mág lezen, komt pas bij de input- en synthesetabbladen van een concreet dossier als diegene daadwerkelijk aan dat dossier is toegewezen.
+
+"Wijs ze toe, dan zien ze het vanzelf" klopt dus maar half. Kan een collega een dossier niet openen, kijk dan eerst in de matrix en niet in de staflijst van het dossier.
 
 ## Hoe het werkt
 
