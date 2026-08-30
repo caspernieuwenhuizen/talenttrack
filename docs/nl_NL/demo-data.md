@@ -110,16 +110,23 @@ degene die de stappen nodig heeft.
 
 ## Twee keer genereren in dezelfde club
 
-Een tweede run vult aan bij wat er al staat in plaats van het te vervangen, en
-een paar categorieën werken vanuit de hele club in plaats van alleen vanuit de
-batch die ze schrijven — wedstrijdanalyses lezen elke gespeelde wedstrijd,
-stafontwikkeling leest elke persoon. Die slaan over wat een eerdere run al
-heeft gedaan: een wedstrijd die al een analyse heeft krijgt er geen tweede, en
-een trainer die al een stafontwikkelingsdossier heeft krijgt er geen tweede.
+Een tweede run vult aan bij wat er al staat in plaats van het te vervangen. Elke
+run bouwt nu zijn eigen academie: de wedstrijden die hij analyseert en de
+trainingen die hij observeert zijn de wedstrijden en trainingen die diezelfde
+run heeft aangemaakt. Een tweede run in een gevulde club levert dus een
+volledige academie op in plaats van een magere. Voorheen rapporteerde de tweede
+run lagere aantallen, wat als een fout las terwijl de categorieën in werkelijkheid
+de hele club bekeken en oversloegen wat de eerste run al had gedaan.
 
-De aantallen van de tweede run liggen dus terecht lager dan die van de eerste.
-Dat is wat de categorieën echt hebben geschreven, geen fout. Wil je een verse
-academie in plaats van meer van dezelfde, **wis dan eerst en genereer daarna**.
+Twee categorieën werken nog steeds vanuit de hele club, en met opzet:
+**stafontwikkeling** en **kenniscursussen** gaan over de mensen die je academie
+in dienst heeft, en die bestaan mogelijk al in plaats van dat ze zijn
+gegenereerd. Twee keer draaien geeft een trainer geen tweede
+stafontwikkelingsdossier en geen tweede inschrijving; die slaan over wat er al
+staat, dus hun aantallen kunnen bij de tweede run lager liggen.
+
+Wil je een verse academie in plaats van meer van dezelfde, **wis dan eerst en
+genereer daarna**.
 
 ## Kiezen wat je genereert
 

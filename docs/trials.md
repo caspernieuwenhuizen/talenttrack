@@ -98,6 +98,25 @@ Only a player who is still on **Trial** status moves. If they were already promo
 
 The letter is **not** generated automatically. Go to the **Letter** tab and generate it when you are ready; someone should read a letter to a family before it exists. The Parent meeting tab carries the rest of the conversation.
 
+### The six decisions, and which of them close the trial
+
+Three more decisions exist beyond the Decision tab's three. They are written by the trial-group workflow tasks — **Review trial group membership** and **Await team-offer decision** — rather than typed on the Decision tab, and they do not all mean the trial is over:
+
+| Decision | Where it is recorded | On the journey |
+| --- | --- | --- |
+| Admit | Decision tab, or accepting a team offer | *Trial ended* + *Signed* |
+| Decline (final) | Decision tab, or Review trial group membership | *Trial ended* + *Released* |
+| Decline (with encouragement) | Decision tab | *Trial ended* |
+| Family declined the offered place | Await team-offer decision | *Trial ended* |
+| Offered a team place | Review trial group membership | **nothing** |
+| Continue in the trial group | Review trial group membership | **nothing** |
+
+The last two write nothing on purpose. *Continue in the trial group* says the trial is **still running**, so a *Trial ended* entry would be actively wrong rather than merely missing; *Offered a team place* is mid-conversation, and the family has not answered yet. The answer lands one task later, on Await team-offer decision, and that is what closes the trial.
+
+Until recently the three workflow decisions reached the timeline not at all, so a trial that ended because a family declined the offered place showed as a trial that started and never finished. Cases decided before that stay as they were unless the journey is rebuilt.
+
+An offer being made is arguably the most significant moment in a trial and still appears nowhere on the journey. That needs an entry type of its own and is not part of this.
+
 ### Archive (the "no answer needed" path)
 
 When you don't owe the family a formal decision — the family ghosted you, the player moved cities, the case was opened by mistake — the **Archive case** action closes the case without writing a decision row or generating a letter. It's available from the header action bar on the case page (manager / head-of-development cap required). The case stays in the database (you can still find it by searching archived cases); it just stops counting as open work.

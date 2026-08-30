@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T09:34:48+00:00\n"
+"POT-Creation-Date: 2026-08-30T13:16:09+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -150,8 +150,8 @@ msgstr "Team Manager"
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:237
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:367
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:483
-#: src/Modules/Goals/Admin/GoalsPage.php:73
-#: src/Modules/Goals/Admin/GoalsPage.php:172
+#: src/Modules/Goals/Admin/GoalsPage.php:75
+#: src/Modules/Goals/Admin/GoalsPage.php:174
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:134
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:158
@@ -319,7 +319,7 @@ msgstr "Staf"
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:227
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:269
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:287
-#: src/Modules/Goals/Admin/GoalsPage.php:111
+#: src/Modules/Goals/Admin/GoalsPage.php:113
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:201
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:103
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:119
@@ -1311,7 +1311,7 @@ msgstr "Detail"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:136
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:176
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:286
-#: src/Modules/Goals/Admin/GoalsPage.php:111
+#: src/Modules/Goals/Admin/GoalsPage.php:113
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:480
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:165
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:75
@@ -1520,72 +1520,90 @@ msgstr ""
 "Een ander account gebruikt %s al, dus het inlog-e-mailadres is ongewijzigd "
 "gebleven."
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:90
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:50
+#: src/Infrastructure/Journey/JourneyBackfillService.php:91
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:53
 #, php-format
 msgid "Evaluation on %s"
 msgstr "Evaluatie op %s"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:123
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:144
+#: src/Infrastructure/Journey/JourneyBackfillService.php:124
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:190
 #, php-format
 msgid "PDP verdict: %s"
 msgstr "POP-eindbeoordeling: %s"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:150
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:121
+#: src/Infrastructure/Journey/JourneyBackfillService.php:151
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:171
 #, php-format
 msgid "Goal set: %s"
 msgstr "Doel gesteld: %s"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:150
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:121
+#: src/Infrastructure/Journey/JourneyBackfillService.php:151
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:172
 msgid "Goal set"
 msgstr "Doel gesteld"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:177
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:167
+#: src/Infrastructure/Journey/JourneyBackfillService.php:181
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:213
 msgid "Joined the academy"
 msgstr "Bij de academie gekomen"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:210
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:249
+#: src/Infrastructure/Journey/JourneyBackfillService.php:214
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:295
 msgid "Trial started"
 msgstr "Stage gestart"
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:222
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:262
+#: src/Infrastructure/Journey/JourneyBackfillService.php:226
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:327
 #, php-format
 msgid "Trial ended: %s"
 msgstr "Stage afgerond: %s"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:94
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:97
 msgid "Observed in training"
 msgstr "Waargenomen tijdens training"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:212
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:162
+#, php-format
+msgid "Goal carried over: %s"
+msgstr "Doel meegenomen: %s"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:163
+msgid "Goal carried over"
+msgstr "Doel meegenomen"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:167
+#, php-format
+msgid "Goal opened from a development idea: %s"
+msgstr "Doel geopend vanuit een ontwikkelidee: %s"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:168
+msgid "Goal opened from a development idea"
+msgstr "Doel geopend vanuit een ontwikkelidee"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:258
 #, php-format
 msgid "Position: %1$s → %2$s"
 msgstr "Positie: %1$s → %2$s"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:212
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:258
 msgid "none"
 msgstr "geen"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:278
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:343
 msgid "Signed after trial"
 msgstr "Vastgelegd na stage"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:289
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:354
 msgid "Released after trial"
 msgstr "Afscheid genomen na stage"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:304
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:369
 msgid "Signed"
 msgstr "Vastgelegd"
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:306
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:371
 #: src/Infrastructure/Query/LabelTranslator.php:52
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:204
 #: src/Modules/Players/Admin/PlayersPage.php:289
@@ -1595,27 +1613,27 @@ msgid "Released"
 msgstr "Vrijgegeven"
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:308
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:373
 #: src/Infrastructure/Query/LabelTranslator.php:53
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:527
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:247
 msgid "Graduated"
 msgstr "Doorgestroomd"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:334
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:399
 #, php-format
 msgid "Team: %1$s → %2$s"
 msgstr "Team: %1$s → %2$s"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:334
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:351
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:399
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:416
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:205
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:206
 msgid "unset"
 msgstr "leeg"
 
 #. translators: 1: from age group, 2: to age group
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:351
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:416
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:204
 #, php-format
 msgid "Age group: %1$s → %2$s"
@@ -1892,20 +1910,20 @@ msgstr "Geannuleerd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:40
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:157
-#: src/Modules/Wizards/Goal/DetailsStep.php:20
+#: src/Modules/Wizards/Goal/DetailsStep.php:24
 msgid "Low"
 msgstr "Laag"
 
 #: src/Infrastructure/Query/LabelTranslator.php:41
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:156
 #: src/Modules/DemoData/Admin/DemoDataPage.php:720
-#: src/Modules/Wizards/Goal/DetailsStep.php:20
+#: src/Modules/Wizards/Goal/DetailsStep.php:24
 msgid "Medium"
 msgstr "Gemiddeld"
 
 #: src/Infrastructure/Query/LabelTranslator.php:42
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:155
-#: src/Modules/Wizards/Goal/DetailsStep.php:20
+#: src/Modules/Wizards/Goal/DetailsStep.php:24
 msgid "High"
 msgstr "Hoog"
 
@@ -2131,7 +2149,7 @@ msgstr "Overig"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:208
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:213
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
-#: src/Modules/Goals/Admin/GoalsPage.php:102
+#: src/Modules/Goals/Admin/GoalsPage.php:104
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:523
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1849
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
@@ -2647,7 +2665,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
 #: src/Modules/Wizards/Goal/PlayerStep.php:76
-#: src/Modules/Wizards/Player/ReviewStep.php:33
+#: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:34
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:50
@@ -2739,7 +2757,7 @@ msgid "Activity"
 msgstr "Activiteit"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:47
-#: src/Modules/Goals/Admin/GoalsPage.php:73
+#: src/Modules/Goals/Admin/GoalsPage.php:75
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:878
 #: src/Modules/Methodology/Admin/MethodologyPage.php:613
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:166
@@ -2790,7 +2808,7 @@ msgid "Test training"
 msgstr "Proeftraining"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:53
-#: src/Modules/Wizards/Player/ReviewStep.php:39
+#: src/Modules/Wizards/Player/ReviewStep.php:43
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:59
 msgid "Trial track"
 msgstr "Stagetraject"
@@ -2892,7 +2910,7 @@ msgstr "Niet jouw team."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:747
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
-#: src/Infrastructure/REST/GoalsRestController.php:142
+#: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:199
 #: src/Infrastructure/REST/TeamsRestController.php:173
@@ -3026,9 +3044,9 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:144
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
-#: src/Infrastructure/REST/GoalsRestController.php:556
+#: src/Infrastructure/REST/GoalsRestController.php:549
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:260
+#: src/Modules/Trials/Rest/TrialsRestController.php:261
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
@@ -3530,61 +3548,61 @@ msgstr "De toewijzing kon niet worden verwijderd."
 msgid "Invalid player."
 msgstr "Ongeldige speler."
 
-#: src/Infrastructure/REST/GoalsRestController.php:195
+#: src/Infrastructure/REST/GoalsRestController.php:197
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:167
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:206
 #: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php:46
 msgid "This section has been kept private."
 msgstr "Dit onderdeel is privé gehouden."
 
-#: src/Infrastructure/REST/GoalsRestController.php:415
+#: src/Infrastructure/REST/GoalsRestController.php:417
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:439
+#: src/Infrastructure/REST/GoalsRestController.php:441
 #: src/Shared/Frontend/FrontendTrialsManageView.php:168
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/GoalsRestController.php:443
+#: src/Infrastructure/REST/GoalsRestController.php:445
 msgid "You can only set goals for players in your team."
 msgstr "Je kunt alleen doelen instellen voor spelers in je team."
 
-#: src/Infrastructure/REST/GoalsRestController.php:453
+#: src/Infrastructure/REST/GoalsRestController.php:458
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:519
-#: src/Infrastructure/REST/GoalsRestController.php:609
-#: src/Infrastructure/REST/GoalsRestController.php:661
-#: src/Infrastructure/REST/GoalsRestController.php:675
-#: src/Infrastructure/REST/GoalsRestController.php:688
+#: src/Infrastructure/REST/GoalsRestController.php:512
+#: src/Infrastructure/REST/GoalsRestController.php:602
+#: src/Infrastructure/REST/GoalsRestController.php:654
+#: src/Infrastructure/REST/GoalsRestController.php:668
+#: src/Infrastructure/REST/GoalsRestController.php:681
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:566
+#: src/Infrastructure/REST/GoalsRestController.php:559
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:613
+#: src/Infrastructure/REST/GoalsRestController.php:606
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:630
+#: src/Infrastructure/REST/GoalsRestController.php:623
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:641
+#: src/Infrastructure/REST/GoalsRestController.php:634
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:666
-#: src/Infrastructure/REST/GoalsRestController.php:679
-#: src/Infrastructure/REST/GoalsRestController.php:696
-#: src/Infrastructure/REST/GoalsRestController.php:704
+#: src/Infrastructure/REST/GoalsRestController.php:659
+#: src/Infrastructure/REST/GoalsRestController.php:672
+#: src/Infrastructure/REST/GoalsRestController.php:689
+#: src/Infrastructure/REST/GoalsRestController.php:697
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:660
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:674
 msgid "Goal not found."
@@ -3913,8 +3931,8 @@ msgstr "Niet gevonden."
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:47
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
-#: src/Modules/Goals/Admin/GoalsPage.php:73
-#: src/Modules/Goals/Admin/GoalsPage.php:183
+#: src/Modules/Goals/Admin/GoalsPage.php:75
+#: src/Modules/Goals/Admin/GoalsPage.php:185
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:131
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
@@ -3999,7 +4017,7 @@ msgstr "Status"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
 #: src/Modules/Methodology/Admin/PositionEditPage.php:84
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:330
-#: src/Modules/Wizards/Player/ReviewStep.php:36
+#: src/Modules/Wizards/Player/ReviewStep.php:40
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:43
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1275
 #: src/Shared/Frontend/FrontendPlayersManageView.php:415
@@ -4017,7 +4035,7 @@ msgstr "Rugnummer"
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:150
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:308
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
-#: src/Modules/Wizards/Player/ReviewStep.php:32
+#: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:32
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:47
 #: src/Modules/Wizards/Prospect/IdentityStep.php:38
@@ -4196,7 +4214,7 @@ msgstr "Datum"
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
-#: src/Modules/Wizards/Player/ReviewStep.php:30
+#: src/Modules/Wizards/Player/ReviewStep.php:34
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:209
 #: src/Shared/Frontend/CoachForms.php:250
@@ -4326,6 +4344,7 @@ msgid "Invalid player id."
 msgstr "Ongeldige speler-id."
 
 #: src/Infrastructure/REST/PlayersRestController.php:505
+#: src/Modules/Wizards/Player/ReviewStep.php:142
 #: src/Shared/Frontend/FrontendTrialsManageView.php:252
 msgid "The player could not be created."
 msgstr "De speler kon niet worden aangemaakt."
@@ -4956,7 +4975,7 @@ msgstr "Activiteiten"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
-#: src/Modules/Goals/Admin/GoalsPage.php:63
+#: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/People/Admin/PeoplePage.php:152
 #: src/Modules/Players/Admin/PlayersPage.php:124
 #: src/Modules/Teams/Admin/TeamsPage.php:56
@@ -4971,7 +4990,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:579
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:456
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:140
-#: src/Modules/Goals/Admin/GoalsPage.php:64
+#: src/Modules/Goals/Admin/GoalsPage.php:66
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:204
@@ -5020,7 +5039,7 @@ msgstr "Filteren"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
-#: src/Modules/Goals/Admin/GoalsPage.php:176
+#: src/Modules/Goals/Admin/GoalsPage.php:178
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:46
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
@@ -5089,7 +5108,7 @@ msgstr "Bron"
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:96
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:101
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:195
-#: src/Modules/Goals/Admin/GoalsPage.php:73
+#: src/Modules/Goals/Admin/GoalsPage.php:75
 #: src/Modules/Import/Frontend/FrontendImportHistoryView.php:55
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
@@ -5392,7 +5411,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:600
-#: src/Modules/Goals/Admin/GoalsPage.php:249
+#: src/Modules/Goals/Admin/GoalsPage.php:251
 #: src/Shared/Frontend/FrontendBackupsView.php:443
 msgid "Update"
 msgstr "Bijwerken"
@@ -5511,8 +5530,8 @@ msgstr "Opslaan"
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:120
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:923
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:1052
-#: src/Modules/Goals/Admin/GoalsPage.php:256
-#: src/Modules/Goals/Admin/GoalsPage.php:326
+#: src/Modules/Goals/Admin/GoalsPage.php:258
+#: src/Modules/Goals/Admin/GoalsPage.php:325
 #: src/Modules/License/Admin/AccountPage.php:56
 #: src/Modules/License/Admin/AccountPage.php:68
 #: src/Modules/License/Admin/DevOverridePage.php:52
@@ -5578,7 +5597,7 @@ msgstr "Geen toegang"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:542
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:954
-#: src/Modules/Goals/Admin/GoalsPage.php:290
+#: src/Modules/Goals/Admin/GoalsPage.php:289
 #: src/Modules/Players/Admin/PlayersPage.php:627
 msgid "Unknown database error."
 msgstr "Onbekende databasefout."
@@ -7084,8 +7103,8 @@ msgstr "Evaluaties"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1265
-#: src/Modules/Goals/Admin/GoalsPage.php:42
-#: src/Modules/Goals/Admin/GoalsPage.php:63
+#: src/Modules/Goals/Admin/GoalsPage.php:44
+#: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/License/FeatureMap.php:378
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:360
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:361
@@ -7351,10 +7370,10 @@ msgstr "Beoordelaar"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:117
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
-#: src/Modules/Goals/Admin/GoalsPage.php:180
+#: src/Modules/Goals/Admin/GoalsPage.php:182
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
-#: src/Modules/Wizards/Goal/DetailsStep.php:18
+#: src/Modules/Wizards/Goal/DetailsStep.php:22
 #: src/Shared/Frontend/CoachDashboardView.php:313
 #: src/Shared/Frontend/CoachDashboardView.php:326
 #: src/Shared/Frontend/CoachForms.php:635
@@ -8270,7 +8289,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:313
 #: src/Modules/Wizards/Person/ReviewStep.php:33
-#: src/Modules/Wizards/Player/ReviewStep.php:31
+#: src/Modules/Wizards/Player/ReviewStep.php:35
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
@@ -8459,7 +8478,7 @@ msgid "Group by:"
 msgstr "Groeperen op:"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:203
-#: src/Modules/Goals/Admin/GoalsPage.php:226
+#: src/Modules/Goals/Admin/GoalsPage.php:228
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:74
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:124
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:94
@@ -9258,7 +9277,7 @@ msgstr "Gebruiker:"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:440
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:444
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:459
-#: src/Modules/Goals/Admin/GoalsPage.php:173
+#: src/Modules/Goals/Admin/GoalsPage.php:175
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:415
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:518
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
@@ -9737,7 +9756,7 @@ msgstr "Sleutel"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:289
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
-#: src/Modules/Goals/Admin/GoalsPage.php:178
+#: src/Modules/Goals/Admin/GoalsPage.php:180
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:52
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
@@ -9749,7 +9768,7 @@ msgstr "Sleutel"
 #: src/Modules/Methodology/VocabularyCatalog.php:173
 #: src/Modules/Methodology/VocabularyCatalog.php:284
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:134
-#: src/Modules/Wizards/Goal/DetailsStep.php:16
+#: src/Modules/Wizards/Goal/DetailsStep.php:20
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:251
 #: src/Shared/Frontend/CoachDashboardView.php:312
 #: src/Shared/Frontend/CoachForms.php:634
@@ -15351,7 +15370,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:590
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:808
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:287
-#: src/Modules/Goals/Admin/GoalsPage.php:111
+#: src/Modules/Goals/Admin/GoalsPage.php:113
 #: src/Modules/Players/Admin/PlayersPage.php:231
 #: src/Modules/Teams/Admin/TeamsPage.php:131
 msgid "Delete?"
@@ -15361,7 +15380,7 @@ msgstr "Verwijderen?"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:765
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
-#: src/Modules/Goals/Admin/GoalsPage.php:249
+#: src/Modules/Goals/Admin/GoalsPage.php:251
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:604
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
@@ -16271,7 +16290,7 @@ msgstr "Gewicht (kg)"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:44
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:154
-#: src/Modules/Wizards/Player/ReviewStep.php:37
+#: src/Modules/Wizards/Player/ReviewStep.php:41
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
 #: src/Shared/Frontend/FrontendConfigurationView.php:190
 #: src/Shared/Frontend/FrontendConfigurationView.php:316
@@ -16375,7 +16394,7 @@ msgstr "Activiteitdatum"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:44
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:122
-#: src/Modules/Wizards/Goal/DetailsStep.php:25
+#: src/Modules/Wizards/Goal/DetailsStep.php:29
 #: src/Shared/Frontend/FrontendGoalsManageView.php:518
 msgid "Due date"
 msgstr "Deadline"
@@ -19707,7 +19726,7 @@ msgstr "Een korte samenvatting van het idee"
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:67
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:26
 #: src/Modules/Wizards/Activity/DetailsStep.php:23
-#: src/Modules/Wizards/Goal/DetailsStep.php:12
+#: src/Modules/Wizards/Goal/DetailsStep.php:16
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:337
 msgid "Details"
 msgstr "Details"
@@ -22191,20 +22210,20 @@ msgstr "Aantal aanwezigheden"
 msgid "No such export."
 msgstr "Geen dergelijke export."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:43
+#: src/Modules/Goals/Admin/GoalsPage.php:45
 msgid "You do not have access to this goal."
 msgstr "Je hebt geen toegang tot dit doel."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:74
+#: src/Modules/Goals/Admin/GoalsPage.php:76
 msgid "No goals."
 msgstr "Geen doelen."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:152
+#: src/Modules/Goals/Admin/GoalsPage.php:154
 #: src/Shared/Admin/BackNavigator.php:127
 msgid "Edit Goal"
 msgstr "Doel bewerken"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:152
+#: src/Modules/Goals/Admin/GoalsPage.php:154
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1108
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1125
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:75
@@ -22223,7 +22242,7 @@ msgstr "Doel bewerken"
 msgid "Add goal"
 msgstr "Doel toevoegen"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:156
+#: src/Modules/Goals/Admin/GoalsPage.php:158
 msgid ""
 "The goal was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -22231,22 +22250,22 @@ msgstr ""
 "Het doel is opgeslagen, maar één of meer aangepaste velden hadden ongeldige "
 "waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:162
+#: src/Modules/Goals/Admin/GoalsPage.php:164
 msgid "The database rejected the save. No goal was created."
 msgstr "De database heeft het opslaan afgewezen. Er is geen doel aangemaakt."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:186
+#: src/Modules/Goals/Admin/GoalsPage.php:188
 #: src/Shared/Frontend/CoachDashboardView.php:316
 #: src/Shared/Frontend/CoachForms.php:640
 msgid "Due Date"
 msgstr "Deadline"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:198
+#: src/Modules/Goals/Admin/GoalsPage.php:200
 #: src/Shared/Frontend/Components/GoalPrinciplePicker.php:61
 msgid "What does this goal develop?"
 msgstr "Wat ontwikkelt dit doel?"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:211
+#: src/Modules/Goals/Admin/GoalsPage.php:213
 msgid ""
 "Optional, but tagging it is what lets training plans and reports aim at this "
 "goal."
@@ -22254,12 +22273,12 @@ msgstr ""
 "Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages "
 "zich op dit doel richten."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:223
+#: src/Modules/Goals/Admin/GoalsPage.php:225
 #: src/Shared/Frontend/FrontendGoalsManageView.php:608
 msgid "Linked football action"
 msgstr "Gekoppelde voetbalhandeling"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:243
+#: src/Modules/Goals/Admin/GoalsPage.php:245
 msgid ""
 "Optional. Links this goal to a single football action (voetbalhandeling)."
 msgstr "Optioneel. Koppelt dit doel aan één voetbalhandeling."
@@ -24366,7 +24385,7 @@ msgstr[1] "%d uur"
 #: src/Modules/Wizards/Activity/ReviewStep.php:25
 #: src/Modules/Wizards/Evaluation/ReviewStep.php:25
 #: src/Modules/Wizards/Person/ReviewStep.php:22
-#: src/Modules/Wizards/Player/ReviewStep.php:24
+#: src/Modules/Wizards/Player/ReviewStep.php:28
 #: src/Modules/Wizards/Prospect/ReviewStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:13
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:19
@@ -34429,7 +34448,7 @@ msgid "%s not yet received"
 msgstr "%s nog niet ontvangen"
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:611
-#: src/Modules/Wizards/Goal/DetailsStep.php:44
+#: src/Modules/Wizards/Goal/DetailsStep.php:48
 msgid "Player is required."
 msgstr "Speler is verplicht."
 
@@ -37356,7 +37375,6 @@ msgstr ""
 "de import te gebruiken."
 
 #: src/Modules/Players/PlayerCsvImporter.php:221
-#: src/Modules/Wizards/Player/ReviewStep.php:66
 msgid ""
 "You have reached the free-tier limit of 25 players. Upgrade to Standard to "
 "add more."
@@ -39133,7 +39151,7 @@ msgid "No certifications expiring soon."
 msgstr "Geen certificeringen die binnenkort verlopen."
 
 #: src/Modules/StaffDevelopment/Rest/StaffDevelopmentRestController.php:168
-#: src/Modules/Wizards/Goal/DetailsStep.php:56
+#: src/Modules/Wizards/Goal/DetailsStep.php:65
 msgid "Could not create the goal."
 msgstr "Het doel kon niet worden aangemaakt."
 
@@ -43878,62 +43896,63 @@ msgstr "Aangeboden plek afgewezen"
 msgid "Continue in trial group"
 msgstr "Doorgaan in stagegroep"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:195
+#: src/Modules/Trials/Rest/TrialsRestController.php:196
 msgid "Could not create trial case."
 msgstr "Stagedossier kon niet worden aangemaakt."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:207
-#: src/Modules/Trials/Rest/TrialsRestController.php:228
-#: src/Modules/Trials/Rest/TrialsRestController.php:273
+#: src/Modules/Trials/Rest/TrialsRestController.php:208
+#: src/Modules/Trials/Rest/TrialsRestController.php:229
+#: src/Modules/Trials/Rest/TrialsRestController.php:274
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:209
+#: src/Modules/Trials/Rest/TrialsRestController.php:210
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:222
+#: src/Modules/Trials/Rest/TrialsRestController.php:223
 msgid "Invalid trial case id."
 msgstr "Ongeldig proefdossier-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:239
+#: src/Modules/Trials/Rest/TrialsRestController.php:240
 msgid "Invalid trial track id."
 msgstr "Ongeldig proeftraject-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:241
-#: src/Modules/Trials/Rest/TrialsRestController.php:250
+#: src/Modules/Trials/Rest/TrialsRestController.php:242
+#: src/Modules/Trials/Rest/TrialsRestController.php:251
 msgid "Trial track not found."
 msgstr "Proeftraject niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:243
+#: src/Modules/Trials/Rest/TrialsRestController.php:244
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:269
+#: src/Modules/Trials/Rest/TrialsRestController.php:270
 msgid "New end date and justification are required."
 msgstr "Nieuwe einddatum en motivering zijn verplicht."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:275
+#: src/Modules/Trials/Rest/TrialsRestController.php:276
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:292
+#: src/Modules/Trials/Rest/TrialsRestController.php:293
 msgid "Justification must be at least 30 characters."
 msgstr "Motivering moet minstens 30 tekens bevatten."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:313
+#: src/Modules/Trials/Rest/TrialsRestController.php:307
+#: src/Modules/Trials/Rest/TrialsRestController.php:320
 msgid "Could not record decision."
 msgstr "Besluit kon niet worden geregistreerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:326
+#: src/Modules/Trials/Rest/TrialsRestController.php:333
 msgid "Invalid user id."
 msgstr "Ongeldig gebruiker-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:336
+#: src/Modules/Trials/Rest/TrialsRestController.php:343
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:375
+#: src/Modules/Trials/Rest/TrialsRestController.php:382
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 
@@ -45768,11 +45787,11 @@ msgstr ""
 msgid "Rate at least one category before saving."
 msgstr "Beoordeel ten minste één categorie voordat je opslaat."
 
-#: src/Modules/Wizards/Goal/DetailsStep.php:15
+#: src/Modules/Wizards/Goal/DetailsStep.php:19
 msgid "Goal title"
 msgstr "Doeltitel"
 
-#: src/Modules/Wizards/Goal/DetailsStep.php:30
+#: src/Modules/Wizards/Goal/DetailsStep.php:34
 msgid "Goal title is required."
 msgstr "Doeltitel is verplicht."
 
@@ -45815,7 +45834,7 @@ msgid "Which player is this goal for?"
 msgstr "Voor welke speler is dit doel?"
 
 #: src/Modules/Wizards/Person/BasicsStep.php:51
-#: src/Modules/Wizards/Player/ReviewStep.php:73
+#: src/Modules/Wizards/Player/ReviewStep.php:62
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:64
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:80
 #: src/Modules/Wizards/Prospect/IdentityStep.php:133
@@ -45873,7 +45892,7 @@ msgid "Choose one"
 msgstr "Kies één"
 
 #: src/Modules/Wizards/Player/PathStep.php:31
-#: src/Modules/Wizards/Player/ReviewStep.php:30
+#: src/Modules/Wizards/Player/ReviewStep.php:34
 msgid "Roster player"
 msgstr "Selectiespeler"
 
@@ -45882,7 +45901,7 @@ msgid "has been signed and is joining a team."
 msgstr "is gecontracteerd en sluit aan bij een team."
 
 #: src/Modules/Wizards/Player/PathStep.php:32
-#: src/Modules/Wizards/Player/ReviewStep.php:30
+#: src/Modules/Wizards/Player/ReviewStep.php:34
 msgid "Trial player"
 msgstr "Stagespeler"
 
@@ -45894,21 +45913,17 @@ msgstr "komt 2 tot 6 weken meedoen."
 msgid "Please choose roster or trial."
 msgstr "Kies selectie of stage."
 
-#: src/Modules/Wizards/Player/ReviewStep.php:28
+#: src/Modules/Wizards/Player/ReviewStep.php:32
 msgid "Check the details below before creating the record."
 msgstr "Controleer de gegevens hieronder voordat het record wordt aangemaakt."
 
-#: src/Modules/Wizards/Player/ReviewStep.php:40
+#: src/Modules/Wizards/Player/ReviewStep.php:44
 msgid "Trial start"
 msgstr "Start stage"
 
-#: src/Modules/Wizards/Player/ReviewStep.php:41
+#: src/Modules/Wizards/Player/ReviewStep.php:45
 msgid "Trial end"
 msgstr "Einde stage"
-
-#: src/Modules/Wizards/Player/ReviewStep.php:92
-msgid "Could not create the player record."
-msgstr "Het speler-record kon niet worden aangemaakt."
 
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:53
 msgid "— not specified —"
@@ -58717,6 +58732,8 @@ msgstr "Setup verlaten"
 #: src/Shared/Frontend/FrontendSetupView.php
 msgid "Continue this step in the admin"
 msgstr "Ga verder in de beheeromgeving"
+#~ msgid "Could not create the player record."
+#~ msgstr "Het speler-record kon niet worden aangemaakt."
 
 #~ msgid ""
 #~ "Six-stage count strip — Prospects / Invited / Test training / Trial "

@@ -3,9 +3,11 @@ namespace TT\Modules\Goals\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\GoalPriority;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -273,16 +275,13 @@ class GoalsPage {
         if ( $id ) {
             $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
-            $data['club_id'] = CurrentClub::id();
-            $ok = $wpdb->insert( "{$p}tt_goals", $data );
-            // v2.11.0: previous versions didn't capture insert_id here, which
-            // meant any post-save integration keyed on the goal ID (e.g.
-            // custom fields, audit log) silently failed for new goals.
-            if ( $ok !== false ) {
-                $id = (int) $wpdb->insert_id;
-                // v3.76.2 — auto-tag demo-on rows.
-                \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $id );
-            }
+            // #3131 — a sixth write path found while routing the four the
+            // issue named. It inserted, tagged demo rows and announced
+            // nothing, so a goal added from wp-admin never reached the
+            // player's journey either. Through the repository now, which
+            // does the tagging as well.
+            $id = ( new GoalsRepository() )->create( $data, [ 'origin' => GoalOrigin::SET ] );
+            $ok = $id > 0 ? 1 : false;
         }
 
         if ( $ok === false ) {

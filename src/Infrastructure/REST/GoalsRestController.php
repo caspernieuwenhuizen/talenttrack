@@ -3,8 +3,10 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\GoalPriority;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -444,10 +446,13 @@ class GoalsRestController {
             }
         }
 
-        $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', $data );
-        if ( $ok === false ) {
+        // #3131 — the row, the demo tag, the language detection and the
+        // `tt_goal_saved` announcement all live in `GoalsRepository::create()`
+        // now, so the three write paths that used to skip one or more of
+        // them cannot.
+        $goal_id = ( new GoalsRepository() )->create( $data, [ 'origin' => GoalOrigin::SET ] );
+        if ( $goal_id <= 0 ) {
             $err = (string) $wpdb->last_error;
-            Logger::error( 'goal.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
             return RestResponse::error(
                 'db_error',
                 __( 'The goal could not be saved. The database rejected the operation.', 'talenttrack' ),
@@ -455,18 +460,6 @@ class GoalsRestController {
                 [ 'db_error' => $err ]
             );
         }
-
-        $goal_id = (int) $wpdb->insert_id;
-        // v3.76.2 — auto-tag demo-on rows.
-        \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
-        // #0025 — detect source language for the new free-text fields.
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title',       (string) $data['title'] );
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
-
-        // #0053 — journey event hook so subscribers (currently
-        // JourneyEventSubscriber) can emit `goal_set` exactly once per
-        // goal creation. uk_natural keeps re-fires from multiplying.
-        do_action( 'tt_goal_saved', (int) $data['player_id'], $goal_id, $data );
 
         // #0044 — polymorphic links to methodology principles, football
         // actions, positions, player values. Optional; absent on legacy
