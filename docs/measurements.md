@@ -247,7 +247,10 @@ axis to plot).
 
 The export reuses the central export pipeline and is gated on the same
 `measurements` *read* permission as the rest of the module — only staff who
-may see a test's results may export them.
+may see a test's results may export them. The workbook carries exactly the
+rows that person can see on screen: a team-scoped coach gets their own teams'
+players, and choosing a team they do not coach is refused rather than
+quietly widened.
 
 Creating a test still runs through the *New test* wizard, opened with **Add test**, reachable
 from the top of this list as well as from *Record measurements*. The same
@@ -283,11 +286,14 @@ downloads the current test (honouring the team and date filters) through
 the same formatted workbook the *Manage tests* export produces.
 
 Team-scoped staff (coaches who hold *read* on their own teams only) see
-results for their teams only; academy-wide readers see everyone. The same
-rows are available over REST at
+results for their teams only; academy-wide readers see everyone. A coach
+with no team assignments sees nothing here, not the academy. The same rows
+are available over REST at
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), gated on the same `measurements`
-*read* permission, for integrations and the SaaS front end.
+*read* permission and narrowed to the same teams as the screen — omitting
+`team_id` does not widen the answer, and naming a team outside your scope
+returns `403`. For integrations and the SaaS front end.
 
 ## Test trends — one test, every player, over the season
 

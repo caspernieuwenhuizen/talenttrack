@@ -69,7 +69,13 @@ final class ExportRestController {
         $out = [];
         foreach ( ExporterRegistry::all() as $key => $exporter ) {
             // Hide exporters the caller has no chance of running.
-            if ( $exporter->requiredCap() !== '' && ! current_user_can( $exporter->requiredCap() ) ) {
+            // #3155 — an exporter over a matrix-only entity answers through
+            // `ScopeGatedExporter` instead of a capability string; the one
+            // that does used to return '' here, which made this filter a
+            // no-op for it while the route above is bare "logged in".
+            if ( $exporter instanceof \TT\Modules\Export\ScopeGatedExporter ) {
+                if ( ! $exporter->isAvailableFor( get_current_user_id() ) ) continue;
+            } elseif ( $exporter->requiredCap() !== '' && ! current_user_can( $exporter->requiredCap() ) ) {
                 continue;
             }
             $out[] = [

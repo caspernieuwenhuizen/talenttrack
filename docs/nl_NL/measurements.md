@@ -260,7 +260,10 @@ maar zonder diagram (er is geen numerieke as om te tekenen).
 
 De export gebruikt dezelfde exportpijplijn als de rest van het systeem en is
 afgeschermd met dezelfde *lees*-rechten op `measurements`: alleen staf die de
-resultaten van een test mag zien, mag ze exporteren.
+resultaten van een test mag zien, mag ze exporteren. De werkmap bevat precies
+de rijen die diegene op het scherm ziet: een teamgebonden coach krijgt de
+spelers van zijn eigen teams, en een team kiezen dat hij niet coacht wordt
+geweigerd in plaats van stilzwijgend verbreed.
 
 Een test aanmaken gaat nog steeds via de wizard **Nieuwe test**, bereikbaar
 boven aan deze lijst en vanaf *Metingen vastleggen*. Dezelfde catalogus is
@@ -300,10 +303,13 @@ beheren*.
 
 Teamgebonden staf (coaches met alleen *lees*-rechten op hun eigen teams)
 ziet uitsluitend resultaten van die teams; lezers met academiebreed bereik
-zien iedereen. Dezelfde rijen zijn beschikbaar via REST op
+zien iedereen. Een coach zonder teamtoewijzing ziet hier niets, niet de hele
+academie. Dezelfde rijen zijn beschikbaar via REST op
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
-`measurements`-*lees*-rechten, voor integraties en de SaaS-frontend.
+`measurements`-*lees*-rechten en beperkt tot dezelfde teams als het scherm:
+`team_id` weglaten verbreedt het antwoord niet, en een team buiten je bereik
+noemen levert `403` op. Voor integraties en de SaaS-frontend.
 
 ## Testverloop — één test, elke speler, over het seizoen
 

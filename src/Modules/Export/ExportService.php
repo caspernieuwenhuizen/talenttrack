@@ -55,13 +55,25 @@ final class ExportService {
             ) );
         }
 
-        $cap = $exporter->requiredCap();
-        if ( $cap !== '' && ! user_can( $request->requesterUserId, $cap ) ) {
-            throw new ExportException( 'forbidden', sprintf(
-                'User lacks the %s capability for exporter %s.',
-                $cap,
-                $request->exporterKey
-            ) );
+        // #3155 — a matrix-only entity has no capability string to check, so
+        // its exporter answers through `ScopeGatedExporter` and the coarse
+        // gate asks that instead of `user_can()`.
+        if ( $exporter instanceof ScopeGatedExporter ) {
+            if ( ! $exporter->isAvailableFor( $request->requesterUserId ) ) {
+                throw new ExportException( 'forbidden', sprintf(
+                    'User is out of scope for exporter %s.',
+                    $request->exporterKey
+                ) );
+            }
+        } else {
+            $cap = $exporter->requiredCap();
+            if ( $cap !== '' && ! user_can( $request->requesterUserId, $cap ) ) {
+                throw new ExportException( 'forbidden', sprintf(
+                    'User lacks the %s capability for exporter %s.',
+                    $cap,
+                    $request->exporterKey
+                ) );
+            }
         }
 
         if ( ! in_array( $request->format, $exporter->supportedFormats(), true ) ) {

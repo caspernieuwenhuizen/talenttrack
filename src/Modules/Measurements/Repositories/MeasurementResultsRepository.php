@@ -167,7 +167,8 @@ class MeasurementResultsRepository {
      * results browser (#2145) lists. One row per player who has at least one
      * value for the test, ordered by player name.
      *
-     * Optional filters: a single `team_id`, an `age_group`, and an inclusive
+     * Optional filters: a single `team_id`, a `team_ids` list (the reader's
+     * team scope — #3155), an `age_group`, and an inclusive
      * `date_from` / `date_to` recorded-date window. The window applies to the
      * "latest" selection; the previous value is the most recent result strictly
      * before that latest date (no window — the trend reads against real history).
@@ -190,6 +191,19 @@ class MeasurementResultsRepository {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        // #3155 — the reader's team scope, the same key and the same
+        // semantics `listForDefinitionExport()` has carried since #2537:
+        // applied *alongside* an explicit `team_id`, never instead of it, so
+        // a chosen team outside the reader's scope returns nothing rather
+        // than silently widening to everything they can see. An empty list
+        // means "this reader has no teams" and returns nothing — the one
+        // case where treating the filter as absent would hand over the club.
+        if ( isset( $filters['team_ids'] ) && is_array( $filters['team_ids'] ) ) {
+            $ids = array_values( array_filter( array_map( 'intval', $filters['team_ids'] ) ) );
+            if ( $ids === [] ) return [];
+            $where[] = 'pl.team_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+            $params  = array_merge( $params, $ids );
         }
         $age_group = isset( $filters['age_group'] ) ? (string) $filters['age_group'] : '';
         if ( $age_group !== '' ) {
