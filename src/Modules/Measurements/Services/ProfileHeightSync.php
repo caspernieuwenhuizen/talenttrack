@@ -140,13 +140,16 @@ class ProfileHeightSync {
      *   thing today, and `test_a_trashed_reading_is_ignored` is the tripwire
      *   if that ever stops being true.
      * - the `IN` list is four fixed placeholders rather than a generated one,
-     *   which couples this to the length of `HEIGHT_NAMES`.
-     *   `test_the_height_vocabulary_still_has_four_entries` fails loudly if
-     *   the constant grows.
+     *   which couples this to the length of `HEIGHT_NAMES`. Two things
+     *   catch that coupling breaking, so it is not left to a comment:
+     *   PHPStan knows the constant's length and rejects a mismatched index,
+     *   and `test_the_height_vocabulary_still_has_four_entries` states the
+     *   requirement in words. A runtime count guard was tried and removed —
+     *   PHPStan correctly called it dead code, because the length is known
+     *   before the program runs.
      */
     public function latestHeightCm( int $player_id, int $club_id ): ?float {
         $names = BmiSeriesBuilder::HEIGHT_NAMES;
-        if ( count( $names ) !== 4 ) return null;
 
         global $wpdb;
         $p = $wpdb->prefix;
