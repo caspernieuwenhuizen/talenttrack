@@ -212,8 +212,57 @@
     color: var(--tt-danger);
 }
 
+/* ---- Messaging step (#3140, step from #3113) ------------------------ */
+.tt-dashboard .tt-setup__msg-group {
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-setup__msg-recommended {
+    display: inline-block;
+    margin-left: var(--tt-sp-2);
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--tt-radius);
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+    font-size: 0.75rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tt-dashboard .tt-setup__msg {
+    padding: var(--tt-sp-2) 0;
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-dashboard .tt-setup__msg:first-of-type {
+    border-top: 0;
+}
+
+.tt-dashboard .tt-setup__msg-name {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-setup__msg-what,
+.tt-dashboard .tt-setup__msg-who,
+.tt-dashboard .tt-setup__msg-pending {
+    margin: 0.15rem 0 0 2.05rem;
+    font-size: 0.875rem;
+    color: var(--tt-muted);
+}
+
+.tt-dashboard .tt-setup__msg-pending {
+    font-style: italic;
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-setup__field {
         max-width: 28rem;
+    }
+
+    .tt-dashboard .tt-setup__msg-group {
+        max-width: 44rem;
     }
 }

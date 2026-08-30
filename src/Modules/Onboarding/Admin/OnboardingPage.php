@@ -954,21 +954,13 @@ class OnboardingPage {
     // Helpers
 
     private static function renderHeader( string $step ): void {
-        // #3025 — every entry in OnboardingState::STEPS needs a title here.
+        // #3025 — every entry in OnboardingState::STEPS needs a title.
         // `import` and `staff` were missing, so while the operator was on
         // either of those two steps the stepper highlighted nothing.
-        $titles = [
-            'welcome'     => __( 'Welcome', 'talenttrack' ),
-            'academy'     => __( 'Academy basics', 'talenttrack' ),
-            'profile'     => __( 'How much product', 'talenttrack' ),
-            'import'      => __( 'Import your squad', 'talenttrack' ),
-            'first_team'  => __( 'First team', 'talenttrack' ),
-            'first_admin' => __( 'First admin', 'talenttrack' ),
-            'staff'       => __( 'Add your staff', 'talenttrack' ),
-            'messaging'   => __( 'What we send', 'talenttrack' ),
-            'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
-            'done'        => __( 'Done', 'talenttrack' ),
-        ];
+        // #3140 — the list moved onto OnboardingState, because the frontend
+        // Setup view kept a second copy of it and that one had drifted to
+        // five of ten. One registry, both surfaces.
+        $titles = OnboardingState::stepTitles();
         $current_idx = array_search( $step, OnboardingState::STEPS, true );
         $resume_url  = admin_url( 'admin.php?page=tt-welcome' );
         ?>

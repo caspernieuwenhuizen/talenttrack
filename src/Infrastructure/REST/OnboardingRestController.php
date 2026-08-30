@@ -16,6 +16,7 @@ use TT\Modules\Onboarding\OnboardingState;
  *   POST /onboarding/academy        — save academy basics, advance
  *   POST /onboarding/first-team     — create the first team (or skip), advance
  *   POST /onboarding/first-admin    — create the first-admin staff record, advance
+ *   POST /onboarding/messaging      — choose which messages the academy sends (or skip), advance
  *   POST /onboarding/dashboard-page — create / reuse the dashboard page (or skip), finish
  *   POST /onboarding/reset          — reset state and re-enter at welcome
  *
@@ -44,6 +45,7 @@ final class OnboardingRestController {
             'academy'        => 'academy',
             'first-team'     => 'firstTeam',
             'first-admin'    => 'firstAdmin',
+            'messaging'      => 'messaging',
             'dashboard-page' => 'dashboardPage',
             'reset'          => 'reset',
         ];
@@ -129,6 +131,34 @@ final class OnboardingRestController {
             'grant_role' => ! empty( $r->get_param( 'grant_role' ) ),
         ] );
         Logger::info( 'rest.onboarding.admin_created', [ 'user' => get_current_user_id() ] );
+        return self::stateResponse();
+    }
+
+    /**
+     * #3140 — the messaging step (#3113) on the frontend.
+     *
+     * Both branches delegate to `OnboardingHandlers`, which is the whole
+     * point of the route existing rather than the view writing
+     * `TemplateSwitch` itself: the handler inverts the ticked list against
+     * the **registered** switchable set, so a template that was never
+     * rendered ends up switched off rather than switched on by omission,
+     * and skipping writes nothing at all. Re-deriving either of those here
+     * would put #3113's guarantee in two places.
+     */
+    public static function messaging( \WP_REST_Request $r ): \WP_REST_Response {
+        if ( ! empty( $r->get_param( 'skip' ) ) ) {
+            OnboardingHandlers::skipMessaging();
+            Logger::info( 'rest.onboarding.messaging_skipped', [ 'user' => get_current_user_id() ] );
+            return self::stateResponse();
+        }
+
+        $enabled = $r->get_param( 'enabled' );
+        $result  = OnboardingHandlers::applyMessaging( is_array( $enabled ) ? $enabled : [] );
+
+        Logger::info( 'rest.onboarding.messaging_saved', [
+            'user'    => get_current_user_id(),
+            'enabled' => count( $result['enabled'] ),
+        ] );
         return self::stateResponse();
     }
 
