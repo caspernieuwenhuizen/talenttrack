@@ -48,11 +48,31 @@ De wizard is het canonieke startpunt voor "+ Nieuwe prospect". Klikken op de kno
 
 ## Rechten
 
-- **`tt_view_prospects`** — vereist om de pijplijn te openen. Standaard toegekend aan Academy Admin, Hoofd Ontwikkeling en Scout.
-- **`tt_edit_prospects`** — vereist om de Nieuwe prospect-wizard te starten. Zelfde standaardtoekenningen.
+- **`tt_view_prospects`** — vereist om de pijplijn te openen. Standaard toegekend aan Academy Admin, Hoofd Ontwikkeling, Scout en Hoofdtrainer.
+- **`tt_edit_prospects`** — vereist om de Nieuwe prospect-wizard te starten. Toegekend aan Academy Admin, Hoofd Ontwikkeling en Scout — een hoofdtrainer leest de pijplijn, maar vult die niet aan.
 - **`tt_invite_prospects`** — vereist om de klus *Uitnodigen voor testtraining* af te ronden (HoD-pad).
 
-Scouts zien alleen hun eigen prospects (gefilterd op `discovered_by_user_id`); HoD en Academy Admin zien elke prospect in de academie.
+### Wie welke prospects ziet
+
+Het recht opent het bord. **Wat erop staat, hangt af van je bereik.**
+
+- **Academy Admin, Hoofd Ontwikkeling en scouts** zien elke prospect in de
+  academie. Scouts zagen vroeger alleen hun eigen vondsten; dat is veranderd
+  toen twee scouts in dezelfde vijver elkaars bezoeken moesten kunnen zien.
+- **Een hoofdtrainer** ziet de pijplijn die de eigen selecties voedt: prospects
+  die voor een van de eigen **leeftijdsgroepen** zijn vastgelegd, iedereen die
+  al naar een van de eigen teams is doorgestroomd, en alles wat de trainer zelf
+  heeft vastgelegd.
+
+Een prospectrecord draagt een leeftijdsgroep, geen team — ze zijn nog niet
+toegetreden, dus er is nog geen selectie om bij te horen. Een prospect zonder
+leeftijdsgroep en zonder doorstroom is alleen zichtbaar voor de academiebrede
+rollen en voor wie de prospect heeft vastgelegd. Zegt een hoofdtrainer dat een
+prospect ontbreekt op het bord, kijk dan eerst naar de leeftijdsgroep op het
+prospectrecord.
+
+De aantallen op de dashboardtegel volgen precies dezelfde regel, dus tegel en
+bord komen altijd overeen.
 
 ## Faseregels
 

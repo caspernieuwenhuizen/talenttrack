@@ -48,11 +48,29 @@ The wizard is the canonical "+ New prospect" entry point. Clicking the button op
 
 ## Permissions
 
-- **`tt_view_prospects`** — required to open the pipeline. Granted by default to Academy Admin, Head of Development, and Scout.
-- **`tt_edit_prospects`** — required to launch the New prospect wizard. Same default grants.
+- **`tt_view_prospects`** — required to open the pipeline. Granted by default to Academy Admin, Head of Development, Scout and Head Coach.
+- **`tt_edit_prospects`** — required to launch the New prospect wizard. Granted to Academy Admin, Head of Development and Scout — a head coach reads the funnel, they do not add to it.
 - **`tt_invite_prospects`** — required to complete the *Invite to test training* task (HoD path).
 
-Scouts see only their own prospects (filtered by `discovered_by_user_id`); HoD and Academy Admin see every prospect across the academy.
+### Who sees which prospects
+
+The capability opens the board. **What is on it depends on your scope.**
+
+- **Academy Admin, Head of Development and Scouts** see every prospect in the
+  academy. Scouts used to be narrowed to their own discoveries; that changed
+  when two scouts working the same pool needed to see each other's visits.
+- **A head coach** sees the funnel feeding their own squads: prospects logged
+  for one of their **age groups**, anyone already promoted into one of their
+  teams, and anything they logged themselves.
+
+A prospect record carries an age group, not a team — they have not joined yet,
+so there is no squad to belong to. A prospect with **no** age group recorded and
+no promotion yet is visible only to the academy-wide roles and to whoever logged
+them. If a head coach says a prospect is missing from their board, the age group
+on the prospect record is the first thing to check.
+
+The counts on the dashboard tile follow exactly the same rule, so the tile and
+the board always agree.
 
 ## Stage rules
 

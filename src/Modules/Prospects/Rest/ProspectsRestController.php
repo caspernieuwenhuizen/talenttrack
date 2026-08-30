@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Workflow\Templates\LogProspectTemplate;
 use TT\Modules\Workflow\TaskContext;
@@ -136,6 +137,13 @@ class ProspectsRestController {
         // "show only my prospects" toggle on the overview page) still
         // works because the list deliberately leaves the filter
         // untouched.
+        //
+        // #3160 — what that comment did not cover is the **head coach**,
+        // whose `prospects` grant is team-scoped and who was reading the
+        // whole club's funnel here. The scope is resolved server-side and
+        // merged as an extra AND, so a client filter can narrow further and
+        // never widen past it.
+        $search_args['scope_sql'] = ProspectScope::sqlClause( $uid, '' );
 
         $repo  = new ProspectsRepository();
         $rows  = $repo->search( $search_args );
@@ -217,7 +225,37 @@ class ProspectsRestController {
         if ( ! $row ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
+        // #3160 — the list narrows; the detail must narrow to the same set,
+        // or the row the list omits stays readable one id at a time. 404
+        // rather than 403 to match the "not found" the caller would get for
+        // any id they have no business knowing exists.
+        if ( ! self::visibleTo( $id, get_current_user_id() ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
         return RestResponse::success( [ 'prospect' => $row ] );
+    }
+
+    /**
+     * #3160 — is this prospect inside the caller's visibility scope?
+     *
+     * Re-runs the list's own narrowing over the single id rather than
+     * reimplementing it, so the two can never disagree about who is
+     * visible.
+     */
+    private static function visibleTo( int $prospect_id, int $user_id ): bool {
+        if ( ProspectScope::canSeeAll( $user_id ) ) return true;
+
+        global $wpdb;
+        $scope = ProspectScope::sqlClause( $user_id, '' );
+        if ( $scope === '' ) return true;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects
+              WHERE id = %d AND club_id = %d {$scope}",
+            $prospect_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) > 0;
     }
 
     /**
