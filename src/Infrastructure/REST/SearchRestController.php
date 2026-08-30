@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Tiles\TileRegistry;
@@ -91,7 +92,7 @@ final class SearchRestController extends BaseController {
                 $records = array_merge( $records, self::players( $user_id, $q ) );
             }
             if ( in_array( 'team', $types, true ) ) {
-                $records = array_merge( $records, self::teams( $q ) );
+                $records = array_merge( $records, self::teams( $user_id, $q ) );
             }
             if ( in_array( 'activity', $types, true ) ) {
                 $records = array_merge( $records, self::activities( $q ) );
@@ -199,16 +200,41 @@ final class SearchRestController extends BaseController {
         return $out;
     }
 
-    /** @return list<array<string,mixed>> */
-    private static function teams( string $q ): array {
+    /**
+     * #3159 — teams the **caller** may open, not every team in the club.
+     *
+     * The class docblock says filtering happens "per row, through the same
+     * authorization service the detail views use". That was true of
+     * `players()` above, which over-fetches and runs `canViewPlayer` per
+     * row, and it was not true here: `tt_view_teams` is club-wide on
+     * `tt_coach`, so a JO15 coach typing two letters enumerated every squad
+     * in the academy — names and age groups, which is the index to the
+     * cohorts. This mirrors the narrowing `GET /teams` already applies.
+     *
+     * The narrowing is in SQL rather than post-filtered, so the LIMIT is
+     * filled with rows the caller may actually open. An empty team scope is
+     * a genuine empty result, not an unfiltered one.
+     *
+     * @return list<array<string,mixed>>
+     */
+    private static function teams( int $user_id, string $q ): array {
         if ( ! current_user_can( 'tt_view_teams' ) ) return [];
+
+        $where_scope = '';
+        if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'team' ) ) {
+            $ids = array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) );
+            if ( ! $ids ) return [];
+            $where_scope = ' AND id IN (' . implode( ',', $ids ) . ')';
+        }
 
         global $wpdb;
         $like = '%' . $wpdb->esc_like( $q ) . '%';
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name, age_group
                FROM {$wpdb->prefix}tt_teams
               WHERE club_id = %d AND archived_at IS NULL AND name LIKE %s
+                {$where_scope}
            ORDER BY name ASC
               LIMIT %d",
             CurrentClub::id(),

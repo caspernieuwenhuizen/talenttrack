@@ -426,7 +426,7 @@ Permission: any logged-in user. **The gate is per row, not per route.**
 | --- | --- | --- |
 | `view` | `TileRegistry::tilesForUserGrouped()` | Inherited — capability, per-persona labels, `__hidden__`, module/feature gating |
 | `player` | `tt_players` prefilter | Every row through `AuthorizationService::canViewPlayer()` |
-| `team` | `tt_teams` | `tt_view_teams` |
+| `team` | `tt_teams` | `tt_view_teams`, then narrowed in SQL to the caller's team scope — the same narrowing `GET /teams` applies (#3159) |
 | `activity` | `tt_activities` | `tt_view_activities` |
 
 Two constraints that are load-bearing rather than cosmetic:
@@ -435,8 +435,17 @@ Two constraints that are load-bearing rather than cosmetic:
   detail view uses. A capability check on the route would let someone with
   `tt_view_players` enumerate players outside their scope. These are minors
   (§1); the search box is the easiest place in a product to leak one.
+- **Team rows are narrowed in SQL**, not post-filtered, so the cap is filled
+  with squads the caller may actually open. A caller with no teams gets an
+  empty list — a genuine empty result, not an unfiltered one. Team names encode
+  age groups, so enumerating them maps the academy's cohorts: not player data
+  itself, but the index to it.
 - **Results are hard-capped at 8** and record types need ≥2 characters. An
   uncapped search is both a performance problem and an enumeration surface.
+- **`activity` rows are still capability-only.** A title and a date are not a
+  child's identity, so this is recorded rather than narrowed — but it is the
+  one row in the table above where "per row, through the same authorization
+  service" is not yet literally true.
 
 ### `GET /players/{id}/summary`, `/teams/{id}/summary`, `/activities/{id}/summary`
 
