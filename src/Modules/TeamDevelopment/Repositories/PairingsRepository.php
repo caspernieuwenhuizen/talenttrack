@@ -82,6 +82,22 @@ class PairingsRepository {
         return $ok ? (int) $this->wpdb->insert_id : 0;
     }
 
+    /**
+     * #3153 — which team does this pairing belong to?
+     *
+     * `DELETE /pairings/{id}` names the pairing, not its team, so the
+     * permission callback has to resolve one before it can ask whether the
+     * caller is scoped to it. Returns 0 for a pairing that does not exist in
+     * this club, which fails the scope check rather than passing it.
+     */
+    public function teamIdFor( int $id ): int {
+        if ( $id <= 0 ) return 0;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT team_id FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
+    }
+
     public function remove( int $id ): bool {
         if ( $id <= 0 ) return false;
         $ok = $this->wpdb->delete( $this->table, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );

@@ -88,4 +88,46 @@ final class TeamChemistryAccess {
     public static function canManageChemistry( int $user_id ): bool {
         return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CHANGE );
     }
+
+    /**
+     * #3153 — READ authority for **this** team.
+     *
+     * The two `canAnyScope` methods above answer *"do you hold this
+     * permission anywhere"*, which is the right question for a tile and the
+     * wrong one for a route that takes `{id}`. head_coach holds
+     * `team_chemistry [rc, team]` and team_manager `[r, team]`, so a
+     * **team**-scoped grant answered yes for **every** team: five chemistry
+     * routes returned another squad's suggested XI, depth chart and
+     * coach-marked pairings by changing one number.
+     *
+     * The docblock at the top of this class already named the right answer
+     * — the grant is per team, so the check has to be too. A global-scope
+     * grant (scout, head of development, academy admin) still reads
+     * everything; a team-scoped one reads the teams it is actually assigned.
+     *
+     * The sub-feature toggle is applied by `canReadChemistry()` first, so
+     * switching `team_chemistry` off still takes these routes dark.
+     */
+    public static function canReadChemistryForTeam( int $user_id, int $team_id ): bool {
+        return self::canReadChemistry( $user_id )
+            && self::hasTeamScope( $user_id, $team_id, MatrixGate::READ );
+    }
+
+    /** #3153 — MANAGE authority for this team. Write sibling of the above. */
+    public static function canManageChemistryForTeam( int $user_id, int $team_id ): bool {
+        return self::canManageChemistry( $user_id )
+            && self::hasTeamScope( $user_id, $team_id, MatrixGate::CHANGE );
+    }
+
+    /**
+     * Global grant, or a team grant the user actually holds on this team.
+     * `MatrixGate::can()` resolves the runtime team scope from
+     * `tt_user_role_scopes`, so an assignment is what makes it true.
+     */
+    private static function hasTeamScope( int $user_id, int $team_id, string $activity ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+
+        return MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_GLOBAL )
+            || MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $team_id );
+    }
 }

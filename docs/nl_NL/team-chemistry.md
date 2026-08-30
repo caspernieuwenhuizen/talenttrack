@@ -28,6 +28,15 @@ Hoofdcoaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*
 
 Een tweede oppervlak is per speler: elk spelerprofiel heeft een **Beste posities**-kaart die de top drie posities van de speler in de huidige formatie van het team toont, opnieuw met onderbouwing bij hoveren.
 
+**Welke teams, niet alleen óf.** Het `team_chemistry`-recht van een hoofdcoach
+geldt voor de teams waaraan die is gekoppeld, en het bord, de duo's en de
+speler-fitkaart houden zich daar nu allemaal aan — de API net zo goed als het
+scherm. Een teamgebonden trainer die het bord van een andere selectie opent, of
+rechtstreeks om de duo's of de voorgestelde opstelling vraagt, krijgt een
+weigering in plaats van de gegevens. Scouts, Hoofd Ontwikkeling en
+Academiebeheerder hebben het recht academiebreed en merken niets. Een duo
+markeren of verwijderen volgt dezelfde regel, op het team van dat duo.
+
 ## Opmaak
 
 Het bord staat op desktop in drie kolommen en stapelt op tablet en telefoon:

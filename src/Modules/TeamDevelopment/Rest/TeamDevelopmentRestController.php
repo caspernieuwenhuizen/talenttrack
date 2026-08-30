@@ -87,7 +87,7 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_chemistry' ],
-                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry_team' ],
             ],
         ] );
         // v3.110.174 — chemistry preview for the "Try a lineup" sandbox
@@ -96,33 +96,37 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'preview_chemistry' ],
-                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry_team' ],
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/pairings', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_pairings' ],
-                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry_team' ],
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'add_pairing' ],
-                'permission_callback' => [ __CLASS__, 'can_manage_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_chemistry_team' ],
             ],
         ] );
         register_rest_route( self::NS, '/pairings/(?P<id>\d+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_pairing' ],
-                'permission_callback' => [ __CLASS__, 'can_manage_chemistry' ],
+                // #3153 — the id names the pairing, so its team is resolved
+                // before the scope is checked.
+                'permission_callback' => [ __CLASS__, 'can_manage_pairing' ],
             ],
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/team-fit', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_team_fit' ],
-                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
+                // #3153 — the id names a player, so their team is resolved
+                // before the scope is checked.
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry_player' ],
             ],
         ] );
 
@@ -221,6 +225,46 @@ class TeamDevelopmentRestController {
     /** #1485 / #1922 — chemistry-board write access, feature-gated. */
     public static function can_manage_chemistry(): bool {
         return TeamChemistryAccess::canManageChemistry( get_current_user_id() );
+    }
+
+    /**
+     * #3153 — the same two questions, asked about the team in the path.
+     *
+     * The pair above answer "do you hold this permission anywhere", which
+     * `MatrixGate::canAnyScope` says yes to for a **team**-scoped grant on
+     * **every** team. Every `{id}`-bearing chemistry route uses these
+     * instead; the pair above stay for the tile-visibility callers, which
+     * have no team in hand.
+     */
+    public static function can_view_chemistry_team( \WP_REST_Request $r ): bool {
+        return TeamChemistryAccess::canReadChemistryForTeam( get_current_user_id(), absint( $r['id'] ) );
+    }
+
+    /** #3153 — write sibling, gated on `change` for the team in the path. */
+    public static function can_manage_chemistry_team( \WP_REST_Request $r ): bool {
+        return TeamChemistryAccess::canManageChemistryForTeam( get_current_user_id(), absint( $r['id'] ) );
+    }
+
+    /**
+     * #3153 — `/players/{id}/team-fit` names a player, so the team has to be
+     * resolved before it can be checked. Same shape as
+     * `VctWorkloadRestController::can_player()`. A player with no team has no
+     * team scope to satisfy, so the answer is a global grant or nothing.
+     */
+    public static function can_view_chemistry_player( \WP_REST_Request $r ): bool {
+        $player = QueryHelpers::get_player( absint( $r['id'] ) );
+        $team_id = (int) ( $player->team_id ?? 0 );
+        return TeamChemistryAccess::canReadChemistryForTeam( get_current_user_id(), $team_id );
+    }
+
+    /**
+     * #3153 — `DELETE /pairings/{id}` names the pairing, not its team.
+     * Resolving the row first is what makes deleting another squad's
+     * coach-marked pairing impossible.
+     */
+    public static function can_manage_pairing( \WP_REST_Request $r ): bool {
+        $team_id = ( new PairingsRepository() )->teamIdFor( absint( $r['id'] ) );
+        return TeamChemistryAccess::canManageChemistryForTeam( get_current_user_id(), $team_id );
     }
 
     public static function get_formation( \WP_REST_Request $r ): \WP_REST_Response {

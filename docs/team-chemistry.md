@@ -28,6 +28,14 @@ Head coaches and head-of-academy users see a **Team chemistry** tile in the *Per
 
 A second surface is per-player: every player profile has a **Best fit positions** card listing the player's top three positions in the team's current formation, again with hoverable rationale.
 
+**Which teams, not just whether.** A head coach's `team_chemistry` grant is
+scoped to the teams they are assigned to, and the board, the pairings and the
+per-player fit card now all honour that scope — the API as well as the screen.
+A team-scoped coach opening another squad's board, or asking for its pairings
+or suggested XI directly, gets a refusal rather than the data. Scouts, Head of
+Development and Academy Admin hold the grant academy-wide and are unaffected.
+Marking or removing a pairing follows the same rule, on the pairing's own team.
+
 ## Layout
 
 The board is laid out in three columns on desktop, stacking on tablet and phone:
