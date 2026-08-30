@@ -45,18 +45,6 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->prefix}tt_alert_occurrences" );
 
-        // #3139 — these tests count every open alert for the coach and
-        // expect the number to be the stubs'. That held while every shipped
-        // definition needed records to fire on, and a bare test install has
-        // none. `comms.messaging_never_configured` is the first definition
-        // about the install's *configuration* rather than its records, and a
-        // bare install is exactly the state it fires in (#3111 seeds every
-        // message off). Switching messaging on puts the fixture in the state
-        // a finished setup leaves behind, so the counts stay the stubs'.
-        if ( class_exists( '\\TT\\Modules\\Comms\\Template\\TemplateSwitch' ) ) {
-            \TT\Modules\Comms\Template\TemplateSwitch::setDisabled( [] );
-        }
-
         AlertRegistry::flush();
         AlertInvalidationMap::flush();
         AlertInvalidationBuffer::reset();
@@ -289,6 +277,30 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         add_filter( 'tt_register_alerts', static function ( array $registered ) use ( $alerts ): array {
             return array_merge( $registered, $alerts );
         } );
+
+        // #3139 — and drop the shipped catalogue, at a later priority so it
+        // runs after both `AlertsModule` and the append above.
+        //
+        // These tests count every open alert for the coach and expect the
+        // number to be the stubs'. That held while every shipped definition
+        // needed records to fire on and a bare test install has none;
+        // `comms.messaging_never_configured` is the first one about the
+        // install's *configuration*, and a bare install is exactly the state
+        // it fires in. Keeping only the stubs states what these tests were
+        // always assuming, and makes them immune to the next such definition
+        // rather than to this one.
+        //
+        // Deliberately NOT done by switching messaging on in `set_up()`:
+        // `ConfigService` caches per key in memory, and that cache is not
+        // rolled back with the transaction, so the write would leak "every
+        // template enabled" into every later test in the process.
+        add_filter( 'tt_register_alerts', static function ( array $registered ): array {
+            return array_values( array_filter(
+                $registered,
+                static fn ( AlertInterface $a ): bool => strncmp( $a->key(), 'test.', 5 ) === 0
+            ) );
+        }, 99 );
+
         AlertRegistry::flush();
     }
 
