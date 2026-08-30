@@ -58588,6 +58588,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendRateCardView.php:65
+msgid "You do not have access to rate cards."
+msgstr "Je hebt geen toegang tot rapportkaarten."
+
 #~ msgid ""
 #~ "Six-stage count strip — Prospects / Invited / Test training / Trial "
 #~ "group / Team offer / Joined — sourced from tt_prospects and "

@@ -51,6 +51,19 @@ class FrontendRateCardView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Rate cards', 'talenttrack' ) );
         self::renderHeader( __( 'Rate cards', 'talenttrack' ) );
 
+        // #3156 — the capability gate this class's docblock has always
+        // claimed. `rate-cards` is registered with `registerSlugOwnership`
+        // only — no tile, no entity, no `cap` — so both `tileCapAllows` and
+        // `matrixDispatchAllows` fail open on the dispatcher and `render()`
+        // had no check of its own. `tt_view_reports` is the cap the wp-admin
+        // twin uses (`PlayerRateCardsPage::CAP`) and the one the Reports
+        // launcher gates the entry on, so nobody who could reach this
+        // surface legitimately loses it.
+        if ( ! current_user_can( 'tt_view_reports' ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to rate cards.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // #2126 — per-report toggle: reject even a direct link when the
         // Rate cards report has been switched off for this academy.
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_rate_cards' ) ) {
@@ -88,6 +101,30 @@ class FrontendRateCardView extends FrontendViewBase {
         // the click without changing the model.
         if ( $team_id <= 0 && count( $coach_teams ) === 1 ) {
             $team_id = (int) $coach_teams[0]->id;
+        }
+
+        // #3156 — `$coach_teams` above is correctly scoped and drives the
+        // picker; `?team_id=` was not, and short-circuited it three lines
+        // down. Clamp the URL parameter to the scope this view has already
+        // resolved rather than resolving it a second time. Out of scope
+        // falls through to the scoped branch below, so the page still works
+        // — it just stops answering for a squad the viewer cannot browse to.
+        if ( $team_id > 0 && ! $is_admin ) {
+            $allowed_team_ids = array_map( 'intval', array_column( $coach_teams, 'id' ) );
+            if ( ! in_array( $team_id, $allowed_team_ids, true ) ) {
+                $team_id = 0;
+            }
+        }
+
+        // The rate card itself is one child's longitudinal record, so an
+        // out-of-scope `?player_id=` refuses outright rather than falling
+        // back to a picker.
+        if ( $player_id > 0 && ! $is_admin
+            && ! QueryHelpers::coach_owns_player( $user_id, $player_id )
+            && ! QueryHelpers::user_has_global_entity_read( $user_id, 'reports' )
+        ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p>';
+            return;
         }
 
         // Resolve the candidate player set:

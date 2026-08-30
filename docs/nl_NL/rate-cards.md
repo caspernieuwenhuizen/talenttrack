@@ -22,6 +22,13 @@ Een **rate card** is een blik-in-één-oogopslag op de huidige stand en recente 
 
 Open de tegel **Rate cards** en kies de speler die je wilt bekijken.
 
+De team- en spelerkeuzelijst tonen wat je teambereik toelaat, en de pagina houdt
+een handmatig ingetypte `team_id` of `player_id` in de URL nu aan datzelfde
+bereik — een link naar een speler buiten je teams wordt geweigerd in plaats van
+geopend. Een rapportkaart is een langlopend oordeel over één kind, dus die
+blijft bij de mensen die voor dat kind verantwoordelijk zijn. `tt_view_reports`
+is nodig om het scherm überhaupt te openen.
+
 ## Filters
 
 - **Datumbereik** — beperk tot een periode.
