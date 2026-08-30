@@ -43,6 +43,7 @@ Tap any row to open the Edit view. The form has two cards:
 - **Sort order** — integer.
 - **Pill colour** — colour picker, when the category carries `show_color`.
 - **Description (canonical, optional)** — the English description shown when no per-locale translation is set, when the category carries `show_desc`.
+- **Abbreviation (canonical, optional)** — the short code shown where there is no room for the full label, when the category carries `show_abbrev`. Today that is **Positions** only. Up to 16 characters.
 
 ### Card 2 — translations
 
@@ -50,6 +51,21 @@ A grid with one row per supported locale (`en_US`, `nl_NL`, `de_DE`, `es_ES`, `f
 
 - **English (`en_US`) is a first-class translation slot**. The canonical English display value lives in `tt_translations`, not in the database's `name` column. The `name` column is now framed as the immutable internal key.
 - **Translate from English** button (above the grid) calls the configured translation engine and pre-fills empty Label fields with auto-translations. Review and edit before saving.
+- **Abbreviation** gets its own narrow input per locale on a category that carries `show_abbrev`, for the same reason the Label does: `GK` in English is `K` in Dutch.
+
+## Abbreviations
+
+Some surfaces have no room for a full label. The clearest example is the preferred-positions picker on a player, where eleven values have to fit as chips on a phone — "Defensive midfielder" does not, `CDM` does.
+
+Positions is the one category with an Abbreviation field today.
+
+- **It is display only.** Nothing in the system matches on it. Chemistry, formation slots and squad selection all key on the internal key, so changing an abbreviation is always safe.
+- **Where a row has no abbreviation, the full translated label is shown** — never the internal key. A position an academy adds itself therefore reads correctly from the moment it is created, whether or not anyone fills in a code.
+- **It is per locale.** The canonical value in Card 1 is the fallback; a value in the translations grid wins for that locale.
+
+The eleven positions TalentTrack seeds come with their English codes filled in (`GK`, `CB`, `LB`, `RB`, `CDM`, `CM`, `CAM`, `LW`, `RW`, `ST`, `CF`) — the same codes shown before this field existed, so nothing changes on an existing install.
+
+**Dutch codes are not seeded**, deliberately: the obvious Dutch abbreviations collide (*linksback* and *linksbuiten* both want `LB`), and a wrong code is worse than an English one you can see needs replacing. Fill them in the way your academy says them.
 
 ## Add view
 

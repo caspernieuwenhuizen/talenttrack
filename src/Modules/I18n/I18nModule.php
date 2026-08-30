@@ -69,9 +69,14 @@ class I18nModule implements ModuleInterface {
         // the legacy `tt_lookups.translations` JSON column, then to
         // gettext. Phases 3-4 add `eval_category`, `role`,
         // `functional_role` here as each entity migrates.
+        //
+        // #3246 adds `abbreviation` — the short code a compact surface
+        // prints instead of the full label. It is translatable for the
+        // same reason the label is: a Dutch academy writes `K` where an
+        // English one writes `GK`. Display only; nothing joins on it.
         TranslatableFieldRegistry::register(
             TranslatableFieldRegistry::ENTITY_LOOKUP,
-            [ 'name', 'description' ]
+            [ 'name', 'description', 'abbreviation' ]
         );
 
         // Phase 3 — register the `eval_category` entity with the

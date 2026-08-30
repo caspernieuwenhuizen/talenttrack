@@ -305,14 +305,19 @@ class FrontendConfigurationView extends FrontendViewBase {
      * Each entry maps the URL slug (used in `?category=`) to the
      * underlying `tt_lookups.lookup_type` plus presentation flags.
      *
-     * @return array{label:string,type:string,show_desc:bool,show_color:bool,slug:string}|null
+     * @return array{label:string,type:string,show_desc:bool,show_color:bool,show_abbrev:bool,slug:string}|null
      */
     private static function lookupCategoryMeta( string $slug ): ?array {
         $registry = [
             'eval_types'      => [ 'label' => __( 'Evaluation types',    'talenttrack' ), 'type' => 'eval_type',         'show_desc' => true,  'show_color' => false ],
             'activity_types'  => [ 'label' => __( 'Activity types',      'talenttrack' ), 'type' => 'activity_type',     'show_desc' => true,  'show_color' => true  ],
             'game_subtypes'   => [ 'label' => __( 'Game subtypes',       'talenttrack' ), 'type' => 'game_subtype',      'show_desc' => false, 'show_color' => false ],
-            'positions'       => [ 'label' => __( 'Positions',           'talenttrack' ), 'type' => 'position',          'show_desc' => false, 'show_color' => false ],
+            // #3246 — positions are the one vocabulary printed as a short
+            // code (the chips on the player form), so they are the one
+            // category with the abbreviation column on. Before this the
+            // code was the internal key, which is immutable and
+            // language-neutral and so could be neither.
+            'positions'       => [ 'label' => __( 'Positions',           'talenttrack' ), 'type' => 'position',          'show_desc' => false, 'show_color' => false, 'show_abbrev' => true ],
             'foot_options'    => [ 'label' => __( 'Preferred foot',      'talenttrack' ), 'type' => 'foot_option',       'show_desc' => false, 'show_color' => false ],
             'age_groups'      => [ 'label' => __( 'Age groups',          'talenttrack' ), 'type' => 'age_group',         'show_desc' => false, 'show_color' => false ],
             // #3044 — how many a side a team plays. The description carries
@@ -386,6 +391,8 @@ class FrontendConfigurationView extends FrontendViewBase {
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];
+        // Opt-in flag — every category that doesn't name it is off.
+        $meta['show_abbrev'] = ! empty( $meta['show_abbrev'] );
         $meta['slug'] = $slug;
         return $meta;
     }
@@ -454,7 +461,7 @@ class FrontendConfigurationView extends FrontendViewBase {
      * column is a stable database identifier. New rows can set it once;
      * existing rows render the field disabled.
      *
-     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,show_abbrev:bool,slug:string} $meta
      */
     private static function renderLookupCategoryEditor( array $meta ): void {
         $type     = $meta['type'];
@@ -548,7 +555,7 @@ class FrontendConfigurationView extends FrontendViewBase {
      * still carries `data-tt-sortable` ancestry via the `tt-sortable-table`
      * class — the existing `DragReorder` wp-admin endpoint is unchanged.
      *
-     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,show_abbrev:bool,slug:string} $meta
      * @param array<int,object> $items
      * @param array<int, array<string, array<string, string>>> $tx_by_row
      * @param list<string> $tx_targets
@@ -591,6 +598,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                                 data-row-name="<?php echo esc_attr( (string) $row->name ); ?>"
                                 data-row-sort="<?php echo (int) $row->sort_order; ?>"
                                 data-row-desc="<?php echo esc_attr( (string) ( $row->description ?? '' ) ); ?>"
+                                data-row-abbrev="<?php echo esc_attr( (string) ( $row->abbreviation ?? '' ) ); ?>"
                                 data-row-color="<?php echo esc_attr( $row_color ); ?>"
                                 data-row-locked="<?php echo $is_locked ? '1' : '0'; ?>"
                                 data-row-tx="<?php echo esc_attr( (string) wp_json_encode( $row_tx ) ); ?>">
@@ -701,7 +709,7 @@ class FrontendConfigurationView extends FrontendViewBase {
      * `?edit=` so a Cancel from edit lands on the list view of the
      * same category.
      *
-     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,show_abbrev:bool,slug:string} $meta
      * @param object|null $editing
      * @param array<int, array<string, array<string, string>>> $tx_by_row
      * @param list<string> $tx_targets
@@ -745,13 +753,15 @@ class FrontendConfigurationView extends FrontendViewBase {
      * Single shared form renderer. Internal key is disabled on existing
      * rows (Q4). Save + Cancel pair rendered via `FormSaveButton`.
      *
-     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,show_abbrev:bool,slug:string} $meta
      * @param array<string, array<string, string>> $existing_translations
      * @param list<string> $tx_targets
      */
     private static function renderLookupForm( array $meta, ?object $editing, array $existing_translations, array $tx_targets, string $site_locale, string $add_id, string $base, string $heading_id, string $color_default ): void {
         $is_edit = $editing !== null;
-        $field_classes = $meta['show_desc'] ? 'tt-lkp-tx-grid has-desc' : 'tt-lkp-tx-grid';
+        $field_classes = 'tt-lkp-tx-grid';
+        if ( $meta['show_desc'] )   $field_classes .= ' has-desc';
+        if ( $meta['show_abbrev'] ) $field_classes .= ' has-abbrev';
         ?>
         <form data-tt-lkp-form novalidate>
             <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" data-tt-lkp-id />
@@ -808,6 +818,24 @@ class FrontendConfigurationView extends FrontendViewBase {
                             </span>
                         </div>
                     <?php endif; ?>
+                    <?php if ( $meta['show_abbrev'] ) : ?>
+                        <div class="tt-lkp-field">
+                            <label for="<?php echo esc_attr( $add_id ); ?>-abbrev">
+                                <?php esc_html_e( 'Abbreviation (canonical, optional)', 'talenttrack' ); ?>
+                            </label>
+                            <input type="text"
+                                   id="<?php echo esc_attr( $add_id ); ?>-abbrev"
+                                   name="abbreviation"
+                                   maxlength="16"
+                                   autocomplete="off"
+                                   inputmode="text"
+                                   autocapitalize="characters"
+                                   value="<?php echo esc_attr( (string) ( $editing->abbreviation ?? '' ) ); ?>" />
+                            <span class="tt-lkp-hint">
+                                <?php esc_html_e( 'Short code for surfaces with no room for the full label, such as the position chips on a player. Leave blank to show the label instead.', 'talenttrack' ); ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <?php if ( $meta['show_desc'] ) : ?>
                         <div class="tt-lkp-field tt-lkp-field-full">
                             <label for="<?php echo esc_attr( $add_id ); ?>-desc">
@@ -846,10 +874,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </div>
                     <div class="<?php echo esc_attr( $field_classes ); ?>">
                         <?php foreach ( $tx_targets as $locale ) :
-                            $field_id_name = $add_id . '-tx-name-' . sanitize_html_class( $locale );
-                            $field_id_desc = $add_id . '-tx-desc-' . sanitize_html_class( $locale );
-                            $value_name = (string) ( $existing_translations[ $locale ]['name']        ?? '' );
-                            $value_desc = (string) ( $existing_translations[ $locale ]['description'] ?? '' );
+                            $field_id_name   = $add_id . '-tx-name-' . sanitize_html_class( $locale );
+                            $field_id_desc   = $add_id . '-tx-desc-' . sanitize_html_class( $locale );
+                            $field_id_abbrev = $add_id . '-tx-abbrev-' . sanitize_html_class( $locale );
+                            $value_name   = (string) ( $existing_translations[ $locale ]['name']         ?? '' );
+                            $value_desc   = (string) ( $existing_translations[ $locale ]['description']  ?? '' );
+                            $value_abbrev = (string) ( $existing_translations[ $locale ]['abbreviation'] ?? '' );
                             $is_site    = ( $locale === $site_locale );
                             $cell_class = $is_site ? 'tt-lkp-tx-locale is-site' : 'tt-lkp-tx-locale';
                             ?>
@@ -869,6 +899,24 @@ class FrontendConfigurationView extends FrontendViewBase {
                                         esc_attr( $locale )
                                    ); ?>"
                                    placeholder="<?php esc_attr_e( 'Label', 'talenttrack' ); ?>" />
+                            <?php if ( $meta['show_abbrev'] ) : ?>
+                                <input type="text"
+                                       id="<?php echo esc_attr( $field_id_abbrev ); ?>"
+                                       class="tt-lkp-tx-cell-abbrev"
+                                       name="translations[<?php echo esc_attr( $locale ); ?>][abbreviation]"
+                                       value="<?php echo esc_attr( $value_abbrev ); ?>"
+                                       maxlength="16"
+                                       autocapitalize="characters"
+                                       data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                       data-tt-tx-field="abbreviation"
+                                       aria-label="<?php
+                                       printf(
+                                            /* translators: %s = locale code such as nl_NL */
+                                            esc_attr__( 'Abbreviation in %s', 'talenttrack' ),
+                                            esc_attr( $locale )
+                                       ); ?>"
+                                       placeholder="<?php echo esc_attr_x( 'Abbr.', 'placeholder for the short-code input on a lookup value', 'talenttrack' ); ?>" />
+                            <?php endif; ?>
                             <?php if ( $meta['show_desc'] ) : ?>
                                 <input type="text"
                                        id="<?php echo esc_attr( $field_id_desc ); ?>"

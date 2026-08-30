@@ -112,6 +112,38 @@ class LookupTranslator {
     }
 
     /**
+     * Resolve the short code a compact surface prints instead of the
+     * full label — the position chips on the player form, and whatever
+     * else asks for one later (#3246).
+     *
+     * Same chain as `name()` with one deliberate difference: this
+     * returns **empty** when no abbreviation is set anywhere, rather
+     * than falling through to something. The caller decides what an
+     * unset code means, and for every caller so far the answer is "show
+     * the translated label" — never the internal key, which is what
+     * leaked `linker_middenvelder` onto the player form.
+     */
+    public static function abbreviation( ?object $lookup ): string {
+        if ( ! $lookup ) return '';
+        $raw = trim( (string) ( $lookup->abbreviation ?? '' ) );
+
+        $id = (int) ( $lookup->id ?? 0 );
+        if ( $id > 0 ) {
+            // #2568 — same en_US-echo guard as `name()`; see the note there.
+            $tx = self::repo()->translate(
+                TranslatableFieldRegistry::ENTITY_LOOKUP,
+                $id,
+                'abbreviation',
+                self::currentLocale(),
+                $raw
+            );
+            if ( $tx !== '' && $tx !== $raw ) return $tx;
+        }
+
+        return $raw;
+    }
+
+    /**
      * Translate a lookup value addressed by (type, stored-name) without
      * the caller needing to fetch the row. Handy for consumers that
      * store the lookup name (e.g. `tt_players.preferred_foot = 'Right'`)

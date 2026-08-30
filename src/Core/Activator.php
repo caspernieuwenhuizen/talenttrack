@@ -216,6 +216,7 @@ class Activator {
             lookup_type VARCHAR(100) NOT NULL,
             name VARCHAR(255) NOT NULL,
             description TEXT,
+            abbreviation VARCHAR(16) NULL DEFAULT NULL,
             meta TEXT,
             sort_order INT DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -182,7 +182,7 @@ final class LookupsRestController extends BaseController {
         global $wpdb;
         $type = (string) $req->get_param( 'type' );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name, description, meta, sort_order
+            "SELECT id, name, description, abbreviation, meta, sort_order
                FROM {$wpdb->prefix}tt_lookups
               WHERE lookup_type = %s AND club_id = %d
               ORDER BY sort_order ASC, name ASC",
@@ -286,7 +286,11 @@ final class LookupsRestController extends BaseController {
         $repo    = new TranslationsRepository();
         $entity  = TranslatableFieldRegistry::ENTITY_LOOKUP;
         $user_id = (int) get_current_user_id();
-        $allowed_fields = [ 'name', 'description' ];
+        // #3246 — read the whitelist off the registry rather than
+        // restating it. The two used to be one edit apart, and the edit
+        // that adds a field is not the one that remembers this line.
+        $allowed_fields = TranslatableFieldRegistry::fieldsFor( $entity );
+        if ( $allowed_fields === [] ) $allowed_fields = [ 'name', 'description' ];
 
         foreach ( (array) $payload as $locale => $cells ) {
             $locale = is_string( $locale ) ? sanitize_text_field( $locale ) : '';
@@ -324,6 +328,15 @@ final class LookupsRestController extends BaseController {
         if ( $req->has_param( 'description' ) ) {
             $row['description'] = wp_kses_post( (string) $req->get_param( 'description' ) );
         }
+        if ( $req->has_param( 'abbreviation' ) ) {
+            // #3246 — canonical short code. Capped at the column width
+            // so a paste can't truncate mid-multibyte-character.
+            $row['abbreviation'] = mb_substr(
+                sanitize_text_field( (string) $req->get_param( 'abbreviation' ) ),
+                0,
+                16
+            );
+        }
         if ( $req->has_param( 'meta' ) ) {
             $meta = $req->get_param( 'meta' );
             $row['meta'] = is_string( $meta ) ? $meta : wp_json_encode( $meta );
@@ -337,11 +350,12 @@ final class LookupsRestController extends BaseController {
     /** @return array<string,mixed> */
     private static function serialize( object $row ): array {
         return [
-            'id'          => (int) ( $row->id ?? 0 ),
-            'name'        => (string) ( $row->name ?? '' ),
-            'description' => (string) ( $row->description ?? '' ),
-            'meta'        => self::decodeMeta( (string) ( $row->meta ?? '' ) ),
-            'sort_order'  => (int) ( $row->sort_order ?? 0 ),
+            'id'           => (int) ( $row->id ?? 0 ),
+            'name'         => (string) ( $row->name ?? '' ),
+            'description'  => (string) ( $row->description ?? '' ),
+            'abbreviation' => (string) ( $row->abbreviation ?? '' ),
+            'meta'         => self::decodeMeta( (string) ( $row->meta ?? '' ) ),
+            'sort_order'   => (int) ( $row->sort_order ?? 0 ),
         ];
     }
 

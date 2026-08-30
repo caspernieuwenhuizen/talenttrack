@@ -166,10 +166,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'players' );
         }
 
-        $position_options = [];
-        foreach ( QueryHelpers::get_lookup_names( 'position' ) as $pos ) {
-            $position_options[ (string) $pos ] = (string) $pos;
-        }
+        // #3246 — the filter used to render the stored key as its own
+        // label, so a position an academy added itself listed as
+        // `linker_middenvelder`. A dropdown has room for the full
+        // translated label; the short code belongs on the chips.
+        $position_options = QueryHelpers::get_lookup_label_pairs( 'position' );
         // v3.85.5 — render-aware lookup pairs so the dropdown shows the
         // translated label to NL users while keeping the stored
         // English name as the form value (preserves DB matching).
@@ -343,6 +344,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $positions  = QueryHelpers::get_lookup_names( 'position' );
         // v3.85.5 — render-aware lookup pairs (stored => translated label).
         $foot_opts  = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
+        // #3246 — chips are the one surface with no room for a full
+        // label, so they print the operator's short code. Where a row
+        // has none they print the translated label, never the key.
+        $pos_labels = QueryHelpers::get_lookup_label_pairs( 'position' );
+        $pos_abbrev = QueryHelpers::get_lookup_abbrev_pairs( 'position' );
         $current_positions = $player ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
 
         $rate_card_url = $is_edit
@@ -438,11 +444,17 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 <label class="tt-field-label"><?php esc_html_e( 'Preferred positions', 'talenttrack' ); ?></label>
                 <div class="tt-multitag-picker">
                     <?php foreach ( $positions as $pos ) :
-                        $is_sel = in_array( (string) $pos, (array) $current_positions, true );
+                        $pos_key = (string) $pos;
+                        $is_sel  = in_array( $pos_key, (array) $current_positions, true );
+                        $label   = $pos_labels[ $pos_key ] ?? $pos_key;
+                        $chip    = $pos_abbrev[ $pos_key ] ?? $label;
                         ?>
-                        <label class="tt-multitag-option<?php echo $is_sel ? ' is-selected' : ''; ?>">
+                        <label class="tt-multitag-option<?php echo $is_sel ? ' is-selected' : ''; ?>" title="<?php echo esc_attr( $label ); ?>">
                             <input type="checkbox" name="preferred_positions[]" value="<?php echo esc_attr( (string) $pos ); ?>" <?php checked( $is_sel ); ?> style="display:none;" />
-                            <?php echo esc_html( (string) $pos ); ?>
+                            <?php echo esc_html( $chip ); ?>
+                            <?php if ( $chip !== $label ) : ?>
+                                <span class="tt-position-chip-full"><?php echo esc_html( $label ); ?></span>
+                            <?php endif; ?>
                         </label>
                     <?php endforeach; ?>
                 </div>
@@ -691,6 +703,19 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
     private static function renderPlayerFacts( object $player ): void {
         $pos  = json_decode( (string) $player->preferred_positions, true );
+        // #3246 — the stored values are internal keys. Render the short
+        // code where the academy set one, else the translated label.
+        if ( is_array( $pos ) && $pos ) {
+            $labels = QueryHelpers::get_lookup_label_pairs( 'position' );
+            $codes  = QueryHelpers::get_lookup_abbrev_pairs( 'position' );
+            $pos    = array_map(
+                static function ( $key ) use ( $labels, $codes ): string {
+                    $key = (string) $key;
+                    return $codes[ $key ] ?? $labels[ $key ] ?? $key;
+                },
+                $pos
+            );
+        }
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         ?>
         <div class="tt-card tt-media-card">

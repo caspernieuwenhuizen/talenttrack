@@ -51210,6 +51210,28 @@ msgstr ""
 msgid "Description (canonical, optional)"
 msgstr "Beschrijving (canoniek, optioneel)"
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:816
+msgid "Abbreviation (canonical, optional)"
+msgstr "Afkorting (canoniek, optioneel)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:827
+msgid ""
+"Short code for surfaces with no room for the full label, such as the "
+"position chips on a player. Leave blank to show the label instead."
+msgstr ""
+"Korte code voor schermen zonder ruimte voor het volledige label, zoals de "
+"positiechips bij een speler. Laat leeg om het label te tonen."
+
+#. translators: %s = locale code such as nl_NL
+#: src/Shared/Frontend/FrontendConfigurationView.php:889
+#, php-format
+msgid "Abbreviation in %s"
+msgstr "Afkorting in %s"
+
+msgctxt "placeholder for the short-code input on a lookup value"
+msgid "Abbr."
+msgstr "Afk."
+
 #. translators: %d = number of supported locales
 #: src/Shared/Frontend/FrontendConfigurationView.php:832
 #, php-format
