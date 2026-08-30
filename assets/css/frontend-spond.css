@@ -254,6 +254,67 @@
     min-height: 48px;
 }
 
+/* #3247 — what Test found: the counts, the first few events, and the
+   reassurance that none of it was written. */
+.tt-dashboard .tt-spond__preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    margin-top: var(--tt-sp-3);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line-soft, #eef0f2);
+    border-radius: var(--tt-radius-sm, 6px);
+    background: var(--tt-mute, #f7f8f8);
+}
+
+.tt-dashboard .tt-spond__preview-counts {
+    margin: 0;
+    font-weight: 700;
+}
+
+.tt-dashboard .tt-spond__preview-note {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.tt-dashboard .tt-spond__preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 18rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.tt-dashboard .tt-spond__preview-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spond__preview-when {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-spond__preview-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-spond__preview-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-spond__field {
         max-width: 28rem;

@@ -73,6 +73,20 @@ Een verouderde import valt op bij de activiteit, niet op deze instellingenpagina
 
 Omdat Spond geen los event opnieuw kan ophalen, haalt de knop de **volledige** teamkalender opnieuw op; het label en de bevestiging zeggen daarom "team" in plaats van te suggereren dat alleen de activiteit voor je neus wordt ververst. Is het team minder dan een minuut geleden gesynchroniseerd, dan meldt de bevestiging dat, zodat wie twee keer klikt weet dat er niets mis is. Na een geslaagde synchronisatie herlaadt de pagina en toont de regel "Team laatst gesynchroniseerd vanuit Spond" het nieuwe tijdstip.
 
+### Wat Test laat zien (v4.x+)
+
+**Test** beantwoordt twee vragen, niet één. Er wordt ingelogd en vervolgens — zonder iets op te slaan — de agenda van het team bij Spond opgehaald, met daarbij wat een synchronisatie ermee zou doen:
+
+- een tellerregel: hoeveel activiteiten **nieuw** zouden zijn, hoeveel een bestaande activiteit zouden **bijwerken**, en hoeveel opgeslagen activiteiten **gearchiveerd** zouden worden omdat Spond ze niet meer heeft;
+- de eerste paar activiteiten, elk met het label Nieuw of Bijwerken, met datum en titel;
+- een link naar de **monitor**, waar de vergelijking per veld staat (wat er precies zou wijzigen, per activiteit).
+
+Er wordt niets weggeschreven. Dat staat er ook bij, want "14 activiteiten zouden synchroniseren" en "14 activiteiten zijn zojuist gesynchroniseerd" schelen één slordige blik.
+
+Werkt de login wel maar is er nog **geen Spond-groep gekoppeld**, dan zegt Test precies dat in plaats van een fout te melden — een werkende login zonder groep is de normale toestand halverwege de instelling. Mislukt de login zelf, dan stopt Test daar en toont de loginfout; er is dan geen agenda om naar te vragen.
+
+De preview gebruikt hetzelfde `POST /teams/{id}/spond/preview`-endpoint als de monitor, onder dezelfde per-team-bevoegdheid als Test zelf.
+
 ### De groep kiezen (v4.x+)
 
 De trainer kiest de **Spond-groep** van het team nu in hetzelfde paneel, zodat de installatie op één plek klaar is in plaats van te stranden bij het teambewerkingsformulier (dat is afgeschermd met `tt_edit_teams`, een recht dat de meeste hoofdtrainers niet hebben).

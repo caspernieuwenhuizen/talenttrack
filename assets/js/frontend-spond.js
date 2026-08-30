@@ -63,6 +63,89 @@
         setTimeout(function () { window.location.reload(); }, 700);
     }
 
+    // ---- Sync preview (#3247) ------------------------------------------
+    // Rendered from the dry-run `/teams/{id}/spond/preview` payload, the
+    // same one the monitor view uses. Kept to a summary plus the first few
+    // events: this is a confirmation that the right calendar is behind the
+    // link, not the field-level comparison, which the monitor still owns.
+    var PREVIEW_MAX = 6;
+
+    function fmt(tpl, args) {
+        return String(tpl).replace(/%(\d+)\$d|%d/g, function (m, idx) {
+            return String(args[idx ? parseInt(idx, 10) - 1 : 0]);
+        });
+    }
+
+    function el(tag, cls, text) {
+        var node = document.createElement(tag);
+        if (cls) node.className = cls;
+        if (text != null) node.textContent = text;
+        return node;
+    }
+
+    function clearPreview(box) {
+        if (!box) return;
+        box.textContent = '';
+        box.hidden = true;
+    }
+
+    function showPreviewNote(box, text) {
+        if (!box || !text) return;
+        box.textContent = '';
+        box.appendChild(el('p', 'tt-spond__preview-note', text));
+        box.hidden = false;
+    }
+
+    function renderPreview(box, data) {
+        if (!box) return;
+        box.textContent = '';
+        box.hidden = false;
+
+        // The endpoint answers 200 with ok:false for the states that are
+        // not failures — most often "no group linked yet", which is exactly
+        // where someone is when they first press Test.
+        if (data.ok === false) {
+            box.appendChild(el('p', 'tt-spond__preview-note', data.error_message || i18n.preview_failed || ''));
+            return;
+        }
+
+        var counts = data.counts || {};
+        box.appendChild(el('p', 'tt-spond__preview-counts', fmt(
+            i18n.preview_counts || '%1$d new · %2$d updated · %3$d archived',
+            [counts['new'] || 0, counts.update || 0, counts.archive || 0]
+        )));
+
+        var events = Array.isArray(data.events) ? data.events : [];
+        if (!events.length) {
+            box.appendChild(el('p', 'tt-spond__preview-note', i18n.preview_none || ''));
+        } else {
+            var list = el('ul', 'tt-spond__preview-list');
+            events.slice(0, PREVIEW_MAX).forEach(function (ev) {
+                var item = el('li', 'tt-spond__preview-item');
+                item.appendChild(el('span',
+                    'tt-spond__badge tt-spond__badge--' + (ev.status === 'update' ? 'partial' : 'ok'),
+                    ev.status === 'update' ? (i18n.status_update || 'Update') : (i18n.status_new || 'New')));
+                item.appendChild(el('span', 'tt-spond__preview-when', ev.dtstart || ''));
+                item.appendChild(el('span', 'tt-spond__preview-title', ev.summary || ''));
+                list.appendChild(item);
+            });
+            box.appendChild(list);
+
+            if (events.length > PREVIEW_MAX) {
+                box.appendChild(el('p', 'tt-spond__preview-note',
+                    fmt(i18n.preview_more || '%d more not listed.', [events.length - PREVIEW_MAX])));
+            }
+        }
+
+        box.appendChild(el('p', 'tt-spond__preview-note', i18n.preview_safe || ''));
+
+        if (cfg.monitor_url) {
+            var link = el('a', 'tt-spond__preview-link', i18n.preview_monitor || '');
+            link.href = cfg.monitor_url;
+            box.appendChild(link);
+        }
+    }
+
     // ---- Save credentials ----------------------------------------------
     var credForm = root.querySelector('[data-tt-spond-creds-form]');
     if (credForm) {
@@ -224,20 +307,49 @@
             });
         });
 
-        // Test (POST test).
+        // Test (POST test), then show what a sync would replicate (#3247).
+        //
+        // A passing login answers "is the password right", which is not the
+        // question someone pressing Test has — they have just linked a group
+        // and want to know whether the right calendar is behind it. The
+        // dry-run preview endpoint already answers that and writes nothing,
+        // so Test runs both and reports the second.
         if (testBtn) {
+            var preview = root.querySelector('[data-tt-spond-team-preview][data-team-id="' + teamId + '"]');
+            var idleLabel = testBtn.textContent;
+
             testBtn.addEventListener('click', function () {
                 testBtn.disabled = true;
+                testBtn.textContent = i18n.testing || 'Testing…';
                 setMsg('', '');
+                clearPreview(preview);
+
                 post(base + 'test', creds()).then(function (r) {
-                    testBtn.disabled = false;
-                    if (r.ok && r.json && r.json.success) {
-                        setMsg(i18n.test_ok || 'Login successful.', 'success');
-                    } else {
+                    if (!(r.ok && r.json && r.json.success)) {
+                        // Login failed — no point asking for a calendar.
+                        testBtn.disabled = false;
+                        testBtn.textContent = idleLabel;
                         setMsg(firstError(r.json) || i18n.test_failed || 'Login failed.', 'error');
+                        return;
                     }
+
+                    setMsg(i18n.test_ok || 'Login successful.', 'success');
+                    showPreviewNote(preview, i18n.preview_loading || 'Checking what would sync…');
+
+                    return post(base + 'preview', {}).then(function (p) {
+                        testBtn.disabled = false;
+                        testBtn.textContent = idleLabel;
+                        var data = (p.json && p.json.data) || {};
+                        if (!p.ok || !(p.json && p.json.success)) {
+                            showPreviewNote(preview, firstError(p.json) || i18n.preview_failed || '');
+                            return;
+                        }
+                        renderPreview(preview, data);
+                    });
                 }).catch(function () {
                     testBtn.disabled = false;
+                    testBtn.textContent = idleLabel;
+                    clearPreview(preview);
                     setMsg(i18n.network_error || 'Network error.', 'error');
                 });
             });

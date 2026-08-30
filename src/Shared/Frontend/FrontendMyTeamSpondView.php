@@ -98,6 +98,13 @@ class FrontendMyTeamSpondView extends FrontendViewBase {
                     </div>
                 </form>
 
+                <?php // #3247 — Test writes what a sync would replicate here. ?>
+                <div class="tt-spond__preview"
+                     data-tt-spond-team-preview
+                     data-team-id="<?php echo (int) $team_id; ?>"
+                     aria-live="polite"
+                     hidden></div>
+
                 <div class="tt-spond__team-group">
                     <?php
                     // #2399 — the group picker. Listing groups needs an
@@ -184,27 +191,7 @@ class FrontendMyTeamSpondView extends FrontendViewBase {
         wp_localize_script(
             'tt-frontend-spond',
             'TT_Spond',
-            [
-                'i18n' => [
-                    'saved'                 => __( 'Credentials saved.', 'talenttrack' ),
-                    'test_ok'               => __( 'Spond login successful.', 'talenttrack' ),
-                    'test_failed'           => __( 'Spond login failed.', 'talenttrack' ),
-                    'disconnected'          => __( 'Spond disconnected.', 'talenttrack' ),
-                    'base_url_saved'        => __( 'API endpoint saved.', 'talenttrack' ),
-                    'refreshing'            => __( 'Refreshing…', 'talenttrack' ),
-                    'refreshed'             => __( 'Sync triggered. Reload to see the updated status.', 'talenttrack' ),
-                    'error'                 => __( 'Could not save. Please try again.', 'talenttrack' ),
-                    'network_error'         => __( 'Network error. Please try again.', 'talenttrack' ),
-                    'disconnect_confirm'    => __( 'Disconnect Spond? Existing imported activities are kept; per-team group selections stay on file.', 'talenttrack' ),
-                    'team_saved'            => __( 'Team account saved.', 'talenttrack' ),
-                    'team_cleared'          => __( 'Team now uses the club account.', 'talenttrack' ),
-                    'team_use_club_confirm' => __( 'Use the club account for this team? The team\'s own Spond login will be removed.', 'talenttrack' ),
-                    // #2399 — group picker.
-                    'group_saved'           => __( 'Spond group saved.', 'talenttrack' ),
-                    /* translators: %s: the other team already linked to this Spond group. */
-                    'group_shared'          => __( 'Heads up: %s is already linked to this Spond group. Saving is allowed — both teams will import the same calendar.', 'talenttrack' ),
-                ],
-            ]
+            \TT\Modules\Spond\SpondScriptData::config()
         );
     }
 }
