@@ -50,6 +50,21 @@ final class NewMediaWizard implements WizardInterface {
 
     public function requiredCap(): string { return 'tt_manage_media'; }
 
+    /**
+     * #3105 — the creation entry point for `media`. The wizard exists to
+     * put a new file in the store, which is the one thing an out-of-plan
+     * club cannot do; everything it already uploaded stays readable in the
+     * galleries. `WizardRegistry::isAvailable()` prefers this over
+     * `requiredCap()`, so the "Add media" button and `urlFor()` agree
+     * without a second gate at each call site.
+     */
+    public function isAvailableFor( int $user_id ): bool {
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'media' ) ) return false;
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix(
+            $user_id, $this->requiredCap()
+        );
+    }
+
     public function firstStepSlug(): string { return 'target'; }
 
     /** @return array<int, \TT\Shared\Wizards\WizardStepInterface> */

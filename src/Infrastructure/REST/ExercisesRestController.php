@@ -36,6 +36,23 @@ final class ExercisesRestController {
 
     const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `exercises` is a Pro feature. Every route on this
+     * controller is wrapped; `enforceWriteRest()` decides from the verb,
+     * so the reads pass through untouched and the writes answer 402.
+     * #3017's third decision, made structural: what the club already has
+     * stays readable, and it cannot add more.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'exercises', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -63,19 +80,19 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_exercises' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_exercises' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_view_activities' ),
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_exercise' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_exercise' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/categories', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_categories' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_categories' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_view_activities' ),
             ],
         ] );
@@ -85,7 +102,7 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises/principles/bulk', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'bulk_tag_principles' ],
+                'callback'            => self::gate( [ __CLASS__, 'bulk_tag_principles' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );
@@ -95,45 +112,45 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises/import', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'import_exercises' ],
+                'callback'            => self::gate( [ __CLASS__, 'import_exercises' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/awaiting-review', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'awaiting_review' ],
+                'callback'            => self::gate( [ __CLASS__, 'awaiting_review' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/promotion-queue', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_promotion_queue' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_promotion_queue' ] ),
                 'permission_callback' => static fn() => self::canPromote(),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/(?P<id>\d+)/promote', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'promote_exercise' ],
+                'callback'            => self::gate( [ __CLASS__, 'promote_exercise' ] ),
                 'permission_callback' => static fn() => self::canPromote(),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_exercise' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_exercise' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_view_activities' ),
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'update_exercise' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_exercise' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'archive_exercise' ],
+                'callback'            => self::gate( [ __CLASS__, 'archive_exercise' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
             ],
         ] );

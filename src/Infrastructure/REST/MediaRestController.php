@@ -89,6 +89,27 @@ final class MediaRestController {
         );
     }
 
+    /**
+     * #3105 — `media` is a Pro feature, and the issue names it the
+     * template for the other seven: *the club keeps every photo it has,
+     * and cannot add more.*
+     *
+     * So the gate goes on the two routes that put a new file into the
+     * store — `POST /media` and `POST /media/{uuid}/links` — and nowhere
+     * else. Deliberately **not** the blanket write-verb wrapper the other
+     * controllers in this slice use: `DELETE` and the retention decisions
+     * are how a club removes a child's photo, and refusing those over a
+     * plan would turn a billing state into a data-protection problem.
+     * Editing a caption on a photo already stored is not adding more
+     * either.
+     */
+    private static function gateUpload( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'media' );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function register(): void {
         register_rest_route( self::NS, '/media', [
             [
@@ -98,7 +119,7 @@ final class MediaRestController {
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_media' ],
+                'callback'            => self::gateUpload( [ __CLASS__, 'create_media' ] ),
                 'permission_callback' => static fn() => self::canUpload(),
             ],
         ] );
@@ -124,7 +145,7 @@ final class MediaRestController {
         register_rest_route( self::NS, '/media/(?P<uuid>[a-f0-9-]{36})/links', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'add_link' ],
+                'callback'            => self::gateUpload( [ __CLASS__, 'add_link' ] ),
                 'permission_callback' => static fn() => self::canUpload(),
             ],
         ] );

@@ -180,9 +180,18 @@ final class FeatureMapGateCoverageTest extends WP_UnitTestCase {
     }
 
     private static function isGated( string $feature, string $sources ): bool {
-        foreach ( [ 'allows', 'can' ] as $method ) {
-            if ( strpos( $sources, "LicenseGate::{$method}( '{$feature}' )" ) !== false ) return true;
-            if ( strpos( $sources, "LicenseGate::{$method}('{$feature}')" ) !== false ) return true;
+        // #3105 — slice 1 (#3104) added the two enforcement helpers, and a
+        // controller that gates through them names the feature there rather
+        // than in a bare `allows()`. Without these the detector would call a
+        // properly gated feature ungated, which is the failure mode that
+        // teaches people to edit the pending list instead of the code.
+        // Matched up to the feature literal, not to the closing paren: the
+        // enforcement helpers take further arguments (the request, the
+        // method), and pinning the whole call would make the detector
+        // sensitive to an argument list it has no opinion about.
+        foreach ( [ 'allows', 'can', 'enforceFeatureRest', 'enforceWriteRest', 'refusalForMethod', 'planRefusal' ] as $method ) {
+            if ( strpos( $sources, "LicenseGate::{$method}( '{$feature}'" ) !== false ) return true;
+            if ( strpos( $sources, "LicenseGate::{$method}('{$feature}'" ) !== false ) return true;
         }
         return false;
     }

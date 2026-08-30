@@ -33,10 +33,38 @@ use TT\Modules\MatchAnalysis\Services\MatchAnalysisWriter;
  * Cap: `tt_edit_activities` to write, `tt_view_activities` to read — the
  * same permissions match prep and match execution use. No new capability:
  * an academy that lets someone plan and run a match lets them write it up.
+ *
+ * Plan (#3105): `match_analysis` is a Pro feature. Every route here is
+ * wrapped in `self::gate()`, which asks `LicenseGate::enforceWriteRest()`
+ * — verb-aware, so the reads pass through untouched and the writes answer
+ * 402. That is #3017's third decision made structural rather than
+ * remembered: a club that drops off Pro keeps reading and exporting the
+ * analyses it wrote, and cannot write new ones.
  */
 class MatchAnalysisRestController {
 
     private const NS = 'talenttrack/v1';
+
+    /**
+     * Wrap a route callback in the plan gate.
+     *
+     * Applied to every route rather than only the mutating ones on
+     * purpose: `enforceWriteRest()` decides from the verb, so wrapping a
+     * `GET` is a no-op, and "wrap everything" is a rule a reviewer can
+     * check by looking, where "wrap the write ones" is a rule they have to
+     * re-derive per route.
+     *
+     * The feature key is a literal rather than a constant so
+     * `FeatureMapGateCoverageTest` can see it — that test greps for the
+     * key next to a `LicenseGate::` call, which is what stops a Pro
+     * feature shipping ungated.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'match_analysis', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
 
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
@@ -46,12 +74,12 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get' ],
+                'callback'            => self::gate( [ __CLASS__, 'get' ] ),
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'put' ],
+                'callback'            => self::gate( [ __CLASS__, 'put' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -59,7 +87,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/sections/(?P<section_key>[a-z_]+)', [
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'put_section' ],
+                'callback'            => self::gate( [ __CLASS__, 'put_section' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -67,12 +95,12 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/players/(?P<player_id>\d+)', [
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'put_player' ],
+                'callback'            => self::gate( [ __CLASS__, 'put_player' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_player' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_player' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -80,7 +108,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_share' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -88,7 +116,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share/rotate', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'rotate_share' ],
+                'callback'            => self::gate( [ __CLASS__, 'rotate_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -99,7 +127,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share-views', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'share_views' ],
+                'callback'            => self::gate( [ __CLASS__, 'share_views' ] ),
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
@@ -111,7 +139,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/match-analysis-trends/teams/(?P<team_id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'team_trends' ],
+                'callback'            => self::gate( [ __CLASS__, 'team_trends' ] ),
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
@@ -119,7 +147,7 @@ class MatchAnalysisRestController {
         register_rest_route( self::NS, '/match-analysis-trends/players/(?P<player_id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'player_trends' ],
+                'callback'            => self::gate( [ __CLASS__, 'player_trends' ] ),
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );

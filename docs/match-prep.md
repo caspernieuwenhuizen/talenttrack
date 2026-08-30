@@ -307,3 +307,7 @@ somewhere in the academy.
  their attention note, so the review answers what you asked for. The camera
  flag still only marks who was appointed an analyst; what the analyst saw
  goes in the analysis.
+
+## On your plan
+
+Match preparation is a **Pro** feature. On Standard a plan the club already made stays on screen and printable; starting a new one, or saving a change to an existing one, is what the plan buys. See [Licence and account](license-and-account.md).

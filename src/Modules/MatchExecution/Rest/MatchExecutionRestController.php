@@ -42,6 +42,23 @@ class MatchExecutionRestController {
 
     private const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `match_execution` is a Pro feature. Every route is wrapped;
+     * `enforceWriteRest()` decides from the verb, so the two read routes
+     * (`event-feed`, `pitch-lineup`) pass through and every tap that logs
+     * something answers 402. An out-of-plan club can still read back the
+     * matches it ran (#3017's third decision); it cannot run another.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'match_execution', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -57,10 +74,12 @@ class MatchExecutionRestController {
         // #2271 — `reopen` transitions a FINALIZED execution back to
         // PENDING_REVIEW so any datapoint can be corrected post-finalize.
         foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
+            /** @var callable $handler — resolved from the action name above. */
+            $handler = [ __CLASS__, 'route_' . str_replace( '-', '_', $action ) ];
             register_rest_route( self::NS, $base . '/' . $action, [
                 [
                     'methods'             => 'POST',
-                    'callback'            => [ __CLASS__, 'route_' . str_replace( '-', '_', $action ) ],
+                    'callback'            => self::gate( $handler ),
                     'permission_callback' => [ __CLASS__, 'can_edit' ],
                 ],
             ] );
@@ -71,12 +90,12 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/goal-event/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'route_goal_event_delete' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_goal_event_delete' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'route_goal_event_update' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_goal_event_update' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -87,12 +106,12 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/substitution/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'route_substitution_delete' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_substitution_delete' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'route_substitution_update' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_substitution_update' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -102,7 +121,7 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/event-feed', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'route_event_feed' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_event_feed' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -110,7 +129,7 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/pitch-lineup', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'route_pitch_lineup' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_pitch_lineup' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -122,7 +141,7 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/minutes', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'route_minutes_override' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_minutes_override' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -133,14 +152,14 @@ class MatchExecutionRestController {
         register_rest_route( self::NS, $base . '/tracked-event', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'route_tracked_event' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_tracked_event' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
         register_rest_route( self::NS, $base . '/tracked-event/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'route_tracked_event_delete' ],
+                'callback'            => self::gate( [ __CLASS__, 'route_tracked_event_delete' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );

@@ -41707,6 +41707,10 @@ msgstr "%d verwijderen"
 msgid "New tournament"
 msgstr "Nieuw toernooi"
 
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:110
+msgid "Edit tournament"
+msgstr "Toernooi bewerken"
+
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:39
 msgid ""
 "Check the details below. You can jump back to any step via the Edit links."

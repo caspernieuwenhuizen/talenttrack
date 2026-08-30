@@ -228,3 +228,7 @@ head-of-development-only capability under a clearer name,
 Nobody gained or lost access in the move. In particular the **age profiles**,
 which set the age-safe intensity ceilings for U10–U14 players, remain
 head-of-development and academy-admin only.
+
+## On your plan
+
+The exercise library is a **Pro** feature. On Standard the library stays browsable and searchable in full; adding, editing and importing exercises are locked. See [Licence and account](license-and-account.md).

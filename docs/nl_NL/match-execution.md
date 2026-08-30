@@ -401,3 +401,10 @@ draait; het team van de wedstrijd zegt welke. Academiebeheer en Hoofd
 Opleiding bereiken alle teams. Een verzoek voor een wedstrijd van een
 ander team wordt geweigerd (`403`), met hetzelfde antwoord als het scherm
 geeft: *Je bent geen trainer van het team van deze activiteit.*
+
+Een weigering om je **abonnement** is een ander antwoord met een andere
+status: `402`. Zie hieronder.
+
+## Op je abonnement
+
+Het live wedstrijdscherm is een **Pro**-functie. Op Standard blijven uitslag, speelminuten en gebeurtenissen van gespeelde wedstrijden leesbaar vanaf de activiteit en de wedstrijdanalyse; het scherm waarmee je er nog een draait is vergrendeld. Zie [Licentie en account](license-and-account.md).

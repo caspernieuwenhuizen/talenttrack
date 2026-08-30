@@ -362,3 +362,10 @@ a team you coach. That capability says you run matches; the match's own
 team says whose. Academy Admin and Head of Development reach every team.
 A request for a match on another coach's team is refused (`403`), the same
 answer the screen gives: *You do not coach this activity's team.*
+
+A refusal about your **plan** is a different answer and carries a different
+status: `402`. See below.
+
+## On your plan
+
+The live match screen is a **Pro** feature. On Standard the result, minutes and events of matches already run stay readable from the activity and from match analysis; the console that runs another one is locked. See [Licence and account](license-and-account.md).

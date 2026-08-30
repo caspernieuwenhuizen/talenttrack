@@ -89,6 +89,26 @@ Two different refusals exist and they never share a sentence:
 
 An integration reading the API sees the same split: a plan refusal comes back as HTTP **402 Payment Required**, a permission refusal as **403 Forbidden**. If something fails and you cannot tell which happened, that is a bug worth reporting.
 
+### What that looks like, feature by feature
+
+The match-day and training features enforce the three answers above. What a
+Standard club can and cannot do on each:
+
+| Feature | Standard can | Standard cannot |
+| - | - | - |
+| **Match analysis** | Read and export every analysis already written | Write or edit one |
+| **Match preparation** | Read and print a plan already made | Start a new plan, or change an existing one |
+| **Live match** | Read the result, minutes and events of matches already run | Open the live console to run another |
+| **Tournaments** | Browse every tournament, its matches, squads and totals | Create, edit or plan one |
+| **Auto-balance** | Plan a tournament grid by hand | Have the grid filled automatically |
+| **Training plans** | Read every plan the club built, and its history | Build a new plan, or run one |
+| **Exercise library** | Browse and search every exercise | Add, edit or import exercises |
+| **Media** | See, play and download every photo and video the club holds — and **delete** them | Upload anything new, or attach an existing item to another record |
+
+The media row is the shape of the whole set: *the club keeps every photo it
+has, and cannot add more.* Deleting is never refused over a plan — removing
+a child's photo is an obligation, not a feature.
+
 ## Usage limits
 
 Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.

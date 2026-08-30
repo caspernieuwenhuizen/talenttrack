@@ -168,28 +168,29 @@ final class LicenseRefusalShapeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( esc_html( LicenseGate::capMessage( 'players' ) ), $html );
     }
 
-    // ── nothing is gated yet ───────────────────────────────────────────
+    // ── the already-gated features stay gated ──────────────────────────
 
     /**
-     * Slice 1 is foundation. If a gate landed here the pending list would
-     * shrink, and the four later slices would be reviewing a moving
-     * target.
+     * Slice 1 asserted that it gated nothing, by requiring `match_analysis`
+     * to still be in the pending list. That was the right assertion while
+     * the foundation was landing alone; #3105 gates `match_analysis` among
+     * seven others, so keeping it would mean slice 2 could not ship without
+     * slice 1's test being wrong about the product.
+     *
+     * What is worth keeping is the half that was never about slice 1's
+     * scope: migrating the two already-gated features onto the shared panel
+     * must not have dropped their `LicenseGate::allows()` call site, which
+     * is how a gate silently disappears.
      */
-    public function test_this_slice_gates_nothing(): void {
+    public function test_the_two_already_gated_features_stay_gated(): void {
         $pending = require TT_PLUGIN_DIR . 'config/license_gate_pending.php';
 
-        $this->assertArrayHasKey(
-            self::PRO_FEATURE,
-            $pending,
-            'config/license_gate_pending.php is unchanged by slice 1 — the refusal '
-            . 'shape ships first, the gates follow in #3105-#3108.'
-        );
-
-        // The two features that were already gated stay gated, and stay
-        // out of the pending list. Migrating them onto the shared panel
-        // must not have dropped their `LicenseGate::allows()` call site.
         foreach ( [ 'scout_access', 'team_chemistry' ] as $shipped ) {
-            $this->assertArrayNotHasKey( $shipped, $pending );
+            $this->assertArrayNotHasKey(
+                $shipped,
+                $pending,
+                "{$shipped} was gated before this epic began; a pending entry means its gate was lost"
+            );
         }
     }
 }

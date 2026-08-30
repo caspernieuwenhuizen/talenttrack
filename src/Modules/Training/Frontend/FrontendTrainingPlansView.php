@@ -50,6 +50,12 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             return;
         }
 
+        // #3105 — `training` is Pro. The plan library a club built while it
+        // was on Pro stays readable, so the refusal lands on the builder
+        // rather than on the page: a locked panel above the list, and the
+        // REST writes answer 402 (#3017's third decision).
+        $in_plan = \TT\Modules\License\LicenseGate::allows( 'training' );
+
         self::enqueueAssets();
         wp_enqueue_style(
             'tt-frontend-training',
@@ -60,15 +66,23 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
 
         $detail_id = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
         if ( $detail_id > 0 ) {
+            if ( ! $in_plan ) {
+                FrontendBreadcrumbs::fromDashboard( __( 'Training', 'talenttrack' ) );
+                echo \TT\Modules\License\UpgradePanel::render( 'training', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            }
             self::renderDetail( $detail_id );
             return;
         }
 
-        self::renderList();
+        self::renderList( $in_plan );
     }
 
-    private static function renderList(): void {
+    private static function renderList( bool $in_plan = true ): void {
         FrontendBreadcrumbs::fromDashboard( __( 'Training', 'talenttrack' ) );
+
+        if ( ! $in_plan ) {
+            echo \TT\Modules\License\UpgradePanel::render( 'training', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+        }
 
         // The library is reached from inside this page, not from a second
         // tile (D10). `CrossViewLink::allows()` mirrors the library view's
@@ -79,6 +93,10 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         // #2497 — the generator is the way in, so it leads. A blank
         // builder is where coaching apps go to die; the coach answers
         // four short questions and gets a finished session back.
+        // #3105 — off-plan, the button goes; the panel above the list is
+        // already saying why, and a second copy of the sentence on the
+        // same screen reads as nagging rather than as an explanation.
+        if ( $in_plan ) {
         $actions[] = [
             'label'   => __( 'New plan', 'talenttrack' ),
             // The wizard gates itself on `tt_training_plan`, the same cap
@@ -93,6 +111,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             'primary' => true,
             'icon'    => '+',
         ];
+        }
 
         if ( CrossViewLink::allows( 'exercises' ) ) {
             $actions[] = [

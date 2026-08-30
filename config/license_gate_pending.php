@@ -23,25 +23,19 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 return [
-    // Match day (#2704, #2892, #2855).
-    'match_analysis'              => 'FrontendMatchAnalysisView + MatchAnalysisRestController',
+    // Match day (#2704, #2892, #2855). The eight gated in #3105 are gone;
+    // the sharing and export halves ride on their own keys and land in
+    // slices 4 and 5.
     'match_analysis_sharing'      => 'The signed share-link router',
-    'match_prep'                  => 'FrontendMatchPrepView + its REST controller',
     'match_prep_sharing'          => 'The match-prep share-link router (#2892)',
-    'match_execution'             => 'The live-match surface and its REST writes',
     'export_match_analysis_pdf'   => 'MatchAnalysisPrintRouter',
     'export_match_prep_pdf'       => 'MatchPrepPrintRouter',
     'export_match_day_team_sheet' => 'The team-sheet exporter',
-    'tournaments'                 => 'TournamentsRestController + the tournament views',
-    'tournaments_auto_balance'    => 'The auto-balance action, not the tournament itself',
 
     // Training (#2493) and the exercise library (#0016).
-    'training'                    => 'TrainingModule surfaces + repositories',
-    'exercises'                   => 'The exercise library views + import',
     'exercises_vision_extraction' => 'The photo-capture extraction path — also an operator cost',
 
     // Storage and bandwidth (#2589).
-    'media'                       => 'MediaRestController::create — refuse the upload, not the read',
     's3_backup'                   => 'The object-storage destination in backup settings',
 
     // The analytics platform (#0083, #0078).

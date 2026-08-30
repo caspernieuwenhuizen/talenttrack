@@ -89,6 +89,26 @@ Er bestaan twee soorten weigeringen en ze delen nooit dezelfde zin:
 
 Een koppeling die de API leest, ziet dezelfde scheiding: een pakketweigering komt terug als HTTP **402 Payment Required**, een rechtenweigering als **403 Forbidden**. Gaat er iets mis en kun je niet zien welke van de twee het was, dan is dat een bug die het melden waard is.
 
+### Hoe dat er per functie uitziet
+
+De wedstrijd- en trainingsfuncties passen de drie antwoorden hierboven toe.
+Wat een Standard-club wel en niet kan:
+
+| Functie | Standard kan wel | Standard kan niet |
+| - | - | - |
+| **Wedstrijdanalyse** | Elke geschreven analyse lezen en exporteren | Er een schrijven of wijzigen |
+| **Wedstrijdvoorbereiding** | Een bestaand plan lezen en afdrukken | Een nieuw plan starten of een bestaand plan wijzigen |
+| **Live wedstrijd** | Uitslag, speelminuten en gebeurtenissen van gespeelde wedstrijden lezen | Het live scherm openen om er nog een te draaien |
+| **Toernooien** | Elk toernooi, de wedstrijden, selecties en totalen bekijken | Er een aanmaken, wijzigen of plannen |
+| **Automatisch balanceren** | Een toernooischema met de hand plannen | Het schema automatisch laten vullen |
+| **Trainingsplannen** | Elk plan dat de club maakte lezen, met de historie | Een nieuw plan bouwen of er een draaien |
+| **Oefeningenbibliotheek** | Alle oefeningen doorzoeken en bekijken | Oefeningen toevoegen, wijzigen of importeren |
+| **Media** | Elke foto en video van de club zien, afspelen, downloaden — en **verwijderen** | Iets nieuws uploaden, of een bestaand item aan nog een record koppelen |
+
+De regel over media is de vorm van het geheel: *de club houdt elke foto die
+hij heeft, en kan er geen bij doen.* Verwijderen wordt nooit geweigerd om
+een abonnement — de foto van een kind weghalen is een plicht, geen functie.
+
 ## Gebruikslimieten
 
 Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.

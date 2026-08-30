@@ -42,6 +42,23 @@ final class TrainingPlansRestController {
 
     const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `training` is a Pro feature. Every route on this
+     * controller is wrapped; `enforceWriteRest()` decides from the verb,
+     * so the reads pass through untouched and the writes answer 402.
+     * #3017's third decision, made structural: what the club already has
+     * stays readable, and it cannot add more.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'training', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -58,12 +75,12 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_plans' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_plans' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -71,17 +88,17 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'archive_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'archive_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -89,7 +106,7 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/generate', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'generate_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'generate_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -97,7 +114,7 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/suggest', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'suggest_inputs' ],
+                'callback'            => self::gate( [ __CLASS__, 'suggest_inputs' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -105,7 +122,7 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/duplicate', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'duplicate_plan' ],
+                'callback'            => self::gate( [ __CLASS__, 'duplicate_plan' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -113,7 +130,7 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/coverage', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'plan_coverage' ],
+                'callback'            => self::gate( [ __CLASS__, 'plan_coverage' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -121,7 +138,7 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/exercise-options', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'exercise_options' ],
+                'callback'            => self::gate( [ __CLASS__, 'exercise_options' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -129,12 +146,12 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/blocks', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_blocks' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_blocks' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'replace_blocks' ],
+                'callback'            => self::gate( [ __CLASS__, 'replace_blocks' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
