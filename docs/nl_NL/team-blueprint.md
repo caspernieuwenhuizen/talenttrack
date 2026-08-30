@@ -117,6 +117,7 @@ Heropenen vereist hetzelfde rechtenniveau als het aanmaken van een blauwdruk, du
 
 - **Bekijken** — hoofdcoaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord. Toegang volgt de `team_chemistry`-autorisatiematrix: assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang.
 - **Aanmaken / bewerken / vergrendelen / verwijderen** — afgeschermd op `team_chemistry` **beheer**-autoriteit in de matrix (hoofdcoach op teamscope; hoofd-academie / admin globaal), opgelost via `TeamChemistryAccess` zodat de frontend en REST overeenkomen.
+- **De teamscope geldt per team, niet "ergens"** — een coach met een grant op één elftal kan alleen de blauwdrukken van dat elftal openen, bewerken, vergrendelen, dupliceren of verwijderen. De blauwdruk van een ander team bereiken door het id in de URL aan te passen of de API rechtstreeks aan te roepen wordt geweigerd met *geen toegang*, en die weigering valt vóórdat de opstelling wordt geladen — er lekt dus geen positie, tier of speler. Een globale grant (hoofd ontwikkeling, scout, academie-admin) dekt nog steeds elk team. Dezelfde controle per team geldt voor de formatie- en speelstijlinstellingen van het team.
 
 ## Selectie-plan-variant
 

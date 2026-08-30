@@ -43,24 +43,24 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_formation' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_team' ],
             ],
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_formation' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/style', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_style' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_team' ],
             ],
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_style' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
         ] );
         register_rest_route( self::NS, '/formation-templates', [
@@ -138,50 +138,50 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_blueprints' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_team' ],
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_blueprint' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_blueprint' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_blueprint' ],
             ],
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_blueprint' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_blueprint' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/assignment', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'set_blueprint_assignment' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/assignments', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'replace_blueprint_assignments' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/status', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'set_blueprint_status' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
         ] );
         // v3.110.184 — Save-As. Duplicates the blueprint + every
@@ -191,7 +191,7 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'clone_blueprint' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
         ] );
     }
@@ -210,6 +210,49 @@ class TeamDevelopmentRestController {
     /** #1922 — blueprint / formation write access via the matrix. */
     public static function can_manage(): bool {
         return TeamChemistryAccess::canManage( get_current_user_id() );
+    }
+
+    /**
+     * #3181 — the same two questions, asked about the team in the path.
+     *
+     * `can_view()` / `can_manage()` answer "do you hold `team_chemistry`
+     * anywhere", which a **team**-scoped grant satisfies for **every**
+     * team. That left the formation, style and team-blueprint-list routes
+     * serving any team id the caller typed. The scoped pair below wraps
+     * `canRead()` / `canManage()`, so the blueprint surfaces still survive
+     * the `team_chemistry` sub-feature switch (#1485, #1922).
+     *
+     * The unscoped pair stays for `/formation-templates`, whose payload is
+     * the seeded template library rather than any one team's data.
+     */
+    public static function can_view_team( \WP_REST_Request $r ): bool {
+        return TeamChemistryAccess::canReadForTeam( get_current_user_id(), absint( $r['id'] ) );
+    }
+
+    /** #3181 — write sibling, gated on `change` for the team in the path. */
+    public static function can_manage_team( \WP_REST_Request $r ): bool {
+        return TeamChemistryAccess::canManageForTeam( get_current_user_id(), absint( $r['id'] ) );
+    }
+
+    /**
+     * #3181 — `/blueprints/{id}` names the blueprint, not its team, so the
+     * row's team is resolved first. Without this, `GET /blueprints/{id}`
+     * returned any squad's full match-day lineup — slot, tier and player id
+     * — to any caller holding a team-scoped grant somewhere.
+     */
+    public static function can_view_blueprint( \WP_REST_Request $r ): bool {
+        $team_id = ( new TeamBlueprintsRepository() )->teamIdFor( absint( $r['id'] ) );
+        return TeamChemistryAccess::canReadForTeam( get_current_user_id(), $team_id );
+    }
+
+    /**
+     * #3181 — write sibling for `PUT`/`DELETE /blueprints/{id}` and the
+     * `assignment` / `assignments` / `status` / `clone` sub-routes. Rewriting
+     * or deleting another squad's lineup needs a grant on that squad.
+     */
+    public static function can_manage_blueprint( \WP_REST_Request $r ): bool {
+        $team_id = ( new TeamBlueprintsRepository() )->teamIdFor( absint( $r['id'] ) );
+        return TeamChemistryAccess::canManageForTeam( get_current_user_id(), $team_id );
     }
 
     /**
