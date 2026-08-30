@@ -91,6 +91,18 @@ Deze twee gaan naar wie de administratie beheert in plaats van naar een trainer,
 
 Ouderuitnodigingen hebben hun eigen melding (**Ouder uitgenodigd maar nooit geactiveerd**), omdat de vraag daar anders ligt: een ouderuitnodiging die nooit is geaccepteerd kan prima zijn als het gezin op een andere manier gekoppeld is. Gescheiden houden maakt elke boodschap concreter.
 
+### Berichten
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Er worden geen berichten verstuurd** | Elk bericht dat deze academie zou kunnen versturen staat uit, en sinds de installatie heeft niemand daar iets anders van gemaakt. | *Wat heeft deze speler nu nodig?* — van de andere kant gelezen. Een afgelaste training, een nieuwe evaluatie om te lezen, een gesprek om je op voor te bereiden: niets daarvan bereikt de speler of de ouders zolang de academie zo staat ingesteld. |
+
+Een nieuwe academie begint bewust met alles uit — TalentTrack mailt niet naar de ouders van minderjarigen voordat iemand daar toestemming voor heeft gegeven. De setup-flow vraagt welke berichten je wilt, en die stap kun je overslaan. Deze melding is de weg terug voor een academie die dat deed, zodat het antwoord niet pas boven komt op de dag dat een training wordt afgelast en er niemand is die het te horen krijgt.
+
+Het is **geen** fout, en de melding is bewust stil: alleen bij de bel, nooit als balk. Zet onder **Configuratie → Berichten** iets aan en de melding verdwijnt vanzelf bij de volgende controle. Wil je academie echt niets versturen, zet de melding dan uit zoals elke andere onder **Meldingen → Waarover ik iets hoor**.
+
+Eén ding betekent het níét: uitnodigingen werken gewoon. De e-mail waarmee een nieuwe trainer, speler of ouder een account instelt, is accountinrichting en geen bericht uit deze lijst, dus die gaat sowieso de deur uit.
+
 Daarmee is de catalogus voorlopig compleet. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen

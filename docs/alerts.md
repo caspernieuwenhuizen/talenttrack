@@ -91,6 +91,18 @@ These two go to whoever looks after the records rather than to a coach, because 
 
 Parent invitations have their own alert (**Parent invited but never activated**), because the question they raise is different: a parent invitation that was never accepted may still be fine if the family is linked another way. Splitting them keeps each message specific.
 
+### Messages
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **No messages are being sent** | Every message this academy could send is switched off, and nobody has chosen otherwise since the install was created. | *What do they need next?* — read from the other side. A cancelled training, a new evaluation to read, a conversation to prepare for: none of it reaches the player or their parents while the academy is in this state. |
+
+A new academy starts with everything switched off, on purpose — TalentTrack does not mail the parents of minors before somebody has decided it should. The setup flow asks which messages you want, and that step can be skipped. This alert is the way back for an academy that skipped it, so the answer is not discovered on the day a training is cancelled and nobody turns up to be told.
+
+It is **not** a fault, and it is deliberately quiet: a badge, never a banner. Switch any message on under **Configuration → Messages** and it disappears by itself on the next check. If your academy genuinely means to send nothing, mute it like any other alert under **Alerts → What I get told about**.
+
+One thing it does *not* mean: invitations still work. The email that lets a new coach, player or parent set up their account is account plumbing rather than one of these messages, so it is sent whatever this alert says.
+
 That completes the alert catalogue for now. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire

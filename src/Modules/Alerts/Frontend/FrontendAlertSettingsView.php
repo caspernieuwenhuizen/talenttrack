@@ -229,6 +229,9 @@ final class FrontendAlertSettingsView extends FrontendViewBase {
     private static function moduleLabel( string $module ): string {
         $labels = [
             'activities'  => __( 'Activities and attendance', 'talenttrack' ),
+            // #3139 — 'comms' would otherwise render as "Comms", which is
+            // an internal name; the screen it points at is called Messages.
+            'comms'       => __( 'Messages', 'talenttrack' ),
             'evaluations' => __( 'Evaluations', 'talenttrack' ),
             'goals'       => __( 'Goals', 'talenttrack' ),
             'pdp'         => __( 'Development plans', 'talenttrack' ),
