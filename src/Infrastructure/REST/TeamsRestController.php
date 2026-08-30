@@ -53,6 +53,17 @@ class TeamsRestController {
         $can_edit = static function (): bool {
             return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_teams' );
         };
+        // #3152 — `$can_view` answers "may you look at teams". `GET /teams`
+        // then narrows per row; `GET /teams/{id}` did not, so the row the
+        // list omits was still readable one id at a time. This is the same
+        // narrowing, asked about one record.
+        $can_view_team = static function ( \WP_REST_Request $r ) use ( $can_view ): bool {
+            return $can_view()
+                && \TT\Modules\Authorization\AllTeamsScope::canReadTeam(
+                    get_current_user_id(),
+                    (int) $r['id']
+                );
+        };
 
         register_rest_route( self::NS, '/teams', [
             [
@@ -70,7 +81,7 @@ class TeamsRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_team' ],
-                'permission_callback' => $can_view,
+                'permission_callback' => $can_view_team,
             ],
             [
                 'methods'             => 'PUT',
@@ -89,18 +100,22 @@ class TeamsRestController {
         // and one player's row out of the same answer. Reads the domain
         // service the Minutes share report composes from, so the rendered
         // page and a non-WordPress front end cannot disagree (CLAUDE.md §4).
+        // #3152 — both of these take the team id from the path and return
+        // per-player minutes out of it. They were gated on the same club-wide
+        // cap `GET /teams/{id}` was, and are the same leak seen from the
+        // report side, so they take the same predicate.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_minutes_share' ],
-                'permission_callback' => $can_view,
+                'permission_callback' => $can_view_team,
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share/(?P<player_id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_player_minutes_share' ],
-                'permission_callback' => $can_view,
+                'permission_callback' => $can_view_team,
             ],
         ] );
         // #1470 — archive lifecycle: restore + gated permanent delete.

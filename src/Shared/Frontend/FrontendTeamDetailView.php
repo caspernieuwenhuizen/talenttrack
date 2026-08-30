@@ -60,6 +60,18 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             return;
         }
 
+        // #3152 — the cap above answers "may you look at teams", not "may you
+        // look at *this* team", and `tt_view_teams` is club-wide on
+        // `tt_coach`. Without this, `?tt_view=teams&id=N` handed a head coach
+        // the full active roster — and the trial roster — of every squad in
+        // the academy, one increment at a time. Closes both the active and
+        // the trial roster on this view.
+        if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeam( $user_id, $team_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // #1088 VCT-13 — handle inline VCT defaults panel POST before
         // rendering so the rendered panel reflects the saved state.
         // Cap-gated on tt_vct_admin_config inside the handler.

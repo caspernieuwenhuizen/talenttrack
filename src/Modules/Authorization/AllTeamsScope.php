@@ -57,4 +57,36 @@ final class AllTeamsScope {
     public static function canSeeAllTeamsEvaluations( int $user_id ): bool {
         return self::canSeeAllTeams( $user_id, 'evaluations' );
     }
+
+    /**
+     * #3152 — may this user read **this** team?
+     *
+     * The sibling above answers "may you see beyond your own teams". Four
+     * surfaces asked that question, or the coarser `current_user_can(
+     * 'tt_view_teams' )`, and then took the team id straight out of the URL.
+     * `tt_view_teams` is club-wide on `tt_coach`, so a head coach could walk
+     * `?id=1,2,3…` and read every roster in the academy.
+     *
+     * This is the per-record form, and it is deliberately the same answer
+     * `GET /teams` already gives when it decides which rows to include:
+     * a global `team` read (or the WordPress settings admin) sees every
+     * squad, everyone else sees the teams they are assigned to.
+     *
+     * Archived teams count. Whether you coach a team is a fact about the
+     * assignment, not about the team's lifecycle — and a detail view has an
+     * archived read-only mode that a scope check must not swallow.
+     */
+    public static function canReadTeam( int $user_id, int $team_id ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+
+        if ( \TT\Infrastructure\Query\QueryHelpers::user_has_global_entity_read( $user_id, 'team' ) ) {
+            return true;
+        }
+
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id, true ) as $team ) {
+            if ( (int) ( $team->id ?? 0 ) === $team_id ) return true;
+        }
+
+        return false;
+    }
 }

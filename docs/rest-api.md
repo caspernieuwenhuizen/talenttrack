@@ -374,6 +374,15 @@ need not fetch and filter the whole squad. A player with no recorded minutes on
 that team in the window is a 404 rather than a zero row — they were not in the
 squad, which is different from having played none of it.
 
+Both routes, and `GET /teams/{id}` beside them, gate on the caller's **team
+scope** and not on `tt_view_teams` alone (#3152). `tt_view_teams` is club-wide
+on `tt_coach`, so before that a coach could read any squad's roster and minutes
+by changing one number in the URL. The predicate is
+`AllTeamsScope::canReadTeam()`: a global `team` read sees every squad, everyone
+else sees the teams they are assigned to — the same narrowing `GET /teams`
+already applied when deciding which rows to list. A team outside scope is a
+**403**, not a 402: this is the capability model, not the plan.
+
 Both gate on a `reports` read: global scope sees any team, a team-scoped grant
 only its own, and anything else is a 403 rather than an empty list — an empty
 list would read as "this team played nothing".
@@ -441,9 +450,15 @@ Two constraints that are load-bearing rather than cosmetic:
 ### `GET /players/{id}/summary`, `/teams/{id}/summary`, `/activities/{id}/summary`
 
 Read-only summaries behind the peek panel. Permission is the same per-record
-check the detail view uses — `canViewPlayer()` for players, the view capability
-for teams and activities — so a record you cannot open is a record you cannot
-peek.
+check the detail view uses — `canViewPlayer()` for players,
+`AllTeamsScope::canReadTeam()` for teams — so a record you cannot open is a
+record you cannot peek.
+
+The team peek was the exception until #3152: it gated on `tt_view_teams` alone,
+which is club-wide on `tt_coach`, so it returned name, age group, season and
+roster count for any team id. It now asks the same question `GET /teams/{id}`
+and `GET /teams` ask. **The activity peek still gates on `tt_view_activities`
+alone** and is the remaining route where the sentence above is aspirational.
 
 ```json
 { "type": "player", "id": 42, "title": "Sem de Vries", "subtitle": "JO15-1",
