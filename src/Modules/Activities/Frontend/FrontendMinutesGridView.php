@@ -84,6 +84,15 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             return;
         }
 
+        // #3107 — the grid is Pro; recording minutes is not. See the note.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'minutes_grid' ) ) {
+            self::crumbs();
+            echo \TT\Modules\License\UpgradePanel::render( 'minutes_grid', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+                'note' => __( 'Minutes themselves are not affected: you can still enter them per activity, and a live match writes them for you. The grid is the faster desktop way to correct a whole squad at once.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
         self::crumbs();
         self::renderHeader( __( 'Minutes + statistics', 'talenttrack' ) );
         echo '<p class="tt-agrid-lead">' . esc_html__(

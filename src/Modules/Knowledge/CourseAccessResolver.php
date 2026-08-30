@@ -53,6 +53,9 @@ final class CourseAccessResolver {
      * @param int|null $user_id   WordPress user, for the capability check.
      */
     public function forCourse( string $course_slug, ?int $person_id = null, ?int $user_id = null ): GateVerdict {
+        $plan = $this->planVerdict();
+        if ( $plan !== null ) return $plan;
+
         $manifest = CourseRegistry::get( $course_slug );
         if ( $manifest === null ) {
             return GateVerdict::unavailable( ContentGate::REASON_MODULE, [ 'course' => $course_slug ] );
@@ -76,6 +79,15 @@ final class CourseAccessResolver {
      * @return array<string, GateVerdict> keyed by lesson slug
      */
     public function forLessons( string $course_slug, ?int $person_id = null, ?int $user_id = null ): array {
+        $plan = $this->planVerdict();
+        if ( $plan !== null ) {
+            // Same shape the "course out of reach" branch below returns:
+            // every lesson carries the course's verdict, so a reader is not
+            // told which of the lessons they have not unlocked.
+            $off_plan = CourseRegistry::get( $course_slug );
+            return $off_plan === null ? [] : array_fill_keys( $off_plan->lessonSlugs(), $plan );
+        }
+
         $manifest = CourseRegistry::get( $course_slug );
         if ( $manifest === null ) {
             return [];
@@ -146,6 +158,32 @@ final class CourseAccessResolver {
         }
 
         return $out;
+    }
+
+    /**
+     * The plan's answer, or null when the plan has nothing to say (#3107).
+     *
+     * `knowledge_courses` gates **here**, at the resolver, rather than at a
+     * view. This class is the module's existing chokepoint — it already
+     * answers "may this person open this course" — so every consumer
+     * inherits the plan check: the course list, a lesson page, the REST
+     * routes, and any surface written later. A view-level check would have
+     * left the routes open, which is the mistake the rest of this epic
+     * exists to stop making.
+     *
+     * `locked`, not `unavailable`: a locked verdict stays **listable**, so a
+     * Standard club sees the courses exist and what opens them. That is
+     * #3017's "locked, not hidden" expressed in the vocabulary this module
+     * already has, and it reuses `ContentGate::REASON_TIER` so a consumer
+     * telling reasons apart needs no new case.
+     */
+    private function planVerdict(): ?GateVerdict {
+        if ( \TT\Modules\License\LicenseGate::allows( 'knowledge_courses' ) ) return null;
+
+        return GateVerdict::locked( ContentGate::REASON_TIER, [
+            'required' => \TT\Modules\License\LicenseGate::requiredTierFor( 'knowledge_courses' ),
+            'feature'  => 'knowledge_courses',
+        ] );
     }
 
     /**

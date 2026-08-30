@@ -134,6 +134,31 @@ Nothing already imported is touched. Spond fixtures and Strava activities
 stay exactly where they are, readable and exportable, and come back to life
 if the plan changes.
 
+### Screens you can see and not open
+
+Seven surfaces render locked. That is the decision working as intended: the
+tile stays where it is, and opening it explains itself.
+
+| Feature | Standard can | Standard cannot |
+| - | - | - |
+| **Analytics explorer** | Every standard report, every dashboard figure — they read the engine directly | Ask an ad-hoc question of it |
+| **Custom widgets** | See the widgets the club already built, on the dashboards they sit on | Build or edit one |
+| **Dashboard layouts** | Use the layouts already saved | Edit them |
+| **Courses** | See which courses exist and what they cover | Open or complete one |
+| **Attendance grid** | **Record attendance**, one activity at a time | Enter a whole week's squad in one screen |
+| **Minutes grid** | **Record minutes** per activity; a live match still writes them | Correct a whole squad in one screen |
+| **Ratings grid** | **Rate a player** from their profile and from the activity | Rate a whole squad in one screen |
+
+The three grids are worth reading twice. They are the fast desktop way to
+enter a squad's worth of data — **not the only way to record it**. Attendance,
+minutes and ratings are all Standard features and stay exactly where they
+were; what the plan buys is doing twenty of them at once. Each locked grid
+says so on the panel, because "attendance is a paid feature" would be false.
+
+Courses lock at the module's own gate rather than at a screen, so the course
+list, a lesson page and the API all give the same answer — and the courses
+stay **listed**, so a club can see what the plan would open.
+
 ## Usage limits
 
 Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.

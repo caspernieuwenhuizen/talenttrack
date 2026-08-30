@@ -58561,6 +58561,18 @@ msgstr "Overgeslagen: geplande verzendingen horen bij het %s-pakket, waar deze i
 msgid "Spond sync is part of the %s plan, which this install is not on. Fixtures already imported are unaffected."
 msgstr "Spond-synchronisatie hoort bij het %s-pakket, waar deze installatie niet op zit. Al geïmporteerde wedstrijden blijven ongewijzigd."
 
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:99
+msgid "Attendance itself is not affected: you can still mark a squad present from the activity, one activity at a time. The grid is the faster desktop way to do a whole week at once."
+msgstr "Aan de aanwezigheid zelf verandert niets: je kunt een selectie nog steeds aanwezig melden vanaf de activiteit, per activiteit. Het raster is de snellere manier op een laptop om een hele week in één keer te doen."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:92
+msgid "Minutes themselves are not affected: you can still enter them per activity, and a live match writes them for you. The grid is the faster desktop way to correct a whole squad at once."
+msgstr "Aan de speelminuten zelf verandert niets: je voert ze nog steeds per activiteit in, en een live wedstrijd schrijft ze voor je. Het raster is de snellere manier op een laptop om een hele selectie in één keer te corrigeren."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:96
+msgid "Ratings themselves are not affected: you can still rate a player from their profile and from the activity. The grid is the faster desktop way to rate a whole squad at once."
+msgstr "Aan de beoordelingen zelf verandert niets: je beoordeelt een speler nog steeds vanaf het spelersdossier en vanaf de activiteit. Het raster is de snellere manier op een laptop om een hele selectie in één keer te beoordelen."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 
