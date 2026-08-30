@@ -59002,6 +59002,37 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %d: number of recorded potential entries
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:334
+#, php-format
+msgid "Potential history (%d entry)"
+msgid_plural "Potential history (%d entries)"
+msgstr[0] "Verloop potentieel (%d regel)"
+msgstr[1] "Verloop potentieel (%d regels)"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:389
+msgid "revised up"
+msgstr "naar boven bijgesteld"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:391
+msgid "revised down"
+msgstr "naar beneden bijgesteld"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:393
+msgid "reaffirmed"
+msgstr "opnieuw bevestigd"
+
+#. translators: 1: date 2: person who recorded it
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:364
+#, php-format
+msgid "%1$s · by %2$s"
+msgstr "%1$s · door %2$s"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1305
+msgctxt "player profile row label — the recorded potential band"
+msgid "Potential"
+msgstr "Potentieel"
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 
