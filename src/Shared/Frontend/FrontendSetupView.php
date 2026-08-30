@@ -89,9 +89,9 @@ class FrontendSetupView extends FrontendViewBase {
                     // (file upload and column mapping; people records and
                     // held invitation credentials) and are filed separately.
                     // Until they land they say what they are and offer a way
-                    // past, rather than "Unknown step." — which reads as a
-                    // bug and whose only exit restarted the wizard at step 1
-                    // to hit the same wall again.
+                    // past. What used to be here read as a bug and its only
+                    // exit restarted the wizard at step 1, to hit the same
+                    // wall again.
                     default:            self::renderNotYetPorted( $step, $cancel_url );
                 }
                 ?>
@@ -388,11 +388,11 @@ class FrontendSetupView extends FrontendViewBase {
      * #3140 — a step the wp-admin wizard carries and this surface does not
      * yet: `profile` (#3038), `import` (#2958), `staff` (#2965).
      *
-     * These were rendering *"Unknown step."*, which reads as a bug and
-     * whose only exit was "Start over" — putting the operator back at step
-     * 1 to walk into the same wall. A dead end an operator can escape is a
-     * limitation; one that loops them back to the beginning is a support
-     * call.
+     * These used to fall through to a two-word "unknown step" line, which
+     * reads as a bug and whose only exit was "Start over" — putting the
+     * operator back at step 1 to walk into the same wall. A dead end an
+     * operator can escape is a limitation; one that loops them back to the
+     * beginning is a support call.
      *
      * Two ways onward and deliberately not a third. It does **not** offer
      * to skip the step on the operator's behalf: skipping is a decision,

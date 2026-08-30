@@ -138,8 +138,8 @@ final class OnboardingRestController {
      * #3140 — the messaging step (#3113) on the frontend.
      *
      * Both branches delegate to `OnboardingHandlers`, which is the whole
-     * point of the route existing rather than the view writing
-     * `TemplateSwitch` itself: the handler inverts the ticked list against
+     * point of the route existing rather than this layer writing the
+     * template switch itself: the handler inverts the ticked list against
      * the **registered** switchable set, so a template that was never
      * rendered ends up switched off rather than switched on by omission,
      * and skipping writes nothing at all. Re-deriving either of those here
