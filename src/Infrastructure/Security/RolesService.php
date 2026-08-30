@@ -302,6 +302,16 @@ class RolesService {
                         'tt_edit_goals'         => true,
                         'tt_evaluate_players'   => true,
                         'tt_manage_players'     => true,
+                        // #3232 — the test-catalogue cap, granted raw to the
+                        // roles that already reached the "+ New test" wizard
+                        // through `tt_manage_players`. Without the raw grant
+                        // the cap would be matrix-only, and a head of
+                        // development on a matrix-INACTIVE install would lose
+                        // the wizard — an access regression dressed as a
+                        // tidy-up. On matrix-active installs the bridge
+                        // narrows it to `measurement_definitions:change`,
+                        // which HoD and academy admin hold globally.
+                        'tt_manage_measurement_definitions' => true,
                         // NOT tt_edit_settings — HoD is read-only on config now.
                         'tt_access_frontend_admin' => true,
                         'tt_generate_report'       => true,
@@ -334,6 +344,8 @@ class RolesService {
                     [
                         'tt_manage_players'  => true,
                         'tt_manage_settings' => true,
+                        // #3232 — see the head-of-development block above.
+                        'tt_manage_measurement_definitions' => true,
                         'tt_access_frontend_admin' => true,
                         'tt_view_data_browser'     => true, // #1859 — academy admin
                         'tt_manage_recycle_bin'    => true, // #2020 — academy admin only
@@ -415,9 +427,31 @@ class RolesService {
                         'tt_edit_players'   => true,
                         'tt_edit_people'    => true,
                     ],
-                    [
-                        'tt_manage_players' => true,
-                    ],
+                    // #3232 — `tt_manage_players` removed. It is not
+                    // "manage the roster" in this codebase: it gates season
+                    // rollover across the academy, creating WordPress login
+                    // accounts for players, install-wide custom-field
+                    // DEFINITIONS, player deletion, and the
+                    // "sees every active player" branch in
+                    // BehaviourPendingSource — whose own comment calls that
+                    // audience "HoDs + admins". Every one of those call
+                    // sites describes an academy-admin job beside itself,
+                    // so the raw grant here contradicted the intent
+                    // recorded next to all of them. It read as drift, not a
+                    // decision.
+                    //
+                    // Removing it changes nothing on a matrix-active
+                    // install: #3177 gave `staff` no `players:create_delete`
+                    // row and filterUserHasCap() assigns rather than merges,
+                    // so the raw cap was already overwritten with false. It
+                    // changes matrix-INACTIVE installs, which is where it
+                    // was a live exposure — a physio or kit manager could
+                    // run a season rollover or delete a player.
+                    //
+                    // Nothing is lost that the seat needs: the one useful
+                    // thing it reached, the test-definition wizard, now
+                    // asks about `measurement_definitions` instead.
+                    //
                     // #0085 — generic staff (team_manager / physio / kit
                     // / etc.) read + write player notes on their team
                     // per the matrix `r/c[team]` grant. The

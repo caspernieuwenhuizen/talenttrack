@@ -104,7 +104,7 @@ scope comes from those assignments, not from the capability.
 | **Club Admin** | All areas | Teams, Players, People, Sessions, Goals, Settings |
 | **Coach** | All except Settings| Evaluations, Sessions, Goals |
 | **Scout** | Teams, Players, Evals | Evaluations |
-| **Staff** | Teams, Players, People | Players, People |
+| **Staff** | Teams, Players, People, Measurements, Injuries | Players, People, Measurements, Injuries |
 | **Player** | Own data only | Own profile only |
 | **Parent** | Child's data only | *(none)* |
 | **Read-Only Observer** | **All areas** | **None** |
@@ -163,9 +163,21 @@ The Staff role is the physio, kit manager and general club-staff seat. It is sco
 | **Players** on those teams | Reach a squad they are not attached to |
 | **People** records on those teams | Create or delete a player |
 | **Player notes** — the staff-only running log on a player's file | Run a season rollover, or create player accounts |
-| Their own staff record, always | Change configuration |
+| **Measurements** — record and read height, weight, sprint times | Delete a measurement or an injury record |
+| **Injuries** — record and read a player's injuries | Change configuration |
+| Their own staff record, always | |
 
-Team details are read-only for staff; the editable surfaces are players, people and player notes.
+Team details are read-only for staff; the editable surfaces are players, people, player notes, measurements and injuries.
+
+### Giving somebody the Staff role gives them injury records
+
+Read this before you hand the role out. **Staff can see and record injuries for the players on their teams** — medical information about minors.
+
+That is right for a physio, who is the obvious person to hold it. It is more than a kit manager needs. Staff is currently one role covering both, so there is no way to give the kit manager the shirts and not the medical history: the only lever is which squads each person is attached to.
+
+If that is more than you want somebody to see, do not give them Staff — attach them to the team without it, or use a narrower role. And when it is a physio, this is exactly the seat they should have.
+
+Neither injuries nor measurements can be **deleted** by Staff. Removing a minor's medical record stays with the head of development and the academy admin.
 
 **Staff do not get the player-management surface.** The capability behind "manage players" also carries season rollover, creating login accounts for players, editing custom-field definitions, and deleting player records — an academy-wide administrative surface rather than a squad one. A physio who needs a player added should ask a coach or an administrator.
 

@@ -243,6 +243,13 @@ final class LegacyCapMapper {
         // access-preserving — it closes the frontend/REST divergence where
         // `tt_edit_player_potential` was matrix-aware but the act-cap was not.
         'tt_set_player_potential'              => [ 'player_potential',        'change' ],
+        // #3232 — the test-catalogue cap. `measurement_definitions` was
+        // matrix-only, so nothing flat could ask about it and
+        // `NewMeasurementWizard` reached for `tt_manage_players` instead —
+        // which is season rollover, player accounts and player deletion, and
+        // is why a physio could reach all three. This is the cap that
+        // actually names the question, so the wizard can ask it.
+        'tt_manage_measurement_definitions'    => [ 'measurement_definitions', 'change' ],
         'tt_view_player_behaviour_ratings'     => [ 'player_behaviour_ratings','read' ],
         'tt_edit_player_behaviour_ratings'     => [ 'player_behaviour_ratings','change' ],
         // #1941 — `tt_rate_player_behaviour` (the behaviour-rating act-cap)

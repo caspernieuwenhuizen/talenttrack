@@ -24,7 +24,17 @@ final class NewMeasurementWizard implements WizardInterface {
 
     public function label(): string { return __( 'New test', 'talenttrack' ); }
 
-    public function requiredCap(): string { return 'tt_manage_players'; }
+    /**
+     * #3232 — asks about the test catalogue, which is what this wizard
+     * creates. It used to ask `tt_manage_players`, which in this codebase
+     * gates season rollover, player login accounts, install-wide
+     * custom-field definitions and player deletion — so the gate was both
+     * far wider than the act and the reason `tt_staff` held that capability
+     * at all. `tt_manage_measurement_definitions` bridges to
+     * `measurement_definitions:change`, the entity every other measurement
+     * setup surface already checks.
+     */
+    public function requiredCap(): string { return 'tt_manage_measurement_definitions'; }
 
     public function firstStepSlug(): string { return 'details'; }
 
