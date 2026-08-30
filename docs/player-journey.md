@@ -33,6 +33,7 @@ The newest entries are at the top by default. Use the date and type filters to n
 
 Most entries appear without anyone typing them in. The journey watches the rest of the system and turns key actions into entries:
 
+- A **player record is created**, from any screen → *"Joined the academy"*, dated to their join date when one was recorded and to the day the record was made otherwise. A player created in the new-player wizard used to leave no such entry, so their story began at whatever happened to them next — most visible on the trial path, where *"Trial started"* appeared with nothing before it. Existing players created that way stay missing the entry unless it is backfilled.
 - A **new evaluation** on a player → *"Evaluation on 12 March"*.
 - A **goal set** for a player → *"Goal set: Improve weak foot"*.
 - A **PDP verdict signed off** → *"PDP verdict: promote"*.
