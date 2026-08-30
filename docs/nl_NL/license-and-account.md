@@ -3,6 +3,7 @@ title: Licentie & account
 group: configuration
 summary: Tier, gebruikslimieten en hoe een pakket op een installatie wordt vastgelegd.
 audience: [admin]
+views: [plan, two-factor]
 module: TT\Modules\License\LicenseModule
 order: 100
 ---
@@ -207,17 +208,25 @@ Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om t
 
 De limieten in `FreeTierCaps` (1 team, 25 spelers) zijn nu demomeubilair: ze voorkomen dat het publieke demo-subdomein als gratis academie wordt gebruikt. Ze staan ingesteld op de demo-installatie en nergens anders.
 
-## Accountpagina
+## Waar het pakket staat
 
-Klik je op **TalentTrack** in de wp-admin-zijbalk, dan land je op de Accountpagina. Die heeft drie tabbladen:
+**Pakket en beperkingen** is een scherm in TalentTrack zelf. Het toont het pakket van deze installatie, de twee gratis-limieten tegenover wat er daadwerkelijk in gebruik is, en de volledige functiematrix met jouw pakket gemarkeerd. Het staat bewust open voor **iedereen die is ingelogd**: een trainer die een functie niet kan vinden, moet zelf kunnen zien of die ontbreekt of alleen op slot zit, zonder het aan een beheerder te hoeven vragen.
 
-| Tabblad | Recht | Wat je er vindt |
-| - | - | - |
-| **Account** | `tt_edit_settings` (alleen operators) | Huidige tier, gebruik versus limieten, wat de volgende tier toevoegt, phone-home-diagnostiek |
-| **Pakket & beperkingen** | `read` (iedereen die is ingelogd) | Huidig pakket, limiettabel met waarschuwingen, en de volledige Standard/Pro-matrix met jouw effectieve tier gemarkeerd |
-| **MFA** | `read` (iedereen die is ingelogd) | Je eigen tweestapsverificatie en herstelcodes |
+Het is ook waar elk op-slot-paneel naartoe verwijst. Staat een scherm uit omdat het bij een pakket hoort dat de academie niet heeft, dan linkt de uitleg hiernaartoe.
 
-Het tabblad Pakket staat bewust open voor iedereen: een trainer die een functie niet kan vinden, moet zelf kunnen zien of die ontbreekt of alleen op slot zit.
+**Tweestapsverificatie** is eveneens een scherm. Het gaat over jouw eigen tweede stap — instellen, nieuwe herstelcodes maken, of uitzetten. Altijd alleen je eigen account.
+
+### Wat in de WordPress-beheeromgeving blijft
+
+Drie dingen zijn niet meeverhuisd, en gaan dat ook niet doen:
+
+| Blijft in wp-admin | Waarom |
+| - | - |
+| **Tweestapsverificatie van iemand anders resetten** | Iemands tweede stap eraf halen is een herstelactie voor operators, bedoeld voor wie zowel zijn telefoon als zijn herstelcodes kwijt is. Die hoort thuis waar het gebruik ervan opvalt, en waar je er nog bij kunt als juist het inloggen kapot is. |
+| **Verplichte tweestapsverificatie per club** | Bepalen welke rollen zich *moeten* aanmelden is een instelling voor de hele installatie, geen persoonlijke keuze. |
+| **De phone-home-diagnostiek** | Een operatorhulpmiddel om uit te zoeken waarom de ene installatie stil blijft en de andere niet. |
+
+De Accountpagina in wp-admin houdt alle drie, plus haar eigen versies van het pakketscherm en de persoonlijke tweestapsverificatie. Ze wordt niet uitgefaseerd. Wat verandert is dat een gewone trainer, ouder of speler er geen reden meer heeft om te komen.
 
 ## Niet-commerciële testinstallaties
 

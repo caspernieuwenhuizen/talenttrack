@@ -76,6 +76,26 @@ class TeamBlueprintsRepository {
         return $out;
     }
 
+    /**
+     * #3181 — which team does this blueprint belong to?
+     *
+     * `GET /blueprints/{id}` and its five write siblings name the
+     * blueprint, not its team, so the permission callback has to resolve
+     * one before it can ask whether the caller is scoped to it. Reads the
+     * id column only — never the assignments — so resolving access cannot
+     * itself disclose the lineup it is about to refuse.
+     *
+     * Returns 0 for a blueprint that does not exist in this club, which
+     * fails the scope check rather than passing it.
+     */
+    public function teamIdFor( int $id ): int {
+        if ( $id <= 0 ) return 0;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT team_id FROM {$this->blueprints} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
+    }
+
     public function create( int $team_id, string $name, int $formation_template_id, int $created_by, string $flavour = self::FLAVOUR_MATCH_DAY ): int {
         $name = trim( $name );
         if ( $team_id <= 0 || $formation_template_id <= 0 || $name === '' ) return 0;

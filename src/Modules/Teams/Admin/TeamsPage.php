@@ -300,10 +300,12 @@ class TeamsPage {
             if ( class_exists( '\TT\Modules\License\LicenseGate' )
                  && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' )
             ) {
-                wp_safe_redirect( add_query_arg(
-                    [ 'page' => 'tt-account', 'tt_msg' => 'cap_teams' ],
-                    admin_url( 'admin.php' )
-                ) );
+                // #3134 — see PlayersPage: the frontend Plan surface is
+                // where the cap message is actually rendered for a
+                // non-operator.
+                wp_safe_redirect(
+                    \TT\Modules\License\Frontend\FrontendPlanView::url( [ 'tt_msg' => 'cap_teams' ] )
+                );
                 exit;
             }
         }

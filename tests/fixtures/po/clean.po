@@ -1,0 +1,47 @@
+# Fixture for #3205 — everything that must NOT be reported.
+#
+# Each block here is a legitimate shape that a stricter check would flag:
+#
+#   - the same msgid under two different msgctxt values (that is what
+#     contexts are for; keying on msgid alone reports ~27 of these on main)
+#   - a plural entry, whose msgid_plural and msgstr[n] lines legitimately
+#     continue their own entry and are not glue
+#   - a long msgid wrapped across fragments, appearing only once
+#   - a live entry with an obsolete twin
+#   - the header entry, which is `msgid ""` and expected exactly once
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/A.php:1
+msgctxt "evaluation result"
+msgid "Pass"
+msgstr "Voldoende"
+
+#: src/B.php:1
+msgctxt "football action"
+msgid "Pass"
+msgstr "Pass"
+
+#: src/C.php:1
+msgid "%d player"
+msgid_plural "%d players"
+msgstr[0] "%d speler"
+msgstr[1] "%d spelers"
+
+#: src/D.php:1
+msgid ""
+"A long sentence that msgmerge has wrapped across two quoted fragments, "
+"appearing exactly once."
+msgstr "Een lange zin."
+
+#: src/E.php:1
+msgid "Weekly planner"
+msgstr "Weekplanning"
+
+#~ msgid "Weekly planner"
+#~ msgstr "Weekplanning"

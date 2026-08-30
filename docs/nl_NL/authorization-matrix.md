@@ -292,6 +292,22 @@ Eén blauwdruk-oppervlak bleef achter: de *toegangspoort* van de wizard. `Wizard
 
 Effectieve toegangswijziging: **hoofdtrainers kunnen nu blauwdrukken aanmaken**, wat hun rij `team_chemistry [rc, team]` altijd al zei. Voor geen enkele andere persona verandert het antwoord.
 
+### De blauwdruk- en formatieroutes controleren *welk* team
+
+`canRead()` / `canManage()` hierboven beantwoorden "heb je `team_chemistry` ergens". Dat is de juiste vraag voor een dashboardtegel en de verkeerde voor een route met `{id}`: een grant op **teamscope** voldoet er voor **elk** team aan. De chemieroutes zijn als eerste op scope gezet; de blauwdruk-, formatie- en speelstijlroutes hielden het ongescopete paar, waardoor `GET /blueprints/{id}` iedereen met een grant op één elftal de volledige wedstrijdopstelling van een ander elftal gaf — positielabel, tier en speler-id — en de schrijfvarianten die opstelling lieten herschrijven of verwijderen.
+
+Elke route met `{id}` op `TeamDevelopmentRestController` bepaalt nu eerst het team:
+
+- `GET/PUT /teams/{id}/formation`, `GET/PUT /teams/{id}/style`, `GET/POST /teams/{id}/blueprints` — het team-id staat in het pad en wordt direct doorgegeven.
+- `GET/PUT/DELETE /blueprints/{id}` plus `/assignment`, `/assignments`, `/status` en `POST /clone` — het `team_id` van de blauwdruk wordt opgezocht via `TeamBlueprintsRepository::teamIdFor()`, dat alleen die ene kolom leest en nooit de opstellingsregels, zodat het bepalen van toegang niet zelf lekt wat het gaat weigeren. Een blauwdruk die niet in deze club bestaat levert team `0` op, wat de controle laat falen in plaats van slagen.
+- `GET /formation-templates` houdt de ongescopete afscherming — die payload is de geseede sjabloonbibliotheek, geen teamgegevens.
+
+De predicaten zijn `TeamChemistryAccess::canReadForTeam()` / `canManageForTeam()`. Ze omhullen `canRead()` / `canManage()` — **niet** het chemiepaar — zodat de blauwdrukeditor beschikbaar blijft wanneer de subfunctie `team_chemistry` uitstaat (#1485, #1922). De scopehelft loopt via de nieuwe `MatrixGate::hasAuthority()`, de gescopete tegenhanger van `hasAuthorityAnyScope()`, die de teamtoewijzing bepaalt zonder de functieschakelaar toe te passen.
+
+Weigeringen zijn **403** — dit is een rechtenantwoord, geen abonnementsantwoord (#3104).
+
+Effectieve toegangswijziging: een `team_chemistry`-grant op **teamscope** (hoofdtrainer, teammanager) bereikt nu alleen de teams waaraan de houder daadwerkelijk is toegewezen. **Globale** grants (scout, hoofd ontwikkeling, academie-admin) veranderen niet en bereiken nog steeds elk team.
+
 ## Handelings-capability-bruggen naar bestaande speler-status-entiteiten
 
 De PlayerStatus-handelings-capability "potentieel-band instellen" was matrix-blind terwijl zijn data-capability-broer matrix-bewust was, waardoor de frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) en REST (`PlayerStatusRestController`) konden afwijken. #1939 brugt de handelings-capability zodat beide oppervlakken vanuit dezelfde matrixentiteit antwoorden:

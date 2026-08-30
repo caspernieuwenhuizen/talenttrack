@@ -120,6 +120,35 @@ final class TeamChemistryAccess {
     }
 
     /**
+     * #3181 — READ authority for **this** team, ignoring the sub-feature
+     * toggle. The blueprint / formation / style sibling of
+     * `canReadChemistryForTeam()`.
+     *
+     * #3153 scoped the five chemistry routes and left the blueprint and
+     * formation ones exactly as it found them, so `GET /blueprints/{id}`
+     * still answered "do you hold `team_chemistry` anywhere" — true for
+     * every head coach, on every blueprint in the academy, assignments
+     * included. This asks the question the grant is actually written in:
+     * a global grant reads every team, a team grant reads the teams the
+     * caller is assigned to.
+     *
+     * Wraps `canRead()` rather than `canReadChemistry()` **on purpose**
+     * (#1485, #1922): the blueprint editor stays available when the
+     * `team_chemistry` sub-feature is switched off, and reusing the
+     * chemistry pair here would take it dark again.
+     */
+    public static function canReadForTeam( int $user_id, int $team_id ): bool {
+        return self::canRead( $user_id )
+            && self::hasTeamAuthority( $user_id, $team_id, MatrixGate::READ );
+    }
+
+    /** #3181 — MANAGE authority for this team, feature-toggle-free. Write sibling. */
+    public static function canManageForTeam( int $user_id, int $team_id ): bool {
+        return self::canManage( $user_id )
+            && self::hasTeamAuthority( $user_id, $team_id, MatrixGate::CHANGE );
+    }
+
+    /**
      * Global grant, or a team grant the user actually holds on this team.
      * `MatrixGate::can()` resolves the runtime team scope from
      * `tt_user_role_scopes`, so an assignment is what makes it true.
@@ -129,5 +158,17 @@ final class TeamChemistryAccess {
 
         return MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_GLOBAL )
             || MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * Same resolution as `hasTeamScope()` but via `MatrixGate::hasAuthority()`,
+     * which skips the `team_chemistry` feature short-circuit — the split the
+     * blueprint surfaces depend on (#1485).
+     */
+    private static function hasTeamAuthority( int $user_id, int $team_id, string $activity ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+
+        return MatrixGate::hasAuthority( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_GLOBAL )
+            || MatrixGate::hasAuthority( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $team_id );
     }
 }

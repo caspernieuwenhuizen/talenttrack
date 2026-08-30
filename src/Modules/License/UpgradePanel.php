@@ -171,7 +171,7 @@ class UpgradePanel {
             </p>
             <p class="tt-upgrade-panel__actions">
                 <a class="tt-upgrade-panel__cta" href="<?php echo esc_url( self::accountUrl() ); ?>">
-                    <?php esc_html_e( 'Open account page', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'See the plan', 'talenttrack' ); ?>
                 </a>
             </p>
         </section>
@@ -221,7 +221,7 @@ class UpgradePanel {
             <?php endif; ?>
             <p class="tt-upgrade-panel__actions">
                 <a class="tt-upgrade-panel__cta" href="<?php echo esc_url( self::accountUrl() ); ?>">
-                    <?php esc_html_e( 'Open account page', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'See the plan', 'talenttrack' ); ?>
                 </a>
             </p>
         </section>
@@ -230,12 +230,21 @@ class UpgradePanel {
     }
 
     /**
-     * Where a club goes to see its plan. The account page is wp-admin
-     * only today (#2979 confirmed there is no frontend equivalent yet),
-     * so this is the honest destination rather than a frontend route
-     * that does not exist.
+     * Where a club goes to see its plan.
+     *
+     * #3134 — the frontend Plan surface, when a page hosts the dashboard
+     * shortcode. This panel appears wherever a locked feature is met,
+     * which is roughly thirty surfaces, and every one of them used to be
+     * a signposted trip into wp-admin because no frontend equivalent
+     * existed (#2979 confirmed that). `FrontendPlanView::url()` keeps the
+     * wp-admin account page as its fallback, so an install with no
+     * dashboard page still gets a working link.
      */
     private static function accountUrl(): string {
+        if ( class_exists( '\\TT\\Modules\\License\\Frontend\\FrontendPlanView' ) ) {
+            return Frontend\FrontendPlanView::url();
+        }
+
         return admin_url( 'admin.php?page=' . AccountPage::SLUG );
     }
 

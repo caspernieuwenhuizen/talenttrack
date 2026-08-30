@@ -1454,6 +1454,20 @@ class DashboardShortcode {
             case \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::SLUG:
                 \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::render( $user_id, $is_admin );
                 return true;
+            // #3134 — the plan explainer, ported from the wp-admin account
+            // page's "Plan & restrictions" tab. Open to every signed-in user
+            // as that tab is: a coach who cannot find a feature should be
+            // able to see whether it is missing or merely locked, without
+            // asking an administrator to look it up.
+            case \TT\Modules\License\Frontend\FrontendPlanView::SLUG:
+                \TT\Modules\License\Frontend\FrontendPlanView::render( $user_id, $is_admin );
+                return true;
+            // #3134 — a user's OWN two-factor enrolment. Disabling somebody
+            // else's second factor is not here and does not move: that is an
+            // operator recovery action and stays on wp-admin's tt-account.
+            case \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG:
+                \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::render( $user_id, $is_admin );
+                return true;
             case 'roles':
                 FrontendRolesView::render( $user_id, $is_admin );
                 return true;
