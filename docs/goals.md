@@ -68,6 +68,34 @@ archived, achieved nor abandoned. If a goal disappears from the tab's list after
 you mark it achieved, it has moved into the collapsed section, not out of the
 player's record.
 
+## On the player's journey
+
+Every goal lands on the player's [journey](player-journey.md), whichever screen
+wrote it: the goal form, the quick-add box, the new-goal wizard, the wp-admin
+form, and the two the club never types by hand — the season rollover carrying
+open goals into a new season, and a development idea that spawns a goal when it
+is picked up. Goals set through the wizard used to be missing from the journey
+entirely, so a coach reading a player's story could see a goal on the Goals tab
+and no mention of it on the timeline.
+
+The entry says which of those wrote it, because they do not mean the same thing:
+
+- *Goal set: Improve weak foot* — somebody decided it.
+- *Goal carried over: Improve weak foot* — the season rollover brought an
+  open goal into the new season.
+- *Goal opened from a development idea: …* — an idea with the player attached
+  reached In progress.
+
+Carried-over entries are dated to the **start of the new season**, not to the
+day the rollover was run — a rollover done three weeks late still reads as the
+start of the season a season later. A rollover writes a goal for every player at
+once, so expect a run of carried-over entries on that date; they are labelled so
+they do not read as a day of frantic coaching.
+
+Goals created before this stay off the timeline until the journey is rebuilt.
+A rebuild cannot tell how an old goal came to exist, so every backfilled entry
+reads as *Goal set*.
+
 ## Methodology linkage
 
 Every screen where a goal is written — the goal form, the quick-add box on the coach dashboard, the new-goal wizard and the wp-admin form — asks **What does this goal develop?** and offers the principles of the club's active methodology. Tick as many as apply: a goal can serve more than one principle, and forcing a single pick would make a coach choose arbitrarily.

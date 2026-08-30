@@ -35,7 +35,7 @@ Most entries appear without anyone typing them in. The journey watches the rest 
 
 - A **player record is created**, from any screen → *"Joined the academy"*, dated to their join date when one was recorded and to the day the record was made otherwise. A player created in the new-player wizard used to leave no such entry, so their story began at whatever happened to them next — most visible on the trial path, where *"Trial started"* appeared with nothing before it. Existing players created that way stay missing the entry unless it is backfilled.
 - A **new evaluation** on a player → *"Evaluation on 12 March"*.
-- A **goal set** for a player → *"Goal set: Improve weak foot"*.
+- A **goal set** for a player → *"Goal set: Improve weak foot"*, from whichever screen set it. Goals set through the new-goal wizard used to leave no entry at all. A goal the club did not type by hand says so: the season rollover writes *"Goal carried over: …"*, dated to the start of the new season rather than to the day the rollover was run, and a development idea that spawns a goal writes *"Goal opened from a development idea: …"*. See [goals](goals.md).
 - A **PDP verdict signed off** → *"PDP verdict: promote"*.
 - A **player joins a team or moves to a new age group** → *"Team: U13 → U14"* or *"Age group: U13 → U14"*.
 - A **player's preferred positions change** → *"Position: none → Centre back, Left back"* (positions read as their full names, not codes).

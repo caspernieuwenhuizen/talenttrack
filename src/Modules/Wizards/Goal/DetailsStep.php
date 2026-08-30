@@ -3,6 +3,10 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -43,28 +47,22 @@ final class DetailsStep implements WizardStepInterface {
         $player_id = (int) ( $state['player_id'] ?? 0 );
         if ( $player_id <= 0 ) return new \WP_Error( 'no_player', __( 'Player is required.', 'talenttrack' ) );
 
-        $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', [
-            'club_id'     => CurrentClub::id(),
+        // #3131 — through the repository, which is where the row, the
+        // demo tag and the `tt_goal_saved` announcement live. This step
+        // used to write `tt_goals` itself and announce nothing, so a goal
+        // set here never reached the player's journey while the identical
+        // goal set over REST did — on the path CLAUDE.md §3 makes the
+        // primary one.
+        $goal_id = ( new GoalsRepository() )->create( [
             'player_id'   => $player_id,
             'title'       => (string) ( $state['title'] ?? '' ),
             'description' => (string) ( $state['description'] ?? '' ),
-            'priority'    => in_array( (string) ( $state['priority'] ?? '' ), [ 'low', 'medium', 'high' ], true ) ? (string) $state['priority'] : 'medium',
+            'priority'    => in_array( (string) ( $state['priority'] ?? '' ), GoalPriority::ALL, true ) ? (string) $state['priority'] : GoalPriority::MEDIUM,
             'due_date'    => $state['due_date'] ?: null,
-            'status'      => 'pending',
+            'status'      => GoalStatus::PENDING,
             'created_by'  => get_current_user_id(),
-        ] );
-        if ( ! $ok ) return new \WP_Error( 'db_error', __( 'Could not create the goal.', 'talenttrack' ) );
-        $goal_id = (int) $wpdb->insert_id;
-
-        // v3.110.101 — auto-tag the row when demo mode is on. Without
-        // this, demo-mode installs hit "That goal no longer exists"
-        // on the post-submit redirect because `FrontendGoalsManageView::loadGoal`
-        // applies `apply_demo_scope( 'g', 'goal' )` which filters out
-        // any untagged row when demo mode is ON. Same pattern as the
-        // v3.76.2 player-wizard fix.
-        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
-            \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
-        }
+        ], [ 'origin' => GoalOrigin::SET ] );
+        if ( $goal_id <= 0 ) return new \WP_Error( 'db_error', __( 'Could not create the goal.', 'talenttrack' ) );
 
         // Optional methodology link.
         $link_type = (string) ( $state['link_type'] ?? '' );

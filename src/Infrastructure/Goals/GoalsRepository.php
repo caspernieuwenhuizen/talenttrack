@@ -4,12 +4,14 @@ namespace TT\Infrastructure\Goals;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
- * GoalsRepository — read-only repository for goal records.
+ * GoalsRepository — repository for goal records.
  *
  * #1077 — module-by-module rollout of #806's architectural sweep.
  * Worked example: `Infrastructure\Evaluations\EvaluationsRepository`
@@ -48,6 +50,82 @@ class GoalsRepository {
      * @var list<string>
      */
     public const CLOSED_STATUSES = [ GoalStatus::COMPLETED, GoalStatus::CANCELLED ];
+
+    /**
+     * Write a goal and announce it. The only place `tt_goals` is inserted.
+     *
+     * #3131 — `tt_goals` had four write paths and exactly one of them
+     * fired `tt_goal_saved`, so `JourneyEventSubscriber` heard about a
+     * goal created over REST and about none of the other three. A goal set
+     * in the wizard — the primary record-creation path under CLAUDE.md §3 —
+     * was invisible on the player's journey, while the identical goal set
+     * through the API was not.
+     *
+     * The fix is here rather than three `do_action()` lines at the call
+     * sites, because three copies of an announcement is how the fourth
+     * caller comes to be missing one. This is the fourth time the shape has
+     * been found (#3081, #3115, #3130), and a `create()` that inserts *and*
+     * fires is both the smaller diff and the thing that stops it recurring.
+     *
+     * `$context` is about the goal's provenance, not its columns:
+     *
+     *   `origin`      — a `GoalOrigin` value. Reaches the journey entry's
+     *                   payload, so a season rollover's burst of goals is
+     *                   distinguishable from a coach setting one.
+     *   `occurred_at` — when the goal begins, if that is not "now". The
+     *                   rollover passes the new season's start date so 47
+     *                   carried-over goals are dated to the season they
+     *                   belong to rather than to whichever afternoon the
+     *                   operator happened to run it.
+     *
+     * @param array<string,mixed> $data    Column => value for `tt_goals`. `club_id` is stamped here.
+     * @param array<string,mixed> $context `origin`, `occurred_at`.
+     * @return int New goal id, or 0 when the insert failed.
+     */
+    public function create( array $data, array $context = [] ): int {
+        global $wpdb;
+
+        $data['club_id'] = CurrentClub::id();
+        $player_id       = (int) ( $data['player_id'] ?? 0 );
+
+        $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', $data );
+        if ( $ok === false ) {
+            Logger::error( 'goal.create.failed', [
+                'db_error' => (string) $wpdb->last_error,
+                'payload'  => $data,
+            ] );
+            return 0;
+        }
+
+        $goal_id = (int) $wpdb->insert_id;
+        if ( $goal_id <= 0 ) return 0;
+
+        // v3.76.2 — demo-on rows are tagged so demo-scoped queries can
+        // still see what the operator just created. Every caller had its
+        // own copy of this, or was missing it (#3131).
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
+
+        $origin = GoalOrigin::sanitize( (string) ( $context['origin'] ?? GoalOrigin::SET ) );
+
+        // #0025 — source-language detection for the free-text fields, and
+        // only for text a person just typed. A carried-over or spawned goal
+        // copies text that already exists, and a season rollover running
+        // detection twice per player would put a burst of engine calls
+        // inside one request for no new information.
+        if ( $origin === GoalOrigin::SET ) {
+            \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title', (string) ( $data['title'] ?? '' ) );
+            \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) ( $data['description'] ?? '' ) );
+        }
+
+        // #0053 — the journey subscriber emits `goal_set` from this.
+        // `uk_natural` keeps a re-fire from multiplying the entry.
+        do_action( 'tt_goal_saved', $player_id, $goal_id, $data, [
+            'origin'      => $origin,
+            'occurred_at' => isset( $context['occurred_at'] ) ? (string) $context['occurred_at'] : '',
+        ] );
+
+        return $goal_id;
+    }
 
     /**
      * SQL predicate for "this goal is still being worked on".
