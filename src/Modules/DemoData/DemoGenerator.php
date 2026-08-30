@@ -664,8 +664,39 @@ class DemoGenerator {
         return DemoBatchRegistry::persistentEntityIds( 'wp_user' ) !== [];
     }
 
+    /**
+     * A batch id no other run can share.
+     *
+     * #3216 — this was `preset-seed-YmdHis`, which is unique only to the
+     * second. Two runs of the same preset and seed inside one second got the
+     * *same* batch id, and a batch id is not a label: `loadPlayers()`,
+     * `loadTeams()` and `DemoBatchRegistry::entityIds()` all use it to answer
+     * "what did this run write?". Sharing one means the second run adopts the
+     * first run's players, teams and activities as its own subjects and
+     * writes their child rows a second time — which is why the same-second
+     * case surfaced as a wall of duplicate-key errors from four generators
+     * that are each correctly batch-scoped.
+     *
+     * It is reachable by an operator (generate, wipe, generate again while
+     * the page is quick) and it was reliably reachable in the test suite,
+     * where three runs of the tiny preset finish well inside a second.
+     *
+     * The suffix is random rather than a counter: two requests can be in
+     * flight at once, so anything derived from existing rows races. It plays
+     * no part in generated content — `mt_srand` is seeded per step from
+     * `(seed, step)`, so the same seed still reproduces the same academy.
+     */
     private static function makeBatchId( string $preset, int $seed ): string {
-        return sprintf( '%s-%d-%s', $preset, $seed, gmdate( 'YmdHis' ) );
+        return sprintf( '%s-%d-%s-%s', $preset, $seed, gmdate( 'YmdHis' ), self::batchSuffix() );
+    }
+
+    /** Six hex characters of entropy, with a fallback for hostile platforms. */
+    private static function batchSuffix(): string {
+        try {
+            return bin2hex( random_bytes( 3 ) );
+        } catch ( \Throwable $e ) {
+            return substr( md5( uniqid( (string) mt_rand(), true ) ), 0, 6 );
+        }
     }
 
     /**

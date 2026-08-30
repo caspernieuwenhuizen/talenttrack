@@ -14,6 +14,7 @@ use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
+use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
@@ -137,6 +138,14 @@ final class AlertsModule implements ModuleInterface {
 
         // #2636 instalment 6 — Onboarding. Completes the wave 6 catalogue.
         $alerts[] = new InvitationStaleAlert();
+
+        // #3139 — the recovery #3113's acceptance criteria left to be
+        // filed: an academy that skipped the setup wizard's messaging step
+        // sends nothing and is told so, instead of finding out the day a
+        // cancelled training goes unannounced. Sweep-only; see the
+        // definition's docblock for why it does not introduce a subject
+        // type.
+        $alerts[] = new MessagingNeverConfiguredAlert();
 
         return $alerts;
     }

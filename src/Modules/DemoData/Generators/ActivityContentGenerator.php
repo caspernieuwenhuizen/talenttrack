@@ -107,7 +107,15 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
         $notes = self::NOTES_BY_LANGUAGE[ self::resolveLanguage( $this->language ) ];
         $total = 0;
 
+        // #3216 — `uk_activity_order (club_id, activity_id, order_index)`
+        // makes a second pass over the same training collide from index 0.
+        // The activity list is this batch's, so this only bites when a run
+        // adopts another run's activities; it is cheap and it makes the
+        // generator idempotent rather than order-dependent.
+        $covered = $this->activitiesWithRows( 'tt_activity_exercises' );
+
         foreach ( $activities as $activity_id ) {
+            if ( isset( $covered[ (int) $activity_id ] ) ) continue;
             $count = mt_rand( self::MIN_PER_SESSION, self::MAX_PER_SESSION );
             $picked = (array) array_rand( $exercises, min( $count, count( $exercises ) ) );
 
@@ -150,7 +158,11 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
         $activities = $this->demoActivities( 'training' );
         $total = 0;
 
+        // #3216 — `uniq_activity_principle (activity_id, principle_id)`.
+        $covered = $this->activitiesWithRows( 'tt_activity_principles' );
+
         foreach ( $activities as $activity_id ) {
+            if ( isset( $covered[ (int) $activity_id ] ) ) continue;
             $count = mt_rand( 1, 3 );
             $picked = (array) array_rand( $principles, min( $count, count( $principles ) ) );
             $sort = 0;
@@ -251,6 +263,25 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * Activity ids that already have at least one row in `$table` (#3216),
+     * as a set. One query rather than one per activity.
+     *
+     * @param string $table Unprefixed table name, a literal from this class.
+     * @return array<int, true>
+     */
+    private function activitiesWithRows( string $table ): array {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT activity_id FROM {$wpdb->prefix}{$table} WHERE club_id = %d",
+            CurrentClub::id()
+        ) );
+        $out = [];
+        foreach ( (array) $ids as $id ) $out[ (int) $id ] = true;
+        return $out;
     }
 
     /**

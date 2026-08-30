@@ -178,6 +178,12 @@ remove players — an operator rebuilding one usually wants to keep the other.
 Scope a wipe to a single batch with the Batch dropdown, or leave it on
 **All batches**.
 
+Every run gets its own batch, including two runs started in the same second.
+They used to be able to share one — the batch name was built from the preset,
+the seed and the time to the second — which meant a wipe scoped to "that
+batch" took both runs with it, and the second run treated the first run's
+players and trainings as its own and tried to write their details twice.
+
 The demo WP user accounts survive a data wipe. Removing them is a separate
 action ("Wipe demo users"), guarded so it refuses to delete an account whose
 email is outside the configured demo domain, the account you are logged in

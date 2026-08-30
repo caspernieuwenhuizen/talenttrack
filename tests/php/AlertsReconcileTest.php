@@ -51,6 +51,7 @@ final class AlertsReconcileTest extends WP_UnitTestCase {
         // between tests and leak rows into the next one.
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->prefix}tt_alert_occurrences" );
+
         AlertRegistry::flush();
     }
 
@@ -247,7 +248,18 @@ final class AlertsReconcileTest extends WP_UnitTestCase {
         add_filter( 'tt_register_alerts', function ( array $alerts ): array {
             $alerts[] = $this->throwingStub( 'test.broken' );
             $alerts[] = $this->stub( [ $this->occurrence( 41, $this->coach ) ], '', 'test.healthy' );
-            return $alerts;
+
+            // #3139 — this is the one test here that calls `runAll()`, so it
+            // counts the shipped catalogue alongside its stubs. That held
+            // while every shipped definition needed records to fire on and a
+            // bare test install has none; `comms.messaging_never_configured`
+            // is the first one about the install's *configuration*, and a
+            // bare install is exactly the state it fires in. Keeping only the
+            // stubs states what this test was always assuming.
+            return array_values( array_filter(
+                $alerts,
+                static fn ( $a ): bool => strncmp( $a->key(), 'test.', 5 ) === 0
+            ) );
         } );
         AlertRegistry::flush();
 
