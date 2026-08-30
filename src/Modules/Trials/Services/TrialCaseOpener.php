@@ -98,11 +98,16 @@ class TrialCaseOpener {
      * that the caller is allowed to be here. Both surfaces gate before
      * they get this far.
      *
-     * @param array{
-     *     player_id:int, track_id:int, start_date:string, end_date:string,
-     *     notes?:string, created_by?:int,
-     *     staff?:list<array{user_id:int, role_label?:string}>
-     * } $data
+     * Keys: `player_id`, `track_id`, `start_date`, `end_date`, and
+     * optionally `notes`, `created_by` and `staff` (a list of
+     * `[ 'user_id' => int, 'role_label' => string ]`).
+     *
+     * Typed loosely on purpose. Both callers build this from request data,
+     * so every key is genuinely absent-able and the defaulting below is
+     * the validation — a precise array shape would tell PHPStan the keys
+     * always exist and turn the guards into dead code.
+     *
+     * @param array<string,mixed> $data
      * @return int|\WP_Error New case id.
      */
     public function open( array $data ) {

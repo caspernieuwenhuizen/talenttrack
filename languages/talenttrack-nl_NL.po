@@ -59063,6 +59063,10 @@ msgstr ""
 "Er zijn nog geen stagetrajecten ingericht. Een beheerder moet er eerst "
 "minstens één toevoegen voordat je een dossier kunt openen."
 
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:54
+msgid "First day"
+msgstr "Eerste dag"
+
 #: src/Modules/Trials/Wizards/TrialDetailsStep.php:58
 msgid "Last day"
 msgstr "Laatste dag"

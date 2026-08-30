@@ -124,5 +124,6 @@ final class TrialPlayerStep implements WizardStepInterface {
 
     public function nextStep( array $state ): ?string { return 'details'; }
 
-    public function submit( array $state ) { return null; }
+    /** Not a final step; the framework only calls this when nextStep() is null. */
+    public function submit( array $state ) { return []; }
 }

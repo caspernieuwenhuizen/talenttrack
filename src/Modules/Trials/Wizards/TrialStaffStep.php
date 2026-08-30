@@ -75,6 +75,8 @@ final class TrialStaffStep implements WizardStepInterface {
 
     /**
      * What the coach is about to create, in the words they typed.
+     *
+     * @param array<string,mixed> $state
      */
     private function renderSummary( array $state ): void {
         $player_id = (int) ( $state['player_id'] ?? 0 );

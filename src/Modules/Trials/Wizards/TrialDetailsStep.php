@@ -31,17 +31,25 @@ final class TrialDetailsStep implements WizardStepInterface {
         }
 
         $current_track = (int) ( $state['track_id'] ?? 0 );
-        $default_days  = (int) ( $tracks[0]->default_duration_days ?? 28 );
+        $first_track   = (array) $tracks[0];
+        $default_days  = (int) ( $first_track['default_duration_days'] ?? 28 );
 
         echo '<div class="tt-field">';
         echo '<label class="tt-field-label" for="tt-trialw-track">' . esc_html__( 'Track', 'talenttrack' ) . '</label>';
         echo '<select id="tt-trialw-track" class="tt-input" name="track_id" required>';
         foreach ( $tracks as $t ) {
-            $tid = (int) $t->id;
+            // The repository returns plain `object` rows, so read them as
+            // an array rather than reaching for properties PHPStan cannot
+            // see on that type.
+            $row  = (array) $t;
+            $tid  = (int) ( $row['id'] ?? 0 );
+            $days = (int) ( $row['default_duration_days'] ?? 28 );
+            if ( $tid <= 0 ) continue;
+
             echo '<option value="' . esc_attr( (string) $tid ) . '"'
-                . ' data-days="' . esc_attr( (string) (int) ( $t->default_duration_days ?? 28 ) ) . '"'
+                . ' data-days="' . esc_attr( (string) $days ) . '"'
                 . selected( $current_track, $tid, false ) . '>'
-                . esc_html( (string) $t->name ) . '</option>';
+                . esc_html( (string) ( $row['name'] ?? '' ) ) . '</option>';
         }
         echo '</select>';
         echo '</div>';
@@ -98,5 +106,6 @@ final class TrialDetailsStep implements WizardStepInterface {
 
     public function nextStep( array $state ): ?string { return 'staff'; }
 
-    public function submit( array $state ) { return null; }
+    /** Not a final step; the framework only calls this when nextStep() is null. */
+    public function submit( array $state ) { return []; }
 }

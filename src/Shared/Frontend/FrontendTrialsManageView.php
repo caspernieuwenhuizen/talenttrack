@@ -219,14 +219,12 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $tracks = $tracks_repo->listAll( true );
 
         $base_url = remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] );
+        $new_url  = add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url );
         // #3221 — §3 entry-point gating: the CTA reaches the wizard when
-        // wizards are on, and the flat form when they are not.
-        // `WizardEntryPoint` returns the fallback untouched if the wizard
-        // is unavailable, so this is safe on an install with them off.
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-            'trial-case',
-            add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url )
-        );
+        // wizards are on, and this same flat-form URL when they are not.
+        // `WizardEntryPoint::urlFor()` returns the fallback untouched if the
+        // wizard is unavailable, so an install with wizards off is unchanged.
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'trial-case', $new_url );
 
         // #2005 — the "New trial case" CTA is create-gated. A read-only
         // head coach sees the list but not the create button.
