@@ -82,6 +82,18 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
 
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
 
+        // #3156 — the `team_id` clamp directly above has been correct since
+        // this view shipped; the player drilldown next to it had none, so a
+        // team-scoped coach could read any club player's height, weight, BMI
+        // and percentile history — growth data on a minor — by editing one
+        // URL parameter. Same guard, same already-resolved scope.
+        if ( $player_id > 0 && ! $see_all
+            && ! QueryHelpers::coach_owns_player( $user_id, $player_id )
+        ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $query = new BmiQuery();
 
         self::renderTeamFilter( $teams, $team_id, $player_id );

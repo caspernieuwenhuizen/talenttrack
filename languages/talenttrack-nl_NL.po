@@ -58595,6 +58595,9 @@ msgstr ""
 "amber stale-badge wanneer een taak in die fase >30 dagen achterstallig is. "
 "De aantallen volgen het bereik van de kijker: academiebreed voor scouts, HO "
 "en beheerders; een hoofdtrainer ziet de eigen leeftijdsgroepen."
+#: src/Shared/Frontend/FrontendRateCardView.php:65
+msgid "You do not have access to rate cards."
+msgstr "Je hebt geen toegang tot rapportkaarten."
 
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
