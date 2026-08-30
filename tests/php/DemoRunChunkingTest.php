@@ -212,6 +212,45 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
     }
 
     /**
+     * #3216 — a batch id identifies a run, so two runs may never share one.
+     *
+     * It was `preset-seed-YmdHis`, unique only to the second, and identical
+     * options produce an identical prefix. Two runs started inside one second
+     * therefore shared a batch — and because `loadPlayers()`, `loadTeams()`
+     * and `DemoBatchRegistry::entityIds()` all ask "what did *this* run
+     * write?" by batch id, the second run adopted the first run's subjects
+     * and wrote their children again.
+     *
+     * Cheap and deliberately not a generation run: `begin()` mints the id
+     * without writing an academy, so a hundred of these still finish in
+     * milliseconds and the assertion is about the id, not about timing.
+     */
+    public function test_two_runs_started_together_never_share_a_batch(): void {
+        $opts = [
+            'preset'      => 'tiny',
+            'seed'        => 909090,
+            'domain'      => '',
+            'password'    => '',
+            'source'      => 'procedural',
+            'gen_people'  => false,
+            'gen_teams'   => true,
+            'gen_players' => true,
+        ];
+
+        $seen = [];
+        for ( $i = 0; $i < 25; $i++ ) {
+            $seen[] = DemoGenerator::begin( $opts )->batchId();
+            DemoRunState::clear();
+        }
+
+        $this->assertCount(
+            count( $seen ),
+            array_unique( $seen ),
+            'identical options in the same second must still yield distinct batch ids'
+        );
+    }
+
+    /**
      * A throwaway run, so the two runs the test actually compares both meet
      * a club that already has its one-time configuration.
      *

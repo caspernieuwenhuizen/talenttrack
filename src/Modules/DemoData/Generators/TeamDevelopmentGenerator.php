@@ -125,33 +125,46 @@ class TeamDevelopmentGenerator implements DependentGeneratorInterface {
             $template = $this->templateForTeam( $templates, isset( $team->age_group ) ? (string) $team->age_group : '' );
             $coach_id = (int) ( $team->head_coach_user_id ?? $author );
 
-            // Formation assignment.
-            $wpdb->insert( "{$wpdb->prefix}tt_team_formations", [
-                'club_id'               => CurrentClub::id(),
-                'team_id'               => $team_id,
-                'formation_template_id' => (int) $template->id,
-                'assigned_by'           => $coach_id,
-            ] );
-            $id = (int) $wpdb->insert_id;
-            if ( $id ) {
-                $this->registry->tag( 'team_formation', $id, [ 'team_id' => $team_id ] );
-                $total++;
+            // #3216 — `tt_team_formations` and `tt_team_playing_styles` both
+            // carry `UNIQUE KEY uniq_team (team_id)`: a team has one formation
+            // and one playing style, ever. So a team that already has them is
+            // skipped rather than re-inserted.
+            //
+            // The teams here are this batch's when the operator generated
+            // teams, and the club's whole squad list when they unchecked
+            // Teams to build on what already exists. That second path is the
+            // one that meets a team a previous run already dressed — which
+            // used to be a duplicate-key error and a row silently not written.
+            if ( ! $this->teamHasRow( 'tt_team_formations', $team_id ) ) {
+                $wpdb->insert( "{$wpdb->prefix}tt_team_formations", [
+                    'club_id'               => CurrentClub::id(),
+                    'team_id'               => $team_id,
+                    'formation_template_id' => (int) $template->id,
+                    'assigned_by'           => $coach_id,
+                ] );
+                $id = (int) $wpdb->insert_id;
+                if ( $id ) {
+                    $this->registry->tag( 'team_formation', $id, [ 'team_id' => $team_id ] );
+                    $total++;
+                }
             }
 
             // Playing style — three weights the UI reads as a split of 100.
             [ $possession, $counter, $press ] = $this->drawStyleWeights();
-            $wpdb->insert( "{$wpdb->prefix}tt_team_playing_styles", [
-                'club_id'           => CurrentClub::id(),
-                'team_id'           => $team_id,
-                'possession_weight' => $possession,
-                'counter_weight'    => $counter,
-                'press_weight'      => $press,
-                'updated_by'        => $coach_id,
-            ] );
-            $id = (int) $wpdb->insert_id;
-            if ( $id ) {
-                $this->registry->tag( 'team_playing_style', $id, [ 'team_id' => $team_id ] );
-                $total++;
+            if ( ! $this->teamHasRow( 'tt_team_playing_styles', $team_id ) ) {
+                $wpdb->insert( "{$wpdb->prefix}tt_team_playing_styles", [
+                    'club_id'           => CurrentClub::id(),
+                    'team_id'           => $team_id,
+                    'possession_weight' => $possession,
+                    'counter_weight'    => $counter,
+                    'press_weight'      => $press,
+                    'updated_by'        => $coach_id,
+                ] );
+                $id = (int) $wpdb->insert_id;
+                if ( $id ) {
+                    $this->registry->tag( 'team_playing_style', $id, [ 'team_id' => $team_id ] );
+                    $total++;
+                }
             }
 
             // Blueprint + slot assignments.
@@ -254,6 +267,21 @@ class TeamDevelopmentGenerator implements DependentGeneratorInterface {
             $total++;
         }
         return $total;
+    }
+
+    /**
+     * Does this team already have its one row in a `uniq_team` table (#3216)?
+     *
+     * @param string $table Unprefixed table name, a literal from this class.
+     */
+    private function teamHasRow( string $table, int $team_id ): bool {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}{$table} WHERE team_id = %d AND club_id = %d",
+            $team_id,
+            CurrentClub::id()
+        ) ) > 0;
     }
 
     /** Tag the assignment rows the blueprint repository just wrote. */
