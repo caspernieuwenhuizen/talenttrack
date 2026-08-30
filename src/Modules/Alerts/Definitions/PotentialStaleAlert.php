@@ -175,9 +175,13 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
             'order'   => 'ASC',
         ] );
 
+        // No `is_array()` guard: `get_users( [ 'fields' => 'ID' ] )` is
+        // typed as an array, and PHPStan level 8 rejects the dead else
+        // branch rather than letting a defensive habit stand in for a
+        // real possibility.
         $cap = $this->capRequired();
         $out = [];
-        foreach ( is_array( $ids ) ? $ids : [] as $id ) {
+        foreach ( $ids as $id ) {
             $id = (int) $id;
             if ( $id <= 0 ) continue;
             if ( ! user_can( $id, $cap ) ) continue;
