@@ -39,8 +39,14 @@ final class TrialLetterService {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_reports';
 
+        // Read once. `$case` is a plain object, so each property access is
+        // an error PHPStan's baseline counts individually — and the count
+        // is the gate. Reading it twice would need a baseline edit to say
+        // nothing new.
+        $case_id = (int) $case->id;
+
         $config_json = wp_json_encode( [
-            'case_id'  => (int) $case->id,
+            'case_id'  => $case_id,
             'audience' => $audience,
             'locale'   => get_locale(),
         ] );
@@ -72,7 +78,7 @@ final class TrialLetterService {
         // a third place to remember it, and the first place to forget it —
         // two live letters saying different things to the same family is
         // exactly the failure this prevents.
-        $this->revokePriorLetters( (int) $case->id, $id );
+        $this->revokePriorLetters( $case_id, $id );
 
         return $id;
     }
