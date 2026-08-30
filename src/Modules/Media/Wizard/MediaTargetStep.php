@@ -35,7 +35,15 @@ final class MediaTargetStep implements WizardStepInterface {
 
         echo '<p>' . esc_html__( 'Who is this photo or video about?', 'talenttrack' ) . '</p>';
 
-        $players = QueryHelpers::get_players();
+        // #3157 — the cold-entry picker used to list every active child in
+        // the academy. This step is where a coach decides whose photo is
+        // being stored, so it is the last place a name should appear that
+        // the coach has no business seeing. Narrowed to the viewer's own
+        // teams; global `players` read (scout, HoD, academy admin) still
+        // reaches everyone. `validate()` already re-asks
+        // `MediaVisibilityService::canAttachTo()`, so this narrows what is
+        // offered, not what is allowed.
+        $players = QueryHelpers::get_players_in_scope( get_current_user_id() );
         if ( empty( $players ) ) {
             echo '<p class="description">' . esc_html__( 'There are no players to attach media to yet.', 'talenttrack' ) . '</p>';
             return;

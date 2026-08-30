@@ -82,7 +82,7 @@ zichtbaar.
 
 Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft vier stappen:
 
-1. **Voor wie** — al ingevuld als je vanaf een record begon, dus er valt niets te kiezen.
+1. **Voor wie** — al ingevuld als je vanaf een record begon, dus er valt niets te kiezen. Begin je juist koud vanaf de tegel, dan toont de spelerslijst de spelers van teams die je coacht; wie alle spelers van de academie mag inzien, ziet ze allemaal.
 2. **Bestanden** — kies foto's of video, of plak een link naar video die ergens anders staat. Op een telefoon zit de camera één tik verderop.
 3. **Details** — een titel, eventueel een omschrijving, de datum waarop het gemaakt is, en bij een training of wedstrijd wie erop staat.
 4. **Bevestigen** — wat er wordt opgeslagen, en waar het verschijnt.

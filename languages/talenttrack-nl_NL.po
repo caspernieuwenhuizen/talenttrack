@@ -58566,6 +58566,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendTeamsManageView.php:223
+msgid "You do not have permission to edit teams."
+msgstr "Je hebt geen permissie om teams te bewerken."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 

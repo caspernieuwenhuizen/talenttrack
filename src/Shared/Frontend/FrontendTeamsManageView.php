@@ -223,6 +223,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
     }
 
     private static function renderForm( int $user_id, bool $is_admin, ?object $team ): void {
+        // #3157 — the "+ New team" and "Edit team" CTAs both check this;
+        // the URL did not, so `?tt_view=teams&action=edit&id=N` opened the
+        // form (and its roster picker) for anyone who could reach the view.
+        // Same resolution the CTAs use, so the button and the address bar
+        // agree.
+        if ( ! $is_admin
+             && ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' )
+        ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit teams.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $is_edit   = $team !== null;
         $rest_path = $is_edit ? 'teams/' . (int) $team->id : 'teams';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
@@ -331,7 +343,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         </form>
 
         <?php if ( $is_edit ) : ?>
-            <?php self::renderRosterSection( (int) $team->id ); ?>
+            <?php self::renderRosterSection( $user_id, $is_admin, (int) $team->id ); ?>
             <?php self::renderStaffSection( (int) $team->id ); ?>
             <?php self::renderTeamDevelopmentLinks( (int) $team->id ); ?>
         <?php endif; ?>
@@ -342,14 +354,21 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * Roster management — list current players + "Add player" dropdown.
      * Hits the team/player sub-resource endpoints; refresh on success.
      */
-    private static function renderRosterSection( int $team_id, bool $readonly = false ): void {
+    private static function renderRosterSection( int $user_id, bool $is_admin, int $team_id, bool $readonly = false ): void {
         $current = QueryHelpers::get_players( $team_id );
 
         if ( ! $readonly ) {
-            // Pool of addable players: anyone NOT currently on this team
-            // (admins see all, but the eligible pool is the same — the
-            // entry point is what's gated, not the pool).
-            $all         = QueryHelpers::get_players();
+            // Pool of addable players: anyone in the viewer's scope who is
+            // NOT currently on this team.
+            //
+            // #3157 — this used to be every active child in the academy,
+            // on the premise that "the entry point is what's gated, not
+            // the pool". The entry point was not gated either (see the
+            // guard now at the top of renderForm()), so a head coach
+            // editing their own U13 got a dropdown naming every child in
+            // the club. Moving a player in from a team you do not coach is
+            // an academy-admin act; the all-players branch still does it.
+            $all         = QueryHelpers::get_players_in_scope( $user_id, $is_admin );
             $current_ids = array_map( static function ( $p ) { return (int) $p->id; }, (array) $current );
             $addable     = [];
             foreach ( (array) $all as $p ) {
@@ -473,7 +492,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         <?php endif; ?>
 
         <?php
-        self::renderRosterSection( (int) $team->id, true );
+        self::renderRosterSection( $user_id, $is_admin, (int) $team->id, true );
         self::renderStaffSection( (int) $team->id );
     }
 

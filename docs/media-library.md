@@ -76,7 +76,7 @@ This is also what makes the shared-visibility point earlier concrete: a photo ta
 
 Use **Add media** from a player, team or training. The wizard has four steps:
 
-1. **Who for** — prefilled when you started from a record, so there is nothing to pick.
+1. **Who for** — prefilled when you started from a record, so there is nothing to pick. Starting cold from the tile instead, the player dropdown lists players on teams you coach; people who may read every player in the academy see all of them.
 2. **Files** — choose photos or video, or paste a link to video hosted elsewhere. On a phone the camera is one tap away.
 3. **Details** — a title, an optional description, the date it was taken, and, on a training or match, who is in it.
 4. **Confirm** — what will be saved, and where it will appear.

@@ -62,6 +62,22 @@ Het bewerkformulier bereik je via de knop **Team bewerken** op de teampagina (of
 2. **Staftoewijzingen** — de mensen die met dit team werken (coaches, assistenten, fysio, enz.). Toewijzingen hier toevoegen/verwijderen.
 3. **Spelers in dit team** — de huidige selectie in een tabel met rugnummer, posities, voet, geboortedatum. Elke rij linkt naar de eigen pagina van de speler. Bovenaan staat een knop "Speler aan dit team toevoegen".
 
+De bewerkpagina zelf is alleen open voor wie teams mag bewerken. Wie de URL
+zonder dat recht opent, krijgt *Je hebt geen permissie om teams te
+bewerken.* in plaats van het formulier.
+
+#### Wie de keuzelijst "Speler toevoegen" aanbiedt
+
+De lijst toont spelers **van teams die je zelf coacht** en die nog niet in
+dit team zitten. Academiebeheer, Hoofd Opleiding en scouts — iedereen die
+alle spelers van de academie mag inzien — zien de hele academie.
+
+Een coach kan dus geen speler overhevelen uit een team waar hij niets mee
+te maken heeft. Een kind tussen leeftijdsgroepen verplaatsen is werk voor
+academiebeheer, en voor hen staat het nog steeds één keuzelijst ver weg.
+Mis je iemand die je verwacht, dan zit die in een ander team: vraag beheer
+om de speler te verplaatsen, of gebruik de pagina van de speler zelf.
+
 ## Spelers
 
 Een **speler** is een individuele voetballer. Elke speler heeft:
