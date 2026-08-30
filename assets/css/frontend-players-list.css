@@ -96,6 +96,21 @@
     touch-action: manipulation;
 }
 
+/* #3246 — the chip prints the academy's short code; the full label
+   rides along for screen readers and stays out of the layout. */
+.tt-dashboard .tt-players-form .tt-position-chip-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
 .tt-dashboard .tt-players-form .tt-multitag-option.is-selected {
     background: var(--tt-success-subtle, #dff5e1);
     border-color: var(--tt-success, #2f9e5e);

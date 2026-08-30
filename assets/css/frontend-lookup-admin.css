@@ -383,6 +383,24 @@
     grid-column: 2 / -1;
 }
 
+/* #3246 — the abbreviation sits under its label on a phone and beside it
+   from 480px up, where a 5rem column is enough for a football code. */
+.tt-lkp-admin .tt-lkp-tx-cell-abbrev {
+    grid-column: 2 / -1;
+    text-transform: uppercase;
+}
+@media (min-width: 480px) {
+    .tt-lkp-admin .tt-lkp-tx-grid.has-abbrev {
+        grid-template-columns: 56px minmax(0, 1fr) 5rem;
+    }
+    .tt-lkp-admin .tt-lkp-tx-cell-abbrev {
+        grid-column: auto;
+    }
+    .tt-lkp-admin .tt-lkp-tx-grid.has-abbrev .tt-lkp-tx-cell-desc {
+        grid-column: 2 / -1;
+    }
+}
+
 /* form footer */
 .tt-lkp-admin .tt-lkp-form-foot {
     display: flex;

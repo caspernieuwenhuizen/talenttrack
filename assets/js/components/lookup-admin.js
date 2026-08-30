@@ -92,6 +92,7 @@
         var name = form.querySelector( 'input[name="name"]' );
         var sort = form.querySelector( 'input[name="sort_order"]' );
         var desc = form.querySelector( 'input[name="description"]' );
+        var abbrev = form.querySelector( 'input[name="abbreviation"]' );
         var color = form.querySelector( 'input[name="meta[color]"]' );
         var title = form.querySelector( '[data-tt-lkp-form-title]' );
         var hint = form.querySelector( '[data-tt-lkp-name-hint]' );
@@ -104,6 +105,7 @@
         }
         if ( sort ) sort.value = '0';
         if ( desc ) desc.value = '';
+        if ( abbrev ) abbrev.value = '';
         if ( color ) color.value = '#5b6e75';
         if ( title ) title.textContent = i18n.title_add || 'Add new value';
         if ( hint ) hint.textContent = i18n.hint_add || '';
@@ -128,6 +130,7 @@
         var name = form.querySelector( 'input[name="name"]' );
         var sort = form.querySelector( 'input[name="sort_order"]' );
         var desc = form.querySelector( 'input[name="description"]' );
+        var abbrev = form.querySelector( 'input[name="abbreviation"]' );
         var color = form.querySelector( 'input[name="meta[color]"]' );
         var title = form.querySelector( '[data-tt-lkp-form-title]' );
         var hint = form.querySelector( '[data-tt-lkp-name-hint]' );
@@ -144,6 +147,7 @@
         }
         if ( sort ) sort.value = String( row.getAttribute( 'data-row-sort' ) || '0' );
         if ( desc ) desc.value = String( row.getAttribute( 'data-row-desc' ) || '' );
+        if ( abbrev ) abbrev.value = String( row.getAttribute( 'data-row-abbrev' ) || '' );
         if ( color ) color.value = String( row.getAttribute( 'data-row-color' ) || '' ) || '#5b6e75';
         if ( title ) title.textContent = i18n.title_edit || 'Edit value';
         if ( hint ) hint.textContent = i18n.hint_edit || '';
@@ -215,6 +219,7 @@
         var nameInput = form.querySelector( 'input[name="name"]' );
         var sortInput = form.querySelector( 'input[name="sort_order"]' );
         var descInput = form.querySelector( 'input[name="description"]' );
+        var abbrevInput = form.querySelector( 'input[name="abbreviation"]' );
         var colorInput = form.querySelector( 'input[name="meta[color]"]' );
 
         var body = {};
@@ -229,6 +234,7 @@
         }
         if ( sortInput ) body.sort_order = parseInt( sortInput.value || '0', 10 );
         if ( descInput ) body.description = String( descInput.value || '' );
+        if ( abbrevInput ) body.abbreviation = String( abbrevInput.value || '' );
         if ( colorInput && colorInput.value ) {
             body.meta = { color: String( colorInput.value || '' ) };
         }

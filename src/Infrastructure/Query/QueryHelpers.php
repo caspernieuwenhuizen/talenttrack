@@ -148,6 +148,32 @@ class QueryHelpers {
         return $pairs;
     }
 
+    /**
+     * #3246 — companion to `get_lookup_label_pairs()` for surfaces that
+     * only have room for a short code: `[ stored_name => abbreviation ]`,
+     * both in the current locale.
+     *
+     * A row with no abbreviation is **absent** from the result rather
+     * than present with an empty string, so a caller can write
+     * `$abbrev[ $key ] ?? $label[ $key ]` and get the documented
+     * fallback — the translated label — without a second check.
+     *
+     * @return array<string, string>
+     */
+    public static function get_lookup_abbrev_pairs( string $type ): array {
+        $pairs = [];
+        if ( ! class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) return $pairs;
+
+        foreach ( self::get_lookups( $type ) as $row ) {
+            $stored = (string) ( $row->name ?? '' );
+            if ( $stored === '' ) continue;
+            $abbrev = \TT\Infrastructure\Query\LookupTranslator::abbreviation( $row );
+            if ( $abbrev === '' ) continue;
+            $pairs[ $stored ] = $abbrev;
+        }
+        return $pairs;
+    }
+
     /** @return array<string,mixed> */
     public static function lookup_meta( ?object $lookup ): array {
         if ( ! $lookup || empty( $lookup->meta ) ) return [];

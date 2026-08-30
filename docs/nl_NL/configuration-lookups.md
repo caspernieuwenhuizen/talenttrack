@@ -43,6 +43,7 @@ Tik op een rij om de Bewerkweergave te openen. Het formulier heeft twee kaarten:
 - **Sorteervolgorde** — geheel getal.
 - **Pillkleur** — kleurkiezer, als de categorie `show_color` heeft.
 - **Beschrijving (canoniek, optioneel)** — de Engelse beschrijving die wordt getoond als er geen per-locale vertaling is, als de categorie `show_desc` heeft.
+- **Afkorting (canoniek, optioneel)** — de korte code die wordt getoond waar het volledige label niet past, als de categorie `show_abbrev` heeft. Vandaag is dat alleen **Posities**. Maximaal 16 tekens.
 
 ### Kaart 2 — vertalingen
 
@@ -50,6 +51,21 @@ Een raster met één rij per ondersteunde locale (`en_US`, `nl_NL`, `de_DE`, `es
 
 - **Engels (`en_US`) is een eerste-rangs vertalingsslot**. De canonieke Engelse weergavewaarde leeft in `tt_translations`, niet in de `name`-kolom van de database. De `name`-kolom wordt nu beschouwd als de immuabele interne sleutel.
 - **Vertaal vanuit Engels** knop (boven het raster) roept de geconfigureerde vertaalmachine aan en vult lege Label-velden voor met automatische vertalingen. Controleer en bewerk vóór het opslaan.
+- **Afkorting** krijgt een eigen smal veld per locale bij een categorie met `show_abbrev`, om dezelfde reden als het Label: `GK` in het Engels is `K` in het Nederlands.
+
+## Afkortingen
+
+Sommige schermen hebben geen ruimte voor een volledig label. Het duidelijkste voorbeeld is de voorkeurspositie-kiezer bij een speler: elf waarden moeten als chips op een telefoon passen — "Verdedigende middenvelder" past niet, `VM` wel.
+
+Posities is vandaag de enige categorie met een Afkorting-veld.
+
+- **Het is alleen weergave.** Niets in het systeem matcht erop. Chemie, formatieplekken en selectie werken allemaal op de interne sleutel, dus een afkorting wijzigen is altijd veilig.
+- **Heeft een rij geen afkorting, dan wordt het volledige vertaalde label getoond** — nooit de interne sleutel. Een positie die je academie zelf toevoegt leest dus meteen goed, of iemand nu een code invult of niet.
+- **Het is per taal.** De canonieke waarde in Kaart 1 is de terugval; een waarde in het vertalingenraster wint voor die taal.
+
+De elf posities die TalentTrack meelevert hebben hun Engelse codes al ingevuld (`GK`, `CB`, `LB`, `RB`, `CDM`, `CM`, `CAM`, `LW`, `RW`, `ST`, `CF`) — dezelfde codes als vóór dit veld bestond, dus op een bestaande installatie verandert er niets.
+
+**Nederlandse codes worden bewust niet meegeleverd**: de voor de hand liggende Nederlandse afkortingen botsen (*linksback* en *linksbuiten* willen allebei `LB`), en een verkeerde code is erger dan een Engelse waarvan je ziet dat hij vervangen moet worden. Vul ze in zoals jullie ze zeggen.
 
 ## Toevoegen-weergave
 
