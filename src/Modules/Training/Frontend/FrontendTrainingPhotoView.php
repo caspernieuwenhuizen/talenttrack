@@ -97,6 +97,18 @@ final class FrontendTrainingPhotoView extends FrontendViewBase {
             return;
         }
 
+        // #3106 — and the plan. Told here, before the camera opens, for the
+        // same reason the switch is: a coach who has framed a photograph
+        // and then been refused has wasted a minute they were standing on a
+        // touchline for. The manual fallback stays — the point is to leave
+        // with a plan either way.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'exercises_vision_extraction' ) ) {
+            self::renderHeader( __( 'Photo to plan', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'exercises_vision_extraction' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            self::renderManualFallback();
+            return;
+        }
+
         if ( ! VisionDataRegion::isDeclared() ) {
             self::renderHeader( __( 'Photo to plan', 'talenttrack' ) );
             echo '<p class="tt-notice">'

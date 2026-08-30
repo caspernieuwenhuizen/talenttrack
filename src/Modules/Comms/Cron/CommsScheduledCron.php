@@ -43,6 +43,34 @@ final class CommsScheduledCron {
 
     public const HOOK = 'tt_comms_scheduled_cron';
 
+    /**
+     * The four schedule-driven templates, in the order `run()` fires them.
+     * Named here as well as there so the plan refusal can record a health
+     * entry for each without duplicating the list.
+     */
+    public const TEMPLATES = [
+        'goal_nudge',
+        'attendance_flag',
+        'onboarding_nudge_inactive',
+        'staff_development_reminder',
+    ];
+
+    /**
+     * The sentence a refused run leaves behind, naming the plan rather
+     * than reading as a failure. An operator seeing "not on the plan" asks
+     * their operator; one seeing a blank or an error opens a support
+     * ticket about a bug that is not there.
+     */
+    private static function planRefusalReason(): string {
+        return sprintf(
+            /* translators: %s: plan name, e.g. "Pro" */
+            __( 'Skipped: scheduled sends are part of the %s plan, which this install is not on.', 'talenttrack' ),
+            \TT\Modules\License\FeatureMap::tierLabel(
+                \TT\Modules\License\LicenseGate::requiredTierFor( 'comms_scheduled_sends' )
+            )
+        );
+    }
+
     public static function init(): void {
         add_action( self::HOOK, [ __CLASS__, 'run' ] );
         if ( ! wp_next_scheduled( self::HOOK ) ) {
@@ -51,6 +79,24 @@ final class CommsScheduledCron {
     }
 
     public static function run(): void {
+        // #3106 — scheduled sends are Pro, and every message this cron
+        // fires costs the operator money. The refusal happens here rather
+        // than at `init()` on purpose: nobody is watching a cron run, so
+        // an absent hook and a refused one look identical from the outside
+        // and the first anyone hears of it is "the nudges stopped". The
+        // health record is what the message-log surface already reads
+        // (#2606), so the reason lands where an admin will find it.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'comms_scheduled_sends' ) ) {
+            $reason = self::planRefusalReason();
+            foreach ( self::TEMPLATES as $template_key ) {
+                self::recordHealth( $template_key, false, $reason );
+            }
+            Logger::info( 'Comms scheduled cron skipped — not on the plan', [
+                'feature' => 'comms_scheduled_sends',
+            ] );
+            return;
+        }
+
         // Each detector swallows its own failures — a broken detector
         // mustn't break the others. Run them in fixed order so the
         // audit timestamps line up day-over-day.

@@ -47,6 +47,26 @@ final class SpondSync {
      * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}
      */
     public static function syncTeam( int $team_id ): array {
+        // #3106 — Spond is Pro, and a sync is an authenticated round trip to
+        // a third party on every run. This is the narrowest chokepoint the
+        // module has: `syncAll()`, the CLI, the admin button and the cron
+        // all arrive here, so refusing once covers every path.
+        //
+        // #3017's third decision applies as written: fixtures already
+        // imported are ordinary activities and stay exactly where they are.
+        // What stops is fetching more. The refusal returns the module's own
+        // summary shape with a reason, so it lands in the sync health
+        // record an operator reads rather than vanishing into a cron run.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'spond_integration' ) ) {
+            return self::summary( $team_id, 'failed', 0, 0, 0, 0, sprintf(
+                /* translators: %s: plan name, e.g. "Pro" */
+                __( 'Spond sync is part of the %s plan, which this install is not on. Fixtures already imported are unaffected.', 'talenttrack' ),
+                \TT\Modules\License\FeatureMap::tierLabel(
+                    \TT\Modules\License\LicenseGate::requiredTierFor( 'spond_integration' )
+                )
+            ) );
+        }
+
         global $wpdb;
         $p = $wpdb->prefix;
 

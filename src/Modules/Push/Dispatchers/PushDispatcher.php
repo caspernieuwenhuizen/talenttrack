@@ -31,7 +31,18 @@ final class PushDispatcher implements DispatcherInterface {
 
     public function key(): string { return 'push'; }
 
+    /**
+     * #3106 — push is Pro, and every dispatch is a call to a third-party
+     * push service on the operator's account. Refusing in `applicableTo()`
+     * is the narrowest chokepoint this module has: the dispatcher chain
+     * asks this before it asks anything else, so an out-of-plan install
+     * falls straight through to email rather than being told a delivery
+     * failed. No refusal to render — the notification still arrives, by
+     * the channel the plan includes.
+     */
     public function applicableTo( array $context ): bool {
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'push_notifications' ) ) return false;
+
         $user_id = (int) ( $context['user_id'] ?? 0 );
         if ( $user_id <= 0 ) return false;
         return ! empty( $this->repo->activeForUser( $user_id ) );

@@ -90,7 +90,17 @@ class CommsModule implements ModuleInterface {
         ChannelAdapterRegistry::register( new PushChannelAdapter() );         // wraps Push module (Q4) — v3.110.0
         // #1538 — SMS is an optional sub-feature; skip the adapter when off
         // so SMS isn't offered as a channel (provider cost/setup).
-        if ( \TT\Core\FeatureRegistry::isEnabled( 'comms_sms_channel' ) ) {
+        //
+        // #3106 — and skip it when the plan does not include it. Gating at
+        // registration rather than at the send site is deliberate: an
+        // adapter that was never registered cannot be reached by any path —
+        // dispatcher, cron, filter or a future caller nobody has written —
+        // and there is exactly one place to get it right. Every SMS this
+        // module sends costs the operator money per message, so "the check
+        // is somewhere downstream" is not good enough.
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'comms_sms_channel' )
+             && \TT\Modules\License\LicenseGate::allows( 'comms_sms_channel' )
+        ) {
             ChannelAdapterRegistry::register( new SmsChannelAdapter() );      // provider-pluggable filter (Q2) — v3.110.0
         }
         ChannelAdapterRegistry::register( new InappChannelAdapter() );        // tt_comms_inbox-backed — v3.110.0

@@ -109,6 +109,31 @@ The media row is the shape of the whole set: *the club keeps every photo it
 has, and cannot add more.* Deleting is never refused over a plan — removing
 a child's photo is an obligation, not a feature.
 
+### Channels and integrations
+
+These cost money every time they run, so they are priced and they refuse
+where they would otherwise spend.
+
+| Feature | Standard can | Standard cannot |
+| - | - | - |
+| **SMS** | Send by email, in-app, push-free WhatsApp links | Use SMS as a channel — it is not offered in the channel picker at all |
+| **Push notifications** | Receive the same notifications by email | Have them delivered as phone push |
+| **Scheduled sends** | Every event-driven message — invitations, account mail, the ones a click causes | The four daily nudges (goal, attendance, inactive parent, staff review) |
+| **Photo to plan** | Build a training plan by hand, as always | Have a photographed plan read for you |
+| **Spond** | Read every fixture already imported — they are ordinary activities | Sync again |
+| **Strava** | Read every activity already shared, on the player's record | Connect another player |
+| **Object-storage backup** | Local and email backup destinations | An S3-style destination *(not built yet)* |
+
+Two of these run in the background where nobody is watching, so a refusal
+is **written down** rather than shown: the scheduled-send refusal appears
+against each nudge in the message log's health record, and a refused Spond
+sync appears in that team's sync history. Both name the plan, so it reads as
+a plan question rather than as something broken.
+
+Nothing already imported is touched. Spond fixtures and Strava activities
+stay exactly where they are, readable and exportable, and come back to life
+if the plan changes.
+
 ## Usage limits
 
 Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.
