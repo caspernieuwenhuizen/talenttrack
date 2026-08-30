@@ -18,6 +18,7 @@ use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
 use TT\Modules\Comms\Send\PdpReadySend;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
+use TT\Modules\Comms\Send\TrialPlayerWelcomeSend;
 use TT\Modules\Comms\Template\TemplateCatalog;
 use TT\Modules\Comms\Template\TemplateRegistry;
 
@@ -157,6 +158,12 @@ class CommsModule implements ModuleInterface {
         // listens on the verdict sign-off: the point at which the plan
         // stops being a working draft. See `PdpReadySend`.
         PdpReadySend::init();
+
+        // #2605 — use case 5. Listens on `tt_trial_started`, which #3130
+        // made the single announcing point in `TrialCasesRepository`, so a
+        // trial opened from any of its four callers welcomes the family
+        // the same way. See `TrialPlayerWelcomeSend`.
+        TrialPlayerWelcomeSend::init();
 
         // Schedule-driven triggers — wp-cron once a day. Each triggers
         // its own template's send loop scoped per club:

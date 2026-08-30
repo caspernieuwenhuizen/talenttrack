@@ -167,10 +167,14 @@ final class TemplateGuide {
             ],
             'trial_player_welcome' => [
                 'family'    => self::FAMILY_TRANSACTIONAL,
-                'what'      => __( 'Welcomes a trialist and tells them what to bring and where to be.', 'talenttrack' ),
+                // #2605 — was "tells them what to bring and where to be",
+                // which the message never could: a trial case has no
+                // location and no kit list. It now says a coach will follow
+                // up with those, and this description says the same.
+                'what'      => __( 'Welcomes a trialist, names the start date, and says a coach will follow up with the details.', 'talenttrack' ),
                 'who'       => __( 'The trial player and their parents.', 'talenttrack' ),
-                'when'      => __( 'When a trial player is added.', 'talenttrack' ),
-                'triggered' => false,
+                'when'      => __( 'When a trial case is opened for a player.', 'talenttrack' ),
+                'triggered' => true,
             ],
             'letter_delivery' => [
                 'family'    => self::FAMILY_TRANSACTIONAL,

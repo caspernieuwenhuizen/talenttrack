@@ -83,7 +83,9 @@ A person only ever sees their own inbox. A parent sees messages about their own 
 
 Messages fall into three groups.
 
-**Event-driven** — they fire the moment something happens in the product. A training is cancelled; a development plan is signed off; an invitation is sent; a coach writes a direct message; a scout report is delivered; a trial input reminder goes out; a scheduled report is delivered.
+**Event-driven** — they fire the moment something happens in the product. A training is cancelled; a development plan is signed off; a trial is opened for a player; an invitation is sent; a coach writes a direct message; a scout report is delivered; a trial input reminder goes out; a scheduled report is delivered.
+
+The trial welcome is worth one note, because it promises less than you might expect. A trial case records the player, the trajectory and the dates — it has no place and no kit list — so the message names the start date and says a coach will be in touch with the time, the place and what to bring. That is what actually happens, and it is better than a message with two empty headings on it. It goes to the parents of a youth player and to the player themselves once they are old enough, like every other message about a player.
 
 **Scheduled** — a daily job looks for a condition and sends: goals that have gone quiet, repeated absences, parents who have not logged in for a month, staff development reviews coming due.
 
