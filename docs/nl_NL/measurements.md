@@ -174,6 +174,36 @@ tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
 keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
 hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.
 
+### Lengte werkt ook het spelersprofiel bij
+
+Op het spelersprofiel staat een lengte, en dat was tot nu toe het getal
+dat iemand invulde toen de speler werd aangemaakt. Bij een groeiende
+13-jarige klopt dat binnen een paar maanden niet meer, en nergens op het
+scherm was te zien dat het verouderd was.
+
+Voortaan volgt het profiel de metingen. Zodra een nieuwe lengtemeting de
+meest recente van de speler is, toont het profiel dat getal.
+
+Een paar dingen om te weten:
+
+- **De test moet herkend worden als lengte.** Noem hem `Lengte`,
+  `Height`, `Length` of `Stature` — een academie bepaalt zelf hoe tests
+  heten, dus dit gaat op naam en niet op een vaste test.
+- **De meest recente meting wint, niet de laatst ingevoerde.** Corrigeer
+  je een meting van afgelopen januari, dan blijft het profiel op de
+  nieuwere staan. Verplaats je een oude meting naar voren zodat die de
+  meest recente wordt, dan volgt het profiel mee.
+- **De laatste lengte verwijderen maakt het profiel niet leeg.** Het
+  getal dat er staat kan van vóór jullie testsessies komen, en een oud
+  getal is bruikbaarder dan geen getal.
+- **Je kunt de lengte nog steeds op het spelersformulier aanpassen.** Voor
+  een academie die geen testsessies draait is dat precies goed — maar
+  zodra er een meting is, neemt die het over.
+
+De BMI-rapportage gebruikt de profiellengte bewust niet: een BMI heeft de
+lengte nodig die gold op de dag van de weging, niet de laatst bekende.
+Zie [BMI naar leeftijd](#bmi-naar-leeftijd).
+
 ## Testdekking (wie is aan de beurt)
 
 Staf krijgt ook een tegel **Testdekking**. Kies een team en het scherm
