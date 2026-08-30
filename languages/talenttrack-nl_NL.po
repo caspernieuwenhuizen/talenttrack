@@ -58545,6 +58545,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendRateCardView.php:65
+msgid "You do not have access to rate cards."
+msgstr "Je hebt geen toegang tot rapportkaarten."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 

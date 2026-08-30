@@ -422,6 +422,12 @@ wordt elk getal hier getoond als **percentiel** voor de leeftijd en het geslacht
 van die speler, en niet als losse waarde. Een percentiel beantwoordt de enige
 vraag die ertoe doet: waar staat deze speler ten opzichte van leeftijdsgenoten?
 
+Groeigegevens horen bij het persoonlijkste dat het systeem over een kind
+vastlegt, dus beide helften van de rapportage blijven binnen je teambereik: het
+overzicht toont de teams die je traint, en de curve van één speler openen wordt
+geweigerd voor een speler daarbuiten — ook via een handmatig ingetypte link. Een
+academiebreed meetrecht ziet nog steeds elke speler.
+
 ### Wat je eerst nodig hebt
 
 In je testcatalogus moeten een **lengte**-test en een **gewicht**-test staan. De

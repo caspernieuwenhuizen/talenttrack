@@ -400,6 +400,12 @@ why every number here is shown as a **percentile** for that player's age and sex
 rather than on its own. A percentile answers the only question worth asking:
 where does this player sit compared with others of the same age?
 
+Growth data is among the more personal things the system holds about a child,
+so both halves of the report stay inside your team scope: the roster shows the
+teams you coach, and opening one player's curve is refused for a player outside
+them — including by a hand-typed link. An academy-wide measurements grant still
+sees every player.
+
 ### What you need first
 
 Your test catalogue needs a **height** test and a **weight** test. Any of the
