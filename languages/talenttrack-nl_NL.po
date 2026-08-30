@@ -59033,6 +59033,14 @@ msgctxt "player profile row label — the recorded potential band"
 msgid "Potential"
 msgstr "Potentieel"
 
+#: src/Modules/Trials/Rest/TrialsRestController.php:412
+msgid "A valid trial-letter audience is required."
+msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:434
+msgid "The letter could not be generated."
+msgstr "De brief kon niet worden gegenereerd."
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 
