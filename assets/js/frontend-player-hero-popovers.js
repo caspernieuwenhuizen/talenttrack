@@ -253,6 +253,15 @@
 
         var fields = [ makeField(i18n.band_label || 'Potential band', sel) ];
 
+        // #3241 — say what is being asked, here as well as on the capture
+        // screen. The two are the only ways in and they must not say
+        // different things. The one-line version lives here and the full
+        // band meanings on the capture screen, reached by the history link
+        // below — five sentences duplicated into JS would drift.
+        if (i18n.band_hint) {
+            fields.push(el('p', { class: 'tt-pp-field-hint', text: i18n.band_hint }));
+        }
+
         // #2876 — say when the standing band was set and by whom. A
         // pre-selected option on its own does not tell a coach whether the
         // judgement is current enough to be worth revising; "set on 12 March

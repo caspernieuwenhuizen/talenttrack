@@ -51,6 +51,18 @@ Coaches and HoD see the full breakdown (the four input scores + the threshold re
 - **Potential** — `POST /players/{id}/potential` with one of `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. HoD-only by default.
 - **Attendance + ratings** — already captured by the existing flows; the calculator reads them directly.
 
+Both forms now say what they are asking for, on the screen rather than in this document.
+
+The behaviour form names the ends of your configured scale and says the rating is about the week you just watched, not the player as a whole — the trend across ratings is what the status reads, so a single low week is information rather than a verdict.
+
+The potential form asks how high you believe the player can reach **at their peak**, not where they are now, and carries a *What the bands mean* section next to the picker: one line each for First team, Professional elsewhere, Semi-pro, Top amateur and Foundation. Worth reading once as a staff group, because two coaches guessing at the bands is how the same player gets recorded differently.
+
+### How often potential is expected
+
+Quarterly. The form says so, and it tells you where this player stands: when the band was last set, by whom, how many days ago, and whether that is now overdue. The threshold is your academy's own `alerts_potential_stale_days` setting — the same number the *Potential not revisited* alert uses, so the screen and the reminder can never disagree about what late means.
+
+A player who has never had a band set says exactly that.
+
 ## The potential trajectory
 
 Potential is not a label, it is a judgement the academy revises. Every time somebody sets it, that becomes a new dated entry — nothing is overwritten — so the record shows how the club's view of a player has moved.

@@ -51,6 +51,18 @@ Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores 
 - **Potentieel** — `POST /players/{id}/potential` met een van `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. Standaard alleen voor hoofd opleidingen.
 - **Aanwezigheid + evaluaties** — al vastgelegd via de bestaande flows; de calculator leest ze direct.
 
+Beide formulieren vertellen nu zelf waar ze om vragen, op het scherm in plaats van in dit document.
+
+Het gedragsformulier noemt de uiteinden van jullie eigen schaal en zegt erbij dat de beoordeling over de afgelopen week gaat, niet over de speler als geheel — de status leest het verloop over meerdere beoordelingen, dus één mindere week is informatie en geen oordeel.
+
+Het potentieelformulier vraagt hoe hoog je denkt dat de speler **op zijn top** kan reiken, niet waar hij nu staat, en heeft een blokje *Wat de bands betekenen* naast de keuzelijst: één regel per band voor Eerste team, Profvoetbal elders, Semi-prof, Top amateur en Basis. De moeite waard om één keer als staf samen door te lezen, want twee trainers die naar de betekenis raden is precies hoe dezelfde speler verschillend wordt vastgelegd.
+
+### Hoe vaak potentieel wordt verwacht
+
+Per kwartaal. Het formulier zegt dat, en het laat zien waar deze speler staat: wanneer de band voor het laatst is vastgelegd, door wie, hoeveel dagen geleden, en of dat inmiddels te lang geleden is. De grens is jullie eigen instelling `alerts_potential_stale_days` — hetzelfde getal dat de melding *Potentieel niet herzien* gebruikt, zodat het scherm en de herinnering het nooit oneens kunnen zijn over wat te laat is.
+
+Bij een speler bij wie nog nooit een band is vastgelegd, staat dat er letterlijk.
+
 ## Het verloop van het potentieel
 
 Potentieel is geen etiket maar een inschatting die je bijstelt. Elke keer dat iemand het potentieel vastlegt, komt er een nieuwe regel met datum bij — er wordt niets overschreven — zodat je terugziet hoe het beeld van de club over een speler is verschoven.

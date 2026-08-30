@@ -59242,6 +59242,101 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:160
+msgid ""
+"Attitude, effort and how the player is to work with. It feeds their status "
+"light, weighted for their age group — so it is a judgement about this week, "
+"recorded often, not a verdict."
+msgstr ""
+"Houding, inzet en hoe prettig de speler is om mee te werken. Het telt mee in "
+"zijn statuslicht, gewogen naar leeftijdscategorie — het is dus een oordeel "
+"over deze week, dat je vaak vastlegt, en geen eindoordeel."
+
+#. translators: 1: lowest value on the configured scale, 2: highest
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:196
+#, php-format
+msgid ""
+"%1$s is the lowest, %2$s the highest. Rate what you saw this week, not the "
+"player overall — the trend across ratings is what the status reads."
+msgstr ""
+"%1$s is de laagste, %2$s de hoogste. Beoordeel wat je deze week hebt gezien, "
+"niet de speler in het algemeen — de status kijkt naar het verloop over "
+"meerdere beoordelingen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:286
+msgid ""
+"How high you believe this player can reach at their peak — not where they "
+"are now. Read the bands below before choosing."
+msgstr ""
+"Hoe hoog je denkt dat deze speler op zijn top kan reiken — niet waar hij nu "
+"staat. Lees de bands hieronder voordat je kiest."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:171
+msgid ""
+"How high you believe this player can reach at their peak — not where they "
+"are now."
+msgstr ""
+"Hoe hoog je denkt dat deze speler op zijn top kan reiken — niet waar hij nu "
+"staat."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:404
+msgid "What the bands mean"
+msgstr "Wat de bands betekenen"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:392
+msgid "Can reach this club's own first team."
+msgstr "Kan het eerste elftal van deze club halen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:393
+msgid "Can play professionally, most likely at another club."
+msgstr "Kan profvoetballer worden, waarschijnlijk bij een andere club."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:394
+msgid "Can play at semi-professional level."
+msgstr "Kan op semi-profniveau spelen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:395
+msgid "Can play at the highest amateur level."
+msgstr "Kan op het hoogste amateurniveau spelen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:396
+msgid ""
+"Will play for the love of it. Not a lesser player to coach — a different "
+"ceiling."
+msgstr ""
+"Speelt voor het plezier. Geen mindere speler om te begeleiden — een ander "
+"plafond."
+
+#. translators: %d: number of months before a potential counts as stale
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:427
+#, php-format
+msgid ""
+"Revisit this about every quarter. After %d months without a look it is "
+"flagged as out of date."
+msgstr ""
+"Kijk hier ongeveer elk kwartaal opnieuw naar. Na %d maanden zonder blik "
+"wordt het gemarkeerd als verouderd."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:435
+msgid "Never set for this player."
+msgstr "Nog nooit vastgelegd voor deze speler."
+
+#. translators: 1: number of days ago, 2: person who set it
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:456
+#, php-format
+msgid "Last set %1$d days ago, by %2$s."
+msgstr "Voor het laatst vastgelegd %1$d dagen geleden, door %2$s."
+
+#. translators: %d: number of days ago
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:463
+#, php-format
+msgid "Last set %d days ago."
+msgstr "Voor het laatst vastgelegd %d dagen geleden."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:469
+msgid "Due a look."
+msgstr "Tijd om er weer naar te kijken."
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "
