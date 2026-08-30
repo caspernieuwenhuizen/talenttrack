@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T20:03:40+00:00\n"
+"POT-Creation-Date: 2026-08-30T20:31:42+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1424,7 +1424,7 @@ msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:35
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:324
-#: src/Shared/Frontend/Components/ProfileDiff.php:115
+#: src/Shared/Frontend/Components/ProfileDiff.php:134
 #: src/Shared/Frontend/FrontendModulesView.php:317
 msgid "Module"
 msgstr "Module"
@@ -3635,7 +3635,7 @@ msgid "No workbook was uploaded."
 msgstr "Er is geen bestand geüpload."
 
 #: src/Infrastructure/REST/ImportRestController.php:108
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:168
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:193
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
 "De upload is niet afgerond. Het bestand is mogelijk groter dan deze server "
@@ -3888,17 +3888,27 @@ msgstr "Er werd een lijst onder `stats` verwacht."
 msgid "Invalid team or player."
 msgstr "Ongeldig team of speler."
 
-#: src/Infrastructure/REST/OnboardingRestController.php:82
+#: src/Infrastructure/REST/OnboardingRestController.php:97
 msgid "An academy name is required."
 msgstr "Een academienaam is verplicht."
 
-#: src/Infrastructure/REST/OnboardingRestController.php:106
+#: src/Infrastructure/REST/OnboardingRestController.php:121
 msgid "A team name is required, or skip this step."
 msgstr "Een teamnaam is verplicht, of sla deze stap over."
 
-#: src/Infrastructure/REST/OnboardingRestController.php:124
+#: src/Infrastructure/REST/OnboardingRestController.php:139
 msgid "A first and last name are required."
 msgstr "Een voor- en achternaam zijn verplicht."
+
+#: src/Infrastructure/REST/OnboardingRestController.php:207
+msgid ""
+"That profile could not be applied. Either it does not exist, or this install "
+"has already been configured by hand — review the change on the Modules page "
+"instead."
+msgstr ""
+"Dit profiel kon niet worden toegepast. Of het bestaat niet, of deze "
+"installatie is al met de hand ingericht — bekijk de wijziging dan op de "
+"pagina Modules."
 
 #: src/Infrastructure/REST/PeekRestController.php:99
 #: src/Infrastructure/REST/PeekRestController.php:131
@@ -5038,7 +5048,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:364
 #: src/Shared/Frontend/Components/SavedViews.php:190
 #: src/Shared/Frontend/DashboardShortcode.php:290
-#: src/Shared/Frontend/FrontendSetupView.php:593
+#: src/Shared/Frontend/FrontendSetupView.php:826
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:50
 msgid "Saved."
 msgstr "Opgeslagen."
@@ -5597,7 +5607,7 @@ msgstr "Opslaan"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:698
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:723
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:38
 #: src/Modules/People/Admin/PeoplePage.php:94
 #: src/Modules/People/Admin/PeoplePage.php:427
@@ -5660,10 +5670,10 @@ msgstr "Onbekende databasefout."
 #: src/Shared/Frontend/FrontendConfigurationView.php:2835
 #: src/Shared/Frontend/FrontendHolidaysView.php:343
 #: src/Shared/Frontend/FrontendSeasonsView.php:186
-#: src/Shared/Frontend/FrontendSetupView.php:174
-#: src/Shared/Frontend/FrontendSetupView.php:214
-#: src/Shared/Frontend/FrontendSetupView.php:269
-#: src/Shared/Frontend/FrontendSetupView.php:368
+#: src/Shared/Frontend/FrontendSetupView.php:183
+#: src/Shared/Frontend/FrontendSetupView.php:223
+#: src/Shared/Frontend/FrontendSetupView.php:278
+#: src/Shared/Frontend/FrontendSetupView.php:377
 #: src/Shared/Frontend/FrontendSpondView.php:163
 #: src/Shared/Frontend/FrontendTeamDetailView.php:476
 #: src/Shared/Frontend/FrontendTranslationsView.php:211
@@ -5926,12 +5936,13 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:213
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:160
 #: src/Shared/Frontend/FrontendRecycleBinView.php:294
-#: src/Shared/Frontend/FrontendSetupView.php:121
-#: src/Shared/Frontend/FrontendSetupView.php:177
-#: src/Shared/Frontend/FrontendSetupView.php:217
-#: src/Shared/Frontend/FrontendSetupView.php:272
-#: src/Shared/Frontend/FrontendSetupView.php:371
-#: src/Shared/Frontend/FrontendSetupView.php:456
+#: src/Shared/Frontend/FrontendSetupView.php:130
+#: src/Shared/Frontend/FrontendSetupView.php:186
+#: src/Shared/Frontend/FrontendSetupView.php:226
+#: src/Shared/Frontend/FrontendSetupView.php:281
+#: src/Shared/Frontend/FrontendSetupView.php:380
+#: src/Shared/Frontend/FrontendSetupView.php:517
+#: src/Shared/Frontend/FrontendSetupView.php:689
 #: src/Shared/Frontend/FrontendSpondView.php:166
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:187
 #: src/Shared/Frontend/FrontendTranslationsView.php:214
@@ -8725,10 +8736,10 @@ msgstr "%d rij(en) weergegeven."
 #: src/Shared/Frontend/FrontendBackupsView.php:250
 #: src/Shared/Frontend/FrontendConfigurationView.php:953
 #: src/Shared/Frontend/FrontendConfigurationView.php:1141
-#: src/Shared/Frontend/FrontendSetupView.php:175
-#: src/Shared/Frontend/FrontendSetupView.php:215
-#: src/Shared/Frontend/FrontendSetupView.php:270
-#: src/Shared/Frontend/FrontendSetupView.php:369
+#: src/Shared/Frontend/FrontendSetupView.php:184
+#: src/Shared/Frontend/FrontendSetupView.php:224
+#: src/Shared/Frontend/FrontendSetupView.php:279
+#: src/Shared/Frontend/FrontendSetupView.php:378
 #: src/Shared/Frontend/FrontendSpondView.php:164
 #: src/Shared/Frontend/FrontendTranslationsView.php:212
 msgid "Saved"
@@ -9392,7 +9403,7 @@ msgstr "Gebruiker:"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:404
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:422
 #: src/Shared/Frontend/FrontendPlayersManageView.php:427
-#: src/Shared/Frontend/FrontendSetupView.php:205
+#: src/Shared/Frontend/FrontendSetupView.php:214
 #: src/Shared/Frontend/FrontendTeamsManageView.php:261
 msgid "— Select —"
 msgstr "— Selecteer —"
@@ -10918,7 +10929,7 @@ msgstr "Prestaties"
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
 #: src/Shared/Frontend/FrontendMatrixView.php:564
 #: src/Shared/Frontend/FrontendModulesView.php:522
-#: src/Shared/Frontend/FrontendSetupView.php:563
+#: src/Shared/Frontend/FrontendSetupView.php:796
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:681
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:92
 #: src/Shared/Modules/ModuleMetadata.php:73
@@ -12665,7 +12676,7 @@ msgstr "Invoegen"
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:381
 #: src/Shared/Frontend/FrontendBackupsView.php:444
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
-#: src/Shared/Frontend/FrontendSetupView.php:459
+#: src/Shared/Frontend/FrontendSetupView.php:692
 msgid "Skip"
 msgstr "Overslaan"
 
@@ -15254,7 +15265,7 @@ msgstr ""
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:654
 #: src/Modules/License/Frontend/FrontendPlanView.php:248
-#: src/Shared/Frontend/Components/ProfileDiff.php:116
+#: src/Shared/Frontend/Components/ProfileDiff.php:135
 #: src/Shared/Frontend/FrontendModulesView.php:384
 #: src/Shared/Frontend/FrontendUsageStatsView.php:234
 msgid "Feature"
@@ -15286,7 +15297,7 @@ msgstr "Welkom"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:437
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:125
 #: src/Modules/Onboarding/OnboardingState.php:62
-#: src/Shared/Frontend/FrontendSetupView.php:139
+#: src/Shared/Frontend/FrontendSetupView.php:148
 msgid "Academy basics"
 msgstr "Basisgegevens academie"
 
@@ -15294,14 +15305,14 @@ msgstr "Basisgegevens academie"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:468
 #: src/Modules/Onboarding/OnboardingState.php:65
 #: src/Modules/Players/Services/PotentialTrajectory.php:64
-#: src/Shared/Frontend/FrontendSetupView.php:191
+#: src/Shared/Frontend/FrontendSetupView.php:200
 msgid "First team"
 msgstr "Eerste team"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:542
 #: src/Modules/Onboarding/OnboardingState.php:66
-#: src/Shared/Frontend/FrontendSetupView.php:237
+#: src/Shared/Frontend/FrontendSetupView.php:246
 msgid "First admin"
 msgstr "Eerste beheerder"
 
@@ -15356,7 +15367,7 @@ msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:474
-#: src/Shared/Frontend/FrontendSetupView.php:103
+#: src/Shared/Frontend/FrontendSetupView.php:112
 #: src/Shared/Frontend/FrontendWizardView.php:611
 msgid "Start over"
 msgstr "Opnieuw beginnen"
@@ -16314,7 +16325,7 @@ msgstr "Toon details"
 #: src/Shared/Frontend/FrontendMySettingsView.php:87
 #: src/Shared/Frontend/FrontendPeopleManageView.php:170
 #: src/Shared/Frontend/FrontendPlayersManageView.php:368
-#: src/Shared/Frontend/FrontendSetupView.php:249
+#: src/Shared/Frontend/FrontendSetupView.php:258
 #: src/Shared/Frontend/FrontendTrialsManageView.php:429
 msgid "First name"
 msgstr "Voornaam"
@@ -16351,7 +16362,7 @@ msgstr "Voornaam"
 #: src/Shared/Frontend/FrontendMySettingsView.php:91
 #: src/Shared/Frontend/FrontendPeopleManageView.php:174
 #: src/Shared/Frontend/FrontendPlayersManageView.php:372
-#: src/Shared/Frontend/FrontendSetupView.php:255
+#: src/Shared/Frontend/FrontendSetupView.php:264
 #: src/Shared/Frontend/FrontendTrialsManageView.php:431
 msgid "Last name"
 msgstr "Achternaam"
@@ -16470,7 +16481,7 @@ msgstr "Roltype"
 #: src/Shared/Frontend/FrontendComparisonView.php:369
 #: src/Shared/Frontend/FrontendMyProfileView.php:99
 #: src/Shared/Frontend/FrontendPlayersManageView.php:251
-#: src/Shared/Frontend/FrontendSetupView.php:203
+#: src/Shared/Frontend/FrontendSetupView.php:212
 #: src/Shared/Frontend/FrontendTeamDetailView.php:217
 #: src/Shared/Frontend/FrontendTeamDetailView.php:500
 #: src/Shared/Frontend/FrontendTeamDetailView.php:724
@@ -24489,9 +24500,10 @@ msgstr "Controleren"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:527
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:575
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendSetupView.php:173
-#: src/Shared/Frontend/FrontendSetupView.php:213
-#: src/Shared/Frontend/FrontendSetupView.php:268
+#: src/Shared/Frontend/FrontendSetupView.php:182
+#: src/Shared/Frontend/FrontendSetupView.php:222
+#: src/Shared/Frontend/FrontendSetupView.php:277
+#: src/Shared/Frontend/FrontendSetupView.php:614
 #: src/Shared/Frontend/FrontendWizardView.php:609
 msgid "Continue"
 msgstr "Doorgaan"
@@ -26048,7 +26060,7 @@ msgid "Subject access requests"
 msgstr "Inzageverzoeken"
 
 #: src/Modules/License/FeatureMap.php:372
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:652
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:677
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
@@ -32301,7 +32313,7 @@ msgstr "Je bent geverifieerd. Ga verder naar je dashboard."
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:94
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:948
 #: src/Shared/Frontend/FrontendMobilePromptView.php:102
-#: src/Shared/Frontend/FrontendSetupView.php:518
+#: src/Shared/Frontend/FrontendSetupView.php:751
 msgid "Go to dashboard"
 msgstr "Ga naar dashboard"
 
@@ -32747,25 +32759,25 @@ msgstr "Installatie starten"
 msgid "Skip for now"
 msgstr "Sla nu over"
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:160
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:185
 msgid "Choose a workbook to upload first."
 msgstr "Kies eerst een bestand om te uploaden."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:228
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:253
 msgid "A first and last name are both needed."
 msgstr "Een voornaam en achternaam zijn allebei nodig."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:233
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:258
 msgid "That does not look like a valid email address."
 msgstr "Dat lijkt geen geldig e-mailadres."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:247
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:272
 msgid "That person could not be saved. They may already be on the list."
 msgstr ""
 "Die persoon kon niet worden opgeslagen. Mogelijk staat diegene al op de "
 "lijst."
 
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:412
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:437
 msgid ""
 "The spreadsheet library is not installed on this server, so the template "
 "cannot be generated."
@@ -32787,7 +32799,7 @@ msgid "Unknown step."
 msgstr "Onbekende stap."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:98
-#: src/Shared/Frontend/FrontendSetupView.php:115
+#: src/Shared/Frontend/FrontendSetupView.php:124
 msgid "Set up your academy"
 msgstr "Stel je academie in"
 
@@ -32813,7 +32825,7 @@ msgstr ""
 "deze op elk moment wissen en opnieuw beginnen."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:107
-#: src/Shared/Frontend/FrontendSetupView.php:124
+#: src/Shared/Frontend/FrontendSetupView.php:133
 msgid "Set up my academy"
 msgstr "Mijn academie instellen"
 
@@ -32822,7 +32834,7 @@ msgid "Try with sample data"
 msgstr "Probeer met voorbeeldgegevens"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:127
-#: src/Shared/Frontend/FrontendSetupView.php:141
+#: src/Shared/Frontend/FrontendSetupView.php:150
 msgid ""
 "These show up across the plugin: in the dashboard header, on player rate "
 "cards, and in printed reports. You can change them later under Configuration."
@@ -32834,42 +32846,45 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:134
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:273
 #: src/Shared/Frontend/FrontendConfigurationView.php:1663
-#: src/Shared/Frontend/FrontendSetupView.php:145
+#: src/Shared/Frontend/FrontendSetupView.php:154
 msgid "Academy name"
 msgstr "Naam academie"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:140
 #: src/Shared/Frontend/FrontendConfigurationView.php:1731
-#: src/Shared/Frontend/FrontendSetupView.php:151
+#: src/Shared/Frontend/FrontendSetupView.php:160
 msgid "Primary color"
 msgstr "Primaire kleur"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:143
-#: src/Shared/Frontend/FrontendSetupView.php:154
+#: src/Shared/Frontend/FrontendSetupView.php:163
 msgid "Used for headers, links, and the FIFA-style player card."
 msgstr "Gebruikt voor koppen, links en de FIFA-achtige spelerskaart."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:147
-#: src/Shared/Frontend/FrontendSetupView.php:157
+#: src/Shared/Frontend/FrontendSetupView.php:166
 msgid "Season label"
 msgstr "Seizoenlabel"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:150
-#: src/Shared/Frontend/FrontendSetupView.php:161
+#: src/Shared/Frontend/FrontendSetupView.php:170
 msgid "Free-form. Most clubs use \"2025/2026\" or similar."
 msgstr "Vrije tekst. De meeste clubs gebruiken \"2025/2026\" of vergelijkbaar."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:154
-#: src/Shared/Frontend/FrontendSetupView.php:164
+#: src/Shared/Frontend/FrontendSetupView.php:173
 msgid "Date format"
 msgstr "Datumnotatie"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:207
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:303
+#: src/Shared/Frontend/FrontendSetupView.php:443
+#: src/Shared/Frontend/FrontendSetupView.php:577
 msgid "How much product are you running?"
 msgstr "Hoeveel product draai je?"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:209
+#: src/Shared/Frontend/FrontendSetupView.php:445
 msgid ""
 "TalentTrack ships a lot. Most academies want the development loop first and "
 "can turn the rest on whenever they need it. Nothing here is permanent — you "
@@ -32880,10 +32895,12 @@ msgstr ""
 "hiervan is definitief — je kunt het altijd wijzigen via Modules."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:212
+#: src/Shared/Frontend/FrontendSetupView.php:448
 msgid "Skipping gives you the full academy."
 msgstr "Overslaan geeft je de volledige academie."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:213
+#: src/Shared/Frontend/FrontendSetupView.php:449
 msgid ""
 "That is every module switched on, which is what an install gets when no "
 "profile is chosen."
@@ -32892,6 +32909,7 @@ msgstr ""
 "profiel is gekozen."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:219
+#: src/Shared/Frontend/FrontendSetupView.php:454
 msgid ""
 "This install has already been configured by hand, so choosing here would "
 "overwrite decisions somebody made. Review the changes on the Modules page "
@@ -32905,11 +32923,13 @@ msgstr ""
 
 #. translators: %s is an install profile name, e.g. "Basics".
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:241
+#: src/Shared/Frontend/FrontendSetupView.php:467
 #, php-format
 msgid "Review %s"
 msgstr "%s bekijken"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:259
+#: src/Shared/Frontend/FrontendSetupView.php:497
 msgid "What it includes"
 msgstr "Wat erin zit"
 
@@ -32920,11 +32940,13 @@ msgid "Use %s"
 msgstr "%s gebruiken"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:293
+#: src/Shared/Frontend/FrontendSetupView.php:522
 msgid "Skip — give me everything"
 msgstr "Overslaan — geef mij alles"
 
 #. translators: 1: install profile name, e.g. "Basics"; 2: number of modules and features changed.
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:308
+#: src/Shared/Frontend/FrontendSetupView.php:582
 #, php-format
 msgid "This install is now on %1$s. %2$d module or feature was switched."
 msgid_plural ""
@@ -33035,7 +33057,7 @@ msgstr[1] ""
 "of ga verder."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:493
-#: src/Shared/Frontend/FrontendSetupView.php:193
+#: src/Shared/Frontend/FrontendSetupView.php:202
 msgid ""
 "Add one team now. You can add more later under Teams. Players, evaluations, "
 "activities, and goals all attach to a team, so we need at least one to make "
@@ -33059,13 +33081,13 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:509
 #: src/Modules/Wizards/Team/BasicsStep.php:29
 #: src/Modules/Wizards/Team/ReviewStep.php:19
-#: src/Shared/Frontend/FrontendSetupView.php:197
+#: src/Shared/Frontend/FrontendSetupView.php:206
 #: src/Shared/Frontend/FrontendTeamsManageView.php:255
 msgid "Team name"
 msgstr "Teamnaam"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:523
-#: src/Shared/Frontend/FrontendSetupView.php:210
+#: src/Shared/Frontend/FrontendSetupView.php:219
 msgid ""
 "Pick the closest match. New age groups can be added under Configuration → "
 "Lookups."
@@ -33076,7 +33098,7 @@ msgstr ""
 #. translators: %s is the WP display name + email of the current user
 #. translators: %s is the WP display name + email of the current user.
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:547
-#: src/Shared/Frontend/FrontendSetupView.php:242
+#: src/Shared/Frontend/FrontendSetupView.php:251
 #, php-format
 msgid ""
 "You are signed in as %s. We will create a TalentTrack staff record for you "
@@ -33092,12 +33114,12 @@ msgid "Club admin role"
 msgstr "Rol Clubbeheerder"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:569
-#: src/Shared/Frontend/FrontendSetupView.php:263
+#: src/Shared/Frontend/FrontendSetupView.php:272
 msgid "Grant me the Club Admin role (recommended)"
 msgstr "Ken mij de rol Clubbeheerder toe (aanbevolen)"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:571
-#: src/Shared/Frontend/FrontendSetupView.php:265
+#: src/Shared/Frontend/FrontendSetupView.php:274
 msgid ""
 "Club Admins can manage all teams, players, evaluations, and configuration."
 msgstr ""
@@ -33178,12 +33200,12 @@ msgstr ""
 "onder Configuratie → Uitnodigingen. Er gaat niets verloren."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:732
-#: src/Shared/Frontend/FrontendSetupView.php:311
+#: src/Shared/Frontend/FrontendSetupView.php:320
 msgid "What TalentTrack tells people"
 msgstr "Wat TalentTrack aan mensen laat weten"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:734
-#: src/Shared/Frontend/FrontendSetupView.php:313
+#: src/Shared/Frontend/FrontendSetupView.php:322
 msgid ""
 "Right now your academy sends nothing. Tick the messages you want TalentTrack "
 "to send on your behalf; leave the rest for later."
@@ -33192,7 +33214,7 @@ msgstr ""
 "TalentTrack namens jullie mag versturen; de rest laat je voor later."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:737
-#: src/Shared/Frontend/FrontendSetupView.php:316
+#: src/Shared/Frontend/FrontendSetupView.php:325
 msgid ""
 "Most academies want the first group at least — those are the messages people "
 "are annoyed not to get. You can change any of this afterwards under "
@@ -33203,18 +33225,18 @@ msgstr ""
 "allemaal aanpassen onder Configuratie → Berichten."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:741
-#: src/Shared/Frontend/FrontendSetupView.php:320
+#: src/Shared/Frontend/FrontendSetupView.php:329
 msgid "No messages are available on this install."
 msgstr "Op deze installatie zijn geen berichten beschikbaar."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:756
 #: src/Shared/Frontend/FrontendConfigurationView.php:2532
-#: src/Shared/Frontend/FrontendSetupView.php:333
+#: src/Shared/Frontend/FrontendSetupView.php:342
 msgid "Recommended"
 msgstr "Aanbevolen"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:784
-#: src/Shared/Frontend/FrontendSetupView.php:357
+#: src/Shared/Frontend/FrontendSetupView.php:366
 msgid ""
 "Not sent automatically yet — ticking it changes nothing until that is wired "
 "up."
@@ -33223,22 +33245,22 @@ msgstr ""
 "aansluiting er is."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:794
-#: src/Shared/Frontend/FrontendSetupView.php:367
+#: src/Shared/Frontend/FrontendSetupView.php:376
 msgid "Send these and continue"
 msgstr "Deze versturen en doorgaan"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:796
-#: src/Shared/Frontend/FrontendSetupView.php:375
+#: src/Shared/Frontend/FrontendSetupView.php:384
 msgid "Skip — send nothing for now"
 msgstr "Overslaan — voorlopig niets versturen"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:802
-#: src/Shared/Frontend/FrontendSetupView.php:381
+#: src/Shared/Frontend/FrontendSetupView.php:390
 msgid "If you skip this, no messages will be sent."
 msgstr "Sla je dit over, dan wordt er geen enkel bericht verstuurd."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:803
-#: src/Shared/Frontend/FrontendSetupView.php:382
+#: src/Shared/Frontend/FrontendSetupView.php:391
 msgid ""
 "Not even a cancelled training. Nobody is told anything until you tick "
 "something here or under Configuration → Messages."
@@ -33248,12 +33270,12 @@ msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:817
 #: src/Modules/Onboarding/OnboardingState.php:69
-#: src/Shared/Frontend/FrontendSetupView.php:445
+#: src/Shared/Frontend/FrontendSetupView.php:678
 msgid "Dashboard page"
 msgstr "Dashboardpagina"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:819
-#: src/Shared/Frontend/FrontendSetupView.php:447
+#: src/Shared/Frontend/FrontendSetupView.php:680
 msgid ""
 "TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] "
 "shortcode. This creates that page and sets it as the site homepage, so "
@@ -33266,7 +33288,7 @@ msgstr ""
 "wanneer ze inloggen."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:823
-#: src/Shared/Frontend/FrontendSetupView.php:451
+#: src/Shared/Frontend/FrontendSetupView.php:684
 msgid ""
 "A page with the dashboard shortcode already exists — it will be reused and "
 "set as the homepage, not duplicated."
@@ -33275,29 +33297,29 @@ msgstr ""
 "en als homepage ingesteld, niet gedupliceerd."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:828
-#: src/Shared/Frontend/FrontendSetupView.php:462
+#: src/Shared/Frontend/FrontendSetupView.php:695
 msgid "Create page"
 msgstr "Pagina aanmaken & als homepage instellen"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:835
-#: src/Shared/Frontend/FrontendSetupView.php:466
+#: src/Shared/Frontend/FrontendSetupView.php:699
 msgid "You can change the homepage later under Settings → Reading."
 msgstr "Je kunt de homepage later wijzigen onder Instellingen → Lezen."
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:860
-#: src/Shared/Frontend/FrontendSetupView.php:481
+#: src/Shared/Frontend/FrontendSetupView.php:714
 msgid "Setup complete"
 msgstr "Installatie voltooid"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:861
-#: src/Shared/Frontend/FrontendSetupView.php:482
+#: src/Shared/Frontend/FrontendSetupView.php:715
 msgid "You are ready to use TalentTrack. Here is what was set up:"
 msgstr "Je bent klaar om TalentTrack te gebruiken. Dit is wat is ingesteld:"
 
 #. translators: %s is the academy name
 #. translators: %s is the academy name.
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:867
-#: src/Shared/Frontend/FrontendSetupView.php:488
+#: src/Shared/Frontend/FrontendSetupView.php:721
 #, php-format
 msgid "Academy: %s"
 msgstr "Academie: %s"
@@ -33305,7 +33327,7 @@ msgstr "Academie: %s"
 #. translators: 1: team name, 2: age group
 #. translators: 1: team name, 2: age group.
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:876
-#: src/Shared/Frontend/FrontendSetupView.php:497
+#: src/Shared/Frontend/FrontendSetupView.php:730
 #, php-format
 msgid "Team: %1$s (%2$s)"
 msgstr "Team: %1$s (%2$s)"
@@ -33313,7 +33335,7 @@ msgstr "Team: %1$s (%2$s)"
 #. translators: %s is the admin's full name
 #. translators: %s is the admin's full name.
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:886
-#: src/Shared/Frontend/FrontendSetupView.php:507
+#: src/Shared/Frontend/FrontendSetupView.php:740
 #, php-format
 msgid "Admin: %s"
 msgstr "Beheerder: %s"
@@ -37437,7 +37459,7 @@ msgstr "Er ging iets mis. Probeer het opnieuw."
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:454
 #: src/Shared/Frontend/FrontendRecycleBinView.php:296
-#: src/Shared/Frontend/FrontendSetupView.php:595
+#: src/Shared/Frontend/FrontendSetupView.php:828
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:182
 #: src/Shared/Frontend/FrontendTranslationsView.php:299
 msgid "Network error. Please try again."
@@ -39288,7 +39310,7 @@ msgid "Refreshing…"
 msgstr "Vernieuwen…"
 
 #: src/Modules/Spond/SpondScriptData.php:41
-#: src/Shared/Frontend/FrontendSetupView.php:594
+#: src/Shared/Frontend/FrontendSetupView.php:827
 #: src/Shared/Frontend/FrontendTranslationsView.php:298
 msgid "Could not save. Please try again."
 msgstr "Opslaan mislukt. Probeer het opnieuw."
@@ -40210,7 +40232,7 @@ msgstr "Strava"
 #: src/Shared/Frontend/FrontendMigrationsView.php:24
 #: src/Shared/Frontend/FrontendPersonDetailView.php:24
 #: src/Shared/Frontend/FrontendRolesView.php:28
-#: src/Shared/Frontend/FrontendSetupView.php:41
+#: src/Shared/Frontend/FrontendSetupView.php:44
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:41
 #: src/Shared/Frontend/FrontendSpondView.php:51
 #: src/Shared/Frontend/FrontendTranslationsView.php:43
@@ -46805,8 +46827,8 @@ msgstr "Kan de blauwdruk niet aanmaken."
 
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:18
 #: src/Shared/Configuration/ConfigurationSurfaces.php:319
-#: src/Shared/Frontend/FrontendSetupView.php:48
-#: src/Shared/Frontend/FrontendSetupView.php:562
+#: src/Shared/Frontend/FrontendSetupView.php:51
+#: src/Shared/Frontend/FrontendSetupView.php:795
 msgid "Setup"
 msgstr "Instellen"
 
@@ -49613,23 +49635,23 @@ msgstr "Maak een ouderaccount aan"
 msgid "Filter by team"
 msgstr "Filter op team"
 
-#: src/Shared/Frontend/Components/ProfileDiff.php:47
+#: src/Shared/Frontend/Components/ProfileDiff.php:59
 msgid "Will be switched on"
 msgstr "Wordt ingeschakeld"
 
-#: src/Shared/Frontend/Components/ProfileDiff.php:53
+#: src/Shared/Frontend/Components/ProfileDiff.php:66
 msgid "Will be switched off"
 msgstr "Wordt uitgeschakeld"
 
-#: src/Shared/Frontend/Components/ProfileDiff.php:62
+#: src/Shared/Frontend/Components/ProfileDiff.php:76
 msgid "Cannot be applied"
 msgstr "Kan niet worden toegepast"
 
-#: src/Shared/Frontend/Components/ProfileDiff.php:121
+#: src/Shared/Frontend/Components/ProfileDiff.php:140
 msgid "Not part of your plan"
 msgstr "Valt buiten je abonnement"
 
-#: src/Shared/Frontend/Components/ProfileDiff.php:123
+#: src/Shared/Frontend/Components/ProfileDiff.php:142
 msgid "Unavailable on this install"
 msgstr "Niet beschikbaar op deze installatie"
 
@@ -53132,6 +53154,7 @@ msgid "That install profile does not exist. Pick one from the Modules page."
 msgstr "Dat installatieprofiel bestaat niet. Kies er een op de Modulespagina."
 
 #: src/Shared/Frontend/FrontendInstallProfileView.php:93
+#: src/Shared/Frontend/FrontendSetupView.php:551
 msgid "This install already matches this profile. There is nothing to change."
 msgstr ""
 "Deze installatie komt al overeen met dit profiel. Er valt niets te wijzigen."
@@ -53157,10 +53180,12 @@ msgid "None of these changes can be applied on this install."
 msgstr "Geen van deze wijzigingen kan op deze installatie worden toegepast."
 
 #: src/Shared/Frontend/FrontendInstallProfileView.php:123
+#: src/Shared/Frontend/FrontendSetupView.php:514
 msgid "Applying..."
 msgstr "Bezig met toepassen..."
 
 #: src/Shared/Frontend/FrontendInstallProfileView.php:124
+#: src/Shared/Frontend/FrontendSetupView.php:515
 msgid "Applied"
 msgstr "Toegepast"
 
@@ -56629,7 +56654,7 @@ msgstr ""
 msgid "Delete the season “%s”? This cannot be undone."
 msgstr "Het seizoen “%s” verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: src/Shared/Frontend/FrontendSetupView.php:65
+#: src/Shared/Frontend/FrontendSetupView.php:68
 msgid ""
 "This flow sets up your academy basics, your first team, your admin profile, "
 "and the frontend dashboard page. Stop and resume any time — your progress is "
@@ -56639,7 +56664,7 @@ msgstr ""
 "beheerdersprofiel en de dashboardpagina aan de voorkant. Je kunt op elk "
 "moment stoppen en hervatten — je voortgang wordt automatisch opgeslagen."
 
-#: src/Shared/Frontend/FrontendSetupView.php:117
+#: src/Shared/Frontend/FrontendSetupView.php:126
 msgid ""
 "TalentTrack is a youth football talent management plugin. This flow creates "
 "your first team, your admin profile, and a few defaults so you can start "
@@ -56650,12 +56675,35 @@ msgstr ""
 "aan, zodat je vandaag nog spelers kunt volgen. Elke stap duurt ongeveer een "
 "minuut."
 
-#: src/Shared/Frontend/FrontendSetupView.php:221
+#: src/Shared/Frontend/FrontendSetupView.php:230
 msgid "Skip this step"
 msgstr "Deze stap overslaan"
 
+#: src/Shared/Frontend/FrontendSetupView.php:513
+msgid "Use this profile"
+msgstr "Gebruik dit profiel"
+
+#. translators: %d is a number of modules and features.
+#: src/Shared/Frontend/FrontendSetupView.php:562
+#, php-format
+msgid "What would change (%d)"
+msgstr "Wat er zou veranderen (%d)"
+
+#. translators: %d is a number of modules and features the plan does not carry.
+#: src/Shared/Frontend/FrontendSetupView.php:598
+#, php-format
+msgid "%d change was left out because your plan does not carry it."
+msgid_plural "%d changes were left out because your plan does not carry them."
+msgstr[0] "%d wijziging is overgeslagen omdat je abonnement die niet bevat."
+msgstr[1] ""
+"%d wijzigingen zijn overgeslagen omdat je abonnement die niet bevat."
+
+#: src/Shared/Frontend/FrontendSetupView.php:610
+msgid "You can change any of this later under Configuration → Modules."
+msgstr "Je kunt dit later allemaal aanpassen via Configuratie → Modules."
+
 #. translators: %s is the name of the setup step, e.g. "Import your squad".
-#: src/Shared/Frontend/FrontendSetupView.php:417
+#: src/Shared/Frontend/FrontendSetupView.php:650
 #, php-format
 msgid ""
 "%s is not available on this screen yet. Your progress is saved — the step is "
@@ -56664,7 +56712,7 @@ msgstr ""
 "%s is nog niet beschikbaar op dit scherm. Je voortgang is bewaard — de stap "
 "staat voor je klaar, alleen niet op deze pagina."
 
-#: src/Shared/Frontend/FrontendSetupView.php:423
+#: src/Shared/Frontend/FrontendSetupView.php:656
 msgid ""
 "You can carry on with this step in the WordPress admin and come back here "
 "afterwards — both screens read the same saved progress, so nothing is "
@@ -56676,24 +56724,24 @@ msgstr ""
 "niets dubbel en raakt niets kwijt. Of laat setup even voor wat het is en pak "
 "het op wanneer je wilt."
 
-#: src/Shared/Frontend/FrontendSetupView.php:427
+#: src/Shared/Frontend/FrontendSetupView.php:660
 msgid "Leave setup"
 msgstr "Setup verlaten"
 
-#: src/Shared/Frontend/FrontendSetupView.php:430
+#: src/Shared/Frontend/FrontendSetupView.php:663
 msgid "Continue this step in the admin"
 msgstr "Ga verder in de beheeromgeving"
 
-#: src/Shared/Frontend/FrontendSetupView.php:515
+#: src/Shared/Frontend/FrontendSetupView.php:748
 msgid "Run again"
 msgstr "Opnieuw uitvoeren"
 
-#: src/Shared/Frontend/FrontendSetupView.php:596
+#: src/Shared/Frontend/FrontendSetupView.php:829
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Creating…"
 msgstr "Aanmaken…"
 
-#: src/Shared/Frontend/FrontendSetupView.php:597
+#: src/Shared/Frontend/FrontendSetupView.php:830
 msgid ""
 "Start over? Your saved progress for this flow is cleared. Data you already "
 "created (teams, staff, pages) is kept."
@@ -59402,38 +59450,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Shared/Frontend/FrontendSetupView.php:502
-msgid "Use this profile"
-msgstr "Gebruik dit profiel"
-
-#. translators: %d is a number of modules and features.
-#: src/Shared/Frontend/FrontendSetupView.php:546
-#, php-format
-msgid "What would change (%d)"
-msgstr "Wat er zou veranderen (%d)"
-
-#. translators: %d is a number of modules and features the plan does not carry.
-#: src/Shared/Frontend/FrontendSetupView.php:590
-#, php-format
-msgid "%d change was left out because your plan does not carry it."
-msgid_plural "%d changes were left out because your plan does not carry them."
-msgstr[0] "%d wijziging is overgeslagen omdat je abonnement die niet bevat."
-msgstr[1] "%d wijzigingen zijn overgeslagen omdat je abonnement die niet bevat."
-
-#: src/Shared/Frontend/FrontendSetupView.php:600
-msgid "You can change any of this later under Configuration → Modules."
-msgstr "Je kunt dit later allemaal aanpassen via Configuratie → Modules."
-
-#: src/Infrastructure/Rest/OnboardingRestController.php:190
-msgid ""
-"That profile could not be applied. Either it does not exist, or this install "
-"has already been configured by hand — review the change on the Modules page "
-"instead."
-msgstr ""
-"Dit profiel kon niet worden toegepast. Of het bestaat niet, of deze "
-"installatie is al met de hand ingericht — bekijk de wijziging dan op de "
-"pagina Modules."
 
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
