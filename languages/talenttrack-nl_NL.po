@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T15:48:20+00:00\n"
+"POT-Creation-Date: 2026-08-30T15:56:04+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3051,7 +3051,7 @@ msgstr "De oefening kon niet worden gekoppeld."
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:549
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:261
+#: src/Modules/Trials/Rest/TrialsRestController.php:287
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
@@ -44200,63 +44200,73 @@ msgstr "Aangeboden plek afgewezen"
 msgid "Continue in trial group"
 msgstr "Doorgaan in stagegroep"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:196
+#: src/Modules/Trials/Rest/TrialsRestController.php:222
 msgid "Could not create trial case."
 msgstr "Stagedossier kon niet worden aangemaakt."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:208
-#: src/Modules/Trials/Rest/TrialsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:274
+#: src/Modules/Trials/Rest/TrialsRestController.php:234
+#: src/Modules/Trials/Rest/TrialsRestController.php:255
+#: src/Modules/Trials/Rest/TrialsRestController.php:300
+#: src/Modules/Trials/Rest/TrialsRestController.php:393
+#: src/Modules/Trials/Rest/TrialsRestController.php:423
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:210
+#: src/Modules/Trials/Rest/TrialsRestController.php:236
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:223
+#: src/Modules/Trials/Rest/TrialsRestController.php:249
 msgid "Invalid trial case id."
 msgstr "Ongeldig proefdossier-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:240
+#: src/Modules/Trials/Rest/TrialsRestController.php:266
 msgid "Invalid trial track id."
 msgstr "Ongeldig proeftraject-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:242
-#: src/Modules/Trials/Rest/TrialsRestController.php:251
+#: src/Modules/Trials/Rest/TrialsRestController.php:268
+#: src/Modules/Trials/Rest/TrialsRestController.php:277
 msgid "Trial track not found."
 msgstr "Proeftraject niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:244
+#: src/Modules/Trials/Rest/TrialsRestController.php:270
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:270
+#: src/Modules/Trials/Rest/TrialsRestController.php:296
 msgid "New end date and justification are required."
 msgstr "Nieuwe einddatum en motivering zijn verplicht."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:276
+#: src/Modules/Trials/Rest/TrialsRestController.php:302
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:293
+#: src/Modules/Trials/Rest/TrialsRestController.php:319
 msgid "Justification must be at least 30 characters."
 msgstr "Motivering moet minstens 30 tekens bevatten."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:307
-#: src/Modules/Trials/Rest/TrialsRestController.php:320
+#: src/Modules/Trials/Rest/TrialsRestController.php:333
+#: src/Modules/Trials/Rest/TrialsRestController.php:346
 msgid "Could not record decision."
 msgstr "Besluit kon niet worden geregistreerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:333
+#: src/Modules/Trials/Rest/TrialsRestController.php:359
 msgid "Invalid user id."
 msgstr "Ongeldig gebruiker-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:343
+#: src/Modules/Trials/Rest/TrialsRestController.php:369
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:382
+#: src/Modules/Trials/Rest/TrialsRestController.php:432
+msgid "A valid trial-letter audience is required."
+msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:454
+msgid "The letter could not be generated."
+msgstr "De brief kon niet worden gegenereerd."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:490
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 

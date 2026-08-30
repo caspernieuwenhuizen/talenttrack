@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T15:48:20+00:00\n"
+"POT-Creation-Date: 2026-08-30T15:56:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2862,7 +2862,7 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:549
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:261
+#: src/Modules/Trials/Rest/TrialsRestController.php:287
 msgid "No fields to update."
 msgstr ""
 
@@ -40997,63 +40997,73 @@ msgstr ""
 msgid "Continue in trial group"
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:196
+#: src/Modules/Trials/Rest/TrialsRestController.php:222
 msgid "Could not create trial case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:208
-#: src/Modules/Trials/Rest/TrialsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:274
+#: src/Modules/Trials/Rest/TrialsRestController.php:234
+#: src/Modules/Trials/Rest/TrialsRestController.php:255
+#: src/Modules/Trials/Rest/TrialsRestController.php:300
+#: src/Modules/Trials/Rest/TrialsRestController.php:393
+#: src/Modules/Trials/Rest/TrialsRestController.php:423
 msgid "Trial case not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:210
+#: src/Modules/Trials/Rest/TrialsRestController.php:236
 msgid "No access to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:223
+#: src/Modules/Trials/Rest/TrialsRestController.php:249
 msgid "Invalid trial case id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:240
+#: src/Modules/Trials/Rest/TrialsRestController.php:266
 msgid "Invalid trial track id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:242
-#: src/Modules/Trials/Rest/TrialsRestController.php:251
+#: src/Modules/Trials/Rest/TrialsRestController.php:268
+#: src/Modules/Trials/Rest/TrialsRestController.php:277
 msgid "Trial track not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:244
+#: src/Modules/Trials/Rest/TrialsRestController.php:270
 msgid "Built-in trial tracks cannot be deleted."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:270
+#: src/Modules/Trials/Rest/TrialsRestController.php:296
 msgid "New end date and justification are required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:276
+#: src/Modules/Trials/Rest/TrialsRestController.php:302
 msgid "New end date must be after the current end date."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:293
+#: src/Modules/Trials/Rest/TrialsRestController.php:319
 msgid "Justification must be at least 30 characters."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:307
-#: src/Modules/Trials/Rest/TrialsRestController.php:320
+#: src/Modules/Trials/Rest/TrialsRestController.php:333
+#: src/Modules/Trials/Rest/TrialsRestController.php:346
 msgid "Could not record decision."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:333
+#: src/Modules/Trials/Rest/TrialsRestController.php:359
 msgid "Invalid user id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:343
+#: src/Modules/Trials/Rest/TrialsRestController.php:369
 msgid "Not assigned to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:382
+#: src/Modules/Trials/Rest/TrialsRestController.php:432
+msgid "A valid trial-letter audience is required."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:454
+msgid "The letter could not be generated."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:490
 msgid "No reminders were due."
 msgstr ""
 
