@@ -58861,6 +58861,7 @@ msgstr "Tweestapsverificatie instellen"
 #: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
 msgid "Setup is unavailable on this install because wizards are switched off in the configuration."
 msgstr "Instellen kan niet op deze installatie, omdat wizards uitstaan in de configuratie."
+
 #~ msgid "Could not create the player record."
 #~ msgstr "Het speler-record kon niet worden aangemaakt."
 
