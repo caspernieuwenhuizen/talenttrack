@@ -30,6 +30,37 @@ class TournamentsRestController {
 
     const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `tournaments` is a Pro feature. Every route is wrapped;
+     * `enforceWriteRest()` decides from the verb, so the lists, the detail
+     * reads, the totals and the planner read pass through and the writes
+     * answer 402. A club that drops off Pro keeps every tournament it ran
+     * and cannot start another (#3017's third decision).
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'tournaments', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
+    /**
+     * Auto-balance is sold separately from tournaments — the finer-grained
+     * case #3105 calls out. A Standard club runs its tournament and plans
+     * the grid by hand; the button that fills it for them is the Pro half.
+     * So this gate is `enforceFeatureRest()`, not the write-verb helper:
+     * there is no auto-balance record to keep readable, only an action.
+     */
+    private static function gateAutoBalance( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'tournaments_auto_balance' );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -46,12 +77,12 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_tournaments' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_tournaments' ] ),
                 'permission_callback' => $can_view,
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_tournament' ] ),
                 'permission_callback' => $can_edit,
             ],
         ] );
@@ -60,7 +91,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canViewTournament(
                         get_current_user_id(),
@@ -70,7 +101,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'update_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -80,7 +111,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -95,7 +126,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/restore', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'restore_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'restore_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament( get_current_user_id(), (int) $r['id'] );
                 },
@@ -104,7 +135,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/permanent', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_tournament_permanently' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_tournament_permanently' ] ),
                 // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
                 // purge path weaker than the bin's own purge.
                 'permission_callback' => function () {
@@ -116,7 +147,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/trash', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'trash_tournament' ],
+                'callback'            => self::gate( [ __CLASS__, 'trash_tournament' ] ),
                 'permission_callback' => function () {
                     return current_user_can( 'tt_edit_settings' );
                 },
@@ -127,7 +158,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/totals', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_totals' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_totals' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canViewTournament(
                         get_current_user_id(),
@@ -141,7 +172,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_match' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -155,7 +186,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_match' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -165,7 +196,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_match' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -181,7 +212,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/planner', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_planner' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_planner' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canViewTournament(
                         get_current_user_id(),
@@ -196,7 +227,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/kickoff', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'kickoff_match' ],
+                'callback'            => self::gate( [ __CLASS__, 'kickoff_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -211,7 +242,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/complete', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'complete_match' ],
+                'callback'            => self::gate( [ __CLASS__, 'complete_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -232,7 +263,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/auto-plan', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'auto_plan' ],
+                'callback'            => self::gateAutoBalance( [ __CLASS__, 'auto_plan' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' )
                         && AuthorizationService::canEditTournament(
@@ -249,7 +280,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/assignments', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_assignments' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_assignments' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -263,7 +294,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/squad', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'replace_squad' ],
+                'callback'            => self::gate( [ __CLASS__, 'replace_squad' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -277,7 +308,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/squad/(?P<player_id>\d+)', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_squad_member' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_squad_member' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),
@@ -287,7 +318,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'remove_squad_member' ],
+                'callback'            => self::gate( [ __CLASS__, 'remove_squad_member' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
                         get_current_user_id(),

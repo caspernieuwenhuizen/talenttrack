@@ -239,3 +239,7 @@ Niemand heeft bij die verhuizing rechten gekregen of verloren. Met name de
 **leeftijdsprofielen**, die de leeftijdsveilige intensiteitsplafonds voor
 O10–O14 bepalen, blijven voorbehouden aan het hoofd opleidingen en de
 academy-beheerder.
+
+## Op je abonnement
+
+De oefeningenbibliotheek is een **Pro**-functie. Op Standard blijft de bibliotheek volledig doorzoekbaar; oefeningen toevoegen, wijzigen en importeren zijn vergrendeld. Zie [Licentie en account](license-and-account.md).

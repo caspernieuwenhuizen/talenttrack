@@ -210,6 +210,17 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             return;
         }
 
+        // #3105 — `match_execution` is Pro. This surface is a live console:
+        // every control on it writes, and there is no reading of a match in
+        // progress to preserve — the record of a match already played is
+        // read from the activity and from match analysis. So it locks whole
+        // rather than degrading.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'match_execution' ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'match_execution' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         $prep_repo = new MatchPrepRepository();
         $prep      = $prep_repo->findByActivity( $activity_id );
         if ( ! $prep ) {

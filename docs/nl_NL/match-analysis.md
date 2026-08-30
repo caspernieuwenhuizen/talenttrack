@@ -374,3 +374,7 @@ merkt, is de slechtere uitkomst.
  waarnemingen.
 - De speler zelf iets vertellen. Feedback voor de speler gaat via zijn
  beoordelingen, waar die geschreven wordt om gelezen te worden.
+
+## Op je abonnement
+
+Wedstrijdanalyse is een **Pro**-functie. Op Standard blijft het scherm staan: elke analyse die de club al schreef is nog te lezen, af te drukken en te exporteren, en het invulformulier maakt plaats voor een venster dat het abonnement noemt. Zie [Licentie en account](license-and-account.md).

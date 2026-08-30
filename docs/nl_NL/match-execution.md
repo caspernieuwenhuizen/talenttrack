@@ -396,3 +396,7 @@ toekomstige webapp:
 
 Alle vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
 het wedstrijduitvoeringsscherm zelf afschermen.
+
+## Op je abonnement
+
+Het live wedstrijdscherm is een **Pro**-functie. Op Standard blijven uitslag, speelminuten en gebeurtenissen van gespeelde wedstrijden leesbaar vanaf de activiteit en de wedstrijdanalyse; het scherm waarmee je er nog een draait is vergrendeld. Zie [Licentie en account](license-and-account.md).

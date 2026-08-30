@@ -87,6 +87,29 @@ class UpgradePanel {
     }
 
     /**
+     * One sentence, plain text, for a control that is locked in place
+     * rather than a screen that is (#3105).
+     *
+     * Some features are sold below the level of a page: the tournament
+     * auto-balance button is Pro while the tournament and its manual
+     * planner are not. Rendering the full panel for those would put a
+     * bordered card in the middle of a working screen, so they show a
+     * disabled control with this as its tooltip and accessible name. Same
+     * argument as the panel itself — the alternative is thirty hand-written
+     * "this is a Pro feature" strings.
+     *
+     * @param string $feature FeatureMap feature key.
+     */
+    public static function lockedTitle( string $feature ): string {
+        return sprintf(
+            /* translators: 1: feature name, 2: plan name, e.g. "Pro" */
+            __( '%1$s is part of the %2$s plan, which this install is not on.', 'talenttrack' ),
+            FeatureMap::featureLabel( $feature ),
+            FeatureMap::tierLabel( LicenseGate::requiredTierFor( $feature ) )
+        );
+    }
+
+    /**
      * The free-tier cap variant: not a plan refusal about a feature, a
      * refusal about a count. Same chrome, different sentence, so the two
      * read as one product rather than two.

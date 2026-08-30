@@ -358,3 +358,7 @@ future web app:
 
 All require the `tt_edit_activities` capability, the same permission that
 gates the match-execution screen itself.
+
+## On your plan
+
+The live match screen is a **Pro** feature. On Standard the result, minutes and events of matches already run stay readable from the activity and from match analysis; the console that runs another one is locked. See [Licence and account](license-and-account.md).

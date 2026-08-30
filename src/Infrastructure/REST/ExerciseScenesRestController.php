@@ -48,6 +48,23 @@ final class ExerciseScenesRestController {
 
     private const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `exercises` is a Pro feature. Every route on this
+     * controller is wrapped; `enforceWriteRest()` decides from the verb,
+     * so the reads pass through untouched and the writes answer 402.
+     * #3017's third decision, made structural: what the club already has
+     * stays readable, and it cannot add more.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'exercises', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -68,12 +85,12 @@ final class ExerciseScenesRestController {
         register_rest_route( self::NS, '/exercises/(?P<id>\d+)/scenes', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_scenes' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_scenes' ] ),
                 'permission_callback' => static fn() => self::canRead(),
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_scene' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_scene' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
             ],
         ] );
@@ -81,17 +98,17 @@ final class ExerciseScenesRestController {
         register_rest_route( self::NS, '/exercise-scenes/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_scene' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_scene' ] ),
                 'permission_callback' => static fn() => self::canRead(),
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'update_scene' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_scene' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_scene' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_scene' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
             ],
         ] );
@@ -99,7 +116,7 @@ final class ExerciseScenesRestController {
         register_rest_route( self::NS, '/exercise-scenes/(?P<id>\d+)/primary', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'set_primary' ],
+                'callback'            => self::gate( [ __CLASS__, 'set_primary' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
             ],
         ] );

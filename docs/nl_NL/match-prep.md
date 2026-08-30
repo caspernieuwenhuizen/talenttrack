@@ -316,3 +316,7 @@ verandert er niet door.
  bespreking antwoord geeft op wat je gevraagd hebt. De camera-vlag
  markeert nog steeds alleen wie er als analist is aangewezen; wat die
  analist zag hoort in de analyse.
+
+## Op je abonnement
+
+Wedstrijdvoorbereiding is een **Pro**-functie. Op Standard blijft een plan dat de club al maakte op het scherm staan en afdrukbaar; een nieuw plan starten, of een wijziging opslaan, is wat het abonnement toevoegt. Zie [Licentie en account](license-and-account.md).

@@ -223,6 +223,12 @@ class FrontendMatchPrepView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        // #3105 — `match_prep` is Pro. A plan the club already wrote stays
+        // on screen (and printable) with the panel above it; the REST
+        // writes behind the form answer 402, so the fields render but do
+        // not save. #3017's third decision.
+        $plan_locked = ! \TT\Modules\License\LicenseGate::allows( 'match_prep' );
         // Note: 'match' is a legacy synonym for ActivityTypeKey::GAME kept
         // for back-compat — see #988 follow-up.
         if ( ( $activity->activity_type_key ?? '' ) !== ActivityTypeKey::GAME && ( $activity->activity_type_key ?? '' ) !== 'match' ) {
@@ -246,10 +252,22 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'activity_id' => $activity_id,
             ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) );
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
+            // #3105 — nothing written yet, so there is no record to keep
+            // readable: this is the creation entry point and it locks.
+            if ( $plan_locked ) {
+                echo \TT\Modules\License\UpgradePanel::render( 'match_prep' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+                return;
+            }
             echo '<p class="tt-notice">' . esc_html__( 'No match preparation has been started for this match yet. Begin by capturing player availability.', 'talenttrack' ) . '</p>';
             echo '<p><a class="tt-btn tt-btn-primary" href="' . esc_url( $wizard_url ) . '">'
                 . esc_html__( 'Start match prep', 'talenttrack' ) . '</a></p>';
             return;
+        }
+
+        // A plan that exists stays on screen, with the panel above it.
+        if ( $plan_locked ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
         }
 
         $prep_id      = (int) $prep->id;

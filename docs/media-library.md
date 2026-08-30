@@ -286,3 +286,7 @@ Neither switch deletes anything. Turning either back on brings the existing medi
 - `MediaIngestService` decides file type from the file's own bytes, never from its name, and refuses SVG outright.
 - `MediaLinksRepository::unlink()` deletes the media and its file when it removes the last link. A media item attached to nothing is unreachable
  and is not kept.
+
+## On your plan
+
+The media library is a **Pro** feature, and it is the clearest shape of what that means: the club keeps every photo and video it has — visible, playable, downloadable — and cannot add more. Deleting is never refused over a plan; removing a child's photo is an obligation, not a feature. See [Licence and account](license-and-account.md).

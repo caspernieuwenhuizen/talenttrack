@@ -425,3 +425,7 @@ Wat nog volgt:
 
 - een whiteboard fotograferen in plaats van een blad papier, wat een ander
  soort uitlezen vraagt
+
+## Op je abonnement
+
+Trainingsplannen zijn een **Pro**-functie. Op Standard blijft elk plan dat de club bouwde leesbaar met de historie; een nieuw plan bouwen en er een draaien zijn vergrendeld. Zie [Licentie en account](license-and-account.md).

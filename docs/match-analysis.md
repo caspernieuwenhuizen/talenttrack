@@ -360,3 +360,7 @@ by sentence, with neither of you told, is the worse outcome.
 - Write an analysis for a training. Trainings have their own observations.
 - Tell the player something. Player-facing feedback goes through their
  evaluations, where it is written for them to read.
+
+## On your plan
+
+Match analysis is a **Pro** feature. On Standard the screen stays where it is: every analysis the club already wrote is still readable, printable and exportable, and the editing form is replaced by a panel naming the plan. See [Licence and account](license-and-account.md).

@@ -414,3 +414,7 @@ Still to come:
 
 - photographing a whiteboard rather than a sheet of paper, which needs a
  different kind of reading
+
+## On your plan
+
+Training plans are a **Pro** feature. On Standard every plan the club built stays readable with its history; building a new one, and running one, are locked. See [Licence and account](license-and-account.md).

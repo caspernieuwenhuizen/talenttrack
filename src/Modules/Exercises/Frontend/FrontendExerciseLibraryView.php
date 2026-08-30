@@ -103,6 +103,15 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             return;
         }
 
+        // #3105 — `exercises` is Pro. The library a club already built is
+        // exactly the kind of record #3017's third decision protects, so the
+        // list keeps rendering with the panel above it; the writes answer
+        // 402 at the REST edge.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'exercises' ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Exercises', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'exercises', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+        }
+
         self::enqueueAssets();
         wp_enqueue_style(
             'tt-frontend-exercises',
