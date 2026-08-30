@@ -38,7 +38,10 @@ use TT\Modules\Authorization\MatrixGate;
  *   - academy_admin     — `team_chemistry [rcd, global]`(read + manage)
  *   - assistant_coach   — NO row (removed by the #1060 "AC is operational"
  *                         decision) → no read, no manage.
- *   - readonly_observer — NO entity rows at all → no read, no manage.
+ *   - readonly_observer — no `team_chemistry` row → no read, no manage.
+ *                         (#3177 gave the observer eight read rows, none
+ *                         of them this entity, so the answer is unchanged.)
+ *   - staff             — no `team_chemistry` row → no read, no manage.
  *
  * Feature-toggle split (#1485): the `team_chemistry` *entity* is owned by
  * the `team_chemistry` sub-feature. The chemistry-board surfaces honour

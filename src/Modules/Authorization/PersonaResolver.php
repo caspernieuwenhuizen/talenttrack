@@ -19,11 +19,21 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   - `assistant_coach` — needs FR `is_head_coach=0` (Sprint 7).
  * Until those land, `tt_coach` always resolves to `head_coach`.
  *
- * `tt_staff` and `tt_readonly_observer` intentionally have no persona
- * mapping in Sprint 1 — those users rely on legacy `current_user_can`
- * checks and the Sprint 2 user_has_cap → MatrixGate bridge will
- * keep them working unchanged. A separate `staff_observer` persona may
- * land in Sprint 7 if needed.
+ * #3177 — `tt_staff` now maps too. The Sprint 1 note that used to sit
+ * here said `tt_staff` and `tt_readonly_observer` could rely on legacy
+ * `current_user_can` checks and the user_has_cap → MatrixGate bridge to
+ * "keep them working unchanged". That reasoning does not survive the
+ * bridge it names: `AuthorizationModule::filterUserHasCap()` *assigns*
+ * `$allcaps[$cap]`, so on an install with `tt_authorization_active` set
+ * it overwrites the role's own grant with the matrix answer. A role that
+ * resolves to no persona gets `[]` from `personasFor()`, `MatrixGate`
+ * short-circuits, and every mapped capability comes back false — the
+ * role is denied outright rather than left alone.
+ *
+ * The persona is named `staff`, not the `staff_observer` that note
+ * mooted: the role holds `tt_edit_players`, `tt_edit_people` and
+ * `tt_edit_player_notes`, so calling it an observer would misdescribe it
+ * in the one place a reader goes to find out what it can do.
  */
 class PersonaResolver {
 
@@ -48,6 +58,10 @@ class PersonaResolver {
         // sponsor / consultant users who only ever read. Mapping is
         // additive; cap-bridge layer continues to handle authorization.
         'tt_readonly_observer' => 'readonly_observer',
+        // #3177 — the physio / kit-manager / generic-staff seat. Seeded
+        // at team scope; see config/authorization_seed.php for the list
+        // and for why `players:create_delete` is deliberately absent.
+        'tt_staff'             => 'staff',
     ];
 
     /**

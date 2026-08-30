@@ -429,6 +429,40 @@ existing installs (idempotent `INSERT IGNORE`, walking only the
 `player` / `strava_integration` tuples). Coach and admin behaviour are
 unchanged.
 
+## Two roles that reached no persona rows (#3177)
+
+`readonly_observer` and `tt_staff` both resolved to nothing the matrix could answer with, in two slightly different ways, and both are seeded now.
+
+**Read-Only Observer** had a persona key in `PersonaResolver` and no rows in the seed. The Sprint 1 note recorded that omission as deliberate — every scope question was still a capability check — and it stopped being true as surfaces moved to matrix scope. Anything asking for a **global** grant answered no, so the role narrowed to its assigned teams, and it is assigned to none: an empty `GET /teams`, empty pickers, no academy-wide reports.
+
+**`tt_staff`** is the sharper case: it had no persona mapping at all, so `personasFor()` returned `[]` and `MatrixGate` short-circuited before reaching the matrix. Because `AuthorizationModule::filterUserHasCap()` *assigns* `$allcaps[$cap]` rather than merging, an install with `tt_authorization_active` set had the role's own capability grants **overwritten with false** — denied outright, not narrowed. No seed could fix that on its own; the persona had to exist.
+
+### What each was given
+
+`readonly_observer` — read at **global** scope, and no write verb anywhere:
+
+`team`, `players`, `people`, `evaluations`, `activities`, `goals`, `reports`, `settings`.
+
+Those eight are exactly what `RolesService::VIEW_CAPS` maps to through `LegacyCapMapper`, so the seed is access-preserving: it grants the matrix precisely what the capability bridge already grants.
+
+A first pass proposed global read on **all 138 entities**, reasoning from the role's `"view EVERYTHING, edit NOTHING"` docstring. That inverted the relationship — the docstring describes `allViewCapsTrue()`, which is these eight capabilities, not the matrix. The wide version would have made a board-member or sponsor account the third persona able to read `safeguarding_notes` about minors, alongside `player_injuries`, `player_notes`, `parent_accounts`, `media`, `audit_log` and `impersonation_log`. 52 of the 138 entities are held by Head of Development and Academy Admin alone today, and a further 17 exist only at `self` / `player` scope, where a global row is incoherent.
+
+`staff` — read/change at **team** scope, matching `team_manager`, which the #0085 note groups this role with:
+
+| Entity | Verbs | Scope |
+| --- | --- | --- |
+| `team` | read | team |
+| `players` | read, change | team |
+| `people` | read, change | team |
+| `player_notes` | read, change | team |
+| `my_person` | read, change | self |
+
+`my_person` is the one row not derived from a capability mapping — the self-service slice of `people:change`, so a physio can maintain their own record before being attached to a squad. It is strictly narrower than the `people` grant above.
+
+**`players:create_delete` is deliberately not granted.** The role holds `tt_manage_players` as a raw WP capability, but that capability is not "manage the roster" in this codebase: it gates season rollover, player-account provisioning, custom-field definitions and player deletion, and `BehaviourPendingSource` uses it as the "sees every player in the academy" marker for — in its own comment — HoDs and admins. Seeding it would hand a kit manager the academy-admin surface. Declining changes no live behaviour: on a matrix-active install the role currently has nothing, and on a matrix-inactive one the seed is not consulted. Whether the raw grant should stay on the role definition is a separate question, because removing it *would* change matrix-inactive installs.
+
+Migration `0249_authorization_seed_topup_observer_and_staff` backfills both personas on existing installs — idempotent `INSERT IGNORE`, walking only these two personas, and refusing to write a non-`read` activity for the observer even if the seed file later gains one. No other persona's answer moves.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

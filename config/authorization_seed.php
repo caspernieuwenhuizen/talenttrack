@@ -31,9 +31,14 @@
  *     applied the editorial decision narrowing Head of Development to a
  *     read-mostly persona outside player-development surfaces.
  *
- * Personas (8):
+ * Personas (10):
  *   player, parent, assistant_coach, head_coach, team_manager, scout,
- *   head_of_development, academy_admin
+ *   head_of_development, academy_admin, readonly_observer, staff
+ *
+ * #3177 added the last two. Both existed as roles and neither reached
+ * the matrix: `readonly_observer` resolved to a persona with no rows,
+ * and `tt_staff` resolved to no persona at all. Same sentence from a
+ * user's seat — a role that reaches no persona sees nothing.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -990,5 +995,84 @@ return array_merge(
         'training_plan'                 => [ 'rcd', 'global', $mod_training ],
         // #2500 — academy-wide, same as the head of development.
         'training_exposure'             => [ 'r',   'global', $mod_training ],
+    ] ),
+
+    // ─── READ-ONLY OBSERVER ─────────────────────────────────────────
+    //
+    // #3177 — the board member / sponsor / consultant seat. It had no
+    // rows at all: `PersonaResolver` mapped the role to a persona key and
+    // the seed never defined it, which was deliberate in Sprint 1 (every
+    // scope question was still a capability check) and stopped being true
+    // as surfaces moved to matrix scope. Anything asking the matrix for a
+    // global grant answered no, so the role narrowed to its assigned
+    // teams — and it is assigned to none.
+    //
+    // These eight entities are exactly what `RolesService::VIEW_CAPS`
+    // maps to through `LegacyCapMapper`, so this is access-preserving:
+    // it grants the matrix precisely what the capability bridge already
+    // grants, and restores what the role could always do.
+    //
+    // The seed deliberately stops there. A first pass proposed global
+    // read on all 138 entities, on the strength of the role's
+    // "view EVERYTHING, edit NOTHING" docstring — but that docstring
+    // describes `allViewCapsTrue()`, which is these eight caps, not the
+    // matrix. The wide version would have made a sponsor account the
+    // third persona able to read `safeguarding_notes` about minors,
+    // alongside `player_injuries`, `player_notes`, `parent_accounts`,
+    // `media`, `audit_log` and `impersonation_log` — none of which this
+    // role has ever held.
+    //
+    // READ ONLY. No `c`, no `d`, anywhere, ever — that is the whole
+    // value of the seat, and `ObserverAndStaffPersonaTest` asserts it
+    // rather than trusting review to notice a stray letter.
+    $expand( 'readonly_observer', [
+        'team'        => [ 'r', 'global', $mod_teams ],
+        'players'     => [ 'r', 'global', $mod_players ],
+        'people'      => [ 'r', 'global', $mod_people ],
+        'evaluations' => [ 'r', 'global', $mod_evals ],
+        'activities'  => [ 'r', 'global', $mod_activities ],
+        'goals'       => [ 'r', 'global', $mod_goals ],
+        'reports'     => [ 'r', 'global', $mod_reports ],
+        'settings'    => [ 'r', 'global', $mod_configuration ],
+    ] ),
+
+    // ─── STAFF ──────────────────────────────────────────────────────
+    //
+    // #3177 — the physio / kit-manager / generic-staff seat, and a
+    // sharper version of the same defect. `tt_staff` had no persona
+    // mapping at all, so `personasFor()` returned `[]` and `MatrixGate`
+    // short-circuited before it ever reached the matrix. Because the
+    // `user_has_cap` bridge *overwrites* the answer rather than adding to
+    // it, an install with `tt_authorization_active` on denied this role
+    // every mapped capability — not narrowed, denied.
+    //
+    // Scoped to `team`, matching `team_manager`, which the #0085 note in
+    // `RolesService` groups this role with. A physio is attached to
+    // squads; one attached to none should not read the academy.
+    //
+    // NOT granted: `players:create_delete`. The role holds
+    // `tt_manage_players` as a raw WP cap, but that capability is not
+    // "manage the roster" in this codebase — it gates season rollover,
+    // player-account provisioning, custom-field definitions and player
+    // deletion, and `BehaviourPendingSource` uses it as the "sees every
+    // player in the academy" marker for, in its own words, HoDs and
+    // admins. Seeding it would hand a kit manager the academy-admin
+    // surface. Declining costs nothing today: on a matrix-active install
+    // this role currently has nothing, and on a matrix-inactive one the
+    // seed is not consulted. See the PR for the follow-up.
+    $expand( 'staff', [
+        'team'         => [ 'r',  'team', $mod_teams ],
+        'players'      => [ 'rc', 'team', $mod_players ],
+        'people'       => [ 'rc', 'team', $mod_people ],
+        // #0085 — the staff-only running log on the player file. Team
+        // scope is what that note already assumed: `PlayerThreadAdapter`
+        // enforces team ownership at runtime.
+        'player_notes' => [ 'rc', 'team', $mod_threads ],
+        // The one row not derived from a capability mapping: the
+        // self-service slice of `people:change`, so a physio can maintain
+        // their own record even before they are assigned to a squad.
+        // Strictly narrower than the `people` grant above, and the same
+        // row every other staff-side persona carries.
+        'my_person'    => [ 'rc', 'self', $mod_people ],
     ] )
 );
