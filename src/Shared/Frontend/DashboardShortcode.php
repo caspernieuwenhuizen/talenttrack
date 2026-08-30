@@ -20,6 +20,59 @@ class DashboardShortcode {
 
     public static function register(): void {
         add_shortcode( 'talenttrack_dashboard', [ __CLASS__, 'render' ] );
+        add_filter( 'request', [ __CLASS__, 'forceFrontPageForViews' ] );
+    }
+
+    /**
+     * #3256 — keep serving the dashboard when the URL carries a core public
+     * query var.
+     *
+     * `WP_Query::parse_query()` substitutes the static front page **only**
+     * when the main query carries no public query var other than
+     * `preview` / `page` / `paged` / `cpage`. `order`, `orderby` and
+     * `search` are all core public query vars, and all three are params
+     * `FrontendListTable` puts on the URL. So on an install whose front
+     * page IS the dashboard page, sorting a list or searching one makes
+     * WordPress skip the substitution, `is_home` stays true, the shortcode
+     * never runs, and the theme renders the blog index instead — "Hello
+     * world!" where the players list should be.
+     *
+     * Every install created through onboarding is in that configuration:
+     * `OnboardingHandlers::createDashboardPage()` sets `show_on_front` to
+     * `page` and `page_on_front` to the dashboard (#1441). The dev box is
+     * not, which is why it never reproduced locally.
+     *
+     * One hook fixes all three params, and any future collision — including
+     * a public query var registered by another plugin, which is the #901
+     * failure mode. Renaming the params was the alternative and was
+     * rejected: it touches 37 views, the list-table JS, the saved-view rows
+     * already in the database, and every bookmarked list URL.
+     *
+     * Guarded three ways so it can never hijack a request it does not own:
+     * only outside wp-admin, only when `tt_view` is present, and only when
+     * the front page is genuinely this plugin's dashboard page.
+     *
+     * @param array<string,mixed> $query_vars
+     * @return array<string,mixed>
+     */
+    public static function forceFrontPageForViews( array $query_vars ): array {
+        if ( is_admin() ) return $query_vars;
+
+        // Reading `$_GET` directly: this runs during `request`, before the
+        // query is parsed, so there is no `get_query_var()` to ask yet. The
+        // value is never used — only its presence.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( empty( $_GET['tt_view'] ) ) return $query_vars;
+
+        if ( get_option( 'show_on_front' ) !== 'page' ) return $query_vars;
+
+        $front = (int) get_option( 'page_on_front' );
+        if ( $front <= 0 ) return $query_vars;
+
+        if ( ! class_exists( Components\RecordLink::class ) ) return $query_vars;
+        if ( $front !== Components\RecordLink::dashboardPageId() ) return $query_vars;
+
+        return [ 'page_id' => $front ];
     }
 
     /**
