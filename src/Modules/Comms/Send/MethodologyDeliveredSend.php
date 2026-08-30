@@ -88,6 +88,9 @@ final class MethodologyDeliveredSend {
      * @return array<string, scalar|null>
      */
     private static function payload( object $plan ): array {
+        // No `instanceof` guard: `wp_get_current_user()` always returns a
+        // WP_User (an empty one when nobody is logged in), so the guard's
+        // else branch is dead code that PHPStan level 8 refuses.
         $hod = wp_get_current_user();
 
         return [
@@ -97,7 +100,7 @@ final class MethodologyDeliveredSend {
                 [ 'tt_view' => 'training-plans', 'id' => (int) ( $plan->id ?? 0 ) ],
                 RecordLink::dashboardUrl()
             ),
-            'hod_name'      => $hod instanceof \WP_User ? (string) $hod->display_name : '',
+            'hod_name'      => (string) $hod->display_name,
         ];
     }
 
