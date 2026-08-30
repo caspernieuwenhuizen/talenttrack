@@ -3,13 +3,13 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
+use TT\Modules\Prospects\ProspectScope;
 
 /**
  * OnboardingPipelineWidget (#0081 child 3) — the recruitment funnel
@@ -52,7 +52,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
     }
 
     public function description(): string {
-        return __( 'Six-stage count strip — Prospects / Invited / Test training / Trial group / Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an amber stale badge when any task in that stage is >30 days overdue. Scout-scoped (own discovered_by) for scouts; full-club for HoD / admin.', 'talenttrack' );
+        return __( 'Six-stage count strip — Prospects / Invited / Test training / Trial group / Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an amber stale badge when any task in that stage is >30 days overdue. Counts follow the viewer\'s scope: academy-wide for scouts, HoD and admins; a head coach sees their own age groups.', 'talenttrack' );
     }
 
     /** @return list<string> */
@@ -136,8 +136,12 @@ class OnboardingPipelineWidget extends AbstractWidget {
      * trial cases never came from a prospect) and confused operators
      * looking at the funnel as a recruitment view.
      *
-     * Scope filter: a scout sees only their own prospects; everyone
-     * else with the cap sees the full club view.
+     * Scope filter (#3160): resolved by `ProspectScope`, the same resolver
+     * the kanban view uses, so the tile's counts and the board behind it
+     * cannot disagree. A global `prospects` read — scout (since v3.110.154),
+     * Head of Development, Academy Admin — counts the whole funnel; a
+     * team-scoped head coach counts their own age groups, anyone promoted
+     * into their squads, and their own discoveries.
      *
      * Cached for 60s via WP object cache.
      *
@@ -155,7 +159,6 @@ class OnboardingPipelineWidget extends AbstractWidget {
         $cached    = wp_cache_get( $cache_key, 'tt_persona_dashboard' );
         if ( is_array( $cached ) ) return $cached;
 
-        $scout_only = self::isScoutOnly( $user_id );
         $stale_cutoff = time() - 30 * DAY_IN_SECONDS;
         $joined_cutoff = time() - 90 * DAY_IN_SECONDS;
 
@@ -164,9 +167,10 @@ class OnboardingPipelineWidget extends AbstractWidget {
         $tasks     = $wpdb->prefix . 'tt_workflow_tasks';
         $players   = $wpdb->prefix . 'tt_players';
 
-        $where_scout = $scout_only
-            ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
-            : '';
+        // #3160 — the same visibility scope the full board applies, from the
+        // one resolver, so the tile's counts and the kanban behind it cannot
+        // disagree about which prospects the viewer has.
+        $where_scope = ProspectScope::sqlClause( $user_id, 'p' );
 
         // v3.110.84 — added `player_status` (LEFT JOIN tt_players on
         // promoted_to_player_id) so the classifier can distinguish
@@ -194,7 +198,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
               LEFT JOIN {$players} pl ON pl.id = p.promoted_to_player_id AND pl.club_id = %d
              WHERE p.club_id = %d
                AND p.archived_at IS NULL
-               {$where_scout}
+               {$where_scope}
              GROUP BY p.id",
             $club_id, $club_id, $club_id
         ) );
@@ -237,9 +241,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
         return $stages;
     }
 
-    private static function isScoutOnly( int $user_id ): bool {
-        if ( $user_id <= 0 ) return false;
-        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return false;
-        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' );
-    }
+    // #3160 — `isScoutOnly()` was the second copy of a rule that inverted
+    // when v3.110.154 moved the scout's grant from self to global scope.
+    // Both copies are gone; `ProspectScope` is the one answer.
 }

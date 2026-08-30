@@ -70,6 +70,7 @@ class ProspectsRepository {
      *   discovered_by_user_id?: int,
      *   include_archived?: bool,
      *   age_group_lookup_id?: int,
+     *   scope_sql?: string,
      *   status?: string,
      *   name_like?: string,
      *   orderby?: string,
@@ -132,6 +133,15 @@ class ProspectsRepository {
         if ( ! empty( $filters['age_group_lookup_id'] ) ) {
             $where[]  = 'age_group_lookup_id = %d';
             $params[] = (int) $filters['age_group_lookup_id'];
+        }
+        // #3160 — the caller's visibility scope, resolved server-side by
+        // `ProspectScope` and merged as an extra AND. It is deliberately not
+        // reachable from a request parameter: a client filter can narrow the
+        // list further, never widen it past this.
+        if ( ! empty( $filters['scope_sql'] ) && is_string( $filters['scope_sql'] ) ) {
+            // Already a complete ` AND ( … )` fragment carrying only
+            // int-cast ids; strip the leading AND for this array's join.
+            $where[] = trim( preg_replace( '/^\s*AND\s+/i', '', $filters['scope_sql'] ) ?? '1=1' );
         }
         // Computed-status filter. Mirrors the kanban classifier's terminal
         // states (Active / In trial / Joined / Archived) without joining

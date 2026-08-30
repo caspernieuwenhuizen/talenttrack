@@ -58580,6 +58580,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:55
+msgid ""
+"Six-stage count strip — Prospects / Invited / Test training / Trial group / "
+"Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via "
+"ProspectStageClassifier. Each stage shows count + an amber stale badge when "
+"any task in that stage is >30 days overdue. Counts follow the viewer's "
+"scope: academy-wide for scouts, HoD and admins; a head coach sees their own "
+"age groups."
+msgstr ""
+"Zes-fase-tellingstrook — Prospects / Uitgenodigd / Proeftraining / "
+"Stagegroep / Teamaanbod / Toegetreden — vanuit tt_prospects en "
+"tt_workflow_tasks via ProspectStageClassifier. Elke fase toont aantal + een "
+"amber stale-badge wanneer een taak in die fase >30 dagen achterstallig is. "
+"De aantallen volgen het bereik van de kijker: academiebreed voor scouts, HO "
+"en beheerders; een hoofdtrainer ziet de eigen leeftijdsgroepen."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 

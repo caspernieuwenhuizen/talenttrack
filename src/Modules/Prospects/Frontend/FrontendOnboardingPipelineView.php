@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
+use TT\Modules\Prospects\ProspectScope;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -238,16 +239,19 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
      * still in the Prospects column (drafted but not yet handed to
      * the HoD).
      *
-     * Scout users see only their own prospects (`discovered_by_user_id`);
-     * everyone else with the `tt_view_prospects` cap sees the whole
-     * club.
+     * #3160 — the row set is narrowed to the viewer's scope in the WHERE,
+     * via `ProspectScope`: a global `prospects` read (scout, Head of
+     * Development, Academy Admin) sees the whole funnel; a team-scoped head
+     * coach sees their own age groups, anyone promoted into their squads,
+     * and their own discoveries. Narrowing in SQL rather than in PHP is
+     * deliberate — the KPI counts are derived from this same row set, so a
+     * post-filter would leave them club-wide while the columns narrowed.
      *
      * @return array<int, array{key:string,label:string,count:int,cards:array<int, array<string,mixed>>}>
      */
     public static function computeStages( int $user_id ): array {
         global $wpdb;
         $club_id = CurrentClub::id();
-        $scout_only = self::isScoutOnly( $user_id );
         $prospects = $wpdb->prefix . 'tt_prospects';
         $tasks     = $wpdb->prefix . 'tt_workflow_tasks';
         $players   = $wpdb->prefix . 'tt_players';
@@ -259,9 +263,11 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         // v3.110.84: also LEFT JOIN tt_players to expose player_status
         // so the classifier can distinguish Trial group (player still
         // at status='trial') from Joined (player graduated).
-        $where_scout = $scout_only
-            ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
-            : '';
+        // #3160 — the viewer's visibility scope, resolved in one place and
+        // applied in the WHERE rather than after the fact. Filtering in PHP
+        // would leave the KPI counts above the board club-wide while the
+        // columns below it narrowed, which is worse than either.
+        $where_scope = ProspectScope::sqlClause( $user_id, 'p' );
 
         $sql = "
             SELECT
@@ -290,7 +296,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             LEFT JOIN {$players} pl ON pl.id = p.promoted_to_player_id AND pl.club_id = %d
             WHERE p.club_id = %d
               AND p.archived_at IS NULL
-              {$where_scout}
+              {$where_scope}
             GROUP BY p.id
             ORDER BY p.discovered_at DESC, p.id DESC
         ";
@@ -494,9 +500,11 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         return (string) $year;
     }
 
-    private static function isScoutOnly( int $user_id ): bool {
-        if ( $user_id <= 0 ) return false;
-        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return false;
-        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' );
-    }
+    // #3160 — `isScoutOnly()` lived here and in OnboardingPipelineWidget.
+    // It meant "holds tt_view_prospects but not tt_manage_prospects", which
+    // was the scout's shape until v3.110.154 moved them to a global grant.
+    // After that it stopped catching scouts and started catching the head
+    // coach — the only remaining persona without `create_delete` — narrowing
+    // their board to their own discoveries. `ProspectScope` replaces both
+    // copies with the question the seed actually asks.
 }
