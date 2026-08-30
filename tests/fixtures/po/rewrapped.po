@@ -1,0 +1,21 @@
+# Fixture for #3205 — the same msgid present once wrapped and once not.
+#
+# msgmerge on main re-wraps a long msgid across quoted fragments; the
+# branch still carries it on one line. Identical to gettext, different raw
+# text, so a naive key comparison sees two different strings.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/A.php:1
+msgid ""
+"Skipped: scheduled sends are part of the %s plan, which this install is not "
+"on."
+msgstr "Overgeslagen: geplande verzendingen horen bij het %s-pakket."
+
+#: src/B.php:2
+msgid "Skipped: scheduled sends are part of the %s plan, which this install is not on."
+msgstr "Overgeslagen: geplande verzendingen horen bij het %s-pakket."

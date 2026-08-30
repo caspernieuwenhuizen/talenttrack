@@ -1,0 +1,30 @@
+# Fixture for #3205 — the same msgid twice in the obsolete namespace.
+#
+# `#~` entries look inert, and while they stay commented out they are.
+# They do not stay: msgmerge promotes an obsolete entry back to live the
+# moment its string reappears in the .pot, so two obsolete copies come
+# back as two live copies, in a commit nobody wrote by hand.
+#
+# The live `Weekly planner` below is deliberately NOT a fault: a live
+# entry sharing a msgid with an obsolete one is the normal state of a
+# catalogue whose string came back, and the two namespaces are counted
+# separately so that it is not reported.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/A.php:1
+msgid "Weekly planner"
+msgstr "Weekplanning"
+
+#~ msgid "Weekly planner"
+#~ msgstr "Weekplanning"
+
+#~ msgid "Uses the planner's current date range."
+#~ msgstr "Gebruikt het huidige datumbereik van de planner."
+
+#~ msgid "Uses the planner's current date range."
+#~ msgstr "Gebruikt het huidige datumbereik van de planner."
