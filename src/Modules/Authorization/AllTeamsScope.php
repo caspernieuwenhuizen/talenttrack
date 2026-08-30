@@ -77,9 +77,27 @@ final class AllTeamsScope {
      * archived read-only mode that a scope check must not swallow.
      */
     public static function canReadTeam( int $user_id, int $team_id ): bool {
-        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+        return self::canReadTeamFor( $user_id, $team_id, 'team' );
+    }
 
-        if ( \TT\Infrastructure\Query\QueryHelpers::user_has_global_entity_read( $user_id, 'team' ) ) {
+    /**
+     * #3154 — the same question, asked about a surface whose entity is not
+     * `team`.
+     *
+     * A route that takes a team id and returns something other than the team
+     * row — the cohort board's rows, a squad's player statuses — is scoped by
+     * the entity that names its *data*, not by `team`. Otherwise a persona
+     * with global read on player statuses but not on teams would be refused
+     * a board it is explicitly granted.
+     *
+     * `CohortBoardRestController::callerCanReadTeam()` was the first copy of
+     * this and is now a wrapper around it, so a second controller does not
+     * mean a second implementation of the rule.
+     */
+    public static function canReadTeamFor( int $user_id, int $team_id, string $entity ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 || $entity === '' ) return false;
+
+        if ( \TT\Infrastructure\Query\QueryHelpers::user_has_global_entity_read( $user_id, $entity ) ) {
             return true;
         }
 
