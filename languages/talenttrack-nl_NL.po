@@ -54549,6 +54549,53 @@ msgstr ""
 msgid "Spond login successful."
 msgstr "Spond-login geslaagd."
 
+#: src/Modules/Spond/SpondScriptData.php:52
+msgid "Testing…"
+msgstr "Testen…"
+
+#: src/Modules/Spond/SpondScriptData.php:53
+msgid "Checking what would sync…"
+msgstr "Nagaan wat er zou synchroniseren…"
+
+#. translators: 1: events that would be created 2: events that would be updated 3: activities that would be archived
+#: src/Modules/Spond/SpondScriptData.php:55
+#, php-format
+msgid "%1$d new · %2$d updated · %3$d archived"
+msgstr "%1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd"
+
+#: src/Modules/Spond/SpondScriptData.php:56
+msgid ""
+"Spond returned no events in the sync window (30 days back, 180 days ahead)."
+msgstr ""
+"Spond gaf geen activiteiten terug binnen het synchronisatievenster (30 dagen "
+"terug, 180 dagen vooruit)."
+
+#: src/Modules/Spond/SpondScriptData.php:57
+msgid "Nothing has been saved. This is what a sync would do."
+msgstr "Er is niets opgeslagen. Dit is wat een synchronisatie zou doen."
+
+#. translators: %d: events not listed above.
+#: src/Modules/Spond/SpondScriptData.php:59
+#, php-format
+msgid "%d more not listed."
+msgstr "Nog %d niet getoond."
+
+#: src/Modules/Spond/SpondScriptData.php:60
+msgid "Open monitor for the full comparison"
+msgstr "Open de monitor voor de volledige vergelijking"
+
+#: src/Modules/Spond/SpondScriptData.php:61
+msgid "Login works, but the calendar could not be read."
+msgstr "De login werkt, maar de agenda kon niet worden gelezen."
+
+msgctxt "a Spond event that would be created"
+msgid "New"
+msgstr "Nieuw"
+
+msgctxt "a Spond event that would update an existing activity"
+msgid "Update"
+msgstr "Bijwerken"
+
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:192
 #: src/Shared/Frontend/FrontendSpondView.php:395
 msgid "Spond disconnected."

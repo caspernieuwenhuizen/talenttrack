@@ -73,6 +73,20 @@ A stale import is noticed on the activity, not on this settings page — so a **
 
 Because Spond offers no per-event re-fetch, the button re-pulls the team's **whole** calendar; the label and confirmation both say "team" rather than implying only the activity in front of you is refreshed. When the team synced less than a minute ago the confirmation says so, so a coach who clicks twice knows nothing is wrong. After a successful sync the page reloads and the "Team last synced from Spond" line shows the new time.
 
+### What Test shows (v4.x+)
+
+**Test** answers two questions, not one. It logs in, and then — without saving anything — asks Spond for the team's calendar and reports what a sync would do with it:
+
+- a counts line: how many events would be **new**, how many would **update** an activity that already exists, how many stored activities would be **archived** because Spond no longer has them;
+- the first few events, each labelled New or Update, with their date and title;
+- a link through to the **monitor**, where the field-by-field comparison lives (what would change from what, per event).
+
+Nothing is written. The page says so, because "14 events would sync" and "14 events just synced" are one careless reading apart.
+
+If the login works but the team has **no Spond group linked yet**, Test says exactly that rather than reporting a failure — a working login with no group is the normal state halfway through setup. If the login itself fails, Test stops there and reports the login error; there is no calendar to ask about.
+
+The preview reads the same `POST /teams/{id}/spond/preview` endpoint the monitor uses, under the same per-team authority as Test itself.
+
 ### Picking the group (v4.x+)
 
 The coach also picks the team's **Spond group** from the same panel, so the setup finishes in one place instead of stopping at the team edit form (which is gated on `tt_edit_teams`, a capability most head coaches don't hold).
