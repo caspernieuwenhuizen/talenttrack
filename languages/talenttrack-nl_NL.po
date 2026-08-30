@@ -58732,6 +58732,7 @@ msgstr "Setup verlaten"
 #: src/Shared/Frontend/FrontendSetupView.php
 msgid "Continue this step in the admin"
 msgstr "Ga verder in de beheeromgeving"
+
 #~ msgid "Could not create the player record."
 #~ msgstr "Het speler-record kon niet worden aangemaakt."
 
