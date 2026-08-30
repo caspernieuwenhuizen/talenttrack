@@ -117,6 +117,7 @@ Reopen requires the same manage permission as creating a blueprint, so a head co
 
 - **View** — head coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board. Access follows the `team_chemistry` authorization matrix: assistant coaches and read-only observers do **not** have access.
 - **Create / edit / lock / delete** — gated on `team_chemistry` **manage** authority in the matrix (head coach at team scope; head-of-academy / admin globally), resolved via `TeamChemistryAccess` so the frontend and REST agree.
+- **The team scope is enforced per team, not "somewhere"** — a coach whose grant covers one squad can only open, edit, lock, clone or delete the blueprints of that squad. Reaching another team's blueprint by editing the id in the URL or calling the API directly is refused with *access denied*, and the refusal comes before the lineup is loaded, so no slot, tier or player is disclosed. A global grant (head of development, scout, academy admin) still covers every team. The same per-team check applies to the team's formation and playing-style settings.
 
 ## Squad plan flavour
 

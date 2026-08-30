@@ -248,10 +248,47 @@ class MatrixGate {
         string $scope_kind = self::SCOPE_GLOBAL,
         ?int $scope_target_id = null
     ): bool {
-        if ( $user_id <= 0 ) return false;
-
         // #1485 — disabled sub-feature denies the entity outright.
         if ( self::featureDenies( $entity ) ) return false;
+
+        return self::resolveScoped( $user_id, $entity, $activity, $scope_kind, $scope_target_id );
+    }
+
+    /**
+     * #3181 — the scoped sibling of `hasAuthorityAnyScope()`: persona and
+     * runtime-scope authority for one specific target, IGNORING the
+     * sub-feature toggle (#1485).
+     *
+     * `can()` above answers "may you act on team N", which is the right
+     * question for a chemistry-board route and the wrong one for a
+     * blueprint route: the blueprint editor deliberately survives the
+     * `team_chemistry` feature switch (#1485, #1922), so asking `can()`
+     * would take it dark whenever chemistry is off. This pairs the scope
+     * check with the authority-only resolution those surfaces already use.
+     */
+    public static function hasAuthority(
+        int $user_id,
+        string $entity,
+        string $activity,
+        string $scope_kind = self::SCOPE_GLOBAL,
+        ?int $scope_target_id = null
+    ): bool {
+        return self::resolveScoped( $user_id, $entity, $activity, $scope_kind, $scope_target_id );
+    }
+
+    /**
+     * Shared persona/scope resolution for the "this specific target"
+     * question, with no feature-toggle short-circuit (the public wrappers
+     * decide whether to apply it).
+     */
+    private static function resolveScoped(
+        int $user_id,
+        string $entity,
+        string $activity,
+        string $scope_kind,
+        ?int $scope_target_id
+    ): bool {
+        if ( $user_id <= 0 ) return false;
 
         $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return false;

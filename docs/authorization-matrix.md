@@ -302,6 +302,22 @@ Bridging `tt_manage_team_chemistry` in `LegacyCapMapper` was rejected as the fix
 
 Effective access change: **head coaches can now create blueprints**, which is what their `team_chemistry [rc, team]` row always said. No other persona's answer moves.
 
+### The blueprint and formation routes check *which* team
+
+`canRead()` / `canManage()` above answer "do you hold `team_chemistry` anywhere". That is the right question for a dashboard tile and the wrong one for a route carrying `{id}`: a **team**-scoped grant satisfies it for **every** team. The chemistry routes were scoped first; the blueprint, formation and playing-style routes kept the unscoped pair, so `GET /blueprints/{id}` handed any caller with a grant on one squad another squad's full match-day lineup — slot label, tier and player id — and the write siblings let them rewrite or delete it.
+
+Every `{id}`-bearing route on `TeamDevelopmentRestController` now resolves the team first:
+
+- `GET/PUT /teams/{id}/formation`, `GET/PUT /teams/{id}/style`, `GET/POST /teams/{id}/blueprints` — the team id is in the path, so it is passed straight through.
+- `GET/PUT/DELETE /blueprints/{id}` plus `/assignment`, `/assignments`, `/status` and `POST /clone` — the blueprint's `team_id` is looked up via `TeamBlueprintsRepository::teamIdFor()`, which reads that one column and never the assignments, so settling access cannot itself leak the lineup it is about to refuse. A blueprint that does not exist in this club resolves to team `0`, which fails the check rather than passing it.
+- `GET /formation-templates` keeps the unscoped gate — its payload is the seeded template library, not any one team's data.
+
+The predicates are `TeamChemistryAccess::canReadForTeam()` / `canManageForTeam()`. They wrap `canRead()` / `canManage()` — **not** the chemistry pair — so the blueprint editor still survives the `team_chemistry` sub-feature being switched off (#1485, #1922). Their scope half runs through the new `MatrixGate::hasAuthority()`, the scoped sibling of `hasAuthorityAnyScope()`, which resolves the runtime team assignment without applying the feature short-circuit.
+
+Refusals are **403** — this is a capability answer, not a plan one (#3104).
+
+Effective access change: a **team-scoped** `team_chemistry` grant (head coach, team manager) now reaches only the teams the holder is actually assigned to. **Global** grants (scout, head of development, academy admin) are unchanged and still reach every team.
+
 ## Act-cap bridges to existing player-status entities
 
 The PlayerStatus "set the potential band" act-cap was matrix-blind while its data-cap sibling was matrix-aware, so the frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) and REST (`PlayerStatusRestController`) could drift. #1939 bridges the act-cap so both surfaces resolve from the same matrix entity:
