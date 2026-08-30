@@ -3,7 +3,6 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\CohortBoardService;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -71,13 +70,16 @@ final class CohortBoardRestController extends BaseController {
      * report controllers + views apply.
      */
     public static function callerCanReadTeam( int $team_id ): bool {
-        if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( get_current_user_id() ) ) {
-            return true;
-        }
-        $team_ids = array_values( array_map(
-            'intval',
-            array_column( QueryHelpers::get_teams_for_coach( get_current_user_id() ), 'id' )
-        ) );
-        return in_array( $team_id, $team_ids, true );
+        // #3154 — the rule moved to AllTeamsScope so a second controller
+        // asking the same question does not mean a second implementation of
+        // it. Behaviour is unchanged apart from two widenings that bring it
+        // in line with every other scope check: a WordPress settings admin
+        // now passes without needing a matrix row, and an archived team the
+        // caller coaches still resolves.
+        return \TT\Modules\Authorization\AllTeamsScope::canReadTeamFor(
+            get_current_user_id(),
+            $team_id,
+            'activities'
+        );
     }
 }

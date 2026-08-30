@@ -6,7 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 
@@ -36,7 +38,16 @@ final class PlayerStatusRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'createBehaviourRating' ],
             // #2574 — feature flag AND capability; see behaviourCaptureAvailable().
-            'permission_callback' => static fn() => \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable(),
+            // #3154 — and the player. The flag-plus-capability check takes no
+            // player id, so a holder could write a behaviour judgement onto
+            // any child in the club. `canEditPlayer` is the same gate
+            // `PUT /players/{id}` uses; every role that holds
+            // `tt_rate_player_behaviour` (head coach, head of development,
+            // administrator, club admin) already passes it for their own
+            // players, so this narrows rather than locks out.
+            'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
+                \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable()
+                && AuthorizationService::canEditPlayer( get_current_user_id(), (int) $r['id'] ),
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/potential', [
             'methods'             => 'POST',
@@ -46,12 +57,26 @@ final class PlayerStatusRestController {
         register_rest_route( self::NS, '/players/(?P<id>\d+)/status', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'playerStatus' ],
-            'permission_callback' => static fn() => current_user_can( 'tt_view_player_status' ),
+            // #3154 — the capability is held club-wide by both coach roles,
+            // scouts and parents, and the response is the full verdict object
+            // per player rather than a traffic-light colour. `canViewPlayer`
+            // is what every other per-player route asks, and it is what lets a
+            // parent read their own child and nobody else's.
+            'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
+                current_user_can( 'tt_view_player_status' )
+                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] ),
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/player-statuses', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'teamStatuses' ],
-            'permission_callback' => static fn() => current_user_can( 'tt_view_player_status' ),
+            // #3154 — the team id came from the path and was never checked,
+            // so iterating `{id}` walked every squad in the academy. Scoped on
+            // `player_status`, the entity that names the data this route
+            // returns, not on `team`: a persona granted global player-status
+            // read but only team-scoped team read must still get the board.
+            'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
+                current_user_can( 'tt_view_player_status' )
+                && AllTeamsScope::canReadTeamFor( get_current_user_id(), (int) $r['id'], 'player_status' ),
         ] );
     }
 
