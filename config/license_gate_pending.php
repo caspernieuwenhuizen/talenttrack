@@ -32,25 +32,24 @@ return [
     'export_match_prep_pdf'       => 'MatchPrepPrintRouter',
     'export_match_day_team_sheet' => 'The team-sheet exporter',
 
-    // Training (#2493) and the exercise library (#0016).
-    'exercises_vision_extraction' => 'The photo-capture extraction path — also an operator cost',
-
     // Storage and bandwidth (#2589).
-    's3_backup'                   => 'The object-storage destination in backup settings',
+    //
+    // #3106 — `s3_backup` stays, and this is the reason rather than an
+    // oversight: **there is no object-storage destination to gate.**
+    // `BackupRunner::destinations()` returns Local and Email; the
+    // `BackupDestinationInterface` docblock mentions `s3` as a future id
+    // and nothing implements it. Gating a surface that does not exist
+    // would be a call site pointing at nothing, and deleting the key would
+    // let the destination ship ungated later, which is precisely what this
+    // list exists to prevent. The gate lands in the same PR as the
+    // destination.
+    's3_backup'                   => 'No object-storage destination exists yet (BackupRunner::destinations() is Local + Email). The gate ships with the destination.',
 
     // The analytics platform (#0083, #0078).
     'analytics_explorer'          => 'FrontendExploreView',
     'custom_widgets'              => 'The widget builder surfaces',
     'persona_dashboard_editor'    => 'FrontendPersonaDashboardEditorView',
 
-    // Outbound, per-message cost (#0066).
-    'comms_scheduled_sends'       => 'CommsDispatcher, on the scheduled path only',
-    'comms_sms_channel'           => 'The SMS channel adapter registration',
-    'push_notifications'          => 'PushModule dispatch',
-
-    // Third-party sync the operator runs (#2002, Spond).
-    'spond_integration'           => 'The Spond connect flow',
-    'strava_integration'          => 'The Strava OAuth connect flow',
 
     // Coach development (#2641).
     'knowledge_courses'           => 'CourseAccessResolver — the one chokepoint the module already has',
