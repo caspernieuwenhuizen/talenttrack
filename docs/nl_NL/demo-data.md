@@ -155,6 +155,13 @@ behouden.
 Beperk een wisbeurt tot één batch met het keuzemenu Batch, of laat het op
 **Alle batches** staan.
 
+Elke run krijgt een eigen batch, ook twee runs die in dezelfde seconde
+starten. Voorheen konden die er één delen — de batchnaam werd opgebouwd uit
+de preset, de seed en de tijd tot op de seconde. Een wisbeurt die op "die
+batch" was beperkt nam dan beide runs mee, en de tweede run beschouwde de
+spelers en trainingen van de eerste run als de zijne en probeerde hun
+gegevens een tweede keer weg te schrijven.
+
 De demo-WP-accounts blijven bestaan na het wissen van data. Ze verwijderen
 is een aparte actie ("Demogebruikers wissen"), met waarborgen: hij weigert
 een account waarvan het e-mailadres buiten het ingestelde demodomein valt,
