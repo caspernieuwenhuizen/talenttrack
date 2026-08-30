@@ -52,6 +52,8 @@ class SeasonCarryover {
         if ( empty( $existing ) ) return;
 
         $cycle_default = self::resolveClubCycleDefault();
+        // #3131 — read once: the carried-over goals are dated to it too.
+        $season_start  = (string) $new->start_date;
 
         foreach ( $existing as $old ) {
             $player_id = (int) $old->player_id;
@@ -80,12 +82,12 @@ class SeasonCarryover {
                 continue;
             }
 
-            $convs_repo->createCycle( $new_file_id, $cycle_size, (string) $new->start_date, (string) $new->end_date, (int) $new->id );
+            $convs_repo->createCycle( $new_file_id, $cycle_size, $season_start, (string) $new->end_date, (int) $new->id );
             foreach ( $convs_repo->listForFile( $new_file_id ) as $c ) {
                 $writer->onConversationScheduled( (int) $c->id );
             }
 
-            self::copyOpenGoals( $player_id, (string) $new->start_date );
+            self::copyOpenGoals( $player_id, $season_start );
         }
     }
 

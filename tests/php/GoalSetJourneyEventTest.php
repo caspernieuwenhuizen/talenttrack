@@ -69,16 +69,21 @@ final class GoalSetJourneyEventTest extends WP_UnitTestCase {
 
     /** The announcement belongs to a row that exists. */
     public function test_a_failed_insert_announces_nothing(): void {
+        global $wpdb;
+
         $fired = 0;
         add_action( 'tt_goal_saved', static function () use ( &$fired ): void { $fired++; }, 10, 4 );
 
-        // `no_such_column` is not on `tt_goals`, so `wpdb::insert()` refuses
-        // the row before it reaches the database.
-        $goal_id = ( new GoalsRepository() )->create( [
+        // `no_such_column` is not on `tt_goals`, so the database rejects the
+        // row. The rejection is the point of the test, so its error output
+        // is suppressed rather than printed into the run.
+        $suppressed = $wpdb->suppress_errors( true );
+        $goal_id    = ( new GoalsRepository() )->create( [
             'player_id'      => $this->player_id,
             'title'          => 'Rejected',
             'no_such_column' => 'x',
         ] );
+        $wpdb->suppress_errors( $suppressed );
 
         $this->assertSame( 0, $goal_id );
         $this->assertSame( 0, $fired, 'nothing is announced for a row that was never written' );
