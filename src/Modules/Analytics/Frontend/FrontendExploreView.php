@@ -52,6 +52,23 @@ use TT\Shared\Wizards\WizardEntryPoint;
 class FrontendExploreView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // #3161 — this view had no capability check at all, while every
+        // sibling in this directory opens with exactly this one. Both
+        // dispatcher gates in front of it fail open: `explore` is
+        // registered through `registerSlugOwnership` only, so
+        // `TileRegistry::canAccessViewSlug()` returns `! $registered` =
+        // true, and `matrixDispatchAllows()` short-circuits on the null
+        // entity. Nothing else was going to say no.
+        //
+        // First statement, ahead of the CSV and PDF branches below —
+        // those stream the fact rows, so a gate after them would be a
+        // gate on the page and not on the data.
+        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view central analytics.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $kpi_key = isset( $_GET['kpi'] ) ? sanitize_key( (string) $_GET['kpi'] ) : '';
         $kpi     = KpiRegistry::find( $kpi_key );
         $action  = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';

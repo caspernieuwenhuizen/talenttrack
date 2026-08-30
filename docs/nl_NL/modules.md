@@ -239,6 +239,11 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 - **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op de frontend-Modulepagina naast de andere (de wp-admin-Modulepagina werkt ook nog; beide schrijven dezelfde `tt_feature_state`-rij). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
 
+  De verkenner **aanzetten** opent hem niet voor iedereen: net als de
+  Analyse-pagina ernaast vraagt de verkenner om het recht op centrale
+  analyse — dat hebben Hoofd Opleiding en Academiebeheer. Een coach die
+  de URL opent, wordt geweigerd.
+
 ## De functiecatalogus voor iedereen (`?tt_view=features`)
 
 De Modulepagina is alleen voor beheerders (het is een schrijfvlak). Elke gebruiker — coach, speler, ouder — krijgt een alleen-lezen **Functies**-weergave op **`?tt_view=features`**, bereikbaar via een **Functies**-tegel onder de groep **Over** op het dashboard. Er is geen speciale capability voor nodig.

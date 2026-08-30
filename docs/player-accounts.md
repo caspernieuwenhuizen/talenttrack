@@ -69,6 +69,11 @@ had one. The daily invite limit still applies; if a big team hits it, the
 summary tells you how many went out so you can invite the rest the next
 day (or raise the cap).
 
+The team you pick has to be one you coach. Someone who may create
+invitations academy-wide — a head of development, an academy admin — can
+pick any team; anyone else is refused, whether they used the dropdown or
+built the request another way.
+
 ## Who can use it
 
 Academy and club admins (the capability that also governs creating and
