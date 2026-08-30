@@ -271,7 +271,7 @@ The same catalog is available over REST at `GET /wp-json/talenttrack/v1/feature-
 
 The switching mechanism has always worked. What was missing was anything that **fails** when a new module or a new routable surface ships without a toggle — so every part of it was convention, and a convention gets discovered by an academy asking "why can't I turn this off?".
 
-`tools/check-module-toggles.php` runs on every PR that touches the files deciding switchability. Five assertions:
+`tools/check-module-toggles.php` runs on every PR that touches the files deciding switchability. Seven assertions:
 
 1. **Every module class on disk is declared in `config/modules.php`.** A module that exists but is not declared never boots, and no operator can switch it on.
 2. **Every declared module has a `ModuleMetadata` entry.** Without one the modules page shows a slugified class name where a label belongs. This assertion found five modules missing metadata the day it was written.
@@ -281,12 +281,30 @@ The switching mechanism has always worked. What was missing was anything that **
  3. it is listed in `config/always_on_surfaces.php` with a reason.
 4. **No matrix entity is claimed by two features.** The catalog docblock has always said this MUST hold; nothing checked it, and a duplicate silently gates a sibling surface too.
 5. **Every feature's `module_class` resolves to a declared module.** A feature naming a class that is not registered gates nothing, silently.
+6. **Every install profile names only modules and features that exist**, names every switchable module, and never tries to disable an always-on one. A typo in a profile is otherwise a row that does nothing at apply time.
+7. **Every module-owned `?tt_view=` slug the dashboard dispatcher routes is owned on the unconditional path.** See below — this is the assertion that makes "the module is off" answerable at all.
+
+### Ownership has to survive the module being off
+
+The gate whose entire job is to catch "this module is switched off" spent a long time being a no-op in exactly that state.
+
+`TileRegistry::isViewSlugDisabled()` resolves a slug's owning module from the registered tiles. Tiles are registered inside a module's `register()` / `boot()` — and `ModuleRegistry` skips both for a **disabled** module. So the tile that would prove ownership does not exist precisely when it is needed: ownership resolves to nothing, the gate returns false, and the route dispatches as though the module were on. With Training plans switched off, `?tt_view=training-run` still rendered the sideline view, and the activity page still offered **Execute training**.
+
+The fix is that ownership is declared where it cannot disappear: `CoreSurfaceRegistration`, which `Kernel::register()` calls whether or not any given module boots. Two forms count, both in that file:
+
+- `TileRegistry::registerSlugOwnership( '<slug>', <module> )`, or
+- a tile registered there carrying both `view_slug` and `module_class`.
+
+A tile registered from inside `src/Modules/**` does **not** count, for the reason above. Assertion 7 walks the dispatcher's `case '<slug>':` arms, keeps the ones that render a `TT\Modules\…\Frontend\…` view, and requires each to be owned that way — or listed in `config/always_on_surfaces.php` with a reason. Arms that reach a `src/Shared/Frontend` view are skipped: no single module owns those, so nothing should gate them.
+
+The affordance layer asks the same question, in `CrossViewLink::allows()`, before any capability gate and before a caller's own `gate` override. That ordering matters more than it looks: `LegacyCapMapper` lets a WP `administrator` pass every `tt_*` cap unconditionally — the deliberate emergency override for the person running the install — so a capability-shaped check hid the button from a coach and left it in place for the operator who had just switched the module off. "May this user do it?" and "does this surface exist here?" are different questions, and only the second one has anything to say about a switched-off module.
 
 ### What this means when you add a module
 
 - Add the class to `config/modules.php`, and to `ModuleRegistry::ALWAYS_ON_MODULES` **only** if the product is genuinely unusable without it — three modules qualify today.
 - Add a `ModuleMetadata` entry: a label, a one-line description in the academy's language rather than the codebase's, an icon, a category.
 - Add a `FeatureRegistry` entry if the module owns surfaces an academy might not want, and **list each new view slug in the same PR that adds the surface**. That habit is the whole point; the gate is what stops it depending on anyone remembering.
+- Declare each of the module's `?tt_view=` slugs in `CoreSurfaceRegistration::registerSlugOwnerships()`. Registering the tile in the module's own `boot()` is not enough — see above.
 
 ### When a surface must always be on
 
@@ -300,7 +318,7 @@ The manifest briefly held 54 more, marked `grandfathered`. Almost all were an ar
 
 `bin/module-toggle-selfcheck.php` runs the gate against deliberately broken copies of the tree and asserts it fails on each, for the right reason. A gate that passes is not evidence that it works.
 
-Two things it deliberately cannot check, and says so rather than guessing: a tile slug built from a variable at runtime, and any surface that is not registered as a tile at all.
+One thing it deliberately cannot check, and says so rather than guessing: a tile slug built from a variable at runtime. Surfaces that are not registered as tiles at all used to be the second blind spot; assertion 7 reads them off the dispatcher instead, so a tile-less module surface is now covered.
 
 ## See also
 

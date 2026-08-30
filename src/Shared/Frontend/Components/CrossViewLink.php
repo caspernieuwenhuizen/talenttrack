@@ -50,6 +50,11 @@ final class CrossViewLink {
      * @param array<string,mixed> $opts ['ctx' => array, 'gate' => string|array|callable]
      */
     public static function allows( string $slug, array $opts = [] ): bool {
+        // #3254 — "does this surface exist on this install?" is asked before
+        // any gate, including a caller's own. A gate answers who may do the
+        // thing; a switched-off module means there is no thing.
+        if ( CrossViewLinkRegistry::surfaceSwitchedOff( $slug ) ) return false;
+
         $uid = function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0;
         $ctx = isset( $opts['ctx'] ) && is_array( $opts['ctx'] ) ? $opts['ctx'] : [];
 
