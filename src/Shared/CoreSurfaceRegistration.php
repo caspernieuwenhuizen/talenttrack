@@ -42,6 +42,7 @@ final class CoreSurfaceRegistration {
     private const M_GOALS         = 'TT\\Modules\\Goals\\GoalsModule';
     private const M_INVITATIONS   = 'TT\\Modules\\Invitations\\InvitationsModule';
     private const M_LICENSE       = 'TT\\Modules\\License\\LicenseModule';
+    private const M_MFA           = 'TT\\Modules\\Mfa\\MfaModule';
     private const M_METHODOLOGY   = 'TT\\Modules\\Methodology\\MethodologyModule';
     private const M_ONBOARDING    = 'TT\\Modules\\Onboarding\\OnboardingModule';
     private const M_PDP           = 'TT\\Modules\\Pdp\\PdpModule';
@@ -153,6 +154,16 @@ final class CoreSurfaceRegistration {
         // the two surfaces are adjacent but separately granted, and the
         // link between them has to hide when the destination would refuse.
         $reg::register( 'eval-category-weights', 'tt_view_category_weights' );
+
+        // #3134 — the plan explainer and a user's own two-factor enrolment.
+        // Both guard on "signed in" and nothing more, which is the whole
+        // point: a coach meeting a locked feature has to be able to read
+        // why, and everybody has to be able to set up their own second
+        // factor. Registered rather than left to the permissive fallback so
+        // the gate is stated, and so a future capability has one place to
+        // land.
+        $reg::register( \TT\Modules\License\Frontend\FrontendPlanView::SLUG, static fn( int $uid ): bool => $uid > 0 );
+        $reg::register( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG, static fn( int $uid ): bool => $uid > 0 );
 
         // #2613 — the library's CSV importer. A narrower gate than the
         // library itself: reading the list needs tt_view_activities,
@@ -299,6 +310,12 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'eval-category-weights', self::M_EVALUATIONS );
+        // #3134 — the two ported halves of the account page. Ownership is
+        // what makes them switchable (#2599 rule 2): turn the License module
+        // off and there is no plan to explain; turn Mfa off and there is no
+        // second factor to enrol.
+        TileRegistry::registerSlugOwnership( \TT\Modules\License\Frontend\FrontendPlanView::SLUG, self::M_LICENSE );
+        TileRegistry::registerSlugOwnership( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::SLUG, self::M_MFA );
         TileRegistry::registerSlugOwnership( 'roles',              self::M_AUTHORIZATION );
         // #2654 — the frontend authorization matrix, reached from the
         // Configuration landing and from Roles & rights. A persona ×
@@ -1688,6 +1705,41 @@ final class CoreSurfaceRegistration {
             'icon'        => 'settings',
             'color'       => '#5b6e75',
             'hide_for_personas' => [ 'player', 'parent' ],
+        ]);
+        // #3134 — the plan explainer, right beside Features: one says what
+        // is switched on, the other says what the plan allows. No `entity`
+        // on purpose, matching Features above — the wp-admin tab this came
+        // from is open to every signed-in user, and gating tile visibility
+        // on a matrix entity would take it away from the coaches it exists
+        // to answer. `module_class` is what makes it switchable (#2599).
+        TileRegistry::register([
+            'module_class' => self::M_LICENSE,
+            // Literal, not the class's SLUG constant: check-module-toggles
+            // resolves a tile's slug statically and reports a computed one
+            // as unverifiable.
+            'view_slug'    => 'plan',
+            'group'        => $about_group,
+            'kind'         => 'setup',
+            'order'        => 20,
+            'label'        => __( 'Plan and restrictions', 'talenttrack' ),
+            'description'  => __( 'The plan this academy is on, and what it locks.', 'talenttrack' ),
+            'icon'         => 'settings',
+            'color'        => '#5b6e75',
+            'hide_for_personas' => [ 'player', 'parent' ],
+        ]);
+        // #3134 — everybody's own second factor, so no persona is hidden
+        // and no entity gates it. A parent securing their own account is as
+        // much the point as an administrator securing theirs.
+        TileRegistry::register([
+            'module_class' => self::M_MFA,
+            'view_slug'    => 'two-factor',
+            'group'        => $about_group,
+            'kind'         => 'setup',
+            'order'        => 30,
+            'label'        => __( 'Two-factor authentication', 'talenttrack' ),
+            'description'  => __( 'Add a second step to your own sign-in.', 'talenttrack' ),
+            'icon'         => 'settings',
+            'color'        => '#5b6e75',
         ]);
     }
 

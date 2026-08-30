@@ -3,6 +3,7 @@ title: License & account
 group: configuration
 summary: Tier, usage caps, and how a plan is set on an install.
 audience: [admin]
+views: [plan, two-factor]
 module: TT\Modules\License\LicenseModule
 order: 100
 ---
@@ -202,17 +203,25 @@ Player count, team count and storage are **priced against what they cost to run*
 
 The caps in `FreeTierCaps` (1 team, 25 players) are now demo furniture: they are what stops the public demo subdomain being used as a free academy. They are configured on the demo install and nowhere else.
 
-## Account page
+## Where the plan lives
 
-Clicking **TalentTrack** in the wp-admin sidebar lands on the Account page. It has three tabs:
+**Plan and restrictions** is a screen in TalentTrack itself. It shows the plan this install is on, the two free-tier caps against what is actually in use, and the full feature matrix with your plan marked. It is open to **everyone signed in**, deliberately: a coach who cannot find a feature should be able to see for themselves whether it is missing or merely locked, without asking an administrator to look it up.
 
-| Tab | Cap | What's there |
-| - | - | - |
-| **Account** | `tt_edit_settings` (operators only) | Current tier, usage versus caps, what the next tier adds, phone-home diagnostics |
-| **Plan & restrictions** | `read` (everyone logged in) | Current plan, caps table with at-cap warnings, and the full Standard / Pro feature matrix with your effective tier highlighted |
-| **MFA** | `read` (everyone logged in) | Your own two-factor enrollment and backup codes |
+It is also where every locked-feature panel sends you. When a screen is switched off because it belongs to a plan the academy is not on, the panel that explains why links here.
 
-The Plan tab is open to everyone deliberately: a coach who cannot find a feature should be able to see for themselves whether it is missing or merely locked.
+**Two-factor authentication** is a screen too. It is your own second factor — set it up, make fresh backup codes, or turn it off. Only ever your own account.
+
+### What stays in the WordPress admin
+
+Three things did not move, and are not going to:
+
+| Stays in wp-admin | Why |
+| - | - |
+| **Resetting another person's two-factor** | Taking somebody's second factor off is an operator recovery action, used when a person has lost both their phone and their backup codes. It belongs where its use is conspicuous, and where you can still reach it when the thing that is broken is somebody's ability to sign in. |
+| **Per-club two-factor enforcement** | Deciding which roles *must* enrol is an install-wide setting, not a personal one. |
+| **The phone-home diagnostic** | An operator tool for working out why one install is silent when another is not. |
+
+The wp-admin Account page keeps all three, plus its own copies of the plan and personal-two-factor screens. It is not retired. What changed is that an ordinary coach, parent or player no longer has any reason to open it.
 
 ## Non-commercial test instances
 

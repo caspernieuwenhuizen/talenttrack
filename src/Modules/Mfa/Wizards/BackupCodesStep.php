@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Mfa\Audit\MfaAuditEvents;
 use TT\Modules\Mfa\Auth\MfaLoginGuard;
 use TT\Modules\Mfa\Domain\BackupCodesService;
+use TT\Modules\Mfa\Frontend\FrontendTwoFactorView;
 use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -125,18 +126,17 @@ final class BackupCodesStep implements WizardStepInterface {
         // step 3 already.
         MfaLoginGuard::clearPending( $user_id );
 
-        // Final destination: the Account-page MFA tab, with a one-shot
+        // Final destination: the two-factor surface, with a one-shot
         // success message. The wizard framework will clear our state
         // (including the plaintext backup codes) when this submit
         // returns successfully.
-        $url = add_query_arg(
-            [
-                'page'    => 'tt-account',
-                'tab'     => 'mfa',
-                'tt_msg'  => 'mfa_enrolled',
-            ],
-            admin_url( 'admin.php' )
-        );
-        return [ 'redirect_url' => $url ];
+        //
+        // #3134 — this hands off to the **frontend** view when a page
+        // hosts the dashboard, and falls back to the wp-admin tab
+        // otherwise. A person finishing enrolment may be a coach or a
+        // parent with no business in wp-admin at all; ending a
+        // self-service flow by depositing them there was the single
+        // worst of the six redirects this issue reviewed.
+        return [ 'redirect_url' => FrontendTwoFactorView::url( [ 'tt_msg' => 'mfa_enrolled' ] ) ];
     }
 }

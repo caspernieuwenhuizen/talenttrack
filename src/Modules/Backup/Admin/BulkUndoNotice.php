@@ -71,7 +71,12 @@ class BulkUndoNotice {
         // undo link is replaced with a paywall variant. Standard+ keeps
         // the working undo link.
         $can_undo = LicenseGate::allows( 'undo_bulk' );
-        $account_url = admin_url( 'admin.php?page=tt-account&tab=plan' );
+        // #3134 — the paywall link points at the Plan surface, which now
+        // lives on the frontend when a page hosts the dashboard. The
+        // notice itself stays in wp-admin because the bulk action it
+        // reports on does; only the explanation of *why* undo is locked
+        // moved, and it moved to the one place open to everyone.
+        $account_url = \TT\Modules\License\Frontend\FrontendPlanView::url();
         ?>
         <div class="notice notice-warning is-dismissible">
             <p>
