@@ -72,6 +72,23 @@ class MatchPrepPrintRouter {
             wp_die( esc_html__( 'You do not have access to print this match sheet.', 'talenttrack' ) );
         }
 
+        // #3108 — both PDFs are Pro, and per mode for the same reason the
+        // feature switch is: the coach's sheet and the referee's are
+        // separate decisions on the plan too. This URL bypasses
+        // ExportService, so a gate anywhere else leaves it as the back
+        // door. The plan asks last, after the capability, so someone who
+        // could never print this gets the permission answer.
+        $in_plan = $mode === 'team_sheet'
+            ? \TT\Modules\License\LicenseGate::allows( 'export_match_day_team_sheet' )
+            : \TT\Modules\License\LicenseGate::allows( 'export_match_prep_pdf' );
+        if ( ! $in_plan ) {
+            wp_die(
+                esc_html__( 'Printing this sheet is part of a plan this install is not on. The match plan itself is still on screen, and nothing has been removed.', 'talenttrack' ),
+                '',
+                [ 'response' => 402 ]
+            );
+        }
+
         add_filter( 'show_admin_bar', '__return_false' );
         status_header( 200 );
         nocache_headers();

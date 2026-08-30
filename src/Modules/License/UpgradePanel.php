@@ -110,6 +110,47 @@ class UpgradePanel {
     }
 
     /**
+     * A share link whose feature is no longer on the plan (#3108).
+     *
+     * Everything else in this class addresses somebody inside the club, who
+     * can act on the answer — hence a plan name and a link to the account
+     * page. This one addresses an outside reader holding a URL somebody
+     * handed them: an assistant coach at another club, a physio, a parent.
+     * A plan name means nothing to them and the account page is not theirs
+     * to open, so this variant carries neither.
+     *
+     * What it must not do is 404. The recipient did nothing wrong, and a
+     * not-found page leaves them re-checking whether they mistyped
+     * something. It also must not name the record — the whole point of a
+     * link that no longer works is that its contents do not travel.
+     *
+     * Deliberately distinct from each surface's `renderShareNotFound()`:
+     * that wording is identical for a bad token and a missing record on
+     * purpose, so the page cannot be used as an oracle. A revoked link is
+     * not a probe and is safe to name as such.
+     */
+    public static function renderRevokedShareLink(): string {
+        self::enqueue();
+
+        ob_start();
+        ?>
+        <section class="tt-root tt-upgrade-panel tt-upgrade-panel--revoked" role="note">
+            <p class="tt-upgrade-panel__eyebrow">
+                <span class="tt-upgrade-panel__lock" aria-hidden="true">&#128274;</span>
+                <?php esc_html_e( 'Link no longer active', 'talenttrack' ); ?>
+            </p>
+            <h2 class="tt-upgrade-panel__title">
+                <?php esc_html_e( 'This share link has been switched off', 'talenttrack' ); ?>
+            </h2>
+            <p class="tt-upgrade-panel__body">
+                <?php esc_html_e( 'The club that sent you this link is no longer sharing documents outside the app. Nothing has been deleted and nothing has gone wrong at your end — the club still has everything it wrote. Ask them for what you need directly.', 'talenttrack' ); ?>
+            </p>
+        </section>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
      * The free-tier cap variant: not a plan refusal about a feature, a
      * refusal about a count. Same chrome, different sentence, so the two
      * read as one product rather than two.

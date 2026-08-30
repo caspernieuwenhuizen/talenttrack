@@ -26,6 +26,17 @@ final class FrontendMatchPrepShareView {
             return;
         }
 
+        // #3108 — at the router, not at the button that mints the link:
+        // gating the button leaves every link already in circulation
+        // working. Before the token resolves, so a revoked link says
+        // nothing about whether the record exists. See
+        // `UpgradePanel::renderRevokedShareLink()` for why this is not a
+        // 404 and why it names no plan.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'match_prep_sharing' ) ) {
+            echo \TT\Modules\License\UpgradePanel::renderRevokedShareLink(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
 

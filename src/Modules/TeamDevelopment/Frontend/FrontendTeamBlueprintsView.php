@@ -721,6 +721,17 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             self::renderSharedNotFound();
             return;
         }
+
+        // #3108 — sharing is Pro while `team_chemistry` (the board itself)
+        // is gated separately: a club that keeps its blueprints loses only
+        // the ability to hand them to people outside the app. At the
+        // router, so links already in circulation stop too, and before the
+        // token resolves, so a revoked link says nothing about the record.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'team_blueprints_sharing' ) ) {
+            echo \TT\Modules\License\UpgradePanel::renderRevokedShareLink(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
         if ( $uuid === '' || $token === '' ) {

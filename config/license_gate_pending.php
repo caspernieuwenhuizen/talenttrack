@@ -22,30 +22,26 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+/*
+ * #3108 closed the epic. Twenty-nine of the thirty Pro features are gated
+ * in `src/`; one entry remains, and it is here because the surface it names
+ * does not exist rather than because anybody forgot it.
+ *
+ * The list has done its job: from here `FeatureMapGateCoverageTest` is
+ * carrying the whole load on its own, which was the point. A new Pro
+ * feature either arrives with a gate or fails the build.
+ */
 return [
-    // Match day (#2704, #2892, #2855). The eight gated in #3105 are gone;
-    // the sharing and export halves ride on their own keys and land in
-    // slices 4 and 5.
-    'match_analysis_sharing'      => 'The signed share-link router',
-    'match_prep_sharing'          => 'The match-prep share-link router (#2892)',
-    'export_match_analysis_pdf'   => 'MatchAnalysisPrintRouter',
-    'export_match_prep_pdf'       => 'MatchPrepPrintRouter',
-    'export_match_day_team_sheet' => 'The team-sheet exporter',
-
     // Storage and bandwidth (#2589).
     //
-    // #3106 — `s3_backup` stays, and this is the reason rather than an
-    // oversight: **there is no object-storage destination to gate.**
+    // `s3_backup` stays, and this is the reason rather than an oversight:
+    // **there is no object-storage destination to gate.**
     // `BackupRunner::destinations()` returns Local and Email; the
     // `BackupDestinationInterface` docblock mentions `s3` as a future id
     // and nothing implements it. Gating a surface that does not exist
     // would be a call site pointing at nothing, and deleting the key would
     // let the destination ship ungated later, which is precisely what this
     // list exists to prevent. The gate lands in the same PR as the
-    // destination.
+    // destination — `OperatorCostGateTest` fails the day one appears.
     's3_backup'                   => 'No object-storage destination exists yet (BackupRunner::destinations() is Local + Email). The gate ships with the destination.',
-
-    // Squad construction. `team_chemistry` itself is gated; the sharing
-    // half rides on the same view and needs its own answer.
-    'team_blueprints_sharing'     => 'The blueprint share action',
 ];
