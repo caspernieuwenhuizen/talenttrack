@@ -174,10 +174,18 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
         ) );
         if ( ! $defs ) return 0;
 
+        // #3216 — `uniq_player_attr (player_id, attribute_def_id)` allows one
+        // value per player per definition, ever. `$this->players` is this
+        // batch's when the operator generated players and the club's whole
+        // roster when they unchecked Players to build on an existing squad;
+        // the second path meets players a previous run already scored.
+        $already = $this->playersWithAttributeValues();
+
         $total = 0;
         foreach ( $this->players as $p ) {
             $player_id = (int) ( $p->id ?? 0 );
             if ( $player_id <= 0 ) continue;
+            if ( isset( $already[ $player_id ] ) ) continue;
 
             // A per-player baseline keeps one player consistently stronger
             // than another across every attribute, with per-group tilt on
@@ -253,6 +261,11 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             $total++;
         }
 
+        $filled = [];
+        foreach ( $field_ids as $fid ) {
+            $filled[ (int) $fid ] = $this->playersWithCustomValue( (int) $fid );
+        }
+
         foreach ( $this->players as $p ) {
             $player_id = (int) ( $p->id ?? 0 );
             if ( $player_id <= 0 ) continue;
@@ -266,6 +279,9 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             foreach ( $values as $key => $value ) {
                 $field_id = (int) ( $field_ids[ $key ] ?? 0 );
                 if ( $field_id <= 0 ) continue;
+                // #3216 — one value per (player, field); see the note above
+                // `playersWithCustomValue()`.
+                if ( isset( $filled[ $field_id ][ $player_id ] ) ) continue;
 
                 $wpdb->insert( "{$wpdb->prefix}tt_custom_values", [
                     'club_id'     => CurrentClub::id(),
@@ -282,6 +298,42 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * Player ids that already carry at least one attribute value (#3216),
+     * as a set so the loop is one lookup rather than one query per player.
+     *
+     * @return array<int, true>
+     */
+    private function playersWithAttributeValues(): array {
+        global $wpdb;
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT player_id FROM {$wpdb->prefix}tt_player_attribute_values WHERE club_id = %d",
+            CurrentClub::id()
+        ) );
+        $out = [];
+        foreach ( (array) $ids as $id ) $out[ (int) $id ] = true;
+        return $out;
+    }
+
+    /**
+     * Player ids that already carry a value for this custom field (#3216) —
+     * `uniq_entity_field (entity_type, entity_id, field_id)`.
+     *
+     * @return array<int, true>
+     */
+    private function playersWithCustomValue( int $field_id ): array {
+        global $wpdb;
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT entity_id FROM {$wpdb->prefix}tt_custom_values
+              WHERE entity_type = 'player' AND field_id = %d AND club_id = %d",
+            $field_id,
+            CurrentClub::id()
+        ) );
+        $out = [];
+        foreach ( (array) $ids as $id ) $out[ (int) $id ] = true;
+        return $out;
     }
 
     /**
