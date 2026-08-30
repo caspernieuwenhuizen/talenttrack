@@ -1,0 +1,30 @@
+# Fixture for #3245 — a duplicate that the BASE also has.
+#
+# This is the shape the check used to call OK. `main` carried two duplicated
+# msgids after an i18n-sync msgmerge re-added strings a PR had hand-written,
+# msgfmt refused the catalogue, and every branch inherited the pair — so the
+# differential comparison found nothing "introduced" and reported
+# `OK — (2 duplicated)` on all of them.
+#
+# The verdict is absolute now: a duplicated (msgctxt, msgid) pair is fatal
+# wherever it came from, because msgfmt does not care whose fault it is.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/A.php:1
+msgid "Inherited from main"
+msgstr "Overgenomen van main"
+
+#: src/B.php:2
+msgid "Something else entirely"
+msgstr "Iets heel anders"
+
+# The second copy. On the real catalogue this is where msgmerge placed its
+# own version of a string somebody had already hand-added further down.
+#: src/C.php:3
+msgid "Inherited from main"
+msgstr "Overgenomen van main"

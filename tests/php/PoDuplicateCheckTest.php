@@ -122,6 +122,49 @@ final class PoDuplicateCheckTest extends WP_UnitTestCase {
     }
 
     /**
+     * #3245 — a duplicate the base also has is still a duplicate.
+     *
+     * This is the shape that let `main` sit red: the check compared against
+     * a base that carried the same pair, found nothing "introduced", and
+     * reported `OK — (2 duplicated)` on every branch while `msgfmt` refused
+     * the file. The verdict is absolute now.
+     *
+     * Run WITH a base that contains the same duplicate, which is the exact
+     * situation — the fixture is its own base.
+     */
+    public function test_a_duplicate_the_base_also_has_still_fails(): void {
+        $fixture = 'tests/fixtures/po/inherited-duplicate.po';
+
+        $cmd = sprintf(
+            '%s %s --file=%s --base=',
+            escapeshellarg( PHP_BINARY ),
+            escapeshellarg( $this->root() . '/tools/check-po-duplicates.php' ),
+            escapeshellarg( $fixture )
+        );
+
+        $out    = [];
+        $status = 0;
+        exec( $cmd . ' 2>&1', $out, $status );
+        $output = implode( "\n", $out );
+
+        $this->assertSame( 1, $status, "A duplicated msgid must fail. Output:\n" . $output );
+        $this->assertStringContainsString( 'msgfmt refuses this file', $output );
+        $this->assertStringContainsString( 'Inherited from main', $output );
+    }
+
+    /** The pass line must not report a duplicate count it is tolerating. */
+    public function test_the_pass_line_never_reports_duplicates(): void {
+        $result = $this->check( 'clean.po' );
+
+        $this->assertSame( 0, $result['status'] );
+        $this->assertStringNotContainsString(
+            'duplicated',
+            $result['output'],
+            'An OK line carrying a non-zero duplicate count is what made the red main readable as green.'
+        );
+    }
+
+    /**
      * The real catalogues, checked without a base comparison so nothing is
      * excused by "main had it too". This is the assertion that would have
      * caught a regression teaching the tool to over-report — the ~27

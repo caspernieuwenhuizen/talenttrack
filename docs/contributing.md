@@ -224,6 +224,10 @@ It reported OK on four branches in one drain that then failed `i18n-pr-check` on
 
 Each of those cases has a fixture under `tests/fixtures/po/` and an assertion in `tests/php/PoDuplicateCheckTest.php`, so the blind spots cannot quietly come back. `clean.po` is the important one: it holds every shape a stricter check would wrongly flag.
 
+**The verdict is absolute; only the explanation is comparative.** A duplicated `(msgctxt, msgid)` pair fails the check wherever it came from, because `msgfmt` refuses the file either way. The output still says how many you introduced and how many were already on `main`, which is useful for knowing whose fix it is — but it is not what decides the exit code, and a passing run never reports a duplicate count.
+
+That distinction is the point: the check used to fail only on duplicates `main` did not already have, so when `main` itself went red every branch inherited the pair, found nothing "introduced", and reported OK. On a machine without `msgfmt` — the normal case here — that OK was the only signal available. If this check passes, the catalogue compiles; you do not need `msgfmt` locally to trust it.
+
 **When it fires, rebuild rather than hand-delete:**
 
 ```
