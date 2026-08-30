@@ -19,14 +19,14 @@ use TT\Modules\MatchPrep\Rest\MatchPrepRestController;
  * views it links to, and the two REST controllers behind them, did not.
  * All five now ask `ActivityTeamScope`.
  *
- * Named for the surfaces rather than the helper so the file sorts after
- * `DemoRunChunkingTest`. That test compares a single generator pass against a
- * stepped one, and both passes read every activity in the club — so a test
- * file that runs before it and touches `tt_activities` changes what it sees.
- * Filed as its own issue; this class works either way and there is no reason
- * to make that fragility this PR's problem.
+ * This file was named `MatchDayActivityScopeTest` for one release so that it
+ * would sort *after* `DemoRunChunkingTest`, whose generator comparison read
+ * every activity in the club and so changed answer if a test file that wrote
+ * to `tt_activities` ran first. #3184 scoped those generators to the batch
+ * they write, so the ordering constraint is gone and the name is back to
+ * describing the helper under test.
  */
-final class MatchDayActivityScopeTest extends WP_UnitTestCase {
+final class ActivityTeamScopeTest extends WP_UnitTestCase {
 
     private int $mineTeamId    = 0;
     private int $otherTeamId   = 0;

@@ -251,6 +251,15 @@ class KnowledgeGenerator implements DependentGeneratorInterface {
     private function staffPeople(): array {
         global $wpdb;
 
+        // #3184 — club-wide on purpose. Courses are taken by the club's
+        // staff, and the batch does not necessarily create any: `gen_people`
+        // is an operator switch, and with it off the people already on the
+        // install are the only learners there are. Scoping this to the batch
+        // would leave the Knowledge module empty on exactly the run that
+        // generates onto an existing academy.
+        //
+        // A second run re-enrolling the same staff is refused by
+        // `uk_enrolment_lesson` rather than duplicated.
         $ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_people
               WHERE club_id = %d AND archived_at IS NULL

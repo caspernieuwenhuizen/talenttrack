@@ -136,16 +136,22 @@ what needs the steps.
 
 ## Generating twice into the same club
 
-A second run adds to what is already there rather than replacing it, and a few
-categories work from the whole club rather than only from the batch they are
-writing — match analyses read every played match, staff development reads every
-person. Those skip whatever a previous run already covered: a match that
-already has an analysis does not get a second one, and a coach who already has
-a staff development file does not get a second file.
+A second run adds to what is already there rather than replacing it. Each run
+now builds its own academy: the matches it analyses and the trainings it
+observes are the ones that run created, so a second run into a populated club
+produces a full academy rather than a thinner one. It used to report lower
+counts the second time, which read as a failure and was in fact the categories
+looking at the whole club and skipping whatever the first run had covered.
 
-So the second run's counts are legitimately lower than the first's. That is the
-categories reporting what they wrote, not a failure. If you want a fresh
-academy rather than more of the same one, **wipe first, then generate**.
+Two categories still work from the whole club, and deliberately: **staff
+development** and **knowledge courses** are about the people your academy
+employs, and those may already exist rather than having been generated. Running
+twice does not give a coach a second staff development file or a second
+enrolment; those skip what is already there, so their counts can be lower on
+the second run.
+
+If you want a fresh academy rather than more of the same one, **wipe first,
+then generate**.
 
 ## Choosing what to generate
 
