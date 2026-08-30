@@ -240,6 +240,14 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
      * @return list<object>
      */
     protected function rows( AlertContext $context ): array {
+        // #3243 — an academy that has switched potential capture off has
+        // decided not to maintain it. Telling them it has gone stale is
+        // nagging about work they have deliberately stopped doing, and it
+        // would fire for every player at once. The feature flag alone: the
+        // capability half of `potentialCaptureAvailable()` is per-user and
+        // this runs in a sweep with no user.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'potential_rating' ) ) return [];
+
         global $wpdb;
         $p     = $wpdb->prefix;
         $stale = $this->threshold( self::CONFIG_KEY_STALE_DAYS, self::DEFAULT_STALE_DAYS );

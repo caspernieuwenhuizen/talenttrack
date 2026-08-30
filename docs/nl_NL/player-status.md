@@ -71,6 +71,21 @@ Twee keer naar beneden bijstellen in één seizoen is waar dit voor bedoeld is. 
 
 `GET /players/{id}/potential` geeft dezelfde reeks terug voor een koppeling, met de huidige band erbij.
 
+## Gedrag of potentieel uitzetten
+
+Niet elke academie werkt zo, en je hoeft geen van beide te gebruiken. Er zijn **drie** schakelaars, en ze beantwoorden drie verschillende vragen — wie er helemaal mee wil stoppen, wil meestal alle drie.
+
+| Vraag | Waar | Wat het doet |
+| --- | --- | --- |
+| Leggen we dit überhaupt vast? | **Modules en functies** → *Gedragsbeoordeling* / *Potentieelbeoordeling* | Stopt nieuwe invoer en verbergt de ingangen — de knop op het spelersprofiel, de betreffende helft van het invoerscherm, en (bij gedrag) de stap in de evaluatiewizard en het bulkscherm per team. |
+| Telt het mee in het stoplicht? | **Methodiek spelersstatus** → het vinkje *ingeschakeld* bij die input | Haalt de input uit de berekening. De overige inputs worden opnieuw gewogen, zodat de status niet omlaag wordt getrokken door iets wat ontbreekt. |
+| Krijgen we er een herinnering over? | **Meldingenbeleid** → *Potentieel niet herzien* → *geforceerd uit* | Zet de herinnering voor de hele club uit. |
+
+Twee dingen om te weten voordat je iets omzet:
+
+- **Wat al is vastgelegd blijft altijd bewaard.** Invoer uitzetten verwijdert of verbergt niets: de band op een profiel, het verloop van het potentieel en elke gedragsbeoordeling blijven gewoon leesbaar zoals ze waren, en verschijnen weer in de formulieren zodra je het terugzet. Uit betekent *vraag ons hier niet meer om*, niet *verberg wat we al hebben bepaald*.
+- **Invoer uitzetten zet ook de herinnering over potentieel stil**, dus je hoeft het meldingenscherm er niet bij te zoeken. Het haalt de input **niet** uit het stoplicht — dat is een aparte keuze, want een academie kan willen stoppen met nieuwe bands vastleggen terwijl de laatste nog wel meetelt.
+
 ## Rechten
 
 - `tt_view_player_status` — zie de kleur. Geldt voor elke rol die spelers mag bekijken.
