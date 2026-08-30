@@ -57,3 +57,23 @@ Coaches and HoD see the full breakdown (the four input scores + the threshold re
 - `tt_view_player_status_breakdown` — see the input scores + reasons. Coaches + HoD; **not** parents.
 - `tt_rate_player_behaviour` — log a behaviour observation. Coaches + HoD.
 - `tt_set_player_potential` — set a potential band. HoD-only by default.
+
+### …and the capability is only half the answer
+
+Each of those says what kind of thing you may do. **Which** players you may do
+it to is your team scope, and the status routes now ask both.
+
+- Reading one player's status asks the same question the player's profile
+  asks, so a parent reads their own child and nobody else's, and a coach reads
+  their own squads.
+- Reading a whole team's statuses asks whether you may read that team's player
+  statuses — scoped on player status, not on teams, so a Head of Development
+  granted academy-wide status read still gets every board.
+- Logging a behaviour observation asks whether you may edit that player. The
+  roles that hold `tt_rate_player_behaviour` already could, for their own
+  players; what changes is that the write can no longer land on a child
+  outside the coach's squads.
+
+Setting a potential band is unchanged: its capability goes only to Head of
+Development, Club Admin and administrator — academy-wide roles by design, for
+whom "any player" is the correct scope.

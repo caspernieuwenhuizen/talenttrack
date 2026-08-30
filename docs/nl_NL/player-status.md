@@ -57,3 +57,23 @@ Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores 
 - `tt_view_player_status_breakdown` — zie de deelscores + redenen. Coaches + HO; **niet** voor ouders.
 - `tt_rate_player_behaviour` — leg een gedragsobservatie vast. Coaches + HO.
 - `tt_set_player_potential` — bepaal het potentieelniveau. Standaard alleen HO.
+
+### …en het recht is maar de helft van het antwoord
+
+Elk van die rechten zegt wát je mag doen. **Bij welke** spelers je dat mag doen
+is je teambereik, en de statusroutes stellen nu allebei die vragen.
+
+- De status van één speler lezen stelt dezelfde vraag als het spelersdossier,
+  dus een ouder leest het eigen kind en niemand anders, en een trainer de eigen
+  selecties.
+- De statussen van een heel team lezen vraagt of je de spelerstatussen van dát
+  team mag lezen — afgebakend op spelerstatus, niet op teams, zodat een Hoofd
+  Ontwikkeling met academiebrede statusleesrechten nog steeds elk bord krijgt.
+- Een gedragsobservatie vastleggen vraagt of je die speler mag bewerken. De
+  rollen met `tt_rate_player_behaviour` konden dat al voor hun eigen spelers;
+  wat verandert is dat de vastlegging niet meer op een kind buiten de eigen
+  selecties kan belanden.
+
+Het potentieelniveau bepalen verandert niet: dat recht gaat alleen naar Hoofd
+Ontwikkeling, Clubbeheerder en beheerder — academiebrede rollen waarvoor "elke
+speler" het juiste bereik is.
