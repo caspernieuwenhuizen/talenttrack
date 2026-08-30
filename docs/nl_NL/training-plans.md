@@ -63,6 +63,40 @@ nieuwe versie en blijft elk plan dat de oude gebruikte ongemoeid.
 Je kunt een plan dus rustig blijven verbeteren zonder je eigen geschiedenis te
 beschadigen.
 
+## Een plan publiceren
+
+Een plan waar je nog aan werkt en een plan dat je trainers moeten lezen zien er
+in de lijst hetzelfde uit. **Publiceren** is hoe je die uit elkaar houdt, en hoe
+de trainers het te horen krijgen.
+
+Op de pagina van een plan zie je of het gepubliceerd is. Klik op **Publiceren en
+de trainers informeren** en er gaat een bericht naar de hoofdtrainers voor wie
+het plan bedoeld is — die van het ene team als het plan een team noemt, of die
+van alle teams bij een clubbreed plan. In het bericht staan de titel van het
+plan, waar het over gaat, en een link er rechtstreeks naartoe.
+
+Drie dingen om te weten:
+
+- **Publiceren kondigt aan; het zet niets vast.** Het plan blijft daarna gewoon
+  aanpasbaar. Een typefout herstellen, een oefening wisselen, de tijden
+  bijstellen — daar gaat niets van uit, en het plan blijft gepubliceerd.
+- **Trainers worden één keer geïnformeerd.** Nog een keer op Publiceren drukken
+  bij een al gepubliceerd plan doet niets. Je kunt dezelfde aankondiging dus
+  niet per ongeluk twee keer versturen.
+- **Depubliceren is voor een vergissing, niet om iets terug te halen.** Het
+  haalt de publicatiemarkering weg zodat je het plan terugzet naar je eigen
+  concepten. Er gaat niets uit, en een bericht dat al verstuurd is haal je er
+  niet mee terug. Opnieuw publiceren is daarna een nieuwe aankondiging en
+  verstuurt dus wél.
+
+Sjablonen kun je niet publiceren. Een sjabloon is bibliotheekmateriaal — er
+hoort geen selectie bij en er is geen trainer om te informeren.
+
+Of het bericht ook echt aankomt, bepaalt de berichtenschakelaar en niet het
+plan: staat **Methodiek / activiteitsplan geleverd** bij jullie academie uit,
+dan markeert publiceren het plan gewoon en verstuurt het niets. Zie
+[Berichten](comms.md).
+
 ## Archiveren
 
 Archiveren haalt een plan uit de actieve lijst. Het raakt de al uitgevoerde

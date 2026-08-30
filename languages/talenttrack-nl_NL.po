@@ -59033,6 +59033,56 @@ msgctxt "player profile row label — the recorded potential band"
 msgid "Potential"
 msgstr "Potentieel"
 
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:394
+msgid "Not published yet. The coaches have not been told about this plan."
+msgstr ""
+"Nog niet gepubliceerd. De trainers weten nog niet van dit plan."
+
+#. translators: %s: date and time the plan was published
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:381
+#, php-format
+msgid "Published on %s. The coaches have been told."
+msgstr "Gepubliceerd op %s. De trainers zijn geïnformeerd."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:398
+msgid "Publish and tell the coaches"
+msgstr "Publiceren en de trainers informeren"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:401
+msgid ""
+"Sends a message to the head coaches this plan is for. The plan stays "
+"editable afterwards, and editing it does not send anything again."
+msgstr ""
+"Stuurt een bericht naar de hoofdtrainers voor wie dit plan bedoeld is. Het "
+"plan blijft daarna gewoon aanpasbaar, en aanpassen verstuurt niets opnieuw."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:389
+msgid "Unpublish"
+msgstr "Depubliceren"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:391
+msgid ""
+"Clears the published mark so you can correct a mistaken publish. It does "
+"not send anything, and it cannot unsend what has already gone out."
+msgstr ""
+"Haalt de publicatiemarkering weg zodat je een verkeerde publicatie kunt "
+"herstellen. Er gaat niets uit, en een bericht dat al verstuurd is haal je er "
+"niet mee terug."
+
+#: src/Modules/Comms/Send/MethodologyDeliveredSend.php:120
+msgid "See the plan for what this session is working on."
+msgstr "Bekijk het plan voor waar deze training aan werkt."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:437
+msgid "A template is library material — there are no coaches to tell about it."
+msgstr ""
+"Een sjabloon is bibliotheekmateriaal — er zijn geen trainers om over te "
+"informeren."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:443
+msgid "The plan could not be published."
+msgstr "Het plan kon niet worden gepubliceerd."
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 

@@ -236,6 +236,11 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             [ FrontendBreadcrumbs::viewCrumb( 'training-plans', __( 'Training', 'talenttrack' ) ) ]
         );
 
+        // #3220 — publish / unpublish. Handled before the plan is
+        // re-rendered so the badge and the button agree with what just
+        // happened.
+        $plan = self::handlePublishPost( $plan );
+
         $building = self::isBuildMode();
 
         self::renderHeader( (string) $plan->title, self::pageActionsHtml( self::detailActions( $id, $building ) ) );
@@ -250,9 +255,104 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         $runs   = ( new TrainingPlanRunsRepository() )->listForPlan( $id );
 
         self::renderSummary( $plan, $blocks );
+        self::renderPublishControl( $plan );
         self::renderTimeline( $blocks, (int) $plan->total_duration_minutes );
         self::renderBlocks( $blocks );
         self::renderRuns( $runs );
+    }
+
+    /**
+     * #3220 — publish / unpublish a plan.
+     *
+     * Its own single-purpose form, outside anything else on the page, and
+     * never a field on another save (CLAUDE.md §6): publishing mails every
+     * head coach in scope, and an announcement is not something to fire as
+     * a side effect of a record update.
+     *
+     * Re-reads the plan afterwards so the badge and the button reflect the
+     * write rather than the state the page was loaded with.
+     */
+    private static function handlePublishPost( object $plan ): object {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return $plan;
+
+        $action = isset( $_POST['tt_plan_publish_action'] )
+            ? sanitize_key( wp_unslash( (string) $_POST['tt_plan_publish_action'] ) )
+            : '';
+        if ( $action !== 'publish' && $action !== 'unpublish' ) return $plan;
+
+        $id = (int) ( $plan->id ?? 0 );
+
+        if ( ! isset( $_POST['tt_plan_publish_nonce'] )
+             || ! wp_verify_nonce(
+                 sanitize_text_field( wp_unslash( (string) $_POST['tt_plan_publish_nonce'] ) ),
+                 'tt_plan_publish_' . $id
+             )
+        ) {
+            return $plan;
+        }
+
+        // The same capability the REST verb asks. A coach who can read a
+        // plan is not thereby able to announce one.
+        if ( ! current_user_can( 'tt_training_plan' ) ) return $plan;
+
+        $repo = new TrainingPlansRepository();
+        if ( $action === 'publish' ) {
+            $repo->publish( $id );
+        } else {
+            $repo->unpublish( $id );
+        }
+
+        return $repo->findById( $id ) ?? $plan;
+    }
+
+    /**
+     * The publish control and what it will do.
+     *
+     * The sentence above the button is the confirmation: this view carries
+     * no script, so there is no dialog to raise, and a labelled
+     * single-purpose control that states its consequence is what §6 asks
+     * for. A JS confirm is worth adding whenever this surface gains a
+     * script.
+     */
+    private static function renderPublishControl( object $plan ): void {
+        if ( ! empty( $plan->is_template ) ) return;
+        if ( ! current_user_can( 'tt_training_plan' ) ) return;
+
+        $id        = (int) ( $plan->id ?? 0 );
+        $published = ! empty( $plan->published_at );
+
+        echo '<form method="post" class="tt-training-publish">';
+        wp_nonce_field( 'tt_plan_publish_' . $id, 'tt_plan_publish_nonce' );
+
+        if ( $published ) {
+            echo '<p class="tt-training-publish__state">'
+                . esc_html(
+                    sprintf(
+                        /* translators: %s: date and time the plan was published */
+                        __( 'Published on %s. The coaches have been told.', 'talenttrack' ),
+                        (string) $plan->published_at
+                    )
+                )
+                . '</p>';
+            echo '<input type="hidden" name="tt_plan_publish_action" value="unpublish">';
+            echo '<button type="submit" class="tt-btn tt-btn-secondary">'
+                . esc_html__( 'Unpublish', 'talenttrack' ) . '</button>';
+            echo '<span class="tt-field-hint">'
+                . esc_html__( 'Clears the published mark so you can correct a mistaken publish. It does not send anything, and it cannot unsend what has already gone out.', 'talenttrack' )
+                . '</span>';
+        } else {
+            echo '<p class="tt-training-publish__state">'
+                . esc_html__( 'Not published yet. The coaches have not been told about this plan.', 'talenttrack' )
+                . '</p>';
+            echo '<input type="hidden" name="tt_plan_publish_action" value="publish">';
+            echo '<button type="submit" class="tt-btn tt-btn-primary">'
+                . esc_html__( 'Publish and tell the coaches', 'talenttrack' ) . '</button>';
+            echo '<span class="tt-field-hint">'
+                . esc_html__( 'Sends a message to the head coaches this plan is for. The plan stays editable afterwards, and editing it does not send anything again.', 'talenttrack' )
+                . '</span>';
+        }
+
+        echo '</form>';
     }
 
     private static function isBuildMode(): bool {

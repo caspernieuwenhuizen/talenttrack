@@ -247,6 +247,77 @@ final class TrainingPlansRepository {
     }
 
     /** Soft-delete. The plan's runs are untouched — history is theirs. */
+    /**
+     * Publish a plan — tell the coaches it is ready to read.
+     *
+     * #3220. Edge-triggered on purpose: `tt_training_plan_published` fires
+     * only on the unpublished → published transition, so a coach is told
+     * once and not again every time somebody fixes a typo. Re-publishing an
+     * already-published plan is a no-op that reports success, because from
+     * the caller's point of view the plan is published either way.
+     *
+     * Publishing announces; it does not lock. The plan stays editable, as
+     * migration 0213 designed it.
+     *
+     * Templates are not publishable — `is_template` rows are library
+     * material, and there are no coaches to tell about one.
+     *
+     * @return bool Whether the plan is published after this call.
+     */
+    public function publish( int $id ): bool {
+        if ( $id <= 0 ) return false;
+
+        $plan = $this->findById( $id );
+        if ( ! $plan ) return false;
+        if ( ! empty( $plan->is_template ) ) return false;
+
+        // Already published: nothing to write, nothing to announce.
+        if ( ! empty( $plan->published_at ) ) return true;
+
+        global $wpdb;
+        $ok = $wpdb->update(
+            $this->table(),
+            [ 'published_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        if ( $ok === false ) return false;
+
+        /**
+         * A plan has been published for the first time.
+         *
+         * Announced here rather than from the callers — the REST route and
+         * the plans view both publish, and an event only some callers emit
+         * is worse than none. That is the lesson #3130 wrote down for
+         * `tt_trial_started` and #3081 for cancellations.
+         *
+         * @param int $plan_id The plan now published.
+         * @param int $club_id The club it belongs to.
+         */
+        do_action( 'tt_training_plan_published', $id, (int) CurrentClub::id() );
+
+        return true;
+    }
+
+    /**
+     * Clear the published stamp.
+     *
+     * Announces nothing. Its purpose is to correct a mistaken publish, not
+     * to withdraw a plan the coaches have already read — and there is no
+     * honest message for "ignore what we told you an hour ago".
+     * Re-publishing afterwards fires the hook again, which is the right
+     * behaviour: it is a fresh announcement.
+     */
+    public function unpublish( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        global $wpdb;
+        $ok = $wpdb->update(
+            $this->table(),
+            [ 'published_at' => null ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
     public function archive( int $id ): bool {
         if ( $id <= 0 ) return false;
         global $wpdb;
