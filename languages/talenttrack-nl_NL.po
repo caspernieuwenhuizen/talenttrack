@@ -59242,6 +59242,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is the unrecognised custom-field type.
+#: src/Shared/Validation/CustomFieldValidator.php:400
+#, php-format
+msgid "Unknown field type: %s"
+msgstr "Onbekend veldtype: %s"
+
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:160
 msgid ""
 "Attitude, effort and how the player is to work with. It feeds their status "
@@ -59336,11 +59342,6 @@ msgstr "Voor het laatst vastgelegd %d dagen geleden."
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:469
 msgid "Due a look."
 msgstr "Tijd om er weer naar te kijken."
-#. translators: %s is the unrecognised custom-field type.
-#: src/Shared/Validation/CustomFieldValidator.php:400
-#, php-format
-msgid "Unknown field type: %s"
-msgstr "Onbekend veldtype: %s"
 
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
