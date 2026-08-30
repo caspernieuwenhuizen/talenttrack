@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T13:16:09+00:00\n"
+"POT-Creation-Date: 2026-08-30T13:23:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1520,7 +1520,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:639
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:682
 #: src/Shared/Frontend/DashboardShortcode.php:1323
 msgid "Player not found."
 msgstr ""
@@ -4239,16 +4239,16 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
 #: src/Modules/Spond/SpondSync.php:79
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:273
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:302
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:343
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:363
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:463
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:521
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:589
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:606
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:685
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:696
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:316
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:345
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:386
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:406
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:506
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:564
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:632
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:649
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:728
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:739
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:41
 msgid "Team not found."
 msgstr ""
@@ -38366,126 +38366,126 @@ msgid "Expected a weights map."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:192
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:612
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:655
 msgid "Pick two different players."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:307
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:350
 msgid "formation_template_id is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:316
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:712
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:359
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:755
 msgid "Formation template not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:335
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:378
 msgid "The formation could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:370
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:413
 msgid "Possession + counter + press must sum to 100."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:393
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:436
 msgid "The style blend could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:480
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:523
 msgid "No formation template available. Run migrations to seed defaults."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:541
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:584
 msgid "No formation template available."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:618
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:661
 msgid "Could not save the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:626
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:669
 msgid "Invalid pairing id."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:630
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:673
 msgid "Could not delete the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:703
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:746
 msgid "Name and formation are required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:720
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:763
 msgid "The blueprint could not be created."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:731
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:895
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:919
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:935
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:956
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1130
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1185
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:774
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:938
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:962
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:978
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:999
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1173
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1228
 msgid "Blueprint not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:899
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:960
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1134
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:942
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1003
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1177
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:907
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:950
 msgid "Nothing to update."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:940
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:983
 msgid "Give the cloned blueprint a name."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:945
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:988
 msgid "Could not duplicate the blueprint."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:966
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1009
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:997
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1040
 msgid "Failed to save the assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1076
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1119
 msgid "ref.player_id is missing or non-numeric for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1082
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1125
 msgid "ref.player_id must be a positive integer for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1091
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1134
 msgid "ref.name is required for a guest assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1104
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1147
 msgid "ref.label is required for a custom assignment."
 msgstr ""
 
 #. translators: %s = unknown ref kind
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1112
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1155
 #, php-format
 msgid "Unknown ref.kind: %s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1139
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1182
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1174
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1217
 msgid "Failed to save the lineup."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1191
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1234
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
