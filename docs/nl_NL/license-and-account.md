@@ -109,6 +109,32 @@ De regel over media is de vorm van het geheel: *de club houdt elke foto die
 hij heeft, en kan er geen bij doen.* Verwijderen wordt nooit geweigerd om
 een abonnement — de foto van een kind weghalen is een plicht, geen functie.
 
+### Kanalen en koppelingen
+
+Deze kosten geld bij elk gebruik, dus ze zijn geprijsd en ze weigeren precies
+daar waar ze anders zouden uitgeven.
+
+| Functie | Standard kan wel | Standard kan niet |
+| - | - | - |
+| **Sms** | Versturen via e-mail, in-app en WhatsApp-links | Sms als kanaal gebruiken — het staat niet eens in de kanaalkeuze |
+| **Pushmeldingen** | Dezelfde meldingen per e-mail ontvangen | Ze als telefoon-push laten bezorgen |
+| **Geplande verzendingen** | Elk bericht dat door een gebeurtenis komt — uitnodigingen, accountmail, alles wat een klik veroorzaakt | De vier dagelijkse herinneringen (doel, aanwezigheid, inactieve ouder, stafgesprek) |
+| **Foto naar plan** | Een trainingsplan met de hand bouwen, zoals altijd | Een gefotografeerd plan laten uitlezen |
+| **Spond** | Elke al geïmporteerde wedstrijd lezen — het zijn gewone activiteiten | Opnieuw synchroniseren |
+| **Strava** | Elke al gedeelde activiteit lezen op het spelersdossier | Nog een speler koppelen |
+| **Back-up naar objectopslag** | Back-ups lokaal en per e-mail | Een S3-achtige bestemming *(nog niet gebouwd)* |
+
+Twee hiervan draaien op de achtergrond, waar niemand meekijkt, dus een
+weigering wordt **opgeschreven** in plaats van getoond: de geweigerde
+geplande verzending staat per herinnering in het gezondheidsoverzicht van het
+berichtenlog, en een geweigerde Spond-synchronisatie staat in de synchronisatie-
+historie van dat team. Beide noemen het pakket, zodat het leest als een vraag
+over het abonnement en niet als iets dat stuk is.
+
+Er wordt niets aangeraakt van wat al geïmporteerd is. Spond-wedstrijden en
+Strava-activiteiten blijven precies staan, leesbaar en exporteerbaar, en doen
+het weer zodra het abonnement verandert.
+
 ## Gebruikslimieten
 
 Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.

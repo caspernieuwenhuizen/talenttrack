@@ -215,6 +215,19 @@ final class StravaRestController {
     public static function connect( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
 
+        // #3106 — Strava is Pro. The gate goes on the connect flow rather
+        // than on the reads: activities a player already shared stay
+        // readable on their record (#3017's third decision), and a
+        // connection already made keeps working until it is disconnected.
+        // What an out-of-plan install cannot do is mint a new authorize URL
+        // and start another ingest.
+        //
+        // Ahead of the consent write below: refusing after recording a
+        // consent the club cannot act on would leave a child's record
+        // saying they agreed to a connection that was never offered.
+        $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'strava_integration' );
+        if ( $blocked ) return $blocked;
+
         if ( ! StravaConfig::hasCredentials() ) {
             return RestResponse::error(
                 'strava_not_configured',

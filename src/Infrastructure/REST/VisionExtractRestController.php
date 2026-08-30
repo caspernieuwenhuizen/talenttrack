@@ -76,6 +76,15 @@ final class VisionExtractRestController {
     }
 
     public static function extract( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3106 — every extraction is a billed call to a vision model on
+        // the operator's account, so the refusal comes before anything
+        // reads the image, and before the region check below: an install
+        // that is not on the plan cannot make the call whatever its region
+        // is configured to. 402, not the permission callback's 403 — the
+        // plan said no, not the capability model.
+        $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'exercises_vision_extraction' );
+        if ( $blocked ) return $blocked;
+
         // #2695 — the destination check comes FIRST, before we even
         // look for an image. It is a property of the install, not of
         // the request: answering "no image" to a site that could not
