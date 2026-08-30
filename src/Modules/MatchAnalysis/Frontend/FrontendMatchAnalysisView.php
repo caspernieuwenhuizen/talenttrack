@@ -75,6 +75,20 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             return;
         }
 
+        // #3151 — this surface names every player on the roster and quotes
+        // the staff notes written about them, and `tt_view_activities` is
+        // club-wide. Refuse before the composer reads any of it. An id that
+        // resolves to no activity falls through, so the composer's own
+        // "not a match activity" notice keeps saying the accurate thing.
+        $scoped_team_id = \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity( $activity_id );
+        if ( $scoped_team_id !== null
+             && ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, $scoped_team_id, $is_admin )
+        ) {
+            self::renderBreadcrumbs( null );
+            echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
+            return;
+        }
+
         $composer = new MatchAnalysisComposer();
         $payload  = $composer->forActivity( $activity_id, false );
         if ( $payload === null ) {

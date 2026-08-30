@@ -69,20 +69,46 @@ class MatchPrepRestController {
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_role' ],
-                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_role' ],
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role/(?P<role_key>[a-z_]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_role' ],
-                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_role' ],
             ],
         ] );
     }
 
-    public static function can_edit(): bool {
-        return current_user_can( 'tt_edit_activities' );
+    /**
+     * #3151 — `tt_edit_activities` is club-wide, so on its own it let any
+     * coach rewrite any team's match plan. The activity's team decides,
+     * through the helper the match-day views share.
+     *
+     * A refusal here is 403: the capability model said no, not the plan.
+     */
+    public static function can_edit( \WP_REST_Request $r ): bool {
+        if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+            get_current_user_id(),
+            absint( $r['activity_id'] )
+        );
+    }
+
+    /**
+     * The role routes are keyed by `prep_id` — the role row belongs to the
+     * match-prep aggregate, not to the activity — so resolve the activity
+     * behind the prep and ask the same question of it.
+     */
+    public static function can_edit_role( \WP_REST_Request $r ): bool {
+        if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
+        $prep = ( new MatchPrepRepository() )->find( absint( $r['prep_id'] ) );
+        if ( ! $prep ) return false;
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+            get_current_user_id(),
+            (int) ( $prep->activity_id ?? 0 )
+        );
     }
 
     public static function put( \WP_REST_Request $r ): \WP_REST_Response {

@@ -32,6 +32,11 @@ You do **not** need a match plan or a live-match record. A game you ran off
 a paper team sheet gets the same analysis; there is simply nothing to
 pre-fill.
 
+And only for teams you coach. The analysis names every player and quotes
+what they were told, so it opens for the coaches of the team that played
+— plus Academy Admin and Head of Development, who see every team.
+Anyone else opening the URL gets *You do not coach this activity's team.*
+
 ## What you write
 
 ### Overall

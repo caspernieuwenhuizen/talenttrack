@@ -280,6 +280,18 @@ Sharing can be switched off entirely for the academy under **Modules and
 features**, separately from match-analysis sharing. Writing and printing the plan
 are unaffected.
 
+## Who can open it
+
+The plan belongs to the team playing the match. You can open — and
+change — match preparation for matches of teams you coach. Opening the
+URL of a match belonging to a team you do not coach answers *You do not
+coach this activity's team.* Academy Admin and Head of Development see
+every team, as they do everywhere else.
+
+The same rule holds for the share link and the role assignments: both
+are decided by the plan's own team, not by holding a coaching role
+somewhere in the academy.
+
 ## What you can't do here
 
 - Edit the roster (add / remove players from the team) — that's the

@@ -146,8 +146,22 @@ class MatchExecutionRestController {
         ] );
     }
 
-    public static function can_edit(): bool {
-        return current_user_can( 'tt_edit_activities' );
+    /**
+     * #3151 — the capability answers "does this user run matches?", which
+     * every coach does club-wide. The activity's team answers "whose
+     * matches?", which is the question every route on this controller was
+     * actually asking. Both, through the one helper the match-day views
+     * share (`ActivityTeamScope`).
+     *
+     * A refusal here is 403: the capability model said no. 402 is reserved
+     * for the plan (#3104).
+     */
+    public static function can_edit( \WP_REST_Request $r ): bool {
+        if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+            get_current_user_id(),
+            absint( $r['activity_id'] )
+        );
     }
     // -----------------------------------------------------------------
     // #1713 — read endpoints (vertical pitch + chronological feed)
