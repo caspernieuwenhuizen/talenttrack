@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T15:39:58+00:00\n"
+"POT-Creation-Date: 2026-08-30T15:48:20+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -187,6 +187,8 @@ msgstr "Team Manager"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:183
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:376
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:847
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:31
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:106
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:369
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:20
 #: src/Modules/Wizards/Goal/PlayerStep.php:36
@@ -237,8 +239,8 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTileGrid.php:706
 #: src/Shared/Frontend/FrontendTileGrid.php:725
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
-#: src/Shared/Frontend/FrontendTrialsManageView.php:465
-#: src/Shared/Frontend/FrontendTrialsManageView.php:499
+#: src/Shared/Frontend/FrontendTrialsManageView.php:385
+#: src/Shared/Frontend/FrontendTrialsManageView.php:419
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:301
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:652
 #: src/Shared/Frontend/FrontendUsageStatsView.php:373
@@ -298,13 +300,14 @@ msgstr "Hoofd opleiding"
 #: src/Modules/Invitations/InvitationKind.php:54
 #: src/Modules/People/Admin/PeoplePage.php:514
 #: src/Modules/People/Admin/TeamStaffPanel.php:40
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:40
 #: src/Modules/Wizards/Team/StaffStep.php:30
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:156
 #: src/Shared/Frontend/FrontendPeopleManageView.php:288
 #: src/Shared/Frontend/FrontendRolesView.php:83
 #: src/Shared/Frontend/FrontendTeamDetailView.php:683
 #: src/Shared/Frontend/FrontendTeamsManageView.php:511
-#: src/Shared/Frontend/FrontendTrialsManageView.php:470
+#: src/Shared/Frontend/FrontendTrialsManageView.php:390
 msgid "Staff"
 msgstr "Staf"
 
@@ -1998,6 +2001,7 @@ msgstr "Inactief"
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:203
 #: src/Modules/Players/Admin/PlayersPage.php:288
 #: src/Modules/Tournaments/Wizard/SquadStep.php:125
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:21
 #: src/Shared/Frontend/FrontendTeamDetailView.php:792
 msgid "Trial"
 msgstr "Stage"
@@ -3561,7 +3565,8 @@ msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
 #: src/Infrastructure/REST/GoalsRestController.php:441
-#: src/Shared/Frontend/FrontendTrialsManageView.php:168
+#: src/Modules/Trials/Services/TrialCaseOpener.php:133
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:94
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
@@ -4004,8 +4009,8 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:573
 #: src/Shared/Frontend/FrontendTrialCaseView.php:761
-#: src/Shared/Frontend/FrontendTrialsManageView.php:372
-#: src/Shared/Frontend/FrontendTrialsManageView.php:468
+#: src/Shared/Frontend/FrontendTrialsManageView.php:292
+#: src/Shared/Frontend/FrontendTrialsManageView.php:388
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/PlayerDashboardView.php:178
 msgid "Status"
@@ -4037,6 +4042,7 @@ msgstr "Rugnummer"
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:150
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:308
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:64
 #: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:32
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:47
@@ -4048,7 +4054,7 @@ msgstr "Rugnummer"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1264
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
 #: src/Shared/Frontend/FrontendPlayersManageView.php:371
-#: src/Shared/Frontend/FrontendTrialsManageView.php:513
+#: src/Shared/Frontend/FrontendTrialsManageView.php:433
 msgid "Date of birth"
 msgstr "Geboortedatum"
 
@@ -4347,8 +4353,8 @@ msgid "Invalid player id."
 msgstr "Ongeldige speler-id."
 
 #: src/Infrastructure/REST/PlayersRestController.php:505
+#: src/Modules/Trials/Services/TrialCaseOpener.php:72
 #: src/Modules/Wizards/Player/ReviewStep.php:142
-#: src/Shared/Frontend/FrontendTrialsManageView.php:252
 msgid "The player could not be created."
 msgstr "De speler kon niet worden aangemaakt."
 
@@ -5138,7 +5144,7 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendSeasonsView.php:81
 #: src/Shared/Frontend/FrontendTeamDetailView.php:305
 #: src/Shared/Frontend/FrontendTrialCaseView.php:308
-#: src/Shared/Frontend/FrontendTrialsManageView.php:471
+#: src/Shared/Frontend/FrontendTrialsManageView.php:391
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:151
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:371
 msgid "Actions"
@@ -5295,6 +5301,7 @@ msgstr "— Alle —"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:215
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:122
 #: src/Modules/Teams/Admin/TeamsPage.php:171
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:77
 #: src/Modules/Wizards/Activity/DetailsStep.php:79
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:115
@@ -5328,7 +5335,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:546
 #: src/Shared/Frontend/FrontendTrialCaseView.php:629
 #: src/Shared/Frontend/FrontendTrialCaseView.php:665
-#: src/Shared/Frontend/FrontendTrialsManageView.php:542
+#: src/Shared/Frontend/FrontendTrialsManageView.php:462
 #: src/Shared/Frontend/PlayerDashboardView.php:179
 msgid "Notes"
 msgstr "Notities"
@@ -6148,7 +6155,7 @@ msgstr "A"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:535
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2046
-#: src/Shared/Frontend/FrontendTrialsManageView.php:402
+#: src/Shared/Frontend/FrontendTrialsManageView.php:322
 msgid "Show"
 msgstr "Toon"
 
@@ -6878,8 +6885,8 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/DashboardShortcode.php:234
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:195
-#: src/Shared/Frontend/FrontendTrialsManageView.php:445
-#: src/Shared/Frontend/FrontendTrialsManageView.php:481
+#: src/Shared/Frontend/FrontendTrialsManageView.php:365
+#: src/Shared/Frontend/FrontendTrialsManageView.php:401
 msgid "Open"
 msgstr "Openen"
 
@@ -7465,8 +7472,8 @@ msgstr "Stagebesluiten"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1461
 #: src/Shared/Frontend/FrontendTrialCaseView.php:233
 #: src/Shared/Frontend/FrontendTrialCaseView.php:385
-#: src/Shared/Frontend/FrontendTrialsManageView.php:390
-#: src/Shared/Frontend/FrontendTrialsManageView.php:469
+#: src/Shared/Frontend/FrontendTrialsManageView.php:310
+#: src/Shared/Frontend/FrontendTrialsManageView.php:389
 msgid "Decision"
 msgstr "Beslissing"
 
@@ -7748,8 +7755,8 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:119
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:131
 #: src/Shared/Frontend/FrontendTrialCaseView.php:103
-#: src/Shared/Frontend/FrontendTrialsManageView.php:39
-#: src/Shared/Frontend/FrontendTrialsManageView.php:72
+#: src/Shared/Frontend/FrontendTrialsManageView.php:38
+#: src/Shared/Frontend/FrontendTrialsManageView.php:71
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:48
 #: src/Shared/Frontend/FrontendUsageStatsView.php:65
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:38
@@ -8033,8 +8040,8 @@ msgstr "Aantal"
 #: src/Shared/Frontend/FrontendExportsView.php:196
 #: src/Shared/Frontend/FrontendExportsView.php:240
 #: src/Shared/Frontend/FrontendExportsView.php:648
-#: src/Shared/Frontend/FrontendTrialsManageView.php:375
-#: src/Shared/Frontend/FrontendTrialsManageView.php:384
+#: src/Shared/Frontend/FrontendTrialsManageView.php:295
+#: src/Shared/Frontend/FrontendTrialsManageView.php:304
 msgid "All"
 msgstr "Alle"
 
@@ -10210,8 +10217,8 @@ msgstr "Mijn profiel"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:87
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:33
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:35
-#: src/Shared/Frontend/FrontendTrialsManageView.php:55
-#: src/Shared/Frontend/FrontendTrialsManageView.php:89
+#: src/Shared/Frontend/FrontendTrialsManageView.php:54
+#: src/Shared/Frontend/FrontendTrialsManageView.php:88
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:28
 msgid "Trial cases"
 msgstr "Stagedossiers"
@@ -11316,7 +11323,7 @@ msgstr "Selecteer persoon"
 #: src/Shared/Frontend/FrontendHolidaysView.php:190
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:527
-#: src/Shared/Frontend/FrontendTrialsManageView.php:525
+#: src/Shared/Frontend/FrontendTrialsManageView.php:445
 msgid "Start date"
 msgstr "Startdatum"
 
@@ -11331,7 +11338,7 @@ msgstr "Startdatum"
 #: src/Shared/Frontend/FrontendHolidaysView.php:194
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:533
-#: src/Shared/Frontend/FrontendTrialsManageView.php:526
+#: src/Shared/Frontend/FrontendTrialsManageView.php:446
 msgid "End date"
 msgstr "Einddatum"
 
@@ -16268,6 +16275,7 @@ msgstr "Toon details"
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:58
 #: src/Modules/Wizards/Person/BasicsStep.php:26
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:30
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:45
@@ -16278,7 +16286,7 @@ msgstr "Toon details"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:170
 #: src/Shared/Frontend/FrontendPlayersManageView.php:362
 #: src/Shared/Frontend/FrontendSetupView.php:249
-#: src/Shared/Frontend/FrontendTrialsManageView.php:509
+#: src/Shared/Frontend/FrontendTrialsManageView.php:429
 msgid "First name"
 msgstr "Voornaam"
 
@@ -16304,6 +16312,7 @@ msgstr "Voornaam"
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:61
 #: src/Modules/Wizards/Person/BasicsStep.php:30
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:31
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:46
@@ -16314,7 +16323,7 @@ msgstr "Voornaam"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:174
 #: src/Shared/Frontend/FrontendPlayersManageView.php:366
 #: src/Shared/Frontend/FrontendSetupView.php:255
-#: src/Shared/Frontend/FrontendTrialsManageView.php:511
+#: src/Shared/Frontend/FrontendTrialsManageView.php:431
 msgid "Last name"
 msgstr "Achternaam"
 
@@ -20382,7 +20391,7 @@ msgstr "Speler of notities"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:162
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
-#: src/Shared/Frontend/FrontendTrialsManageView.php:393
+#: src/Shared/Frontend/FrontendTrialsManageView.php:313
 msgid "Any"
 msgstr "Alle"
 
@@ -22909,6 +22918,7 @@ msgstr ""
 
 #: src/Modules/Import/Excel/TemplateBuilder.php:171
 #: src/Modules/Import/Excel/TemplateBuilder.php:254
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:114
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:344
 msgid "Dates"
 msgstr "Datums"
@@ -35494,7 +35504,7 @@ msgstr "Instroompijplijn"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:77
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:25
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:26
-#: src/Shared/Frontend/FrontendTrialsManageView.php:29
+#: src/Shared/Frontend/FrontendTrialsManageView.php:28
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:20
 #: src/Shared/Modules/ModuleMetadata.php:171
 msgid "Trials"
@@ -38411,8 +38421,8 @@ msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:290
 #: src/Shared/Frontend/FrontendReportDetailView.php:167
-#: src/Shared/Frontend/FrontendTrialsManageView.php:448
-#: src/Shared/Frontend/FrontendTrialsManageView.php:467
+#: src/Shared/Frontend/FrontendTrialsManageView.php:368
+#: src/Shared/Frontend/FrontendTrialsManageView.php:387
 msgid "Window"
 msgstr "Venster"
 
@@ -44250,12 +44260,169 @@ msgstr "Niet toegewezen aan dit dossier."
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 
+#: src/Modules/Trials/Services/TrialCaseOpener.php:122
+msgid ""
+"Please pick a player (or fill in first name, last name and date of birth to "
+"create one), a track, and start/end dates."
+msgstr ""
+"Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een "
+"aan te maken), een traject en start-/einddata."
+
+#: src/Modules/Trials/Services/TrialCaseOpener.php:146
+msgid "Could not create the case. Please try again."
+msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
+
 # TrialGroupTeam
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/Trials/TrialGroupTeam.php:39
 #, php-format
 msgid "Trial group %s"
 msgstr "Stagegroep %s"
+
+#: src/Modules/Trials/Wizards/NewTrialCaseWizard.php:38
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2180
+msgid "Open trial case"
+msgstr "Stagedossier openen"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:29
+msgid ""
+"No trial tracks are set up yet. An administrator needs to add at least one "
+"before a case can be opened."
+msgstr ""
+"Er zijn nog geen stagetrajecten ingericht. Een beheerder moet er eerst "
+"minstens één toevoegen voordat je een dossier kunt openen."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:38
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:111
+#: src/Shared/Frontend/FrontendTrialCaseView.php:372
+#: src/Shared/Frontend/FrontendTrialsManageView.php:301
+#: src/Shared/Frontend/FrontendTrialsManageView.php:367
+#: src/Shared/Frontend/FrontendTrialsManageView.php:386
+#: src/Shared/Frontend/FrontendTrialsManageView.php:438
+msgid "Track"
+msgstr "Traject"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:62
+msgid "First day"
+msgstr "Eerste dag"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:69
+msgid "Last day"
+msgstr "Laatste dag"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:72
+msgid ""
+"Proposed from the track length. Change it if the trial has been agreed for a "
+"different period — it can be extended later either way."
+msgstr ""
+"Voorgesteld op basis van de duur van het traject. Pas het aan als er een "
+"andere periode is afgesproken — verlengen kan later hoe dan ook."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:79
+msgid ""
+"Where this player came from, who recommended them, what the academy wants to "
+"find out. Write it as if the family will read it."
+msgstr ""
+"Waar deze speler vandaan komt, wie hem heeft aangedragen, wat de academie "
+"wil ontdekken. Schrijf het alsof de ouders meelezen."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:90
+msgid "Please pick a track."
+msgstr "Kies een traject."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:93
+msgid "A trial needs a first and a last day."
+msgstr "Een stage heeft een eerste en een laatste dag nodig."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:96
+msgid "The last day cannot be before the first day."
+msgstr "De laatste dag kan niet vóór de eerste dag liggen."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:42
+#: src/Shared/Frontend/FrontendTrialsManageView.php:422
+msgid "Existing player"
+msgstr "Bestaande speler"
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:55
+#: src/Shared/Frontend/FrontendTrialsManageView.php:427
+msgid "Or create a new player here"
+msgstr "Of maak hier een nieuwe speler aan"
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:56
+msgid ""
+"First name, last name and date of birth are enough to start. The player is "
+"created with status \"trial\" when you finish the wizard, not before."
+msgstr ""
+"Voornaam, achternaam en geboortedatum zijn genoeg om te beginnen. De speler "
+"wordt met status \"stage\" aangemaakt zodra je de wizard afrondt, niet "
+"eerder."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:84
+msgid "Pick an existing player or fill in a new one — not both."
+msgstr "Kies een bestaande speler óf vul een nieuwe in — niet allebei."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:108
+msgid "A new player needs a first name, a last name and a date of birth."
+msgstr ""
+"Een nieuwe speler heeft een voornaam, een achternaam en een geboortedatum "
+"nodig."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:121
+msgid "Pick an existing player, or fill in a new one."
+msgstr "Kies een bestaande speler, of vul een nieuwe in."
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:48
+msgid "Who is watching this trial?"
+msgstr "Wie kijkt er mee bij deze stage?"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:49
+msgid ""
+"Optional, and you can add more later. Only assigned staff can submit input "
+"on the case."
+msgstr ""
+"Optioneel, en je kunt er later meer toevoegen. Alleen toegewezen staf kan "
+"input op het dossier geven."
+
+#. translators: %d: slot number
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:60
+#: src/Shared/Frontend/FrontendTrialsManageView.php:453
+#, php-format
+msgid "Staff slot %d"
+msgstr "Stafplek %d"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:65
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php:177
+#: src/Modules/Wizards/Team/StaffStep.php:52
+#: src/Shared/Frontend/CoachForms.php:217
+#: src/Shared/Frontend/Components/GuestAddModal.php:75
+#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
+#: src/Shared/Frontend/Components/StaffPickerComponent.php:53
+#: src/Shared/Frontend/FrontendTrialCaseView.php:468
+#: src/Shared/Frontend/FrontendTrialsManageView.php:455
+msgid "Type a name to search…"
+msgstr "Typ een naam om te zoeken…"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:69
+#: src/Shared/Frontend/FrontendTrialCaseView.php:470
+#: src/Shared/Frontend/FrontendTrialsManageView.php:457
+msgid "Role label (optional)"
+msgstr "Rolomschrijving (optioneel)"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:89
+msgid "will be created as a new player"
+msgstr "wordt als nieuwe speler aangemaakt"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:103
+msgid "About to open"
+msgstr "Wordt straks geopend"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:121
+msgid ""
+"Finishing opens the case and sets the player's status to trial. It also "
+"writes the trial to their journey, so the timeline starts on day one."
+msgstr ""
+"Afronden opent het dossier en zet de status van de speler op stage. Ook komt "
+"de stage op de tijdlijn te staan, zodat het verloop vanaf dag één klopt."
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:47
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:63
@@ -45470,17 +45637,6 @@ msgstr ""
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:171
 msgid "Find a guest player"
 msgstr "Zoek een gastspeler"
-
-#: src/Modules/Wizards/Activity/AttendanceRosterStep.php:177
-#: src/Modules/Wizards/Team/StaffStep.php:52
-#: src/Shared/Frontend/CoachForms.php:217
-#: src/Shared/Frontend/Components/GuestAddModal.php:75
-#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
-#: src/Shared/Frontend/Components/StaffPickerComponent.php:53
-#: src/Shared/Frontend/FrontendTrialCaseView.php:468
-#: src/Shared/Frontend/FrontendTrialsManageView.php:535
-msgid "Type a name to search…"
-msgstr "Typ een naam om te zoeken…"
 
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:194
 msgid "Set attendance later — save the activity with no roster."
@@ -54971,10 +55127,6 @@ msgstr ""
 "Deze speler is op dit moment niet op stage, dus er is geen stagegeschiedenis "
 "om te tonen."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2180
-msgid "Open trial case"
-msgstr "Stagedossier openen"
-
 #. translators: %d: number of trial cases
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2196
 #, php-format
@@ -57570,14 +57722,6 @@ msgstr ""
 "Dit proefdossier definitief verwijderen? Hiermee worden de staf, input en "
 "verlengingen verwijderd en dit kan niet ongedaan worden gemaakt."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:372
-#: src/Shared/Frontend/FrontendTrialsManageView.php:381
-#: src/Shared/Frontend/FrontendTrialsManageView.php:447
-#: src/Shared/Frontend/FrontendTrialsManageView.php:466
-#: src/Shared/Frontend/FrontendTrialsManageView.php:518
-msgid "Track"
-msgstr "Traject"
-
 #: src/Shared/Frontend/FrontendTrialCaseView.php:376
 msgid "Trial window"
 msgstr "Stageperiode"
@@ -57618,11 +57762,6 @@ msgstr "Nieuwe einddatum"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:714
 msgid "Justification"
 msgstr "Motivatie"
-
-#: src/Shared/Frontend/FrontendTrialCaseView.php:470
-#: src/Shared/Frontend/FrontendTrialsManageView.php:537
-msgid "Role label (optional)"
-msgstr "Rolomschrijving (optioneel)"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:470
 msgid "e.g. Goalkeeping coach"
@@ -57980,63 +58119,43 @@ msgstr "Brief e-mailen"
 msgid "Enter fullscreen"
 msgstr "Volledig scherm"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:41
+#: src/Shared/Frontend/FrontendTrialsManageView.php:40
 msgid "You do not have permission to view trial cases."
 msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:75
-#: src/Shared/Frontend/FrontendTrialsManageView.php:80
-#: src/Shared/Frontend/FrontendTrialsManageView.php:83
-#: src/Shared/Frontend/FrontendTrialsManageView.php:312
-#: src/Shared/Frontend/FrontendTrialsManageView.php:552
+#: src/Shared/Frontend/FrontendTrialsManageView.php:74
+#: src/Shared/Frontend/FrontendTrialsManageView.php:79
+#: src/Shared/Frontend/FrontendTrialsManageView.php:82
+#: src/Shared/Frontend/FrontendTrialsManageView.php:232
+#: src/Shared/Frontend/FrontendTrialsManageView.php:472
 msgid "Add case"
 msgstr "Nieuw stagedossier"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:76
+#: src/Shared/Frontend/FrontendTrialsManageView.php:75
 msgid "You do not have permission to create trial cases."
 msgstr "Je hebt geen rechten om stagedossiers aan te maken."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:150
-msgid ""
-"Please pick a player (or fill in first name, last name and date of birth to "
-"create one), a track, and start/end dates."
-msgstr ""
-"Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een "
-"aan te maken), een traject en start-/einddata."
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:183
-msgid "Could not create the case. Please try again."
-msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:356
+#: src/Shared/Frontend/FrontendTrialsManageView.php:276
 msgid "Archived included"
 msgstr "Inclusief gearchiveerd"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:399
+#: src/Shared/Frontend/FrontendTrialsManageView.php:319
 msgid "Include archived"
 msgstr "Inclusief gearchiveerd"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:409
+#: src/Shared/Frontend/FrontendTrialsManageView.php:329
 msgid "No trial cases match those filters yet."
 msgstr "Nog geen stagedossiers die aan deze filters voldoen."
 
 #. translators: %d: number of assigned staff.
-#: src/Shared/Frontend/FrontendTrialsManageView.php:456
+#: src/Shared/Frontend/FrontendTrialsManageView.php:376
 #, php-format
 msgid "%d staff"
 msgid_plural "%d staff"
 msgstr[0] "%d staflid"
 msgstr[1] "%d stafleden"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:502
-msgid "Existing player"
-msgstr "Bestaande speler"
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:507
-msgid "Or create a new player here"
-msgstr "Of maak hier een nieuwe speler aan"
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:508
+#: src/Shared/Frontend/FrontendTrialsManageView.php:428
 msgid ""
 "Fill in at least first name, last name and date of birth. The new player "
 "record will be created with status \"trial\" before the case is opened."
@@ -58045,14 +58164,9 @@ msgstr ""
 "spelerrecord wordt aangemaakt met status \"trial\" voordat de case wordt "
 "geopend."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:528
+#: src/Shared/Frontend/FrontendTrialsManageView.php:448
 msgid "Initial staff (optional)"
 msgstr "Aanvankelijke staf (optioneel)"
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:533
-#, php-format
-msgid "Staff slot %d"
-msgstr "Stafplek %d"
 
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:35
 msgid "You do not have permission to edit trial tracks."
@@ -59056,100 +59170,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "First-team"
 #~ msgstr "Eerste elftal"
-
-#: src/Modules/Trials/Wizards/TrialPlayerStep.php:57
-msgid ""
-"First name, last name and date of birth are enough to start. The player is "
-"created with status \"trial\" when you finish the wizard, not before."
-msgstr ""
-"Voornaam, achternaam en geboortedatum zijn genoeg om te beginnen. De speler "
-"wordt met status \"stage\" aangemaakt zodra je de wizard afrondt, niet eerder."
-
-#: src/Modules/Trials/Wizards/TrialPlayerStep.php:86
-msgid "Pick an existing player or fill in a new one — not both."
-msgstr "Kies een bestaande speler óf vul een nieuwe in — niet allebei."
-
-#: src/Modules/Trials/Wizards/TrialPlayerStep.php:110
-msgid "A new player needs a first name, a last name and a date of birth."
-msgstr ""
-"Een nieuwe speler heeft een voornaam, een achternaam en een geboortedatum "
-"nodig."
-
-#: src/Modules/Trials/Wizards/TrialPlayerStep.php:125
-msgid "Pick an existing player, or fill in a new one."
-msgstr "Kies een bestaande speler, of vul een nieuwe in."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:29
-msgid ""
-"No trial tracks are set up yet. An administrator needs to add at least one "
-"before a case can be opened."
-msgstr ""
-"Er zijn nog geen stagetrajecten ingericht. Een beheerder moet er eerst "
-"minstens één toevoegen voordat je een dossier kunt openen."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:54
-msgid "First day"
-msgstr "Eerste dag"
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:58
-msgid "Last day"
-msgstr "Laatste dag"
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:61
-msgid ""
-"Proposed from the track length. Change it if the trial has been agreed for a "
-"different period — it can be extended later either way."
-msgstr ""
-"Voorgesteld op basis van de duur van het traject. Pas het aan als er een "
-"andere periode is afgesproken — verlengen kan later hoe dan ook."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:69
-msgid ""
-"Where this player came from, who recommended them, what the academy wants to "
-"find out. Write it as if the family will read it."
-msgstr ""
-"Waar deze speler vandaan komt, wie hem heeft aangedragen, wat de academie "
-"wil ontdekken. Schrijf het alsof de ouders meelezen."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:80
-msgid "Please pick a track."
-msgstr "Kies een traject."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:83
-msgid "A trial needs a first and a last day."
-msgstr "Een stage heeft een eerste en een laatste dag nodig."
-
-#: src/Modules/Trials/Wizards/TrialDetailsStep.php:86
-msgid "The last day cannot be before the first day."
-msgstr "De laatste dag kan niet vóór de eerste dag liggen."
-
-#: src/Modules/Trials/Wizards/TrialStaffStep.php:49
-msgid "Who is watching this trial?"
-msgstr "Wie kijkt er mee bij deze stage?"
-
-#: src/Modules/Trials/Wizards/TrialStaffStep.php:50
-msgid ""
-"Optional, and you can add more later. Only assigned staff can submit input "
-"on the case."
-msgstr ""
-"Optioneel, en je kunt er later meer toevoegen. Alleen toegewezen staf kan "
-"input op het dossier geven."
-
-#: src/Modules/Trials/Wizards/TrialStaffStep.php:97
-msgid "will be created as a new player"
-msgstr "wordt als nieuwe speler aangemaakt"
-
-#: src/Modules/Trials/Wizards/TrialStaffStep.php:103
-msgid "About to open"
-msgstr "Wordt straks geopend"
-
-#: src/Modules/Trials/Wizards/TrialStaffStep.php:122
-msgid ""
-"Finishing opens the case and sets the player's status to trial. It also "
-"writes the trial to their journey, so the timeline starts on day one."
-msgstr ""
-"Afronden opent het dossier en zet de status van de speler op stage. Ook komt "
-"de stage op de tijdlijn te staan, zodat het verloop vanaf dag één klopt."
 
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
