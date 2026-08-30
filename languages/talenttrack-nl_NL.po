@@ -59242,6 +59242,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is the unrecognised custom-field type.
+#: src/Shared/Validation/CustomFieldValidator.php:400
+#, php-format
+msgid "Unknown field type: %s"
+msgstr "Onbekend veldtype: %s"
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "

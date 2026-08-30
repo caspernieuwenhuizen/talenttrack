@@ -393,7 +393,15 @@ class CustomFieldValidator {
                 // Unknown type — skip. Never stores anything it doesn't recognise.
                 return [ 'error' => [
                     'code'    => 'unknown_type',
-                    'message' => sprintf( 'Unknown field type: %s', $type ),
+                    // #3217 — was a bare English literal. It is not a
+                    // developer-only string: this error travels back in the
+                    // `errors` array and reaches the form and the REST
+                    // response, so somebody can be shown it.
+                    'message' => sprintf(
+                        /* translators: %s is the unrecognised custom-field type. */
+                        __( 'Unknown field type: %s', 'talenttrack' ),
+                        $type
+                    ),
                     'details' => [ 'field_key' => $key, 'field_type' => $type ],
                 ] ];
         }
