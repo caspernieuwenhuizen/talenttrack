@@ -58947,6 +58947,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
+msgid "No messages are being sent"
+msgstr "Er worden geen berichten verstuurd"
+
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
+msgid "Every message this academy could send is switched off, and nobody has chosen otherwise since the install was created. Parents and players are told nothing — not even that a training was cancelled."
+msgstr "Elk bericht dat deze academie zou kunnen versturen staat uit, en sinds de installatie heeft niemand daar iets anders van gemaakt. Ouders en spelers horen niets — ook niet dat een training is afgelast."
+
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
+msgid "This academy is not sending any messages yet."
+msgstr "Deze academie verstuurt nog geen berichten."
+
 #. translators: %s is the name of the setup step, e.g. "Import your squad".
 #: src/Shared/Frontend/FrontendSetupView.php
 #, php-format
@@ -58964,17 +58976,6 @@ msgstr "Setup verlaten"
 #: src/Shared/Frontend/FrontendSetupView.php
 msgid "Continue this step in the admin"
 msgstr "Ga verder in de beheeromgeving"
-#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
-msgid "No messages are being sent"
-msgstr "Er worden geen berichten verstuurd"
-
-#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
-msgid "Every message this academy could send is switched off, and nobody has chosen otherwise since the install was created. Parents and players are told nothing — not even that a training was cancelled."
-msgstr "Elk bericht dat deze academie zou kunnen versturen staat uit, en sinds de installatie heeft niemand daar iets anders van gemaakt. Ouders en spelers horen niets — ook niet dat een training is afgelast."
-
-#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
-msgid "This academy is not sending any messages yet."
-msgstr "Deze academie verstuurt nog geen berichten."
 
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
