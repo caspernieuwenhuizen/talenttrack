@@ -145,6 +145,19 @@ foreach ( $files as $relative ) {
         }
     }
 
+    // #3245 — the verdict is ABSOLUTE, the report is differential.
+    //
+    // This check used to fail only on duplicates the base did not already
+    // have. That let `main` sit red for hours: it carried two duplicates,
+    // `msgfmt` refused the catalogue, and this tool said
+    // `OK — nl_NL.po (2 duplicated)` on every branch, because every branch
+    // inherited them. On a machine without `msgfmt` — which is the normal
+    // case here — that OK was the only signal available, and it was wrong.
+    //
+    // The key is the (msgctxt, msgid) pair, so everything counted here is
+    // a duplicate `msgfmt` genuinely rejects; there is no legitimate case
+    // to protect. Whose fault it is stays useful, so it is still reported
+    // below — it just no longer decides the exit code.
     $introduced     = introduced_since( $current, $base_dups );
     $introduced_obs = introduced_since( $current_obs, $base_obs );
 
@@ -154,36 +167,47 @@ foreach ( $files as $relative ) {
     // count at all is the branch's.
     $introduced_glue = count( $current_glue ) > $base_glue ? $current_glue : [];
 
-    if ( ! $introduced && ! $introduced_obs && ! $introduced_glue ) {
-        $clean[] = sprintf( '%s (%d duplicated)', $relative, count( $current ) );
+    if ( ! $current && ! $current_obs && ! $introduced_glue ) {
+        $clean[] = sprintf( '%s (clean)', $relative );
         continue;
     }
 
     $failed = true;
     fwrite( STDERR, "\n" );
 
-    if ( $introduced ) {
+    if ( $current ) {
+        // Name the inherited half explicitly. "You did not cause this, and
+        // it still has to be fixed before anything merges" is the sentence
+        // that was missing when `main` was red and every branch said OK.
+        $inherited = count( $current ) - count( $introduced );
         fwrite( STDERR, sprintf(
-            "check-po-duplicates FAILED — %s duplicates %d msgid%s that %s does not.\n\n",
+            "check-po-duplicates FAILED — %s has %d duplicated msgid%s. msgfmt refuses this file.\n"
+            . "  %d introduced by this branch, %d already present on %s.\n\n",
             $relative,
+            count( $current ),
+            count( $current ) === 1 ? '' : 's',
             count( $introduced ),
-            count( $introduced ) === 1 ? '' : 's',
+            $inherited,
             $base_ref !== '' ? $base_ref : 'the base'
         ) );
-        report_keys( $introduced );
+        report_keys( $current );
     }
 
-    if ( $introduced_obs ) {
+    if ( $current_obs ) {
+        $inherited_obs = count( $current_obs ) - count( $introduced_obs );
         fwrite( STDERR, sprintf(
-            "check-po-duplicates FAILED — %s duplicates %d OBSOLETE msgid%s that %s does not.\n"
+            "check-po-duplicates FAILED — %s has %d duplicated OBSOLETE msgid%s.\n"
             . "  An obsolete entry is not inert: msgmerge promotes it back to live when the\n"
-            . "  string reappears, and two copies come back as two live copies.\n\n",
+            . "  string reappears, and two copies come back as two live copies.\n"
+            . "  %d introduced by this branch, %d already present on %s.\n\n",
             $relative,
+            count( $current_obs ),
+            count( $current_obs ) === 1 ? '' : 's',
             count( $introduced_obs ),
-            count( $introduced_obs ) === 1 ? '' : 's',
+            $inherited_obs,
             $base_ref !== '' ? $base_ref : 'the base'
         ) );
-        report_keys( $introduced_obs );
+        report_keys( $current_obs );
     }
 
     if ( $introduced_glue ) {

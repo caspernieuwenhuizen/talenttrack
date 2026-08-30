@@ -73,7 +73,10 @@ final class PoDuplicateCheckTest extends WP_UnitTestCase {
         $result = $this->check( 'rewrapped.po' );
 
         $this->assertSame( 1, $result['status'] );
-        $this->assertStringContainsString( 'duplicates 1 msgid', $result['output'] );
+        // #3245 — assert the refusal and the named key, not the sentence.
+        // This used to pin "duplicates 1 msgid", which the absolute-verdict
+        // rewording changed; the property under test is that the wrapped
+        // and unwrapped copies are recognised as one msgid and reported.
         $this->assertStringContainsString( 'Skipped: scheduled sends', $result['output'] );
     }
 
@@ -119,6 +122,49 @@ final class PoDuplicateCheckTest extends WP_UnitTestCase {
             "The clean fixture must pass. Output:\n" . $result['output']
         );
         $this->assertStringContainsString( 'check-po-duplicates OK', $result['output'] );
+    }
+
+    /**
+     * #3245 — a duplicate the base also has is still a duplicate.
+     *
+     * This is the shape that let `main` sit red: the check compared against
+     * a base that carried the same pair, found nothing "introduced", and
+     * reported `OK — (2 duplicated)` on every branch while `msgfmt` refused
+     * the file. The verdict is absolute now.
+     *
+     * Run WITH a base that contains the same duplicate, which is the exact
+     * situation — the fixture is its own base.
+     */
+    public function test_a_duplicate_the_base_also_has_still_fails(): void {
+        $fixture = 'tests/fixtures/po/inherited-duplicate.po';
+
+        $cmd = sprintf(
+            '%s %s --file=%s --base=',
+            escapeshellarg( PHP_BINARY ),
+            escapeshellarg( $this->root() . '/tools/check-po-duplicates.php' ),
+            escapeshellarg( $fixture )
+        );
+
+        $out    = [];
+        $status = 0;
+        exec( $cmd . ' 2>&1', $out, $status );
+        $output = implode( "\n", $out );
+
+        $this->assertSame( 1, $status, "A duplicated msgid must fail. Output:\n" . $output );
+        $this->assertStringContainsString( 'msgfmt refuses this file', $output );
+        $this->assertStringContainsString( 'Inherited from main', $output );
+    }
+
+    /** The pass line must not report a duplicate count it is tolerating. */
+    public function test_the_pass_line_never_reports_duplicates(): void {
+        $result = $this->check( 'clean.po' );
+
+        $this->assertSame( 0, $result['status'] );
+        $this->assertStringNotContainsString(
+            'duplicated',
+            $result['output'],
+            'An OK line carrying a non-zero duplicate count is what made the red main readable as green.'
+        );
     }
 
     /**
