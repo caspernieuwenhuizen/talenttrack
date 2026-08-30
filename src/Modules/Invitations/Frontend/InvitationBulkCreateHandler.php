@@ -107,21 +107,24 @@ class InvitationBulkCreateHandler {
     /**
      * May this user bulk-invite for this team? (#3161)
      *
-     * The wide branch asks the matrix whether the user may create
-     * invitations at **global** scope — the question the seed actually
-     * answers for Head of Development and Academy Admin, both of whom hold
-     * `invitations: c [global]`. Deliberately not a `tt_edit_settings`
-     * compare: a head of development lost that capability in #0071 and
-     * would be locked out of a surface they own (#2866). Deliberately not
-     * `AllTeamsScope` either — that asks for global *read*, which neither
-     * persona holds on `invitations`; creating is the verb in play.
+     * The wide branch asks the matrix the same question the narrow one
+     * answers, one scope wider: `invitations / change / global`. That is the
+     * grant the seed gives Head of Development and Academy Admin, and
+     * `change` is the activity the seed uses for issuing an invitation —
+     * head_coach's team-scoped grant is the same verb (`invitations: c
+     * [team]`), which is precisely the scope this method restores.
+     *
+     * Deliberately not a `tt_edit_settings` compare: a head of development
+     * lost that capability in #0071 and would be locked out of a surface
+     * they own (#2866). Deliberately not `AllTeamsScope` either — that asks
+     * for global *read*, which neither persona holds on `invitations`.
      *
      * Otherwise: the team must be one the user coaches.
      */
     public static function mayInviteForTeam( int $user_id, int $team_id ): bool {
         if ( $user_id <= 0 || $team_id <= 0 ) return false;
 
-        if ( MatrixGate::can( $user_id, 'invitations', MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_GLOBAL ) ) {
+        if ( MatrixGate::can( $user_id, 'invitations', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
             return true;
         }
 

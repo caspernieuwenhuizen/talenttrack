@@ -139,9 +139,10 @@ final class ExploreAndBulkInviteGateTest extends WP_UnitTestCase {
     }
 
     public function test_global_invite_creation_reaches_every_team(): void {
-        // Head of Development holds `invitations: c [global]` and coaches
-        // no team. A `tt_edit_settings` compare would lock them out (#2866);
-        // the matrix question is the one that answers correctly.
+        // Head of Development holds `invitations: c [global]` — `c` is
+        // `change` in the seed's letter map, the same verb head_coach holds
+        // at team scope — and coaches no team. A `tt_edit_settings` compare
+        // would lock them out (#2866); the matrix question answers correctly.
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
         wp_set_current_user( $hod );
 
