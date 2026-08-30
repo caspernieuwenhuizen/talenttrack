@@ -31,6 +31,41 @@ class ActivitiesRestController {
 
     const NS = 'talenttrack/v1';
 
+    /**
+     * #3107 — the three bulk-entry grids are Pro. Only the grid routes are
+     * wrapped, not the controller: attendance, minutes and ratings are all
+     * recordable one activity at a time on every plan, through the other
+     * routes here. The grid is the desktop bulk affordance, not the only
+     * path to the data, and gating this controller wholesale would take
+     * the ungated path with it.
+     *
+     * `enforceFeatureRest()` rather than the write-verb helper: a grid
+     * stores nothing of its own — the rows it writes are ordinary
+     * attendance, minutes and ratings, readable everywhere else — so there
+     * is no record here to keep open, and the read endpoint that feeds the
+     * matrix is only useful to the grid it feeds.
+     */
+    private static function gateAttendanceGrid( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'attendance_grid' );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
+    private static function gateMinutesGrid( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'minutes_grid' );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
+    private static function gateRatingsGrid( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceFeatureRest( 'ratings_grid' );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -165,7 +200,7 @@ class ActivitiesRestController {
         register_rest_route( self::NS, '/activities/attendance-grid', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'attendance_grid_data' ],
+                'callback'            => self::gateAttendanceGrid( [ __CLASS__, 'attendance_grid_data' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
                 'args'                => [
                     'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
@@ -178,7 +213,7 @@ class ActivitiesRestController {
         register_rest_route( self::NS, '/attendance/bulk', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'bulk_attendance' ],
+                'callback'            => self::gateAttendanceGrid( [ __CLASS__, 'bulk_attendance' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
             ],
         ] );
@@ -188,7 +223,7 @@ class ActivitiesRestController {
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/ratings/bulk', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'bulk_ratings' ],
+                'callback'            => self::gateRatingsGrid( [ __CLASS__, 'bulk_ratings' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_ratings_grid' ],
             ],
         ] );
@@ -201,7 +236,7 @@ class ActivitiesRestController {
         register_rest_route( self::NS, '/activities/minutes-grid', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'minutes_grid_data' ],
+                'callback'            => self::gateMinutesGrid( [ __CLASS__, 'minutes_grid_data' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
                 'args'                => [
                     'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
@@ -213,7 +248,7 @@ class ActivitiesRestController {
         register_rest_route( self::NS, '/minutes/bulk', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'bulk_minutes' ],
+                'callback'            => self::gateMinutesGrid( [ __CLASS__, 'bulk_minutes' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
             ],
         ] );

@@ -91,6 +91,15 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             return;
         }
 
+        // #3107 — the grid is Pro; rating a player is not. See the note.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'ratings_grid' ) ) {
+            self::crumbs();
+            echo \TT\Modules\License\UpgradePanel::render( 'ratings_grid', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+                'note' => __( 'Ratings themselves are not affected: you can still rate a player from their profile and from the activity. The grid is the faster desktop way to rate a whole squad at once.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
         $data     = RatingsGridQuery::forActivity( $activity_id );
         $activity = $data['activity'];
 

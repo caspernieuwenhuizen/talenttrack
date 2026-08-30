@@ -58627,6 +58627,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:99
+msgid "Attendance itself is not affected: you can still mark a squad present from the activity, one activity at a time. The grid is the faster desktop way to do a whole week at once."
+msgstr "Aan de aanwezigheid zelf verandert niets: je kunt een selectie nog steeds aanwezig melden vanaf de activiteit, per activiteit. Het raster is de snellere manier op een laptop om een hele week in één keer te doen."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:92
+msgid "Minutes themselves are not affected: you can still enter them per activity, and a live match writes them for you. The grid is the faster desktop way to correct a whole squad at once."
+msgstr "Aan de speelminuten zelf verandert niets: je voert ze nog steeds per activiteit in, en een live wedstrijd schrijft ze voor je. Het raster is de snellere manier op een laptop om een hele selectie in één keer te corrigeren."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:96
+msgid "Ratings themselves are not affected: you can still rate a player from their profile and from the activity. The grid is the faster desktop way to rate a whole squad at once."
+msgstr "Aan de beoordelingen zelf verandert niets: je beoordeelt een speler nog steeds vanaf het spelersdossier en vanaf de activiteit. Het raster is de snellere manier op een laptop om een hele selectie in één keer te beoordelen."
+
 #~ msgid ""
 #~ "Six-stage count strip — Prospects / Invited / Test training / Trial "
 #~ "group / Team offer / Joined — sourced from tt_prospects and "

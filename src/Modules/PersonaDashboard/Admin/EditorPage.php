@@ -46,6 +46,19 @@ final class EditorPage {
             wp_die( esc_html__( 'The dashboard layout editor is turned off for this academy.', 'talenttrack' ) );
         }
 
+        // #3107 — and the plan. Locked, not hidden: the page renders with
+        // the shared panel rather than `wp_die()`, because an operator who
+        // followed a menu item to a white error page cannot tell a paid
+        // feature from a broken one. The layouts already saved keep driving
+        // everyone's dashboards; what the plan buys is editing them.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'persona_dashboard_editor' ) ) {
+            echo '<div class="wrap">';
+            echo '<h1>' . esc_html__( 'Dashboard layouts', 'talenttrack' ) . '</h1>';
+            echo \TT\Modules\License\UpgradePanel::render( 'persona_dashboard_editor', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            echo '</div>';
+            return;
+        }
+
         self::renderEditor();
     }
 

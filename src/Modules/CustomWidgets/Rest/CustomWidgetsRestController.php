@@ -38,6 +38,23 @@ final class CustomWidgetsRestController {
 
     private const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `custom_widgets` is a Pro feature. Every route on this
+     * controller is wrapped; `enforceWriteRest()` decides from the verb,
+     * so the reads pass through untouched and the writes answer 402.
+     * #3017's third decision, made structural: what the club already has
+     * stays readable, and it cannot add more.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'custom_widgets', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -46,12 +63,12 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-widgets', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_widgets' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_widgets' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_widget' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
         ] );
@@ -59,17 +76,17 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-widgets/(?P<id>[A-Za-z0-9_-]+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_widget' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permRead' ],
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'update_widget' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_widget' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
         ] );
@@ -80,7 +97,7 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-widgets/(?P<id>[A-Za-z0-9_-]+)/permanent', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_widget_permanently' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_widget_permanently' ] ),
                 // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
                 // purge path weaker than the bin's own purge.
                 'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
@@ -90,7 +107,7 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-data-sources', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_sources' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_sources' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
         ] );
@@ -98,7 +115,7 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-widgets/(?P<id>[A-Za-z0-9_-]+)/data', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'fetch_data' ],
+                'callback'            => self::gate( [ __CLASS__, 'fetch_data' ] ),
                 'permission_callback' => [ __CLASS__, 'permRead' ],
             ],
         ] );
@@ -106,7 +123,7 @@ final class CustomWidgetsRestController {
         register_rest_route( self::NS, '/custom-widgets/(?P<id>[A-Za-z0-9_-]+)/clear-cache', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'clear_cache' ],
+                'callback'            => self::gate( [ __CLASS__, 'clear_cache' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
             ],
         ] );

@@ -40,10 +40,30 @@ final class CustomWidgetsAdminPage {
             wp_die( esc_html__( 'You do not have permission to manage custom widgets.', 'talenttrack' ) );
         }
 
+        // #3107 — `custom_widgets` is Pro. The list stays: widgets the club
+        // already built keep rendering on dashboards, so hiding the page
+        // that names them would leave an operator unable to see what is on
+        // their own dashboard. The **builder** is what the plan buys, so
+        // that is what locks.
+        $in_plan = \TT\Modules\License\LicenseGate::allows( 'custom_widgets' );
+
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         if ( $action === 'new' || $action === 'edit' ) {
+            if ( ! $in_plan ) {
+                echo '<div class="wrap">';
+                echo '<h1>' . esc_html__( 'Custom widgets', 'talenttrack' ) . '</h1>';
+                echo \TT\Modules\License\UpgradePanel::render( 'custom_widgets', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+                echo '</div>';
+                return;
+            }
             self::renderBuilder();
             return;
+        }
+        if ( ! $in_plan ) {
+            echo '<div class="wrap">';
+            echo '<h1>' . esc_html__( 'Custom widgets', 'talenttrack' ) . '</h1>';
+            echo \TT\Modules\License\UpgradePanel::render( 'custom_widgets', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            echo '</div>';
         }
         self::renderList();
     }

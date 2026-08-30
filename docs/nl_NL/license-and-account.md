@@ -135,6 +135,33 @@ Er wordt niets aangeraakt van wat al geïmporteerd is. Spond-wedstrijden en
 Strava-activiteiten blijven precies staan, leesbaar en exporteerbaar, en doen
 het weer zodra het abonnement verandert.
 
+### Schermen die je wel ziet en niet opent
+
+Zeven schermen tonen zich vergrendeld. Dat is de keuze zoals bedoeld: de
+tegel blijft staan, en wie hem opent krijgt uitleg.
+
+| Functie | Standard kan wel | Standard kan niet |
+| - | - | - |
+| **Analyse-verkenner** | Elk standaardrapport en elk dashboardcijfer — die lezen de engine rechtstreeks | Er een eigen vraag aan stellen |
+| **Eigen widgets** | De widgets die de club al bouwde zien, op de dashboards waar ze staan | Er een bouwen of wijzigen |
+| **Dashboardindelingen** | De opgeslagen indelingen gebruiken | Ze wijzigen |
+| **Cursussen** | Zien welke cursussen er zijn en waar ze over gaan | Er een openen of afronden |
+| **Aanwezigheidsraster** | **Aanwezigheid vastleggen**, per activiteit | Een hele week in één scherm invullen |
+| **Speelminutenraster** | **Speelminuten vastleggen** per activiteit; een live wedstrijd schrijft ze zelf | Een hele selectie in één scherm corrigeren |
+| **Beoordelingsraster** | **Een speler beoordelen** vanaf het spelersdossier en vanaf de activiteit | Een hele selectie in één scherm beoordelen |
+
+De drie rasters zijn het waard om twee keer te lezen. Ze zijn de snelle
+manier op een laptop om een hele selectie in te voeren — **niet de enige
+manier om het vast te leggen**. Aanwezigheid, speelminuten en beoordelingen
+zijn allemaal Standard-functies en blijven precies zoals ze waren; wat het
+abonnement toevoegt is er twintig tegelijk doen. Elk vergrendeld raster zegt
+dat er ook bij, want "aanwezigheid is een betaalde functie" zou onwaar zijn.
+
+Cursussen worden vergrendeld bij de eigen toegangspoort van de module en niet
+bij een scherm, zodat de cursuslijst, een lespagina en de API hetzelfde
+antwoord geven — en de cursussen blijven **in de lijst staan**, zodat een club
+ziet wat het abonnement zou openen.
+
 ## Gebruikslimieten
 
 Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.
