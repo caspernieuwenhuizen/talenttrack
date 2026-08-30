@@ -58958,6 +58958,7 @@ msgstr "Elk bericht dat deze academie zou kunnen versturen staat uit, en sinds d
 #: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php
 msgid "This academy is not sending any messages yet."
 msgstr "Deze academie verstuurt nog geen berichten."
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 
