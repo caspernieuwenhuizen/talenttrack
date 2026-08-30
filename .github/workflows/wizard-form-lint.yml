@@ -64,16 +64,16 @@ jobs:
             "src/Modules/Vct/Wizard"
             "src/Modules/Media/Wizard"
             "src/Modules/Knowledge/Wizards"
-            # #3221 — the trial-case wizard, plus three roots that were
-            # never added and so were never scanned. Holidays and
-            # Measurements are deliberately still missing: both have a
-            # step with `name="name"`, which is exactly what this scan
-            # exists to catch, and fixing them is its own change. Filed
-            # rather than silently left — see the issue linked from #3221.
+            # #3221 added the first four of these; #3236 fixed the two
+            # steps that were posting `name="name"` and added the last two,
+            # so every wizard root in the tree is now scanned. A new wizard
+            # still has to add its own — the list is the coverage.
             "src/Modules/Trials/Wizards"
             "src/Modules/Journey/Wizards"
             "src/Modules/Training/Wizard"
             "src/Modules/Mfa/Wizards"
+            "src/Modules/Holidays/Wizards"
+            "src/Modules/Measurements/Wizards"
           )
 
           FAIL=0

@@ -23,7 +23,13 @@ final class HolidayDetailsStep implements WizardStepInterface {
 
         echo '<div class="tt-form-row">';
         echo '<label for="tt-holiday-name">' . esc_html__( 'Name', 'talenttrack' ) . '</label>';
-        echo '<input type="text" id="tt-holiday-name" name="name" value="' . esc_attr( $name ) . '" required '
+        // #3236 — the field is `holiday_name`, not `name`. `name` is a WP
+        // public query var, read from $_POST by `WP::parse_request()`
+        // before $_GET, so posting it can make WordPress treat the request
+        // as a singular lookup and 404 the step instead of advancing it.
+        // The STATE key stays `name` — only what reaches $_POST is the
+        // hazard.
+        echo '<input type="text" id="tt-holiday-name" name="holiday_name" value="' . esc_attr( $name ) . '" required '
             . 'placeholder="' . esc_attr__( 'e.g. Christmas break', 'talenttrack' ) . '" />';
         echo '</div>';
 
@@ -44,7 +50,9 @@ final class HolidayDetailsStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        $name = trim( (string) ( $post['name'] ?? '' ) );
+        // #3236 — reads `holiday_name` from the form; the state key it
+        // returns is still `name`, so nothing downstream changes.
+        $name = trim( (string) ( $post['holiday_name'] ?? '' ) );
         $from = trim( (string) ( $post['start_date'] ?? '' ) );
         $to   = trim( (string) ( $post['end_date'] ?? '' ) );
 

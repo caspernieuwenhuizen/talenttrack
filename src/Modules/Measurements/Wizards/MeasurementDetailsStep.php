@@ -31,7 +31,11 @@ final class MeasurementDetailsStep implements WizardStepInterface {
         echo '</select></label>';
 
         echo '<label><span>' . esc_html__( 'Name', 'talenttrack' ) . ' *</span>'
-            . '<input type="text" name="name" required maxlength="190" value="' . esc_attr( $name ) . '" '
+            // #3236 — `definition_name`, not `name`. `name` is a WP public
+            // query var that `WP::parse_request()` reads from $_POST before
+            // $_GET, so posting it can turn the step submission into a
+            // singular lookup and 404. The state key stays `name`.
+            . '<input type="text" name="definition_name" required maxlength="190" value="' . esc_attr( $name ) . '" '
             . 'placeholder="' . esc_attr__( 'e.g. Sprint 30m', 'talenttrack' ) . '" /></label>';
 
         $types = [
@@ -49,7 +53,8 @@ final class MeasurementDetailsStep implements WizardStepInterface {
 
     public function validate( array $post, array $state ) {
         $category_id = isset( $post['category_id'] ) ? absint( $post['category_id'] ) : 0;
-        $name        = trim( (string) ( $post['name'] ?? '' ) );
+        // #3236 — reads `definition_name`; the state key stays `name`.
+        $name        = trim( (string) ( $post['definition_name'] ?? '' ) );
         $value_type  = isset( $post['value_type'] ) ? sanitize_text_field( wp_unslash( (string) $post['value_type'] ) ) : 'numeric';
 
         if ( $category_id <= 0 ) {
