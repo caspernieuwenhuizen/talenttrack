@@ -8,6 +8,7 @@
  *   POST /wp-json/talenttrack/v1/onboarding/academy
  *   POST /wp-json/talenttrack/v1/onboarding/first-team
  *   POST /wp-json/talenttrack/v1/onboarding/first-admin
+ *   POST /wp-json/talenttrack/v1/onboarding/messaging
  *   POST /wp-json/talenttrack/v1/onboarding/dashboard-page
  *   POST /wp-json/talenttrack/v1/onboarding/reset
  *
@@ -80,11 +81,31 @@
 
             var fd = new FormData(form);
             var body = {};
-            fd.forEach(function (value, key) { body[key] = String(value); });
-            // Unchecked checkbox is absent from FormData; normalise.
+            // A name ending in [] is a repeating field — the messaging
+            // step's checkbox list (#3140). Collapsing those to the last
+            // value the way a plain assignment does would submit one ticked
+            // template out of however many were ticked, and the server
+            // would then switch every other one off.
+            fd.forEach(function (value, key) {
+                if (key.slice(-2) === '[]') {
+                    var name = key.slice(0, -2);
+                    if (!Array.isArray(body[name])) body[name] = [];
+                    body[name].push(String(value));
+                } else {
+                    body[key] = String(value);
+                }
+            });
+            // An unticked checkbox is absent from FormData. For a repeating
+            // field that is the correct answer — nothing ticked means an
+            // empty list, which the server reads as "switch everything off"
+            // — but a single named checkbox has to be sent explicitly false.
             if (form.querySelector('[name="grant_role"]') && !fd.get('grant_role')) {
                 body.grant_role = '';
             }
+            form.querySelectorAll('[data-tt-setup-multi]').forEach(function (el) {
+                var name = el.getAttribute('data-tt-setup-multi');
+                if (name && !Array.isArray(body[name])) body[name] = [];
+            });
 
             post(endpoint, body).then(function (r) {
                 if (r.ok && r.json && r.json.success) {

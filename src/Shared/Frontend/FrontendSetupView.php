@@ -76,10 +76,23 @@ class FrontendSetupView extends FrontendViewBase {
                     case 'academy':     self::renderAcademy( $cancel_url );    break;
                     case 'first_team':  self::renderFirstTeam( $cancel_url );  break;
                     case 'first_admin': self::renderFirstAdmin( $cancel_url ); break;
+                    // #3140 (step from #3113) — the messaging decision. The
+                    // cheapest of the four missing steps to port and the
+                    // most costly to skip: #3049 spent an epic making sure a
+                    // club is *asked* what it sends rather than defaulting
+                    // into silence, and a frontend operator who never met
+                    // this step was the outcome that epic exists to prevent.
+                    case 'messaging':   self::renderMessaging( $cancel_url );  break;
                     case 'dashboard':   self::renderDashboard( $cancel_url );  break;
                     case 'done':        self::renderDone();                    break;
-                    default:
-                        echo '<p>' . esc_html__( 'Unknown step.', 'talenttrack' ) . '</p>';
+                    // #3140 — `profile`, `import` and `staff` are real ports
+                    // (file upload and column mapping; people records and
+                    // held invitation credentials) and are filed separately.
+                    // Until they land they say what they are and offer a way
+                    // past. What used to be here read as a bug and its only
+                    // exit restarted the wizard at step 1, to hit the same
+                    // wall again.
+                    default:            self::renderNotYetPorted( $step, $cancel_url );
                 }
                 ?>
             </div>
@@ -262,6 +275,164 @@ class FrontendSetupView extends FrontendViewBase {
         <?php
     }
 
+    /**
+     * #3140 — the messaging step (#3113, epic #3049) on the frontend.
+     *
+     * The same three deliberate things the wp-admin step does, because
+     * they are the step rather than its styling:
+     *
+     *   - **Nothing is pre-ticked.** The operator is choosing what to
+     *     switch on, which matches the state the install is actually in
+     *     (#3111 seeds a new academy with every message off).
+     *   - **It recommends without pre-selecting.** The urgent family is
+     *     marked Recommended in a sentence; marking a recommendation is
+     *     not the same as ticking it on somebody's behalf.
+     *   - **Skipping says what skipping means** — "no messages will be
+     *     sent" — rather than "you can change this later", which reads as
+     *     "it is fine either way". It is not.
+     *
+     * The copy comes from `TemplateGuide`, the same source the wp-admin
+     * step and the Messages settings screen (#3112) read: one set of
+     * words, three surfaces. The invitation email is absent because it is
+     * account plumbing and sits outside the switch entirely (#3110) —
+     * staff invited earlier in the flow get their invitations whatever is
+     * chosen here.
+     *
+     * The write goes to `POST /onboarding/messaging`, which calls
+     * `OnboardingHandlers::applyMessaging()` — the same inversion against
+     * the registered switchable set the wp-admin form handler runs. Not a
+     * second implementation, on purpose.
+     */
+    private static function renderMessaging( string $cancel_url ): void {
+        $templates = \TT\Modules\Comms\Template\TemplateSwitch::switchableTemplates();
+        $families  = \TT\Modules\Comms\Template\TemplateGuide::families();
+        $grouped   = \TT\Modules\Comms\Template\TemplateGuide::grouped( $templates );
+        ?>
+        <h2 class="tt-setup__heading"><?php esc_html_e( 'What TalentTrack tells people', 'talenttrack' ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php esc_html_e( 'Right now your academy sends nothing. Tick the messages you want TalentTrack to send on your behalf; leave the rest for later.', 'talenttrack' ); ?>
+        </p>
+        <p class="tt-setup__hint">
+            <?php esc_html_e( 'Most academies want the first group at least — those are the messages people are annoyed not to get. You can change any of this afterwards under Configuration → Messages.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( empty( $templates ) ) : ?>
+            <p class="tt-setup__hint"><?php esc_html_e( 'No messages are available on this install.', 'talenttrack' ); ?></p>
+        <?php endif; ?>
+
+        <form data-tt-setup-form data-tt-setup-endpoint="messaging">
+            <span data-tt-setup-multi="enabled" hidden></span>
+            <?php foreach ( $grouped as $family_key => $group ) :
+                $family = $families[ $family_key ] ?? null;
+                if ( $family === null ) continue;
+            ?>
+                <fieldset class="tt-setup__msg-group">
+                    <legend class="tt-setup__legend">
+                        <?php echo esc_html( $family['label'] ); ?>
+                        <?php if ( ! empty( $family['recommended'] ) ) : ?>
+                            <span class="tt-setup__msg-recommended"><?php esc_html_e( 'Recommended', 'talenttrack' ); ?></span>
+                        <?php endif; ?>
+                    </legend>
+                    <p class="tt-setup__hint"><?php echo esc_html( $family['blurb'] ); ?></p>
+
+                    <?php foreach ( $group as $key => $template ) :
+                        $key      = (string) $key;
+                        $entry    = \TT\Modules\Comms\Template\TemplateGuide::forKey( $key );
+                        $field_id = 'tt-setup-msg-' . sanitize_html_class( $key );
+                    ?>
+                        <div class="tt-setup__msg">
+                            <label class="tt-setup__check" for="<?php echo esc_attr( $field_id ); ?>">
+                                <input type="checkbox" id="<?php echo esc_attr( $field_id ); ?>"
+                                    name="enabled[]" value="<?php echo esc_attr( $key ); ?>" />
+                                <span class="tt-setup__msg-name"><?php echo esc_html( $template->label() ); ?></span>
+                            </label>
+                            <?php if ( $entry !== null ) : ?>
+                                <p class="tt-setup__msg-what"><?php echo esc_html( $entry['what'] ); ?></p>
+                                <p class="tt-setup__msg-who">
+                                    <?php echo esc_html( $entry['who'] ); ?>
+                                    <?php echo esc_html( $entry['when'] ); ?>
+                                </p>
+                                <?php if ( empty( $entry['triggered'] ) ) : ?>
+                                    <p class="tt-setup__msg-pending">
+                                        <?php esc_html_e( 'Not sent automatically yet — ticking it changes nothing until that is wired up.', 'talenttrack' ); ?>
+                                    </p>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </fieldset>
+            <?php endforeach; ?>
+
+            <?php echo FormSaveButton::render( [
+                'label'        => __( 'Send these and continue', 'talenttrack' ),
+                'label_saving' => __( 'Saving…', 'talenttrack' ),
+                'label_saved'  => __( 'Saved', 'talenttrack' ),
+                'cancel_url'   => $cancel_url,
+                'cancel_label' => __( 'Cancel', 'talenttrack' ),
+            ] ); ?>
+            <p class="tt-setup__skip-row">
+                <button type="button" class="tt-btn tt-btn-secondary" data-tt-setup-skip="messaging">
+                    <?php esc_html_e( 'Skip — send nothing for now', 'talenttrack' ); ?>
+                </button>
+            </p>
+        </form>
+
+        <p class="tt-setup__hint">
+            <strong><?php esc_html_e( 'If you skip this, no messages will be sent.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Not even a cancelled training. Nobody is told anything until you tick something here or under Configuration → Messages.', 'talenttrack' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * #3140 — a step the wp-admin wizard carries and this surface does not
+     * yet: `profile` (#3038), `import` (#2958), `staff` (#2965).
+     *
+     * These used to fall through to a two-word "unknown step" line, which
+     * reads as a bug and whose only exit was "Start over" — putting the
+     * operator back at step 1 to walk into the same wall. A dead end an
+     * operator can escape is a limitation; one that loops them back to the
+     * beginning is a support call.
+     *
+     * Two ways onward and deliberately not a third. It does **not** offer
+     * to skip the step on the operator's behalf: skipping is a decision,
+     * and making it for somebody who was never shown what they were
+     * deciding is the exact failure #3113 exists to prevent one step
+     * along. So the choice is "continue this step where it exists" or
+     * "leave setup" — both explicit, neither automatic.
+     *
+     * The wp-admin link is not the rejected option (3) round-trip: nothing
+     * bounces the operator anywhere. It is one clearly-labelled link on a
+     * screen that has already said why it is there, and the two surfaces
+     * share `OnboardingState`, so continuing there and coming back works.
+     */
+    private static function renderNotYetPorted( string $step, string $cancel_url ): void {
+        $title = OnboardingState::stepTitle( $step );
+        ?>
+        <h2 class="tt-setup__heading"><?php echo esc_html( $title ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php
+            printf(
+                /* translators: %s is the name of the setup step, e.g. "Import your squad". */
+                esc_html__( '%s is not available on this screen yet. Your progress is saved — the step is waiting for you, it is just not one this page can show.', 'talenttrack' ),
+                '<strong>' . esc_html( $title ) . '</strong>'
+            );
+            ?>
+        </p>
+        <p class="tt-setup__hint">
+            <?php esc_html_e( 'You can carry on with this step in the WordPress admin and come back here afterwards — both screens read the same saved progress, so nothing is repeated and nothing is lost. Or leave setup for now and pick it up whenever you like.', 'talenttrack' ); ?>
+        </p>
+        <div class="tt-setup__actions">
+            <a class="tt-btn tt-btn-secondary tt-setup__cancel" href="<?php echo esc_url( $cancel_url ); ?>">
+                <?php esc_html_e( 'Leave setup', 'talenttrack' ); ?>
+            </a>
+            <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . \TT\Modules\Onboarding\Admin\OnboardingPage::SLUG ) ); ?>">
+                <?php esc_html_e( 'Continue this step in the admin', 'talenttrack' ); ?>
+            </a>
+        </div>
+        <?php
+    }
+
     private static function renderDashboard( string $cancel_url ): void {
         $existing     = get_posts( [
             'post_type'   => 'page',
@@ -352,14 +523,17 @@ class FrontendSetupView extends FrontendViewBase {
 
     // Helpers
 
+    /**
+     * #3140 — the stepper listed five titles against a ten-step state
+     * machine, so it showed a flow that looked complete right up to the
+     * point it stopped. It now reads `OnboardingState::stepTitles()`, the
+     * registry the wp-admin wizard reads, so the progress indicator names
+     * every step the operator will actually walk through — including the
+     * three this surface cannot render yet, which is the honest answer:
+     * they are part of the flow whether or not this screen carries them.
+     */
     private static function renderStepper( string $step ): void {
-        $titles = [
-            'academy'     => __( 'Academy basics', 'talenttrack' ),
-            'first_team'  => __( 'First team', 'talenttrack' ),
-            'first_admin' => __( 'First admin', 'talenttrack' ),
-            'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
-            'done'        => __( 'Done', 'talenttrack' ),
-        ];
+        $titles      = OnboardingState::stepTitles();
         $current_idx = array_search( $step, OnboardingState::STEPS, true );
         ?>
         <ol class="tt-setup__stepper">

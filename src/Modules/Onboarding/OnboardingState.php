@@ -40,6 +40,44 @@ class OnboardingState {
     private const COMPLETED_OPT = 'tt_onboarding_completed_at';
 
     /**
+     * #3140 — the one step-title registry both setup surfaces read.
+     *
+     * There were two hand-maintained title maps against this one state
+     * machine, and both drifted: #3025 fixed the wp-admin map after
+     * `import` and `staff` were added without titles and the stepper
+     * highlighted nothing; the frontend map listed five of ten, so its
+     * progress indicator showed a flow that looked complete right up to
+     * the point it stopped. Two lists, one source of steps, nothing
+     * failing when they disagreed.
+     *
+     * Keyed by `STEPS` order so a caller can render the whole flow by
+     * iterating this, and `OnboardingStepCoverageTest` fails if a step is
+     * ever added to `STEPS` without a title here.
+     *
+     * @return array<string,string>
+     */
+    public static function stepTitles(): array {
+        return [
+            'welcome'     => __( 'Welcome', 'talenttrack' ),
+            'academy'     => __( 'Academy basics', 'talenttrack' ),
+            'profile'     => __( 'How much product', 'talenttrack' ),
+            'import'      => __( 'Import your squad', 'talenttrack' ),
+            'first_team'  => __( 'First team', 'talenttrack' ),
+            'first_admin' => __( 'First admin', 'talenttrack' ),
+            'staff'       => __( 'Add your staff', 'talenttrack' ),
+            'messaging'   => __( 'What we send', 'talenttrack' ),
+            'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
+            'done'        => __( 'Done', 'talenttrack' ),
+        ];
+    }
+
+    /** The title for one step, falling back to the raw slug rather than to nothing. */
+    public static function stepTitle( string $step ): string {
+        $titles = self::stepTitles();
+        return $titles[ $step ] ?? $step;
+    }
+
+    /**
      * @return array{step:string, dismissed:bool, payload:array<string,array<string,mixed>>}
      */
     public static function get(): array {

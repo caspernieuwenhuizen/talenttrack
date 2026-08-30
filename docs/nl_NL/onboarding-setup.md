@@ -71,14 +71,45 @@ opgeslagen, zodat je kunt stoppen en later vanaf dezelfde plek verdergaan.
  **N uitnodigingen versturen en doorgaan** ze allemaal. Je kunt ook
  doorgaan zonder te versturen — de uitnodigingen blijven klaarstaan onder
  Configuratie → Uitnodigingen, en er gaat niets verloren.
-8. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
+8. **Wat we versturen** — vink aan welke berichten TalentTrack namens jou
+ mag versturen. Een nieuwe academie begint met **alles uit**, dus tot je
+ hier kiest, krijgt niemand iets te horen — ook niet dat een training is
+ afgelast. Er staat niets voorgevinkt, omdat de keuze aan jou is en niet
+ aan ons; de groep waar mensen het meest van balen als die uitblijft, is
+ gemarkeerd als **Aanbevolen**. Je kunt **Overslaan — voorlopig niets
+ versturen** en het later instellen onder Configuratie → Berichten.
+ Uitnodigingen voor staf staan hier los van: dat is accountinrichting en
+ geen bericht uit deze lijst, dus wie je in de vorige stap uitnodigde,
+ wordt gewoon binnengelaten.
+9. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
  `[talenttrack_dashboard]`-shortcode host en stelt deze in als de homepage
  van de site, zodat iedereen op het dashboard belandt na het inloggen.
  Bestaat er al een pagina met de shortcode, dan wordt die hergebruikt en
  niet gedupliceerd. Je kunt dit **Overslaan** en de homepage later zelf
  instellen onder Instellingen → Lezen.
-9. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
+10. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
  en een knop **Opnieuw uitvoeren**.
+
+## Twee schermen, dezelfde voortgang
+
+Setup bestaat op twee plekken en ze delen één opgeslagen voortgang, dus je
+kunt er vrij tussen wisselen en doet nooit een stap dubbel:
+
+- **Configuratie → Setup** (`?tt_view=setup`) — binnen TalentTrack.
+- **TalentTrack → Welkom** in de WordPress-beheeromgeving — waar een
+ gloednieuwe installatie bij de eerste keer opstarten belandt.
+
+Drie stappen zijn voorlopig alleen in de WordPress-beheeromgeving
+beschikbaar: **Hoeveel product**, **Importeer je selectie** en **Voeg je
+staf toe**. Elk daarvan draagt iets wat het scherm in de app nog niet heeft
+— een bestandsupload met kolomtoewijzing, of de vastgehouden
+uitnodigingen. Staat je opgeslagen voortgang op zo'n stap, dan zegt het
+scherm in de app dat, meldt dat je voortgang bewaard blijft, en biedt aan
+verder te gaan in de beheeromgeving. Kom je daarna terug, dan pakt de flow
+op waar de beheeromgeving hem liet.
+
+De rest — Welkom, Academiebasis, Eerste team, Eerste beheerder, Wat we
+versturen, Dashboardpagina en Klaar — werkt op allebei de schermen.
 
 ## Stoppen en hervatten
 

@@ -58966,6 +58966,24 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is the name of the setup step, e.g. "Import your squad".
+#: src/Shared/Frontend/FrontendSetupView.php
+#, php-format
+msgid "%s is not available on this screen yet. Your progress is saved — the step is waiting for you, it is just not one this page can show."
+msgstr "%s is nog niet beschikbaar op dit scherm. Je voortgang is bewaard — de stap staat voor je klaar, alleen niet op deze pagina."
+
+#: src/Shared/Frontend/FrontendSetupView.php
+msgid "You can carry on with this step in the WordPress admin and come back here afterwards — both screens read the same saved progress, so nothing is repeated and nothing is lost. Or leave setup for now and pick it up whenever you like."
+msgstr "Je kunt deze stap afmaken in de WordPress-beheeromgeving en daarna hier terugkomen — beide schermen lezen dezelfde bewaarde voortgang, dus je doet niets dubbel en raakt niets kwijt. Of laat setup even voor wat het is en pak het op wanneer je wilt."
+
+#: src/Shared/Frontend/FrontendSetupView.php
+msgid "Leave setup"
+msgstr "Setup verlaten"
+
+#: src/Shared/Frontend/FrontendSetupView.php
+msgid "Continue this step in the admin"
+msgstr "Ga verder in de beheeromgeving"
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 

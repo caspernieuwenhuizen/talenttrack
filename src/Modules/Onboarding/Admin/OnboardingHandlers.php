@@ -303,8 +303,32 @@ class OnboardingHandlers {
         self::guard( 'tt_onboarding_messaging' );
 
         $submitted = isset( $_POST['enabled'] ) && is_array( $_POST['enabled'] )
-            ? array_map( 'sanitize_key', array_map( 'strval', wp_unslash( $_POST['enabled'] ) ) )
+            ? array_map( 'strval', wp_unslash( $_POST['enabled'] ) )
             : [];
+
+        self::applyMessaging( $submitted );
+
+        self::redirectToPage( [ 'tt_ob_msg' => 'messaging_saved' ] );
+    }
+
+    /**
+     * #3140 — the messaging decision itself, with no surface attached.
+     *
+     * The wp-admin form handler above and the frontend Setup view's REST
+     * route both call this. That is the point: the inversion described in
+     * this method's parent docblock is the whole guarantee of #3113, and a
+     * second surface re-deriving it is exactly how a template ends up
+     * switched on by omission on one screen and not the other.
+     *
+     * `$submitted` is whatever the operator ticked, in any shape a form or
+     * a JSON body produces; it is sanitised and intersected here, never
+     * trusted as the exhaustive list.
+     *
+     * @param list<string> $submitted template keys the operator ticked
+     * @return array{enabled: list<string>, disabled: list<string>}
+     */
+    public static function applyMessaging( array $submitted ): array {
+        $submitted = array_map( 'sanitize_key', array_map( 'strval', $submitted ) );
 
         $switchable = array_keys( TemplateSwitch::switchableTemplates() );
         $enabled    = array_values( array_intersect( $switchable, $submitted ) );
@@ -319,7 +343,8 @@ class OnboardingHandlers {
         do_action( 'tt_onboarding_step_completed', 'messaging', [ 'enabled' => count( $enabled ) ] );
 
         OnboardingState::setStep( 'dashboard' );
-        self::redirectToPage( [ 'tt_ob_msg' => 'messaging_saved' ] );
+
+        return [ 'enabled' => $enabled, 'disabled' => $disabled ];
     }
 
     /**
@@ -333,11 +358,22 @@ class OnboardingHandlers {
     public static function handleSkipMessaging(): void {
         self::guard( 'tt_onboarding_skip_messaging' );
 
+        self::skipMessaging();
+
+        self::redirectToPage();
+    }
+
+    /**
+     * #3140 — the skip, shared with the frontend Setup view for the same
+     * reason `applyMessaging()` is: "skipping writes nothing" is a
+     * guarantee, and a guarantee kept in two places is kept in one and a
+     * half.
+     */
+    public static function skipMessaging(): void {
         OnboardingState::recordPayload( 'messaging', [ 'skipped' => true ] );
         do_action( 'tt_onboarding_step_completed', 'messaging', [ 'skipped' => true ] );
 
         OnboardingState::setStep( 'dashboard' );
-        self::redirectToPage();
     }
 
     /**

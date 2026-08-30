@@ -64,13 +64,42 @@ can stop and pick up later from the same place.
  you are ready, **Send N invitations and continue** releases them all. You
  can also continue without sending — the invitations stay ready under
  Configuration → Invitations, and nothing is lost.
-8. **Dashboard page** — creates the frontend page that hosts the
+8. **What we send** — tick the messages you want TalentTrack to send on
+ your behalf. A new academy starts with **everything switched off**, so
+ until you choose here, nobody is told anything — not even that a training
+ was cancelled. Nothing is pre-ticked, because the choice is yours to make
+ rather than ours to make for you; the group people are most annoyed not
+ to get is marked **Recommended**. You can **Skip — send nothing for now**
+ and set it up later under Configuration → Messages. Invitations to staff
+ are not affected either way: they are account plumbing, not one of these
+ messages, so people you invited on the previous step still get let in.
+9. **Dashboard page** — creates the frontend page that hosts the
  `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so
  everyone lands on the dashboard when they sign in. If a page with the
  shortcode already exists it is reused, not duplicated. You can **Skip**
  this and set the homepage yourself later under Settings → Reading.
-9. **Done** — a summary of what was set up, with **Go to dashboard** and a
+10. **Done** — a summary of what was set up, with **Go to dashboard** and a
  **Run again** button.
+
+## Two screens, the same progress
+
+Setup exists in two places and they share one saved progress, so you can
+move between them freely and never repeat a step:
+
+- **Configuration → Setup** (`?tt_view=setup`) — inside TalentTrack.
+- **TalentTrack → Welcome** in the WordPress admin — where a brand-new
+ install lands on its first run.
+
+Three steps are only available in the WordPress admin for now: **How much
+product**, **Import your squad** and **Add your staff**. Each carries
+something the in-app screen does not have yet — a file upload with column
+mapping, or the held-invitation flow. If your saved progress is on one of
+those, the in-app screen says so, tells you your progress is kept, and
+offers to carry on in the WordPress admin. Come back afterwards and the
+flow picks up where the admin left it.
+
+Everything else — Welcome, Academy basics, First team, First admin, What we
+send, Dashboard page and Done — works on both screens.
 
 ## Stop and resume
 
