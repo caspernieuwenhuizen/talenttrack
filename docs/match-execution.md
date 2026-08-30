@@ -357,4 +357,8 @@ future web app:
  development action for a flagged player.
 
 All require the `tt_edit_activities` capability, the same permission that
-gates the match-execution screen itself.
+gates the match-execution screen itself — **and** the match must belong to
+a team you coach. That capability says you run matches; the match's own
+team says whose. Academy Admin and Head of Development reach every team.
+A request for a match on another coach's team is refused (`403`), the same
+answer the screen gives: *You do not coach this activity's team.*

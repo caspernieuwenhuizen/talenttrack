@@ -223,6 +223,14 @@ class FrontendMatchPrepView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #3151 — `tt_edit_activities` is held club-wide, so it says the
+        // viewer runs matches, not whose. Narrow to the teams they coach
+        // before a squad is loaded.
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
+            echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
+            return;
+        }
         // Note: 'match' is a legacy synonym for ActivityTypeKey::GAME kept
         // for back-compat — see #988 follow-up.
         if ( ( $activity->activity_type_key ?? '' ) !== ActivityTypeKey::GAME && ( $activity->activity_type_key ?? '' ) !== 'match' ) {

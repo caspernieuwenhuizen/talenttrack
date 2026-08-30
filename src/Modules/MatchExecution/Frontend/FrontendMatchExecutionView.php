@@ -209,6 +209,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #3151 — the list view narrows to the viewer's teams; this detail
+        // view did not, and `tt_edit_activities` is club-wide.
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
+            echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
+            return;
+        }
 
         $prep_repo = new MatchPrepRepository();
         $prep      = $prep_repo->findByActivity( $activity_id );

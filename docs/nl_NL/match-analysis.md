@@ -32,6 +32,12 @@ Je hebt **geen** wedstrijdplan of live-registratie nodig. Een wedstrijd die
 je vanaf een papieren opstelling hebt gecoacht krijgt dezelfde analyse; er
 valt dan alleen niets vooraf in te vullen.
 
+En alleen voor teams die je coacht. De analyse noemt elke speler bij naam
+en citeert wat hij te horen kreeg, dus hij opent voor de coaches van het
+team dat speelde — plus Academiebeheer en Hoofd Opleiding, die alle teams
+zien. Wie de URL anders opent krijgt *Je bent geen trainer van het team
+van deze activiteit.*
+
 ## Wat je invult
 
 ### Algemeen

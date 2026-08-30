@@ -299,6 +299,18 @@ Delen kan voor de hele academie worden uitgezet onder **Modules en functies**,
 los van het delen van wedstrijdanalyses. Het plan schrijven en afdrukken
 verandert er niet door.
 
+## Wie het kan openen
+
+Het plan hoort bij het team dat de wedstrijd speelt. Je opent — en
+wijzigt — de wedstrijdvoorbereiding van wedstrijden van teams die je
+zelf coacht. Open je de URL van een wedstrijd van een team dat je niet
+coacht, dan krijg je *Je bent geen trainer van het team van deze
+activiteit.*
+Academiebeheer en Hoofd Opleiding zien alle teams, zoals overal.
+
+Datzelfde geldt voor de deellink en de rolverdeling: het team van het
+plan bepaalt, niet het feit dat je ergens in de academie coach bent.
+
 ## Wat hier niet kan
 
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe

@@ -395,4 +395,9 @@ toekomstige webapp:
  van een gemarkeerde speler vastleggen of ongedaan maken.
 
 Alle vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
-het wedstrijduitvoeringsscherm zelf afschermen.
+het wedstrijduitvoeringsscherm zelf afschermen — **en** de wedstrijd moet
+van een team zijn dat je coacht. Die capability zegt dát je wedstrijden
+draait; het team van de wedstrijd zegt welke. Academiebeheer en Hoofd
+Opleiding bereiken alle teams. Een verzoek voor een wedstrijd van een
+ander team wordt geweigerd (`403`), met hetzelfde antwoord als het scherm
+geeft: *Je bent geen trainer van het team van deze activiteit.*
