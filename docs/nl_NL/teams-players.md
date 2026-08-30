@@ -150,6 +150,30 @@ Een knop **Aanpassen** (alleen zichtbaar voor coaches die het team beheren) open
 
 De voorkeur wordt per gebruiker opgeslagen en gelezen/geschreven via `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, zodat een toekomstige niet-WordPress-frontend dezelfde indeling krijgt. Spelers, ouders, beheerders en coaches die niets hebben aangepast zien allemaal de standaard — elke sectie aan.
 
+## Wie een team mag openen
+
+`tt_view_teams` zegt dat je naar teams mag kijken. Niet naar **welke** teams —
+dat is het teambereik dat bij je account is vastgelegd, en dat is altijd al wat
+de teamlijst gebruikt om te bepalen welke selecties je te zien krijgt.
+
+Een team openen stelt nu dezelfde vraag. Een trainer die niet aan een team is
+gekoppeld krijgt *"Je hebt geen toegang tot dit team"* op
+`?tt_view=teams&id=N`, op het bewerkformulier erachter en op de API — in plaats
+van de volledige selectie, de stagespelers en de stafleden. Voorheen verborg de
+lijst een team en gaf de detailpagina het alsnog aan iedereen die het id
+intypte.
+
+Ongewijzigd voor iedereen die alles hoort te zien: een beheerder, en elke
+persona met een **globaal** leesrecht op teams — Hoofd Ontwikkeling,
+Academiebeheerder, Clubbeheerder, Alleen-lezen Waarnemer — opent nog steeds elk
+team. Gearchiveerde teams gaan nog steeds alleen-lezen open voor de trainer die
+ze leidde; of je een team traint is een feit over de koppeling, niet over de
+vraag of het team nog bestaat.
+
+Meldt een trainer dat een teampagina niet meer opengaat, controleer dan de
+teamkoppelingen onder **Personen → Functionele rollen**. Daar komt het bereik
+vandaan.
+
 ## Bewerk-rechtenpad
 
 De bewerken-knop op de teamdetailpagina en de Teams REST-endpoints (list / get / create / delete) gebruiken nu `AuthorizationService::userCanOrMatrix` in plaats van `current_user_can`. Daardoor passeren ook gebruikers de poort die `tt_edit_teams` via de matrix scope-rij krijgen (functionele rol-bridge), in lijn met het patroon dat al voor tegels en de Activities REST geldt.

@@ -79,6 +79,15 @@ class FrontendTeamsManageView extends FrontendViewBase {
         }
 
         if ( $id > 0 ) {
+            // #3152 — `loadTeam()` took the id straight from the URL, so an
+            // arbitrary `?id=` reached the edit form and both roster
+            // sections. Refuse before anything is loaded or rendered.
+            if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeam( $user_id, $id ) ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
+                self::renderHeader( $teams_label );
+                echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p>';
+                return;
+            }
             $team = self::loadTeam( $id );
             if ( ! $team ) {
                 \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Team not found', 'talenttrack' ), $parent_crumb );
@@ -566,21 +575,20 @@ class FrontendTeamsManageView extends FrontendViewBase {
     }
 
     private static function loadTeam( int $id ): ?object {
-        // v4.20.69 (#1221, audit-7 / #1181) — no `t.club_id = %d` clause
-        // here. The audit flagged this helper alongside loadPlayer /
-        // loadGoal / loadSession as missing the tenancy filter, but
-        // v4.20.30 (#1188) settled the direction: tenancy boundary is
-        // enforced at the request layer (CurrentClub resolution), not by
-        // sprinkling per-helper club_id WHEREs. (Note: `QueryHelpers::get_team`
-        // still carries the legacy club_id clause as of this ship — see
-        // the same audit's separate finding; that helper is the next
-        // sweep target for #1188-direction alignment.)
+        // #3152 — this used to omit `t.club_id`, on the v4.20.30 (#1188)
+        // reasoning that tenancy belongs at the request layer. That reasoning
+        // came from `get_player()`, where the missing clause 404'd three PDF
+        // exporters on players whose stored club_id had drifted. Teams have no
+        // such case: the sibling loader this view's own detail page uses,
+        // `QueryHelpers::get_team()`, has always carried the clause, so the
+        // two disagreed about which team a given id names. They agree now —
+        // and on a record that lists children, the safer of two answers wins.
         global $wpdb; $p = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT t.* FROM {$p}tt_teams t WHERE t.id = %d AND t.archived_at IS NULL {$scope}",
-            $id
+            "SELECT t.* FROM {$p}tt_teams t WHERE t.id = %d AND t.club_id = %d AND t.archived_at IS NULL {$scope}",
+            $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         return $row ?: null;
     }

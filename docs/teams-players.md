@@ -149,6 +149,28 @@ A **Customize** button (visible only to coaches who manage the team) opens a pan
 
 The preference is stored per user and read/written through `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, so a future non-WordPress front end gets the same layout. Players, parents, admins, and coaches who haven't customised all see the default — every section on.
 
+## Who can open a team
+
+`tt_view_teams` says you may look at teams. It does not say **which** teams —
+that is the team scope recorded against your account, and it is what the Teams
+list has always used to decide which squads to show you.
+
+Opening one now asks the same question. A coach who is not assigned to a team
+gets *"You do not have access to this team"* on `?tt_view=teams&id=N`, on the
+edit form behind it, and on the API — instead of the full roster, the trial
+roster and the staff list. Before, the list hid a squad and the detail page
+handed it over anyway to anyone who typed its id.
+
+Unchanged for everyone who should see everything: an administrator, and any
+persona with a **global** read on teams — Head of Development, Academy Admin,
+Club Admin, Read-Only Observer — still opens every team. Archived teams still
+open read-only for the coach who ran them; whether you coach a squad is a fact
+about the assignment, not about whether the squad is still running.
+
+If a coach reports a team page has stopped opening, check their team
+assignments under **People → Functional roles**. That is where the scope comes
+from.
+
 ## Edit cap path
 
 The team-detail edit button and the Teams REST endpoints (list / get / create / delete) now consult `AuthorizationService::userCanOrMatrix` rather than `current_user_can`. This means a Head of Development granted `tt_edit_teams` via the matrix scope-row layer (functional role bridge) passes the gate too, matching the pattern already used by Tile gating and the Activities REST endpoints.

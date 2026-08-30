@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\AllTeamsScope;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -52,7 +53,16 @@ final class PeekRestController extends BaseController {
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/summary', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'team' ],
-            'permission_callback' => self::permCan( 'tt_view_teams' ),
+            // #3152 — "a record you cannot open is a record you cannot peek"
+            // (docs/rest-api.md § Search + peek). That held for the player
+            // peek above, which asks `canViewPlayer`, and not for this one:
+            // `tt_view_teams` is club-wide, so the peek returned name, age
+            // group, season and roster count for any team id. Same predicate
+            // the detail route and `GET /teams` now use.
+            'permission_callback' => static function ( WP_REST_Request $r ): bool {
+                return current_user_can( 'tt_view_teams' )
+                    && AllTeamsScope::canReadTeam( get_current_user_id(), (int) $r['id'] );
+            },
             'args'                => [ 'id' => [ 'type' => 'integer', 'required' => true ] ],
         ] );
 
