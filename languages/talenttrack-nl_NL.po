@@ -59201,14 +59201,6 @@ msgstr "Gedrags- en potentieelbeoordelingen worden hier niet vastgelegd."
 #~ msgid "First-team"
 #~ msgstr "Eerste elftal"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:412
-msgid "A valid trial-letter audience is required."
-msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:434
-msgid "The letter could not be generated."
-msgstr "De brief kon niet worden gegenereerd."
-
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:394
 msgid "Not published yet. The coaches have not been told about this plan."
 msgstr ""
