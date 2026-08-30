@@ -201,6 +201,63 @@
 
 .tt-dashboard .tt-psc-history__notes { color: var(--tt-ink-soft, #6a6d66); }
 
+/* ---- What this asks for, and how often (#3241) ------------------------ */
+/* Text, never a tooltip: this is read on a phone at the side of a pitch,
+   and a tooltip is a hover affordance. */
+
+.tt-dashboard .tt-psc-card__lede {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-cadence {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.8125rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-cadence--overdue { color: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-psc-cadence--never   { font-style: italic; }
+
+.tt-dashboard .tt-psc-bands {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.8125rem;
+}
+
+.tt-dashboard .tt-psc-bands__summary,
+.tt-dashboard .tt-psc-bands summary {
+    /* 48px: this is the control that reveals the meanings. */
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-psc-bands summary:focus-visible {
+    outline: 2px solid var(--tt-info, #2d6fb3);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-psc-bands__list {
+    margin: 0;
+    padding: 0 0 0 var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-psc-bands__list dt {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-psc-bands__list dd {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    color: var(--tt-muted, #6a6d66);
+}
+
 /* ---- Scale up -------------------------------------------------------- */
 @media (min-width: 768px) {
     .tt-dashboard .tt-psc-grid {

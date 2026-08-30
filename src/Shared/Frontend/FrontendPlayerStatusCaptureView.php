@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Alerts\Definitions\PotentialStaleAlert;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 use TT\Modules\Players\Services\PotentialTrajectory;
@@ -156,6 +157,9 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             ?>
             <section class="tt-psc-card">
                 <h3 class="tt-psc-card__head"><?php esc_html_e( 'Record a behaviour rating', 'talenttrack' ); ?></h3>
+                <p class="tt-psc-card__lede">
+                    <?php esc_html_e( 'Attitude, effort and how the player is to work with. It feeds their status light, weighted for their age group — so it is a judgement about this week, recorded often, not a verdict.', 'talenttrack' ); ?>
+                </p>
                 <form method="post">
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="kind" value="behaviour" />
@@ -181,6 +185,20 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             }
                             ?>
                         </select>
+                        <span class="tt-field-hint">
+                            <?php
+                            // #3241 — describe the ENDS, never the numbers.
+                            // The scale is `rating_min`/`rating_max` from
+                            // club config, so copy naming "1" or "5" would
+                            // be wrong on most installs.
+                            printf(
+                                /* translators: 1: lowest value on the configured scale, 2: highest */
+                                esc_html__( '%1$s is the lowest, %2$s the highest. Rate what you saw this week, not the player overall — the trend across ratings is what the status reads.', 'talenttrack' ),
+                                esc_html( (string) $rmin ),
+                                esc_html( (string) $rmax )
+                            );
+                            ?>
+                        </span>
                     </p>
                     <?php if ( ! empty( $recent_activities ) ) : ?>
                     <p class="tt-psc-field">
@@ -251,6 +269,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             ?>
             <section class="tt-psc-card">
                 <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
+                <?php self::renderPotentialCadence( $latest_potential ); ?>
                 <form method="post">
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="kind" value="potential" />
@@ -268,7 +287,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                                 <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $current_band, $code ); ?>><?php echo esc_html( $label ); ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <span class="tt-field-hint">
+                            <?php esc_html_e( 'How high you believe this player can reach at their peak — not where they are now. Read the bands below before choosing.', 'talenttrack' ); ?>
+                        </span>
                     </p>
+                    <?php self::renderBandMeanings(); ?>
                     <p class="tt-psc-field">
                         <label class="tt-field-label" for="tt-pot-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                         <textarea id="tt-pot-notes" class="tt-input" name="notes" rows="3" placeholder="<?php esc_attr_e( "Optional rationale — e.g. why you've revised the band up or down.", 'talenttrack' ); ?>"></textarea>
@@ -303,6 +326,110 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         echo '</div>';
+    }
+
+    /**
+     * #3241 — what each band means, next to the picker that asks for one.
+     *
+     * The bands describe a professional ceiling and nothing on this screen
+     * said so, which is how two coaches record the same player differently
+     * and three surfaces downstream treat both the same. Five sentences,
+     * beside the select rather than in a doc nobody opens mid-form.
+     *
+     * Keyed off `PotentialTrajectory::labels()` so the list cannot drift
+     * from the picker: a band added to the vocabulary without a meaning
+     * here shows its label and no explanation, which is visibly incomplete
+     * rather than silently wrong.
+     */
+    private static function renderBandMeanings(): void {
+        $meanings = [
+            PotentialBand::FIRST_TEAM             => __( 'Can reach this club\'s own first team.', 'talenttrack' ),
+            PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Can play professionally, most likely at another club.', 'talenttrack' ),
+            PotentialBand::SEMI_PRO               => __( 'Can play at semi-professional level.', 'talenttrack' ),
+            PotentialBand::TOP_AMATEUR            => __( 'Can play at the highest amateur level.', 'talenttrack' ),
+            PotentialBand::RECREATIONAL           => __( 'Will play for the love of it. Not a lesser player to coach — a different ceiling.', 'talenttrack' ),
+        ];
+
+        echo '<details class="tt-psc-bands">';
+        echo '<summary>' . esc_html__( 'What the bands mean', 'talenttrack' ) . '</summary>';
+        echo '<dl class="tt-psc-bands__list">';
+        foreach ( PotentialTrajectory::labels() as $code => $label ) {
+            echo '<dt>' . esc_html( (string) $label ) . '</dt>';
+            echo '<dd>' . esc_html( (string) ( $meanings[ $code ] ?? '' ) ) . '</dd>';
+        }
+        echo '</dl>';
+        echo '</details>';
+    }
+
+    /**
+     * #3241 — the cadence, and where this player is against it.
+     *
+     * Potential is a quarterly judgement and the product said so nowhere.
+     * The window comes from `alerts_potential_stale_days`, the same club
+     * setting the stale-potential alert (#3225) reads, so the screen and
+     * the alert cannot disagree about what overdue means.
+     *
+     * @param object|null $latest The player's most recent potential row.
+     */
+    private static function renderPotentialCadence( ?object $latest ): void {
+        $days = (int) QueryHelpers::get_config(
+            PotentialStaleAlert::CONFIG_KEY_STALE_DAYS,
+            '180'
+        );
+        $days = $days > 0 ? $days : 180;
+        $months = max( 1, (int) round( $days / 30 ) );
+
+        echo '<p class="tt-psc-card__lede">';
+        printf(
+            /* translators: %d: number of months before a potential counts as stale */
+            esc_html__( 'Revisit this about every quarter. After %d months without a look it is flagged as out of date.', 'talenttrack' ),
+            (int) $months
+        );
+        echo '</p>';
+
+        if ( ! $latest ) {
+            echo '<p class="tt-psc-cadence tt-psc-cadence--never">'
+                . esc_html__( 'Never set for this player.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        // Read as an array: the repository returns a plain `object`, and a
+        // property access on that type is an error at PHPStan level 8.
+        $row  = (array) $latest;
+        $when = (string) ( $row['set_at'] ?? $row['created_at'] ?? '' );
+        $ts   = $when !== '' ? strtotime( $when ) : false;
+        if ( $ts === false ) return;
+
+        $elapsed = (int) floor( ( current_time( 'timestamp' ) - $ts ) / DAY_IN_SECONDS );
+        $overdue = $elapsed >= $days;
+
+        $set_by = (int) ( $row['set_by'] ?? 0 );
+        $who    = '';
+        if ( $set_by > 0 ) {
+            $user = get_userdata( $set_by );
+            $who  = $user instanceof \WP_User ? (string) $user->display_name : '';
+        }
+
+        echo '<p class="tt-psc-cadence' . ( $overdue ? ' tt-psc-cadence--overdue' : '' ) . '">';
+        if ( $who !== '' ) {
+            printf(
+                /* translators: 1: number of days ago, 2: person who set it */
+                esc_html__( 'Last set %1$d days ago, by %2$s.', 'talenttrack' ),
+                (int) $elapsed,
+                esc_html( $who )
+            );
+        } else {
+            printf(
+                /* translators: %d: number of days ago */
+                esc_html__( 'Last set %d days ago.', 'talenttrack' ),
+                (int) $elapsed
+            );
+        }
+        if ( $overdue ) {
+            echo ' <strong>' . esc_html__( 'Due a look.', 'talenttrack' ) . '</strong>';
+        }
+        echo '</p>';
     }
 
     /**

@@ -168,6 +168,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 'notes_placeholder'    => __( 'Optional context',            'talenttrack' ),
                 'band_label'           => __( 'Potential band',              'talenttrack' ),
                 'band_placeholder'     => __( '— pick a band —',             'talenttrack' ),
+                // #3241 — the same sentence the capture screen leads with,
+                // so the two ways in agree. The full band meanings live on
+                // the capture screen, one link away from this popover.
+                'band_hint'            => __( 'How high you believe this player can reach at their peak — not where they are now.', 'talenttrack' ),
                 'save_behaviour'       => __( 'Save rating',                 'talenttrack' ),
                 'save_potential'       => __( 'Update potential',            'talenttrack' ),
                 'view_all_behaviour'   => __( 'View all behaviour ratings →','talenttrack' ),
