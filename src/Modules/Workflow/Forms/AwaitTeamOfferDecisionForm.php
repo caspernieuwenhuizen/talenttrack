@@ -3,8 +3,6 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\PlayerStatus;
-use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Workflow\Contracts\FormInterface;
@@ -14,11 +12,13 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * player's response to a team-offer.
  *
  * Three radio choices: accepted / declined / no-response-mark-withdrawn.
- * On accept, the trial case decision flips to `admit` and the player's
- * status updates to `active`. On decline, the trial case decision flips
- * to `declined_offered_position` (terminal) and the prospect is
- * archived. On no-response, the trial case is archived without a
- * decision change — operator can revisit later.
+ * Accept and decline are recorded through
+ * `TrialCasesRepository::recordDecision()` — `admit` and
+ * `declined_offered_position` respectively — so the decision hook fires
+ * and both the player's timeline and the player's status follow from it
+ * (#3138). On no-response the case is archived without a decision change,
+ * announcing nothing, because nothing was decided; the operator can
+ * revisit later. The prospect is archived here on decline and no-response.
  */
 class AwaitTeamOfferDecisionForm implements FormInterface {
 
@@ -91,46 +91,51 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
         // and stamped onto the task's trial_case_id column when the
         // chain spawned this template.
         $trial_case_id = (int) ( $task['trial_case_id'] ?? 0 );
-        $player_id     = (int) ( $task['player_id']     ?? 0 );
         $prospect_id   = (int) ( $task['prospect_id']   ?? 0 );
         $actor         = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
 
         if ( $trial_case_id > 0 ) {
             $repo = new TrialCasesRepository();
-            $patch = [
-                'decision_made_at' => current_time( 'mysql', true ),
-                'decision_made_by' => $actor,
-                'decision_notes'   => $notes,
-            ];
+
+            // #3138 — through `recordDecision()`, not `update()`. Both
+            // decision branches used to write the case row and announce
+            // nothing, so a trial that ended here never closed on the
+            // player's timeline: the declined branch left a trial that
+            // started and never finished, and the accepted branch produced
+            // no "Signed after trial" either.
+            //
+            // The decision hook now carries both, which also means the
+            // player's status is written by one owner —
+            // `TrialDecisionPlayerStatusSubscriber` (#3116), whose mapping
+            // already covers `admit` -> active and
+            // `declined_offered_position` -> inactive. The manual
+            // `tt_players` write that used to live below is gone with it;
+            // two writers with two opinions about the same column is the
+            // thing that gap invites.
             if ( $outcome === 'accepted' ) {
-                $patch['decision'] = TrialCasesRepository::DECISION_ADMIT;
-                $patch['status']   = TrialCasesRepository::STATUS_DECIDED;
+                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_ADMIT, $actor, $notes );
             } elseif ( $outcome === 'declined' ) {
-                $patch['decision'] = TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION;
-                $patch['status']   = TrialCasesRepository::STATUS_DECIDED;
+                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION, $actor, $notes );
             } else {
-                // no_response → archive without decision change
-                $patch['archived_at'] = current_time( 'mysql', true );
-                $patch['archived_by'] = $actor;
+                // no_response → archive without decision change. Nothing was
+                // decided, so nothing is announced.
+                $repo->update( $trial_case_id, [
+                    'decision_made_at' => current_time( 'mysql', true ),
+                    'decision_made_by' => $actor,
+                    'decision_notes'   => $notes,
+                    'archived_at'      => current_time( 'mysql', true ),
+                    'archived_by'      => $actor,
+                ] );
             }
-            $repo->update( $trial_case_id, $patch );
         }
 
         // v3.110.85 — close the docblock gap. Pre-v3.110.85 only the
         // trial-case row was updated; the docblock's promised
-        // player.status and prospect-archival side-effects never ran.
-        // Net effect: accepted prospects stayed at player.status='trial'
-        // (so the v3.110.84 classifier left them in Trial group instead
-        // of promoting to Joined), and declined / no_response prospects
-        // stayed visible in the funnel forever.
-        if ( $outcome === 'accepted' && $player_id > 0 ) {
-            global $wpdb;
-            $wpdb->update(
-                $wpdb->prefix . 'tt_players',
-                [ 'status' => PlayerStatus::ACTIVE ],
-                [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
-            );
-        } elseif ( $outcome === 'declined' && $prospect_id > 0 ) {
+        // player.status and prospect-archival side-effects never ran, so
+        // declined / no_response prospects stayed visible in the funnel
+        // forever. The player-status half of that moved to the decision
+        // subscriber in #3138; the prospect archival stays here.
+        if ( $outcome === 'declined' && $prospect_id > 0 ) {
             ( new ProspectsRepository() )->archive(
                 $prospect_id,
                 ProspectsRepository::ARCHIVE_REASON_PARENT_WITHDREW,

@@ -98,6 +98,25 @@ Alleen een speler die nog op **Stage** staat verandert. Is hij al langs een ande
 
 De brief wordt **niet** automatisch gegenereerd. Ga naar het tabblad **Brief** en maak hem aan wanneer je zover bent; een brief aan een gezin hoort gelezen te zijn voordat hij bestaat. De rest van het gesprek loopt via het tabblad Oudergesprek.
 
+### De zes beslissingen, en welke de stage afsluiten
+
+Naast de drie op het tabblad Beslissing bestaan er nog drie. Die worden vastgelegd door de werkstroomtaken van de stagegroep — **Stagegroep-lidmaatschap beoordelen** en **Beslissing teamaanbod afwachten** — in plaats van op het tabblad Beslissing, en ze betekenen niet allemaal dat de stage voorbij is:
+
+| Beslissing | Waar vastgelegd | Op de reis |
+| --- | --- | --- |
+| Aannemen | Tabblad Beslissing, of het teamaanbod aanvaarden | *Stage afgerond* + *Vastgelegd* |
+| Afwijzen (definitief) | Tabblad Beslissing, of Stagegroep-lidmaatschap beoordelen | *Stage afgerond* + *Afscheid genomen* |
+| Afwijzen (met aanmoediging) | Tabblad Beslissing | *Stage afgerond* |
+| Gezin wees de aangeboden plek af | Beslissing teamaanbod afwachten | *Stage afgerond* |
+| Teamplek aangeboden | Stagegroep-lidmaatschap beoordelen | **niets** |
+| Doorgaan in de stagegroep | Stagegroep-lidmaatschap beoordelen | **niets** |
+
+De laatste twee schrijven bewust niets. *Doorgaan in de stagegroep* zegt dat de stage **nog loopt**, dus een regel *Stage afgerond* zou ronduit onjuist zijn in plaats van alleen ontbrekend; *Teamplek aangeboden* zit midden in het gesprek en het gezin heeft nog niet geantwoord. Het antwoord komt een taak later, bij Beslissing teamaanbod afwachten, en dat is wat de stage afsluit.
+
+Tot voor kort bereikten de drie werkstroombeslissingen de tijdlijn helemaal niet: een stage die eindigde omdat een gezin de aangeboden plek afwees, stond op de tijdlijn als een stage die begon en nooit eindigde. Casussen die daarvoor zijn beslist blijven zoals ze zijn, tenzij de reis opnieuw wordt opgebouwd.
+
+Dat een academie een plek aanbiedt is misschien wel het belangrijkste moment in een stage en staat nog nergens op de reis. Daar hoort een eigen regeltype bij; dat valt hier buiten.
+
 ### Archiveren (het "geen antwoord nodig" pad)
 
 Wanneer je het gezin geen formele beslissing schuldig bent — het gezin reageert niet meer, de speler is verhuisd, het dossier is per ongeluk geopend — sluit de actie **Dossier archiveren** het dossier zonder beslissingsregel en zonder brief te genereren. De actie staat in de pagina-koprij van de dossierpagina (rol manager / hoofd opleiding vereist). Het dossier blijft in de database staan (te vinden via de gearchiveerde-dossiers-lijst); het telt alleen niet meer als open werk.
