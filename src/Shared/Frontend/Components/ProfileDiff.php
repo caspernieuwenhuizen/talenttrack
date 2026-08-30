@@ -22,8 +22,20 @@ final class ProfileDiff {
 
     /**
      * @param list<array{kind:string, id:string, key:string, label:string, from:bool, to:bool, skipped_reason:?string}> $rows
+     * @param array{selectable?:bool, heading_level?:string} $opts
+     *        `selectable` false renders every group as read-only text —
+     *        for a surface that shows what a choice would do without
+     *        offering to exclude rows from it (#3259's Setup step, where
+     *        the whole profile is the unit and picking rows out of it is
+     *        the preview screen's job). `heading_level` lets a caller that
+     *        nests this under its own heading keep the document outline
+     *        honest.
      */
-    public static function render( array $rows ): void {
+    public static function render( array $rows, array $opts = [] ): void {
+        $pickable = ! isset( $opts['selectable'] ) || (bool) $opts['selectable'];
+        $tag      = isset( $opts['heading_level'] ) ? (string) $opts['heading_level'] : 'h2';
+        if ( ! in_array( $tag, [ 'h2', 'h3', 'h4' ], true ) ) $tag = 'h2';
+
         $on      = [];
         $off     = [];
         $skipped = [];
@@ -46,13 +58,15 @@ final class ProfileDiff {
             'on',
             __( 'Will be switched on', 'talenttrack' ),
             $on,
-            true
+            $pickable,
+            $tag
         );
         self::group(
             'off',
             __( 'Will be switched off', 'talenttrack' ),
             $off,
-            true
+            $pickable,
+            $tag
         );
         // Rendered as read-only text rather than an unticked checkbox:
         // these are not a choice the operator has, and a control that
@@ -61,7 +75,8 @@ final class ProfileDiff {
             'skipped',
             __( 'Cannot be applied', 'talenttrack' ),
             $skipped,
-            false
+            false,
+            $tag
         );
 
         echo '</div>';
@@ -70,17 +85,21 @@ final class ProfileDiff {
     /**
      * @param list<array{kind:string, id:string, key:string, label:string, from:bool, to:bool, skipped_reason:?string}> $rows
      */
-    private static function group( string $key, string $title, array $rows, bool $selectable ): void {
+    private static function group( string $key, string $title, array $rows, bool $selectable, string $tag = 'h2' ): void {
         if ( $rows === [] ) return;
 
-        $heading_id = 'tt-profile-diff-' . $key;
+        // Unique per group AND per call site: a page that renders the diff
+        // for two profiles at once (#3259's Setup step) would otherwise
+        // repeat an id and point every `aria-labelledby` at the first one.
+        static $seq = 0;
+        $heading_id = 'tt-profile-diff-' . $key . '-' . ( ++$seq );
         ?>
         <section class="tt-profile-diff__group tt-profile-diff__group--<?php echo esc_attr( $key ); ?>"
                  aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
-            <h2 class="tt-profile-diff__title" id="<?php echo esc_attr( $heading_id ); ?>">
+            <<?php echo esc_html( $tag ); ?> class="tt-profile-diff__title" id="<?php echo esc_attr( $heading_id ); ?>">
                 <?php echo esc_html( $title ); ?>
                 <span class="tt-profile-diff__count"><?php echo esc_html( (string) count( $rows ) ); ?></span>
-            </h2>
+            </<?php echo esc_html( $tag ); ?>>
             <ul class="tt-profile-diff__list">
                 <?php foreach ( $rows as $row ) : ?>
                     <li class="tt-profile-diff__row">

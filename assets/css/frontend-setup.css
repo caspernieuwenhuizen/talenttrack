@@ -257,12 +257,74 @@
     font-style: italic;
 }
 
+/* ---- Install-profile step (#3259, step from #3038) ------------------ */
+.tt-dashboard .tt-setup__profiles {
+    display: grid;
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-setup__profile {
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-setup__profile-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.tt-dashboard .tt-setup__profile-desc,
+.tt-dashboard .tt-setup__profile-group,
+.tt-dashboard .tt-setup__profile-nochange {
+    margin: var(--tt-sp-2) 0 0;
+    font-size: 0.875rem;
+    color: var(--tt-muted);
+}
+
+.tt-dashboard .tt-setup__profile-details {
+    margin-top: var(--tt-sp-2);
+    font-size: 0.875rem;
+}
+
+/* A summary is the disclosure control, so it carries the touch target. */
+.tt-dashboard .tt-setup__profile-details summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    font-weight: 600;
+    color: var(--tt-text);
+}
+
+/* The shared ProfileDiff carries its own styling; inside a card it only
+   needs the heading scale dialling back, since it renders under the
+   profile's name rather than as a page section of its own. */
+.tt-dashboard .tt-setup__profile-diff .tt-profile-diff__title {
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-setup__profile-reviews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-3);
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-setup__field {
         max-width: 28rem;
     }
 
     .tt-dashboard .tt-setup__msg-group {
+        max-width: 44rem;
+    }
+
+    .tt-dashboard .tt-setup__profiles {
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
         max-width: 44rem;
     }
 }

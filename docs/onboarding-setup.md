@@ -42,6 +42,9 @@ can stop and pick up later from the same place.
  the install has already been configured by hand, this step does not apply
  anything: it sends you to Modules → Install profile, where you see the
  full list of changes before any of them happen.
+ Both screens show this step; the in-app one adds a **What would change**
+ list per profile, so you can read the whole diff before choosing rather
+ than after.
 4. **Import your squad** — if you already keep your teams, players and staff
  in a spreadsheet, bring them in here rather than typing them again.
  Download the three-sheet template, fill it in, upload it. **Nothing is
@@ -90,16 +93,16 @@ move between them freely and never repeat a step:
 - **TalentTrack → Welcome** in the WordPress admin — where a brand-new
  install lands on its first run.
 
-Three steps are only available in the WordPress admin for now: **How much
-product**, **Import your squad** and **Add your staff**. Each carries
-something the in-app screen does not have yet — a file upload with column
-mapping, or the held-invitation flow. If your saved progress is on one of
+Two steps are only available in the WordPress admin for now: **Import your
+squad** and **Add your staff**. Each carries something the in-app screen
+does not have yet — a file upload with column mapping, or the
+held-invitation flow. If your saved progress is on one of
 those, the in-app screen says so, tells you your progress is kept, and
 offers to carry on in the WordPress admin. Come back afterwards and the
 flow picks up where the admin left it.
 
-Everything else — Welcome, Academy basics, First team, First admin, What we
-send, Dashboard page and Done — works on both screens.
+Everything else — Welcome, Academy basics, How much product, First team,
+First admin, What we send, Dashboard page and Done — works on both screens.
 
 ## Stop and resume
 
