@@ -222,6 +222,19 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         // exactly the reasoning `AlertsModule` uses for `tt_register_alerts`.
         $registeredElsewhere = [ 'course_submission' ];
 
+        // #3139 — sweep-only by decision, not by oversight. These subjects
+        // are the install's own configuration rather than a record, so there
+        // is no domain event that could name one: nothing "saves subject 1
+        // of type messaging". The alternative was a `config` subject type
+        // with an invalidation path taught what invalidates it, and
+        // extending a contract every other definition depends on to carry a
+        // single definition is a worse trade than an hour's staleness on a
+        // condition that has persisted since the install was created.
+        //
+        // If a second config-shaped alert appears, that is the moment to do
+        // it properly — and to delete this list rather than grow it.
+        $sweepOnly = [ 'messaging' ];
+
         $triggered = [];
         foreach ( AlertInvalidationMap::all() as $extractor ) {
             foreach ( $this->pairsFrom( $extractor ) as $pair ) {
@@ -232,6 +245,7 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         foreach ( AlertRegistry::all() as $key => $alert ) {
             $type = $alert->subjectType();
             if ( in_array( $type, $registeredElsewhere, true ) ) continue;
+            if ( in_array( $type, $sweepOnly, true ) ) continue;
             $this->assertArrayHasKey(
                 $type,
                 $triggered,
@@ -263,6 +277,30 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         add_filter( 'tt_register_alerts', static function ( array $registered ) use ( $alerts ): array {
             return array_merge( $registered, $alerts );
         } );
+
+        // #3139 — and drop the shipped catalogue, at a later priority so it
+        // runs after both `AlertsModule` and the append above.
+        //
+        // These tests count every open alert for the coach and expect the
+        // number to be the stubs'. That held while every shipped definition
+        // needed records to fire on and a bare test install has none;
+        // `comms.messaging_never_configured` is the first one about the
+        // install's *configuration*, and a bare install is exactly the state
+        // it fires in. Keeping only the stubs states what these tests were
+        // always assuming, and makes them immune to the next such definition
+        // rather than to this one.
+        //
+        // Deliberately NOT done by switching messaging on in `set_up()`:
+        // `ConfigService` caches per key in memory, and that cache is not
+        // rolled back with the transaction, so the write would leak "every
+        // template enabled" into every later test in the process.
+        add_filter( 'tt_register_alerts', static function ( array $registered ): array {
+            return array_values( array_filter(
+                $registered,
+                static fn ( AlertInterface $a ): bool => strncmp( $a->key(), 'test.', 5 ) === 0
+            ) );
+        }, 99 );
+
         AlertRegistry::flush();
     }
 
