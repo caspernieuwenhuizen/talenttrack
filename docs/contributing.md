@@ -201,7 +201,28 @@ Why it matters: duplicate `msgid`s are what `msgfmt` refuses, so one reaching `m
 php tools/check-po-duplicates.php
 ```
 
-Pure PHP — no `msgfmt`, no `jq`, neither of which is installed on the maintainer's machine. It reads `msgctxt`, so a contextual entry sharing a `msgid` with its plain twin is not reported (a naive checker calls 21 of those a duplicate on `main` today), and it ignores obsolete `#~` blocks the way gettext does.
+Pure PHP — no `msgfmt`, no `jq`, neither of which is installed on the maintainer's machine.
+
+#### What it catches, and what it does not (#3205)
+
+It reported OK on four branches in one drain that then failed `i18n-pr-check` on a duplicate `msgmerge` caught. Two people hit it independently, which is what makes it worth writing down: a local check that clears a file CI then rejects teaches everyone that CI is flaky.
+
+**Three things it looks for.**
+
+| It catches | Because |
+| --- | --- |
+| The same `(msgctxt, msgid)` pair twice in the live catalogue | The original job. A `msgid` shared between a plain entry and a `msgctxt` one is **not** a duplicate — that is what contexts are for, and ignoring `msgctxt` calls ~27 legitimate pairs on `main` a duplicate. |
+| The same `msgid` once wrapped and once not | `msgmerge` on `main` re-wraps a long `msgid` across quoted fragments while your branch still carries it on one line. Identical to gettext, different raw text, so comparing lines rather than values misses it. Fragments are concatenated before the key is built. |
+| An entry glued onto the tail of the one before it | A union merge can append an entry with no blank line between. Anything reading the catalogue in blocks sees one entry where there are two, so a re-apply that looks correct silently carries both across. Entries are closed by the next `msgid`, never by a blank line — and the glue itself is reported with its line number, because it is the fingerprint of the merge even before it duplicates anything. |
+| The same `msgid` twice among the obsolete `#~` entries | Obsolete entries look inert and are not: `msgmerge` promotes one back to live the moment its string reappears in the `.pot`, so two obsolete copies come back as two live copies in a commit nobody wrote by hand. |
+
+**What it deliberately does not report:**
+
+- A **live entry with an obsolete twin.** That is the normal state of a catalogue whose string came back. The two namespaces are counted separately for exactly this reason.
+- **`msgid_plural` and `msgstr[n]`.** They continue their own entry, so they are not glue; treating them as such reports every plural in the file.
+- **Anything the base branch already had.** The check is a delta against `origin/main` (override with `--base=`), so a pre-existing duplicate is somebody else's PR to fix, not yours.
+
+Each of those cases has a fixture under `tests/fixtures/po/` and an assertion in `tests/php/PoDuplicateCheckTest.php`, so the blind spots cannot quietly come back. `clean.po` is the important one: it holds every shape a stricter check would wrongly flag.
 
 **When it fires, rebuild rather than hand-delete:**
 
