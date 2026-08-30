@@ -162,6 +162,45 @@ bij een scherm, zodat de cursuslijst, een lespagina en de API hetzelfde
 antwoord geven — en de cursussen blijven **in de lijst staan**, zodat een club
 ziet wat het abonnement zou openen.
 
+### Deellinks die je al verstuurd hebt
+
+Dit is de ene plek waar "wat je al vastlegde blijft leesbaar" een tweede zin
+nodig heeft, dus hier staat hij onomwonden.
+
+**Deellinks werken niet meer zodra het abonnement wegvalt.** Een
+wedstrijdanalyse, een wedstrijdplan of een teamblauwdruk die je naar een
+assistent-trainer van een andere club, een fysio of een ouder stuurde — die
+links vallen stil, ook links van maanden geleden.
+
+Dat is niet de club die zijn gegevens kwijtraakt. De club opent en leest al
+die documenten nog steeds binnen TalentTrack, precies als voorheen. Wat stopt
+is **ze doorgeven aan mensen buiten de club**, en dat is het deel waarvoor
+betaald werd.
+
+Wie een link volgt die niet meer werkt, krijgt geen foutmelding en geen
+"pagina niet gevonden". Die krijgt een korte pagina die zegt dat de club geen
+documenten meer buiten de app deelt, dat er niets verwijderd is, en dat ze het
+de club rechtstreeks kunnen vragen. Er staat geen pakketnaam en geen
+documentnaam in — zij zijn de klant niet, en de inhoud van een link die niet
+meer werkt hoort niet mee te reizen.
+
+### Afdrukken en pdf-exports
+
+De drie wedstrijd-pdf's — de analyse, het wedstrijdplan en het wedstrijdformulier
+voor de scheidsrechter — zijn Pro. **De export gaat op slot; het dossier niet.**
+Een Standard-club opent en leest zijn wedstrijdanalyses en wedstrijdplannen op
+het scherm precies als voorheen, en kan ze niet naar pdf afdrukken.
+
+Het alternatief was exports laten werken voor dossiers van toen de club nog op
+Pro zat, en weigeren voor nieuwere. Dat is verdedigbaar en het is waar #2922's
+"je kunt je eigen gegevens altijd lezen en meenemen" naar wijst — maar een knop
+die bij de ene wedstrijd wel werkt en bij de volgende niet, op een datum die
+niemand ziet, is erger dan een heldere grens. De grens ligt dus bij het scherm,
+niet bij het dossier.
+
+Back-up en de gegevensexport op de accountpagina staan hier los van: de
+gegevens van je hele academie meenemen is nooit een betaalde functie.
+
 ## Gebruikslimieten
 
 Aantal spelers, aantal teams en opslag worden **beprijsd naar wat ze kosten om te draaien**, niet meegebakken in het pakket. Een grote Standard-club kan meer kosten dan een kleine Pro-club, en dat is bewust: het pakket zegt welke functies je hebt, de omvang van je academie zegt wat het hosten kost.

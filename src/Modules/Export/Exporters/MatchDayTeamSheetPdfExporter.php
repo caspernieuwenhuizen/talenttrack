@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportException;
 use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
@@ -54,6 +55,17 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
     }
 
     public function collect( ExportRequest $request ): array {
+        // #3108 — the team sheet is Pro. The print router carries the same
+        // gate for the URL that bypasses this pipeline; this is the other
+        // door. `ExportException('forbidden')` is the shape this pipeline
+        // already refuses in, so the caller's handling does not change.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'export_match_day_team_sheet' ) ) {
+            throw new ExportException(
+                'forbidden',
+                __( 'Printing this sheet is part of a plan this install is not on. The match plan itself is still on screen, and nothing has been removed.', 'talenttrack' )
+            );
+        }
+
         global $wpdb;
         $p = $wpdb->prefix;
 
