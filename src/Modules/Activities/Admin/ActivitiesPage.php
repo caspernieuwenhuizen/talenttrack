@@ -16,6 +16,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Services\ActivityLifecycle;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 /**
@@ -209,7 +210,25 @@ class ActivitiesPage {
         // archived rows included so the archive tab can edit).
         $repo     = new ActivitiesRepository();
         $activity = $id ? $repo->findForAdmin( $id ) : null;
-        $teams = QueryHelpers::get_teams();
+        $user_id  = get_current_user_id();
+
+        // #3158 — the form renders the whole roster's attendance, so an
+        // unchecked `?id=` read any squad's session. `GET /activities`
+        // already narrows the list the same way.
+        $activity_team_id = (int) ( $activity->team_id ?? 0 );
+        if ( $activity && $activity_team_id > 0
+            && ! AdminListScope::canOpenTeam( $user_id, $activity_team_id, 'activities' )
+        ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Activities', 'talenttrack' ) . '</h1>'
+                . '<p>' . esc_html__( 'You do not have access to this activity.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
+
+        $teams = QueryHelpers::get_teams_in_scope(
+            $user_id,
+            current_user_can( 'tt_edit_settings' ),
+            $activity_team_id
+        );
         $att_statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         // #0050 — Type now lookup-driven; existing rows store the seed
         // names (training/game/other) so no data migration was needed.
@@ -232,8 +251,12 @@ class ActivitiesPage {
         // showed up. Read-only list here keeps wp-admin honest; CRUD
         // stays on the frontend modal flow.
         $guests = $activity ? $repo->listGuestAttendance( (int) $activity->id ) : [];
-        $team_id = (int) ( $activity->team_id ?? 0 );
-        $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
+        $team_id = $activity_team_id;
+        // #3158 — the club-wide branch (an activity with no team) listed
+        // every child in the install.
+        $players = $team_id
+            ? QueryHelpers::get_players( $team_id )
+            : AdminListScope::players( $user_id, 'activities' );
         $state = self::popFormState();
         $current_type    = (string) ( $activity->activity_type_key ?? ActivityTypeKey::TRAINING );
         $current_status  = (string) ( $activity->activity_status_key ?? ActivityStatusKey::PLANNED );

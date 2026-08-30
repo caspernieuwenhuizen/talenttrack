@@ -11,6 +11,8 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 /**
@@ -31,6 +33,16 @@ class GoalsPage {
     public static function render_page(): void {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        $user_id = get_current_user_id();
+
+        // #3158 — the picker was scoped and the `?id=` beside it was not.
+        // A goal is a development plan for a named child; it follows that
+        // child's visibility.
+        if ( $action === 'edit' && $id > 0 && ! self::canSeeGoal( $id ) ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Goals', 'talenttrack' ) . '</h1>'
+                . '<p>' . esc_html__( 'You do not have access to this goal.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
         global $wpdb; $p = $wpdb->prefix;
 
@@ -39,7 +51,12 @@ class GoalsPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'g' );
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
-        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id AND pl.club_id = g.club_id WHERE {$view_clause} AND g.club_id = %d {$scope} ORDER BY g.created_at DESC LIMIT 50", CurrentClub::id() ) );
+        // #3158 — same narrowing `GET /goals` already applies
+        // (`GoalsRestController::list_goals`). Applied in SQL so the LIMIT 50
+        // page is filled with rows the viewer may actually see.
+        $goal_scope = AdminListScope::teamIdClause( $user_id, 'goals', 'pl.team_id' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id AND pl.club_id = g.club_id WHERE {$view_clause} AND g.club_id = %d {$scope} {$goal_scope} ORDER BY g.created_at DESC LIMIT 50", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-goals' );
         ?>
         <div class="wrap">
@@ -100,10 +117,31 @@ class GoalsPage {
         <?php
     }
 
+    /** #3158 — a goal follows its player's visibility. */
+    private static function canSeeGoal( int $goal_id ): bool {
+        global $wpdb; $p = $wpdb->prefix;
+        $player_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT player_id FROM {$p}tt_goals WHERE id = %d AND club_id = %d",
+            $goal_id, CurrentClub::id()
+        ) );
+        if ( $player_id <= 0 ) return true; // "not found" is the render's own answer.
+        return AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );
+    }
+
     private static function render_form( int $id ): void {
         global $wpdb; $p = $wpdb->prefix;
         $goal = $id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_goals WHERE id=%d AND club_id=%d", $id, CurrentClub::id() ) ) : null;
-        $players = QueryHelpers::get_players();
+        // #3158 — the picker used to list every child in the install. On an
+        // edit form the goal's own player stays selectable, so saving cannot
+        // silently reassign it (#2866's lesson).
+        $players = AdminListScope::players( get_current_user_id(), 'goals' );
+        $goal_player_id = (int) ( $goal->player_id ?? 0 );
+        if ( $goal_player_id > 0
+            && ! in_array( $goal_player_id, array_map( 'intval', array_column( $players, 'id' ) ), true )
+        ) {
+            $goal_player = QueryHelpers::get_player( $goal_player_id );
+            if ( $goal_player ) $players[] = $goal_player;
+        }
         $statuses = QueryHelpers::get_lookup_names( 'goal_status' );
         $priorities = QueryHelpers::get_lookup_names( 'goal_priority' );
         $state = self::popFormState();

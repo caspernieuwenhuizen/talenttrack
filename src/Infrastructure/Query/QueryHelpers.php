@@ -332,8 +332,16 @@ class QueryHelpers {
      * @return object[]
      */
     public static function get_teams_in_scope( int $user_id, bool $is_admin = false, int $must_include_team_id = 0 ): array {
+        // #3158 — the entity is `team`, singular, as seeded in
+        // config/authorization_seed.php. `MatrixRepository::lookup()` does an
+        // exact array-key match with no normalisation, so the plural asked
+        // for a row that does not exist and always answered no: every
+        // global-read persona who is not also a WordPress settings admin
+        // (head of development, read-only observer) fell through to the
+        // coach-assignment branch and got an empty picker — the exact
+        // failure #2866 was filed to end.
         $can_see_all = $is_admin
-            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeams( $user_id, 'teams' );
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeams( $user_id, 'team' );
 
         $teams = $can_see_all
             ? self::get_teams()

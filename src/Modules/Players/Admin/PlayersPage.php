@@ -14,6 +14,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 /**
@@ -36,14 +37,47 @@ class PlayersPage {
     public static function render_page(): void {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        // #3158 — the menu capability answers "may this person look at
+        // players", not "may they look at *this* player". `pl.*` carries the
+        // date of birth and the guardian's name, email and phone, so an
+        // unchecked `?id=` handed a coach every child's contact details.
+        if ( $action === 'edit' && $id > 0 && ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
         if ( $action === 'edit' || $action === 'new' ) { self::render_form( $action === 'edit' ? QueryHelpers::get_player( $id ) : null ); return; }
-        if ( $action === 'view' && $id ) { self::render_view( $id ); return; }
+        if ( $action === 'view' && $id ) {
+            if ( ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
+            self::render_view( $id );
+            return;
+        }
         self::render_list();
+    }
+
+    /**
+     * #3158 — the same gate `GET /players/{id}` uses. Covers the player
+     * themselves, a global read, a team-scoped coach and a linked parent, so
+     * wp-admin and REST cannot answer differently.
+     */
+    private static function canSeePlayer( int $player_id ): bool {
+        return $player_id > 0
+            && AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );
+    }
+
+    private static function render_denied(): void {
+        echo '<div class="wrap"><h1>' . esc_html__( 'Players', 'talenttrack' ) . '</h1>'
+            . '<p>' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p></div>';
     }
 
     private static function render_list(): void {
         global $wpdb; $p = $wpdb->prefix;
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
         $ft = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+
+        // #3158 — the filter dropdown was scoped and the `?team_id=` next to
+        // it was not, so a hand-typed id listed any squad. Out of scope falls
+        // back to "all teams", which the per-row authorisation below narrows.
+        if ( $ft > 0 && ! AdminListScope::canOpenTeam( $user_id, $ft ) ) {
+            $ft = 0;
+        }
 
         // v2.17.0: archive view filter.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
@@ -68,7 +102,20 @@ class PlayersPage {
                                          LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id AND t.club_id=pl.club_id
                                          LEFT JOIN {$p}tt_people par ON par.id = pl.parent_person_id AND par.club_id = pl.club_id
                                          $where ORDER BY pl.last_name, pl.first_name ASC" );
-        $teams = QueryHelpers::get_teams();
+
+        // #3158 — authorise per row, the way `GET /players` does
+        // (`PlayersRestController::list_players`). There is no team scope in
+        // the WHERE above because `canViewPlayer` is the sole visibility gate
+        // and it also covers the player themselves and a linked parent;
+        // replicating it in SQL would fork the rules into a second
+        // implementation. The list is unpaginated, so filtering the whole
+        // ordered set here keeps the rendered rows and the count in step.
+        $players = array_values( array_filter(
+            (array) $players,
+            static fn( $row ): bool => AuthorizationService::canViewPlayer( $user_id, (int) $row->id )
+        ) );
+
+        $teams = QueryHelpers::get_teams_in_scope( $user_id, $is_admin );
 
         $base_url = admin_url( 'admin.php?page=tt-players' );
         if ( $ft ) $base_url = add_query_arg( 'team_id', $ft, $base_url );
@@ -216,7 +263,15 @@ class PlayersPage {
             \TT\Modules\Stats\Admin\PlayerRateCardView::enqueueChartLibrary();
         }
 
-        $teams     = QueryHelpers::get_teams();
+        // #3158 / #2866 — resolve from the viewer's scope, and always keep the
+        // player's current team selectable so saving cannot silently unassign
+        // them from a squad the viewer cannot browse to.
+        $current_team_id = $is_edit ? (int) ( $player->team_id ?? 0 ) : 0;
+        $teams     = QueryHelpers::get_teams_in_scope(
+            get_current_user_id(),
+            current_user_can( 'tt_edit_settings' ),
+            $current_team_id
+        );
         $positions = QueryHelpers::get_lookup_names( 'position' );
         // v3.85.5 — render-aware lookup pairs (stored_name => translated_label)
         // so the dropdown shows Dutch labels to NL users while still

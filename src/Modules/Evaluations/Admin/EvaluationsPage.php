@@ -11,6 +11,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 /**
@@ -32,9 +33,30 @@ class EvaluationsPage {
     public static function render_page(): void {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        // #3158 — the picker was scoped and the `?id=` beside it was not. An
+        // evaluation is a judgement about a named child, so the record is
+        // readable exactly when its player is.
+        if ( ( $action === 'edit' || $action === 'view' ) && $id > 0 && ! self::canSeeEvaluation( $id ) ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</h1>'
+                . '<p>' . esc_html__( 'You do not have access to this evaluation.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $action === 'edit' ? $id : 0 ); return; }
         if ( $action === 'view' && $id ) { self::render_view( $id ); return; }
         self::render_list();
+    }
+
+    /**
+     * #3158 — an evaluation follows its player's visibility. The author keeps
+     * their own work, which is the same escape hatch `GET /evaluations`
+     * applies for a coach whose player has since moved teams.
+     */
+    private static function canSeeEvaluation( int $eval_id ): bool {
+        $eval = QueryHelpers::get_evaluation( $eval_id );
+        if ( ! $eval ) return true; // "not found" is the render's own answer.
+        $user_id = get_current_user_id();
+        if ( (int) ( $eval->coach_id ?? 0 ) === $user_id ) return true;
+        return AuthorizationService::canViewPlayer( $user_id, (int) ( $eval->player_id ?? 0 ) );
     }
 
     private static function render_list(): void {
@@ -50,8 +72,28 @@ class EvaluationsPage {
         $f_date_to   = isset( $_GET['date_to'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['date_to'] ) )   : '';
         $f_type_id   = isset( $_GET['eval_type'] ) ? absint( $_GET['eval_type'] )                                     : 0;
 
-        $where  = [ "{$view_clause}" ];
-        $params = [];
+        $user_id = get_current_user_id();
+
+        // #3158 — club scope, which this query never carried, plus the same
+        // narrowing `GET /evaluations` already applies: a global
+        // `evaluations` read sees the club, everyone else sees the teams they
+        // coach, and their own authored evaluations regardless of where the
+        // player has since moved.
+        $where  = [ "{$view_clause}", 'e.club_id = %d' ];
+        $params = [ \TT\Infrastructure\Tenancy\CurrentClub::id() ];
+
+        $scoped_team_ids = AdminListScope::teamIds( $user_id, 'evaluations' );
+        if ( $scoped_team_ids !== null ) {
+            if ( ! $scoped_team_ids ) {
+                $where[]  = 'e.coach_id = %d';
+                $params[] = $user_id;
+            } else {
+                $placeholders = implode( ',', array_fill( 0, count( $scoped_team_ids ), '%d' ) );
+                $where[]      = "( pl.team_id IN ($placeholders) OR e.coach_id = %d )";
+                $params       = array_merge( $params, $scoped_team_ids, [ $user_id ] );
+            }
+        }
+
         if ( $f_search !== '' ) {
             $like   = '%' . $wpdb->esc_like( $f_search ) . '%';
             $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
@@ -71,12 +113,14 @@ class EvaluationsPage {
                        u.display_name AS coach_name
                 FROM {$p}tt_evaluations e
                 LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id AND lt.lookup_type='eval_type'
-                LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id
-                LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id
+                LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id AND pl.club_id = e.club_id
+                LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id AND t.club_id = pl.club_id
                 LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
                 WHERE " . implode( ' AND ', $where ) . "
                 ORDER BY e.eval_date DESC LIMIT 50";
-        $evals = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ) ) : $wpdb->get_results( $sql );
+        // #3158 — `$params` is never empty now that the club scope is bound,
+        // so the unprepared branch is gone.
+        $evals = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
 
         // v2.13.0: batch-compute overall ratings for the whole page in
         // three SQL roundtrips (age groups, ratings, weights), keyed by
@@ -255,7 +299,18 @@ class EvaluationsPage {
 
     private static function render_form( int $eval_id ): void {
         $eval = $eval_id ? QueryHelpers::get_evaluation( $eval_id ) : null;
-        $players    = QueryHelpers::get_players();
+        // #3158 — the picker used to list every child in the install.
+        $players    = AdminListScope::players( get_current_user_id(), 'evaluations' );
+        // #2866's lesson: an edit form must keep the record's own value
+        // selectable, or saving silently reassigns it. The player of an
+        // evaluation the viewer authored may sit outside their team scope.
+        $eval_player_id = (int) ( $eval->player_id ?? 0 );
+        if ( $eval_player_id > 0
+            && ! in_array( $eval_player_id, array_map( 'intval', array_column( $players, 'id' ) ), true )
+        ) {
+            $eval_player = QueryHelpers::get_player( $eval_player_id );
+            if ( $eval_player ) $players[] = $eval_player;
+        }
         $types      = QueryHelpers::get_eval_types();
         $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '5' );
         $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '10' );
@@ -309,20 +364,32 @@ class EvaluationsPage {
         // v3.110.89 — resolve age_group_id via tt_lookups by name match;
         // there is no FK column `t.age_group_id` on tt_teams. See
         // EvalRatingsRepository::computeForEvalIds() for the same fix.
-        $player_age_rows = $wpdb->get_results(
-            "SELECT pl.id AS player_id,
-                    (
-                        SELECT ag.id
-                          FROM {$p}tt_lookups ag
-                         WHERE ag.lookup_type = 'age_group'
-                           AND ag.club_id = t.club_id
-                           AND ag.name = t.age_group
-                         LIMIT 1
-                    ) AS age_group_id
-             FROM {$p}tt_players pl
-             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
-             WHERE pl.status = 'active'"
-        );
+        // #3158 — this map was emitted into the page for every player id in
+        // the install, and carried no club scope. It only ever needs the
+        // players the picker above can actually select.
+        $pickable_ids = array_values( array_unique(
+            array_map( 'intval', array_column( $players, 'id' ) )
+        ) );
+        $player_age_rows = [];
+        if ( $pickable_ids ) {
+            $in = implode( ',', array_map( 'intval', $pickable_ids ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $player_age_rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT pl.id AS player_id,
+                        (
+                            SELECT ag.id
+                              FROM {$p}tt_lookups ag
+                             WHERE ag.lookup_type = 'age_group'
+                               AND ag.club_id = t.club_id
+                               AND ag.name = t.age_group
+                             LIMIT 1
+                        ) AS age_group_id
+                 FROM {$p}tt_players pl
+                 LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = pl.club_id
+                 WHERE pl.status = 'active' AND pl.club_id = %d AND pl.id IN ($in)",
+                \TT\Infrastructure\Tenancy\CurrentClub::id()
+            ) );
+        }
         $player_age_map = [];
         $age_group_ids  = [];
         foreach ( (array) $player_age_rows as $r ) {

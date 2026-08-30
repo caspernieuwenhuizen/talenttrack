@@ -82,19 +82,25 @@ class PlayerComparisonPage {
         // All players list for the slot selectors.
         global $wpdb;
         $p = $wpdb->prefix;
-        $all_players = $wpdb->get_results(
+        // #3158 — club scope, which neither of these two queries carried.
+        // The coach-scope narrowing below is unchanged (#2006).
+        $club_id     = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $all_players = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.team_id, t.name AS team_name, t.age_group
              FROM {$p}tt_players pl
-             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
-             WHERE pl.status = 'active' AND pl.archived_at IS NULL
-             ORDER BY pl.last_name, pl.first_name ASC"
-        );
+             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = pl.club_id
+             WHERE pl.status = 'active' AND pl.archived_at IS NULL AND pl.club_id = %d
+             ORDER BY pl.last_name, pl.first_name ASC",
+            $club_id
+        ) );
 
         // v3.91.6 — teams keyed by id for the slot pickers' team `<select>`.
         $teams_by_id = [];
-        $team_rows   = $wpdb->get_results(
-            "SELECT id, name FROM {$p}tt_teams WHERE " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . " ORDER BY name ASC"
-        );
+        $team_rows   = $wpdb->get_results( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT id, name FROM {$p}tt_teams WHERE " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . " AND club_id = %d ORDER BY name ASC",
+            $club_id
+        ) );
         foreach ( $team_rows as $tr ) {
             $teams_by_id[ (int) $tr->id ] = (string) $tr->name;
         }

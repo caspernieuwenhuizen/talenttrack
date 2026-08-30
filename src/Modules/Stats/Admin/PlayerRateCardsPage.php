@@ -3,8 +3,9 @@ namespace TT\Modules\Stats\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Stats\PlayerStatsService;
+use TT\Shared\Admin\AdminListScope;
 
 /**
  * PlayerRateCardsPage — top-level admin page for rate cards.
@@ -41,9 +42,19 @@ class PlayerRateCardsPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
+        $user_id   = get_current_user_id();
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         $filters   = PlayerStatsService::sanitizeFilters( $_GET );
-        $players   = QueryHelpers::get_players();
+
+        // #3158 — `tt_view_reports` is a surface gate, not a club-wide data
+        // grant. The autocomplete fed on every child in the install, and the
+        // `?player_id=` beside it rendered any child's rate card.
+        $players = AdminListScope::players( $user_id, 'reports' );
+        if ( $player_id > 0 && ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Player Rate Cards', 'talenttrack' ) . '</h1>'
+                . '<p>' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Player Rate Cards', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'rate-cards' ); ?></h1>

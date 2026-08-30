@@ -62,6 +62,40 @@ Two write handlers still name a read capability, and both are recorded rather th
 | Granting / revoking a role on a person | `tt_view_settings` | There is no capability for granting a role. The nearest, `tt_manage_authorization`, means "edit the permission matrix" — a different act. |
 | Archiving a scheduled report | `tt_view_analytics` | There is no analytics write capability. |
 
+## A view capability is not a club-wide data grant
+
+`tt_view_players` answers *"may this person look at players"*. It does not
+answer *"may this person look at **these** players"* — that is the team scope
+recorded in the authorization matrix, and it is why a head coach's grant reads
+`players [r, team]` rather than `[r, global]`.
+
+The frontend and REST surfaces have always narrowed on that scope. Seven
+wp-admin pages did not: Players, Teams, Evaluations, Goals, Activities, Player
+Rate Cards and Reports built their lists and pickers from the unscoped query
+and let the menu capability stand in for the data grant. A coach who navigated
+to wp-admin saw every child in the academy — on the Players list, including
+date of birth and the guardian's name, email and phone.
+
+They now show a coach only their own teams' players and teams:
+
+- **Lists** narrow the same way their REST sibling does. The Players list
+  authorises each row through the same gate `GET /players` uses, so the rows
+  and the count agree, and a parent still sees their own child.
+- **`action=edit` and `action=view`** refuse an out-of-scope id before
+  rendering any roster, staff or attendance panel. Walking `?id=1,2,3…` no
+  longer reads another squad.
+- **Edit-form pickers** keep the record's own current team or player
+  selectable even when it sits outside the viewer's scope, so saving cannot
+  silently unassign it.
+
+An administrator, and any persona holding a **global** read on the entity —
+Head of Development, Academy Admin, Club Admin, and the Read-Only Observer on
+the surfaces it is granted — still sees everything.
+
+If a coach reports that a wp-admin list has gone empty, the question to ask is
+which teams they are assigned to under **People → Functional roles**: the
+scope comes from those assignments, not from the capability.
+
 ## The pre-built roles
 
 | Role | View | Edit |
