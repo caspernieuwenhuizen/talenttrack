@@ -66,6 +66,32 @@
     line-height: 1.5;
 }
 
+/* #3220 — the publish control. Its own block, stacked on a phone, with
+   the consequence stated above the button: this view carries no script,
+   so the sentence is the confirmation. */
+.tt-training-publish {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    justify-items: start;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-training-publish__state {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-training-publish .tt-btn {
+    /* 48px minimum tap target — this one sends mail. */
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
 .tt-training-section-title {
     margin: var(--tt-sp-5, 20px) 0 var(--tt-sp-3, 12px);
     font-size: 0.75rem;

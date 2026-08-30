@@ -127,6 +127,23 @@ final class TrainingPlansRestController {
             ],
         ] );
 
+        // #3220 — publish / unpublish. Its own verb rather than a field on
+        // PATCH: publishing mails every head coach in scope, and an
+        // irreversible-feeling side effect should not ride along on a
+        // general record update (CLAUDE.md §6).
+        register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/publish', [
+            [
+                'methods'             => 'POST',
+                'callback'            => self::gate( [ __CLASS__, 'publish_plan' ] ),
+                'permission_callback' => static fn() => self::can(),
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => self::gate( [ __CLASS__, 'unpublish_plan' ] ),
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/coverage', [
             [
                 'methods'             => 'GET',
@@ -398,6 +415,55 @@ final class TrainingPlansRestController {
     }
 
     /**
+     * #3220 — publish: tell the coaches the plan is ready to read.
+     *
+     * Idempotent. Publishing an already-published plan reports success and
+     * sends nothing, because the repository's hook is edge-triggered — a
+     * coach hears about a plan once, not again every time somebody fixes a
+     * typo in it.
+     */
+    public static function publish_plan( \WP_REST_Request $r ): \WP_REST_Response {
+        $repo = new TrainingPlansRepository();
+        $id   = (int) $r['id'];
+
+        $plan = $repo->findById( $id );
+        if ( ! $plan ) return self::notFound();
+
+        if ( ! empty( $plan->is_template ) ) {
+            return RestResponse::error(
+                'not_publishable',
+                __( 'A template is library material — there are no coaches to tell about it.', 'talenttrack' ),
+                400
+            );
+        }
+
+        if ( ! $repo->publish( $id ) ) {
+            return RestResponse::error( 'publish_failed', __( 'The plan could not be published.', 'talenttrack' ), 500 );
+        }
+
+        return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ] );
+    }
+
+    /**
+     * Clear the published stamp.
+     *
+     * Sends nothing, deliberately: this exists to correct a mistaken
+     * publish, and there is no honest message for "ignore what we told you
+     * an hour ago". Publishing again afterwards is a fresh announcement and
+     * does fire.
+     */
+    public static function unpublish_plan( \WP_REST_Request $r ): \WP_REST_Response {
+        $repo = new TrainingPlansRepository();
+        $id   = (int) $r['id'];
+
+        if ( ! $repo->findById( $id ) ) return self::notFound();
+
+        $repo->unpublish( $id );
+
+        return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ] );
+    }
+
+    /**
      * Who this plan works on, by name. The builder's side panel re-reads
      * this after every save, so a coach sees the consequence of a swap
      * immediately rather than at the end.
@@ -578,6 +644,11 @@ final class TrainingPlansRestController {
             'source'                 => (string) ( $p->source ?? 'manual' ),
             'author_user_id'         => isset( $p->author_user_id ) ? (int) $p->author_user_id : null,
             'archived'               => isset( $p->archived_at ),
+            // #3220 — both, because "when" and "whether" answer different
+            // questions and a consumer should not have to parse a
+            // timestamp to render a badge.
+            'published_at'           => isset( $p->published_at ) ? (string) $p->published_at : null,
+            'published'              => ! empty( $p->published_at ),
             'created_at'             => (string) ( $p->created_at ?? '' ),
             'updated_at'             => (string) ( $p->updated_at ?? '' ),
         ];

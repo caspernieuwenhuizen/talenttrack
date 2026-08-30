@@ -15,7 +15,9 @@ use TT\Modules\Comms\Template\AbstractTemplate;
  */
 final class MethodologyDeliveredTemplate extends AbstractTemplate {
 
-    public function key(): string { return 'methodology_delivered'; }
+    public const KEY = 'methodology_delivered';
+
+    public function key(): string { return self::KEY; }
     public function label(): string { return __( 'Methodology / activity plan delivered', 'talenttrack' ); }
     public function supportedChannels(): array { return [ 'email', 'inapp' ]; }
 

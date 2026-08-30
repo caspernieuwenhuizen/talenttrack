@@ -16,6 +16,7 @@ use TT\Modules\Comms\Cron\CommsScheduledCron;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
+use TT\Modules\Comms\Send\MethodologyDeliveredSend;
 use TT\Modules\Comms\Send\PdpReadySend;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
 use TT\Modules\Comms\Send\TrialPlayerWelcomeSend;
@@ -158,6 +159,13 @@ class CommsModule implements ModuleInterface {
         // listens on the verdict sign-off: the point at which the plan
         // stops being a working draft. See `PdpReadySend`.
         PdpReadySend::init();
+
+        // #3220 — use case 10. Methodology had no publish event at all, so
+        // one was built: `tt_training_plan_published` is edge-triggered in
+        // `TrainingPlansRepository::publish()`. See
+        // `MethodologyDeliveredSend` for why the nearest existing event —
+        // a plan being attached to a Tuesday — was the wrong one to reuse.
+        MethodologyDeliveredSend::init();
 
         // #2605 — use case 5. Listens on `tt_trial_started`, which #3130
         // made the single announcing point in `TrialCasesRepository`, so a

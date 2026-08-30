@@ -63,6 +63,38 @@ leaves every plan that already used the old one untouched.
 So you are free to keep improving a plan without worrying about damaging your
 own history.
 
+## Publishing a plan
+
+A plan you are still working on and a plan your coaches should read look the
+same in the list. **Publish** is how you tell them apart, and how the coaches
+find out.
+
+On a plan's page you will see whether it has been published. Press **Publish and
+tell the coaches** and a message goes to the head coaches the plan is for — the
+one team's, if the plan names a team, or every team's if it is a club-wide plan.
+The message carries the plan's title, its focus, and a link straight to it.
+
+Three things worth knowing:
+
+- **Publishing announces; it does not lock.** The plan stays fully editable
+  afterwards. Fixing a typo, swapping an exercise, changing the timings — none
+  of that sends anything, and none of it un-publishes the plan.
+- **Coaches are told once.** Pressing Publish on a plan that is already
+  published does nothing at all. There is no way to accidentally send the same
+  announcement twice.
+- **Unpublish is for a mistake, not a recall.** It clears the published mark so
+  you can put a plan back into your own drafts. It does not send anything, and
+  it cannot unsend a message that has already gone. Publishing again afterwards
+  is a fresh announcement and does send.
+
+Templates cannot be published. A template is library material — there is no
+squad it belongs to and no coach to tell about it.
+
+Whether the message actually reaches anybody is the messaging switch's business,
+not the plan's: if your academy has **Methodology / activity plan delivered**
+switched off, publishing still marks the plan and simply sends nothing. See
+[Messages](comms.md).
+
 ## Archiving
 
 Archiving a plan takes it out of the active list. It does **not** touch the
