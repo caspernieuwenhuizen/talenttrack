@@ -71,16 +71,61 @@ final class TrialCaseAccessTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         unset( $_GET['tt_view'], $_GET['id'], $_GET['tab'] );
+        if ( $this->cap_filter !== null ) {
+            remove_filter( 'user_has_cap', $this->cap_filter, 999 );
+            $this->cap_filter = null;
+        }
         parent::tear_down();
     }
 
-    /** A user with the named caps and nothing else. */
+    /** @var callable|null */
+    private $cap_filter = null;
+
+    /** @var array<int, array<string, bool>> user id => caps granted */
+    private array $granted = [];
+
+    /**
+     * A user holding exactly the named trial capabilities.
+     *
+     * `add_cap()` is not enough here. `AuthorizationModule::filterUserHasCap`
+     * makes `LegacyCapMapper` authoritative for every `tt_*` cap, so a raw
+     * grant on a persona-less user is recomputed against the matrix and
+     * overridden — the same trap `ExerciseLibraryRestTest` documents. The
+     * filter below runs at priority 999, after the bridge, so it decides.
+     *
+     * That is the right shape for this test: the subject is
+     * `TrialCaseAccessPolicy`'s composition of the three capabilities, not
+     * which persona the seed happens to grant them to. The seed itself is
+     * asserted separately, against `config/authorization_seed.php`.
+     */
     private function userWith( string ...$caps ): int {
-        $uid  = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $user = get_userdata( $uid );
+        $uid = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+
+        $this->granted[ $uid ] = [];
         foreach ( $caps as $cap ) {
-            $user->add_cap( $cap );
+            $this->granted[ $uid ][ $cap ] = true;
         }
+
+        if ( $this->cap_filter === null ) {
+            $granted          = &$this->granted;
+            $this->cap_filter = static function ( $allcaps, $caps_needed, $args, $user ) use ( &$granted ) {
+                $uid = is_object( $user ) ? (int) $user->ID : 0;
+                if ( ! isset( $granted[ $uid ] ) ) return $allcaps;
+
+                // Withhold every trial capability, then grant back exactly
+                // the ones this user is supposed to hold — so "has input,
+                // not synthesis" is expressible, which is the whole case.
+                foreach ( [ 'tt_manage_trials', 'tt_view_trial_synthesis', 'tt_submit_trial_input' ] as $cap ) {
+                    unset( $allcaps[ $cap ] );
+                }
+                foreach ( $granted[ $uid ] as $cap => $_ ) {
+                    $allcaps[ $cap ] = true;
+                }
+                return $allcaps;
+            };
+            add_filter( 'user_has_cap', $this->cap_filter, 999, 4 );
+        }
+
         return $uid;
     }
 
