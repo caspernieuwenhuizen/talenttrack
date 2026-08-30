@@ -92,18 +92,40 @@ final class RenderedSurfaceGateTest extends WP_UnitTestCase {
      * one, which is the whole reason #3017 chose locked over hidden.
      */
     public function test_the_admin_pages_do_not_wp_die_on_a_plan_refusal(): void {
-        foreach ( [
-            'src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php',
-            'src/Modules/PersonaDashboard/Admin/EditorPage.php',
-        ] as $relative ) {
-            $source = self::source( $relative );
-            $gate   = strpos( $source, 'LicenseGate::allows(' );
-            $this->assertIsInt( $gate );
+        $entry_points = [
+            'src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php'
+                => \TT\Modules\CustomWidgets\Admin\CustomWidgetsAdminPage::class,
+            'src/Modules/PersonaDashboard/Admin/EditorPage.php'
+                => \TT\Modules\PersonaDashboard\Admin\EditorPage::class,
+        ];
 
-            // The 400 characters after the gate are its refusal branch.
-            $branch = substr( $source, $gate, 400 );
-            $this->assertStringNotContainsString( 'wp_die', $branch );
-            $this->assertStringContainsString( 'UpgradePanel::render(', $branch );
+        foreach ( $entry_points as $relative => $class ) {
+            $render = new \ReflectionMethod( $class, 'render' );
+            $lines  = array_slice(
+                explode( "\n", self::source( $relative ) ),
+                (int) $render->getStartLine() - 1,
+                (int) $render->getEndLine() - (int) $render->getStartLine() + 1
+            );
+            $body = implode( "\n", $lines );
+
+            $gate = strpos( $body, 'LicenseGate::allows(' );
+            $this->assertIsInt( $gate, "{$relative}::render() asks the plan" );
+
+            $this->assertStringContainsString(
+                'UpgradePanel::render(',
+                $body,
+                "{$relative} answers a plan refusal with the shared panel"
+            );
+
+            // Every `wp_die()` in `render()` belongs to a capability or
+            // feature-switch refusal, both of which are asked before the
+            // plan. Nothing after the plan gate dies. (The other `wp_die`s
+            // in these files are in unrelated action handlers.)
+            $last_die = strrpos( $body, 'wp_die' );
+            $this->assertTrue(
+                $last_die === false || $last_die < $gate,
+                "{$relative}: a plan refusal renders, it does not wp_die()"
+            );
         }
     }
 
