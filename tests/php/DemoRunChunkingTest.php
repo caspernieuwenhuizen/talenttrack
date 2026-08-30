@@ -134,6 +134,10 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             'gen_players' => true,
         ];
 
+        // #3184 — a warm-up run, so both compared passes start from a club
+        // that already has its one-time configuration. See `warmUp()`.
+        $this->warmUp( $opts );
+
         $single = DemoGenerator::run( $opts );
         DemoRunState::clear();
 
@@ -161,12 +165,10 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             array_keys( $single['counts'] ),
             array_keys( $chunked['counts'] )
         );
-        $this->assertSameShape(
-            $single['counts'],
-            $chunked['counts'],
-            (string) $single['batch_id'],
-            'a single pass and a stepped run'
-        );
+        foreach ( $single['counts'] as $category => $count ) {
+            $this->assertSame( (int) $count, (int) ( $chunked['counts'][ $category ] ?? -1 ),
+                "category {$category} differed between a single pass and a stepped run" );
+        }
     }
 
     /**
@@ -191,6 +193,8 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             'gen_players' => true,
         ];
 
+        $this->warmUp( $opts );
+
         $first = DemoGenerator::run( $opts );
         DemoRunState::clear();
         $second = DemoGenerator::run( $opts );
@@ -198,53 +202,37 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
 
         $this->assertNotSame( $first['batch_id'], $second['batch_id'], 'two runs, two batches' );
 
-        $this->assertSameShape(
-            $first['counts'],
-            $second['counts'],
-            (string) $first['batch_id'],
-            'a first and a second run into one install'
-        );
-    }
-
-    /**
-     * Two runs write the same per-category counts, with one stated
-     * exception.
-     *
-     * `PlayerProfileGenerator` creates the club's three player custom-field
-     * *definitions* on the run that finds none and reuses them afterwards —
-     * a definition is club configuration, not per-batch data, and inventing
-     * three more identical ones on every run would be the bug. So the later
-     * run's `player_profile` count is legitimately lower by exactly the
-     * number of definitions the earlier run had to create.
-     *
-     * Read from `tt_demo_tags` rather than written as `3`, so the day a
-     * fourth field is added the test keeps telling the truth.
-     *
-     * @param array<string, int|string> $earlier
-     * @param array<string, int|string> $later
-     */
-    private function assertSameShape( array $earlier, array $later, string $earlier_batch, string $what ): void {
-        $definitions = $this->tagCount( $earlier_batch, 'custom_field' );
-
-        foreach ( $earlier as $category => $count ) {
-            $allowance = $category === 'player_profile' ? $definitions : 0;
-
+        foreach ( $first['counts'] as $category => $count ) {
             $this->assertSame(
-                (int) $count - $allowance,
-                (int) ( $later[ $category ] ?? -1 ),
-                "category {$category} differed between {$what}"
+                (int) $count,
+                (int) ( $second['counts'][ $category ] ?? -1 ),
+                "category {$category} shrank on a second run into the same install"
             );
         }
     }
 
-    private function tagCount( string $batch_id, string $entity_type ): int {
-        global $wpdb;
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_demo_tags
-              WHERE batch_id = %s AND entity_type = %s",
-            $batch_id,
-            $entity_type
-        ) );
+    /**
+     * A throwaway run, so the two runs the test actually compares both meet
+     * a club that already has its one-time configuration.
+     *
+     * Some categories legitimately include club-level setup that a later run
+     * reuses rather than duplicating: `PlayerProfileGenerator` creates the
+     * three player custom-field definitions once, `MeasurementGenerator` the
+     * test battery and its per-age-group target bands. Inventing a second
+     * identical set on every run would be the bug, so the very first run into
+     * an empty club is genuinely bigger than the ones after it.
+     *
+     * Warming up removes that skew without a hand-maintained list of
+     * exceptions, and it sharpens what is being asserted: **two runs into an
+     * already-populated academy write the same thing.** That is the property
+     * #3184 broke and the one an operator cares about — nobody generates demo
+     * data twice into a virgin install.
+     *
+     * @param array<string, mixed> $opts
+     */
+    private function warmUp( array $opts ): void {
+        DemoGenerator::run( $opts );
+        DemoRunState::clear();
     }
 
     public function test_a_finished_run_leaves_no_state_for_the_page_to_offer_resuming(): void {
