@@ -1543,6 +1543,24 @@ msgstr "Doel gesteld: %s"
 msgid "Goal set"
 msgstr "Doel gesteld"
 
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:172
+#, php-format
+msgid "Goal carried over: %s"
+msgstr "Doel meegenomen: %s"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:173
+msgid "Goal carried over"
+msgstr "Doel meegenomen"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:177
+#, php-format
+msgid "Goal opened from a development idea: %s"
+msgstr "Doel geopend vanuit een ontwikkelidee: %s"
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:178
+msgid "Goal opened from a development idea"
+msgstr "Doel geopend vanuit een ontwikkelidee"
+
 #: src/Infrastructure/Journey/JourneyBackfillService.php:177
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:167
 msgid "Joined the academy"

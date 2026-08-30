@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -148,7 +149,10 @@ final class JourneyBackfillService {
                 JourneyEventType::GOAL_SET,
                 (string) $r->created_at,
                 $title !== '' ? sprintf( __( 'Goal set: %s', 'talenttrack' ), $title ) : __( 'Goal set', 'talenttrack' ),
-                [ 'goal_id' => (int) $r->id ],
+                // #3131 — a stored goal carries no record of what wrote it,
+                // so a backfilled entry reads as somebody having set it.
+                // Only goals written from here on know better.
+                [ 'goal_id' => (int) $r->id, 'origin' => GoalOrigin::SET ],
                 'Goals',
                 'goal',
                 (int) $r->id

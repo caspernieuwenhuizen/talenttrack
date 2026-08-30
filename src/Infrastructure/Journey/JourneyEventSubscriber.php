@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
@@ -23,7 +24,9 @@ final class JourneyEventSubscriber {
 
     public static function init(): void {
         add_action( 'tt_evaluation_saved',          [ __CLASS__, 'on_evaluation_saved' ], 10, 2 );
-        add_action( 'tt_goal_saved',                [ __CLASS__, 'on_goal_saved' ], 10, 3 );
+        // #3131 — four args: the fourth carries the goal's provenance and
+        // the date it begins. Listeners registered for three still work.
+        add_action( 'tt_goal_saved',                [ __CLASS__, 'on_goal_saved' ], 10, 4 );
         add_action( 'tt_pdp_verdict_signed_off',    [ __CLASS__, 'on_pdp_verdict_signed_off' ], 10, 2 );
         add_action( 'tt_player_created',            [ __CLASS__, 'on_player_created' ], 10, 2 );
         add_action( 'tt_player_save_diff',          [ __CLASS__, 'on_player_save_diff' ], 10, 3 );
@@ -110,20 +113,63 @@ final class JourneyEventSubscriber {
     }
 
     /**
+     * #3131 — every write path reaches here, so the entry has to say which
+     * one wrote it.
+     *
+     * A season rollover creates a goal for every player in the academy in
+     * one operation. Without provenance that reads as a wall of identical
+     * "Goal set" entries on one date, and a coach cannot tell the club's
+     * bookkeeping from a decision somebody took about their player. The
+     * summary names the origin and the payload carries it, which is enough
+     * for a timeline to label or filter — cheaper than a second event type,
+     * which would cost renderer work in every consumer to say the same
+     * thing.
+     *
+     * `occurred_at` lets a caller date the entry to the goal rather than to
+     * the run: the rollover passes the new season's start date, so the
+     * entries land on the season the goals belong to instead of on
+     * whichever afternoon the operator clicked.
+     *
      * @param array<string, mixed> $data
+     * @param array<string, mixed> $context `origin`, `occurred_at`.
      */
-    public static function on_goal_saved( int $player_id, int $goal_id, array $data ): void {
-        $title = (string) ( $data['title'] ?? '' );
+    public static function on_goal_saved( int $player_id, int $goal_id, array $data, array $context = [] ): void {
+        $title  = (string) ( $data['title'] ?? '' );
+        $origin = GoalOrigin::sanitize( (string) ( $context['origin'] ?? GoalOrigin::SET ) );
+
         EventEmitter::emit(
             $player_id,
             JourneyEventType::GOAL_SET,
-            current_time( 'mysql' ),
-            $title !== '' ? sprintf( __( 'Goal set: %s', 'talenttrack' ), $title ) : __( 'Goal set', 'talenttrack' ),
-            [ 'goal_id' => $goal_id ],
+            self::goalEventDate( (string) ( $context['occurred_at'] ?? '' ) ),
+            self::goalSummary( $origin, $title ),
+            [ 'goal_id' => $goal_id, 'origin' => $origin ],
             'Goals',
             'goal',
             $goal_id
         );
+    }
+
+    /** A bare `Y-m-d` becomes midnight; anything unusable becomes now. */
+    private static function goalEventDate( string $occurred_at ): string {
+        if ( $occurred_at === '' ) return current_time( 'mysql' );
+        if ( strlen( $occurred_at ) === 10 ) return $occurred_at . ' 00:00:00';
+        return $occurred_at;
+    }
+
+    private static function goalSummary( string $origin, string $title ): string {
+        if ( $origin === GoalOrigin::CARRIED_OVER ) {
+            return $title !== ''
+                ? sprintf( __( 'Goal carried over: %s', 'talenttrack' ), $title )
+                : __( 'Goal carried over', 'talenttrack' );
+        }
+        if ( $origin === GoalOrigin::SPAWNED ) {
+            return $title !== ''
+                ? sprintf( __( 'Goal opened from a development idea: %s', 'talenttrack' ), $title )
+                : __( 'Goal opened from a development idea', 'talenttrack' );
+        }
+        return $title !== ''
+            ? sprintf( __( 'Goal set: %s', 'talenttrack' ), $title )
+            : __( 'Goal set', 'talenttrack' );
     }
 
     public static function on_pdp_verdict_signed_off( int $verdict_id, int $file_id ): void {

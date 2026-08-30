@@ -3,6 +3,10 @@ namespace TT\Modules\Pdp\Carryover;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Calendar\PdpCalendarWriters;
@@ -81,7 +85,7 @@ class SeasonCarryover {
                 $writer->onConversationScheduled( (int) $c->id );
             }
 
-            self::copyOpenGoals( $player_id );
+            self::copyOpenGoals( $player_id, (string) $new->start_date );
         }
     }
 
@@ -109,8 +113,25 @@ class SeasonCarryover {
      * Strategy: insert fresh rows with `created_at = NOW()` and
      * `due_date = NULL`. Same title/description/priority. Status is
      * reset to 'pending' so the new coach picks them up cleanly.
+     *
+     * #3131 — the copies go through `GoalsRepository::create()`, so each
+     * one reaches the player's journey. A carried-over goal is still a
+     * dated statement about where the player is going, and a timeline with
+     * a gap where the rollover happened is not more truthful than one
+     * with an entry.
+     *
+     * Two things follow from writing a goal for every player in one
+     * operation, and both are deliberate:
+     *
+     *   - the entries are dated to `$season_start`, not to `NOW()`. The
+     *     goal belongs to the new season; which afternoon the operator
+     *     ran the rollover is not information a coach reading the timeline
+     *     a season later wants stamped on it.
+     *   - the payload carries `GoalOrigin::CARRIED_OVER`, and the journey
+     *     summary says so, so a cohort view can tell a rollover's burst
+     *     from a coach's decision without a second event type.
      */
-    private static function copyOpenGoals( int $player_id ): void {
+    private static function copyOpenGoals( int $player_id, string $season_start = '' ): void {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT title, description, priority, created_by FROM {$p}tt_goals
@@ -121,16 +142,20 @@ class SeasonCarryover {
             $player_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return;
+
+        $goals = new GoalsRepository();
         foreach ( $rows as $g ) {
-            $wpdb->insert( $p . 'tt_goals', [
-                'club_id'     => CurrentClub::id(),
+            $goals->create( [
                 'player_id'   => $player_id,
                 'title'       => (string) $g->title,
                 'description' => (string) ( $g->description ?? '' ),
-                'status'      => 'pending',
-                'priority'    => (string) ( $g->priority ?? 'medium' ),
+                'status'      => GoalStatus::PENDING,
+                'priority'    => (string) ( $g->priority ?? GoalPriority::MEDIUM ),
                 'due_date'    => null,
                 'created_by'  => (int) ( $g->created_by ?? 0 ),
+            ], [
+                'origin'      => GoalOrigin::CARRIED_OVER,
+                'occurred_at' => $season_start,
             ] );
         }
     }
