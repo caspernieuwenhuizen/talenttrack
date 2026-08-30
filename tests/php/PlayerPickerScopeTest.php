@@ -149,7 +149,29 @@ final class PlayerPickerScopeTest extends WP_UnitTestCase {
 
         $this->assertStringNotContainsString( 'data-tt-roster-picker', $html );
         $this->assertStringNotContainsString( 'id="tt-team-form"', $html );
-        $this->assertStringContainsString( 'permission', $html );
+
+        // #3200 — deliberately not pinned to the word "permission" any more.
+        // Two correct refusals now stack on this path, and which one a given
+        // user meets depends on whether they can read the team at all:
+        //
+        //   #3152 refuses in render() when `AllTeamsScope::canReadTeam()`
+        //         says no, before anything is loaded;
+        //   #3157 refuses in renderForm() when `tt_edit_teams` says no.
+        //
+        // A subscriber fails the first, so they never reach the second — and
+        // that order is right, because telling someone they lack edit rights
+        // on a team they may not even look at would confirm the team exists.
+        // Pinning the more specific sentence made this test assert which
+        // guard fired rather than that the surface refused, which is not the
+        // property #3157 is about.
+        //
+        // The property is above: no form, no roster picker. This only adds
+        // that the refusal is a refusal and not an empty page.
+        $this->assertMatchesRegularExpression(
+            '/do not have (permission|access)/',
+            $html,
+            'the surface refuses in words, whichever of the two guards fired'
+        );
     }
 
     public function test_the_media_target_step_offers_only_players_in_scope(): void {
