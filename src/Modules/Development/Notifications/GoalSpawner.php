@@ -3,9 +3,10 @@ namespace TT\Modules\Development\Notifications;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\GoalPriority;
 use TT\Domain\Vocabularies\Lookups\GoalStatus;
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 
@@ -37,18 +38,20 @@ class GoalSpawner {
         $playerId = (int) ( $idea->player_id ?? 0 );
         if ( $playerId <= 0 ) return;
 
-        global $wpdb;
-        $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', [
-            'club_id'     => CurrentClub::id(),
+        // #3131 — through the repository, so a spawned goal reaches the
+        // player's journey like any other. A goal nobody typed is still a
+        // dated statement about where the player is going; the payload
+        // says it was spawned so a reader can tell the two apart.
+        $goalId = ( new GoalsRepository() )->create( [
             'player_id'   => $playerId,
             'title'       => (string) $idea->title,
             'description' => (string) ( $idea->body ?? '' ),
             'status'      => GoalStatus::PENDING,
             'priority'    => GoalPriority::MEDIUM,
             'created_by'  => get_current_user_id(),
-        ] );
-        if ( $ok === false ) return;
+        ], [ 'origin' => GoalOrigin::SPAWNED ] );
+        if ( $goalId <= 0 ) return;
 
-        $repo->update( $ideaId, [ 'spawned_goal_id' => (int) $wpdb->insert_id ] );
+        $repo->update( $ideaId, [ 'spawned_goal_id' => $goalId ] );
     }
 }

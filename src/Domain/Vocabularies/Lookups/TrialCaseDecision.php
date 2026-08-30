@@ -57,7 +57,33 @@ final class TrialCaseDecision {
         self::CONTINUE_IN_TRIAL_GROUP,
     ];
 
+    /**
+     * The four decisions that end the trial. #3138 — the two that are
+     * missing say the opposite: `CONTINUE_IN_TRIAL_GROUP` explicitly means
+     * the trial is still running, and `OFFERED_TEAM_POSITION` is
+     * mid-conversation — the family has not answered yet. Writing a
+     * "Trial ended" entry for either would make the timeline actively
+     * wrong rather than merely incomplete.
+     *
+     * An offer being made is arguably the most significant moment in a
+     * trial and appears nowhere on the journey today. That wants an event
+     * type of its own, not this one.
+     *
+     * @var list<string>
+     */
+    public const TERMINAL = [
+        self::ADMIT,
+        self::DENY_FINAL,
+        self::DENY_ENCOURAGEMENT,
+        self::DECLINED_OFFERED_POSITION,
+    ];
+
     public static function isValid( string $value ): bool {
         return in_array( $value, self::ALL, true );
+    }
+
+    /** Does this decision close the trial? */
+    public static function isTerminal( string $value ): bool {
+        return in_array( $value, self::TERMINAL, true );
     }
 }

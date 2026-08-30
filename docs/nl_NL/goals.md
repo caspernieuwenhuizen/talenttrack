@@ -71,6 +71,36 @@ gearchiveerd, niet behaald en niet gestaakt zijn. Verdwijnt een doel uit de
 lijst nadat je het op behaald zet, dan is het naar het dichtgeklapte blok
 verhuisd — niet uit het dossier van de speler.
 
+## Op de spelersreis
+
+Elk doel komt op de [spelersreis](player-journey.md), vanuit welk scherm het ook
+is geschreven: het doelformulier, het snel-toevoegvak, de doelenwizard, het
+wp-adminformulier, en de twee die de club nooit met de hand typt — de
+seizoensovergang die openstaande doelen meeneemt naar een nieuw seizoen, en een
+ontwikkelidee dat een doel opent zodra het wordt opgepakt. Doelen die via de
+wizard werden gesteld, ontbraken voorheen volledig op de reis: een coach zag het
+doel wel op het tabblad Doelen en nergens op de tijdlijn.
+
+De regel vermeldt welke van die routes hem schreef, want ze betekenen niet
+hetzelfde:
+
+- *Doel gesteld: zwakke voet trainen* — iemand heeft het besloten.
+- *Doel meegenomen: zwakke voet trainen* — de seizoensovergang heeft een
+  openstaand doel meegenomen naar het nieuwe seizoen.
+- *Doel geopend vanuit een ontwikkelidee: …* — een idee met de speler eraan
+  gekoppeld kwam op In behandeling.
+
+Meegenomen regels krijgen de **startdatum van het nieuwe seizoen** als datum, niet
+de dag waarop de overgang is uitgevoerd — een overgang die drie weken te laat
+draait, leest een seizoen later nog steeds als de seizoensstart. Een overgang
+schrijft in één keer een doel voor elke speler, dus verwacht op die datum een
+reeks meegenomen regels; ze zijn gelabeld zodat ze niet lezen als een dag vol
+coaching.
+
+Doelen die hiervoor zijn aangemaakt blijven van de tijdlijn tot de reis opnieuw
+wordt opgebouwd. Zo'n herbouw kan niet zien hoe een oud doel is ontstaan, dus
+elke aangevulde regel leest als *Doel gesteld*.
+
 ## Methodologiekoppeling
 
 Overal waar een doel geschreven wordt — het doelformulier, het snelinvoerblok op het coachdashboard, de nieuw-doel-wizard en het wp-admin-formulier — staat de vraag **Wat ontwikkelt dit doel?** met de principes van de actieve methodiek van de club. Vink er zoveel aan als van toepassing zijn: een doel kan meer dan één principe dienen, en één verplichte keuze zou de coach dwingen willekeurig te kiezen.

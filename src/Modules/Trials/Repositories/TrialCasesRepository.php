@@ -271,19 +271,101 @@ class TrialCasesRepository {
         ] );
     }
 
-    public function recordDecision( int $id, string $decision, int $user_id, string $notes, ?string $strengths = null, ?string $growth = null ): bool {
-        if ( ! in_array( $decision, [ TrialCaseDecision::ADMIT, TrialCaseDecision::DENY_FINAL, TrialCaseDecision::DENY_ENCOURAGEMENT ], true ) ) {
+    /**
+     * Record a decision on a trial case, and announce it.
+     *
+     * #3138 — this used to accept three of the six decisions and fire
+     * nothing; the hook was fired by `TrialsRestController` afterwards. So
+     * the two workflow forms, which write the other three, went around it
+     * through `update()` and announced nothing at all. A trial that ended
+     * because the family declined the offered position wrote
+     * `declined_offered_position` to the case row and left the player's
+     * timeline showing a trial that started and never finished.
+     *
+     * Doing the sweep found the same gap on two decisions the issue did
+     * not name: the **accept** branch of `AwaitTeamOfferDecisionForm` and
+     * the **final decline** branch of `ReviewTrialGroupMembershipForm` both
+     * wrote through `update()` too. Five silent decision writes across two
+     * forms, which is what a repository method with an allow-list narrower
+     * than its column produces.
+     *
+     * So it takes all six now, maps the case status per decision, and
+     * fires `tt_trial_decision_recorded` itself. Deciding *which* of the
+     * six belongs on the timeline is the subscriber's job, not the write
+     * path's — `TrialCaseDecision::isTerminal()` is where that lives.
+     *
+     * `$strengths` / `$growth` are only written when non-null. Passing
+     * null used to blank the stored summaries, which is wrong for a caller
+     * that simply has nothing to say about them — the workflow forms all
+     * are.
+     *
+     * @param array<string,mixed> $extra Extra columns for this decision
+     *                                   (`continued_until`, `archived_at`,
+     *                                   …). Filtered by `update()`.
+     */
+    public function recordDecision( int $id, string $decision, int $user_id, string $notes, ?string $strengths = null, ?string $growth = null, array $extra = [] ): bool {
+        if ( ! TrialCaseDecision::isValid( $decision ) ) {
             return false;
         }
-        return $this->update( $id, [
+
+        $decided_at = current_time( 'mysql', true );
+
+        $patch = [
             'decision'         => $decision,
-            'decision_made_at' => current_time( 'mysql', true ),
+            'decision_made_at' => $decided_at,
             'decision_made_by' => $user_id,
             'decision_notes'   => $notes,
-            'strengths_summary' => $strengths,
-            'growth_areas'     => $growth,
-            'status'           => self::STATUS_DECIDED,
-        ] );
+        ];
+        if ( $strengths !== null ) $patch['strengths_summary'] = $strengths;
+        if ( $growth !== null )    $patch['growth_areas']      = $growth;
+
+        $status = self::caseStatusFor( $decision );
+        if ( $status !== '' ) $patch['status'] = $status;
+
+        if ( ! $this->update( $id, $patch + $extra ) ) {
+            return false;
+        }
+
+        $case = $this->find( $id );
+
+        /**
+         * #0053 / #3138 — announced here rather than by the callers, for
+         * the same reason `create()` announces `tt_trial_started` here:
+         * three copies of an announcement is how the fourth caller comes
+         * to be missing one.
+         *
+         * `JourneyEventSubscriber` writes the timeline from this, and
+         * `TrialDecisionPlayerStatusSubscriber` (#3116) moves the player.
+         * Both ignore the two non-terminal decisions.
+         *
+         * @param int    $id         The trial case.
+         * @param int    $player_id  The player the trial is about.
+         * @param string $decision   One of `TrialCaseDecision::ALL`.
+         * @param string $decided_at UTC timestamp the decision was stamped.
+         */
+        do_action(
+            'tt_trial_decision_recorded',
+            $id,
+            (int) ( $case->player_id ?? 0 ),
+            $decision,
+            $decided_at
+        );
+
+        return true;
+    }
+
+    /**
+     * The case status a decision settles on, or '' to leave it alone.
+     *
+     * `offered_team_position` deliberately leaves the case open — the
+     * final disposition lands in `AwaitTeamOfferDecisionForm` — and
+     * `continue_in_trial_group` extends rather than decides, because it
+     * means the trial is still running.
+     */
+    private static function caseStatusFor( string $decision ): string {
+        if ( $decision === TrialCaseDecision::OFFERED_TEAM_POSITION )   return '';
+        if ( $decision === TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP ) return self::STATUS_EXTENDED;
+        return self::STATUS_DECIDED;
     }
 
     public function releaseInputs( int $case_id, int $user_id ): bool {

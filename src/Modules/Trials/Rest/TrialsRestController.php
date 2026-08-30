@@ -3,6 +3,7 @@ namespace TT\Modules\Trials\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
@@ -291,24 +292,30 @@ class TrialsRestController {
         if ( strlen( $notes ) < 30 ) {
             return RestResponse::error( 'bad_request', __( 'Justification must be at least 30 characters.', 'talenttrack' ), 400 );
         }
+        // #3138 — `recordDecision()` accepts all six decisions now, because
+        // the workflow forms write the other three and had gone around it.
+        // This endpoint keeps its own narrower surface: the three classic
+        // outcomes are what an API caller decides. The rolling-membership
+        // three belong to the workflow chain that spawns the next task, and
+        // recording one over HTTP would move the case without moving the
+        // chain.
+        if ( ! in_array( $decision, [
+            TrialCaseDecision::ADMIT,
+            TrialCaseDecision::DENY_FINAL,
+            TrialCaseDecision::DENY_ENCOURAGEMENT,
+        ], true ) ) {
+            return RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
+        }
+
         $repo = new TrialCasesRepository();
+        // The hook fires from `recordDecision()` now — the journey
+        // subscriber and the player-status subscriber both hang off it, and
+        // firing it here as well would double every entry.
         $ok = $repo->recordDecision(
             $id, $decision, get_current_user_id(), $notes,
             isset( $payload['strengths_summary'] ) ? sanitize_textarea_field( (string) $payload['strengths_summary'] ) : null,
             isset( $payload['growth_areas'] )      ? sanitize_textarea_field( (string) $payload['growth_areas'] )      : null
         );
-        if ( $ok ) {
-            $case = $repo->find( $id );
-            // #0053 — journey subscriber emits trial_ended (+ signed/released
-            // depending on decision) against this hook.
-            do_action(
-                'tt_trial_decision_recorded',
-                $id,
-                (int) ( $case->player_id ?? 0 ),
-                $decision,
-                (string) ( $case->decision_made_at ?? '' )
-            );
-        }
         return $ok ? RestResponse::success( [ 'recorded' => true ] )
                    : RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
     }

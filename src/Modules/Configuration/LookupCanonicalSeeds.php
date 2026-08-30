@@ -75,10 +75,10 @@ final class LookupCanonicalSeeds {
                 'cancelled', 'postponed', 'no_show',
             ],
 
-            // 0013_competition_type_lookup
-            'competition_type' => [
-                'League', 'Cup', 'Tournament', 'Friendly', 'Indoor',
-            ],
+            // #3126 — `competition_type` is gone. Migration 0027 renamed the
+            // whole lookup to `game_subtype`, so a migrated install holds no
+            // rows of that type and the drift audit never scanned one. The
+            // typed class that described it went with it.
 
             // 0027 — game subtype
             'game_subtype' => [ 'Eleven-a-side', 'Seven-a-side', 'Futsal', 'Indoor' ],
@@ -114,8 +114,20 @@ final class LookupCanonicalSeeds {
             // 0058 — goal approval decision
             'goal_approval_decision' => [ 'Pending', 'Approved', 'Rejected', 'Changes requested' ],
 
-            // 0098 — tournament lookups
-            'tournament_format'    => [ 'Knockout', 'Round-robin', 'Group + knockout', 'League' ],
+            // 0098 — tournament lookups.
+            //
+            // #3126 — `tournament_format` (Knockout / Round-robin / …) was
+            // here and is gone. Migration 0098 never seeded it, no code ever
+            // read it, and no install has a row of that type; #3117 dropped
+            // the same key from `LookupTranslationSeeds` for the same reason.
+            //
+            // It is NOT `tournament_formation` below, which is live — the
+            // near-collision is the likeliest way the speculative entry got
+            // written in the first place, and the likeliest way a careless
+            // deletion would take out a working vocabulary. The two were
+            // separated by what migration 0098 actually seeds and by row
+            // count on a migrated install, not by reading the names.
+            //
             // #1022 — drift fix: pull from the typed-constants source
             // of truth so this map can't drift away from migration 0098
             // + REST validation in the future.
@@ -149,8 +161,10 @@ final class LookupCanonicalSeeds {
             'trial_case_status' => TrialCaseStatus::ALL,
             'medium_batch_status' => [ 'Pending', 'Processing', 'Completed', 'Failed' ],
 
-            // 0124 — VCT
-            'vct_theme_status' => [ 'Draft', 'Planned', 'Active', 'Completed', 'Archived' ],
+            // #3126 — `vct_theme_status` was here and is gone. Migration 0124
+            // does not seed it, nothing reads it, and no install has a row of
+            // that type; #3117 dropped the same key from
+            // `LookupTranslationSeeds` for the same reason.
         ];
     }
 
@@ -219,13 +233,9 @@ final class LookupCanonicalSeeds {
                 'Proeftraining' => 'Trial',
                 'Overig'     => 'Other',
             ],
-            'competition_type' => [
-                'Competitie' => 'League',
-                'Beker'      => 'Cup',
-                'Toernooi'   => 'Tournament',
-                'Oefenwedstrijd' => 'Friendly',
-                'Zaal'       => 'Indoor',
-            ],
+            // #3126 — the `competition_type` reverse map went with the
+            // canonical entry. It could only ever have suggested a canonical
+            // for a row of a type migration 0027 renamed away.
         ];
     }
 
