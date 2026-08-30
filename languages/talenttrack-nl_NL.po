@@ -58573,6 +58573,26 @@ msgstr "Aan de speelminuten zelf verandert niets: je voert ze nog steeds per act
 msgid "Ratings themselves are not affected: you can still rate a player from their profile and from the activity. The grid is the faster desktop way to rate a whole squad at once."
 msgstr "Aan de beoordelingen zelf verandert niets: je beoordeelt een speler nog steeds vanaf het spelersdossier en vanaf de activiteit. Het raster is de snellere manier op een laptop om een hele selectie in één keer te beoordelen."
 
+#: src/Modules/License/UpgradePanel.php:129
+msgid "Link no longer active"
+msgstr "Link werkt niet meer"
+
+#: src/Modules/License/UpgradePanel.php:132
+msgid "This share link has been switched off"
+msgstr "Deze deellink is uitgezet"
+
+#: src/Modules/License/UpgradePanel.php:135
+msgid "The club that sent you this link is no longer sharing documents outside the app. Nothing has been deleted and nothing has gone wrong at your end — the club still has everything it wrote. Ask them for what you need directly."
+msgstr "De club die je deze link stuurde deelt geen documenten meer buiten de app. Er is niets verwijderd en er ging bij jou niets mis — de club heeft nog alles wat er geschreven is. Vraag hun rechtstreeks om wat je nodig hebt."
+
+#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:57
+msgid "Printing a match analysis is part of a plan this install is not on. The analysis itself is still on screen, and nothing has been removed."
+msgstr "Een wedstrijdanalyse afdrukken hoort bij een pakket waar deze installatie niet op zit. De analyse zelf staat gewoon op het scherm, en er is niets verwijderd."
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:88
+msgid "Printing this sheet is part of a plan this install is not on. The match plan itself is still on screen, and nothing has been removed."
+msgstr "Dit formulier afdrukken hoort bij een pakket waar deze installatie niet op zit. Het wedstrijdplan zelf staat gewoon op het scherm, en er is niets verwijderd."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 

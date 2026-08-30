@@ -141,6 +141,21 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             return;
         }
 
+        // #3108 — sharing is Pro, and the check is here, at the router,
+        // rather than at the button that mints the link. A gate on the
+        // button would leave every link already in circulation working,
+        // which is not a gate.
+        //
+        // The club keeps reading its own analyses (#3017's third decision);
+        // what stops is distributing them outside the club, which is the
+        // paid capability. Said plainly rather than 404'd — the recipient
+        // did nothing wrong. Before the token resolves, so a revoked link
+        // reveals nothing about whether the record exists.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'match_analysis_sharing' ) ) {
+            echo \TT\Modules\License\UpgradePanel::renderRevokedShareLink(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
 

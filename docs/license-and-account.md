@@ -159,6 +159,43 @@ Courses lock at the module's own gate rather than at a screen, so the course
 list, a lesson page and the API all give the same answer — and the courses
 stay **listed**, so a club can see what the plan would open.
 
+### Share links you have already sent
+
+This is the one place where "what you already recorded stays readable" needs
+a second sentence, so here it is plainly.
+
+**Share links stop working when the plan drops.** A match analysis, a match
+plan or a team blueprint you sent to an assistant coach at another club, a
+physio or a parent — those links go quiet, including ones sent months ago.
+
+That is not the club losing its data. The club still opens and reads every
+one of those documents inside TalentTrack, exactly as before. What stops is
+**handing them to people outside the club**, which is the part that was
+being paid for.
+
+Someone who follows a link that has stopped working does not get an error or
+a "page not found". They get a short page saying the club is no longer
+sharing documents outside the app, that nothing has been deleted, and to ask
+the club directly. It names no plan and no document — they are not the
+customer, and the contents of a link that no longer works should not travel.
+
+### Printing and PDF exports
+
+The three match-day PDFs — the analysis, the match plan and the referee's
+team sheet — are Pro. **The export locks; the record does not.** A Standard
+club opens and reads its match analyses and match plans on screen exactly as
+before, and cannot print them to PDF.
+
+The alternative would have been to keep exports working for records written
+while the club was on Pro and refuse for newer ones. That is defensible and
+it is what #2922's "you can always read and take out your own data" hints
+at — but a button that works on one match and not the next, by a date nobody
+can see, is worse than a clear line. So the line is the surface, not the
+record.
+
+Backup and the data export on the account page are untouched by all of this:
+taking your whole academy's data out is never a paid feature.
+
 ## Usage limits
 
 Player count, team count and storage are **priced against what they cost to run**, not bundled into the plan. A large Standard club can cost more than a small Pro one, and that is deliberate — the plan says which features you have, the size of your academy says what it costs to host.

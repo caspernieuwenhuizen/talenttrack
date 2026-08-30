@@ -44,6 +44,24 @@ class MatchAnalysisPrintRouter {
             wp_die( esc_html__( 'You do not have access to print this match analysis.', 'talenttrack' ) );
         }
 
+        // #3108 — the PDF export is Pro, and this URL is the export: it
+        // bypasses ExportService entirely, so a gate anywhere else leaves
+        // this route as the back door. The line taken (see the PR) is that
+        // the **export surface** locks while the analysis itself stays
+        // readable on screen — not that exports keep working for records
+        // written before the plan dropped, which would need a per-record
+        // date comparison nobody could explain.
+        //
+        // After the capability check, so someone who could never print this
+        // gets the permission answer rather than an upgrade pitch.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'export_match_analysis_pdf' ) ) {
+            wp_die(
+                esc_html__( 'Printing a match analysis is part of a plan this install is not on. The analysis itself is still on screen, and nothing has been removed.', 'talenttrack' ),
+                '',
+                [ 'response' => 402 ]
+            );
+        }
+
         add_filter( 'show_admin_bar', '__return_false' );
         status_header( 200 );
         nocache_headers();
