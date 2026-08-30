@@ -112,12 +112,33 @@ jobs:
       #
       # An `actions/cache` of the WordPress source tree was then tried, on
       # the theory that `"core": "WordPress/WordPress"` git-cloning
-      # WordPress every run was the dominant cost. It is not. Measured on
-      # `main`: cold startup ~90s, warm startup with the 391MB tree restored
-      # **103s and 129s**. Restoring the tree costs more than cloning it,
-      # and wp-env does its own work either way. Removed. The startup is
-      # simply ~90s of work, and candidate 2 in #2417 — wp-env booting a
-      # `dev` instance this job never touches — is the remaining lead.
+      # WordPress every run was the dominant cost. Caching it is not the
+      # answer: measured on `main`, cold startup ~90s, warm startup with
+      # the 391MB tree restored **103s and 129s**. Restoring the tree costs
+      # more than cloning it. Removed.
+      #
+      # What that experiment did establish is that the work before wp-env
+      # touches a container collapses once the tree is already on disk
+      # (102s -> 44s on the same commit). So the clone is expensive; it is
+      # *storing* it that is not worth it.
+      #
+      # `.wp-env.json` now sets `"core": null`, which drops the clone
+      # instead of caching it — wp-env uses the released WordPress image,
+      # which it pulls either way. That also stops both suites running
+      # against WordPress **trunk**, which is what `"WordPress/WordPress"`
+      # meant and which nobody chose: it came in with the Playwright
+      # scaffold in #12 and was never a decision.
+      #
+      # Candidate 2 in #2417 — wp-env booting a `dev` instance neither job
+      # touches — is RULED OUT, not because it would not help but because
+      # `@wordpress/env` v10 exposes no supported way to do it.
+      # `wp-env start` takes `--debug`, `--update`, `--runtime`, `--xdebug`,
+      # `--spx`, `--scripts` and `--auto-port`, and nothing else; the
+      # `testsEnvironment` config key that once addressed this is
+      # deprecated, and the `--config` replacement "still starts a complete
+      # development environment". Reaching into wp-env's generated compose
+      # project to start a subset would skip the WordPress install and
+      # config that `wp-env start` does, which is the part that matters.
       - name: Start wp-env (timed)
         run: |
           set -e
