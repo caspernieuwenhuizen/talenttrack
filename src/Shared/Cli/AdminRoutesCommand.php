@@ -64,6 +64,14 @@ final class AdminRoutesCommand {
     public function __invoke( array $args, array $assoc ): void {
         $rows = self::rows();
 
+        // #3132 — say what could not be followed statically, before showing a
+        // table that implies completeness. A dispatcher arm built from
+        // something the deriver cannot resolve is not absent, it is unknown,
+        // and the difference is the whole reason this command exists.
+        foreach ( self::unresolvedRouteSites() as $where ) {
+            \WP_CLI::warning( "Route at {$where} is built from something that cannot be resolved statically. Classify it by hand." );
+        }
+
         if ( isset( $assoc['unrouted'] ) ) {
             $rows = array_values( array_filter(
                 $rows,
@@ -94,6 +102,7 @@ final class AdminRoutesCommand {
     public static function rows(): array {
         $routable    = self::routableSlugs();
         $admin_only  = self::adminOnly();
+        $renamed     = self::renamedPairings();
         $rows        = [];
 
         foreach ( AdminMenuRegistry::allEntries() as $entry ) {
@@ -104,11 +113,20 @@ final class AdminRoutesCommand {
 
             $module = (string) ( $entry['module_class'] ?? '' );
 
-            // The frontend slug is the admin slug minus the `tt-` prefix, by
-            // the convention every port so far has followed. Where a port
-            // chose a different name the pair still shows as unrouted, which
-            // is the honest answer: nothing in the codebase records the link.
-            $candidate = str_starts_with( $slug, 'tt-' ) ? substr( $slug, 3 ) : $slug;
+            // #3132 — a recorded pairing first, the prefix convention second.
+            //
+            // Stripping `tt-` holds for most of the plugin and for none of the
+            // ports #2874 commissioned: every one of them renamed the slug, so
+            // the tool reported the three pages it exists to track as unrouted.
+            // The methodology row is the case no prefix rule reaches at all —
+            // eight admin pages collapse into one frontend surface.
+            //
+            // The recorded slug is still checked against the real routable set,
+            // so a stale or mistyped map entry reads as unrouted rather than as
+            // a false green.
+            $candidate = isset( $renamed[ $slug ]['frontend_slug'] )
+                ? (string) $renamed[ $slug ]['frontend_slug']
+                : ( str_starts_with( $slug, 'tt-' ) ? substr( $slug, 3 ) : $slug );
             $routed    = in_array( $candidate, $routable, true );
 
             if ( isset( $admin_only[ $slug ] ) ) {
@@ -138,30 +156,80 @@ final class AdminRoutesCommand {
     /**
      * Every `?tt_view=` slug the dispatcher answers.
      *
-     * Parsed out of `DashboardShortcode`'s `switch` because that file is the
-     * authority and its arms are not enumerable at runtime. The issue proposed
-     * lifting the routable set into a shared array both this and the #2885
-     * tile-route gate could read, which is the better end state — but that is a
-     * refactor of the busiest file in the plugin and belongs in its own PR, not
-     * riding along inside a reporting tool.
+     * Derived from `DashboardShortcode` because that file is the authority and
+     * its arms are not enumerable at runtime — through the shared deriver, not
+     * a regex of this command's own. See `derive()` for why that matters.
      *
      * @return list<string>
      */
     public static function routableSlugs(): array {
-        $path = TT_PLUGIN_DIR . 'src/Shared/Frontend/DashboardShortcode.php';
+        return array_keys( self::derive()[0] );
+    }
+
+    /**
+     * Dispatcher arms this command could not follow statically.
+     *
+     * Reported rather than dropped, so a route nobody can resolve reads as
+     * "classify this by hand" instead of as absent — which is how a reporting
+     * tool ends up confidently wrong. `check-docs` and the mobile-class gate
+     * print the same list for the same reason.
+     *
+     * @return list<string>
+     */
+    public static function unresolvedRouteSites(): array {
+        return self::derive()[1];
+    }
+
+    /**
+     * #3132 — read the canonical deriver rather than a second regex.
+     *
+     * This command shipped with `preg_match_all( "/case '([a-z0-9-]+)':/" )`,
+     * which is exactly the trap `tools/lib/routable-slugs.php` was written for
+     * a few weeks earlier: it cannot see a **constant arm**
+     * (`case FrontendCategoryWeightsView::SLUG:`, where the literal lives in
+     * the view class) or a **pre-auth route** (handled by
+     * `$tt_view_param === …` above the dispatch chain). On this tree that is
+     * ten live routes invisible to the regex, including two of the three
+     * pages #2874 commissioned ports for.
+     *
+     * `tools/` ships inside the plugin zip — the release rsync excludes
+     * `.git`, `.github`, `tests`, `phpstan*`, parts of `vendor/` and
+     * `branding-plugin`, not `tools/` — so the require resolves on a real
+     * install, not only in a checkout.
+     *
+     * Four consumers, one deriver: the docs gate, the mobile-class gate, the
+     * tile-route gate and this command.
+     *
+     * @return array{0: array<string, string>, 1: list<string>} [ slug => where, unresolvable call sites ]
+     */
+    private static function derive(): array {
+        $root       = rtrim( TT_PLUGIN_DIR, '/\\' );
+        $lib        = $root . '/tools/lib/routable-slugs.php';
+        $dispatcher = $root . '/src/Shared/Frontend/DashboardShortcode.php';
+
+        if ( ! is_readable( $lib ) || ! is_readable( $dispatcher ) ) return [ [], [] ];
+
+        require_once $lib;
+        if ( ! function_exists( 'tt_routable_slugs' ) ) return [ [], [] ];
+
+        /** @var array{0: array<string, string>, 1: list<string>} $derived */
+        $derived = tt_routable_slugs( $root, $dispatcher );
+
+        return $derived;
+    }
+
+    /**
+     * #3132 — admin pages whose frontend port renamed or merged the slug.
+     *
+     * @return array<string, array{frontend_slug: string, renamed_by: string}>
+     */
+    public static function renamedPairings(): array {
+        $path = TT_PLUGIN_DIR . 'config/admin_frontend_slug_map.php';
         if ( ! is_readable( $path ) ) return [];
 
-        $source = (string) file_get_contents( $path );
-        if ( $source === '' ) return [];
+        $map = require $path;
 
-        $matches = [];
-        preg_match_all( "/case\s+'([a-z0-9-]+)'\s*:/", $source, $matches );
-
-        /** @var list<string> $slugs */
-        $slugs = array_values( array_unique( $matches[1] ) );
-        sort( $slugs );
-
-        return $slugs;
+        return is_array( $map ) ? $map : [];
     }
 
     /** @return array<string, string> */
