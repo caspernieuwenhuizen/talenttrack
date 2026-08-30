@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T08:38:08+00:00\n"
+"POT-Creation-Date: 2026-08-30T08:45:52+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4445,7 +4445,7 @@ msgstr "De overgang kon niet worden voltooid."
 #: src/Infrastructure/REST/TeamsRestController.php:533
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
-#: src/Modules/Spond/SpondSync.php:59
+#: src/Modules/Spond/SpondSync.php:79
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:273
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:302
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:343
@@ -4503,8 +4503,8 @@ msgid "Could not save the Spond group."
 msgstr "De Spond-groep kon niet worden opgeslagen."
 
 # === #1617 — player-centric PDP coverage list ===
-#: src/Infrastructure/REST/StravaRestController.php:221
-#: src/Infrastructure/REST/StravaRestController.php:507
+#: src/Infrastructure/REST/StravaRestController.php:234
+#: src/Infrastructure/REST/StravaRestController.php:520
 msgid ""
 "Strava is not set up for this academy yet. Ask an administrator to add the "
 "Strava app credentials."
@@ -4512,20 +4512,20 @@ msgstr ""
 "Strava is voor deze academie nog niet ingesteld. Vraag een beheerder om de "
 "Strava-app-gegevens toe te voegen."
 
-#: src/Infrastructure/REST/StravaRestController.php:242
+#: src/Infrastructure/REST/StravaRestController.php:255
 msgid "Please agree to share Strava activity data before connecting."
 msgstr ""
 "Ga akkoord met het delen van Strava-activiteitsgegevens voordat je verbindt."
 
-#: src/Infrastructure/REST/StravaRestController.php:402
+#: src/Infrastructure/REST/StravaRestController.php:415
 msgid "A Strava Client ID is required."
 msgstr "Er is een Strava Client ID vereist."
 
-#: src/Infrastructure/REST/StravaRestController.php:427
+#: src/Infrastructure/REST/StravaRestController.php:440
 msgid "(unknown player)"
 msgstr "(onbekende speler)"
 
-#: src/Infrastructure/REST/StravaRestController.php:536
+#: src/Infrastructure/REST/StravaRestController.php:549
 msgid "Could not create the Strava webhook subscription."
 msgstr "Kon het Strava-webhookabonnement niet aanmaken."
 
@@ -4799,7 +4799,7 @@ msgstr ""
 msgid "Translation settings could not be saved."
 msgstr "Vertaalinstellingen konden niet worden opgeslagen."
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:94
+#: src/Infrastructure/REST/VisionExtractRestController.php:103
 msgid ""
 "Photo capture is switched on but this site has not said where the "
 "photographs would be sent, so nothing was sent. An administrator needs to "
@@ -4809,7 +4809,7 @@ msgstr ""
 "foto's naartoe zouden gaan, dus er is niets verstuurd. Een beheerder moet "
 "eerst TT_VISION_ENDPOINT en TT_VISION_DATA_REGION instellen."
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:103
+#: src/Infrastructure/REST/VisionExtractRestController.php:112
 msgid ""
 "No image was uploaded. Attach a photo via the `photo` file field or "
 "`photo_base64` body field."
@@ -4817,7 +4817,7 @@ msgstr ""
 "Er is geen afbeelding geüpload. Voeg een foto toe via het `photo`-"
 "bestandsveld of het `photo_base64`-bodyveld."
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:120
+#: src/Infrastructure/REST/VisionExtractRestController.php:129
 msgid ""
 "The vision provider could not read this photo. Use the manual flow instead."
 msgstr ""
@@ -5042,7 +5042,7 @@ msgstr "Filteren"
 #: src/Modules/Methodology/VocabularyCatalog.php:255
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:194
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:281
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/CoachDashboardView.php:263
@@ -5735,7 +5735,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:325
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:201
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:277
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:621
 #: src/Shared/Frontend/FrontendStandardReportsView.php:776
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:474
@@ -8231,7 +8231,7 @@ msgstr ""
 #: src/Modules/Teams/Admin/TeamsPage.php:66
 #: src/Modules/Teams/Admin/TeamsPage.php:159
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:46
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:276
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:288
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:163
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
@@ -12894,6 +12894,16 @@ msgid "Use the table list below. Only the tables you list are backed up."
 msgstr ""
 "Gebruik de tabellijst hieronder. Alleen de opgegeven tabellen worden "
 "meegenomen in de back-up."
+
+#. translators: %s: plan name, e.g. "Pro"
+#: src/Modules/Comms/Cron/CommsScheduledCron.php:67
+#, php-format
+msgid ""
+"Skipped: scheduled sends are part of the %s plan, which this install is not "
+"on."
+msgstr ""
+"Overgeslagen: geplande verzendingen horen bij het %s-pakket, waar deze "
+"installatie niet op zit."
 
 #: src/Modules/Comms/Domain/CommsOutcomeSummary.php:48
 #: src/Modules/Comms/Domain/CommsOutcomeSummary.php:109
@@ -21362,7 +21372,7 @@ msgstr "Dupliceren"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:413
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:284
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:296
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/Components/MediaGallery.php:231
@@ -38816,7 +38826,7 @@ msgstr "Spond-login gaf HTTP %d terug."
 msgid "Spond login did not return a token."
 msgstr "Spond-login leverde geen token op."
 
-#: src/Modules/Spond/SpondClient.php:207 src/Modules/Spond/SpondSync.php:65
+#: src/Modules/Spond/SpondClient.php:207 src/Modules/Spond/SpondSync.php:85
 msgid "No Spond group selected for this team."
 msgstr "Geen Spond-groep geselecteerd voor deze ploeg."
 
@@ -38834,16 +38844,26 @@ msgstr "Spond-antwoord was geen geldige JSON."
 msgid "TalentTrack — Spond hourly sync"
 msgstr "TalentTrack — Spond synchronisatie per uur"
 
-#: src/Modules/Spond/SpondSync.php:75
+#. translators: %s: plan name, e.g. "Pro"
+#: src/Modules/Spond/SpondSync.php:63
+#, php-format
+msgid ""
+"Spond sync is part of the %s plan, which this install is not on. Fixtures "
+"already imported are unaffected."
+msgstr ""
+"Spond-synchronisatie hoort bij het %s-pakket, waar deze installatie niet op "
+"zit. Al geïmporteerde wedstrijden blijven ongewijzigd."
+
+#: src/Modules/Spond/SpondSync.php:95
 msgid "No Spond credentials configured for the club or this team."
 msgstr "Geen Spond-inloggegevens ingesteld voor de club of dit team."
 
-#: src/Modules/Spond/SpondSync.php:116
+#: src/Modules/Spond/SpondSync.php:136
 msgid "Spond group contained no upcoming events."
 msgstr "Spond-groep bevatte geen aankomende events."
 
 #. translators: 1: created count, 2: updated count, 3: archived count
-#: src/Modules/Spond/SpondSync.php:211
+#: src/Modules/Spond/SpondSync.php:231
 #, php-format
 msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
@@ -41924,8 +41944,9 @@ msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:77
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:92
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:101
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:110
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:106
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:113
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:122
 msgid "Photo to plan"
 msgstr "Foto naar plan"
 
@@ -41941,7 +41962,7 @@ msgstr ""
 "Een gefotografeerd plan laten lezen staat uit voor deze academie. Maak in "
 "plaats daarvan zelf een plan."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:103
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:115
 msgid ""
 "This site has not said where photographs would be sent to be read, so this "
 "cannot be used yet. An administrator needs to set that up first. Nothing has "
@@ -41951,7 +41972,7 @@ msgstr ""
 "te worden, dus dit kan nog niet gebruikt worden. Een beheerder moet dat "
 "eerst instellen. Er is niets verstuurd."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:113
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:125
 msgid ""
 "Photograph the training you wrote out. You get a draft to check before "
 "anything is saved."
@@ -41959,49 +41980,49 @@ msgstr ""
 "Fotografeer de training die je hebt uitgeschreven. Je krijgt een concept dat "
 "je nakijkt voordat er iets wordt opgeslagen."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:119
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:131
 msgid ""
 "Reading a photograph needs JavaScript. You can still build a plan by hand."
 msgstr ""
 "Een foto laten lezen heeft JavaScript nodig. Zelf een plan maken kan nog "
 "steeds."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:139
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:151
 msgid "Build a training plan by hand instead"
 msgstr "Zelf een trainingsplan maken"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:215
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:227
 msgid "A photo is waiting to be read"
 msgstr "Er wacht een foto om gelezen te worden"
 
 #. translators: %d is how many photographs are waiting to be read.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:217
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:229
 #, php-format
 msgid "%d photos are waiting to be read"
 msgstr "Er wachten %d foto's om gelezen te worden"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:255
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:267
 msgid "Lay the sheet flat and fill the frame"
 msgstr "Leg het blad plat en vul het kader"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:256
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:268
 msgid "Take a photo"
 msgstr "Foto maken"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:257
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:269
 msgid "From gallery"
 msgstr "Uit galerij"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:258
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:270
 msgid "For team"
 msgstr "Voor team"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:259
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:271
 msgid "No camera available on this device. Choose a photo instead."
 msgstr ""
 "Geen camera beschikbaar op dit apparaat. Kies in plaats daarvan een foto."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:260
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:272
 msgid ""
 "This browser did not give access to the camera. Choose a photo from your "
 "gallery instead."
@@ -42010,7 +42031,7 @@ msgstr ""
 "uit je galerij."
 
 #. translators: %s is where the photograph is processed, e.g. "EU (Frankfurt)".
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:262
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:274
 #, php-format
 msgid ""
 "The photo is read by an AI service in %s and is not stored here. Player "
@@ -42019,49 +42040,49 @@ msgstr ""
 "De foto wordt gelezen door een AI-dienst in %s en wordt hier niet "
 "opgeslagen. Namen van spelers worden niet overgenomen in notities."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:265
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:277
 msgid "Reading…"
 msgstr "Bezig met lezen…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:266
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:278
 msgid "Usually a few seconds. You can change anything afterwards."
 msgstr "Meestal een paar seconden. Je kunt daarna alles nog aanpassen."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:267
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:279
 msgid "Nothing has been saved yet."
 msgstr "Er is nog niets opgeslagen."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:270
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:282
 msgid "Does this look right?"
 msgstr "Klopt dit?"
 
 #. translators: 1: number of exercises read, 2: total minutes.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:272
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:284
 #, php-format
 msgid "%1$d exercises read · %2$d minutes. Change whatever is wrong."
 msgstr "%1$d oefeningen gelezen · %2$d minuten. Pas aan wat niet klopt."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:273
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:285
 msgid "certain"
 msgstr "zeker"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:274
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:286
 msgid "check this one"
 msgstr "controleer even"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:275
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:287
 msgid "not recognised"
 msgstr "niet herkend"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:278
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:290
 msgid "No match"
 msgstr "Geen koppeling"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:279
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:291
 msgid "Close to more than one exercise. Check this is the right one."
 msgstr "Lijkt op meer dan één oefening. Controleer of dit de juiste is."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:280
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:292
 msgid ""
 "Not recognised. It stays as a loose block if you leave it — and then it does "
 "not count towards what your players have been taught."
@@ -42069,37 +42090,37 @@ msgstr ""
 "Niet herkend. Het blijft als los blok staan als je niets koppelt — en dan "
 "telt het niet mee voor wat je spelers geleerd hebben."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:282
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:294
 #: src/Shared/Frontend/DashboardShortcode.php:247
 msgid "Discard"
 msgstr "Verwerpen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:283
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:295
 msgid "Create draft"
 msgstr "Concept aanmaken"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:287
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:299
 msgid "Creating the draft…"
 msgstr "Concept wordt aangemaakt…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:288
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:300
 msgid "Draft created. Opening it…"
 msgstr "Concept aangemaakt. Wordt geopend…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:301
 msgid "The draft could not be created. Nothing was saved; try again."
 msgstr ""
 "Het concept kon niet worden aangemaakt. Er is niets opgeslagen; probeer het "
 "opnieuw."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:290
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:302
 msgid ""
 "That photo could not be read. Try a clearer one, or build the plan by hand."
 msgstr ""
 "Die foto kon niet gelezen worden. Probeer een scherpere, of maak het plan "
 "zelf."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:291
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:303
 msgid ""
 "You have no connection, so the photo cannot be read yet. Try again when you "
 "have signal — nothing has been sent."
@@ -42108,7 +42129,7 @@ msgstr ""
 "het opnieuw zodra je bereik hebt — er is niets verstuurd."
 
 #. translators: %d is the number of days a photo is kept on the phone.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:295
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:307
 #, php-format
 msgid ""
 "No connection, so the photo is waiting on this phone. It is read as soon as "
@@ -42118,7 +42139,7 @@ msgstr ""
 "Geen verbinding, dus de foto wacht op deze telefoon. Hij wordt gelezen zodra "
 "je bereik hebt, en wordt na %d dagen verwijderd of hij nu gelezen is of niet."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:296
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:308
 msgid ""
 "Still no connection. The photo is safe on this phone and will be read when "
 "you have signal."
@@ -42126,23 +42147,23 @@ msgstr ""
 "Nog steeds geen verbinding. De foto staat veilig op deze telefoon en wordt "
 "gelezen zodra je bereik hebt."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:297
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:309
 msgid "Reading the photo that was waiting…"
 msgstr "De foto die stond te wachten wordt gelezen…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:298
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:310
 msgid "A photo is waiting to be read. It goes as soon as you have signal."
 msgstr ""
 "Er wacht een foto om gelezen te worden. Hij gaat weg zodra je bereik hebt."
 
 #. translators: %d is how many photographs are waiting to be read.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:300
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:312
 #, php-format
 msgid "%d photos are waiting to be read. They go as soon as you have signal."
 msgstr ""
 "Er wachten %d foto's om gelezen te worden. Ze gaan weg zodra je bereik hebt."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:301
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:313
 msgid ""
 "A photo waited too long and has been deleted. It was never read, so nothing "
 "was saved — take it again if you still need it."
@@ -42151,7 +42172,7 @@ msgstr ""
 "er is niets opgeslagen — maak hem opnieuw als je hem nog nodig hebt."
 
 #. translators: %d is how many photographs were deleted.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:303
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:315
 #, php-format
 msgid ""
 "%d photos waited too long and have been deleted. They were never read, so "
@@ -42160,14 +42181,14 @@ msgstr ""
 "%d foto's hebben te lang gewacht en zijn verwijderd. Ze zijn nooit gelezen, "
 "dus er is niets opgeslagen — maak ze opnieuw als je ze nog nodig hebt."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:304
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:316
 msgid ""
 "That photo is too large to send. Take another one, or choose a smaller file."
 msgstr ""
 "Die foto is te groot om te versturen. Maak een nieuwe, of kies een kleiner "
 "bestand."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:305
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:317
 msgid ""
 "Nothing could be read from that photo. Try again with the sheet flat and the "
 "whole page in frame."
@@ -42175,11 +42196,11 @@ msgstr ""
 "Er kon niets uit die foto gelezen worden. Probeer het opnieuw met het blad "
 "plat en de hele pagina in beeld."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:306
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:318
 msgid "Give the training a title before creating it."
 msgstr "Geef de training een titel voordat je hem aanmaakt."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:307
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:319
 msgid "Choose which team this training is for."
 msgstr "Kies voor welk team deze training is."
 
@@ -58605,18 +58626,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#. translators: %s: plan name, e.g. "Pro"
-#: src/Modules/Comms/Cron/CommsScheduledCron.php:69
-#, php-format
-msgid "Skipped: scheduled sends are part of the %s plan, which this install is not on."
-msgstr "Overgeslagen: geplande verzendingen horen bij het %s-pakket, waar deze installatie niet op zit."
-
-#. translators: %s: plan name, e.g. "Pro"
-#: src/Modules/Spond/SpondSync.php:60
-#, php-format
-msgid "Spond sync is part of the %s plan, which this install is not on. Fixtures already imported are unaffected."
-msgstr "Spond-synchronisatie hoort bij het %s-pakket, waar deze installatie niet op zit. Al geïmporteerde wedstrijden blijven ongewijzigd."
 
 #~ msgid ""
 #~ "Six-stage count strip — Prospects / Invited / Test training / Trial "
