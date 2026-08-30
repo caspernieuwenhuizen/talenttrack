@@ -38,7 +38,7 @@ Most entries appear without anyone typing them in. The journey watches the rest 
 - A **PDP verdict signed off** → *"PDP verdict: promote"*.
 - A **player joins a team or moves to a new age group** → *"Team: U13 → U14"* or *"Age group: U13 → U14"*.
 - A **player's preferred positions change** → *"Position: none → Centre back, Left back"* (positions read as their full names, not codes).
-- A **trial case is opened** → *"Trial started"*.
+- A **trial case is opened** → *"Trial started"*, from whichever screen opened it. A trial started through the new-player wizard used to leave no entry, so the timeline of a player whose journey begins with a trial started later than it should have — for some players and not others, depending on which screen created them. Existing players created that way stay missing the entry unless it is backfilled; the trial case itself still carries the date.
 - A **trial decision** → *"Trial ended: admit"* (and *"Signed"* on admit, *"Released"* on a final no).
 - A **player's status changes** to active, released, or graduated → matching journey entries.
 

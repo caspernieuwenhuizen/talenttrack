@@ -188,13 +188,11 @@ class FrontendTrialsManageView extends FrontendViewBase {
         global $wpdb;
         $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => PlayerStatus::TRIAL ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
 
-        // #3115 — the same hook `TrialsRestController::create_case()` fires.
-        // `JourneyEventSubscriber` listens on it and emits `trial_started`;
-        // without this the timeline of a player whose trial was opened from
-        // the UI had no record of the trial at all, while one opened through
-        // the API did. A trial is where an academy player's journey begins,
-        // so it is the one transition that must not be implied.
-        do_action( 'tt_trial_started', $case_id, $player_id );
+        // #3115 fixed this path by firing `tt_trial_started` here, next to
+        // the identical line in `TrialsRestController::create_case()`.
+        // #3130 moved both into `TrialCasesRepository::create()` once the
+        // wizard turned out to be a fourth caller with the same gap: three
+        // copies of an event is how the fourth caller gets missed.
 
         // Initial staff assignments (parallel arrays).
         $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];
