@@ -77,7 +77,7 @@ final class PlanSummary {
             ];
         }
 
-        $tier_keys = FeatureMap::allTiers();
+        $tier_keys = FeatureMap::tiers();
         $tiers = [];
         foreach ( $tier_keys as $key ) {
             $tiers[] = [
