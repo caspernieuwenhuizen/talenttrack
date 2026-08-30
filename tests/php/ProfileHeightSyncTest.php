@@ -176,6 +176,44 @@ final class ProfileHeightSyncTest extends WP_UnitTestCase {
         $this->assertSame( 172, $this->profileHeight(), 'The last height must not blank the profile.' );
     }
 
+    /**
+     * The sync spells its lifecycle predicate out rather than calling
+     * `ArchiveRepository::filterClause( 'active', 'r' )`, because
+     * `prepare()` takes a literal string at PHPStan level 8. This is the
+     * tripwire for that duplication: if "active" ever stops meaning
+     * archived-and-trashed-are-null, this fails rather than the profile
+     * quietly picking up a reading somebody deleted.
+     */
+    public function test_a_trashed_reading_is_ignored(): void {
+        global $wpdb;
+        $keep = $this->record( $this->height_def, '2026-01-01', 168.0 );
+        $gone = $this->record( $this->height_def, '2026-06-01', 176.0 );
+
+        $wpdb->update(
+            $wpdb->prefix . 'tt_measurement_results',
+            [ 'trashed_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $gone ]
+        );
+
+        $this->sync( $keep );
+
+        $this->assertSame( 168, $this->profileHeight() );
+    }
+
+    /**
+     * The `IN` list in `latestHeightCm()` is four fixed placeholders, for
+     * the same literal-string reason. If the vocabulary grows, that query
+     * silently stops matching the new name — so fail here instead.
+     */
+    public function test_the_height_vocabulary_still_has_four_entries(): void {
+        $this->assertCount(
+            4,
+            \TT\Modules\Measurements\Growth\BmiSeriesBuilder::HEIGHT_NAMES,
+            'ProfileHeightSync::latestHeightCm() hardcodes four placeholders to stay a literal string. '
+            . 'Adding a height name means widening that IN list in the same commit.'
+        );
+    }
+
     /** A mistyped reading must never reach a player's profile. */
     public function test_an_out_of_range_reading_is_refused(): void {
         $id = $this->record( $this->height_def, '2026-03-01', 1720.0 );

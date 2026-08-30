@@ -3,7 +3,6 @@ namespace TT\Modules\Measurements\Services;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
 
@@ -32,19 +31,6 @@ use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
  * of the weight, not the latest one. The two coexist on purpose.
  */
 class ProfileHeightSync {
-
-    private \wpdb $wpdb;
-    private string $t_results;
-    private string $t_definitions;
-    private string $t_players;
-
-    public function __construct() {
-        global $wpdb;
-        $this->wpdb          = $wpdb;
-        $this->t_results     = $wpdb->prefix . 'tt_measurement_results';
-        $this->t_definitions = $wpdb->prefix . 'tt_measurement_definitions';
-        $this->t_players     = $wpdb->prefix . 'tt_players';
-    }
 
     /**
      * Subscribe to the one hook every result write already announces.
@@ -76,8 +62,10 @@ class ProfileHeightSync {
         if ( ! $this->isHeightResult( $result_id ) ) return;
 
         if ( $player_id <= 0 ) {
-            $player_id = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-                "SELECT player_id FROM {$this->t_results} WHERE id = %d AND club_id = %d",
+            global $wpdb;
+            $p = $wpdb->prefix;
+            $player_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT player_id FROM {$p}tt_measurement_results WHERE id = %d AND club_id = %d",
                 $result_id,
                 CurrentClub::id()
             ) );
@@ -108,8 +96,11 @@ class ProfileHeightSync {
     public function syncFor( int $player_id ): bool {
         if ( $player_id <= 0 ) return false;
 
+        global $wpdb;
+        $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
-        $latest  = $this->latestHeightCm( $player_id, $club_id );
+
+        $latest = $this->latestHeightCm( $player_id, $club_id );
         if ( $latest === null ) return false;
 
         // The column is SMALLINT UNSIGNED (migration 0001), so a reading
@@ -118,15 +109,15 @@ class ProfileHeightSync {
         $rounded = (int) round( $latest );
         if ( $rounded < 50 || $rounded > 250 ) return false;
 
-        $current = $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT height_cm FROM {$this->t_players} WHERE id = %d AND club_id = %d",
+        $current = $wpdb->get_var( $wpdb->prepare(
+            "SELECT height_cm FROM {$p}tt_players WHERE id = %d AND club_id = %d",
             $player_id,
             $club_id
         ) );
         if ( $current !== null && (int) $current === $rounded ) return false;
 
-        return false !== $this->wpdb->update(
-            $this->t_players,
+        return false !== $wpdb->update(
+            $p . 'tt_players',
             [ 'height_cm' => $rounded ],
             [ 'id' => $player_id, 'club_id' => $club_id ]
         );
@@ -135,30 +126,50 @@ class ProfileHeightSync {
     /**
      * The player's most recent active height reading, or null.
      *
-     * Mirrors {@see BmiSeriesBuilder::readings()} — the same name matching,
-     * the same lifecycle clause, so the profile height and the BMI series
+     * Matches {@see BmiSeriesBuilder::readings()} — the same name list, the
+     * same lifecycle predicate — so the profile height and the BMI series
      * never disagree about which readings count. Ties on a date resolve to
      * the highest id, which is the correction recorded last.
+     *
+     * Two things are spelled out rather than composed, because `prepare()`
+     * takes a literal string at PHPStan level 8 and anything concatenated at
+     * runtime is not one:
+     *
+     * - the lifecycle predicate is written out instead of calling
+     *   `ArchiveRepository::filterClause( 'active', 'r' )`. It means the same
+     *   thing today, and `test_a_trashed_reading_is_ignored` is the tripwire
+     *   if that ever stops being true.
+     * - the `IN` list is four fixed placeholders rather than a generated one,
+     *   which couples this to the length of `HEIGHT_NAMES`.
+     *   `test_the_height_vocabulary_still_has_four_entries` fails loudly if
+     *   the constant grows.
      */
     public function latestHeightCm( int $player_id, int $club_id ): ?float {
-        $names        = BmiSeriesBuilder::HEIGHT_NAMES;
-        $placeholders = implode( ',', array_fill( 0, count( $names ), '%s' ) );
-        $params       = array_merge( [ $player_id, $club_id ], $names );
+        $names = BmiSeriesBuilder::HEIGHT_NAMES;
+        if ( count( $names ) !== 4 ) return null;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $value = $this->wpdb->get_var( $this->wpdb->prepare(
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $value = $wpdb->get_var( $wpdb->prepare(
             "SELECT r.value_numeric
-               FROM {$this->t_results} r
-               JOIN {$this->t_definitions} d ON d.id = r.definition_id
+               FROM {$p}tt_measurement_results r
+               JOIN {$p}tt_measurement_definitions d ON d.id = r.definition_id
               WHERE r.player_id = %d
                 AND r.club_id = %d
-                AND " . ArchiveRepository::filterClause( 'active', 'r' ) . "
+                AND r.archived_at IS NULL
+                AND r.trashed_at IS NULL
                 AND r.value_numeric IS NOT NULL
                 AND r.value_numeric > 0
-                AND LOWER(TRIM(d.name)) IN ({$placeholders})
+                AND LOWER(TRIM(d.name)) IN (%s, %s, %s, %s)
            ORDER BY r.recorded_date DESC, r.id DESC
               LIMIT 1",
-            ...$params
+            $player_id,
+            $club_id,
+            $names[0],
+            $names[1],
+            $names[2],
+            $names[3]
         ) );
 
         return $value === null ? null : (float) $value;
@@ -167,17 +178,20 @@ class ProfileHeightSync {
     /**
      * Whether a result belongs to a height definition.
      *
-     * Deliberately does NOT apply the lifecycle clause: archiving is one of
-     * the three paths that announce a save, and the row is already archived
-     * by the time this runs. Filtering here would make an archived height
-     * look like a non-height and skip the re-resolve that archive exists to
+     * Deliberately does NOT filter on lifecycle: archiving is one of the
+     * three paths that announce a save, and the row is already archived by
+     * the time this runs. Filtering here would make an archived height look
+     * like a non-height and skip the re-resolve that archive exists to
      * trigger.
      */
     private function isHeightResult( int $result_id ): bool {
-        $name = $this->wpdb->get_var( $this->wpdb->prepare(
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $name = $wpdb->get_var( $wpdb->prepare(
             "SELECT LOWER(TRIM(d.name))
-               FROM {$this->t_results} r
-               JOIN {$this->t_definitions} d ON d.id = r.definition_id
+               FROM {$p}tt_measurement_results r
+               JOIN {$p}tt_measurement_definitions d ON d.id = r.definition_id
               WHERE r.id = %d AND r.club_id = %d",
             $result_id,
             CurrentClub::id()
