@@ -195,8 +195,9 @@ class TrialsRestController {
             return RestResponse::error( 'bad_request', __( 'Could not create trial case.', 'talenttrack' ), 400 );
         }
         $case = $repo->find( $id );
-        // #0053 — journey subscriber emits trial_started against this hook.
-        do_action( 'tt_trial_started', $id, (int) ( $case->player_id ?? 0 ) );
+        // #3130 — `tt_trial_started` moved into `TrialCasesRepository::create()`.
+        // Four callers reached that method and only three fired the hook, so
+        // the journey entry depended on which screen opened the trial.
         return RestResponse::success( [ 'case' => self::format( $case ) ] );
     }
 

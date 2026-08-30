@@ -276,9 +276,10 @@ class PipelineGenerator implements DependentGeneratorInterface {
             $this->registry->tag( 'trial_case', $case_id, [ 'player_id' => $player_id, 'open' => $is_open ? 1 : 0 ] );
             $total++;
 
-            // Fire the same hook the Trials module fires, so the journey gets
-            // its trial_started event in exactly the production shape.
-            do_action( 'tt_trial_started', $case_id, $player_id );
+            // #3130 — `TrialCasesRepository::create()` now fires
+            // `tt_trial_started` itself, so the journey gets its
+            // `trial_started` event in exactly the production shape without
+            // this generator having to remember to say so.
 
             // Staff panel of two or three, most of whom submit an assessment.
             $panel_size = min( count( $panel ), mt_rand( 2, 3 ) );

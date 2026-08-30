@@ -37,7 +37,7 @@ De meeste regels komen er zonder dat iemand ze invoert. De reis kijkt mee met de
 - Een **doel** voor een speler → *"Doel gesteld: zwakke voet trainen"*.
 - Een **POP-eindbeoordeling getekend** → *"POP-eindbeoordeling: doorstroom"*.
 - Een **speler komt in een team of gaat naar een andere leeftijdscategorie** → *"Team: U13 → U14"* of *"Leeftijd: U13 → U14"*.
-- Een **stagecasus** wordt geopend → *"Stage gestart"*.
+- Een **stagecasus** wordt geopend → *"Stage gestart"*, vanuit welk scherm dan ook. Een stage die via de nieuwe-spelerwizard startte, liet voorheen geen regel achter: de tijdlijn van een speler wiens reis met een stage begint, startte daardoor later dan zou moeten — bij sommige spelers wel en bij andere niet, afhankelijk van welk scherm ze aanmaakte. Bestaande spelers die zo zijn aangemaakt missen de regel totdat die wordt aangevuld; de stagecasus zelf bevat de datum nog steeds.
 - Een **stagebeslissing** → *"Stage afgerond: aangenomen"* (en *"Vastgelegd"* bij aanname, *"Afscheid genomen"* bij definitief nee).
 - De **status** van een speler wijzigt naar actief, afscheid of doorgestroomd → bijbehorende regels.
 

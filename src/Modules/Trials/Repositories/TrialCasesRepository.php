@@ -211,7 +211,37 @@ class TrialCasesRepository {
             'uuid'        => wp_generate_uuid4(),
         ];
         $ok = $this->wpdb->insert( $this->table, $insert );
-        return $ok ? (int) $this->wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+
+        $id = (int) $this->wpdb->insert_id;
+
+        /**
+         * #3130 — announced here rather than from the callers.
+         *
+         * There are four of them — the REST controller, the trials-manage
+         * form, the new-player wizard and the demo generator — and only
+         * three fired the hook. `JourneyEventSubscriber` listens on it and
+         * writes the player's `trial_started` entry, so a player whose trial
+         * was opened through the wizard had no record of the trial on their
+         * timeline at all, while an identical player created over REST did.
+         *
+         * Nothing errored, which is what made it invisible: the timeline
+         * simply started later for some players than others, depending on
+         * which screen created them. An event only some callers emit is
+         * worse than none — the same reasoning
+         * `ActivitiesRepository::announceAttendanceChange()` writes down for
+         * its eight callers, and the shape #3081 settled for cancellations.
+         *
+         * The demo generator firing it too is correct: demo players should
+         * carry the same journey shape as real ones, which is what makes the
+         * demo academy a faithful preview.
+         *
+         * @param int $id        The new trial case id.
+         * @param int $player_id The player the trial belongs to.
+         */
+        do_action( 'tt_trial_started', $id, (int) $insert['player_id'] );
+
+        return $id;
     }
 
     /**
