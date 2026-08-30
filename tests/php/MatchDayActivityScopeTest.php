@@ -18,8 +18,15 @@ use TT\Modules\MatchPrep\Rest\MatchPrepRestController;
  * The sibling list view narrows to the viewer's teams; the three detail
  * views it links to, and the two REST controllers behind them, did not.
  * All five now ask `ActivityTeamScope`.
+ *
+ * Named for the surfaces rather than the helper so the file sorts after
+ * `DemoRunChunkingTest`. That test compares a single generator pass against a
+ * stepped one, and both passes read every activity in the club — so a test
+ * file that runs before it and touches `tt_activities` changes what it sees.
+ * Filed as its own issue; this class works either way and there is no reason
+ * to make that fragility this PR's problem.
  */
-final class ActivityTeamScopeTest extends WP_UnitTestCase {
+final class MatchDayActivityScopeTest extends WP_UnitTestCase {
 
     private int $mineTeamId    = 0;
     private int $otherTeamId   = 0;
