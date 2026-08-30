@@ -58715,6 +58715,153 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "Sign in to see the plan this academy is on."
+msgstr "Log in om te zien op welk pakket deze academie zit."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Plan and restrictions"
+msgstr "Pakket en beperkingen"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "Everything that's locked or limited on this install, in one place. Caps come from the free-tier policy; features come from the plan the academy is on."
+msgstr "Alles wat op deze installatie op slot zit of beperkt is, op één plek. Limieten komen uit het gratis-beleid; functies komen uit het pakket van de academie."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "Caps and features update as soon as the plan changes. Nothing is migrated and nothing is lost — the same install carries on with more room."
+msgstr "Limieten en functies passen zich aan zodra het pakket wijzigt. Er wordt niets gemigreerd en er gaat niets verloren — dezelfde installatie gaat gewoon verder, met meer ruimte."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "A developer tier override is active on this install, so the plan above is being forced for testing."
+msgstr "Op deze installatie staat een ontwikkelaars-override actief, dus het pakket hierboven wordt geforceerd om te testen."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "Plan changes are handled by your TalentTrack operator. Get in touch and the install is moved over without downtime or data migration."
+msgstr "Pakketwijzigingen regelt je TalentTrack-operator. Neem contact op en de installatie gaat over zonder downtime of gegevensmigratie."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "No cap on this plan"
+msgstr "Geen limiet op dit pakket"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "At cap — a bigger plan adds more"
+msgstr "Op de limiet — een groter pakket geeft meer ruimte"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "Close to the cap"
+msgstr "Bijna op de limiet"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "A tick means the feature is available on that plan. The plan this install is on is marked."
+msgstr "Een vinkje betekent dat de functie in dat pakket zit. Het pakket van deze installatie is gemarkeerd."
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "this install"
+msgstr "deze installatie"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "included"
+msgstr "inbegrepen"
+
+#: src/Modules/License/Frontend/FrontendPlanView.php
+msgid "not included"
+msgstr "niet inbegrepen"
+
+#. translators: %s: PHP constant name
+#: src/Modules/License/Frontend/FrontendPlanView.php
+#, php-format
+msgid "%s is off on this install. Every TalentTrack feature is unlocked, free-tier caps do not apply, and there is no plan to show."
+msgstr "%s staat uit op deze installatie. Elke TalentTrack-functie is ontgrendeld, gratis-limieten gelden niet, en er is geen pakket om te tonen."
+
+#: src/Modules/License/UpgradePanel.php
+msgid "See the plan"
+msgstr "Bekijk het pakket"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "The plan this academy is on, and what it locks."
+msgstr "Het pakket van deze academie, en wat daarmee op slot zit."
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Add a second step to your own sign-in."
+msgstr "Voeg een tweede stap toe aan je eigen inlog."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Sign in to manage your two-factor authentication."
+msgstr "Log in om je tweestapsverificatie te beheren."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "A second step at sign-in: a 6-digit code from an authenticator app on your phone, plus 10 single-use backup codes for the day you lose it."
+msgstr "Een tweede stap bij het inloggen: een code van 6 cijfers uit een authenticator-app op je telefoon, plus 10 eenmalige herstelcodes voor de dag dat je die kwijtraakt."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Two-factor is now active. From your next sign-in TalentTrack asks for a code from your authenticator app."
+msgstr "Tweestapsverificatie staat nu aan. Vanaf je volgende inlog vraagt TalentTrack om een code uit je authenticator-app."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Two-factor is now off. You can set it up again at any time from this page."
+msgstr "Tweestapsverificatie staat nu uit. Je kunt het vanaf deze pagina altijd opnieuw instellen."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Two-factor was left on — the confirmation box was not ticked."
+msgstr "Tweestapsverificatie is aan gebleven — het bevestigingsvakje was niet aangevinkt."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "There was nothing to change — two-factor is not set up on your account."
+msgstr "Er viel niets te wijzigen — tweestapsverificatie staat niet ingesteld op je account."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Your new backup codes"
+msgstr "Je nieuwe herstelcodes"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Save these somewhere safe now. They are shown once and never again, and the previous set stopped working the moment these were made."
+msgstr "Bewaar ze nu op een veilige plek. Ze worden één keer getoond en daarna nooit meer, en de vorige set werkte niet meer op het moment dat deze werden aangemaakt."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Two-factor is on"
+msgstr "Tweestapsverificatie staat aan"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Running low — make a fresh set before you run out, or a lost phone means asking an administrator to reset you."
+msgstr "Bijna op — maak een nieuwe set voordat je zonder zit, anders betekent een verloren telefoon dat je een beheerder om een reset moet vragen."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "A fresh set of 10 codes. The old set stops working straight away."
+msgstr "Een nieuwe set van 10 codes. De oude set werkt meteen niet meer."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Make new backup codes"
+msgstr "Nieuwe herstelcodes maken"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Turn two-factor off"
+msgstr "Tweestapsverificatie uitzetten"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "This removes your secret and your backup codes. From your next sign-in, your password alone gets you in."
+msgstr "Dit verwijdert je geheime sleutel en je herstelcodes. Vanaf je volgende inlog kom je binnen met alleen je wachtwoord."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "I understand this makes my account easier to break into."
+msgstr "Ik begrijp dat mijn account hierdoor makkelijker te kraken is."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Two-factor is off"
+msgstr "Tweestapsverificatie staat uit"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Setting it up takes about two minutes: scan a QR code with an authenticator app, type the first code back to prove it works, and write down the 10 backup codes it gives you."
+msgstr "Instellen kost ongeveer twee minuten: scan een QR-code met een authenticator-app, typ de eerste code terug om te bewijzen dat het werkt, en schrijf de 10 herstelcodes op die je krijgt."
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Set up two-factor"
+msgstr "Tweestapsverificatie instellen"
+
+#: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php
+msgid "Setup is unavailable on this install because wizards are switched off in the configuration."
+msgstr "Instellen kan niet op deze installatie, omdat wizards uitstaan in de configuratie."
+
 #~ msgid "Could not create the player record."
 #~ msgstr "Het speler-record kon niet worden aangemaakt."
 

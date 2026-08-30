@@ -170,7 +170,30 @@ final class MfaActionHandlers {
         exit;
     }
 
+    /**
+     * Back to whichever surface the user submitted from (#3134).
+     *
+     * These two actions — regenerate and disable — are a user acting on
+     * their *own* second factor, and since #3134 that is a frontend
+     * surface as well as a wp-admin tab. Both forms carry
+     * `tt_return`, so the user lands back where they were rather than
+     * being deposited in wp-admin because that is where the handler
+     * happens to live. Absent or unrecognised, the answer stays wp-admin
+     * — the behaviour every existing bookmark and form already relies on.
+     *
+     * The three operator redirects in this class are deliberately not
+     * routed through here: disabling somebody else's MFA and setting
+     * per-club enforcement stay in wp-admin, so their result messages
+     * do too.
+     */
     private static function redirectBack( string $msg ): void {
+        $return = isset( $_POST['tt_return'] ) ? sanitize_key( (string) wp_unslash( (string) $_POST['tt_return'] ) ) : '';
+
+        if ( $return === 'frontend' && class_exists( '\\TT\\Modules\\Mfa\\Frontend\\FrontendTwoFactorView' ) ) {
+            wp_safe_redirect( \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::url( [ 'tt_msg' => $msg ] ) );
+            exit;
+        }
+
         wp_safe_redirect( add_query_arg(
             [ 'page' => 'tt-account', 'tab' => 'mfa', 'tt_msg' => $msg ],
             admin_url( 'admin.php' )
