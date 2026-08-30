@@ -98,6 +98,31 @@ class DemoBatchRegistry implements ImportTagSink {
     /**
      * Entity ids tagged with the given type in this batch.
      *
+     * ## The rule this exists for (#3184)
+     *
+     * A generator that picks its **subjects** — the rows it will write a
+     * child for — must pick them from the batch it is writing, through
+     * this method. Reading the whole club instead has bitten twice:
+     *
+     *   - the output stops being reproducible, because it then depends on
+     *     what was already in the install *and* on auto-increment
+     *     positions. A second generation run into a populated academy
+     *     silently produces fewer rows than the first, and in the test
+     *     suite an unrelated file that writes a row earlier in the run
+     *     changes the answer (#3184, #3102);
+     *   - it invites duplicate-key failures against rows a previous run
+     *     wrote, which is what #3102 had to paper over.
+     *
+     * Anything keyed off a row **id** has the same problem even once the
+     * subjects are scoped: ids differ between runs. Key the "one in three"
+     * style choices off the subject's *position* in the ordered batch
+     * list instead.
+     *
+     * Reading club-wide is right for **master data** the batch does not
+     * create — lookups, exercises, principles, measurement definitions,
+     * seasons, formation templates, and the club's own staff when
+     * `gen_people` is off. Those sites say so where they read.
+     *
      * @return int[]
      */
     public function entityIds( string $entity_type ): array {

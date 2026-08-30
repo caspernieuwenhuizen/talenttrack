@@ -163,37 +163,24 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
             MatchAnalysisEnums::MARKER_AS_EXPECTED,
         ];
 
-        // Only matches that have been played. A demo full of analyses of
-        // fixtures still in the future would misrepresent the flow.
-        //
-        // #3102 — and only matches that do not already have one. The subject
-        // query reads the whole club rather than this batch, so a second run
-        // into a populated install met run one's matches again and let the
-        // INSERT fail against `uk_activity (club_id, activity_id)`. That
-        // printed a wpdb error and quietly wrote fewer rows than the operator
-        // was told. Skipping deliberately is the same outcome without either.
-        $matches = (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.session_date
-               FROM {$wpdb->prefix}tt_activities a
-          LEFT JOIN {$wpdb->prefix}tt_match_analyses ma
-                 ON ma.activity_id = a.id AND ma.club_id = a.club_id
-              WHERE a.club_id = %d
-                AND a.activity_type_key IN ( 'game', 'match' )
-                AND a.session_date <= %s
-                AND ma.id IS NULL
-           ORDER BY a.id ASC",
-            $club,
-            current_time( 'Y-m-d' )
-        ) );
+        $matches = $this->batchMatches();
 
         $total = 0;
         $n     = 0;
 
-        foreach ( $matches as $match ) {
+        foreach ( $matches as $m => $match ) {
             $activity_id = (int) $match->id;
 
             // Two in three. A coach does not write up every game.
-            if ( $activity_id % 3 === 0 ) continue;
+            //
+            // #3184 — keyed off the match's position in this batch, not off
+            // its row id. An auto-increment id is not reproducible: the same
+            // preset and seed run into two installs, or twice into one, gets
+            // different ids and therefore a different two-thirds. That is
+            // what made a single generation pass and a stepped one disagree,
+            // and what made the suite's answer depend on whether an
+            // unrelated test file wrote to `tt_activities` first.
+            if ( $m % 3 === 0 ) continue;
 
             $prep = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM {$wpdb->prefix}tt_match_prep WHERE activity_id = %d AND club_id = %d",
@@ -230,7 +217,7 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
             // ones — a review that always covers the same phases would
             // read as a template rather than as a coach's attention.
             $sections = array_keys( self::SECTION_NOTES[ $lang ] );
-            $offset   = $activity_id % count( $sections );
+            $offset   = $m % count( $sections );
             for ( $i = 0; $i < 3; $i++ ) {
                 $key   = $sections[ ( $offset + $i ) % count( $sections ) ];
                 $notes = self::SECTION_NOTES[ $lang ][ $key ];
@@ -239,7 +226,7 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'club_id'     => $club,
                     'analysis_id' => $analysis_id,
                     'section_key' => $key,
-                    'rating'      => $ratings[ ( $activity_id + $i ) % count( $ratings ) ],
+                    'rating'      => $ratings[ ( $m + $i ) % count( $ratings ) ],
                     'updated_at'  => $when,
                 ] );
                 if ( $ok !== false ) {
@@ -252,8 +239,8 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                         'section',
                         $key,
                         null,
-                        array_slice( $notes, 0, 1 + ( ( $activity_id + $i ) % 2 ) ),
-                        $activity_id + $i,
+                        array_slice( $notes, 0, 1 + ( ( $m + $i ) % 2 ) ),
+                        $m + $i,
                         $when
                     );
                 }
@@ -269,8 +256,11 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                 $activity_id, $club
             ) );
 
+            // #3184 — the player's position in the appearance list, not their
+            // row id, for the same reason the match's position replaced its
+            // activity id above.
             foreach ( $players as $index => $row ) {
-                if ( ( $index + $activity_id ) % 3 !== 0 ) continue;
+                if ( ( $index + $m ) % 3 !== 0 ) continue;
 
                 $player_id = (int) $row->player_id;
                 if ( $player_id <= 0 ) continue;
@@ -280,7 +270,7 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'analysis_id'    => $analysis_id,
                     'player_id'      => $player_id,
                     'marker'         => $markers[ $n % count( $markers ) ],
-                    'team_function'  => $sections[ ( $player_id + $activity_id ) % count( $sections ) ],
+                    'team_function'  => $sections[ ( $index + $m ) % count( $sections ) ],
                     'minutes_played' => $row->minutes !== null ? (int) $row->minutes : null,
                     'updated_at'     => $when,
                 ] );
@@ -298,7 +288,7 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                 // a form to fill in rather than as a coach's attention.
                 $pool  = self::PLAYER_NOTES[ $lang ];
                 $bodies = [ $pool[ $n % count( $pool ) ] ];
-                if ( ( $player_id + $activity_id ) % 2 === 0 ) {
+                if ( ( $index + $m ) % 2 === 0 ) {
                     $bodies[] = $pool[ ( $n + 3 ) % count( $pool ) ];
                 }
 
@@ -316,6 +306,61 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
         }
 
         return $total;
+    }
+
+    /**
+     * The games this batch wrote that have been played, oldest first.
+     *
+     * #3184 — this used to read every game in the club with no analysis
+     * yet. Two consequences, and they are the same defect seen from two
+     * sides:
+     *
+     *   - on a real install, a second generation run met run one's matches,
+     *     so it wrote fewer rows than the first (before #3102 it collided
+     *     with `uk_activity` and printed a wpdb error; after #3102 it
+     *     skipped them quietly, which is tidier and no more reproducible);
+     *   - in the test suite, it made `DemoRunChunkingTest`'s single-pass /
+     *     stepped-run comparison depend on the contents *and the
+     *     auto-increment position* of `tt_activities`, so adding an
+     *     unrelated test file that sorted earlier and wrote an activity
+     *     turned a green run red.
+     *
+     * Reading the batch is what the generator meant all along: an analysis
+     * belongs to a match this run created. Ordering by `session_date` then
+     * `id` keeps the sequence stable for the ordinal-based choices above —
+     * ids differ between runs, positions do not.
+     *
+     * @return list<\stdClass>
+     */
+    private function batchMatches(): array {
+        global $wpdb;
+
+        $ids = $this->registry->entityIds( 'activity' );
+        if ( ! $ids ) return [];
+
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        // Only matches that have been played. A demo full of analyses of
+        // fixtures still in the future would misrepresent the flow.
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.session_date
+               FROM {$wpdb->prefix}tt_activities a
+          LEFT JOIN {$wpdb->prefix}tt_match_analyses ma
+                 ON ma.activity_id = a.id AND ma.club_id = a.club_id
+              WHERE a.id IN ({$placeholders})
+                AND a.club_id = %d
+                AND a.activity_type_key IN ( 'game', 'match' )
+                AND a.session_date <= %s
+                AND ma.id IS NULL
+           ORDER BY a.session_date ASC, a.id ASC",
+            ...array_merge( $ids, [ CurrentClub::id(), current_time( 'Y-m-d' ) ] )
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            if ( $row instanceof \stdClass ) $out[] = $row;
+        }
+        return $out;
     }
 
     /**

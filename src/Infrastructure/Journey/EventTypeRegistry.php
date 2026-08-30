@@ -51,6 +51,14 @@ final class EventTypeRegistry {
             'evaluation_id' => 'int',
             'overall'       => 'float',
         ],
+        // #3131 — `origin` is a `GoalOrigin` value. A season rollover
+        // writes a goal for every player at once, so the entry has to say
+        // whether a person set it, the rollover carried it over, or a
+        // development idea spawned it.
+        'goal_set' => [
+            'goal_id' => 'int',
+            'origin'  => 'string',
+        ],
         'pdp_verdict_recorded' => [
             'pdp_file_id' => 'int',
             'decision'    => 'string',
