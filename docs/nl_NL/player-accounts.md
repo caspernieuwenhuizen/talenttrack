@@ -78,6 +78,11 @@ uitnodigingslimiet geldt nog steeds; als een groot team die bereikt, vertelt
 de samenvatting hoeveel er verstuurd zijn zodat je de rest de volgende dag
 kunt uitnodigen (of de limiet verhoogt).
 
+Het team dat je kiest moet een team zijn dat je zelf coacht. Wie
+academiebreed uitnodigingen mag aanmaken — een hoofd opleiding, een
+academiebeheerder — kan elk team kiezen; ieder ander wordt geweigerd,
+of hij de keuzelijst gebruikte of het verzoek anders in elkaar zette.
+
 ## Wie het kan gebruiken
 
 Academie- en clubbeheerders (de rechten die ook het aanmaken en verwijderen

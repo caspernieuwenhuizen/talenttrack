@@ -237,6 +237,11 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 - **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). This is a `FeatureRegistry` feature, managed on the frontend Modules page next to the others (the wp-admin Modules page still works too; both write the same `tt_feature_state` row). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. The toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
 
+  Switching the explorer **on** does not open it to everyone: the explorer,
+  like the Analytics page beside it, needs permission to view central
+  analytics — held by Head of Development and Academy Admin. A coach who
+  opens its URL is refused.
+
 ## The capability catalog for everyone (`?tt_view=features`)
 
 The Modules page is admin-only (it's a write surface). Every user — coach, player, parent — gets a read-only **Features** view at **`?tt_view=features`**, reachable from a **Features** tile under the **About** group on the dashboard. It needs no special capability.

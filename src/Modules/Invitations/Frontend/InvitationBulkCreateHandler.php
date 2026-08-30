@@ -3,7 +3,9 @@ namespace TT\Modules\Invitations\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Invitations\InvitationsRepository;
@@ -38,6 +40,15 @@ class InvitationBulkCreateHandler {
             FlashMessages::add( 'error', __( 'Choose a team to invite.', 'talenttrack' ) );
             wp_safe_redirect( $redirect );
             exit;
+        }
+
+        // #3161 — `tt_send_invitation` sits on the `tt_coach` role, and the
+        // seed grants head_coach `invitations: c [team]`. The scope half was
+        // never read here, so a forged POST bulk-created account invitations
+        // for another team's squad — an out-of-scope write on minors'
+        // records, addressed to their guardians.
+        if ( ! self::mayInviteForTeam( get_current_user_id(), $team_id ) ) {
+            wp_die( esc_html__( 'You do not coach this team.', 'talenttrack' ), 403 );
         }
 
         $players = self::unlinkedPlayers( $team_id );
@@ -91,6 +102,36 @@ class InvitationBulkCreateHandler {
 
         wp_safe_redirect( $redirect );
         exit;
+    }
+
+    /**
+     * May this user bulk-invite for this team? (#3161)
+     *
+     * The wide branch asks the matrix the same question the narrow one
+     * answers, one scope wider: `invitations / change / global`. That is the
+     * grant the seed gives Head of Development and Academy Admin, and
+     * `change` is the activity the seed uses for issuing an invitation —
+     * head_coach's team-scoped grant is the same verb (`invitations: c
+     * [team]`), which is precisely the scope this method restores.
+     *
+     * Deliberately not a `tt_edit_settings` compare: a head of development
+     * lost that capability in #0071 and would be locked out of a surface
+     * they own (#2866). Deliberately not `AllTeamsScope` either — that asks
+     * for global *read*, which neither persona holds on `invitations`.
+     *
+     * Otherwise: the team must be one the user coaches.
+     */
+    public static function mayInviteForTeam( int $user_id, int $team_id ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+
+        if ( MatrixGate::can( $user_id, 'invitations', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
+            return true;
+        }
+
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            if ( (int) ( $team->id ?? 0 ) === $team_id ) return true;
+        }
+        return false;
     }
 
     /**
