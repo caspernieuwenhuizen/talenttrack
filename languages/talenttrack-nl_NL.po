@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T07:55:50+00:00\n"
+"POT-Creation-Date: 2026-08-30T08:27:31+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3112,11 +3112,11 @@ msgstr ""
 msgid "Field \"%s\" is required."
 msgstr "Veld \"%s\" is verplicht."
 
-#: src/Infrastructure/REST/CohortBoardRestController.php:48
+#: src/Infrastructure/REST/CohortBoardRestController.php:47
 msgid "A team is required."
 msgstr "Een team is vereist."
 
-#: src/Infrastructure/REST/CohortBoardRestController.php:55
+#: src/Infrastructure/REST/CohortBoardRestController.php:54
 #: src/Infrastructure/REST/MeasurementsRestController.php:201
 #: src/Infrastructure/REST/MeasurementsRestController.php:258
 #: src/Infrastructure/REST/MeasurementsRestController.php:392
@@ -4333,20 +4333,20 @@ msgid "The player could not be deleted."
 msgstr "De speler kon niet worden verwijderd."
 
 #. translators: 1: rating min, 2: rating max
-#: src/Infrastructure/REST/PlayerStatusRestController.php:73
+#: src/Infrastructure/REST/PlayerStatusRestController.php:98
 #, php-format
 msgid "Player and rating (%1$s–%2$s) are required."
 msgstr "Speler en beoordeling (%1$s–%2$s) zijn verplicht."
 
-#: src/Infrastructure/REST/PlayerStatusRestController.php:101
+#: src/Infrastructure/REST/PlayerStatusRestController.php:126
 msgid "Player and a valid potential band are required."
 msgstr "Speler en een geldige potentieelgroep zijn verplicht."
 
-#: src/Infrastructure/REST/PlayerStatusRestController.php:146
+#: src/Infrastructure/REST/PlayerStatusRestController.php:171
 msgid "Player id is required."
 msgstr "Speler-ID is verplicht."
 
-#: src/Infrastructure/REST/PlayerStatusRestController.php:159
+#: src/Infrastructure/REST/PlayerStatusRestController.php:184
 #: src/Infrastructure/REST/SpondRestController.php:178
 #: src/Infrastructure/REST/SpondRestController.php:200
 #: src/Infrastructure/REST/SpondRestController.php:546
