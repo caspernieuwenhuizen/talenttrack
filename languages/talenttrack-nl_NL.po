@@ -59070,7 +59070,7 @@ msgstr ""
 "niet mee terug."
 
 #: src/Modules/Comms/Send/MethodologyDeliveredSend.php:120
-msgid "See the plan for what this session is working on."
+msgid "See the plan for what this training is working on."
 msgstr "Bekijk het plan voor waar deze training aan werkt."
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:437

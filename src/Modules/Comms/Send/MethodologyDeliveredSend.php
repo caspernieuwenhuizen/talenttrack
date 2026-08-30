@@ -121,7 +121,7 @@ final class MethodologyDeliveredSend {
             }
         }
 
-        return __( 'See the plan for what this session is working on.', 'talenttrack' );
+        return __( 'See the plan for what this training is working on.', 'talenttrack' );
     }
 
     /**
