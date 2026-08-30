@@ -51,6 +51,20 @@ final class AlertsReconcileTest extends WP_UnitTestCase {
         // between tests and leak rows into the next one.
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->prefix}tt_alert_occurrences" );
+
+        // #3139 — `test_a_throwing_definition_does_not_take_the_sweep_down`
+        // calls `runAll()`, so it counts the shipped definitions alongside
+        // its stubs. That held while every one of them needed records to
+        // fire on, and a bare test install has none.
+        // `comms.messaging_never_configured` is the first definition about
+        // the install's *configuration* rather than its records, and a bare
+        // install is the state it fires in (#3111 seeds every message off).
+        // Switching messaging on puts the fixture in the state a finished
+        // setup leaves behind.
+        if ( class_exists( '\\TT\\Modules\\Comms\\Template\\TemplateSwitch' ) ) {
+            \TT\Modules\Comms\Template\TemplateSwitch::setDisabled( [] );
+        }
+
         AlertRegistry::flush();
     }
 

@@ -45,6 +45,18 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         global $wpdb;
         $wpdb->query( "DELETE FROM {$wpdb->prefix}tt_alert_occurrences" );
 
+        // #3139 — these tests count every open alert for the coach and
+        // expect the number to be the stubs'. That held while every shipped
+        // definition needed records to fire on, and a bare test install has
+        // none. `comms.messaging_never_configured` is the first definition
+        // about the install's *configuration* rather than its records, and a
+        // bare install is exactly the state it fires in (#3111 seeds every
+        // message off). Switching messaging on puts the fixture in the state
+        // a finished setup leaves behind, so the counts stay the stubs'.
+        if ( class_exists( '\\TT\\Modules\\Comms\\Template\\TemplateSwitch' ) ) {
+            \TT\Modules\Comms\Template\TemplateSwitch::setDisabled( [] );
+        }
+
         AlertRegistry::flush();
         AlertInvalidationMap::flush();
         AlertInvalidationBuffer::reset();
@@ -222,6 +234,19 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         // exactly the reasoning `AlertsModule` uses for `tt_register_alerts`.
         $registeredElsewhere = [ 'course_submission' ];
 
+        // #3139 — sweep-only by decision, not by oversight. These subjects
+        // are the install's own configuration rather than a record, so there
+        // is no domain event that could name one: nothing "saves subject 1
+        // of type messaging". The alternative was a `config` subject type
+        // with an invalidation path taught what invalidates it, and
+        // extending a contract every other definition depends on to carry a
+        // single definition is a worse trade than an hour's staleness on a
+        // condition that has persisted since the install was created.
+        //
+        // If a second config-shaped alert appears, that is the moment to do
+        // it properly — and to delete this list rather than grow it.
+        $sweepOnly = [ 'messaging' ];
+
         $triggered = [];
         foreach ( AlertInvalidationMap::all() as $extractor ) {
             foreach ( $this->pairsFrom( $extractor ) as $pair ) {
@@ -232,6 +257,7 @@ final class AlertInvalidationTest extends WP_UnitTestCase {
         foreach ( AlertRegistry::all() as $key => $alert ) {
             $type = $alert->subjectType();
             if ( in_array( $type, $registeredElsewhere, true ) ) continue;
+            if ( in_array( $type, $sweepOnly, true ) ) continue;
             $this->assertArrayHasKey(
                 $type,
                 $triggered,
