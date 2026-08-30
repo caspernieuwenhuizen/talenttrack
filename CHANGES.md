@@ -1,3 +1,272 @@
+# TalentTrack v4.113.0 — Opening a trial now welcomes the family, and the message no longer has empty headings (#2605)
+
+The trial welcome message has shipped since v3.110.18 with nothing to trigger it,
+and its wording promised three things a trial case has never recorded: a team, a
+location and a list of what to bring. Sent as written, the first message an
+academy ever sent a family would have read "Where:" and "What to bring:" with
+nothing after them.
+
+The wording now promises only what a trial knows — the player and the start date
+— and says a coach will follow up with the time, the place and the kit, which is
+what actually happens. The message fires when a trial case is opened, from any
+screen that opens one, and goes to the parents of a youth player through the
+usual youth-contact rules. It can be switched off per template like every other
+message.
+
+# TalentTrack v4.113.0 — Required custom fields are now enforced when a record is created (#3217)
+
+If your academy marked a custom field **required**, that was only enforced on
+screens that actually showed the field. Create paths that do not render the
+custom-field block — the new-player wizard, and creating a trial player inline
+on the trial form — skipped it silently, so you could end up with a player
+record missing a field you had made mandatory, with nothing to say it had been
+skipped.
+
+Creating a record now refuses when a required custom field is missing, and names
+the field so you know which one.
+
+Editing is unchanged, deliberately. A form that does not show a field still
+leaves that field's stored value exactly as it was — that is what stops a short
+edit screen wiping data it never displayed, and it is the reason the create case
+was wrong in the first place: the two look identical in the code and are not the
+same question.
+
+# TalentTrack v4.113.0 — A player's profile height now follows their recorded measurements (#3219)
+
+The height on a player's profile used to be a single undated number, typed when
+the player was first entered — which for a growing 13-year-old is wrong within
+months and gave no sign of it. Record a height measurement and the profile now
+shows it. Correct an older reading and the profile stays on the newer one;
+remove the last reading and the existing value is left alone rather than
+blanked. Name the test `Lengte`, `Height`, `Length` or `Stature` for it to be
+recognised. The BMI report is unaffected — it still pairs each weight with the
+height that was true at the time, which is what a BMI needs.
+
+# TalentTrack v4.113.0 — You can now publish a training plan, and the coaches get told (#3220)
+
+A plan you are still working on and a plan your coaches should read looked the
+same in the list, and telling them it was ready happened in a group chat.
+
+A plan's page now says whether it has been published, with a **Publish and tell
+the coaches** button. Publishing sends the head coaches the plan is for a
+message with its title, its focus and a link to it — the one team's if the plan
+names a team, every team's if it is club-wide.
+
+Publishing announces; it does not lock anything. The plan stays fully editable
+afterwards, and fixing a typo sends nothing. Coaches are told once: pressing
+Publish on a plan that is already published does nothing at all. Unpublish is
+there to correct a mistaken publish — it clears the mark, sends nothing, and
+cannot unsend a message that has already gone.
+
+Templates cannot be published; there is no squad they belong to.
+
+This also gives the **Methodology / activity plan delivered** message something
+to fire from. It has shipped since v3.110.18 with nothing behind it, because the
+product had no idea what publishing a plan meant. Now it does. Whether an
+install actually sends it is the messaging switch's business, as with every
+other message.
+
+# TalentTrack v4.113.0 — Opening a trial case is now a guided flow (#3221)
+
+Opening a trial case meant one long form: player, track, dates, three staff
+slots and notes, all at once. It is now three short steps — who is trialling,
+which track and for how long, and who is watching — with a summary of what is
+about to be created before you finish.
+
+Two things this makes better beyond the shape. **Nothing is written until you
+finish**, so backing out halfway no longer risks leaving a half-made player
+behind. And **the summary step says what will happen**: the case opens, the
+player's status becomes Trial, and the trial goes on their journey from day one.
+
+The single-page form is still there for anyone who prefers it, and academies
+with the guided flows switched off keep it as the default. Both now go through
+exactly the same code to open the case, so they cannot drift apart — which is
+what went wrong twice before, when one path forgot to record the player's
+arrival and another forgot to put the trial on the timeline.
+
+# TalentTrack v4.113.0 — An assistant coach assigned to a trial case can now open it (#3222)
+
+Assigning an assistant coach to a trial case gives them the right to write their
+input on it. Until now they could not open the case to do it: the screen let you
+in only if you could also read the other coaches' synthesis, which an assistant
+coach cannot. The capability was real and no screen could reach it.
+
+Opening a case now asks the right question — may this person read the synthesis,
+**or** write an input — and both still require being assigned. Nothing is
+widened: the **Execution** tab, which gathers what the other coaches have said,
+still needs the synthesis permission, both in the tab strip and when the tab
+itself loads.
+
+The Trials documentation was also wrong about how this works. It said other
+coaches see nothing "unless they are assigned to it", which reads as though
+assigning somebody grants access. It does not — whether a role can reach trial
+cases at all is set in the authorization matrix, and assignment narrows it from
+there. Both languages now say so, because "just assign them" was the wrong first
+thing to try.
+
+# TalentTrack v4.113.0 — Trial letters are reachable over the API (#3223)
+
+Generating and reading a trial letter was only possible from the trial-case
+screen — the code behind it could not be reached any other way. That made the
+letters the one part of the Trials module a reporting tool, a mobile app or any
+integration could not touch.
+
+`GET /trial-cases/{id}/letters` now lists what has been generated for a case,
+and `POST` to the same route generates one. Both need the same permission as
+the Letter tab itself, so nothing new is visible to anybody: a letter telling a
+family whether the academy wants their child is not something an assigned coach
+can produce.
+
+The list gives the audience, when it was generated, who by, and which one is
+currently the live letter. Generating a new letter supersedes the previous one,
+the same as it always has on screen — a case has one letter that counts, plus
+the record of what it replaced.
+
+# TalentTrack v4.113.0 — A new alert when nobody has revisited a player's potential (#3225)
+
+Potential is meant to be a quarterly judgement, and nothing in the product ever
+said so. A band set at intake and never revised stayed on the record looking
+current, while still counting toward the player's traffic-light status, their
+team-chemistry score and their development plan — an out-of-date number quietly
+shaping decisions nobody was re-examining.
+
+**Potential not revisited** now appears when a player's potential has gone two
+quarters without being set or confirmed, or has never been set at all. The clock
+starts at whichever is later, the last entry or the day the player joined, so a
+player who signed three weeks ago is not overdue and a player nobody has ever
+assessed is covered rather than invisible.
+
+It goes to the people who can act on it — the head of development and the club
+admin by default, plus any head coach your academy has granted that right. A
+head coach who can only read potential is not told, because there would be
+nothing they could do. Trial players are left out.
+
+Like every alert, it clears itself: set the potential and it is gone on the next
+pass, with nothing to dismiss. The window is
+`alerts_potential_stale_days`, 180 days by default.
+
+# TalentTrack v4.113.0 — The player profile now shows how potential has changed, not just where it is (#3226)
+
+Potential has always been stored as dated entries — setting it appends, it never
+overwrites — so the record of how the club's view of a player has moved was
+already there. Nothing showed it. Every screen displayed the current band alone,
+and the profile's "View potential history →" link landed on a page with no
+history on it.
+
+The **Behaviour & potential** screen now lists the sequence under the current
+band: each entry with its date, who recorded it, any notes, and whether it was
+revised up, revised down or reaffirmed. The direction is written in words as well
+as shown with an arrow and a colour, so it reads the same to somebody who cannot
+distinguish the colours. A player with a single entry gets no history section —
+there is no trajectory yet.
+
+The player profile gains a **Potential** row showing the current band, with a
+history link when there is more than one entry. Staff only, like the status
+history link beside it.
+
+Two downward revisions in a season is the case this exists for: a strong signal
+about a player's development that was in the data and invisible.
+
+`GET /players/{id}/potential` returns the same series for integrations.
+
+# TalentTrack v4.113.0 — The Staff role can now do a physio's job, and can no longer do an admin's (#3232)
+
+**Staff can record measurements and injuries** for the players on their teams.
+Until now the role could not: recording a height, a sprint time or a hamstring
+strain was closed to it, which made "physio" a seat that could not do the two
+things a physio is there for.
+
+**Read this before handing the role out.** Staff is one role covering physios and
+kit managers alike, so anyone with it can now see and record **injuries** —
+medical information about minors — for their own teams. That is right for a
+physio and more than a kit manager needs, and until the role is split there is no
+way to give one without the other. If it is more than you want somebody to see,
+attach them to the team without the Staff role. Neither injuries nor measurements
+can be deleted by Staff; that stays with the head of development and the academy
+admin.
+
+**Staff no longer holds "manage players".** That capability was never about the
+roster: it carries season rollover across the academy, creating login accounts
+for players, editing install-wide custom-field definitions, and deleting player
+records. On academies not yet using the permission matrix, a physio or kit
+manager could reach all four. They can't now.
+
+Nothing useful is lost with it. The one thing it legitimately reached — setting
+up a test in the catalogue — now asks about the test catalogue instead, so the
+heads of development and academy admins who had it still have it.
+
+# TalentTrack v4.113.0 — The behaviour and potential forms now say what they are asking for (#3241)
+
+Both capture forms showed a scale and a list of bands and explained neither, and
+nothing anywhere said how often potential is meant to be revisited. Two coaches
+guessing at what *Semi-pro* means is how the same player gets recorded
+differently — and three things downstream read those numbers as if they meant
+the same thing.
+
+**Behaviour** now names the ends of your own configured scale and says the
+rating is about the week you just watched, not the player as a whole. A single
+low week is information; the status reads the trend.
+
+**Potential** asks how high the player can reach *at their peak*, not where they
+are now, and carries a **What the bands mean** section next to the picker — one
+line each for First team, Professional elsewhere, Semi-pro, Top amateur and
+Foundation.
+
+**The cadence is on the screen.** It says potential is a quarterly judgement,
+when this player's band was last set and by whom, how long ago that was, and
+whether it is now overdue. The threshold is your own
+`alerts_potential_stale_days` setting, so the form and the *Potential not
+revisited* alert can never disagree about what late means. A player who has
+never had a band set says exactly that.
+
+The **Set potential** popover on the player profile carries the same one-line
+explanation, so the two ways in do not tell you different things.
+
+# TalentTrack v4.113.0 — Potential rating can now be switched off, like behaviour rating (#3243)
+
+Behaviour rating has been switchable since v3.x; potential never was. An academy
+that does not work in potential bands was still shown a **Set potential** button
+on every player profile and a potential form on the capture screen, with no way
+to stop it.
+
+**Modules & features** now has a **Potential rating** switch alongside Behaviour
+rating. Turning it off hides the profile affordance and the potential half of
+the capture screen, and stops the API accepting new bands.
+
+**What you already recorded stays.** The band on a player's profile and the
+potential history behind it remain exactly as they were, and reappear in the
+forms if you switch it back on. Off means stop asking, not hide the record.
+
+**The reminder follows the switch.** The *Potential not revisited* alert goes
+quiet when the feature is off, so you do not also have to find the alert screen
+to stop being nagged about work you have deliberately stopped doing.
+
+Switching capture off does **not** by itself remove potential from the
+traffic-light status — that stays a separate choice on the player-status
+methodology screen, because an academy may stop recording new bands while still
+wanting the last one to count. The documentation now sets out all three switches
+and what each one does.
+
+# TalentTrack v4.113.0 — Positions carry their own abbreviation, per language (#3246)
+
+The short code next to a position — `GK`, `CB`, `CDM` — was never a field. It was the internal key, printed raw. The eleven positions TalentTrack seeds got away with that because their keys happen to be football codes; a position an academy adds itself did not, and showed up on the player form as `linker_middenvelder`.
+
+Positions now have an **Abbreviation** field in Configuration → Lookups, with a slot per language: `GK` in English, `K` in Dutch, without either of them touching the identifier the rest of the system joins on. Where a position has no abbreviation the full translated label is shown — never the key again — so a newly added position reads correctly whether or not anyone fills in a code. The position filter on the players list, which had the same defect, now shows labels too.
+
+The seeded positions keep their English codes, so nothing changes on an existing install. Dutch codes are deliberately not seeded: the obvious ones collide (*linksback* and *linksbuiten* both want `LB`), and an English code an operator can see needs replacing beats a wrong Dutch one.
+
+The abbreviation is display only. Chemistry, formation slots and squad selection all still key on the internal key, and a test pins that.
+
+# TalentTrack v4.113.0 — Spond Test shows what would actually sync (#3247)
+
+**Test** on a team's Spond connection proved the password and stopped there — which is not the question someone has after linking a group. They want to know whether the right calendar is behind it.
+
+Test now logs in and then runs the dry-run preview that already existed on the Spond monitor, and reports it inline: how many events would be new, how many would update an existing activity, how many stored activities would be archived, plus the first few events with their dates. Nothing is written, and the panel says so. A link goes through to the monitor for the field-by-field comparison.
+
+A login that works against a team with **no group linked yet** now says exactly that instead of reading as a failure — it is the normal state halfway through setup. A failed login still stops at the login error.
+
+The two screens that enqueue the Spond script each carried their own copy of its string bag, and the copies had already drifted: the group-picker strings existed on one and not the other, so the same control fell back to English on the club-wide page. Both now read one shared bag, with a test that fails if the script ever reads a key the bag does not provide.
+
 # TalentTrack v4.112.0 — Goals reach the player's journey whichever screen wrote them (#3131)
 
 `tt_goals` had six write paths and exactly one of them — the REST endpoint —
