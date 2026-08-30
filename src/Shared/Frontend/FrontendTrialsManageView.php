@@ -3,13 +3,12 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
+use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
+use TT\Modules\Trials\Services\TrialCaseOpener;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Frontend\Components\StaffPickerComponent;
 
@@ -137,7 +136,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
             $new_last  = isset( $_POST['new_player_last_name'] )  ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_last_name'] ) )  : '';
             $new_dob   = isset( $_POST['new_player_dob'] )        ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_dob'] ) )        : '';
             if ( $new_first !== '' && $new_last !== '' && $new_dob !== '' ) {
-                $created   = self::createTrialPlayer( $new_first, $new_last, $new_dob );
+                $created   = ( new TrialCaseOpener() )->createTrialPlayer( $new_first, $new_last, $new_dob );
                 $player_id = $created['id'];
                 if ( $player_id <= 0 ) {
                     echo '<div class="tt-notice tt-notice-error">' . esc_html( $created['error'] ) . '</div>';
@@ -146,129 +145,45 @@ class FrontendTrialsManageView extends FrontendViewBase {
             }
         }
 
-        if ( $player_id <= 0 || $track_id <= 0 || $start === '' || $end === '' ) {
-            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Please pick a player (or fill in first name, last name and date of birth to create one), a track, and start/end dates.', 'talenttrack' ) . '</div>';
-            return;
+        // Initial staff assignments (parallel arrays).
+        $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];
+        $staff_roles = isset( $_POST['staff_role_label'] ) ? (array) $_POST['staff_role_label'] : [];
+        $staff       = [];
+        foreach ( $staff_ids as $i => $u ) {
+            $u = absint( $u );
+            if ( $u <= 0 ) continue;
+            $staff[] = [
+                'user_id'    => $u,
+                'role_label' => isset( $staff_roles[ $i ] )
+                    ? sanitize_text_field( wp_unslash( (string) $staff_roles[ $i ] ) )
+                    : '',
+            ];
         }
 
-        // v4.20.41 (#1201) — Audit 2 (#1176) flagged the cross-club
-        // pointing class on this inline-form path. Pre-fix the dropdown
-        // path accepted any submitted `player_id` and called
-        // `TrialCasesRepository::create()`, which stamped the writer's
-        // `club_id` on the new trial-case row but pointed the
-        // `player_id` at any existing player in the database —
-        // breaking the trial cascade (player-status updates downstream
-        // silently no-op on a foreign row because they're club-scoped).
-        // Verify the player belongs to the current club before
-        // proceeding. The inline-create path above is already safe — the
-        // canonical create it delegates to stamps
-        // `club_id = CurrentClub::id()` itself (#3115).
-        $player_row = QueryHelpers::get_player( $player_id );
-        if ( ! $player_row || (int) ( $player_row->club_id ?? 0 ) !== (int) CurrentClub::id() ) {
-            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Player not found in your club.', 'talenttrack' ) . '</div>';
-            return;
-        }
-
-        $cases = new TrialCasesRepository();
-        $case_id = $cases->create( [
+        // #3221 — the case row, the player's status, the staff rows and
+        // the `tt_trial_started` event now happen in one place, shared
+        // with the wizard. This module has already been bitten twice by a
+        // second write path (#3115, #3130); a third was not worth it.
+        $case_id = ( new TrialCaseOpener() )->open( [
             'player_id'  => $player_id,
             'track_id'   => $track_id,
             'start_date' => $start,
             'end_date'   => $end,
             'notes'      => $notes,
             'created_by' => $user_id,
+            'staff'      => $staff,
         ] );
 
-        if ( $case_id <= 0 ) {
-            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Could not create the case. Please try again.', 'talenttrack' ) . '</div>';
+        if ( $case_id instanceof \WP_Error ) {
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( $case_id->get_error_message() ) . '</div>';
             return;
         }
 
-        // Mark player as trial.
-        global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => PlayerStatus::TRIAL ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
-
-        // #3115 fixed this path by firing `tt_trial_started` here, next to
-        // the identical line in `TrialsRestController::create_case()`.
-        // #3130 moved both into `TrialCasesRepository::create()` once the
-        // wizard turned out to be a fourth caller with the same gap: three
-        // copies of an event is how the fourth caller gets missed.
-
-        // Initial staff assignments (parallel arrays).
-        $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];
-        $staff_roles = isset( $_POST['staff_role_label'] ) ? (array) $_POST['staff_role_label'] : [];
-        $staff_repo  = new TrialCaseStaffRepository();
-        foreach ( $staff_ids as $i => $u ) {
-            $u = absint( $u );
-            if ( $u <= 0 ) continue;
-            $label = isset( $staff_roles[ $i ] ) ? sanitize_text_field( wp_unslash( (string) $staff_roles[ $i ] ) ) : null;
-            $staff_repo->assign( $case_id, $u, $label ?: null );
-        }
-
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', $case_id );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', (int) $case_id );
         wp_safe_redirect( $detail_url ?: \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         exit;
     }
 
-    /**
-     * #3115 — create the inline trial player through the canonical player
-     * create, rather than reimplementing it with a raw `$wpdb->insert`.
-     *
-     * The old inline insert wrote a row and nothing else: no
-     * `tt_player_created`, so the player's own arrival was missing from
-     * the timeline — for exactly the players whose journey begins with a
-     * trial — and no custom-field defaults, consent stamp, parent link or
-     * licence check either. Every one of those was a separate thing to
-     * remember, on a second write path that had already collected a
-     * cross-club pointing bug of its own (#1201).
-     *
-     * So this calls `PlayersRestController::create_player()` in-process
-     * instead of copying more of it. Not through `rest_do_request()`: that
-     * would apply the players endpoint's own `permission_callback`, and
-     * this surface is gated on `tt_manage_trials` — a trials manager who
-     * can open a case today would lose the ability to create the player
-     * the case is about. The gate that belongs here already ran in
-     * `handlePost()`.
-     *
-     * One consequence worth knowing: an install with a *required* player
-     * custom field now rejects the inline create, because the canonical
-     * path validates those and this three-field form cannot supply them.
-     * That is the same answer every other player-create path gives, and
-     * the reason to route through one place rather than have the trials
-     * form quietly be the one that skips validation. The rejection
-     * message says which field is missing.
-     *
-     * @return array{id: int, error: string} Player id, or 0 with a message.
-     */
-    private static function createTrialPlayer( string $first_name, string $last_name, string $date_of_birth ): array {
-        $request = new \WP_REST_Request( 'POST', '/talenttrack/v1/players' );
-        $request->set_param( 'first_name',    $first_name );
-        $request->set_param( 'last_name',     $last_name );
-        $request->set_param( 'date_of_birth', $date_of_birth );
-        $request->set_param( 'status',        PlayerStatus::TRIAL );
-
-        // Same msgid the players endpoint uses for this failure, so the
-        // two surfaces say the same sentence.
-        $generic  = __( 'The player could not be created.', 'talenttrack' );
-        $response = \TT\Infrastructure\REST\PlayersRestController::create_player( $request );
-        if ( ! $response instanceof \WP_REST_Response ) {
-            return [ 'id' => 0, 'error' => $generic ];
-        }
-
-        $body = (array) $response->get_data();
-
-        if ( $response->get_status() >= 300 ) {
-            $first = is_array( $body['errors'] ?? null ) ? reset( $body['errors'] ) : null;
-            $msg   = is_array( $first ) ? (string) ( $first['message'] ?? '' ) : '';
-            return [ 'id' => 0, 'error' => $msg !== '' ? $msg : $generic ];
-        }
-
-        // RestResponse::success() nests the payload under `data`.
-        $player = is_array( $body['data'] ?? null ) ? $body['data'] : $body;
-        $id     = isset( $player['id'] ) ? (int) $player['id'] : 0;
-
-        return [ 'id' => $id, 'error' => $id > 0 ? '' : $generic ];
-    }
 
     private static function renderList( int $user_id, bool $is_admin, bool $can_manage ): void {
         $cases_repo = new TrialCasesRepository();
@@ -304,7 +219,14 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $tracks = $tracks_repo->listAll( true );
 
         $base_url = remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url );
+        // #3221 — §3 entry-point gating: the CTA reaches the wizard when
+        // wizards are on, and the flat form when they are not.
+        // `WizardEntryPoint` returns the fallback untouched if the wizard
+        // is unavailable, so this is safe on an install with them off.
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+            'trial-case',
+            add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url )
+        );
 
         // #2005 — the "New trial case" CTA is create-gated. A read-only
         // head coach sees the list but not the create button.
