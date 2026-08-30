@@ -128,6 +128,79 @@
     margin: var(--tt-sp-3, 12px) 0 0;
 }
 
+/* ---- Potential history (#3226) --------------------------------------- */
+/* The trajectory behind the current band. Direction is carried by a word
+   as well as a glyph and a border colour: colour alone fails a
+   colour-blind reader, and a glyph alone fails a screen reader. */
+
+.tt-dashboard .tt-psc-history {
+    margin: var(--tt-sp-4, 16px) 0 0;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    padding-top: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-psc-history__summary {
+    /* 48px tap target: this is the collapse control. */
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    cursor: pointer;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-psc-history__summary:focus-visible {
+    outline: 2px solid var(--tt-info, #2d6fb3);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-psc-history__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-psc-history__item {
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-radius: var(--tt-radius, 8px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-dashboard .tt-psc-history__item--up   { border-left-color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-psc-history__item--down { border-left-color: var(--tt-warning, #e8902b); }
+
+.tt-dashboard .tt-psc-history__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+}
+
+.tt-dashboard .tt-psc-history__band {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-psc-history__dir {
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-history__meta,
+.tt-dashboard .tt-psc-history__notes {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-history__notes { color: var(--tt-ink-soft, #6a6d66); }
+
 /* ---- Scale up -------------------------------------------------------- */
 @media (min-width: 768px) {
     .tt-dashboard .tt-psc-grid {

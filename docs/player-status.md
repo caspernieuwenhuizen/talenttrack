@@ -51,6 +51,26 @@ Coaches and HoD see the full breakdown (the four input scores + the threshold re
 - **Potential** — `POST /players/{id}/potential` with one of `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. HoD-only by default.
 - **Attendance + ratings** — already captured by the existing flows; the calculator reads them directly.
 
+## The potential trajectory
+
+Potential is not a label, it is a judgement the academy revises. Every time somebody sets it, that becomes a new dated entry — nothing is overwritten — so the record shows how the club's view of a player has moved.
+
+The **Behaviour & potential** screen now shows that sequence under the current band, newest first. Each entry gives the band, when it was set and by whom, any notes that came with it, and how it changed:
+
+- **▲ revised up** — toward the first team.
+- **▼ revised down** — away from it.
+- **= reaffirmed** — the same band recorded again. That happens deliberately: re-stating a band *with notes* ("still first team, but the last six weeks have been flat") is a real act and is kept, while re-saving the same band with nothing to add records nothing.
+
+The direction is written in words as well as shown with an arrow and a colour, so it reads the same to somebody who cannot distinguish the colours or is using a screen reader.
+
+A player with one entry gets no history section — there is no trajectory yet, and the current band above already says everything there is to say.
+
+The player profile shows the current band as a **Potential** row, with a **history** link to this screen when there is more than one entry. Like the status history link, it is shown to staff only — a player or parent on their own profile does not get a link to a screen they cannot open.
+
+Two downward revisions in a season is the case this exists for. It is a strong development signal, it was always in the data, and until now nobody could see it without opening the PDP.
+
+`GET /players/{id}/potential` returns the same series for an integration, with the current band alongside it.
+
 ## Capabilities
 
 - `tt_view_player_status` — see the colour. Granted to every role that can view players.

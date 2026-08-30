@@ -11,6 +11,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
+use TT\Modules\Players\Services\PotentialTrajectory;
 
 /**
  * PlayerStatusRestController (#0057 Sprints 1 + 4) — REST surface for
@@ -18,6 +19,7 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  *
  *   POST /players/{id}/behaviour-ratings   — log a behaviour rating
  *   POST /players/{id}/potential           — set potential band
+ *   GET  /players/{id}/potential           — the potential trajectory
  *   GET  /players/{id}/status              — single-player status verdict
  *   GET  /teams/{id}/player-statuses       — bulk: all players on a team
  *
@@ -54,6 +56,21 @@ final class PlayerStatusRestController {
             'callback'            => [ __CLASS__, 'setPotential' ],
             'permission_callback' => static fn() => current_user_can( 'tt_set_player_potential' ),
         ] );
+        // #3226 — the trajectory, not just the current band. `tt_player_potential`
+        // has been append-only since migration 0042 and the whole history was
+        // readable by nothing but `EvidencePacket`. A potential revised down
+        // twice in a season is a development signal, and it was invisible.
+        //
+        // Gated exactly like `GET /status`: reading a player's potential is
+        // reading their status, and `canViewPlayer` is what lets a parent see
+        // their own child and nobody else's.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/potential', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'potentialHistory' ],
+            'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
+                current_user_can( 'tt_view_player_status' )
+                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] ),
+        ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/status', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'playerStatus' ],
@@ -77,6 +94,29 @@ final class PlayerStatusRestController {
             'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
                 current_user_can( 'tt_view_player_status' )
                 && AllTeamsScope::canReadTeamFor( get_current_user_id(), (int) $r['id'], 'player_status' ),
+        ] );
+    }
+
+    /**
+     * The player's potential over time, oldest first, each entry carrying
+     * the direction of the revision that produced it.
+     *
+     * Returns the series and the current band together so a consumer does
+     * not have to call `GET /status` as well to render a headline.
+     */
+    public static function potentialHistory( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+        if ( $player_id <= 0 ) {
+            return RestResponse::error( 'bad_input', __( 'A player is required.', 'talenttrack' ), 400 );
+        }
+
+        $entries = ( new PotentialTrajectory() )->forPlayer( $player_id );
+        $current = $entries ? $entries[ count( $entries ) - 1 ] : null;
+
+        return RestResponse::success( [
+            'player_id' => $player_id,
+            'current'   => $current,
+            'entries'   => $entries,
         ] );
     }
 

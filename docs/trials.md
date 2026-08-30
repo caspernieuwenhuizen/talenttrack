@@ -17,8 +17,15 @@ A **trial case** is a structured way to run a 2–6 week look at a prospective p
 
 - **Head of development / Club admin** — full management. Open / extend / decide / archive cases. Edit tracks and letter templates. Release staff inputs.
 - **Head coaches** — can open the **Trial cases** tile and browse the list of cases for players on their own teams. They cannot create or delete cases (no *New trial case* button), but they keep the read view their role grants. Creating, deciding and archiving stay with the head of development.
-- **Coaches assigned to a case** — see the case overview + execution view, submit their own input on the **Staff inputs** tab. They see other coaches' inputs only after the head of development releases.
-- **Other coaches** — do not see the case at all unless they are assigned to it.
+- **Coaches assigned to a case** — see the case overview and submit their own input on the **Staff inputs** tab. They see other coaches' inputs only after the head of development releases them. Whether they also get the **Execution** tab depends on their role: it aggregates what the other coaches have said, so it needs the same permission as reading the released inputs. An assistant coach assigned to a case gets Overview and Staff inputs.
+- **Other coaches** — do not see the case at all.
+
+Two of those work differently underneath, and it matters when you are wondering why somebody cannot see something:
+
+- **Whether a role can browse trial cases at all is a permission on the role**, set in the authorization matrix — not something being assigned to a case grants. Assigning an assistant coach to a case lets them write an input on it; it does not turn a role that has no trials permission into one that has.
+- **Assignment then narrows it further.** Even a role that can read trial cases only reaches the individual case's input and synthesis tabs when they are actually on the case.
+
+So "assign them and they will see it" is only half true, and if a colleague cannot open a case the first place to look is the matrix, not the case's staff list.
 
 ## The flow
 

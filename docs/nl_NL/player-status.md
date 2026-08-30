@@ -51,6 +51,26 @@ Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores 
 - **Potentieel** — `POST /players/{id}/potential` met een van `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. Standaard alleen voor hoofd opleidingen.
 - **Aanwezigheid + evaluaties** — al vastgelegd via de bestaande flows; de calculator leest ze direct.
 
+## Het verloop van het potentieel
+
+Potentieel is geen etiket maar een inschatting die je bijstelt. Elke keer dat iemand het potentieel vastlegt, komt er een nieuwe regel met datum bij — er wordt niets overschreven — zodat je terugziet hoe het beeld van de club over een speler is verschoven.
+
+Het scherm **Gedrag & potentieel** toont dat verloop nu onder de huidige band, met de nieuwste bovenaan. Per regel zie je de band, wanneer die is vastgelegd en door wie, eventuele notities, en hoe het is veranderd:
+
+- **▲ naar boven bijgesteld** — richting het eerste elftal.
+- **▼ naar beneden bijgesteld** — daarvandaan af.
+- **= opnieuw bevestigd** — dezelfde band nog eens vastgelegd. Dat gebeurt bewust: dezelfde band opnieuw vastleggen *met een notitie* ("nog steeds eerste elftal, maar de laatste zes weken zijn vlak") is een echte handeling en blijft bewaard, terwijl dezelfde band opnieuw opslaan zonder toevoeging niets vastlegt.
+
+De richting staat er in woorden bij, niet alleen als pijl en kleur, zodat het net zo leesbaar is voor wie de kleuren niet kan onderscheiden of een schermlezer gebruikt.
+
+Bij één regel krijg je geen verloop te zien — er ís nog geen verloop, en de huidige band erboven vertelt dan alles.
+
+Op het spelersprofiel staat de huidige band als regel **Potentieel**, met een link **geschiedenis** naar dit scherm zodra er meer dan één regel is. Net als bij de statusgeschiedenis zien alleen stafleden die link: een speler of ouder op het eigen profiel krijgt geen link naar een scherm dat diegene niet kan openen.
+
+Twee keer naar beneden bijstellen in één seizoen is waar dit voor bedoeld is. Dat is een sterk signaal over de ontwikkeling, het stond altijd al in de gegevens, en tot nu toe zag niemand het zonder het OP erbij te pakken.
+
+`GET /players/{id}/potential` geeft dezelfde reeks terug voor een koppeling, met de huidige band erbij.
+
 ## Rechten
 
 - `tt_view_player_status` — zie de kleur. Geldt voor elke rol die spelers mag bekijken.

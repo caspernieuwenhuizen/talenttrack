@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
+use TT\Modules\Players\Services\PotentialTrajectory;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
@@ -249,13 +250,10 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                         <label class="tt-field-label tt-field-required" for="tt-pot-band"><?php esc_html_e( 'Potential band', 'talenttrack' ); ?></label>
                         <select id="tt-pot-band" name="potential_band" required class="tt-input">
                             <?php
-                            $bands = [
-                                PotentialBand::FIRST_TEAM             => __( 'First team', 'talenttrack' ),
-                                PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Professional elsewhere', 'talenttrack' ),
-                                PotentialBand::SEMI_PRO               => __( 'Semi-pro', 'talenttrack' ),
-                                PotentialBand::TOP_AMATEUR            => __( 'Top amateur', 'talenttrack' ),
-                                PotentialBand::RECREATIONAL           => __( 'Foundation', 'talenttrack' ),
-                            ];
+                            // #3226 — one source for the band labels; there
+                            // were two copies of this map and the trajectory
+                            // would have been a third.
+                            $bands = PotentialTrajectory::labels();
                             $current_band = $latest_potential ? (string) $latest_potential->potential_band : '';
                             foreach ( $bands as $code => $label ) :
                                 ?>
@@ -290,11 +288,113 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                         ?>
                     </p>
                 <?php endif; ?>
+
+                <?php self::renderPotentialHistory( $player_id ); ?>
             </section>
             <?php
         endif;
 
         echo '</div>';
+    }
+
+    /**
+     * #3226 — the trajectory, newest first.
+     *
+     * `tt_player_potential` has been append-only since migration 0042 and
+     * the history was read by nothing a user could see. This is the screen
+     * the profile's "View potential history →" link already pointed at, so
+     * it is where the history belongs; until now that link landed on a page
+     * showing only the current band.
+     *
+     * Direction is carried by a word as well as an arrow and a class.
+     * Colour and glyph alone fail a colour-blind reader and a screen
+     * reader respectively, and "the academy revised this child down" is
+     * not a thing to communicate ambiguously.
+     *
+     * Composition only — the sequence and its directions come from
+     * `PotentialTrajectory`, which the REST route also uses (CLAUDE.md §4).
+     */
+    private static function renderPotentialHistory( int $player_id ): void {
+        $entries = ( new PotentialTrajectory() )->forPlayer( $player_id );
+
+        // Nothing recorded: the form above is the whole story, and an
+        // empty history card would only add noise.
+        if ( ! $entries ) return;
+
+        // One entry is not a trajectory — the "Current:" line above
+        // already says everything there is to say.
+        if ( count( $entries ) < 2 ) return;
+
+        $entries = array_reverse( $entries );
+        ?>
+        <details class="tt-psc-history" open>
+            <summary class="tt-psc-history__summary">
+                <?php
+                printf(
+                    /* translators: %d: number of recorded potential entries */
+                    esc_html( _n( 'Potential history (%d entry)', 'Potential history (%d entries)', count( $entries ), 'talenttrack' ) ),
+                    (int) count( $entries )
+                );
+                ?>
+            </summary>
+            <ol class="tt-psc-history__list">
+                <?php foreach ( $entries as $entry ) :
+                    $direction = (string) $entry['direction'];
+                    [ $glyph, $word ] = self::directionCue( $direction );
+                    ?>
+                    <li class="tt-psc-history__item tt-psc-history__item--<?php echo esc_attr( $direction ); ?>">
+                        <p class="tt-psc-history__head">
+                            <span class="tt-psc-history__band"><?php echo esc_html( (string) $entry['label'] ); ?></span>
+                            <?php if ( $word !== '' ) : ?>
+                                <span class="tt-psc-history__dir">
+                                    <span aria-hidden="true"><?php echo esc_html( $glyph ); ?></span>
+                                    <?php echo esc_html( $word ); ?>
+                                </span>
+                            <?php endif; ?>
+                        </p>
+                        <p class="tt-psc-history__meta">
+                            <?php
+                            $when = (string) $entry['set_at'];
+                            $who  = (string) $entry['set_by_name'];
+                            if ( $who !== '' ) {
+                                printf(
+                                    /* translators: 1: date 2: person who recorded it */
+                                    esc_html__( '%1$s · by %2$s', 'talenttrack' ),
+                                    esc_html( $when ),
+                                    esc_html( $who )
+                                );
+                            } else {
+                                echo esc_html( $when );
+                            }
+                            ?>
+                        </p>
+                        <?php if ( (string) $entry['notes'] !== '' ) : ?>
+                            <p class="tt-psc-history__notes"><?php echo esc_html( (string) $entry['notes'] ); ?></p>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </details>
+        <?php
+    }
+
+    /**
+     * Glyph plus word for a revision. The word is what carries the meaning
+     * — the glyph is decorative and hidden from assistive tech.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function directionCue( string $direction ): array {
+        switch ( $direction ) {
+            case PotentialTrajectory::UP:
+                return [ '▲', __( 'revised up', 'talenttrack' ) ];
+            case PotentialTrajectory::DOWN:
+                return [ '▼', __( 'revised down', 'talenttrack' ) ];
+            case PotentialTrajectory::SAME:
+                return [ '=', __( 'reaffirmed', 'talenttrack' ) ];
+            default:
+                return [ '', '' ];
+        }
     }
 
     /**
