@@ -394,16 +394,22 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             return;
         }
 
-        $when = (string) ( $latest->set_at ?? $latest->created_at ?? '' );
+        // Read as an array: the repository returns a plain `object`, and a
+        // property access on that type is an error at PHPStan level 8.
+        $row  = (array) $latest;
+        $when = (string) ( $row['set_at'] ?? $row['created_at'] ?? '' );
         $ts   = $when !== '' ? strtotime( $when ) : false;
         if ( $ts === false ) return;
 
         $elapsed = (int) floor( ( current_time( 'timestamp' ) - $ts ) / DAY_IN_SECONDS );
         $overdue = $elapsed >= $days;
 
-        $who = (int) ( $latest->set_by ?? 0 ) > 0
-            ? (string) ( get_userdata( (int) $latest->set_by )->display_name ?? '' )
-            : '';
+        $set_by = (int) ( $row['set_by'] ?? 0 );
+        $who    = '';
+        if ( $set_by > 0 ) {
+            $user = get_userdata( $set_by );
+            $who  = $user instanceof \WP_User ? (string) $user->display_name : '';
+        }
 
         echo '<p class="tt-psc-cadence' . ( $overdue ? ' tt-psc-cadence--overdue' : '' ) . '">';
         if ( $who !== '' ) {
