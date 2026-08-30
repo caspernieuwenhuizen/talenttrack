@@ -62,6 +62,22 @@ The Edit form is reached by the **Edit team** button on the team page (or the "E
 2. **Staff Assignments** — the people working with this team (coaches, assistants, physio, etc.). Add/remove assignments here.
 3. **Players on this team** — the current roster in a sortable table with jersey, positions, foot, date of birth. Each row links to the player's own page. A "Add player to this team" button is at the top.
 
+The Edit page itself is only open to people who may edit teams. Opening its
+URL without that permission answers *You do not have permission to edit
+teams.* rather than showing the form.
+
+#### Who the "Add player" dropdown offers
+
+The dropdown lists players **on teams you coach** who are not already on
+this team. Academy Admin, Head of Development and scouts — anyone who may
+read every player in the academy — see the whole academy in it.
+
+So a coach cannot pull a player across from a team they have nothing to do
+with. Moving a child between age groups is an academy-admin act, and it is
+still one dropdown away for the people who do it. If a player you expect is
+missing, they are on someone else's team: ask an admin to move them, or use
+the player's own page.
+
 ## Players
 
 A **player** is an individual footballer. Each player has:

@@ -481,6 +481,38 @@ class QueryHelpers {
         ) );
     }
 
+    /**
+     * #3157 — the players a viewer may be *offered*, for pickers.
+     *
+     * `get_players()` with no argument returns every active child in the
+     * academy. Pickers were calling it that way, which put every name in
+     * front of coaches with no relationship to those children — on the
+     * media wizard, in front of a consent decision.
+     *
+     * The all-teams branch asks for global-scope read on `players`, not a
+     * raw `tt_edit_settings` compare. A head of development coaches no
+     * team and lost `tt_edit_settings` in #0071, so the cap compare would
+     * hand them an empty picker — the #2866 failure mode. The dispatcher's
+     * admin flag still short-circuits, for the WP-admin fallback.
+     *
+     * Mirrors `get_teams_in_scope()` deliberately: the two questions are
+     * the same shape and should not answer differently.
+     *
+     * @return object[]
+     */
+    public static function get_players_in_scope( int $user_id, bool $is_admin = false ): array {
+        $can_see_all = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeams( $user_id, 'players' );
+
+        if ( $can_see_all ) return self::get_players();
+
+        $team_ids = [];
+        foreach ( self::get_teams_for_coach( $user_id ) as $team ) {
+            $team_ids[] = (int) ( $team->id ?? 0 );
+        }
+        return self::get_players_for_teams( $team_ids );
+    }
+
     public static function get_player( int $id ): ?object {
         global $wpdb;
         // v4.20.30 (#1188) — was `AND p.club_id = CurrentClub::id()`,
