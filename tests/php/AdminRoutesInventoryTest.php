@@ -44,6 +44,87 @@ final class AdminRoutesInventoryTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #3132 — a dispatcher arm written as `case SomeView::SLUG:` is as
+     * routable as a literal one, and the command's own regex could not see
+     * it. Both of these are constant arms, so a regression to a second
+     * regex fails here rather than being reported as work to do.
+     */
+    public function test_constant_arm_routes_are_visible(): void {
+        $slugs = AdminRoutesCommand::routableSlugs();
+
+        $this->assertContains( 'eval-category-weights', $slugs,
+            'FrontendCategoryWeightsView::SLUG is a class constant, not a literal in the dispatcher' );
+        $this->assertContains( 'methodology-vocabulary', $slugs,
+            'FrontendMethodologyVocabularyView::SLUG is a class constant, not a literal in the dispatcher' );
+    }
+
+    /** Pre-auth routes live above the dispatch chain and route all the same. */
+    public function test_pre_auth_routes_are_visible(): void {
+        $slugs = AdminRoutesCommand::routableSlugs();
+
+        $this->assertContains( 'accept-invite', $slugs );
+        $this->assertContains( 'reset-password', $slugs );
+    }
+
+    /**
+     * #3132 — every port #2874 commissioned renamed its slug, so the
+     * prefix rule reported all three as unrouted: the same wrong answer the
+     * two hand-written audits produced, from the tool built to prevent it.
+     */
+    public function test_renamed_ports_are_reported_as_routed(): void {
+        $by_slug = [];
+        foreach ( AdminRoutesCommand::rows() as $row ) {
+            $by_slug[ $row['admin_slug'] ] = $row;
+        }
+
+        $expected = [
+            'tt-category-weights'          => 'eval-category-weights',
+            'tt-persona-dashboard-editor'  => 'persona-templates',
+            'tt-methodology-principle-edit' => 'methodology-vocabulary',
+            'tt-methodology-vision-edit'    => 'methodology-vocabulary',
+        ];
+
+        foreach ( $expected as $admin_slug => $frontend_slug ) {
+            // A module may be switched off in this install; absence is not a
+            // failure, a wrong answer is.
+            if ( ! isset( $by_slug[ $admin_slug ] ) ) continue;
+
+            $this->assertSame( 'routed', $by_slug[ $admin_slug ]['status'],
+                "{$admin_slug} was ported and must not read as work to do" );
+            $this->assertSame( $frontend_slug, $by_slug[ $admin_slug ]['frontend_slug'],
+                "{$admin_slug} must name the surface it actually reaches" );
+        }
+    }
+
+    /**
+     * The map records a decision; it must not be able to invent a route. A
+     * frontend slug the dispatcher does not answer has to read as unrouted,
+     * or the map becomes a way to silence the tool rather than to inform it.
+     */
+    public function test_every_recorded_pairing_names_a_real_route(): void {
+        $routable = AdminRoutesCommand::routableSlugs();
+        $map      = AdminRoutesCommand::renamedPairings();
+
+        $this->assertNotEmpty( $map );
+        foreach ( $map as $admin_slug => $entry ) {
+            $this->assertArrayHasKey( 'frontend_slug', $entry, "{$admin_slug} has no frontend slug" );
+            $this->assertArrayHasKey( 'renamed_by', $entry,
+                "{$admin_slug} does not say which issue renamed it" );
+            $this->assertMatchesRegularExpression( '/^#\d+$/', (string) $entry['renamed_by'] );
+            $this->assertContains( (string) $entry['frontend_slug'], $routable,
+                "{$admin_slug} claims a port to a slug the dispatcher does not answer" );
+        }
+    }
+
+    /**
+     * A route the deriver cannot follow is unknown, not absent. Reporting it
+     * is what keeps the table from implying completeness it does not have.
+     */
+    public function test_unresolvable_route_sites_are_reportable(): void {
+        $this->assertIsArray( AdminRoutesCommand::unresolvedRouteSites() );
+    }
+
     public function test_admin_only_surfaces_all_carry_a_reason(): void {
         $list = AdminRoutesCommand::adminOnly();
 

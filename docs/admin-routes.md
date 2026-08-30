@@ -47,19 +47,45 @@ and not deliberately admin-only.
 
 ## How the frontend match is made
 
-The command reads the `case` labels out of `DashboardShortcode` and matches an
-admin slug to a view slug by stripping the `tt-` prefix, which is the
-convention every port has followed.
+Two steps: derive the routable set, then pair an admin slug with one of them.
 
-A port that chose a different name shows as `unrouted`. That is deliberate: the
-codebase records no link between the two, so the honest answer is "nothing here
-says these are the same page" rather than a guess. Fix it by naming the view
-after the admin slug, or add the pair to the config below with a note.
+**The routable set comes from `tools/lib/routable-slugs.php`** — the canonical
+deriver the docs gate (#2551), the mobile-class gate (#2812) and the tile-route
+gate (#2885) also read. Four consumers, one deriver.
 
-A better end state is for the dispatcher to expose its routable set as an array
-the `switch` also consumes, so this command and the tile-route gate (#2885) read
-one list instead of both parsing the same file. That is a refactor of the
-busiest file in the plugin and wants its own PR.
+This command originally had a regex of its own, `case '<slug>':`, which is the
+trap that helper exists to close. It cannot see a **constant arm** —
+`case FrontendCategoryWeightsView::SLUG:`, where the literal lives in the view
+class — or a **pre-auth route**, handled by `$tt_view_param === …` above the
+dispatch chain so it works for a logged-out visitor. On the current tree that is
+ten live routes the regex could not see, including two of the three pages #2874
+commissioned ports for. `tools/` ships inside the plugin zip, so the deriver
+resolves on a real install and not only in a checkout.
+
+Anything in the dispatcher that looks like a route but cannot be followed
+statically is printed as a warning above the table rather than dropped — an
+unfollowable arm is *unknown*, not absent, and the difference is the reason this
+command exists.
+
+**The pairing** is the admin slug minus its `tt-` prefix, which is the
+convention most of the plugin follows — checked against
+`config/admin_frontend_slug_map.php` first, which records the pages whose port
+renamed or merged the slug:
+
+| wp-admin page | frontend slug | renamed by |
+| --- | --- | --- |
+| `tt-category-weights` | `eval-category-weights` | #2977 |
+| `tt-persona-dashboard-editor` | `persona-templates` | #2978 |
+| 8 × `tt-methodology-*-edit` | `methodology-vocabulary` | #2976 |
+
+The methodology row is the one no prefix rule can express: eight admin pages
+collapse into a single frontend surface, which is the point of #2976.
+
+The recorded slug is still validated against the real routable set, so a stale
+or mistyped map entry reads as `unrouted` rather than as a false green. A row in
+that file is a decision — the question is whether the port genuinely landed
+under a different name, not whether you would like the tool to stop
+complaining.
 
 ## Deliberately admin-only pages
 
