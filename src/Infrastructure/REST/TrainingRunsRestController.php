@@ -34,6 +34,23 @@ final class TrainingRunsRestController {
 
     const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `training` is a Pro feature. Every route on this
+     * controller is wrapped; `enforceWriteRest()` decides from the verb,
+     * so the reads pass through untouched and the writes answer 402.
+     * #3017's third decision, made structural: what the club already has
+     * stays readable, and it cannot add more.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'training', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -50,7 +67,7 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'attach' ],
+                'callback'            => self::gate( [ __CLASS__, 'attach' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -58,17 +75,17 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_run' ],
+                'callback'            => self::gate( [ __CLASS__, 'get_run' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_run' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_run' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'detach' ],
+                'callback'            => self::gate( [ __CLASS__, 'detach' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -76,7 +93,7 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs/(?P<id>\d+)/blocks/(?P<block>\d+)', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'update_block' ],
+                'callback'            => self::gate( [ __CLASS__, 'update_block' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -87,12 +104,12 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs/(?P<id>\d+)/observations', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_observations' ],
+                'callback'            => self::gate( [ __CLASS__, 'list_observations' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_observation' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_observation' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -100,7 +117,7 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/observations/(?P<observation>\d+)', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_observation' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_observation' ] ),
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -108,7 +125,7 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/training-plan', [
             [
                 'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'for_activity' ],
+                'callback'            => self::gate( [ __CLASS__, 'for_activity' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_view_activities' ) || self::can(),
             ],
         ] );

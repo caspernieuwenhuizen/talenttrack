@@ -62,6 +62,16 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             return;
         }
 
+        // #3105 — running a training is the writing half of `training`, and
+        // there is no read of a run worth keeping open on its own: the plan
+        // and its history are readable from the plans view. So this surface
+        // locks whole rather than degrading to read-only.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'training' ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Training', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'training' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         self::enqueueAssets();
 
         $run_id      = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;

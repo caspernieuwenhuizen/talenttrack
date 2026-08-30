@@ -303,3 +303,7 @@ Geen van beide schakelaars verwijdert iets. Weer aanzetten brengt de bestaande m
 - `MediaIngestService` bepaalt het bestandstype aan de hand van de bytes zelf, nooit aan de hand van de naam, en weigert SVG categorisch.
 - `MediaLinksRepository::unlink()` verwijdert de media én het bestand zodra de laatste koppeling weggaat. Een media-item zonder koppelingen is
  onbereikbaar en wordt niet bewaard.
+
+## Op je abonnement
+
+De mediabibliotheek is een **Pro**-functie, en laat het duidelijkst zien wat dat betekent: de club houdt elke foto en video die hij heeft — zichtbaar, afspeelbaar, te downloaden — en kan er geen bij doen. Verwijderen wordt nooit geweigerd om een abonnement; de foto van een kind weghalen is een plicht, geen functie. Zie [Licentie en account](license-and-account.md).

@@ -99,6 +99,21 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         $list_label   = __( 'Tournaments', 'talenttrack' );
         $parent_crumb = [ FrontendBreadcrumbs::viewCrumb( 'tournaments', $list_label ) ];
 
+        // #3105 — `tournaments` is Pro. The list and every detail read stay
+        // open, so a club that drops off Pro keeps the tournaments it ran;
+        // the creation and edit entry points render locked instead
+        // (#3017: locked, not hidden).
+        $in_plan = \TT\Modules\License\LicenseGate::allows( 'tournaments' );
+        if ( ! $in_plan && ( $action === 'new' || $action === 'edit' ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                $action === 'new' ? __( 'New tournament', 'talenttrack' ) : __( 'Edit tournament', 'talenttrack' ),
+                $parent_crumb
+            );
+            self::renderHeader( __( 'Tournaments', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'tournaments', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         if ( $action === 'new' ) {
             if ( ! current_user_can( 'tt_edit_tournaments' ) ) {
                 FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -391,10 +406,20 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                                 <?php esc_html_e( 'Open planner', 'talenttrack' ); ?>
                             </button>
                             <?php // #1979 — hide Auto-balance when the feature is off; manual planning stays. ?>
+                            <?php // #3105 — and when the plan does not include it. This is the ?>
+                            <?php // finer-grained case: the tournament and its manual planner work ?>
+                            <?php // on Standard, only the button that fills the grid for you is Pro. ?>
                             <?php if ( current_user_can( 'tt_edit_tournaments' ) && empty( $m->completed_at ) && \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' ) ) : ?>
-                                <button type="button" class="tt-btn tt-btn-secondary tt-planner-auto" data-tt-planner-auto="1">
-                                    <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
-                                </button>
+                                <?php if ( \TT\Modules\License\LicenseGate::allows( 'tournaments_auto_balance' ) ) : ?>
+                                    <button type="button" class="tt-btn tt-btn-secondary tt-planner-auto" data-tt-planner-auto="1">
+                                        <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
+                                    </button>
+                                <?php else : ?>
+                                    <button type="button" class="tt-btn tt-btn-secondary tt-planner-auto" disabled
+                                        title="<?php echo esc_attr( \TT\Modules\License\UpgradePanel::lockedTitle( 'tournaments_auto_balance' ) ); ?>">
+                                        <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
+                                    </button>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <?php if ( current_user_can( 'tt_edit_tournaments' ) ) : ?>
                                 <?php if ( empty( $m->kicked_off_at ) && empty( $m->completed_at ) ) : ?>

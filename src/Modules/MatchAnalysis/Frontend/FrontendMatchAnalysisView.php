@@ -113,9 +113,18 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         self::enqueueAssets();
         self::enqueueStyles();
 
+        // #3105 — `match_analysis` is Pro. #3017's third decision: what the
+        // club already wrote stays readable, so an out-of-plan install drops
+        // to the read-only document with the upgrade panel above it rather
+        // than losing the page. The editing form is what the plan buys.
+        $in_plan = \TT\Modules\License\LicenseGate::allows( 'match_analysis' );
+
         echo '<div class="tt-ma">';
 
-        if ( $can_edit ) {
+        if ( ! $in_plan ) {
+            echo \TT\Modules\License\UpgradePanel::render( 'match_analysis', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            self::renderReadOnly( $payload );
+        } elseif ( $can_edit ) {
             // The editing surface keeps its own header; the document
             // renders its own, so only one of the two draws it.
             self::renderMatchHeader( $activity, (array) $payload['result'], (array) $payload );

@@ -31,6 +31,23 @@ class MatchPrepRestController {
 
     private const NS = 'talenttrack/v1';
 
+    /**
+     * #3105 — `match_prep` is a Pro feature. Every route is wrapped;
+     * `enforceWriteRest()` decides from the verb, so a read passes through
+     * and a write answers 402. The plan an out-of-plan club already wrote
+     * stays readable and printable (#3017's third decision) — what it loses
+     * is writing new ones.
+     *
+     * The feature key is a literal, not a constant, so
+     * `FeatureMapGateCoverageTest` can find it.
+     */
+    private static function gate( callable $callback ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'match_prep', $r );
+            return $blocked ?? $callback( $r );
+        };
+    }
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -39,7 +56,7 @@ class MatchPrepRestController {
         register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)', [
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'put' ],
+                'callback'            => self::gate( [ __CLASS__, 'put' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -54,28 +71,28 @@ class MatchPrepRestController {
         register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)/share', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_share' ],
+                'callback'            => self::gate( [ __CLASS__, 'create_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)/share/rotate', [
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'rotate_share' ],
+                'callback'            => self::gate( [ __CLASS__, 'rotate_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role', [
             [
                 'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'put_role' ],
+                'callback'            => self::gate( [ __CLASS__, 'put_role' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_role' ],
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role/(?P<role_key>[a-z_]+)', [
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_role' ],
+                'callback'            => self::gate( [ __CLASS__, 'delete_role' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_role' ],
             ],
         ] );

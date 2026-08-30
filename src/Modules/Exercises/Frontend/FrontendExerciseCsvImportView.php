@@ -30,6 +30,17 @@ class FrontendExerciseCsvImportView extends FrontendViewBase {
             return;
         }
 
+        // #3105 — an import is nothing but writing, so it locks whole
+        // rather than degrading to a read-only view of itself.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'exercises' ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Import exercises from CSV', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'exercises', __( 'Exercises', 'talenttrack' ) ) ]
+            );
+            echo \TT\Modules\License\UpgradePanel::render( 'exercises' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard(
             __( 'Import exercises from CSV', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'exercises', __( 'Exercises', 'talenttrack' ) ) ]

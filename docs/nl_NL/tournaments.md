@@ -99,3 +99,7 @@ Je kunt **Afsluiten** zonder eerst expliciet aftrap te geven — het systeem doe
 ## Wie kan dit zien
 
 In v1 zijn de Toernooien-tegel, de planner en elk REST-endpoint alleen toegankelijk voor de **Academy Admin**. Coach, Head of Development, Scout, Speler en Ouder zien de functie niet.
+
+## Op je abonnement
+
+Toernooien zijn een **Pro**-functie. Op Standard blijft elk toernooi dat de club draaide te bekijken — wedstrijden, selecties, totalen — en is aanmaken of wijzigen vergrendeld. Automatisch balanceren staat daar los van: een Standard-club plant het schema met de hand. Zie [Licentie en account](license-and-account.md).

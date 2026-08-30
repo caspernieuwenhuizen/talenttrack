@@ -111,3 +111,7 @@ By default a completed match's lineup is locked. The system blocks PATCHes to it
 ## Who can see this
 
 In v1 the Tournaments tile, the planner, and every REST endpoint are gated to **Academy Admin** (WP `administrator` + `tt_club_admin`) only. Coach, Head of Development, Scout, Player, and Parent personas don't see the feature. The persona-expansion ship will open it to Coach + HoD.
+
+## On your plan
+
+Tournaments are a **Pro** feature. On Standard every tournament the club ran stays browsable — matches, squads, totals — and creating or editing one is locked. Auto-balance is sold separately again: a Standard club plans its grid by hand. See [Licence and account](license-and-account.md).
