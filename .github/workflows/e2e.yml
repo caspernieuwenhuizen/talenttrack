@@ -73,12 +73,19 @@ jobs:
             npx playwright install --with-deps chromium
           fi
 
-      # #2417 — see php-tests.yml. Two candidate fixes were tried here and
-      # both removed after measuring them: pre-pulling the container images
-      # (+25s net) and caching the WordPress source tree (warm startup
-      # measured SLOWER than cold — 103s and 129s against ~90s, because
-      # restoring 391MB costs more than cloning it). The timing markers
-      # stay, because they are what made both answers visible.
+      # #2417 — see php-tests.yml for the full history. Two candidate fixes
+      # were tried here and both removed after measuring them: pre-pulling
+      # the container images (+25s net) and caching the WordPress source
+      # tree (warm startup measured SLOWER than cold — 103s and 129s
+      # against ~90s, because restoring 391MB costs more than cloning it).
+      # A third, skipping the `dev` instance neither job uses, is ruled out
+      # for a different reason: `@wordpress/env` v10 has no supported way to
+      # start one environment without the other.
+      #
+      # `.wp-env.json` now sets `"core": null`, dropping the WordPress clone
+      # rather than caching it — and taking both suites off WordPress trunk
+      # onto the released image while it is at it. The timing markers stay,
+      # because they are what made every one of these answers visible.
       - name: Start wp-env (timed)
         run: |
           set -e
