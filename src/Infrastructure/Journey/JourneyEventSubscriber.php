@@ -254,7 +254,26 @@ final class JourneyEventSubscriber {
         );
     }
 
+    /**
+     * #3138 — only a decision that ends the trial writes "Trial ended".
+     *
+     * The hook now fires for all six decisions, because the two workflow
+     * forms that write the rolling-membership three had been going around
+     * the repository and announcing nothing. Two of those six say the
+     * opposite of an ending: `continue_in_trial_group` explicitly means the
+     * trial is still running, and `offered_team_position` is
+     * mid-conversation — the family has not answered. Emitting `trial_ended`
+     * for either would make the timeline actively wrong rather than merely
+     * incomplete, so the gate lives here, on the reader, not on the write
+     * path.
+     *
+     * An offer being made is arguably the most significant moment in a
+     * trial and appears nowhere on the journey. That wants a journey event
+     * type of its own — a feature, not the closing of this gap.
+     */
     public static function on_trial_decision_recorded( int $case_id, int $player_id, string $decision, string $decided_at ): void {
+        if ( ! TrialCaseDecision::isTerminal( $decision ) ) return;
+
         EventEmitter::emit(
             $player_id,
             JourneyEventType::TRIAL_ENDED,

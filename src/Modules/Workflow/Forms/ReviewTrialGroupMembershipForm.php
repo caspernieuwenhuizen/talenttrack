@@ -83,26 +83,41 @@ class ReviewTrialGroupMembershipForm implements FormInterface {
         $trial_case_id = (int) ( $task['trial_case_id'] ?? 0 );
         if ( $trial_case_id > 0 ) {
             $repo  = new TrialCasesRepository();
-            $patch = [
-                'decision_made_at' => current_time( 'mysql', true ),
-                'decision_made_by' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
-                'decision_notes'   => $rationale,
-            ];
+            $actor = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+
+            // #3138 — all three go through `recordDecision()` rather than
+            // `update()`, so the decision is announced once from the one
+            // write path. The case status each decision settles on is the
+            // repository's business now: `continue_in_trial_group` extends,
+            // `offered_team_position` leaves the case open because the
+            // final disposition lands in `AwaitTeamOfferDecisionForm`, and
+            // a final decline decides it.
+            //
+            // Only the final decline reaches the timeline. The other two
+            // are announced but produce no journey entry, because
+            // `continue_in_trial_group` means the trial is still running
+            // and `offered_team_position` is mid-conversation — see
+            // `TrialCaseDecision::TERMINAL`.
             if ( $decision === 'continue_in_trial_group' ) {
-                $patch['decision']        = TrialCasesRepository::DECISION_CONTINUE_IN_TRIAL_GROUP;
-                $patch['continued_until'] = gmdate( 'Y-m-d', strtotime( '+90 days' ) );
-                $patch['status']          = TrialCasesRepository::STATUS_EXTENDED;
+                $repo->recordDecision(
+                    $trial_case_id, TrialCasesRepository::DECISION_CONTINUE_IN_TRIAL_GROUP, $actor, $rationale,
+                    null, null,
+                    [ 'continued_until' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ?: time() ) ]
+                );
             } elseif ( $decision === 'offer_team_position' ) {
-                $patch['decision'] = TrialCasesRepository::DECISION_OFFERED_TEAM_POSITION;
-                // Status stays open — final disposition lands in
-                // AwaitTeamOfferDecisionForm.
+                $repo->recordDecision(
+                    $trial_case_id, TrialCasesRepository::DECISION_OFFERED_TEAM_POSITION, $actor, $rationale
+                );
             } elseif ( $decision === 'decline_final' ) {
-                $patch['decision']    = TrialCasesRepository::DECISION_DENY_FINAL;
-                $patch['status']      = TrialCasesRepository::STATUS_DECIDED;
-                $patch['archived_at'] = current_time( 'mysql', true );
-                $patch['archived_by'] = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+                $repo->recordDecision(
+                    $trial_case_id, TrialCasesRepository::DECISION_DENY_FINAL, $actor, $rationale,
+                    null, null,
+                    [
+                        'archived_at' => current_time( 'mysql', true ),
+                        'archived_by' => $actor,
+                    ]
+                );
             }
-            $repo->update( $trial_case_id, $patch );
         }
 
         return [
