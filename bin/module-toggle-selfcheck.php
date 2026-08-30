@@ -263,6 +263,50 @@ tt_expect_failure(
     }
 );
 
+/**
+ * #3254 — the assertion that a module-owned dispatcher slug is owned on
+ * the unconditional path. Removing Training's declarations must bite: it
+ * is exactly the state the bug shipped in.
+ */
+tt_expect_failure(
+    $root,
+    'a dispatcher slug losing its unconditional ownership is caught',
+    'nothing declares that ownership on the unconditional path',
+    static function ( string $scratch ): void {
+        $file = $scratch . '/src/Shared/CoreSurfaceRegistration.php';
+        $src  = (string) file_get_contents( $file );
+        $src  = preg_replace(
+            "/^.*registerSlugOwnership\(\s*'training-run'.*$/m",
+            '',
+            $src,
+            1
+        );
+        file_put_contents( $file, (string) $src );
+    }
+);
+
+/**
+ * The other direction. A dispatcher arm that reaches a `src/Shared`
+ * view is nobody's module surface, and must not be demanded of anyone —
+ * a gate that asked for ownership of every arm would be asking for
+ * ownership that does not exist.
+ */
+tt_expect_success(
+    $root,
+    'a shared-view dispatcher arm needs no ownership',
+    static function ( string $scratch ): void {
+        $file = $scratch . '/src/Shared/Frontend/DashboardShortcode.php';
+        $src  = (string) file_get_contents( $file );
+        $src  = preg_replace(
+            "/case '(overview)':/",
+            "case 'brand-new-shared-surface':\n            case '\$1':",
+            $src,
+            1
+        );
+        file_put_contents( $file, (string) $src );
+    }
+);
+
 echo "\n";
 if ( $failures > 0 ) {
     fwrite( STDERR, "module-toggle-selfcheck: {$failures} failure(s)\n" );

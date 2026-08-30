@@ -273,7 +273,7 @@ Dezelfde catalogus is via REST beschikbaar op `GET /wp-json/talenttrack/v1/featu
 
 Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanneer een nieuwe module of een nieuw routeerbaar scherm zonder schakelaar meegaat — het was dus allemaal conventie, en een conventie ontdek je doordat een academie vraagt: "waarom kan ik dit niet uitzetten?".
 
-`tools/check-module-toggles.php` draait bij elke PR die de bestanden raakt die over uitschakelbaarheid gaan. Vijf controles:
+`tools/check-module-toggles.php` draait bij elke PR die de bestanden raakt die over uitschakelbaarheid gaan. Zeven controles:
 
 1. **Elke moduleklasse op schijf staat in `config/modules.php`.** Een module die er wel is maar niet aangemeld, start nooit op en is voor geen enkele beheerder aan te zetten.
 2. **Elke aangemelde module heeft een `ModuleMetadata`-vermelding.** Zonder die vermelding toont de modulepagina een geslugificeerde klassenaam waar een label hoort. Deze controle vond op de dag dat ze geschreven werd vijf modules zonder metadata.
@@ -283,12 +283,30 @@ Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanne
  3. hij staat in `config/always_on_surfaces.php`, mét reden.
 4. **Geen matrix-entiteit wordt door twee functies geclaimd.** De docblock van de catalogus zegt dit al altijd; niets controleerde het, en een dubbele claim gate't stilletjes ook het scherm van de buur.
 5. **Elke `module_class` van een functie verwijst naar een aangemelde module.** Een functie die een niet-aangemelde klasse noemt, gate't stilletjes niets.
+6. **Elk installatieprofiel noemt alleen modules en functies die bestaan**, noemt élke uitschakelbare module, en probeert nooit een altijd-aan-module uit te zetten. Een typefout in een profiel is anders een regel die bij het toepassen niets doet.
+7. **Elke `?tt_view=`-slug van een module die de dispatcher routeert, is eigendom via het onvoorwaardelijke pad.** Zie hieronder — dit is de controle die "de module staat uit" überhaupt beantwoordbaar maakt.
+
+### Eigenaarschap moet blijven bestaan als de module uitstaat
+
+De gate die als enige taak heeft "deze module staat uit" te herkennen, deed lange tijd juist in díe situatie niets.
+
+`TileRegistry::isViewSlugDisabled()` leidt de eigenaar van een slug af uit de aangemelde tegels. Tegels worden aangemeld binnen `register()` / `boot()` van een module — en `ModuleRegistry` slaat die allebei over voor een **uitgeschakelde** module. De tegel die het eigenaarschap zou bewijzen bestaat dus precies dan niet: het eigenaarschap komt op niets uit, de gate zegt "nee hoor", en de route wordt afgehandeld alsof de module aanstond. Met Trainingsplannen uit toonde `?tt_view=training-run` nog steeds het lijnscherm, en bood de activiteitenpagina nog steeds **Training uitvoeren**.
+
+De oplossing: eigenaarschap wordt vastgelegd waar het niet kan verdwijnen — in `CoreSurfaceRegistration`, dat `Kernel::register()` aanroept ongeacht of een module opstart. Twee vormen tellen mee, allebei in dat bestand:
+
+- `TileRegistry::registerSlugOwnership( '<slug>', <module> )`, of
+- een tegel die daar wordt aangemeld met zowel `view_slug` als `module_class`.
+
+Een tegel die vanuit `src/Modules/**` wordt aangemeld telt **niet** mee, om de reden hierboven. Controle 7 loopt de `case '<slug>':`-takken van de dispatcher langs, houdt die over die een `TT\Modules\…\Frontend\…`-view tonen, en eist voor elk zo'n eigenaarschap — of een vermelding in `config/always_on_surfaces.php` met reden. Takken die een view uit `src/Shared/Frontend` tonen worden overgeslagen: geen enkele module bezit die, dus niets hoort ze te gaten.
+
+De laag van de knoppen stelt dezelfde vraag, in `CrossViewLink::allows()`, vóór elke rechtencontrole en vóór een eigen `gate` van de aanroeper. Die volgorde is belangrijker dan ze lijkt: `LegacyCapMapper` laat een WP-`administrator` elke `tt_*`-capability onvoorwaardelijk passeren — de bewuste noodklep voor wie de installatie beheert — dus een controle in de rechtenlaag verborg de knop voor een trainer en liet hem staan voor de beheerder die de module net had uitgezet. "Mag deze gebruiker dit?" en "bestaat dit scherm hier?" zijn verschillende vragen, en alleen de tweede zegt iets over een uitgeschakelde module.
 
 ### Wat dit betekent als je een module toevoegt
 
 - Zet de klasse in `config/modules.php`, en alleen in `ModuleRegistry::ALWAYS_ON_MODULES` als het product er écht onbruikbaar zonder is — vandaag voldoen drie modules daaraan.
 - Voeg een `ModuleMetadata`-vermelding toe: een label, een omschrijving van één regel in de taal van de academie in plaats van die van de codebase, een icoon, een categorie.
 - Voeg een `FeatureRegistry`-vermelding toe als de module schermen bezit die een academie misschien niet wil, en **zet elke nieuwe view-slug in dezelfde PR die het scherm toevoegt**. Die gewoonte is de hele bedoeling; de gate zorgt dat ze niet afhangt van wie eraan denkt.
+- Meld elke `?tt_view=`-slug van de module aan in `CoreSurfaceRegistration::registerSlugOwnerships()`. De tegel aanmelden in de eigen `boot()` van de module is niet genoeg — zie hierboven.
 
 ### Wanneer een scherm altijd aan moet staan
 
@@ -302,7 +320,7 @@ Het manifest bevatte kort ook 54 andere, als `grandfathered`. Bijna allemaal war
 
 `bin/module-toggle-selfcheck.php` draait de gate tegen bewust kapotgemaakte kopieën van de boom en controleert dat hij op elk daarvan faalt, en om de juiste reden. Dat een gate slaagt, bewijst niet dat hij werkt.
 
-Twee dingen kan hij bewust niet controleren, en dat zegt hij dan ook in plaats van te gokken: een tegel-slug die tijdens runtime uit een variabele wordt opgebouwd, en elk scherm dat helemaal niet als tegel is aangemeld.
+Eén ding kan hij bewust niet controleren, en dat zegt hij dan ook in plaats van te gokken: een tegel-slug die tijdens runtime uit een variabele wordt opgebouwd. Schermen die helemaal niet als tegel zijn aangemeld waren de tweede blinde vlek; controle 7 leest ze nu af uit de dispatcher, dus een modulescherm zonder tegel is voortaan gedekt.
 
 ## Zie ook
 
