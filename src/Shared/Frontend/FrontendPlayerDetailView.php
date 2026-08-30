@@ -92,13 +92,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $rmin = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
         $rmax = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
 
-        $bands = [
-            [ 'key' => PotentialBand::FIRST_TEAM,             'label' => __( 'First-team', 'talenttrack' ) ],
-            [ 'key' => PotentialBand::PROFESSIONAL_ELSEWHERE, 'label' => __( 'Professional elsewhere', 'talenttrack' ) ],
-            [ 'key' => PotentialBand::SEMI_PRO,               'label' => __( 'Semi-pro', 'talenttrack' ) ],
-            [ 'key' => PotentialBand::TOP_AMATEUR,            'label' => __( 'Top amateur', 'talenttrack' ) ],
-            [ 'key' => PotentialBand::RECREATIONAL,           'label' => __( 'Foundation', 'talenttrack' ) ],
-        ];
+        // #3226 — one source for the band labels. This map and the capture
+        // screen's had drifted apart ("First-team" here, "First team"
+        // there), which is the reason a third copy was not an option.
+        $bands = [];
+        foreach ( \TT\Modules\Players\Services\PotentialTrajectory::labels() as $key => $label ) {
+            $bands[] = [ 'key' => $key, 'label' => $label ];
+        }
 
         $history_url = add_query_arg(
             [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
@@ -1297,6 +1297,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 $status_value .= ' · <a href="' . esc_url( $status_history_url ) . '">' . esc_html__( 'history', 'talenttrack' ) . '</a>';
             }
             $identity_rows[] = [ __( 'Status', 'talenttrack' ), $status_value ];
+        }
+        // #3226 — the band was reachable only by opening the hero popover,
+        // so a coach reading the profile could not see the academy's own
+        // view of where this player is going. Staff-only, and the history
+        // link goes where the trajectory now renders.
+        if ( self::viewerIsStaffForPlayer( $player_id ) ) {
+            $trajectory = ( new \TT\Modules\Players\Services\PotentialTrajectory() )->forPlayer( $player_id );
+            if ( $trajectory ) {
+                $current        = $trajectory[ count( $trajectory ) - 1 ];
+                $potential_value = esc_html( (string) $current['label'] );
+                if ( count( $trajectory ) > 1 ) {
+                    $potential_value .= ' · <a href="' . esc_url( $status_history_url ) . '">'
+                        . esc_html__( 'history', 'talenttrack' ) . '</a>';
+                }
+                // `_x()` because a bare "Potential" is an adjective as
+                // often as a noun, and the Dutch differs — this is the
+                // noun: the band the academy has recorded.
+                $identity_rows[] = [
+                    _x( 'Potential', 'player profile row label — the recorded potential band', 'talenttrack' ),
+                    $potential_value,
+                ];
+            }
         }
 
         $team_html = '';
