@@ -21,6 +21,14 @@ name: Translation catalogue duplicate lint
 # The checker is pure PHP: no `msgfmt`, no `jq`. Neither is installed on the
 # maintainer's machine, and a gate you cannot reproduce locally is a gate that
 # tells you to go and ask CI.
+#
+# #3205 widened it after it reported OK on four branches that then failed
+# `i18n-pr-check` on a duplicate `msgmerge` caught. It now also fails on an
+# entry glued onto the tail of the one before it — the fingerprint of the
+# merge, reported before it duplicates anything — and on the same msgid twice
+# among the obsolete `#~` entries, which are not inert: `msgmerge` promotes
+# one back to live when its string reappears, and two copies come back as two.
+# Fixtures for every case live under `tests/fixtures/po/`.
 
 on:
   pull_request:

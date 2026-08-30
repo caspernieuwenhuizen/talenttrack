@@ -1,0 +1,26 @@
+# Fixture for #3205 — two entries glued into one block.
+#
+# A union merge appended the second entry directly onto the tail of the
+# first, with no blank line between. This is the shape that defeats any
+# block-based reader: it sees one entry where there are two, and a
+# re-apply that looks correct carries both across.
+#
+# The duplicate `Joined` is here so the fixture exercises the duplicate
+# check through glue as well as the structural check on its own.
+msgid ""
+msgstr ""
+"Project-Id-Version: fixture\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/A.php:1
+msgid "Joined"
+msgstr "Toegetreden"
+#: src/Shared/Frontend/FrontendRateCardView.php:65
+msgid "You do not have access to rate cards."
+msgstr "Je hebt geen toegang tot tariefkaarten."
+
+#: src/C.php:9
+msgid "Joined"
+msgstr "Toegetreden"

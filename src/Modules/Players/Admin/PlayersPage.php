@@ -540,10 +540,15 @@ class PlayersPage {
             if ( class_exists( '\TT\Modules\License\LicenseGate' )
                  && \TT\Modules\License\LicenseGate::capsExceeded( 'players' )
             ) {
-                wp_safe_redirect( add_query_arg(
-                    [ 'page' => 'tt-account', 'tt_msg' => 'cap_players' ],
-                    admin_url( 'admin.php' )
-                ) );
+                // #3134 — lands on the frontend Plan surface when one
+                // exists. The old target defaulted to the operator-only
+                // Account tab, so a non-operator who hit the cap was
+                // redirected to a page that fell back to Plan and never
+                // showed them the cap message at all. The Plan view
+                // renders it.
+                wp_safe_redirect(
+                    \TT\Modules\License\Frontend\FrontendPlanView::url( [ 'tt_msg' => 'cap_players' ] )
+                );
                 exit;
             }
         }

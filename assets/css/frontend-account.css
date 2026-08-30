@@ -1,0 +1,196 @@
+/*
+ * The ported halves of the account page (#3134): Plan & restrictions,
+ * and a user's own two-factor enrolment.
+ *
+ * Mobile-first per CLAUDE.md §2. The base rules are the 360px layout;
+ * the one media query widens the feature matrix once there is room.
+ * Both surfaces are classified `viewable`, so a phone really does get
+ * this sheet — the plan is what a coach reads when a feature is locked,
+ * and the phone is the device the authenticator app lives on.
+ *
+ * The two tables are the only wide content here. They scroll inside
+ * `.tt-account-scroll` rather than pushing the page sideways, which is
+ * the §2 rule for wide content and the reason neither surface needed a
+ * desktop_only classification.
+ */
+
+.tt-account-intro,
+.tt-account-footnote {
+    max-width: 44rem;
+}
+
+.tt-account-footnote {
+    margin-top: var(--tt-sp-4, 1rem);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-account-panel {
+    margin-bottom: var(--tt-sp-4, 1rem);
+}
+
+.tt-account-tier {
+    font-size: var(--tt-fs-h2, 1.4rem);
+    font-weight: 700;
+    margin: 0 0 var(--tt-sp-2, 0.5rem);
+}
+
+.tt-account-note {
+    max-width: 44rem;
+}
+
+/* ── Wide content: scrolls in its own box, never the page ──────────── */
+
+.tt-account-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+.tt-account-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tt-account-table th,
+.tt-account-table td {
+    padding: var(--tt-sp-2, 0.5rem) var(--tt-sp-3, 0.75rem);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line-soft, #eee);
+    vertical-align: middle;
+}
+
+.tt-account-num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.tt-account-status {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--tt-radius, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    white-space: nowrap;
+}
+
+.tt-account-status--ok {
+    background: var(--tt-success-subtle, #e6f4ea);
+    color: var(--tt-success, #2e7d4f);
+}
+
+.tt-account-status--near {
+    background: var(--tt-warning-subtle, #fdf3e3);
+    color: var(--tt-warning, #a86322);
+}
+
+.tt-account-status--over {
+    background: var(--tt-danger-subtle, #fdecea);
+    color: var(--tt-danger, #b32d2e);
+}
+
+/* ── Feature matrix ────────────────────────────────────────────────── */
+
+.tt-account-matrix {
+    min-width: 32rem;
+}
+
+.tt-account-matrix th[scope="row"] {
+    font-weight: 400;
+}
+
+.tt-account-tier-col,
+.tt-account-cell {
+    text-align: center;
+}
+
+.tt-account-tier-col.is-current,
+.tt-account-cell.is-current {
+    background: var(--tt-bg-soft, #f7f7f7);
+}
+
+.tt-account-tier-flag {
+    display: block;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 400;
+    color: var(--tt-muted, #666);
+}
+
+.tt-account-mark--yes {
+    color: var(--tt-success, #2e7d4f);
+    font-weight: 700;
+}
+
+.tt-account-mark--no {
+    color: var(--tt-muted, #666);
+}
+
+/* ── Two-factor ────────────────────────────────────────────────────── */
+
+.tt-account-form {
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+}
+
+.tt-account-form .tt-btn {
+    min-height: 48px;
+}
+
+.tt-account-confirm {
+    display: flex;
+    gap: var(--tt-sp-2, 0.5rem);
+    align-items: flex-start;
+    margin-bottom: var(--tt-sp-3, 0.75rem);
+    cursor: pointer;
+    min-height: 48px;
+}
+
+.tt-account-confirm input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    flex: 0 0 auto;
+}
+
+.tt-account-danger > summary {
+    cursor: pointer;
+    color: var(--tt-danger, #b32d2e);
+    font-weight: 600;
+    padding: var(--tt-sp-3, 0.75rem) 0;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-account-danger > summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #2271b1);
+    outline-offset: 2px;
+}
+
+.tt-account-danger[open] > summary + .tt-account-form {
+    padding: var(--tt-sp-3, 0.75rem);
+    border: 1px solid var(--tt-danger-subtle, #f0c5c5);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-danger-subtle, #fdecea);
+}
+
+.tt-account-codes__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: var(--tt-sp-3, 0.75rem) 0 0;
+    padding-left: 1.5rem;
+}
+
+.tt-account-codes__list code {
+    font-size: var(--tt-fs-body, 1rem);
+    letter-spacing: 0.04em;
+}
+
+@media (min-width: 480px) {
+    .tt-account-codes__list {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-account-matrix {
+        min-width: 0;
+    }
+}

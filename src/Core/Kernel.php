@@ -170,6 +170,11 @@ class Kernel {
         // #2977 — frontend category weights (save + reset handlers + REST).
         // wp-admin's page stays as it was; both call CategoryWeightsRepository.
         \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::init();
+        // #3134 — the account page's two user-facing halves on the frontend:
+        // the plan explainer (REST endpoint) and a user's own two-factor
+        // enrolment. The operator halves stay on wp-admin's tt-account.
+        \TT\Modules\License\Frontend\FrontendPlanView::init();
+        \TT\Modules\Mfa\Frontend\FrontendTwoFactorView::init();
         // #1381 — season rollover (bulk cohort promotion): execute handler
         // + REST plan/execute endpoints.
         \TT\Modules\Players\SeasonRollover\FrontendSeasonRolloverView::init();

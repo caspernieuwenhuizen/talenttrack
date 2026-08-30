@@ -130,6 +130,7 @@ return [
     'scout-my-players'              => [ 'viewable', 'A scout’s portfolio list.' ],
     'scouting-visit'                => [ 'viewable', 'One planned visit. Nothing on it needs width.' ],
     'scouting-visits'               => [ 'viewable', 'Planned visits, scanned in a list.' ],
+    'plan'                          => [ 'viewable', 'The plan, two cap counters and a feature matrix. The matrix is wide, so it scrolls inside its own container rather than pushing the page sideways; nothing here is edited, and a coach meeting a locked feature is as likely to be on a phone as at a desk.' ],
     'staff-overview'                => [ 'viewable', 'Staff development at a glance.' ],
     'submission-review'             => [ 'viewable', 'Reviewing a submitted item.' ],
     'submit-idea'                   => [ 'viewable', 'Submitting an idea. Low frequency, no strong device pull.' ],
@@ -138,6 +139,7 @@ return [
     'trial-case'                    => [ 'viewable', 'One trialist’s case file.' ],
     'trial-parent-meeting'          => [ 'viewable', 'A single meeting record — one page of notes.' ],
     'trials'                        => [ 'viewable', 'Trial records; a list plus a record.' ],
+    'two-factor'                    => [ 'viewable', 'Your own second factor. The phone IS the authenticator, so gating this to a desk would be the one classification that makes the task harder — and question 3 does not apply: it reaches one user\'s own account and nothing else.' ],
 
     /* ---- read_only (10) ----------------------------------------------- */
     'analytics'                     => [ 'read_only', 'Charts and summaries read acceptably on a phone; building the query does not.' ],
