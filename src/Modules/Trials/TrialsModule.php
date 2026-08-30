@@ -7,6 +7,8 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Trials\Reminders\TrialReminderScheduler;
 use TT\Modules\Trials\Rest\TrialsRestController;
+use TT\Modules\Trials\Wizards\NewTrialCaseWizard;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * TrialsModule (#0017) — youth-academy trial workflow.
@@ -38,6 +40,14 @@ class TrialsModule implements ModuleInterface {
         // class rather than a branch in `JourneyEventSubscriber`: the
         // journey entry records the transition, this one performs it.
         TrialDecisionPlayerStatusSubscriber::init();
+
+        // #3221 — §3 wizard-first: opening a trial case is a top-level
+        // record creation and was the clearest such flow without a
+        // wizard. The flat form on `?tt_view=trials&action=new` stays as
+        // the power-user fallback; both commit through `TrialCaseOpener`.
+        if ( class_exists( WizardRegistry::class ) ) {
+            WizardRegistry::register( new NewTrialCaseWizard() );
+        }
     }
 
     /**

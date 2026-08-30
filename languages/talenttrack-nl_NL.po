@@ -59057,6 +59057,100 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "First-team"
 #~ msgstr "Eerste elftal"
 
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:57
+msgid ""
+"First name, last name and date of birth are enough to start. The player is "
+"created with status \"trial\" when you finish the wizard, not before."
+msgstr ""
+"Voornaam, achternaam en geboortedatum zijn genoeg om te beginnen. De speler "
+"wordt met status \"stage\" aangemaakt zodra je de wizard afrondt, niet eerder."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:86
+msgid "Pick an existing player or fill in a new one — not both."
+msgstr "Kies een bestaande speler óf vul een nieuwe in — niet allebei."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:110
+msgid "A new player needs a first name, a last name and a date of birth."
+msgstr ""
+"Een nieuwe speler heeft een voornaam, een achternaam en een geboortedatum "
+"nodig."
+
+#: src/Modules/Trials/Wizards/TrialPlayerStep.php:125
+msgid "Pick an existing player, or fill in a new one."
+msgstr "Kies een bestaande speler, of vul een nieuwe in."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:29
+msgid ""
+"No trial tracks are set up yet. An administrator needs to add at least one "
+"before a case can be opened."
+msgstr ""
+"Er zijn nog geen stagetrajecten ingericht. Een beheerder moet er eerst "
+"minstens één toevoegen voordat je een dossier kunt openen."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:54
+msgid "First day"
+msgstr "Eerste dag"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:58
+msgid "Last day"
+msgstr "Laatste dag"
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:61
+msgid ""
+"Proposed from the track length. Change it if the trial has been agreed for a "
+"different period — it can be extended later either way."
+msgstr ""
+"Voorgesteld op basis van de duur van het traject. Pas het aan als er een "
+"andere periode is afgesproken — verlengen kan later hoe dan ook."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:69
+msgid ""
+"Where this player came from, who recommended them, what the academy wants to "
+"find out. Write it as if the family will read it."
+msgstr ""
+"Waar deze speler vandaan komt, wie hem heeft aangedragen, wat de academie "
+"wil ontdekken. Schrijf het alsof de ouders meelezen."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:80
+msgid "Please pick a track."
+msgstr "Kies een traject."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:83
+msgid "A trial needs a first and a last day."
+msgstr "Een stage heeft een eerste en een laatste dag nodig."
+
+#: src/Modules/Trials/Wizards/TrialDetailsStep.php:86
+msgid "The last day cannot be before the first day."
+msgstr "De laatste dag kan niet vóór de eerste dag liggen."
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:49
+msgid "Who is watching this trial?"
+msgstr "Wie kijkt er mee bij deze stage?"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:50
+msgid ""
+"Optional, and you can add more later. Only assigned staff can submit input "
+"on the case."
+msgstr ""
+"Optioneel, en je kunt er later meer toevoegen. Alleen toegewezen staf kan "
+"input op het dossier geven."
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:97
+msgid "will be created as a new player"
+msgstr "wordt als nieuwe speler aangemaakt"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:103
+msgid "About to open"
+msgstr "Wordt straks geopend"
+
+#: src/Modules/Trials/Wizards/TrialStaffStep.php:122
+msgid ""
+"Finishing opens the case and sets the player's status to trial. It also "
+"writes the trial to their journey, so the timeline starts on day one."
+msgstr ""
+"Afronden opent het dossier en zet de status van de speler op stage. Ook komt "
+"de stage op de tijdlijn te staan, zodat het verloop vanaf dag één klopt."
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 

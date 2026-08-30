@@ -31,7 +31,17 @@ So "assign them and they will see it" is only half true, and if a colleague cann
 
 ### 1. Open a case
 
-From the **Trial cases** tile, pick *New trial case*. Choose the player (or create a new one first), pick a track (Standard / Scout / Goalkeeper, or any custom track the club added), set start and end dates, and assign initial staff. The player's status flips to **Trial** automatically.
+From the **Trial cases** tile, pick *Add case*. That opens a short guided flow in three steps:
+
+1. **Player** — search for somebody already on the books, or fill in a new player's first name, last name and date of birth.
+2. **Trial** — pick a track (Standard / Scout / Goalkeeper, or any custom track the club added). The track proposes an end date from its usual length; change it if the trial has been agreed for a different period. Add notes if there is anything the next person should know.
+3. **Staff** — who is watching. Optional, and more can be added later, but only assigned staff can submit input on the case. This step shows a summary of what is about to be created before you finish.
+
+Nothing is written until you finish the last step. Backing out halfway leaves no half-made player and no empty case.
+
+The player's status flips to **Trial** automatically when the case opens.
+
+If your academy has the guided flows switched off, *Add case* opens the older single-page form instead. It asks for the same things and behaves identically — same checks, same journey entries.
 
 Opening the case writes **Trial started** to the player's journey, so the trial shows on their timeline from day one. If you created the player inline on this form — first name, last name and date of birth — that also writes **Joined the academy**, the same as adding them from the Players screen. The trial is where a trial player came from, and the timeline should say so without anyone having to add a note.
 

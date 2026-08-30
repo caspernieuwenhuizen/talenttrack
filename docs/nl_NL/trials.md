@@ -31,7 +31,17 @@ Twee daarvan werken onderwater anders, en dat is precies wat je wilt weten als j
 
 ### 1. Open een dossier
 
-Klik op de tegel **Stagedossiers** en kies *Nieuw stagedossier*. Selecteer de speler (of maak deze eerst aan), kies een traject (Standaard / Scout / Keeper, of een door de club toegevoegd traject), zet de start- en einddatum en wijs eventueel direct staf toe. De status van de speler wordt automatisch op **Stage** gezet.
+Klik op de tegel **Stagedossiers** en kies *Dossier toevoegen*. Dat opent een korte begeleide flow in drie stappen:
+
+1. **Speler** — zoek iemand die al in het systeem staat, of vul van een nieuwe speler de voornaam, achternaam en geboortedatum in.
+2. **Stage** — kies een traject (Standaard / Scout / Keeper, of een door de club toegevoegd traject). Het traject stelt een einddatum voor op basis van de gebruikelijke duur; pas die aan als er een andere periode is afgesproken. Voeg notities toe als er iets is dat de volgende persoon moet weten.
+3. **Staf** — wie er meekijkt. Optioneel, en je kunt er later meer toevoegen, maar alleen toegewezen staf kan input op het dossier geven. Deze stap toont een samenvatting van wat er wordt aangemaakt voordat je afrondt.
+
+Er wordt niets weggeschreven totdat je de laatste stap afrondt. Halverwege stoppen laat dus geen halve speler en geen leeg dossier achter.
+
+De status van de speler wordt automatisch op **Stage** gezet zodra het dossier wordt geopend.
+
+Staan de begeleide flows bij jullie academie uit, dan opent *Dossier toevoegen* het oudere formulier op één pagina. Dat vraagt om hetzelfde en werkt identiek — dezelfde controles, dezelfde regels op de tijdlijn.
 
 Bij het openen van het dossier wordt **Stage gestart** op de tijdlijn van de speler geschreven, zodat de stage vanaf dag één in zijn verloop zichtbaar is. Heb je de speler direct op dit formulier aangemaakt — voornaam, achternaam en geboortedatum — dan komt daar ook **Bij de academie gekomen** bij, net als wanneer je hem via het spelersscherm toevoegt. Bij een stagespeler ís de stage waar hij vandaan komt, en dat hoort op de tijdlijn te staan zonder dat iemand er een notitie voor hoeft te maken.
 
