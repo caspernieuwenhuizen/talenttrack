@@ -164,16 +164,20 @@ final class PlayerCreatedFromWizardTest extends WP_UnitTestCase {
     }
 
     /**
-     * The wizard is no longer the surface with its own answer to a required
-     * custom field.
+     * A create without a required custom field is refused, on both paths.
      *
-     * Neither path supplies `custom_fields`, and `CustomFieldValidator`
-     * skips a field that was not on the form rather than rejecting it — so
-     * the outcome is a create, on both. That is worth pinning: the fix is
-     * that the two surfaces agree, and a later change to how absent
-     * required fields are treated should move both together or fail here.
+     * #3217 restored this assertion. It was written weakly — "the two
+     * surfaces agree", which they did, by both silently creating — because
+     * `CustomFieldValidator` skipped any field absent from the payload
+     * before it checked whether the field was required. That skip is right
+     * for an edit, where it protects a stored value from a partial form,
+     * and wrong for a create, where there is no stored value to protect.
+     *
+     * Two specs (#3115, #3189) had their acceptance criteria weakened to
+     * match the behaviour rather than the intent. This is the assertion
+     * they both wanted.
      */
-    public function test_a_required_custom_field_reads_the_same_through_both_create_paths(): void {
+    public function test_a_required_custom_field_is_enforced_on_both_create_paths(): void {
         ( new CustomFieldsRepository() )->create( [
             'entity_type' => CustomFieldsRepository::ENTITY_PLAYER,
             'field_key'   => 'squad_number_note',
@@ -198,12 +202,63 @@ final class PlayerCreatedFromWizardTest extends WP_UnitTestCase {
         $wizard_created = ! ( $wizard instanceof \WP_Error );
         $rest_created   = $rest instanceof \WP_REST_Response && $rest->get_status() < 300;
 
-        $this->assertSame(
-            $rest_created,
-            $wizard_created,
-            'the wizard and the REST route give the same answer to a required custom field'
+        $this->assertFalse( $rest_created, 'REST create must refuse a missing required custom field' );
+        $this->assertFalse( $wizard_created, 'the wizard commits through REST, so it inherits the refusal' );
+
+        // The refusal names the field. "Something was wrong" is not
+        // actionable when the academy configured the field themselves.
+        $this->assertSame( 422, $rest->get_status() );
+        $body = (array) $rest->get_data();
+        $this->assertStringContainsString(
+            'Squad number note',
+            (string) wp_json_encode( $body['errors'] ?? [] )
         );
-        $this->assertCount( 2, $created, 'both paths announce their creation the same way' );
+
+        $this->assertSame( [], $created, 'a refused create announces nothing and writes nothing' );
+    }
+
+    /**
+     * The other half, and the reason the skip exists: an EDIT through a
+     * form that never rendered the field must still leave the stored value
+     * alone. Breaking this to fix the create would be a data-loss bug.
+     */
+    public function test_an_update_still_ignores_a_field_the_form_did_not_render(): void {
+        $fields = new CustomFieldsRepository();
+        $fields->create( [
+            'entity_type' => CustomFieldsRepository::ENTITY_PLAYER,
+            'field_key'   => 'squad_number_note',
+            'label'       => 'Squad number note',
+            'field_type'  => CustomFieldsRepository::TYPE_TEXT,
+            'is_required' => 1,
+            'is_active'   => 1,
+        ] );
+
+        // Create with the field supplied, so there is a stored value.
+        $create = new \WP_REST_Request( 'POST', '/talenttrack/v1/players' );
+        $create->set_param( 'first_name', 'Partial' );
+        $create->set_param( 'last_name', 'Edit' );
+        $create->set_param( 'custom_fields', [ 'squad_number_note' => 'Wears 7' ] );
+        $created = PlayersRestController::create_player( $create );
+
+        $this->assertInstanceOf( \WP_REST_Response::class, $created );
+        $this->assertLessThan( 300, $created->get_status() );
+        $data = (array) $created->get_data();
+        $id   = (int) ( $data['data']['id'] ?? 0 );
+        $this->assertGreaterThan( 0, $id );
+
+        // Now update WITHOUT mentioning the field at all.
+        $update = new \WP_REST_Request( 'PUT', '/talenttrack/v1/players/' . $id );
+        $update->set_param( 'id', $id );
+        $update->set_param( 'first_name', 'Partial' );
+        $update->set_param( 'last_name', 'Edited' );
+        $result = PlayersRestController::update_player( $update );
+
+        $this->assertInstanceOf( \WP_REST_Response::class, $result );
+        $this->assertLessThan(
+            300,
+            $result->get_status(),
+            'an update must not be refused for a field it never intended to touch'
+        );
     }
 
     /**

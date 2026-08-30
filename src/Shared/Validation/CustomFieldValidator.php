@@ -37,12 +37,25 @@ use TT\Infrastructure\CustomFields\CustomValuesRepository;
 class CustomFieldValidator {
 
     /**
+     * A create validates every required field; an update only what it was
+     * given. (#3217)
+     *
+     * Pass this to {@see self::validate()}. It is the difference between
+     * "this field was not on the form, leave the stored value alone" and
+     * "this field was not on the form, and there is no stored value to
+     * leave alone".
+     */
+    public const MODE_CREATE = 'create';
+    public const MODE_UPDATE = 'update';
+
+    /**
      * @param object[]            $fields    Field definitions (output of CustomFieldsRepository::getActive)
      * @param array<string,mixed> $submitted Raw payload: field_key => value
      * @param array<string,mixed> $multi_markers Raw $_POST['custom_fields_multi_marker'] or []
+     * @param string              $mode      self::MODE_CREATE or self::MODE_UPDATE
      * @return array{errors: array<int, array{code:string, message:string, details:array<string,mixed>}>, sanitized: array<int, ?string>, skipped: array<int, int>}
      */
-    public function validate( array $fields, array $submitted, array $multi_markers = [] ): array {
+    public function validate( array $fields, array $submitted, array $multi_markers = [], string $mode = self::MODE_UPDATE ): array {
         $errors    = [];
         $sanitized = [];
         $skipped   = []; // field IDs the caller should not touch (absent from form)
@@ -57,8 +70,29 @@ class CustomFieldValidator {
             // Determine "was this field on the submitted form?" — different
             // rules for different types. This matters because absence must
             // NOT wipe existing stored values.
+            //
+            // #3217 — but only on an update. The skip exists to protect a
+            // stored value from a partial edit form, and on a create there
+            // is no stored value to protect: an absent required field is
+            // not "skipped", it is missing. Skipping it there is how a
+            // create path that does not render the custom-field block
+            // silently bypassed every required field, on the new-player
+            // wizard and the inline trial-player create among others.
             $submitted_here = $this->wasFieldOnForm( $type, $key, $submitted, $multi_markers );
             if ( ! $submitted_here ) {
+                if ( $mode === self::MODE_CREATE && $req ) {
+                    $errors[] = [
+                        'code'    => 'missing_custom_field',
+                        'message' => sprintf(
+                            /* translators: %s is the custom field label. */
+                            __( 'The field "%s" is required.', 'talenttrack' ),
+                            $label
+                        ),
+                        'details' => [ 'field_key' => $key ],
+                    ];
+                    continue;
+                }
+
                 $skipped[] = $fid;
                 continue;
             }

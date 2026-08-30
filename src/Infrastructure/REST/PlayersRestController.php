@@ -489,7 +489,11 @@ class PlayersRestController {
             if ( $blocked ) return $blocked;
         }
 
-        $validation = self::validateCustomFields( $r );
+        // #3217 — create mode: a required custom field absent from the
+        // payload is missing, not skipped. This is the gate the inline
+        // trial-player create and the new-player wizard both reach, since
+        // #3115 and #3189 routed both through this endpoint.
+        $validation = self::validateCustomFields( $r, CustomFieldValidator::MODE_CREATE );
         if ( ! empty( $validation['errors'] ) ) {
             return RestResponse::errors( $validation['errors'], 422 );
         }
@@ -637,7 +641,13 @@ class PlayersRestController {
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
-    private static function validateCustomFields( \WP_REST_Request $r ): array {
+    /**
+     * #3217 — the mode matters. A create must validate every required
+     * custom field whether or not the payload mentions it; an update only
+     * validates what it was given, so a partial `PUT` cannot be made to
+     * fail by a field it never intended to touch.
+     */
+    private static function validateCustomFields( \WP_REST_Request $r, string $mode = CustomFieldValidator::MODE_UPDATE ): array {
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         if ( empty( $fields ) ) {
             return [ 'errors' => [], 'sanitized' => [] ];
@@ -646,7 +656,7 @@ class PlayersRestController {
         if ( ! is_array( $submitted ) ) {
             $submitted = [];
         }
-        return ( new CustomFieldValidator() )->validate( $fields, $submitted );
+        return ( new CustomFieldValidator() )->validate( $fields, $submitted, [], $mode );
     }
 
     private static function upsertCustomValues( int $player_id, array $sanitized ): void {
