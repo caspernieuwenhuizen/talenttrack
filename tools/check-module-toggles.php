@@ -299,6 +299,36 @@ foreach ( $profiles as $slug => $profile ) {
 }
 
 // ---------------------------------------------------------------
+// 7. Every module-owned dispatcher slug is owned unconditionally (#3254)
+// ---------------------------------------------------------------
+//
+// `TileRegistry::isViewSlugDisabled()` — the gate whose entire job is to
+// catch "this module is off" — resolves ownership from registered tiles
+// plus the explicit `registerSlugOwnership()` map. A disabled module
+// never runs `register()` or `boot()`, so a tile it registers *itself*
+// does not exist in exactly the state the gate was written for: ownership
+// resolves to null, the gate returns false, and the route dispatches
+// normally.
+//
+// So a tile is only proof of ownership when it is registered on the
+// unconditional path — `CoreSurfaceRegistration`, which `Kernel::register()`
+// calls whether or not any given module boots. A tile registered from
+// inside `src/Modules/**` disappears with its module and cannot be the
+// thing that gates it.
+
+$owned_slugs = tt_unconditional_slug_owners( $root );
+$dispatched  = tt_dispatcher_module_slugs( $root, $on_disk );
+
+foreach ( $dispatched as $slug => $module ) {
+    if ( isset( $owned_slugs[ $slug ] ) ) continue;
+    if ( array_key_exists( $slug, $always_on_surfaces ) ) continue;
+
+    $errors[] = "Dispatcher slug `?tt_view={$slug}` renders `{$module}`'s view, but nothing declares that ownership on the unconditional path. "
+        . 'With the module switched off the surface still renders, because the tile that would prove ownership is registered by the module itself and never runs. '
+        . 'Add `TileRegistry::registerSlugOwnership()` for it in CoreSurfaceRegistration, or list it in config/always_on_surfaces.php with the reason.';
+}
+
+// ---------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------
 
@@ -496,6 +526,146 @@ function tt_tile_owner( string $window, array $consts, string $file ): string {
     }
 
     return '';
+}
+
+/**
+ * View slugs whose owning module is knowable even when that module is
+ * switched off (#3254).
+ *
+ * Two sources, both inside `CoreSurfaceRegistration`, which
+ * `Kernel::register()` calls unconditionally:
+ *
+ *   - `TileRegistry::registerSlugOwnership( 'slug', <module> )`, and
+ *   - a tile registered there carrying both `view_slug` and `module_class`.
+ *
+ * Deliberately not a source: a tile registered from `src/Modules/**`. It
+ * is registered inside the module's own `register()` / `boot()`, which
+ * `ModuleRegistry` skips for a disabled module — so the ownership it would
+ * prove is missing precisely when it is needed.
+ *
+ * @return array<string,string> slug => module class
+ */
+function tt_unconditional_slug_owners( string $root ): array {
+    $file = $root . '/src/Shared/CoreSurfaceRegistration.php';
+    if ( ! is_file( $file ) ) return [];
+
+    $src    = (string) file_get_contents( $file );
+    $consts = tt_class_string_consts( $src );
+    $out    = [];
+
+    // Explicit declarations, in the two argument shapes the file uses:
+    // a quoted slug, and a `SomeView::SLUG` constant reference.
+    if ( preg_match_all(
+        "/registerSlugOwnership\(\s*'([a-z0-9_-]+)'\s*,\s*(self::([A-Z_][A-Z0-9_]*)|'((?:[^'\\\\]|\\\\.)*)')/",
+        $src,
+        $m,
+        PREG_SET_ORDER
+    ) ) {
+        foreach ( $m as $set ) {
+            $owner = $set[3] !== '' ? ( $consts[ $set[3] ] ?? '' ) : ltrim( stripcslashes( $set[4] ), '\\' );
+            $out[ $set[1] ] = $owner;
+        }
+    }
+
+    if ( preg_match_all(
+        '/registerSlugOwnership\(\s*\\\\?([A-Za-z_][A-Za-z0-9_\\\\]*)::SLUG\s*,\s*self::([A-Z_][A-Z0-9_]*)/',
+        $src,
+        $m,
+        PREG_SET_ORDER
+    ) ) {
+        foreach ( $m as $set ) {
+            $slug = tt_class_slug_const( $root, ltrim( $set[1], '\\' ) );
+            if ( $slug === '' ) continue;
+            $out[ $slug ] = $consts[ $set[2] ] ?? '';
+        }
+    }
+
+    // Tiles registered on the same unconditional path.
+    $offset = 0;
+    while ( ( $pos = strpos( $src, 'TileRegistry::register', $offset ) ) !== false ) {
+        $offset = $pos + 1;
+
+        $window = substr( $src, $pos, 1600 );
+        foreach ( [ '] );', ']);' ] as $close ) {
+            $end = strpos( $window, $close );
+            if ( $end !== false ) $window = substr( $window, 0, $end );
+        }
+
+        if ( ! preg_match( "/'(?:view_slug|slug)'\s*=>\s*'([a-z0-9_-]+)'/", $window, $m ) ) continue;
+
+        $owner = tt_tile_owner( $window, $consts, $file );
+        if ( $owner === '' ) continue;
+
+        $out[ $m[1] ] = $owner;
+    }
+
+    return $out;
+}
+
+/**
+ * The value of a view class's `SLUG` constant, read from its own file.
+ *
+ * Returns '' when the class or the constant cannot be found, so a
+ * declaration this gate cannot read is simply not counted rather than
+ * reported as a phantom slug.
+ */
+function tt_class_slug_const( string $root, string $class ): string {
+    $path = $root . '/src/' . str_replace( '\\', '/', preg_replace( '/^TT\\\\/', '', $class ) ) . '.php';
+    if ( ! is_file( $path ) ) return '';
+    if ( ! preg_match( "/const\s+SLUG\s*=\s*'([a-z0-9_-]+)'/", (string) file_get_contents( $path ), $m ) ) return '';
+    return $m[1];
+}
+
+/**
+ * Slugs the dashboard dispatcher routes to a module-owned view, with the
+ * module that owns the view class.
+ *
+ * Walks `case '<slug>':` labels and attributes each to the first
+ * `TT\Modules\<X>\Frontend\…` class its body names. Consecutive labels
+ * share the body that follows, which is how several slugs land on one
+ * view. An arm that reaches a `src/Shared/Frontend` view is skipped —
+ * no single module owns those, so nothing should gate them.
+ *
+ * @param list<string> $on_disk module classes, to resolve a view's
+ *                              namespace to its module
+ * @return array<string,string> slug => module class
+ */
+function tt_dispatcher_module_slugs( string $root, array $on_disk ): array {
+    $file = $root . '/src/Shared/Frontend/DashboardShortcode.php';
+    if ( ! is_file( $file ) ) return [];
+
+    $by_namespace = [];
+    foreach ( $on_disk as $class ) {
+        $cut = strrpos( $class, '\\' );
+        if ( $cut === false ) continue;
+        $by_namespace[ substr( $class, 0, $cut ) ] = $class;
+    }
+
+    $out     = [];
+    $pending = [];
+
+    foreach ( explode( "\n", (string) file_get_contents( $file ) ) as $line ) {
+        if ( preg_match( "/^\s*case\s+'([a-z0-9_-]+)'\s*:/", $line, $m ) ) {
+            $pending[] = $m[1];
+            continue;
+        }
+        if ( $pending === [] ) continue;
+
+        if ( preg_match( '/(TT\\\\Modules\\\\[A-Za-z0-9_]+)\\\\Frontend\\\\/', $line, $m ) ) {
+            $owner = $by_namespace[ $m[1] ] ?? '';
+            if ( $owner !== '' ) {
+                foreach ( $pending as $slug ) $out[ $slug ] = $owner;
+            }
+            $pending = [];
+            continue;
+        }
+
+        // `break;` / `return` closes the arm without naming a module view.
+        if ( preg_match( '/^\s*(break;|return\s)/', $line ) ) $pending = [];
+    }
+
+    ksort( $out );
+    return $out;
 }
 
 /**

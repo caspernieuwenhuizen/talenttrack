@@ -33,26 +33,39 @@ final class CoreSurfaceRegistration {
 
     /** Module class shorthands kept here for legibility. */
     private const M_ACTIVITIES    = 'TT\\Modules\\Activities\\ActivitiesModule';
+    private const M_ALERTS        = 'TT\\Modules\\Alerts\\AlertsModule';
+    private const M_ANALYTICS     = 'TT\\Modules\\Analytics\\AnalyticsModule';
     private const M_AUTH          = 'TT\\Modules\\Auth\\AuthModule';
     private const M_AUTHORIZATION = 'TT\\Modules\\Authorization\\AuthorizationModule';
     private const M_CONFIG        = 'TT\\Modules\\Configuration\\ConfigurationModule';
+    private const M_CUSTOM_CSS    = 'TT\\Modules\\CustomCss\\CustomCssModule';
     private const M_DEVELOPMENT   = 'TT\\Modules\\Development\\DevelopmentModule';
+    private const M_EXERCISES     = 'TT\\Modules\\Exercises\\ExercisesModule';
+    private const M_IMPORT        = 'TT\\Modules\\Import\\ImportModule';
     private const M_DOCUMENTATION = 'TT\\Modules\\Documentation\\DocumentationModule';
     private const M_EVALUATIONS   = 'TT\\Modules\\Evaluations\\EvaluationsModule';
     private const M_GOALS         = 'TT\\Modules\\Goals\\GoalsModule';
     private const M_INVITATIONS   = 'TT\\Modules\\Invitations\\InvitationsModule';
     private const M_LICENSE       = 'TT\\Modules\\License\\LicenseModule';
+    private const M_MATCH_ANALYSIS = 'TT\\Modules\\MatchAnalysis\\MatchAnalysisModule';
+    private const M_MATCH_EXEC    = 'TT\\Modules\\MatchExecution\\MatchExecutionModule';
+    private const M_MATCH_PREP    = 'TT\\Modules\\MatchPrep\\MatchPrepModule';
+    private const M_MEASUREMENTS  = 'TT\\Modules\\Measurements\\MeasurementsModule';
     private const M_MFA           = 'TT\\Modules\\Mfa\\MfaModule';
     private const M_METHODOLOGY   = 'TT\\Modules\\Methodology\\MethodologyModule';
     private const M_ONBOARDING    = 'TT\\Modules\\Onboarding\\OnboardingModule';
     private const M_PDP           = 'TT\\Modules\\Pdp\\PdpModule';
     private const M_PEOPLE        = 'TT\\Modules\\People\\PeopleModule';
+    private const M_PERSONA_DASH  = 'TT\\Modules\\PersonaDashboard\\PersonaDashboardModule';
     private const M_PLAYERS       = 'TT\\Modules\\Players\\PlayersModule';
     private const M_REPORTS       = 'TT\\Modules\\Reports\\ReportsModule';
     private const M_SPOND         = 'TT\\Modules\\Spond\\SpondModule';
     private const M_STATS         = 'TT\\Modules\\Stats\\StatsModule';
+    private const M_STRAVA        = 'TT\\Modules\\Strava\\StravaModule';
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
+    private const M_TOURNAMENTS   = 'TT\\Modules\\Tournaments\\TournamentsModule';
+    private const M_TRAINING      = 'TT\\Modules\\Training\\TrainingModule';
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
     private const M_PROSPECTS     = 'TT\\Modules\\Prospects\\ProspectsModule';
     private const M_PLANNING      = 'TT\\Modules\\Planning\\PlanningModule';
@@ -339,13 +352,89 @@ final class CoreSurfaceRegistration {
         // #0006 — team-planning calendar.
         TileRegistry::registerSlugOwnership( 'team-planner', self::M_PLANNING );
         // #0083 Child 3 — dimension explorer (Analytics module).
-        TileRegistry::registerSlugOwnership( 'explore', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        TileRegistry::registerSlugOwnership( 'explore', self::M_ANALYTICS );
         // #0083 Child 5 — central analytics surface (Analytics module).
-        TileRegistry::registerSlugOwnership( 'analytics', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        TileRegistry::registerSlugOwnership( 'analytics', self::M_ANALYTICS );
         // #0083 Child 6 — scheduled reports management (Analytics module).
-        TileRegistry::registerSlugOwnership( 'scheduled-reports', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        TileRegistry::registerSlugOwnership( 'scheduled-reports', self::M_ANALYTICS );
         // #1380 — evaluation-window coverage report (Analytics module).
-        TileRegistry::registerSlugOwnership( 'eval-coverage', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        TileRegistry::registerSlugOwnership( 'eval-coverage', self::M_ANALYTICS );
+
+        // #3254 — the surfaces whose only claim to a module was a tile the
+        // module registers itself. `ModuleRegistry` skips a disabled
+        // module's `register()` and `boot()`, so that tile does not exist
+        // in the one state `isViewSlugDisabled()` was written to catch:
+        // ownership resolved to null, the gate returned false, and the
+        // route dispatched as if the module were on. Declaring ownership
+        // here — on the path `Kernel::register()` runs unconditionally —
+        // is what makes "this module is off" answerable.
+        //
+        // Reported against Training. Training was not special; it was the
+        // one somebody noticed.
+        TileRegistry::registerSlugOwnership( 'training-plans',    self::M_TRAINING );
+        TileRegistry::registerSlugOwnership( 'training-plan',     self::M_TRAINING );
+        TileRegistry::registerSlugOwnership( 'training-run',      self::M_TRAINING );
+        TileRegistry::registerSlugOwnership( 'training-photo',    self::M_TRAINING );
+        TileRegistry::registerSlugOwnership( 'training-coverage', self::M_TRAINING );
+
+        TileRegistry::registerSlugOwnership( 'attendance-grid', self::M_ACTIVITIES );
+        TileRegistry::registerSlugOwnership( 'minutes-grid',    self::M_ACTIVITIES );
+        TileRegistry::registerSlugOwnership( 'ratings-grid',    self::M_ACTIVITIES );
+
+        TileRegistry::registerSlugOwnership( 'alerts', self::M_ALERTS );
+
+        TileRegistry::registerSlugOwnership( 'attendance-leaderboard',   self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'attendance-report-player', self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'attendance-report-team',   self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'minutes-report-team',      self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'minutes-audit',            self::M_ANALYTICS );
+
+        TileRegistry::registerSlugOwnership( 'custom-css', self::M_CUSTOM_CSS );
+
+        TileRegistry::registerSlugOwnership( 'ideas-refine', self::M_DEVELOPMENT );
+
+        TileRegistry::registerSlugOwnership( 'exercises',        self::M_EXERCISES );
+        TileRegistry::registerSlugOwnership( 'exercises-import', self::M_EXERCISES );
+
+        TileRegistry::registerSlugOwnership( 'import-history', self::M_IMPORT );
+
+        TileRegistry::registerSlugOwnership( 'injuries', self::M_JOURNEY );
+
+        TileRegistry::registerSlugOwnership( 'course', self::M_KNOWLEDGE );
+        TileRegistry::registerSlugOwnership( 'lesson', self::M_KNOWLEDGE );
+
+        TileRegistry::registerSlugOwnership( 'match-analysis',   self::M_MATCH_ANALYSIS );
+        TileRegistry::registerSlugOwnership( 'match-execution',  self::M_MATCH_EXEC );
+        TileRegistry::registerSlugOwnership( 'match-executions', self::M_MATCH_EXEC );
+        TileRegistry::registerSlugOwnership( 'match-prep',       self::M_MATCH_PREP );
+
+        TileRegistry::registerSlugOwnership( 'measurements',          self::M_MEASUREMENTS );
+        TileRegistry::registerSlugOwnership( 'measurement-tests',     self::M_MEASUREMENTS );
+        TileRegistry::registerSlugOwnership( 'measurements-entry',    self::M_MEASUREMENTS );
+        TileRegistry::registerSlugOwnership( 'measurements-coverage', self::M_MEASUREMENTS );
+
+        TileRegistry::registerSlugOwnership( 'persona-templates', self::M_PERSONA_DASH );
+
+        TileRegistry::registerSlugOwnership( 'player-accounts',            self::M_PLAYERS );
+        TileRegistry::registerSlugOwnership( 'parent-accounts',            self::M_PLAYERS );
+        TileRegistry::registerSlugOwnership( 'player-status-methodology',  self::M_PLAYERS );
+
+        TileRegistry::registerSlugOwnership( 'prospects-overview', self::M_PROSPECTS );
+        TileRegistry::registerSlugOwnership( 'prospect-edit',      self::M_PROSPECTS );
+
+        TileRegistry::registerSlugOwnership( 'strava',       self::M_STRAVA );
+        TileRegistry::registerSlugOwnership( 'strava-admin', self::M_STRAVA );
+
+        TileRegistry::registerSlugOwnership( 'chemistry-config',      self::M_TEAMDEV );
+        TileRegistry::registerSlugOwnership( 'player-attributes',     self::M_TEAMDEV );
+        TileRegistry::registerSlugOwnership( 'team-blueprint-share',  self::M_TEAMDEV );
+
+        TileRegistry::registerSlugOwnership( 'tournament-match', self::M_TOURNAMENTS );
+
+        TileRegistry::registerSlugOwnership( 'vct-config',  self::M_VCT );
+        TileRegistry::registerSlugOwnership( 'vct-library', self::M_VCT );
+        TileRegistry::registerSlugOwnership( 'vct-session', self::M_VCT );
+
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).

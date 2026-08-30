@@ -73,11 +73,52 @@ final class CrossViewLinkRegistry {
      * @param array<string,mixed> $ctx
      */
     public static function allows( string $slug, int $userId, array $ctx = [] ): bool {
+        if ( self::surfaceSwitchedOff( $slug ) ) return false;
+
         if ( isset( self::$gates[ $slug ] ) ) {
             if ( $userId <= 0 ) return false;
             return self::evaluate( self::$gates[ $slug ], $userId, $ctx );
         }
         return self::fallbackAllows( $slug, $userId );
+    }
+
+    /**
+     * Does this surface exist on this install at all? (#3254)
+     *
+     * A different question from the gate below it, and asked first. The
+     * gate answers "may this user do it?"; this answers "is there anything
+     * here to do?" — and an academy that has switched a module off should
+     * not be offered its surfaces no matter who is looking.
+     *
+     * That distinction is why this cannot live in the cap layer.
+     * `LegacyCapMapper` lets a WP `administrator` pass every `tt_*` cap
+     * unconditionally, which is the deliberate emergency override for the
+     * human running the install — so a cap-based check hid the affordance
+     * from a coach and left it in place for the operator, who is exactly
+     * the person most likely to have just switched the module off.
+     *
+     * The same pair the dispatcher consults before routing
+     * (`DashboardShortcode::dispatch()`), so nav and dispatch answer
+     * identically — the drift #2570 closed for capabilities, closed for
+     * module and feature state. It sits alongside `allows()` rather than
+     * inside `evaluate()`, and `CrossViewLink::allows()` asks it before
+     * taking the `$opts['gate']` override branch, so a caller passing its
+     * own gate cannot skip it either.
+     */
+    public static function surfaceSwitchedOff( string $slug ): bool {
+        if ( $slug === '' ) return false;
+
+        if ( class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' )
+            && \TT\Shared\Tiles\TileRegistry::isViewSlugDisabled( $slug ) ) {
+            return true;
+        }
+
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' )
+            && \TT\Core\FeatureRegistry::viewSlugDisabled( $slug ) ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
