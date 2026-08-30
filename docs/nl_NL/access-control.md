@@ -131,6 +131,42 @@ Gebruiksgevallen:
 - Externe beoordelaar of auditor
 - Ouder-liaison met bredere zichtrechten dan gewone ouders
 
+### Precies wat een waarnemer ziet
+
+"Alle onderdelen" hierboven is de korte versie. Dit is de lijst, en het is de moeite waard die te lezen vóórdat je de rol aan iemand van buiten de academie geeft — een bestuurslid, een sponsor, een externe auditor. Een waarnemer leest, academiebreed:
+
+| Wat ze mogen lezen | Wat niet |
+| --- | --- |
+| **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
+| **Spelers** — het dossier en profiel van elke speler | Een speler toevoegen, bewerken of verwijderen |
+| **Personen** — de stafgids | Een stafdossier bewerken |
+| **Evaluaties** — de beoordelingen die trainers vastleggen | Een evaluatie schrijven of delen |
+| **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
+| **Doelen** — de ontwikkeldoelen van spelers | Een doel stellen of afsluiten |
+| **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
+| **Instellingen** — de configuratieschermen, alleen-lezen | Een instelling wijzigen |
+
+**En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen gedragsbeoordelingen, geen potentieelinschaling, geen contactgegevens van ouders, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd Ontwikkeling en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
+
+Die grens is precies waar de rol om draait. "Alleen-lezen" klinkt onschuldig, en een stoel die de zorgnotities van een kind kon lezen zou dat niet zijn, hoe weinig die ook kan wijzigen.
+
+## Staf
+
+De rol Staf is de stoel voor de fysio, de materiaalman en algemene clubstaf. Ze is afgebakend tot **de elftallen waaraan die persoon verbonden is**, niet tot de academie:
+
+| Wat ze mogen lezen en bewerken, voor hun eigen teams | Wat niet |
+| --- | --- |
+| **Spelers** van die teams | Bij een elftal komen waaraan ze niet verbonden zijn |
+| **Personen** van die teams | Een speler aanmaken of verwijderen |
+| **Spelersnotities** — het staf-only logboek in het spelersdossier | Een seizoensovergang draaien of spelersaccounts aanmaken |
+| Hun eigen stafdossier, altijd | Configuratie wijzigen |
+
+Teamgegevens zijn voor staf alleen-lezen; bewerken kan bij spelers, personen en spelersnotities.
+
+**Staf krijgt het spelersbeheer niet.** Het recht achter "spelers beheren" draagt namelijk ook de seizoensovergang, het aanmaken van inloggegevens voor spelers, het bewerken van maatwerkvelddefinities en het verwijderen van spelersdossiers — een academiebreed beheerdersoppervlak, geen elftaloppervlak. Heeft een fysio een nieuwe speler nodig, dan vraagt die dat aan een trainer of beheerder.
+
+Een stafmedewerker zonder elftal ziet niets. Dat is bewust: het koppelen aan hun teams is de handeling die de toegang geeft, en die is zichtbaar in de staflijst van het team.
+
 ## Functionele rollen
 
 Functionele rollen zijn clubrollen uit de praktijk (Hoofdcoach, Assistent-coach, Fysio) die automatisch WordPress-rollen kunnen toekennen. Stel koppelingen in via **Toegangsbeheer → Functionele rollen**.

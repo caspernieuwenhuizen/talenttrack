@@ -422,6 +422,40 @@ installaties op (idempotente `INSERT IGNORE`, alleen de
 `player` / `strava_integration`-tuples). Gedrag van trainer en beheerder
 blijft ongewijzigd.
 
+## Twee rollen die geen persona-rijen bereikten (#3177)
+
+`readonly_observer` en `tt_staff` kwamen allebei uit op iets waar de matrix geen antwoord op had, op twee net iets verschillende manieren. Beide zijn nu geseed.
+
+**Alleen-lezen Waarnemer** had wel een personasleutel in `PersonaResolver` maar geen rijen in de seed. De Sprint 1-notitie legde die omissie vast als bewust — elke scopevraag was toen nog een rechtencontrole — en dat klopte niet meer zodra schermen op matrixscope overgingen. Alles wat om een **globale** grant vroeg kreeg nee, dus de rol versmalde tot de teams waaraan die is toegewezen, en dat zijn er geen: een lege `GET /teams`, lege keuzelijsten, geen academiebrede rapportages.
+
+**`tt_staff`** is het scherpere geval: die had helemaal geen personakoppeling, dus `personasFor()` gaf `[]` terug en `MatrixGate` sloeg af vóór de matrix. Omdat `AuthorizationModule::filterUserHasCap()` `$allcaps[$cap]` *toewijst* in plaats van samenvoegt, werden op een installatie met `tt_authorization_active` de eigen rechten van de rol **overschreven met false** — geweigerd, niet versmald. Geen seed kon dat alleen oplossen; de persona moest bestaan.
+
+### Wat elk heeft gekregen
+
+`readonly_observer` — lezen op **globale** scope, en nergens een schrijfwerkwoord:
+
+`team`, `players`, `people`, `evaluations`, `activities`, `goals`, `reports`, `settings`.
+
+Die acht zijn precies waar `RolesService::VIEW_CAPS` via `LegacyCapMapper` op uitkomt, dus de seed is toegangsbehoudend: hij geeft de matrix exact wat de rechtenbrug al geeft.
+
+Een eerste voorstel was globale leestoegang op **alle 138 entiteiten**, geredeneerd vanuit de docstring `"view EVERYTHING, edit NOTHING"` van de rol. Dat draaide de verhouding om — die docstring beschrijft `allViewCapsTrue()`, en dat zijn deze acht rechten, niet de matrix. De brede variant zou een bestuurslid of sponsor de derde persona hebben gemaakt die `safeguarding_notes` over minderjarigen kan lezen, naast `player_injuries`, `player_notes`, `parent_accounts`, `media`, `audit_log` en `impersonation_log`. 52 van de 138 entiteiten liggen vandaag alleen bij Hoofd Ontwikkeling en Academie-admin, en nog eens 17 bestaan alleen op `self`- of `player`-scope, waar een globale rij betekenisloos is.
+
+`staff` — lezen/wijzigen op **team**scope, gelijk aan `team_manager`, waar de #0085-notitie deze rol bij groepeert:
+
+| Entiteit | Werkwoorden | Scope |
+| --- | --- | --- |
+| `team` | lezen | team |
+| `players` | lezen, wijzigen | team |
+| `people` | lezen, wijzigen | team |
+| `player_notes` | lezen, wijzigen | team |
+| `my_person` | lezen, wijzigen | self |
+
+`my_person` is de enige rij die niet uit een rechtenkoppeling volgt — het zelfbedieningsdeel van `people:change`, zodat een fysio zijn eigen dossier kan bijhouden voordat die aan een elftal is gekoppeld. Strikt smaller dan de `people`-grant hierboven.
+
+**`players:create_delete` wordt bewust niet gegeven.** De rol houdt `tt_manage_players` als kaal WP-recht, maar dat recht is in deze codebase geen "selectie beheren": het dekt de seizoensovergang, het aanmaken van spelersaccounts, maatwerkvelddefinities en het verwijderen van spelers, en `BehaviourPendingSource` gebruikt het als markering voor "ziet elke speler in de academie" voor — in het eigen commentaar — HoD's en beheerders. Dat seeden zou een materiaalman het beheerdersoppervlak geven. Niet seeden verandert niets aan het huidige gedrag: op een matrix-actieve installatie heeft de rol nu niets, en op een matrix-inactieve wordt de seed niet geraadpleegd. Of het kale recht op de roldefinitie moet blijven staan is een aparte vraag, want dát weghalen zou matrix-inactieve installaties wél veranderen.
+
+Migratie `0249_authorization_seed_topup_observer_and_staff` vult beide persona's aan op bestaande installaties — idempotente `INSERT IGNORE`, alleen deze twee persona's, en weigert voor de waarnemer een andere activiteit dan `read` weg te schrijven, ook als de seed er later een zou krijgen. Voor geen enkele andere persona verandert het antwoord.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.

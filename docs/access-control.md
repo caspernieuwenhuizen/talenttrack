@@ -135,6 +135,42 @@ Use cases:
 - External reviewer or auditor
 - Parent-liaison with broader viewing rights than regular parents
 
+### Exactly what an observer can see
+
+"All areas" above is the shorthand. This is the list, and it is worth reading before handing the role to somebody outside the academy — a board member, a sponsor, an external auditor. An observer reads, academy-wide:
+
+| They can read | They cannot |
+| --- | --- |
+| **Teams** — every squad, its roster and its details | Change anything about a team |
+| **Players** — every player's record and profile | Add, edit or remove a player |
+| **People** — the staff directory | Edit a staff record |
+| **Evaluations** — the assessments coaches record | Write or share an evaluation |
+| **Activities** — the training and match calendar | Plan, edit or cancel anything |
+| **Goals** — the development goals set for players | Set or close a goal |
+| **Reports** — the academy's reporting surfaces | Build or schedule a report |
+| **Settings** — the configuration screens, read-only | Change any setting |
+
+**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, behaviour ratings, potential bands, parents' contact details, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of Development and Academy Admin alone, and several are deliberately withheld even from head coaches.
+
+That boundary is the point of the role. "Read-only" sounds harmless, and a seat that could read a child's safeguarding record would not be, however little it could change.
+
+## Staff
+
+The Staff role is the physio, kit manager and general club-staff seat. It is scoped to **the squads that person is attached to**, not to the academy:
+
+| They can read and edit, for their own teams | They cannot |
+| --- | --- |
+| **Players** on those teams | Reach a squad they are not attached to |
+| **People** records on those teams | Create or delete a player |
+| **Player notes** — the staff-only running log on a player's file | Run a season rollover, or create player accounts |
+| Their own staff record, always | Change configuration |
+
+Team details are read-only for staff; the editable surfaces are players, people and player notes.
+
+**Staff do not get the player-management surface.** The capability behind "manage players" also carries season rollover, creating login accounts for players, editing custom-field definitions, and deleting player records — an academy-wide administrative surface rather than a squad one. A physio who needs a player added should ask a coach or an administrator.
+
+A staff member attached to no squad sees nothing. That is deliberate: attaching them to their teams is the act that grants the access, and it is visible in the team's staff list.
+
 ## Functional roles
 
 Functional roles are club-real roles (Head coach, Assistant coach, Physio) that can auto-grant WordPress roles. Set up mappings in **Access Control → Functional Roles**.
