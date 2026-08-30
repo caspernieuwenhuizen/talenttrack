@@ -33,6 +33,7 @@ De nieuwste regels staan standaard bovenaan. Gebruik de datum- en typefilters om
 
 De meeste regels komen er zonder dat iemand ze invoert. De reis kijkt mee met de rest van het systeem en verandert belangrijke acties in regels:
 
+- Een **spelersrecord wordt aangemaakt**, vanuit welk scherm dan ook → *"Bij de academie gekomen"*, met als datum de vastgelegde instroomdatum en anders de dag waarop het record is aangemaakt. Een speler die via de nieuwe-spelerwizard werd aangemaakt, liet voorheen zo'n regel niet achter: zijn verhaal begon pas bij wat hem daarna overkwam — het duidelijkst op de stageroute, waar *"Stage gestart"* verscheen zonder iets ervoor. Bestaande spelers die zo zijn aangemaakt missen de regel totdat die wordt aangevuld.
 - Een **nieuwe evaluatie** op een speler → *"Evaluatie op 12 maart"*.
 - Een **doel** voor een speler → *"Doel gesteld: zwakke voet trainen"*.
 - Een **POP-eindbeoordeling getekend** → *"POP-eindbeoordeling: doorstroom"*.
