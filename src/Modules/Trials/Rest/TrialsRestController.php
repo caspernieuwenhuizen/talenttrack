@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Reports\AudienceType;
+use TT\Modules\Trials\Letters\TrialLetterService;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
@@ -28,6 +30,8 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
  *   POST /trial-cases/{id}/staff      assign staff
  *   POST /trial-cases/{id}/inputs     upsert own input + optional submit
  *   POST /trial-cases/{id}/inputs/release  manager-only release
+ *   GET  /trial-cases/{id}/letters    letters generated for the case
+ *   POST /trial-cases/{id}/letters    generate one (supersedes the active)
  *
  *   GET  /trial-tracks                list non-archived tracks (for pickers)
  *
@@ -117,6 +121,28 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'release_inputs' ],
             'permission_callback' => [ __CLASS__, 'can_manage' ],
+        ] );
+
+        // #3223 — the letters had no REST surface at all. `TrialLetterService`
+        // was reachable only from two view files, so §4's smell test failed
+        // outright for this half of the module: delete `src/Shared/Frontend/`
+        // and the trial letter ceases to exist.
+        //
+        // Both verbs are manager-gated, matching the Letter tab, which is
+        // manager-only in `FrontendTrialCaseView::tabSet()`. A letter to a
+        // family about whether the academy wants their child is not something
+        // an assigned coach generates.
+        register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/letters', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_letters' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'generate_letter' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
         ] );
 
         register_rest_route( self::NS, '/trial-tracks', [
@@ -351,6 +377,88 @@ class TrialsRestController {
             $inputs->submit( $id, get_current_user_id() );
         }
         return RestResponse::success( [ 'saved' => true ] );
+    }
+
+    /**
+     * #3223 — the letters generated for a case, newest first.
+     *
+     * Body text is deliberately not returned. A letter is rendered HTML
+     * about a child, and a list endpoint is for answering "what has been
+     * sent" — the document itself is fetched through the reports surface
+     * that already owns delivery and revocation.
+     */
+    public static function list_letters( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( ! ( new TrialCasesRepository() )->find( $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        }
+
+        $out = [];
+        foreach ( ( new TrialLetterService() )->listForCase( $id ) as $row ) {
+            $out[] = [
+                'id'           => (int) ( $row->id ?? 0 ),
+                'audience'     => (string) ( $row->audience ?? '' ),
+                'created_at'   => (string) ( $row->created_at ?? '' ),
+                'revoked_at'   => (string) ( $row->revoked_at ?? '' ),
+                'generated_by' => (int) ( $row->generated_by ?? 0 ),
+                'is_active'    => empty( $row->revoked_at ),
+            ];
+        }
+
+        return RestResponse::success( [ 'case_id' => $id, 'letters' => $out ] );
+    }
+
+    /**
+     * Generate a letter for a case.
+     *
+     * Generating supersedes: `TrialLetterService::generate()` revokes the
+     * prior active letter, so a case has one letter that counts and a
+     * history of what it replaced. That is deliberate — two live letters
+     * saying different things to the same family is the failure mode.
+     */
+    public static function generate_letter( \WP_REST_Request $r ): \WP_REST_Response {
+        $id   = absint( $r['id'] );
+        $case = ( new TrialCasesRepository() )->find( $id );
+        if ( ! $case ) {
+            return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        }
+
+        $payload  = (array) $r->get_json_params();
+        $audience = isset( $payload['audience'] ) ? sanitize_key( (string) $payload['audience'] ) : '';
+
+        if ( ! AudienceType::isTrialLetter( $audience ) ) {
+            return RestResponse::error(
+                'bad_audience',
+                __( 'A valid trial-letter audience is required.', 'talenttrack' ),
+                400,
+                [ 'allowed' => AudienceType::trialLetters() ]
+            );
+        }
+
+        $strengths = isset( $payload['strengths_summary'] )
+            ? sanitize_textarea_field( (string) $payload['strengths_summary'] )
+            : null;
+        $growth = isset( $payload['growth_areas'] )
+            ? sanitize_textarea_field( (string) $payload['growth_areas'] )
+            : null;
+
+        $letter_id = ( new TrialLetterService() )->generate(
+            $case,
+            $audience,
+            get_current_user_id(),
+            $strengths,
+            $growth
+        );
+
+        if ( $letter_id <= 0 ) {
+            return RestResponse::error( 'generate_failed', __( 'The letter could not be generated.', 'talenttrack' ), 500 );
+        }
+
+        return RestResponse::success( [
+            'id'       => $letter_id,
+            'case_id'  => $id,
+            'audience' => $audience,
+        ] );
     }
 
     public static function release_inputs( \WP_REST_Request $r ): \WP_REST_Response {
