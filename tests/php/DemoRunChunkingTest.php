@@ -161,10 +161,12 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
             array_keys( $single['counts'] ),
             array_keys( $chunked['counts'] )
         );
-        foreach ( $single['counts'] as $category => $count ) {
-            $this->assertSame( (int) $count, (int) $chunked['counts'][ $category ],
-                "category {$category} differed between a single pass and a stepped run" );
-        }
+        $this->assertSameShape(
+            $single['counts'],
+            $chunked['counts'],
+            (string) $single['batch_id'],
+            'a single pass and a stepped run'
+        );
     }
 
     /**
@@ -196,13 +198,53 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
 
         $this->assertNotSame( $first['batch_id'], $second['batch_id'], 'two runs, two batches' );
 
-        foreach ( $first['counts'] as $category => $count ) {
+        $this->assertSameShape(
+            $first['counts'],
+            $second['counts'],
+            (string) $first['batch_id'],
+            'a first and a second run into one install'
+        );
+    }
+
+    /**
+     * Two runs write the same per-category counts, with one stated
+     * exception.
+     *
+     * `PlayerProfileGenerator` creates the club's three player custom-field
+     * *definitions* on the run that finds none and reuses them afterwards —
+     * a definition is club configuration, not per-batch data, and inventing
+     * three more identical ones on every run would be the bug. So the later
+     * run's `player_profile` count is legitimately lower by exactly the
+     * number of definitions the earlier run had to create.
+     *
+     * Read from `tt_demo_tags` rather than written as `3`, so the day a
+     * fourth field is added the test keeps telling the truth.
+     *
+     * @param array<string, int|string> $earlier
+     * @param array<string, int|string> $later
+     */
+    private function assertSameShape( array $earlier, array $later, string $earlier_batch, string $what ): void {
+        $definitions = $this->tagCount( $earlier_batch, 'custom_field' );
+
+        foreach ( $earlier as $category => $count ) {
+            $allowance = $category === 'player_profile' ? $definitions : 0;
+
             $this->assertSame(
-                (int) $count,
-                (int) ( $second['counts'][ $category ] ?? -1 ),
-                "category {$category} shrank on a second run into the same install"
+                (int) $count - $allowance,
+                (int) ( $later[ $category ] ?? -1 ),
+                "category {$category} differed between {$what}"
             );
         }
+    }
+
+    private function tagCount( string $batch_id, string $entity_type ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_demo_tags
+              WHERE batch_id = %s AND entity_type = %s",
+            $batch_id,
+            $entity_type
+        ) );
     }
 
     public function test_a_finished_run_leaves_no_state_for_the_page_to_offer_resuming(): void {

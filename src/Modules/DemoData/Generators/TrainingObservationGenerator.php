@@ -151,7 +151,7 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
      * Ordered by `run_date` then id so the ordinal the choices key off is
      * stable across runs — ids are not.
      *
-     * @return list<object>
+     * @return list<\stdClass>
      */
     private function batchRuns(): array {
         global $wpdb;
@@ -174,7 +174,11 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
             ...array_merge( $ids, [ CurrentClub::id() ] )
         ) );
 
-        return is_array( $rows ) ? array_values( $rows ) : [];
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            if ( $row instanceof \stdClass ) $out[] = $row;
+        }
+        return $out;
     }
 
     /**

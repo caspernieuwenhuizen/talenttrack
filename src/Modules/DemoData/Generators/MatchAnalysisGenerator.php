@@ -330,7 +330,7 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
      * `id` keeps the sequence stable for the ordinal-based choices above —
      * ids differ between runs, positions do not.
      *
-     * @return list<object>
+     * @return list<\stdClass>
      */
     private function batchMatches(): array {
         global $wpdb;
@@ -356,7 +356,11 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
             ...array_merge( $ids, [ CurrentClub::id(), current_time( 'Y-m-d' ) ] )
         ) );
 
-        return is_array( $rows ) ? array_values( $rows ) : [];
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            if ( $row instanceof \stdClass ) $out[] = $row;
+        }
+        return $out;
     }
 
     /**
