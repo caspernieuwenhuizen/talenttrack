@@ -20,6 +20,7 @@ use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
 use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Definitions\NoMeasurementThisSeasonAlert;
+use TT\Modules\Alerts\Definitions\PotentialStaleAlert;
 use TT\Modules\Alerts\Definitions\PlayerNotEvaluatedAlert;
 use TT\Modules\Alerts\Definitions\PlayerTurns18Alert;
 use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
@@ -131,6 +132,11 @@ final class AlertsModule implements ModuleInterface {
 
         // #2636 instalment 4 — Measurements.
         $alerts[] = new NoMeasurementThisSeasonAlert();
+
+        // #3225 — potential goes stale silently. The band still feeds the
+        // player's status, their team-chemistry score and their PDP long
+        // after anybody last looked at it, and no screen says it is old.
+        $alerts[] = new PotentialStaleAlert();
 
         // #2636 instalment 5 — data quality.
         $alerts[] = new PlayerWithoutTeamAlert();

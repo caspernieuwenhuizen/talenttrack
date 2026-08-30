@@ -59002,6 +59002,33 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:76
+msgid "Potential not revisited"
+msgstr "Potentieel niet herzien"
+
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:80
+msgid ""
+"A player's potential has not been revisited for two quarters. It still "
+"feeds their status, their team-chemistry score and their development plan, "
+"so an out-of-date band quietly shapes decisions nobody is re-examining."
+msgstr ""
+"Het potentieel van een speler is al twee kwartalen niet herzien. Het telt "
+"nog steeds mee in de status, in de teamchemie en in het ontwikkelingsplan, "
+"dus een verouderde inschatting stuurt stilletjes beslissingen die niemand "
+"opnieuw bekijkt."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:110
+#, php-format
+msgid "%s has no potential recorded yet."
+msgstr "Voor %s is nog geen potentieel vastgelegd."
+
+#. translators: 1: player name, 2: number of months
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:118
+#, php-format
+msgid "%1$s's potential has not been revisited in %2$d months."
+msgstr "Het potentieel van %1$s is al %2$d maanden niet herzien."
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 
