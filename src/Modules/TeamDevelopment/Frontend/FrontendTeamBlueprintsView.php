@@ -215,6 +215,10 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
+        // #3150 — the roster payload is published here, once the viewer's
+        // access to *this* blueprint has been settled, and never before.
+        self::localiseBlueprintEditor( $blueprint_id );
+
         // #1922 — manage authority via the team_chemistry matrix.
         $can_manage = TeamChemistryAccess::canManage( $user_id );
         $is_locked  = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
@@ -766,6 +770,16 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $team = QueryHelpers::get_team( (int) $bp['team_id'] );
 
         self::enqueueAssets();
+        // #3150 — sheet and script only, no payload. This page is
+        // reachable without authentication and is rendered entirely
+        // server-side: the pitch, the chemistry headline and the lineup
+        // table are PHP, and the script wires nothing that exists here.
+        // The localiser used to run from inside the enqueue helper on
+        // its own `absint( $_GET['id'] )` — on this route that argument
+        // is a uuid string, so it resolved to whichever numeric
+        // blueprint the leading digits named and published that team's
+        // roster, with ages, to an anonymous visitor. There is no
+        // authorised id to localise here, so nothing is localised.
         self::enqueueBlueprintAssets();
 
         echo '<div class="tt-bp-shared-wrap">';
@@ -1121,6 +1135,14 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         return $rows;
     }
 
+    /**
+     * Stylesheet + script only. Deliberately carries no data: the
+     * picker, the team list, the editor and the public share page all
+     * need the sheet, but only two of them may see a roster. The
+     * payload is published separately by `localiseBlueprintEditor()`,
+     * which its callers may only reach once the viewer's access to
+     * that specific blueprint has been established.
+     */
     private static function enqueueBlueprintAssets(): void {
         // Single editor stylesheet (mobile-first). The legacy
         // `frontend-team-blueprint.css` + `frontend-team-blueprint.js`
@@ -1139,7 +1161,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             TT_VERSION,
             true
         );
-        self::localiseBlueprintEditor();
     }
 
     /**
@@ -1159,9 +1180,15 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      *     already).
      *   - i18n strings for the picker, search box, add-form labels and
      *     error toasts.
+     *
+     * #3150 — the blueprint id arrives as an argument. It used to be
+     * re-read from `$_GET['id']` here, one enqueue helper and eleven
+     * hundred lines away from the ownership check in `renderEditor()`,
+     * which meant the roster (names, positions, ages) was published to
+     * the page before that check decided whether the viewer may see
+     * it. Callers pass the id they have already authorised.
      */
-    private static function localiseBlueprintEditor(): void {
-        $blueprint_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+    private static function localiseBlueprintEditor( int $blueprint_id ): void {
         if ( $blueprint_id <= 0 ) return;
 
         $repo = new TeamBlueprintsRepository();
@@ -1402,12 +1429,17 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         if ( ! empty( $player_ids ) ) {
             global $wpdb; $p = $wpdb->prefix;
             $in = implode( ',', array_map( 'intval', array_keys( $player_ids ) ) );
-            $rows = $wpdb->get_results(
+            // #3150 — tenancy clause (CLAUDE.md §4). A stored assignment
+            // ref only ever names a player the author could reach, but
+            // the row is read back by id alone, so scope the read to the
+            // club that is asking.
+            $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT p.id, p.first_name, p.last_name, p.team_id, t.name AS team_name
                    FROM {$p}tt_players p
                    LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
-                  WHERE p.id IN ($in)"
-            );
+                  WHERE p.id IN ($in) AND p.club_id = %d",
+                \TT\Infrastructure\Tenancy\CurrentClub::id()
+            ) );
             foreach ( (array) $rows as $row ) {
                 $meta[ (int) $row->id ] = [
                     'display_name' => trim( (string) $row->first_name . ' ' . (string) $row->last_name ),
