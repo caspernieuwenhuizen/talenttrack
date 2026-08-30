@@ -54,7 +54,12 @@ final class PlayerStatusRestController {
         register_rest_route( self::NS, '/players/(?P<id>\d+)/potential', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'setPotential' ],
-            'permission_callback' => static fn() => current_user_can( 'tt_set_player_potential' ),
+            // #3243 — feature flag AND capability, the pair
+            // `behaviour-ratings` above already asks. A write path left on
+            // the capability alone is how a switched-off feature keeps
+            // accepting data from anything that is not the rendered form.
+            'permission_callback' => static fn() =>
+                \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable(),
         ] );
         // #3226 — the trajectory, not just the current band. `tt_player_potential`
         // has been append-only since migration 0042 and the whole history was

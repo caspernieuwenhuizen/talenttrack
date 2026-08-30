@@ -61,11 +61,19 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             self::renderHeader( __( 'Player not found', 'talenttrack' ) );
             return;
         }
-        // #2574 — behaviour capture is feature-gated; potential is not. The
-        // view stays reachable for potential alone when behaviour is off.
-        if ( ! \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() && ! current_user_can( 'tt_set_player_potential' ) ) {
+        // #2574 / #3243 — both halves are feature-gated now, so the view is
+        // reachable while EITHER is available and refuses only when neither
+        // is. Without this it would render a heading and nothing else for an
+        // academy that switched both off.
+        $behaviour_ok = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
+        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
+        if ( ! $behaviour_ok && ! $potential_ok ) {
             self::renderHeader( __( 'Capture behaviour & potential', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to record behaviour or potential ratings.', 'talenttrack' ) . '</p>';
+            // Deliberately one message for two different causes. Telling a
+            // coach which of "your academy does not do this" and "you may
+            // not do this" applies would leak the club's configuration to
+            // somebody who cannot act on either.
+            echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
             return;
         }
 
@@ -98,7 +106,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     ] );
                     $flash = __( 'Behaviour rating saved.', 'talenttrack' );
                 }
-            } elseif ( $kind === 'potential' && current_user_can( 'tt_set_player_potential' ) ) {
+            } elseif ( $kind === 'potential' && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) {
                 $band  = isset( $_POST['potential_band'] ) ? sanitize_key( (string) $_POST['potential_band'] ) : '';
                 $notes = isset( $_POST['notes'] )          ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
                 $valid = PotentialBand::ALL;
@@ -239,7 +247,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         // Potential column
-        if ( current_user_can( 'tt_set_player_potential' ) ) :
+        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) :
             ?>
             <section class="tt-psc-card">
                 <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>

@@ -57,7 +57,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      */
     private static function enqueueHeroPopovers( int $player_id, ?object $player ): void {
         $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
-        $can_set_potential = current_user_can( 'tt_set_player_potential' );
+        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
         if ( ! $can_log_behaviour && ! $can_set_potential ) return;
 
         wp_enqueue_style(
@@ -599,7 +599,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     private static function renderActionRow( object $player, string $players_url ): void {
         $player_id         = (int) $player->id;
         $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
-        $can_set_potential = current_user_can( 'tt_set_player_potential' );
+        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
         $can_edit          = current_user_can( 'tt_edit_players' );
 
         // Render the row even when empty so the surface keeps its

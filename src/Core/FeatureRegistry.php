@@ -89,6 +89,34 @@ class FeatureRegistry {
                 // explicitly instead.
                 'entities'        => [],
             ],
+            // #3243 — the counterpart `behaviour_rating` was missing. Its
+            // entry explains why `player-status-capture` is not gated by
+            // slug (the view serves both halves), and then left potential
+            // with no switch at all — so an academy that does not work in
+            // potential bands was shown a "Set potential" affordance on
+            // every player, permanently, with no way to stop it short of
+            // removing the matrix grant and losing the read with it.
+            //
+            // Reading is deliberately NOT gated. An academy switching off
+            // maintenance still wants the band and the trajectory (#3226)
+            // it already recorded; off means "stop asking", not "hide the
+            // history".
+            'potential_rating' => [
+                'label'           => __( 'Potential rating', 'talenttrack' ),
+                'description'     => __( 'Recording a potential band for players: the profile affordance and the potential half of the capture screen. Turn off for academies that do not work this way. Existing bands stay readable, and the reminder to revisit them stops.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayerStatusModule',
+                'default_enabled' => true,
+                // Empty for the same reason `behaviour_rating` lists only
+                // its behaviour-only route: `player-status-capture` serves
+                // both halves, so gating the slug would take the other one
+                // down. The view gates its potential half internally.
+                'view_slugs'      => [],
+                // No matrix entity. `player_potential` is the entity the
+                // capability model already governs, and the catalog
+                // contract forbids naming an entity a sibling surface also
+                // uses. The REST callback gates explicitly instead.
+                'entities'        => [],
+            ],
             'player_journey' => [
                 'label'           => __( 'Player tile: My journey', 'talenttrack' ),
                 'description'     => __( 'The player\'s journey timeline tile and view. Turn off to hide it from players in this academy.', 'talenttrack' ),

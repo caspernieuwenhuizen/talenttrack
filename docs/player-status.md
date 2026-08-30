@@ -71,6 +71,21 @@ Two downward revisions in a season is the case this exists for. It is a strong d
 
 `GET /players/{id}/potential` returns the same series for an integration, with the current band alongside it.
 
+## Turning behaviour or potential off
+
+Not every academy works this way, and neither has to be used. There are **three** switches, and they answer three different questions — an academy that wants to stop entirely usually wants all three.
+
+| Question | Where | What it does |
+| --- | --- | --- |
+| Do we record this at all? | **Modules & features** → *Behaviour rating* / *Potential rating* | Stops new capture and hides the entry points — the profile affordance, the relevant half of the capture screen, and (for behaviour) the evaluation wizard step and the team bulk grid. |
+| Does it count toward the traffic light? | **Player-status methodology** → the *enabled* box on that input | Drops the input from the calculation. The remaining inputs are re-weighted so the status is not dragged down by a missing one. |
+| Do we get reminded about it? | **Alert policy** → *Potential not revisited* → *force off* | Silences the reminder for the whole club. |
+
+Two things worth knowing before you flip anything:
+
+- **Existing records are always kept.** Switching capture off does not delete or hide anything: the band on a profile, the potential trajectory and every behaviour rating stay readable exactly as they were, and reappear in the forms if you switch it back on. Off means *stop asking us for this*, not *hide what we already decided*.
+- **Switching off capture also silences the potential reminder**, so you do not have to find the alert screen as well. It does **not** remove the input from the traffic light — that is a separate decision, because an academy might stop recording new bands while still wanting the last one to count.
+
 ## Capabilities
 
 - `tt_view_player_status` — see the colour. Granted to every role that can view players.

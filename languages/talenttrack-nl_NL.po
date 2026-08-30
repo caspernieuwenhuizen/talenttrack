@@ -59178,6 +59178,26 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Core/FeatureRegistry.php:96
+msgid "Potential rating"
+msgstr "Potentieelbeoordeling"
+
+#: src/Core/FeatureRegistry.php:97
+msgid ""
+"Recording a potential band for players: the profile affordance and the "
+"potential half of the capture screen. Turn off for academies that do not "
+"work this way. Existing bands stay readable, and the reminder to revisit "
+"them stops."
+msgstr ""
+"Het vastleggen van een potentieelband bij spelers: de knop op het profiel en "
+"de potentieelhelft van het invoerscherm. Zet dit uit voor academies die zo "
+"niet werken. Bestaande bands blijven leesbaar, en de herinnering om ze te "
+"herzien stopt."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:75
+msgid "Behaviour and potential ratings are not being recorded here."
+msgstr "Gedrags- en potentieelbeoordelingen worden hier niet vastgelegd."
+
 #~ msgid "First-team"
 #~ msgstr "Eerste elftal"
 

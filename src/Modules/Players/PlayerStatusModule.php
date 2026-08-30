@@ -47,6 +47,31 @@ final class PlayerStatusModule implements ModuleInterface {
             : user_can( $user_id, 'tt_rate_player_behaviour' );
     }
 
+    /**
+     * May potential be recorded here, by this user? (#3243)
+     *
+     * The twin of {@see self::behaviourCaptureAvailable()}, and the same
+     * two independent questions: `potential_rating` answers "does this
+     * academy work in potential bands at all?", `tt_set_player_potential`
+     * answers "may this user set one?". Neither substitutes for the other.
+     *
+     * Read-side surfaces deliberately do NOT consult this — the current
+     * band on a profile and the trajectory behind it (#3226) keep
+     * rendering with the feature off. Switching it off means "stop asking
+     * us for this", not "hide what we already decided". An academy that
+     * stops maintaining potential still wants to see the bands it set last
+     * season.
+     *
+     * @param int|null $user_id Defaults to the current user.
+     */
+    public static function potentialCaptureAvailable( ?int $user_id = null ): bool {
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'potential_rating' ) ) return false;
+
+        return $user_id === null
+            ? current_user_can( 'tt_set_player_potential' )
+            : user_can( $user_id, 'tt_set_player_potential' );
+    }
+
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
