@@ -83,7 +83,9 @@ Iedereen ziet alleen zijn eigen inbox. Een ouder ziet berichten over het eigen k
 
 Berichten vallen in drie groepen.
 
-**Gebeurtenisgestuurd** — ze gaan af op het moment dat er iets gebeurt. Een training wordt afgelast; een ontwikkelingsplan wordt ondertekend; een uitnodiging gaat de deur uit; een trainer stuurt een direct bericht; een scoutrapport wordt bezorgd; een herinnering voor proefinvoer gaat uit; een geplande rapportage wordt bezorgd.
+**Gebeurtenisgestuurd** — ze gaan af op het moment dat er iets gebeurt. Een training wordt afgelast; een ontwikkelingsplan wordt ondertekend; er wordt een proefperiode voor een speler geopend; een uitnodiging gaat de deur uit; een trainer stuurt een direct bericht; een scoutrapport wordt bezorgd; een herinnering voor proefinvoer gaat uit; een geplande rapportage wordt bezorgd.
+
+Het welkomstbericht voor een proefperiode verdient één kanttekening, want het belooft minder dan je zou verwachten. Een proefdossier legt de speler, het traject en de data vast — er is geen locatie en geen lijstje met wat er mee moet — dus het bericht noemt de startdatum en meldt dat een trainer contact opneemt over het tijdstip, de plek en wat er mee moet. Dat is ook wat er in de praktijk gebeurt, en het is beter dan een bericht met twee lege kopjes erin. Het gaat naar de ouders van een jeugdspeler en naar de speler zelf zodra die daar oud genoeg voor is, net als elk ander bericht over een speler.
 
 **Gepland** — een dagelijkse taak zoekt naar een situatie en verstuurt: doelen waar het stil om is geworden, herhaalde afwezigheid, ouders die een maand niet hebben ingelogd, ontwikkelgesprekken van staf die eraan komen.
 
