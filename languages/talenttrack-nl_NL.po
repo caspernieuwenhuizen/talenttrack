@@ -58964,6 +58964,7 @@ msgstr "Setup verlaten"
 #: src/Shared/Frontend/FrontendSetupView.php
 msgid "Continue this step in the admin"
 msgstr "Ga verder in de beheeromgeving"
+
 #~ msgid "Open account page"
 #~ msgstr "Accountpagina openen"
 
