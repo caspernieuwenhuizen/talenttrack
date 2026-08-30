@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T13:31:14+00:00\n"
+"POT-Creation-Date: 2026-08-30T13:51:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -6169,6 +6169,21 @@ msgstr ""
 msgid "Someone"
 msgstr ""
 
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php:113
+msgid "No messages are being sent"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php:117
+msgid ""
+"Every message this academy could send is switched off, and nobody has chosen "
+"otherwise since the install was created. Parents and players are told "
+"nothing — not even that a training was cancelled."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/MessagingNeverConfiguredAlert.php:148
+msgid "This academy is not sending any messages yet."
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
 msgid "Upcoming activity has no coach"
 msgstr ""
@@ -6650,8 +6665,17 @@ msgstr ""
 msgid "Activities and attendance"
 msgstr ""
 
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:234
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:49
+#: src/Shared/Configuration/ConfigurationSurfaces.php:299
+#: src/Shared/Frontend/FrontendConfigurationView.php:61
+#: src/Shared/Frontend/FrontendConfigurationView.php:136
+#: src/Shared/Modules/ModuleMetadata.php:313
+msgid "Messages"
+msgstr ""
+
 #. translators: %s = player name
-#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:232
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:349
 #: src/Modules/Analytics/AnalyticsModule.php:153
 #: src/Modules/Analytics/AnalyticsModule.php:256
@@ -6706,7 +6730,7 @@ msgstr ""
 msgid "Evaluations"
 msgstr "Évaluations"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:233
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:350
 #: src/Modules/Analytics/AnalyticsModule.php:172
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
@@ -6747,12 +6771,12 @@ msgstr "Évaluations"
 msgid "Goals"
 msgstr "Objectifs"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:234
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:237
 #: src/Modules/License/FeatureMap.php:382
 msgid "Development plans"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:238
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:351
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
@@ -6777,7 +6801,7 @@ msgstr ""
 msgid "People"
 msgstr "Personnes"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:239
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:353
 #: src/Shared/CoreSurfaceRegistration.php:549
 msgid "Tasks"
@@ -21593,14 +21617,6 @@ msgstr ""
 
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:31
 msgid "You do not have permission to manage invitations."
-msgstr ""
-
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:49
-#: src/Shared/Configuration/ConfigurationSurfaces.php:299
-#: src/Shared/Frontend/FrontendConfigurationView.php:61
-#: src/Shared/Frontend/FrontendConfigurationView.php:136
-#: src/Shared/Modules/ModuleMetadata.php:313
-msgid "Messages"
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:75
