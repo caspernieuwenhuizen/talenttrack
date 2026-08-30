@@ -45,22 +45,7 @@ return [
     // destination.
     's3_backup'                   => 'No object-storage destination exists yet (BackupRunner::destinations() is Local + Email). The gate ships with the destination.',
 
-    // The analytics platform (#0083, #0078).
-    'analytics_explorer'          => 'FrontendExploreView',
-    'custom_widgets'              => 'The widget builder surfaces',
-    'persona_dashboard_editor'    => 'FrontendPersonaDashboardEditorView',
-
-
-    // Coach development (#2641).
-    'knowledge_courses'           => 'CourseAccessResolver — the one chokepoint the module already has',
-
     // Squad construction. `team_chemistry` itself is gated; the sharing
     // half rides on the same view and needs its own answer.
     'team_blueprints_sharing'     => 'The blueprint share action',
-
-    // Desktop bulk-entry grids. Single-record capture stays in Standard,
-    // so these gate the grid surface only.
-    'attendance_grid'             => 'FrontendAttendanceGridView',
-    'minutes_grid'                => 'FrontendMinutesGridView',
-    'ratings_grid'                => 'FrontendRatingsGridView',
 ];

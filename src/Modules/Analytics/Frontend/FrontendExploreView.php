@@ -69,6 +69,24 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        // #3107 — `analytics_explorer` is Pro. Plan and permission are
+        // independent axes and both apply: the capability check above is
+        // still first, so someone who would never have had the explorer on
+        // any plan gets the permission answer rather than an upgrade pitch
+        // for something they could not use.
+        //
+        // The explorer stores nothing, so there is no read to keep open —
+        // it locks whole, on every verb including the two export branches.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'analytics_explorer' ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Explore', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
+            );
+            self::renderHeader( __( 'Explore', 'talenttrack' ) );
+            echo \TT\Modules\License\UpgradePanel::render( 'analytics_explorer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+            return;
+        }
+
         $kpi_key = isset( $_GET['kpi'] ) ? sanitize_key( (string) $_GET['kpi'] ) : '';
         $kpi     = KpiRegistry::find( $kpi_key );
         $action  = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';

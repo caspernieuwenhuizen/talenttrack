@@ -87,6 +87,20 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             return;
         }
 
+        // #3107 — the grid is Pro, and the note matters more here than
+        // anywhere else in this epic: attendance is still recordable, one
+        // activity at a time, on every plan. What Standard loses is the
+        // fast desktop way to enter a squad's worth at once — not the
+        // ability to record attendance. A panel that did not say so would
+        // read as "attendance is a paid feature", which is false.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'attendance_grid' ) ) {
+            self::crumbs();
+            echo \TT\Modules\License\UpgradePanel::render( 'attendance_grid', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+                'note' => __( 'Attendance itself is not affected: you can still mark a squad present from the activity, one activity at a time. The grid is the faster desktop way to do a whole week at once.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
         self::crumbs();
         self::renderHeader( __( 'Attendance grid', 'talenttrack' ) );
         echo '<p class="tt-agrid-lead">' . esc_html__(
