@@ -524,7 +524,11 @@ final class LegacyCapMapper {
     public static function capsForEntity( string $entity ): array {
         $out = [];
         foreach ( self::MAPPING as $cap => $tuple ) {
-            if ( ( $tuple[0] ?? '' ) === $entity ) {
+            // No `?? ''`: every tuple in MAPPING is [entity, activity], so
+            // PHPStan can prove offset 0 always exists and rejects the
+            // fallback as dead. Adding an entry made the inferred shape
+            // uniform enough for it to say so.
+            if ( $tuple[0] === $entity ) {
                 $out[] = (string) $cap;
             }
         }
