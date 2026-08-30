@@ -67,61 +67,90 @@ jobs:
           sudo apt-get install -y gettext -o Acquire::Retries=3 \
             -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
 
-      # `wp i18n make-pot` is WordPress's official .pot generator —
-      # it understands the gettext keyword conventions
-      # (__/_e/_n/_x/esc_html__/esc_attr__/etc.) and filters by
-      # text-domain natively, so non-talenttrack-domain strings
-      # don't bleed in. `--skip-audit` skips its lint pass; we
-      # have our own lint in release.yml.
-      - name: Regenerate .pot from PHP source
+      # #3218 — regenerate against the CURRENT tip, never rebase.
+      #
+      # This used to be three steps: extract, msgmerge, then commit with a
+      # `git pull --rebase` before the push to survive a main that had
+      # moved. That rebase is what failed on back-to-back merges. It has to
+      # replay a sync commit onto a main whose `.pot` the *next* run has
+      # already rewritten, and `.gitattributes` gives `languages/*.po` a
+      # union driver but deliberately not `talenttrack.pot` — union on a
+      # `.pot` would produce duplicate msgids, which msgfmt treats as fatal,
+      # trading a red workflow for a broken artifact.
+      #
+      # The `.pot` is a pure function of the source tree, so generating it
+      # against a stale checkout is the actual mistake. Reset to the tip
+      # first and there is never a `.pot` to reconcile: on a rejected push
+      # we throw the work away and redo it against the new tip, which is
+      # cheap and always correct.
+      #
+      # `wp i18n make-pot` is WordPress's official .pot generator — it knows
+      # the gettext keyword conventions (__/_e/_n/_x/esc_html__/…) and
+      # filters by text-domain natively. `--skip-audit` skips its lint pass;
+      # ours lives in release.yml.
+      #
+      # msgmerge -U updates each .po in place: new msgids appear with an
+      # empty msgstr, obsoleted ones are commented out with `#~`.
+      # `--no-fuzzy-matching` stops it guessing that a new string is a
+      # renamed old one, which is brittle.
+      - name: Regenerate, merge and push (retrying against a moved main)
+        env:
+          REF: ${{ github.ref_name }}
         run: |
-          wp i18n make-pot . languages/talenttrack.pot --slug=talenttrack --skip-audit
+          attempt=1
+          max=3
 
-      # msgmerge -U: update each .po in place to match the new .pot.
-      # New msgids appear with empty msgstr; obsoleted ones are
-      # commented out with `#~`. `--no-fuzzy-matching` prevents
-      # auto-fuzzy-matching new strings against renamed old ones,
-      # which is brittle.
-      - name: msgmerge .pot into every .po
-        run: |
-          for po in languages/*.po; do
-            echo "Merging $po"
-            msgmerge --update --backup=none --no-fuzzy-matching "$po" languages/talenttrack.pot
-          done
+          while [ "$attempt" -le "$max" ]; do
+            echo "::group::i18n sync — attempt $attempt of $max"
 
-      # Stable header: `wp i18n make-pot` rewrites POT-Creation-Date
-      # on every run, which would produce a noisy auto-commit even
-      # when no strings changed. Strip the volatile header lines
-      # before checking for real changes.
-      - name: Commit if real string changes
-        run: |
-          # Compute a content hash of the .pot ignoring the volatile
-          # POT-Creation-Date line. If only the date changed, treat
-          # as no-op.
-          if [ -n "$(git status --porcelain languages/)" ]; then
-            # Are there .po changes? They're the meaningful signal.
+            # Start from whatever the branch is right now.
+            git fetch origin "$REF"
+            git reset --hard "origin/$REF"
+
+            wp i18n make-pot . languages/talenttrack.pot --slug=talenttrack --skip-audit
+
+            for po in languages/*.po; do
+              echo "Merging $po"
+              msgmerge --update --backup=none --no-fuzzy-matching "$po" languages/talenttrack.pot
+            done
+
+            if [ -z "$(git status --porcelain languages/)" ]; then
+              echo "No translation file changes; nothing to push."
+              echo "::endgroup::"
+              exit 0
+            fi
+
+            # `wp i18n make-pot` rewrites POT-Creation-Date on every run, so
+            # the date alone is not a real change and must not produce a
+            # commit. The .po files are the meaningful signal.
             po_changed=$(git status --porcelain languages/*.po 2>/dev/null | wc -l)
             pot_real_change=$(git diff --unified=0 -- languages/talenttrack.pot 2>/dev/null \
               | grep -E '^[-+]' \
               | grep -vE '^[-+]"POT-Creation-Date|^[-+]{3}' \
               | wc -l)
 
-            if [ "$po_changed" -gt 0 ] || [ "$pot_real_change" -gt 0 ]; then
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              git add languages/talenttrack.pot languages/*.po
-              git commit -m "chore(i18n): sync .pot from PHP source + msgmerge into .po"
-              # Belt and braces alongside the concurrency group: any other
-              # writer to main (a release push, a squash-merge) can still move
-              # it between checkout and push. Rebase the sync commit on top
-              # rather than failing the push.
-              git pull --rebase origin "${GITHUB_REF_NAME}"
-              git push
-              echo "Committed i18n sync."
-            else
+            if [ "$po_changed" -eq 0 ] && [ "$pot_real_change" -eq 0 ]; then
               echo "Only POT-Creation-Date changed; skipping commit."
               git checkout -- languages/
+              echo "::endgroup::"
+              exit 0
             fi
-          else
-            echo "No translation file changes; skipping commit."
-          fi
+
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add languages/talenttrack.pot languages/*.po
+            git commit -m "chore(i18n): sync .pot from PHP source + msgmerge into .po"
+
+            if git push origin "HEAD:$REF"; then
+              echo "Committed i18n sync."
+              echo "::endgroup::"
+              exit 0
+            fi
+
+            echo "$REF moved while this ran; regenerating against the new tip."
+            echo "::endgroup::"
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::i18n sync could not push after $max attempts — $REF is moving faster than a full extraction takes."
+          exit 1
