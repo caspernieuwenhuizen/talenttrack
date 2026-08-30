@@ -102,7 +102,7 @@ class ReviewTrialGroupMembershipForm implements FormInterface {
                 $repo->recordDecision(
                     $trial_case_id, TrialCasesRepository::DECISION_CONTINUE_IN_TRIAL_GROUP, $actor, $rationale,
                     null, null,
-                    [ 'continued_until' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ?: time() ) ]
+                    [ 'continued_until' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ) ]
                 );
             } elseif ( $decision === 'offer_team_position' ) {
                 $repo->recordDecision(
