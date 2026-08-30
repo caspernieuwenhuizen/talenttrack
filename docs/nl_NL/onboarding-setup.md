@@ -45,6 +45,9 @@ opgeslagen, zodat je kunt stoppen en later vanaf dezelfde plek verdergaan.
  installatie al met de hand ingericht, dan past deze stap niets toe: hij
  stuurt je naar Modules → Installatieprofiel, waar je de volledige lijst
  met wijzigingen ziet voordat er iets gebeurt.
+ Beide schermen tonen deze stap; dat in de app voegt per profiel een
+ lijst **Wat er zou veranderen** toe, zodat je het hele verschil kunt
+ lezen vóór je kiest in plaats van erna.
 4. **Je selectie importeren** — houd je je teams, spelers en staf al in een
  spreadsheet bij, haal ze hier dan binnen in plaats van ze opnieuw te
  typen. Download het sjabloon met drie tabbladen, vul het in en upload
@@ -99,17 +102,18 @@ kunt er vrij tussen wisselen en doet nooit een stap dubbel:
 - **TalentTrack → Welkom** in de WordPress-beheeromgeving — waar een
  gloednieuwe installatie bij de eerste keer opstarten belandt.
 
-Drie stappen zijn voorlopig alleen in de WordPress-beheeromgeving
-beschikbaar: **Hoeveel product**, **Importeer je selectie** en **Voeg je
-staf toe**. Elk daarvan draagt iets wat het scherm in de app nog niet heeft
+Twee stappen zijn voorlopig alleen in de WordPress-beheeromgeving
+beschikbaar: **Importeer je selectie** en **Voeg je staf toe**. Allebei
+dragen ze iets wat het scherm in de app nog niet heeft
 — een bestandsupload met kolomtoewijzing, of de vastgehouden
 uitnodigingen. Staat je opgeslagen voortgang op zo'n stap, dan zegt het
 scherm in de app dat, meldt dat je voortgang bewaard blijft, en biedt aan
 verder te gaan in de beheeromgeving. Kom je daarna terug, dan pakt de flow
 op waar de beheeromgeving hem liet.
 
-De rest — Welkom, Academiebasis, Eerste team, Eerste beheerder, Wat we
-versturen, Dashboardpagina en Klaar — werkt op allebei de schermen.
+De rest — Welkom, Academiebasis, Hoeveel product, Eerste team, Eerste
+beheerder, Wat we versturen, Dashboardpagina en Klaar — werkt op allebei de
+schermen.
 
 ## Stoppen en hervatten
 

@@ -59403,6 +59403,38 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendSetupView.php:502
+msgid "Use this profile"
+msgstr "Gebruik dit profiel"
+
+#. translators: %d is a number of modules and features.
+#: src/Shared/Frontend/FrontendSetupView.php:546
+#, php-format
+msgid "What would change (%d)"
+msgstr "Wat er zou veranderen (%d)"
+
+#. translators: %d is a number of modules and features the plan does not carry.
+#: src/Shared/Frontend/FrontendSetupView.php:590
+#, php-format
+msgid "%d change was left out because your plan does not carry it."
+msgid_plural "%d changes were left out because your plan does not carry them."
+msgstr[0] "%d wijziging is overgeslagen omdat je abonnement die niet bevat."
+msgstr[1] "%d wijzigingen zijn overgeslagen omdat je abonnement die niet bevat."
+
+#: src/Shared/Frontend/FrontendSetupView.php:600
+msgid "You can change any of this later under Configuration → Modules."
+msgstr "Je kunt dit later allemaal aanpassen via Configuratie → Modules."
+
+#: src/Infrastructure/Rest/OnboardingRestController.php:190
+msgid ""
+"That profile could not be applied. Either it does not exist, or this install "
+"has already been configured by hand — review the change on the Modules page "
+"instead."
+msgstr ""
+"Dit profiel kon niet worden toegepast. Of het bestaat niet, of deze "
+"installatie is al met de hand ingericht — bekijk de wijziging dan op de "
+"pagina Modules."
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "

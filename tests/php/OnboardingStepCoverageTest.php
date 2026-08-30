@@ -83,11 +83,12 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
         }
 
         $this->assertContains( 'messaging', $ported, '#3140 ports the messaging step.' );
+        $this->assertContains( 'profile', $ported, '#3259 ports the install-profile step.' );
         $this->assertSame(
-            [ 'profile', 'import', 'staff' ],
+            [ 'import', 'staff' ],
             $pending,
-            'Only the three steps filed as separate ports may be unported. '
-            . 'A fourth means a step was added without a frontend arm again.'
+            'Only the two steps still filed as separate ports may be unported. '
+            . 'A third means a step was added without a frontend arm again.'
         );
 
         $this->assertStringContainsString(
@@ -124,6 +125,40 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
             'TemplateSwitch::setDisabled',
             $view,
             'The view renders the choice; the handler makes it.'
+        );
+    }
+
+    /**
+     * #3259 — same rule, the profile step.
+     *
+     * The refusal on an already-configured install, the payload keys and
+     * the completion action all live in `OnboardingHandlers::applyProfile()`.
+     * A REST layer calling `ProfileService::apply()` directly would work
+     * on the day it was written and drift the first time one of those
+     * three changed — which is exactly how the two surfaces would stop
+     * being resumable from each other.
+     */
+    public function test_the_frontend_profile_write_goes_through_the_shared_handler(): void {
+        $rest = $this->source( 'src/Infrastructure/REST/OnboardingRestController.php' );
+
+        $this->assertStringContainsString( 'OnboardingHandlers::applyProfile', $rest );
+        $this->assertStringContainsString( 'OnboardingHandlers::skipProfile', $rest );
+        $this->assertStringNotContainsString(
+            'ProfileService::apply',
+            $rest,
+            'The REST layer must not apply the profile itself — that is the fork the issue forbids.'
+        );
+
+        $view = $this->source( 'src/Shared/Frontend/FrontendSetupView.php' );
+        $this->assertStringNotContainsString(
+            'ProfileService::apply',
+            $view,
+            'The view reads the diff and renders the choice; the handler makes it.'
+        );
+        $this->assertStringContainsString(
+            'ProfileService::diff',
+            $view,
+            'What the choice will change has to be visible before it is applied.'
         );
     }
 }

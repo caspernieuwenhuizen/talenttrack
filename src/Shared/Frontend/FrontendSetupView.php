@@ -7,6 +7,9 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Onboarding\OnboardingState;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Modules\ModuleMetadata;
+use TT\Shared\Modules\ProfileRegistry;
+use TT\Shared\Modules\ProfileService;
 
 /**
  * FrontendSetupView — frontend port of the wp-admin first-run onboarding
@@ -83,15 +86,21 @@ class FrontendSetupView extends FrontendViewBase {
                     // into silence, and a frontend operator who never met
                     // this step was the outcome that epic exists to prevent.
                     case 'messaging':   self::renderMessaging( $cancel_url );  break;
+                    // #3259 (step from #3038) — the install-profile
+                    // picker. The cheapest of the three remaining ports
+                    // and the one that decides what the whole install
+                    // looks like, so an operator who only ever sees the
+                    // frontend was choosing it by not being asked.
+                    case 'profile':     self::renderProfile( $cancel_url );    break;
                     case 'dashboard':   self::renderDashboard( $cancel_url );  break;
                     case 'done':        self::renderDone();                    break;
-                    // #3140 — `profile`, `import` and `staff` are real ports
-                    // (file upload and column mapping; people records and
-                    // held invitation credentials) and are filed separately.
-                    // Until they land they say what they are and offer a way
-                    // past. What used to be here read as a bug and its only
-                    // exit restarted the wizard at step 1, to hit the same
-                    // wall again.
+                    // #3140 — `import` and `staff` are real ports (file
+                    // upload and column mapping; people records and held
+                    // invitation credentials) and are filed separately.
+                    // Until they land they say what they are and offer a
+                    // way past. What used to be here read as a bug and its
+                    // only exit restarted the wizard at step 1, to hit the
+                    // same wall again.
                     default:            self::renderNotYetPorted( $step, $cancel_url );
                 }
                 ?>
@@ -385,8 +394,232 @@ class FrontendSetupView extends FrontendViewBase {
     }
 
     /**
+     * #3259 — the install-profile step (#3038), ported.
+     *
+     * Two states, the same two the wp-admin step has. Before a choice, the
+     * profiles; after one, the summary of what was applied, so nothing
+     * about the shape of the install happens off-screen.
+     *
+     * The one thing this surface does that wp-admin does not: it shows the
+     * **diff inline**, per profile, before anything is written. A profile
+     * change is install-wide, and "choose one of these and find out" is not
+     * a reasonable thing to ask of somebody on a phone. The rendering is a
+     * pair of short lists rather than a before/after table — a two-column
+     * grid at 360px is the case a wide table loses, and switches-on /
+     * switches-off carries the same information in the width available.
+     *
+     * The apply goes through `OnboardingHandlers::applyProfile()`, which is
+     * also what the wp-admin form posts to. That includes its refusal on an
+     * install somebody has already shaped by hand: the cards stop offering
+     * Apply and point at the preview screen, exactly as wp-admin does.
+     * Showing the diff here arguably makes that refusal unnecessary, but
+     * lifting it is a product decision about an install-wide write and does
+     * not belong in a port — flagged on the parent epic instead.
+     */
+    private static function renderProfile( string $cancel_url ): void {
+        $payload = OnboardingState::payloadFor( 'profile' );
+        $applied = isset( $payload['applied'] ) ? (int) $payload['applied'] : null;
+        $chosen  = (string) ( $payload['profile'] ?? '' );
+
+        if ( $applied !== null && ProfileRegistry::exists( $chosen ) ) {
+            self::renderProfileApplied( $chosen, $applied, (int) ( $payload['skipped'] ?? 0 ) );
+            return;
+        }
+
+        // The diff markup is the shared component's, so its styling is the
+        // shared component's sheet — the same one `FrontendInstallProfileView`
+        // pulls in. Loaded here rather than with the view's own assets so
+        // the other nine steps do not carry it.
+        wp_enqueue_style(
+            'tt-frontend-install-profile',
+            TT_PLUGIN_URL . 'assets/css/frontend-install-profile.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+
+        $configured = ProfileService::hasOperatorChanges();
+        $categories = ModuleMetadata::categories();
+        ?>
+        <h2 class="tt-setup__heading"><?php esc_html_e( 'How much product are you running?', 'talenttrack' ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php esc_html_e( 'TalentTrack ships a lot. Most academies want the development loop first and can turn the rest on whenever they need it. Nothing here is permanent — you can change it any time from Modules.', 'talenttrack' ); ?>
+        </p>
+        <p class="tt-setup__hint">
+            <strong><?php esc_html_e( 'Skipping gives you the full academy.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'That is every module switched on, which is what an install gets when no profile is chosen.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $configured ) : ?>
+            <p class="tt-notice tt-notice--warning">
+                <?php esc_html_e( 'This install has already been configured by hand, so choosing here would overwrite decisions somebody made. Review the changes on the Modules page instead, where you can see exactly what would happen before anything is written.', 'talenttrack' ); ?>
+            </p>
+            <?php if ( current_user_can( 'tt_manage_modules' ) ) : ?>
+                <p class="tt-setup__profile-reviews">
+                    <?php foreach ( ProfileRegistry::all() as $slug => $profile ) : ?>
+                        <a class="tt-btn tt-btn-secondary"
+                           href="<?php echo esc_url( add_query_arg(
+                               [ 'tt_view' => 'install-profile', 'profile' => $slug ],
+                               Components\RecordLink::dashboardUrl()
+                           ) ); ?>">
+                            <?php
+                            printf(
+                                /* translators: %s is an install profile name, e.g. "Basics". */
+                                esc_html__( 'Review %s', 'talenttrack' ),
+                                esc_html( (string) $profile['label'] )
+                            );
+                            ?>
+                        </a>
+                    <?php endforeach; ?>
+                </p>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <form data-tt-setup-form data-tt-setup-endpoint="profile">
+            <div class="tt-setup__profiles">
+                <?php foreach ( ProfileRegistry::all() as $slug => $profile ) :
+                    $slug     = (string) $slug;
+                    $field_id = 'tt-setup-profile-' . sanitize_html_class( $slug );
+                ?>
+                    <section class="tt-setup__profile">
+                        <?php if ( $configured ) : ?>
+                            <h3 class="tt-setup__profile-name"><?php echo esc_html( (string) $profile['label'] ); ?></h3>
+                        <?php else : ?>
+                            <label class="tt-setup__check tt-setup__profile-pick" for="<?php echo esc_attr( $field_id ); ?>">
+                                <input type="radio" id="<?php echo esc_attr( $field_id ); ?>"
+                                    name="profile" value="<?php echo esc_attr( $slug ); ?>" />
+                                <span class="tt-setup__profile-name"><?php echo esc_html( (string) $profile['label'] ); ?></span>
+                            </label>
+                        <?php endif; ?>
+
+                        <p class="tt-setup__profile-desc"><?php echo esc_html( (string) $profile['description'] ); ?></p>
+
+                        <details class="tt-setup__profile-details">
+                            <summary><?php esc_html_e( 'What it includes', 'talenttrack' ); ?></summary>
+                            <?php foreach ( ProfileRegistry::includedByCategory( $slug ) as $category => $labels ) : ?>
+                                <p class="tt-setup__profile-group">
+                                    <strong><?php echo esc_html( (string) ( $categories[ $category ] ?? $category ) ); ?>:</strong>
+                                    <?php echo esc_html( implode( ', ', $labels ) ); ?>
+                                </p>
+                            <?php endforeach; ?>
+                        </details>
+
+                        <?php self::renderProfileDiff( $slug ); ?>
+                    </section>
+                <?php endforeach; ?>
+            </div>
+
+            <?php if ( ! $configured ) : ?>
+                <?php echo FormSaveButton::render( [
+                    'label'        => __( 'Use this profile', 'talenttrack' ),
+                    'label_saving' => __( 'Applying...', 'talenttrack' ),
+                    'label_saved'  => __( 'Applied', 'talenttrack' ),
+                    'cancel_url'   => $cancel_url,
+                    'cancel_label' => __( 'Cancel', 'talenttrack' ),
+                ] ); ?>
+            <?php endif; ?>
+            <p class="tt-setup__skip-row">
+                <button type="button" class="tt-btn tt-btn-secondary" data-tt-setup-skip="profile">
+                    <?php esc_html_e( 'Skip — give me everything', 'talenttrack' ); ?>
+                </button>
+            </p>
+        </form>
+        <?php
+    }
+
+    /**
+     * What choosing this profile would change, before it is chosen.
+     *
+     * Rendered by the shared `ProfileDiff` component, in its read-only
+     * mode. The component's docblock says a second copy of this markup is
+     * exactly what it exists to prevent, and it is right: the same rows,
+     * the same grouping and the same "not part of your plan" wording
+     * should not be maintained twice because one surface wanted them
+     * inside a `<details>`.
+     *
+     * Read-only rather than selectable, because the unit of this step is
+     * the whole profile. Picking individual rows out of one is what the
+     * preview screen (`?tt_view=install-profile`) is for; offering half a
+     * profile here would give the summary a number the operator could not
+     * reconcile with the profile they chose.
+     */
+    private static function renderProfileDiff( string $slug ): void {
+        $rows = ProfileService::diff( $slug );
+
+        if ( $rows === [] ) {
+            ?>
+            <p class="tt-setup__profile-nochange">
+                <?php esc_html_e( 'This install already matches this profile. There is nothing to change.', 'talenttrack' ); ?>
+            </p>
+            <?php
+            return;
+        }
+        ?>
+        <details class="tt-setup__profile-details tt-setup__profile-diff">
+            <summary>
+                <?php
+                printf(
+                    /* translators: %d is a number of modules and features. */
+                    esc_html__( 'What would change (%d)', 'talenttrack' ),
+                    (int) count( $rows )
+                );
+                ?>
+            </summary>
+            <?php Components\ProfileDiff::render( $rows, [ 'selectable' => false, 'heading_level' => 'h4' ] ); ?>
+        </details>
+        <?php
+    }
+
+    /** The what-just-happened half of the profile step (#3259). */
+    private static function renderProfileApplied( string $slug, int $applied, int $skipped ): void {
+        $profile = ProfileRegistry::get( $slug );
+        $label   = $profile === null ? $slug : (string) $profile['label'];
+        ?>
+        <h2 class="tt-setup__heading"><?php esc_html_e( 'How much product are you running?', 'talenttrack' ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php
+            printf(
+                /* translators: 1: install profile name, e.g. "Basics"; 2: number of modules and features changed. */
+                esc_html( _n(
+                    'This install is now on %1$s. %2$d module or feature was switched.',
+                    'This install is now on %1$s. %2$d modules and features were switched.',
+                    $applied,
+                    'talenttrack'
+                ) ),
+                esc_html( $label ),
+                (int) $applied
+            );
+            ?>
+        </p>
+        <?php if ( $skipped > 0 ) : ?>
+            <p class="tt-setup__hint">
+                <?php
+                printf(
+                    /* translators: %d is a number of modules and features the plan does not carry. */
+                    esc_html( _n(
+                        '%d change was left out because your plan does not carry it.',
+                        '%d changes were left out because your plan does not carry them.',
+                        $skipped,
+                        'talenttrack'
+                    ) ),
+                    (int) $skipped
+                );
+                ?>
+            </p>
+        <?php endif; ?>
+        <p class="tt-setup__hint">
+            <?php esc_html_e( 'You can change any of this later under Configuration → Modules.', 'talenttrack' ); ?>
+        </p>
+        <div class="tt-setup__actions">
+            <button type="button" class="tt-btn tt-btn-primary" data-tt-setup-advance>
+                <?php esc_html_e( 'Continue', 'talenttrack' ); ?>
+            </button>
+        </div>
+        <?php
+    }
+
+    /**
      * #3140 — a step the wp-admin wizard carries and this surface does not
-     * yet: `profile` (#3038), `import` (#2958), `staff` (#2965).
+     * yet: `import` (#2958) and `staff` (#2965).
      *
      * These used to fall through to a two-word "unknown step" line, which
      * reads as a bug and whose only exit was "Start over" — putting the

@@ -17,6 +17,7 @@ use TT\Modules\Onboarding\OnboardingState;
  *   POST /onboarding/first-team     — create the first team (or skip), advance
  *   POST /onboarding/first-admin    — create the first-admin staff record, advance
  *   POST /onboarding/messaging      — choose which messages the academy sends (or skip), advance
+ *   POST /onboarding/profile        — apply an install profile (or skip), advance
  *   POST /onboarding/dashboard-page — create / reuse the dashboard page (or skip), finish
  *   POST /onboarding/reset          — reset state and re-enter at welcome
  *
@@ -46,6 +47,7 @@ final class OnboardingRestController {
             'first-team'     => 'firstTeam',
             'first-admin'    => 'firstAdmin',
             'messaging'      => 'messaging',
+            'profile'        => 'profile',
             'dashboard-page' => 'dashboardPage',
             'reset'          => 'reset',
         ];
@@ -63,14 +65,27 @@ final class OnboardingRestController {
     }
 
     /**
-     * Leave the welcome step for the academy step. Idempotent — if the
-     * state has already advanced past welcome it just reports the step.
+     * Move on from a step whose only action is "I have read this".
+     *
+     * Two of them. `welcome`, which has nothing to save. And `profile`
+     * once it has been applied (#3259): the write already happened, and
+     * this is the operator confirming they have seen what it did — the
+     * reason the apply deliberately does not advance on its own.
+     *
+     * Idempotent by keying off the state rather than a `from` parameter:
+     * a repeated call from a stale tab reports the current step instead
+     * of pushing the flow forward a second time.
      */
     public static function advance( \WP_REST_Request $r ): \WP_REST_Response {
         $state = OnboardingState::get();
+
         if ( $state['step'] === 'welcome' ) {
             OnboardingState::setStep( 'academy' );
+        } elseif ( $state['step'] === 'profile'
+            && isset( OnboardingState::payloadFor( 'profile' )['applied'] ) ) {
+            OnboardingState::setStep( 'import' );
         }
+
         return self::stateResponse();
     }
 
@@ -158,6 +173,46 @@ final class OnboardingRestController {
         Logger::info( 'rest.onboarding.messaging_saved', [
             'user'    => get_current_user_id(),
             'enabled' => count( $result['enabled'] ),
+        ] );
+        return self::stateResponse();
+    }
+
+    /**
+     * #3259 — the install-profile step (#3038) on the frontend.
+     *
+     * Thin on purpose. `OnboardingHandlers::applyProfile()` owns the
+     * refusal rule, the payload keys and the completion action, so this
+     * surface cannot drift from the wp-admin one — which is what makes
+     * starting the step in wp-admin and finishing it here work at all.
+     *
+     * The `null` return is a refusal, not a failure: either the slug is
+     * not a profile, or the install has already been shaped by hand and
+     * applying would quietly undo somebody's decisions. 409 rather than
+     * 422 — the request is well-formed; the install's state is what
+     * rejects it.
+     */
+    public static function profile( \WP_REST_Request $r ): \WP_REST_Response {
+        if ( ! empty( $r->get_param( 'skip' ) ) ) {
+            OnboardingHandlers::skipProfile();
+            Logger::info( 'rest.onboarding.profile_skipped', [ 'user' => get_current_user_id() ] );
+            return self::stateResponse();
+        }
+
+        $slug    = sanitize_key( (string) ( $r->get_param( 'profile' ) ?? '' ) );
+        $applied = OnboardingHandlers::applyProfile( $slug );
+
+        if ( $applied === null ) {
+            return RestResponse::error(
+                'profile_not_applicable',
+                __( 'That profile could not be applied. Either it does not exist, or this install has already been configured by hand — review the change on the Modules page instead.', 'talenttrack' ),
+                409
+            );
+        }
+
+        Logger::info( 'rest.onboarding.profile_applied', [
+            'user'    => get_current_user_id(),
+            'profile' => $slug,
+            'applied' => $applied['applied'],
         ] );
         return self::stateResponse();
     }

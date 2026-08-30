@@ -105,22 +105,44 @@ class OnboardingHandlers {
     public static function handleProfile(): void {
         self::guard( 'tt_onboarding_profile' );
 
-        $slug = sanitize_key( wp_unslash( (string) ( $_POST['profile'] ?? '' ) ) );
+        self::applyProfile( sanitize_key( wp_unslash( (string) ( $_POST['profile'] ?? '' ) ) ) );
+
+        self::redirectToPage();
+    }
+
+    /**
+     * Put the install into a profile's shape and record the step (#3259).
+     *
+     * The domain half of `handleProfile()`, extracted so the frontend
+     * Setup step calls exactly this rather than re-deriving the refusal
+     * rule, the payload keys and the completion action. Both surfaces
+     * inherit `ProfileService::apply()`'s tier skipping and its audit
+     * trail by calling through instead of copying.
+     *
+     * Returns null when nothing was applied — an unknown slug, or an
+     * install somebody has already shaped by hand. The second is the
+     * interesting one: applying silently there would undo decisions
+     * without showing them, and the preview screen is where that
+     * conversation belongs.
+     *
+     * @return array{profile:string, applied:int, skipped:int}|null
+     */
+    public static function applyProfile( string $slug ): ?array {
         if ( ! ProfileRegistry::exists( $slug ) || ProfileService::hasOperatorChanges() ) {
-            self::redirectToPage();
-            return;
+            return null;
         }
 
         $summary = ProfileService::apply( $slug );
-
-        OnboardingState::recordPayload( 'profile', [
+        $counts  = [
             'profile' => $slug,
             'applied' => count( $summary['applied'] ),
             'skipped' => count( $summary['skipped'] ),
-        ] );
+        ];
+
+        OnboardingState::recordPayload( 'profile', $counts );
         do_action( 'tt_onboarding_step_completed', 'profile', [ 'profile' => $slug ] );
 
-        self::redirectToPage();
+        return $counts;
     }
 
     /**
@@ -130,7 +152,12 @@ class OnboardingHandlers {
      */
     public static function handleSkipProfile(): void {
         self::guard( 'tt_onboarding_skip_profile' );
+        self::skipProfile();
+        self::redirectToPage();
+    }
 
+    /** The domain half of `handleSkipProfile()` (#3259). */
+    public static function skipProfile(): void {
         // `step_skipped`, not `skipped` — the applied-summary payload uses
         // `skipped` for a count of rows the plan would not allow, and one
         // key holding a bool on one path and an int on another is how a
@@ -138,8 +165,6 @@ class OnboardingHandlers {
         OnboardingState::recordPayload( 'profile', [ 'step_skipped' => true ] );
         OnboardingState::setStep( 'import' );
         do_action( 'tt_onboarding_step_completed', 'profile', [ 'skipped' => true ] );
-
-        self::redirectToPage();
     }
 
     /**
