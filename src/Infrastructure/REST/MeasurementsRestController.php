@@ -366,12 +366,36 @@ class MeasurementsRestController {
         if ( $definition_id <= 0 ) {
             return new \WP_Error( 'tt_missing_definition', __( 'A test must be chosen.', 'talenttrack' ), [ 'status' => 400 ] );
         }
+        $team_id = absint( $r['team_id'] ?? 0 );
         $filters = [
-            'team_id'   => absint( $r['team_id'] ?? 0 ),
+            'team_id'   => $team_id,
             'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
             'date_from' => self::safe_date( (string) ( $r['from'] ?? '' ) ),
             'date_to'   => self::safe_date( (string) ( $r['to'] ?? '' ) ),
         ];
+
+        // #3155 — `can_browse_results()` is `canAnyScope`, so head_coach,
+        // assistant_coach and team_manager all pass it on a *team*-scoped
+        // grant. The scope half was never applied here, so omitting
+        // `team_id` returned every player in the academy with a result for
+        // the test — name, team, age group and the measured value. The two
+        // sibling routes in this controller already narrow; only this one
+        // was missed. Same shape as `test_trends()` above.
+        $uid     = get_current_user_id();
+        $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
+        if ( ! $see_all ) {
+            $allowed = array_map(
+                static fn ( $t ) => (int) ( $t->id ?? 0 ),
+                \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $uid )
+            );
+            if ( $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
+                return new \WP_Error( 'tt_forbidden_team', __( 'You do not have access to this team.', 'talenttrack' ), [ 'status' => 403 ] );
+            }
+            // An empty list is "no teams", which the repository reads as an
+            // empty result — never as "no filter".
+            $filters['team_ids'] = $allowed;
+        }
+
         $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
         return new \WP_REST_Response( [ 'definition_id' => $definition_id, 'rows' => $rows ], 200 );
     }

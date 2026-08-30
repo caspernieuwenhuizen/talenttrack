@@ -99,14 +99,16 @@ final class FrontendTestResultsView extends FrontendViewBase {
             'date_from' => $date_from,
             'date_to'   => $date_to,
         ];
-        // A non-global reader with a chosen team is already validated above,
-        // so the team-scoped query is in scope. With no team chosen, re-run
-        // the query per allowed team so out-of-scope players never load.
-        if ( ! $see_all && $team_id <= 0 ) {
-            $rows = self::limitToAllowedTeams( $definition_id, $filters, $allowed_ids );
-        } else {
-            $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
+        // #3155 — the repository now carries `team_ids`, the same key the
+        // export query has had since #2537, so the reader's scope goes into
+        // the one query instead of being reassembled from one query per
+        // allowed team. The REST route reads the same key, which is the
+        // point: the endpoint behind this view used to answer a wider
+        // question than the view did.
+        if ( ! $see_all ) {
+            $filters['team_ids'] = $allowed_ids;
         }
+        $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
 
         self::renderExportLink( $definition_id, $team_id, $date_from, $date_to );
 
@@ -118,28 +120,6 @@ final class FrontendTestResultsView extends FrontendViewBase {
         self::renderGrid( $rows );
     }
 
-    /**
-     * Re-run the browse query once per allowed team and merge — keeps the
-     * grid inside a non-global reader's team scope when they pick no team.
-     *
-     * @param array<string, mixed> $filters
-     * @param array<int, int>      $allowed_ids
-     * @return array<int, array<string, mixed>>
-     */
-    private static function limitToAllowedTeams( int $definition_id, array $filters, array $allowed_ids ): array {
-        if ( $allowed_ids === [] ) return [];
-        $browse = new MeasurementResultsBrowse();
-        $merged = [];
-        foreach ( $allowed_ids as $tid ) {
-            $scoped            = $filters;
-            $scoped['team_id'] = $tid;
-            foreach ( $browse->rows( $definition_id, $scoped ) as $row ) {
-                $merged[ (int) $row['player_id'] ] = $row;
-            }
-        }
-        usort( $merged, static fn ( $a, $b ) => strcasecmp( (string) $a['name'], (string) $b['name'] ) );
-        return array_values( $merged );
-    }
 
     /**
      * @param array<int, object>      $definitions

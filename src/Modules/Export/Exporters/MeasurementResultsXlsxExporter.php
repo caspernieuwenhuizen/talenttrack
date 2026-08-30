@@ -7,6 +7,8 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExportException;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ScopeGatedExporter;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
@@ -42,7 +44,7 @@ use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
  *   `POST /wp-json/talenttrack/v1/exports/measurement_results_xlsx?format=xlsx`
  *   filters: `definition_id` (required), `team_id`, `date_from`, `date_to`.
  */
-final class MeasurementResultsXlsxExporter implements ExporterInterface {
+final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGatedExporter {
 
     /**
      * Token → Excel ARGB-less hex, mirroring the resolved values in
@@ -68,13 +70,27 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'xlsx' ]; }
 
     /**
-     * The export pipeline's coarse cap-gate runs against this string. The
-     * measurements entity is matrix-only (no legacy cap maps to it), so the
-     * authoritative gate is the `MatrixGate::canAnyScope( …, 'measurements',
-     * 'read' )` check in `collect()`. Returning '' keeps the coarse gate a
-     * no-op rather than referencing a capability that doesn't exist.
+     * The measurements entity is matrix-only — no legacy capability maps to
+     * it — so there is no honest string to return here, and inventing one
+     * would put a phantom capability in the model on purpose.
+     *
+     * #3155 — returning '' used to leave the pipeline's coarse gate a no-op,
+     * and the route in front of it is bare `is_user_logged_in()`, so the
+     * coarse gate being a no-op was the whole gate gone. This exporter now
+     * also implements `ScopeGatedExporter`, which the pipeline prefers over
+     * this string: see `isAvailableFor()` below. The empty return is what
+     * routes it there.
      */
     public function requiredCap(): string { return ''; }
+
+    /**
+     * The coarse gate, asked in the model the entity actually uses.
+     * `collect()` stays the authoritative one and additionally narrows the
+     * rows to the reader's teams.
+     */
+    public function isAvailableFor( int $user_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, 'measurements', 'read' );
+    }
 
     /**
      * Styled, single-purpose workbook — the column picker is single-sheet
@@ -121,6 +137,31 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface {
             throw new ExportException( 'forbidden', __( 'You do not have permission to export test results.', 'talenttrack' ) );
         }
 
+        // #3155 — `canAnyScope` passes head_coach, assistant_coach and
+        // team_manager on a *team*-scoped grant, and nothing below narrowed
+        // to that team. The workbook was every player in the academy with a
+        // result for the chosen test: growth and physical-testing data on
+        // minors, in a file, downloadable by any team-scoped coach.
+        //
+        // The rows come out of the same repository the REST browse route
+        // reads, with the same `team_ids` key, so the two doors to this data
+        // now answer identically for the same caller.
+        $filters = $request->filters;
+        if ( ! MatrixGate::can( $request->requesterUserId, 'measurements', 'read', 'global' ) ) {
+            $allowed = array_map(
+                static fn ( $t ) => (int) ( $t->id ?? 0 ),
+                QueryHelpers::get_teams_for_coach( $request->requesterUserId )
+            );
+
+            $requested_team = (int) ( $filters['team_id'] ?? 0 );
+            if ( $requested_team > 0 && ! in_array( $requested_team, $allowed, true ) ) {
+                throw new ExportException( 'forbidden', __( 'You do not have access to this team.', 'talenttrack' ) );
+            }
+            // An empty list means the reader has no teams; the repository
+            // reads that as an empty result, never as "no filter".
+            $filters['team_ids'] = $allowed;
+        }
+
         $definition_id = (int) ( $request->filters['definition_id'] ?? 0 );
 
         $def = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
@@ -142,7 +183,7 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface {
 
         $rows = ( new MeasurementResultsRepository() )->listForDefinitionExport(
             $definition_id,
-            $request->filters
+            $filters
         );
 
         $club_name = (string) get_bloginfo( 'name' );
