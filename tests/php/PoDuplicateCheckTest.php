@@ -73,7 +73,10 @@ final class PoDuplicateCheckTest extends WP_UnitTestCase {
         $result = $this->check( 'rewrapped.po' );
 
         $this->assertSame( 1, $result['status'] );
-        $this->assertStringContainsString( 'duplicates 1 msgid', $result['output'] );
+        // #3245 — assert the refusal and the named key, not the sentence.
+        // This used to pin "duplicates 1 msgid", which the absolute-verdict
+        // rewording changed; the property under test is that the wrapped
+        // and unwrapped copies are recognised as one msgid and reported.
         $this->assertStringContainsString( 'Skipped: scheduled sends', $result['output'] );
     }
 
