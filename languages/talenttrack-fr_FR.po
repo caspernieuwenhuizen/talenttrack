@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T07:53:42+00:00\n"
+"POT-Creation-Date: 2026-08-30T07:55:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -139,9 +139,9 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:295
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:196
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:326
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:442
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:237
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:367
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:483
 #: src/Modules/Goals/Admin/GoalsPage.php:73
 #: src/Modules/Goals/Admin/GoalsPage.php:172
 #: src/Modules/Invitations/InvitationKind.php:52
@@ -149,8 +149,8 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:158
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:24
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:127
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:259
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:227
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:239
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:289
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:368
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:402
@@ -170,15 +170,15 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:250
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:316
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:325
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:222
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:223
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
 #: src/Modules/Stats/Admin/PlayerCardView.php:284
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:69
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:274
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:507
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:183
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:372
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:822
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:376
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:836
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:369
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:20
 #: src/Modules/Wizards/Goal/PlayerStep.php:36
@@ -229,8 +229,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTileGrid.php:706
 #: src/Shared/Frontend/FrontendTileGrid.php:725
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
-#: src/Shared/Frontend/FrontendTrialsManageView.php:467
-#: src/Shared/Frontend/FrontendTrialsManageView.php:501
+#: src/Shared/Frontend/FrontendTrialsManageView.php:465
+#: src/Shared/Frontend/FrontendTrialsManageView.php:499
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:301
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:652
 #: src/Shared/Frontend/FrontendUsageStatsView.php:373
@@ -296,7 +296,7 @@ msgstr "Responsable du développement"
 #: src/Shared/Frontend/FrontendRolesView.php:83
 #: src/Shared/Frontend/FrontendTeamDetailView.php:683
 #: src/Shared/Frontend/FrontendTeamsManageView.php:511
-#: src/Shared/Frontend/FrontendTrialsManageView.php:472
+#: src/Shared/Frontend/FrontendTrialsManageView.php:470
 msgid "Staff"
 msgstr "Personnel"
 
@@ -1500,7 +1500,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:595
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:639
 #: src/Shared/Frontend/DashboardShortcode.php:1323
 msgid "Player not found."
 msgstr ""
@@ -1758,7 +1758,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:286
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:266
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:197
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:205
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:70
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:153
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
@@ -1966,7 +1966,7 @@ msgstr "Autre"
 #: src/Modules/Players/Admin/PlayersPage.php:195
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:263
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:200
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:208
 #: src/Modules/Teams/Admin/TeamsPage.php:124
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
@@ -2333,7 +2333,7 @@ msgid "Intensity band %d"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:438
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1064
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1078
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -2414,8 +2414,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:239
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:197
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:443
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:238
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:484
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:51
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:153
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:46
@@ -2435,9 +2435,9 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:125
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:128
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:247
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:151
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:228
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:512
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:607
@@ -2457,7 +2457,7 @@ msgstr ""
 #: src/Modules/Reports/Admin/ReportsPage.php:195
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:285
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:372
 #: src/Modules/Training/Wizard/WhenStep.php:34
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:155
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
@@ -2603,8 +2603,8 @@ msgid "Holiday"
 msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:52
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:230
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:308
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:234
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:314
 msgid "Test training"
 msgstr ""
 
@@ -2835,7 +2835,7 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:556
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:259
+#: src/Modules/Trials/Rest/TrialsRestController.php:260
 msgid "No fields to update."
 msgstr ""
 
@@ -2926,10 +2926,12 @@ msgstr ""
 #: src/Infrastructure/REST/CohortBoardRestController.php:55
 #: src/Infrastructure/REST/MeasurementsRestController.php:201
 #: src/Infrastructure/REST/MeasurementsRestController.php:258
+#: src/Infrastructure/REST/MeasurementsRestController.php:392
 #: src/Infrastructure/REST/MinutesRestController.php:71
 #: src/Infrastructure/REST/TeamsRestController.php:342
 #: src/Infrastructure/REST/TeamsRestController.php:367
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:158
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:74
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
@@ -3488,26 +3490,26 @@ msgstr ""
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:242
 #: src/Infrastructure/REST/MeasurementsRestController.php:367
-#: src/Infrastructure/REST/MeasurementsRestController.php:405
+#: src/Infrastructure/REST/MeasurementsRestController.php:429
 msgid "A test must be chosen."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:417
+#: src/Infrastructure/REST/MeasurementsRestController.php:441
 msgid "Could not save the measurement."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:441
+#: src/Infrastructure/REST/MeasurementsRestController.php:465
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:208
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:238
 msgid "A test needs a name."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:452
+#: src/Infrastructure/REST/MeasurementsRestController.php:476
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:214
 msgid "Could not save the test."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:478
+#: src/Infrastructure/REST/MeasurementsRestController.php:502
 msgid "Could not schedule the test."
 msgstr ""
 
@@ -3710,7 +3712,7 @@ msgstr ""
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:150
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:634
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:638
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:216
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:175
 #: src/Modules/Wizards/Activity/ReviewStep.php:61
@@ -3752,8 +3754,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTrialCaseView.php:356
 #: src/Shared/Frontend/FrontendTrialCaseView.php:549
 #: src/Shared/Frontend/FrontendTrialCaseView.php:737
-#: src/Shared/Frontend/FrontendTrialsManageView.php:374
-#: src/Shared/Frontend/FrontendTrialsManageView.php:470
+#: src/Shared/Frontend/FrontendTrialsManageView.php:372
+#: src/Shared/Frontend/FrontendTrialsManageView.php:468
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/PlayerDashboardView.php:178
 msgid "Status"
@@ -3796,7 +3798,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1264
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
 #: src/Shared/Frontend/FrontendPlayersManageView.php:371
-#: src/Shared/Frontend/FrontendTrialsManageView.php:515
+#: src/Shared/Frontend/FrontendTrialsManageView.php:513
 msgid "Date of birth"
 msgstr ""
 
@@ -3884,7 +3886,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:238
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:240
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:380
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:421
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:47
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:149
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:39
@@ -3894,8 +3896,8 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:199
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:283
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:232
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:263
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -4092,7 +4094,7 @@ msgid "Invalid player id."
 msgstr ""
 
 #: src/Infrastructure/REST/PlayersRestController.php:505
-#: src/Shared/Frontend/FrontendTrialsManageView.php:254
+#: src/Shared/Frontend/FrontendTrialsManageView.php:252
 msgid "The player could not be created."
 msgstr ""
 
@@ -4212,16 +4214,16 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
 #: src/Modules/Spond/SpondSync.php:59
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:229
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:258
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:299
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:319
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:419
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:477
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:545
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:562
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:641
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:652
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:273
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:302
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:343
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:363
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:463
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:521
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:589
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:606
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:685
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:696
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:41
 msgid "Team not found."
 msgstr ""
@@ -4596,7 +4598,7 @@ msgid "At a glance"
 msgstr ""
 
 #: src/Infrastructure/Teams/TeamDetailSections.php:60
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:345
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:349
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:387
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:42
 #: src/Modules/Wizards/Activity/ReviewStep.php:112
@@ -4721,7 +4723,7 @@ msgstr "Ajouter"
 #: src/Modules/People/Admin/PeoplePage.php:532
 #: src/Modules/Players/Admin/PlayersPage.php:125
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1344
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1371
 #: src/Modules/Teams/Admin/TeamsPage.php:57
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:364
 #: src/Shared/Frontend/Components/SavedViews.php:190
@@ -4857,7 +4859,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSeasonsView.php:81
 #: src/Shared/Frontend/FrontendTeamDetailView.php:305
 #: src/Shared/Frontend/FrontendTrialCaseView.php:284
-#: src/Shared/Frontend/FrontendTrialsManageView.php:473
+#: src/Shared/Frontend/FrontendTrialsManageView.php:471
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:151
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:371
 msgid "Actions"
@@ -5039,7 +5041,7 @@ msgstr "— Tous —"
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:521
 #: src/Shared/Frontend/FrontendTrialCaseView.php:605
 #: src/Shared/Frontend/FrontendTrialCaseView.php:641
-#: src/Shared/Frontend/FrontendTrialsManageView.php:544
+#: src/Shared/Frontend/FrontendTrialsManageView.php:542
 #: src/Shared/Frontend/PlayerDashboardView.php:179
 msgid "Notes"
 msgstr "Notes"
@@ -5097,7 +5099,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:398
 #: src/Modules/Activities/Admin/ActivitiesPage.php:409
 #: src/Modules/DataBrowser/SemanticRegistry.php:113
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:364
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:191
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1520
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1719
@@ -5153,7 +5155,7 @@ msgstr "Mettre à jour"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:496
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:500
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:223
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:356
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:534
@@ -5324,7 +5326,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:81
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1343
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1370
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:289
@@ -5555,9 +5557,9 @@ msgstr ""
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:307
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:135
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:116
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:378
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:396
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:382
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:392
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:400
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:770
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:373
 #: src/Shared/Frontend/Components/FormSaveButton.php:69
@@ -5641,7 +5643,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:171
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:522
 #: src/Modules/People/Admin/PeoplePage.php:401
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
@@ -5674,7 +5676,7 @@ msgstr "De"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:175
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:176
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:527
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
@@ -5805,11 +5807,11 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:535
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2046
-#: src/Shared/Frontend/FrontendTrialsManageView.php:404
+#: src/Shared/Frontend/FrontendTrialsManageView.php:402
 msgid "Show"
 msgstr ""
 
@@ -6413,8 +6415,8 @@ msgstr[1] ""
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/DashboardShortcode.php:234
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:180
-#: src/Shared/Frontend/FrontendTrialsManageView.php:447
-#: src/Shared/Frontend/FrontendTrialsManageView.php:483
+#: src/Shared/Frontend/FrontendTrialsManageView.php:445
+#: src/Shared/Frontend/FrontendTrialsManageView.php:481
 msgid "Open"
 msgstr "Ouvert"
 
@@ -6961,8 +6963,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1461
 #: src/Shared/Frontend/FrontendTrialCaseView.php:209
 #: src/Shared/Frontend/FrontendTrialCaseView.php:361
-#: src/Shared/Frontend/FrontendTrialsManageView.php:392
-#: src/Shared/Frontend/FrontendTrialsManageView.php:471
+#: src/Shared/Frontend/FrontendTrialsManageView.php:390
+#: src/Shared/Frontend/FrontendTrialsManageView.php:469
 msgid "Decision"
 msgstr ""
 
@@ -6973,8 +6975,8 @@ msgstr ""
 # v3.95.0 — #0081 child 1: prospects entity
 #: src/Modules/Analytics/AnalyticsModule.php:211
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:170
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:228
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:306
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:312
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:49
@@ -7179,7 +7181,7 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:41
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:46
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:46
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:47
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:48
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:43
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:91
@@ -7464,7 +7466,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:393
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:153
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:514
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
@@ -7510,8 +7512,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendExportsView.php:196
 #: src/Shared/Frontend/FrontendExportsView.php:240
 #: src/Shared/Frontend/FrontendExportsView.php:648
-#: src/Shared/Frontend/FrontendTrialsManageView.php:377
-#: src/Shared/Frontend/FrontendTrialsManageView.php:386
+#: src/Shared/Frontend/FrontendTrialsManageView.php:375
+#: src/Shared/Frontend/FrontendTrialsManageView.php:384
 msgid "All"
 msgstr "Tous"
 
@@ -7678,8 +7680,8 @@ msgstr "Note"
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:146
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:309
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:278
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:231
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:258
 #: src/Modules/Reports/PlayerReportRenderer.php:243
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:353
 msgid "Trend"
@@ -10585,7 +10587,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendHolidaysView.php:190
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:502
-#: src/Shared/Frontend/FrontendTrialsManageView.php:527
+#: src/Shared/Frontend/FrontendTrialsManageView.php:525
 msgid "Start date"
 msgstr ""
 
@@ -10600,7 +10602,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendHolidaysView.php:194
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:508
-#: src/Shared/Frontend/FrontendTrialsManageView.php:528
+#: src/Shared/Frontend/FrontendTrialsManageView.php:526
 msgid "End date"
 msgstr ""
 
@@ -12074,7 +12076,7 @@ msgid "Thorough"
 msgstr ""
 
 #: src/Modules/Backup/PresetRegistry.php:80
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:365
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:369
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -13658,7 +13660,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:141
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1760
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:244
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:384
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
 #: src/Modules/Wizards/Goal/LinkStep.php:73
 #: src/Modules/Wizards/Goal/LinkStep.php:108
 #: src/Shared/Frontend/Components/GuestAddModal.php:94
@@ -14896,7 +14898,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPeopleManageView.php:170
 #: src/Shared/Frontend/FrontendPlayersManageView.php:362
 #: src/Shared/Frontend/FrontendSetupView.php:236
-#: src/Shared/Frontend/FrontendTrialsManageView.php:511
+#: src/Shared/Frontend/FrontendTrialsManageView.php:509
 msgid "First name"
 msgstr ""
 
@@ -14932,7 +14934,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPeopleManageView.php:174
 #: src/Shared/Frontend/FrontendPlayersManageView.php:366
 #: src/Shared/Frontend/FrontendSetupView.php:242
-#: src/Shared/Frontend/FrontendTrialsManageView.php:513
+#: src/Shared/Frontend/FrontendTrialsManageView.php:511
 msgid "Last name"
 msgstr ""
 
@@ -15035,11 +15037,11 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:90
 #: src/Modules/DataBrowser/SemanticRegistry.php:59
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:200
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:446
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:241
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:487
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:161
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:229
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:515
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
@@ -16786,9 +16788,9 @@ msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:146
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:135
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:199
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:379
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:445
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:240
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:420
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:486
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1761
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
@@ -18690,7 +18692,7 @@ msgstr ""
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:162
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
-#: src/Shared/Frontend/FrontendTrialsManageView.php:395
+#: src/Shared/Frontend/FrontendTrialsManageView.php:393
 msgid "Any"
 msgstr ""
 
@@ -18751,8 +18753,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:438
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:271
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:230
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:227
 #: src/Shared/Frontend/CoachForms.php:268
@@ -19636,7 +19638,7 @@ msgid "The scene"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:234
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:403
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:407
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:442
 msgid "Pitch"
 msgstr ""
@@ -20108,7 +20110,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:61
 #: src/Modules/Methodology/VocabularyCatalog.php:191
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:149
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:475
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:479
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:275
 #: src/Modules/Tournaments/Wizard/FormationStep.php:21
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:57
@@ -20166,86 +20168,86 @@ msgstr ""
 msgid "away"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:66
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:68
 msgid "Test results export (XLSX)"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:121
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:137
 msgid "You do not have permission to export test results."
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:130
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:171
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:137
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:498
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
 msgid "Test"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:161
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:202
 msgid "Status (coloured levels)"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:163
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:204
 #, php-format
 msgid "Unit: %s"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:164
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:205
 msgid "No unit"
 msgstr ""
 
 #. translators: 1: from date, 2: to date
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:171
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:212
 #, php-format
 msgid "Date range: %1$s to %2$s"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:175
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:216
 msgid "Date range: all dates"
 msgstr ""
 
 #. translators: %s: club / academy name
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:182
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:223
 #, php-format
 msgid "Club: %s"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:198
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:444
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:239
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:485
 msgid "Recorded date"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:201
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:447
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:242
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:488
 msgid "Recorded by"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:221
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:437
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:262
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:478
 msgid "Results"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:240
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:281
 msgid "Trends"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:312
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:353
 #, php-format
 msgid "Value over time (%s)"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:313
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:354
 msgid "Value over time"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:314
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:355
 msgid "Recorded status over time"
 msgstr ""
 
@@ -20462,7 +20464,7 @@ msgstr ""
 msgid "Attendance count"
 msgstr ""
 
-#: src/Modules/Export/Rest/ExportRestController.php:89
+#: src/Modules/Export/Rest/ExportRestController.php:95
 msgid "No such export."
 msgstr ""
 
@@ -22439,7 +22441,7 @@ msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:196
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:61
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1066
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1080
 #: src/Shared/Frontend/FrontendConfigurationView.php:609
 msgid "Locked"
 msgstr "Verrouillé"
@@ -26362,7 +26364,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:236
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:216
 msgid "Export Excel"
 msgstr ""
 
@@ -26559,29 +26561,29 @@ msgstr ""
 msgid "Choose a test to see every player's latest result."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:114
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:116
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:105
 msgid "No results match these filters yet."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:159
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:139
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:500
 msgid "— Choose a test —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:183
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:163
 msgid "All age groups"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:334
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:314
 msgid "On target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:335
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:315
 msgid "Below target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:336
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:316
 msgid "Well below target"
 msgstr ""
 
@@ -32582,9 +32584,9 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:244
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:51
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:80
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:47
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:58
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:48
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:59
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:60
 #: src/Shared/CoreSurfaceRegistration.php:929
 msgid "Onboarding pipeline"
 msgstr ""
@@ -32948,17 +32950,17 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:89
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:66
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:265
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:198
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:206
 #: src/Modules/Wizards/Prospect/IdentityStep.php:120
 msgid "In trial"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:311
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:237
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:317
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:67
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:264
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:199
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:207
 #: src/Modules/Wizards/Prospect/IdentityStep.php:121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:787
 msgid "Joined"
@@ -33506,8 +33508,9 @@ msgid ""
 "Six-stage count strip — Prospects / Invited / Test training / Trial group / "
 "Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via "
 "ProspectStageClassifier. Each stage shows count + an amber stale badge when "
-"any task in that stage is >30 days overdue. Scout-scoped (own discovered_by) "
-"for scouts; full-club for HoD / admin."
+"any task in that stage is >30 days overdue. Counts follow the viewer's "
+"scope: academy-wide for scouts, HoD and admins; a head coach sees their own "
+"age groups."
 msgstr ""
 
 #. translators: %d: number of stale items in this funnel stage.
@@ -33530,21 +33533,21 @@ msgid_plural "Open %1$s in the kanban view — %2$d prospects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:229
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:134
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:307
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:313
 msgid "Invited"
 msgstr ""
 
 #. translators: %s: age group label, e.g. "U13"
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:231
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:309
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:235
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:315
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:310
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:236
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:316
 msgid "Team offer"
 msgstr ""
 
@@ -34800,16 +34803,16 @@ msgid "Discovery"
 msgstr ""
 
 # Standalone view
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:48
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:49
 msgid "You do not have access to the onboarding pipeline."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:69
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:70
 msgid "Add prospect"
 msgstr ""
 
 #. translators: %s: prospect name
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:124
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:125
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
@@ -34817,65 +34820,65 @@ msgstr ""
 msgid "Prospect: %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:128
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:129
 msgid "(unnamed prospect)"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:132
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:133
 msgid "Back to pipeline"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:140
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:141
 msgid "Open next action"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:143
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:144
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:92
 msgid "Edit contact"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:226
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:227
 msgid "Action needed"
 msgstr ""
 
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:345
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:351
 #, php-format
 msgid "born %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:394
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:400
 msgid "Awaiting HoD to send the invite"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:397
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:403
 #, php-format
 msgid "Discovered: %s"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:398
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:404
 msgid "Drafted, not yet handed to HoD"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:401
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:407
 msgid "Invitation sent, awaiting parent"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:403
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:409
 msgid "Awaiting outcome"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:405
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:411
 msgid "In trial group"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:407
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:413
 msgid "Team offer pending"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:409
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:415
 msgid "Promoted to academy"
 msgstr ""
 
@@ -35125,28 +35128,29 @@ msgstr ""
 msgid "Could not record your response. Please try again."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:218
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:247
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:226
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:233
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:285
 msgid "Prospect not found."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:241
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:279
 msgid "Invalid prospect id."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:266
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:304
 msgid "That does not look like an email address."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:289
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:327
 msgid "Consent date must be YYYY-MM-DD."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:351
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:389
 msgid "You must be logged in to log a prospect."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:363
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:401
 msgid ""
 "Could not start the prospect-logging chain. Check the workflow templates are "
 "enabled."
@@ -35289,8 +35293,8 @@ msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:290
 #: src/Shared/Frontend/FrontendReportDetailView.php:167
-#: src/Shared/Frontend/FrontendTrialsManageView.php:450
-#: src/Shared/Frontend/FrontendTrialsManageView.php:469
+#: src/Shared/Frontend/FrontendTrialsManageView.php:448
+#: src/Shared/Frontend/FrontendTrialsManageView.php:467
 msgid "Window"
 msgstr ""
 
@@ -37295,7 +37299,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:79
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:80
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:104
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:227
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:231
 #: src/Shared/CoreSurfaceRegistration.php:860
 msgid "Team blueprint"
 msgstr ""
@@ -37331,7 +37335,7 @@ msgstr ""
 
 #. translators: %s = team name
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:103
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:230
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:234
 #, php-format
 msgid "%s — blueprints"
 msgstr ""
@@ -37357,13 +37361,13 @@ msgstr ""
 
 #. translators: %s = blueprint name
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:174
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:605
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:609
 #, php-format
 msgid "Delete \"%s\"? This cannot be undone."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:180
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:611
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:615
 msgid "Blueprint deleted."
 msgstr ""
 
@@ -37388,7 +37392,7 @@ msgstr ""
 #. translators: 1: theme name, 2: session date.
 #. translators: 1: localised "Today", 2: day-of-week + date (e.g. "Wed 28 May")
 #. translators: 1: team name, 2: date window
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:237
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:241
 #: src/Modules/Training/Services/TrainingPlanComposer.php:361
 #: src/Modules/Training/Wizard/ReviewStep.php:103
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2619
@@ -37398,47 +37402,47 @@ msgid "%1$s · %2$s"
 msgstr ""
 
 # v3.110.9 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:256
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:260
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:1004
 msgid "Lineup"
 msgstr "Composition"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:258
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:262
 msgid "Comments"
 msgstr "Commentaires"
 
 #. translators: %s = comma-separated slot labels e.g. "ST, CM"
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:305
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:309
 #, php-format
 msgid "Tier-1 unassigned on: %s — chemistry score skips these slots."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:315
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:319
 msgid "This blueprint is locked. Reopen it to make changes."
 msgstr ""
 
 #. translators: %s = team name
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:349
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:353
 #, php-format
 msgid "%s — roster"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:354
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:358
 msgid "Drag a player onto a slot, or click a slot to pick from the list."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:359
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:387
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:363
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:391
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3605
 msgid "Add guest"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:363
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:367
 msgid "Other team"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:370
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:374
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:48
 #: src/Modules/Training/Wizard/WhenStep.php:35
 #: src/Modules/Vct/Wizard/WhenStep.php:53
@@ -37449,39 +37453,39 @@ msgstr ""
 msgid "— pick a team —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:374
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:378
 msgid "— pick a player —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:377
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:381
 msgid "Add to roster"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:382
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:386
 msgid "Guest name"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:383
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:387
 msgid "Guest name (e.g. visiting trialist)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:385
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:389
 msgid "Position (optional, e.g. ST)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:392
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:396
 msgid "Custom label"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:393
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:397
 msgid "Custom label (e.g. \"Scout target #4\")"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:395
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:399
 msgid "Add custom"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:420
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:424
 msgid ""
 "Pill colours: <b class=\"tt-bpe-tier-1\">&#9679; tier 1</b> &nbsp; <b "
 "class=\"tt-bpe-tier-2\">&#9679; tier 2</b> &nbsp; <b class=\"tt-bpe-"
@@ -37489,29 +37493,29 @@ msgid ""
 "how many slots reference that player."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:465
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:469
 msgid "Blueprint actions"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:505
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:509
 msgid "Clear all slots"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:514
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:518
 msgid "Show lineup view"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:515
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:519
 msgid "Show coverage heatmap"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:527
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:528
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1338
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:531
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:532
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1365
 msgid "Hide chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:560
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:564
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:656
 #: src/Shared/Frontend/FrontendTeamDetailView.php:386
 #: src/Shared/Frontend/FrontendTrialCaseView.php:315
@@ -37519,97 +37523,97 @@ msgstr ""
 msgid "More actions"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:567
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:571
 msgid "Save as…"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:575
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:579
 msgid "Open share link"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:578
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:582
 msgid ""
 "Rotate the share link? Anyone holding the previous URL will be locked out."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:580
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:584
 msgid "Rotate share link"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:588
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:592
 msgid "Share with staff"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:591
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:595
 msgid "Move back to draft"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:592
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:596
 msgid "Lock"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:595
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:599
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:454
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:461
 msgid "Reopen"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:614
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:618
 msgid "Delete blueprint"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:805
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:819
 msgid ""
 "This is a read-only share link. Comments and edits are coach-only inside "
 "TalentTrack."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:821
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:835
 #: src/Modules/Vct/Wizard/PreviewStep.php:83
 msgid "Slot"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:832
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:846
 #: src/Shared/Frontend/FrontendDataBrowserView.php:360
 msgid "— empty —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:844
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:858
 msgid "Share link not valid"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:846
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:860
 msgid ""
 "This blueprint share link is no longer valid. Ask the coach for an updated "
 "link."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:860
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:874
 msgid "Blueprint sharing is turned off."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:863
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:877
 msgid "You do not have permission to rotate the share link."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:866
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:880
 msgid "Bad blueprint id."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:884
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:898
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:504
 msgid "Link chemistry"
 msgstr ""
 
 #. translators: %d: 0-100 chemistry score
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:892
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:906
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:783
 #, php-format
 msgid "%d / 100"
 msgstr ""
 
 #. translators: %d: scored adjacent pair count
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:902
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:916
 #, php-format
 msgid "%d scored adjacent pair on the pitch."
 msgid_plural "%d scored adjacent pairs on the pitch."
@@ -37617,42 +37621,42 @@ msgstr[0] "%d aangrenzend duo met chemie-score."
 msgstr[1] "%d aangrenzende duo's met chemie-score."
 
 #. translators: 1: slot label, 2: primary name or em-dash, 3: depth count 0-3
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:952
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:966
 #, php-format
 msgid "%1$s — primary: %2$s — %3$d/3 tiers covered"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:971
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:985
 msgid "0 — uncovered"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:972
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:986
 msgid "1 — primary only"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:973
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:987
 msgid "2 — primary + secondary"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:974
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:988
 msgid "3 — full depth"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1053
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1067
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
 msgid "Squad plan"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1054
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1068
 msgid "Match-day"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1065
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1079
 msgid "Shared"
 msgstr ""
 
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1315
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1342
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:399
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3292
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3381
@@ -37661,110 +37665,110 @@ msgid "No players on this team yet."
 msgstr ""
 
 #. translators: %1$s = team name, %2$d = roster size
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1317
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1344
 #, php-format
 msgid "%1$s — roster (%2$d)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1318
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1345
 msgid "cross-team"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1319
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1346
 msgid "guest"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1320
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1347
 msgid "custom"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1321
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1348
 msgid "player"
 msgstr ""
 
 #. translators: %d = tier number 1/2/3
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1323
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1350
 #, php-format
 msgid "Pick a player for tier %d"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1324
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1351
 #: src/Shared/Frontend/Components/FrontendListTable.php:362
 msgid "Search…"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1325
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1352
 #: src/Shared/Frontend/Components/ComparisonSlotPicker.php:85
 msgid "Clear this slot"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1326
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1353
 msgid "No players match."
 msgstr ""
 
 #. translators: %d = placement count for that player
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1328
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1355
 #, php-format
 msgid "×%d on pitch"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1329
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1356
 msgid "Pick a team and a player."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1330
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1357
 msgid "That player is already on the roster."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1331
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1358
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3638
 msgid "Name is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1332
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1359
 msgid "Custom label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1333
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1360
 msgid "Clear every slot on this blueprint? This cannot be undone."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1334
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1361
 msgid "Could not save the change. Try again."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1335
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1362
 msgid "Could not identify the player. Try again or pick a different row."
 msgstr ""
 
 #. translators: %d = age in years
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1337
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1364
 #, php-format
 msgid "age %d"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1339
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1366
 msgid "Show chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1340
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1367
 msgid "Name the new blueprint:"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1341
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1368
 msgid "Copy of blueprint"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1342
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1369
 msgid "Could not duplicate. Try again."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1345
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1372
 msgid "Remove from roster"
 msgstr ""
 
 #. translators: %s = entry display name (guest/custom/cross-team)
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1347
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1374
 #, php-format
 msgid ""
 "Remove %s from the roster? Any slots holding this entry will be cleared."
@@ -38261,126 +38265,126 @@ msgid "Expected a weights map."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:192
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:568
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:612
 msgid "Pick two different players."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:263
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:307
 msgid "formation_template_id is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:272
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:668
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:316
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:712
 msgid "Formation template not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:291
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:335
 msgid "The formation could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:326
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:370
 msgid "Possession + counter + press must sum to 100."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:349
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:393
 msgid "The style blend could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:436
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:480
 msgid "No formation template available. Run migrations to seed defaults."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:497
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:541
 msgid "No formation template available."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:574
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:618
 msgid "Could not save the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:582
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:626
 msgid "Invalid pairing id."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:586
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:630
 msgid "Could not delete the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:659
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:703
 msgid "Name and formation are required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:676
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:720
 msgid "The blueprint could not be created."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:687
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:851
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:875
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:891
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:912
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1086
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1141
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:731
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:895
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:919
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:935
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:956
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1130
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1185
 msgid "Blueprint not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:855
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:916
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1090
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:899
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:960
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1134
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:863
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:907
 msgid "Nothing to update."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:896
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:940
 msgid "Give the cloned blueprint a name."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:901
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:945
 msgid "Could not duplicate the blueprint."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:922
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:966
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:953
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:997
 msgid "Failed to save the assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1032
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1076
 msgid "ref.player_id is missing or non-numeric for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1038
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1082
 msgid "ref.player_id must be a positive integer for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1047
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1091
 msgid "ref.name is required for a guest assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1060
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1104
 msgid "ref.label is required for a custom assignment."
 msgstr ""
 
 #. translators: %s = unknown ref kind
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1068
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1112
 #, php-format
 msgid "Unknown ref.kind: %s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1095
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1139
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1130
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1174
 msgid "Failed to save the lineup."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1147
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1191
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
@@ -40634,58 +40638,58 @@ msgstr ""
 msgid "Could not create trial case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:206
-#: src/Modules/Trials/Rest/TrialsRestController.php:227
-#: src/Modules/Trials/Rest/TrialsRestController.php:272
+#: src/Modules/Trials/Rest/TrialsRestController.php:207
+#: src/Modules/Trials/Rest/TrialsRestController.php:228
+#: src/Modules/Trials/Rest/TrialsRestController.php:273
 msgid "Trial case not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:208
+#: src/Modules/Trials/Rest/TrialsRestController.php:209
 msgid "No access to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:221
+#: src/Modules/Trials/Rest/TrialsRestController.php:222
 msgid "Invalid trial case id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:238
+#: src/Modules/Trials/Rest/TrialsRestController.php:239
 msgid "Invalid trial track id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:240
-#: src/Modules/Trials/Rest/TrialsRestController.php:249
+#: src/Modules/Trials/Rest/TrialsRestController.php:241
+#: src/Modules/Trials/Rest/TrialsRestController.php:250
 msgid "Trial track not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:242
+#: src/Modules/Trials/Rest/TrialsRestController.php:243
 msgid "Built-in trial tracks cannot be deleted."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:268
+#: src/Modules/Trials/Rest/TrialsRestController.php:269
 msgid "New end date and justification are required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:274
+#: src/Modules/Trials/Rest/TrialsRestController.php:275
 msgid "New end date must be after the current end date."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:291
+#: src/Modules/Trials/Rest/TrialsRestController.php:292
 msgid "Justification must be at least 30 characters."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:312
+#: src/Modules/Trials/Rest/TrialsRestController.php:313
 msgid "Could not record decision."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:325
+#: src/Modules/Trials/Rest/TrialsRestController.php:326
 msgid "Invalid user id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:335
+#: src/Modules/Trials/Rest/TrialsRestController.php:336
 msgid "Not assigned to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:374
+#: src/Modules/Trials/Rest/TrialsRestController.php:375
 msgid "No reminders were due."
 msgstr ""
 
@@ -41783,7 +41787,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:53
 #: src/Shared/Frontend/FrontendTrialCaseView.php:444
-#: src/Shared/Frontend/FrontendTrialsManageView.php:537
+#: src/Shared/Frontend/FrontendTrialsManageView.php:535
 msgid "Type a name to search…"
 msgstr ""
 
@@ -52802,10 +52806,10 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:348
-#: src/Shared/Frontend/FrontendTrialsManageView.php:383
-#: src/Shared/Frontend/FrontendTrialsManageView.php:449
-#: src/Shared/Frontend/FrontendTrialsManageView.php:468
-#: src/Shared/Frontend/FrontendTrialsManageView.php:520
+#: src/Shared/Frontend/FrontendTrialsManageView.php:381
+#: src/Shared/Frontend/FrontendTrialsManageView.php:447
+#: src/Shared/Frontend/FrontendTrialsManageView.php:466
+#: src/Shared/Frontend/FrontendTrialsManageView.php:518
 msgid "Track"
 msgstr ""
 
@@ -52851,7 +52855,7 @@ msgid "Justification"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:446
-#: src/Shared/Frontend/FrontendTrialsManageView.php:539
+#: src/Shared/Frontend/FrontendTrialsManageView.php:537
 msgid "Role label (optional)"
 msgstr ""
 
@@ -53195,8 +53199,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTrialsManageView.php:75
 #: src/Shared/Frontend/FrontendTrialsManageView.php:80
 #: src/Shared/Frontend/FrontendTrialsManageView.php:83
-#: src/Shared/Frontend/FrontendTrialsManageView.php:314
-#: src/Shared/Frontend/FrontendTrialsManageView.php:554
+#: src/Shared/Frontend/FrontendTrialsManageView.php:312
+#: src/Shared/Frontend/FrontendTrialsManageView.php:552
 msgid "Add case"
 msgstr ""
 
@@ -53214,45 +53218,45 @@ msgstr ""
 msgid "Could not create the case. Please try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:358
+#: src/Shared/Frontend/FrontendTrialsManageView.php:356
 msgid "Archived included"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:401
+#: src/Shared/Frontend/FrontendTrialsManageView.php:399
 msgid "Include archived"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:411
+#: src/Shared/Frontend/FrontendTrialsManageView.php:409
 msgid "No trial cases match those filters yet."
 msgstr ""
 
 #. translators: %d: number of assigned staff.
-#: src/Shared/Frontend/FrontendTrialsManageView.php:458
+#: src/Shared/Frontend/FrontendTrialsManageView.php:456
 #, php-format
 msgid "%d staff"
 msgid_plural "%d staff"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:504
+#: src/Shared/Frontend/FrontendTrialsManageView.php:502
 msgid "Existing player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:509
+#: src/Shared/Frontend/FrontendTrialsManageView.php:507
 msgid "Or create a new player here"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:510
+#: src/Shared/Frontend/FrontendTrialsManageView.php:508
 msgid ""
 "Fill in at least first name, last name and date of birth. The new player "
 "record will be created with status \"trial\" before the case is opened."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:530
+#: src/Shared/Frontend/FrontendTrialsManageView.php:528
 msgid "Initial staff (optional)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:535
+#: src/Shared/Frontend/FrontendTrialsManageView.php:533
 #, php-format
 msgid "Staff slot %d"
 msgstr ""
