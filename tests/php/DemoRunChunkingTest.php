@@ -3,7 +3,6 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Modules\DemoData\DemoCoverage;
-use TT\Modules\DemoData\DemoDataCleaner;
 use TT\Modules\DemoData\DemoGenerator;
 use TT\Modules\DemoData\DemoRunPlan;
 use TT\Modules\DemoData\DemoRunState;
@@ -138,15 +137,13 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
         $single = DemoGenerator::run( $opts );
         DemoRunState::clear();
 
-        // Several generators pick their subjects club-wide rather than from
-        // the batch they are writing — match analyses read every activity in
-        // the club, for one. Since #3102 they *skip* what a previous run
-        // already covered rather than colliding with a unique key, so the
-        // second run is quiet — but it also legitimately writes fewer rows.
-        // Clear the first batch so the stepped run starts from the same
-        // ground the single pass did; otherwise the two are not comparable.
-        DemoDataCleaner::wipeData( null, (string) $single['batch_id'] );
-
+        // #3184 — nothing is wiped between the passes any more. The
+        // generators that used to pick their subjects club-wide now pick
+        // them from the batch they are writing, so the second run neither
+        // sees the first run's rows nor depends on where `tt_activities`
+        // happens to have reached. Wiping in between hid that: it made the
+        // comparison pass for one particular starting state, which is not a
+        // property a reproducibility contract should have.
         $state = DemoGenerator::begin( $opts );
         $steps = 0;
         while ( $state->nextStep() !== null && $steps < 200 ) {
@@ -167,6 +164,44 @@ final class DemoRunChunkingTest extends WP_UnitTestCase {
         foreach ( $single['counts'] as $category => $count ) {
             $this->assertSame( (int) $count, (int) $chunked['counts'][ $category ],
                 "category {$category} differed between a single pass and a stepped run" );
+        }
+    }
+
+    /**
+     * #3184 — the production half of the same defect. Two identical runs
+     * into one install must produce the same per-category counts.
+     *
+     * They did not: the generators read every matching row in the club, met
+     * run one's, and wrote fewer rows the second time — silently since
+     * #3102, with a duplicate-key error before it. An operator generating a
+     * second demo academy onto a populated install got a thinner one and was
+     * told otherwise.
+     */
+    public function test_a_second_run_into_the_same_install_writes_the_same_shape(): void {
+        $opts = [
+            'preset'      => 'tiny',
+            'seed'        => 515151,
+            'domain'      => '',
+            'password'    => '',
+            'source'      => 'procedural',
+            'gen_people'  => false,
+            'gen_teams'   => true,
+            'gen_players' => true,
+        ];
+
+        $first = DemoGenerator::run( $opts );
+        DemoRunState::clear();
+        $second = DemoGenerator::run( $opts );
+        DemoRunState::clear();
+
+        $this->assertNotSame( $first['batch_id'], $second['batch_id'], 'two runs, two batches' );
+
+        foreach ( $first['counts'] as $category => $count ) {
+            $this->assertSame(
+                (int) $count,
+                (int) ( $second['counts'][ $category ] ?? -1 ),
+                "category {$category} shrank on a second run into the same install"
+            );
         }
     }
 

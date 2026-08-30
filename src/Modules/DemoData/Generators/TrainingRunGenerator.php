@@ -124,16 +124,23 @@ class TrainingRunGenerator implements DependentGeneratorInterface {
     private function completedTrainings( int $team_id, int $limit ): array {
         global $wpdb;
 
+        // Scoped by team, and the teams are this batch's (#3184 — the
+        // subject set comes from `GeneratorContext::$teams`, not from a
+        // club-wide read). The `club_id` filter was missing outright, which
+        // on a multi-tenant install would have attached a run to another
+        // club's training.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, session_date
                FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d
+                AND club_id = %d
                 AND activity_type_key = 'training'
                 AND session_date <= %s
                 AND archived_at IS NULL
-           ORDER BY session_date ASC
+           ORDER BY session_date ASC, id ASC
               LIMIT %d",
             $team_id,
+            CurrentClub::id(),
             current_time( 'mysql' ),
             max( 1, $limit )
         ) );

@@ -84,23 +84,19 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
         $total = 0;
         $n     = 0;
 
-        // #3102 — runs that nobody has been observed on yet. Like the match
-        // analyses, this reads the whole club rather than this batch, so a
-        // second run re-observed run one's sessions. `tt_training_observations`
-        // has no natural unique key to catch that, which makes it the quieter
-        // half of the same bug: no error, just a demo where every player was
-        // observed twice for the same session.
-        $runs = (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT r.id, r.activity_id, r.run_date
-               FROM {$wpdb->prefix}tt_training_plan_runs r
-          LEFT JOIN {$wpdb->prefix}tt_training_observations o
-                 ON o.run_id = r.id AND o.club_id = r.club_id
-              WHERE r.club_id = %d AND r.status = 'completed' AND o.id IS NULL
-           ORDER BY r.id ASC",
-            $club
-        ) );
+        // #3184 — the runs this batch wrote, not every run in the club.
+        //
+        // #3102 named this as the quieter half of the match-analysis bug and
+        // left the club-wide read in place behind a "not observed yet"
+        // filter: `tt_training_observations` has no natural unique key, so a
+        // second run re-observing run one's sessions produced no error, just
+        // a demo where every player was observed twice for the same session.
+        // The filter stopped that and left the read-across-the-club — which
+        // is also what made the generator's output depend on rows it did not
+        // write.
+        $runs = $this->batchRuns();
 
-        foreach ( $runs as $run ) {
+        foreach ( $runs as $r => $run ) {
             $players = (array) $wpdb->get_col( $wpdb->prepare(
                 "SELECT DISTINCT COALESCE( guest_player_id, player_id )
                    FROM {$wpdb->prefix}tt_attendance
@@ -113,8 +109,11 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
 
             foreach ( $players as $index => $player_id ) {
                 // Roughly one in three. Deterministic rather than random:
-                // demo data has to reproduce from a seed.
-                if ( ( $index + (int) $run->id ) % 3 !== 0 ) continue;
+                // demo data has to reproduce from a seed — and #3184 keyed
+                // it off the run's position in the batch rather than its row
+                // id, because an auto-increment id is not reproducible
+                // between two runs or two installs.
+                if ( ( $index + $r ) % 3 !== 0 ) continue;
 
                 // Half of those carry a score. The other half are the
                 // wet-Tuesday case the nullable column exists for.
@@ -143,6 +142,39 @@ class TrainingObservationGenerator implements DependentGeneratorInterface {
         }
 
         return $total;
+    }
+
+    /**
+     * The completed plan runs this batch wrote that carry no observation
+     * yet, oldest first (#3184).
+     *
+     * Ordered by `run_date` then id so the ordinal the choices key off is
+     * stable across runs — ids are not.
+     *
+     * @return list<object>
+     */
+    private function batchRuns(): array {
+        global $wpdb;
+
+        $ids = $this->registry->entityIds( 'training_plan_run' );
+        if ( ! $ids ) return [];
+
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT r.id, r.activity_id, r.run_date
+               FROM {$wpdb->prefix}tt_training_plan_runs r
+          LEFT JOIN {$wpdb->prefix}tt_training_observations o
+                 ON o.run_id = r.id AND o.club_id = r.club_id
+              WHERE r.id IN ({$placeholders})
+                AND r.club_id = %d
+                AND r.status = 'completed'
+                AND o.id IS NULL
+           ORDER BY r.run_date ASC, r.id ASC",
+            ...array_merge( $ids, [ CurrentClub::id() ] )
+        ) );
+
+        return is_array( $rows ) ? array_values( $rows ) : [];
     }
 
     /**

@@ -260,6 +260,14 @@ class StaffDevelopmentGenerator implements DependentGeneratorInterface {
         // tables — certifications, staff goals, evaluations, mentorships —
         // duplicating their rows, since none of them carries a unique key to
         // refuse a second copy.
+        //
+        // #3184 — club-wide on purpose, unlike the match analyses and
+        // training observations that were scoped there. A staff dossier is
+        // about the club's staff, and the batch does not necessarily create
+        // any: with `gen_people` off, the people already on the install are
+        // the only staff there are. Scoping this to the batch would leave
+        // staff development empty on exactly the run that generates onto an
+        // existing academy.
         $ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT p.id FROM {$wpdb->prefix}tt_people p
           LEFT JOIN {$wpdb->prefix}tt_staff_pdp sp
