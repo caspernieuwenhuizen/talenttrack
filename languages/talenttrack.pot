@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-30T14:30:09+00:00\n"
+"POT-Creation-Date: 2026-08-30T14:52:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -9777,8 +9777,8 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:90
 #: src/Modules/Documentation/HelpTopics.php:188
-#: src/Modules/Measurements/MeasurementsModule.php:82
-#: src/Modules/Measurements/MeasurementsModule.php:104
+#: src/Modules/Measurements/MeasurementsModule.php:88
+#: src/Modules/Measurements/MeasurementsModule.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
 #: src/Modules/Tournaments/TournamentsModule.php:89
 #: src/Shared/CoreSurfaceRegistration.php:694
@@ -9793,7 +9793,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:142
 #: src/Modules/Documentation/HelpTopics.php:190
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:195
-#: src/Modules/Measurements/MeasurementsModule.php:130
+#: src/Modules/Measurements/MeasurementsModule.php:136
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:81
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
 #: src/Modules/PersonaDashboard/Frontend/FrontendPersonaTemplatesView.php:71
@@ -24724,7 +24724,7 @@ msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:25
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:115
-#: src/Modules/Measurements/MeasurementsModule.php:107
+#: src/Modules/Measurements/MeasurementsModule.php:113
 msgid "Testing coverage"
 msgstr ""
 
@@ -24743,7 +24743,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:95
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:375
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:42
-#: src/Modules/Measurements/MeasurementsModule.php:133
+#: src/Modules/Measurements/MeasurementsModule.php:139
 msgid "Manage tests"
 msgstr ""
 
@@ -24800,7 +24800,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:66
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:81
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:109
-#: src/Modules/Measurements/MeasurementsModule.php:85
+#: src/Modules/Measurements/MeasurementsModule.php:91
 msgid "Record measurements"
 msgstr ""
 
@@ -25375,29 +25375,29 @@ msgstr ""
 msgid "Grey"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:58
+#: src/Modules/Measurements/MeasurementsModule.php:64
 #: src/Shared/CoreSurfaceRegistration.php:386
 #: src/Shared/Frontend/FrontendTileGrid.php:552
 msgid "Me"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:61
+#: src/Modules/Measurements/MeasurementsModule.php:67
 msgid "My measurements"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:62
+#: src/Modules/Measurements/MeasurementsModule.php:68
 msgid "Your test results and how they trend."
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:86
+#: src/Modules/Measurements/MeasurementsModule.php:92
 msgid "Tests & measurements: enter test results for a team."
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:108
+#: src/Modules/Measurements/MeasurementsModule.php:114
 msgid "Tests & measurements: see who is due or overdue for each test."
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:134
+#: src/Modules/Measurements/MeasurementsModule.php:140
 msgid "Tests & measurements: define the tests your academy runs and their target bands."
 msgstr ""
 
