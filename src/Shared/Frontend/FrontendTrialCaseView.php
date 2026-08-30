@@ -857,8 +857,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
                         // Letter
                         $audience = self::audienceForDecision( $decision );
                         $svc      = new TrialLetterService();
-                        $letter_id = $svc->generate( $case, $audience, $user_id, $strengths ?: null, $growth ?: null );
-                        $svc->revokePriorLetters( $case_id, $letter_id );
+                        // #3223 — `generate()` supersedes the prior live
+                        // letter itself now, so the follow-up revoke that
+                        // used to sit here has gone with it.
+                        $svc->generate( $case, $audience, $user_id, $strengths ?: null, $growth ?: null );
                     }
                 }
                 return;
@@ -870,8 +872,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 if ( ! $case || ! $case->decision ) return;
                 $audience = self::audienceForDecision( (string) $case->decision );
                 $svc      = new TrialLetterService();
-                $new_id   = $svc->generate( $case, $audience, $user_id, $case->strengths_summary, $case->growth_areas );
-                $svc->revokePriorLetters( $case_id, $new_id );
+                // #3223 — same as above: superseding is the service's job.
+                $svc->generate( $case, $audience, $user_id, $case->strengths_summary, $case->growth_areas );
                 return;
 
             case 'accept_received':

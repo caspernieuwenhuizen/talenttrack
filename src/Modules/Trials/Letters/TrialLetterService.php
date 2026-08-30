@@ -59,9 +59,31 @@ final class TrialLetterService {
             'cover_message'   => null,
         ] );
 
-        return $ok ? (int) $wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+
+        $id = (int) $wpdb->insert_id;
+
+        // #3223 — superseding belongs here, not in the caller.
+        //
+        // Both call sites in `FrontendTrialCaseView` generated and then
+        // revoked the priors on the very next line, which made "a case has
+        // one live letter" a rule the views happened to follow rather than
+        // one the service guaranteed. Adding the REST route would have made
+        // a third place to remember it, and the first place to forget it —
+        // two live letters saying different things to the same family is
+        // exactly the failure this prevents.
+        $this->revokePriorLetters( (int) $case->id, $id );
+
+        return $id;
     }
 
+    /**
+     * Revoke every other live letter on a case.
+     *
+     * Called by {@see self::generate()}, which is where the rule now lives.
+     * Still public: regenerating from an existing letter is a legitimate
+     * caller, and so is a future admin correction.
+     */
     public function revokePriorLetters( int $case_id, int $current_letter_id = 0 ): int {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_reports';
