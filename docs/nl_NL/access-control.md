@@ -100,7 +100,7 @@ uit die koppelingen, niet uit het recht.
 | **Clubbeheerder** | Alle onderdelen | Teams, Spelers, Personen, Sessies, Doelen, Instellingen|
 | **Coach** | Alles behalve Instellingen | Evaluaties, Sessies, Doelen |
 | **Scout** | Teams, Spelers, Evals | Evaluaties |
-| **Staf** | Teams, Spelers, Personen | Spelers, Personen |
+| **Staf** | Teams, Spelers, Personen, Metingen, Blessures | Spelers, Personen, Metingen, Blessures |
 | **Speler** | Alleen eigen data | Alleen eigen profiel |
 | **Ouder** | Alleen data van kind | *(geen)* |
 | **Alleen-lezen Waarnemer** | **Alle onderdelen** | **Geen** |
@@ -159,9 +159,21 @@ De rol Staf is de stoel voor de fysio, de materiaalman en algemene clubstaf. Ze 
 | **Spelers** van die teams | Bij een elftal komen waaraan ze niet verbonden zijn |
 | **Personen** van die teams | Een speler aanmaken of verwijderen |
 | **Spelersnotities** — het staf-only logboek in het spelersdossier | Een seizoensovergang draaien of spelersaccounts aanmaken |
-| Hun eigen stafdossier, altijd | Configuratie wijzigen |
+| **Metingen** — lengte, gewicht, sprinttijden vastleggen en lezen | Een meting of een blessuredossier verwijderen |
+| **Blessures** — blessures van een speler vastleggen en lezen | Configuratie wijzigen |
+| Hun eigen stafdossier, altijd | |
 
-Teamgegevens zijn voor staf alleen-lezen; bewerken kan bij spelers, personen en spelersnotities.
+Teamgegevens zijn voor staf alleen-lezen; bewerken kan bij spelers, personen, spelersnotities, metingen en blessures.
+
+### Wie de rol Staf krijgt, krijgt blessuregegevens
+
+Lees dit voordat je de rol uitdeelt. **Staf kan blessures van de spelers uit hun teams inzien en vastleggen** — medische gegevens over minderjarigen.
+
+Voor een fysio is dat precies goed; die is de aangewezen persoon om dat bij te houden. Voor een materiaalman is het meer dan nodig. Staf is nu één rol die beide dekt, dus je kunt de materiaalman niet de shirts geven zonder de medische historie: de enige knop is aan welke elftallen iemand gekoppeld is.
+
+Is dat meer dan je wilt, geef die persoon dan geen Staf — koppel hem aan het team zonder die rol, of gebruik een smallere rol. Gaat het om een fysio, dan is dit juist de stoel die past.
+
+Staf kan blessures noch metingen **verwijderen**. Het weghalen van een medisch dossier van een minderjarige blijft bij het hoofd opleiding en de academiebeheerder.
 
 **Staf krijgt het spelersbeheer niet.** Het recht achter "spelers beheren" draagt namelijk ook de seizoensovergang, het aanmaken van inloggegevens voor spelers, het bewerken van maatwerkvelddefinities en het verwijderen van spelersdossiers — een academiebreed beheerdersoppervlak, geen elftaloppervlak. Heeft een fysio een nieuwe speler nodig, dan vraagt die dat aan een trainer of beheerder.
 
