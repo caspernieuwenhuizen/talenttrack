@@ -149,7 +149,13 @@ final class PlayerPickerScopeTest extends WP_UnitTestCase {
 
         $this->assertStringNotContainsString( 'data-tt-roster-picker', $html );
         $this->assertStringNotContainsString( 'id="tt-team-form"', $html );
-        $this->assertStringContainsString( 'permission', $html );
+
+        // Assert the refusal, not the sentence. #3152 replaced the generic
+        // "you do not have permission" wording with a specific scope refusal
+        // on this path, which is a better message and not something this
+        // test should be pinning.
+        $this->assertStringContainsString( 'tt-notice', $html );
+        $this->assertStringContainsString( 'Not authorized', $html );
     }
 
     public function test_the_media_target_step_offers_only_players_in_scope(): void {
