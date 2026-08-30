@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T18:16:10+00:00\n"
+"POT-Creation-Date: 2026-08-30T18:42:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -68,7 +68,7 @@ msgstr ""
 #: database/migrations/0025_invitations.php:129
 #: src/Infrastructure/Query/LabelTranslator.php:90
 #: src/Infrastructure/Query/LabelTranslator.php:139
-#: src/Infrastructure/Security/RolesService.php:434
+#: src/Infrastructure/Security/RolesService.php:468
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:267
 #: src/Modules/Documentation/AudienceResolver.php:48
@@ -99,7 +99,7 @@ msgstr ""
 
 #: includes/Activator.php:178
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
-#: src/Infrastructure/Security/RolesService.php:430
+#: src/Infrastructure/Security/RolesService.php:464
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:262
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:218
@@ -240,7 +240,7 @@ msgid "Player"
 msgstr "Spieler"
 
 #: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:77
-#: src/Infrastructure/Security/RolesService.php:345
+#: src/Infrastructure/Security/RolesService.php:357
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:193
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
@@ -287,7 +287,7 @@ msgid "Head of Development"
 msgstr "Leiter Nachwuchsförderung"
 
 #: includes/Activator.php:186 src/Infrastructure/Query/LabelTranslator.php:87
-#: src/Infrastructure/Security/RolesService.php:406
+#: src/Infrastructure/Security/RolesService.php:418
 #: src/Infrastructure/Teams/TeamDetailSections.php:61
 #: src/Modules/Invitations/InvitationKind.php:54
 #: src/Modules/People/Admin/PeoplePage.php:514
@@ -1942,7 +1942,7 @@ msgstr "Physiotherapeut"
 #: src/Infrastructure/Query/LabelTranslator.php:89
 #: src/Infrastructure/Query/LabelTranslator.php:138
 #: src/Infrastructure/Query/LabelTranslator.php:242
-#: src/Infrastructure/Security/RolesService.php:379
+#: src/Infrastructure/Security/RolesService.php:391
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:271
@@ -2025,7 +2025,7 @@ msgid "Archived"
 msgstr "Archiviert"
 
 #: src/Infrastructure/Query/LabelTranslator.php:131
-#: src/Infrastructure/Security/RolesService.php:317
+#: src/Infrastructure/Security/RolesService.php:327
 #: src/Modules/Authorization/Admin/RolesPage.php:431
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:153
 #: src/Shared/Frontend/FrontendRolesView.php:71
@@ -4138,17 +4138,17 @@ msgstr ""
 msgid "Invalid player id."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:505
+#: src/Infrastructure/REST/PlayersRestController.php:509
 #: src/Modules/Trials/Services/TrialCaseOpener.php:72
 #: src/Modules/Wizards/Player/ReviewStep.php:142
 msgid "The player could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:555
+#: src/Infrastructure/REST/PlayersRestController.php:559
 msgid "The player could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:619
+#: src/Infrastructure/REST/PlayersRestController.php:623
 msgid "The player could not be deleted."
 msgstr ""
 
@@ -4624,7 +4624,7 @@ msgid ""
 msgstr ""
 
 # ===== v2.21.0 — Tile-based frontend + Read-Only Observer role =====
-#: src/Infrastructure/Security/RolesService.php:439
+#: src/Infrastructure/Security/RolesService.php:473
 #: src/Shared/Frontend/FrontendRolesView.php:60
 msgid "Read-Only Observer"
 msgstr ""
@@ -54635,46 +54635,53 @@ msgid "%1$s (%2$s)"
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:76
+#: src/Shared/Validation/CustomFieldValidator.php:88
+#: src/Shared/Validation/CustomFieldValidator.php:110
 #, php-format
 msgid "The field \"%s\" is required."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:235
+#: src/Shared/Validation/CustomFieldValidator.php:269
 #, php-format
 msgid "The field \"%s\" must be a number."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:251
+#: src/Shared/Validation/CustomFieldValidator.php:285
 #, php-format
 msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:273
-#: src/Shared/Validation/CustomFieldValidator.php:300
+#: src/Shared/Validation/CustomFieldValidator.php:307
+#: src/Shared/Validation/CustomFieldValidator.php:334
 #, php-format
 msgid "The field \"%s\" has an invalid selection."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:319
+#: src/Shared/Validation/CustomFieldValidator.php:353
 #, php-format
 msgid "The field \"%s\" must be a valid URL."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:334
+#: src/Shared/Validation/CustomFieldValidator.php:368
 #, php-format
 msgid "The field \"%s\" must be a valid email address."
 msgstr ""
 
 #. translators: %s is the custom field label.
-#: src/Shared/Validation/CustomFieldValidator.php:350
+#: src/Shared/Validation/CustomFieldValidator.php:384
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
+msgstr ""
+
+#. translators: %s is the unrecognised custom-field type.
+#: src/Shared/Validation/CustomFieldValidator.php:402
+#, php-format
+msgid "Unknown field type: %s"
 msgstr ""
 
 #, php-format
