@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-29T21:44:40+00:00\n"
+"POT-Creation-Date: 2026-08-30T07:51:59+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -88,8 +88,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:285
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
-#: src/Modules/Players/Admin/PlayersPage.php:127
-#: src/Modules/Players/Admin/PlayersPage.php:408
+#: src/Modules/Players/Admin/PlayersPage.php:174
+#: src/Modules/Players/Admin/PlayersPage.php:463
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:2260
 #: src/Shared/Frontend/FrontendConfigurationView.php:2825
@@ -108,7 +108,7 @@ msgstr "Team Manager"
 #: includes/Activator.php:178
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
 #: src/Infrastructure/Security/RolesService.php:430
-#: src/Modules/Activities/Admin/ActivitiesPage.php:357
+#: src/Modules/Activities/Admin/ActivitiesPage.php:380
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:248
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:209
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:207
@@ -141,8 +141,8 @@ msgstr "Team Manager"
 #: src/Modules/DataBrowser/SemanticRegistry.php:120
 #: src/Modules/DataBrowser/SemanticRegistry.php:128
 #: src/Modules/Documentation/AudienceResolver.php:47
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:146
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:372
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:190
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:439
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:139
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
@@ -150,8 +150,8 @@ msgstr "Team Manager"
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:196
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:326
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:442
-#: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Goals/Admin/GoalsPage.php:134
+#: src/Modules/Goals/Admin/GoalsPage.php:73
+#: src/Modules/Goals/Admin/GoalsPage.php:172
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:134
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:158
@@ -181,7 +181,7 @@ msgstr "Team Manager"
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:222
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
 #: src/Modules/Stats/Admin/PlayerCardView.php:284
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:69
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:274
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:507
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:183
@@ -247,14 +247,14 @@ msgstr "Speler"
 
 #: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:77
 #: src/Infrastructure/Security/RolesService.php:345
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:149
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:193
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:154
 #: src/Modules/People/Admin/PeoplePage.php:509
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:437
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
-#: src/Modules/Reports/Admin/ReportsPage.php:295
+#: src/Modules/Reports/Admin/ReportsPage.php:312
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:276
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:506
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
@@ -309,7 +309,7 @@ msgid "Staff"
 msgstr "Staf"
 
 #: includes/Admin/Reports.php:55
-#: src/Modules/Activities/Admin/ActivitiesPage.php:143
+#: src/Modules/Activities/Admin/ActivitiesPage.php:144
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:326
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:328
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:590
@@ -318,8 +318,8 @@ msgstr "Staf"
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:204
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:227
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:269
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
-#: src/Modules/Goals/Admin/GoalsPage.php:94
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:287
+#: src/Modules/Goals/Admin/GoalsPage.php:111
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:201
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:103
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:119
@@ -330,9 +330,9 @@ msgstr "Staf"
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:107
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:105
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:117
-#: src/Modules/Players/Admin/PlayersPage.php:184
+#: src/Modules/Players/Admin/PlayersPage.php:231
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:181
-#: src/Modules/Teams/Admin/TeamsPage.php:114
+#: src/Modules/Teams/Admin/TeamsPage.php:131
 #: src/Shared/Frontend/CoachDashboardView.php:337
 #: src/Shared/Frontend/CoachForms.php:667
 #: src/Shared/Frontend/Components/FrontendThreadView.php:172
@@ -1076,16 +1076,16 @@ msgid "Player · Progress & radar"
 msgstr "Speler · Voortgang & radar"
 
 #: src/Core/FeatureRegistry.php:578
-#: src/Modules/Reports/Admin/ReportsPage.php:61
-#: src/Modules/Reports/Admin/ReportsPage.php:173
+#: src/Modules/Reports/Admin/ReportsPage.php:63
+#: src/Modules/Reports/Admin/ReportsPage.php:182
 #: src/Shared/Frontend/FrontendReportDetailView.php:55
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:68
 msgid "Team rating averages"
 msgstr "Team-beoordelingsgemiddelden"
 
 #: src/Core/FeatureRegistry.php:579
-#: src/Modules/Reports/Admin/ReportsPage.php:68
-#: src/Modules/Reports/Admin/ReportsPage.php:261
+#: src/Modules/Reports/Admin/ReportsPage.php:70
+#: src/Modules/Reports/Admin/ReportsPage.php:278
 #: src/Shared/Frontend/FrontendReportDetailView.php:56
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:74
 msgid "Coach activity"
@@ -1297,7 +1297,7 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:27
-#: src/Modules/Activities/Admin/ActivitiesPage.php:143
+#: src/Modules/Activities/Admin/ActivitiesPage.php:144
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:293
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:588
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:605
@@ -1308,8 +1308,8 @@ msgstr "Detail"
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:99
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:136
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:176
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:242
-#: src/Modules/Goals/Admin/GoalsPage.php:94
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:286
+#: src/Modules/Goals/Admin/GoalsPage.php:111
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:462
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:165
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:75
@@ -1333,11 +1333,11 @@ msgstr "Detail"
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:110
 #: src/Modules/Pdp/Admin/SeasonsPage.php:88
 #: src/Modules/People/Admin/PeoplePage.php:251
-#: src/Modules/Players/Admin/PlayersPage.php:184
-#: src/Modules/Players/Admin/PlayersPage.php:288
-#: src/Modules/Players/Admin/PlayersPage.php:447
+#: src/Modules/Players/Admin/PlayersPage.php:231
+#: src/Modules/Players/Admin/PlayersPage.php:343
+#: src/Modules/Players/Admin/PlayersPage.php:502
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:89
-#: src/Modules/Teams/Admin/TeamsPage.php:114
+#: src/Modules/Teams/Admin/TeamsPage.php:131
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:43
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:54
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:62
@@ -1586,7 +1586,7 @@ msgstr "Vastgelegd"
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:306
 #: src/Infrastructure/Query/LabelTranslator.php:52
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:204
-#: src/Modules/Players/Admin/PlayersPage.php:234
+#: src/Modules/Players/Admin/PlayersPage.php:289
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:525
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:231
 msgid "Released"
@@ -1928,7 +1928,7 @@ msgstr "Hoog"
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:91
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
-#: src/Modules/Players/Admin/PlayersPage.php:231
+#: src/Modules/Players/Admin/PlayersPage.php:286
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:266
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:197
@@ -1969,13 +1969,13 @@ msgstr "Actief"
 #: src/Modules/People/Admin/PeoplePage.php:166
 #: src/Modules/People/Admin/PeoplePage.php:247
 #: src/Modules/People/Admin/PeoplePage.php:366
-#: src/Modules/Players/Admin/PlayersPage.php:232
+#: src/Modules/Players/Admin/PlayersPage.php:287
 msgid "Inactive"
 msgstr "Inactief"
 
 #: src/Infrastructure/Query/LabelTranslator.php:51
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:203
-#: src/Modules/Players/Admin/PlayersPage.php:233
+#: src/Modules/Players/Admin/PlayersPage.php:288
 #: src/Modules/Tournaments/Wizard/SquadStep.php:125
 #: src/Shared/Frontend/FrontendTeamDetailView.php:780
 msgid "Trial"
@@ -2032,7 +2032,7 @@ msgstr "Afgemeld"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:286
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
-#: src/Modules/Teams/Admin/TeamsPage.php:51
+#: src/Modules/Teams/Admin/TeamsPage.php:68
 #: src/Modules/Wizards/Team/StaffStep.php:34
 #: src/Shared/Frontend/FrontendConfigurationView.php:2820
 #: src/Shared/Frontend/FrontendTeamDetailView.php:492
@@ -2045,7 +2045,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
-#: src/Modules/Teams/Admin/TeamsPage.php:52
+#: src/Modules/Teams/Admin/TeamsPage.php:69
 #: src/Modules/Wizards/Team/StaffStep.php:35
 #: src/Shared/Frontend/FrontendConfigurationView.php:2821
 #: src/Shared/Frontend/FrontendPeopleManageView.php:285
@@ -2058,7 +2058,7 @@ msgstr "Assistent-trainer"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:375
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:288
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
-#: src/Modules/Teams/Admin/TeamsPage.php:53
+#: src/Modules/Teams/Admin/TeamsPage.php:70
 #: src/Modules/Wizards/Team/StaffStep.php:36
 #: src/Shared/Frontend/FrontendConfigurationView.php:2822
 msgid "Team manager"
@@ -2122,25 +2122,25 @@ msgstr "Overig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:104
 #: src/Infrastructure/Query/LabelTranslator.php:441
-#: src/Modules/Activities/Admin/ActivitiesPage.php:119
+#: src/Modules/Activities/Admin/ActivitiesPage.php:120
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:164
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:208
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:204
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
-#: src/Modules/Goals/Admin/GoalsPage.php:85
+#: src/Modules/Goals/Admin/GoalsPage.php:102
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:523
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1849
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
 #: src/Modules/People/Admin/PeoplePage.php:213
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
-#: src/Modules/Players/Admin/PlayersPage.php:148
+#: src/Modules/Players/Admin/PlayersPage.php:195
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:263
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:200
-#: src/Modules/Teams/Admin/TeamsPage.php:107
+#: src/Modules/Teams/Admin/TeamsPage.php:124
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:244
@@ -2548,14 +2548,14 @@ msgstr "Gepubliceerd"
 msgid "Completed"
 msgstr "Voltooid"
 
-#: src/Infrastructure/Query/QueryHelpers.php:709
+#: src/Infrastructure/Query/QueryHelpers.php:717
 #: src/Modules/License/FeatureMap.php:390
 msgid "Radar charts"
 msgstr "Radarkaarten"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:44
-#: src/Modules/Activities/Admin/ActivitiesPage.php:97
-#: src/Modules/Activities/Admin/ActivitiesPage.php:322
+#: src/Modules/Activities/Admin/ActivitiesPage.php:98
+#: src/Modules/Activities/Admin/ActivitiesPage.php:345
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:418
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:505
 #: src/Modules/Analytics/AnalyticsModule.php:114
@@ -2584,7 +2584,7 @@ msgstr "Radarkaarten"
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:44
 #: src/Modules/DataBrowser/SemanticRegistry.php:49
 #: src/Modules/DataBrowser/SemanticRegistry.php:68
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:147
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:191
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:116
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:43
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:120
@@ -2628,12 +2628,12 @@ msgstr "Radarkaarten"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1061
-#: src/Modules/Players/Admin/PlayersPage.php:126
-#: src/Modules/Players/Admin/PlayersPage.php:383
-#: src/Modules/Players/Admin/PlayersPage.php:451
-#: src/Modules/Reports/Admin/ReportsPage.php:186
+#: src/Modules/Players/Admin/PlayersPage.php:173
+#: src/Modules/Players/Admin/PlayersPage.php:438
+#: src/Modules/Players/Admin/PlayersPage.php:506
+#: src/Modules/Reports/Admin/ReportsPage.php:195
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:279
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:285
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/Training/Wizard/WhenStep.php:34
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:155
@@ -2701,7 +2701,7 @@ msgstr "Team"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:45
 #: src/Modules/DataBrowser/SemanticRegistry.php:89
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:746
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:813
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:73
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1747
 msgid "Evaluation"
@@ -2735,7 +2735,7 @@ msgid "Activity"
 msgstr "Activiteit"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:47
-#: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Goals/Admin/GoalsPage.php:73
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:860
 #: src/Modules/Methodology/Admin/MethodologyPage.php:613
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:166
@@ -3127,6 +3127,7 @@ msgstr "Een team is vereist."
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:87
+#: src/Modules/Teams/Admin/TeamsPage.php:33
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:71
 msgid "You do not have access to this team."
 msgstr "Je hebt geen toegang tot dit team."
@@ -3677,7 +3678,7 @@ msgstr "Lookup-waarde kon niet worden verwijderd."
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:75
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:46
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:53
-#: src/Modules/Reports/Admin/ReportsPage.php:39
+#: src/Modules/Reports/Admin/ReportsPage.php:41
 #: src/Shared/Frontend/FrontendRateCardView.php:57
 #: src/Shared/Frontend/FrontendStandardReportsView.php:127
 msgid "This report has been switched off for your academy."
@@ -3689,7 +3690,9 @@ msgstr "Dit rapport is uitgeschakeld voor je academie."
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:218
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:344
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:47
+#: src/Modules/Players/Admin/PlayersPage.php:66
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:53
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:55
 msgid "You do not have access to this player."
 msgstr "Je hebt geen toegang tot deze speler."
 
@@ -3852,16 +3855,16 @@ msgstr "Een voor- en achternaam zijn verplicht."
 #: src/Infrastructure/REST/RestResponse.php:83
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:710
-#: src/Modules/Players/Admin/PlayersPage.php:438
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:777
+#: src/Modules/Players/Admin/PlayersPage.php:493
 msgid "Not found."
 msgstr "Niet gevonden."
 
 #: src/Infrastructure/REST/PeekRestController.php:102
-#: src/Modules/Activities/Admin/ActivitiesPage.php:95
-#: src/Modules/Activities/Admin/ActivitiesPage.php:277
-#: src/Modules/Activities/Admin/ActivitiesPage.php:357
-#: src/Modules/Activities/Admin/ActivitiesPage.php:376
+#: src/Modules/Activities/Admin/ActivitiesPage.php:96
+#: src/Modules/Activities/Admin/ActivitiesPage.php:300
+#: src/Modules/Activities/Admin/ActivitiesPage.php:380
+#: src/Modules/Activities/Admin/ActivitiesPage.php:399
 #: src/Modules/Analytics/AnalyticsModule.php:137
 #: src/Modules/Analytics/AnalyticsModule.php:176
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
@@ -3899,8 +3902,8 @@ msgstr "Niet gevonden."
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:47
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
-#: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Goals/Admin/GoalsPage.php:145
+#: src/Modules/Goals/Admin/GoalsPage.php:73
+#: src/Modules/Goals/Admin/GoalsPage.php:183
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:131
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
@@ -3914,8 +3917,8 @@ msgstr "Niet gevonden."
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
-#: src/Modules/Players/Admin/PlayersPage.php:422
-#: src/Modules/Players/Admin/PlayersPage.php:456
+#: src/Modules/Players/Admin/PlayersPage.php:477
+#: src/Modules/Players/Admin/PlayersPage.php:511
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:236
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:251
@@ -4001,7 +4004,7 @@ msgstr "Rugnummer"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:150
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:308
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
 #: src/Modules/Wizards/Player/ReviewStep.php:32
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:32
@@ -4042,13 +4045,14 @@ msgstr "Geboortedatum"
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
-#: src/Modules/Players/Admin/PlayersPage.php:77
+#: src/Modules/Players/Admin/PlayersPage.php:65
+#: src/Modules/Players/Admin/PlayersPage.php:124
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:316
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
 #: src/Modules/Stats/Admin/UsageStatsPage.php:145
 #: src/Modules/Stats/Admin/UsageStatsPage.php:349
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:37
-#: src/Modules/Teams/Admin/TeamsPage.php:54
+#: src/Modules/Teams/Admin/TeamsPage.php:71
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:65
 #: src/Shared/Admin/BackNavigator.php:111
 #: src/Shared/CoreSurfaceRegistration.php:622
@@ -4083,8 +4087,8 @@ msgid "Season"
 msgstr "Seizoen"
 
 #: src/Infrastructure/REST/PeekRestController.php:164
-#: src/Modules/Activities/Admin/ActivitiesPage.php:92
-#: src/Modules/Activities/Admin/ActivitiesPage.php:318
+#: src/Modules/Activities/Admin/ActivitiesPage.php:93
+#: src/Modules/Activities/Admin/ActivitiesPage.php:341
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:253
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:501
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
@@ -4092,9 +4096,9 @@ msgstr "Seizoen"
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:25
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:24
 #: src/Modules/DataBrowser/SemanticRegistry.php:69
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:145
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:380
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:750
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:189
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:447
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:817
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:115
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:41
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
@@ -4152,8 +4156,8 @@ msgid "Date"
 msgstr "Datum"
 
 #: src/Infrastructure/REST/PeekRestController.php:168
-#: src/Modules/Activities/Admin/ActivitiesPage.php:94
-#: src/Modules/Activities/Admin/ActivitiesPage.php:267
+#: src/Modules/Activities/Admin/ActivitiesPage.php:95
+#: src/Modules/Activities/Admin/ActivitiesPage.php:290
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:433
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:467
@@ -4168,10 +4172,10 @@ msgstr "Datum"
 #: src/Modules/Development/Frontend/IdeasRefineView.php:93
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:72
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:108
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:116
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:148
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:160
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:192
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:443
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:818
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:400
 #: src/Modules/Mfa/Wizards/SecretStep.php:116
@@ -4819,7 +4823,7 @@ msgstr "Alleen-lezen Waarnemer"
 
 #: src/Infrastructure/Stats/PlayerStatsService.php:388
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:26
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:150
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:194
 #: src/Shared/Frontend/FrontendTrialCaseView.php:602
 msgid "Overall"
 msgstr "Totaal"
@@ -4877,17 +4881,18 @@ msgstr "Aankomende activiteiten"
 msgid "Media"
 msgstr "Media"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:55
+#: src/Modules/Activities/Admin/ActivitiesPage.php:56
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:366
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:454
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:453
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:204
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:210
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
 #: src/Shared/Frontend/FrontendComparisonView.php:286
 msgid "All types"
 msgstr "Alle types"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:67
+#: src/Modules/Activities/Admin/ActivitiesPage.php:68
+#: src/Modules/Activities/Admin/ActivitiesPage.php:222
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:191
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:149
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:368
@@ -4934,38 +4939,38 @@ msgstr "Alle types"
 msgid "Activities"
 msgstr "Activiteiten"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:67
+#: src/Modules/Activities/Admin/ActivitiesPage.php:68
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:555
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:786
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:47
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
-#: src/Modules/Goals/Admin/GoalsPage.php:46
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
+#: src/Modules/Goals/Admin/GoalsPage.php:63
 #: src/Modules/People/Admin/PeoplePage.php:152
-#: src/Modules/Players/Admin/PlayersPage.php:77
-#: src/Modules/Teams/Admin/TeamsPage.php:39
+#: src/Modules/Players/Admin/PlayersPage.php:124
+#: src/Modules/Teams/Admin/TeamsPage.php:56
 msgid "Add New"
 msgstr "Nieuw toevoegen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:68
+#: src/Modules/Activities/Admin/ActivitiesPage.php:69
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:366
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:132
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:579
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:456
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:96
-#: src/Modules/Goals/Admin/GoalsPage.php:47
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:140
+#: src/Modules/Goals/Admin/GoalsPage.php:64
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:204
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:1011
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:532
-#: src/Modules/Players/Admin/PlayersPage.php:78
+#: src/Modules/Players/Admin/PlayersPage.php:125
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1344
-#: src/Modules/Teams/Admin/TeamsPage.php:40
+#: src/Modules/Teams/Admin/TeamsPage.php:57
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:364
 #: src/Shared/Frontend/Components/SavedViews.php:190
 #: src/Shared/Frontend/DashboardShortcode.php:237
@@ -4974,14 +4979,14 @@ msgstr "Nieuw toevoegen"
 msgid "Saved."
 msgstr "Opgeslagen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:77
+#: src/Modules/Activities/Admin/ActivitiesPage.php:78
 msgid "Type:"
 msgstr "Type:"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:83
+#: src/Modules/Activities/Admin/ActivitiesPage.php:84
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:509
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:84
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:134
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:178
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:221
 #: src/Modules/Methodology/Admin/MethodologyPage.php:161
 #: src/Modules/People/Admin/PeoplePage.php:172
@@ -4989,8 +4994,8 @@ msgstr "Type:"
 msgid "Filter"
 msgstr "Filteren"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:93
-#: src/Modules/Activities/Admin/ActivitiesPage.php:316
+#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:339
 #: src/Modules/Configuration/Admin/FormSlugContract.php:103
 #: src/Modules/Configuration/Admin/FormSlugContract.php:114
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:22
@@ -5004,7 +5009,7 @@ msgstr "Filteren"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
-#: src/Modules/Goals/Admin/GoalsPage.php:138
+#: src/Modules/Goals/Admin/GoalsPage.php:176
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:46
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
@@ -5043,7 +5048,7 @@ msgstr "Filteren"
 msgid "Title"
 msgstr "Titel"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:96
+#: src/Modules/Activities/Admin/ActivitiesPage.php:97
 #: src/Modules/Authorization/Admin/DebugPage.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:60
@@ -5058,7 +5063,7 @@ msgstr "Titel"
 msgid "Source"
 msgstr "Bron"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:98
+#: src/Modules/Activities/Admin/ActivitiesPage.php:99
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:247
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:176
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
@@ -5072,8 +5077,8 @@ msgstr "Bron"
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:809
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:76
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:101
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
-#: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:195
+#: src/Modules/Goals/Admin/GoalsPage.php:73
 #: src/Modules/Import/Frontend/FrontendImportHistoryView.php:55
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:132
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
@@ -5086,13 +5091,13 @@ msgstr "Bron"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:501
 #: src/Modules/People/Admin/PeoplePage.php:189
 #: src/Modules/People/Admin/TeamStaffPanel.php:55
-#: src/Modules/Players/Admin/PlayersPage.php:129
+#: src/Modules/Players/Admin/PlayersPage.php:176
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:92
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:124
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:277
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:347
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:65
-#: src/Modules/Teams/Admin/TeamsPage.php:55
+#: src/Modules/Teams/Admin/TeamsPage.php:72
 #: src/Shared/Frontend/Components/FrontendListTable.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:274
 #: src/Shared/Frontend/FrontendBackupsView.php:292
@@ -5106,21 +5111,21 @@ msgstr "Bron"
 msgid "Actions"
 msgstr "Acties"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:100
+#: src/Modules/Activities/Admin/ActivitiesPage.php:101
 msgid "No activities."
 msgstr "Geen activiteiten."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:143
+#: src/Modules/Activities/Admin/ActivitiesPage.php:144
 #, php-format
 msgid "Delete the activity \"%s\"?"
 msgstr "Activiteit \"%s\" verwijderen?"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:143
+#: src/Modules/Activities/Admin/ActivitiesPage.php:144
 msgid "Delete activity?"
 msgstr "Activiteit verwijderen?"
 
 #. translators: %d: number of activities migrated
-#: src/Modules/Activities/Admin/ActivitiesPage.php:170
+#: src/Modules/Activities/Admin/ActivitiesPage.php:171
 #, php-format
 msgid ""
 "%d existing activities were migrated from sessions and default to type "
@@ -5130,25 +5135,29 @@ msgstr ""
 "type \"Training\". Herclassificeer eventuele historische wedstrijden via het "
 "bewerkformulier."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:174
+#: src/Modules/Activities/Admin/ActivitiesPage.php:175
 #: src/Modules/Backup/Admin/BulkUndoNotice.php:97
 #: src/Shared/Frontend/DashboardShortcode.php:271
 #: src/Shared/Frontend/FlashMessages.php:138
 msgid "Dismiss"
 msgstr "Verbergen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:246
+#: src/Modules/Activities/Admin/ActivitiesPage.php:223
+msgid "You do not have access to this activity."
+msgstr "Je hebt geen toegang tot deze activiteit."
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:269
 #: src/Shared/Admin/BackNavigator.php:124
 msgid "Edit Activity"
 msgstr "Activiteit bewerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:246
+#: src/Modules/Activities/Admin/ActivitiesPage.php:269
 #: src/Shared/Admin/BackNavigator.php:123
 #: src/Shared/Frontend/CoachDashboardView.php:42
 msgid "New Activity"
 msgstr "Nieuwe activiteit"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:250
+#: src/Modules/Activities/Admin/ActivitiesPage.php:273
 msgid ""
 "The activity was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -5156,41 +5165,41 @@ msgstr ""
 "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden "
 "ongeldige waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:256
+#: src/Modules/Activities/Admin/ActivitiesPage.php:279
 msgid "The database rejected the save. No activity was created."
 msgstr ""
 "De database heeft de opslag geweigerd. Er is geen activiteit aangemaakt."
 
 # v3.47.0 — activity status + wizard config UX
-#: src/Modules/Activities/Admin/ActivitiesPage.php:292
+#: src/Modules/Activities/Admin/ActivitiesPage.php:315
 msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
 msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:296
+#: src/Modules/Activities/Admin/ActivitiesPage.php:319
 #: src/Modules/Wizards/Activity/DetailsStep.php:62
 #: src/Modules/Wizards/Activity/ReviewStep.php:64
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2983
 msgid "Game subtype"
 msgstr "Wedstrijd-subtype"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:299
+#: src/Modules/Activities/Admin/ActivitiesPage.php:322
 #: src/Modules/Wizards/Activity/DetailsStep.php:63
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2985
 msgid "— Choose —"
 msgstr "— Kies —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:306
+#: src/Modules/Activities/Admin/ActivitiesPage.php:329
 msgid "Optional: friendly, cup, or league."
 msgstr "Optioneel: oefen, beker of competitie."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:310
+#: src/Modules/Activities/Admin/ActivitiesPage.php:333
 #: src/Modules/Wizards/Activity/DetailsStep.php:74
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2993
 msgid "Other label"
 msgstr "Andere label"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:313
+#: src/Modules/Activities/Admin/ActivitiesPage.php:336
 msgid ""
 "Required when Type is \"Other\". Free text — e.g. team-building day, club "
 "meeting."
@@ -5198,7 +5207,7 @@ msgstr ""
 "Verplicht als Type \"Anders\" is. Vrije tekst — bijv. team-buildingdag, "
 "clubvergadering."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:320
+#: src/Modules/Activities/Admin/ActivitiesPage.php:343
 #: src/Modules/Configuration/Admin/FormSlugContract.php:105
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:117
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:242
@@ -5221,18 +5230,18 @@ msgstr ""
 msgid "Location"
 msgstr "Locatie"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:322
+#: src/Modules/Activities/Admin/ActivitiesPage.php:345
 msgid "— All —"
 msgstr "— Alle —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:325
-#: src/Modules/Activities/Admin/ActivitiesPage.php:357
-#: src/Modules/Activities/Admin/ActivitiesPage.php:377
+#: src/Modules/Activities/Admin/ActivitiesPage.php:348
+#: src/Modules/Activities/Admin/ActivitiesPage.php:380
+#: src/Modules/Activities/Admin/ActivitiesPage.php:400
 #: src/Modules/Configuration/Admin/FormSlugContract.php:93
 #: src/Modules/Configuration/Admin/FormSlugContract.php:107
 #: src/Modules/Configuration/Admin/FormSlugContract.php:134
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:528
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:752
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:595
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:819
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:142
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:130
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:142
@@ -5252,7 +5261,7 @@ msgstr "— Alle —"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:215
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:122
-#: src/Modules/Teams/Admin/TeamsPage.php:154
+#: src/Modules/Teams/Admin/TeamsPage.php:171
 #: src/Modules/Wizards/Activity/DetailsStep.php:79
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:115
@@ -5292,7 +5301,7 @@ msgid "Notes"
 msgstr "Notities"
 
 # v3.110.x — Activities module polish: rename principles label + wizard guest opt-in
-#: src/Modules/Activities/Admin/ActivitiesPage.php:335
+#: src/Modules/Activities/Admin/ActivitiesPage.php:358
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:100
 #: src/Shared/Frontend/Components/GoalDetailFields.php:95
@@ -5300,11 +5309,11 @@ msgstr "Notities"
 msgid "Connected principles"
 msgstr "Verbonden principes"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:346
+#: src/Modules/Activities/Admin/ActivitiesPage.php:369
 msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:356
+#: src/Modules/Activities/Admin/ActivitiesPage.php:379
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:173
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:170
@@ -5333,17 +5342,17 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 msgid "Attendance"
 msgstr "Aanwezigheid"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:365
+#: src/Modules/Activities/Admin/ActivitiesPage.php:388
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 "Aanwezigheid wordt geregistreerd zodra de activiteit op Voltooid staat."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:372
+#: src/Modules/Activities/Admin/ActivitiesPage.php:395
 msgid "Guest attendees"
 msgstr "Gast-aanwezigen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:375
-#: src/Modules/Activities/Admin/ActivitiesPage.php:386
+#: src/Modules/Activities/Admin/ActivitiesPage.php:398
+#: src/Modules/Activities/Admin/ActivitiesPage.php:409
 #: src/Modules/DataBrowser/SemanticRegistry.php:113
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:364
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:191
@@ -5359,7 +5368,7 @@ msgstr "Gast-aanwezigen"
 msgid "Guest"
 msgstr "Gast"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:406
+#: src/Modules/Activities/Admin/ActivitiesPage.php:429
 msgid ""
 "Guests are added and edited from the public Activity page. This panel is "
 "read-only."
@@ -5367,17 +5376,17 @@ msgstr ""
 "Gasten worden toegevoegd en bewerkt op de publieke Activiteit-pagina. Dit "
 "paneel is alleen-lezen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:411
+#: src/Modules/Activities/Admin/ActivitiesPage.php:434
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1194
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
-#: src/Modules/Goals/Admin/GoalsPage.php:211
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:600
+#: src/Modules/Goals/Admin/GoalsPage.php:249
 #: src/Shared/Frontend/FrontendBackupsView.php:443
 msgid "Update"
 msgstr "Bijwerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:411
+#: src/Modules/Activities/Admin/ActivitiesPage.php:434
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:337
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:310
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
@@ -5387,7 +5396,7 @@ msgstr "Bijwerken"
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:369
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:110
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:600
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:417
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
@@ -5444,8 +5453,8 @@ msgstr "Bijwerken"
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:446
-#: src/Modules/Activities/Admin/ActivitiesPage.php:570
+#: src/Modules/Activities/Admin/ActivitiesPage.php:469
+#: src/Modules/Activities/Admin/ActivitiesPage.php:593
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:116
 #: src/Modules/Authorization/Admin/DebugPage.php:23
@@ -5489,10 +5498,10 @@ msgstr "Opslaan"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:417
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:55
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:120
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:856
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
-#: src/Modules/Goals/Admin/GoalsPage.php:218
-#: src/Modules/Goals/Admin/GoalsPage.php:288
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:923
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:1052
+#: src/Modules/Goals/Admin/GoalsPage.php:256
+#: src/Modules/Goals/Admin/GoalsPage.php:326
 #: src/Modules/License/Admin/AccountPage.php:56
 #: src/Modules/License/Admin/AccountPage.php:68
 #: src/Modules/License/Admin/DevOverridePage.php:52
@@ -5530,22 +5539,22 @@ msgstr "Opslaan"
 #: src/Modules/People/Admin/PeoplePage.php:473
 #: src/Modules/People/Admin/PeoplePage.php:489
 #: src/Modules/People/PeopleModule.php:68
-#: src/Modules/Players/Admin/PlayersPage.php:478
-#: src/Modules/Players/Admin/PlayersPage.php:482
-#: src/Modules/Players/Admin/PlayersPage.php:662
+#: src/Modules/Players/Admin/PlayersPage.php:533
+#: src/Modules/Players/Admin/PlayersPage.php:537
+#: src/Modules/Players/Admin/PlayersPage.php:717
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:291
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:307
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:324
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:355
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:370
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:35
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:41
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:42
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:35
 #: src/Modules/Stats/Admin/UsageStatsPage.php:28
 #: src/Modules/Stats/PrintRouter.php:49
-#: src/Modules/Teams/Admin/TeamsPage.php:276
-#: src/Modules/Teams/Admin/TeamsPage.php:280
-#: src/Modules/Teams/Admin/TeamsPage.php:339
+#: src/Modules/Teams/Admin/TeamsPage.php:293
+#: src/Modules/Teams/Admin/TeamsPage.php:297
+#: src/Modules/Teams/Admin/TeamsPage.php:356
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:240
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:267
 #: src/Shared/Admin/BulkActionsHelper.php:222
@@ -5556,10 +5565,10 @@ msgstr "Opslaan"
 msgid "Unauthorized"
 msgstr "Geen toegang"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:519
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:887
-#: src/Modules/Goals/Admin/GoalsPage.php:252
-#: src/Modules/Players/Admin/PlayersPage.php:572
+#: src/Modules/Activities/Admin/ActivitiesPage.php:542
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:954
+#: src/Modules/Goals/Admin/GoalsPage.php:290
+#: src/Modules/Players/Admin/PlayersPage.php:627
 msgid "Unknown database error."
 msgstr "Onbekende databasefout."
 
@@ -5903,7 +5912,7 @@ msgstr "Datumbereik"
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:56
 #: src/Modules/Authorization/Admin/RolesPage.php:192
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:254
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:127
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:171
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
@@ -5936,7 +5945,7 @@ msgstr "Vanaf"
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:255
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:289
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:310
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:175
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
@@ -6979,17 +6988,18 @@ msgstr "Activiteiten en aanwezigheid"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
 #: src/Modules/DemoData/DemoCoverage.php:1264
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/License/Admin/AccountPage.php:566
 #: src/Modules/License/FeatureMap.php:377
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1416
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:94
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:146
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:250
-#: src/Modules/Reports/Admin/ReportsPage.php:190
-#: src/Modules/Reports/Admin/ReportsPage.php:296
+#: src/Modules/Reports/Admin/ReportsPage.php:199
+#: src/Modules/Reports/Admin/ReportsPage.php:313
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:334
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:340
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:531
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118
@@ -7031,7 +7041,8 @@ msgstr "Evaluaties"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1265
-#: src/Modules/Goals/Admin/GoalsPage.php:46
+#: src/Modules/Goals/Admin/GoalsPage.php:42
+#: src/Modules/Goals/Admin/GoalsPage.php:63
 #: src/Modules/License/FeatureMap.php:378
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:360
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:361
@@ -7297,7 +7308,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:117
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
-#: src/Modules/Goals/Admin/GoalsPage.php:142
+#: src/Modules/Goals/Admin/GoalsPage.php:180
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
@@ -7688,7 +7699,8 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:175
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:528
 #: src/Modules/Stats/Admin/UsageStatsPage.php:348
-#: src/Modules/Teams/Admin/TeamsPage.php:39
+#: src/Modules/Teams/Admin/TeamsPage.php:32
+#: src/Modules/Teams/Admin/TeamsPage.php:56
 #: src/Shared/Admin/BackNavigator.php:108
 #: src/Shared/CoreSurfaceRegistration.php:1847
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:47
@@ -7745,9 +7757,9 @@ msgstr "Geen vermeldingen."
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:36
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:43
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
-#: src/Modules/Reports/Admin/ReportsPage.php:38
-#: src/Modules/Reports/Admin/ReportsPage.php:83
-#: src/Modules/Reports/Admin/ReportsPage.php:160
+#: src/Modules/Reports/Admin/ReportsPage.php:40
+#: src/Modules/Reports/Admin/ReportsPage.php:85
+#: src/Modules/Reports/Admin/ReportsPage.php:162
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:25
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:22
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:69
@@ -8055,7 +8067,7 @@ msgstr "CSV exporteren"
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:145
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:308
 #: src/Modules/DataBrowser/SemanticRegistry.php:91
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:791
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:858
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:147
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
 #: src/Shared/Frontend/FrontendEvaluationsView.php:505
@@ -8196,13 +8208,13 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:183
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
-#: src/Modules/Players/Admin/PlayersPage.php:126
+#: src/Modules/Players/Admin/PlayersPage.php:173
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:107
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:241
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:148
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:60
-#: src/Modules/Teams/Admin/TeamsPage.php:49
-#: src/Modules/Teams/Admin/TeamsPage.php:142
+#: src/Modules/Teams/Admin/TeamsPage.php:66
+#: src/Modules/Teams/Admin/TeamsPage.php:159
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:46
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:276
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
@@ -8370,7 +8382,7 @@ msgstr "Deze KPI verwijst naar een fact die niet meer geregistreerd is."
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:157
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:200
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:237
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:350
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:417
 #: src/Shared/Admin/BackButton.php:44
 msgid "← Back"
 msgstr "← Terug"
@@ -8397,7 +8409,7 @@ msgid "Group by:"
 msgstr "Groeperen op:"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:168
-#: src/Modules/Goals/Admin/GoalsPage.php:188
+#: src/Modules/Goals/Admin/GoalsPage.php:226
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:74
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:124
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:94
@@ -8407,7 +8419,7 @@ msgstr "Groeperen op:"
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:63
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:74
 #: src/Modules/People/Admin/PeoplePage.php:354
-#: src/Modules/Players/Admin/PlayersPage.php:420
+#: src/Modules/Players/Admin/PlayersPage.php:475
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
 #: src/Shared/Frontend/FrontendGoalsManageView.php:610
 #: src/Shared/Frontend/FrontendPeopleManageView.php:198
@@ -9193,15 +9205,15 @@ msgstr "Gebruiker:"
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:185
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:199
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1472
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:373
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
-#: src/Modules/Goals/Admin/GoalsPage.php:135
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:440
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:444
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:459
+#: src/Modules/Goals/Admin/GoalsPage.php:173
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:382
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:518
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
-#: src/Modules/Players/Admin/PlayersPage.php:374
-#: src/Modules/Teams/Admin/TeamsPage.php:144
+#: src/Modules/Players/Admin/PlayersPage.php:429
+#: src/Modules/Teams/Admin/TeamsPage.php:161
 #: src/Shared/Frontend/CoachDashboardView.php:204
 #: src/Shared/Frontend/CoachDashboardView.php:210
 #: src/Shared/Frontend/CoachDashboardView.php:221
@@ -9675,7 +9687,7 @@ msgstr "Sleutel"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:289
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
-#: src/Modules/Goals/Admin/GoalsPage.php:140
+#: src/Modules/Goals/Admin/GoalsPage.php:178
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:52
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
@@ -11576,7 +11588,7 @@ msgstr ""
 "verschillen)"
 
 #: src/Modules/Authorization/Admin/UserComparisonPage.php:103
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:214
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:220
 #: src/Shared/Frontend/FrontendComparisonView.php:295
 msgid "Compare"
 msgstr "Vergelijk"
@@ -14725,7 +14737,7 @@ msgstr "Posities"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:55
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:251
-#: src/Modules/Players/Admin/PlayersPage.php:374
+#: src/Modules/Players/Admin/PlayersPage.php:429
 msgid "Preferred Foot"
 msgstr "Voorkeursvoet"
 
@@ -14800,8 +14812,8 @@ msgid "Foot Option"
 msgstr "Voetoptie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:98
-#: src/Modules/Teams/Admin/TeamsPage.php:50
-#: src/Modules/Teams/Admin/TeamsPage.php:144
+#: src/Modules/Teams/Admin/TeamsPage.php:67
+#: src/Modules/Teams/Admin/TeamsPage.php:161
 msgid "Age Group"
 msgstr "Leeftijdscategorie"
 
@@ -15202,7 +15214,7 @@ msgid "User ID"
 msgstr "Gebruikers-ID"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:510
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:179
 #: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:295
 #: src/Modules/MatchAnalysis/Frontend/SectionRatingControl.php:92
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:895
@@ -15278,10 +15290,10 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:590
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:808
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
-#: src/Modules/Goals/Admin/GoalsPage.php:94
-#: src/Modules/Players/Admin/PlayersPage.php:184
-#: src/Modules/Teams/Admin/TeamsPage.php:114
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:287
+#: src/Modules/Goals/Admin/GoalsPage.php:111
+#: src/Modules/Players/Admin/PlayersPage.php:231
+#: src/Modules/Teams/Admin/TeamsPage.php:131
 msgid "Delete?"
 msgstr "Verwijderen?"
 
@@ -15289,7 +15301,7 @@ msgstr "Verwijderen?"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:765
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
-#: src/Modules/Goals/Admin/GoalsPage.php:211
+#: src/Modules/Goals/Admin/GoalsPage.php:249
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:604
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
@@ -15359,7 +15371,7 @@ msgid "Translated description"
 msgstr "Vertaalde omschrijving"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:765
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:202
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:208
 #: src/Shared/Frontend/FrontendComparisonView.php:283
 msgid "Evaluation Type"
 msgstr "Evaluatietype"
@@ -15454,7 +15466,7 @@ msgstr "Logo"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:885
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:760
-#: src/Modules/Players/Admin/PlayersPage.php:388
+#: src/Modules/Players/Admin/PlayersPage.php:443
 msgid "Upload"
 msgstr "Uploaden"
 
@@ -15661,7 +15673,7 @@ msgstr "Logo selecteren"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1012
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
-#: src/Modules/Players/Admin/PlayersPage.php:432
+#: src/Modules/Players/Admin/PlayersPage.php:487
 #: src/Shared/Frontend/FrontendConfigurationView.php:2931
 #: src/Shared/Frontend/FrontendPlayersManageView.php:326
 msgid "Use"
@@ -16169,25 +16181,25 @@ msgid "Last name"
 msgstr "Achternaam"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:57
-#: src/Modules/Players/Admin/PlayersPage.php:358
+#: src/Modules/Players/Admin/PlayersPage.php:413
 #: src/Shared/Frontend/FrontendPlayersManageView.php:382
 msgid "Sex (for growth references)"
 msgstr "Geslacht (voor groeicurves)"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:58
-#: src/Modules/Players/Admin/PlayersPage.php:368
-#: src/Modules/Players/Admin/PlayersPage.php:455
+#: src/Modules/Players/Admin/PlayersPage.php:423
+#: src/Modules/Players/Admin/PlayersPage.php:510
 msgid "Nationality"
 msgstr "Nationaliteit"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:59
-#: src/Modules/Players/Admin/PlayersPage.php:370
+#: src/Modules/Players/Admin/PlayersPage.php:425
 #: src/Shared/Frontend/FrontendPlayersManageView.php:428
 msgid "Height (cm)"
 msgstr "Lengte (cm)"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:60
-#: src/Modules/Players/Admin/PlayersPage.php:372
+#: src/Modules/Players/Admin/PlayersPage.php:427
 #: src/Shared/Frontend/FrontendPlayersManageView.php:432
 msgid "Weight (kg)"
 msgstr "Gewicht (kg)"
@@ -16275,7 +16287,7 @@ msgstr "Roltype"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:515
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:139
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:289
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:421
 #: src/Modules/Wizards/Team/BasicsStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:20
@@ -16318,7 +16330,7 @@ msgid "Evaluation date"
 msgstr "Evaluatiedatum"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:129
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:385
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:452
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:155
@@ -16335,7 +16347,7 @@ msgid "Opponent"
 msgstr "Tegenstander"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:130
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:388
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:455
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:242
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:54
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:156
@@ -16349,7 +16361,7 @@ msgid "Match result"
 msgstr "Wedstrijdresultaat"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:132
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Shared/Frontend/CoachDashboardView.php:228
 #: src/Shared/Frontend/CoachForms.php:269
 msgid "Home/Away"
@@ -16969,7 +16981,7 @@ msgid "Content elements"
 msgstr "Inhoudselementen"
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:280
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:256
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:262
 #: src/Shared/Frontend/FrontendComparisonView.php:354
 msgid "Cards"
 msgstr "Kaarten"
@@ -17696,14 +17708,14 @@ msgstr "Recente activiteiten"
 
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:32
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:32
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:194
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:200
 #: src/Shared/Frontend/FrontendComparisonView.php:275
 msgid "Date from"
 msgstr "Datum vanaf"
 
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:33
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:33
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:198
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:204
 #: src/Shared/Frontend/FrontendComparisonView.php:276
 msgid "Date to"
 msgstr "Datum t/m"
@@ -17940,7 +17952,7 @@ msgid "Parent evaluation this score belongs to."
 msgstr "De bovenliggende beoordeling waartoe deze score behoort."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:90
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:790
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:857
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:58
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:139
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:209
@@ -17951,7 +17963,7 @@ msgstr "De bovenliggende beoordeling waartoe deze score behoort."
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:140
 #: src/Modules/Methodology/VocabularyCatalog.php:281
 #: src/Modules/Reports/PlayerReportRenderer.php:240
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:403
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:409
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:350
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:164
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:212
@@ -20214,68 +20226,72 @@ msgstr ""
 msgid "Mapping opgeslagen."
 msgstr "Koppeling opgeslagen."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:112
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:41
+msgid "You do not have access to this evaluation."
+msgstr "Je hebt geen toegang tot deze evaluatie."
+
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:156
 #: src/Modules/Methodology/Admin/MethodologyPage.php:158
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:151
 #: src/Shared/Frontend/Components/FrontendListTable.php:366
 msgid "Search"
 msgstr "Zoeken"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:113
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:157
 msgid "Player or notes"
 msgstr "Speler of notities"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:118
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:162
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
 #: src/Shared/Frontend/FrontendTrialsManageView.php:395
 msgid "Any"
 msgstr "Alle"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:156
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:200
 msgid "No evaluations."
 msgstr "Geen evaluaties."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:219
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:263
 msgid "Weighted by age group"
 msgstr "Gewogen per leeftijdsgroep"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:220
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:264
 #: src/Modules/Evaluations/Frontend/FrontendCategoryWeightsView.php:273
 msgid "Equal weights"
 msgstr "Gelijke gewichten"
 
 #. translators: 1: rated mains count, 2: total mains count
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:224
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:626
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:765
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:268
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:693
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:832
 #, php-format
 msgid "%1$d of %2$d categories rated"
 msgstr "%1$d van %2$d categorieën beoordeeld"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:234
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:278
 msgid "No weights configured for this age group — using equal weights"
 msgstr ""
 "Geen gewichten ingesteld voor deze leeftijdsgroep — gelijke gewichten worden "
 "gebruikt"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:241
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:285
 #: src/Modules/Methodology/Admin/MethodologyPage.php:187
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:286
 msgid "View"
 msgstr "Bekijken"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:349
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:416
 #: src/Shared/Admin/BackNavigator.php:120
 msgid "Edit Evaluation"
 msgstr "Evaluatie bewerken"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:349
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:416
 #: src/Shared/Admin/BackNavigator.php:119
 #: src/Shared/Frontend/CoachDashboardView.php:41
 msgid "New Evaluation"
 msgstr "Nieuwe evaluatie"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:354
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:421
 msgid ""
 "The evaluation was saved, but one or more custom fields had invalid values "
 "and were not updated."
@@ -20283,12 +20299,12 @@ msgstr ""
 "De evaluatie is opgeslagen, maar één of meer aangepaste velden hadden "
 "ongeldige waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:360
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:427
 msgid "The database rejected the save. No evaluation was created."
 msgstr ""
 "De database heeft het opslaan afgewezen. Er is geen evaluatie aangemaakt."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:402
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:469
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:243
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
@@ -20302,7 +20318,7 @@ msgstr ""
 msgid "Result"
 msgstr "Uitslag"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:354
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1089
@@ -20314,7 +20330,7 @@ msgstr "Uitslag"
 msgid "Home"
 msgstr "Thuis"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1090
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
@@ -20325,14 +20341,14 @@ msgstr "Thuis"
 msgid "Away"
 msgstr "Uit"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:406
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:473
 #: src/Shared/Frontend/CoachForms.php:270
 #: src/Shared/Frontend/FrontendEvaluationsView.php:490
 msgid "Minutes Played"
 msgstr "Gespeelde minuten"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:410
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:755
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:477
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:822
 #: src/Modules/Reports/AudienceDefaults.php:106
 #: src/Shared/Frontend/CoachDashboardView.php:231
 #: src/Shared/Frontend/CoachForms.php:272
@@ -20342,21 +20358,21 @@ msgstr "Gespeelde minuten"
 msgid "Ratings"
 msgstr "Beoordelingen"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:413
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:480
 msgid "No evaluation categories configured."
 msgstr "Geen evaluatie-categorieën geconfigureerd."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:414
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:481
 msgid "Configure categories"
 msgstr "Categorieën instellen"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:423
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:773
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:490
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:840
 msgid "Overall rating:"
 msgstr "Totaalscore:"
 
 # Evaluation form UX
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:430
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:497
 msgid ""
 "For each main category you can either rate it directly OR drill into its "
 "subcategories. Pick whichever makes sense — you can mix modes across "
@@ -20365,52 +20381,52 @@ msgstr ""
 "Voor elke hoofdcategorie kun je deze direct beoordelen OF doorklikken naar "
 "de subcategorieën. Kies wat past — je kunt per categorie wisselen van modus."
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:538
 msgid "rate subcategories instead"
 msgstr "beoordeel subcategorieën"
 
 # ===== v2.12.2 — Live average preview on evaluation form =====
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:511
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:578
 msgid "Main category average (computed):"
 msgstr "Gemiddelde van hoofdcategorie (berekend):"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:518
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:585
 msgid "rate main category directly instead"
 msgstr "beoordeel de hoofdcategorie direct"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:553
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:620
 #, php-format
 msgid "(from %d subcategory)"
 msgstr "(van %d subcategorie)"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:554
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:621
 #, php-format
 msgid "(from %d subcategories)"
 msgstr "(van %d subcategorieën)"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:624
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:760
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:691
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:827
 msgid "(weighted by age group)"
 msgstr "(gewogen per leeftijdsgroep)"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:625
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:761
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:692
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:828
 msgid "(equal weights)"
 msgstr "(gelijke gewichten)"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:785
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:852
 msgid "No ratings recorded."
 msgstr "Geen beoordelingen vastgelegd."
 
 #. translators: %d is the number of subcategory ratings the rollup averages.
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:806
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:873
 #, php-format
 msgid "(averaged from %d subcategory)"
 msgid_plural "(averaged from %d subcategories)"
 msgstr[0] "(gemiddelde van %d subcategorie)"
 msgstr[1] "(gemiddelde van %d subcategorieën)"
 
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:837
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:904
 msgid "Radar Chart"
 msgstr "Radargrafiek"
 
@@ -21502,7 +21518,7 @@ msgstr "Geen aanwezigheid geregistreerd."
 # ===== v3.0.0 slice 5 — Analytics-group frontend views =====
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:138
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:143
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:293
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:299
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:61
 #: src/Shared/Frontend/FrontendComparisonView.php:372
 msgid "Jersey"
@@ -21653,7 +21669,7 @@ msgid "Owner"
 msgstr "Eigenaar"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:134
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:322
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:328
 msgid "Metric"
 msgstr "Maatstaf"
 
@@ -22101,16 +22117,20 @@ msgstr "Aantal aanwezigheden"
 msgid "No such export."
 msgstr "Geen dergelijke export."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:57
+#: src/Modules/Goals/Admin/GoalsPage.php:43
+msgid "You do not have access to this goal."
+msgstr "Je hebt geen toegang tot dit doel."
+
+#: src/Modules/Goals/Admin/GoalsPage.php:74
 msgid "No goals."
 msgstr "Geen doelen."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:114
+#: src/Modules/Goals/Admin/GoalsPage.php:152
 #: src/Shared/Admin/BackNavigator.php:127
 msgid "Edit Goal"
 msgstr "Doel bewerken"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:114
+#: src/Modules/Goals/Admin/GoalsPage.php:152
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1090
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1107
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:75
@@ -22129,7 +22149,7 @@ msgstr "Doel bewerken"
 msgid "Add goal"
 msgstr "Doel toevoegen"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:118
+#: src/Modules/Goals/Admin/GoalsPage.php:156
 msgid ""
 "The goal was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -22137,22 +22157,22 @@ msgstr ""
 "Het doel is opgeslagen, maar één of meer aangepaste velden hadden ongeldige "
 "waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:124
+#: src/Modules/Goals/Admin/GoalsPage.php:162
 msgid "The database rejected the save. No goal was created."
 msgstr "De database heeft het opslaan afgewezen. Er is geen doel aangemaakt."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:148
+#: src/Modules/Goals/Admin/GoalsPage.php:186
 #: src/Shared/Frontend/CoachDashboardView.php:316
 #: src/Shared/Frontend/CoachForms.php:640
 msgid "Due Date"
 msgstr "Deadline"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:160
+#: src/Modules/Goals/Admin/GoalsPage.php:198
 #: src/Shared/Frontend/Components/GoalPrinciplePicker.php:61
 msgid "What does this goal develop?"
 msgstr "Wat ontwikkelt dit doel?"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:173
+#: src/Modules/Goals/Admin/GoalsPage.php:211
 msgid ""
 "Optional, but tagging it is what lets training plans and reports aim at this "
 "goal."
@@ -22160,12 +22180,12 @@ msgstr ""
 "Optioneel, maar door het te koppelen kunnen trainingsplannen en rapportages "
 "zich op dit doel richten."
 
-#: src/Modules/Goals/Admin/GoalsPage.php:185
+#: src/Modules/Goals/Admin/GoalsPage.php:223
 #: src/Shared/Frontend/FrontendGoalsManageView.php:608
 msgid "Linked football action"
 msgstr "Gekoppelde voetbalhandeling"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:205
+#: src/Modules/Goals/Admin/GoalsPage.php:243
 msgid ""
 "Optional. Links this goal to a single football action (voetbalhandeling)."
 msgstr "Optioneel. Koppelt dit doel aan één voetbalhandeling."
@@ -28523,14 +28543,14 @@ msgstr ""
 "gewicht nodig die kort na elkaar zijn vastgelegd."
 
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:200
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:296
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
 #: src/Shared/Frontend/FrontendComparisonView.php:373
 #: src/Shared/Frontend/FrontendMyProfileView.php:116
 msgid "Height"
 msgstr "Lengte"
 
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:201
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:299
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:305
 #: src/Shared/Frontend/FrontendMyProfileView.php:119
 msgid "Weight"
 msgstr "Gewicht"
@@ -28919,7 +28939,7 @@ msgid "Video link"
 msgstr "Videolink"
 
 #: src/Modules/Media/MediaKind.php:83
-#: src/Modules/Players/Admin/PlayersPage.php:388
+#: src/Modules/Players/Admin/PlayersPage.php:443
 #: src/Shared/Frontend/FrontendPlayersManageView.php:453
 msgid "Photo"
 msgstr "Foto"
@@ -35417,7 +35437,7 @@ msgstr "systeem"
 
 #: src/Modules/PersonaDashboard/TableSources/BehaviourPendingSource.php:100
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:127
-#: src/Modules/Teams/Admin/TeamsPage.php:209
+#: src/Modules/Teams/Admin/TeamsPage.php:226
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:145
 msgid "never"
 msgstr "nooit"
@@ -36012,7 +36032,7 @@ msgid "Top movers · this month"
 msgstr "Stijgers · deze maand"
 
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:77
-#: src/Modules/Players/Admin/PlayersPage.php:462
+#: src/Modules/Players/Admin/PlayersPage.php:517
 #: src/Shared/Frontend/PlayerDashboardView.php:103
 msgid "No evaluations yet."
 msgstr "Nog geen evaluaties."
@@ -36377,7 +36397,7 @@ msgstr "Ploegoverzicht"
 #. translators: %d is number of days
 #. translators: %d is the number of days
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:67
-#: src/Modules/Reports/Admin/ReportsPage.php:279
+#: src/Modules/Reports/Admin/ReportsPage.php:296
 #: src/Shared/Frontend/FrontendReportDetailView.php:172
 #: src/Shared/Frontend/FrontendUsageStatsView.php:127
 #, php-format
@@ -36688,19 +36708,19 @@ msgstr ""
 "Tip: zet in het afdrukvenster \"Achtergrondafbeeldingen\" aan en stel de "
 "marges in op Standaard voor een exacte weergave."
 
-#: src/Modules/Players/Admin/PlayersPage.php:85
+#: src/Modules/Players/Admin/PlayersPage.php:132
 msgid "All Teams"
 msgstr "Alle teams"
 
-#: src/Modules/Players/Admin/PlayersPage.php:108
+#: src/Modules/Players/Admin/PlayersPage.php:155
 msgid "← Apply demo filter"
 msgstr "← Demo-filter toepassen"
 
-#: src/Modules/Players/Admin/PlayersPage.php:109
+#: src/Modules/Players/Admin/PlayersPage.php:156
 msgid "Show all players (bypass demo filter) →"
 msgstr "Toon alle spelers (omzeil demo-filter) →"
 
-#: src/Modules/Players/Admin/PlayersPage.php:111
+#: src/Modules/Players/Admin/PlayersPage.php:158
 msgid ""
 "Showing every row in the database. Some rows may not be visible in the "
 "standard list because they have no demo tag."
@@ -36708,7 +36728,7 @@ msgstr ""
 "Toont elke rij in de database. Sommige rijen zijn mogelijk niet zichtbaar in "
 "de standaardlijst omdat ze geen demolabel hebben."
 
-#: src/Modules/Players/Admin/PlayersPage.php:112
+#: src/Modules/Players/Admin/PlayersPage.php:159
 msgid ""
 "Demo mode is active — the list below is filtered. Click to show every row, "
 "including untagged ones (useful when cleaning up wizard-created players from "
@@ -36718,18 +36738,18 @@ msgstr ""
 "te tonen, inclusief rijen zonder label (handig bij het opschonen van via de "
 "wizard aangemaakte spelers van vóór de fix in v3.85.1)."
 
-#: src/Modules/Players/Admin/PlayersPage.php:128
-#: src/Modules/Players/Admin/PlayersPage.php:452
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:286
+#: src/Modules/Players/Admin/PlayersPage.php:175
+#: src/Modules/Players/Admin/PlayersPage.php:507
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:292
 #: src/Shared/Frontend/FrontendComparisonView.php:370
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:503
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1269
 msgid "Position(s)"
 msgstr "Positie(s)"
 
-#: src/Modules/Players/Admin/PlayersPage.php:128
-#: src/Modules/Players/Admin/PlayersPage.php:453
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:290
+#: src/Modules/Players/Admin/PlayersPage.php:175
+#: src/Modules/Players/Admin/PlayersPage.php:508
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:296
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:63
 #: src/Shared/Frontend/FrontendComparisonView.php:371
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:780
@@ -36739,42 +36759,42 @@ msgstr "Positie(s)"
 msgid "Foot"
 msgstr "Voet"
 
-#: src/Modules/Players/Admin/PlayersPage.php:129
-#: src/Modules/Players/Admin/PlayersPage.php:454
+#: src/Modules/Players/Admin/PlayersPage.php:176
+#: src/Modules/Players/Admin/PlayersPage.php:509
 #: src/Shared/Frontend/DashboardShortcode.php:263
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:773
 msgid "DOB"
 msgstr "Geboortedatum"
 
-#: src/Modules/Players/Admin/PlayersPage.php:131
+#: src/Modules/Players/Admin/PlayersPage.php:178
 #: src/Shared/Frontend/CoachDashboardView.php:77
 msgid "No players."
 msgstr "Geen spelers."
 
-#: src/Modules/Players/Admin/PlayersPage.php:254
+#: src/Modules/Players/Admin/PlayersPage.php:309
 #: src/Shared/Admin/BackNavigator.php:113
 msgid "Edit Player"
 msgstr "Speler bewerken"
 
-#: src/Modules/Players/Admin/PlayersPage.php:254
-#: src/Modules/Players/Admin/PlayersPage.php:429
+#: src/Modules/Players/Admin/PlayersPage.php:309
+#: src/Modules/Players/Admin/PlayersPage.php:484
 msgid "Add Player"
 msgstr "Speler toevoegen"
 
-#: src/Modules/Players/Admin/PlayersPage.php:289
+#: src/Modules/Players/Admin/PlayersPage.php:344
 msgid "Rate card"
 msgstr "Rapportkaart"
 
-#: src/Modules/Players/Admin/PlayersPage.php:309
+#: src/Modules/Players/Admin/PlayersPage.php:364
 msgid "Please fix the errors below:"
 msgstr "Herstel de onderstaande fouten:"
 
-#: src/Modules/Players/Admin/PlayersPage.php:320
+#: src/Modules/Players/Admin/PlayersPage.php:375
 msgid "The database rejected the save. Please contact your administrator."
 msgstr ""
 "De database heeft het opslaan afgewezen. Neem contact op met uw beheerder."
 
-#: src/Modules/Players/Admin/PlayersPage.php:330
+#: src/Modules/Players/Admin/PlayersPage.php:385
 msgid ""
 "Player is U8-U10. Invitation flows will route through the linked parent — "
 "the player record does not need its own email or phone."
@@ -36782,7 +36802,7 @@ msgstr ""
 "Speler is O8-O10. Uitnodigingen lopen via de gekoppelde ouder — het "
 "spelersrecord heeft geen eigen e-mail of telefoonnummer nodig."
 
-#: src/Modules/Players/Admin/PlayersPage.php:332
+#: src/Modules/Players/Admin/PlayersPage.php:387
 msgid ""
 "Player is U11-U12. PWA push on the player's phone is the primary contact "
 "channel; parent email is the fallback."
@@ -36790,74 +36810,74 @@ msgstr ""
 "Speler is O11-O12. PWA-push op de telefoon van de speler is het primaire "
 "kanaal; oudermail is de fallback."
 
-#: src/Modules/Players/Admin/PlayersPage.php:334
+#: src/Modules/Players/Admin/PlayersPage.php:389
 msgid "Player is U12+. Email + PWA push are both available contact channels."
 msgstr ""
 "Speler is O12+. Zowel e-mail als PWA-push zijn beschikbare contactkanalen."
 
-#: src/Modules/Players/Admin/PlayersPage.php:339
+#: src/Modules/Players/Admin/PlayersPage.php:394
 msgid "Contact strategy:"
 msgstr "Contactstrategie:"
 
-#: src/Modules/Players/Admin/PlayersPage.php:352
+#: src/Modules/Players/Admin/PlayersPage.php:407
 msgid "First Name"
 msgstr "Voornaam"
 
-#: src/Modules/Players/Admin/PlayersPage.php:354
+#: src/Modules/Players/Admin/PlayersPage.php:409
 msgid "Last Name"
 msgstr "Achternaam"
 
-#: src/Modules/Players/Admin/PlayersPage.php:356
+#: src/Modules/Players/Admin/PlayersPage.php:411
 msgid "Date of Birth"
 msgstr "Geboortedatum"
 
-#: src/Modules/Players/Admin/PlayersPage.php:377
+#: src/Modules/Players/Admin/PlayersPage.php:432
 msgid "Preferred Position(s)"
 msgstr "Voorkeurspositie(s)"
 
-#: src/Modules/Players/Admin/PlayersPage.php:381
+#: src/Modules/Players/Admin/PlayersPage.php:436
 msgid "Jersey Number"
 msgstr "Rugnummer"
 
-#: src/Modules/Players/Admin/PlayersPage.php:383
+#: src/Modules/Players/Admin/PlayersPage.php:438
 msgid "— No Team —"
 msgstr "— Geen team —"
 
-#: src/Modules/Players/Admin/PlayersPage.php:386
+#: src/Modules/Players/Admin/PlayersPage.php:441
 msgid "Date Joined"
 msgstr "Aangesloten op"
 
-#: src/Modules/Players/Admin/PlayersPage.php:404
+#: src/Modules/Players/Admin/PlayersPage.php:459
 #: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:51
 #: src/Shared/Frontend/FrontendPlayersManageView.php:523
 msgid "Connect a parent account"
 msgstr "Koppel een ouderaccount"
 
-#: src/Modules/Players/Admin/PlayersPage.php:414
+#: src/Modules/Players/Admin/PlayersPage.php:469
 msgid "Guardian Name"
 msgstr "Naam voogd"
 
-#: src/Modules/Players/Admin/PlayersPage.php:416
+#: src/Modules/Players/Admin/PlayersPage.php:471
 msgid "Guardian Email"
 msgstr "E-mail voogd"
 
-#: src/Modules/Players/Admin/PlayersPage.php:418
+#: src/Modules/Players/Admin/PlayersPage.php:473
 msgid "Guardian Phone"
 msgstr "Telefoon voogd"
 
-#: src/Modules/Players/Admin/PlayersPage.php:420
+#: src/Modules/Players/Admin/PlayersPage.php:475
 msgid "Linked WP User"
 msgstr "Gekoppelde WP-gebruiker"
 
-#: src/Modules/Players/Admin/PlayersPage.php:429
+#: src/Modules/Players/Admin/PlayersPage.php:484
 msgid "Update Player"
 msgstr "Speler bijwerken"
 
-#: src/Modules/Players/Admin/PlayersPage.php:432
+#: src/Modules/Players/Admin/PlayersPage.php:487
 msgid "Select Photo"
 msgstr "Foto selecteren"
 
-#: src/Modules/Players/Admin/PlayersPage.php:461
+#: src/Modules/Players/Admin/PlayersPage.php:516
 msgid "Development Radar"
 msgstr "Ontwikkelingsradar"
 
@@ -37902,42 +37922,42 @@ msgstr "Kon het abonnement niet opslaan."
 msgid "Subscription not found."
 msgstr "Abonnement niet gevonden."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:54
+#: src/Modules/Reports/Admin/ReportsPage.php:56
 msgid "Player Progress & Radar"
 msgstr "Spelersvoortgang & Radar"
 
-#: src/Modules/Reports/Admin/ReportsPage.php:56
+#: src/Modules/Reports/Admin/ReportsPage.php:58
 msgid "Player progress over time, radar comparisons, and team-average radar."
 msgstr ""
 "Spelersvoortgang over tijd, radar-vergelijkingen en team-gemiddelde radar."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:63
+#: src/Modules/Reports/Admin/ReportsPage.php:65
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:69
 msgid "Average rating per team across all main categories."
 msgstr "Gemiddelde beoordeling per team over alle hoofdcategorieën."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:70
+#: src/Modules/Reports/Admin/ReportsPage.php:72
 msgid "Evaluations saved per coach, last 30 / 90 days."
 msgstr "Evaluaties opgeslagen per coach, laatste 30 / 90 dagen."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:85
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:124
+#: src/Modules/Reports/Admin/ReportsPage.php:87
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:130
 #: src/Shared/Admin/HelpLink.php:35
 msgid "? Help on this topic"
 msgstr "? Hulp bij dit onderwerp"
 
-#: src/Modules/Reports/Admin/ReportsPage.php:89
+#: src/Modules/Reports/Admin/ReportsPage.php:91
 msgid ""
 "Pick a report to run. Each tile opens a dedicated view with its own filters."
 msgstr ""
 "Kies een rapport om uit te voeren. Elke tegel opent een eigen weergave met "
 "eigen filters."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:161
+#: src/Modules/Reports/Admin/ReportsPage.php:163
 msgid "Unknown report type."
 msgstr "Onbekend rapporttype."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:175
+#: src/Modules/Reports/Admin/ReportsPage.php:184
 msgid ""
 "Average rating per team across main categories, computed from all "
 "evaluations of players currently assigned to each team. Archived players and "
@@ -37947,13 +37967,13 @@ msgstr ""
 "van alle evaluaties van spelers die momenteel aan elk team zijn toegewezen. "
 "Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:179
+#: src/Modules/Reports/Admin/ReportsPage.php:188
 #: src/Shared/Frontend/FrontendReportDetailView.php:95
 msgid "No teams configured."
 msgstr "Geen teams geconfigureerd."
 
 #. translators: %d is number of days
-#: src/Modules/Reports/Admin/ReportsPage.php:265
+#: src/Modules/Reports/Admin/ReportsPage.php:282
 #, php-format
 msgid ""
 "Evaluations saved per coach in the last %d days. Archived evaluations are "
@@ -37962,19 +37982,19 @@ msgstr ""
 "Evaluaties opgeslagen per coach in de laatste %d dagen. Gearchiveerde "
 "evaluaties worden uitgesloten."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:273
+#: src/Modules/Reports/Admin/ReportsPage.php:290
 #: src/Shared/Frontend/FrontendReportDetailView.php:167
 #: src/Shared/Frontend/FrontendTrialsManageView.php:450
 #: src/Shared/Frontend/FrontendTrialsManageView.php:469
 msgid "Window"
 msgstr "Venster"
 
-#: src/Modules/Reports/Admin/ReportsPage.php:288
+#: src/Modules/Reports/Admin/ReportsPage.php:305
 #: src/Shared/Frontend/FrontendReportDetailView.php:191
 msgid "No evaluations saved in this window."
 msgstr "Geen evaluaties opgeslagen in dit venster."
 
-#: src/Modules/Reports/Admin/ReportsPage.php:297
+#: src/Modules/Reports/Admin/ReportsPage.php:314
 #: src/Shared/Frontend/FrontendReportDetailView.php:199
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1673
 msgid "Last evaluation"
@@ -38270,7 +38290,7 @@ msgstr "Spelerrapport — %s"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:198
 #: src/Modules/Reports/PlayerReportRenderer.php:242
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:331
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:337
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:304
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:352
 #: src/Shared/Frontend/FrontendComparisonView.php:387
@@ -38308,7 +38328,7 @@ msgstr[0] "Gebaseerd op %d evaluatie"
 msgstr[1] "Gebaseerd op %d evaluaties"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:241
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:333
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:339
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:351
 #: src/Shared/Frontend/FrontendComparisonView.php:389
 #: src/Shared/Frontend/FrontendOverviewView.php:143
@@ -38623,7 +38643,7 @@ msgstr "Volgende automatische sync over ongeveer %s."
 
 # v3.69.0 — Spond JSON-API fetcher (#0062)
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:200
-#: src/Modules/Teams/Admin/TeamsPage.php:173
+#: src/Modules/Teams/Admin/TeamsPage.php:190
 #: src/Modules/Wizards/Team/ReviewStep.php:32
 #: src/Modules/Wizards/Team/SpondGroupStep.php:25
 #: src/Modules/Wizards/Team/SpondGroupStep.php:49
@@ -38668,8 +38688,8 @@ msgid "Partial"
 msgstr "Gedeeltelijk"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:266
-#: src/Modules/Teams/Admin/TeamsPage.php:220
-#: src/Modules/Teams/Admin/TeamsPage.php:246
+#: src/Modules/Teams/Admin/TeamsPage.php:237
+#: src/Modules/Teams/Admin/TeamsPage.php:263
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:144
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:159
 #: src/Shared/Frontend/FrontendSpondView.php:322
@@ -39099,14 +39119,14 @@ msgstr "Brons"
 msgid "Unrated"
 msgstr "Niet beoordeeld"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:122
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:128
 #: src/Shared/Admin/BackNavigator.php:130
 #: src/Shared/CoreSurfaceRegistration.php:1985
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1839
 msgid "Player Comparison"
 msgstr "Spelersvergelijking"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:128
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:134
 #: src/Shared/Frontend/FrontendComparisonView.php:172
 msgid ""
 "Compare up to 4 players side-by-side. Cross-team is supported — pick any "
@@ -39115,27 +39135,27 @@ msgstr ""
 "Vergelijk maximaal 4 spelers naast elkaar. Teamoverschrijdend is mogelijk — "
 "kies spelers uit elk team of elke leeftijdscategorie."
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:134
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:140
 #: src/Shared/Frontend/FrontendComparisonView.php:187
 msgid "Select players"
 msgstr "Selecteer spelers"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:162
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:168
 #: src/Shared/Frontend/FrontendComparisonView.php:205
 msgid "Add another player"
 msgstr "Nog een speler toevoegen"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:165
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:171
 #: src/Shared/Frontend/FrontendComparisonView.php:208
 msgid "Maximum of 4 players."
 msgstr "Maximaal 4 spelers."
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:219
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:225
 #: src/Shared/Frontend/FrontendComparisonView.php:301
 msgid "Pick at least one player above and click Compare."
 msgstr "Kies hierboven ten minste één speler en klik op Vergelijk."
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:250
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:256
 #: src/Shared/Frontend/FrontendComparisonView.php:327
 msgid ""
 "Mixed age groups in this comparison. Overall ratings use age-group-specific "
@@ -39147,44 +39167,45 @@ msgstr ""
 "hieronder zijn niet één-op-één vergelijkbaar — ze weerspiegelen wat de "
 "coachingstaf van elke speler gebruikt."
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:266
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:272
 #: src/Shared/Frontend/FrontendComparisonView.php:365
 msgid "Basic facts"
 msgstr "Basisgegevens"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:276
 msgid "Attribute"
 msgstr "Kenmerk"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:318
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:324
 #: src/Shared/Frontend/FrontendComparisonView.php:384
 msgid "Headline numbers"
 msgstr "Kerncijfers"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:332
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:338
 #: src/Shared/Frontend/FrontendComparisonView.php:388
 msgid "Rolling (last 5)"
 msgstr "Lopend gemiddelde (laatste 5)"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:353
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:359
 #: src/Shared/Frontend/FrontendComparisonView.php:405
 msgid "Main category averages"
 msgstr "Gemiddelden per hoofdcategorie"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:357
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:363
 msgid "Radar overlay"
 msgstr "Radar-overlay"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:365
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:371
 msgid "Trend overlay"
 msgstr "Trend-overlay"
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:396
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:402
 msgid "No rated evaluations in the current filter window."
 msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
 
 # ===== v2.14.0 — Player rate card =====
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:49
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:54
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:60
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:535
 #: src/Modules/Stats/Admin/UsageStatsPage.php:355
 #: src/Shared/Admin/BackNavigator.php:129
@@ -39193,16 +39214,16 @@ msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
 msgid "Player Rate Cards"
 msgstr "Speler rapporten"
 
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:68
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:79
 msgid "Please select a player first."
 msgstr "Selecteer eerst een speler."
 
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:72
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:83
 #: src/Shared/Frontend/FrontendRateCardView.php:147
 msgid "Show rate card"
 msgstr "Rapportkaart tonen"
 
-#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:83
+#: src/Modules/Stats/Admin/PlayerRateCardsPage.php:94
 #: src/Shared/Frontend/FrontendRateCardView.php:173
 msgid "Pick a player above to see their rate card."
 msgstr "Kies hierboven een speler om het rapport te zien."
@@ -41277,21 +41298,21 @@ msgstr ""
 msgid "Add player to this team"
 msgstr "Speler aan dit team toevoegen"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:92
+#: src/Modules/Teams/Admin/TeamsPage.php:109
 msgid "No teams."
 msgstr "Geen teams."
 
-#: src/Modules/Teams/Admin/TeamsPage.php:131
+#: src/Modules/Teams/Admin/TeamsPage.php:148
 #: src/Shared/Admin/BackNavigator.php:110
 msgid "Edit Team"
 msgstr "Team bewerken"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:131
-#: src/Modules/Teams/Admin/TeamsPage.php:252
+#: src/Modules/Teams/Admin/TeamsPage.php:148
+#: src/Modules/Teams/Admin/TeamsPage.php:269
 msgid "Add Team"
 msgstr "Team toevoegen"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:134
+#: src/Modules/Teams/Admin/TeamsPage.php:151
 msgid ""
 "The team was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -41299,7 +41320,7 @@ msgstr ""
 "Het team is opgeslagen, maar één of meer aangepaste velden hadden ongeldige "
 "waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Teams/Admin/TeamsPage.php:181
+#: src/Modules/Teams/Admin/TeamsPage.php:198
 #, php-format
 msgid ""
 "Connect a Spond account first on the <a href=\"%s\">Spond integration</a> "
@@ -41308,13 +41329,13 @@ msgstr ""
 "Verbind eerst een Spond-account via de pagina <a href=\"%s\">Spond-"
 "integratie</a>, en kom daarna terug om een groep te kiezen."
 
-#: src/Modules/Teams/Admin/TeamsPage.php:191
+#: src/Modules/Teams/Admin/TeamsPage.php:208
 #: src/Modules/Wizards/Team/SpondGroupStep.php:50
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:123
 msgid "— Not connected —"
 msgstr "— Niet verbonden —"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:203
+#: src/Modules/Teams/Admin/TeamsPage.php:220
 msgid ""
 "Pick the Spond group that matches this team. Sync runs hourly. Leave on "
 "\"Not connected\" to disable."
@@ -41322,24 +41343,24 @@ msgstr ""
 "Kies de Spond-groep die bij deze ploeg hoort. Sync loopt elk uur. Laat op "
 "\"Niet verbonden\" om te deactiveren."
 
-#: src/Modules/Teams/Admin/TeamsPage.php:208
+#: src/Modules/Teams/Admin/TeamsPage.php:225
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:150
 msgid "Last sync:"
 msgstr "Laatste synchronisatie:"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:212
+#: src/Modules/Teams/Admin/TeamsPage.php:229
 msgid "failed"
 msgstr "mislukt"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:216
+#: src/Modules/Teams/Admin/TeamsPage.php:233
 msgid "ok"
 msgstr "ok"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:235
+#: src/Modules/Teams/Admin/TeamsPage.php:252
 msgid "Syncing…"
 msgstr "Synchroniseren…"
 
-#: src/Modules/Teams/Admin/TeamsPage.php:252
+#: src/Modules/Teams/Admin/TeamsPage.php:269
 msgid "Update Team"
 msgstr "Team bijwerken"
 
@@ -58544,18 +58565,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
-msgid "You do not have access to this evaluation."
-msgstr "Je hebt geen toegang tot deze evaluatie."
-
-#: src/Modules/Goals/Admin/GoalsPage.php:41
-msgid "You do not have access to this goal."
-msgstr "Je hebt geen toegang tot dit doel."
-
-#: src/Modules/Activities/Admin/ActivitiesPage.php:225
-msgid "You do not have access to this activity."
-msgstr "Je hebt geen toegang tot deze activiteit."
 
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
