@@ -210,7 +210,20 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         }
     }
 
-    /** Nothing outside the four mapped entities plus the self-service row. */
+    /**
+     * The closed list of what Staff reaches. Nothing outside it.
+     *
+     * #3232 added `measurements` and `player_injuries`, deliberately and
+     * with the tradeoff on the record: `tt_staff` is one role covering
+     * physio and kit manager, so injuries reach both. The mitigations are
+     * the team scope (asserted above), the absence of `create_delete`, and
+     * `docs/access-control.md` saying so where an operator grants the role.
+     * #3257 tracks the split that makes the mitigation unnecessary.
+     *
+     * This list is deliberately exhaustive rather than a "contains" check:
+     * it is the assertion that catches the next entity being added to a
+     * seat that holds medical data about minors.
+     */
     public function test_staff_reaches_only_what_its_capabilities_imply(): void {
         $entities = array_unique( array_map(
             static fn ( array $r ): string => (string) $r['entity'],
@@ -219,7 +232,7 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         sort( $entities );
 
         $this->assertSame(
-            [ 'my_person', 'people', 'player_notes', 'players', 'team' ],
+            [ 'measurements', 'my_person', 'people', 'player_injuries', 'player_notes', 'players', 'team' ],
             array_values( $entities )
         );
     }
