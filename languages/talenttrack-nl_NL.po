@@ -58545,6 +58545,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
+msgid "You do not have access to this evaluation."
+msgstr "Je hebt geen toegang tot deze evaluatie."
+
+#: src/Modules/Goals/Admin/GoalsPage.php:41
+msgid "You do not have access to this goal."
+msgstr "Je hebt geen toegang tot dit doel."
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:225
+msgid "You do not have access to this activity."
+msgstr "Je hebt geen toegang tot deze activiteit."
+
 #~ msgid "Sign off this conversation now"
 #~ msgstr "Onderteken dit gesprek nu"
 

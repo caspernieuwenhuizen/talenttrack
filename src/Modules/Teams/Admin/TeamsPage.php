@@ -10,6 +10,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\People\Admin\TeamStaffPanel;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 class TeamsPage {
@@ -21,6 +22,17 @@ class TeamsPage {
     public static function render_page(): void {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        $user_id = get_current_user_id();
+
+        // #3158 — `render_page` routed `action=edit` straight to
+        // `render_form`, which renders the staff panel and the full roster
+        // for whatever id is in the URL. `tt_view_teams` is club-wide, so
+        // walking `?id=1,2,3…` read every squad in the academy.
+        if ( $action === 'edit' && $id > 0 && ! AdminListScope::canOpenTeam( $user_id, $id ) ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Teams', 'talenttrack' ) . '</h1>'
+                . '<p>' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
         if ( $action === 'edit' || $action === 'new' ) {
             self::render_form( $action === 'edit' ? QueryHelpers::get_team( $id ) : null );
             return;
@@ -32,7 +44,12 @@ class TeamsPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 't' );
 
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
-        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.* FROM {$p}tt_teams t WHERE {$view_clause} AND t.club_id = %d {$scope} ORDER BY t.name ASC", CurrentClub::id() ) );
+        // #3158 — same narrowing `GET /teams` already applies
+        // (`TeamsRestController::list_teams`): a global `team` read sees
+        // every squad, a team-scoped coach sees their own.
+        $team_scope = AdminListScope::teamIdClause( $user_id, 'team', 't.id' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.* FROM {$p}tt_teams t WHERE {$view_clause} AND t.club_id = %d {$scope} {$team_scope} ORDER BY t.name ASC", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">

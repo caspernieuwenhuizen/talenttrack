@@ -4,6 +4,8 @@ namespace TT\Modules\Reports\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
 /**
@@ -167,8 +169,15 @@ class ReportsPage {
 
     private static function renderTeamRatings(): void {
         global $wpdb; $p = $wpdb->prefix;
+        $user_id    = get_current_user_id();
         $categories = QueryHelpers::get_categories();
-        $teams      = QueryHelpers::get_teams();
+        // #3158 — one row per team in the academy, with rating averages, to
+        // any coach holding `tt_view_reports`. `tt_view_reports` is a surface
+        // gate; the data grant is the matrix `reports` scope.
+        $teams      = QueryHelpers::get_teams_in_scope( $user_id, current_user_can( 'tt_edit_settings' ) );
+        // Both aggregates below also gain the club scope they never carried.
+        $club_id    = CurrentClub::id();
+        $team_scope = AdminListScope::teamIdClause( $user_id, 'reports', 'pl.team_id' );
         ?>
         <h1><?php esc_html_e( 'Team rating averages', 'talenttrack' ); ?></h1>
         <p style="color:#666; max-width:800px;">
@@ -197,24 +206,32 @@ class ReportsPage {
                 // Mirrors FrontendReportDetailView::renderTeamRatings(); archived
                 // players and archived evaluations excluded identically.
                 $eval_counts = [];
-                foreach ( (array) $wpdb->get_results(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                foreach ( (array) $wpdb->get_results( $wpdb->prepare(
                     "SELECT pl.team_id, COUNT(e.id) AS n
                        FROM {$p}tt_evaluations e
-                       JOIN {$p}tt_players pl ON e.player_id = pl.id
+                       JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
                       WHERE pl.archived_at IS NULL AND e.archived_at IS NULL
-                      GROUP BY pl.team_id"
-                ) as $crow ) {
+                        AND e.club_id = %d
+                        {$team_scope}
+                      GROUP BY pl.team_id",
+                    $club_id
+                ) ) as $crow ) {
                     $eval_counts[ (int) $crow->team_id ] = (int) $crow->n;
                 }
                 $cat_avgs = [];
-                foreach ( (array) $wpdb->get_results(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                foreach ( (array) $wpdb->get_results( $wpdb->prepare(
                     "SELECT pl.team_id, r.category_id, AVG(r.rating) AS avg_rating
                        FROM {$p}tt_eval_ratings r
                        JOIN {$p}tt_evaluations e ON r.evaluation_id = e.id
-                       JOIN {$p}tt_players pl ON e.player_id = pl.id
+                       JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
                       WHERE pl.archived_at IS NULL AND e.archived_at IS NULL
-                      GROUP BY pl.team_id, r.category_id"
-                ) as $arow ) {
+                        AND e.club_id = %d
+                        {$team_scope}
+                      GROUP BY pl.team_id, r.category_id",
+                    $club_id
+                ) ) as $arow ) {
                     $cat_avgs[ (int) $arow->team_id ][ (int) $arow->category_id ] = (float) $arow->avg_rating;
                 }
 

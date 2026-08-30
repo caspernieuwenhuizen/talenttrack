@@ -56,6 +56,42 @@ Twee schrijfacties noemen nog een leesrecht. Beide zijn vastgelegd in plaats van
 | Een rol toekennen of intrekken bij een persoon | `tt_view_settings` | Er is geen recht voor het toekennen van een rol. Het dichtstbijzijnde, `tt_manage_authorization`, betekent "de rechtenmatrix bewerken" — een andere handeling. |
 | Een geplande rapportage archiveren | `tt_view_analytics` | Er is geen schrijfrecht voor analyse. |
 
+## Een leesrecht is geen clubbrede gegevenstoegang
+
+`tt_view_players` beantwoordt de vraag *"mag deze persoon naar spelers kijken"*.
+Niet *"mag deze persoon naar **deze** spelers kijken"* — dat is het teambereik
+uit de rechtenmatrix, en daarom staat er bij een hoofdtrainer
+`players [r, team]` en niet `[r, global]`.
+
+De frontend- en REST-schermen hebben zich altijd aan dat bereik gehouden. Zeven
+wp-adminpagina's niet: Spelers, Teams, Evaluaties, Doelen, Activiteiten,
+Speler-ratecards en Rapportages bouwden hun lijsten en keuzelijsten uit de
+ongefilterde query en lieten het menurecht doorgaan voor de gegevenstoegang.
+Een trainer die naar wp-admin navigeerde zag elk kind in de academie — op de
+spelerslijst inclusief geboortedatum en de naam, het e-mailadres en het
+telefoonnummer van de ouder.
+
+Ze tonen een trainer nu alleen de spelers en teams van de eigen teams:
+
+- **Lijsten** filteren op dezelfde manier als hun REST-tegenhanger. De
+  spelerslijst controleert elke regel met dezelfde toets die `GET /players`
+  gebruikt, zodat de regels en het aantal kloppen — en een ouder ziet nog
+  steeds het eigen kind.
+- **`action=edit` en `action=view`** weigeren een id buiten het bereik voordat
+  er een selectie-, staf- of aanwezigheidspaneel wordt getoond. `?id=1,2,3…`
+  aflopen leest geen ander team meer.
+- **Keuzelijsten op bewerkformulieren** houden het huidige team of de huidige
+  speler van het record selecteerbaar, ook buiten het bereik van de kijker, dus
+  opslaan kan die koppeling niet stilzwijgend wissen.
+
+Een beheerder, en elke persona met een **globaal** leesrecht op de entiteit —
+Hoofd Ontwikkeling, Academiebeheerder, Clubbeheerder en de Alleen-lezen
+Waarnemer op de schermen waarvoor het is toegekend — ziet nog steeds alles.
+
+Meldt een trainer dat een wp-adminlijst leeg is, vraag dan aan welke teams die
+persoon is gekoppeld onder **Personen → Functionele rollen**: het bereik komt
+uit die koppelingen, niet uit het recht.
+
 ## De vooraf geconfigureerde rollen
 
 | Rol | View | Edit |
