@@ -167,6 +167,36 @@ unit; pass/fail tests show a dropdown. A coach can only record for their
 own teams; the head of development and academy admin can record for any
 team.
 
+### Height also updates the player's profile
+
+A player's profile carries a height, and it used to be whatever somebody
+typed when the player was first entered. For a growing 13-year-old that
+goes out of date within months, and nothing on the screen said so.
+
+Now, whenever you record a height, the profile follows it. The moment a
+new reading is the player's most recent one, the profile shows that
+number instead.
+
+A few details worth knowing:
+
+- **The test has to be recognised as a height.** Name it `Lengte`,
+  `Height`, `Length` or `Stature` — the academy owns its own test names,
+  so this is matched on the name rather than on a fixed test.
+- **The most recent reading wins, not the last one you typed.** If you
+  correct a measurement from last January, the profile stays on the
+  newer one. If you move an old reading forward so it becomes the most
+  recent, the profile follows it there.
+- **Deleting the last height does not blank the profile.** The value
+  sitting there may predate your testing altogether, and an old number
+  is more use than none.
+- **You can still edit the height on the player form.** It is the right
+  thing to do for an academy that does not run testing sessions — but a
+  recorded measurement will take over as soon as there is one.
+
+The BMI report does not use the profile height, and deliberately so — a
+BMI needs the height that was true on the day of the weigh-in, not the
+latest one. See [BMI-for-age](#bmi-for-age).
+
 ## Testing coverage (who's due)
 
 Staff also get a **Testing coverage** tile. Pick a team and the screen
