@@ -92,8 +92,11 @@ final class TrialStaffStep implements WizardStepInterface {
         $track_name = '';
         $track_id   = (int) ( $state['track_id'] ?? 0 );
         if ( $track_id > 0 ) {
-            $track      = ( new TrialTracksRepository() )->find( $track_id );
-            $track_name = $track ? (string) $track->name : '';
+            // Read as an array: the repository returns a plain `object`,
+            // so reaching for a property PHPStan cannot see on that type
+            // is an error at level 8.
+            $track      = (array) ( ( new TrialTracksRepository() )->find( $track_id ) ?? [] );
+            $track_name = (string) ( $track['name'] ?? '' );
         }
 
         echo '<div class="tt-field">';
