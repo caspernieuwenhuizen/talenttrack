@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T17:47:29+00:00\n"
+"POT-Creation-Date: 2026-08-30T18:16:10+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3415,7 +3415,7 @@ msgstr "Alleen .csv-bestanden worden geaccepteerd."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:404
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:206
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:52
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:60
 msgid "A name is required."
 msgstr "Een naam is verplicht."
 
@@ -11339,7 +11339,7 @@ msgid "Select person"
 msgstr "Selecteer persoon"
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:211
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:31
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:37
 #: src/Modules/Pdp/Admin/SeasonsPage.php:113
 #: src/Modules/Pdp/Admin/SeasonsPage.php:154
 #: src/Modules/People/Admin/TeamStaffPanel.php:158
@@ -11354,7 +11354,7 @@ msgid "Start date"
 msgstr "Startdatum"
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:215
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:36
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:42
 #: src/Modules/Pdp/Admin/SeasonsPage.php:117
 #: src/Modules/Pdp/Admin/SeasonsPage.php:158
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
@@ -22750,7 +22750,7 @@ msgid "Holiday not found."
 msgstr "Vakantie niet gevonden."
 
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:167
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:80
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:88
 msgid "Could not create the holiday."
 msgstr "De vakantie kon niet worden aangemaakt."
 
@@ -22771,7 +22771,7 @@ msgid "A valid end date is required."
 msgstr "Een geldige einddatum is verplicht."
 
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:218
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:59
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:67
 msgid "The start date must be on or before the end date."
 msgstr "De startdatum moet op of vóór de einddatum liggen."
 
@@ -22779,18 +22779,18 @@ msgstr "De startdatum moet op of vóór de einddatum liggen."
 msgid "Holiday details"
 msgstr "Vakantiegegevens"
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:27
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:33
 #: src/Shared/Frontend/FrontendHolidaysView.php:186
 msgid "e.g. Christmas break"
 msgstr "bijv. kerstvakantie"
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:41
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:47
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
 #: src/Shared/Frontend/FrontendHolidaysView.php:199
 msgid "Note (optional)"
 msgstr "Notitie (optioneel)"
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:56
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:64
 msgid "Both a start and end date are required."
 msgstr "Zowel een start- als een einddatum is verplicht."
 
@@ -28619,7 +28619,7 @@ msgid "— choose —"
 msgstr "— kies —"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:280
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:47
 msgid "Value type"
 msgstr "Type waarde"
 
@@ -28765,22 +28765,22 @@ msgid "Test saved."
 msgstr "Test opgeslagen."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:647
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:38
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:42
 msgid "A number (with a unit)"
 msgstr "Een getal (met een eenheid)"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:648
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
 msgid "A scale score"
 msgstr "Een schaalscore"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:649
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:40
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:44
 msgid "Pass / fail"
 msgstr "Geslaagd / niet geslaagd"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:650
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:41
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:45
 msgid "A status (coloured levels)"
 msgstr "Een status (gekleurde niveaus)"
 
@@ -29126,15 +29126,15 @@ msgstr "Kan de streefwaarde niet opslaan."
 msgid "Test details"
 msgstr "Testgegevens"
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:35
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
 msgid "e.g. Sprint 30m"
 msgstr "bijv. Sprint 30m"
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:56
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:61
 msgid "Choose a category."
 msgstr "Kies een categorie."
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:59
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:64
 msgid "A test name is required."
 msgstr "Een testnaam is verplicht."
 

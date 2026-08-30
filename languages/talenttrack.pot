@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-30T17:47:29+00:00\n"
+"POT-Creation-Date: 2026-08-30T18:16:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -3058,7 +3058,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:404
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:206
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:52
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:60
 msgid "A name is required."
 msgstr ""
 
@@ -10202,7 +10202,7 @@ msgid "Select person"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:211
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:31
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:37
 #: src/Modules/Pdp/Admin/SeasonsPage.php:113
 #: src/Modules/Pdp/Admin/SeasonsPage.php:154
 #: src/Modules/People/Admin/TeamStaffPanel.php:158
@@ -10217,7 +10217,7 @@ msgid "Start date"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:215
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:36
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:42
 #: src/Modules/Pdp/Admin/SeasonsPage.php:117
 #: src/Modules/Pdp/Admin/SeasonsPage.php:158
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
@@ -19865,7 +19865,7 @@ msgid "Holiday not found."
 msgstr ""
 
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:167
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:80
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:88
 msgid "Could not create the holiday."
 msgstr ""
 
@@ -19886,7 +19886,7 @@ msgid "A valid end date is required."
 msgstr ""
 
 #: src/Modules/Holidays/Rest/HolidaysRestController.php:218
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:59
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:67
 msgid "The start date must be on or before the end date."
 msgstr ""
 
@@ -19894,18 +19894,18 @@ msgstr ""
 msgid "Holiday details"
 msgstr ""
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:27
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:33
 #: src/Shared/Frontend/FrontendHolidaysView.php:186
 msgid "e.g. Christmas break"
 msgstr ""
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:41
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:47
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
 #: src/Shared/Frontend/FrontendHolidaysView.php:199
 msgid "Note (optional)"
 msgstr ""
 
-#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:56
+#: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:64
 msgid "Both a start and end date are required."
 msgstr ""
 
@@ -25019,7 +25019,7 @@ msgid "— choose —"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:280
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:47
 msgid "Value type"
 msgstr ""
 
@@ -25153,22 +25153,22 @@ msgid "Test saved."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:647
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:38
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:42
 msgid "A number (with a unit)"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:648
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
 msgid "A scale score"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:649
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:40
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:44
 msgid "Pass / fail"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:650
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:41
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:45
 msgid "A status (coloured levels)"
 msgstr ""
 
@@ -25482,15 +25482,15 @@ msgstr ""
 msgid "Test details"
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:35
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
 msgid "e.g. Sprint 30m"
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:56
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:61
 msgid "Choose a category."
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:59
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:64
 msgid "A test name is required."
 msgstr ""
 
