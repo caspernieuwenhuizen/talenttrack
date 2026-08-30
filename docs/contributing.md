@@ -339,7 +339,18 @@ The cost is CI minutes on stacked PRs, and it is dominated by wp-env startup rat
 
 **2. Caching the WordPress source tree: slower, not faster.** `.wp-env.json` used to set `"core": "WordPress/WordPress"`, so wp-env git-cloned the WordPress repository into `~/.wp-env/<hash>/WordPress` rather than using the released image. On a CI runner that directory is cold every run, which makes "cache the clone" look obvious. Measured on `main`: cold startup ~90s, warm startup with the 391MB tree restored **103s and 129s**. Restoring the tree costs more than cloning it, and wp-env does its own work either way.
 
-What that experiment *did* establish is that everything wp-env does before touching a container collapses once the tree is already on disk — 102s to 44s on the same commit. So the clone is expensive; it is *storing* it that is not worth it. `.wp-env.json` now sets **`"core": null`**, which drops the clone instead of caching it: wp-env uses the released WordPress image, which it pulls either way. Setting it to a GitHub repository was never a decision — it arrived with the Playwright scaffold in #12 — and it had the side effect of running both suites against WordPress **trunk** rather than a release, which is not what a gate should be asserting against.
+What that experiment *did* establish is that everything wp-env does before touching a container collapses once the tree is already on disk — 102s to 44s on the same commit. So the clone is expensive; it is *storing* it that is not worth it. `.wp-env.json` now sets **`"core": null`**, which drops the clone instead of caching it: wp-env uses the released WordPress image, which it pulls either way.
+
+Measured over four cold `main` runs against two cold runs of the change, per workflow:
+
+| workflow | before | after | change |
+| --- | --- | --- | --- |
+| `php-tests.yml` | 99, 100, 100, 102 (mean 100s) | 88, 91 (mean 90s) | −10s (−10%) |
+| `e2e.yml` | 84, 93, 94, 101 (mean 93s) | 83, 98 (mean 91s) | no measurable effect |
+
+Read that carefully, because it is smaller than the 44s number invites you to expect: the PHPUnit gate improves clearly — `main` clusters at 99–102 and the change sits outside that spread — and the E2E gate does not move at all, its own runs ranging 84–101 either way. Whatever dominates E2E's startup variance, it is not the clone.
+
+The other half of the change is correctness rather than cost. Setting `core` to a GitHub repository was never a decision — it arrived with the Playwright scaffold in #12 — and it had both gating suites asserting against WordPress **trunk** rather than a release, which is a moving target for a gate.
 
 An earlier variant of that experiment cached `~/.wp-env` **wholesale** and appeared to cut startup to 44s. It had not: that directory also holds wp-env's own generated docker-compose project, so restoring it convinced wp-env the environment was already up while the containers and database volume were not, and the job died a step later on `Error establishing a database connection`. **A startup step that returns quickly is not evidence. Check the job went green before believing a timing.**
 
