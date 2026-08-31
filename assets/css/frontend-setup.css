@@ -307,6 +307,23 @@
     font-size: 0.875rem;
 }
 
+/* ---- Import step (#3260, step from #2958) ---------------------------- */
+.tt-dashboard .tt-setup__import-list {
+    margin: var(--tt-sp-2) 0 0;
+    padding-left: 1.25rem;
+}
+
+.tt-dashboard .tt-setup__import-list li {
+    padding: 0.15rem 0;
+}
+
+/* The preview report is the thing to read before committing, so it gets
+   room rather than being tucked inside the notice's default padding. */
+.tt-dashboard .tt-setup__import-ready {
+    padding: var(--tt-sp-3);
+    margin: var(--tt-sp-4) 0;
+}
+
 .tt-dashboard .tt-setup__profile-reviews {
     display: flex;
     flex-wrap: wrap;

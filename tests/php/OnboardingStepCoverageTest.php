@@ -84,11 +84,12 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
 
         $this->assertContains( 'messaging', $ported, '#3140 ports the messaging step.' );
         $this->assertContains( 'profile', $ported, '#3259 ports the install-profile step.' );
+        $this->assertContains( 'import', $ported, '#3260 ports the squad-import step.' );
         $this->assertSame(
-            [ 'import', 'staff' ],
+            [ 'staff' ],
             $pending,
-            'Only the two steps still filed as separate ports may be unported. '
-            . 'A third means a step was added without a frontend arm again.'
+            'Only the staff step, filed as #3261, may still be unported. '
+            . 'A second means a step was added without a frontend arm again.'
         );
 
         $this->assertStringContainsString(
@@ -159,6 +160,56 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
             'ProfileService::diff',
             $view,
             'What the choice will change has to be visible before it is applied.'
+        );
+    }
+
+    /**
+     * #3260 — same rule again, and the one where it matters most.
+     *
+     * A second importer would have to keep up with the mapping rules, the
+     * workbook validation and the error reporting, and it would not. So
+     * neither the REST layer nor the view may touch `ImportService`: both
+     * go through `OnboardingHandlers::applyImport()`, which is also what
+     * the wp-admin form posts to.
+     */
+    public function test_the_frontend_import_write_goes_through_the_shared_handler(): void {
+        $rest = $this->source( 'src/Infrastructure/REST/OnboardingRestController.php' );
+
+        $this->assertStringContainsString( 'OnboardingHandlers::applyImport', $rest );
+        $this->assertStringContainsString( 'OnboardingHandlers::skipImport', $rest );
+
+        // Constructing it, not naming it. Both files' docblocks explain
+        // *why* there is exactly one importer, and a bare substring match
+        // reads that explanation as the violation it warns against — which
+        // is how this assertion failed on the commit that introduced it.
+        foreach ( [
+            'src/Infrastructure/REST/OnboardingRestController.php' => 'The REST layer must not import the workbook itself — that is the second importer the issue forbids.',
+            'src/Shared/Frontend/FrontendSetupView.php'            => 'The view renders an upload and a report; the handler does the import.',
+        ] as $file => $why ) {
+            $this->assertDoesNotMatchRegularExpression(
+                '/new\s+(\\\\?TT\\\\Modules\\\\Import\\\\)?ImportService\s*\(/',
+                $this->source( $file ),
+                $why
+            );
+        }
+    }
+
+    /**
+     * The two-pass contract, which is what makes "nothing is saved until
+     * you confirm" true rather than a claim in the copy.
+     */
+    public function test_the_import_handler_only_advances_on_a_commit(): void {
+        $src = $this->source( 'src/Modules/Onboarding/Admin/OnboardingHandlers.php' );
+
+        $this->assertStringContainsString(
+            'public static function applyImport(',
+            $src,
+            'The domain half has to exist for both surfaces to share it.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/if \( \$commit \) \{\s*\n\s*OnboardingState::setStep\( \'first_team\' \);/',
+            $src,
+            'A preview must not move the flow on — the report is what the operator sees next.'
         );
     }
 }

@@ -59500,6 +59500,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendSetupView.php:640
+msgid "Your workbook"
+msgstr "Je werkboek"
+
+#: src/Shared/Frontend/FrontendSetupView.php:680
+msgid "Choose the same file again to confirm and save these records."
+msgstr "Kies hetzelfde bestand opnieuw om deze records te bevestigen en op te slaan."
+
+#: src/Shared/Frontend/FrontendSetupView.php:988
+msgid "Reading the workbook…"
+msgstr "Bezig met het lezen van het werkboek…"
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "

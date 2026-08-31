@@ -58,6 +58,29 @@
         });
     }
 
+    /*
+     * #3260 — the import step sends a workbook, so it goes as multipart
+     * rather than JSON.
+     *
+     * Content-Type is deliberately NOT set: the browser has to write it
+     * itself so it can append the multipart boundary, and setting it by
+     * hand produces a body the server cannot parse. Everything else — the
+     * nonce, the credentials, the response shape — is identical to post().
+     */
+    function postFormData(path, formData) {
+        var h = { 'Accept': 'application/json' };
+        if (nonce) h['X-WP-Nonce'] = nonce;
+
+        return fetch(rest + 'onboarding/' + path, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: h,
+            body: formData
+        }).then(function (res) {
+            return res.json().then(function (json) { return { ok: res.ok, json: json }; });
+        });
+    }
+
     function reloadSoon() {
         setTimeout(function () { window.location.reload(); }, 500);
     }
@@ -67,6 +90,40 @@
         setMsg(firstError(json) || i18n.error || 'Error.', 'error');
         setTimeout(function () { if (btn) btn.setAttribute('data-state', 'idle'); }, 2500);
     }
+
+    // ---- Upload form (#3260 import) --------------------------------------
+    // Bound before the JSON form below, and separately: this is the one step
+    // whose body is a file. `querySelectorAll` rather than `querySelector`
+    // because the step renders two of these — check, then confirm.
+    root.querySelectorAll('[data-tt-setup-upload]').forEach(function (uploadForm) {
+        uploadForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var endpoint = uploadForm.getAttribute('data-tt-setup-upload') || '';
+            if (!endpoint) return;
+
+            var btn = uploadForm.querySelector('button[type="submit"]');
+            var file = uploadForm.querySelector('input[type="file"]');
+            if (file && !file.value) {
+                setMsg(i18n.choose_file || 'Choose a workbook to upload first.', 'error');
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            setMsg(i18n.checking || '', '');
+
+            postFormData(endpoint, new FormData(uploadForm)).then(function (r) {
+                if (r.ok && r.json && r.json.success) {
+                    reloadSoon();
+                } else {
+                    if (btn) btn.disabled = false;
+                    setMsg(firstError(r.json) || i18n.error || 'Error.', 'error');
+                }
+            }).catch(function () {
+                if (btn) btn.disabled = false;
+                setMsg(i18n.network_error || 'Network error.', 'error');
+            });
+        });
+    });
 
     // ---- Step form submit (academy / first-team / first-admin) ----------
     var form = root.querySelector('[data-tt-setup-form]');

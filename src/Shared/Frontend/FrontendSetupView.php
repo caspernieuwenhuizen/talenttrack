@@ -92,15 +92,19 @@ class FrontendSetupView extends FrontendViewBase {
                     // looks like, so an operator who only ever sees the
                     // frontend was choosing it by not being asked.
                     case 'profile':     self::renderProfile( $cancel_url );    break;
+                    // #3260 (step from #2958) — the squad import. The step
+                    // a new academy's first experience of TalentTrack most
+                    // depends on: it is how a club's players get into the
+                    // system at all.
+                    case 'import':      self::renderImport( $cancel_url );     break;
                     case 'dashboard':   self::renderDashboard( $cancel_url );  break;
                     case 'done':        self::renderDone();                    break;
-                    // #3140 — `import` and `staff` are real ports (file
-                    // upload and column mapping; people records and held
-                    // invitation credentials) and are filed separately.
-                    // Until they land they say what they are and offer a
-                    // way past. What used to be here read as a bug and its
-                    // only exit restarted the wizard at step 1, to hit the
-                    // same wall again.
+                    // #3140 — `staff` is a real port (people records and
+                    // held invitation credentials) and is filed separately
+                    // as #3261. Until it lands it says what it is and
+                    // offers a way past. What used to be here read as a bug
+                    // and its only exit restarted the wizard at step 1, to
+                    // hit the same wall again.
                     default:            self::renderNotYetPorted( $step, $cancel_url );
                 }
                 ?>
@@ -527,6 +531,152 @@ class FrontendSetupView extends FrontendViewBase {
     }
 
     /**
+     * #3260 — the squad-import step (#2958), ported.
+     *
+     * **There is exactly one importer.** `ImportService` (#2954) parses,
+     * validates and tags for both surfaces, reached through
+     * `OnboardingHandlers::applyImport()`. This view renders an upload and
+     * a report; it does not know what a valid workbook looks like.
+     *
+     * The two-pass shape is the wp-admin step's and is the point of it:
+     * the first upload reports what the file holds and writes nothing, the
+     * second commits. A workbook with blockers never reaches the second
+     * pass. The file has to be chosen again to confirm — the browser will
+     * not let a page re-submit a file it was handed, and holding the upload
+     * server-side between two requests would mean storing a club's whole
+     * squad list somewhere on the chance they press the button.
+     *
+     * Not built mobile-first, and deliberately: `config/mobile_surfaces.php`
+     * already classifies the whole `setup` surface `desktop_only` — "run
+     * once, at a desk, before anything else exists". Importing a squad means
+     * having a spreadsheet, which means being at the machine the spreadsheet
+     * is on; a responsive version of this would let somebody start on a
+     * phone something they cannot finish there.
+     */
+    private static function renderImport( string $cancel_url ): void {
+        $payload   = OnboardingState::payloadFor( 'import' );
+        $blockers  = (array) ( $payload['blockers'] ?? [] );
+        $warnings  = (array) ( $payload['warnings'] ?? [] );
+        $imported  = (array) ( $payload['imported'] ?? [] );
+        $filename  = (string) ( $payload['filename'] ?? '' );
+        $error     = (string) ( $payload['error'] ?? '' );
+        $previewed = ! empty( $imported ) && empty( $payload['committed'] );
+
+        $accept = '.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        ?>
+        <h2 class="tt-setup__heading"><?php esc_html_e( 'Import your squad', 'talenttrack' ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php esc_html_e( 'If you already keep your teams, players and staff in a spreadsheet, bring them in now rather than typing them again. Download the template, fill it in, and upload it.', 'talenttrack' ); ?>
+        </p>
+        <p class="tt-setup__hint">
+            <strong><?php esc_html_e( 'Nothing is saved until you confirm.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Uploading shows you what the file contains, and anything that needs fixing, first.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $error !== '' ) : ?>
+            <p class="tt-notice tt-notice--error"><?php echo esc_html( $error ); ?></p>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $blockers ) ) : ?>
+            <div class="tt-notice tt-notice--error">
+                <p><strong><?php esc_html_e( 'This workbook cannot be imported yet. Nothing was saved.', 'talenttrack' ); ?></strong></p>
+                <ul class="tt-setup__import-list">
+                    <?php foreach ( $blockers as $blocker ) : ?>
+                        <li><?php echo esc_html( (string) $blocker ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $warnings ) ) : ?>
+            <div class="tt-notice tt-notice--warning">
+                <ul class="tt-setup__import-list">
+                    <?php foreach ( $warnings as $warning ) : ?>
+                        <li><?php echo esc_html( (string) $warning ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <p>
+            <a class="tt-btn tt-btn-secondary"
+               href="<?php echo esc_url( \TT\Modules\Onboarding\Admin\OnboardingPage::actionUrl( 'tt_onboarding_roster_template' ) ); ?>">
+                <?php esc_html_e( 'Download the template', 'talenttrack' ); ?>
+            </a>
+        </p>
+
+        <?php if ( ! $previewed ) : ?>
+            <form data-tt-setup-upload="import" enctype="multipart/form-data">
+                <p class="tt-setup__field">
+                    <label class="tt-field-label" for="tt-setup-roster"><?php esc_html_e( 'Your workbook', 'talenttrack' ); ?></label>
+                    <input type="file" id="tt-setup-roster" name="roster_file" class="tt-input"
+                           accept="<?php echo esc_attr( $accept ); ?>" />
+                    <span class="tt-field-hint">
+                        <?php
+                        printf(
+                            /* translators: 1: upload_max_filesize, 2: post_max_size */
+                            esc_html__( 'Server limits on this install: upload_max_filesize = %1$s, post_max_size = %2$s. A workbook larger than the smaller of those is rejected before TalentTrack sees it.', 'talenttrack' ),
+                            esc_html( (string) ini_get( 'upload_max_filesize' ) ),
+                            esc_html( (string) ini_get( 'post_max_size' ) )
+                        );
+                        ?>
+                    </span>
+                </p>
+                <div class="tt-form-actions">
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $cancel_url ); ?>">
+                        <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
+                    </a>
+                    <button type="submit" class="tt-btn tt-btn-primary">
+                        <?php esc_html_e( 'Check this file', 'talenttrack' ); ?>
+                    </button>
+                </div>
+            </form>
+        <?php else : ?>
+            <div class="tt-notice tt-notice--info tt-setup__import-ready">
+                <p>
+                    <strong><?php
+                        printf(
+                            /* translators: %s: the uploaded file name */
+                            esc_html__( '%s is ready to import.', 'talenttrack' ),
+                            esc_html( $filename )
+                        );
+                    ?></strong>
+                </p>
+                <ul class="tt-setup__import-list">
+                    <?php foreach ( $imported as $entity => $count ) : ?>
+                        <li><?php echo esc_html( sprintf( '%s: %d', (string) $entity, (int) $count ) ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <p><?php esc_html_e( 'Choose the same file again to confirm and save these records.', 'talenttrack' ); ?></p>
+
+                <form data-tt-setup-upload="import" enctype="multipart/form-data">
+                    <input type="hidden" name="commit" value="1" />
+                    <p class="tt-setup__field">
+                        <label class="tt-field-label" for="tt-setup-roster-confirm"><?php esc_html_e( 'Your workbook', 'talenttrack' ); ?></label>
+                        <input type="file" id="tt-setup-roster-confirm" name="roster_file" class="tt-input" required
+                               accept="<?php echo esc_attr( $accept ); ?>" />
+                    </p>
+                    <div class="tt-form-actions">
+                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $cancel_url ); ?>">
+                            <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
+                        </a>
+                        <button type="submit" class="tt-btn tt-btn-primary">
+                            <?php esc_html_e( 'Import these records', 'talenttrack' ); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        <?php endif; ?>
+
+        <p class="tt-setup__skip-row">
+            <button type="button" class="tt-btn tt-btn-secondary" data-tt-setup-skip="import">
+                <?php esc_html_e( 'Skip — I do not have a spreadsheet', 'talenttrack' ); ?>
+            </button>
+        </p>
+        <?php
+    }
+
+    /**
      * What choosing this profile would change, before it is chosen.
      *
      * Rendered by the shared `ProfileDiff` component, in its read-only
@@ -827,6 +977,9 @@ class FrontendSetupView extends FrontendViewBase {
                     'error'         => __( 'Could not save. Please try again.', 'talenttrack' ),
                     'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
                     'creating'      => __( 'Creating…', 'talenttrack' ),
+                    // #3260 — the import step's own two.
+                    'choose_file'   => __( 'Choose a workbook to upload first.', 'talenttrack' ),
+                    'checking'      => __( 'Reading the workbook…', 'talenttrack' ),
                     'reset_confirm' => __( 'Start over? Your saved progress for this flow is cleared. Data you already created (teams, staff, pages) is kept.', 'talenttrack' ),
                 ],
             ]
