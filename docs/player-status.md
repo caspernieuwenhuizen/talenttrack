@@ -57,6 +57,20 @@ The behaviour form names the ends of your configured scale and says the rating i
 
 The potential form asks how high you believe the player can reach **at their peak**, not where they are now, and carries a *What the bands mean* section next to the picker: one line each for First team, Professional elsewhere, Semi-pro, Top amateur and Foundation. Worth reading once as a staff group, because two coaches guessing at the bands is how the same player gets recorded differently.
 
+### Potential is not asked below 13
+
+The bands describe how far a player might go **as a professional**. That is a fair question to put to a coach about a teenager and a guess about a child, so TalentTrack does not ask it below age 13.
+
+On a younger player the **Set potential** card says so instead of offering the bands, and the API refuses a write with the same reason. Behaviour ratings are unaffected at every age — how a child trains, listens and treats their teammates is a fair thing to record at seven.
+
+Three things follow from this that are worth knowing:
+
+- **The *Potential not revisited* alert skips them too.** Without that it would flag every player in a U7 squad the moment they had been on the books long enough, forever, with no way to clear it except recording exactly the judgement the rule exists to avoid.
+- **Bands already recorded stay visible.** If your academy set potential on younger players before this rule existed, those entries still show on the profile and still draw the trajectory. What stops is being asked again.
+- **A player with no date of birth on record is still asked.** A missing field is not evidence of being too young, and treating it as such would make a data gap look like a broken screen. Fill the date in and the rule applies.
+
+The age is fixed at 13 rather than being a setting. It is where age-group football starts treating trajectory as a real question, and a configurable minimum is the kind of thing that gets set once and then quietly explains a gap nobody can find.
+
 ### How often potential is expected
 
 Quarterly. The form says so, and it tells you where this player stands: when the band was last set, by whom, how many days ago, and whether that is now overdue. The threshold is your academy's own `alerts_potential_stale_days` setting — the same number the *Potential not revisited* alert uses, so the screen and the reminder can never disagree about what late means.

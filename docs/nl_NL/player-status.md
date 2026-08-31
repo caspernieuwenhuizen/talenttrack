@@ -57,6 +57,20 @@ Het gedragsformulier noemt de uiteinden van jullie eigen schaal en zegt erbij da
 
 Het potentieelformulier vraagt hoe hoog je denkt dat de speler **op zijn top** kan reiken, niet waar hij nu staat, en heeft een blokje *Wat de bands betekenen* naast de keuzelijst: één regel per band voor Eerste team, Profvoetbal elders, Semi-prof, Top amateur en Basis. De moeite waard om één keer als staf samen door te lezen, want twee trainers die naar de betekenis raden is precies hoe dezelfde speler verschillend wordt vastgelegd.
 
+### Potentieel wordt niet gevraagd onder de 13
+
+De klassen beschrijven hoe ver een speler **als prof** zou kunnen komen. Dat is een eerlijke vraag aan een trainer over een tiener en een gok over een kind, dus TalentTrack stelt hem niet onder de 13 jaar.
+
+Bij een jongere speler zegt de kaart **Potentieel bepalen** dat, in plaats van de klassen aan te bieden, en de API weigert een schrijfactie met dezelfde reden. Gedragsbeoordelingen blijven op elke leeftijd gewoon werken — hoe een kind traint, luistert en met ploeggenoten omgaat, is op zijn zevende prima vast te leggen.
+
+Drie dingen volgen hieruit die het waard zijn om te weten:
+
+- **De melding *Potentieel niet herzien* slaat ze ook over.** Zonder dat zou hij elke speler in een JO7-team markeren zodra die lang genoeg ingeschreven staat, voor altijd, zonder manier om hem op te lossen behalve precies het oordeel vastleggen dat deze regel wil voorkomen.
+- **Al vastgelegde klassen blijven zichtbaar.** Heeft je academie eerder potentieel bij jongere spelers vastgelegd, dan staan die vermeldingen nog op het profiel en tekenen ze nog steeds het verloop. Wat stopt, is dat er opnieuw naar gevraagd wordt.
+- **Een speler zonder geboortedatum krijgt de vraag wél.** Een leeg veld is geen bewijs dat iemand te jong is, en het zo behandelen laat een gat in de gegevens op een kapot scherm lijken. Vul de datum in en de regel gaat gelden.
+
+De leeftijd ligt vast op 13 en is geen instelling. Daar begint jeugdvoetbal ontwikkelrichting als een echte vraag te behandelen, en een instelbaar minimum is precies het soort instelling dat één keer wordt gezet en daarna stilletjes een gat verklaart dat niemand kan vinden.
+
 ### Hoe vaak potentieel wordt verwacht
 
 Per kwartaal. Het formulier zegt dat, en het laat zien waar deze speler staat: wanneer de band voor het laatst is vastgelegd, door wie, hoeveel dagen geleden, en of dat inmiddels te lang geleden is. De grens is jullie eigen instelling `alerts_potential_stale_days` — hetzelfde getal dat de melding *Potentieel niet herzien* gebruikt, zodat het scherm en de herinnering het nooit oneens kunnen zijn over wat te laat is.

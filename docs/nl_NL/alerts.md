@@ -78,7 +78,7 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
 | --- | --- | --- |
-| **Potentieel niet herzien** | Al twee kwartalen heeft niemand het potentieel van een speler vastgelegd of bevestigd — of er is nooit een potentieel vastgelegd. | *Waar gaat deze speler naartoe?* Het potentieel is het antwoord van de academie op die vraag, en een antwoord van achttien maanden geleden is dat niet. Het telt nog steeds mee in de status van de speler, in de teamchemie en in het ontwikkelingsplan, dus een verouderde inschatting stuurt stilletjes beslissingen die niemand opnieuw bekijkt. |
+| **Potentieel niet herzien** | Al twee kwartalen heeft niemand het potentieel van een speler vastgelegd of bevestigd — of er is nooit een potentieel vastgelegd. Spelers onder de 13 worden overgeslagen — aan hen wordt geen potentieel gevraagd, dus kan het ook niet te laat zijn. | *Waar gaat deze speler naartoe?* Het potentieel is het antwoord van de academie op die vraag, en een antwoord van achttien maanden geleden is dat niet. Het telt nog steeds mee in de status van de speler, in de teamchemie en in het ontwikkelingsplan, dus een verouderde inschatting stuurt stilletjes beslissingen die niemand opnieuw bekijkt. |
 
 De klok loopt vanaf wat het laatste is: de laatste keer dat iemand het potentieel heeft vastgelegd, of de dag dat de speler binnenkwam. Een speler die drie weken geleden is aangemeld is dus niet te laat, en een speler die nog nooit is ingeschat valt onder dezelfde melding in plaats van onzichtbaar te blijven.
 
