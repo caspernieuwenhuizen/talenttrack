@@ -197,40 +197,6 @@ final class ExcelImporter {
      * @param list<string> $warnings
      * @return list<array<string,mixed>>
      */
-    /**
-     * The value a person would see in a cell (#3269).
-     *
-     * `getValue()` returns a formula's **text**; `getCalculatedValue()`
-     * returns what it evaluates to. The shipped template's `auto_key`
-     * column is a formula, so reading `getValue()` gave every one of the
-     * 200 pre-formatted rows per sheet a non-empty cell — which is how a
-     * blank template came to produce a thousand "Name is required"
-     * blockers and the import could not accept the plugin's own workbook.
-     *
-     * Evaluation is wrapped because it is the one read here that can
-     * throw: a formula PhpSpreadsheet cannot evaluate — a function it does
-     * not implement, a reference into a sheet the user deleted — raises
-     * rather than returning null. A cell that cannot be worked out reads
-     * as empty, which is the same answer the old code gave for the cases
-     * that matter and a better one than refusing the whole workbook.
-     *
-     * @param \PhpOffice\PhpSpreadsheet\Cell\Cell $cell
-     * @return mixed
-     */
-    private static function cellValue( $cell ) {
-        $raw = $cell->getValue();
-
-        if ( ! is_string( $raw ) || strncmp( $raw, '=', 1 ) !== 0 ) {
-            return $raw;
-        }
-
-        try {
-            return $cell->getCalculatedValue();
-        } catch ( \Throwable $e ) {
-            return null;
-        }
-    }
-
     private function readSheet( $book, string $schema_key, array &$blockers, array &$warnings ): array {
         $schema = SheetSchemas::byKey( $schema_key );
         if ( ! $schema ) return [];
@@ -313,6 +279,40 @@ final class ExcelImporter {
             $rows[] = $row;
         }
         return $rows;
+    }
+
+    /**
+     * The value a person would see in a cell (#3269).
+     *
+     * `getValue()` returns a formula's **text**; `getCalculatedValue()`
+     * returns what it evaluates to. The shipped template's `auto_key`
+     * column is a formula, so reading `getValue()` gave every one of the
+     * 200 pre-formatted rows per sheet a non-empty cell — which is how a
+     * blank template came to produce a thousand "Name is required"
+     * blockers and the import could not accept the plugin's own workbook.
+     *
+     * Evaluation is wrapped because it is the one read here that can
+     * throw: a formula PhpSpreadsheet cannot evaluate — a function it does
+     * not implement, a reference into a sheet the user deleted — raises
+     * rather than returning null. A cell that cannot be worked out reads
+     * as empty, which is the same answer the old code gave for the cases
+     * that matter and a better one than refusing the whole workbook.
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Cell\Cell $cell
+     * @return mixed
+     */
+    private static function cellValue( $cell ) {
+        $raw = $cell->getValue();
+
+        if ( ! is_string( $raw ) || strncmp( $raw, '=', 1 ) !== 0 ) {
+            return $raw;
+        }
+
+        try {
+            return $cell->getCalculatedValue();
+        } catch ( \Throwable $e ) {
+            return null;
+        }
     }
 
     /**
