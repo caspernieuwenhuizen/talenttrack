@@ -45,21 +45,22 @@ final class ExcelImporterTemplateTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    /** The shipped template, written to a temp file. */
+    /**
+     * The shipped template, written to a temp file.
+     *
+     * `build()` rather than `streamRosterDownload()`: the streaming variant
+     * sends `Content-Type` and friends, and under PHPUnit the headers have
+     * already gone out — a warning on a dev box, a fatal in wp-env. The
+     * builder exists for exactly this, and it is the same workbook either
+     * way, so nothing about the fixture's fidelity is given up.
+     */
     private function template(): string {
-        $path = tempnam( sys_get_temp_dir(), 'tt-tpl' ) . '.xlsx';
-        $this->tmp_files[] = $path;
-
-        ob_start();
-        $ok = TemplateBuilder::streamRosterDownload();
-        $bytes = (string) ob_get_clean();
-
-        if ( ! $ok || $bytes === '' ) {
+        $book = TemplateBuilder::build( SheetSchemas::rosterSubset() );
+        if ( $book === null ) {
             $this->markTestSkipped( 'The template could not be generated on this runner.' );
         }
 
-        file_put_contents( $path, $bytes );
-        return $path;
+        return $this->save( $book );
     }
 
     /**
