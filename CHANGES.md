@@ -1,3 +1,84 @@
+# TalentTrack v4.114.0 — Trial inputs are frozen once the trial is decided (#3238)
+
+A staff input is the evidence behind a decision about a child — whether the academy wanted them, and why. It could be rewritten through the API after that decision had been made, with no earlier version kept and nothing on any screen saying it had changed.
+
+Inputs now freeze when the case leaves **Open** or **Extended**. Up to that point an assigned coach can still correct their own wording, including after submitting it — re-reading what you wrote an hour later and fixing a sentence is normal and should not need a manager. After it, nothing can change them, and an attempt is refused with a message saying why rather than quietly doing nothing.
+
+The rule already existed on the Staff inputs tab and now lives in one place that both the screen and the API read, so the two cannot disagree again. Freezing an input does not close the case to the coach who wrote it — they can still open a decided case and read what they said.
+
+# TalentTrack v4.114.0 — The demo academy has behaviour, potential, and players old enough to have them (#3242)
+
+The demo academy had **no potential and no behaviour data at all**, and its oldest player was seven. Two of the traffic light's four inputs were empty for every player, so the status it showed was not the status the product produces for a real club — and the potential trajectory, the team-chemistry contribution and the PDP evidence packet all rendered blank. A feature that shows nothing looks like a feature nobody uses, and this is the academy a prospective club is walked through.
+
+Demo squads are now **spread across your age-group ladder** instead of taken from the youngest end, so a three-team academy gets a young squad, an older one and something in between. Age groups whose name carries no age — a *Senior* catch-all — are skipped, because the generator reads a player's birth year out of the group name and would otherwise fill a senior squad with children.
+
+Behaviour ratings are seeded across the window for every squad. Potential is seeded as a **dated history** rather than a single row, so the trajectory has something to draw, with at least one player per squad revised *down* — the case the trajectory exists to make visible.
+
+The gaps are deliberate. About one player in five old enough for a band does not have one, and one per squad is left overdue, so the *Potential not revisited* alert has something true to say on a demo install. Potential is not seeded below age 13 at all, matching the rule the product now applies.
+
+Also fixes the demo-coverage check, which could not see tables created by migrations that build the table name into a variable first. Six such tables were invisible to it; all six now have a decision recorded.
+
+# TalentTrack v4.114.0 — Switching a module off now actually removes its screens (#3254)
+
+With **Training plans** switched off, the activity page still offered **Execute training** and `?tt_view=training-run` still opened the sideline view. Training was not special — it was the one somebody noticed.
+
+Two causes, both now fixed. A screen's owning module was worked out from the tile the module registers itself, and a switched-off module registers nothing — so the check for "is this module off?" had nothing to read in exactly the situation it exists for. Ownership for 45 screens now lives where it cannot disappear. And the buttons that link between screens only ever asked whether the user had permission; a WordPress administrator passes every permission check by design, so the operator who had just switched the module off was the one person still being offered it. Those buttons now ask whether the screen exists on this install before asking who may open it.
+
+A new CI check walks every screen the dashboard can route to and refuses a module screen whose ownership is not declared, so the gap cannot reopen.
+
+# TalentTrack v4.114.0 — Sorting or searching a list no longer serves the blog index (#3256)
+
+On an install whose front page is the TalentTrack dashboard page — which is
+every install created through onboarding — clicking a column header or
+running a search on any list view served the theme's blog index instead of
+the list. WordPress only substitutes the static front page when the URL
+carries no core public query var, and `order`, `orderby` and `search` are
+all core public query vars, so the substitution was skipped and the
+dashboard shortcode never ran.
+
+The dashboard now claims those requests back. Sorting and searching work on
+every list view regardless of what the site's front page is set to. Sites
+that serve posts on the front page, front pages belonging to some other
+page, and wp-admin are all untouched.
+
+# TalentTrack v4.114.0 — Setup asks how much product you are running, in the app (#3259)
+
+**How much product** — the step that decides the shape of the whole install — was the one step in the in-app Setup flow that still sent you to the WordPress admin. It now runs where the rest of Setup does.
+
+It goes further than the admin version in one way. Each profile shows **What would change** before you pick it: which modules and features would be switched on, which off, and which your plan does not carry. The admin screen makes you choose and then tells you.
+
+Nothing about how a profile is applied has changed — it is the same code behind both screens, so you can still start the step in one and finish it in the other. An install that has already been configured by hand is still sent to Modules → Install profile, where changes can be picked over row by row.
+
+Two steps are still admin-only: **Import your squad** and **Add your staff**.
+
+# TalentTrack v4.114.0 — Setup can import your squad in the app (#3260)
+
+**Import your squad** — the step that decides whether a new academy's first experience of TalentTrack is a spreadsheet that loaded or one that did not — was still sending you to the WordPress admin. It now runs where the rest of Setup does: download the template, upload it, read what it found, confirm.
+
+Nothing about how a workbook is read has changed. There is still exactly one importer behind both screens, so what counts as a valid file, what it reports and how it tags the rows are identical whichever one you use — and you can still start the step in one and finish it in the other.
+
+The two-pass rule is intact: the first upload tells you what the file contains and writes nothing, and a workbook with problems never reaches the second pass. You choose the file again to confirm, because a browser will not let a page re-send a file it was handed, and holding your squad list on the server on the chance you press the button is not something to do quietly.
+
+Only **Add your staff** is still admin-only.
+
+# TalentTrack v4.114.0 — Potential is no longer asked about children (#3265)
+
+The potential bands describe how far a player might go **as a professional**. TalentTrack was putting that question to coaches about seven-year-olds, and the *Potential not revisited* alert was flagging every one of them for never having answered it.
+
+Potential is now asked from age 13. Below that the **Set potential** card says so instead of offering the bands, the API refuses a write with the same reason, and the alert skips those players entirely — it was previously unresolvable on any academy running young squads, since the only way to clear it was to record exactly the judgement the rule now prevents.
+
+Behaviour ratings are unchanged at every age. Bands already recorded on younger players stay visible and still draw the trajectory; what stops is being asked again. A player with no date of birth on record is still asked — a missing field is not evidence of being too young.
+
+# TalentTrack v4.114.0 — The Excel import accepts the template again (#3269)
+
+Download the squad template, fill in a team and a couple of players, upload it — and every upload was refused, with a thousand errors saying `Name is required` for rows nobody had touched. The documented way to get a club's squad into TalentTrack could not succeed, on either the WordPress admin Setup step or the new in-app one.
+
+The template's key column is a formula. The importer was reading the formula's *text* rather than what it works out to, so all 200 pre-formatted rows on each of the five sheets looked like rows somebody had filled in — and each then failed for having no name.
+
+The same read is what cross-sheet references depend on, so this also fixes players never matching the team they name: an import that got past the errors would have landed every player with no team at all.
+
+A row you genuinely started and left half-finished still stops the import and still tells you which row it was.
+
 # TalentTrack v4.113.0 — Opening a trial now welcomes the family, and the message no longer has empty headings (#2605)
 
 The trial welcome message has shipped since v3.110.18 with nothing to trigger it,
