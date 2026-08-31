@@ -59451,6 +59451,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Trials/Rest/TrialsRestController.php:381
+msgid ""
+"This trial has been decided, so its staff inputs can no longer be changed. "
+"They are the record of what the decision was based on."
+msgstr ""
+"Deze stage is beslist, dus de staf-input kan niet meer worden gewijzigd. Het "
+"is de vastlegging waarop de beslissing is gebaseerd."
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "

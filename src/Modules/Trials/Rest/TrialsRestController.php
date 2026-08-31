@@ -365,8 +365,25 @@ class TrialsRestController {
     public static function upsert_input( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
         $payload = (array) $r->get_json_params();
-        if ( ! TrialCaseAccessPolicy::canSubmitInput( get_current_user_id(), $id ) ) {
+        if ( ! TrialCaseAccessPolicy::isInputAuthor( get_current_user_id(), $id ) ) {
             return RestResponse::error( 'forbidden', __( 'Not assigned to this case.', 'talenttrack' ), 403 );
+        }
+
+        // #3238 — the case has moved past the point where its inputs are
+        // still being gathered. Refused rather than silently ignored: an
+        // endpoint that returns success and writes nothing is how a coach
+        // believes they corrected something they did not.
+        //
+        // 409 rather than 403, and a distinct message from the one above.
+        // The caller is entitled to write on this case; the case's state is
+        // what rejects it, and telling them "not assigned" would send them
+        // to a manager to fix a permission that is not wrong.
+        if ( ! TrialCaseAccessPolicy::caseAcceptsInput( $id ) ) {
+            return RestResponse::error(
+                'case_closed_to_input',
+                __( 'This trial has been decided, so its staff inputs can no longer be changed. They are the record of what the decision was based on.', 'talenttrack' ),
+                409
+            );
         }
         $inputs = new TrialStaffInputsRepository();
         $inputs->upsertDraft( $id, get_current_user_id(), [
