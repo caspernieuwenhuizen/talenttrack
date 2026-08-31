@@ -258,6 +258,21 @@
     color: var(--tt-muted, #6a6d66);
 }
 
+/* ---- Below the age floor (#3265) ------------------------------------- */
+/* Explaining copy, not a warning: nothing is wrong and there is nothing to
+   act on, so it reads as body text rather than a notice the coach has to
+   dismiss in their head. */
+.tt-dashboard .tt-psc-notyet {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-psc-notyet__why {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+}
+
 /* ---- Scale up -------------------------------------------------------- */
 @media (min-width: 768px) {
     .tt-dashboard .tt-psc-grid {

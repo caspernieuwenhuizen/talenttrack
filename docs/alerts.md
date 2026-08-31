@@ -78,7 +78,7 @@ Each alert links straight to the record it is about, so fixing it is one click a
 
 | Alert | What it means | Which player question it answers |
 | --- | --- | --- |
-| **Potential not revisited** | Nobody has set or confirmed a player's potential for two quarters — or has never set one at all. | *Where is this player going?* Potential is the academy's own answer to that, and an answer from eighteen months ago is not one. It still counts toward the player's status, their team-chemistry score and their development plan, so an out-of-date band quietly shapes decisions nobody is re-examining. |
+| **Potential not revisited** | Nobody has set or confirmed a player's potential for two quarters — or has never set one at all. Players under 13 are skipped — potential is not asked of them, so it cannot be late. | *Where is this player going?* Potential is the academy's own answer to that, and an answer from eighteen months ago is not one. It still counts toward the player's status, their team-chemistry score and their development plan, so an out-of-date band quietly shapes decisions nobody is re-examining. |
 
 The clock runs from whichever is later: the last time somebody set the potential, or the day the player joined. So a player who signed three weeks ago is not overdue, and a player nobody has ever assessed is covered by the same alert rather than staying invisible.
 

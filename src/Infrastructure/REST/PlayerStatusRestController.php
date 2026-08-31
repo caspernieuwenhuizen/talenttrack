@@ -170,6 +170,25 @@ final class PlayerStatusRestController {
         if ( $player_id <= 0 || ! in_array( $band, $valid, true ) ) {
             return RestResponse::error( 'bad_input', __( 'Player and a valid potential band are required.', 'talenttrack' ), 400, [ 'allowed' => $valid ] );
         }
+
+        // #3265 — the age floor is not screen-deep. The capture view hides
+        // the form below it, but a rule that only exists in a view is a rule
+        // any other client ignores, and this endpoint is the one a future
+        // SaaS front end will be calling. 409 rather than 403: the caller
+        // holds the capability; the player's age is what rejects the write.
+        if ( ! \TT\Modules\Players\PlayerStatusModule::potentialAppliesToPlayer( $player_id ) ) {
+            return RestResponse::error(
+                'potential_below_age_floor',
+                sprintf(
+                    /* translators: %d is the minimum age in years, e.g. 13. */
+                    __( 'Potential is not recorded below age %d.', 'talenttrack' ),
+                    \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE
+                ),
+                409,
+                [ 'min_age' => \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE ]
+            );
+        }
+
         $notes = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;
 
         // #2876 — a bare re-statement of the standing band is not a change of

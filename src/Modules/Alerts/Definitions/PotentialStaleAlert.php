@@ -45,6 +45,24 @@ use TT\Modules\Alerts\Domain\Severity;
  * the trial case is for — and an archived one has left.
  * `activePlayerWhere()` already excludes both.
  *
+ * ## So are players below the age floor (#3265)
+ *
+ * Potential is not asked below `PlayerStatusModule::POTENTIAL_MIN_AGE`, so
+ * this must not ask either. Without the floor the clock below does exactly
+ * the wrong thing on an academy running young squads: a player with no
+ * potential row is measured from their creation date, so **every** U7 goes
+ * overdue at the same moment and stays there, with no action that resolves
+ * it except recording a professional-ceiling judgement on a small child.
+ * An alert nobody can honestly clear is worse than the gap it reports.
+ *
+ * Excluded in the query rather than filtered in `evaluate()`: this is a
+ * property of the player, not of the recipient, and doing it in SQL means
+ * the row never exists rather than being created and dropped.
+ *
+ * A player with **no** birthdate on record is included. A data gap is not
+ * evidence of being too young, and an academy that has not filled the field
+ * in should still be told the potential is missing.
+ *
  * ## The window
  *
  * `alerts_potential_stale_days` (180 by default) — two missed quarters
@@ -272,6 +290,9 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
               WHERE " . $this->activePlayerWhere( 'p' ) . "
                 AND p.club_id = %d
                 AND p.team_id > 0
+                AND ( p.date_of_birth IS NULL
+                      OR p.date_of_birth = ''
+                      OR p.date_of_birth <= DATE_SUB( CURDATE(), INTERVAL %d YEAR ) )
                 AND GREATEST(
                         COALESCE(
                             ( SELECT MAX( pot.set_at )
@@ -285,6 +306,7 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
             . $context->applyScope( self::SUBJECT_TYPE, 'p.id' ) . "
               ORDER BY p.team_id ASC, p.id ASC",
             CurrentClub::id(),
+            \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE,
             $stale
         );
 

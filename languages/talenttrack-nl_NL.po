@@ -59451,6 +59451,28 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: %d is the minimum age in years, e.g. 13.
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:362
+#, php-format
+msgid "Potential is not recorded below age %d. Behaviour ratings still are."
+msgstr "Potentieel wordt niet vastgelegd onder de %d jaar. Gedragsbeoordelingen wel."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:297
+msgid ""
+"The bands describe how far a player might go as a professional. That is a "
+"fair question to put to a coach about a teenager and a guess about a child, "
+"so it is asked once there is something to judge."
+msgstr ""
+"De klassen beschrijven hoe ver een speler als prof zou kunnen komen. Dat is "
+"een eerlijke vraag aan een trainer over een tiener en een gok over een kind, "
+"dus hij wordt gesteld zodra er iets te beoordelen valt."
+
+#. translators: %d is the minimum age in years, e.g. 13.
+#: src/Infrastructure/Rest/PlayerStatusRestController.php:180
+#, php-format
+msgid "Potential is not recorded below age %d."
+msgstr "Potentieel wordt niet vastgelegd onder de %d jaar."
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "
