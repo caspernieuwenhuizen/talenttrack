@@ -588,8 +588,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $staff_repo  = new TrialCaseStaffRepository();
         $assigned    = $staff_repo->isAssigned( (int) $case->id, $user_id );
 
-        // Own input form (if assigned and case still open).
-        if ( $assigned && in_array( $case->status, [ 'open', 'extended' ], true ) ) {
+        // Own input form (if assigned and the case is still gathering
+        // input). #3238 — the status literal used to live here and nowhere
+        // else, which is how the API came to have no rule at all. The
+        // predicate is now shared, so the screen and the endpoint cannot
+        // drift again. `statusAcceptsInput()` rather than the case-id form
+        // because this method already holds the row.
+        if ( $assigned && TrialCaseAccessPolicy::statusAcceptsInput( (string) $case->status ) ) {
             $own = $inputs_repo->findForCaseUser( (int) $case->id, $user_id );
             self::renderOwnInputForm( (int) $case->id, $own );
         }
