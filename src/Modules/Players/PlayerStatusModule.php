@@ -72,6 +72,94 @@ final class PlayerStatusModule implements ModuleInterface {
             : user_can( $user_id, 'tt_set_player_potential' );
     }
 
+    /**
+     * The age below which the academy is not asked for a potential band.
+     *
+     * The bands describe a **professional ceiling**. That is a reasonable
+     * question about a fifteen-year-old and not one about a seven-year-old,
+     * and U13 is where age-group football starts treating trajectory as a
+     * real question rather than a guess dressed up as evidence.
+     *
+     * Deliberately a constant and not a `tt_config` key. A minimum age is
+     * exactly the sort of setting that gets set once, wrongly, and then
+     * explains a gap nobody can find — and unlike a cadence window, there is
+     * no legitimate spread of academy practice here to accommodate. An
+     * academy that genuinely disagrees gets a follow-up with a reason
+     * attached.
+     */
+    public const POTENTIAL_MIN_AGE = 13;
+
+    /**
+     * Is this player old enough for the potential question to be asked?
+     * (#3265)
+     *
+     * The third independent question, alongside the two
+     * {@see self::potentialCaptureAvailable()} asks: that one answers "does
+     * this academy do potential, and may this user set one", this answers
+     * "is there a sensible question to ask about this player at all". The
+     * two are kept apart because they have different arguments — one takes a
+     * user, this takes a player — and folding them together would mean every
+     * caller had to have both to hand.
+     *
+     * **An unknown birthdate passes.** A player with no date on record is not
+     * evidence of being too young, and letting a data gap become a permission
+     * gap would make a missing field look like a broken screen.
+     *
+     * Not {@see \TT\Modules\Authorization\AgeTier}: its buckets are 9 / 11 /
+     * 12 and exist to choose a notification channel. Borrowing them here
+     * would tie a judgement about football to a decision about email, and
+     * moving one would silently move the other.
+     *
+     * Read-side surfaces deliberately do NOT consult this. A band recorded on
+     * a younger player last season stays readable, and the #3226 trajectory
+     * still draws it — the same asymmetry #3243 established for the feature
+     * flag. What stops is being *asked* again.
+     */
+    public static function potentialAppliesToPlayer( int $player_id ): bool {
+        if ( $player_id <= 0 ) return true;
+
+        global $wpdb;
+        $dob = $wpdb->get_var( $wpdb->prepare(
+            "SELECT date_of_birth FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+
+        return self::potentialAppliesAtBirthdate( $dob === null ? null : (string) $dob );
+    }
+
+    /**
+     * The same rule against a date rather than a player id, for callers that
+     * already hold the row and should not go back to the database for it.
+     */
+    public static function potentialAppliesAtBirthdate( ?string $dob ): bool {
+        $age = self::ageFromBirthdate( $dob );
+        return $age === null || $age >= self::POTENTIAL_MIN_AGE;
+    }
+
+    /**
+     * Completed years, or null when the date is missing, unparseable or in
+     * the future.
+     *
+     * Calendar age rather than football-season age: a floor is a floor, and
+     * a player who turns 13 in March should not be un-askable until August
+     * because of where the season boundary falls.
+     */
+    private static function ageFromBirthdate( ?string $dob ): ?int {
+        if ( $dob === null || trim( $dob ) === '' ) return null;
+
+        $ts = strtotime( $dob );
+        if ( $ts === false ) return null;
+
+        $now = current_time( 'timestamp' );
+        if ( $ts > $now ) return null;
+
+        $age = (int) gmdate( 'Y', $now ) - (int) gmdate( 'Y', $ts );
+        if ( (int) gmdate( 'md', $now ) < (int) gmdate( 'md', $ts ) ) $age--;
+
+        return max( 0, $age );
+    }
+
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {

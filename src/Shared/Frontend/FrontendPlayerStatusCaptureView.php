@@ -67,14 +67,31 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // is. Without this it would render a heading and nothing else for an
         // academy that switched both off.
         $behaviour_ok = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
-        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
+        // #3265 — three questions now, not two. The third is about the
+        // player rather than the academy or the user: below U13 the
+        // professional-ceiling question is not one to ask, so the potential
+        // half explains itself rather than offering empty bands. Behaviour
+        // is unaffected at every age — how a child trains is a fair thing to
+        // record at seven.
+        $old_enough   = \TT\Modules\Players\PlayerStatusModule::potentialAppliesAtBirthdate(
+            isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
+        );
+        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() && $old_enough;
         if ( ! $behaviour_ok && ! $potential_ok ) {
             self::renderHeader( __( 'Capture behaviour & potential', 'talenttrack' ) );
             // Deliberately one message for two different causes. Telling a
             // coach which of "your academy does not do this" and "you may
             // not do this" applies would leak the club's configuration to
             // somebody who cannot act on either.
-            echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
+            //
+            // The age floor is the exception and gets said out loud: it is
+            // not configuration, it leaks nothing, and a coach who is not
+            // told will go looking for a setting that does not exist.
+            if ( ! $old_enough && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) {
+                echo '<p class="tt-notice">' . esc_html( self::tooYoungForPotential() ) . '</p>';
+            } else {
+                echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
+            }
             return;
         }
 
@@ -107,7 +124,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     ] );
                     $flash = __( 'Behaviour rating saved.', 'talenttrack' );
                 }
-            } elseif ( $kind === 'potential' && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) {
+            } elseif ( $kind === 'potential' && $potential_ok ) {
                 $band  = isset( $_POST['potential_band'] ) ? sanitize_key( (string) $_POST['potential_band'] ) : '';
                 $notes = isset( $_POST['notes'] )          ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
                 $valid = PotentialBand::ALL;
@@ -265,7 +282,26 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         // Potential column
-        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) :
+        //
+        // #3265 — a player below the floor gets the card and an explanation
+        // rather than nothing at all. Rendering nothing would read as a
+        // permission problem or a broken screen; saying the question is not
+        // asked yet is the whole point of having a floor. The potential
+        // *history* still renders below either way — a band recorded before
+        // the floor existed stays visible.
+        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() && ! $old_enough ) :
+            ?>
+            <section class="tt-psc-card">
+                <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
+                <p class="tt-psc-notyet"><?php echo esc_html( self::tooYoungForPotential() ); ?></p>
+                <p class="tt-psc-notyet__why">
+                    <?php esc_html_e( 'The bands describe how far a player might go as a professional. That is a fair question to put to a coach about a teenager and a guess about a child, so it is asked once there is something to judge.', 'talenttrack' ); ?>
+                </p>
+            </section>
+            <?php
+        endif;
+
+        if ( $potential_ok ) :
             ?>
             <section class="tt-psc-card">
                 <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
@@ -341,6 +377,21 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
      * here shows its label and no explanation, which is visibly incomplete
      * rather than silently wrong.
      */
+    /**
+     * The one sentence explaining the age floor, in one place (#3265).
+     *
+     * Two surfaces say it — the entry refusal and the potential card — and
+     * two copies of a sentence carrying a number is how the number ends up
+     * different in each after somebody changes the constant.
+     */
+    private static function tooYoungForPotential(): string {
+        return sprintf(
+            /* translators: %d is the minimum age in years, e.g. 13. */
+            __( 'Potential is not recorded below age %d. Behaviour ratings still are.', 'talenttrack' ),
+            \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE
+        );
+    }
+
     private static function renderBandMeanings(): void {
         $meanings = [
             PotentialBand::FIRST_TEAM             => __( 'Can reach this club\'s own first team.', 'talenttrack' ),
