@@ -46,10 +46,15 @@ records nooit raakt.
 | Toernooien | Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode |
 | Stafontwikkeling | Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, mentorkoppels |
 | Berichten en beheerdersgegevens | Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, workflowtaken, uitnodigingen |
+| Gedrag en potentieel | Gedragsbeoordelingen over de periode, en gedateerde potentieelhistories voor teams die oud genoeg zijn om ernaar gevraagd te worden |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
 8 weken), **medium** (6 teams, 16 weken), **large** (12 teams, 36 weken).
 Elke preset genereert 12 spelers per team.
+
+De teams worden **gespreid over je leeftijdsladder** in plaats van vanaf de jongste kant genomen, dus een academie van drie teams krijgt een jong team, een ouder team en iets ertussenin. Dat is meer dan variatie: potentieelklassen, POP-cycli en beoordelingen met ontwikkelplannen laat je niet zien op zevenjarigen, en vóór dit was de oudste demospeler zeven. Leeftijdsgroepen zonder leeftijd in de naam — een verzamelgroep **Senior** bijvoorbeeld — worden overgeslagen, omdat de generator het geboortejaar van een speler uit de groepsnaam afleidt en zo'n team anders met kinderen zou vullen.
+
+**Gedrag en potentieel** worden mét hun gaten gevuld. Ongeveer één op de vijf spelers die oud genoeg is voor een potentieelklasse heeft er geen, per team blijft er één te lang onaangeroerd, en bij één wordt de klasse naar **beneden** bijgesteld in plaats van omhoog. Dat is bewust: het stoplicht, de melding *Potentieel niet herzien* en het potentieelverloop bestaan juist om ontbrekende en bewegende gegevens zichtbaar te maken, en een demo waarin nooit iets ontbreekt of te laat is, laat ze lijken op functies die nooit afgaan. Onder de 13 jaar wordt helemaal geen potentieel gevuld — het product vraagt er daar niet naar, dus de demo ook niet.
 
 Het aantal weken is hoe ver het activiteitenvenster **terug** loopt. Daar
 bovenop genereert elke preset ook **vier weken vooruit**, zodat een demo-

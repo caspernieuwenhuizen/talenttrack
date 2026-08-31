@@ -83,6 +83,10 @@ class TeamGenerator implements GeneratorInterface {
         $teams     = [];
         $count     = min( $this->count, count( $age_groups ), 12 ); // cap at coach pool size
 
+        // #3242 — spread across the ladder rather than taking the youngest
+        // N. See `spreadAcrossLadder()`.
+        $age_groups = self::spreadAcrossLadder( self::agedGroupsOnly( $age_groups ), $count );
+
         // Resolve functional role ids once.
         $head_coach_fn_id      = $this->functionalRoleId( 'head_coach' );
         $assistant_coach_fn_id = $this->functionalRoleId( 'assistant_coach' );
@@ -170,6 +174,82 @@ class TeamGenerator implements GeneratorInterface {
             $role_key, CurrentClub::id()
         ) );
         return $id;
+    }
+
+    /**
+     * Age groups whose name actually carries an age (#3242).
+     *
+     * `PlayerGenerator::ageFromGroup()` reads the first number out of the
+     * group name and falls back to 11 when there isn't one, so a group like
+     * **Senior** produces a squad of eleven-year-olds. Harmless while the
+     * generator only ever took the youngest few; the moment it anchors on
+     * the oldest configured group — which is the whole point of the spread
+     * — that group is exactly the one most likely to be a non-numeric
+     * catch-all, and the demo's oldest squad would be a senior team full of
+     * children with no potential band because nothing thinks they are old
+     * enough.
+     *
+     * A club is free to configure such a group; a youth academy demo just
+     * should not build a squad out of it. If filtering leaves nothing, the
+     * ladder is handed back untouched rather than failing — a generator is
+     * not the place to reject an install's reference data.
+     *
+     * @param string[] $ladder
+     * @return string[]
+     */
+    public static function agedGroupsOnly( array $ladder ): array {
+        $aged = array_values( array_filter(
+            $ladder,
+            static fn( string $g ): bool => preg_match( '/\d/', $g ) === 1
+        ) );
+
+        return $aged === [] ? array_values( $ladder ) : $aged;
+    }
+
+    /**
+     * Pick `$count` age groups spread evenly across the configured ladder,
+     * always including the youngest and the oldest (#3242).
+     *
+     * This used to be `array_slice( $age_groups, 0, $count )` — the first
+     * N, which on any conventionally-ordered ladder means the **youngest**
+     * N. The small preset therefore produced a demo academy of U7, U8 and
+     * U9 whose oldest player was seven, and that is not an academy several
+     * of the product's central features can be demonstrated on:
+     *
+     *   - a potential band describing a professional ceiling is not a
+     *     judgement anybody should be modelling on a seven-year-old, and
+     *     #3265 now declines to ask below thirteen;
+     *   - PDP cycles, evaluations with development plans and trials are
+     *     all the same story.
+     *
+     * Spreading means the demo shows the journey rather than one end of
+     * it: a youngest squad, an oldest squad, and something in between.
+     * Anchoring both ends is what guarantees a squad above the potential
+     * floor exists at all, which is the property this issue needs.
+     *
+     * Deterministic — a pure function of the ladder and the count, so the
+     * generator's reproducibility contract is untouched and two runs of
+     * the same preset still produce the same academy.
+     *
+     * @param string[] $ladder youngest first
+     * @return string[]
+     */
+    public static function spreadAcrossLadder( array $ladder, int $count ): array {
+        $ladder = array_values( $ladder );
+        $total  = count( $ladder );
+
+        if ( $count <= 0 || $total === 0 ) return [];
+        if ( $count >= $total ) return $ladder;
+        if ( $count === 1 ) return [ $ladder[ $total - 1 ] ];
+
+        $out = [];
+        for ( $i = 0; $i < $count; $i++ ) {
+            // Both ends inclusive: i = 0 lands on the first entry, and
+            // i = count - 1 on the last.
+            $out[] = $ladder[ (int) round( $i * ( $total - 1 ) / ( $count - 1 ) ) ];
+        }
+
+        return $out;
     }
 
     /**

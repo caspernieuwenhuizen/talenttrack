@@ -45,10 +45,15 @@ removes exactly what was generated and never touches real records.
 | Tournaments | A tournament per team with its squad, target minutes, fixtures and per-period assignments |
 | Staff development | Coaching badges, development plans and goals, evaluations with ratings, mentor pairings |
 | Messages and operator records | Conversations with read state, saved filters, report presets, workflow tasks, invitations |
+| Behaviour and potential | Behaviour ratings across the window, and dated potential histories for squads old enough to be asked |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
+
+The squads are **spread across your age-group ladder** rather than taken from the youngest end, so a three-team academy gets a young squad, an older one, and something in between. That matters for more than variety: potential bands, PDP cycles and evaluations with development plans are not things to demonstrate on seven-year-olds, and before this the oldest demo player *was* seven. Age groups whose name carries no age — a **Senior** catch-all, say — are skipped, because the generator derives a player's birth year from the group name and would otherwise fill a senior squad with children.
+
+**Behaviour and potential** are seeded with their gaps intact. Roughly one player in five old enough to have a potential band does not have one, one per squad is left overdue, and one is revised **down** rather than up. That is deliberate: the traffic light, the *Potential not revisited* alert and the potential trajectory all exist to make missing and moving data visible, and a demo where nothing is ever missing or overdue makes them look like features that never fire. Potential is not seeded below age 13 at all — the product does not ask for it there, so neither does the demo.
 
 The week count is how far **back** the activity window runs. On top of it every
 preset also generates **four weeks ahead**, so a demo install has a next match

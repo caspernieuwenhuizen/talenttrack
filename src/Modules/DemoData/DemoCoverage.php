@@ -21,6 +21,7 @@ use TT\Modules\DemoData\Generators\PipelineGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
 use TT\Modules\DemoData\Generators\PlayerReportGenerator;
+use TT\Modules\DemoData\Generators\PlayerStatusGenerator;
 use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
@@ -206,6 +207,21 @@ class DemoCoverage {
             'entity_type' => 'player_injury',
             'category'    => 'injuries',
             'written_by'  => InjuryGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        // #3242 — two of the traffic light's four inputs. Both were empty on
+        // every generated player, so the status the demo showed was not the
+        // status the product produces for a real club.
+        'tt_player_potential' => [
+            'entity_type' => 'player_potential',
+            'category'    => 'player_status',
+            'written_by'  => PlayerStatusGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_player_behaviour_ratings' => [
+            'entity_type' => 'player_behaviour_rating',
+            'category'    => 'player_status',
+            'written_by'  => PlayerStatusGenerator::class,
             'depends_on'  => [ 'player' ],
         ],
         'tt_player_team_history' => [
@@ -605,6 +621,13 @@ class DemoCoverage {
         'tt_share_views' => [ 'exempt' => 'One row per browser that opened a real share link (#3096). Seeding it would tell an operator that people had read a document nobody has opened, which is the one thing the count exists to answer honestly.' ],
         'tt_share_view_totals' => [ 'exempt' => 'What the 90-day purge folded away from tt_share_views (#3096). Same reason as the table it summarises: a fabricated total is a fabricated audience.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
+        // #3242 — four tables this gate could not see until its migration
+        // scan learned to read `$table = "{$p}tt_foo"` assignments. Each
+        // gets a real decision rather than a blanket exemption.
+        'tt_impersonation_log' => [ 'exempt' => 'Authentication audit: who signed in as whom, and when. Same reason as tt_audit_log — a fabricated entry corrupts the record a real investigation reads, and this one is about accounts rather than content.' ],
+        'tt_comms_log'   => [ 'exempt' => 'One row per real send attempt, and what the operator-facing "did the parents actually get it?" query reads. Seeding it would answer that question with sends that never happened.' ],
+        'tt_comms_inbox' => [ 'planned' => '#2600' ],
+        'tt_player_status_methodology' => [ 'exempt' => 'Per-club weighting of the traffic-light inputs. Operator configuration, like tt_module_state — a seeded row would silently change how every demo player\'s status is computed.' ],
         'tt_error_log'   => [ 'exempt' => 'Error log. Synthetic errors would send operators chasing bugs that never happened.' ],
         // #2631 — derived state, not content. Rows are written only by the
         // hourly sweep from conditions already true in other tables, so
@@ -1029,6 +1052,14 @@ class DemoCoverage {
             'run_order' => 240,
             'cascade'   => [ 'match_analysis_note', 'match_analysis_player', 'match_analysis_section', 'match_analysis' ],
         ],
+        // #3242 — appended at 250 rather than inserted, so every generator
+        // before it draws the same values from the seeded MT stream and the
+        // same (seed, preset) keeps reproducing the same academy.
+        'player_status' => [
+            'tier'      => 'dependent',
+            'run_order' => 250,
+            'cascade'   => [ 'player_potential', 'player_behaviour_rating' ],
+        ],
         'knowledge' => [
             'tier'      => 'dependent',
             'run_order' => 230,
@@ -1280,6 +1311,7 @@ class DemoCoverage {
             'staff_development' => __( 'Staff development', 'talenttrack' ),
             'comms_ops'   => __( 'Messages and operator records', 'talenttrack' ),
             'knowledge'   => __( 'Courses', 'talenttrack' ),
+            'player_status' => __( 'Behaviour and potential', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -1310,6 +1342,7 @@ class DemoCoverage {
             'test_trainings' => __( 'Open sessions for invited players, one past and one upcoming per age group.', 'talenttrack' ),
             'team_development' => __( 'A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window.', 'talenttrack' ),
             'knowledge'   => __( 'Staff enrolled on the shipped courses, with a mixed spread: some finished, some mid-course, one overdue and one assignment awaiting review. The courses themselves ship with the plugin and are never generated.', 'talenttrack' ),
+            'player_status' => __( 'Two of the four traffic-light inputs: behaviour ratings spread across the window, and dated potential histories for squads old enough to be asked. Some players are deliberately left without, and a few left overdue, so the alerts have something true to say.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }

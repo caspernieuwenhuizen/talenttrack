@@ -43,6 +43,31 @@ foreach ( $sources as $file ) {
         }
     }
 
+    // #3242 — `$table = "{$p}tt_foo";` on one line and `CREATE TABLE
+    // {$table}` on another. The pattern above only sees a table name that
+    // is interpolated into the statement itself, so a migration written in
+    // this shape was invisible to this gate entirely: its tables were
+    // neither counted nor demanded, and a manifest entry for one was
+    // reported as naming a table no migration creates.
+    //
+    // Migration 0042 (`tt_player_potential`, `tt_player_behaviour_ratings`)
+    // is the one that surfaced it, and it is not alone.
+    //
+    // Deliberately narrow: the variable must be assigned a prefix-plus-name
+    // string AND actually appear after `CREATE TABLE` in the same file. A
+    // variable holding a table name that is only ever read from would
+    // otherwise be counted as a table this codebase creates.
+    if ( preg_match_all(
+        '/\$([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*"\{?\$[a-zA-Z_>\-\[\]{}\'"]*\}?(tt_[a-z0-9_]+)"/',
+        $src,
+        $m
+    ) ) {
+        foreach ( $m[1] as $i => $var ) {
+            if ( ! preg_match( '/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?\{?\$' . preg_quote( $var, '/' ) . '\}?/i', $src ) ) continue;
+            $created[ $m[2][ $i ] ] = true;
+        }
+    }
+
     // A rename retires the old name and introduces the new one. Both sides
     // are PHP variables at the call site, so read the pair off the
     // migration's own docblock arrow (`tt_a` → `tt_b`).
