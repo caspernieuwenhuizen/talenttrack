@@ -180,25 +180,59 @@ class OnboardingHandlers {
 
         $file = $_FILES['roster_file'] ?? null;
 
-        if ( ! is_array( $file ) || empty( $file['tmp_name'] ) ) {
-            OnboardingState::recordPayload( 'import', [
-                'error' => __( 'Choose a workbook to upload first.', 'talenttrack' ),
-            ] );
-            self::redirectToPage();
+        $payload = self::applyImport(
+            is_array( $file ) ? $file : [],
+            ! empty( $_POST['tt_ob_import_confirm'] )
+        );
+
+        if ( ! empty( $payload['committed'] ) ) {
+            self::redirectToPage( [ 'tt_ob_msg' => 'imported' ] );
             return;
         }
 
+        // Preview, blocker or upload error — stay on the step so the report
+        // is what the admin sees next, with the confirm button under it.
+        self::redirectToPage();
+    }
+
+    /**
+     * The domain half of `handleImport()` (#3260).
+     *
+     * Extracted so the frontend Setup step calls exactly this rather than
+     * re-deriving the two-pass rule, the payload keys the report reads, and
+     * the completion action. Both surfaces inherit `ImportService`'s
+     * validation and its batch tagging by calling through instead of
+     * copying — a second importer would have to keep up with the mapping
+     * rules, the workbook validation and the error reporting, and it would
+     * not.
+     *
+     * Takes a `$_FILES`-shaped array rather than reading the superglobal,
+     * because the REST layer receives the same shape from
+     * `WP_REST_Request::get_file_params()` and a handler that reads
+     * `$_FILES` directly could only ever serve one of the two.
+     *
+     * Always returns a payload; `error` / `blockers` describe a refusal,
+     * `committed` says whether anything was written. The step advances only
+     * on a committed import — a preview deliberately stays put.
+     *
+     * @param array<string,mixed> $file `$_FILES['roster_file']` shape
+     * @return array<string,mixed>
+     */
+    public static function applyImport( array $file, bool $commit ): array {
+        if ( empty( $file['tmp_name'] ) ) {
+            $payload = [ 'error' => __( 'Choose a workbook to upload first.', 'talenttrack' ) ];
+            OnboardingState::recordPayload( 'import', $payload );
+            return $payload;
+        }
+
         if ( ! empty( $file['error'] ) ) {
-            OnboardingState::recordPayload( 'import', [
-                'error' => __( 'The upload did not complete. It may be larger than this server accepts.', 'talenttrack' ),
-            ] );
-            self::redirectToPage();
-            return;
+            $payload = [ 'error' => __( 'The upload did not complete. It may be larger than this server accepts.', 'talenttrack' ) ];
+            OnboardingState::recordPayload( 'import', $payload );
+            return $payload;
         }
 
         $tmp_path = (string) $file['tmp_name'];
         $name     = sanitize_file_name( (string) ( $file['name'] ?? 'workbook.xlsx' ) );
-        $commit   = ! empty( $_POST['tt_ob_import_confirm'] );
 
         $service = new ImportService();
         $result  = $commit
@@ -206,12 +240,12 @@ class OnboardingHandlers {
             : $service->preview( $tmp_path, $name );
 
         if ( empty( $result['ok'] ) ) {
-            OnboardingState::recordPayload( 'import', [
+            $payload = [
                 'blockers' => array_values( (array) ( $result['blockers'] ?? [] ) ),
                 'filename' => $name,
-            ] );
-            self::redirectToPage();
-            return;
+            ];
+            OnboardingState::recordPayload( 'import', $payload );
+            return $payload;
         }
 
         $payload = [
@@ -225,13 +259,9 @@ class OnboardingHandlers {
         if ( $commit ) {
             OnboardingState::setStep( 'first_team' );
             do_action( 'tt_onboarding_step_completed', 'import', $payload );
-            self::redirectToPage( [ 'tt_ob_msg' => 'imported' ] );
-            return;
         }
 
-        // Preview only — stay on the step so the report is what the admin
-        // sees next, with the confirm button under it.
-        self::redirectToPage();
+        return $payload;
     }
 
     /**
@@ -442,11 +472,14 @@ class OnboardingHandlers {
     /** Skip the import step — a club with no spreadsheet is not blocked. */
     public static function handleSkipImport(): void {
         self::guard( 'tt_onboarding_skip_import' );
+        self::skipImport();
+        self::redirectToPage();
+    }
 
+    /** The domain half of `handleSkipImport()` (#3260). */
+    public static function skipImport(): void {
         OnboardingState::recordPayload( 'import', [ 'skipped' => true ] );
         OnboardingState::setStep( 'first_team' );
-
-        self::redirectToPage();
     }
 
     public static function handleFirstTeam(): void {

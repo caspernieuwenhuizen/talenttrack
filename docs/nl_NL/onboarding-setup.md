@@ -102,18 +102,17 @@ kunt er vrij tussen wisselen en doet nooit een stap dubbel:
 - **TalentTrack → Welkom** in de WordPress-beheeromgeving — waar een
  gloednieuwe installatie bij de eerste keer opstarten belandt.
 
-Twee stappen zijn voorlopig alleen in de WordPress-beheeromgeving
-beschikbaar: **Importeer je selectie** en **Voeg je staf toe**. Allebei
-dragen ze iets wat het scherm in de app nog niet heeft
+Eén stap is voorlopig alleen in de WordPress-beheeromgeving beschikbaar:
+**Voeg je staf toe**. Die draagt iets wat het scherm in de app nog niet heeft
 — een bestandsupload met kolomtoewijzing, of de vastgehouden
 uitnodigingen. Staat je opgeslagen voortgang op zo'n stap, dan zegt het
 scherm in de app dat, meldt dat je voortgang bewaard blijft, en biedt aan
 verder te gaan in de beheeromgeving. Kom je daarna terug, dan pakt de flow
 op waar de beheeromgeving hem liet.
 
-De rest — Welkom, Academiebasis, Hoeveel product, Eerste team, Eerste
-beheerder, Wat we versturen, Dashboardpagina en Klaar — werkt op allebei de
-schermen.
+De rest — Welkom, Academiebasis, Hoeveel product, Je selectie importeren,
+Eerste team, Eerste beheerder, Wat we versturen, Dashboardpagina en Klaar —
+werkt op allebei de schermen.
 
 ## Stoppen en hervatten
 
