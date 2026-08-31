@@ -177,18 +177,21 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'OnboardingHandlers::applyImport', $rest );
         $this->assertStringContainsString( 'OnboardingHandlers::skipImport', $rest );
-        $this->assertStringNotContainsString(
-            'ImportService',
-            $rest,
-            'The REST layer must not import the workbook itself — that is the second importer the issue forbids.'
-        );
 
-        $view = $this->source( 'src/Shared/Frontend/FrontendSetupView.php' );
-        $this->assertStringNotContainsString(
-            'ImportService',
-            $view,
-            'The view renders an upload and a report; the handler does the import.'
-        );
+        // Constructing it, not naming it. Both files' docblocks explain
+        // *why* there is exactly one importer, and a bare substring match
+        // reads that explanation as the violation it warns against — which
+        // is how this assertion failed on the commit that introduced it.
+        foreach ( [
+            'src/Infrastructure/REST/OnboardingRestController.php' => 'The REST layer must not import the workbook itself — that is the second importer the issue forbids.',
+            'src/Shared/Frontend/FrontendSetupView.php'            => 'The view renders an upload and a report; the handler does the import.',
+        ] as $file => $why ) {
+            $this->assertDoesNotMatchRegularExpression(
+                '/new\s+(\\\\?TT\\\\Modules\\\\Import\\\\)?ImportService\s*\(/',
+                $this->source( $file ),
+                $why
+            );
+        }
     }
 
     /**
