@@ -237,12 +237,28 @@ final class ExcelImporter {
         for ( $r = 2; $r <= $highest_row; $r++ ) {
             $row = [];
             foreach ( $col_map as $key => $letter ) {
-                $val = $sheet->getCell( $letter . $r )->getValue();
+                $cell = $sheet->getCell( $letter . $r );
+
+                // #3269 — the value a person would see in the cell, not the
+                // formula behind it. `auto_key` is a formula in the shipped
+                // template, and `getValue()` returns its **text**, which is
+                // never empty. That made every pre-formatted row look like a
+                // row somebody had filled in.
+                $val = self::cellValue( $cell );
+
                 if ( $val instanceof \DateTimeInterface ) $val = $val->format( 'Y-m-d' );
                 if ( is_string( $val ) ) $val = trim( $val );
                 $row[ $key ] = $val;
             }
-            $non_empty = array_filter( $row, static fn( $v ) => $v !== null && $v !== '' );
+
+            // #3269 — "has the user typed anything here?" `auto_key` is
+            // generated, so it is not evidence either way and must not keep
+            // an otherwise-blank row alive. Belt and braces with the
+            // calculated read above: if the template's formula ever changes
+            // shape, or a copy is saved by something that does not store
+            // cached results, this still holds.
+            $typed     = array_diff_key( $row, [ 'auto_key' => null ] );
+            $non_empty = array_filter( $typed, static fn( $v ) => $v !== null && $v !== '' );
             if ( empty( $non_empty ) ) continue;
 
             // Auto-key fallback when the user deleted the formula.
@@ -263,6 +279,40 @@ final class ExcelImporter {
             $rows[] = $row;
         }
         return $rows;
+    }
+
+    /**
+     * The value a person would see in a cell (#3269).
+     *
+     * `getValue()` returns a formula's **text**; `getCalculatedValue()`
+     * returns what it evaluates to. The shipped template's `auto_key`
+     * column is a formula, so reading `getValue()` gave every one of the
+     * 200 pre-formatted rows per sheet a non-empty cell — which is how a
+     * blank template came to produce a thousand "Name is required"
+     * blockers and the import could not accept the plugin's own workbook.
+     *
+     * Evaluation is wrapped because it is the one read here that can
+     * throw: a formula PhpSpreadsheet cannot evaluate — a function it does
+     * not implement, a reference into a sheet the user deleted — raises
+     * rather than returning null. A cell that cannot be worked out reads
+     * as empty, which is the same answer the old code gave for the cases
+     * that matter and a better one than refusing the whole workbook.
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Cell\Cell $cell
+     * @return mixed
+     */
+    private static function cellValue( $cell ) {
+        $raw = $cell->getValue();
+
+        if ( ! is_string( $raw ) || strncmp( $raw, '=', 1 ) !== 0 ) {
+            return $raw;
+        }
+
+        try {
+            return $cell->getCalculatedValue();
+        } catch ( \Throwable $e ) {
+            return null;
+        }
     }
 
     /**
