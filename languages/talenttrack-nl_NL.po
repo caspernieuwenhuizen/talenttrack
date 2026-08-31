@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-30T20:31:42+00:00\n"
+"POT-Creation-Date: 2026-08-31T16:08:16+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4402,11 +4402,17 @@ msgstr "Speler en beoordeling (%1$s–%2$s) zijn verplicht."
 msgid "Player and a valid potential band are required."
 msgstr "Speler en een geldige potentieelgroep zijn verplicht."
 
-#: src/Infrastructure/REST/PlayerStatusRestController.php:216
+#. translators: %d is the minimum age in years, e.g. 13.
+#: src/Infrastructure/REST/PlayerStatusRestController.php:184
+#, php-format
+msgid "Potential is not recorded below age %d."
+msgstr "Potentieel wordt niet vastgelegd onder de %d jaar."
+
+#: src/Infrastructure/REST/PlayerStatusRestController.php:235
 msgid "Player id is required."
 msgstr "Speler-ID is verplicht."
 
-#: src/Infrastructure/REST/PlayerStatusRestController.php:229
+#: src/Infrastructure/REST/PlayerStatusRestController.php:248
 #: src/Infrastructure/REST/SpondRestController.php:178
 #: src/Infrastructure/REST/SpondRestController.php:200
 #: src/Infrastructure/REST/SpondRestController.php:546
@@ -5361,8 +5367,8 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:249
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2607
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:217
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:296
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:234
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:332
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:172
 #: src/Shared/Frontend/FrontendTeamDetailView.php:732
 #: src/Shared/Frontend/FrontendTeamsManageView.php:326
@@ -5519,7 +5525,7 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:147
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2589
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:301
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:337
 #: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
 #: src/Shared/Frontend/FrontendSpondView.php:372
@@ -6765,11 +6771,11 @@ msgstr "Een speler"
 msgid "%s is active but belongs to no team."
 msgstr "%s is actief maar hoort bij geen enkel team."
 
-#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:93
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:111
 msgid "Potential not revisited"
 msgstr "Potentieel niet herzien"
 
-#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:97
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:115
 msgid ""
 "A player's potential has not been revisited for two quarters. It still feeds "
 "their status, their team-chemistry score and their development plan, so an "
@@ -6781,13 +6787,13 @@ msgstr ""
 "opnieuw bekijkt."
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:210
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:228
 #, php-format
 msgid "%s has no potential recorded yet."
 msgstr "Voor %s is nog geen potentieel vastgelegd."
 
 #. translators: 1: player name, 2: number of months
-#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:217
+#: src/Modules/Alerts/Definitions/PotentialStaleAlert.php:235
 #, php-format
 msgid "%1$s's potential has not been revisited in %2$d months."
 msgstr "Het potentieel van %1$s is al %2$d maanden niet herzien."
@@ -8597,7 +8603,7 @@ msgstr "Groeperen op:"
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
 #: src/Shared/Frontend/FrontendGoalsManageView.php:610
 #: src/Shared/Frontend/FrontendPeopleManageView.php:198
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:207
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:224
 #: src/Shared/Frontend/FrontendTranslationsView.php:73
 msgid "— None —"
 msgstr "— Geen —"
@@ -54883,7 +54889,8 @@ msgstr "Gedrag vastleggen"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:162
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:631
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:271
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:295
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:307
 msgid "Set potential"
 msgstr "Potentieel instellen"
 
@@ -54892,7 +54899,7 @@ msgid "— pick a rating —"
 msgstr "— kies een beoordeling —"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:165
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:205
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:222
 msgid "Related activity (optional)"
 msgstr "Gerelateerde activiteit (optioneel)"
 
@@ -54901,7 +54908,7 @@ msgid "Optional context"
 msgstr "Optionele context"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:169
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:277
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:313
 msgid "Potential band"
 msgstr "Potentieel-band"
 
@@ -55739,33 +55746,33 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:51
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:58
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:72
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:81
 msgid "Capture behaviour & potential"
 msgstr "Gedrag & potentieel vastleggen"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:77
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:93
 msgid "Behaviour and potential ratings are not being recorded here."
 msgstr "Gedrags- en potentieelbeoordelingen worden hier niet vastgelegd."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:108
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:125
 msgid "Behaviour rating saved."
 msgstr "Gedrag-beoordeling opgeslagen."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:120
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:137
 msgid "Potential band saved."
 msgstr "Potentieel-band opgeslagen."
 
 #. translators: %s = player name
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:129
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:146
 #, php-format
 msgid "Behaviour & potential — %s"
 msgstr "Gedrag & potentieel — %s"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:159
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:176
 msgid "Record a behaviour rating"
 msgstr "Registreer een gedrag-beoordeling"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:161
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:178
 msgid ""
 "Attitude, effort and how the player is to work with. It feeds their status "
 "light, weighted for their age group — so it is a judgement about this week, "
@@ -55776,13 +55783,13 @@ msgstr ""
 "over deze week, dat je vaak vastlegt, en geen eindoordeel."
 
 #. translators: 1: scale min, 2: scale max
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:171
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:188
 #, php-format
 msgid "Rating (%1$s – %2$s)"
 msgstr "Beoordeling (%1$s – %2$s)"
 
 #. translators: 1: lowest value on the configured scale, 2: highest
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:196
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:213
 #, php-format
 msgid ""
 "%1$s is the lowest, %2$s the highest. Rate what you saw this week, not the "
@@ -55792,7 +55799,7 @@ msgstr ""
 "niet de speler in het algemeen — de status kijkt naar het verloop over "
 "meerdere beoordelingen."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:218
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:235
 msgid ""
 "Optional context — e.g. \"responded well to substitution\", \"leadership in "
 "warm-up\"."
@@ -55800,19 +55807,29 @@ msgstr ""
 "Optionele context — bijv. \"reageerde goed op wissel\", \"leiderschap in "
 "warming-up\"."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:222
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:239
 msgid "Save behaviour rating"
 msgstr "Sla gedrag-beoordeling op"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:230
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:247
 msgid "Recent ratings"
 msgstr "Recente beoordelingen"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:249
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:266
 msgid "View activity"
 msgstr "Bekijk activiteit"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:291
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:298
+msgid ""
+"The bands describe how far a player might go as a professional. That is a "
+"fair question to put to a coach about a teenager and a guess about a child, "
+"so it is asked once there is something to judge."
+msgstr ""
+"De klassen beschrijven hoe ver een speler als prof zou kunnen komen. Dat is "
+"een eerlijke vraag aan een trainer over een tiener en een gok over een kind, "
+"dus hij wordt gesteld zodra er iets te beoordelen valt."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:327
 msgid ""
 "How high you believe this player can reach at their peak — not where they "
 "are now. Read the bands below before choosing."
@@ -55820,35 +55837,42 @@ msgstr ""
 "Hoe hoog je denkt dat deze speler op zijn top kan reiken — niet waar hij nu "
 "staat. Lees de bands hieronder voordat je kiest."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:297
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:333
 msgid "Optional rationale — e.g. why you've revised the band up or down."
 msgstr ""
 "Optionele motivering — bijv. waarom je de band naar boven of beneden hebt "
 "bijgesteld."
 
 #. translators: 1: band 2: timestamp
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:315
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:351
 #, php-format
 msgid "Current: %1$s (recorded on %2$s)."
 msgstr "Huidig: %1$s (geregistreerd op %2$s)."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:346
+#. translators: %d is the minimum age in years, e.g. 13.
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:390
+#, php-format
+msgid "Potential is not recorded below age %d. Behaviour ratings still are."
+msgstr ""
+"Potentieel wordt niet vastgelegd onder de %d jaar. Gedragsbeoordelingen wel."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:397
 msgid "Can reach this club's own first team."
 msgstr "Kan het eerste elftal van deze club halen."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:347
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:398
 msgid "Can play professionally, most likely at another club."
 msgstr "Kan profvoetballer worden, waarschijnlijk bij een andere club."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:348
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:399
 msgid "Can play at semi-professional level."
 msgstr "Kan op semi-profniveau spelen."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:349
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:400
 msgid "Can play at the highest amateur level."
 msgstr "Kan op het hoogste amateurniveau spelen."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:350
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:401
 msgid ""
 "Will play for the love of it. Not a lesser player to coach — a different "
 "ceiling."
@@ -55856,12 +55880,12 @@ msgstr ""
 "Speelt voor het plezier. Geen mindere speler om te begeleiden — een ander "
 "plafond."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:354
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:405
 msgid "What the bands mean"
 msgstr "Wat de bands betekenen"
 
 #. translators: %d: number of months before a potential counts as stale
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:385
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:436
 #, php-format
 msgid ""
 "Revisit this about every quarter. After %d months without a look it is "
@@ -55870,28 +55894,28 @@ msgstr ""
 "Kijk hier ongeveer elk kwartaal opnieuw naar. Na %d maanden zonder blik "
 "wordt het gemarkeerd als verouderd."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:392
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:443
 msgid "Never set for this player."
 msgstr "Nog nooit vastgelegd voor deze speler."
 
 #. translators: 1: number of days ago, 2: person who set it
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:418
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:469
 #, php-format
 msgid "Last set %1$d days ago, by %2$s."
 msgstr "Voor het laatst vastgelegd %1$d dagen geleden, door %2$s."
 
 #. translators: %d: number of days ago
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:425
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:476
 #, php-format
 msgid "Last set %d days ago."
 msgstr "Voor het laatst vastgelegd %d dagen geleden."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:430
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:481
 msgid "Due a look."
 msgstr "Tijd om er weer naar te kijken."
 
 #. translators: %d: number of recorded potential entries
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:470
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:521
 #, php-format
 msgid "Potential history (%d entry)"
 msgid_plural "Potential history (%d entries)"
@@ -55899,20 +55923,20 @@ msgstr[0] "Verloop potentieel (%d regel)"
 msgstr[1] "Verloop potentieel (%d regels)"
 
 #. translators: 1: date 2: person who recorded it
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:497
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:548
 #, php-format
 msgid "%1$s · by %2$s"
 msgstr "%1$s · door %2$s"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:525
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:576
 msgid "revised up"
 msgstr "naar boven bijgesteld"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:527
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:578
 msgid "revised down"
 msgstr "naar beneden bijgesteld"
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:529
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:580
 msgid "reaffirmed"
 msgstr "opnieuw bevestigd"
 
@@ -59450,28 +59474,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#. translators: %d is the minimum age in years, e.g. 13.
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:362
-#, php-format
-msgid "Potential is not recorded below age %d. Behaviour ratings still are."
-msgstr "Potentieel wordt niet vastgelegd onder de %d jaar. Gedragsbeoordelingen wel."
-
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:297
-msgid ""
-"The bands describe how far a player might go as a professional. That is a "
-"fair question to put to a coach about a teenager and a guess about a child, "
-"so it is asked once there is something to judge."
-msgstr ""
-"De klassen beschrijven hoe ver een speler als prof zou kunnen komen. Dat is "
-"een eerlijke vraag aan een trainer over een tiener en een gok over een kind, "
-"dus hij wordt gesteld zodra er iets te beoordelen valt."
-
-#. translators: %d is the minimum age in years, e.g. 13.
-#: src/Infrastructure/Rest/PlayerStatusRestController.php:180
-#, php-format
-msgid "Potential is not recorded below age %d."
-msgstr "Potentieel wordt niet vastgelegd onder de %d jaar."
 
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
