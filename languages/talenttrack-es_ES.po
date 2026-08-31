@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-31T17:09:10+00:00\n"
+"POT-Creation-Date: 2026-08-31T17:25:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -21156,12 +21156,12 @@ msgstr ""
 msgid "Sheet \"%1$s\": required column \"%2$s\" missing."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:258
+#: src/Modules/Import/Excel/ExcelImporter.php:274
 #, php-format
 msgid "Sheet \"%1$s\" row %2$d: %3$s is required."
 msgstr ""
 
-#: src/Modules/Import/Excel/ExcelImporter.php:296
+#: src/Modules/Import/Excel/ExcelImporter.php:346
 #, php-format
 msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
 msgstr ""
