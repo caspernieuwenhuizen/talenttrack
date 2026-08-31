@@ -59494,6 +59494,22 @@ msgstr "Kies hetzelfde bestand opnieuw om deze records te bevestigen en op te sl
 #: src/Shared/Frontend/FrontendSetupView.php:988
 msgid "Reading the workbook…"
 msgstr "Bezig met het lezen van het werkboek…"
+#: src/Modules/DemoData/DemoCoverage.php:1327
+msgid "Behaviour and potential"
+msgstr "Gedrag en potentieel"
+
+#: src/Modules/DemoData/DemoCoverage.php:1360
+msgid ""
+"Two of the four traffic-light inputs: behaviour ratings spread across the "
+"window, and dated potential histories for squads old enough to be asked. "
+"Some players are deliberately left without, and a few left overdue, so the "
+"alerts have something true to say."
+msgstr ""
+"Twee van de vier stoplicht-inputs: gedragsbeoordelingen verspreid over de "
+"periode, en gedateerde potentieelhistories voor teams die oud genoeg zijn om "
+"ernaar gevraagd te worden. Sommige spelers blijven bewust zonder, en een "
+"paar blijven te lang onaangeroerd, zodat de meldingen iets te melden hebben "
+"dat klopt."
 
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
