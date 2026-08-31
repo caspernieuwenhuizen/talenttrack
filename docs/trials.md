@@ -59,6 +59,16 @@ Each assigned coach has their own input form on the **Staff inputs** tab. They e
 
 The system also sends gentle reminders to staff who haven't submitted as the trial ends approaches (7 days out, 3 days out, on the end date).
 
+#### When an input stops being editable
+
+**At the decision, not at submit.** While the case is **Open** or **Extended** an assigned coach can keep correcting their own input — including after they have submitted it. Re-reading your own wording an hour later and fixing a sentence is normal practice and should not need a manager.
+
+Once the case is **Decided** or **Archived**, inputs are frozen. Nothing can change them, on any screen or through the API, and an attempt to do so is refused with a message saying why rather than quietly doing nothing.
+
+That line is where it is because a staff input is the evidence behind a decision about a child — whether the academy wanted them, and why. It is also the part of the trial record most likely to be read a season later, when the player comes back or the family asks. A record that can be rewritten after the fact, with no earlier version kept, cannot serve either purpose.
+
+Freezing the input does **not** close the case to the coach who wrote it. They can still open a decided case and read what they said.
+
 ### 4. Decide
 
 On the **Decision** tab, the head of development picks one of three outcomes:

@@ -59,6 +59,16 @@ Elke toegewezen coach heeft een eigen invoerformulier op **Staf-input**. Hij gee
 
 Het systeem stuurt vriendelijke herinneringen aan stafleden die nog niet hebben ingediend naarmate de stage afloopt (7 dagen vooraf, 3 dagen vooraf, op de einddatum).
 
+#### Wanneer input niet meer aan te passen is
+
+**Bij de beslissing, niet bij het indienen.** Zolang de zaak **Open** of **Verlengd** is, kan een toegewezen trainer zijn eigen input blijven corrigeren — ook nadat hij hem heeft ingediend. Je eigen formulering een uur later teruglezen en een zin bijschaven is normale praktijk en hoort geen manager nodig te hebben.
+
+Zodra de zaak **Besloten** of **Gearchiveerd** is, liggen de inputs vast. Niets kan ze nog wijzigen, op geen enkel scherm en niet via de API, en een poging daartoe wordt geweigerd met een melding die zegt waarom in plaats van stilletjes niets te doen.
+
+Die grens ligt daar omdat staf-input het bewijs is achter een beslissing over een kind — of de academie hem wilde, en waarom. Het is ook het deel van het stagedossier dat een seizoen later het vaakst wordt teruggelezen, als de speler terugkomt of de familie ernaar vraagt. Een dossier dat achteraf herschreven kan worden, zonder dat de eerdere versie bewaard blijft, kan geen van beide doelen dienen.
+
+Het bevriezen van de input sluit de zaak **niet** af voor de trainer die hem schreef. Die kan een besloten zaak nog steeds openen en teruglezen wat hij heeft gezegd.
+
 ### 4. Beslissen
 
 Op het tabblad **Beslissing** kiest het hoofd opleiding één van drie uitkomsten:
