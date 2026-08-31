@@ -93,16 +93,16 @@ move between them freely and never repeat a step:
 - **TalentTrack → Welcome** in the WordPress admin — where a brand-new
  install lands on its first run.
 
-Two steps are only available in the WordPress admin for now: **Import your
-squad** and **Add your staff**. Each carries something the in-app screen
-does not have yet — a file upload with column mapping, or the
+One step is only available in the WordPress admin for now: **Add your
+staff**. It carries something the in-app screen does not have yet — the
 held-invitation flow. If your saved progress is on one of
 those, the in-app screen says so, tells you your progress is kept, and
 offers to carry on in the WordPress admin. Come back afterwards and the
 flow picks up where the admin left it.
 
-Everything else — Welcome, Academy basics, How much product, First team,
-First admin, What we send, Dashboard page and Done — works on both screens.
+Everything else — Welcome, Academy basics, How much product, Import your
+squad, First team, First admin, What we send, Dashboard page and Done —
+works on both screens.
 
 ## Stop and resume
 

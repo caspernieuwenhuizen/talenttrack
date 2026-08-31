@@ -18,6 +18,7 @@ use TT\Modules\Onboarding\OnboardingState;
  *   POST /onboarding/first-admin    — create the first-admin staff record, advance
  *   POST /onboarding/messaging      — choose which messages the academy sends (or skip), advance
  *   POST /onboarding/profile        — apply an install profile (or skip), advance
+ *   POST /onboarding/import         — preview or commit a squad workbook (or skip)
  *   POST /onboarding/dashboard-page — create / reuse the dashboard page (or skip), finish
  *   POST /onboarding/reset          — reset state and re-enter at welcome
  *
@@ -48,6 +49,7 @@ final class OnboardingRestController {
             'first-admin'    => 'firstAdmin',
             'messaging'      => 'messaging',
             'profile'        => 'profile',
+            'import'         => 'import',
             'dashboard-page' => 'dashboardPage',
             'reset'          => 'reset',
         ];
@@ -214,6 +216,51 @@ final class OnboardingRestController {
             'profile' => $slug,
             'applied' => $applied['applied'],
         ] );
+        return self::stateResponse();
+    }
+
+    /**
+     * #3260 — the squad-import step (#2958) on the frontend.
+     *
+     * The only route here that takes a file. `get_file_params()` returns
+     * the same `$_FILES` shape `OnboardingHandlers::applyImport()` expects,
+     * which is why that method takes the array rather than reading the
+     * superglobal — a handler that read `$_FILES` directly could serve
+     * wp-admin or this, not both.
+     *
+     * **There is exactly one importer.** `ImportService` (#2954) does the
+     * parsing, validation and batch tagging for both surfaces. A second one
+     * would have to keep up with the mapping rules, the workbook validation
+     * and the error reporting, and it would not.
+     *
+     * Two passes over the same upload, and the pass is the caller's choice:
+     * without `commit` the workbook is only reported on, with it the rows
+     * are written. A workbook with blockers never reaches the second pass —
+     * that rule lives in the handler, not here.
+     *
+     * The response is always 200 with the step's payload, including for a
+     * refusal. The refusals here are things about the *workbook* — a column
+     * missing, a date that will not parse — which the step renders as a
+     * report the operator acts on, not as a failed request.
+     */
+    public static function import( \WP_REST_Request $r ): \WP_REST_Response {
+        if ( ! empty( $r->get_param( 'skip' ) ) ) {
+            OnboardingHandlers::skipImport();
+            Logger::info( 'rest.onboarding.import_skipped', [ 'user' => get_current_user_id() ] );
+            return self::stateResponse();
+        }
+
+        $files = $r->get_file_params();
+        $file  = isset( $files['roster_file'] ) && is_array( $files['roster_file'] ) ? $files['roster_file'] : [];
+
+        $payload = OnboardingHandlers::applyImport( $file, ! empty( $r->get_param( 'commit' ) ) );
+
+        Logger::info( 'rest.onboarding.import', [
+            'user'      => get_current_user_id(),
+            'committed' => ! empty( $payload['committed'] ),
+            'blockers'  => count( (array) ( $payload['blockers'] ?? [] ) ),
+        ] );
+
         return self::stateResponse();
     }
 
