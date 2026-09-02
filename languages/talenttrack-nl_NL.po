@@ -59672,6 +59672,7 @@ msgstr "Filter %s verwijderen"
 msgctxt "active filter chip"
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
+
 #. translators: 1: player name, 2: season name. Identifies a PDP file in the recycle bin.
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:158
 #, php-format
