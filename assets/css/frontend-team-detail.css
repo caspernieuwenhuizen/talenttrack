@@ -30,7 +30,12 @@
 .tt-team-detail .tt-table tr.is-row-link:hover { background: var(--tt-bg-soft, #f4f6f3); }
 .tt-team-detail .tt-table tr.is-row-link:active { background: var(--tt-mute-soft, #f0f3f2); }
 /* Keep the inner per-cell link as the keyboard / AT path. */
-.tt-team-detail .tt-table .tt-record-link { color: var(--tt-accent, var(--tt-primary, #0b3d2e)); text-decoration: none; font-weight: 600; }
+/* #3308 — `font-weight: 600` dropped: the canonical `.tt-record-link` rule
+   in public.css now carries it as the resting cue, so repeating it here is
+   one more place to keep in step. (`color` stays declared but has never
+   applied — public.css sets `color: inherit !important`, which outranks an
+   unflagged rule however specific.) */
+.tt-team-detail .tt-table .tt-record-link { color: var(--tt-accent, var(--tt-primary, #0b3d2e)); text-decoration: none; }
 .tt-team-detail .tt-table .tt-record-link:focus-visible { outline: 2px solid var(--tt-accent, var(--tt-primary, #0b3d2e)); outline-offset: 2px; }
 
 /* Tables sit flush inside the card body; the card already pads. */

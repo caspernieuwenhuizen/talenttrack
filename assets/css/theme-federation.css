@@ -93,6 +93,14 @@
     --tt-danger-subtle:  #fbeaea;
     --tt-info-subtle:    #e8f0f9;
 
+    /* #3308 — record links follow this theme's blue, not the default one.
+       Overriding them here is what proves the tokenisation is load-bearing
+       rather than decorative: before it, the hover tint was a hardcoded
+       rgba() no theme could reach. */
+    --tt-link:           #1b5fa8;
+    --tt-link-hover:     #123f70;
+    --tt-link-wash:      rgba(27, 95, 168, 0.10);
+
     /* Federation is squarer than the default: 4px, not 8px. */
     --tt-radius:     4px;
     --tt-radius-lg:  5px;

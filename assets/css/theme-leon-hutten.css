@@ -109,6 +109,11 @@
     --tt-danger-subtle:  #fce4e2;
     --tt-info-subtle:    #e2f2fb;
 
+    /* #3308 — record links take the club's own blue. */
+    --tt-link:           #0262a1;
+    --tt-link-hover:     #01456f;
+    --tt-link-wash:      rgba(2, 98, 161, 0.10);
+
     /*
      * The handoff calls in-app cards square, with 3px reserved for pills
      * and chips. Taken literally that is a 0 everywhere, which reads as
