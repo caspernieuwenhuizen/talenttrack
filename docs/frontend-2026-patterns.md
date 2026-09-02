@@ -69,7 +69,18 @@ Every list surface filters through the shared, mobile-first **FilterBar**
 (`\TT\Shared\Frontend\Components\FilterBar`): an inline single-line row at
 ≥1024px that collapses to a "Filters" button + a bottom sheet below. It owns
 chrome only — the calling view supplies the options + active state (CLAUDE.md
-§4). Group `type`s:
+§4).
+
+The sheet is a real `<dialog>` opened with `showModal()` (#3294), like
+`ttConfirm` and the saved-views manage dialog. The focus trap, `::backdrop`,
+Escape-to-close, top-layer stacking and inertness of the page behind are the
+platform's — don't hand-roll any of them, and don't reintroduce a scrim
+element. It was a `<div role="dialog" aria-modal="true">` and enforced none of
+it: Tab walked out into the covered page. The one thing `showModal()` does not
+do is stop the page behind scrolling, so `filter-bar.js` adds a
+`tt-sheet-lock` class on `<html>` while it is up.
+
+Group `type`s:
 
 | Type | Renders | Submits |
 | --- | --- | --- |

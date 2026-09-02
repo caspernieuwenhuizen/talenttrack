@@ -624,44 +624,51 @@
 /* =============================================================
    BOTTOM SHEET (mobile)
    ============================================================= */
-.tt-dashboard .tt-filter-sheet-scrim {
+/* #3294 — the sheet is a <dialog> opened with showModal(), so the scrim
+   element is gone and ::backdrop takes its place. The dialog sits in the top
+   layer, which is why there is no z-index here any more: the top layer is
+   above every stacking context on the page by definition, and a z-index race
+   with a sticky header or a drawer is no longer possible. */
+.tt-dashboard dialog.tt-filter-sheet {
+	/* Reset the UA dialog box: it centres itself with auto margins, draws a
+	   border and pads its content. This one is a bottom sheet. */
 	position: fixed;
-	inset: 0;
-	background: rgba(7, 38, 28, 0.45);
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 0.18s ease;
-	z-index: 1000;
-}
-.tt-dashboard .tt-filter-sheet-scrim[hidden] {
-	display: none;
-}
-.tt-dashboard .tt-filter-sheet {
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	inset: auto 0 0 0;
+	width: 100%;
+	max-width: 100%;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	color: inherit;
 	background: var(--tt-paper, #fff);
 	border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
 	box-shadow: 0 -10px 30px rgba(7, 38, 28, 0.22);
 	transform: translateY(100%);
 	transition: transform 0.2s ease;
-	z-index: 1001;
 	max-height: 92%;
-	display: flex;
 	flex-direction: column;
 	overscroll-behavior: contain;
 	padding-bottom: env(safe-area-inset-bottom);
 }
-.tt-dashboard .tt-filter-sheet[hidden] {
-	display: none;
+/* A closed <dialog> is display:none by UA rule; the open one has to be the
+   flex column the sheet's layout expects, so it is stated on [open] rather
+   than on the element (which would defeat the UA's own hiding). */
+.tt-dashboard dialog.tt-filter-sheet[open] {
+	display: flex;
 }
-.tt-dashboard .tt-filterbar.is-sheet-open .tt-filter-sheet-scrim {
-	opacity: 1;
-	pointer-events: auto;
+.tt-dashboard dialog.tt-filter-sheet::backdrop {
+	background: rgba(7, 38, 28, 0.45);
 }
 .tt-dashboard .tt-filterbar.is-sheet-open .tt-filter-sheet {
 	transform: translateY(0);
+}
+/* showModal() makes the page behind inert, but does not stop it scrolling —
+   a touch starting on the backdrop still drags the list underneath. The
+   `overscroll-behavior` above only contains chaining from INSIDE the sheet,
+   which is why this is separate and explicit. */
+html.tt-sheet-lock,
+html.tt-sheet-lock body {
+	overflow: hidden;
 }
 .tt-dashboard .tt-filter-sheet__grip {
 	width: 40px;
@@ -769,10 +776,13 @@
 		background: var(--tt-line, #e3e6e1);
 		margin: 2px 0;
 	}
-	/* Mobile chrome hidden on desktop. */
+	/* Mobile chrome hidden on desktop. The `[open]` selector is needed as
+	   well as the bare one: the rule that makes an open sheet a flex column
+	   is itself written against `[open]`, and would otherwise out-specify a
+	   plain `display: none` here. */
 	.tt-dashboard .tt-filterbar__mobile,
 	.tt-dashboard .tt-filter-sheet,
-	.tt-dashboard .tt-filter-sheet-scrim {
+	.tt-dashboard dialog.tt-filter-sheet[open] {
 		display: none;
 	}
 	.tt-dashboard .tt-filterbar__group--team .tt-filsel__select {
@@ -790,9 +800,14 @@
 /* Respect reduced-motion. */
 @media (prefers-reduced-motion: reduce) {
 	.tt-dashboard .tt-filter-sheet,
-	.tt-dashboard .tt-filter-sheet-scrim,
 	.tt-dashboard .tt-switch__track,
 	.tt-dashboard .tt-switch__track::after {
 		transition: none;
+	}
+	/* Without the slide-up transition the sheet would sit at
+	   translateY(100%) — off the bottom of the screen — until a transition
+	   that never runs moves it. Land it open. */
+	.tt-dashboard dialog.tt-filter-sheet[open] {
+		transform: translateY(0);
 	}
 }
