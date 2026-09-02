@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T19:18:55+00:00\n"
+"POT-Creation-Date: 2026-09-02T19:24:43+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6035,7 +6035,7 @@ msgstr "Datumbereik"
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
-#: src/Shared/Frontend/Components/FilterBar.php:797
+#: src/Shared/Frontend/Components/FilterBar.php:830
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:208
 #: src/Shared/Frontend/FrontendAuditLogView.php:508
@@ -6065,7 +6065,7 @@ msgstr "Vanaf"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:527
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
-#: src/Shared/Frontend/Components/FilterBar.php:798
+#: src/Shared/Frontend/Components/FilterBar.php:831
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2834
@@ -8631,8 +8631,8 @@ msgstr "— Geen —"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:176
 #: src/Shared/Frontend/Components/FilterBar.php:411
-#: src/Shared/Frontend/Components/FilterBar.php:605
-#: src/Shared/Frontend/Components/FilterBar.php:819
+#: src/Shared/Frontend/Components/FilterBar.php:627
+#: src/Shared/Frontend/Components/FilterBar.php:852
 #: src/Shared/Frontend/FrontendInstallProfileView.php:122
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1651
 msgid "Apply"
@@ -15437,8 +15437,8 @@ msgstr "Gebruikers-ID"
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:946
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
-#: src/Shared/Frontend/Components/FilterBar.php:543
-#: src/Shared/Frontend/Components/FilterBar.php:588
+#: src/Shared/Frontend/Components/FilterBar.php:551
+#: src/Shared/Frontend/Components/FilterBar.php:610
 msgid "Clear"
 msgstr "Wissen"
 
@@ -22496,7 +22496,7 @@ msgstr "Printen"
 #: src/Modules/Training/Print/TrainingPlanPrintRouter.php:95
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FilterBar.php:119
-#: src/Shared/Frontend/Components/FilterBar.php:575
+#: src/Shared/Frontend/Components/FilterBar.php:597
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:323
 #: src/Shared/Frontend/DashboardShortcode.php:288
@@ -49434,17 +49434,17 @@ msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
 #. translators: %s: the active filter, e.g. "Team: Ajax U17".
-#: src/Shared/Frontend/Components/FilterBar.php:523
+#: src/Shared/Frontend/Components/FilterBar.php:531
 #, php-format
 msgid "Remove filter %s"
 msgstr "Filter %s verwijderen"
 
-#: src/Shared/Frontend/Components/FilterBar.php:890
+#: src/Shared/Frontend/Components/FilterBar.php:923
 msgid "More filters"
 msgstr "Meer filters"
 
 #. translators: %s: the filter's name, e.g. "Archive".
-#: src/Shared/Frontend/Components/FilterBar.php:920
+#: src/Shared/Frontend/Components/FilterBar.php:953
 #, php-format
 msgid "Clear the %s filter"
 msgstr "Filter %s wissen"
