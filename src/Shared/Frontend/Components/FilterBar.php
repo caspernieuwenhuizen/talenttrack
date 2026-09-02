@@ -370,7 +370,21 @@ final class FilterBar {
 			$out .= '<a class="tt-btn tt-btn-secondary tt-filter-sheet__reset" href="' . esc_url( $reset ) . '">'
 				. esc_html__( 'Clear', 'talenttrack' ) . '</a>';
 		}
-		$out .= '<button type="button" class="tt-btn tt-btn-primary tt-filter-sheet__apply"'
+		// #3288 — a real submit, not a close button.
+		//
+		// It was `type="button"` carrying only `data-tt-filter-close`, so a
+		// date range or free-text filter typed into the sheet was discarded
+		// the moment the sheet shut: the user set From/To, tapped Apply, the
+		// sheet closed and the list was unchanged, with nothing to say why.
+		// Selects and toggles auto-submit on `change`, which is what hid it —
+		// set a team as well and the page reloads, and the dates look like
+		// they worked because a different control submitted the form.
+		//
+		// The inline row's own Apply is suppressed inside the sheet
+		// (`! $in_sheet` in the date-range branch) to avoid two buttons side
+		// by side; this is the one that was meant to take over. It already
+		// sits inside the bar's form, so submitting is all it needs.
+		$out .= '<button type="submit" class="tt-btn tt-btn-primary tt-filter-sheet__apply"'
 			. ' data-tt-filter-close>' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
 		$out .= '</div>'; // .tt-filter-sheet__foot
 		$out .= '</div>'; // .tt-filter-sheet
