@@ -45,6 +45,22 @@
     --tt-danger-subtle:  #fde2e2;
     --tt-info-subtle:    #e6f0fa;
 
+    /* Record links (#3308).
+     *
+     * `--tt-link` deliberately carries the same value as `--tt-info` rather
+     * than introducing a hue: the rule these replace was already blue, just
+     * at 4% opacity where nobody could see it. Keeping the value continues
+     * what shipped instead of restyling the product.
+     *
+     * These live here and NOT in BrandStyles: a link colour is a theme
+     * decision, not one of the two brand colours the operator's visual
+     * editor owns. A theme sheet overrides them — see theme-federation.css
+     * and theme-leon-hutten.css.
+     */
+    --tt-link:       #2d6fb3;
+    --tt-link-hover: #1d4e80;
+    --tt-link-wash:  rgba(45, 111, 179, 0.10);
+
     /* Radius */
     --tt-radius:     8px;
     --tt-radius-lg:  14px;

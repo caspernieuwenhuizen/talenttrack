@@ -1231,6 +1231,28 @@ input[type="checkbox"], input[type="radio"] {
  * v3.62 ad-hoc .tt-record-link inline styles in FrontendMyGoalsView /
  * FrontendMyActivitiesView with a single canonical rule.
  */
+/* #3308 — design C2 from `.local-mockups/record-link-hover/`.
+ *
+ * What this replaces put the whole affordance in `:hover` — `color: inherit`
+ * plus `text-decoration: none` means a record link was indistinguishable from
+ * body text at rest, so on a phone (where hover does not exist) twelve player
+ * names in a PDP block read as a paragraph. CLAUDE.md §2: hover may enhance,
+ * never gate.
+ *
+ * It also set `outline: none` on `:focus-visible` and offered a 6%-opacity
+ * shadow in its place, which is not a focus indicator. That is the genuine
+ * bug here.
+ *
+ * And it applied a CARD idiom to a word: `translateY(-1px)` with a 12px drop
+ * shadow is elevation, which is what a tile does. On a ~115×19px inline name
+ * with no padding the shadow hugs the glyphs and the text leaves its
+ * baseline, so a table ripples as the pointer crosses it.
+ *
+ * C2 keeps a hover background but makes it a deliberate one: real horizontal
+ * padding with a matching negative margin so nothing reflows, a visible tint,
+ * no transform, no shadow. `font-weight: 600` is the resting cue — enough
+ * weight to read as tappable without recolouring every name in the product.
+ */
 .tt-record-link {
     display: inline-block;
     /* #1792 — !important so a hostile theme's `a` rule (often more
@@ -1238,17 +1260,22 @@ input[type="checkbox"], input[type="radio"] {
        record links. The reset must win regardless of the active theme. */
     text-decoration: none !important;
     color: inherit !important;
-    border-radius: 4px;
-    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    font-weight: 600;
+    padding: 2px 6px;
+    margin: -2px -6px; /* the pill must not reflow the line it sits in */
+    border-radius: var(--tt-radius, 8px);
+    transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease),
+                color var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
 }
-.tt-record-link:hover,
+.tt-record-link:hover {
+    background: var(--tt-link-wash, rgba(45, 111, 179, 0.10));
+    color: var(--tt-link-hover, #1d4e80) !important;
+}
+/* A real focus ring. Separate from :hover — they are different states and
+   conflating them is what lost the ring in the first place. */
 .tt-record-link:focus-visible {
-    text-decoration: none !important;
-    color: inherit !important;
-    background: rgba(11, 95, 255, 0.04);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    outline: none;
+    outline: 2px solid var(--tt-link, #2d6fb3);
+    outline-offset: 2px;
 }
 /* When the wrapper IS the row (block-level link), make it fill width
  * so hover / focus targets match the row geometry. */
@@ -1256,8 +1283,10 @@ input[type="checkbox"], input[type="radio"] {
     display: block;
 }
 @media (prefers-reduced-motion: reduce) {
+    /* #3308 — the `transform: none` companion is gone with the transform
+       it was suppressing; the tint transition is all that is left to
+       collapse. */
     .tt-record-link { transition: none; }
-    .tt-record-link:hover, .tt-record-link:focus-visible { transform: none; }
 }
 
 /* #1364 — reduced-motion floor for every TalentTrack frontend surface.
