@@ -107,7 +107,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         // an active "This season" pill instead of a blank "Custom range" when
         // the seeded window actually equals the season window, so the FilterBar
         // reflects the state the user is looking at.
-        $effective_period = self::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
+        $effective_period = ReportFilters::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
 
         // v4.20.4 (#1147) — same team-scope pattern as the player report.
         // #1942 — academy-wide = global-scope read on `activities`; the
@@ -299,23 +299,6 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         return ReportFilters::seasonDefaultWindow();
     }
 
-    /**
-     * #2351 — resolve the period the FilterBar should show as active. An
-     * explicit `?period=` always wins. Otherwise, when the user typed no
-     * manual From/To and the seeded window equals the current season window,
-     * report `this_season` so the season-default seed reads as an active pill
-     * rather than a blank "Custom range". A manual From/To (or a window that
-     * doesn't match the season) stays blank/custom.
-     */
-    private static function effectivePeriod( string $period, bool $has_manual_from, bool $has_manual_to, string $from, string $to ): string {
-        if ( $period !== '' ) return $period;
-        if ( $has_manual_from || $has_manual_to ) return '';
-        $season = ReportFilters::periodWindow( 'this_season', gmdate( 'Y-m-d' ) );
-        if ( $season !== null && $season['from'] === $from && $season['to'] === $to ) {
-            return 'this_season';
-        }
-        return '';
-    }
 
     /**
      * #2136 — period quick-pills + activity-type filter + From/To range,
@@ -358,6 +341,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         $active_count = 0;
         $chips = [];
         if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
         if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
 
         $reset_args = [ 'tt_view' => 'attendance-report-team' ];

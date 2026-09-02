@@ -136,6 +136,11 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] );
         $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] );
 
+        // #3293 — the bar shows the period the QUERY ran on. A manual
+        // From/To wins above, so handing the raw param on left the pill
+        // describing a window the grid was not using.
+        $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
+
         self::renderFilterForm( $teams, $team_id, $from, $to, $period );
 
         $matrix = ( new MinutesGridQuery() )->matrix( $team_id, $from, $to );
@@ -498,6 +503,9 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $active_count = 0;
         $chips = [];
         if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
 
         $reset_args = [ 'tt_view' => 'minutes-grid', 'team_id' => $team_id ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );

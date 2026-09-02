@@ -122,6 +122,9 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
             : ( $window['to'] ?? $defaults['to'] );
 
+        // #3293 — the bar shows the period the query ran on, not the param.
+        $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
+
         $type_options = self::typeOptions();
         $type_filter  = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : 'all';
         if ( $type_filter === '' || ! isset( $type_options[ $type_filter ] ) ) $type_filter = 'all';
@@ -411,6 +414,9 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $active_count = 0;
         $chips = [];
         if ( $period !== '' )         { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
         if ( $type_filter !== 'all' && isset( $type_options[ $type_filter ] ) ) { $active_count++; $chips[] = $type_options[ $type_filter ]; }
 
         $reset_args = [ 'tt_view' => 'minutes-audit', 'team_id' => $team_id ];

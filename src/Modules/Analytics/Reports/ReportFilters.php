@@ -46,6 +46,81 @@ final class ReportFilters {
     }
 
     /**
+     * #3293 — the period key the chrome should show, given what the query
+     * actually ran on.
+     *
+     * Every surface that offers both a period pill and a From/To range
+     * resolves its window as "manual dates beat the period", then handed the
+     * bar the RAW `$period` anyway. So the pill kept reading "This month"
+     * while the grid queried the user's own window — the chrome contradicting
+     * the query, on nine surfaces.
+     *
+     * The order of the two checks below is the whole fix. Two views carried a
+     * private copy of this that tested `$period !== ''` FIRST, so it only
+     * blanked the pill when no explicit `?period=` was in the URL — which is
+     * the one case where the contradiction is visible, because the pill is
+     * only ever active when a period param put it there.
+     *
+     * The third check is #2136's behaviour and is preserved: a seeded
+     * season-default window carries no `?period=` but should still read as
+     * the season pill rather than as a custom range.
+     *
+     * Returns '' for "no pill active" — which `periodLabels()` maps to
+     * *Custom range*.
+     */
+    public static function effectivePeriod(
+        string $period,
+        bool $has_manual_from,
+        bool $has_manual_to,
+        string $from,
+        string $to
+    ): string {
+        // A manual From/To always wins: it is what the query ran on.
+        if ( $has_manual_from || $has_manual_to ) return '';
+        if ( $period !== '' ) return $period;
+
+        $season = self::periodWindow( 'this_season', gmdate( 'Y-m-d' ) );
+        if ( $season !== null && $season['from'] === $from && $season['to'] === $to ) {
+            return 'this_season';
+        }
+        return '';
+    }
+
+    /**
+     * #3293 — the summary chip for a window no period pill describes, or
+     * null when the pill already says it.
+     *
+     * Seven of the nine surfaces counted the period only, so a reader who
+     * set nothing but a From/To saw **Filters** with no badge and no chip —
+     * the bar reporting "nothing filtered" over a custom window. This is
+     * what the count and the chips were missing.
+     *
+     * Takes the EFFECTIVE period, not the raw one: if a pill is active it
+     * describes the window and a second chip would say the same thing twice.
+     */
+    public static function customRangeChip( string $effective_period, string $from, string $to ): ?string {
+        if ( $effective_period !== '' ) return null;
+
+        // `seasonDefaultWindow()` is typed `array{from:string,to:string}`, so
+        // both keys are guaranteed — a `?? ''` here is dead code at level 8.
+        $defaults = self::seasonDefaultWindow();
+        if ( $from === $defaults['from'] && $to === $defaults['to'] ) {
+            // The untouched season default is not a filter the reader chose.
+            return null;
+        }
+
+        $from = trim( $from );
+        $to   = trim( $to );
+        if ( $from === '' && $to === '' ) return null;
+
+        if ( $from !== '' && $to !== '' ) {
+            /* translators: 1: window start date, 2: window end date. */
+            return sprintf( __( '%1$s – %2$s', 'talenttrack' ), $from, $to );
+        }
+        return $from !== '' ? $from : $to;
+    }
+
+    /**
      * Resolve a period key to an inclusive [from, to] Y-m-d window. Most
      * keys are past-oriented; `this_season` spans the whole configured
      * season (start through the season's own end date, which may be in the
