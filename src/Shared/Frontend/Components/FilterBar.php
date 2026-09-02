@@ -422,7 +422,19 @@ final class FilterBar {
 		$label = (string) ( $group['label'] ?? '' );
 		$key   = sanitize_key( (string) ( $group['key'] ?? $type ) );
 
-		$out  = '<div class="tt-filterbar__group tt-filterbar__group--' . esc_attr( $key ) . '">';
+		// #3291 — a TYPE modifier alongside the key one.
+		//
+		// The key modifier is built from `key`, which callers set to whatever
+		// names the filter: `archived`, `state`, or a list's own filter key.
+		// So a rule written against `--status` — which #2203's right-align
+		// was — matched nothing anywhere in the app, and the `⋯` overflow menu
+		// has always sat flush against its left-hand neighbour reading as one
+		// more filter, with empty row to its right.
+		//
+		// Styling a group by what it IS needs the type; styling one
+		// particular group still needs the key. Both are emitted.
+		$out  = '<div class="tt-filterbar__group tt-filterbar__group--' . esc_attr( $key )
+			. ' tt-filterbar__group--t-' . esc_attr( sanitize_key( $type ) ) . '">';
 		// #2622 — a `menu` group renders no visible small-caps label. Its
 		// trigger is icon-only and carries the label as its accessible name;
 		// printing the label above it would give back exactly the vertical
