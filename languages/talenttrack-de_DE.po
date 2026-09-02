@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T17:54:13+00:00\n"
+"POT-Creation-Date: 2026-09-02T18:01:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5731,7 +5731,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
-#: src/Shared/Frontend/Components/FilterBar.php:628
+#: src/Shared/Frontend/Components/FilterBar.php:785
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:208
 #: src/Shared/Frontend/FrontendAuditLogView.php:508
@@ -5761,7 +5761,7 @@ msgstr "Von"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:527
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
-#: src/Shared/Frontend/Components/FilterBar.php:629
+#: src/Shared/Frontend/Components/FilterBar.php:786
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2834
@@ -8183,9 +8183,9 @@ msgstr "— Keine —"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:176
-#: src/Shared/Frontend/Components/FilterBar.php:276
-#: src/Shared/Frontend/Components/FilterBar.php:436
-#: src/Shared/Frontend/Components/FilterBar.php:650
+#: src/Shared/Frontend/Components/FilterBar.php:403
+#: src/Shared/Frontend/Components/FilterBar.php:593
+#: src/Shared/Frontend/Components/FilterBar.php:807
 #: src/Shared/Frontend/FrontendInstallProfileView.php:122
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1651
 msgid "Apply"
@@ -8225,8 +8225,8 @@ msgid "Generated %s"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:501
-#: src/Shared/Frontend/Components/FilterBar.php:262
-#: src/Shared/Frontend/Components/FilterBar.php:263
+#: src/Shared/Frontend/Components/FilterBar.php:389
+#: src/Shared/Frontend/Components/FilterBar.php:390
 msgid "Filters"
 msgstr ""
 
@@ -14225,8 +14225,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:946
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
-#: src/Shared/Frontend/Components/FilterBar.php:374
-#: src/Shared/Frontend/Components/FilterBar.php:419
+#: src/Shared/Frontend/Components/FilterBar.php:531
+#: src/Shared/Frontend/Components/FilterBar.php:576
 msgid "Clear"
 msgstr "Löschen"
 
@@ -20790,7 +20790,7 @@ msgstr "Drucken"
 #: src/Modules/Training/Print/TrainingPlanPrintRouter.php:95
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FilterBar.php:119
-#: src/Shared/Frontend/Components/FilterBar.php:406
+#: src/Shared/Frontend/Components/FilterBar.php:563
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:323
 #: src/Shared/Frontend/DashboardShortcode.php:288
@@ -45763,12 +45763,25 @@ msgstr ""
 msgid "Open filters"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FilterBar.php:721
+#. translators: 1: filter name, e.g. "Team". 2: its value, e.g. "Ajax U17".
+#: src/Shared/Frontend/Components/FilterBar.php:297
+#, php-format
+msgctxt "active filter chip"
+msgid "%1$s: %2$s"
+msgstr ""
+
+#. translators: %s: the active filter, e.g. "Team: Ajax U17".
+#: src/Shared/Frontend/Components/FilterBar.php:511
+#, php-format
+msgid "Remove filter %s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/FilterBar.php:878
 msgid "More filters"
 msgstr ""
 
 #. translators: %s: the filter's name, e.g. "Archive".
-#: src/Shared/Frontend/Components/FilterBar.php:751
+#: src/Shared/Frontend/Components/FilterBar.php:908
 #, php-format
 msgid "Clear the %s filter"
 msgstr ""
