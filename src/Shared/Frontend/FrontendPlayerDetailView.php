@@ -1821,6 +1821,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * or when this player has no usable height/weight pair and no age the
      * reference covers — an empty framed box on a player's file is noise, and
      * the roster report is where "who is missing data" belongs.
+     *
+     * #3278 — the figure and its percentile, nothing else. The caveat, the
+     * provenance line and the change-since line moved off this tab and stayed
+     * on `Player · BMI-for-age`; see `BmiBlock::renderStanding()` for why the
+     * split falls there.
      */
     private static function renderBmiBlock( int $player_id ): void {
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
@@ -1834,19 +1839,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
 
         $latest = $series[ count( $series ) - 1 ];
-        $prev   = count( $series ) >= 2 ? $series[ count( $series ) - 2 ] : null;
 
+        // Only what the block still renders. The `previous_date` /
+        // `delta_sds` pair fed the change-since line and `date` / `gap_days`
+        // fed the provenance line; both lines are gone, and computing values
+        // nothing renders is how a reader ends up trusting that something on
+        // screen still uses them. `BmiQuery` is unchanged — the roster report
+        // reads all four.
         $row = [
-            'bmi'           => $latest['bmi'],
-            'sds'           => $latest['sds'],
-            'percentile'    => $latest['percentile'],
-            'covered'       => $latest['sds'] !== null,
-            'date'          => $latest['date'],
-            'gap_days'      => $latest['gap_days'],
-            'previous_date' => $prev === null ? null : $prev['date'],
-            'delta_sds'     => ( $prev !== null && $latest['sds'] !== null && $prev['sds'] !== null )
-                ? round( (float) $latest['sds'] - (float) $prev['sds'], 2 )
-                : null,
+            'bmi'        => $latest['bmi'],
+            'sds'        => $latest['sds'],
+            'percentile' => $latest['percentile'],
+            'covered'    => $latest['sds'] !== null,
         ];
 
         wp_enqueue_style(
@@ -1859,7 +1863,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         echo '<section class="tt-bmi-section">';
         echo '<h3>' . esc_html__( 'BMI-for-age', 'talenttrack' ) . '</h3>';
         \TT\Modules\Measurements\Frontend\BmiBlock::renderStanding( $row );
-        \TT\Modules\Measurements\Frontend\BmiBlock::renderCaveat( $query );
         echo '</section>';
     }
 

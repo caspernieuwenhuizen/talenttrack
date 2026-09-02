@@ -466,8 +466,13 @@ offers a one-click route back to where you came from.
 ## BMI-for-age
 
 **Player · BMI-for-age** reads the height and weight you already record and
-places them on a published growth curve. It lives under **Reports**, and the
-latest figure also appears at the top of a player's **Measurements** tab.
+places them on a published growth curve. It lives under **Reports**.
+
+The latest figure also appears at the top of a player's **Measurements** tab,
+as the number and its percentile alone. Everything that explains a BMI — which
+curve it is measured against, how far apart the two readings were, and how the
+figure has moved — lives on the report, which is the screen you open when BMI
+is what you came to read. The tab is a glance in passing.
 
 BMI on its own says very little about a young player. The same figure that is
 unremarkable for a sixteen-year-old can be high for an eleven-year-old, which is
@@ -496,8 +501,8 @@ shows the BMI and leaves the percentile blank rather than guessing.
 
 A weight is paired with the nearest height recorded **within 30 days**. Outside
 that window no BMI is calculated, because a height taken two months earlier
-describes a different body on a growing child. Every figure lists how many days
-apart the two readings were, so you can judge it yourself.
+describes a different body on a growing child. On the report, every figure lists
+how many days apart the two readings were, so you can judge it yourself.
 
 Players with no usable pair still appear in the table, with the reason. Knowing
 who you have no data for is usually the first thing to act on.
@@ -517,8 +522,10 @@ the laptop is not something this system does.
 ### The reference
 
 Percentiles use the **WHO 2007 growth reference for 5–19 years**, which is named
-on screen so you always know which curve you are reading. It covers ages 5 to 19
-inclusive; a player outside that range shows a BMI with no percentile.
+on the report so you always know which curve you are reading. It covers ages 5
+to 19 inclusive; a player outside that range shows a BMI with no percentile —
+on the player's tab too, which says so in as many words rather than leaving the
+figure looking complete.
 
 The reference is pluggable: if your academy needs a different one, it can be
 swapped without changing anything else about the report.

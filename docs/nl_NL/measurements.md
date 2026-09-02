@@ -491,8 +491,13 @@ kwam.
 
 **Speler · BMI naar leeftijd** gebruikt de lengte en het gewicht die je al
 vastlegt en zet die af tegen een gepubliceerde groeicurve. Je vindt het onder
-**Rapportages**; de meest recente waarde staat ook bovenaan het tabblad
-**Metingen** van een speler.
+**Rapportages**.
+
+De meest recente waarde staat ook bovenaan het tabblad **Metingen** van een
+speler: alleen het getal en het percentiel. Alles wat een BMI toelicht — tegen
+welke curve hij is afgezet, hoeveel dagen er tussen beide metingen zaten en hoe
+de waarde is verschoven — staat in de rapportage, het scherm dat je opent als
+BMI is waarvoor je komt. Het tabblad is een blik in het voorbijgaan.
 
 Een BMI op zichzelf zegt weinig over een jeugdspeler. Dezelfde waarde die bij
 een zestienjarige niets bijzonders is, kan bij een elfjarige hoog zijn. Daarom
@@ -523,9 +528,9 @@ plaats van dat er iets wordt gegokt.
 
 Een gewicht wordt gekoppeld aan de dichtstbijzijnde lengte die **binnen 30
 dagen** is vastgelegd. Daarbuiten wordt geen BMI berekend: bij een groeiend kind
-beschrijft een lengte van twee maanden geleden een ander lichaam. Bij elke
-waarde staat hoeveel dagen er tussen beide metingen zaten, zodat je het zelf kunt
-beoordelen.
+beschrijft een lengte van twee maanden geleden een ander lichaam. In de
+rapportage staat bij elke waarde hoeveel dagen er tussen beide metingen zaten,
+zodat je het zelf kunt beoordelen.
 
 Spelers zonder bruikbaar paar staan wél in de tabel, met de reden erbij. Weten
 van wie je geen gegevens hebt, is meestal het eerste om op te pakken.
@@ -544,10 +549,11 @@ toevallig iemand meekijkt, hoort niet in dit systeem.
 
 ### De referentie
 
-Percentielen gebruiken de **WHO-groeireferentie 2007 voor 5–19 jaar**, die op het
-scherm wordt genoemd zodat je altijd weet welke curve je leest. Ze loopt van 5
-tot en met 19 jaar; bij een speler daarbuiten zie je wel een BMI, maar geen
-percentiel.
+Percentielen gebruiken de **WHO-groeireferentie 2007 voor 5–19 jaar**, die in de
+rapportage wordt genoemd zodat je altijd weet welke curve je leest. Ze loopt van
+5 tot en met 19 jaar; bij een speler daarbuiten zie je wel een BMI, maar geen
+percentiel — ook op het tabblad van de speler, waar dat er met zoveel woorden bij
+staat in plaats van dat het getal compleet lijkt.
 
 De referentie is verwisselbaar: heeft jullie academie een andere nodig, dan kan
 die worden ingewisseld zonder dat er verder iets aan de rapportage verandert.
