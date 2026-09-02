@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.115.2
+Stable tag: 4.115.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.115.3 — Filter chips now name the team, the type and the toggles you set (#3318) The filter bar's summary chips — the ones that say what a list is filtered by, each with a ✕ to take it off — reached only text boxes and the one-tap pill groups. A team, a position, an age group, a severity or any on/off switch produced no chip at all, so on most screens the bar still could not tell you why you were seeing the rows you were seeing.  Every filter type now chips, and each ✕ removes just that one filter and leaves the rest of the list as it was. =
+
+= 4.115.3 — The ⋯ menu sits at the far right of the filter bar again (#3319) On a wide screen the archive menu had drifted into the middle of the bar, with the active-filter chips and Clear sitting to its right. It now ends the bar, where a utility control belongs: filters first, then what you have applied, then the pills and the ⋯ hard against the right edge.  The order no longer depends on how a screen happens to declare its filters either — the ⋯ is last on every list that has one. =
+
+= 4.115.3 — The alerts inbox says which filters are actually on (#3320) The inbox showed a "State: Open" chip the moment you opened it, even though Open is simply the state the list starts in and nothing was filtered — and its ✕ led back to the state you were already on. Meanwhile the Area and Severity you had actually picked showed no chip at all, and the little number on the Filters button counted something different again.  The chips now name exactly the filters you set, the number on the button is the number of chips, and an inbox you have not filtered says so. =
 
 = 4.115.2 — Applying a date or text filter on a phone now works (#3288) On a phone, a date range or free-text filter set inside the **Filters** sheet was thrown away. You picked From and To, tapped **Apply**, the sheet closed and the list was exactly as before — with nothing to say the filter had not been applied.  **Apply** now applies. The button was closing the sheet and nothing else.  Dropdowns and toggles were never affected, which is what made this hard to spot: set a team as well as a date range and the page reloads, so the dates look like they worked too.  This affected the grids and reports that carry a From/To or a search box — attendance and minutes grids, the attendance and minutes reports, standard reports, the audit log, comparison and the message log. =
 
