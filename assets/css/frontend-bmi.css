@@ -59,9 +59,11 @@
     color: var(--tt-muted);
 }
 
+/* #3278 removed .tt-bmi-delta and .tt-bmi-meta: the change-since and
+   provenance lines they styled were the explaining text stripped from the
+   Measurements tab, and nothing emits either class any more. The roster
+   report's own provenance sits in a table cell, not in these paragraphs. */
 .tt-bmi-percentile,
-.tt-bmi-delta,
-.tt-bmi-meta,
 .tt-bmi-uncovered {
     margin: 0;
     font-size: 0.875rem;
