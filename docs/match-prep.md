@@ -207,13 +207,24 @@ The **Export as PDF (A4)** button in the toolbar takes a picture of the
 match-prep grid exactly as it appears on screen — both formation
 pitches, the **Selection · minutes** table (per-half minutes + totals),
 the **Wedstrijddoelen**, **Doen per speler**, and the **Roles & set
-pieces** — and lays it out on **portrait A4**, scaled to the page width.
-The slot numbers, player names, the `!` icon (red) and the camera icon
-(green) all keep their on-screen colours. If the content is taller than
-one page it spreads across multiple pages automatically. The PDF
-downloads straight to your device. Because it captures the page as an
-image, the result is pixel-faithful to what you see — the trade-off is
-that the text in the PDF is not selectable.
+pieces** — and lays it out on **landscape A4**. The slot numbers, player
+names, the `!` icon (red) and the camera icon (green) all keep their
+on-screen colours. The PDF downloads straight to your device. Because it
+captures the page as an image, the result is pixel-faithful to what you
+see — the trade-off is that the text in the PDF is not selectable.
+
+The sheet **names the match**. A header band across the top carries the
+fixture, the date, the kick-off time, home or away and the venue, plus
+the formation, the half length and how many of the squad are available.
+Whatever your academy has recorded appears; what it hasn't is left out
+rather than printed empty. None of this is on screen — it is above the
+grid there already — so you only see it on the exported sheet.
+
+The export no longer depends on the device you trigger it from. It is
+composed at the page's own width, so the same match exported from a
+phone and from a desktop produces the same document. The sheet is fitted
+to the page and centred; where it is taller than one page it is printed
+at full size across two rather than shrunk to something you can't read.
 
 Two things are deliberately left off the paper. **Empty fields print
 blank**: a goal line or a player note you haven't filled in comes out as

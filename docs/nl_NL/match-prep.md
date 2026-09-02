@@ -221,14 +221,27 @@ De knop **Exporteren als PDF (A4)** in de werkbalk maakt een afbeelding
 van het wedstrijdvoorbereidingsraster precies zoals het op het scherm
 staat — beide opstellingsvelden, de tabel **Selectie · minuten** (minuten
 per helft + totalen), de **Wedstrijddoelen**, **Doen per speler** en
-**Rollen & standaardsituaties** — en plaatst die op **A4 staand**,
-geschaald op paginabreedte. De positie-nummers, spelernamen, het
-`!`-icoon (rood) en het camera-icoon (groen) behouden hun schermkleuren.
-Past de inhoud niet op één pagina, dan wordt hij automatisch over
-meerdere pagina's verdeeld. De PDF wordt direct naar je apparaat
+**Rollen & standaardsituaties** — en plaatst die op **A4 liggend**. De
+positie-nummers, spelernamen, het `!`-icoon (rood) en het camera-icoon
+(groen) behouden hun schermkleuren. De PDF wordt direct naar je apparaat
 gedownload. Omdat de pagina als afbeelding wordt vastgelegd is het
 resultaat pixelgetrouw aan wat je ziet — het nadeel is dat de tekst in
 de PDF niet selecteerbaar is.
+
+Het blad **benoemt de wedstrijd**. Een kopbalk bovenaan draagt de
+affiche, de datum, het aanvangstijdstip, thuis of uit en de locatie, plus
+de opstelling, de speelhelftduur en hoeveel van de selectie beschikbaar
+is. Wat jullie academie heeft vastgelegd verschijnt; wat niet is
+vastgelegd blijft weg in plaats van leeg op papier te komen. Op het
+scherm zie je dit niet — daar staat het al boven het raster — alleen op
+het geëxporteerde blad.
+
+De export hangt niet meer af van het apparaat waarop je hem start. Hij
+wordt opgemaakt op de paginabreedte zelf, dus dezelfde wedstrijd levert
+vanaf een telefoon en vanaf een desktop hetzelfde document op. Het blad
+wordt op de pagina gepast en gecentreerd; is het hoger dan één pagina,
+dan wordt het op ware grootte over twee pagina's afgedrukt in plaats van
+weggekrompen tot iets onleesbaars.
 
 Twee dingen blijven er bewust af. **Lege velden komen leeg op papier**:
 een doelstelling of spelersnotitie die je niet hebt ingevuld wordt een
