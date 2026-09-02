@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T18:01:01+00:00\n"
+"POT-Creation-Date: 2026-09-02T18:20:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1784,7 +1784,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:162
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:522
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1552
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1567
 #: src/Modules/People/Admin/PeoplePage.php:165
 #: src/Modules/People/Admin/PeoplePage.php:245
 #: src/Modules/People/Admin/PeoplePage.php:365
@@ -1995,7 +1995,7 @@ msgstr "Autre"
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
 #: src/Modules/Goals/Admin/GoalsPage.php:104
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:523
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1872
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1887
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
 #: src/Modules/People/Admin/PeoplePage.php:213
@@ -2392,8 +2392,8 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:332
 #: src/Modules/Knowledge/Frontend/LearningReports.php:365
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:499
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1553
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1871
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1568
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1886
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
@@ -2693,13 +2693,28 @@ msgstr ""
 msgid "Player attribute"
 msgstr ""
 
+#. translators: %s = player name
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php:63
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:150
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:160
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:769
+msgid "PDP file"
+msgstr ""
+
 #. translators: %d is a record id used as a fallback identity in the recycle bin.
 #. translators: %d is a record id.
-#: src/Infrastructure/RecycleBin/RecycleBinEntities.php:101
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php:115
 #: src/Infrastructure/REST/RecycleBinRestController.php:160
 #: src/Shared/Frontend/FrontendRecycleBinView.php:143
 #, php-format
 msgid "Record #%d"
+msgstr ""
+
+#. translators: 1: player name, 2: season name. Identifies a PDP file in the recycle bin.
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php:154
+#, php-format
+msgctxt "PDP file identity"
+msgid "%1$s · %2$s"
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:365
@@ -3739,9 +3754,9 @@ msgstr ""
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:628
 #: src/Modules/License/Frontend/FrontendPlanView.php:201
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:864
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:916
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:838
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:879
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:931
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:196
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:299
 #: src/Modules/People/Admin/PeoplePage.php:188
@@ -4549,8 +4564,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:616
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:862
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:911
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:877
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:926
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:175
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:69
@@ -4736,7 +4751,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:354
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:360
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1468
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1483
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:95
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:145
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:252
@@ -5069,7 +5084,7 @@ msgstr "— Tous —"
 #: src/Modules/Methodology/VocabularyCatalog.php:113
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:229
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:730
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:850
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:865
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
@@ -5548,8 +5563,8 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:223
 #: src/Modules/Authorization/Admin/RolesPage.php:254
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:147
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:890
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:931
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:905
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:946
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:635
 #: src/Shared/Frontend/Components/FrontendListTable.php:183
@@ -6763,7 +6778,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/License/Admin/AccountPage.php:566
 #: src/Modules/License/FeatureMap.php:377
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1439
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1454
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:94
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:146
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:250
@@ -7102,7 +7117,7 @@ msgid "Trial decisions"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:196
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1382
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1397
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:101
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:154
@@ -7651,7 +7666,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1554
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1569
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
 #: src/Shared/Frontend/Components/FrontendListTable.php:412
@@ -7845,15 +7860,8 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:149
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:312
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1363
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1378
 msgid "Verdict"
-msgstr ""
-
-#. translators: %s = player name
-#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:150
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:160
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:769
-msgid "PDP file"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:172
@@ -8709,6 +8717,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:449
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:126
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:520
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:814
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:581
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:184
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:202
@@ -13832,7 +13841,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:140
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:308
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:141
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1783
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1798
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:244
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
 #: src/Modules/Wizards/Goal/LinkStep.php:73
@@ -14147,7 +14156,7 @@ msgstr ""
 #: src/Modules/Development/IdeaStatus.php:102
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:841
 #: src/Modules/Onboarding/OnboardingState.php:70
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:925
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:940
 msgid "Done"
 msgstr "Terminé"
 
@@ -16606,7 +16615,7 @@ msgid "Open goals"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:27
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1781
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1796
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:123
 #: src/Modules/Wizards/Goal/LinkStep.php:71
@@ -16631,7 +16640,7 @@ msgid "Conversations done"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:25
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:836
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:851
 msgid "Cycle size"
 msgstr ""
 
@@ -16965,7 +16974,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:428
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:494
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1784
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1799
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
 #: src/Shared/Admin/OptionSetEditor.php:47
@@ -22133,7 +22142,7 @@ msgid "Show full history"
 msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:178
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1550
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1565
 msgid "Show:"
 msgstr ""
 
@@ -22857,7 +22866,7 @@ msgid "Course"
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:94
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1662
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1677
 #: src/Shared/Frontend/Components/GoalDetailFields.php:38
 #: src/Shared/Frontend/Components/GoalDetailFields.php:52
 #: src/Shared/Frontend/PlayerDashboardView.php:50
@@ -31285,7 +31294,7 @@ msgstr ""
 
 #. translators: %1$d sequence, %2$s template
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:200
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1041
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1056
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr ""
@@ -31303,7 +31312,7 @@ msgid "Conducted %s"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1216
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1231
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr ""
@@ -31402,13 +31411,13 @@ msgid "No reflection saved yet."
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:455
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1010
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1025
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:456
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1012
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1027
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 msgid "Decision:"
 msgstr ""
@@ -31416,7 +31425,7 @@ msgstr ""
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:464
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1022
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1037
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
@@ -31427,27 +31436,27 @@ msgid "Later"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:515
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1879
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1894
 msgid "Start of season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:516
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1880
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1895
 msgid "Mid season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:517
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1881
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1896
 msgid "Mid-season A"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:518
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1882
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1897
 msgid "Mid-season B"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:519
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1883
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1898
 msgid "End of season"
 msgstr ""
 
@@ -31487,7 +31496,6 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:93
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:253
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:387
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:799
 msgid "Permanently delete PDP"
 msgstr ""
 
@@ -31499,8 +31507,8 @@ msgstr ""
 
 # #0028 — Conversational goals (thread primitive + goal adapter)
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:114
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1086
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1713
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1101
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1728
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:242
 #: src/Shared/Frontend/FrontendGoalsManageView.php:662
@@ -31735,331 +31743,331 @@ msgid "PDP file — %s"
 msgstr ""
 
 #. translators: 1: signed-off count, 2: cycle size
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:842
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:857
 #, php-format
 msgid "(%1$d of %2$d signed off)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:858
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:873
 msgid "Conversations"
 msgstr "Conversations"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:863
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:886
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:914
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:878
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:901
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:929
 msgid "Scheduled"
 msgstr "Programmé"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:867
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:933
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:882
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:948
 msgid "Self-review"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:868
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:941
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:883
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:956
 msgid "Acks"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:885
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:900
 msgid "To be planned"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:887
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:902
 msgid "Held"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:888
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1256
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:903
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1271
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:268
 msgid "Signed off"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:928
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:943
 msgid "Not yet"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:959
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:974
 msgid "Parent has acknowledged"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:960
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:975
 msgid "Parent acknowledgement pending"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:967
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:982
 msgid "Player has acknowledged"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:968
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:983
 msgid "Player acknowledgement pending"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:989
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1004
 msgid "Record verdict"
 msgstr ""
 
 #. translators: 1: signed-off conversation count, 2: cycle size
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:994
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1009
 #, php-format
 msgid "Record verdict (%1$d/%2$d conversations closed)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:999
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1014
 msgid "The verdict opens once every conversation in the cycle is signed off."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1034
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1049
 msgid "Conversation not found"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1035
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1050
 msgid "That conversation no longer exists."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1082
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1097
 msgid "Conversation sections"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1090
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1422
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1671
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1105
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1437
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1686
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:251
 msgid "Evidence"
 msgstr ""
 
 #. translators: %s = sign-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1129
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1144
 #, php-format
 msgid "coach signed off on %s"
 msgstr ""
 
 #. translators: %s = ack timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1136
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1151
 #, php-format
 msgid "parent acknowledged on %s"
 msgstr ""
 
 #. translators: %s = ack timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1143
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1158
 #, php-format
 msgid "player acknowledged on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1148
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1163
 msgid "Read only."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1149
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1164
 msgid "This conversation is locked because it carries a signature — "
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1153
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1168
 msgid "Open a new conversation if a follow-up edit is needed."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1161
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1176
 msgid "Planned date only."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1162
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1177
 msgid ""
 "Until the previous conversation is signed off, only the planned date can be "
 "changed here."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1197
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1212
 msgid "Scheduled at"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1202
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1217
 msgid "Conducted at"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1205
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1220
 msgid "Fill in once the conversation has happened."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1208
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1223
 msgid "Agenda (pre-meeting)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1212
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1227
 msgid "Notes (post-meeting)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1229
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1244
 msgid "Goals discussed in this talk"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1250
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1265
 msgid "Player self-reflection"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1286
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1301
 msgid ""
 "Sign off this conversation? It becomes read-only for everyone — open a new "
 "conversation if a follow-up edit is needed."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1289
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1304
 msgid "Sign off"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1290
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1305
 msgid ""
 "Everything above is already saved. Signing off closes the conversation for "
 "editing."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1306
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1321
 msgid "Acknowledgements"
 msgstr ""
 
 #. translators: %s = acknowledgement timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1311
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1326
 #, php-format
 msgid "Player acknowledged on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1316
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1331
 msgid "Record player acknowledgement"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1317
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1332
 msgid ""
 "Confirm only if the player acknowledged this conversation with you in "
 "person. This records it on their behalf."
 msgstr ""
 
 #. translators: %s = acknowledgement timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1324
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1339
 #, php-format
 msgid "Parent acknowledged on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1329
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1344
 msgid "Record parent acknowledgement"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1330
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1345
 msgid ""
 "Confirm only if the parent acknowledged this conversation with you in "
 "person. This records it on their behalf."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1364
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1379
 msgid "Only head of academy or head coach roles can record a verdict."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1368
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1383
 msgid "Edit end-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1368
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1383
 msgid "Record end-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1374
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1389
 msgid "Promote to next age group"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1375
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1390
 msgid "Retain in current group"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1376
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1391
 msgid "Release from academy"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1377
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1392
 msgid "Transfer to another team / club"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1384
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1399
 msgid "— Select decision —"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1391
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1406
 msgid "Summary / rationale"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1397
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1412
 msgid "Sign off this verdict now"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1401
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1416
 msgid "Save verdict"
 msgstr ""
 
 #. translators: %s = date
 #. translators: %s: localized date the recap window starts at
 #. translators: %s is a date.
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1427
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1442
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:61
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2424
 #, php-format
 msgid "Since %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1447
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1462
 msgid "No evaluations in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1478
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1493
 msgid "No activities in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1489
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1504
 msgid "Goal changes"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1498
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1513
 msgid "No goal changes in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1538
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1553
 msgid "Linked goals"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1559
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1574
 msgid "No goals match this filter."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1641
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1656
 msgid "Messages in this goal’s conversation"
 msgstr ""
 
 #. translators: 1: date, 2: score
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1678
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1693
 #, php-format
 msgid "Assessment %1$s · %2$s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1687
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1702
 msgid "Linked to"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1700
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1715
 #, php-format
 msgid "Last mentioned in conversation on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1708
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1723
 msgid "Open goal"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1714
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1729
 msgid "player & coach"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1782
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1797
 #: src/Modules/Wizards/Goal/LinkStep.php:72
 #: src/Modules/Wizards/Goal/LinkStep.php:107
 msgid "Football action"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1870
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1885
 msgctxt "PDP file status"
 msgid "Open"
 msgstr ""
