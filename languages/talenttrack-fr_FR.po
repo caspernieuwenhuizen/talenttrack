@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T16:48:24+00:00\n"
+"POT-Creation-Date: 2026-09-02T17:14:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5729,7 +5729,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
-#: src/Shared/Frontend/Components/FilterBar.php:554
+#: src/Shared/Frontend/Components/FilterBar.php:568
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:208
 #: src/Shared/Frontend/FrontendAuditLogView.php:508
@@ -5759,7 +5759,7 @@ msgstr "De"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:527
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
-#: src/Shared/Frontend/Components/FilterBar.php:555
+#: src/Shared/Frontend/Components/FilterBar.php:569
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:509
 #: src/Shared/Frontend/FrontendConfigurationView.php:2834
@@ -8182,8 +8182,8 @@ msgstr "— Aucun —"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:176
 #: src/Shared/Frontend/Components/FilterBar.php:276
-#: src/Shared/Frontend/Components/FilterBar.php:374
-#: src/Shared/Frontend/Components/FilterBar.php:576
+#: src/Shared/Frontend/Components/FilterBar.php:388
+#: src/Shared/Frontend/Components/FilterBar.php:590
 #: src/Shared/Frontend/FrontendInstallProfileView.php:122
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1638
 msgid "Apply"
@@ -45748,12 +45748,12 @@ msgstr ""
 msgid "Open filters"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FilterBar.php:647
+#: src/Shared/Frontend/Components/FilterBar.php:661
 msgid "More filters"
 msgstr ""
 
 #. translators: %s: the filter's name, e.g. "Archive".
-#: src/Shared/Frontend/Components/FilterBar.php:677
+#: src/Shared/Frontend/Components/FilterBar.php:691
 #, php-format
 msgid "Clear the %s filter"
 msgstr ""
