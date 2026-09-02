@@ -195,6 +195,112 @@ final class FilterBar {
 	 * The capability is NOT taken from the caller — it is resolved from the
 	 * registry, so this gate and the REST gate cannot drift.
 	 *
+	 * #3292 — the active filters, each with the URL that removes just it.
+	 *
+	 * Derived from the groups the bar was given, which already carry every
+	 * option and its active state — the same source `paramNames()` reads. A
+	 * caller-supplied `chips` list is bare labels and cannot be made
+	 * removable; this can.
+	 *
+	 * `date_range` is deliberately NOT derived. Every report seeds a default
+	 * From/To, so "has a value" does not mean "the reader filtered": a
+	 * derived chip would be permanent and unremovable-in-effect. Whether a
+	 * window is the default is knowledge the caller has, and
+	 * `ReportFilters::customRangeChip()` (#3293) is where it lives.
+	 *
+	 * @param array<int,array<string,mixed>> $groups
+	 * @return list<array{label:string, clear_url:string}>
+	 */
+	private static function activeChips( array $groups ): array {
+		$chips = [];
+
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) ) continue;
+
+			$type  = (string) ( $group['type'] ?? '' );
+			$glabel = trim( (string) ( $group['label'] ?? '' ) );
+
+			switch ( $type ) {
+				case 'select':
+					$value = (string) ( $group['value'] ?? '' );
+					if ( $value === '' ) break; // the placeholder is "no filter"
+					$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
+					$olabel  = (string) ( $options[ $value ] ?? $value );
+					$chips[] = [
+						'label'     => self::chipLabel( $glabel, $olabel ),
+						'clear_url' => remove_query_arg( (string) ( $group['name'] ?? '' ) ),
+					];
+					break;
+
+				case 'text':
+					$value = trim( (string) ( $group['value'] ?? '' ) );
+					if ( $value === '' ) break;
+					$chips[] = [
+						'label'     => self::chipLabel( $glabel, $value ),
+						'clear_url' => remove_query_arg( (string) ( $group['name'] ?? '' ) ),
+					];
+					break;
+
+				case 'toggle':
+					if ( empty( $group['checked'] ) ) break;
+					$chips[] = [
+						// A toggle's label already reads as a statement
+						// ("Show cancelled"), so it needs no "Label: value".
+						'label'     => $glabel !== '' ? $glabel : (string) ( $group['name'] ?? '' ),
+						'clear_url' => remove_query_arg( (string) ( $group['name'] ?? '' ) ),
+					];
+					break;
+
+				case 'period':
+				case 'status':
+				case 'menu':
+					// Link-based: the active option is marked, and the option
+					// that means "no filter" carries the URL back to it. That
+					// matters — several of these groups have no param-free
+					// URL of their own to fall back on.
+					$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
+					$default = (string) ( $group['default_value'] ?? '' );
+
+					$active = null;
+					foreach ( $options as $opt ) {
+						if ( is_array( $opt ) && ! empty( $opt['active'] ) ) { $active = $opt; break; }
+					}
+					if ( $active === null ) break;
+					if ( (string) ( $active['value'] ?? '' ) === $default ) break; // already the default
+
+					$clear = '';
+					foreach ( $options as $opt ) {
+						if ( is_array( $opt ) && (string) ( $opt['value'] ?? '' ) === $default ) {
+							$clear = (string) ( $opt['url'] ?? '' );
+							break;
+						}
+					}
+					$chips[] = [
+						'label'     => self::chipLabel( $glabel, (string) ( $active['label'] ?? '' ) ),
+						'clear_url' => $clear,
+					];
+					break;
+			}
+		}
+
+		return $chips;
+	}
+
+	/** "Team: Ajax U17", or just the value when the group carries no label. */
+	private static function chipLabel( string $group_label, string $value ): string {
+		$value = trim( $value );
+		if ( $group_label === '' ) return $value;
+		if ( $value === '' ) return $group_label;
+
+		return sprintf(
+			/* translators: 1: filter name, e.g. "Team". 2: its value, e.g. "Ajax U17". */
+			_x( '%1$s: %2$s', 'active filter chip', 'talenttrack' ),
+			$group_label,
+			$value
+		);
+	}
+
+	/**
 	 * @param array<string,mixed>            $args
 	 * @param array<int,array<string,mixed>> $groups
 	 * @param array<string,string>           $hidden
@@ -259,6 +365,27 @@ final class FilterBar {
 		$action   = (string) ( $args['form_action'] ?? '' );
 		$active   = (int) ( $args['active_count'] ?? 0 );
 		$chips    = isset( $args['chips'] ) && is_array( $args['chips'] ) ? $args['chips'] : [];
+
+		// #3292 — chips the component derives itself, each carrying the URL
+		// that removes just that filter.
+		//
+		// A caller-supplied `chips` is a flat list of pre-rendered labels: no
+		// param name, no value, no way back. So the component could not make
+		// them removable without a shape change, and they were marked
+		// `aria-hidden` — which left the only readback of WHICH filters are
+		// applied unavailable to assistive tech in any form. A screen reader
+		// heard "Filters, 3" and could not learn what the three were.
+		//
+		// The bar already holds every group's options and active state, so it
+		// can answer both questions. Callers that still pass `chips` keep
+		// today's rendering (minus the `aria-hidden`, which was wrong
+		// regardless); callers that pass none — the alerts inbox and the
+		// comparison view — gain removable chips for free.
+		$derived_chips = $chips === [] ? self::activeChips( $groups ) : [];
+		if ( $derived_chips !== [] && ! isset( $args['active_count'] ) ) {
+			// One source of truth: the badge cannot disagree with the chips.
+			$active = count( $derived_chips );
+		}
 		$title    = (string) ( $args['title'] ?? __( 'Filters', 'talenttrack' ) );
 		$ftrigger = (string) ( $args['filters_label'] ?? __( 'Filters', 'talenttrack' ) );
 		$reset    = (string) ( $args['reset_url'] ?? '' );
@@ -362,12 +489,40 @@ final class FilterBar {
 		// #3291 fixed, so it reads as chrome rather than as one more filter.
 		if ( $chips !== [] || $reset !== '' ) {
 			$out .= '<div class="tt-filterbar__utils">';
-			if ( $chips !== [] ) {
-				$out .= '<div class="tt-chips" aria-hidden="true">';
-				foreach ( $chips as $chip ) {
-					$out .= '<span class="tt-chip">' . esc_html( (string) $chip ) . '</span>';
+			// #3292 — a real list, and NOT aria-hidden. The chips are the only
+			// place the bar says which filters are applied; hiding them from
+			// assistive tech left "Filters, 3" as the whole announcement.
+			if ( $derived_chips !== [] ) {
+				$out .= '<ul class="tt-chips">';
+				foreach ( $derived_chips as $chip ) {
+					$label = (string) ( $chip['label'] ?? '' );
+					if ( $label === '' ) continue;
+					$out .= '<li class="tt-chip"><span class="tt-chip__label">' . esc_html( $label ) . '</span>';
+					$clear = (string) ( $chip['clear_url'] ?? '' );
+					if ( $clear !== '' ) {
+						// A link, not a button: no JS dependency, consistent
+						// with every other link-based group in this bar, and
+						// the ⋯ menu's own chip already ships this pattern.
+						$out .= '<a class="tt-chip__clear" href="' . esc_url( $clear ) . '"'
+							. ' aria-label="' . esc_attr( sprintf(
+								/* translators: %s: the active filter, e.g. "Team: Ajax U17". */
+								__( 'Remove filter %s', 'talenttrack' ),
+								$label
+							) ) . '">&#10005;</a>';
+					}
+					$out .= '</li>';
 				}
-				$out .= '</div>';
+				$out .= '</ul>';
+			} elseif ( $chips !== [] ) {
+				// Caller-supplied labels. Not removable — they arrive as bare
+				// strings with no param to drop — but no longer hidden from
+				// assistive tech.
+				$out .= '<ul class="tt-chips">';
+				foreach ( $chips as $chip ) {
+					$out .= '<li class="tt-chip"><span class="tt-chip__label">'
+						. esc_html( (string) $chip ) . '</span></li>';
+				}
+				$out .= '</ul>';
 			}
 			if ( $reset !== '' ) {
 				$out .= '<a class="tt-btn tt-btn-secondary tt-filterbar__clear" href="' . esc_url( $reset ) . '">'
