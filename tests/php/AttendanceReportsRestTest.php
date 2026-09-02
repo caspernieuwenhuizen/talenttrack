@@ -85,4 +85,40 @@ final class AttendanceReportsRestTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'threshold', $payload, 'envelope carries the at-risk threshold' );
         $this->assertIsArray( $payload['players'] );
     }
+
+    /**
+     * #3279 — the rows are nested under `data`, and nothing about that is
+     * optional.
+     *
+     * The assertion above reads `$data['data'] ?? $data`, which is true of
+     * either shape. That tolerance is why the drill-down accordion could read
+     * `data.players` for two releases, get `undefined` on every response, and
+     * print "no player attendance" over a squad that was there — with this
+     * suite green throughout.
+     *
+     * So this states the half the client depends on: `players` is one level
+     * down, and is NOT at the top level. A future flattening of the envelope
+     * has to break a test rather than a screen.
+     */
+    public function test_players_are_nested_under_data_not_at_the_top_level(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/attendance' );
+        $req->set_param( 'from', '2020-01-01' );
+        $req->set_param( 'to', '2020-12-31' );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 200, $res->get_status() );
+
+        $data = $res->get_data();
+        $this->assertIsArray( $data );
+        $this->assertArrayHasKey( 'data', $data, 'the response is the standard envelope' );
+        $this->assertArrayNotHasKey(
+            'players',
+            $data,
+            'players must NOT sit at the top level — the accordion reads data.players'
+        );
+        $this->assertIsArray( $data['data'] );
+        $this->assertArrayHasKey( 'players', $data['data'] );
+    }
 }
