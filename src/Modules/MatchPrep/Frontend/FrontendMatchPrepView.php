@@ -460,20 +460,27 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 // forms digitally could only hide the referee sheet by also
                 // losing the sheet the coach takes to the touchline.
                 if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) :
-                // #2102 — Export captures the live on-screen match-prep grid
-                // (.tt-mp-grid) with html2canvas and lays it on a portrait-A4
-                // PDF via tt-image-pdf.js, so the export is a pixel-faithful
-                // image of exactly what the coach sees — not a separately
-                // styled print document. The browser print dialog (Ctrl/Cmd+P)
-                // and the standalone print route (?tt_match_prep_print=1) stay
-                // reachable as fallbacks.
+                // #2102 — Export captures the match-prep sheet with
+                // html2canvas and lays it on an A4 page via tt-image-pdf.js,
+                // so the export is a pixel-faithful image of what the coach
+                // sees rather than a separately styled print document. The
+                // browser print dialog (Ctrl/Cmd+P) and the standalone print
+                // route (?tt_match_prep_print=1) stay reachable as fallbacks.
+                //
+                // #3272 — landscape, and `.tt-mp-sheet` rather than
+                // `.tt-mp-grid`. The grid is a landscape-shaped three-column
+                // spreadsheet that was being squeezed into portrait width at
+                // a 0.56 scale, which is what put body text at about 5pt; and
+                // capturing the grid alone left the fixture, the date and the
+                // venue off the sheet entirely, because all three live above
+                // it. The wrapper carries the paper header band with them.
                 $export_filename = 'match-prep-' . $activity_id . '.pdf';
                 ?>
                 <button type="button"
                         class="tt-btn tt-btn-secondary"
                         data-tt-image-pdf
-                        data-target=".tt-mp-grid"
-                        data-orientation="portrait"
+                        data-target=".tt-mp-sheet"
+                        data-orientation="landscape"
                         data-filename="<?php echo esc_attr( $export_filename ); ?>">
                     <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
                 </button>
@@ -510,6 +517,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 \TT\Shared\Frontend\Components\SaveState::render( 'tt-mp-save-state' );
                 ?>
             </div>
+
+            <!-- ===== PAPER SHEET (captured for the PDF) ===== -->
+            <div class="tt-mp-sheet">
+            <?php self::renderPaperHead( $activity, $formation_shape, $half_length, $summary ); ?>
 
             <!-- ===== 3-COLUMN GRID ===== -->
             <div class="tt-mp-grid">
@@ -811,6 +822,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     </div>
                 </section>
             </div>
+            </div><!-- /.tt-mp-sheet -->
 
             <!-- Picker (slot + role) -->
             <div class="tt-mp-picker-backdrop" data-tt-mp-picker-backdrop hidden></div>
@@ -964,10 +976,114 @@ class FrontendMatchPrepView extends FrontendViewBase {
         }
     }
 
+    /**
+     * The header band that names the match on the exported sheet.
+     *
+     * #3272 — the PDF captured `.tt-mp-grid` alone, and the title, the KPI
+     * strip and the formation all live outside it. So the sheet a coach
+     * carried to the touchline never said who was playing whom, or when. It
+     * is rendered inside the captured wrapper and shown only in the capture
+     * (`.tt-image-pdf-capture`), because on screen that information is
+     * already above the grid and repeating it would be noise.
+     *
+     * Everything here is best-effort: an activity with no opponent, kick-off
+     * or venue recorded simply carries fewer facts, and each line is dropped
+     * rather than printed empty. The one thing always present is the team's
+     * own identity, which is what makes two sheets on a table tellable apart.
+     *
+     * @param array<string,int> $summary from summaryCounts()
+     */
+    private static function renderPaperHead(
+        object $activity,
+        string $formation_shape,
+        int $half_length,
+        array $summary
+    ): void {
+        $team     = QueryHelpers::get_team( (int) ( $activity->team_id ?? 0 ) );
+        $our_name = (string) ( $team->name ?? '' );
+        $opponent = trim( (string) ( $activity->opponent ?? '' ) );
+        $home     = strtolower( (string) ( $activity->home_away ?? '' ) ) === 'home';
+
+        // Home team on the left, as a fixture is always written.
+        if ( $opponent !== '' && $our_name !== '' ) {
+            $left  = $home ? $our_name : $opponent;
+            $right = $home ? $opponent : $our_name;
+        } else {
+            $left  = $our_name !== '' ? $our_name : (string) ( $activity->title ?? '' );
+            $right = $opponent;
+        }
+
+        $date    = (string) ( $activity->session_date ?? '' );
+        $kickoff = trim( (string) ( $activity->kickoff_time ?? $activity->start_time ?? '' ) );
+        $venue   = trim( (string) ( $activity->location ?? '' ) );
+
+        $when = [];
+        if ( $date !== '' ) {
+            $when[] = \TT\Shared\Dates\TTDate::date( $date );
+        }
+        if ( $kickoff !== '' ) {
+            $when[] = substr( $kickoff, 0, 5 );
+        }
+        if ( $our_name !== '' && $opponent !== '' ) {
+            $when[] = $home ? __( 'Home', 'talenttrack' ) : __( 'Away', 'talenttrack' );
+        }
+        if ( $venue !== '' ) {
+            $when[] = $venue;
+        }
+
+        $stats = [
+            [ __( 'Formation', 'talenttrack' ), $formation_shape !== '' ? $formation_shape : '—' ],
+            [
+                __( 'Half', 'talenttrack' ),
+                sprintf(
+                    /* translators: %d: length of one half, in minutes. */
+                    __( '%d min', 'talenttrack' ),
+                    $half_length
+                ),
+            ],
+            [
+                __( 'Available', 'talenttrack' ),
+                sprintf( '%d/%d', (int) ( $summary['available'] ?? 0 ), (int) ( $summary['roster'] ?? 0 ) ),
+            ],
+        ];
+        ?>
+        <header class="tt-mp-paperhead" aria-hidden="true">
+            <div class="tt-mp-paperhead__id">
+                <p class="tt-mp-paperhead__fixture">
+                    <?php echo esc_html( $left ); ?>
+                    <?php if ( $right !== '' ) : ?>
+                        <span class="tt-mp-paperhead__vs">—</span><?php echo esc_html( $right ); ?>
+                    <?php endif; ?>
+                </p>
+                <?php if ( ! empty( $when ) ) : ?>
+                    <p class="tt-mp-paperhead__when"><?php echo esc_html( implode( ' · ', $when ) ); ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="tt-mp-paperhead__stats">
+                <?php foreach ( $stats as [ $k, $v ] ) : ?>
+                    <div class="tt-mp-paperstat">
+                        <span class="tt-mp-paperstat__k"><?php echo esc_html( $k ); ?></span>
+                        <span class="tt-mp-paperstat__v"><?php echo esc_html( (string) $v ); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </header>
+        <?php
+    }
+
+    /**
+     * #3272 — the fixture columns come along now.
+     *
+     * The exported sheet has to say who is playing whom, when and where. All
+     * four live on the activity and none of them were selected, which is why
+     * the PDF could be printed, carried to a touchline and not identify its
+     * own match.
+     */
     private static function loadActivity( int $activity_id ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, team_id, title, session_date, activity_type_key
+            "SELECT id, team_id, title, session_date, activity_type_key,
+                    opponent, home_away, kickoff_time, start_time, location
                FROM {$wpdb->prefix}tt_activities
               WHERE id = %d AND club_id = %d",
             $activity_id, CurrentClub::id()

@@ -100,12 +100,26 @@
 
     // ---- A4 multi-page assembly -----------------------------------------
 
-    // A4 in mm; the capture is scaled to page width and sliced vertically
-    // across as many pages as the content height needs. Orientation is
-    // 'landscape' (default) or 'portrait' — callers pass it via the
-    // trigger's data-orientation so a surface can pick the page shape that
-    // fits the captured node (e.g. the tall match-prep grid on portrait).
-    function buildPdf(jsPDF, canvas, orientation) {
+    // A4 in mm. The capture is fitted to the page in BOTH dimensions and
+    // centred; it is only sliced across pages when fitting it whole would
+    // take the type below the readability floor.
+    //
+    // #3272 — this used to fit to page WIDTH alone. A wide, short capture —
+    // which is what a landscape-shaped sheet is — printed as a band across
+    // the top with the rest of the paper blank, and could never scale up to
+    // claim the space it was given. Fitting to width also meant a capture
+    // wider than the page shrank without limit: the match-prep grid at
+    // ~1320px on portrait A4 came out at a 0.56 scale, which puts body text
+    // at about 5pt. Both symptoms, one cause.
+    var MAX_UPSCALE = 1.25;   // a sparse sheet must not become poster type
+    var MIN_LEGIBLE = 0.62;   // below this, paginate rather than shrink on
+    var PX_PER_MM   = 96 / 25.4; // CSS pixels per mm at 96dpi
+
+    // `cssWidth` is the captured node's width in CSS pixels. It is passed in
+    // rather than read off the canvas because html2canvas renders at a
+    // device-pixel `scale`, so `canvas.width` is that many times larger and
+    // says nothing about the size the sheet was laid out at.
+    function buildPdf(jsPDF, canvas, orientation, cssWidth) {
         var portrait = orientation === 'portrait';
         var pageW = portrait ? 210 : 297; // A4 width (mm)
         var pageH = portrait ? 297 : 210; // A4 height (mm)
@@ -116,21 +130,36 @@
         var ori = portrait ? 'portrait' : 'landscape';
         var pdf = new jsPDF({ orientation: ori, unit: 'mm', format: 'a4' });
 
-        // Pixels-per-mm at the captured resolution.
-        var pxPerMm = canvas.width / usableW;
-        // Height (px) of one printed page worth of content.
-        var sliceHpx = Math.floor(usableH * pxPerMm);
-        if (sliceHpx <= 0) sliceHpx = canvas.height;
+        // The capture's natural size on paper: the CSS pixels it was laid
+        // out at, read as millimetres at 96dpi. Height follows from the
+        // canvas's own aspect ratio, so a device-pixel scale cancels out.
+        var cssW = cssWidth || (canvas.width / (window.devicePixelRatio || 1));
+        var natW = cssW / PX_PER_MM;
+        var natH = natW * (canvas.height / canvas.width);
+        if (!isFinite(natW) || !isFinite(natH) || natW <= 0 || natH <= 0) return pdf;
 
-        var renderedH = canvas.height / pxPerMm; // total content height in mm
-        if (renderedH <= usableH) {
-            // Single page — fits within one A4 sheet.
-            var imgData = canvas.toDataURL('image/jpeg', 0.92);
-            pdf.addImage(imgData, 'JPEG', margin, margin, usableW, renderedH);
+        var fit = Math.min(usableW / natW, usableH / natH);
+
+        if (fit >= MIN_LEGIBLE) {
+            // One page. Cap the upscale so a half-empty sheet is not blown
+            // up into something that reads like signage, and centre what is
+            // left over rather than pinning it to the top-left corner.
+            var scale = Math.min(fit, MAX_UPSCALE);
+            var drawW = natW * scale;
+            var drawH = natH * scale;
+            var x = margin + (usableW - drawW) / 2;
+            var y = margin + (usableH - drawH) / 2;
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, y, drawW, drawH);
             return pdf;
         }
 
-        // Multi-page: slice the source canvas into page-height strips.
+        // Too tall to fit legibly: fall back to fitting the WIDTH and
+        // slicing vertically, which is the old behaviour and the right one
+        // once a single page is off the table.
+        var pxPerMm = canvas.width / usableW;
+        var sliceHpx = Math.floor(usableH * pxPerMm);
+        if (sliceHpx <= 0) sliceHpx = canvas.height;
+
         var offsetPx = 0;
         var first = true;
         while (offsetPx < canvas.height) {
@@ -170,6 +199,45 @@
         });
     }
 
+    // ---- fixed-width staging -------------------------------------------
+
+    // A4 at 96dpi, less the 8mm margins buildPdf() reserves: the width the
+    // sheet is composed at, whatever the coach's window happens to be.
+    var PAGE_CSS_W = { landscape: 1062, portrait: 733 };
+
+    // #3272 — capture a copy of the node laid out at a fixed page width
+    // instead of the live one.
+    //
+    // The live node inherits the viewport: from a phone the match-prep grid
+    // is a one-column stack, from a desktop a three-column spreadsheet. Same
+    // button, same match, two different documents — and neither was composed
+    // for paper. Staging a clone at the page's own width makes the output a
+    // property of the sheet rather than of the window that asked for it.
+    //
+    // The stage is on-screen but off-canvas (not `display:none`), because
+    // html2canvas measures what it is given: a hidden subtree has no layout
+    // and paints as an empty box.
+    function stage(target, cssWidth) {
+        var host = document.createElement('div');
+        host.className = 'tt-image-pdf-stage';
+        host.style.cssText =
+            'position:fixed;left:-10000px;top:0;z-index:-1;' +
+            'width:' + cssWidth + 'px;background:#fff;pointer-events:none;';
+
+        var clone = target.cloneNode(true);
+        clone.style.width = cssWidth + 'px';
+        clone.style.maxWidth = 'none';
+        clone.style.margin = '0';
+        // html2canvas clones the document again before painting, so `onclone`
+        // has to find THIS node inside that second copy. Searching by the
+        // caller's selector would match the live node — it comes first in the
+        // document — and dress the wrong one. A unique marker is unambiguous.
+        clone.setAttribute('data-tt-pdf-stage', '1');
+        host.appendChild(clone);
+        document.body.appendChild(host);
+        return { host: host, node: clone };
+    }
+
     function capture(trigger) {
         var sel = trigger.getAttribute('data-target');
         var target = sel ? document.querySelector(sel) : null;
@@ -179,12 +247,27 @@
         }
         var filename = trigger.getAttribute('data-filename') || 'tt-export.pdf';
         var orientation = trigger.getAttribute('data-orientation') === 'portrait' ? 'portrait' : 'landscape';
+        var cssWidth = PAGE_CSS_W[orientation];
 
         trigger.disabled = true;
         notice(document.body, i18n('working', 'Preparing PDF…'), false);
 
+        var staged = stage(target, cssWidth);
+
+        function cleanUp() {
+            if (staged && staged.host && staged.host.parentNode) {
+                staged.host.parentNode.removeChild(staged.host);
+            }
+        }
+
         ensureLibs().then(function (libs) {
-            return libs.html2canvas(target, {
+            return libs.html2canvas(staged.node, {
+                // The stage is what gets measured, so html2canvas is told the
+                // window is that wide too — otherwise media queries in the
+                // clone resolve against the coach's real viewport and undo
+                // the point of staging.
+                windowWidth: cssWidth,
+                width: cssWidth,
                 backgroundColor: '#ffffff',
                 scale: Math.min(2, window.devicePixelRatio || 1),
                 useCORS: true,
@@ -205,13 +288,13 @@
                 // placeholder hints that CSS alone can't suppress. Applied to
                 // the clone only, so the on-screen page never changes.
                 onclone: function (clonedDoc) {
-                    var c = sel ? clonedDoc.querySelector(sel) : null;
+                    var c = clonedDoc.querySelector('[data-tt-pdf-stage]');
                     if (!c) return;
                     c.classList.add('tt-image-pdf-capture');
                     stripPlaceholders(c);
                 }
             }).then(function (canvas) {
-                var pdf = buildPdf(libs.jsPDF, canvas, orientation);
+                var pdf = buildPdf(libs.jsPDF, canvas, orientation, cssWidth);
                 pdf.save(filename);
                 clearNotice();
             });
@@ -221,6 +304,7 @@
             // documented fallback path (see docs/match-prep.md).
             notice(document.body, i18n('failed', 'Could not generate the PDF. Try the print dialog instead.'), true);
         }).then(function () {
+            cleanUp();
             trigger.disabled = false;
         });
     }

@@ -328,21 +328,31 @@
 
 /* -------------------------------------------------------------------
  * PDF capture mode (#2112) — tt-image-pdf.js adds .tt-image-pdf-capture
- * to the cloned grid during html2canvas. html2canvas can't resolve the
+ * to the cloned node during html2canvas.
+ *
+ * #3272 moved the captured node from `.tt-mp-grid` up to the `.tt-mp-sheet`
+ * wrapper, so these rules are scoped by ANCESTOR rather than by the grid
+ * carrying the class itself. Written as `.tt-mp-grid.tt-image-pdf-capture`
+ * they matched nothing after that change, and every fix below — opaque
+ * fills, the clipped pitch shadow, the "— Pick player —" leak, the
+ * interactive controls — would have come back at once, silently, in the
+ * PDF only.
+ *
+ * html2canvas can't resolve the
  * nested `--tt-mp-paper` custom property, so panel fills drop out (grey)
  * and shadows render as halos; the translucent slot pills also blend
  * with the blue/orange pitch. Force literal opaque white + no shadow so
  * the export matches the screen. On-screen rendering is untouched (this
  * only applies in the html2canvas clone). Pitch colours are left alone.
  * ------------------------------------------------------------------- */
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-panel,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-goals,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox {
+.tt-image-pdf-capture .tt-mp-panel,
+.tt-image-pdf-capture .tt-mp-goals,
+.tt-image-pdf-capture .tt-mp-gbox {
     background: #ffffff !important;
     box-shadow: none !important;
 }
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-name,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-num {
+.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-name,
+.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-num {
     background: #ffffff !important;
     box-shadow: none !important;
 }
@@ -353,7 +363,7 @@
    block over half the line-up. tt-image-pdf.js now passes the real scroll
    offsets, which is what misplaced it; this keeps the pitch immune to the
    whole class. The on-screen shadow is untouched. */
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-pitch {
+.tt-image-pdf-capture .tt-mp-pitch {
     box-shadow: none !important;
 }
 
@@ -369,7 +379,7 @@
    text whenever the value is empty. #2755 strips the attribute from the
    clone in tt-image-pdf.js instead; don't reintroduce ::placeholder rules
    here, they have no effect on this path. */
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-sp-pick:not(.tt-mp-filled) .tt-mp-sp-name {
+.tt-image-pdf-capture .tt-mp-sp-pick:not(.tt-mp-filled) .tt-mp-sp-name {
     visibility: hidden !important;
 }
 
@@ -378,8 +388,8 @@
    they need saying again in the capture scope. The set-piece clear button
    prints as a dark filled circle next to a player's name, and the
    copy-1st-half-to-2nd-half arrow prints as a button nobody can press. */
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-sp-clear,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-copy-col {
+.tt-image-pdf-capture .tt-mp-sp-clear,
+.tt-image-pdf-capture .tt-mp-copy-col {
     display: none !important;
 }
 
@@ -1085,4 +1095,121 @@
     button {
         display: none !important;
     }
+}
+
+/* -------------------------------------------------------------------
+ * The paper sheet (#3272)
+ *
+ * `.tt-mp-sheet` wraps the header band and the grid, and it is what the
+ * PDF export captures. On screen it is a plain pass-through: the grid
+ * already sits inside a page that has its own title and KPI strip, so the
+ * wrapper must add nothing there.
+ *
+ * Everything below therefore lives in the capture scope, which
+ * tt-image-pdf.js puts on the cloned node. html2canvas ignores
+ * `@media print` entirely, so a `@page`-style rule would do nothing here —
+ * the capture class is the only hook that works on this path.
+ * ------------------------------------------------------------------- */
+
+/* A plain block, deliberately — NOT `display: contents`.
+   `.tt-match-prep` is a normal block container, so an ordinary wrapper
+   changes nothing on screen; `contents` would also have been
+   layout-neutral, but it gives the element no box at all, and
+   html2canvas sizes its canvas from the box of the node it is handed.
+   The staged clone would have measured zero and the PDF come out
+   blank. */
+.tt-mp-sheet {
+    display: block;
+}
+
+/* The header band exists only on paper. On screen the same facts are in
+   the page title and the KPI strip directly above, and printing them
+   twice on one surface is noise. */
+.tt-mp-paperhead {
+    display: none;
+}
+
+.tt-image-pdf-capture.tt-mp-sheet {
+    background: #fff;
+}
+
+/* The stage hands the clone a fixed page width, so the grid resolves to
+   its three-column shape whatever viewport the coach exported from. The
+   ≥1100px media query cannot be relied on for that — html2canvas is told
+   the window is the page width, but stating the columns here means the
+   sheet does not depend on that being honoured. */
+.tt-image-pdf-capture .tt-mp-grid {
+    grid-template-columns: 14rem minmax(0, 1fr) 22rem;
+    gap: 0.625rem;
+}
+
+.tt-image-pdf-capture .tt-mp-paperhead {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0 0 0.5rem;
+    margin: 0 0 0.75rem;
+    border-bottom: 2px solid var(--tt-mp-accent, #0b3d2e);
+}
+
+.tt-mp-paperhead__id {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.tt-mp-paperhead__fixture {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+.tt-mp-paperhead__vs {
+    color: var(--tt-mp-muted, #5b6e75);
+    font-weight: 600;
+    margin: 0 0.35em;
+}
+
+.tt-mp-paperhead__when {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: var(--tt-mp-muted, #5b6e75);
+}
+
+.tt-mp-paperhead__stats {
+    display: flex;
+    gap: 0.375rem;
+    flex: none;
+}
+
+.tt-mp-paperstat {
+    border: 1px solid var(--tt-mp-line, #c8ccd0);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    min-width: 5rem;
+    text-align: center;
+}
+
+.tt-mp-paperstat__k {
+    display: block;
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-mp-muted, #5b6e75);
+}
+
+.tt-mp-paperstat__v {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+/* Interactive chrome that has no meaning on paper. The @media print block
+   above already hides these, and html2canvas does not read it. */
+.tt-image-pdf-capture .tt-mp-kpis,
+.tt-image-pdf-capture .tt-mp-toolbar,
+.tt-image-pdf-capture .tt-mp-save-state {
+    display: none !important;
 }
