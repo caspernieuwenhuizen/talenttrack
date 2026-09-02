@@ -29,12 +29,17 @@ final class FilterGroupTypeModifierTest extends WP_UnitTestCase {
             'method' => 'get',
             'groups' => [
                 [
-                    'type'    => 'select',
-                    'key'     => 'team',
-                    'name'    => 'team_id',
-                    'label'   => 'Team',
-                    'value'   => '',
-                    'options' => [ [ 'value' => '', 'label' => 'All' ] ],
+                    'type'  => 'select',
+                    'key'   => 'team',
+                    'name'  => 'team_id',
+                    'label' => 'Team',
+                    'value' => '',
+                    // A select's options are a value => label MAP. The
+                    // status and menu groups below take lists of arrays,
+                    // which is the trap: passing a select the list shape
+                    // renders `Array` into every option and raises a PHP
+                    // warning that CI counts as a failure.
+                    'options' => [ '' => 'All', '2' => 'Ajax U17' ],
                 ],
                 [
                     'type'    => 'status',
