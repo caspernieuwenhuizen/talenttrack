@@ -215,6 +215,22 @@ class ProfileMeasurementSync {
      * and a generated placeholder list is exactly the thing level 8 refuses.
      */
     public function latestHeightCm( int $player_id, int $club_id ): ?float {
+        $reading = $this->latestHeightReading( $player_id, $club_id );
+        return $reading === null ? null : $reading['value'];
+    }
+
+    /**
+     * The same reading, with the date it was taken.
+     *
+     * #3280 — the player profile's Identity card shows the figure *and* when
+     * it was measured, because "132 cm" alone tells a coach nothing about
+     * whether it is from this season. The sync only ever wanted the number,
+     * so it takes `['value']` and the card takes both; one query, one
+     * vocabulary, one conversion, rather than a second copy in a view.
+     *
+     * @return array{value: float, date: string}|null
+     */
+    public function latestHeightReading( int $player_id, int $club_id ): ?array {
         $names = BmiSeriesBuilder::HEIGHT_NAMES;
 
         global $wpdb;
@@ -226,7 +242,7 @@ class ProfileMeasurementSync {
         // assumed. A definition with no resolvable dimension falls back to the
         // stored number, which is what it has always meant on that install.
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT r.value_numeric,
+            "SELECT r.value_numeric, r.recorded_date,
                     d.unit, d.dimension, d.entry_unit_id, d.numeric_format, d.value_type
                FROM {$p}tt_measurement_results r
                JOIN {$p}tt_measurement_definitions d ON d.id = r.definition_id
@@ -251,7 +267,10 @@ class ProfileMeasurementSync {
 
         $base = (float) $row->value_numeric;
 
-        return UnitContext::forDefinition( $row )->toSymbol( $base, 'cm' ) ?? $base;
+        return [
+            'value' => UnitContext::forDefinition( $row )->toSymbol( $base, 'cm' ) ?? $base,
+            'date'  => (string) ( $row->recorded_date ?? '' ),
+        ];
     }
 
     /**
@@ -263,13 +282,23 @@ class ProfileMeasurementSync {
      * `test_the_weight_vocabulary_still_has_three_entries` is its tripwire.
      */
     public function latestWeightKg( int $player_id, int $club_id ): ?float {
+        $reading = $this->latestWeightReading( $player_id, $club_id );
+        return $reading === null ? null : $reading['value'];
+    }
+
+    /**
+     * The weight reading with its date — `latestHeightReading()`'s twin.
+     *
+     * @return array{value: float, date: string}|null
+     */
+    public function latestWeightReading( int $player_id, int $club_id ): ?array {
         $names = BmiSeriesBuilder::WEIGHT_NAMES;
 
         global $wpdb;
         $p = $wpdb->prefix;
 
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT r.value_numeric,
+            "SELECT r.value_numeric, r.recorded_date,
                     d.unit, d.dimension, d.entry_unit_id, d.numeric_format, d.value_type
                FROM {$p}tt_measurement_results r
                JOIN {$p}tt_measurement_definitions d ON d.id = r.definition_id
@@ -293,7 +322,10 @@ class ProfileMeasurementSync {
 
         $base = (float) $row->value_numeric;
 
-        return UnitContext::forDefinition( $row )->toSymbol( $base, 'kg' ) ?? $base;
+        return [
+            'value' => UnitContext::forDefinition( $row )->toSymbol( $base, 'kg' ) ?? $base,
+            'date'  => (string) ( $row->recorded_date ?? '' ),
+        ];
     }
 
     /**

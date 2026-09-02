@@ -217,6 +217,12 @@ Voortaan volgt het profiel de metingen. Zodra een nieuwe lengte- of
 gewichtsmeting de meest recente van de speler is, toont het profiel dat
 getal.
 
+Beide staan op de kaart **Identiteit** van het tabblad Profiel van een
+speler, met de datum waarop ze zijn gemeten erbij — "172 cm · gemeten 18
+aug". Een getal dat iemand op het spelersformulier heeft ingevuld in
+plaats van gemeten, staat er zonder datum, want die is er niet. Bij een
+speler zonder allebei staat er helemaal geen regel.
+
 Een paar dingen om te weten:
 
 - **De test moet herkend worden.** Voor lengte: noem hem `Lengte`,
