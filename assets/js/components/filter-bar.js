@@ -4,7 +4,10 @@
  * navigates via a real link or auto-submitting form field, so the bar
  * works with JS off. This script adds:
  *
- *   - the mobile bottom sheet (open/close, scrim, Escape, focus trap-lite)
+ *   - the mobile bottom sheet: a real <dialog> opened with showModal(), so
+ *     the focus trap, Escape, ::backdrop and inertness are the platform's
+ *     (#3294). This script only opens it, closes it on backdrop click, and
+ *     locks page scroll while it is up.
  *   - the inline period pill-dropdown popover (open/close, outside-click)
  *   - auto-submit on [data-tt-filter-submit] controls (selects, toggle)
  *   - reflecting the toggle checkbox state onto the visual switch
@@ -75,57 +78,82 @@
 
 	function initBar( bar ) {
 		var sheet = bar.querySelector( '[data-tt-filter-sheet]' );
-		var scrim = bar.querySelector( '[data-tt-filter-scrim]' );
 		var openBtn = bar.querySelector( '[data-tt-filter-open]' );
 
-		// ---- Bottom sheet ----
+		// ---- Bottom sheet (#3294 — a real <dialog>) ----
+		//
+		// showModal() supplies the focus trap, top-layer stacking, ::backdrop,
+		// Escape-to-close and inertness of the page behind. That is why there
+		// is no scrim element, no document-level Escape listener and no
+		// `hidden` toggling here any more: all four were hand-rolled around a
+		// <div role="dialog"> that enforced none of them, and Tab walked out
+		// of the sheet into a list the user could not see.
+		//
+		// The one thing showModal() does not do is stop the page behind from
+		// scrolling — a touch starting on the backdrop still scrolls the
+		// document — so that stays explicit below.
 		function openSheet() {
 			if ( ! sheet ) {
 				return;
 			}
-			sheet.hidden = false;
-			if ( scrim ) {
-				scrim.hidden = false;
+			if ( typeof sheet.showModal === 'function' ) {
+				sheet.showModal();
+			} else {
+				// No <dialog> support: fall back to showing it in flow. The
+				// filters remain usable; the modality does not exist, which
+				// is what every browser had before this change anyway.
+				sheet.setAttribute( 'open', '' );
 			}
-			// next frame so the transition runs from the hidden state
+			document.documentElement.classList.add( 'tt-sheet-lock' );
+			// Next frame so the slide-up transition runs from the closed state.
 			window.requestAnimationFrame( function () {
 				bar.classList.add( 'is-sheet-open' );
 			} );
 			if ( openBtn ) {
 				openBtn.setAttribute( 'aria-expanded', 'true' );
 			}
-			var first = sheet.querySelector(
-				'button, [href], select, input, [tabindex]:not([tabindex="-1"])'
-			);
-			if ( first ) {
-				first.focus();
-			}
 		}
 
 		function closeSheet() {
 			bar.classList.remove( 'is-sheet-open' );
+			document.documentElement.classList.remove( 'tt-sheet-lock' );
+			if ( sheet ) {
+				if ( typeof sheet.close === 'function' ) {
+					sheet.close();
+				} else {
+					sheet.removeAttribute( 'open' );
+				}
+			}
 			if ( openBtn ) {
 				openBtn.setAttribute( 'aria-expanded', 'false' );
-				openBtn.focus();
 			}
-			// hide after the transition so it can't be tabbed into
-			window.setTimeout( function () {
-				if ( ! bar.classList.contains( 'is-sheet-open' ) ) {
-					if ( sheet ) {
-						sheet.hidden = true;
-					}
-					if ( scrim ) {
-						scrim.hidden = true;
-					}
-				}
-			}, 220 );
 		}
 
 		if ( openBtn ) {
 			openBtn.addEventListener( 'click', openSheet );
 		}
-		if ( scrim ) {
-			scrim.addEventListener( 'click', closeSheet );
+		if ( sheet ) {
+			// Escape and the backdrop's own dismissal both fire `close`, so
+			// this is the single place the bar's state is put back — however
+			// the dialog was dismissed. `close` also fires on our own
+			// close(), which is harmless: the class removal is idempotent.
+			sheet.addEventListener( 'close', function () {
+				bar.classList.remove( 'is-sheet-open' );
+				document.documentElement.classList.remove( 'tt-sheet-lock' );
+				if ( openBtn ) {
+					openBtn.setAttribute( 'aria-expanded', 'false' );
+					openBtn.focus();
+				}
+			} );
+			// A click on the backdrop lands on the dialog element itself,
+			// never on its contents — the contents are children of the inner
+			// boxes. That is the standard way to get click-outside-to-close
+			// out of <dialog>, and it replaces the scrim's click handler.
+			sheet.addEventListener( 'click', function ( e ) {
+				if ( e.target === sheet ) {
+					closeSheet();
+				}
+			} );
 		}
 		Array.prototype.forEach.call(
 			bar.querySelectorAll( '[data-tt-filter-close]' ),
@@ -212,11 +240,9 @@
 			}
 		);
 
-		// ---- Escape closes the sheet (document-level, once per bar) ----
-		document.addEventListener( 'keydown', function ( e ) {
-			if ( e.key === 'Escape' && bar.classList.contains( 'is-sheet-open' ) ) {
-				closeSheet();
-			}
-		} );
+		// #3294 — the document-level Escape listener that used to live here
+		// is gone. <dialog> handles Escape itself and fires `close`, which
+		// the handler above already answers. Keeping this would have meant
+		// one listener per bar on the document, racing the native one.
 	}
 } )();

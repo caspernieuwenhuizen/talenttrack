@@ -348,9 +348,28 @@ final class FilterBar {
 		$out .= '</div>'; // .tt-filterbar__mobile
 
 		// ---- Bottom sheet (holds the same groups, sheet variant) ----
-		$out .= '<div class="tt-filter-sheet-scrim" data-tt-filter-scrim hidden></div>';
-		$out .= '<div class="tt-filter-sheet" role="dialog" aria-modal="true"'
-			. ' aria-label="' . esc_attr( $title ) . '" data-tt-filter-sheet hidden>';
+		//
+		// #3294 — a real <dialog>, opened with showModal().
+		//
+		// It was a <div role="dialog" aria-modal="true">, which asserts modality
+		// without implementing any of it: Tab walked straight out into the page
+		// behind the scrim, a screen reader could traverse into content the
+		// sheet was covering, and the body scrolled under it. The docblock
+		// claimed a "focus trap-lite"; there was no trap of any kind.
+		//
+		// showModal() supplies natively the four things that were missing —
+		// the focus trap, top-layer stacking, ::backdrop, and inertness of
+		// everything behind — which is why the scrim element, its click
+		// handler and the document-level Escape listener are gone from
+		// filter-bar.js rather than reimplemented here. It also matches
+		// ttConfirm and the saved-views manage dialog, which have both used
+		// <dialog> since they were written.
+		//
+		// The dialog stays INSIDE the bar's form: showModal() moves it to the
+		// top layer for rendering, not in the DOM, so its Apply button keeps
+		// its form owner and #3288 keeps working.
+		$out .= '<dialog class="tt-filter-sheet"'
+			. ' aria-label="' . esc_attr( $title ) . '" data-tt-filter-sheet>';
 		$out .= '<div class="tt-filter-sheet__grip" aria-hidden="true"></div>';
 		$out .= '<div class="tt-filter-sheet__head">';
 		$out .= '<h3 class="tt-filter-sheet__title">' . esc_html( $title ) . '</h3>';
@@ -373,7 +392,7 @@ final class FilterBar {
 		$out .= '<button type="button" class="tt-btn tt-btn-primary tt-filter-sheet__apply"'
 			. ' data-tt-filter-close>' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
 		$out .= '</div>'; // .tt-filter-sheet__foot
-		$out .= '</div>'; // .tt-filter-sheet
+		$out .= '</dialog>'; // .tt-filter-sheet
 
 		// noscript fallback — a real submit button for JS-off browsers.
 		$out .= '<noscript><button type="submit" class="tt-btn tt-btn-secondary">'
