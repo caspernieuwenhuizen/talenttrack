@@ -206,29 +206,39 @@ tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
 keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
 hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.
 
-### Lengte werkt ook het spelersprofiel bij
+### Lengte en gewicht werken ook het spelersprofiel bij
 
-Op het spelersprofiel staat een lengte, en dat was tot nu toe het getal
-dat iemand invulde toen de speler werd aangemaakt. Bij een groeiende
-13-jarige klopt dat binnen een paar maanden niet meer, en nergens op het
-scherm was te zien dat het verouderd was.
+Op het spelersprofiel staan een lengte en een gewicht, en dat waren tot
+nu toe de getallen die iemand invulde toen de speler werd aangemaakt. Bij
+een groeiende 13-jarige kloppen die binnen een paar maanden niet meer, en
+nergens op het scherm was te zien dat ze verouderd waren.
 
-Voortaan volgt het profiel de metingen. Zodra een nieuwe lengtemeting de
-meest recente van de speler is, toont het profiel dat getal.
+Voortaan volgt het profiel de metingen. Zodra een nieuwe lengte- of
+gewichtsmeting de meest recente van de speler is, toont het profiel dat
+getal.
 
 Een paar dingen om te weten:
 
-- **De test moet herkend worden als lengte.** Noem hem `Lengte`,
-  `Height`, `Length` of `Stature` — een academie bepaalt zelf hoe tests
-  heten, dus dit gaat op naam en niet op een vaste test.
+- **De test moet herkend worden.** Voor lengte: noem hem `Lengte`,
+  `Height`, `Length` of `Stature`; voor gewicht: `Gewicht`, `Weight` of
+  `Mass`. Een academie bepaalt zelf hoe tests heten, dus dit gaat op naam
+  en niet op een vaste test. Hoofdletters en spaties maken niets uit —
+  maar een naam met extra woorden erin, zoals `Lengte (cm)`, wordt niet
+  herkend.
+- **De twee staan los van elkaar.** Een gewichtsmeting kijkt alleen het
+  gewicht opnieuw na en zegt niets over welke lengte de meest recente is.
 - **De meest recente meting wint, niet de laatst ingevoerde.** Corrigeer
   je een meting van afgelopen januari, dan blijft het profiel op de
   nieuwere staan. Verplaats je een oude meting naar voren zodat die de
   meest recente wordt, dan volgt het profiel mee.
-- **De laatste lengte verwijderen maakt het profiel niet leeg.** Het
+- **De laatste meting verwijderen maakt het profiel niet leeg.** Het
   getal dat er staat kan van vóór jullie testsessies komen, en een oud
   getal is bruikbaarder dan geen getal.
-- **Je kunt de lengte nog steeds op het spelersformulier aanpassen.** Voor
+- **Een duidelijk verkeerd ingetikte meting wordt niet overgenomen.** Een
+  lengte moet tussen 50 en 250 cm liggen en een gewicht tussen 10 en 200
+  kg om op een profiel terecht te komen. De meting zelf blijft staan zoals
+  je hem invoerde.
+- **Je kunt beide nog steeds op het spelersformulier aanpassen.** Voor
   een academie die geen testsessies draait is dat precies goed — maar
   zodra er een meting is, neemt die het over.
 

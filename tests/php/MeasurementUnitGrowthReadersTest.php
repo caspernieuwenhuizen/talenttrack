@@ -5,13 +5,13 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
-use TT\Modules\Measurements\Services\ProfileHeightSync;
+use TT\Modules\Measurements\Services\ProfileMeasurementSync;
 use TT\Modules\Measurements\Units\UnitRegistry;
 
 /**
  * #3273 — the growth readers convert instead of assuming.
  *
- * `BmiSeriesBuilder` divided by 100 and `ProfileHeightSync` wrote whatever
+ * `BmiSeriesBuilder` divided by 100 and `ProfileMeasurementSync` wrote whatever
  * number it found straight into `tt_players.height_cm`, both having found the
  * test by name and then assumed centimetres. `m` was always a selectable unit,
  * so an academy recording height in metres got `height_cm = 1.82` and a BMI two
@@ -101,8 +101,8 @@ final class MeasurementUnitGrowthReadersTest extends WP_UnitTestCase {
         $id_cm = $this->record( $player_cm, $in_cm, '2026-03-01', 1.82 );
         $id_m  = $this->record( $player_m,  $in_m,  '2026-03-01', 1.82 );
 
-        ( new ProfileHeightSync() )->onResultSaved( $id_cm, $player_cm );
-        ( new ProfileHeightSync() )->onResultSaved( $id_m,  $player_m );
+        ( new ProfileMeasurementSync() )->onResultSaved( $id_cm, $player_cm );
+        ( new ProfileMeasurementSync() )->onResultSaved( $id_m,  $player_m );
 
         $this->assertEqualsWithDelta( 182.0, $this->profileHeight( $player_cm ), 0.5 );
         $this->assertEqualsWithDelta( 182.0, $this->profileHeight( $player_m ), 0.5 );
@@ -158,7 +158,7 @@ final class MeasurementUnitGrowthReadersTest extends WP_UnitTestCase {
         $player = $this->player( 'Legacy' );
         $id     = $this->record( $player, $legacy_def, '2026-03-01', 178.0 );
 
-        ( new ProfileHeightSync() )->onResultSaved( $id, $player );
+        ( new ProfileMeasurementSync() )->onResultSaved( $id, $player );
 
         $this->assertEqualsWithDelta( 178.0, $this->profileHeight( $player ), 0.5 );
     }
