@@ -31,12 +31,15 @@ final class FilterSheetIsADialogTest extends WP_UnitTestCase {
             'reset_url' => '/?reset=1',
             'groups'    => [
                 [
-                    'type'    => 'select',
-                    'key'     => 'team',
-                    'name'    => 'team_id',
-                    'label'   => 'Team',
-                    'value'   => '',
-                    'options' => [ [ 'value' => '', 'label' => 'All' ] ],
+                    'type'  => 'select',
+                    'key'   => 'team',
+                    'name'  => 'team_id',
+                    'label' => 'Team',
+                    'value' => '',
+                    // value => label map, not a list of arrays — the list
+                    // shape renders `Array` per option and raises a warning
+                    // CI counts as a failure.
+                    'options' => [ '' => 'All', '2' => 'Ajax U17' ],
                 ],
             ],
         ] );
