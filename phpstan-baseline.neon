@@ -15959,12 +15959,12 @@ parameters:
 
 		-
 			message: "#^Constant TT_PLUGIN_URL not found\\.$#"
-			count: 2
+			count: 1
 			path: src/Shared/Frontend/Components/SavedViews.php
 
 		-
 			message: "#^Constant TT_VERSION not found\\.$#"
-			count: 2
+			count: 1
 			path: src/Shared/Frontend/Components/SavedViews.php
 
 		-

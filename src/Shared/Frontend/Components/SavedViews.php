@@ -110,10 +110,17 @@ final class SavedViews {
             . ' data-view-key="' . esc_attr( $view_key ) . '"'
             . ' data-keys="' . esc_attr( self::keysAttr( $param_names ) ) . '">';
 
-        $out .= self::chipsHtml( $views, $base_url, $base_params, $active );
+        // Decoded once, here, and handed to both renderers as plain arrays.
+        // The chips and the dropdown each need a name, an id, the default
+        // flag and an apply URL; reading them off the row twice meant
+        // decoding the same JSON twice and touching the same untyped
+        // properties in two places.
+        $prepared = self::prepare( $views, $base_url, $base_params, $active );
+
+        $out .= self::chipsHtml( $prepared );
 
         if ( $show_icon ) {
-            $out .= self::dropdownHtml( $views, $base_url, $base_params, $active, $view_key, count( $views ) );
+            $out .= self::dropdownHtml( $prepared, $active, $view_key, count( $prepared ) );
         }
 
         $out .= '</div>';
@@ -121,35 +128,56 @@ final class SavedViews {
     }
 
     /**
-     * The view chips. Every view is rendered; CSS caps how many are visible.
+     * Flatten the repository rows into what the two renderers need.
+     *
+     * This is the ONE place a saved-view row's properties are read. The rows
+     * come back untyped from `$wpdb`, so every extra `$view->name` is another
+     * unchecked property access; decoding and normalising once keeps that to
+     * a single spot and stops the two renderers drifting on what an apply URL
+     * is.
      *
      * @param array<int,object>    $views
      * @param array<string,string> $base_params
+     * @return list<array{id:int, name:string, is_default:bool, is_active:bool, apply:string}>
      */
-    private static function chipsHtml( array $views, string $base_url, array $base_params, int $active_id ): string {
+    private static function prepare( array $views, string $base_url, array $base_params, int $active_id ): array {
+        $out = [];
+        foreach ( $views as $view ) {
+            $filters = json_decode( (string) ( $view->filters_json ?? '' ), true );
+            $filters = is_array( $filters ) ? $filters : [];
+            $id      = (int) $view->id;
+
+            $out[] = [
+                'id'         => $id,
+                'name'       => (string) $view->name,
+                'is_default' => ! empty( $view->is_default ),
+                'is_active'  => $id === $active_id,
+                'apply'      => add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * The view chips. Every view is rendered; CSS caps how many are visible.
+     *
+     * @param list<array{id:int, name:string, is_default:bool, is_active:bool, apply:string}> $views
+     */
+    private static function chipsHtml( array $views ): string {
         if ( $views === [] ) return '';
 
         $out = '<ul class="tt-viewchips">';
         foreach ( $views as $view ) {
-            $filters = json_decode( (string) ( $view->filters_json ?? '' ), true );
-            $filters = is_array( $filters ) ? $filters : [];
-            $apply   = add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url );
-            $name    = (string) $view->name;
-            $id      = (int) $view->id;
-
-            $is_default = ! empty( $view->is_default );
-            $is_active  = $id === $active_id;
-
             // `tt-saved-views__item` is kept as the JS hook: saved-views.js
             // reads the name and default flag off `closest()` of this class.
             $out .= '<li class="tt-viewchip tt-saved-views__item'
-                . ( $is_active ? ' is-active' : '' ) . '"'
-                . ' data-tt-view-id="' . $id . '"'
-                . ' data-tt-view-name="' . esc_attr( $name ) . '"'
-                . ' data-tt-view-default="' . ( $is_default ? '1' : '0' ) . '">';
-            $out .= '<a class="tt-viewchip__apply" href="' . esc_url( $apply ) . '"'
-                . ( $is_active ? ' aria-current="true"' : '' ) . '>';
-            if ( $is_default ) {
+                . ( $view['is_active'] ? ' is-active' : '' ) . '"'
+                . ' data-tt-view-id="' . $view['id'] . '"'
+                . ' data-tt-view-name="' . esc_attr( $view['name'] ) . '"'
+                . ' data-tt-view-default="' . ( $view['is_default'] ? '1' : '0' ) . '">';
+            $out .= '<a class="tt-viewchip__apply" href="' . esc_url( $view['apply'] ) . '"'
+                . ( $view['is_active'] ? ' aria-current="true"' : '' ) . '>';
+            if ( $view['is_default'] ) {
                 // #2450 — a marker, not colour alone: the default is applied
                 // automatically, so the reader has to be able to see which
                 // view they are looking at.
@@ -157,7 +185,7 @@ final class SavedViews {
                 $out .= '<span class="tt-screen-reader-text">'
                     . esc_html__( 'Default view:', 'talenttrack' ) . ' </span>';
             }
-            $out .= esc_html( $name ) . '</a>';
+            $out .= esc_html( $view['name'] ) . '</a>';
             $out .= '</li>';
         }
         $out .= '</ul>';
@@ -174,13 +202,10 @@ final class SavedViews {
      * `tt-perdrop` pattern the `⋯` menu already uses, so it stays
      * keyboard-operable and the apply links work with JS off.
      *
-     * @param array<int,object>    $views
-     * @param array<string,string> $base_params
+     * @param list<array{id:int, name:string, is_default:bool, is_active:bool, apply:string}> $views
      */
     private static function dropdownHtml(
         array $views,
-        string $base_url,
-        array $base_params,
         int $active_id,
         string $view_key,
         int $total
@@ -230,18 +255,15 @@ final class SavedViews {
             $out .= '<p class="tt-savedviews__heading">'
                 . esc_html_x( 'Your views', 'saved views menu section', 'talenttrack' ) . '</p>';
             foreach ( $views as $view ) {
-                $filters = json_decode( (string) ( $view->filters_json ?? '' ), true );
-                $filters = is_array( $filters ) ? $filters : [];
-                $apply   = add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url );
-                $is_on   = (int) $view->id === $active_id;
+                $is_on = $view['is_active'];
 
                 $out .= '<a class="tt-perdrop__opt' . ( $is_on ? ' tt-perdrop__opt--on' : '' ) . '"'
-                    . ' role="menuitem" href="' . esc_url( $apply ) . '"'
+                    . ' role="menuitem" href="' . esc_url( $view['apply'] ) . '"'
                     . ( $is_on ? ' aria-current="true"' : '' ) . '>'
-                    . ( ! empty( $view->is_default )
+                    . ( $view['is_default']
                         ? '<span aria-hidden="true">&#9733;</span> '
                         : '' )
-                    . esc_html( (string) $view->name ) . '</a>';
+                    . esc_html( $view['name'] ) . '</a>';
             }
         }
 
@@ -303,7 +325,7 @@ final class SavedViews {
     private static function currentFilters( array $param_names ): array {
         $out = [];
         foreach ( $param_names as $name ) {
-            $name = is_string( $name ) ? trim( $name ) : '';
+            $name = trim( (string) $name );
             if ( $name === '' ) continue;
             if ( $name === \TT\Infrastructure\Filters\SavedViewsDefaults::OFF_PARAM ) continue;
             if ( ! isset( $_GET[ $name ] ) ) continue; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -370,13 +392,8 @@ final class SavedViews {
     }
 
     /** @param array<int,string> $param_names */
-    private static function keysAttr( array $param_names ): string {
-        $clean = [];
-        foreach ( $param_names as $name ) {
-            $name = is_string( $name ) ? trim( $name ) : '';
-            if ( $name !== '' ) $clean[] = $name;
-        }
-        return implode( ',', array_unique( $clean ) );
+    public static function keysAttr( array $param_names ): string {
+        return implode( ',', array_map( 'strval', $param_names ) );
     }
 
     /**
