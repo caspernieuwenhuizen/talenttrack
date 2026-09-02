@@ -591,6 +591,13 @@
 	gap: var(--tt-sp-2, 8px);
 	flex: 1 1 auto;
 	min-width: 0;
+	/* #3296 — wraps only when it has to. With saved views in here the
+	   cluster carries filter chips, Clear, view chips and the bookmark; at
+	   360-470px that does not fit on one line, and without this the filter
+	   chips get crushed to a clipped stub against Clear. Desktop has the
+	   room and stays on one line. */
+	flex-wrap: wrap;
+	row-gap: var(--tt-sp-2, 8px);
 }
 .tt-dashboard .tt-filterbar__clear {
 	flex: 0 0 auto;
@@ -891,4 +898,248 @@ html.tt-sheet-lock body {
 	.tt-dashboard dialog.tt-filter-sheet[open] {
 		transform: translateY(0);
 	}
+}
+
+/* =============================================================
+   SAVED VIEWS (#3296) — inside the utility cluster, not above the bar.
+
+   The separate `tt-saved-views` band is gone, and `frontend-saved-views.css`
+   with it: the chips, the bookmark trigger and its dropdown belong to the
+   bar now, so they are styled beside the cluster they sit in. The runtime
+   `<dialog>` rules that sheet also carried moved here too — `saved-views.js`
+   builds that markup on any page carrying the script, and this stylesheet is
+   the one the bar always enqueues.
+   ============================================================= */
+.tt-dashboard .tt-savedviews {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+/* View chips are APPLY links, deliberately not `.tt-chip`: #3292 made those
+   removable, and a chip the reader cannot remove that looks like one they
+   can is worse than no chip at all. Squarer, outlined, no ✕. */
+.tt-dashboard .tt-viewchips {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	min-width: 0;
+}
+
+.tt-dashboard .tt-viewchip {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	max-width: 14rem;
+}
+
+.tt-dashboard .tt-viewchip__apply {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 48px; /* touch floor — these are tappable */
+	padding: 0 12px;
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+	color: var(--tt-ink, #0e1a14);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	touch-action: manipulation;
+}
+
+.tt-dashboard .tt-viewchip__apply:hover {
+	border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-viewchip__apply:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* The view you are looking at. #2450's star marks the DEFAULT; this marks
+   the ACTIVE one, which the strip never did — applying a non-default view
+   left nothing on screen to say so. */
+.tt-dashboard .tt-viewchip.is-active .tt-viewchip__apply {
+	border-color: var(--tt-primary, #0b3d2e);
+	background: var(--tt-success-subtle, #e3f4ea);
+}
+
+.tt-dashboard .tt-viewchip__star {
+	color: var(--tt-secondary, #e8b624);
+}
+
+/* The overflow count and the bookmark share one <summary>, which is how
+   "either opens the same dropdown" works without two triggers fighting over
+   one panel. */
+.tt-dashboard .tt-savedviews__trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	min-height: 48px;
+	padding: 0 10px;
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+	color: var(--tt-primary, #0b3d2e);
+	cursor: pointer;
+	list-style: none;
+	touch-action: manipulation;
+}
+
+.tt-dashboard .tt-savedviews__trigger::-webkit-details-marker {
+	display: none;
+}
+
+.tt-dashboard .tt-savedviews__trigger:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* Filled when the filters on screen ARE a saved view; outline when they are
+   not. The state is resolved server-side, so it is right on first paint. */
+.tt-dashboard .tt-savedviews__trigger.is-saved {
+	border-color: var(--tt-primary, #0b3d2e);
+	background: var(--tt-success-subtle, #e3f4ea);
+}
+
+.tt-dashboard .tt-savedviews__icon {
+	display: inline-flex;
+}
+
+.tt-dashboard .tt-savedviews__icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.tt-dashboard .tt-savedviews__trigger.is-saved .tt-savedviews__icon svg {
+	fill: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-viewchip--more {
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--tt-ink-soft, #5b6e75);
+}
+
+.tt-dashboard .tt-savedviews__menu {
+	right: 0;
+	left: auto;
+	min-width: 15rem;
+	max-width: 20rem;
+	padding: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-savedviews__heading {
+	margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-1, 4px);
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--tt-ink-soft, #5b6e75);
+}
+
+.tt-dashboard .tt-savedviews__save-form:not([hidden]) {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tt-sp-2, 8px);
+	padding: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-savedviews__name {
+	width: 100%;
+	min-height: 48px;
+	padding: 0 12px;
+	font-size: 16px; /* iOS auto-zoom floor */
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+}
+
+/* #3296 / CLAUDE.md §6 — Cancel then Save in DOM order, Save on the right
+   where the thumb finds the commit action. */
+.tt-dashboard .tt-savedviews__save-actions {
+	display: flex;
+	gap: var(--tt-sp-2, 8px);
+	justify-content: flex-end;
+}
+
+.tt-dashboard .tt-savedviews__save-actions .tt-btn {
+	min-height: 48px;
+}
+
+/* --- the chip cap ------------------------------------------------------
+   The server renders every chip and both `+N` labels because it cannot know
+   the viewport; CSS reveals the right ones. Base is mobile: one chip. */
+.tt-dashboard .tt-viewchips .tt-viewchip:nth-child(n + 2) {
+	display: none;
+}
+.tt-dashboard .tt-viewchip--more-desktop {
+	display: none;
+}
+
+@media (min-width: 1024px) {
+	.tt-dashboard .tt-viewchips .tt-viewchip:nth-child(-n + 3) {
+		display: inline-flex;
+	}
+	.tt-dashboard .tt-viewchips .tt-viewchip:nth-child(n + 4) {
+		display: none;
+	}
+	.tt-dashboard .tt-viewchip--more-mobile {
+		display: none;
+	}
+	.tt-dashboard .tt-viewchip--more-desktop {
+		display: inline;
+	}
+}
+
+/* =============================================================
+   SAVED VIEWS — the runtime <dialog> (moved from frontend-saved-views.css)
+
+   `saved-views.js` builds this markup for the manage / confirm flows
+   (#2451). It is not rendered by PHP, so these rules have no server-side
+   counterpart to grep for — they are load-bearing.
+   ============================================================= */
+.tt-saved-views__hint {
+	margin: 0 0 var(--tt-sp-3, 12px);
+	font-size: var(--tt-fs-sm, 0.85rem);
+	color: var(--tt-muted, #6a6d66);
+}
+
+/* Name field inside the manage modal. 16px font stops iOS zooming on focus. */
+.tt-saved-views__field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tt-sp-1, 4px);
+	margin-bottom: var(--tt-sp-3, 12px);
+	font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-saved-views__field input {
+	width: 100%;
+	min-height: 48px;
+	padding: 0 12px;
+	font-size: 16px;
+	border: 1px solid var(--tt-line, #d8dcde);
+	border-radius: var(--tt-r-md, 6px);
+}
+
+/* Cancel / Delete / Save. Wraps rather than crushing below 48px at 360px;
+   Delete is pushed away from Save so a mis-tap is less likely. */
+.tt-saved-views__modal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tt-sp-2, 8px);
+}
+
+.tt-saved-views__modal-actions .tt-btn-danger {
+	margin-right: auto;
 }

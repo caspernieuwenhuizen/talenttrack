@@ -221,6 +221,18 @@
 		var nameInput = root.querySelector( '[data-tt-view-name]' );
 		var confirmBtn = root.querySelector( '[data-tt-view-save-confirm]' );
 
+		var cancelBtn = root.querySelector( '[data-tt-view-save-cancel]' );
+
+		function closeSaveForm() {
+			if ( ! form ) { return; }
+			form.setAttribute( 'hidden', '' );
+			if ( nameInput ) { nameInput.value = ''; }
+			if ( toggle ) {
+				toggle.setAttribute( 'aria-expanded', 'false' );
+				toggle.focus();
+			}
+		}
+
 		if ( toggle && form ) {
 			toggle.addEventListener( 'click', function () {
 				var hidden = form.hasAttribute( 'hidden' );
@@ -228,6 +240,15 @@
 				toggle.setAttribute( 'aria-expanded', hidden ? 'true' : 'false' );
 				if ( hidden && nameInput ) { nameInput.focus(); }
 			} );
+		}
+
+		// #3296 — an explicit Save takes a real Cancel (CLAUDE.md §6). The
+		// form used to sit inline in a strip you could click away from; in a
+		// dropdown there is nothing to click away to, so backing out needs a
+		// control. It clears the field as well as closing: a name left behind
+		// would reappear the next time the form opened.
+		if ( cancelBtn ) {
+			cancelBtn.addEventListener( 'click', closeSaveForm );
 		}
 
 		if ( confirmBtn ) {

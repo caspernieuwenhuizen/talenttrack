@@ -59668,6 +59668,39 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/Components/SavedViews.php:196
+msgid "Saved view options"
+msgstr "Opties voor opgeslagen weergave"
+
+#: src/Shared/Frontend/Components/SavedViews.php:197
+msgid "Save these filters"
+msgstr "Deze filters opslaan"
+
+#. translators: %d: how many further saved views are collapsed behind the menu.
+#: src/Shared/Frontend/Components/SavedViews.php:208
+#, php-format
+msgctxt "saved views overflow count"
+msgid "+%d"
+msgstr "+%d"
+
+#: src/Shared/Frontend/Components/SavedViews.php:232
+msgctxt "saved views menu section"
+msgid "Your views"
+msgstr "Jouw weergaven"
+
+#: src/Shared/Frontend/Components/SavedViews.php:255
+msgctxt "saved views menu section"
+msgid "Actions"
+msgstr "Acties"
+
+#: src/Shared/Frontend/Components/SavedViews.php:262
+msgid "Rename, replace or delete this view"
+msgstr "Deze weergave hernoemen, vervangen of verwijderen"
+
+#: src/Shared/Frontend/Components/SavedViews.php:273
+msgid "Save current filters"
+msgstr "Huidige filters opslaan"
+
 #, php-format
 #~ msgid "Change since %2$s: %1$s SDS"
 #~ msgstr "Verandering sinds %2$s: %1$s SDS"

@@ -126,9 +126,44 @@ filter CSS.
 
 A surface can offer **personal saved views** — named filter combinations the
 user re-applies with one click — by passing `saved_views` to the same
-`FilterBar::render()` / `::html()` call (#2448). FilterBar renders the strip
-above the bar; omit the key and no markup is emitted and neither asset is
-enqueued.
+`FilterBar::render()` / `::html()` call (#2448). Omit the key and no markup is
+emitted and neither asset is enqueued.
+
+**They render inside the bar's utility cluster (#3296), not as a strip above
+it.** The separate band is gone, along with `frontend-saved-views.css`. Three
+things it got wrong: it was a second row of chrome competing for the scarce
+vertical space on a phone (a list opened with a saved-views band, then a filter
+bar, then rows); its save button rendered permanently, including on an
+unfiltered list where saving means nothing; and it never said which view you
+were on — only the starred default was marked.
+
+What renders now, in this order, after the filter chips and Clear:
+
+| Piece | Behaviour |
+| --- | --- |
+| **View chips** (`.tt-viewchip`) | Apply links, one tap. Deliberately NOT `.tt-chip` — #3292 made those removable, and a chip the reader cannot remove that looks like one they can is worse than no chip. The default sorts first and keeps its `★`; the view currently applied gets `aria-current` and the active treatment. |
+| **`+N` overflow** | Capped at 3 chips ≥1024px, 1 below. The cap is CSS: the server cannot know the viewport, so it renders every chip and *both* `+N` labels and the stylesheet reveals the right ones. |
+| **Bookmark trigger** | Outline when filters match no saved view, filled when they match one, **absent entirely** when nothing is filtered and the user has no views for the surface. The chips are the route to a view, so hiding the icon strands nothing. |
+
+The `+N` chip and the icon live in **one `<summary>`**, which is how "either
+opens the same dropdown" works without two triggers fighting over one panel.
+The dropdown is the `tt-perdrop` `<details>` the `⋯` menu already uses, so it
+stays keyboard-operable and its apply links work with JS off.
+
+The dropdown lists **every** view, not only the ones without a chip: which
+chips are visible depends on the viewport, and a menu whose contents changed
+under a media query would be a menu nobody could describe.
+
+**`saved-views.js` is unchanged.** The root still carries
+`data-tt-saved-views` / `data-view-key` / `data-keys`, each view still carries
+`.tt-saved-views__item` with its id, name and default flag, and the save form
+keeps its four hooks — so #2451's `<dialog>` manage flow works with a new
+trigger. Only a Cancel handler was added: an explicit Save takes a real Cancel
+(CLAUDE.md §6), and a dropdown has nothing to click away to.
+
+The runtime `<dialog>` rules that script builds moved into
+`frontend-filter-bar.css` with everything else. They have no server-side
+markup to grep for, so they are load-bearing despite looking orphaned.
 
 ```php
 FilterBar::render( [
