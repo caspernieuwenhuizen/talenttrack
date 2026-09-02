@@ -822,11 +822,16 @@ class FrontendPdpManageView extends FrontendViewBase {
         // rounded edges like all other pills").
         echo '<span class="tt-pop-summary__label">' . esc_html__( 'Status', 'talenttrack' ) . '</span> '
             . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $file->status, self::statusLabel( (string) $file->status ) );
-        // #0077 F1 — context-sensitive help drawer entry.
-        // The topic slug, not the view slug: `pdp` is a route, `pdp-cycle`
-        // is the doc. Passing the route opened the drawer on a topic that
-        // does not exist, which fell through to "Getting started".
-        \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp-cycle' );
+        // #3299 — the inline help button is gone. The shell renders a global
+        // help icon whose topic comes from `TT_DocsDrawer.view_to_topic`, and
+        // `docs/pdp-cycle.md` declares `views: [pdp, my-pdp]` — so
+        // `?tt_view=pdp` already resolves to `pdp-cycle` and the two icons
+        // opened the same drawer on the same topic.
+        //
+        // #0077 F1's comment described a real bug (passing the ROUTE opened a
+        // topic that did not exist and fell through to "Getting started"), but
+        // what fixed it was adding `views:` to the doc's front matter, not
+        // this button. Nothing regresses by removing it.
         echo '</p>';
         echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Cycle size', 'talenttrack' ) . '</span> '
             . (int) $cycle_size;
@@ -888,11 +893,28 @@ class FrontendPdpManageView extends FrontendViewBase {
             // #1667 — whole-row click (pointer) via the shared
             // tt-table-tools handler; the Template cell keeps a real
             // <a> as the keyboard / assistive-tech path.
+            // #3299 — `data-label` on every cell. `tt-list-table-table`'s
+            // mobile reflow hides <thead> below 640px and substitutes
+            // `td::before { content: attr(data-label) }` for the headers. With
+            // none set, the rows became stacked cards of right-aligned values
+            // against an empty pseudo-element: "1 / Begin seizoen / 2026-09-30
+            // / GEPLAND / Nog niet" with nothing naming the columns. The
+            // labels are the same translated strings the <th>s use.
             echo '<tr class="is-row-link" data-row-href="' . esc_url( $url ) . '">';
-            echo '<td>' . (int) $c->sequence . '</td>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
-            echo '<td>' . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
-            echo '<td><span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
+            echo '<td data-label="#">' . (int) $c->sequence . '</td>';
+            // #3299 — `tt-record-link`, like every other record link in the
+            // app. The bare anchor fell through to the active theme's link
+            // styling — blue and underlined next to the status badges in the
+            // same row. The class's rule resets colour and decoration with
+            // `!important` precisely so a hostile theme cannot re-underline it
+            // (#1792).
+            echo '<td data-label="' . esc_attr__( 'Template', 'talenttrack' ) . '">'
+                . '<a class="tt-record-link" href="' . esc_url( $url ) . '">'
+                . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
+            echo '<td data-label="' . esc_attr__( 'Scheduled', 'talenttrack' ) . '">'
+                . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
+            echo '<td data-label="' . esc_attr__( 'Status', 'talenttrack' ) . '">'
+                . '<span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
             // #1852 — self-review visibility. Done once the player has a
             // reflection; "Not yet" while the talk is still upcoming; a
             // muted dash once the talk is conducted with none (no nagging
@@ -908,14 +930,15 @@ class FrontendPdpManageView extends FrontendViewBase {
                 $sr_class = 'tt-pdp-selfreview--none';
                 $sr_label = __( '—', 'talenttrack' );
             }
-            echo '<td><span class="tt-pdp-selfreview ' . esc_attr( $sr_class ) . '">' . esc_html( $sr_label ) . '</span></td>';
+            echo '<td data-label="' . esc_attr__( 'Self-review', 'talenttrack' ) . '">'
+                . '<span class="tt-pdp-selfreview ' . esc_attr( $sr_class ) . '">' . esc_html( $sr_label ) . '</span></td>';
             // v3.110.197 (#809) — the "awaiting" state used to render as
             // a middle-dot character (`·`) which the pilot read as a
             // period — the conversation didn't visibly say "not done
             // yet". Replace with the hourglass icon so the state reads
             // at a glance: role glyph + hourglass = pending, role glyph
             // + checkmark = signed.
-            echo '<td>';
+            echo '<td data-label="' . esc_attr__( 'Acks', 'talenttrack' ) . '">';
             $parent_ok = ! empty( $c->parent_ack_at );
             $player_ok = ! empty( $c->player_ack_at );
             $hourglass = \TT\Shared\Icons\IconRenderer::render( 'hourglass', [
