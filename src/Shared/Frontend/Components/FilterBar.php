@@ -326,7 +326,11 @@ final class FilterBar {
 		}
 		$out .= '</div>'; // .tt-filterbar__row
 
-		// ---- Mobile collapsed trigger + summary chips (<1024px) -----
+		// ---- Mobile collapsed trigger (<1024px) ---------------------
+		//
+		// The trigger is genuinely mobile-only: desktop shows the controls
+		// inline, so there is nothing for it to open. The chips and Clear
+		// are NOT mobile-only, and used to live in here — see below.
 		$out .= '<div class="tt-filterbar__mobile">';
 		$out .= '<div class="tt-filtertrigger">';
 		$out .= '<button type="button" class="tt-btn tt-filterbtn" data-tt-filter-open'
@@ -337,15 +341,40 @@ final class FilterBar {
 			$out .= '<span class="tt-filterbtn__badge">' . esc_html( (string) $active ) . '</span>';
 		}
 		$out .= '</button>';
-		if ( $chips !== [] ) {
-			$out .= '<div class="tt-chips" aria-hidden="true">';
-			foreach ( $chips as $chip ) {
-				$out .= '<span class="tt-chip">' . esc_html( (string) $chip ) . '</span>';
-			}
-			$out .= '</div>';
-		}
 		$out .= '</div>'; // .tt-filtertrigger
 		$out .= '</div>'; // .tt-filterbar__mobile
+
+		// ---- Utility cluster: what is applied, and how to undo it ----
+		//
+		// #3289 — rendered once, outside both the mobile block and the sheet,
+		// and visible in both layouts.
+		//
+		// The chips lived inside `.tt-filterbar__mobile` and Clear inside the
+		// sheet footer, and both of those are `display: none` above 1024px.
+		// So a desktop user had no way to clear a filter and no readback of
+		// what was applied: every surface passed `reset_url`, every surface
+		// rendered it, and no desktop user had ever seen it. On a list with
+		// eight controls wrapping to two rows, answering "why am I seeing
+		// four rows?" meant reading every control in turn — and the
+		// link-based groups often have no "none" option to walk back to.
+		//
+		// It sits at the end of the inline row, after the auto-margin that
+		// #3291 fixed, so it reads as chrome rather than as one more filter.
+		if ( $chips !== [] || $reset !== '' ) {
+			$out .= '<div class="tt-filterbar__utils">';
+			if ( $chips !== [] ) {
+				$out .= '<div class="tt-chips" aria-hidden="true">';
+				foreach ( $chips as $chip ) {
+					$out .= '<span class="tt-chip">' . esc_html( (string) $chip ) . '</span>';
+				}
+				$out .= '</div>';
+			}
+			if ( $reset !== '' ) {
+				$out .= '<a class="tt-btn tt-btn-secondary tt-filterbar__clear" href="' . esc_url( $reset ) . '">'
+					. esc_html__( 'Clear', 'talenttrack' ) . '</a>';
+			}
+			$out .= '</div>'; // .tt-filterbar__utils
+		}
 
 		// ---- Bottom sheet (holds the same groups, sheet variant) ----
 		//
