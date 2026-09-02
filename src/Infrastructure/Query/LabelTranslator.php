@@ -268,17 +268,54 @@ class LabelTranslator {
     }
 
     /**
-     * v3.110.101 — translate `tt_lookups.name` for the 11 position
-     * codes seeded by the Activator (GK / CB / LB / RB / CDM / CM /
-     * CAM / LW / RW / ST / CF). The codes are stored uppercase; the
-     * long name is what operators want to read in dropdowns.
+     * The human label for a position code, in the reader's locale.
      *
-     * Returns the long form. Unknown codes fall through unchanged
-     * (custom positions an admin added stay verbatim).
+     * Three sources, in this order, and the order is the whole point:
+     *
+     * 1. **The lookup row's own label.** A position the academy added
+     *    through Configuration → Lookups is stored in `tt_lookups` with its
+     *    label in `tt_translations`, and until #3276 no read surface asked
+     *    for it. Twelve surfaces printed the raw key instead — a profile
+     *    reading `Verdedigende middenvelder · rechter_middenvelder` because
+     *    two of the four positions were seeded and two were the operator's.
+     *    This branch is also what lets an academy rename a seeded position
+     *    to its own vocabulary and be obeyed.
+     * 2. **The seeded long form through gettext.** The 11 Activator codes
+     *    (GK / CB / LB / RB / CDM / CM / CAM / LW / RW / ST / CF) carry no
+     *    `tt_translations` row on a stock install — their lookup `name` IS
+     *    the code, so step 1 hands back `CDM` and this step turns it into
+     *    *Defensive midfielder* / *Verdedigende middenvelder*. Resolving
+     *    step 1 first without this guard is what would silently downgrade
+     *    every seeded position on every install to its abbreviation.
+     * 3. **Humanised.** A code with a row but no label anywhere reads
+     *    `Rechter Middenvelder`, never `rechter_middenvelder`. Same last
+     *    resort the other translators in this class use.
+     *
+     * The code itself stays the matching key throughout. Chemistry buckets,
+     * formation slots and squad-step matching key on the stored value and
+     * must not start keying on this label — see
+     * `PositionLabelResolutionTest`.
      */
     public static function positionLabel( string $code ): string {
+        $code = trim( $code );
+        if ( $code === '' ) return '';
+
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $resolved = trim( LookupTranslator::byTypeAndName( 'position', $code ) );
+            // A resolver that hands the code straight back has told us
+            // nothing — either there is no row, or the row is a seeded one
+            // whose name is the code. Both belong to step 2.
+            if ( $resolved !== '' && strcasecmp( $resolved, $code ) !== 0 ) {
+                return $resolved;
+            }
+        }
+
         $longform = self::positionLongForm( $code );
-        return $longform === $code ? $code : __( $longform, 'talenttrack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- delegated dynamic key resolved from positionLongForm()'s static switch above; the canonical English strings still ship as literal __() calls so the extractor sees them.
+        if ( $longform !== $code ) {
+            return __( $longform, 'talenttrack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- delegated dynamic key resolved from positionLongForm()'s static switch below; the canonical English strings still ship as literal __() calls so the extractor sees them.
+        }
+
+        return self::humanise( $code );
     }
 
     /**
