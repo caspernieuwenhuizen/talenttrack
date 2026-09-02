@@ -76,7 +76,7 @@ final class ReportFiltersEffectivePeriodTest extends WP_UnitTestCase {
         $defaults = ReportFilters::seasonDefaultWindow();
 
         $this->assertNull(
-            ReportFilters::customRangeChip( '', (string) $defaults['from'], (string) $defaults['to'] )
+            ReportFilters::customRangeChip( '', $defaults['from'], $defaults['to'] )
         );
     }
 

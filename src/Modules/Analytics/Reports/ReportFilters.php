@@ -101,8 +101,10 @@ final class ReportFilters {
     public static function customRangeChip( string $effective_period, string $from, string $to ): ?string {
         if ( $effective_period !== '' ) return null;
 
+        // `seasonDefaultWindow()` is typed `array{from:string,to:string}`, so
+        // both keys are guaranteed — a `?? ''` here is dead code at level 8.
         $defaults = self::seasonDefaultWindow();
-        if ( $from === ( $defaults['from'] ?? '' ) && $to === ( $defaults['to'] ?? '' ) ) {
+        if ( $from === $defaults['from'] && $to === $defaults['to'] ) {
             // The untouched season default is not a filter the reader chose.
             return null;
         }
