@@ -337,7 +337,7 @@ class ArchiveRepository {
         // know about those children, so purging without this would strand
         // them. Only the trigger moved — off the live record, onto the bin.
         if ( $entity === 'pdp_file' ) {
-            $deleter = new \TT\Modules\Pdp\Services\PdpCascadeDeleter();
+            $deleter = new \TT\Modules\Pdp\PdpCascadeDeleter();
             $count   = 0;
             foreach ( $ids as $id ) {
                 $result = $deleter->deletePdpFile( (int) $id, [ 'source' => 'recycle_bin' ] );
