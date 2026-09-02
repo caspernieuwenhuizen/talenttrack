@@ -9,7 +9,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\MeasurementsRestController;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Rest\MeasurementDefinitionsRestController;
-use TT\Modules\Measurements\Services\ProfileHeightSync;
+use TT\Modules\Measurements\Services\ProfileMeasurementSync;
 use TT\Modules\Measurements\Wizards\NewMeasurementWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -42,7 +42,7 @@ class MeasurementsModule implements ModuleInterface {
         // #3219 — the player row's undated `height_cm` follows the dated
         // height readings, so a profile stops showing the number typed at
         // signup once the academy actually measures the player.
-        ProfileHeightSync::boot();
+        ProfileMeasurementSync::boot();
 
         if ( class_exists( WizardRegistry::class ) ) {
             // §3 wizard-first: creating a test definition runs through the
