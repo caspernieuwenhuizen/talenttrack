@@ -62,7 +62,7 @@ final class MeasurementUnitGrowthReadersTest extends WP_UnitTestCase {
             'first_name' => 'Unit',
             'last_name'  => $last_name,
             'status'     => 'active',
-            'birth_date' => '2012-01-01',
+            'date_of_birth' => '2012-01-01',
         ] );
         return (int) $wpdb->insert_id;
     }

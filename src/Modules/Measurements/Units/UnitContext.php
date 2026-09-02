@@ -37,17 +37,17 @@ final class UnitContext {
             return new self( Dimensions::DIMENSIONLESS, null, '', 'plain' );
         }
 
-        $registry   = new UnitRegistry();
-        $entry_unit = $registry->byId( isset( $def->entry_unit_id ) ? (int) $def->entry_unit_id : 0 );
-
-        // A definition written before the migration, or by a caller that only
-        // set the legacy string, still resolves if the symbol is a known unit.
-        if ( ! $entry_unit ) {
-            $symbol = trim( (string) ( $def->unit ?? '' ) );
-            if ( $symbol !== '' && (string) ( $def->value_type ?? 'numeric' ) === 'numeric' ) {
-                $entry_unit = $registry->bySymbol( $symbol );
-            }
-        }
+        // `entry_unit_id` is the only thing that makes a definition
+        // convertible, and deliberately so. Migration 0252 stamps it on exactly
+        // the definitions whose stored values it converted, so a stamped row
+        // holds canonical values and an unstamped one still holds whatever was
+        // typed. Resolving an unstamped row's `unit` string against the
+        // registry would look helpful and would double-convert every reading it
+        // has — the same class of silent error this issue exists to remove.
+        // Unstamped means dimensionless: print the symbol, touch nothing.
+        $entry_unit = ( new UnitRegistry() )->byId(
+            isset( $def->entry_unit_id ) ? (int) $def->entry_unit_id : 0
+        );
 
         $dimension = $entry_unit
             ? $entry_unit->dimension

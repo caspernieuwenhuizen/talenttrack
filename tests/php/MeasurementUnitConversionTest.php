@@ -181,4 +181,91 @@ final class MeasurementUnitConversionTest extends WP_UnitTestCase {
         // today — the value did not move, the presentation did.
         $this->assertSame( '2.13 m', UnitContext::forDefinition( $repo->find( $id ) )->format( $stored ) );
     }
+
+    public function test_classifying_an_unclassified_test_converts_its_history(): void {
+        global $wpdb;
+
+        $cm = ( new UnitRegistry() )->bySymbol( 'cm' );
+        $this->assertNotNull( $cm );
+
+        // What migration 0252 leaves behind when it cannot classify a test: a
+        // dimensionless definition whose values are exactly as they were typed.
+        $repo = new MeasurementDefinitionsRepository();
+        $id   = $repo->create( [
+            'category_id' => 1,
+            'name'        => 'Reach (unclassified)',
+            'value_type'  => 'numeric',
+            'unit'        => 'lengte-eenheid',
+            'dimension'   => 'dimensionless',
+            'direction'   => 'higher',
+        ] );
+
+        $wpdb->insert( $wpdb->prefix . 'tt_measurement_results', [
+            'club_id'       => 1,
+            'player_id'     => 1,
+            'definition_id' => $id,
+            'recorded_date' => '2026-04-01',
+            'value_numeric' => 213,
+        ] );
+        $result_id = (int) $wpdb->insert_id;
+
+        // Left alone, the number means whatever it always meant.
+        $this->assertSame( '213 lengte-eenheid', UnitContext::forDefinition( $repo->find( $id ) )->format( 213.0 ) );
+
+        // The operator classifies it: this test measures centimetres.
+        $repo->update( $id, [ 'unit' => 'cm', 'dimension' => 'length', 'entry_unit_id' => (int) $cm->id ] );
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT value_numeric, entered_value, entered_unit_id
+               FROM {$wpdb->prefix}tt_measurement_results WHERE id = %d",
+            $result_id
+        ) );
+
+        // 213 was centimetres all along, so it is 2.13 metres now — and the
+        // reading still displays as the 213 cm somebody wrote down.
+        $this->assertEqualsWithDelta( 2.13, (float) $row->value_numeric, 0.00001 );
+        $this->assertEqualsWithDelta( 213.0, (float) $row->entered_value, 0.00001 );
+        $this->assertSame( (int) $cm->id, (int) $row->entered_unit_id );
+        $this->assertSame( '213 cm', UnitContext::forDefinition( $repo->find( $id ) )->format( (float) $row->value_numeric ) );
+    }
+
+    public function test_reclassifying_twice_does_not_convert_twice(): void {
+        global $wpdb;
+
+        $registry = new UnitRegistry();
+        $cm       = $registry->bySymbol( 'cm' );
+        $mm       = $registry->bySymbol( 'mm' );
+        $this->assertNotNull( $cm );
+        $this->assertNotNull( $mm );
+
+        $repo = new MeasurementDefinitionsRepository();
+        $id   = $repo->create( [
+            'category_id' => 1,
+            'name'        => 'Reach (twice)',
+            'value_type'  => 'numeric',
+            'unit'        => 'iets',
+            'dimension'   => 'dimensionless',
+            'direction'   => 'higher',
+        ] );
+
+        $wpdb->insert( $wpdb->prefix . 'tt_measurement_results', [
+            'club_id'       => 1,
+            'player_id'     => 1,
+            'definition_id' => $id,
+            'recorded_date' => '2026-04-01',
+            'value_numeric' => 213,
+        ] );
+        $result_id = (int) $wpdb->insert_id;
+
+        $repo->update( $id, [ 'unit' => 'cm', 'dimension' => 'length', 'entry_unit_id' => (int) $cm->id ] );
+        // A second edit is a change of display unit, not a reclassification.
+        $repo->update( $id, [ 'unit' => 'mm', 'dimension' => 'length', 'entry_unit_id' => (int) $mm->id ] );
+
+        $stored = (float) $wpdb->get_var( $wpdb->prepare(
+            "SELECT value_numeric FROM {$wpdb->prefix}tt_measurement_results WHERE id = %d",
+            $result_id
+        ) );
+
+        $this->assertEqualsWithDelta( 2.13, $stored, 0.00001 );
+    }
 }
