@@ -35,6 +35,9 @@ final class ReadOnlySurfaceTest extends WP_UnitTestCase {
         // another test decides these.
         unset(
             $_GET['force_mobile'],
+            // #3296 — `withFiltersSet()` puts this on the request; left
+            // behind it would decide another test's saved-view matching.
+            $_GET['team_id'],
             $_SERVER['HTTP_USER_AGENT'],
             $_SERVER['HTTP_SEC_CH_UA_MOBILE']
         );
@@ -112,6 +115,7 @@ final class ReadOnlySurfaceTest extends WP_UnitTestCase {
     public function test_a_desktop_keeps_the_save_control_on_the_same_surface(): void {
         $this->asDesktop();
         $this->asCapableUser();
+        $this->withFiltersSet();
 
         $html = $this->renderStrip( self::READ_ONLY_SLUG );
 
@@ -123,6 +127,7 @@ final class ReadOnlySurfaceTest extends WP_UnitTestCase {
     public function test_a_phone_keeps_the_save_control_on_an_editable_surface(): void {
         $this->asPhone();
         $this->asCapableUser();
+        $this->withFiltersSet();
 
         $html = $this->renderStrip( self::EDITABLE_SLUG );
 
@@ -132,24 +137,40 @@ final class ReadOnlySurfaceTest extends WP_UnitTestCase {
     public function test_the_save_script_is_not_enqueued_on_a_read_only_phone_render(): void {
         $this->asPhone();
         $this->asCapableUser();
+        $this->withFiltersSet();
 
         // wp_scripts survives between tests in one process, and the desktop
         // cases above enqueue this. Start from nothing so the assertion is
         // about this render rather than about test order.
         wp_dequeue_script( 'tt-saved-views' );
         wp_deregister_script( 'tt-saved-views' );
-        wp_dequeue_style( 'tt-saved-views' );
-        wp_deregister_style( 'tt-saved-views' );
 
         $this->renderStrip( self::READ_ONLY_SLUG );
 
         // Nothing for it to bind to, on the device with the tightest budget.
         $this->assertFalse( wp_script_is( 'tt-saved-views', 'enqueued' ) );
-        // The strip still needs its styling.
-        $this->assertTrue( wp_style_is( 'tt-saved-views', 'enqueued' ) );
+
+        // #3296 — the stylesheet assertion that used to sit here is gone with
+        // `frontend-saved-views.css`. The chips and the trigger are part of
+        // the filter bar now, so the bar's own sheet styles them and there is
+        // no separate handle to check.
     }
 
     // ── fixtures ───────────────────────────────────────────────────────
+
+    /**
+     * #3296 — put a filter on the request.
+     *
+     * The save affordance used to render unconditionally. It is now behind
+     * the bookmark icon, which is absent when there is nothing to do with it:
+     * no filters set AND no saved views. These tests are about the mobile
+     * class, not about that gate, so they give the render something to save —
+     * otherwise the positive assertions would fail for a reason that has
+     * nothing to do with `read_only`.
+     */
+    private function withFiltersSet(): void {
+        $_GET['team_id'] = '2';
+    }
 
     private function renderStrip( string $slug ): string {
         return SavedViews::html(
