@@ -58,6 +58,13 @@ class ArchiveRepository {
         'measurement_result'     => 'tt_measurement_results',
         'measurement_level'      => 'tt_measurement_levels',
         'player_attribute_def'   => 'tt_player_attribute_defs',
+        // #3300 — PDP was the one entity with an archive lifecycle and no
+        // seat here: `tt_pdp_files` has carried `archived_at` since 0148 and
+        // is archived as a cascade of archiving a player, so files could be
+        // archived and then never appear in the bin, never be restored, and
+        // never be purged by the retention cron. That hole is what a bespoke
+        // hard-delete button on the LIVE record grew to fill.
+        'pdp_file'               => 'tt_pdp_files',
     ];
 
     /**
@@ -321,6 +328,24 @@ class ArchiveRepository {
         if ( $entity === 'player' ) {
             $result = ( new PlayerDeletionCascade() )->cascade( $ids );
             return (int) $result['deleted'];
+        }
+
+        // #3300 — a PDP file owns conversations, verdicts, uploaded files and
+        // goal-evidence links, and `PdpCascadeDeleter` (#1294) already knows
+        // how to take them with it. It is kept and re-pointed rather than
+        // replaced by a declarative plan: the bin's generic DELETE does not
+        // know about those children, so purging without this would strand
+        // them. Only the trigger moved — off the live record, onto the bin.
+        if ( $entity === 'pdp_file' ) {
+            $deleter = new \TT\Modules\Pdp\PdpCascadeDeleter();
+            $count   = 0;
+            foreach ( $ids as $id ) {
+                $result = $deleter->deletePdpFile( (int) $id, [ 'source' => 'recycle_bin' ] );
+                // Per-table row counts; the file itself is the unit the bin
+                // reports, so count files rather than every child row.
+                $count += empty( $result ) ? 0 : 1;
+            }
+            return $count;
         }
 
         // #1783 — referential-integrity-checked delete for entities with

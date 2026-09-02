@@ -787,16 +787,31 @@ class FrontendPdpManageView extends FrontendViewBase {
         // conversations table below), where its "all conversations closed"
         // precondition is visible. It stays disabled, with the reason, until
         // every conversation is signed off.
-        // #1294 — irreversible hard-delete entry point. Cap-gated on
-        // `tt_delete_pdp` (admin-only by seed). Routes to the typed-name
-        // confirm subview at ?tt_view=pdp&action=permanent-delete.
-        if ( current_user_can( 'tt_delete_pdp' ) ) {
-            $del_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'permanent-delete' ],
-                $base_url
-            ) );
-            echo '<a class="tt-btn tt-btn-danger" href="' . esc_url( $del_url ) . '" style="margin-left:auto; background:#b91c1c; color:#fff; border:1px solid #991b1b; min-height:48px; padding:8px 16px; touch-action:manipulation;">'
-                . esc_html__( 'Permanently delete PDP', 'talenttrack' ) . '</a>';
+        // #3300 — Archive, not "Permanently delete PDP".
+        //
+        // This page carried the only hard-delete entry point in the plugin
+        // sitting on a live record: an irreversible action in the loudest
+        // element on a screen whose actual primary action is "Record verdict",
+        // shouting through hardcoded inline hex that overrode the danger
+        // token. Every other entity archives first and only offers a
+        // permanent delete from the recycle bin, once the record is already
+        // out of the way.
+        //
+        // PDP now does the same. `DELETE /pdp-files/{id}` has been the
+        // soft-archive since #1274 PR1, so the standard archive button drives
+        // it with no new endpoint; the file then appears in the bin, where
+        // restore and permanent-delete live behind `tt_manage_recycle_bin`.
+        //
+        // `pdp-archive-button.js` is already enqueued by this view and already
+        // speaks `data-tt-pdp-archive` against `DELETE /pdp-files/{id}`; the
+        // affordance simply had no button on this page. Reusing that contract
+        // rather than the generic `data-tt-archive-rest-path` one keeps the
+        // PDP-specific confirm and toast strings that ship with it.
+        $is_archived = ! empty( $file->archived_at );
+        if ( ! $is_archived && current_user_can( 'tt_edit_pdp' ) ) {
+            echo '<button type="button" class="tt-btn tt-btn-secondary"'
+                . ' data-tt-pdp-archive="' . (int) $file->id . '">'
+                . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
         }
         echo '</div>';
 

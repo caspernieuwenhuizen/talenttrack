@@ -59660,6 +59660,13 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: 1: player name, 2: season name. Identifies a PDP file in the recycle bin.
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php:158
+#, php-format
+msgctxt "PDP file identity"
+msgid "%1$s · %2$s"
+msgstr "%1$s · %2$s"
+
 #, php-format
 #~ msgid "Change since %2$s: %1$s SDS"
 #~ msgstr "Verandering sinds %2$s: %1$s SDS"
