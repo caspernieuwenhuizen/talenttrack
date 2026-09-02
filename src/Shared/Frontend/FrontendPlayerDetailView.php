@@ -1870,21 +1870,26 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // wizard's default-Present pre-fill so coach intent stays
         // distinct from coach pre-fill.
         //
-        // #1316 — display in ascending date order (oldest → newest)
-        // so the operator scans the player's season top-to-bottom in
-        // chronological reading order. The inner query still picks
-        // the MOST RECENT 25 (DESC LIMIT 25), so the operator sees
-        // the recent window — not the oldest 25 of the player's
-        // career; the outer SELECT just reverses for display.
+        // #3277 — newest first. #1316 made this tab ascending, on the
+        // reading that an operator scans a season top-to-bottom; living
+        // with it said otherwise. The window is capped at 25, so ascending
+        // put the one row most likely to be wanted — the latest — at the
+        // bottom of the list every time. The other five surfaces #1316
+        // flipped stay ascending; this is the tab, not the rule.
+        //
+        // Planned and scheduled rows pass the filter regardless of date, so
+        // under DESC a training scheduled for next week sorts above today's
+        // completed match. That is intended: what is next, then what
+        // happened.
+        //
         // #1320 — routed through ActivitiesRepository::listForPlayer so
-        // the activity-table read path lives in one place. The shape
-        // (recent-25 + ASC display + plan-state filter, no record_type
-        // filter so 'expected' planned rows still surface) is preserved
-        // via the filter array.
+        // the activity-table read path lives in one place. The window is
+        // unchanged either way: the inner query always takes the MOST
+        // RECENT 25, and only the display order is being asked for here.
         $rows = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->listForPlayer(
             (int) $player_id,
             25,
-            'ASC',
+            'DESC',
             [
                 'record_types'        => null,
                 'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
