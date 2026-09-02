@@ -23,7 +23,8 @@
  *   .tt-segtrack / .tt-seg     — period segmented track (sheet)
  *   .tt-statset / .tt-statpill — status pills
  *   .tt-switch                 — boolean toggle
- *   .tt-filterbar__mobile      — collapsed trigger + chips (mobile)
+ *   .tt-filterbar__mobile      — collapsed trigger (mobile only)
+ *   .tt-filterbar__utils       — chips + Clear, BOTH viewports (#3289)
  *   .tt-filterbtn / __badge    — "Filters" button + active count
  *   .tt-chips / .tt-chip       — scrollable summary chips
  *   .tt-filter-sheet*          — bottom sheet (mobile)
@@ -561,8 +562,34 @@
 .tt-dashboard .tt-filterbar__row {
 	display: none;
 }
+/* #3289 — the form lays out the trigger and the utility cluster on one
+   line, which is what keeps mobile reading as it did when the chips lived
+   inside `.tt-filtertrigger`: trigger, then chips, then Clear. The cluster
+   had to move out of that block to be visible on desktop at all, so the
+   line is reconstructed here instead of inherited. */
+.tt-dashboard .tt-filterbar__form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+}
 .tt-dashboard .tt-filterbar__mobile {
 	display: block;
+	flex: 0 0 auto;
+}
+/* Chips + Clear. Rendered once, shown in BOTH layouts — the whole point of
+   the issue: every surface passed `reset_url`, and no desktop user had ever
+   seen it because it only existed inside the sheet footer. */
+.tt-dashboard .tt-filterbar__utils {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.tt-dashboard .tt-filterbar__clear {
+	flex: 0 0 auto;
+	min-height: 48px;
 }
 .tt-dashboard .tt-filtertrigger {
 	display: flex;
@@ -737,6 +764,15 @@
 		align-items: flex-end;
 		gap: 16px;
 		flex-wrap: wrap;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	/* #3289 — the cluster ends the inline row rather than sitting under it,
+	   so it reads as chrome next to the filters rather than as another row
+	   of them. */
+	.tt-dashboard .tt-filterbar__utils {
+		flex: 0 0 auto;
+		margin-left: auto;
 	}
 	.tt-dashboard .tt-filterbar__group {
 		flex: 0 0 auto;
