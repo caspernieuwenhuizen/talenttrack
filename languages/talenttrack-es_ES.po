@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-31T17:25:36+00:00\n"
+"POT-Creation-Date: 2026-09-02T13:07:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -139,9 +139,9 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:307
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:237
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:367
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:483
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:241
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:375
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:491
 #: src/Modules/Goals/Admin/GoalsPage.php:75
 #: src/Modules/Goals/Admin/GoalsPage.php:174
 #: src/Modules/Invitations/InvitationKind.php:52
@@ -796,7 +796,7 @@ msgid ""
 "stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:532 src/Modules/DemoData/DemoCoverage.php:1313
+#: src/Core/FeatureRegistry.php:532 src/Modules/DemoData/DemoCoverage.php:1314
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -1196,7 +1196,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:286
 #: src/Modules/Goals/Admin/GoalsPage.php:113
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:480
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:165
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:168
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:75
 #: src/Modules/Methodology/Admin/MethodologyPage.php:192
 #: src/Modules/Methodology/Admin/MethodologyPage.php:287
@@ -1781,7 +1781,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:170
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:212
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:201
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:162
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:522
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1529
@@ -1828,7 +1828,7 @@ msgstr "Activo"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:132
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:172
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:206
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:162
 #: src/Modules/People/Admin/PeoplePage.php:166
 #: src/Modules/People/Admin/PeoplePage.php:247
 #: src/Modules/People/Admin/PeoplePage.php:366
@@ -2353,7 +2353,7 @@ msgid "Mixed"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1306
+#: src/Modules/DemoData/DemoCoverage.php:1307
 #: src/Modules/Documentation/HelpTopics.php:186
 #: src/Shared/Frontend/FrontendConfigurationView.php:1936
 msgid "Match day"
@@ -2453,8 +2453,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:251
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:238
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:484
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:242
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:492
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:51
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:153
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:46
@@ -2471,7 +2471,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:87
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:113
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:125
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:126
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:140
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:259
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:151
@@ -2970,10 +2970,10 @@ msgstr ""
 #: src/Infrastructure/REST/TeamsRestController.php:342
 #: src/Infrastructure/REST/TeamsRestController.php:367
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:158
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:159
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:74
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:68
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:87
 #: src/Modules/Teams/Admin/TeamsPage.php:33
@@ -3541,13 +3541,13 @@ msgid "Could not save the measurement."
 msgstr ""
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:465
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:208
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:238
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:210
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:252
 msgid "A test needs a name."
 msgstr ""
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:476
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:214
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:216
 msgid "Could not save the test."
 msgstr ""
 
@@ -3866,7 +3866,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1293
+#: src/Modules/DemoData/DemoCoverage.php:1294
 #: src/Modules/DemoData/DemoRunPlan.php:109
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:561
@@ -3938,7 +3938,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:238
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:252
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:421
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:429
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:47
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:149
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:39
@@ -3946,7 +3946,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:397
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:148
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:211
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:232
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:263
@@ -4728,7 +4728,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1294
+#: src/Modules/DemoData/DemoCoverage.php:1295
 #: src/Modules/License/FeatureMap.php:380
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:667
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -5212,7 +5212,7 @@ msgstr "Actualizar"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
 #: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1266
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:411
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:426
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
@@ -5622,7 +5622,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:779
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1124
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1476
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:197
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:201
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:203
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:378
@@ -6022,9 +6022,12 @@ msgstr ""
 #. translators: 1: player name, 2: evaluation category.
 #. translators: 1: activity type, 2: activity date
 #. translators: 1: course title, 2: lesson title
+#. translators: 1: unit symbol, 2: the kind of quantity it measures
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:331
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:103
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:136
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:306
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:45
 #, php-format
 msgid "%1$s — %2$s"
 msgstr ""
@@ -6753,7 +6756,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1295
+#: src/Modules/DemoData/DemoCoverage.php:1296
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/License/Admin/AccountPage.php:566
@@ -6806,7 +6809,7 @@ msgstr "Evaluaciones"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1296
+#: src/Modules/DemoData/DemoCoverage.php:1297
 #: src/Modules/Goals/Admin/GoalsPage.php:44
 #: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/License/FeatureMap.php:378
@@ -6849,7 +6852,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
-#: src/Modules/DemoData/DemoCoverage.php:1292
+#: src/Modules/DemoData/DemoCoverage.php:1293
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:151
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -6947,7 +6950,7 @@ msgstr ""
 
 #. translators: %s: player name
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
-#: src/Modules/DemoData/DemoCoverage.php:1303
+#: src/Modules/DemoData/DemoCoverage.php:1304
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:934
@@ -7146,7 +7149,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1297
+#: src/Modules/DemoData/DemoCoverage.php:1298
 msgid "Journey events"
 msgstr ""
 
@@ -7447,7 +7450,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:543
-#: src/Modules/DemoData/DemoCoverage.php:1291
+#: src/Modules/DemoData/DemoCoverage.php:1292
 #: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
@@ -7939,7 +7942,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:363
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:233
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:25
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:262
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:271
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:33
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:58
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:150
@@ -8696,7 +8699,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:124
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:210
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:188
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:76
 #: src/Modules/Methodology/Admin/MediaPicker.php:109
 #: src/Modules/Methodology/Admin/MethodologyPage.php:193
@@ -9707,7 +9710,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1298
+#: src/Modules/DemoData/DemoCoverage.php:1299
 #: src/Modules/License/FeatureMap.php:387
 #: src/Shared/CoreSurfaceRegistration.php:1019
 #: src/Shared/Frontend/FrontendTrialCaseView.php:87
@@ -9729,7 +9732,7 @@ msgstr ""
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1311
+#: src/Modules/DemoData/DemoCoverage.php:1312
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr ""
@@ -9846,7 +9849,7 @@ msgid "Impersonation"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1307
+#: src/Modules/DemoData/DemoCoverage.php:1308
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
@@ -14684,7 +14687,7 @@ msgstr "Obligatorio"
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:102
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:142
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:180
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:175
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:178
 #: src/Modules/People/Admin/PeoplePage.php:198
 msgid "Deactivate"
 msgstr "Desactivar"
@@ -14693,7 +14696,7 @@ msgstr "Desactivar"
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:103
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:143
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:181
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:175
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:178
 #: src/Modules/People/Admin/PeoplePage.php:198
 msgid "Activate"
 msgstr "Activar"
@@ -14989,7 +14992,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:103
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:461
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:489
 #: src/Shared/Frontend/FrontendTeamDetailView.php:729
 msgid "Level"
 msgstr ""
@@ -15196,8 +15199,8 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:90
 #: src/Modules/DataBrowser/SemanticRegistry.php:59
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:241
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:487
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:245
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:495
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:161
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:229
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
@@ -16803,7 +16806,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:150
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:218
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:366
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:268
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:277
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:25
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:54
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:140
@@ -16889,7 +16892,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1300
+#: src/Modules/DemoData/DemoCoverage.php:1301
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:240
@@ -16947,9 +16950,9 @@ msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:146
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:135
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:240
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:420
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:486
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:244
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:428
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:494
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1761
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
@@ -17793,39 +17796,39 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1299
+#: src/Modules/DemoData/DemoCoverage.php:1300
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1301
+#: src/Modules/DemoData/DemoCoverage.php:1302
 #: src/Shared/Frontend/FrontendTrialCaseView.php:268
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1302
+#: src/Modules/DemoData/DemoCoverage.php:1303
 msgid "Player reports"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1304
+#: src/Modules/DemoData/DemoCoverage.php:1305
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:231
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1305
+#: src/Modules/DemoData/DemoCoverage.php:1306
 msgid "Training content"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1308
+#: src/Modules/DemoData/DemoCoverage.php:1309
 #: src/Shared/Frontend/FrontendTeamsManageView.php:576
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1309
+#: src/Modules/DemoData/DemoCoverage.php:1310
 msgid "Scouting pipeline"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1310
+#: src/Modules/DemoData/DemoCoverage.php:1311
 #: src/Modules/License/FeatureMap.php:402
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
@@ -17835,141 +17838,141 @@ msgstr ""
 msgid "Tournaments"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1312
+#: src/Modules/DemoData/DemoCoverage.php:1313
 msgid "Messages and operator records"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1314
+#: src/Modules/DemoData/DemoCoverage.php:1315
 msgid "Behaviour and potential"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1322
+#: src/Modules/DemoData/DemoCoverage.php:1323
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1323
+#: src/Modules/DemoData/DemoCoverage.php:1324
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1324
+#: src/Modules/DemoData/DemoCoverage.php:1325
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1325
+#: src/Modules/DemoData/DemoCoverage.php:1326
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1326
+#: src/Modules/DemoData/DemoCoverage.php:1327
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1327
+#: src/Modules/DemoData/DemoCoverage.php:1328
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1328
+#: src/Modules/DemoData/DemoCoverage.php:1329
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1329
+#: src/Modules/DemoData/DemoCoverage.php:1330
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1330
+#: src/Modules/DemoData/DemoCoverage.php:1331
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1331
+#: src/Modules/DemoData/DemoCoverage.php:1332
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1332
+#: src/Modules/DemoData/DemoCoverage.php:1333
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1333
+#: src/Modules/DemoData/DemoCoverage.php:1334
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1334
+#: src/Modules/DemoData/DemoCoverage.php:1335
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1335
+#: src/Modules/DemoData/DemoCoverage.php:1336
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1336
+#: src/Modules/DemoData/DemoCoverage.php:1337
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1337
+#: src/Modules/DemoData/DemoCoverage.php:1338
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1338
+#: src/Modules/DemoData/DemoCoverage.php:1339
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1339
+#: src/Modules/DemoData/DemoCoverage.php:1340
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1340
+#: src/Modules/DemoData/DemoCoverage.php:1341
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1341
+#: src/Modules/DemoData/DemoCoverage.php:1342
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1342
+#: src/Modules/DemoData/DemoCoverage.php:1343
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1343
+#: src/Modules/DemoData/DemoCoverage.php:1344
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1344
+#: src/Modules/DemoData/DemoCoverage.php:1345
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
 "themselves ship with the plugin and are never generated."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1345
+#: src/Modules/DemoData/DemoCoverage.php:1346
 msgid ""
 "Two of the four traffic-light inputs: behaviour ratings spread across the "
 "window, and dated potential histories for squads old enough to be asked. "
@@ -20350,16 +20353,16 @@ msgstr ""
 msgid "away"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:68
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:69
 msgid "Test results export (XLSX)"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:137
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:138
 msgid "You do not have permission to export test results."
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:171
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:172
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:137
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:137
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:498
@@ -20368,68 +20371,68 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:202
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:206
 msgid "Status (coloured levels)"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:204
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:208
 #, php-format
 msgid "Unit: %s"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:205
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:209
 msgid "No unit"
 msgstr ""
 
 #. translators: 1: from date, 2: to date
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:212
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:216
 #, php-format
 msgid "Date range: %1$s to %2$s"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:216
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:220
 msgid "Date range: all dates"
 msgstr ""
 
 #. translators: %s: club / academy name
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:223
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:227
 #, php-format
 msgid "Club: %s"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:239
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:485
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:243
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:493
 msgid "Recorded date"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:242
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:488
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:246
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:496
 msgid "Recorded by"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:262
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:478
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:266
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:486
 msgid "Results"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:281
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:285
 msgid "Trends"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:353
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:361
 #, php-format
 msgid "Value over time (%s)"
 msgstr ""
 
 #. translators: %s: unit of measure
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:354
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:362
 msgid "Value over time"
 msgstr ""
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:355
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:363
 msgid "Recorded status over time"
 msgstr ""
 
@@ -22007,7 +22010,7 @@ msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:66
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:48
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:48
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:49
 msgid "No teams are available to you yet."
 msgstr ""
 
@@ -26303,7 +26306,7 @@ msgid "%dth"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:25
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:115
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:118
 #: src/Modules/Measurements/MeasurementsModule.php:113
 msgid "Testing coverage"
 msgstr ""
@@ -26323,8 +26326,8 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:95
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:375
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:42
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:410
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:45
 #: src/Modules/Measurements/MeasurementsModule.php:139
 msgid "Manage tests"
 msgstr ""
@@ -26344,26 +26347,26 @@ msgid "Everyone is up to date."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:168
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:666
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:59
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:744
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:74
 msgid "Once a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:169
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:667
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:60
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:745
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:75
 msgid "Twice a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:170
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:668
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:61
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:746
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:76
 msgid "Four times a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:171
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:669
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:62
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:747
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:77
 msgid "Monthly"
 msgstr ""
 
@@ -26375,96 +26378,100 @@ msgstr ""
 msgid "Never tested"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:36
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:39
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:47
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:55
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:66
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:81
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:109
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:37
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:40
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:48
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:56
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:82
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:112
 #: src/Modules/Measurements/MeasurementsModule.php:91
 msgid "Record measurements"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:40
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:41
 msgid "You do not have permission to record measurements."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:56
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:57
 msgid "No tests have been set up yet. Create a test first."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:108
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:109
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:115
 msgid "No active players on this team yet."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:127
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:128
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:91
 msgid "— choose a team —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:138
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:139
 msgid "— choose a test —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:151
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:152
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:574
 msgid "Show players"
 msgstr ""
 
 #. translators: 1: test name, 2: date
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:171
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:175
 #, php-format
 msgid "Entering \"%1$s\" for %2$s. Leave a player blank to skip."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:200
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:204
 msgid "Save all"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:219
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:220
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:233
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:223
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:224
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:237
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:107
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:165
 msgid "— skip —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:234
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:238
 msgid "Pass"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:235
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:239
 msgid "Fail"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:245
-msgid "value"
-msgstr ""
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:254
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:261
 msgid "Choose a test before saving."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:268
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:275
 msgid "No values entered. Fill in at least one player before saving."
 msgstr ""
 
 #. translators: %d: number of measurements recorded
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:321
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:345
 #, php-format
 msgid "%d measurement recorded."
 msgid_plural "%d measurements recorded."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:395
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:697
+#. translators: 1: number of values not recorded, 2: the reason they were refused
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:352
+#, php-format
+msgid "%1$d value was not recorded: %2$s"
+msgid_plural "%1$d values were not recorded: %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:430
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:775
 msgid "Add test"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:424
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:459
 msgid "Choose status"
 msgstr ""
 
@@ -26531,43 +26538,43 @@ msgstr ""
 msgid "monthly"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:47
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:50
 msgid "You do not have permission to manage tests."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:126
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:129
 msgid ""
 "No tests have been set up yet. Use “+ New test” to create the first one."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:218
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:221
 msgid "Edit test"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:225
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:506
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:228
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:547
 msgid "That test could not be found."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:270
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:279
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:26
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:210
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:519
 msgid "— choose —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:280
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:289
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:47
 msgid "Value type"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:289
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:33
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:298
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:39
 msgid "Unit"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:291
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:34
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:300
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:40
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:211
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:128
 #: src/Modules/Vct/Wizard/ReviewStep.php:59
@@ -26576,162 +26583,185 @@ msgstr ""
 msgid "— none —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:302
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:42
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:313
+msgid ""
+"A unit from the list carries its dimension, so values are stored in a "
+"canonical base and can be compared and converted."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:317
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:53
 msgid "Custom unit (overrides the list)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:305
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:44
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:320
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:55
 msgid "e.g. watt/kg"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:310
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:321
+msgid ""
+"A custom unit has no dimension: its values are stored exactly as typed, and "
+"are never converted or compared across units."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:327
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:59
+msgid "Enter and show as mm:ss"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:329
+msgid ""
+"For a time test. A result is typed as 5:30 and reads back as 5:30; it is "
+"stored in seconds."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:334
 msgid "Scale minimum"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:315
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:339
 msgid "Scale maximum"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:322
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:51
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:346
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:66
 msgid "Direction"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:331
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:65
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:355
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:80
 msgid "Recurrence"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:342
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:366
 msgid "Active (available when recording results)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:349
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:373
 msgid "Show this test’s results on the player profile"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:355
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:379
 msgid "Target bands per age group"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:357
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:381
 msgid ""
 "Optional. The green band is on target and the amber band is a warning; "
 "anything outside flags red. Leave blank to skip an age group."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:368
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:49
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:396
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:54
 msgid "Green from"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:369
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:50
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:397
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:55
 msgid "Green to"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:370
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:51
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:398
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:56
 msgid "Amber from"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:371
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:52
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:399
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:57
 msgid "Amber to"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:393
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:421
 msgid "Export results"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:395
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:423
 msgid ""
 "Download every recorded result for this test as a formatted Excel workbook."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:455
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:216
 msgid "Export Excel"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:447
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:475
 msgid "Status levels"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:449
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:477
 msgid ""
 "List the status levels from lowest to highest. Each level shows as a "
 "coloured chip on the player profile. Clear a level’s label to remove it."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:464
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:492
 msgid "e.g. On track"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:467
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:495
 #: src/Shared/Frontend/FrontendHolidaysView.php:311
 msgid "Colour"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:515
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:556
 msgid "Test activated."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:516
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:557
 msgid "Test deactivated."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:524
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:565
 msgid "Test archived."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:525
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:566
 msgid "That test could not be archived."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:531
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:572
 msgid "Test saved."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:647
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:725
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:42
 msgid "A number (with a unit)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:648
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:726
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
 msgid "A scale score"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:649
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:727
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:44
 msgid "Pass / fail"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:650
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:728
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:45
 msgid "A status (coloured levels)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:657
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:47
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:735
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:62
 msgid "Higher is better"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:658
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:48
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:736
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:63
 msgid "Lower is better"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:659
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:49
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:737
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:64
 msgid "Neither (just track it)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:670
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:63
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:748
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:78
 msgid "No fixed cadence"
 msgstr ""
 
@@ -27005,34 +27035,97 @@ msgid ""
 "bands."
 msgstr ""
 
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:139
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:154
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:174
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:226
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:253
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:281
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:299
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:141
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:156
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:176
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:228
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:267
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:295
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:313
 msgid "Test not found."
 msgstr ""
 
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:171
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:222
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:250
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:278
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:291
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:173
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:224
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:264
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:292
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:305
 msgid "Invalid test id."
 msgstr ""
 
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:179
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:181
 msgid "Levels must be a list."
 msgstr ""
 
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:258
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:272
 msgid "An age group is required for a target."
 msgstr ""
 
-#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:269
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:283
 msgid "Could not save the target."
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:99
+msgctxt "measurement dimension"
+msgid "Time"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:100
+msgctxt "measurement dimension"
+msgid "Length"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:101
+msgctxt "measurement dimension"
+msgid "Mass"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:102
+msgctxt "measurement dimension"
+msgid "Count"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:103
+msgctxt "measurement dimension"
+msgid "Rate"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:104
+msgctxt "measurement dimension"
+msgid "Percentage"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:105
+msgctxt "measurement dimension"
+msgid "Level"
+msgstr ""
+
+#: src/Modules/Measurements/Units/Dimensions.php:106
+msgctxt "measurement dimension"
+msgid "No dimension"
+msgstr ""
+
+#: src/Modules/Measurements/Units/UnitContext.php:138
+msgid "Enter a time as mm:ss, for example 5:30. Seconds must be under 60."
+msgstr ""
+
+#: src/Modules/Measurements/Units/UnitContext.php:149
+msgid "Enter a time as mm:ss, for example 5:30."
+msgstr ""
+
+#: src/Modules/Measurements/Units/UnitContext.php:150
+msgid "Enter a number."
+msgstr ""
+
+#. translators: 1: lowest accepted value with unit, 2: highest accepted value with unit
+#: src/Modules/Measurements/Units/UnitContext.php:172
+#, php-format
+msgid ""
+"That value is outside the range this kind of test can hold (%1$s to %2$s)."
+msgstr ""
+
+#: src/Modules/Measurements/Units/UnitContext.php:229
+msgid "value"
 msgstr ""
 
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:16
@@ -27051,31 +27144,31 @@ msgstr ""
 msgid "A test name is required."
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:20
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:24
 msgid "Unit & recurrence"
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:24
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:26
 msgid "Targets"
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:29
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:31
 msgid "Pass/fail tests have no target bands. Click Finish to create the test."
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:33
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:35
 msgid ""
 "Status tests use coloured levels instead of target bands. Click Finish to "
 "create the test, then add its levels on the edit screen."
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:37
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:39
 msgid ""
 "Optional. Per age group, the green band is on target and the amber band is a "
 "warning; anything outside flags red. Leave blank to add targets later."
 msgstr ""
 
-#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:99
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:139
 msgid "Could not create the test."
 msgstr ""
 
