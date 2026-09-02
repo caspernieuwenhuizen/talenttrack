@@ -222,7 +222,12 @@ final class FilterBar {
 
 			switch ( $type ) {
 				case 'select':
-					$value = (string) ( $group['value'] ?? '' );
+					// `selected`, not `value` — the key renderSelect() reads and
+					// the one every caller passes. Reading `value` here made this
+					// branch unreachable: a select group has no `value`, so every
+					// select was silently skipped and the derivation covered only
+					// text and the link-based groups.
+					$value = (string) ( $group['selected'] ?? '' );
 					if ( $value === '' ) break; // the placeholder is "no filter"
 					$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
 					$olabel  = (string) ( $options[ $value ] ?? $value );
@@ -242,7 +247,10 @@ final class FilterBar {
 					break;
 
 				case 'toggle':
-					if ( empty( $group['checked'] ) ) break;
+					// `on`, not `checked` — same mismatch as `select` above.
+					// A toggle group carries `on`; `checked` is not a key the
+					// component defines anywhere.
+					if ( empty( $group['on'] ) ) break;
 					$chips[] = [
 						// A toggle's label already reads as a statement
 						// ("Show cancelled"), so it needs no "Label: value".
@@ -487,7 +495,11 @@ final class FilterBar {
 		//
 		// It sits at the end of the inline row, after the auto-margin that
 		// #3291 fixed, so it reads as chrome rather than as one more filter.
-		if ( $chips !== [] || $reset !== '' ) {
+		// The derived chips count towards this gate too. Testing only the
+		// caller's arrays made a derived-chips surface depend on the caller
+		// also passing a reset URL — the caller-drift the derivation exists
+		// to end.
+		if ( $derived_chips !== [] || $chips !== [] || $reset !== '' ) {
 			$out .= '<div class="tt-filterbar__utils">';
 			// #3292 — a real list, and NOT aria-hidden. The chips are the only
 			// place the bar says which filters are applied; hiding them from

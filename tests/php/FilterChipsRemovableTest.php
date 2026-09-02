@@ -31,12 +31,17 @@ final class FilterChipsRemovableTest extends WP_UnitTestCase {
     private function render( array $args = [], array $extra_groups = [] ): string {
         $groups = array_merge( [
             [
-                'type'    => 'select',
-                'key'     => 'team',
-                'name'    => 'team_id',
-                'label'   => 'Team',
-                'value'   => '2',
-                'options' => [ '' => 'All', '2' => 'Ajax U17' ],
+                'type'     => 'select',
+                'key'      => 'team',
+                'name'     => 'team_id',
+                'label'    => 'Team',
+                // #3318 — `selected`, the key renderSelect() reads and every
+                // caller passes. This fixture used to say `value`, which no
+                // select group carries: it produced a chip while rendering an
+                // empty <select>, so the suite was green while the feature
+                // reached no select on any surface in the app.
+                'selected' => '2',
+                'options'  => [ '' => 'All', '2' => 'Ajax U17' ],
             ],
             [
                 'type'  => 'text',
@@ -67,6 +72,79 @@ final class FilterChipsRemovableTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'Team: Ajax U17', $html );
         $this->assertStringContainsString( 'Search: jansen', $html );
+    }
+
+    /**
+     * #3318 — the chip and the control it describes must read the same group
+     * key, and the only way to prove that is to assert on BOTH in one render.
+     *
+     * Asserting the chip alone is what let the derivation ship reading keys
+     * no caller passes: the fixture said `value`, the chip appeared, and the
+     * <select> it claimed to describe rendered with nothing selected. Every
+     * surface in the app had the mirror image — a correct select and no chip.
+     */
+    public function test_a_selects_chip_and_its_rendered_option_agree(): void {
+        $html = $this->render();
+
+        // The control really is on Ajax U17 …
+        $this->assertMatchesRegularExpression(
+            '/<option value="2" selected>Ajax U17<\/option>/',
+            $html,
+            'The select should render its `selected` option as selected.'
+        );
+        // … and the chip says so.
+        $this->assertStringContainsString( 'Team: Ajax U17', $html );
+    }
+
+    /** A toggle chips off `on` — the key renderToggle() reads (#3318). */
+    public function test_a_toggle_chips_when_it_is_on(): void {
+        $html = $this->render( [], [
+            [
+                'type'  => 'toggle',
+                'key'   => 'cancelled',
+                'name'  => 'show_cancelled',
+                'label' => 'Show cancelled',
+                'on'    => true,
+            ],
+        ] );
+
+        // The switch really is on …
+        $this->assertStringContainsString( 'tt-switch tt-switch--on', $html );
+        // … and it carries a chip, with no "Label: value" — the label of a
+        // toggle already reads as a statement.
+        $this->assertStringContainsString( 'Show cancelled', $html );
+        $this->assertMatchesRegularExpression(
+            '/tt-chip__clear[^>]*aria-label="Remove filter Show cancelled/',
+            $html
+        );
+    }
+
+    /** An off toggle is not a filter, so it gets no chip (#3318). */
+    public function test_a_toggle_that_is_off_gets_no_chip(): void {
+        $html = $this->render( [], [
+            [
+                'type'  => 'toggle',
+                'key'   => 'cancelled',
+                'name'  => 'show_cancelled',
+                'label' => 'Show cancelled',
+                'on'    => false,
+            ],
+        ] );
+
+        $this->assertStringNotContainsString( 'Remove filter Show cancelled', $html );
+    }
+
+    /**
+     * The cluster is gated on the derived chips too, not only on what the
+     * caller passed — otherwise a surface deriving chips but passing no
+     * reset URL renders none of them (#3318).
+     */
+    public function test_derived_chips_render_without_a_reset_url(): void {
+        $html = $this->render( [ 'reset_url' => '' ] );
+
+        $this->assertStringContainsString( '<div class="tt-filterbar__utils">', $html );
+        $this->assertStringContainsString( 'Team: Ajax U17', $html );
+        $this->assertStringNotContainsString( 'tt-filterbar__clear', $html );
     }
 
     /**
