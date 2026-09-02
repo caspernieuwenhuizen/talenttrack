@@ -59647,6 +59647,19 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: %s: the active filter, e.g. "Team: Ajax U17".
+#: src/Shared/Frontend/Components/FilterBar.php:389
+#, php-format
+msgid "Remove filter %s"
+msgstr "Filter %s verwijderen"
+
+#. translators: 1: filter name, e.g. "Team". 2: its value, e.g. "Ajax U17".
+#: src/Shared/Frontend/Components/FilterBar.php:305
+#, php-format
+msgctxt "active filter chip"
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
 #, php-format
 #~ msgid "Change since %2$s: %1$s SDS"
 #~ msgstr "Verandering sinds %2$s: %1$s SDS"

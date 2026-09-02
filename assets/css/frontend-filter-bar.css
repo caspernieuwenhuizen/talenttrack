@@ -623,7 +623,7 @@
 }
 .tt-dashboard .tt-chips {
 	display: flex;
-	gap: 7px;
+	gap: 8px; /* #3292 — the 8px floor between adjacent touch targets. */
 	overflow-x: auto;
 	scrollbar-width: none;
 	-webkit-overflow-scrolling: touch;
@@ -634,6 +634,12 @@
 .tt-dashboard .tt-chips::-webkit-scrollbar {
 	display: none;
 }
+/* #3292 — the strip is a list now, so the UA's bullets and indent go. */
+.tt-dashboard .tt-chips {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
 .tt-dashboard .tt-chip {
 	font-size: 0.78125rem; /* 12.5px */
 	font-weight: 600;
@@ -643,9 +649,41 @@
 	border-radius: 999px;
 	padding: 6px 11px;
 	white-space: nowrap;
-	min-height: 34px;
+	/* #3292 — 48px so the ✕ inside clears the touch floor. The chip used to
+	   be 34px, which is fine for a label nobody can press and too small the
+	   moment it carries a control. */
+	min-height: 48px;
 	display: inline-flex;
 	align-items: center;
+	gap: 2px;
+	flex: 0 0 auto;
+}
+.tt-dashboard .tt-chip__clear {
+	/* The hit area is the chip's full 48px height by a 44px-wide box centred
+	   on a small glyph — the target is what the finger needs, not what the ✕
+	   looks like. Negative margins let it eat the chip's own padding so a
+	   label-only chip needs no separate rule (and no `:has()`). */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	align-self: stretch;
+	margin: -6px -11px -6px 2px;
+	padding: 0 6px;
+	border-radius: 999px;
+	color: inherit;
+	text-decoration: none;
+	font-size: 0.8125rem;
+	line-height: 1;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-chip__clear:hover,
+.tt-dashboard .tt-chip__clear:focus-visible {
+	background: #bfe4cf;
+}
+.tt-dashboard .tt-chip__clear:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 1px;
 }
 
 /* =============================================================
