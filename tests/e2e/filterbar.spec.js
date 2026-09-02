@@ -233,7 +233,9 @@ test.describe( 'FilterBar list filtering (Players)', () => {
         await expect( openBtn ).toBeVisible();
 
         const sheet = page.locator( '[data-tt-filterbar] [data-tt-filter-sheet]' ).first();
-        // Sheet starts hidden (the `hidden` attribute).
+        // Sheet starts closed. Since #3311 it is a <dialog>, so "closed"
+        // is the UA's `display: none` on a dialog without `open`, not the
+        // `hidden` attribute this once asserted.
         await expect( sheet ).toBeHidden();
 
         await openBtn.click();
@@ -261,5 +263,119 @@ test.describe( 'FilterBar list filtering (Players)', () => {
             () => document.documentElement.scrollWidth <= window.innerWidth + 1
         );
         expect( stillNoOverflow ).toBeTruthy();
+    } );
+
+    /**
+     * #3321 — the sheet's Apply, on the branch that has no hydrator.
+     *
+     * Every test above runs on the players list, a FrontendListTable
+     * surface whose hydrator live-filters on any `change` event. That
+     * branch never needed Apply to work, which is exactly why #3288 —
+     * Apply being a close button, so a date range typed into the sheet
+     * was discarded on a phone — survived undetected here.
+     *
+     * The bare-FilterBar surfaces (the two grids, five analytics reports,
+     * standard reports, audit log, comparison, message log) have no
+     * hydrator: the footer Apply submitting the form is the ONLY way a
+     * date range is committed on a phone. This is the guard for that.
+     */
+    test( '360px sheet Apply commits a date range on a bare-FilterBar surface', async ( { page } ) => {
+        await page.setViewportSize( { width: 360, height: 780 } );
+
+        await page.goto( '/?tt_view=attendance-grid' );
+        const bar = page.locator( '[data-tt-filterbar]' ).first();
+        try {
+            await bar.waitFor( { state: 'attached', timeout: 15000 } );
+        } catch ( _e ) {
+            test.skip( true, 'Attendance grid not present on this install.' );
+            return;
+        }
+        await page.waitForLoadState( 'load', { timeout: 30000 } );
+
+        const openBtn = page.locator( '[data-tt-filterbar] [data-tt-filter-open]' ).first();
+        const sheet   = page.locator( '[data-tt-filterbar] [data-tt-filter-sheet]' ).first();
+        await expect( openBtn ).toBeVisible();
+        await openBtn.click();
+        await expect( sheet ).toBeVisible( { timeout: 10000 } );
+
+        // The grid needs a team to render its date range; without seeded
+        // teams the bar collapses to fewer groups. Skip rather than fail.
+        const from = sheet.locator( 'input[name="from"]' ).first();
+        const to   = sheet.locator( 'input[name="to"]' ).first();
+        if ( await from.count() === 0 || await to.count() === 0 ) {
+            test.skip( true, 'Attendance grid renders no date range on this install.' );
+            return;
+        }
+
+        await from.fill( '2026-03-01' );
+        await to.fill( '2026-03-31' );
+
+        // The footer Apply specifically — the header ✕ also carries
+        // data-tt-filter-close, and it is the one that must NOT submit.
+        const apply = sheet.locator( '.tt-filter-sheet__apply' ).first();
+        await expect( apply ).toBeVisible();
+
+        await Promise.all( [
+            page.waitForURL( /[?&]from=2026-03-01/, { timeout: 30000 } ),
+            apply.click(),
+        ] );
+
+        // Both bounds made it into the query, not just the one that
+        // happened to be last — this is the assertion that fails if Apply
+        // goes back to being a close button.
+        await expect( page ).toHaveURL( /[?&]from=2026-03-01/ );
+        await expect( page ).toHaveURL( /[?&]to=2026-03-31/ );
+
+        // And the reloaded page reflects the window it was given.
+        await page.waitForLoadState( 'load', { timeout: 30000 } );
+        await expect(
+            page.locator( '[data-tt-filterbar] input[name="from"]' ).first()
+        ).toHaveValue( '2026-03-01' );
+    } );
+
+    /**
+     * #3321 — the other half of the same button.
+     *
+     * On a FrontendListTable surface the hydrator calls preventDefault()
+     * on the form's submit and live-filters instead, so Apply must NOT
+     * navigate. A regression either way is invisible without both halves:
+     * make Apply inert and the bare surfaces silently lose data; let it
+     * navigate here and every list reloads on a filter it used to apply
+     * in place.
+     */
+    test( 'sheet Apply live-filters without a page load on a list surface', async ( { page } ) => {
+        await page.setViewportSize( { width: 360, height: 780 } );
+
+        const present = await gotoPlayersList( page );
+        if ( ! present ) {
+            test.skip( true, 'Frontend players FilterBar not present on this install.' );
+            return;
+        }
+
+        const openBtn = page.locator( '[data-tt-filterbar] [data-tt-filter-open]' ).first();
+        const sheet   = page.locator( '[data-tt-filterbar] [data-tt-filter-sheet]' ).first();
+        await openBtn.click();
+        await expect( sheet ).toBeVisible( { timeout: 10000 } );
+
+        const sheetSearch = sheet.locator( 'input[name="search"]' ).first();
+        if ( await sheetSearch.count() === 0 ) {
+            test.skip( true, 'No search box on this list.' );
+            return;
+        }
+        const term = 'zzz-no-match-' + Date.now();
+        await sheetSearch.fill( term );
+
+        // A sentinel that a real navigation would wipe.
+        await page.evaluate( () => { window.__ttSurvivedApply = true; } );
+
+        await sheet.locator( '.tt-filter-sheet__apply' ).first().click();
+        await expect( page ).toHaveURL( new RegExp( 'search=' + term ), { timeout: 30000 } );
+
+        // Still the same document: the hydrator swapped rows in place.
+        const survived = await page.evaluate( () => window.__ttSurvivedApply === true );
+        expect( survived ).toBeTruthy();
+
+        // And the sheet closed, as it does on every surface.
+        await expect( sheet ).toBeHidden( { timeout: 10000 } );
     } );
 } );
