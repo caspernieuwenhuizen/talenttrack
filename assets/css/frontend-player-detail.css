@@ -685,6 +685,11 @@
 .tt-player-kv__v { font-weight: 600; word-break: break-word; }
 .tt-player-kv__v a { color: var(--tt-accent); text-decoration: none; }
 
+/* #3280 — the provenance of a measured figure ("measured 18 Aug") sits
+   beside the value it qualifies, subordinate to it. The figure is what the
+   reader came for; the date is what makes it trustworthy. */
+.tt-player-kv__note { font-weight: 400; color: var(--tt-muted); }
+
 /* ---------- Goals tab: finished goals, collapsed (#3033) ---------- *
  * Native <details> so it opens without JS and answers to Enter/Space;
  * the summary is a 48px tap target. */

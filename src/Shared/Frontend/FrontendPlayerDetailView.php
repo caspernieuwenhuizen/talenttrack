@@ -1278,6 +1278,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! empty( $player->jersey_number ) ) {
             $identity_rows[] = [ __( 'Jersey number', 'talenttrack' ), (string) (int) $player->jersey_number ];
         }
+        // #3280 — height and weight. The card carried neither, while the
+        // player's own My-profile screen showed both, so a coach reading a
+        // player's file could not see what the player could.
+        //
+        // The figures come from the dated series with the profile columns
+        // behind them, resolved by PlayerPhysique — which source answers is
+        // a decision and does not belong in a render method.
+        foreach ( self::physiqueRows( $player_id, $player ) as $row ) {
+            $identity_rows[] = $row;
+        }
         // #2744 — shown to staff only, and always, including when the
         // answer is no. A blank row would be read as "not asked", which is
         // the one thing a consent record must never be ambiguous about.
@@ -1386,6 +1396,71 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( $vct_on ) {
             self::renderPhvPanel( $player_id, $phv_row, $phv_notice_html );
         }
+    }
+
+    /**
+     * #3280 — the Identity card's Height and Weight rows.
+     *
+     * A figure measured in a session reads "172 cm · measured 18 Aug"; one
+     * typed on the player form reads "172 cm" with no date, because there
+     * isn't one. A player with neither gets no row, like every other optional
+     * row on this card — an em dash would say "we asked and there is no
+     * answer", which is not what is being said here.
+     *
+     * A viewer without measurements access sees the profile column rather
+     * than the reading. They can already read that number on the edit form,
+     * so nothing is exposed that was not; and where the two disagree, the
+     * viewer with less access sees less.
+     *
+     * @return array<int,array{0:string,1:string}>
+     */
+    private static function physiqueRows( int $player_id, object $player ): array {
+        $may_read = MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ );
+
+        $physique = ( new \TT\Modules\Measurements\Services\PlayerPhysique() )
+            ->forPlayer( $player_id, $player, $may_read );
+
+        $labels = [
+            'height' => __( 'Height', 'talenttrack' ),
+            'weight' => __( 'Weight', 'talenttrack' ),
+        ];
+
+        $rows = [];
+        foreach ( $labels as $key => $label ) {
+            if ( ! isset( $physique[ $key ] ) ) continue;
+
+            $figure = $physique[ $key ];
+
+            // A measured 122.5 cm reads "122,5 cm", not "123 cm": the
+            // Measurements tab shows the reading to one decimal, and a card
+            // that quietly rounds it makes two screens disagree about the
+            // same child. A whole number keeps no decimal, and a profile
+            // column is a whole number by definition — the column is
+            // SMALLINT.
+            //
+            // `cm` / `kg` are SI symbols, not words — the same two characters
+            // in every locale this product ships. Only the number is
+            // localised.
+            $raw      = (float) $figure['value'];
+            $decimals = ( abs( $raw - round( $raw ) ) < 0.05 ) ? 0 : 1;
+
+            $html = esc_html(
+                number_format_i18n( $raw, $decimals ) . ' ' . (string) $figure['unit']
+            );
+            if ( ! empty( $figure['measured_on'] ) ) {
+                // Same ` · ` separator the Status and Potential rows use, so
+                // the card reads as one card rather than three conventions.
+                $html .= ' · <span class="tt-player-kv__note">' . esc_html( sprintf(
+                    /* translators: %s: the date a measurement was taken, e.g. "18 Aug". */
+                    __( 'measured %s', 'talenttrack' ),
+                    self::shortDate( (string) $figure['measured_on'] )
+                ) ) . '</span>';
+            }
+
+            $rows[] = [ $label, $html ];
+        }
+
+        return $rows;
     }
 
     /**

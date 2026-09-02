@@ -208,6 +208,11 @@ Now, whenever you record a height or a weight, the profile follows it.
 The moment a new reading is the player's most recent one, the profile
 shows that number instead.
 
+Both appear on the **Identity** card of a player's Profile tab, each with
+the date it was measured — "172 cm · measured 18 Aug". A figure someone
+typed on the player form rather than measured shows without a date,
+because there isn't one. A player with neither gets no row at all.
+
 A few details worth knowing:
 
 - **The test has to be recognised.** For height, name it `Lengte`,
