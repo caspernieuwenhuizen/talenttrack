@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T19:11:21+00:00\n"
+"POT-Creation-Date: 2026-09-02T19:18:55+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4993,7 +4993,7 @@ msgstr "Alle types"
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:210
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:163
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:348
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:355
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:214
@@ -6933,7 +6933,7 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Modules/Alerts/Frontend/AlertBanner.php:119
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:324
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:331
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
@@ -7067,7 +7067,7 @@ msgid "Last checked %s ago."
 msgstr "Laatst gecontroleerd %s geleden."
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
 msgid "Alert"
 msgstr "Melding"
 
@@ -7170,7 +7170,7 @@ msgstr "Berichten"
 
 #. translators: %s = player name
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:349
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:356
 #: src/Modules/Analytics/AnalyticsModule.php:153
 #: src/Modules/Analytics/AnalyticsModule.php:256
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
@@ -7225,7 +7225,7 @@ msgid "Evaluations"
 msgstr "Evaluaties"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:350
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:357
 #: src/Modules/Analytics/AnalyticsModule.php:172
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Authorization/Admin/RolesPage.php:493
@@ -7271,7 +7271,7 @@ msgid "Development plans"
 msgstr "Ontwikkelplannen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:238
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:351
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:358
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
@@ -7296,7 +7296,7 @@ msgid "People"
 msgstr "Personen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:239
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:353
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:360
 #: src/Shared/CoreSurfaceRegistration.php:638
 msgid "Tasks"
 msgstr "Taken"
@@ -7318,7 +7318,7 @@ msgid "Unread"
 msgstr "Ongelezen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:171
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:325
 msgid "Resolved"
 msgstr "Opgelost"
 
@@ -7349,23 +7349,23 @@ msgstr "Elke urgentie"
 msgid "State"
 msgstr "Status"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:236
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:243
 msgid "Showing alerts for one record only."
 msgstr "Je ziet alleen meldingen over één record."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:238
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:245
 msgid "Show all alerts"
 msgstr "Alle meldingen tonen"
 
 #. translators: %d: number of teams with open alerts
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:263
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:270
 #, php-format
 msgid "%d team has records that need attention"
 msgid_plural "%d teams have records that need attention"
 msgstr[0] "%d team heeft records die aandacht vragen"
 msgstr[1] "%d teams hebben records die aandacht vragen"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:291
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:298
 msgid ""
 "These are the conditions your teams' coaches have been told about. You are "
 "not sent one alert per team."
@@ -7374,7 +7374,7 @@ msgstr ""
 "gekregen. Je krijgt niet per team een eigen melding."
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:359
 #: src/Modules/DemoData/DemoCoverage.php:1304
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34

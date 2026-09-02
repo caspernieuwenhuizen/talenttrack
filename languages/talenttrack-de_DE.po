@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-02T19:11:21+00:00\n"
+"POT-Creation-Date: 2026-09-02T19:18:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -4733,7 +4733,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:210
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:163
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:348
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:355
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:214
@@ -6551,7 +6551,7 @@ msgstr[1] ""
 #: src/Modules/Alerts/Frontend/AlertBanner.php:119
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:324
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:331
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
@@ -6671,7 +6671,7 @@ msgid "Last checked %s ago."
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
 msgid "Alert"
 msgstr ""
 
@@ -6764,7 +6764,7 @@ msgstr ""
 
 #. translators: %s = player name
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:349
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:356
 #: src/Modules/Analytics/AnalyticsModule.php:153
 #: src/Modules/Analytics/AnalyticsModule.php:256
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
@@ -6819,7 +6819,7 @@ msgid "Evaluations"
 msgstr "Bewertungen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:350
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:357
 #: src/Modules/Analytics/AnalyticsModule.php:172
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Authorization/Admin/RolesPage.php:493
@@ -6865,7 +6865,7 @@ msgid "Development plans"
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:238
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:351
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:358
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
@@ -6890,7 +6890,7 @@ msgid "People"
 msgstr "Personen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:239
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:353
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:360
 #: src/Shared/CoreSurfaceRegistration.php:638
 msgid "Tasks"
 msgstr ""
@@ -6912,7 +6912,7 @@ msgid "Unread"
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:171
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:325
 msgid "Resolved"
 msgstr ""
 
@@ -6943,30 +6943,30 @@ msgstr ""
 msgid "State"
 msgstr "Bundesland"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:236
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:243
 msgid "Showing alerts for one record only."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:238
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:245
 msgid "Show all alerts"
 msgstr ""
 
 #. translators: %d: number of teams with open alerts
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:263
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:270
 #, php-format
 msgid "%d team has records that need attention"
 msgid_plural "%d teams have records that need attention"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:291
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:298
 msgid ""
 "These are the conditions your teams' coaches have been told about. You are "
 "not sent one alert per team."
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:359
 #: src/Modules/DemoData/DemoCoverage.php:1304
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
