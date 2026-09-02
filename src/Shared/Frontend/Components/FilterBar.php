@@ -422,12 +422,17 @@ final class FilterBar {
 			$form_attr_html .= ' ' . esc_attr( (string) $name ) . '="' . esc_attr( (string) $value ) . '"';
 		}
 
-		// #2448 — optional personal saved-views strip above the bar. Opt-in:
-		// a surface passes `saved_views` with its registered key. Absent, no
-		// markup is emitted and neither asset is enqueued.
-		$out = self::savedViewsHtml( $args, $groups, $hidden );
+		// #2448 — optional personal saved views. Opt-in: a surface passes
+		// `saved_views` with its registered key. Absent, no markup is emitted
+		// and neither asset is enqueued.
+		//
+		// #3296 — this used to be a separate band rendered ABOVE the bar. It
+		// is now built here and placed inside the utility cluster below, so
+		// the bar is one row of chrome instead of two. On a 360px screen a
+		// list opened with a saved-views band, then a filter bar, then rows.
+		$saved_views_html = self::savedViewsHtml( $args, $groups, $hidden );
 
-		$out .= '<div class="tt-filterbar" data-tt-filterbar>';
+		$out = '<div class="tt-filterbar" data-tt-filterbar>';
 		$out .= '<form method="get" class="tt-filterbar__form" data-tt-filterbar-form'
 			. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' )
 			. $form_attr_html . '>';
@@ -507,7 +512,11 @@ final class FilterBar {
 		// caller's arrays made a derived-chips surface depend on the caller
 		// also passing a reset URL — the caller-drift the derivation exists
 		// to end.
-		if ( $derived_chips !== [] || $chips !== [] || $reset !== '' ) {
+		//
+		// #3296 — and so do the saved views: a surface with views but no
+		// filters set and no reset URL still needs the cluster to hold its
+		// chips.
+		if ( $derived_chips !== [] || $chips !== [] || $reset !== '' || $saved_views_html !== '' ) {
 			$out .= '<div class="tt-filterbar__utils">';
 			// #3292 — a real list, and NOT aria-hidden. The chips are the only
 			// place the bar says which filters are applied; hiding them from
@@ -550,6 +559,11 @@ final class FilterBar {
 				$out .= '<a class="tt-btn tt-btn-secondary tt-filterbar__clear" href="' . esc_url( $reset ) . '">'
 					. esc_html__( 'Clear', 'talenttrack' ) . '</a>';
 			}
+			// #3296 — the views zone: chips then the bookmark, immediately
+			// after Clear so "what is applied" and "what I saved" read as two
+			// adjacent groups rather than one mixed row.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SavedViews::html() escapes internally.
+			$out .= $saved_views_html;
 			$out .= '</div>'; // .tt-filterbar__utils
 		}
 
