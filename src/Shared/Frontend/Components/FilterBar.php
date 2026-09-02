@@ -438,21 +438,29 @@ final class FilterBar {
 		}
 
 		// ---- Inline single-line row (desktop >=1024px) --------------
-		// #2203 — the `status` group is always rendered LAST and pushed right
-		// (CSS `margin-left:auto` on the `--status` wrapper), regardless of the
-		// order the caller passed groups. Non-status groups keep their relative
-		// order; the mobile sheet order (below) is untouched.
-		$inline_groups = self::orderStatusLast( $groups );
+		//
+		// #3319 — the row holds the FILTERS. The trailing utility groups
+		// (`status` pills, the `⋯` menu) render in their own block further
+		// down, after the chips + Clear cluster.
+		//
+		// They used to sit at the end of this row, right-aligned by an
+		// auto-margin. #3289 then added `.tt-filterbar__utils` as a sibling
+		// rendered AFTER the row — and the form is a flex row, so DOM order
+		// won: the bar ended "Clear, chips, ⋯" and the ⋯ was no longer the
+		// rightmost thing on it. Two auto-margins in two different flex
+		// containers; neither rule wrong alone, the composition wrong.
+		//
+		// The cluster cannot simply move inside this row, because the row is
+		// `display:none` below 1024px and the chips must render on a phone.
+		// So the utility groups come out instead, and one DOM order serves
+		// both layouts.
+		[ $filter_groups, $utility_groups ] = self::partitionUtilityGroups( $groups );
+
 		$out .= '<div class="tt-filterbar__row">';
-		$last = count( $inline_groups ) - 1;
-		foreach ( $inline_groups as $i => $group ) {
+		$last = count( $filter_groups ) - 1;
+		foreach ( $filter_groups as $i => $group ) {
 			$out .= self::renderGroup( $group, false );
-			// Suppress the divider immediately before the right-aligned status
-			// group — the auto-margin gap replaces it.
-			$next_type      = (string) ( $inline_groups[ $i + 1 ]['type'] ?? '' );
-			$next_is_status = isset( $inline_groups[ $i + 1 ] )
-				&& ( $next_type === 'status' || $next_type === 'menu' );
-			if ( $i < $last && ! $next_is_status ) {
+			if ( $i < $last ) {
 				$out .= '<div class="tt-filterbar__div" aria-hidden="true"></div>';
 			}
 		}
@@ -545,6 +553,20 @@ final class FilterBar {
 			$out .= '</div>'; // .tt-filterbar__utils
 		}
 
+		// ---- Trailing utility groups (desktop >=1024px) -------------
+		//
+		// #3319 — the status pills and the `⋯` menu, after the cluster, so
+		// the bar reads: filters · [gap] · chips · Clear · pills · ⋯ and the
+		// menu is the last thing on it. Inline-only, like the row: the mobile
+		// sheet renders every group from `$groups` in caller order.
+		if ( $utility_groups !== [] ) {
+			$out .= '<div class="tt-filterbar__trailing">';
+			foreach ( $utility_groups as $group ) {
+				$out .= self::renderGroup( $group, false );
+			}
+			$out .= '</div>'; // .tt-filterbar__trailing
+		}
+
 		// ---- Bottom sheet (holds the same groups, sheet variant) ----
 		//
 		// #3294 — a real <dialog>, opened with showModal().
@@ -617,27 +639,38 @@ final class FilterBar {
 	}
 
 	/**
-	 * Reorder groups for the INLINE row so every `status`-type group sorts
-	 * to the end (#2203), preserving the relative order of all other groups
-	 * and of multiple status groups among themselves. A stable partition —
-	 * used only for the desktop inline row; the mobile sheet keeps the
-	 * caller's original order.
+	 * Split the groups for the INLINE layout into the filters and the
+	 * trailing utility groups (#2203, #3319).
+	 *
+	 * Replaces `orderStatusLast()`, which returned one flat list because the
+	 * utility groups still rendered inside the filter row. They now render in
+	 * their own block after the chips + Clear cluster, so the two have to be
+	 * told apart rather than merely ordered.
+	 *
+	 * `menu` sorts after `status` regardless of the order the caller passed
+	 * them — the `⋯` is the last thing on the bar, and a caller that happens
+	 * to declare it before its status group should not change that. The old
+	 * version put both in one bucket in caller order, which is why a bar
+	 * declaring the menu first rendered `⋯` before the pills.
+	 *
+	 * Everything else keeps its relative order. The mobile sheet does not use
+	 * this at all — it renders every group in the caller's order.
 	 *
 	 * @param array<int,array<string,mixed>> $groups
-	 * @return array<int,array<string,mixed>>
+	 * @return array{0:array<int,array<string,mixed>>,1:array<int,array<string,mixed>>} filters, utility
 	 */
-	private static function orderStatusLast( array $groups ): array {
-		$rest   = [];
-		$status = [];
+	private static function partitionUtilityGroups( array $groups ): array {
+		$filters = [];
+		$status  = [];
+		$menu    = [];
 		foreach ( $groups as $group ) {
-			$t = (string) ( $group['type'] ?? '' );
-			if ( $t === 'status' || $t === 'menu' ) {
-				$status[] = $group;
-			} else {
-				$rest[] = $group;
+			switch ( (string) ( $group['type'] ?? '' ) ) {
+				case 'status': $status[]  = $group; break;
+				case 'menu':   $menu[]    = $group; break;
+				default:       $filters[] = $group; break;
 			}
 		}
-		return array_merge( $rest, $status );
+		return [ $filters, array_merge( $status, $menu ) ];
 	}
 
 	/**
