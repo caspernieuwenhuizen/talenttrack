@@ -182,17 +182,23 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #1320 — recent-window list of activities a player attended,
-     * shared by the player profile Activities tab + header timeline
-     * + player dashboard. The 3 surfaces previously inlined the same
-     * JOIN-on-attendance shape with subtly different filter sets
-     * (the Activities tab gained an ASC display in #1316; the others
-     * stayed DESC); every schema change to `tt_activities` /
-     * `tt_attendance` requires updating each one independently.
+     * #1320 — recent-window list of activities a player attended.
      *
-     * Inner query selects the MOST RECENT $limit activities (DESC),
-     * matching #1316's recent-window semantics. Outer SELECT reverses
-     * to ASC when callers want chronological display.
+     * The player profile Activities tab is the caller; the sibling
+     * surfaces that used to inline this JOIN-on-attendance shape with
+     * subtly different filter sets read through
+     * `listRecentCompletedForPlayer()` instead. Both live here so a
+     * schema change to `tt_activities` / `tt_attendance` lands in one
+     * place rather than in each view independently.
+     *
+     * Inner query selects the MOST RECENT $limit activities (DESC) — the
+     * recent-window semantics the caller wants either way. The outer
+     * SELECT reverses to ASC when asked, which is what makes a windowed
+     * ascending list correct at all: a naive `ORDER BY … ASC LIMIT 25`
+     * returns the oldest 25 of a player's career rather than the recent
+     * 25 in reading order. #3277 moved the tab to DESC, so nothing asks
+     * for the reversal today; it stays because that trap is the reason
+     * the parameter exists.
      *
      * Filter shape:
      *   - `include_guests`     (default false) — attendance rows where
