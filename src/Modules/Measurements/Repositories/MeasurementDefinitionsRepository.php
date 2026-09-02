@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Measurements\Units\Dimensions;
 
 /**
  * MeasurementDefinitionsRepository (#1856).
@@ -133,6 +134,9 @@ class MeasurementDefinitionsRepository {
             'name'        => (string) ( $data['name'] ?? '' ),
             'value_type'  => $this->safeValueType( $data['value_type'] ?? 'numeric' ),
             'unit'        => isset( $data['unit'] ) && $data['unit'] !== '' ? (string) $data['unit'] : null,
+            'dimension'      => Dimensions::safe( (string) ( $data['dimension'] ?? Dimensions::DIMENSIONLESS ) ),
+            'entry_unit_id'  => ! empty( $data['entry_unit_id'] ) ? (int) $data['entry_unit_id'] : null,
+            'numeric_format' => $this->safeNumericFormat( $data['numeric_format'] ?? 'plain' ),
             'scale_min'   => isset( $data['scale_min'] ) ? (float) $data['scale_min'] : null,
             'scale_max'   => isset( $data['scale_max'] ) ? (float) $data['scale_max'] : null,
             'frequency'   => (string) ( $data['frequency'] ?? 'adhoc' ),
@@ -159,6 +163,9 @@ class MeasurementDefinitionsRepository {
         if ( array_key_exists( 'name', $data ) )        $fields['name']        = (string) $data['name'];
         if ( array_key_exists( 'value_type', $data ) )  $fields['value_type']  = $this->safeValueType( $data['value_type'] );
         if ( array_key_exists( 'unit', $data ) )        $fields['unit']        = $data['unit'] !== '' ? (string) $data['unit'] : null;
+        if ( array_key_exists( 'dimension', $data ) )   $fields['dimension']   = Dimensions::safe( (string) $data['dimension'] );
+        if ( array_key_exists( 'entry_unit_id', $data ) ) $fields['entry_unit_id'] = ! empty( $data['entry_unit_id'] ) ? (int) $data['entry_unit_id'] : null;
+        if ( array_key_exists( 'numeric_format', $data ) ) $fields['numeric_format'] = $this->safeNumericFormat( $data['numeric_format'] );
         if ( array_key_exists( 'scale_min', $data ) )   $fields['scale_min']   = $data['scale_min'] !== null ? (float) $data['scale_min'] : null;
         if ( array_key_exists( 'scale_max', $data ) )   $fields['scale_max']   = $data['scale_max'] !== null ? (float) $data['scale_max'] : null;
         if ( array_key_exists( 'frequency', $data ) )   $fields['frequency']   = (string) $data['frequency'];
@@ -204,5 +211,14 @@ class MeasurementDefinitionsRepository {
 
     private function safeDirection( string $value ): string {
         return in_array( $value, [ 'higher', 'lower', 'neutral' ], true ) ? $value : 'higher';
+    }
+
+    /**
+     * #3273 — `duration` is a rendering of a time value, not a value type of
+     * its own. Whether it is *allowed* on this definition (time dimension only)
+     * is UnitContext's call; this only keeps the column to its two members.
+     */
+    private function safeNumericFormat( string $value ): string {
+        return $value === 'duration' ? 'duration' : 'plain';
     }
 }

@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitContext;
+use TT\Modules\Measurements\Units\UnitRegistry;
 
 /**
  * MeasurementGenerator — the testing battery, its target bands, the team
@@ -57,6 +60,15 @@ class MeasurementGenerator implements DependentGeneratorInterface {
             'name_en' => '30 m sprint', 'name_nl' => 'Sprint 30 m',
             'value_type' => 'numeric', 'direction' => 'lower', 'frequency' => 'quarterly',
             'base' => 5.10, 'per_year' => -0.10, 'spread' => 0.30, 'improve' => -0.12, 'decimals' => 2,
+        ],
+        [
+            // #3273 — a duration test, so the demo install exercises mm:ss
+            // entry, the seconds-canonical storage and the minute→second
+            // conversion instead of only unit factors of 1.
+            'category' => 'Physical', 'unit' => 'min', 'numeric_format' => 'duration',
+            'name_en' => '1500 m run', 'name_nl' => 'Loop 1500 m',
+            'value_type' => 'numeric', 'direction' => 'lower', 'frequency' => 'biannual',
+            'base' => 7.2, 'per_year' => -0.18, 'spread' => 0.9, 'improve' => -0.15, 'decimals' => 2,
         ],
         [
             'category' => 'Physical', 'unit' => 'cm',
@@ -175,6 +187,7 @@ class MeasurementGenerator implements DependentGeneratorInterface {
 
         $out = [];
         foreach ( self::BATTERY as $sort => $spec ) {
+            /** @var array<string, mixed> $spec */
             $name        = $dutch ? $spec['name_nl'] : $spec['name_en'];
             $category_id = (int) ( $categories[ $spec['category'] ] ?? 0 );
             if ( $category_id <= 0 ) continue;
@@ -189,6 +202,12 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                 continue;
             }
 
+            // #3273 — the seeded battery declares real units, so the demo data
+            // exercises the conversion rather than accidentally working
+            // because every factor happened to be 1.
+            $unit_row = ( new UnitRegistry() )->bySymbol( (string) $spec['unit'] );
+            $format   = (string) ( $spec['numeric_format'] ?? 'plain' );
+
             $wpdb->insert( "{$wpdb->prefix}tt_measurement_definitions", [
                 'club_id'     => CurrentClub::id(),
                 'uuid'        => self::uuid(),
@@ -196,6 +215,9 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                 'name'        => $name,
                 'value_type'  => $spec['value_type'],
                 'unit'        => $spec['unit'],
+                'dimension'      => $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS,
+                'entry_unit_id'  => $unit_row ? (int) $unit_row->id : null,
+                'numeric_format' => $format,
                 'scale_min'   => $spec['value_type'] === 'scale' ? 1 : null,
                 'scale_max'   => $spec['value_type'] === 'scale' ? 10 : null,
                 'frequency'   => $spec['frequency'],
@@ -210,6 +232,24 @@ class MeasurementGenerator implements DependentGeneratorInterface {
             $out[] = [ 'id' => $id, 'spec' => $spec ];
         }
         return $out;
+    }
+
+    /**
+     * The unit context for a battery entry — built from the spec rather than
+     * re-read from the row, because the generator knows what it just wrote.
+     *
+     * @param array<string, mixed> $spec
+     */
+    private static function unitsFor( array $spec ): UnitContext {
+        $unit_row = ( new UnitRegistry() )->bySymbol( (string) $spec['unit'] );
+
+        return UnitContext::forDefinition( (object) [
+            'unit'           => (string) $spec['unit'],
+            'dimension'      => $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS,
+            'entry_unit_id'  => $unit_row ? (int) $unit_row->id : null,
+            'numeric_format' => (string) ( $spec['numeric_format'] ?? 'plain' ),
+            'value_type'     => (string) $spec['value_type'],
+        ] );
     }
 
     /**
@@ -230,7 +270,8 @@ class MeasurementGenerator implements DependentGeneratorInterface {
 
         $total = 0;
         foreach ( $definitions as $def ) {
-            $spec = $def['spec'];
+            $spec  = $def['spec'];
+            $units = self::unitsFor( $spec );
             foreach ( $age_groups as $group => $age ) {
                 $typical = (float) $spec['base'] + ( ( $age - 12 ) * (float) $spec['per_year'] );
                 $spread  = (float) $spec['spread'];
@@ -251,8 +292,10 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                         (club_id, uuid, definition_id, age_group, green_min, green_max, amber_min, amber_max)
                      VALUES (%d, %s, %d, %s, %f, %f, %f, %f)",
                     CurrentClub::id(), self::uuid(), (int) $def['id'], $group,
-                    round( $green_min, 3 ), round( $green_max, 3 ),
-                    round( $amber_min, 3 ), round( $amber_max, 3 )
+                    // #3273 — bands are stored in the dimension's base, the
+                    // same as the readings they are compared against.
+                    round( $units->toBase( $green_min ), 5 ), round( $units->toBase( $green_max ), 5 ),
+                    round( $units->toBase( $amber_min ), 5 ), round( $units->toBase( $amber_max ), 5 )
                 ) );
                 $id = (int) $wpdb->insert_id;
                 if ( $ok && $id ) {
@@ -288,6 +331,7 @@ class MeasurementGenerator implements DependentGeneratorInterface {
         $total = 0;
         foreach ( $definitions as $def ) {
             $spec    = $def['spec'];
+            $units   = self::unitsFor( $spec );
             $cadence = (int) ( self::CADENCE_WEEKS[ $spec['category'] ] ?? 8 );
             $rounds  = max( 1, (int) floor( $this->weeks / $cadence ) );
 
@@ -356,8 +400,13 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                             'definition_id'          => (int) $def['id'],
                             'measurement_session_id' => $measurement_session_id,
                             'recorded_date'          => gmdate( 'Y-m-d', $when ),
-                            'value_numeric'          => $value,
+                            // #3273 — canonical in, with the unit it was
+                            // "entered" in recorded beside it, exactly as the
+                            // entry grid writes a real reading.
+                            'value_numeric'          => $units->toBase( $value ),
                             'value_text'             => null,
+                            'entered_unit_id'        => $units->entryUnitId(),
+                            'entered_value'          => $value,
                             'recorded_by'            => $author,
                         ] );
                         $result_id = (int) $wpdb->insert_id;

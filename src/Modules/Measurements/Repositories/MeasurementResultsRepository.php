@@ -298,6 +298,11 @@ class MeasurementResultsRepository {
             'recorded_date' => (string) ( $data['recorded_date'] ?? current_time( 'Y-m-d' ) ),
             'value_numeric' => isset( $data['value_numeric'] ) && $data['value_numeric'] !== '' ? (float) $data['value_numeric'] : null,
             'value_text'    => isset( $data['value_text'] ) && $data['value_text'] !== '' ? (string) $data['value_text'] : null,
+            // #3273 — the unit and the number as they were typed. value_numeric
+            // is canonical; these two are what make the row still true after
+            // somebody edits the definition's unit.
+            'entered_unit_id' => ! empty( $data['entered_unit_id'] ) ? (int) $data['entered_unit_id'] : null,
+            'entered_value'   => isset( $data['entered_value'] ) && $data['entered_value'] !== '' ? (float) $data['entered_value'] : null,
             'recorded_by'   => get_current_user_id() ?: null,
             'created_at'    => current_time( 'mysql', true ),
         ] );
@@ -332,6 +337,8 @@ class MeasurementResultsRepository {
         if ( array_key_exists( 'recorded_date', $data ) ) $fields['recorded_date'] = (string) $data['recorded_date'];
         if ( array_key_exists( 'value_numeric', $data ) ) $fields['value_numeric'] = $data['value_numeric'] !== '' && $data['value_numeric'] !== null ? (float) $data['value_numeric'] : null;
         if ( array_key_exists( 'value_text', $data ) )    $fields['value_text']    = $data['value_text'] !== '' ? (string) $data['value_text'] : null;
+        if ( array_key_exists( 'entered_unit_id', $data ) ) $fields['entered_unit_id'] = ! empty( $data['entered_unit_id'] ) ? (int) $data['entered_unit_id'] : null;
+        if ( array_key_exists( 'entered_value', $data ) )   $fields['entered_value']   = $data['entered_value'] !== '' && $data['entered_value'] !== null ? (float) $data['entered_value'] : null;
 
         $ok = false !== $wpdb->update(
             "{$p}tt_measurement_results",

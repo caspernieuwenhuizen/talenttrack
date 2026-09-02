@@ -3,16 +3,20 @@ namespace TT\Modules\Measurements\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\LookupTranslator;
-use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitRegistry;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
  * Step 2 — unit, direction, recurrence.
  *
- * The unit is picked from the `measurement_unit` lookup OR typed as a
- * custom value (the custom field wins when filled — no JS reveal needed).
- * Unit only applies to the numeric value type.
+ * The unit is picked from the unit registry OR typed as a custom value (the
+ * custom field wins when filled — no JS reveal needed). Unit only applies to
+ * the numeric value type.
+ *
+ * #3273 — a registry unit brings its dimension, so the draft already knows
+ * what kind of quantity the test records and whether mm:ss is even meaningful
+ * for it. A custom string is dimensionless by construction.
  */
 final class MeasurementOptionsStep implements WizardStepInterface {
 
@@ -26,15 +30,22 @@ final class MeasurementOptionsStep implements WizardStepInterface {
         $frequency  = (string) ( $state['frequency'] ?? 'adhoc' );
 
         if ( $value_type === 'numeric' ) {
-            $units = QueryHelpers::get_lookups( 'measurement_unit' );
-            $unit_names = array_map( static fn( $r ) => (string) $r->name, $units );
+            // #3273 — the registry, not the lookup list: a unit picked here
+            // carries the dimension the test's values are stored against.
+            $units = ( new UnitRegistry() )->all();
+            $unit_names = array_map( static fn( $r ) => (string) $r->symbol, $units );
             $is_listed = in_array( $unit, $unit_names, true );
 
             echo '<label><span>' . esc_html__( 'Unit', 'talenttrack' ) . '</span><select name="unit">';
             echo '<option value="">' . esc_html__( '— none —', 'talenttrack' ) . '</option>';
             foreach ( $units as $row ) {
-                $name  = (string) $row->name;
-                $label = LookupTranslator::name( $row );
+                $name  = (string) $row->symbol;
+                $label = sprintf(
+                    /* translators: 1: unit symbol, 2: the kind of quantity it measures */
+                    __( '%1$s — %2$s', 'talenttrack' ),
+                    $name,
+                    Dimensions::label( (string) $row->dimension )
+                );
                 echo '<option value="' . esc_attr( $name ) . '" ' . selected( $is_listed ? $unit : '', $name, false ) . '>' . esc_html( $label ) . '</option>';
             }
             echo '</select></label>';
@@ -42,6 +53,10 @@ final class MeasurementOptionsStep implements WizardStepInterface {
             echo '<label><span>' . esc_html__( 'Custom unit (overrides the list)', 'talenttrack' ) . '</span>'
                 . '<input type="text" name="unit_custom" maxlength="50" value="' . esc_attr( ! $is_listed ? $unit : '' ) . '" '
                 . 'placeholder="' . esc_attr__( 'e.g. watt/kg', 'talenttrack' ) . '" /></label>';
+
+            echo '<label><input type="checkbox" name="numeric_format" value="duration" '
+                . checked( (string) ( $state['numeric_format'] ?? '' ), 'duration', false ) . ' /> '
+                . '<span>' . esc_html__( 'Enter and show as mm:ss', 'talenttrack' ) . '</span></label>';
 
             $dirs = [
                 'higher'  => __( 'Higher is better', 'talenttrack' ),
@@ -82,8 +97,17 @@ final class MeasurementOptionsStep implements WizardStepInterface {
         $frequency = isset( $post['frequency'] ) ? sanitize_text_field( wp_unslash( (string) $post['frequency'] ) ) : 'adhoc';
         if ( ! in_array( $frequency, [ 'annual', 'biannual', 'quarterly', 'monthly', 'adhoc' ], true ) ) $frequency = 'adhoc';
 
+        // #3273 — resolve the symbol now so the draft carries the dimension it
+        // will be created with, and mm:ss only survives on a time unit.
+        $unit_row  = $value_type === 'numeric' ? ( new UnitRegistry() )->bySymbol( $unit ) : null;
+        $dimension = $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS;
+        $format    = ( ! empty( $post['numeric_format'] ) && $dimension === Dimensions::TIME ) ? 'duration' : 'plain';
+
         return [
-            'unit'      => $value_type === 'numeric' ? $unit : '',
+            'unit'           => $value_type === 'numeric' ? $unit : '',
+            'dimension'      => $dimension,
+            'entry_unit_id'  => $unit_row ? (int) $unit_row->id : null,
+            'numeric_format' => $format,
             'direction' => $value_type === 'numeric' ? $direction : 'neutral',
             'frequency' => $frequency,
         ];

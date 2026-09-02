@@ -786,6 +786,7 @@ class DemoCoverage {
         'tt_eval_type_categories' => [ 'exempt' => 'Evaluation-type to category mapping, seeded by migrations.' ],
         'tt_category_weights'     => [ 'exempt' => 'Per-age-group category weights, seeded by migrations and admin-editable.' ],
         'tt_measurement_levels'   => [ 'exempt' => 'Measurement status levels, seeded by migration 0192.' ],
+        'tt_measurement_units'    => [ 'exempt' => 'The unit registry (symbol, dimension, factor to the SI base), seeded by migration 0252. Reference data an academy extends, not demo content — the demo battery picks units out of it.' ],
         'tt_exercises'            => [ 'exempt' => 'The exercise library is seeded by migration 0090; #2465 attaches those exercises to trainings rather than building a second library.' ],
         'tt_exercise_categories'  => [ 'exempt' => 'Exercise category vocabulary, seeded by migrations.' ],
         'tt_exercise_principles'  => [ 'exempt' => 'Exercise/principle reference mapping, seeded by migrations.' ],

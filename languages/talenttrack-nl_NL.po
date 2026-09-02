@@ -59528,6 +59528,89 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Measurements/Units/Dimensions.php:92
+msgctxt "measurement dimension"
+msgid "Time"
+msgstr "Tijd"
+
+#: src/Modules/Measurements/Units/Dimensions.php:93
+msgctxt "measurement dimension"
+msgid "Length"
+msgstr "Lengte"
+
+#: src/Modules/Measurements/Units/Dimensions.php:94
+msgctxt "measurement dimension"
+msgid "Mass"
+msgstr "Massa"
+
+#: src/Modules/Measurements/Units/Dimensions.php:95
+msgctxt "measurement dimension"
+msgid "Count"
+msgstr "Aantal"
+
+#: src/Modules/Measurements/Units/Dimensions.php:96
+msgctxt "measurement dimension"
+msgid "Rate"
+msgstr "Tempo"
+
+#: src/Modules/Measurements/Units/Dimensions.php:97
+msgctxt "measurement dimension"
+msgid "Percentage"
+msgstr "Percentage"
+
+#: src/Modules/Measurements/Units/Dimensions.php:98
+msgctxt "measurement dimension"
+msgid "Level"
+msgstr "Niveau"
+
+#: src/Modules/Measurements/Units/Dimensions.php:99
+msgctxt "measurement dimension"
+msgid "No dimension"
+msgstr "Geen grootheid"
+
+#: src/Modules/Measurements/Units/UnitContext.php:150
+msgid "Enter a time as mm:ss, for example 5:30. Seconds must be under 60."
+msgstr "Voer een tijd in als mm:ss, bijvoorbeeld 5:30. Seconden moeten onder 60 blijven."
+
+#: src/Modules/Measurements/Units/UnitContext.php:161
+msgid "Enter a time as mm:ss, for example 5:30."
+msgstr "Voer een tijd in als mm:ss, bijvoorbeeld 5:30."
+
+#: src/Modules/Measurements/Units/UnitContext.php:162
+msgid "Enter a number."
+msgstr "Voer een getal in."
+
+#. translators: 1: lowest accepted value with unit, 2: highest accepted value with unit
+#: src/Modules/Measurements/Units/UnitContext.php:186
+#, php-format
+msgid "That value is outside the range this kind of test can hold (%1$s to %2$s)."
+msgstr "Die waarde valt buiten het bereik dat dit soort test aankan (%1$s tot %2$s)."
+
+#. translators: 1: number of values not recorded, 2: the reason they were refused
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:340
+#, php-format
+msgid "%1$d value was not recorded: %2$s"
+msgid_plural "%1$d values were not recorded: %2$s"
+msgstr[0] "%1$d waarde is niet vastgelegd: %2$s"
+msgstr[1] "%1$d waarden zijn niet vastgelegd: %2$s"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:308
+msgid "A unit from the list carries its dimension, so values are stored in a canonical base and can be compared and converted."
+msgstr "Een eenheid uit de lijst draagt haar grootheid mee, zodat waarden in een vaste basiseenheid worden opgeslagen en te vergelijken en om te rekenen zijn."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:316
+msgid "A custom unit has no dimension: its values are stored exactly as typed, and are never converted or compared across units."
+msgstr "Een eigen eenheid heeft geen grootheid: waarden worden precies zo opgeslagen als ingevoerd en nooit omgerekend of over eenheden heen vergeleken."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:322
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:52
+msgid "Enter and show as mm:ss"
+msgstr "Invoeren en tonen als mm:ss"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:324
+msgid "For a time test. A result is typed as 5:30 and reads back as 5:30; it is stored in seconds."
+msgstr "Voor een tijdtest. Een resultaat typ je als 5:30 en leest terug als 5:30; het wordt opgeslagen in seconden."
+
 #~ msgid "You do not have permission to record behaviour or potential ratings."
 #~ msgstr ""
 #~ "Je hebt geen permissie om gedrag- of potentieel-beoordelingen te "

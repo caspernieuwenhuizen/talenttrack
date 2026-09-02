@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * TestTrendsQuery (#2537) — one test, every player in scope, over a window.
@@ -69,6 +70,7 @@ final class TestTrendsQuery {
         $direction     = (string) ( $def->direction ?? 'higher' );
         $is_numeric    = in_array( $value_type, [ 'numeric', 'scale' ], true );
         $has_direction = $is_numeric && in_array( $direction, [ 'higher', 'lower' ], true );
+        $units         = UnitContext::forDefinition( $def );
 
         $query = $filters;
         if ( $allowed_team_ids !== null ) {
@@ -94,7 +96,10 @@ final class TestTrendsQuery {
                 ];
             }
             if ( $r->value_numeric !== null ) {
-                $players[ $pid ]['values'][ $date ] = (float) $r->value_numeric;
+                // #3273 — the report reads in the test's own unit. Values are
+                // stored canonically, and a chart axis labelled 1.82 for a
+                // height in centimetres would be nobody's idea of a trend.
+                $players[ $pid ]['values'][ $date ] = $units->fromBase( (float) $r->value_numeric );
             }
             if ( $r->value_text !== null && (string) $r->value_text !== '' ) {
                 $players[ $pid ]['texts'][ $date ] = (string) $r->value_text;
@@ -115,7 +120,7 @@ final class TestTrendsQuery {
             'definition'    => [
                 'id'         => (int) $def->id,
                 'name'       => (string) $def->name,
-                'unit'       => (string) ( $def->unit ?? '' ),
+                'unit'       => $units->symbol(),
                 'value_type' => $value_type,
                 'direction'  => $direction,
                 'category'   => (string) ( $def->category_label ?? $def->category_name ?? '' ),

@@ -27,9 +27,9 @@ out on top of it.
 - **Category** — the grouping a test sits under. Seeded with
  *Anthropometric*, *Physical*, *Technical*, and *Mental*; an admin can edit
  the list.
-- **Unit** — the unit of measure. Seeded with proper units (cm, m, kg, g, s,
- min, reps, level, %, bpm); a test picks one **or** supplies its own custom
- unit.
+- **Unit** — the unit of measure, and what kind of quantity it is. Seeded with
+ real units (s, min, ms, m, cm, mm, km, kg, g, reps, bpm, %, level); a test
+ picks one **or** supplies its own custom unit.
 - **Recurrence** — how often the test should run: annually, twice a year,
  quarterly, monthly, or ad hoc. This powers "who's due".
 - **Session** — a planned testing moment for one team: one test, one date.
@@ -48,6 +48,36 @@ out on top of it.
  track* green). A status test records a level per player rather than a
  number, and the player's latest level shows as a coloured chip on their
  profile.
+
+## Units carry a dimension
+
+A unit is not a label printed after a number. Every unit in the list belongs to
+a **dimension** — time, length, mass, count, rate, percentage or level — and
+knows how it relates to that dimension's base unit: seconds, metres, kilograms.
+
+That has three consequences worth knowing when you set a test up.
+
+- **Values are stored in the base unit and shown in yours.** A height recorded
+ as `182 cm` and one recorded as `1.82 m` are the same stored number. Each
+ test displays its own unit, so the screens read the way the people using them
+ measure.
+- **A result remembers what it was entered in.** Change a test's unit later and
+ the readings already recorded keep their meaning: they were stored against a
+ dimension, not against the caption the test had that day.
+- **A custom unit has no dimension.** Type your own unit (say `watt/kg`) and
+ the value is stored exactly as entered, never converted and never compared
+ across units. That is the trade for being able to measure anything you like.
+
+### Times as mm:ss
+
+Tick **Enter and show as mm:ss** on a test whose unit is a time. A result is
+then typed as `5:30` and reads back as `5:30`, and its target band is written
+the same way. It is stored in seconds, so trends, averages and target flags all
+work on the real quantity.
+
+Without the tick, a time behaves like any other number: `5.5` on a test
+measured in minutes is five and a half minutes. Entering `5:30` in a field that
+is not set to mm:ss is refused rather than guessed at.
 
 ## Status tests (a manual player status)
 

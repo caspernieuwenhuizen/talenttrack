@@ -10,6 +10,9 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitContext;
+use TT\Modules\Measurements\Units\UnitRegistry;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
@@ -233,9 +236,15 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         $units      = QueryHelpers::get_lookups( 'measurement_unit' );
         $age_groups = QueryHelpers::get_lookups( 'age_group' );
 
-        $unit_names = array_map( static fn ( $r ) => (string) $r->name, $units );
+        // #3273 — the picker is fed from the unit registry, which is what
+        // carries the dimension. The dimension is not a second field: two
+        // pickers could contradict each other, and a unit already knows what
+        // kind of quantity it measures.
+        $units      = ( new UnitRegistry() )->all();
+        $unit_names = array_map( static fn ( $r ) => (string) $r->symbol, $units );
         $unit       = (string) ( $def->unit ?? '' );
         $unit_listed = in_array( $unit, $unit_names, true );
+        $is_duration = (string) ( $def->numeric_format ?? 'plain' ) === 'duration';
 
         $targets = [];
         foreach ( ( new MeasurementTargetsRepository() )->listForDefinition( $id ) as $t ) {
@@ -290,12 +299,18 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 <select id="tt-mt-unit" class="tt-input" name="unit">
                     <option value=""><?php esc_html_e( '— none —', 'talenttrack' ); ?></option>
                     <?php foreach ( $units as $u ) :
-                        $uname = (string) $u->name; ?>
+                        $uname = (string) $u->symbol; ?>
                         <option value="<?php echo esc_attr( $uname ); ?>"<?php selected( $unit_listed ? $unit : '', $uname ); ?>>
-                            <?php echo esc_html( LookupTranslator::name( $u ) ); ?>
+                            <?php echo esc_html( sprintf(
+                                /* translators: 1: unit symbol, 2: the kind of quantity it measures */
+                                __( '%1$s — %2$s', 'talenttrack' ),
+                                $uname,
+                                Dimensions::label( (string) $u->dimension )
+                            ) ); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <p class="tt-field-hint"><?php esc_html_e( 'A unit from the list carries its dimension, so values are stored in a canonical base and can be compared and converted.', 'talenttrack' ); ?></p>
             </div>
 
             <div class="tt-field">
@@ -303,6 +318,15 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 <input type="text" id="tt-mt-unit-custom" class="tt-input" name="unit_custom" maxlength="50"
                        value="<?php echo esc_attr( ! $unit_listed ? $unit : '' ); ?>"
                        placeholder="<?php esc_attr_e( 'e.g. watt/kg', 'talenttrack' ); ?>" />
+                <p class="tt-field-hint"><?php esc_html_e( 'A custom unit has no dimension: its values are stored exactly as typed, and are never converted or compared across units.', 'talenttrack' ); ?></p>
+            </div>
+
+            <div class="tt-field tt-field--check">
+                <label class="tt-mt-check" for="tt-mt-duration">
+                    <input type="checkbox" id="tt-mt-duration" name="numeric_format" value="duration"<?php checked( $is_duration ); ?> />
+                    <span><?php esc_html_e( 'Enter and show as mm:ss', 'talenttrack' ); ?></span>
+                </label>
+                <p class="tt-field-hint"><?php esc_html_e( 'For a time test. A result is typed as 5:30 and reads back as 5:30; it is stored in seconds.', 'talenttrack' ); ?></p>
             </div>
 
             <div class="tt-grid tt-grid-2">
@@ -356,7 +380,11 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                     <p class="tt-mt-targets__hint">
                         <?php esc_html_e( 'Optional. The green band is on target and the amber band is a warning; anything outside flags red. Leave blank to skip an age group.', 'talenttrack' ); ?>
                     </p>
-                    <?php foreach ( $age_groups as $ag ) :
+                    <?php
+                    // #3273 — bands are stored canonically; they are typed and
+                    // shown in the test's own unit.
+                    $band_units = UnitContext::forDefinition( $def );
+                    foreach ( $age_groups as $ag ) :
                         $name   = (string) $ag->name;
                         $label  = LookupTranslator::name( $ag );
                         $band   = $targets[ $name ] ?? null;
@@ -365,10 +393,10 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                             <h3 class="tt-mt-target-set__label"><?php echo esc_html( $label ); ?></h3>
                             <div class="tt-grid tt-grid-2">
                                 <?php
-                                self::targetField( $name, 'green_min', __( 'Green from', 'talenttrack' ), $band );
-                                self::targetField( $name, 'green_max', __( 'Green to', 'talenttrack' ), $band );
-                                self::targetField( $name, 'amber_min', __( 'Amber from', 'talenttrack' ), $band );
-                                self::targetField( $name, 'amber_max', __( 'Amber to', 'talenttrack' ), $band );
+                                self::targetField( $name, 'green_min', __( 'Green from', 'talenttrack' ), $band, $band_units );
+                                self::targetField( $name, 'green_max', __( 'Green to', 'talenttrack' ), $band, $band_units );
+                                self::targetField( $name, 'amber_min', __( 'Amber from', 'talenttrack' ), $band, $band_units );
+                                self::targetField( $name, 'amber_max', __( 'Amber to', 'talenttrack' ), $band, $band_units );
                                 ?>
                             </div>
                         </div>
@@ -479,12 +507,25 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         <?php
     }
 
-    private static function targetField( string $ag, string $key, string $label, ?object $band ): void {
-        $fid = 'tt-mt-band-' . sanitize_html_class( $ag . '-' . $key );
-        $val = ( $band && isset( $band->{$key} ) && $band->{$key} !== null ) ? (string) $band->{$key} : '';
+    /**
+     * #3273 — a band is stored canonically and typed in the test's own unit, so
+     * an admin still writes 182 or 5:30 and never 1.82 or 330. The field takes
+     * its control from the same unit context the entry grid uses.
+     */
+    private static function targetField( string $ag, string $key, string $label, ?object $band, UnitContext $units ): void {
+        $fid  = 'tt-mt-band-' . sanitize_html_class( $ag . '-' . $key );
+        $base = ( $band && isset( $band->{$key} ) && $band->{$key} !== null ) ? (float) $band->{$key} : null;
+        $val  = $units->formatForInput( $base );
+
+        $attrs = '';
+        foreach ( $units->inputAttributes() as $k => $v ) {
+            if ( $k === 'placeholder' ) continue; // a band has its own label
+            $attrs .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
+        }
+
         echo '<div class="tt-field">';
         echo '<label class="tt-field-label" for="' . esc_attr( $fid ) . '">' . esc_html( $label ) . '</label>';
-        echo '<input type="number" step="any" inputmode="decimal" id="' . esc_attr( $fid ) . '" class="tt-input" '
+        echo '<input ' . $attrs . 'id="' . esc_attr( $fid ) . '" class="tt-input" ' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every attribute escaped above
             . 'name="band[' . esc_attr( $ag ) . '][' . esc_attr( $key ) . ']" value="' . esc_attr( $val ) . '" />';
         echo '</div>';
     }
@@ -548,10 +589,20 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         $scale_min = self::numOrNull( $_POST['scale_min'] ?? '' );
         $scale_max = self::numOrNull( $_POST['scale_max'] ?? '' );
 
+        // #3273 — resolve the symbol against the registry. A listed unit brings
+        // its dimension with it; a custom string is dimensionless, and so is
+        // any non-numeric test whatever was typed in the unit box.
+        $unit_row  = $value_type === 'numeric' ? ( new UnitRegistry() )->bySymbol( $unit ) : null;
+        $dimension = $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS;
+        $format    = ( ! empty( $_POST['numeric_format'] ) && $dimension === Dimensions::TIME ) ? 'duration' : 'plain';
+
         $data = [
             'category_id' => isset( $_POST['category_id'] ) ? absint( $_POST['category_id'] ) : 0,
             'value_type'  => $value_type,
             'unit'        => $value_type === 'numeric' ? $unit : '',
+            'dimension'      => $dimension,
+            'entry_unit_id'  => $unit_row ? (int) $unit_row->id : null,
+            'numeric_format' => $format,
             'scale_min'   => $scale_min,
             'scale_max'   => $scale_max,
             'direction'   => self::resolveDirection( $value_type, $direction ),
@@ -569,15 +620,28 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         if ( $value_type !== 'passfail' && $value_type !== 'status' && isset( $_POST['band'] ) && is_array( $_POST['band'] ) ) {
             $targets_repo = new MeasurementTargetsRepository();
             $bands        = wp_unslash( $_POST['band'] );
+
+            // #3273 — the bands were typed in the unit the test was just saved
+            // with, so the context is built from the *new* values rather than
+            // the row on disk: changing a test's unit and its bands in one save
+            // must not read the old unit back out of the database.
+            $band_units = UnitContext::forDefinition( (object) [
+                'unit'           => $data['unit'],
+                'dimension'      => $dimension,
+                'entry_unit_id'  => $data['entry_unit_id'],
+                'numeric_format' => $format,
+                'value_type'     => $value_type,
+            ] );
+
             foreach ( $bands as $age_group => $row ) {
                 if ( ! is_array( $row ) ) continue;
                 $age_group = sanitize_text_field( (string) $age_group );
                 if ( $age_group === '' ) continue;
                 $targets_repo->upsert( $id, $age_group, [
-                    'green_min' => self::numOrNull( $row['green_min'] ?? '' ),
-                    'green_max' => self::numOrNull( $row['green_max'] ?? '' ),
-                    'amber_min' => self::numOrNull( $row['amber_min'] ?? '' ),
-                    'amber_max' => self::numOrNull( $row['amber_max'] ?? '' ),
+                    'green_min' => self::bandToBase( $row['green_min'] ?? '', $band_units ),
+                    'green_max' => self::bandToBase( $row['green_max'] ?? '', $band_units ),
+                    'amber_min' => self::bandToBase( $row['amber_min'] ?? '', $band_units ),
+                    'amber_max' => self::bandToBase( $row['amber_max'] ?? '', $band_units ),
                 ] );
             }
         }
@@ -601,6 +665,20 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
     }
 
     // ── helpers ─────────────────────────────────────────────────────
+
+    /**
+     * A band bound as typed, in the test's unit, converted to the canonical
+     * base. An unparseable bound is dropped rather than guessed: a target that
+     * cannot be read is better absent than wrong, because a wrong one paints a
+     * green flag on a player who has not earned it.
+     *
+     * @param mixed $raw
+     */
+    private static function bandToBase( $raw, UnitContext $units ): ?float {
+        $raw = is_string( $raw ) ? trim( $raw ) : '';
+        if ( $raw === '' ) return null;
+        return $units->parse( $raw )['value'];
+    }
 
     /**
      * @param mixed $raw

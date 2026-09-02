@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * ProfileHeightSync (#3219) — keeps `tt_players.height_cm` following the
@@ -154,8 +155,14 @@ class ProfileHeightSync {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $value = $wpdb->get_var( $wpdb->prepare(
-            "SELECT r.value_numeric
+        // #3273 — the unit columns travel with the reading. `value_numeric` is
+        // the dimension's base (metres for a length), and this method's
+        // contract is centimetres, so the conversion is asked for rather than
+        // assumed. A definition with no resolvable dimension falls back to the
+        // stored number, which is what it has always meant on that install.
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT r.value_numeric,
+                    d.unit, d.dimension, d.entry_unit_id, d.numeric_format, d.value_type
                FROM {$p}tt_measurement_results r
                JOIN {$p}tt_measurement_definitions d ON d.id = r.definition_id
               WHERE r.player_id = %d
@@ -175,7 +182,11 @@ class ProfileHeightSync {
             $names[3]
         ) );
 
-        return $value === null ? null : (float) $value;
+        if ( ! $row || $row->value_numeric === null ) return null;
+
+        $base = (float) $row->value_numeric;
+
+        return UnitContext::forDefinition( $row )->toSymbol( $base, 'cm' ) ?? $base;
     }
 
     /**

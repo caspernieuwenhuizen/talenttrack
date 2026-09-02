@@ -13,6 +13,7 @@ use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * MeasurementResultsXlsxExporter (#2139, epic #2116) — a single test's
@@ -187,7 +188,10 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
         );
 
         $club_name = (string) get_bloginfo( 'name' );
-        $unit      = (string) ( $def->unit ?? '' );
+        // #3273 — values are stored canonically; the export renders them in the
+        // unit the academy measures in.
+        $units     = UnitContext::forDefinition( $def );
+        $unit      = $units->symbol();
         $date_from = (string) ( $request->filters['date_from'] ?? '' );
         $date_to   = (string) ( $request->filters['date_to'] ?? '' );
 
@@ -246,7 +250,7 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
         foreach ( $rows as $r ) {
             $player = trim( (string) $r->first_name . ' ' . (string) $r->last_name );
 
-            $value_cell = $this->valueCell( $value_type, $unit, $r, $level_token );
+            $value_cell = $this->valueCell( $value_type, $units, $r, $level_token );
 
             $sheet_rows[] = [
                 [ 'v' => $player, 'style' => 'td' ],
@@ -276,7 +280,7 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
         // plus a line chart bound to that grid so a coach reads a player's
         // longitudinal series at a glance (CLAUDE.md §1). Built from the same
         // rows — no extra query.
-        $trends = $this->trendsSheet( $def, $value_type, $unit, $rows );
+        $trends = $this->trendsSheet( $def, $value_type, $units, $rows );
         if ( $trends !== null ) {
             $sheets[ __( 'Trends', 'talenttrack' ) ] = $trends;
         }
@@ -301,10 +305,12 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
      * @param array<int, object> $rows  the same export rows collect() shapes
      * @return array<string, mixed>|null  a styled-sheet spec, or null to skip
      */
-    private function trendsSheet( object $def, string $value_type, string $unit, array $rows ): ?array {
+    private function trendsSheet( object $def, string $value_type, UnitContext $units, array $rows ): ?array {
         if ( empty( $rows ) ) {
             return null;
         }
+
+        $unit = $units->symbol();
 
         $charts = in_array( $value_type, [ 'numeric', 'scale' ], true );
 
@@ -328,7 +334,9 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
                 // has several results on one date, the last (latest id) wins —
                 // rows arrive date-ascending, so this keeps the newest.
                 if ( $r->value_numeric !== null ) {
-                    $grid[ $pid ][ $date ] = (float) $r->value_numeric;
+                    // The chart is plotted in the entry unit, matching the
+                    // results sheet beside it.
+                    $grid[ $pid ][ $date ] = $units->fromBase( (float) $r->value_numeric );
                 }
             } else {
                 // Status / text: show the recorded label for reference.
@@ -444,16 +452,16 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
      * @param array<string, string> $level_token  label => colour token
      * @return array<string, mixed>
      */
-    private function valueCell( string $value_type, string $unit, object $row, array $level_token ): array {
+    private function valueCell( string $value_type, UnitContext $units, object $row, array $level_token ): array {
         if ( $value_type === 'status' ) {
             $label = (string) ( $row->value_text ?? '' );
             $token = $level_token[ $label ] ?? MeasurementLevelPalette::DEFAULT_TOKEN;
             return [ 'v' => $label, 'style' => 'lvl_' . $token ];
         }
 
+        // #3273 — the export is read by people, in the unit they measured in.
         if ( $value_type === 'numeric' && $row->value_numeric !== null ) {
-            $num = $this->trimNumber( (float) $row->value_numeric );
-            return [ 'v' => $unit !== '' ? $num . ' ' . $unit : $num, 'style' => 'td' ];
+            return [ 'v' => $units->format( (float) $row->value_numeric ), 'style' => 'td' ];
         }
 
         if ( $row->value_numeric !== null ) {
