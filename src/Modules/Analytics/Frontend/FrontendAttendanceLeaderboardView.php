@@ -115,6 +115,11 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
             : ( $window['to'] ?? $defaults['to'] );
 
+        // #3293 — reassigned here rather than at each call site: this view
+        // renders the bar from two places (the tamper-guard early return as
+        // well as the main path) and both have to agree with the query.
+        $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
+
         // #1942 — academy-wide = global-scope read on `activities`; the
         // settings-admin flag stays as the WP-admin fallback.
         $is_scope_admin = $is_admin
@@ -317,6 +322,9 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         $chips = [];
         if ( $team_id > 0 && isset( $team_options[ (string) $team_id ] ) ) { $active_count++; $chips[] = $team_options[ (string) $team_id ]; }
         if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
         if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
         if ( $n > 0 ) { $active_count++; $chips[] = sprintf( /* translators: %d row cap */ __( 'Top %d', 'talenttrack' ), $n ); }
 

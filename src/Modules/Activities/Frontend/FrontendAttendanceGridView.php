@@ -152,6 +152,11 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         $type_filter  = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : 'all';
         if ( $type_filter === '' || ! isset( $type_options[ $type_filter ] ) ) $type_filter = 'all';
 
+        // #3293 — the bar gets the period the QUERY ran on, not the raw
+        // param. A manual From/To wins above; handing the raw `$period` on
+        // left the pill reading "This month" over a custom window.
+        $period = ReportFilters::effectivePeriod( $period, (bool) $has_manual_from, (bool) $has_manual_to, $from, $to );
+
         self::renderFilterForm( $teams, $team_id, $from, $to, $type_filter, $period, $type_options );
 
         $matrix = ( new AttendanceGridQuery() )->matrix( $team_id, $from, $to, $type_filter );
@@ -415,6 +420,11 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         $active_count = 0;
         $chips = [];
         if ( $period !== '' )         { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter, and was counted nowhere: a
+        // reader who set only a From/To saw "Filters" with no badge and no
+        // chip over a grid that was filtered.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
         if ( $type_filter !== 'all' && isset( $type_options[ $type_filter ] ) ) { $active_count++; $chips[] = $type_options[ $type_filter ]; }
 
         $reset_args = [ 'tt_view' => 'attendance-grid', 'team_id' => $team_id ];

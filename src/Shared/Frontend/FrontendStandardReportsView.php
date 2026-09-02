@@ -370,6 +370,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $to = $has_manual_to
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
             : ( $window['to'] ?? $defaults['to'] );
+        // #3293 — the resolver hands back the period the query ran on, so
+        // every caller's chrome agrees with its data without repeating the
+        // reconciliation.
+        $period = \TT\Modules\Analytics\Reports\ReportFilters::effectivePeriod(
+            $period,
+            (bool) $has_manual_from,
+            (bool) $has_manual_to,
+            $from,
+            $to
+        );
         return [ 'from' => $from, 'to' => $to, 'period' => $period ];
     }
 
@@ -446,6 +456,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $active_count = 0;
         $chips = [];
         if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = \TT\Modules\Analytics\Reports\ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
 
         $reset_args = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );

@@ -98,7 +98,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // #2351 — parity with the team report: surface the silent season
         // default as an active "This season" pill rather than a blank "Custom
         // range" when the seeded window equals the current season window.
-        $effective_period = self::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
+        $effective_period = ReportFilters::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
 
         // v4.20.4 (#1147) — analytics scope honours the user's team
         // assignment. Global-read-on-`activities` holders keep the
@@ -337,23 +337,6 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         return ReportFilters::seasonDefaultWindow();
     }
 
-    /**
-     * #2351 — resolve the period the FilterBar should show as active. An
-     * explicit `?period=` always wins. Otherwise, when the user typed no
-     * manual From/To and the seeded window equals the current season window,
-     * report `this_season` so the season-default seed reads as an active pill
-     * rather than a blank "Custom range". Mirrors the team report's helper so
-     * the two reports can't drift.
-     */
-    private static function effectivePeriod( string $period, bool $has_manual_from, bool $has_manual_to, string $from, string $to ): string {
-        if ( $period !== '' ) return $period;
-        if ( $has_manual_from || $has_manual_to ) return '';
-        $season = ReportFilters::periodWindow( 'this_season', gmdate( 'Y-m-d' ) );
-        if ( $season !== null && $season['from'] === $from && $season['to'] === $to ) {
-            return 'this_season';
-        }
-        return '';
-    }
 
     /**
      * #2136 — Team select + retrospective period pills + activity-type
@@ -427,6 +410,9 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         $chips = [];
         if ( $team_id > 0 && isset( $team_options[ (string) $team_id ] ) ) { $active_count++; $chips[] = $team_options[ (string) $team_id ]; }
         if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        // #3293 — a custom window is a filter and was counted nowhere.
+        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
+        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
         if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
 
         $reset_args = [ 'tt_view' => 'attendance-report-player' ];
