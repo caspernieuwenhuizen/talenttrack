@@ -247,6 +247,11 @@ Een paar dingen om te weten:
 - **Je kunt beide nog steeds op het spelersformulier aanpassen.** Voor
   een academie die geen testsessies draait is dat precies goed — maar
   zodra er een meting is, neemt die het over.
+- **Metingen die je al had, zijn bij de upgrade bijgewerkt.** Dit ging
+  pas gaandeweg de metingen volgen, dus een eenmalige ronde heeft elk
+  bestaand profiel in lijn gebracht met de metingen die eronder lagen.
+  Er is niets leeggemaakt: een speler zonder bruikbare meting hield de
+  waarde die er al stond.
 
 De BMI-rapportage gebruikt de profiellengte bewust niet: een BMI heeft de
 lengte nodig die gold op de dag van de weging, niet de laatst bekende.
