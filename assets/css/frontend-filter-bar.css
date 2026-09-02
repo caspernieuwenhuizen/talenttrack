@@ -742,11 +742,26 @@
 		flex: 0 0 auto;
 		min-width: 0;
 	}
-	/* #2203 — the status group always sits last and right-aligned on the
-	   inline bar; the auto-margin absorbs the remaining row width so the
-	   pills hug the right edge regardless of caller group order. */
-	.tt-dashboard .tt-filterbar__group--status {
+	/* #2203 — the status and menu groups sit last and right-aligned on the
+	   inline bar; the auto-margin absorbs the remaining row width so they hug
+	   the right edge regardless of caller group order. `orderStatusLast()`
+	   does the sorting; this does the alignment.
+
+	   #3291 — keyed on the TYPE modifier. This was written against
+	   `--status`, which is a KEY modifier, and no surface in the app uses
+	   `status` as a group key: the nine list tables and the activities view
+	   pass `archived`, the alerts inbox passes `state`, and
+	   `FrontendListTable::statusGroup()` passes the caller's own filter key.
+	   So the rule matched nothing and the alignment had never once worked. */
+	.tt-dashboard .tt-filterbar__group--t-status,
+	.tt-dashboard .tt-filterbar__group--t-menu {
 		margin-left: auto;
+	}
+	/* A bar carrying both takes the gap once, before the first of them —
+	   otherwise the pills and the ⋯ get pushed apart by a second auto-margin
+	   and read as two unrelated clusters. */
+	.tt-dashboard .tt-filterbar__group--t-status ~ .tt-filterbar__group--t-menu {
+		margin-left: 0;
 	}
 	.tt-dashboard .tt-filterbar__div {
 		align-self: stretch;
