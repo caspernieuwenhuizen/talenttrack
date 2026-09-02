@@ -1,3 +1,152 @@
+# TalentTrack v4.115.2 — Applying a date or text filter on a phone now works (#3288)
+
+On a phone, a date range or free-text filter set inside the **Filters** sheet
+was thrown away. You picked From and To, tapped **Apply**, the sheet closed and
+the list was exactly as before — with nothing to say the filter had not been
+applied.
+
+**Apply** now applies. The button was closing the sheet and nothing else.
+
+Dropdowns and toggles were never affected, which is what made this hard to
+spot: set a team as well as a date range and the page reloads, so the dates
+look like they worked too.
+
+This affected the grids and reports that carry a From/To or a search box —
+attendance and minutes grids, the attendance and minutes reports, standard
+reports, the audit log, comparison and the message log.
+
+# TalentTrack v4.115.2 — Clear and the applied-filter chips now show on desktop too (#3289)
+
+On a wide screen the filter bar offered no way to clear filters and no
+readback of what was applied. Set a team, a position and an age group and the
+only way back was to walk through every control by hand — and for the period
+pills and the archive menu there is often no "none" option to walk back to.
+
+Both were rendered by every surface all along; they were only ever visible
+below 1024px.
+
+The bar now ends with the active-filter chips and a **Clear** button, on every
+screen size. Clicking Clear returns the unfiltered list, exactly as it does on
+a phone. The **Filters** button and its count stay mobile-only, since desktop
+shows the controls inline; the sheet keeps its own Clear where a phone user
+expects it.
+
+# TalentTrack v4.115.2 — The filter bar's utility controls sit where they were meant to (#3291)
+
+On a desktop filter bar the `⋯` menu and the status pills are meant to sit hard
+right, set apart from the filters proper. They sat mid-row, flush against
+whichever control happened to precede them, with empty space to their right —
+so the `⋯` read as one more filter instead of a utility.
+
+The rule that was supposed to push them right had never matched anything, on
+any screen, since it was written.
+
+They now right-align as intended. On a bar carrying both the status pills and
+the `⋯`, the two stay together as one cluster rather than being pushed apart.
+
+# TalentTrack v4.115.2 — Filter chips say what is applied — and can be taken off (#3292)
+
+The chips beside **Filters** were the only place the bar named which filters
+were applied, and they were hidden from screen readers entirely: the
+announcement was "Filters, 3", with no way to learn what the three were. They
+could not be tapped off either, so dropping one filter meant opening the sheet
+and hunting for the control that set it — and for the period pills and the
+archive menu there is often no "none" option to go back to.
+
+Each chip now names its filter and carries a ✕ that removes only that one,
+leaving the rest in place. The chips are readable by screen readers and
+reachable by keyboard, and the count on the **Filters** button is the number of
+chips, so the two can no longer disagree.
+
+The alerts inbox and the player comparison, which never showed chips at all,
+get them.
+
+# TalentTrack v4.115.2 — The period pill stops contradicting the report (#3293)
+
+On the grids and reports that offer both a period pill and a From/To range,
+setting your own dates re-ran the report on them — but the pill went on
+showing "This month". The chrome said one thing and the numbers were another,
+with nothing to tell you which.
+
+Set your own window now and no pill claims to describe it.
+
+Related: on seven of those surfaces a manual range was not counted at all, so
+setting only From/To left **Filters** with no badge and no chip — the bar
+reporting "nothing filtered" over a filtered report. The window now shows as a
+chip like any other filter.
+
+Clearing your dates returns to the season default with the season pill active,
+as before.
+
+# TalentTrack v4.115.2 — The filter sheet behaves like the modal it claims to be (#3294)
+
+On a phone, tabbing through the **Filters** sheet walked straight out of it and
+into the list behind — which is covered by the overlay, so the focus ring was
+invisible and you ended up operating a page you could not see. A screen reader
+could wander into the same covered content, and dragging on the dimmed area
+scrolled the list underneath instead of doing nothing.
+
+The sheet now uses the browser's own modal dialog, the same one the confirm
+prompts and the saved-views dialog already use. Focus stays inside it until you
+close it, the page behind is properly hidden from assistive technology and no
+longer scrolls, Escape closes it, and tapping the dimmed area closes it as
+before.
+
+# TalentTrack v4.115.2 — PDP file detail: three chrome fixes (#3299)
+
+**One help icon, not two.** The summary card carried its own `?` button next to
+the Status pill, opening the same drawer on the same topic as the header's help
+icon. It is gone; the header icon is unchanged.
+
+**The Template link looks like a link in this app.** It was a bare anchor, so a
+theme's own styling applied — blue and underlined, next to the status badges in
+the same row. It now matches the record links in every other table.
+
+**The conversations list reads on a phone.** Below 640px the table becomes
+stacked cards, with each value labelled by its column. This table carried no
+labels, so a card read "1 / Begin seizoen / 2026-09-30 / Gepland / Nog niet"
+with nothing saying which was which. Each value is now named.
+
+# TalentTrack v4.115.2 — PDP files archive like everything else, instead of being deleted outright (#3300)
+
+A PDP file's detail page carried a red **Permanently delete PDP** button — on a
+live, in-progress development file for a minor, as the loudest element on a
+page whose actual purpose is recording a verdict. It was the only record type
+in the plugin that worked this way.
+
+The button is gone. A PDP file now archives like a player, a team or a goal,
+and permanent deletion lives where it does for everything else: in the recycle
+bin, once the file is already out of the way, behind the recycle-bin
+permission.
+
+The underlying reason it was different: PDP had never been registered with the
+recycle bin at all, so an archived file appeared nowhere, could not be
+restored, and was never picked up by the retention cleanup. It is registered
+now — listed under **PDP file**, and named by player and season so you can tell
+whose file you are looking at before you act on it.
+
+Permanently deleting a PDP file still removes its conversations, verdicts,
+uploaded files and goal-evidence links.
+
+# TalentTrack v4.115.2 — Record links look like links, and keyboard focus is visible again (#3308)
+
+Player names and other record links across the app were styled to look exactly
+like body text until you hovered them — which on a phone means never. Twelve
+names in a PDP block read as a paragraph rather than as the list of people you
+can open.
+
+They now carry a little more weight at rest, so they read as tappable without
+turning every name in the product a link colour.
+
+Tabbing to one shows a proper focus ring again. The old rule removed the
+outline and offered a barely-visible shadow instead, which is not a focus
+indicator.
+
+Hovering tints the name rather than lifting it on a shadow. The lift was a card
+treatment applied to a single word: it nudged the text off its baseline, so a
+table rippled as the pointer crossed it, and the shadow hugged the letters.
+Nothing moves now, and the tint follows your theme instead of being fixed blue.
+
 # TalentTrack v4.115.1 — The match prep PDF is readable, and says which match it is (#3272)
 
 The exported sheet printed at roughly 5pt with most of the paper left blank,
