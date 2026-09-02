@@ -495,10 +495,12 @@ final class FilterBar {
 			if ( $derived_chips !== [] ) {
 				$out .= '<ul class="tt-chips">';
 				foreach ( $derived_chips as $chip ) {
-					$label = (string) ( $chip['label'] ?? '' );
+					// `activeChips()` returns array{label:string,clear_url:string},
+					// so both keys are guaranteed — a `??` here is dead at level 8.
+					$label = $chip['label'];
 					if ( $label === '' ) continue;
 					$out .= '<li class="tt-chip"><span class="tt-chip__label">' . esc_html( $label ) . '</span>';
-					$clear = (string) ( $chip['clear_url'] ?? '' );
+					$clear = $chip['clear_url'];
 					if ( $clear !== '' ) {
 						// A link, not a button: no JS dependency, consistent
 						// with every other link-based group in this bar, and
