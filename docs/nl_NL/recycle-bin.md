@@ -164,6 +164,12 @@ Dit zijn gegevens van minderjarigen, dus de bewaargrondslag is expliciet.
  beheerder de prullenbak (of schoont de specifieke rij op) in plaats van de
  30 dagen af te wachten. "Nu opschonen" is het pad voor directe verwijdering;
  de bewaartermijn is de standaard, geen ondergrens.
+- **POP-dossiers zitten er ook in.** Het ontwikkeldossier van een speler
+ archiveer je zoals elk ander record, en je kunt het hier terugzetten of
+ definitief verwijderen. Definitief verwijderen neemt nog steeds de
+ gesprekken, verdicten, geüploade bestanden en koppelingen naar doelbewijs
+ mee. Op een actief POP-dossier staat bewust geen verwijderknop: archiveer
+ het eerst, net als bij al het andere.
 - **Overeenstemming met verwijdering.** Elke speler-PII-entiteit die de
  prullenbak kan bevatten, is geregistreerd in `PlayerDataMap`, het centrale
  manifest dat de inzage- en verwijdertooling doorloopt. Zo werken een

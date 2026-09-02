@@ -138,7 +138,7 @@ class FrontendRecycleBinView extends FrontendViewBase {
         $id    = (int) $row['id'];
         $found = $repo->findIncludingArchived( $entity, $id );
         $identity = ( $found !== null )
-            ? RecycleBinEntities::identity( $found['row'] )
+            ? RecycleBinEntities::identity( $found['row'], $entity )
             /* translators: %d is a record id. */
             : sprintf( __( 'Record #%d', 'talenttrack' ), $id );
 

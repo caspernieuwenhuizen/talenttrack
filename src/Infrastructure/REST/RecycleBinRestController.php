@@ -155,7 +155,7 @@ final class RecycleBinRestController {
             foreach ( $rows as $row ) {
                 $found    = $repo->findIncludingArchived( $entity, (int) $row['id'] );
                 $identity = ( $found !== null )
-                    ? RecycleBinEntities::identity( $found['row'] )
+                    ? RecycleBinEntities::identity( $found['row'], $entity )
                     /* translators: %d is a record id. */
                     : sprintf( __( 'Record #%d', 'talenttrack' ), (int) $row['id'] );
                 $items[] = array_merge( $row, [ 'identity' => $identity ] );

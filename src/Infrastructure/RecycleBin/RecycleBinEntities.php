@@ -60,6 +60,7 @@ final class RecycleBinEntities {
             'measurement_target'     => __( 'Measurement target', 'talenttrack' ),
             'measurement_result'     => __( 'Measurement result', 'talenttrack' ),
             'player_attribute_def'   => __( 'Player attribute', 'talenttrack' ),
+            'pdp_file'               => __( 'PDP file', 'talenttrack' ),
         ];
         if ( isset( $labels[ $entity ] ) ) {
             return $labels[ $entity ];
@@ -76,9 +77,22 @@ final class RecycleBinEntities {
      * map: the bin is action-only (no drill-in), so the identity just needs to
      * be recognisable, not canonical. Never returns an empty string.
      *
-     * @param object $row A row loaded by ArchiveRepository::findIncludingArchived().
+     * #3300 — one entity takes a named branch. `tt_pdp_files` has no name
+     * column at all, so the generic path renders "Record #12" — and a
+     * reviewer about to permanently delete a development file for a minor
+     * needs to know whose it is. The entity key is passed rather than
+     * sniffed from the row's shape, because "has player_id and season_id"
+     * is a coincidence today and a bug the day a second table matches it.
+     *
+     * @param object $row    A row loaded by ArchiveRepository::findIncludingArchived().
+     * @param string $entity The entity key the row was loaded for, when known.
      */
-    public static function identity( object $row ): string {
+    public static function identity( object $row, string $entity = '' ): string {
+        if ( $entity === 'pdp_file' ) {
+            $named = self::pdpFileIdentity( $row );
+            if ( $named !== '' ) return $named;
+        }
+
         // Composite first/last name (players, people).
         $first = isset( $row->first_name ) ? trim( (string) $row->first_name ) : '';
         $last  = isset( $row->last_name ) ? trim( (string) $row->last_name ) : '';
@@ -99,5 +113,47 @@ final class RecycleBinEntities {
         $id = isset( $row->id ) ? (int) $row->id : 0;
         /* translators: %d is a record id used as a fallback identity in the recycle bin. */
         return sprintf( __( 'Record #%d', 'talenttrack' ), $id );
+    }
+
+    /**
+     * "Luuk Nieuwenhuizen · 2026/27" for a PDP file, or '' when the player
+     * cannot be resolved — in which case the generic fallback takes over
+     * rather than this returning a half-identity.
+     *
+     * Two lookups on a screen that lists a handful of trashed rows; the bin
+     * is not a hot path.
+     */
+    private static function pdpFileIdentity( object $row ): string {
+        $player_id = isset( $row->player_id ) ? (int) $row->player_id : 0;
+        if ( $player_id <= 0 ) return '';
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $player = $wpdb->get_row( $wpdb->prepare(
+            "SELECT first_name, last_name FROM {$p}tt_players WHERE id = %d",
+            $player_id
+        ) );
+        if ( ! $player ) return '';
+
+        $name = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
+        if ( $name === '' ) return '';
+
+        $season_id = isset( $row->season_id ) ? (int) $row->season_id : 0;
+        $season    = $season_id > 0
+            ? (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT name FROM {$p}tt_seasons WHERE id = %d",
+                $season_id
+            ) )
+            : '';
+
+        if ( $season === '' ) return $name;
+
+        return sprintf(
+            /* translators: 1: player name, 2: season name. Identifies a PDP file in the recycle bin. */
+            _x( '%1$s · %2$s', 'PDP file identity', 'talenttrack' ),
+            $name,
+            $season
+        );
     }
 }

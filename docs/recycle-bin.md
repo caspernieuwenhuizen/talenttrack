@@ -145,6 +145,11 @@ These are minors' records, so the retention basis is explicit.
  the bin (or purges the specific row) rather than waiting out the 30 days.
  "Purge now" is the immediate-erasure path; the retention window is the
  default, not a floor.
+- **PDP files are in the bin too.** A player's development file archives like
+ any other record and can be restored or permanently deleted from here.
+ Permanently deleting one still takes its conversations, verdicts, uploaded
+ files and goal-evidence links with it. There is deliberately no delete
+ button on a live PDP file: archive it first, as with everything else.
 - **Scope agreement with erasure.** Every player-PII entity that the bin can
  hold is registered in `PlayerDataMap`, the central manifest the
  subject-access and erasure tooling walks. So a concurrent erasure run and
