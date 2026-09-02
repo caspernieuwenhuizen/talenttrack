@@ -9,6 +9,7 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
+use TT\Modules\Measurements\Units\UnitContext;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
@@ -158,7 +159,10 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
      * @param array<int, object> $players
      */
     private static function renderRoster( array $players, object $definition, int $team_id, string $date ): void {
-        $unit  = (string) ( $definition->unit ?? '' );
+        $units = UnitContext::forDefinition( $definition );
+        // A duration field already says mm:ss in its placeholder; repeating a
+        // unit chip next to it would name a unit the coach is not typing in.
+        $unit  = $units->isDuration() ? '' : $units->symbol();
         $vtype = (string) $definition->value_type;
         $base  = RecordLink::dashboardUrl();
         $cancel_url = add_query_arg( [ 'tt_view' => 'measurements-entry' ], $base );
@@ -237,12 +241,15 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             <?php
             return;
         }
-        // numeric + scale both take a number; inputmode decimal for mobile keyboards.
+        // numeric + scale both take a number, but #3273 lets a time test ask for
+        // mm:ss instead — the control comes from the unit context so entry, the
+        // target bands and the wizard cannot drift apart on what a value of
+        // this kind looks like.
+        $attrs = UnitContext::forDefinition( $definition )->inputAttributes();
         ?>
-        <input type="number" step="any" inputmode="decimal"
+        <input <?php foreach ( $attrs as $k => $v ) : ?><?php echo esc_attr( $k ); ?>="<?php echo esc_attr( $v ); ?>" <?php endforeach; ?>
                id="<?php echo esc_attr( $fid ); ?>" class="tt-input"
-               name="<?php echo esc_attr( $name ); ?>"
-               placeholder="<?php esc_attr_e( 'value', 'talenttrack' ); ?>" />
+               name="<?php echo esc_attr( $name ); ?>" />
         <?php
     }
 
@@ -291,8 +298,15 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             'status'        => 'completed',
         ] );
 
-        $results = new MeasurementResultsRepository();
-        $count   = 0;
+        // #3273 — one context for the whole grid: every row is the same test,
+        // so the unit arithmetic is resolved once and each value is converted
+        // to the dimension's base before it is stored.
+        $units = UnitContext::forDefinition( $definition );
+
+        $results  = new MeasurementResultsRepository();
+        $count    = 0;
+        $rejected = 0;
+        $reason   = '';
         foreach ( $values as $pid => $raw ) {
             $data = [
                 'player_id'              => $pid,
@@ -306,8 +320,18 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
                 if ( ! $lvl ) continue; // ignore values that are not a known level
                 $data['value_text']    = $label;
                 $data['value_numeric'] = (float) $lvl->ordinal;
-            } elseif ( $is_numeric && is_numeric( $raw ) ) {
-                $data['value_numeric'] = (float) $raw;
+            } elseif ( $is_numeric ) {
+                $parsed = $units->parse( (string) $raw );
+                if ( $parsed['value'] === null ) {
+                    // A refused value is not stored as text: that would file a
+                    // typo alongside real readings and quietly break the series.
+                    $rejected++;
+                    if ( $reason === '' && $parsed['error'] !== null ) $reason = $parsed['error'];
+                    continue;
+                }
+                $data['value_numeric']   = $parsed['value'];
+                $data['entered_value']   = $units->fromBase( $parsed['value'] );
+                $data['entered_unit_id'] = $units->entryUnitId();
             } else {
                 $data['value_text'] = sanitize_text_field( (string) $raw );
             }
@@ -316,11 +340,22 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             }
         }
 
-        return sprintf(
+        $flash = sprintf(
             /* translators: %d: number of measurements recorded */
             _n( '%d measurement recorded.', '%d measurements recorded.', $count, 'talenttrack' ),
             $count
         );
+
+        if ( $rejected > 0 ) {
+            $flash .= ' ' . sprintf(
+                /* translators: 1: number of values not recorded, 2: the reason they were refused */
+                _n( '%1$d value was not recorded: %2$s', '%1$d values were not recorded: %2$s', $rejected, 'talenttrack' ),
+                $rejected,
+                $reason
+            );
+        }
+
+        return $flash;
     }
 
     /**

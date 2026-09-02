@@ -3,6 +3,8 @@ namespace TT\Modules\Measurements\Growth;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Measurements\Units\UnitContext;
+
 /**
  * BmiSeriesBuilder (#2895) — pairs dated height and weight readings into a
  * BMI series for one player.
@@ -163,9 +165,13 @@ final class BmiSeriesBuilder {
 
         $params = array_merge( [ $player_id, $club_id ], $names );
 
+        // #3273 — the definition's unit columns come along, because the stored
+        // number is canonical (metres, kilograms) and this class works in
+        // centimetres and kilograms. It used to divide by 100 and hope.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT r.recorded_date, r.value_numeric
+            "SELECT r.recorded_date, r.value_numeric,
+                    d.unit, d.dimension, d.entry_unit_id, d.numeric_format, d.value_type
                FROM {$this->t_results} r
                JOIN {$this->t_definitions} d ON d.id = r.definition_id
               WHERE r.player_id = %d
@@ -178,11 +184,19 @@ final class BmiSeriesBuilder {
             ...$params
         ) );
 
+        $want = $kind === 'height' ? 'cm' : 'kg';
+
         $out = [];
         foreach ( (array) $rows as $row ) {
+            $base      = (float) $row->value_numeric;
+            $converted = UnitContext::forDefinition( $row )->toSymbol( $base, $want );
+
+            // A test with no resolvable dimension keeps the pre-#3273 reading:
+            // its values were never converted by the migration either, so the
+            // number still means what this class has always assumed it meant.
             // Later reading on the same date wins — a correction recorded
             // after the fact is the one to keep.
-            $out[ (string) $row->recorded_date ] = (float) $row->value_numeric;
+            $out[ (string) $row->recorded_date ] = $converted ?? $base;
         }
 
         return $out;

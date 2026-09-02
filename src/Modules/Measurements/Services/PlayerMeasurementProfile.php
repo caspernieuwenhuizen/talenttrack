@@ -9,6 +9,7 @@ use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * PlayerMeasurementProfile (#1856).
@@ -105,16 +106,22 @@ class PlayerMeasurementProfile {
                 $band = self::bandFrom( $target, $direction );
             }
 
+            // #3273 — the chart plots what staff read, not the canonical base:
+            // a height series is 182 / 184 / 187, never 1.82 / 1.84 / 1.87. The
+            // band converts with it so the shading stays on the same scale as
+            // the points.
+            $units  = UnitContext::forDefinition( $def );
             $series = array_map(
-                static function ( $row ) {
+                static function ( $row ) use ( $units ) {
                     return [
                         'date'  => (string) $row->recorded_date,
-                        'value' => $row->value_numeric !== null ? (float) $row->value_numeric : null,
+                        'value' => $row->value_numeric !== null ? $units->fromBase( (float) $row->value_numeric ) : null,
                         'text'  => $row->value_text !== null ? (string) $row->value_text : null,
                     ];
                 },
                 $this->results->listSeriesForPlayer( $player_id, $def_id )
             );
+            $band = self::bandToEntryUnit( $band, $units );
 
             $cat = (string) ( $def->category_label ?: $def->category_name ?: '' );
             if ( ! isset( $grouped[ $cat ] ) ) {
@@ -123,7 +130,7 @@ class PlayerMeasurementProfile {
             $grouped[ $cat ]['tests'][] = [
                 'definition_id' => $def_id,
                 'name'          => (string) $def->name,
-                'unit'          => (string) ( $def->unit ?? '' ),
+                'unit'          => $units->symbol(),
                 'value_type'    => (string) $def->value_type,
                 'frequency'     => (string) $def->frequency,
                 'direction'     => (string) $def->direction,
@@ -208,6 +215,8 @@ class PlayerMeasurementProfile {
 
     /**
      * Render a result's value for display, honouring the test's value type.
+     * #3273 — through the same unit context MeasurementResultsBrowse uses, so
+     * the profile and the results browser cannot disagree about a number.
      */
     private function displayValue( object $def, ?object $row ): string {
         if ( ! $row ) return '';
@@ -215,10 +224,21 @@ class PlayerMeasurementProfile {
             return (string) $row->value_text;
         }
         if ( $row->value_numeric === null ) return '';
-        // Trim trailing zeros from the decimal so 30.000 reads "30".
-        $num = rtrim( rtrim( number_format( (float) $row->value_numeric, 3, '.', '' ), '0' ), '.' );
-        $unit = (string) ( $def->unit ?? '' );
-        return $unit !== '' ? $num . ' ' . $unit : $num;
+        return UnitContext::forDefinition( $def )->format( (float) $row->value_numeric );
+    }
+
+    /**
+     * Move a target band onto the same scale as the series it shades.
+     *
+     * @param array{min: float|null, max: float|null}|null $band
+     * @return array{min: float|null, max: float|null}|null
+     */
+    private static function bandToEntryUnit( ?array $band, UnitContext $units ): ?array {
+        if ( $band === null ) return null;
+        return [
+            'min' => $band['min'] !== null ? $units->fromBase( (float) $band['min'] ) : null,
+            'max' => $band['max'] !== null ? $units->fromBase( (float) $band['max'] ) : null,
+        ];
     }
 
     private function ageGroupFor( int $player_id ): string {

@@ -28,9 +28,9 @@ hierop voort.
 - **Categorie** — de groep waar een test onder valt. Standaard gevuld met
  *Antropometrie*, *Fysiek*, *Techniek* en *Mentaal*; een beheerder kan de
  lijst aanpassen.
-- **Eenheid** — de meeteenheid. Standaard gevuld met gangbare eenheden (cm,
- m, kg, g, s, min, herhalingen, niveau, %, bpm); een test kiest er één **of**
- geeft een eigen, aangepaste eenheid op.
+- **Eenheid** — de meeteenheid, en wat voor grootheid dat is. Standaard gevuld
+ met echte eenheden (s, min, ms, m, cm, mm, km, kg, g, herhalingen, bpm, %,
+ niveau); een test kiest er één **of** geeft een eigen, aangepaste eenheid op.
 - **Frequentie** — hoe vaak de test moet plaatsvinden: jaarlijks, twee keer
  per jaar, per kwartaal, maandelijks of ad hoc. Dit voedt "wie is aan de
  beurt".
@@ -51,6 +51,38 @@ hierop voort.
  rood, *Aandacht* oranje, *Op koers* groen). Een statustest registreert per
  speler een niveau in plaats van een getal; het laatste niveau van de speler
  verschijnt als een gekleurde chip op het profiel.
+
+## Eenheden dragen een grootheid
+
+Een eenheid is niet zomaar een label achter een getal. Elke eenheid in de lijst
+hoort bij een **grootheid** — tijd, lengte, massa, aantal, tempo, percentage of
+niveau — en weet hoe zij zich verhoudt tot de basiseenheid daarvan: seconden,
+meters, kilogrammen.
+
+Dat heeft drie gevolgen die de moeite waard zijn bij het opzetten van een test.
+
+- **Waarden worden opgeslagen in de basiseenheid en getoond in de jouwe.** Een
+ lengte van `182 cm` en een van `1,82 m` zijn hetzelfde opgeslagen getal. Elke
+ test toont zijn eigen eenheid, zodat de schermen lezen zoals er gemeten wordt.
+- **Een resultaat onthoudt waarin het is ingevoerd.** Verander je later de
+ eenheid van een test, dan behouden de al vastgelegde metingen hun betekenis:
+ ze zijn opgeslagen tegen een grootheid, niet tegen het label dat de test die
+ dag had.
+- **Een eigen eenheid heeft geen grootheid.** Typ je een eigen eenheid (zeg
+ `watt/kg`), dan wordt de waarde precies zo opgeslagen als ingevoerd, nooit
+ omgerekend en nooit vergeleken over eenheden heen. Dat is de prijs van alles
+ kunnen meten wat je wilt.
+
+### Tijden als mm:ss
+
+Vink **Invoeren en tonen als mm:ss** aan bij een test met een tijdseenheid. Een
+resultaat typ je dan als `5:30` en leest terug als `5:30`, en de streefband
+schrijf je op dezelfde manier. Het wordt opgeslagen in seconden, zodat trends,
+gemiddelden en streefwaarden op de echte grootheid werken.
+
+Zonder het vinkje gedraagt een tijd zich als elk ander getal: `5,5` bij een test
+in minuten is vijfeneenhalve minuut. `5:30` invullen in een veld dat niet op
+mm:ss staat wordt geweigerd in plaats van geraden.
 
 ## Statustests (een handmatige spelersstatus)
 

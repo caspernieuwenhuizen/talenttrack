@@ -12,6 +12,8 @@ use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitRegistry;
 
 /**
  * MeasurementDefinitionsRestController (#2120) —
@@ -232,6 +234,18 @@ class MeasurementDefinitionsRestController {
                 $data[ $k ] = is_string( $r[ $k ] ) ? sanitize_text_field( (string) $r[ $k ] ) : $r[ $k ];
             }
         }
+
+        // #3273 — a patch that moves the unit has to move the dimension with
+        // it, or the row would claim to be metres while storing seconds. The
+        // duration flag is re-evaluated against the new dimension for the same
+        // reason: it is only meaningful on a time test.
+        if ( $r->has_param( 'unit' ) || $r->has_param( 'numeric_format' ) ) {
+            $unit_row = ( new UnitRegistry() )->bySymbol( (string) ( $data['unit'] ?? '' ) );
+            $data['dimension']      = $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS;
+            $data['entry_unit_id']  = $unit_row ? (int) $unit_row->id : null;
+            $data['numeric_format'] = ( sanitize_text_field( (string) ( $r['numeric_format'] ?? 'plain' ) ) === 'duration'
+                                        && $data['dimension'] === Dimensions::TIME ) ? 'duration' : 'plain';
+        }
         if ( $r->has_param( 'name' ) ) {
             $name = sanitize_text_field( (string) $r['name'] );
             if ( $name === '' ) {
@@ -305,11 +319,26 @@ class MeasurementDefinitionsRestController {
 
     /** @return array<string, mixed> */
     private static function write_payload( \WP_REST_Request $r, string $name ): array {
+        $value_type = sanitize_text_field( (string) ( $r['value_type'] ?? 'numeric' ) );
+        $unit       = sanitize_text_field( (string) ( $r['unit'] ?? '' ) );
+
+        // #3273 — a consumer still sends a symbol; the dimension is resolved
+        // from it here rather than being a second field the caller can
+        // contradict. An unknown symbol makes the test dimensionless, which is
+        // the same contract the admin form offers for a custom unit.
+        $unit_row  = $value_type === 'numeric' ? ( new UnitRegistry() )->bySymbol( $unit ) : null;
+        $dimension = $unit_row ? (string) $unit_row->dimension : Dimensions::DIMENSIONLESS;
+        $format    = ( sanitize_text_field( (string) ( $r['numeric_format'] ?? 'plain' ) ) === 'duration'
+                       && $dimension === Dimensions::TIME ) ? 'duration' : 'plain';
+
         return [
             'category_id' => absint( $r['category_id'] ?? 0 ),
             'name'        => $name,
-            'value_type'  => sanitize_text_field( (string) ( $r['value_type'] ?? 'numeric' ) ),
-            'unit'        => sanitize_text_field( (string) ( $r['unit'] ?? '' ) ),
+            'value_type'  => $value_type,
+            'unit'        => $unit,
+            'dimension'      => $dimension,
+            'entry_unit_id'  => $unit_row ? (int) $unit_row->id : null,
+            'numeric_format' => $format,
             'scale_min'   => $r->has_param( 'scale_min' ) ? $r['scale_min'] : null,
             'scale_max'   => $r->has_param( 'scale_max' ) ? $r['scale_max'] : null,
             'frequency'   => sanitize_text_field( (string) ( $r['frequency'] ?? 'adhoc' ) ),
@@ -329,6 +358,11 @@ class MeasurementDefinitionsRestController {
             'name'        => (string) $d->name,
             'value_type'  => (string) $d->value_type,
             'unit'        => $d->unit !== null ? (string) $d->unit : null,
+            // #3273 — additive: `unit` keeps its v1 meaning and shape, and the
+            // three new fields say what that symbol actually denotes.
+            'dimension'      => (string) ( $d->dimension ?? Dimensions::DIMENSIONLESS ),
+            'entry_unit_id'  => ! empty( $d->entry_unit_id ) ? (int) $d->entry_unit_id : null,
+            'numeric_format' => (string) ( $d->numeric_format ?? 'plain' ),
             'scale_min'   => $d->scale_min !== null ? (float) $d->scale_min : null,
             'scale_max'   => $d->scale_max !== null ? (float) $d->scale_max : null,
             'frequency'   => (string) $d->frequency,

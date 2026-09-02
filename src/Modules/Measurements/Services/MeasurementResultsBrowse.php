@@ -8,6 +8,7 @@ use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * MeasurementResultsBrowse (#2145).
@@ -58,7 +59,10 @@ class MeasurementResultsBrowse {
         if ( ! $def ) return [];
 
         $value_type = (string) $def->value_type;
-        $unit       = (string) ( $def->unit ?? '' );
+        // #3273 — the unit context, not the raw string. Values arrive canonical
+        // and are rendered back into the unit staff entered them in.
+        $units      = UnitContext::forDefinition( $def );
+        $unit       = $units->symbol();
         $direction  = (string) $def->direction;
         $is_status  = $value_type === 'status';
 
@@ -75,8 +79,8 @@ class MeasurementResultsBrowse {
                 'team_name'     => (string) ( $row->team_name ?? '' ),
                 'age_group'     => $age_group,
                 'recorded_date' => (string) $row->recorded_date,
-                'value'         => $this->displayValue( $row, $unit ),
-                'unit'          => $unit,
+                'value'         => $this->displayValue( $row, $units ),
+                'unit'          => $units->deltaSymbol(),
                 'value_type'    => $value_type,
                 'level_label'   => '',
                 'level_token'   => '',
@@ -113,7 +117,7 @@ class MeasurementResultsBrowse {
                 // #2586 — same pair the trend is derived from, so the arrow
                 // and the number can never disagree.
                 $entry['delta'] = ( $current !== null && $previous !== null )
-                    ? $current - $previous
+                    ? $units->deltaFromBase( $current - $previous )
                     : null;
             }
 
@@ -124,17 +128,18 @@ class MeasurementResultsBrowse {
     }
 
     /**
-     * Render a result's value for display, honouring unit. Trims trailing
-     * zeros so 30.000 reads "30". Mirrors PlayerMeasurementProfile so the
-     * browser and the profile never disagree.
+     * Render a result's value for display. #3273 — the stored number is
+     * canonical, so the unit context converts it back into the unit staff
+     * entered it in (and renders mm:ss where that is what the test is).
+     * PlayerMeasurementProfile calls the same context, so the browser and the
+     * profile cannot disagree.
      */
-    private function displayValue( object $row, string $unit ): string {
+    private function displayValue( object $row, UnitContext $units ): string {
         if ( $row->value_text !== null && $row->value_text !== '' ) {
             return (string) $row->value_text;
         }
         if ( $row->value_numeric === null ) return '';
-        $num = rtrim( rtrim( number_format( (float) $row->value_numeric, 3, '.', '' ), '0' ), '.' );
-        return $unit !== '' ? $num . ' ' . $unit : $num;
+        return $units->format( (float) $row->value_numeric );
     }
 
     /**

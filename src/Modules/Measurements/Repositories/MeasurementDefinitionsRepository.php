@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitRegistry;
 
 /**
  * MeasurementDefinitionsRepository (#1856).
@@ -133,6 +135,9 @@ class MeasurementDefinitionsRepository {
             'name'        => (string) ( $data['name'] ?? '' ),
             'value_type'  => $this->safeValueType( $data['value_type'] ?? 'numeric' ),
             'unit'        => isset( $data['unit'] ) && $data['unit'] !== '' ? (string) $data['unit'] : null,
+            'dimension'      => Dimensions::safe( (string) ( $data['dimension'] ?? Dimensions::DIMENSIONLESS ) ),
+            'entry_unit_id'  => ! empty( $data['entry_unit_id'] ) ? (int) $data['entry_unit_id'] : null,
+            'numeric_format' => $this->safeNumericFormat( $data['numeric_format'] ?? 'plain' ),
             'scale_min'   => isset( $data['scale_min'] ) ? (float) $data['scale_min'] : null,
             'scale_max'   => isset( $data['scale_max'] ) ? (float) $data['scale_max'] : null,
             'frequency'   => (string) ( $data['frequency'] ?? 'adhoc' ),
@@ -159,6 +164,9 @@ class MeasurementDefinitionsRepository {
         if ( array_key_exists( 'name', $data ) )        $fields['name']        = (string) $data['name'];
         if ( array_key_exists( 'value_type', $data ) )  $fields['value_type']  = $this->safeValueType( $data['value_type'] );
         if ( array_key_exists( 'unit', $data ) )        $fields['unit']        = $data['unit'] !== '' ? (string) $data['unit'] : null;
+        if ( array_key_exists( 'dimension', $data ) )   $fields['dimension']   = Dimensions::safe( (string) $data['dimension'] );
+        if ( array_key_exists( 'entry_unit_id', $data ) ) $fields['entry_unit_id'] = ! empty( $data['entry_unit_id'] ) ? (int) $data['entry_unit_id'] : null;
+        if ( array_key_exists( 'numeric_format', $data ) ) $fields['numeric_format'] = $this->safeNumericFormat( $data['numeric_format'] );
         if ( array_key_exists( 'scale_min', $data ) )   $fields['scale_min']   = $data['scale_min'] !== null ? (float) $data['scale_min'] : null;
         if ( array_key_exists( 'scale_max', $data ) )   $fields['scale_max']   = $data['scale_max'] !== null ? (float) $data['scale_max'] : null;
         if ( array_key_exists( 'frequency', $data ) )   $fields['frequency']   = (string) $data['frequency'];
@@ -167,11 +175,74 @@ class MeasurementDefinitionsRepository {
         if ( array_key_exists( 'show_on_profile', $data ) ) $fields['show_on_profile'] = (int) (bool) $data['show_on_profile'];
         if ( array_key_exists( 'sort_order', $data ) )  $fields['sort_order']  = (int) $data['sort_order'];
 
-        return false !== $wpdb->update(
+        // #3273 — giving a previously unclassified test a real unit is the one
+        // edit that has to reach its existing rows. Migration 0252 leaves a
+        // definition it could not classify `dimensionless` and its values
+        // exactly as typed; the moment an operator says "this test measures
+        // centimetres", those raw numbers become centimetres and have to be
+        // converted to the dimension's base like any other reading, or every
+        // surface would read them as metres. Read before the update, so the
+        // transition can be detected.
+        $was_unclassified = array_key_exists( 'entry_unit_id', $fields )
+            && $fields['entry_unit_id'] !== null
+            && (int) ( $wpdb->get_var( $wpdb->prepare(
+                "SELECT entry_unit_id FROM {$p}tt_measurement_definitions WHERE id = %d AND club_id = %d",
+                $id, CurrentClub::id()
+            ) ) ?: 0 ) === 0;
+
+        $ok = false !== $wpdb->update(
             "{$p}tt_measurement_definitions",
             $fields,
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
+
+        if ( $ok && $was_unclassified ) {
+            $this->convertUnclassifiedRows( $id, (int) $fields['entry_unit_id'] );
+        }
+
+        return $ok;
+    }
+
+    /**
+     * Convert a newly classified test's existing results and target bands into
+     * the dimension's base, and stamp each result with the unit it is now
+     * understood to have been entered in.
+     *
+     * Guarded on `entered_unit_id IS NULL` for the same reason the migration is:
+     * a row already stamped has already been converted, and converting twice is
+     * how a height becomes a hundred metres.
+     */
+    private function convertUnclassifiedRows( int $definition_id, int $unit_id ): void {
+        $unit = ( new UnitRegistry() )->byId( $unit_id );
+        if ( ! $unit ) return;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $wpdb->query( $wpdb->prepare(
+            "UPDATE {$p}tt_measurement_results
+                SET entered_value   = value_numeric,
+                    entered_unit_id = %d,
+                    value_numeric   = value_numeric * %f
+              WHERE definition_id = %d
+                AND value_numeric IS NOT NULL
+                AND entered_unit_id IS NULL",
+            $unit_id, $unit->factor_to_base, $definition_id
+        ) );
+
+        if ( abs( $unit->factor_to_base - 1.0 ) > 0.0000001 ) {
+            $wpdb->query( $wpdb->prepare(
+                "UPDATE {$p}tt_measurement_targets
+                    SET green_min = green_min * %f,
+                        green_max = green_max * %f,
+                        amber_min = amber_min * %f,
+                        amber_max = amber_max * %f
+                  WHERE definition_id = %d",
+                $unit->factor_to_base, $unit->factor_to_base,
+                $unit->factor_to_base, $unit->factor_to_base,
+                $definition_id
+            ) );
+        }
     }
 
     private function localiseCategory( object $row ): string {
@@ -204,5 +275,14 @@ class MeasurementDefinitionsRepository {
 
     private function safeDirection( string $value ): string {
         return in_array( $value, [ 'higher', 'lower', 'neutral' ], true ) ? $value : 'higher';
+    }
+
+    /**
+     * #3273 — `duration` is a rendering of a time value, not a value type of
+     * its own. Whether it is *allowed* on this definition (time dimension only)
+     * is UnitContext's call; this only keeps the column to its two members.
+     */
+    private function safeNumericFormat( string $value ): string {
+        return $value === 'duration' ? 'duration' : 'plain';
     }
 }

@@ -7,6 +7,8 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\Dimensions;
+use TT\Modules\Measurements\Units\UnitContext;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -38,6 +40,9 @@ final class MeasurementTargetsStep implements WizardStepInterface {
 
         $age_groups = QueryHelpers::get_lookups( 'age_group' );
         $existing   = (array) ( $state['targets'] ?? [] );
+        // Draft bands are held canonically, so a step revisited on the way back
+        // has to render them in the unit they were typed in.
+        $units      = self::unitsFromState( $state );
 
         foreach ( $age_groups as $row ) {
             $ag    = (string) $row->name;
@@ -46,10 +51,10 @@ final class MeasurementTargetsStep implements WizardStepInterface {
 
             echo '<fieldset class="tt-meas-target-set">';
             echo '<legend>' . esc_html( $label ) . '</legend>';
-            self::numField( $ag, 'green_min', __( 'Green from', 'talenttrack' ), $vals );
-            self::numField( $ag, 'green_max', __( 'Green to', 'talenttrack' ), $vals );
-            self::numField( $ag, 'amber_min', __( 'Amber from', 'talenttrack' ), $vals );
-            self::numField( $ag, 'amber_max', __( 'Amber to', 'talenttrack' ), $vals );
+            self::numField( $ag, 'green_min', __( 'Green from', 'talenttrack' ), $vals, $units );
+            self::numField( $ag, 'green_max', __( 'Green to', 'talenttrack' ), $vals, $units );
+            self::numField( $ag, 'amber_min', __( 'Amber from', 'talenttrack' ), $vals, $units );
+            self::numField( $ag, 'amber_max', __( 'Amber to', 'talenttrack' ), $vals, $units );
             echo '</fieldset>';
         }
     }
@@ -57,14 +62,28 @@ final class MeasurementTargetsStep implements WizardStepInterface {
     /**
      * @param array<string, mixed> $vals
      */
-    private static function numField( string $ag, string $key, string $label, array $vals ): void {
-        $v = isset( $vals[ $key ] ) && $vals[ $key ] !== null ? (string) $vals[ $key ] : '';
+    private static function numField( string $ag, string $key, string $label, array $vals, UnitContext $units ): void {
+        $v = isset( $vals[ $key ] ) && $vals[ $key ] !== null
+            ? $units->formatForInput( (float) $vals[ $key ] )
+            : '';
+
+        $attrs = '';
+        foreach ( $units->inputAttributes() as $k => $val ) {
+            if ( $k === 'placeholder' ) continue;
+            $attrs .= esc_attr( $k ) . '="' . esc_attr( $val ) . '" ';
+        }
+
         echo '<label><span>' . esc_html( $label ) . '</span>'
-            . '<input type="number" step="any" inputmode="decimal" name="band[' . esc_attr( $ag ) . '][' . esc_attr( $key ) . ']" '
+            . '<input ' . $attrs . 'name="band[' . esc_attr( $ag ) . '][' . esc_attr( $key ) . ']" ' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every attribute escaped above
             . 'value="' . esc_attr( $v ) . '" /></label>';
     }
 
     public function validate( array $post, array $state ) {
+        // #3273 — the bands are typed in the unit chosen on the previous step
+        // and stored canonically, so they convert here rather than at the point
+        // they are compared against a reading.
+        $units = self::unitsFromState( $state );
+
         $bands = isset( $post['band'] ) && is_array( $post['band'] ) ? $post['band'] : [];
         $targets = [];
         foreach ( $bands as $ag => $row ) {
@@ -73,8 +92,10 @@ final class MeasurementTargetsStep implements WizardStepInterface {
             $entry = [];
             foreach ( [ 'green_min', 'green_max', 'amber_min', 'amber_max' ] as $k ) {
                 $raw = isset( $row[ $k ] ) ? trim( (string) $row[ $k ] ) : '';
-                if ( $raw !== '' && is_numeric( $raw ) ) {
-                    $entry[ $k ] = (float) $raw;
+                if ( $raw === '' ) continue;
+                $parsed = $units->parse( $raw );
+                if ( $parsed['value'] !== null ) {
+                    $entry[ $k ] = $parsed['value'];
                 }
             }
             if ( ! empty( $entry ) ) {
@@ -82,6 +103,21 @@ final class MeasurementTargetsStep implements WizardStepInterface {
             }
         }
         return [ 'targets' => $targets ];
+    }
+
+    /**
+     * The unit context the draft has chosen so far.
+     *
+     * @param array<string, mixed> $state
+     */
+    private static function unitsFromState( array $state ): UnitContext {
+        return UnitContext::forDefinition( (object) [
+            'unit'           => (string) ( $state['unit'] ?? '' ),
+            'dimension'      => (string) ( $state['dimension'] ?? Dimensions::DIMENSIONLESS ),
+            'entry_unit_id'  => $state['entry_unit_id'] ?? null,
+            'numeric_format' => (string) ( $state['numeric_format'] ?? 'plain' ),
+            'value_type'     => (string) ( $state['value_type'] ?? 'numeric' ),
+        ] );
     }
 
     public function nextStep( array $state ): ?string { return null; }
@@ -92,6 +128,10 @@ final class MeasurementTargetsStep implements WizardStepInterface {
             'name'        => (string) ( $state['name'] ?? '' ),
             'value_type'  => (string) ( $state['value_type'] ?? 'numeric' ),
             'unit'        => (string) ( $state['unit'] ?? '' ),
+            // #3273 — resolved in the options step, carried through the draft.
+            'dimension'      => (string) ( $state['dimension'] ?? Dimensions::DIMENSIONLESS ),
+            'entry_unit_id'  => $state['entry_unit_id'] ?? null,
+            'numeric_format' => (string) ( $state['numeric_format'] ?? 'plain' ),
             'direction'   => (string) ( $state['direction'] ?? 'higher' ),
             'frequency'   => (string) ( $state['frequency'] ?? 'adhoc' ),
         ] );
