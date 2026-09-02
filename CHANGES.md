@@ -1,3 +1,133 @@
+# TalentTrack v4.115.1 — The match prep PDF is readable, and says which match it is (#3272)
+
+The exported sheet printed at roughly 5pt with most of the paper left blank,
+and nowhere on it said who was playing whom.
+
+Three things changed.
+
+**It prints landscape and fits the page.** The grid is a wide, three-column
+sheet that was being squeezed into portrait width — that squeeze was the tiny
+type. The export now lays it on landscape A4, fits it to the page in both
+directions and centres it, instead of fitting the width alone and leaving a
+band of content across the top of an otherwise empty sheet. Where the sheet is
+still taller than one page it is printed at full size across two, rather than
+shrunk to something you cannot read on a touchline.
+
+**It names the match.** A header band carries the fixture, date, kick-off,
+home or away and the venue, alongside the formation, the half length and how
+much of the squad is available. Whatever your academy has recorded appears;
+what it hasn't is left out rather than printed empty.
+
+**The same match exports the same document.** The sheet is composed at the
+page's own width rather than at whatever window you happened to press the
+button in, so a phone and a desktop no longer produce two different PDFs.
+
+# TalentTrack v4.115.1 — Positions your academy adds itself now read as their label, not their key (#3276)
+
+A position added through **Configuration → Lookups → Positions** printed its
+internal database key on every screen that showed it — a profile reading
+*Verdedigende middenvelder · rechter_middenvelder*, with the seeded positions
+translated and the academy's own ones not. The label the operator typed was
+stored correctly all along; no read surface asked for it.
+
+Twelve surfaces are fixed by one resolver: the profile header, identity card,
+sidebar and player card, the teammate card, my profile, the overview, the coach
+and player dashboards, the rate-card hero, the blueprint roster, the goal
+wizard's link step, journey position-change events, and human-facing CSV / XLSX
+exports.
+
+An academy that renames a **seeded** position to its own vocabulary is now
+obeyed too, and a position with no label anywhere reads as words rather than as
+a key. The stored code is unchanged and stays the matching key, so renaming a
+position moves nothing between chemistry buckets, formation slots or squad
+selection.
+
+# TalentTrack v4.115.1 — The player's Activities tab lists newest first (#3277)
+
+The tab showed a player's most recent 25 activities oldest-at-top, so the latest
+one — usually the reason for opening the tab — sat at the bottom of the list.
+It now reads newest first.
+
+Anything already planned for the player sorts above today, so the tab opens on
+what is next and then reads back through what happened. The window is unchanged:
+still the most recent 25, never the oldest 25 of a player's career.
+
+Other activity lists are untouched and stay in chronological order.
+
+# TalentTrack v4.115.1 — The player's Measurements tab shows the BMI figure, without the explainers (#3278)
+
+The BMI block at the top of a player's Measurements tab carried more prose than
+figure: two paragraphs explaining the growth reference and how to read a BMI, a
+line saying how far apart the two readings were, and a line about how the figure
+had moved. On a player's file, opened mid-task, that is a wall to read past.
+
+The tab now shows the BMI and its percentile, and nothing else.
+
+Nothing is lost — **Reports → Player · BMI-for-age** is unchanged and still
+carries the caveat, the days-apart column and the change column. That is the
+screen you open when BMI is what you came to read.
+
+A player the growth reference does not cover still says so on the tab rather
+than showing a figure that looks complete.
+
+# TalentTrack v4.115.1 — Team attendance report: the player drill-down now lists players (#3279)
+
+Expanding a team row on **Reports → Team attendance** always said "no player
+attendance in this window", even where the same row reported 15 activities and
+93,4% present. The accordion read the player rows off the wrong level of the
+REST response, so it received nothing and printed the empty state — on every
+install, since the drill-down shipped.
+
+The rows were always there. Expanding a team now lists its players worst-first
+with their present percentage, and the at-risk badge appears on flagged
+players — which, being fed from the same rows, had never been seen either.
+
+# TalentTrack v4.115.1 — A player's height and weight are on their profile again (#3280)
+
+The Identity card on a player's Profile tab showed date of birth, position,
+foot, jersey, consent and status — but not height or weight. The player's own
+*My profile* screen showed both, so a coach opening a player's file could not
+read a number the player could.
+
+Both are back, each with the date it was measured: **172 cm · measured 18 Aug**.
+The figure comes from the dated measurement series rather than from whatever was
+typed when the player was entered, so it is right even where the profile field
+behind it has not caught up. A number typed on the player form rather than
+measured shows without a date, because there is none; a player with neither gets
+no row rather than a blank one.
+
+A viewer without access to measurements sees the profile field instead of the
+reading.
+
+# TalentTrack v4.115.1 — The profile weight follows the measurements, like the height already did (#3281)
+
+Recording a height has updated the player's profile since the last release.
+Weight did not, so an academy weighing its squad every cycle had a correct
+dated series and a profile still showing whatever was typed at signup.
+
+Now both follow the readings. Record a weight and the profile shows it as soon
+as that reading is the player's most recent one, under the same rules height
+uses: the most recent measurement wins rather than the last one you typed,
+deleting the last reading leaves the profile value alone, and a clearly
+mistyped number is not copied across.
+
+The recognised test names are `Gewicht`, `Weight` and `Mass`, matched the same
+way as the height names — capitals and spacing don't matter.
+
+# TalentTrack v4.115.1 — Existing height and weight readings are caught up on the profile (#3282)
+
+The profile height and weight only started following the dated readings
+partway through, and by design they only updated when a reading was saved —
+so on any existing academy a player measured before that shipped still showed
+whatever was typed at signup, and there was nothing on screen to explain why.
+
+Upgrading runs a one-off pass that brings every profile in line with the
+readings behind it.
+
+Nothing is blanked or guessed: a player with no usable reading keeps the value
+that was already there, an archived reading does not count, and a clearly
+mistyped number is refused exactly as it would be on a fresh save.
+
 # TalentTrack v4.115.0 — The unit of measure is now part of the measurement (#3273)
 
 A test's unit used to be a caption printed after a number. It is now a property
