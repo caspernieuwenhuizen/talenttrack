@@ -231,6 +231,11 @@ A few details worth knowing:
 - **You can still edit both on the player form.** It is the right thing
   to do for an academy that does not run testing sessions — but a
   recorded measurement will take over as soon as there is one.
+- **Readings you already had were caught up on upgrade.** This only
+  started following the measurements partway through, so a one-off pass
+  brought every existing profile in line with the readings behind it.
+  Nothing was blanked: a player with no usable reading kept the value
+  that was already there.
 
 The BMI report does not use the profile height, and deliberately so — a
 BMI needs the height that was true on the day of the weigh-in, not the
