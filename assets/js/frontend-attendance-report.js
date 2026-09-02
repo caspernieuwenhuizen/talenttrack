@@ -136,7 +136,14 @@
             }
             return res.json();
         } ).then( function ( data ) {
-            var players = ( data && data.players ) ? data.players : [];
+            // The endpoint answers in the standard envelope
+            // ({ success, data, errors }), so the rows sit one level down.
+            // Reading `data.players` yielded undefined on every response and
+            // the empty state was printed over 12 players who were there.
+            // The `|| data` fallback keeps this working against a flattened
+            // shape, as the other consumers in this folder do.
+            var payload = ( data && data.data ) ? data.data : data;
+            var players = ( payload && payload.players ) ? payload.players : [];
             cell.textContent = '';
             cell.appendChild( renderSubTable( players ) );
             done( true );
