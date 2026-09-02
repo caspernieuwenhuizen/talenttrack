@@ -204,6 +204,13 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
                 'key'     => 'state',
                 'param'   => 'state',
                 'label'   => __( 'State', 'talenttrack' ),
+                // #3320 — the state the list opens on. Without it the bar
+                // treats every state as a filter, so the default chipped as
+                // "State: Open" on arrival: a chip for the one thing that is
+                // NOT filtered, whose ✕ pointed at the option it was already
+                // on. The view already knew the default — its own count read
+                // `state !== 'open'` — the group config just never said so.
+                'default_value' => 'open',
                 'options' => $state_options,
             ],
         ];
@@ -213,17 +220,17 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         if ( $filters['subject_id'] > 0 )      $hidden['subject_id']   = (string) $filters['subject_id'];
         if ( $filters['player_id'] > 0 )       $hidden['player_id']    = (string) $filters['player_id'];
 
-        $active = 0;
-        if ( $filters['module'] !== '' )   $active++;
-        if ( $filters['severity'] !== '' ) $active++;
-        if ( $filters['state'] !== 'open' ) $active++;
-
+        // #3320 — no hand-rolled `active_count`. This is the one surface that
+        // lets FilterBar derive its own chips, and passing a count alongside
+        // them re-opened exactly the drift the derivation closes: the bar
+        // keeps the caller's number whenever one is given, so the badge and
+        // the chips had different sources and could disagree by construction.
+        // With the count omitted, the badge IS the chip count.
         FilterBar::render( [
-            'groups'       => $groups,
-            'hidden'       => $hidden,
-            'form_action'  => $base,
-            'active_count' => $active,
-            'reset_url'    => add_query_arg( [ 'tt_view' => 'alerts' ], $base ), /* tt-xview-ok */
+            'groups'      => $groups,
+            'hidden'      => $hidden,
+            'form_action' => $base,
+            'reset_url'   => add_query_arg( [ 'tt_view' => 'alerts' ], $base ), /* tt-xview-ok */
         ] );
 
         // A chip deep-link scopes the whole list to one record. Say so, and
