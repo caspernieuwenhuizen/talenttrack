@@ -48,7 +48,13 @@ The team podium leads — top 3 players by rolling rating, gold/silver/bronze. B
 Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings — compact by default, expand a row to see the full subcategory breakdown.
 
 ### My activities
-The training sessions, games and other activities you've attended — only your own, never another player's. Search by title or location, narrow by date range, sort by date, title or team, and step through pages when there are more than fit on screen. The **Your status** column shows your attendance per activity at a glance — present / absent / late / injured / excused. Tap any row to open **My activity detail** — date, type, location, the coach's notes on the activity, your attendance status, and any per-row note your coach left for you.
+Two halves: what is coming up, and what you turned up to.
+
+**Coming up** sits at the top — your team's next few activities, soonest first. Tap one to open its detail. It carries no attendance, because a training that has not happened yet is not something you have been to; if your coach has already picked a squad, that is their decision to tell you, not something this screen announces.
+
+Below it, your **history**: the trainings, games and other activities you have attended — only your own, never another player's — most recent first, up to today. Search by title or location, narrow by date range, sort by date, title or team, and step through pages when there are more than fit on screen. The **Your status** column shows your recorded attendance per activity — present / absent / late / injured / excused — and stays blank where nothing has been recorded. Tap any row to open **My activity detail** — date, type, location, the coach's notes on the activity, your attendance status, and any per-row note your coach left for you.
+
+Widening the date range yourself shows activities beyond today again; they simply carry no attendance until one is recorded.
 
 ### My goals
 The development goals your coaches have set for you, grouped by status. Tap a goal to open it: read the full description, see priority + due date, and join the conversation thread (you can post comments and your coach + parents will see them).
