@@ -343,7 +343,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! array_key_exists( $active_tab, $tab_set ) ) {
             $active_tab = array_key_exists( $default_tab, $tab_set ) ? $default_tab : 'profile';
         }
-        $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() );
+        // #3391 — the tab strip and the At-a-glance rail built every link
+        // against the staff `players` slug, for every reader. The player
+        // persona holds no `players` entity in the authorization seed —
+        // deliberately, because a player reaches their own record through the
+        // Me-slugs — so all seven tabs on a player's own profile dead-ended on
+        // the not-authorized notice. A parent got through only because their
+        // persona happens to hold `players` at player scope, which made this
+        // look like a Media bug rather than every link on the screen.
+        //
+        // Route by who is reading rather than by which view rendered. Staff
+        // keep the Players slug. Everyone else goes to `?tt_view=overview`,
+        // which resolves its own subject: the viewer's own player record, or
+        // `?player_id=N` for a parent opening their child — both gated by
+        // `canViewPlayer` in the dispatcher, so this widens nothing.
+        $base_url = $is_staff
+            ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() )
+            : add_query_arg(
+                $is_self
+                    ? [ 'tt_view' => 'overview' ]
+                    : [ 'tt_view' => 'overview', 'player_id' => $player_id ],
+                RecordLink::dashboardUrl()
+            );
 
         $counts = PlayerFileCounts::for( $player_id );
         ?>
