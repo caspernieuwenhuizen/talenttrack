@@ -1,3 +1,106 @@
+# TalentTrack v4.118.0 — PDP evidence: the Evidence tab shows what the record actually says (#3303)
+
+The Evidence tab on a PDP conversation listed evaluation **dates** — no
+rating, no assessor, no notes — ten activities and ten goals, as bulleted
+lists inside a hardcoded grey panel that ignored every theme the plugin
+ships. It ran its own three queries, so its numbers could disagree with the
+printed file's for the same player on the same day.
+
+It now renders the one evidence packet through a shared component, and
+carries the whole picture: evaluations with their rating, assessor, notes
+and per-category scores; attendance with the present / absent / excused
+split alongside matches played, minutes and the per-match breakdown; goals
+with whether each one has moved since the last talk; the player's own
+self-reflection; staff notes, injuries and journey events; and the
+potential and behaviour ratings set in the window.
+
+Records link through to their own pages, with a back-pill home. Tables
+reflow to labelled cards on a phone. **A section with nothing in it says
+so** rather than disappearing — a coach needs to see that there is no
+evidence, not be shown a shorter page.
+
+The Conversation | Evidence tab strip is now the shared record-spine strip
+rather than a hand-rolled one, so it gains arrow-key navigation and matches
+every other tab strip in the plugin; its styling, and the conversation
+form's signature-lock banner and self-reflection card, move out of inline
+attributes into an enqueued stylesheet that reads the design tokens.
+
+# TalentTrack v4.118.0 — PDP evidence: the print and the verdict screen read the same packet (#3304)
+
+Two surfaces still assembled their own evidence. The printed file ran a
+fourth variant — five evaluations and ten activities, scoped by neither
+`club_id` nor the activity archive flag, printing raw ISO dates — so on a
+multi-team install its numbers could legitimately disagree with the Evidence
+tab a coach had open for the same player on the same day. The verdict
+screen showed no evidence at all: the packet existed, its only caller was a
+REST endpoint nothing consumed, and the head of academy read the numbers
+somewhere else or from memory.
+
+Both now render the shared evidence panel over
+`EvidencePacket::forFile()`. The printed page has no links, since paper has
+nowhere to click to, and forces the table layout rather than the phone card
+stack, because the PDF exporter renders through DomPDF, which resolves no
+viewport and ignores `@media print` outright. The `?include_evidence=1`
+toggle still works exactly as it did — a coach printing a one-page summary
+for a parent can leave the evidence page off.
+
+On the verdict screen the panel sits above the decision as **Evidence for
+this season**, collapsed: a head of academy who already knows the player
+should not have to scroll a season's record to reach the four buttons, and
+one who does not is a tap away from all of it.
+
+The print router now carries no evidence SQL, and a test asserts the two
+surfaces show the same rows for a seeded player — including that a row from
+another club and a row from before the season reach neither of them, which
+is exactly what the old print got wrong.
+
+# TalentTrack v4.118.0 — PDP preparation: the coach's own tab, and the agenda box retires (#3306)
+
+A PDP conversation now opens on three tabs — **Preparation**, **Conversation**,
+**Evidence** — and lands on the one you need: Preparation while the talk is
+still ahead, Conversation once it has been conducted.
+
+Preparation asks the question set an academy configured for that
+conversation in the cycle, at the version this conversation was answered
+against, so a prep written in September still reads the way it was written
+even if the wording changed in November. It saves as you write, like the
+conversation form beside it; sign-off is unaffected and stays its own
+button.
+
+**Nobody but the coach and the head of academy reads it.** Not the player,
+not their parents, on any screen, in the print, or in any export. It is
+where a coach can write that a family situation is difficult, or that they
+are not yet sure about a recommendation. What gets shared is what was
+agreed in the talk itself.
+
+The free-text **Agenda (pre-meeting)** field is retired. Whatever coaches
+wrote in it moved into the *"Anything else to prepare?"* question on the
+same conversation, so nothing is lost. One consequence is worth stating: the
+agenda used to appear on the player's own PDP view, and preparation does
+not — text that moved became less visible, never more. The column keeps its
+content for one release so the move is reversible, and nothing writes to it
+after this one.
+
+# TalentTrack v4.118.0 — PDP: the conversation surface, written down (#3307)
+
+The PDP guide now describes the surface as it ships. A coach opening it can
+answer three things: what the system will show me when I open a
+conversation, what I am expected to fill in beforehand, and who sees what I
+wrote. A head of academy can answer a fourth: where the numbers on the
+verdict screen come from, and whether they are the same ones the coach saw.
+
+The privacy boundary gets its own line in **Who sees what**, because it is
+the part somebody will look up under pressure: a coach's preparation is read
+by that coach and the head of academy and by nobody else — not the player,
+not their parents, not a read-only observer, on any screen, in the print, or
+in any export.
+
+The Dutch guide is also repaired. `docs/nl_NL/pdp-cycle.md` had been written
+as UTF-8, read back as Windows-1252 and saved again at some point, so every
+dash, arrow and accented character in it rendered as mojibake — "â€”" where
+an em dash belonged. It was the only one of the 113 Dutch documents affected,
+and it is now correct throughout.
+
 # TalentTrack v4.117.0 — PDP evidence: one packet, extended to what a conversation actually needs (#3302)
 
 `EvidencePacket` now carries the full picture a PDP conversation is meant
