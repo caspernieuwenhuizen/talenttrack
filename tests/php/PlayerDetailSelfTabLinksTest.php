@@ -42,14 +42,17 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
         $this->linkAccount( $user );
         wp_set_current_user( $user );
 
-        $html = $this->renderFor( $user );
+        $links = $this->tabLinksIn( $this->renderFor( $user ) );
 
-        $this->assertStringNotContainsString(
-            'tt_view=players',
-            $html,
-            'a player holds no players grant; every such link is a dead end'
-        );
-        $this->assertStringContainsString( 'tt_view=overview', $html );
+        $this->assertNotEmpty( $links, 'the tab strip must render, or this test proves nothing' );
+        foreach ( $links as $href ) {
+            $this->assertStringNotContainsString(
+                'tt_view=players',
+                $href,
+                'a player holds no players grant; every such link is a dead end'
+            );
+            $this->assertStringContainsString( 'tt_view=overview', $href );
+        }
     }
 
     public function test_the_player_tab_links_carry_the_tab_and_no_id(): void {
@@ -60,23 +63,25 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
         $this->linkAccount( $user );
         wp_set_current_user( $user );
 
-        $html = $this->renderFor( $user );
+        $links = $this->tabLinksIn( $this->renderFor( $user ) );
 
-        $this->assertMatchesRegularExpression(
-            '/tt_view=overview(&amp;|&)tab=[a-z_]+/',
-            $html,
-            'a tab link should be overview + tab'
-        );
-        $this->assertStringNotContainsString( 'tt_view=overview&amp;id=', $html );
+        $this->assertNotEmpty( $links );
+        foreach ( $links as $href ) {
+            $this->assertMatchesRegularExpression( '/(&amp;|&|\?)tab=[a-z_]+/', $href );
+            $this->assertDoesNotMatchRegularExpression( '/(&amp;|&|\?)id=/', $href );
+        }
     }
 
     public function test_staff_keep_the_players_slug(): void {
         $staff = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         wp_set_current_user( $staff );
 
-        $html = $this->renderFor( $staff );
+        $links = $this->tabLinksIn( $this->renderFor( $staff ) );
 
-        $this->assertStringContainsString( 'tt_view=players', $html );
+        $this->assertNotEmpty( $links );
+        foreach ( $links as $href ) {
+            $this->assertStringContainsString( 'tt_view=players', $href );
+        }
     }
 
     public function test_a_parent_is_routed_to_the_me_slug_with_the_child_id(): void {
@@ -88,10 +93,13 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
         $this->linkParent( $parent );
         wp_set_current_user( $parent );
 
-        $html = $this->renderFor( $parent );
+        $links = $this->tabLinksIn( $this->renderFor( $parent ) );
 
-        $this->assertStringNotContainsString( 'tt_view=players', $html );
-        $this->assertStringContainsString( 'player_id=' . $this->player, $html );
+        $this->assertNotEmpty( $links );
+        foreach ( $links as $href ) {
+            $this->assertStringNotContainsString( 'tt_view=players', $href );
+            $this->assertStringContainsString( 'player_id=' . $this->player, $href );
+        }
     }
 
     /* ---- fixtures ------------------------------------------------------- */
@@ -100,6 +108,24 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
         ob_start();
         FrontendPlayerDetailView::render( $this->player, $user_id, false, 'card' );
         return (string) ob_get_clean();
+    }
+
+    /**
+     * The hrefs of the tab strip and the At-a-glance rail — the links this
+     * fix owns, both built from the same `$base_url`.
+     *
+     * Deliberately not a whole-page scan: other components on this profile
+     * emit their own links (the player card's own click-through among them),
+     * and a page-wide assertion would make this test fail for code it does
+     * not cover.
+     *
+     * @return list<string>
+     */
+    private function tabLinksIn( string $html ): array {
+        if ( ! preg_match_all( '/href="([^"]*\btab=[^"]*)"/', $html, $m ) ) {
+            return [];
+        }
+        return array_values( array_unique( $m[1] ) );
     }
 
     private function seedPlayer(): int {

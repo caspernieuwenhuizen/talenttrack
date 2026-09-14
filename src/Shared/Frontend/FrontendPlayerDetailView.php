@@ -358,13 +358,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // `?player_id=N` for a parent opening their child — both gated by
         // `canViewPlayer` in the dispatcher, so this widens nothing.
         $base_url = $is_staff
-            ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() )
+            ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() ) /* tt-xview-ok — same view; this is the base for this page's own tabs */
             : add_query_arg(
                 $is_self
                     ? [ 'tt_view' => 'overview' ]
                     : [ 'tt_view' => 'overview', 'player_id' => $player_id ],
                 RecordLink::dashboardUrl()
-            );
+            ); /* tt-xview-ok — same view, reached by the Me-slug */
 
         $counts = PlayerFileCounts::for( $player_id );
         ?>
