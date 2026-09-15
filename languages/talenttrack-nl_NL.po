@@ -60233,7 +60233,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:117
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php
 #, php-format
 msgid ""
 "Welcome to TalentTrack! This is %1$s's development home. %2$s chooses what "
@@ -60242,7 +60242,7 @@ msgstr ""
 "Welkom bij TalentTrack! Dit is het ontwikkelhuis van %1$s. %2$s bepaalt zelf "
 "wat je te zien krijgt."
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:127
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php
 msgid ""
 "Everything that has happened so far, newest first. Filter by what you want "
 "to see, or switch to milestones for the big moments only."
@@ -60250,7 +60250,7 @@ msgstr ""
 "Alles wat tot nu toe is gebeurd, het nieuwste eerst. Filter op wat je wilt "
 "zien, of schakel over naar mijlpalen voor alleen de grote momenten."
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:177
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php
 #, php-format
 msgid "%d entry is only visible to your coaches. Ask them if you want to know more."
 msgid_plural "%d entries are only visible to your coaches. Ask them if you want to know more."
@@ -60260,6 +60260,7 @@ msgstr[0] ""
 msgstr[1] ""
 "%d items zijn alleen zichtbaar voor je begeleiders. Vraag het ze als je er "
 "meer over wilt weten."
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
