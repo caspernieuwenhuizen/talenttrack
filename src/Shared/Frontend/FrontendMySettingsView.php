@@ -205,7 +205,7 @@ class FrontendMySettingsView extends FrontendViewBase {
                 </div>
             <?php endforeach; ?>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'Safeguarding messages, and messages about getting back into your account, are always sent. They cannot be switched off.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'These are always sent and cannot be switched off: safeguarding messages, messages about getting back into your account, and cancellations — missing one of those would mean turning up to a training that is not happening.', 'talenttrack' ); ?>
             </p>
 
             <?php
@@ -255,7 +255,8 @@ class FrontendMySettingsView extends FrontendViewBase {
      */
     private static function messageTypeLabels(): array {
         return [
-            \TT\Modules\Comms\Domain\MessageType::TRAINING_CANCELLED         => __( 'A training is cancelled', 'talenttrack' ),
+            // #3382 — "A training is cancelled" used to be here. It is now
+            // operational and appears in the always-sent block below.
             \TT\Modules\Comms\Domain\MessageType::SCHEDULE_CHANGE_FROM_SPOND => __( 'An activity changes time or place', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::SELECTION_LETTER           => __( 'Selection decisions', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::PDP_READY                  => __( 'A development plan is ready to read', 'talenttrack' ),
@@ -281,6 +282,11 @@ class FrontendMySettingsView extends FrontendViewBase {
         return [
             __( 'Safeguarding messages', 'talenttrack' ),
             __( 'Getting back into your account', 'talenttrack' ),
+            // #3382 — a cancellation you did not get means a child dropped
+            // at a pitch nobody came to. The product already wakes a family
+            // out of hours for it; letting the same family mute it entirely
+            // was the inconsistent half.
+            __( 'A training is cancelled', 'talenttrack' ),
         ];
     }
 

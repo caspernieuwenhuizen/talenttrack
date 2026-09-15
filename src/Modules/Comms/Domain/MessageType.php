@@ -113,12 +113,22 @@ final class MessageType {
      * behind: a type added above appears here on the same commit. Sorted
      * as declared, so the operational ones stay last.
      *
+     * Public constants only. #3382 added a private one holding a *list* of
+     * types rather than a type, and `getConstants()` returns those too —
+     * which put an array into a `list<string>` and made every caller of
+     * this method fatal. Visibility is the right discriminator: a message
+     * type is part of this class's contract, anything private is bookkeeping.
+     *
      * @return list<string>
      */
     public static function all(): array {
-        /** @var array<string,string> $constants */
-        $constants = ( new \ReflectionClass( self::class ) )->getConstants();
-        return array_values( array_map( 'strval', $constants ) );
+        $out = [];
+        foreach ( ( new \ReflectionClass( self::class ) )->getReflectionConstants() as $constant ) {
+            if ( $constant->isPublic() ) {
+                $out[] = (string) $constant->getValue();
+            }
+        }
+        return $out;
     }
 
     /**
@@ -134,11 +144,37 @@ final class MessageType {
     }
 
     /**
+     * Types that are operational without carrying the suffix.
+     *
+     * #3382 — the `_OPERATIONAL` suffix is a naming convention, not the
+     * definition. `TRAINING_CANCELLED` is operational in every sense that
+     * matters and has been treated as such by {@see bypassesQuietHours()}
+     * since the module shipped: the product will wake a family at 23:00 to
+     * tell them a training is off. It simply could not carry the suffix,
+     * because the constant's *value* is persisted — in
+     * `tt_comms_log.message_type` and `tt_comms_optouts.message_type` — so
+     * renaming it would orphan every historical row and rewrite the audit
+     * trail to say something it did not say at the time.
+     *
+     * So the list exists, and the trade is stated rather than implied: a
+     * muted cancellation means a child dropped at a pitch nobody came to.
+     *
+     * @var list<string>
+     */
+    private const OPERATIONAL_BY_POLICY = [
+        self::TRAINING_CANCELLED,
+    ];
+
+    /**
      * True when the message type is operational (opt-out forbidden).
-     * Convention: any constant ending in `_OPERATIONAL`.
+     *
+     * Either the constant ends in `_OPERATIONAL` — the convention — or it
+     * appears in {@see self::OPERATIONAL_BY_POLICY}, for the one type whose
+     * stored value predates the convention.
      */
     public static function isOperational( string $messageType ): bool {
-        return substr( $messageType, -12 ) === '_OPERATIONAL';
+        return substr( $messageType, -12 ) === '_OPERATIONAL'
+            || in_array( $messageType, self::OPERATIONAL_BY_POLICY, true );
     }
 
     /**
@@ -150,7 +186,9 @@ final class MessageType {
      * `urgent` flag is true at send time.
      */
     public static function bypassesQuietHours( string $messageType ): bool {
-        return self::isOperational( $messageType )
-            || $messageType === self::TRAINING_CANCELLED;
+        // #3382 — `TRAINING_CANCELLED` used to be named again here. It is
+        // now operational (see OPERATIONAL_BY_POLICY), so the first branch
+        // already covers it.
+        return self::isOperational( $messageType );
     }
 }

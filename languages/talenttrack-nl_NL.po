@@ -55068,11 +55068,14 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMySettingsView.php:208
 msgid ""
-"Safeguarding messages, and messages about getting back into your account, "
-"are always sent. They cannot be switched off."
+"These are always sent and cannot be switched off: safeguarding messages, "
+"messages about getting back into your account, and cancellations — missing "
+"one of those would mean turning up to a training that is not happening."
 msgstr ""
-"Veiligheidsberichten en berichten over het terugkrijgen van toegang tot je "
-"account worden altijd verstuurd. Die kun je niet uitzetten."
+"Deze worden altijd verstuurd en kun je niet uitzetten: veiligheidsberichten, "
+"berichten over het terugkrijgen van toegang tot je account, en afmeldingen — "
+"zo'n bericht missen zou betekenen dat je komt opdagen voor een training die "
+"niet doorgaat."
 
 #. translators: %s: link to the alert settings screen
 #: src/Shared/Frontend/FrontendMySettingsView.php:231
