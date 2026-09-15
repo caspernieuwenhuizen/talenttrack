@@ -7,10 +7,12 @@ use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Activities\ActivitiesRepository;
 
 /**
- * FrontendMyActivitiesView — the "My sessions" tile destination.
+ * FrontendMyActivitiesView — the "My activities" tile destination.
  *
- * Lists activities attended by the logged-in player, most-recent
- * first. Filterable by date range and free-text search. Rendered via
+ * Two halves (#3390): a short **Coming up** block of the team's next
+ * activities, then the history — what the player actually turned up to,
+ * most-recent first, bounded to today so the surface stops opening on
+ * next month. Filterable by date range and free-text search. Rendered via
  * the shared FrontendListTable, whose filter chrome is the shared 2026
  * FilterBar (component-level migration, #2082 / epic #2017), so this
  * player surface matches the staff Activities list one-for-one — the
@@ -82,11 +84,27 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         // no per-view filter markup is needed. The static `player_id` scope
         // below keeps the list to the player's OWN activities; the REST
         // contract is unchanged.
+        // #3390 — what is coming up, above what already happened.
+        //
+        // The list below is a history: the tile promises "activities you have
+        // attended" and it sorts newest-first. On any install with a season
+        // planned ahead that meant the whole first page was next month, so the
+        // surface opened on the future and buried the thing it was for.
+        self::renderComingUp( $player );
+
         echo '<div class="tt-myact-list">';
         echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
             'rest_path' => 'activities',
+            // #3390 — `date_to` bounds the list to what has happened, so the
+            // history stops opening on the future. A static filter yields to
+            // the player's own date-range control (the JS hydrator only fills
+            // a key the user left empty), which is the behaviour we want: the
+            // default is history, and a player who deliberately widens the
+            // range sees what they asked for — with no status pill on it,
+            // because the column now reads recorded attendance only.
             'static_filters' => [
                 'player_id' => (int) $player->id,
+                'date_to'   => current_time( 'Y-m-d' ),
             ],
             // #1986 — player surface: rows are NOT clickable (the only detail
             // link pointed at the staff `?tt_view=activities` view, which a
@@ -122,6 +140,61 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             ],
         ] );
         echo '</div>';
+    }
+
+    /**
+     * #3390 — the forward-looking half of this surface.
+     *
+     * Deliberately not a second `FrontendListTable`: there is nothing to
+     * filter, sort or page through in the next five activities, and it
+     * carries **no status column** — a squad the coach has planned is not
+     * something the player has attended, and putting any pill on it would
+     * publish a selection decision the coach has not announced.
+     *
+     * Reads `ActivitiesRepository::upcomingForTeam()`, the same source the
+     * development home and the profile's Upcoming card use, so the three
+     * agree about what "next" means (from today, excluding completed and
+     * cancelled, soonest first).
+     *
+     * Renders nothing at all when there is nothing to show — an empty
+     * "Coming up" card on a player's screen in the off-season is noise.
+     */
+    private static function renderComingUp( object $player ): void {
+        $team_id = (int) ( $player->team_id ?? 0 );
+        if ( $team_id <= 0 ) return;
+
+        $rows = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->upcomingForTeam( $team_id, 5 );
+        if ( empty( $rows ) ) return;
+
+        ?>
+        <section class="tt-myact-upcoming">
+            <h3 class="tt-myact-upcoming__title"><?php esc_html_e( 'Coming up', 'talenttrack' ); ?></h3>
+            <ul class="tt-myact-upcoming__list">
+                <?php foreach ( $rows as $row ) :
+                    $activity_id = (int) ( $row->id ?? 0 );
+                    $title       = trim( (string) ( $row->title ?? '' ) );
+                    if ( $title === '' ) $title = __( 'Activity', 'talenttrack' );
+                    $location = trim( (string) ( $row->location ?? '' ) );
+                    $date     = \TT\Shared\Dates\TTDate::date( (string) ( $row->session_date ?? '' ) );
+                    $url      = add_query_arg(
+                        [ 'tt_view' => 'my-activities', 'id' => $activity_id ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    ?>
+                    <li class="tt-myact-upcoming__item">
+                        <a class="tt-myact-upcoming__link" href="<?php echo esc_url( $url ); ?>">
+                            <span class="tt-myact-upcoming__date"><?php echo esc_html( $date ); ?></span>
+                            <span class="tt-myact-upcoming__label"><?php echo esc_html( $title ); ?></span>
+                            <?php if ( $location !== '' ) : ?>
+                                <span class="tt-myact-upcoming__loc"><?php echo esc_html( $location ); ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </section>
+        <?php
     }
 
     /**

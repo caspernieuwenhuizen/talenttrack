@@ -55,14 +55,24 @@ class PlayerMeasurementProfile {
      * target for this player's age group. The trend chart shades it; the
      * flag is the same target expressed as a verdict on the latest value.
      */
-    public function forPlayer( int $player_id ): array {
+    public function forPlayer( int $player_id, ?int $viewer_id = null ): array {
         if ( $player_id <= 0 ) return [];
 
         $age_group   = $this->ageGroupFor( $player_id );
-        // Only tests the operator has kept visible on the profile (#2204).
-        // A test toggled off still records results and appears in reports /
-        // exports — it just stops rendering on the player profile.
-        $definitions = $this->definitions->listActiveForProfile();
+        // Only tests the operator has kept visible on the profile (#2204),
+        // and among those, only the ones this reader's clearance admits
+        // (#3392). A test toggled off still records results and appears in
+        // reports / exports — it just stops rendering on the player profile.
+        //
+        // The viewer defaults to the current user rather than being
+        // required, so every existing caller keeps working; but the filter
+        // lives HERE rather than in the views, because the rendered HTML
+        // and the REST response must not be able to disagree about what a
+        // given reader may see.
+        $viewer_id   = $viewer_id ?? get_current_user_id();
+        $definitions = $this->definitions->listActiveForProfile(
+            \TT\Infrastructure\Visibility\RecordVisibility::forMeasurements( $viewer_id )
+        );
         $latest      = $this->results->latestPerDefinitionForPlayer( $player_id );
 
         $grouped = [];
@@ -159,12 +169,15 @@ class PlayerMeasurementProfile {
      *   `ok`/`warn`/`bad` — green / amber / red flag counts
      *   `flagged`  — warn + bad (tests below the target band)
      */
-    public function summaryForPlayer( int $player_id ): array {
+    public function summaryForPlayer( int $player_id, ?int $viewer_id = null ): array {
         $empty = [ 'tracked' => 0, 'ok' => 0, 'warn' => 0, 'bad' => 0, 'flagged' => 0 ];
         if ( $player_id <= 0 ) return $empty;
 
         $out = $empty;
-        foreach ( $this->forPlayer( $player_id ) as $cat ) {
+        // #3392 — counts the same filtered set the list renders, because it
+        // reads through forPlayer(). An At-a-glance tile saying "6 tests
+        // tracked" above a list of four would be its own small bug.
+        foreach ( $this->forPlayer( $player_id, $viewer_id ) as $cat ) {
             foreach ( (array) ( $cat['tests'] ?? [] ) as $test ) {
                 if ( (string) ( $test['latest_value'] ?? '' ) === '' ) {
                     continue; // no current value → not a tracked test

@@ -274,19 +274,54 @@ class OnboardingHandlers {
     public static function handleStaff(): void {
         self::guard( 'tt_onboarding_staff' );
 
-        $first = sanitize_text_field( wp_unslash( (string) ( $_POST['first_name'] ?? '' ) ) );
-        $last  = sanitize_text_field( wp_unslash( (string) ( $_POST['last_name']  ?? '' ) ) );
-        $email = sanitize_email( wp_unslash( (string) ( $_POST['email'] ?? '' ) ) );
-        $role  = sanitize_text_field( wp_unslash( (string) ( $_POST['role_type'] ?? 'staff' ) ) );
+        $result = self::addStaff( [
+            'first_name' => wp_unslash( (string) ( $_POST['first_name'] ?? '' ) ),
+            'last_name'  => wp_unslash( (string) ( $_POST['last_name']  ?? '' ) ),
+            'email'      => wp_unslash( (string) ( $_POST['email'] ?? '' ) ),
+            'role_type'  => wp_unslash( (string) ( $_POST['role_type'] ?? 'staff' ) ),
+        ] );
 
-        if ( $first === '' || $last === '' ) {
-            self::recordStaffError( __( 'A first and last name are both needed.', 'talenttrack' ) );
+        if ( ! $result['ok'] ) {
+            self::recordStaffError( (string) $result['error'] );
             return;
         }
 
+        self::redirectToPage( [ 'tt_ob_msg' => 'staff_added' ] );
+    }
+
+    /**
+     * The domain half of `handleStaff()` (#3261).
+     *
+     * Extracted so the frontend step calls this rather than reproducing
+     * it. The `defer_send` below is why that matters: #2964/#2965 decided
+     * an invitation is **created and held**, not sent, and a second
+     * implementation that read the screen rather than this line would send
+     * mail to a club's coaches the moment their names were typed. #3211's
+     * rule — call the same handlers — exists for exactly this.
+     *
+     * Validation and the payload append live here too, so the two surfaces
+     * cannot disagree about what counts as a valid person or about what
+     * the review list says.
+     *
+     * @param array<string, mixed> $input
+     * @return array{ok: bool, error: string, person_id: int, invited: bool}
+     */
+    public static function addStaff( array $input ): array {
+        $fail = static function ( string $message ): array {
+            return [ 'ok' => false, 'error' => $message, 'person_id' => 0, 'invited' => false ];
+        };
+
+        $first = sanitize_text_field( (string) ( $input['first_name'] ?? '' ) );
+        $last  = sanitize_text_field( (string) ( $input['last_name']  ?? '' ) );
+        $email = sanitize_email( (string) ( $input['email'] ?? '' ) );
+        $role  = sanitize_text_field( (string) ( $input['role_type'] ?? 'staff' ) );
+
+        if ( $first === '' || $last === '' ) {
+            return $fail( __( 'A first and last name are both needed.', 'talenttrack' ) );
+        }
+
         if ( $email !== '' && ! is_email( $email ) ) {
-            self::recordStaffError( __( 'That does not look like a valid email address.', 'talenttrack' ) );
-            return;
+            return $fail( __( 'That does not look like a valid email address.', 'talenttrack' ) );
         }
 
         $repo      = new PeopleRepository();
@@ -299,8 +334,7 @@ class OnboardingHandlers {
         ] );
 
         if ( $person_id <= 0 ) {
-            self::recordStaffError( __( 'That person could not be saved. They may already be on the list.', 'talenttrack' ) );
-            return;
+            return $fail( __( 'That person could not be saved. They may already be on the list.', 'talenttrack' ) );
         }
 
         $invited = false;
@@ -328,15 +362,44 @@ class OnboardingHandlers {
         unset( $payload['error'] );
 
         OnboardingState::recordPayload( 'staff', $payload );
-        self::redirectToPage( [ 'tt_ob_msg' => 'staff_added' ] );
+
+        return [ 'ok' => true, 'error' => '', 'person_id' => $person_id, 'invited' => $invited ];
     }
 
     /** Finish the staff step without sending anything. */
     public static function handleSkipStaff(): void {
         self::guard( 'tt_onboarding_skip_staff' );
+        self::skipStaff();
+        self::redirectToPage();
+    }
+
+    /**
+     * The domain half of `handleSkipStaff()` (#3261).
+     *
+     * Deliberately writes nothing but the step. Invitations created on
+     * this step stay held and reachable under Configuration → Invitations;
+     * leaving the step is not a decision to discard them.
+     */
+    public static function skipStaff(): void {
+        OnboardingState::setStep( 'messaging' );
+    }
+
+    /**
+     * The domain half of `handleSendInvites()` (#3261).
+     *
+     * @return array{sent: int, skipped: int}
+     */
+    public static function sendInvites(): array {
+        $result  = ( new InvitationService() )->sendDeferred();
+        $payload = OnboardingState::payloadFor( 'staff' );
+
+        $payload['sent']    = count( $result['sent'] );
+        $payload['skipped'] = count( $result['skipped'] );
+        OnboardingState::recordPayload( 'staff', $payload );
 
         OnboardingState::setStep( 'messaging' );
-        self::redirectToPage();
+
+        return [ 'sent' => $payload['sent'], 'skipped' => $payload['skipped'] ];
     }
 
     /**
@@ -440,15 +503,7 @@ class OnboardingHandlers {
      */
     public static function handleSendInvites(): void {
         self::guard( 'tt_onboarding_send_invites' );
-
-        $result  = ( new InvitationService() )->sendDeferred();
-        $payload = OnboardingState::payloadFor( 'staff' );
-
-        $payload['sent']    = count( $result['sent'] );
-        $payload['skipped'] = count( $result['skipped'] );
-        OnboardingState::recordPayload( 'staff', $payload );
-
-        OnboardingState::setStep( 'messaging' );
+        self::sendInvites();
         self::redirectToPage( [ 'tt_ob_msg' => 'invites_sent' ] );
     }
 

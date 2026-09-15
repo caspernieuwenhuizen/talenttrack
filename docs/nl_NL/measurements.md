@@ -322,6 +322,26 @@ academie heeft ingesteld — naam, categorie, eenheid, richting en frequentie
  rapporten en exports verschijnt. Handig voor interne of experimentele
  tests die je (nog) niet aan spelers en ouders wilt tonen. Bestaande tests
  blijven na de upgrade zichtbaar.
+- **Wie de resultaten mag zien** — een doelgroep per test, voor de tests die
+ wél op het profiel staan. *Iedereen die de speler kan zien* is de
+ standaard en betekent wat het altijd betekende. *Alleen staf* houdt de
+ test vastgelegd, gerapporteerd en in de trends, maar haalt hem weg van het
+ eigen Metingen-scherm van de speler en uit wat de ouders zien — de trainer
+ ziet de waarde, de vlag en de trend gewoon op het tabblad Metingen van de
+ speler. *Alleen medische staf* beperkt het verder, tot dezelfde mensen die
+ medische gebeurtenissen in de tijdlijn mogen zien.
+
+ Dit is de instelling voor een getal dat een speler beter in een gesprek
+ hoort dan alleen leest: een rijpings- of lichaamssamenstellingscijfer, een
+ psychologische screening, een benchmark van de fysio voor terugkeer na
+ blessure. Voordat deze instelling bestond, was de enige manier om zo'n
+ getal van het scherm van een kind te houden: het niet vastleggen — en dan
+ waren de trainers het ook kwijt.
+
+ De twee instellingen werken samen. *Tonen op het spelersprofiel* bepaalt
+ óf de test op een profiel verschijnt; de doelgroep bepaalt bij wie. Elke
+ bestaande test staat na de upgrade op *Iedereen die de speler kan zien*,
+ dus er verandert niets tot je het zelf aanpast.
 - **Activeren / Deactiveren** — een inactieve test blijft in de catalogus
  en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
  *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
