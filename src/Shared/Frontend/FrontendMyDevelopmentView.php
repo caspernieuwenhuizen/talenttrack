@@ -354,12 +354,10 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
      * Mirrors `meUrl()` but targets one record rather than the list.
      */
     private static function meDetailUrl( string $view, int $id, object $player, bool $is_self ): string {
-        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
-        $url  = add_query_arg( [ 'tt_view' => $view, 'id' => $id ], $base ?: home_url( '/' ) );
-        if ( ! $is_self ) {
-            $url = add_query_arg( 'player_id', (int) $player->id, $url );
-        }
-        return BackLink::appendTo( $url );
+        // #3397 — the implementation moved to RecordLink so the PDP page
+        // (and anything added later) shares it instead of growing a third
+        // copy. This stays as the local signature the callers below use.
+        return RecordLink::meDetailUrl( $view, $id, $is_self ? null : (int) $player->id );
     }
 
     /**
