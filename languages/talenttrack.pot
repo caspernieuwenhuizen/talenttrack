@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T20:27:45+00:00\n"
+"POT-Creation-Date: 2026-09-15T20:29:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -134,6 +134,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:139
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:190
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:307
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:375
@@ -765,7 +766,8 @@ msgid "Goals list"
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:567
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:56
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:187
 #: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "KPI snapshot"
 msgstr ""
@@ -2348,6 +2350,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:120
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:191
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:251
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:242
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:492
@@ -5911,21 +5914,37 @@ msgstr ""
 msgid "%1$s's goal \"%2$s\" is past its target date and still open."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:66
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:106
+msgid "Invitations waiting to be sent"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:110
+msgid "Invitations were created and held, and nobody has sent them. The people they are for have not been told anything at all."
+msgstr ""
+
+#. translators: %s: number of invitations that have been created but not sent
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:136
+#, php-format
+msgid "%s invitation is ready to send."
+msgid_plural "%s invitations are ready to send."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:76
 msgid "Invitation never accepted"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:70
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:80
 msgid "An invitation was sent and never accepted. Usually the email went to spam or to a mistyped address, and nothing anywhere says so."
 msgstr ""
 
 #. translators: %s: name or email address of the person who was invited
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:121
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:131
 #, php-format
 msgid "%s was invited but has never accepted."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:168
 #: src/Modules/Threads/Subscribers/NotificationSubscriber.php:54
 msgid "Someone"
 msgstr ""
@@ -5984,16 +6003,16 @@ msgstr ""
 msgid "%1$s has no measurement recorded in %2$s."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:60
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:68
 msgid "Parent invited but never activated"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:64
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:72
 msgid "A parent was invited and never created their account, and the player still has no parent linked. The invitation looks sent everywhere; the family's side of the record never opened."
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:100
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:108
 #, php-format
 msgid "%s's parent was invited but never activated their account."
 msgstr ""
@@ -9477,7 +9496,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:502
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:503
 #: src/Modules/Import/ImportModule.php:37
-#: src/Modules/Media/MediaModule.php:114
+#: src/Modules/Media/MediaModule.php:132
 #: src/Shared/CoreSurfaceRegistration.php:1410
 #: src/Shared/Modules/ModuleMetadata.php:51
 msgid "Administration"
@@ -15767,7 +15786,7 @@ msgid "Count of PDP files"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:21
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:142
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:170
 #: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:14
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:126
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:140
@@ -16082,7 +16101,7 @@ msgid "The setting name."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:146
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:135
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:163
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:428
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:494
@@ -19032,63 +19051,86 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:134
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:162
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:328
 msgid "Metric"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:139
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:167
 msgid "Snapshot range from"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:140
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:168
 msgid "Snapshot range to"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:141
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
 #: src/Shared/Frontend/FrontendTrialCaseView.php:766
 msgid "Generated at"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:143
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:171
 msgid "Total players"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:144
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:172
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1310
 msgid "Active teams"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:145
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:173
 msgid "Activities in period"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:146
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:174
 msgid "Evaluations in period"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:147
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:175
 msgid "Attendance rows in period"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:148
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:176
 msgid "Attendance present"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:149
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:177
 msgid "Attendance present %"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:150
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:178
 msgid "Goals — total"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:151
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:179
 msgid "Goals — active"
 msgstr ""
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:152
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:180
 msgid "Goals — completed"
+msgstr ""
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:181
+msgid "Potential — band recorded"
+msgstr ""
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:182
+msgid "Potential — no band recorded"
+msgstr ""
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:192
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:313
+msgid "Potential band"
+msgstr ""
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:193
+msgid "Recorded on"
+msgstr ""
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:209
+msgctxt "export sheet name — potential band per player"
+msgid "Potential"
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:42
@@ -20620,7 +20662,7 @@ msgid "Invalid invitation kind."
 msgstr ""
 
 #: src/Modules/Invitations/InvitationService.php:70
-#: src/Modules/Invitations/InvitationService.php:225
+#: src/Modules/Invitations/InvitationService.php:237
 msgid "New user registration is currently disabled."
 msgstr ""
 
@@ -20634,32 +20676,32 @@ msgstr ""
 msgid "The invitation could not be saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:228
-#: src/Modules/Invitations/InvitationService.php:285
+#: src/Modules/Invitations/InvitationService.php:240
+#: src/Modules/Invitations/InvitationService.php:297
 msgid "This invitation is no longer pending."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:232
+#: src/Modules/Invitations/InvitationService.php:244
 msgid "This invitation has expired."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:237
+#: src/Modules/Invitations/InvitationService.php:249
 msgid "Please provide a valid recovery email."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:241
+#: src/Modules/Invitations/InvitationService.php:253
 msgid "Password must be at least 8 characters."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:245
+#: src/Modules/Invitations/InvitationService.php:257
 msgid "An account with that email already exists. Sign in instead and the invitation will link silently."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:268
+#: src/Modules/Invitations/InvitationService.php:280
 msgid "This invitation was just accepted by someone else."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:288
+#: src/Modules/Invitations/InvitationService.php:300
 msgid "Already accepted."
 msgstr ""
 
@@ -25734,13 +25776,13 @@ msgstr ""
 msgid "Photo"
 msgstr ""
 
-#: src/Modules/Media/MediaModule.php:117
+#: src/Modules/Media/MediaModule.php:135
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:39
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:50
 msgid "Media retention"
 msgstr ""
 
-#: src/Modules/Media/MediaModule.php:118
+#: src/Modules/Media/MediaModule.php:136
 msgid "Photos and video of players who have left, waiting for a decision. Nothing is deleted without one."
 msgstr ""
 
@@ -48233,11 +48275,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:168
 msgid "Optional context"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:313
-msgid "Potential band"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:170

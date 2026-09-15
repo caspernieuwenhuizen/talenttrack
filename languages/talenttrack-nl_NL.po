@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T20:27:45+00:00\n"
+"POT-Creation-Date: 2026-09-15T20:29:24+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -146,6 +146,7 @@ msgstr "Team Manager"
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:139
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:190
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:307
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:375
@@ -977,7 +978,8 @@ msgid "Goals list"
 msgstr "Doelenlijst"
 
 #: src/Core/FeatureRegistry.php:567
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:56
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:187
 #: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "KPI snapshot"
 msgstr "KPI-momentopname"
@@ -2668,6 +2670,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:120
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:191
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:251
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:242
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:492
@@ -6504,11 +6507,31 @@ msgstr "Naamloos doel"
 msgid "%1$s's goal \"%2$s\" is past its target date and still open."
 msgstr "Het doel \"%2$s\" van %1$s is over de streefdatum en staat nog open."
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:66
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:106
+msgid "Invitations waiting to be sent"
+msgstr "Uitnodigingen wachten om verstuurd te worden"
+
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:110
+msgid ""
+"Invitations were created and held, and nobody has sent them. The people they "
+"are for have not been told anything at all."
+msgstr ""
+"Er zijn uitnodigingen aangemaakt en vastgehouden, en niemand heeft ze "
+"verstuurd. De mensen om wie het gaat hebben helemaal niets gehoord."
+
+#. translators: %s: number of invitations that have been created but not sent
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:136
+#, php-format
+msgid "%s invitation is ready to send."
+msgid_plural "%s invitations are ready to send."
+msgstr[0] "%s uitnodiging staat klaar om te versturen."
+msgstr[1] "%s uitnodigingen staan klaar om te versturen."
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:76
 msgid "Invitation never accepted"
 msgstr "Uitnodiging nooit geaccepteerd"
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:70
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:80
 msgid ""
 "An invitation was sent and never accepted. Usually the email went to spam or "
 "to a mistyped address, and nothing anywhere says so."
@@ -6518,12 +6541,12 @@ msgstr ""
 "te zien."
 
 #. translators: %s: name or email address of the person who was invited
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:121
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:131
 #, php-format
 msgid "%s was invited but has never accepted."
 msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
 
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:168
 #: src/Modules/Threads/Subscribers/NotificationSubscriber.php:54
 msgid "Someone"
 msgstr "Iemand"
@@ -6600,11 +6623,11 @@ msgstr "Voor %s is dit seizoen geen meting vastgelegd."
 msgid "%1$s has no measurement recorded in %2$s."
 msgstr "Voor %1$s is in %2$s geen meting vastgelegd."
 
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:60
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:68
 msgid "Parent invited but never activated"
 msgstr "Ouder uitgenodigd maar nooit geactiveerd"
 
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:64
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:72
 msgid ""
 "A parent was invited and never created their account, and the player still "
 "has no parent linked. The invitation looks sent everywhere; the family's "
@@ -6615,7 +6638,7 @@ msgstr ""
 "de kant van het gezin is nooit opengegaan."
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:100
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:108
 #, php-format
 msgid "%s's parent was invited but never activated their account."
 msgstr ""
@@ -10465,7 +10488,7 @@ msgstr "Operatie"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:501
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:502
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:503
-#: src/Modules/Import/ImportModule.php:37 src/Modules/Media/MediaModule.php:114
+#: src/Modules/Import/ImportModule.php:37 src/Modules/Media/MediaModule.php:132
 #: src/Shared/CoreSurfaceRegistration.php:1410
 #: src/Shared/Modules/ModuleMetadata.php:51
 msgid "Administration"
@@ -17999,7 +18022,7 @@ msgstr "Aantal POP-bestanden"
 
 # #0060 — Persona dashboard KPI labels
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:21
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:142
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:170
 #: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:14
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:126
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:140
@@ -18326,7 +18349,7 @@ msgid "The setting name."
 msgstr "De naam van de instelling."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:146
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:135
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:163
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:428
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:494
@@ -21904,64 +21927,87 @@ msgstr "Doel-ID"
 msgid "Owner"
 msgstr "Eigenaar"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:134
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:162
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:328
 msgid "Metric"
 msgstr "Maatstaf"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:139
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:167
 msgid "Snapshot range from"
 msgstr "Momentopname-bereik vanaf"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:140
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:168
 msgid "Snapshot range to"
 msgstr "Momentopname-bereik tot"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:141
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
 #: src/Shared/Frontend/FrontendTrialCaseView.php:766
 msgid "Generated at"
 msgstr "Gegenereerd op"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:143
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:171
 msgid "Total players"
 msgstr "Totaal aantal spelers"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:144
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:172
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1310
 msgid "Active teams"
 msgstr "Actieve teams"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:145
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:173
 msgid "Activities in period"
 msgstr "Activiteiten in periode"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:146
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:174
 msgid "Evaluations in period"
 msgstr "Evaluaties in periode"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:147
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:175
 msgid "Attendance rows in period"
 msgstr "Aanwezigheidsrijen in periode"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:148
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:176
 msgid "Attendance present"
 msgstr "Aanwezig"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:149
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:177
 msgid "Attendance present %"
 msgstr "% aanwezig"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:150
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:178
 msgid "Goals — total"
 msgstr "Doelen — totaal"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:151
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:179
 msgid "Goals — active"
 msgstr "Doelen — actief"
 
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:152
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:180
 msgid "Goals — completed"
 msgstr "Doelen — afgerond"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:181
+msgid "Potential — band recorded"
+msgstr "Potentieel — band vastgelegd"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:182
+msgid "Potential — no band recorded"
+msgstr "Potentieel — geen band vastgelegd"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:192
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:313
+msgid "Potential band"
+msgstr "Potentieel-band"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:193
+msgid "Recorded on"
+msgstr "Vastgelegd op"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:209
+msgctxt "export sheet name — potential band per player"
+msgid "Potential"
+msgstr "Potentieel"
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:42
 msgid "Match-day team sheet (PDF)"
@@ -23711,7 +23757,7 @@ msgid "Invalid invitation kind."
 msgstr "Ongeldig type uitnodiging."
 
 #: src/Modules/Invitations/InvitationService.php:70
-#: src/Modules/Invitations/InvitationService.php:225
+#: src/Modules/Invitations/InvitationService.php:237
 msgid "New user registration is currently disabled."
 msgstr "Nieuwe gebruikersregistratie is momenteel uitgeschakeld."
 
@@ -23729,24 +23775,24 @@ msgstr ""
 msgid "The invitation could not be saved."
 msgstr "De uitnodiging kon niet worden opgeslagen."
 
-#: src/Modules/Invitations/InvitationService.php:228
-#: src/Modules/Invitations/InvitationService.php:285
+#: src/Modules/Invitations/InvitationService.php:240
+#: src/Modules/Invitations/InvitationService.php:297
 msgid "This invitation is no longer pending."
 msgstr "Deze uitnodiging is niet meer in afwachting."
 
-#: src/Modules/Invitations/InvitationService.php:232
+#: src/Modules/Invitations/InvitationService.php:244
 msgid "This invitation has expired."
 msgstr "Deze uitnodiging is verlopen."
 
-#: src/Modules/Invitations/InvitationService.php:237
+#: src/Modules/Invitations/InvitationService.php:249
 msgid "Please provide a valid recovery email."
 msgstr "Geef een geldig recovery-e-mailadres op."
 
-#: src/Modules/Invitations/InvitationService.php:241
+#: src/Modules/Invitations/InvitationService.php:253
 msgid "Password must be at least 8 characters."
 msgstr "Het wachtwoord moet minstens 8 tekens lang zijn."
 
-#: src/Modules/Invitations/InvitationService.php:245
+#: src/Modules/Invitations/InvitationService.php:257
 msgid ""
 "An account with that email already exists. Sign in instead and the "
 "invitation will link silently."
@@ -23754,11 +23800,11 @@ msgstr ""
 "Er bestaat al een account met dat e-mailadres. Log in en de uitnodiging "
 "wordt stilzwijgend gekoppeld."
 
-#: src/Modules/Invitations/InvitationService.php:268
+#: src/Modules/Invitations/InvitationService.php:280
 msgid "This invitation was just accepted by someone else."
 msgstr "Deze uitnodiging is zojuist door iemand anders geaccepteerd."
 
-#: src/Modules/Invitations/InvitationService.php:288
+#: src/Modules/Invitations/InvitationService.php:300
 msgid "Already accepted."
 msgstr "Al geaccepteerd."
 
@@ -29459,13 +29505,13 @@ msgstr "Videolink"
 msgid "Photo"
 msgstr "Foto"
 
-#: src/Modules/Media/MediaModule.php:117
+#: src/Modules/Media/MediaModule.php:135
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:39
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:50
 msgid "Media retention"
 msgstr "Mediabewaring"
 
-#: src/Modules/Media/MediaModule.php:118
+#: src/Modules/Media/MediaModule.php:136
 msgid ""
 "Photos and video of players who have left, waiting for a decision. Nothing "
 "is deleted without one."
@@ -55706,11 +55752,6 @@ msgstr "Gerelateerde activiteit (optioneel)"
 msgid "Optional context"
 msgstr "Optionele context"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:313
-msgid "Potential band"
-msgstr "Potentieel-band"
-
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:170
 msgid "— pick a band —"
 msgstr "— kies een niveau —"
@@ -60270,43 +60311,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:99
-msgid "Invitations waiting to be sent"
-msgstr "Uitnodigingen wachten om verstuurd te worden"
-
-#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:103
-msgid ""
-"Invitations were created and held, and nobody has sent them. The people they "
-"are for have not been told anything at all."
-msgstr ""
-"Er zijn uitnodigingen aangemaakt en vastgehouden, en niemand heeft ze "
-"verstuurd. De mensen om wie het gaat hebben helemaal niets gehoord."
-
-#. translators: %s: number of invitations that have been created but not sent
-#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:130
-#, php-format
-msgid "%s invitation is ready to send."
-msgid_plural "%s invitations are ready to send."
-msgstr[0] "%s uitnodiging staat klaar om te versturen."
-msgstr[1] "%s uitnodigingen staan klaar om te versturen."
-
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:181
-msgid "Potential — band recorded"
-msgstr "Potentieel — band vastgelegd"
-
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:182
-msgid "Potential — no band recorded"
-msgstr "Potentieel — geen band vastgelegd"
-
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:193
-msgid "Recorded on"
-msgstr "Vastgelegd op"
-
-#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:209
-msgctxt "export sheet name — potential band per player"
-msgid "Potential"
-msgstr "Potentieel"
 
 #, php-format
 #~ msgid ""
