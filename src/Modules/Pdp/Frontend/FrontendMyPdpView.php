@@ -318,13 +318,40 @@ class FrontendMyPdpView extends FrontendViewBase {
             return;
         }
 
+        // #3397 — a parent reading their child's PDP needs `player_id` on
+        // the goal link; the player themselves does not.
+        $is_self   = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
+        $parent_id = $is_self ? null : (int) $player->id;
+
         echo '<div class="tt-goal-grid">';
         foreach ( $goals as $g ) {
             $status = (string) ( $g->status_localised ?? '' );
-            $due    = (string) ( $g->due_date ?? '' );
-            echo '<div class="tt-goal">';
+            // #3397 — through TTDate, like every other surface showing this
+            // date. The raw column value read as 2026-05-14 here and as
+            // 14 mei 2026 one click away on My goals.
+            $due = ! empty( $g->due_date )
+                ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date )
+                : '';
+            // #3397 — the card opens the goal. This is the surface that says
+            // "what you are working on now", sitting directly under the
+            // conversation the goal came out of, and it was the only place a
+            // goal could not be opened.
+            $goal_url = \TT\Shared\Frontend\Components\RecordLink::meDetailUrl(
+                'my-goals',
+                (int) ( $g->id ?? 0 ),
+                $parent_id
+            );
+            if ( $goal_url !== '' ) {
+                echo '<a class="tt-goal tt-record-link" href="' . esc_url( $goal_url ) . '">';
+            } else {
+                echo '<div class="tt-goal">';
+            }
             echo '<div class="tt-goal__top">';
-            echo '<span class="tt-goal__title">' . esc_html( (string) ( $g->title ?? '' ) ) . '</span>';
+            // #3397 — the same translation layer My goals renders the title
+            // through, so the two surfaces agree in a non-English locale.
+            echo '<span class="tt-goal__title">' . esc_html(
+                (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $g->title ?? '' ) )
+            ) . '</span>';
             if ( $status !== '' ) {
                 echo '<span class="tt-goal__status">' . esc_html( $status ) . '</span>';
             }
@@ -336,7 +363,7 @@ class FrontendMyPdpView extends FrontendViewBase {
                     $due
                 ) ) . '</span>';
             }
-            echo '</div>';
+            echo $goal_url !== '' ? '</a>' : '</div>';
         }
         echo '</div>';
         echo '</section>';
