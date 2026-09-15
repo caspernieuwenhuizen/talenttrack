@@ -75,6 +75,10 @@ The screen filters by player, kind of message, outcome and date range. The playe
 
 Outcomes are shown in words, not in database keys, and in three tones rather than two: delivered, deliberately withheld, and a problem. An opt-out the product honoured and an address that bounced are both "not delivered" and want opposite reactions, so they are not painted the same colour.
 
+**A row says two things, not one.** The outcome explains why the send stopped. Beside it sits a second fact: whether the recipient could be reached at all. Those are different questions, and answering both with one word is what made the same parent — the one with no email address and no phone number on file — read as *no address* at ten in the morning and *held until morning* at ten at night. Same family, same missing detail, described by whichever rule happened to stop the message first. A row now says *held until morning* **and** *no contact details on file*, which is the pair you actually need: the first explains the delay, the second is the one you can do something about.
+
+Rows written before this arrived say the reachability was **never established**, and they are deliberately left that way rather than worked out now. A send from last month would be judged against today's contact details, not the ones that were on file at the time, and a log that filled its own gaps in would stop being evidence.
+
 If a scheduled detector has been failing, a warning sits above the table naming it and when it last ran. That is the only place that difference shows: a detector with nothing to send and a detector crashing every night both leave no rows behind.
 
 **The message body is never stored.** The log keeps a fingerprint of it so the record cannot be quietly altered, and nothing more. This is a deliberate limit: it means the log can tell you that a message about a child was sent, to whom, and whether it arrived — and cannot be used to read what a coach wrote about them.

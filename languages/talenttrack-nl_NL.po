@@ -13232,6 +13232,18 @@ msgctxt "message send outcome"
 msgid "Unknown"
 msgstr "Onbekend"
 
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:82
+msgid "Whether the recipient could be reached was never established."
+msgstr "Of de ontvanger bereikbaar was, is nooit vastgesteld."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:85
+msgid "The recipient has contact details on file."
+msgstr "Van de ontvanger zijn contactgegevens bekend."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:86
+msgid "The recipient has no contact details on file."
+msgstr "Van de ontvanger zijn geen contactgegevens bekend."
+
 #: src/Modules/Comms/Domain/CommsStatusLabels.php:69
 msgid "Nobody on the player record had an address this channel could reach."
 msgstr ""

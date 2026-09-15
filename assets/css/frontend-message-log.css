@@ -67,6 +67,20 @@
     font-size: 0.8125rem;
 }
 
+/* #3383 — the second fact, under the status it sits beside. Muted by
+   default: "not established" is the absence of a claim, not a warning.
+   Only a recipient nobody can reach earns the problem colour. */
+.tt-msglog-reach {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+}
+
+.tt-msglog-reach--problem {
+    color: var(--tt-warn-fg, #8a2c1c);
+}
+
 .tt-msglog-pagination {
     display: flex;
     flex-wrap: wrap;

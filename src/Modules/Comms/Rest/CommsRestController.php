@@ -240,6 +240,10 @@ final class CommsRestController extends BaseController {
             ],
             'subject'        => isset( $row['subject'] ) ? (string) $row['subject'] : null,
             'status'         => (string) ( $row['status'] ?? '' ),
+            // #3383 — a second fact beside the status, and a tri-state on
+            // purpose: null means the send stopped before contact details
+            // were consulted, which is not the same as "reachable".
+            'reachable'      => isset( $row['reachable'] ) ? (bool) $row['reachable'] : null,
             'error_code'     => isset( $row['error_code'] ) ? (string) $row['error_code'] : null,
             'attempt'        => (int) ( $row['attempt'] ?? 1 ),
         ];
