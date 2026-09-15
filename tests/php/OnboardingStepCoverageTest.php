@@ -85,17 +85,23 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
         $this->assertContains( 'messaging', $ported, '#3140 ports the messaging step.' );
         $this->assertContains( 'profile', $ported, '#3259 ports the install-profile step.' );
         $this->assertContains( 'import', $ported, '#3260 ports the squad-import step.' );
+        $this->assertContains( 'staff', $ported, '#3261 ports the staff step — the last of them.' );
         $this->assertSame(
-            [ 'staff' ],
+            [],
             $pending,
-            'Only the staff step, filed as #3261, may still be unported. '
-            . 'A second means a step was added without a frontend arm again.'
+            'Every step in OnboardingState::STEPS has a frontend arm as of #3261. '
+            . 'A step here means one was added without a renderer again.'
         );
 
+        // Kept, with nothing currently reaching it. The list of steps and
+        // the switch are two places, so the next step added to STEPS lands
+        // on this default — which is how the four ports before #3261 were
+        // found. Deleting it because the list is empty today is how the
+        // dead end comes back.
         $this->assertStringContainsString(
             'renderNotYetPorted',
             $src,
-            'The unported steps need the honest not-yet-available state.'
+            'A step added to STEPS without a renderer still needs the honest state.'
         );
         $this->assertStringNotContainsString(
             'Unknown step.',
@@ -126,6 +132,93 @@ final class OnboardingStepCoverageTest extends WP_UnitTestCase {
             'TemplateSwitch::setDisabled',
             $view,
             'The view renders the choice; the handler makes it.'
+        );
+    }
+
+    /**
+     * #3261 — same rule, the staff step, and the stakes are highest here.
+     *
+     * #2964/#2965 decided an invitation is **created and held**, not sent.
+     * That guarantee is one argument — `defer_send` — inside
+     * `OnboardingHandlers::addStaff()`. A REST layer that created the
+     * person and the invitation itself would work on the day it was
+     * written and, the first time somebody read the screen rather than
+     * that line, mail a club's coaches the moment their names were typed.
+     */
+    public function test_the_frontend_staff_write_goes_through_the_shared_handler(): void {
+        $rest = $this->source( 'src/Infrastructure/REST/OnboardingRestController.php' );
+
+        $this->assertStringContainsString( 'OnboardingHandlers::addStaff', $rest );
+        $this->assertStringContainsString( 'OnboardingHandlers::skipStaff', $rest );
+        $this->assertStringContainsString( 'OnboardingHandlers::sendInvites', $rest );
+
+        foreach ( [ 'InvitationService', 'PeopleRepository' ] as $forbidden ) {
+            $this->assertStringNotContainsString(
+                $forbidden,
+                $rest,
+                'The REST layer must not create people or invitations itself — that is the fork that would un-hold the invitation.'
+            );
+        }
+
+        $view = $this->source( 'src/Shared/Frontend/FrontendSetupView.php' );
+        $this->assertStringNotContainsString(
+            'InvitationService',
+            $view,
+            'The view renders the list; the handler creates the invitation.'
+        );
+    }
+
+    /**
+     * #3261 — the held invitation is never rendered as a credential.
+     *
+     * An invitation token is a bearer credential: whoever reads it can
+     * claim that staff seat, over a database of minors. The frontend runs
+     * on phones in clubhouses and laptops on touchlines, so a token on
+     * screen is one a bystander can photograph. The decision is that it is
+     * only ever mailed, and this is the assertion that keeps it.
+     */
+    public function test_the_staff_step_renders_no_credential(): void {
+        $view = $this->source( 'src/Shared/Frontend/FrontendSetupView.php' );
+
+        foreach ( [ 'accept_token', 'invitation_token', 'acceptUrl', 'accept_url' ] as $leak ) {
+            $this->assertStringNotContainsString(
+                $leak,
+                $view,
+                'The setup view must not render anything that can be used to accept an invitation.'
+            );
+        }
+
+        $rest = $this->source( 'src/Infrastructure/REST/OnboardingRestController.php' );
+        foreach ( [ 'accept_token', 'invitation_token', 'accept_url' ] as $leak ) {
+            $this->assertStringNotContainsString(
+                $leak,
+                $rest,
+                'Nothing that could be used to sign in leaves the server on the onboarding routes.'
+            );
+        }
+    }
+
+    /**
+     * #3261 — leaving the step mid-flow loses nothing.
+     *
+     * `skipStaff()` writes only the step. Held invitations stay under
+     * Configuration → Invitations, and an academy wondering why nobody got
+     * an email is the failure this is guarding against.
+     */
+    public function test_skipping_the_staff_step_keeps_the_held_invitations(): void {
+        $handlers = $this->source( 'src/Modules/Onboarding/Admin/OnboardingHandlers.php' );
+
+        $this->assertMatchesRegularExpression(
+            '/function skipStaff\(\): void \{\s*OnboardingState::setStep\( \'messaging\' \);\s*\}/',
+            $handlers,
+            'skipStaff() does nothing but advance the step — no discard, no send.'
+        );
+
+        $view = $this->source( 'src/Shared/Frontend/FrontendSetupView.php' );
+        $this->assertStringContainsString(
+            'the invitations stay ready and waiting',
+            $view,
+            'The screen says so before the operator leaves, which is the point.'
         );
     }
 
