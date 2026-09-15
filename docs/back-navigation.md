@@ -40,9 +40,11 @@ These are the only views allowed without breadcrumbs:
 
 - The dashboard root itself (`PersonaLandingRenderer`) — it IS the destination "Dashboard" crumb resolves to.
 - Pre-login flows (`AcceptanceView`, login form) — no logged-in dashboard to chain to yet.
-- Component renderers, sub-views composed into other views, internal containers (`FrontendThreadView`, `FrontendTeammateView`, `FrontendMyProfileView`, `CoachDashboardView`, `PlayerDashboardView`).
+- Component renderers, sub-views composed into other views, internal containers (`FrontendThreadView`, `FrontendMyProfileView`, `CoachDashboardView`, `PlayerDashboardView`).
 
 If you're adding a new view and it isn't one of these, it MUST emit the chain + pill.
+
+**Being routable settles it.** A class reachable by its own `?tt_view=` slug is a view and emits the chain, however it is composed elsewhere. `FrontendTeammateView` was listed here as a sub-view until #3395, while being dispatched standalone — so a player who tapped a teammate on My team landed on a screen with no chain and no pill, and only the browser's back button to leave by. Before adding a class to this list, check that `TileRegistry::canAccessViewSlug()` does not route it.
 
 ## Global navigation is not a view affordance
 

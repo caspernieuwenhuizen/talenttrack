@@ -345,7 +345,15 @@ intermediate crumb — that crumb IS the back-to-list affordance.
 The only exempt views are the dashboard root itself
 (`PersonaLandingRenderer`), pre-login flows (`AcceptanceView`,
 login form), and component renderers / sub-views composed into
-other views (`FrontendThreadView`, `FrontendTeammateView`, etc.).
+other views (`FrontendThreadView`, etc.).
+
+**Routability decides, not file naming.** If a class is reachable by
+its own `?tt_view=` slug it is a view, whatever it is composed into
+elsewhere, and it emits the chain. `FrontendTeammateView` sat on this
+list until #3395 and is dispatched standalone from `dispatchMeView()`
+— a player who tapped a teammate got no chain and no pill, only the
+browser's back button. Check `canAccessViewSlug()` before adding
+anything here.
 
 ### 5b. Global chrome — exactly one primary navigation, shell-rendered
 

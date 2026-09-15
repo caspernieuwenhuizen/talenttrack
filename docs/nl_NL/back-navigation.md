@@ -76,11 +76,21 @@ Dit zijn de enige views die zonder broodkruimketen mogen:
   geen ingelogd dashboard om naartoe te ketenen.
 - Component-renderers, sub-views die in andere views worden
   samengesteld, interne containers (`FrontendThreadView`,
-  `FrontendTeammateView`, `FrontendMyProfileView`,
-  `CoachDashboardView`, `PlayerDashboardView`).
+  `FrontendMyProfileView`, `CoachDashboardView`,
+  `PlayerDashboardView`).
 
 Voeg je een nieuwe view toe en is het er geen van deze, dan MOET
 hij de keten + pill emitteren.
+
+**Routeerbaarheid beslist.** Een klasse die via een eigen
+`?tt_view=`-slug bereikbaar is, is een view en emitteert de keten,
+hoe hij elders ook wordt samengesteld. `FrontendTeammateView` stond
+hier tot #3395 als sub-view, terwijl hij zelfstandig werd
+gedispatcht — een speler die bij Mijn team op een teamgenoot tikte,
+kwam op een scherm zonder keten en zonder pill, met alleen de
+terugknop van de browser. Controleer met
+`TileRegistry::canAccessViewSlug()` dat een klasse niet routeert
+voordat je hem aan deze lijst toevoegt.
 
 ## Globale navigatie is geen view-affordance
 
