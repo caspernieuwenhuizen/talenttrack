@@ -74,15 +74,22 @@ final class PlayerPhotoImporter {
             return 0;
         }
 
+        // #3421 — BEFORE the store, because `store()` *moves* the file:
+        // `LocalPrivateStorage` renames it into the private tree and the
+        // source path stops existing. Reading the metadata afterwards gave
+        // every migrated photo `file_size` 0, no dimensions and no
+        // checksum — and the checksum is what `findByChecksum()` dedupes
+        // on, so each one was unmatchable.
+        $size = @filesize( $path );
+        $dim  = @getimagesize( $path );
+        $hash = hash_file( 'sha256', $path );
+
         $storage = MediaStorage::default();
         $key     = $storage->store( $path, $ext );
         if ( $key === '' ) {
             Logger::error( 'player_photo.import.store_failed', [ 'player' => $player_id ] );
             return 0;
         }
-
-        $size = @filesize( $path );
-        $dim  = @getimagesize( $path );
 
         $media_id = ( new MediaRepository() )->insert( [
             'kind'            => MediaKind::IMAGE,
@@ -93,7 +100,7 @@ final class PlayerPhotoImporter {
             'file_size'       => $size !== false ? (int) $size : 0,
             'width'           => is_array( $dim ) ? (int) $dim[0] : null,
             'height'          => is_array( $dim ) ? (int) $dim[1] : null,
-            'checksum'        => hash_file( 'sha256', $path ) ?: null,
+            'checksum'        => $hash !== false ? $hash : null,
         ] );
 
         if ( $media_id <= 0 ) {
