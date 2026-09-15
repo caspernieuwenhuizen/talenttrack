@@ -550,7 +550,10 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 40,
             'label'        => __( 'My activities', 'talenttrack' ),
-            'description'  => __( 'Training activities and games you\'ve attended.', 'talenttrack' ),
+            // #3390 — the surface is both halves now: what is coming up, and
+            // what you turned up to. The old text named only the second and
+            // the screen opened on the first.
+            'description'  => __( 'What\'s coming up for your team, and the trainings and games you\'ve attended.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
             'cap_callback' => $is_player_or_parent_cb,

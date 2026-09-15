@@ -60147,6 +60147,12 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/CoreSurfaceRegistration.php
+msgid ""
+"What's coming up for your team, and the trainings and games you've attended."
+msgstr ""
+"Wat er aankomt voor je team, en de trainingen en wedstrijden waar je bij was."
+
 #~ msgid "Agenda"
 #~ msgstr "Agenda"
 
