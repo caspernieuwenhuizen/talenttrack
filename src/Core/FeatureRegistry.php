@@ -216,6 +216,26 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'cohort-board' ],
                 'entities'        => [],
             ],
+            // #3412 — Potential overview (HoD): a squad's potential bands,
+            // sortable, filterable and editable in place. Shares the
+            // `analytics` entity + `tt_view_analytics` cap with the central
+            // Analytics tile, so gating is by view-slug only (never the
+            // shared entity — see the entities-uniqueness rule above).
+            //
+            // Default ON, unlike its two siblings above: those default off
+            // because they were retrofitted toggles over tiles that already
+            // shipped, and switching one on is how an academy opts back into
+            // something it already had. This surface is new, and it answers
+            // the question #3385 found nothing could answer — an academy
+            // that does not want it switches it off.
+            'analytics_potential_overview' => [
+                'label'           => __( 'Potential overview', 'talenttrack' ),
+                'description'     => __( 'The Potential overview tile and report (every player in a team or age group with their current potential band, editable in place). The central Analytics surface and the analytics engine stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Analytics\\AnalyticsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'potential-overview' ],
+                'entities'        => [],
+            ],
             // #2302 — per-tile toggles for the two Stats analytics surfaces
             // that were always-on until now (Player comparison, Podium).
             // Default ON, so existing installs are unchanged; an academy

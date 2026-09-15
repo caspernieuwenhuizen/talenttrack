@@ -60294,6 +60294,184 @@ msgctxt "status input, as in \"Computed without potential.\""
 msgid "potential"
 msgstr "potentieel"
 
+#: src/Core/FeatureRegistry.php:238
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:105
+#: src/Shared/CoreSurfaceRegistration.php:1197
+msgid "Potential overview"
+msgstr "Potentieeloverzicht"
+
+#: src/Core/FeatureRegistry.php:239
+msgid ""
+"The Potential overview tile and report (every player in a team or age group "
+"with their current potential band, editable in place). The central Analytics "
+"surface and the analytics engine stay available when this is off."
+msgstr ""
+"De tegel en rapportage Potentieeloverzicht (elke speler in een team of "
+"leeftijdscategorie met zijn huidige potentieelklasse, ter plekke aan te "
+"passen). Het centrale Analytics-scherm en de analytics-engine blijven "
+"beschikbaar als dit uit staat."
+
+#: src/Shared/CoreSurfaceRegistration.php:1198
+msgid ""
+"Every player in a team or age group with their potential band, how it has "
+"moved, and who set it."
+msgstr ""
+"Elke speler in een team of leeftijdscategorie met zijn potentieelklasse, hoe "
+"die is verschoven en wie hem heeft vastgelegd."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:88
+msgid "Potential is staff-only. Your own potential is on your player file."
+msgstr ""
+"Potentieel is alleen voor staf. Je eigen potentieel staat op je "
+"spelersdossier."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:108
+msgid "Potential across a squad"
+msgstr "Potentieel binnen een selectie"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:111
+msgid ""
+"Every player in the chosen scope with the potential band the academy has "
+"recorded for them, how it has moved, and who set it. Players with nothing "
+"recorded appear too — they are the point."
+msgstr ""
+"Elke speler in de gekozen scope met de potentieelklasse die de academie voor "
+"hem heeft vastgelegd, hoe die is verschoven en wie hem heeft gezet. Spelers "
+"zonder vastgelegde klasse staan er ook bij — juist om hen gaat het."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:123
+msgid "Pick a team or an age group to see its players."
+msgstr "Kies een team of leeftijdscategorie om de spelers te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:181
+msgctxt "squad potential report column header"
+msgid "Potential"
+msgstr "Potentieel"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:182
+msgid "Movement"
+msgstr "Beweging"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:183
+msgid "Recorded"
+msgstr "Vastgelegd"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:222
+msgid ""
+"Changes are saved when you press Save. Leaving a player on “Not recorded” "
+"records nothing for them."
+msgstr ""
+"Wijzigingen worden opgeslagen als je op Opslaan drukt. Een speler op “Niet "
+"vastgelegd” laten staan legt niets voor hem vast."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:228
+msgid "Save bands"
+msgstr "Klassen opslaan"
+
+#. translators: %d is the minimum age in years, e.g. 13.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:248
+#, php-format
+msgid "Not asked below %d"
+msgstr "Niet gevraagd onder %d"
+
+#. translators: %s is the player's name.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:264
+#, php-format
+msgid "Potential band for %s"
+msgstr "Potentieelklasse voor %s"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:298
+msgid "First entry"
+msgstr "Eerste vermelding"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:302
+msgid "Reaffirmed"
+msgstr "Herbevestigd"
+
+#. translators: %s is the band the player was previously on.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:309
+#, php-format
+msgid "Raised from %s"
+msgstr "Verhoogd vanaf %s"
+
+#. translators: %s is the band the player was previously on.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:311
+#, php-format
+msgid "Lowered from %s"
+msgstr "Verlaagd vanaf %s"
+
+#. translators: %d is the number of potential entries on record.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:341
+#, php-format
+msgid "%d entry"
+msgid_plural "%d entries"
+msgstr[0] "%d vermelding"
+msgstr[1] "%d vermeldingen"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:359
+msgid "Band recorded"
+msgstr "Klasse vastgelegd"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:361
+msgid "No band yet"
+msgstr "Nog geen klasse"
+
+#. translators: 1: number of players, 2: minimum age in years.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:372
+#, php-format
+msgid ""
+"%1$d player is below %2$d, so the academy is not asked for a band and they "
+"are not counted as a gap."
+msgid_plural ""
+"%1$d players are below %2$d, so the academy is not asked for a band and they "
+"are not counted as gaps."
+msgstr[0] ""
+"%1$d speler is jonger dan %2$d, dus de academie wordt niet om een klasse "
+"gevraagd en die telt niet als hiaat."
+msgstr[1] ""
+"%1$d spelers zijn jonger dan %2$d, dus de academie wordt niet om een klasse "
+"gevraagd en die tellen niet als hiaat."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:433
+msgid "Show bands"
+msgstr "Toon klassen"
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:443
+msgid "Leave every box clear to show the whole squad."
+msgstr "Laat alle vakjes leeg om de hele selectie te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:553
+msgid "Nothing changed."
+msgstr "Er is niets gewijzigd."
+
+#. translators: %d is the number of players whose band was recorded.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:558
+#, php-format
+msgid "%d band recorded."
+msgid_plural "%d bands recorded."
+msgstr[0] "%d klasse vastgelegd."
+msgstr[1] "%d klassen vastgelegd."
+
+#. translators: %d is the number of players whose band could not be recorded.
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:565
+#, php-format
+msgid ""
+"%d player was skipped — they are outside this scope or below the age the "
+"band is asked at."
+msgid_plural ""
+"%d players were skipped — they are outside this scope or below the age the "
+"band is asked at."
+msgstr[0] ""
+"%d speler is overgeslagen — die valt buiten deze scope of onder de leeftijd "
+"waarop de klasse gevraagd wordt."
+msgstr[1] ""
+"%d spelers zijn overgeslagen — die vallen buiten deze scope of onder de "
+"leeftijd waarop de klasse gevraagd wordt."
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php:57
+msgid "Back to Potential overview"
+msgstr "Terug naar Potentieeloverzicht"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "

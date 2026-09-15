@@ -388,6 +388,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'attendance-report-team',   self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'minutes-report-team',      self::M_ANALYTICS );
         TileRegistry::registerSlugOwnership( 'minutes-audit',            self::M_ANALYTICS );
+        TileRegistry::registerSlugOwnership( 'potential-overview',       self::M_ANALYTICS );
 
         TileRegistry::registerSlugOwnership( 'custom-css', self::M_CUSTOM_CSS );
 
@@ -1184,6 +1185,27 @@ final class CoreSurfaceRegistration {
             // #2128 — per-tile feature toggle (default off). Hides the tile
             // while the central Analytics surface stays available.
             'feature'      => 'analytics_eval_coverage',
+        ]);
+        // #3412 — Potential overview (HoD): every player in a team or age
+        // group with their current potential band, how it has moved, and who
+        // set it — editable in place. #3385 established that nothing read
+        // potential across a squad at all; the band appeared nowhere that
+        // showed more than one player. Shares the `analytics` entity +
+        // `tt_view_analytics` cap with the Analytics tile; the view adds the
+        // player-status cap and the squad-visibility policy on top.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+            'view_slug'    => 'potential-overview',
+            'entity'       => 'analytics',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 27,
+            'label'        => __( 'Potential overview', 'talenttrack' ),
+            'description'  => __( 'Every player in a team or age group with their potential band, how it has moved, and who set it.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#7c3aed',
+            'cap'          => 'tt_view_analytics',
+            'feature'      => 'analytics_potential_overview',
         ]);
         // #1383 — Cohort decision board (HoD): one read-only screen of
         // rating / trend / attendance / verdict per player for end-of-season
