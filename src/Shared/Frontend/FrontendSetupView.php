@@ -97,14 +97,17 @@ class FrontendSetupView extends FrontendViewBase {
                     // depends on: it is how a club's players get into the
                     // system at all.
                     case 'import':      self::renderImport( $cancel_url );     break;
+                    // #3261 (step from #2964/#2965) — the staff step. The
+                    // last of the three ports and the only one with a real
+                    // decision in it: what a surface does with a credential
+                    // it is holding. See renderStaff().
+                    case 'staff':       self::renderStaff( $cancel_url );      break;
                     case 'dashboard':   self::renderDashboard( $cancel_url );  break;
                     case 'done':        self::renderDone();                    break;
-                    // #3140 — `staff` is a real port (people records and
-                    // held invitation credentials) and is filed separately
-                    // as #3261. Until it lands it says what it is and
-                    // offers a way past. What used to be here read as a bug
-                    // and its only exit restarted the wizard at step 1, to
-                    // hit the same wall again.
+                    // Every step in OnboardingState::STEPS now has an arm.
+                    // This stays as the honest state for a step added to
+                    // that list before its renderer exists — which is how
+                    // the four ports before this one were discovered.
                     default:            self::renderNotYetPorted( $step, $cancel_url );
                 }
                 ?>
@@ -813,6 +816,141 @@ class FrontendSetupView extends FrontendViewBase {
                 <?php esc_html_e( 'Continue this step in the admin', 'talenttrack' ); ?>
             </a>
         </div>
+        <?php
+    }
+
+    /**
+     * #3261 (step from #2964/#2965) — add staff, hold their invitations.
+     *
+     * NO CREDENTIAL IS SHOWN, AND THAT IS THE DECISION
+     *
+     * The step holds invitations. An invitation token is a bearer
+     * credential: whoever reads it can claim that account. So the question
+     * the issue asked — is a credential ever displayed, or only mailed? —
+     * is answered **only mailed**, on this surface and deliberately.
+     *
+     * The frontend is the surface where it matters most. wp-admin is a
+     * back office; this runs on a phone in a clubhouse, on a laptop on a
+     * touchline, on a screen somebody else is also looking at. A token on
+     * screen is a token a bystander can photograph, and it grants a staff
+     * seat over a database of minors. Against that, the convenience being
+     * bought is one an operator rarely wants: staff have email, and email
+     * is how the invitation is designed to travel.
+     *
+     * It also keeps one path. A displayed link is a second way to accept
+     * an invitation, outside the mail the audit log records, which is the
+     * kind of divergence #2965 spent an epic closing.
+     *
+     * So the review table shows a name, an email, and whether an
+     * invitation is ready — the same three facts wp-admin shows, for the
+     * same reason rather than because wp-admin shows them.
+     *
+     * WHAT LEAVING MID-FLOW DOES
+     *
+     * Nothing is lost and the screen says so before the operator goes.
+     * `skipStaff()` writes only the step; held invitations stay under
+     * Configuration → Invitations and `InvitationStaleAlert` already
+     * watches for ones that sit there. An academy wondering why nobody got
+     * an email is the failure mode this copy exists to prevent, so the
+     * held count is stated on the button itself rather than in a hint
+     * below it.
+     */
+    private static function renderStaff( string $cancel_url ): void {
+        $payload = \TT\Modules\Onboarding\OnboardingState::payloadFor( 'staff' );
+        $added   = (array) ( $payload['added'] ?? [] );
+        $waiting = 0;
+        foreach ( $added as $person ) {
+            if ( ! empty( $person['invited'] ) ) $waiting++;
+        }
+        ?>
+        <h2 class="tt-setup__heading"><?php esc_html_e( 'Add your staff', 'talenttrack' ); ?></h2>
+        <p class="tt-setup__lead">
+            <?php esc_html_e( 'Add the coaches and staff who will use TalentTrack. Give them an email address and an invitation is prepared for each of them.', 'talenttrack' ); ?>
+        </p>
+        <p class="tt-setup__lead">
+            <strong><?php esc_html_e( 'Nobody is emailed yet.', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Invitations are held until you send them, so you can finish setting up and look around first.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( ! empty( $added ) ) : ?>
+            <ul class="tt-setup__added">
+                <?php foreach ( $added as $person ) : ?>
+                    <li class="tt-setup__added-row">
+                        <span class="tt-setup__added-name"><?php echo esc_html( (string) ( $person['name'] ?? '' ) ); ?></span>
+                        <?php if ( (string) ( $person['email'] ?? '' ) !== '' ) : ?>
+                            <span class="tt-setup__added-email"><?php echo esc_html( (string) $person['email'] ); ?></span>
+                        <?php endif; ?>
+                        <span class="tt-setup__added-state">
+                            <?php
+                            echo ! empty( $person['invited'] )
+                                ? esc_html__( 'Invitation ready to send', 'talenttrack' )
+                                : esc_html__( 'No email — add one later to invite them', 'talenttrack' );
+                            ?>
+                        </span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+
+        <form data-tt-setup-form data-tt-setup-endpoint="staff">
+            <div class="tt-setup__field">
+                <label class="tt-setup__legend" for="tt-setup-staff-first"><?php esc_html_e( 'First name', 'talenttrack' ); ?></label>
+                <input type="text" id="tt-setup-staff-first" class="tt-setup__input" name="first_name"
+                    required autocomplete="given-name" inputmode="text" />
+            </div>
+            <div class="tt-setup__field">
+                <label class="tt-setup__legend" for="tt-setup-staff-last"><?php esc_html_e( 'Last name', 'talenttrack' ); ?></label>
+                <input type="text" id="tt-setup-staff-last" class="tt-setup__input" name="last_name"
+                    required autocomplete="family-name" inputmode="text" />
+            </div>
+            <div class="tt-setup__field">
+                <label class="tt-setup__legend" for="tt-setup-staff-email"><?php esc_html_e( 'Email', 'talenttrack' ); ?></label>
+                <input type="email" id="tt-setup-staff-email" class="tt-setup__input" name="email"
+                    autocomplete="email" inputmode="email" />
+                <p class="tt-setup__hint"><?php esc_html_e( 'Optional. Without one they are still on the staff list, but cannot be invited to sign in.', 'talenttrack' ); ?></p>
+            </div>
+            <?php echo FormSaveButton::render( [
+                'label'        => __( 'Add this person', 'talenttrack' ),
+                'label_saving' => __( 'Saving…', 'talenttrack' ),
+                'label_saved'  => __( 'Added', 'talenttrack' ),
+                'cancel_url'   => $cancel_url,
+                'cancel_label' => __( 'Cancel', 'talenttrack' ),
+            ] ); ?>
+        </form>
+
+        <p class="tt-setup__actions">
+            <?php if ( $waiting > 0 ) : ?>
+                <button type="button" class="tt-btn tt-btn-primary" data-tt-setup-send-invites>
+                    <?php
+                    printf(
+                        esc_html(
+                            /* translators: %d: number of invitations waiting to be sent */
+                            _n(
+                                'Send %d invitation and continue',
+                                'Send %d invitations and continue',
+                                $waiting,
+                                'talenttrack'
+                            )
+                        ),
+                        (int) $waiting
+                    );
+                    ?>
+                </button>
+            <?php endif; ?>
+            <button type="button" class="tt-btn tt-btn-secondary" data-tt-setup-skip="staff">
+                <?php
+                echo $waiting > 0
+                    ? esc_html__( 'Continue without sending yet', 'talenttrack' )
+                    : esc_html__( 'Skip — I will add staff later', 'talenttrack' );
+                ?>
+            </button>
+        </p>
+
+        <?php if ( $waiting > 0 ) : ?>
+            <p class="tt-setup__hint">
+                <?php esc_html_e( 'If you continue without sending, the invitations stay ready and waiting under Configuration → Invitations. Nothing is lost.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
         <?php
     }
 

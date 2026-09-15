@@ -47,6 +47,7 @@ final class OnboardingRestController {
             'academy'        => 'academy',
             'first-team'     => 'firstTeam',
             'first-admin'    => 'firstAdmin',
+            'staff'          => 'staff',
             'messaging'      => 'messaging',
             'profile'        => 'profile',
             'import'         => 'import',
@@ -148,6 +149,59 @@ final class OnboardingRestController {
             'grant_role' => ! empty( $r->get_param( 'grant_role' ) ),
         ] );
         Logger::info( 'rest.onboarding.admin_created', [ 'user' => get_current_user_id() ] );
+        return self::stateResponse();
+    }
+
+    /**
+     * #3261 — the staff step (#2964/#2965) on the frontend.
+     *
+     * Three actions on one route, because they are three buttons on one
+     * step and the frontend's form handler posts to a single endpoint per
+     * step. All three delegate to `OnboardingHandlers`, which is the point
+     * of the route rather than this layer creating people itself: the
+     * handler creates the invitation with `defer_send`, so it is **held**
+     * rather than sent. A second implementation that reproduced this by
+     * reading the screen would mail a club's coaches the moment their
+     * names were typed — the outcome #2964 exists to prevent.
+     *
+     * No credential is returned. See `FrontendSetupView::renderStaff()`
+     * for why that is a decision rather than an omission.
+     */
+    public static function staff( \WP_REST_Request $r ): \WP_REST_Response {
+        if ( ! empty( $r->get_param( 'skip' ) ) ) {
+            OnboardingHandlers::skipStaff();
+            Logger::info( 'rest.onboarding.staff_skipped', [ 'user' => get_current_user_id() ] );
+            return self::stateResponse();
+        }
+
+        if ( ! empty( $r->get_param( 'send_invites' ) ) ) {
+            $result = OnboardingHandlers::sendInvites();
+            Logger::info( 'rest.onboarding.invites_sent', [
+                'user'    => get_current_user_id(),
+                'sent'    => $result['sent'],
+                'skipped' => $result['skipped'],
+            ] );
+            return self::stateResponse();
+        }
+
+        $result = OnboardingHandlers::addStaff( [
+            'first_name' => (string) ( $r->get_param( 'first_name' ) ?? '' ),
+            'last_name'  => (string) ( $r->get_param( 'last_name' ) ?? '' ),
+            'email'      => (string) ( $r->get_param( 'email' ) ?? '' ),
+            'role_type'  => (string) ( $r->get_param( 'role_type' ) ?? 'staff' ),
+        ] );
+
+        if ( ! $result['ok'] ) {
+            return RestResponse::error( 'staff_invalid', (string) $result['error'], 422 );
+        }
+
+        // The person id is logged, never the invitation. Nothing that
+        // could be used to sign in leaves the server on this route.
+        Logger::info( 'rest.onboarding.staff_added', [
+            'user'    => get_current_user_id(),
+            'person'  => $result['person_id'],
+            'invited' => $result['invited'],
+        ] );
         return self::stateResponse();
     }
 
