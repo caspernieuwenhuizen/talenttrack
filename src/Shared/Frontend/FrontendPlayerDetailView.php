@@ -2046,7 +2046,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      *
      * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
      */
-    private static function renderMeasurementsTab( int $player_id, array $viewer = [] ): void {
+    private static function renderMeasurementsTab( int $player_id, array $viewer ): void {
         if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
@@ -2076,7 +2076,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      *
      * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
      */
-    private static function renderBmiBlock( int $player_id, array $viewer = [] ): void {
+    private static function renderBmiBlock( int $player_id, array $viewer ): void {
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
             return;
         }
@@ -2093,7 +2093,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // `BmiBlock` straight past it, because the gate here asked for
         // `measurements:read` — which a player holds at `self` scope. The
         // figure reaches a family through a conversation, not a tab.
-        if ( ! empty( $viewer['is_family'] ) ) {
+        if ( $viewer['is_family'] ) {
             return;
         }
 
@@ -2136,7 +2136,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      *
      * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
      */
-    private static function renderActivitiesTab( int $player_id, ?object $player = null, array $viewer = [] ): void {
+    private static function renderActivitiesTab( int $player_id, ?object $player, array $viewer ): void {
         // v3.110.185 (#789) — both planned and completed activities;
         // planned rows render a neutral "Planned" pill instead of the
         // wizard's default-Present pre-fill so coach intent stays
@@ -2195,8 +2195,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // holds no `activities` grant, so this pointed at the not-authorized
         // notice; `?tt_view=my-activities` is the same list for them, and the
         // one they own.
-        $list_url = ! empty( $viewer['is_family'] )
-            ? RecordLink::meUrl( 'my-activities', empty( $viewer['is_self'] ) ? (int) ( $viewer['player_id'] ?? 0 ) : null )
+        $list_url = $viewer['is_family']
+            ? RecordLink::meUrl( 'my-activities', $viewer['is_self'] ? null : $viewer['player_id'] )
             : add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() ); /* tt-xview-ok — the pre-existing staff link, moved into this ternary rather than added; staff hold `activities`, and the family branch above is what this issue changes */
 
         // #3045 — goals + assists per match for the rows below. One query for
