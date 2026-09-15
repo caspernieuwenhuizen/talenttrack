@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoRoster;
 
 /**
  * PlayerProfileGenerator — the rest of a player's record: where they came
@@ -18,52 +20,6 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * broken feature rather than a sparse one.
  */
 class PlayerProfileGenerator implements DependentGeneratorInterface {
-
-    /**
-     * #3404 — the ladder is derived from the academy's own teams, not
-     * hardcoded.
-     *
-     * It used to be a `JO8 … JO19` constant. No install seeds that
-     * vocabulary: `Activator` seeds `U7 … U23, Senior`, the canonical list
-     * in `LookupCanonicalSeeds` is `U*`, and the Dutch *label* for `U10` is
-     * `O10` — so `array_search( $age_group, LADDER )` returned false for
-     * every team ever generated, `$prior` was always 0, and not one player
-     * on any install got a prior spell. The age-group history the player
-     * profile renders was empty by construction.
-     *
-     * Reading the teams answers it in whatever notation the academy uses,
-     * and only ever names rungs that exist — which is what the loop needs,
-     * since `teamForAgeGroup()` returning 0 skips the spell anyway. The
-     * lookup table is no help here: its `age_group` seed order is
-     * `U8, U10, U12, … , U7, U9, …`, which is not a ladder.
-     *
-     * @return list<string> age groups, youngest first.
-     */
-    private function ladder(): array {
-        $rungs = [];
-        foreach ( $this->teams as $t ) {
-            $age_group = isset( $t->age_group ) ? trim( (string) $t->age_group ) : '';
-            if ( $age_group === '' ) continue;
-            $rungs[ $age_group ] = self::rungAge( $age_group );
-        }
-        // Ascending by the number in the label; anything without one
-        // (`Senior`) sorts last, where it belongs on a ladder.
-        asort( $rungs, SORT_NUMERIC );
-
-        return array_keys( $rungs );
-    }
-
-    /**
-     * The age in an age-group label, whatever the notation — `U14`, `JO14`,
-     * `O14` and `14` all read as 14. `Senior` and anything else with no
-     * digits sorts to the top end.
-     */
-    private static function rungAge( string $age_group ): int {
-        if ( preg_match( '/(\d+)/', $age_group, $m ) === 1 ) {
-            return (int) $m[1];
-        }
-        return PHP_INT_MAX;
-    }
 
     /**
      * Club-authored custom fields a fresh install has none of. Kept small
@@ -95,31 +51,49 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
     /** @var object[] */
     private array $players;
 
-    /** @var object[] */
-    private array $teams;
-
     private int $weeks;
 
     private string $language;
+
+    private DemoCalendar $calendar;
+
+    private DemoRoster $roster;
 
     public static function category(): string {
         return 'player_profile';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->weeks(), $ctx->contentLanguage );
+        return new self(
+            $ctx->registry,
+            $ctx->historicPlayers(),
+            $ctx->teams,
+            $ctx->weeks(),
+            $ctx->contentLanguage,
+            $ctx->calendar(),
+            $ctx->roster()
+        );
     }
 
     /**
      * @param object[] $players
      * @param object[] $teams
      */
-    public function __construct( DemoBatchRegistry $registry, array $players, array $teams, int $weeks, string $language = '' ) {
+    public function __construct(
+        DemoBatchRegistry $registry,
+        array $players,
+        array $teams,
+        int $weeks,
+        string $language = '',
+        ?DemoCalendar $calendar = null,
+        ?DemoRoster $roster = null
+    ) {
         $this->registry = $registry;
         $this->players  = $players;
-        $this->teams    = $teams;
         $this->weeks    = max( 1, $weeks );
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $this->calendar = $calendar ?? new DemoCalendar( $this->weeks );
+        $this->roster   = $roster ?? new DemoRoster( $this->calendar, $teams, $players );
     }
 
     public function generate(): int {
@@ -132,76 +106,53 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
     }
 
     /**
-     * A current spell for everyone, plus prior spells for the older age
-     * groups. Spells are contiguous and end where the next begins, so the
-     * progression reads as one chain rather than overlapping fragments.
+     * One spell per season the player was at the academy, oldest first, the
+     * last one open-ended for anyone still there.
+     *
+     * #3402 — the spells come from `DemoRoster`, which is also what decides
+     * whose attendance, evaluations and test results a past season's squad
+     * carries. Before that they were drawn independently, so the age-group
+     * history on a player's profile contradicted the work on the same page.
+     *
+     * The player's `date_joined` is aligned to the first spell for the same
+     * reason: a record claiming a player joined three years ago while their
+     * history starts last August is the same contradiction one column over.
      */
     private function generateTeamHistory(): int {
         global $wpdb;
 
-        $teams_by_id = [];
-        foreach ( $this->teams as $t ) {
-            $teams_by_id[ (int) $t->id ] = $t;
-        }
-
-        // #3404 — resolved once for the whole run.
-        $ladder = $this->ladder();
-
         $total = 0;
         foreach ( $this->players as $p ) {
             $player_id = (int) ( $p->id ?? 0 );
-            $team_id   = (int) ( $p->team_id ?? 0 );
-            if ( $player_id <= 0 || $team_id <= 0 ) continue;
+            if ( $player_id <= 0 ) continue;
 
-            $joined_current = isset( $p->date_joined ) && $p->date_joined
-                ? (string) $p->date_joined
-                : gmdate( 'Y-m-d', strtotime( '-' . $this->weeks . ' weeks' ) ?: time() );
+            $spells = $this->roster->spellsFor( $player_id );
+            if ( $spells === [] ) continue;
 
-            $team      = $teams_by_id[ $team_id ] ?? null;
-            $age_group = $team && isset( $team->age_group ) ? (string) $team->age_group : '';
-            $rung      = array_search( $age_group, $ladder, true );
-
-            // One season per prior rung, up to three, capped by how far down
-            // the ladder this age group actually sits.
-            $prior = $rung === false ? 0 : min( 3, (int) $rung );
-            $prior = $prior > 0 ? mt_rand( 0, $prior ) : 0;
-
-            $spell_end = $joined_current;
-            for ( $i = 1; $i <= $prior; $i++ ) {
-                $prior_team = $this->teamForAgeGroup( $ladder[ (int) $rung - $i ] ?? '' );
-                if ( $prior_team <= 0 ) continue;
-
-                $start = gmdate( 'Y-m-d', strtotime( $spell_end . ' -1 year' ) ?: time() );
-                $end   = gmdate( 'Y-m-d', strtotime( $spell_end . ' -1 day' ) ?: time() );
-
+            foreach ( $spells as $index => $spell ) {
                 $wpdb->insert( "{$wpdb->prefix}tt_player_team_history", [
                     'club_id'   => CurrentClub::id(),
                     'player_id' => $player_id,
-                    'team_id'   => $prior_team,
-                    'joined_at' => $start,
-                    'left_at'   => $end,
+                    'team_id'   => (int) $spell['team_id'],
+                    'joined_at' => (string) $spell['joined_at'],
+                    'left_at'   => $spell['left_at'],
                 ] );
                 $id = (int) $wpdb->insert_id;
-                if ( $id ) {
-                    $this->registry->tag( 'player_team_history', $id, [ 'player_id' => $player_id ] );
-                    $total++;
-                }
-                $spell_end = $start;
+                if ( ! $id ) continue;
+
+                $this->registry->tag( 'player_team_history', $id, array_merge(
+                    [ 'player_id' => $player_id ],
+                    $spell['left_at'] === null ? [ 'current' => 1 ] : []
+                ) );
+                $total++;
+                unset( $index );
             }
 
-            // Current, open-ended spell.
-            $wpdb->insert( "{$wpdb->prefix}tt_player_team_history", [
-                'club_id'   => CurrentClub::id(),
-                'player_id' => $player_id,
-                'team_id'   => $team_id,
-                'joined_at' => $joined_current,
-                'left_at'   => null,
-            ] );
-            $id = (int) $wpdb->insert_id;
-            if ( $id ) {
-                $this->registry->tag( 'player_team_history', $id, [ 'player_id' => $player_id, 'current' => 1 ] );
-                $total++;
-            }
+            $wpdb->update(
+                "{$wpdb->prefix}tt_players",
+                [ 'date_joined' => (string) $spells[0]['joined_at'] ],
+                [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
+            );
         }
         return $total;
     }
@@ -492,18 +443,6 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             CurrentClub::id()
         ) );
         return array_values( array_filter( array_map( 'intval', (array) $ids ) ) );
-    }
-
-    private function teamForAgeGroup( string $age_group ): int {
-        if ( $age_group === '' ) return 0;
-        foreach ( $this->teams as $t ) {
-            if ( isset( $t->age_group ) && (string) $t->age_group === $age_group ) {
-                return (int) $t->id;
-            }
-        }
-        // No team at that rung in this club — reuse the player's own team so
-        // the spell is still chronologically sensible.
-        return 0;
     }
 
     /**

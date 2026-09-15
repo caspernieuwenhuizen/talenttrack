@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
@@ -72,12 +73,21 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
     private string $language;
 
+    private ?DemoRoster $roster;
+
     public static function category(): string {
         return 'match_day';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->users, $ctx->contentLanguage );
+        return new self(
+            $ctx->registry,
+            $ctx->historicPlayers(),
+            $ctx->teams,
+            $ctx->users,
+            $ctx->contentLanguage,
+            $ctx->roster()
+        );
     }
 
     /**
@@ -90,13 +100,35 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         array $players,
         array $teams,
         array $users,
-        string $language = ''
+        string $language = '',
+        ?DemoRoster $roster = null
     ) {
         $this->registry = $registry;
         $this->players  = $players;
         $this->teams    = $teams;
         $this->users    = $users;
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $this->roster   = $roster;
+    }
+
+    /**
+     * The squad a team fielded on a date. Without a roster plan — a caller
+     * that built this generator by hand — it is the team as it stands.
+     *
+     * @param array<int, list<int>> $players_by_team
+     * @return list<int>
+     */
+    private function rosterOn( int $team_id, string $date, array $players_by_team ): array {
+        if ( $this->roster === null ) {
+            return $players_by_team[ $team_id ] ?? [];
+        }
+
+        $out = [];
+        foreach ( $this->roster->rosterFor( $team_id, $date ) as $player ) {
+            $id = (int) ( $player->id ?? 0 );
+            if ( $id > 0 ) $out[] = $id;
+        }
+        return $out;
     }
 
     public function generate(): int {
@@ -127,7 +159,11 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $activity_id = (int) $fixture->id;
             $team_id     = (int) $fixture->team_id;
             $match_date  = (string) $fixture->session_date;
-            $roster      = $players_by_team[ $team_id ] ?? [];
+
+            // #3402 — who was available for a match is who was in that squad
+            // on the day. Falling back to the current roster would put a
+            // player in a lineup two seasons before they joined the team.
+            $roster = $this->rosterOn( $team_id, $match_date, $players_by_team );
             $squad_size  = self::squadSizeFor( $age_by_team[ $team_id ] ?? '' );
             if ( count( $roster ) < $squad_size ) continue;
 

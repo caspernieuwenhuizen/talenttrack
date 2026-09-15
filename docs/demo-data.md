@@ -35,7 +35,7 @@ removes exactly what was generated and never touches real records.
 | Player profile | Age-group history, attribute values, the club's custom fields and values, goal-to-evaluation links |
 | Player reports | Generated reports across the audiences an academy produces |
 | Measurements | A testing battery, per-age-group target bands, team testing sessions and one result per player |
-| PDP cycle | The season, a development dossier per player, its conversation cycle, calendar links and verdicts |
+| PDP cycle | A season per year the window covers, a development dossier per player per season, its conversation cycle, calendar links and verdicts |
 | Training content | Exercises and principles on each training, per-team exercise overrides, holiday windows |
 | Match day | Prep for every fixture, and results, goals and substitutions for the ones already played |
 | Test trainings | Open sessions for invited players, one past and one upcoming per age group |
@@ -53,6 +53,22 @@ Each preset generates 12 players per team.
 
 The squads are **spread across your age-group ladder** rather than taken from the youngest end, so a three-team academy gets a young squad, an older one, and something in between. That matters for more than variety: potential bands, PDP cycles and evaluations with development plans are not things to demonstrate on seven-year-olds, and before this the oldest demo player *was* seven. Age groups whose name carries no age — a **Senior** catch-all, say — are skipped, because the generator derives a player's birth year from the group name and would otherwise fill a senior squad with children.
 
+**Evaluations come on two cadences**, because there are two things being
+recorded. **Round evaluations** are written four times a season — a
+start-of-season baseline, two mid-season rounds and an end-of-season review —
+a few days ahead of the PDP conversation that reviews them, so the evidence
+panel on every generated conversation has the round behind it. **Match
+evaluations** are written against the fixtures the run generates, on their own
+per-match cadence, for roughly a third of the matches a player was available
+for. A three-year window therefore gives a player around a dozen round
+evaluations rather than three hundred, which is the difference between a list
+a coach scans and one they scroll.
+
+Ratings are written **on the scale the install is configured for** and land on
+values that scale can express — no 6.4 on a step of 1. An archetype that
+improves moves at least one whole step across a season, so the development
+story is legible from the list without opening a chart.
+
 **Behaviour and potential** are seeded with their gaps intact. Roughly one player in five old enough to have a potential band does not have one, one per squad is left overdue, and one is revised **down** rather than up. That is deliberate: the traffic light, the *Potential not revisited* alert and the potential trajectory all exist to make missing and moving data visible, and a demo where nothing is ever missing or overdue makes them look like features that never fire. Potential is not seeded below age 13 at all — the product does not ask for it there, so neither does the demo.
 
 The week count is how far **back** the activity window runs. On top of it every
@@ -62,6 +78,38 @@ alerts all have something to show. Future activities are planned and carry no
 result: no attendance, no minutes, no ratings and no match execution. Match
 prep is written for them, which is what a coach's screen looks like mid-week.
 
+## Seasons
+
+The window decides how many **seasons** a run builds: one per season-year it
+touches, on the club's August-to-June convention. A short window gives one
+season; three years of history gives three or four, depending on where in the
+calendar the run starts. A season the club already has is reused rather than
+duplicated, and is never removed by a wipe.
+
+Each season carries its **own PDP cycle** — a dossier per player, four
+conversations, and the coach's preparation for each of them. Seasons that have
+finished are **closed with a verdict**; the current one stays open at whatever
+stage the window puts it. A window covering only one season closes a minority
+of its dossiers instead, so a completed one is still on screen next to the open
+ones. Prior seasons are **not archived** — archived rows drop out of most
+lists, and hiding most of what was generated is the opposite of why it was
+generated.
+
+The squad **moves between seasons**. A player who is U13 this season was U12
+last season and U11 the season before, and their `tt_player_team_history`
+spells say so — as does the work: the trainings they attended, the evaluations
+written about them and the test sessions they sat in a past season all belong
+to the squad they were in **then**, not to the one they are in now. A team the
+academy's cohorts had not reached yet in an early season gets no sessions in
+it, rather than a calendar full of sessions nobody attended.
+
+Players **arrive and leave**. Some join partway through the window, and a few
+per squad left the academy at the end of an earlier season — released, off
+every current roster, but with the history they leave behind intact, down to
+the dossier whose verdict is the release itself. Nobody leaves in a run whose
+window covers a single season; a squad cannot have changed between seasons
+there are not two of.
+
 **Set my own numbers** under the preset opens three fields — teams, players per
 team, weeks of history — prefilled from the chosen preset and overridable per
 run. This is the only way to change the player count, and therefore the number
@@ -69,7 +117,13 @@ of demo accounts: every preset ships 12 players per team, which suits a U15
 squad and not a U8 one playing six-a-side. Leave a field empty and the preset's
 value is used, so touching nothing generates exactly what the preset always did.
 The line below the fields shows the resulting player and account count as you
-type. Values are clamped to what a run can finish.
+type.
+
+Values are clamped to what a run can finish — at most **40 teams**, **40
+players per team** and **156 weeks** (three years) of history. A number above
+a maximum is not refused: the run goes ahead with the maximum and **says so**,
+in a notice on this page and as a warning on the command line, naming the
+number asked for and the number used.
 
 Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury

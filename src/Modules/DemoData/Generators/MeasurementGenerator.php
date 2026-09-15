@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\Measurements\Units\Dimensions;
 use TT\Modules\Measurements\Units\UnitContext;
 use TT\Modules\Measurements\Units\UnitRegistry;
@@ -131,12 +133,25 @@ class MeasurementGenerator implements DependentGeneratorInterface {
 
     private string $language;
 
+    private DemoCalendar $calendar;
+
+    private DemoRoster $roster;
+
     public static function category(): string {
         return 'measurements';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->users, $ctx->weeks(), $ctx->contentLanguage );
+        return new self(
+            $ctx->registry,
+            $ctx->historicPlayers(),
+            $ctx->teams,
+            $ctx->users,
+            $ctx->weeks(),
+            $ctx->contentLanguage,
+            $ctx->calendar(),
+            $ctx->roster()
+        );
     }
 
     /**
@@ -150,7 +165,9 @@ class MeasurementGenerator implements DependentGeneratorInterface {
         array $teams,
         array $users,
         int $weeks,
-        string $language = ''
+        string $language = '',
+        ?DemoCalendar $calendar = null,
+        ?DemoRoster $roster = null
     ) {
         $this->registry = $registry;
         $this->players  = $players;
@@ -158,6 +175,8 @@ class MeasurementGenerator implements DependentGeneratorInterface {
         $this->users    = $users;
         $this->weeks    = max( 1, $weeks );
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $this->calendar = $calendar ?? new DemoCalendar( $this->weeks );
+        $this->roster   = $roster ?? new DemoRoster( $this->calendar, $teams, $players );
     }
 
     public function generate(): int {
@@ -313,13 +332,7 @@ class MeasurementGenerator implements DependentGeneratorInterface {
     private function generateSessionsAndResults( array $definitions, int $author ): int {
         global $wpdb;
 
-        $players_by_team = [];
-        foreach ( $this->players as $p ) {
-            $players_by_team[ (int) ( $p->team_id ?? 0 ) ][] = $p;
-        }
-
-        $window_start = strtotime( '-' . $this->weeks . ' weeks' );
-        if ( $window_start === false ) $window_start = time();
+        $window_start = $this->calendar->windowStart();
 
         // A per-player talent offset, so the same player sits consistently
         // above or below their age group across every test.
@@ -337,14 +350,18 @@ class MeasurementGenerator implements DependentGeneratorInterface {
 
             foreach ( $this->teams as $team ) {
                 $team_id = (int) $team->id;
-                $roster  = $players_by_team[ $team_id ] ?? [];
-                if ( ! $roster ) continue;
 
                 $age = self::ageFromGroup( isset( $team->age_group ) ? (string) $team->age_group : '' );
 
                 for ( $r = 0; $r <= $rounds; $r++ ) {
                     $when = $window_start + ( $r * $cadence * WEEK_IN_SECONDS );
                     $is_future = $when > time();
+
+                    // #3402 — who is tested is who was in this squad on the
+                    // day, not who is in it now. A team that had not been
+                    // formed yet is not tested at all.
+                    $roster = $this->roster->rosterFor( $team_id, gmdate( 'Y-m-d', $when ) );
+                    if ( ! $roster ) continue;
 
                     // The next round is planned; one round in the middle was
                     // cancelled, so all three states are on screen.

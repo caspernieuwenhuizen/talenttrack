@@ -2,9 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
-use ReflectionMethod;
-use TT\Modules\DemoData\DemoBatchRegistry;
-use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
+use TT\Modules\DemoData\DemoRoster;
 
 /**
  * #3404 — the prior-spell ladder was a hardcoded `JO8 … JO19` constant while
@@ -12,23 +10,23 @@ use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
  * for every generated team, `$prior` was always 0, and no demo player ever
  * got a prior age-group spell on any install.
  *
- * The ladder now comes from the academy's own teams. These assertions pin the
- * notation-independence, which is the property that was missing.
+ * The ladder now comes from the academy's own teams, and since #3402 it is
+ * `DemoRoster` that walks it. These assertions pin the notation-independence,
+ * which is the property that was missing.
  */
 final class DemoAgeGroupLadderTest extends WP_UnitTestCase {
 
-    /** @param list<string> $age_groups */
+    /**
+     * @param list<string> $age_groups
+     * @return list<string>
+     */
     private function ladderFor( array $age_groups ): array {
         $teams = [];
         foreach ( $age_groups as $i => $ag ) {
             $teams[] = (object) [ 'id' => $i + 1, 'age_group' => $ag ];
         }
 
-        $gen = new PlayerProfileGenerator( new DemoBatchRegistry( 'test-ladder' ), [], $teams, 8 );
-
-        $m = new ReflectionMethod( PlayerProfileGenerator::class, 'ladder' );
-        $m->setAccessible( true );
-        return (array) $m->invoke( $gen );
+        return DemoRoster::ladderFor( $teams );
     }
 
     public function test_u_notation_sorts_youngest_first(): void {
@@ -75,11 +73,8 @@ final class DemoAgeGroupLadderTest extends WP_UnitTestCase {
             (object) [ 'id' => 2, 'age_group' => '' ],
             (object) [ 'id' => 3 ],
         ];
-        $gen = new PlayerProfileGenerator( new DemoBatchRegistry( 'test-ladder' ), [], $teams, 8 );
-        $m   = new ReflectionMethod( PlayerProfileGenerator::class, 'ladder' );
-        $m->setAccessible( true );
 
-        $this->assertSame( [ 'U12' ], (array) $m->invoke( $gen ) );
+        $this->assertSame( [ 'U12' ], DemoRoster::ladderFor( $teams ) );
     }
 
     public function test_a_u_team_finds_a_rung_below_it(): void {
