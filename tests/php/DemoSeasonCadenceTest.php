@@ -241,10 +241,11 @@ final class DemoSeasonCadenceTest extends WP_UnitTestCase {
 
     public function test_the_spells_written_to_history_are_the_squad_the_work_belongs_to(): void {
         $calendar = $this->calendar( 156 );
-        $roster   = new DemoRoster( $calendar, $this->teams(), $this->squad() );
+        $squad    = $this->squad();
+        $roster   = new DemoRoster( $calendar, $this->teams(), $squad );
 
         $checked = 0;
-        foreach ( $this->squad() as $player ) {
+        foreach ( $squad as $player ) {
             foreach ( $roster->spellsFor( (int) $player->id ) as $spell ) {
                 $on_that_day = $roster->teamForPlayerOn( (int) $player->id, (string) $spell['joined_at'] );
 
@@ -280,12 +281,13 @@ final class DemoSeasonCadenceTest extends WP_UnitTestCase {
 
     public function test_the_squad_changes_between_seasons(): void {
         $calendar = $this->calendar( 156 );
-        $roster   = new DemoRoster( $calendar, $this->teams(), $this->squad() );
+        $squad    = $this->squad();
+        $roster   = new DemoRoster( $calendar, $this->teams(), $squad );
 
         $last    = $calendar->seasonCount() - 1;
         $arrived = 0;
         $left    = 0;
-        foreach ( $this->squad() as $player ) {
+        foreach ( $squad as $player ) {
             $id = (int) $player->id;
             if ( $roster->teamForPlayerInSeason( $id, 0 ) === 0 && $roster->teamForPlayerInSeason( $id, $last ) > 0 ) {
                 $arrived++;
@@ -301,9 +303,10 @@ final class DemoSeasonCadenceTest extends WP_UnitTestCase {
 
     public function test_a_single_season_window_has_nobody_leaving(): void {
         $calendar = $this->calendar( 8 );
-        $roster   = new DemoRoster( $calendar, $this->teams(), $this->squad() );
+        $squad    = $this->squad();
+        $roster   = new DemoRoster( $calendar, $this->teams(), $squad );
 
-        foreach ( $this->squad() as $player ) {
+        foreach ( $squad as $player ) {
             if ( (string) $player->archetype !== DemoRoster::ARCHETYPE_DEPARTED ) continue;
 
             $this->assertSame(
