@@ -84,7 +84,7 @@ final class FilterBarPeriodChipTest extends WP_UnitTestCase {
         // The ✕ goes back to the default option's own URL, not to a
         // param-free URL some other group owns.
         $this->assertMatchesRegularExpression(
-            '/tt-chip__clear[^"]*href="[^"]*tt_view=minutes-report-team"/',
+            '/<a class="tt-chip__clear" href="[^"]*tt_view=minutes-report-team"/',
             $html
         );
     }
@@ -140,7 +140,7 @@ final class FilterBarPeriodChipTest extends WP_UnitTestCase {
             ReportFilters::periodGroup( $this->options( '' ), '', '2026-03-01', '2026-03-31' ),
         ] );
 
-        preg_match( '/tt-chip__clear[^"]*href="([^"]+)"/', $html, $m );
+        preg_match( '/<a class="tt-chip__clear" href="([^"]+)"/', $html, $m );
         $this->assertNotEmpty( $m );
         $url = html_entity_decode( $m[1] );
         $this->assertStringNotContainsString( 'from=', $url );
@@ -193,7 +193,7 @@ final class FilterBarPeriodChipTest extends WP_UnitTestCase {
         $_SERVER['REQUEST_URI'] = '/dash/?tt_view=compare&date_from=2026-03-01&date_to=2026-03-31';
         $html = $this->render( [ $this->dateRange( '2026-03-01', '2026-03-31', true ) ] );
 
-        preg_match( '/tt-chip__clear[^"]*href="([^"]+)"/', $html, $m );
+        preg_match( '/<a class="tt-chip__clear" href="([^"]+)"/', $html, $m );
         $this->assertNotEmpty( $m );
         $url = html_entity_decode( $m[1] );
         $this->assertStringNotContainsString( 'date_from', $url );
