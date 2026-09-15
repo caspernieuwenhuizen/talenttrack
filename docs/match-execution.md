@@ -70,7 +70,9 @@ Two places set it, and the more specific one wins:
 - **Configuration → Match day → Live match screen** sets the academy
   default.
 - **My settings → Live match screen → Layout** overrides it for you alone.
-  It is set to *Use the academy default* unless you change it.
+  It is set to *Use the academy default* unless you change it. The card
+  appears only for people who can open the match screen, so a player or a
+  parent will not see it.
 
 That split is what lets one coach try the sectioned layout for a single
 Saturday while everyone else stays on the scroll. Switching back changes

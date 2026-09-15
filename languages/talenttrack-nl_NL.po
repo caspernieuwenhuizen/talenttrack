@@ -60147,6 +60147,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php:551
+msgid "You do not have access to the live match screen."
+msgstr "Je hebt geen toegang tot het livewedstrijdscherm."
+
 #~ msgid "Agenda"
 #~ msgstr "Agenda"
 

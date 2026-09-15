@@ -150,7 +150,9 @@ class FrontendMySettingsView extends FrontendViewBase {
             </form>
 
             <?php self::renderAppearanceCard( $user_id ); ?>
-            <?php self::renderMatchLayoutCard( $user_id ); ?>
+            <?php if ( self::canUseMatchScreen( $user_id ) ) : ?>
+                <?php self::renderMatchLayoutCard( $user_id ); ?>
+            <?php endif; ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
             <?php self::renderMessagePreferencesCard( $user_id ); ?>
@@ -332,6 +334,23 @@ class FrontendMySettingsView extends FrontendViewBase {
             </div>
         </form>
         <?php
+    }
+
+    /**
+     * May this user open the live-match screen at all? (#3388)
+     *
+     * The same capability `FrontendMatchExecutionView::render()` enforces.
+     * Asked here because a preference for a surface you cannot reach is not
+     * a preference — it is a row of clutter on a page a player opens looking
+     * for two or three things.
+     *
+     * The usual safety net does not reach this card: `match-execution`
+     * registers no tile, only slug ownership, so
+     * `CrossViewLinkRegistry::fallbackAllows()` answers true for everyone.
+     * Nothing was ever going to hide it on its own.
+     */
+    private static function canUseMatchScreen( int $user_id ): bool {
+        return user_can( $user_id, 'tt_edit_activities' );
     }
 
     /**
@@ -531,6 +550,13 @@ class FrontendMySettingsView extends FrontendViewBase {
         if ( $action === 'update_match_layout' ) {
             if ( ! isset( $_POST['tt_my_settings_match_layout_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_match_layout_nonce'] ) ), 'tt_my_settings_match_layout' ) ) {
                 $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            // #3388 — the card is hidden for anyone who cannot open the
+            // match screen; the handler asks again, because hiding a form
+            // is not the same as refusing its POST.
+            if ( ! self::canUseMatchScreen( $user_id ) ) {
+                $out['errors'][] = __( 'You do not have access to the live match screen.', 'talenttrack' );
                 return $out;
             }
             MatchExecutionLayout::setUserOverride(

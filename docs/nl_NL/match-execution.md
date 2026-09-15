@@ -75,7 +75,8 @@ Twee plekken bepalen het, en de meest specifieke wint:
   voor de academie in.
 - **Mijn instellingen → Livewedstrijdscherm → Indeling** overschrijft die
   alleen voor jou. Deze staat op *Gebruik de standaard van de academie* tot
-  je hem wijzigt.
+  je hem wijzigt. De kaart verschijnt alleen voor mensen die het
+  wedstrijdscherm kunnen openen; een speler of ouder ziet hem dus niet.
 
 Door die splitsing kan één trainer de sectie-indeling één zaterdag
 uitproberen terwijl de rest op de scroll blijft. Terugschakelen verandert
