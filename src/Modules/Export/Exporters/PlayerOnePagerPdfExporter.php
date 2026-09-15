@@ -66,7 +66,11 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         }
 
         $name      = QueryHelpers::player_display_name( $player );
-        $photo     = ! empty( $player->photo_url ) ? (string) $player->photo_url : '';
+        // #3399 — inline bytes, not a URL. The HTML goes to a renderer that
+        // may have no session, so a `MediaDelivery` URL would come back 403
+        // and print as a broken image; and a saved PDF should carry its own
+        // picture rather than a link that stops working.
+        $photo     = \TT\Modules\Players\Services\PlayerPhoto::dataUri( $player );
         $dob       = ! empty( $player->date_of_birth ) ? (string) $player->date_of_birth : '';
         $age       = self::computeAge( $dob );
         $position  = self::primaryPosition( (string) ( $player->preferred_positions ?? '' ) );

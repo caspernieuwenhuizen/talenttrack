@@ -439,8 +439,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         ?>
                         <div class="tt-player-sticky__id" aria-hidden="true">
                             <span class="tt-player-sticky__avatar" data-status="<?php echo esc_attr( (string) ( $player->status ?? 'inactive' ) ); ?>">
-                                <?php if ( (string) ( $player->photo_url ?? '' ) !== '' ) : ?>
-                                    <img class="tt-player-sticky__photo" src="<?php echo esc_url( (string) $player->photo_url ); ?>" alt="" />
+                                <?php $tt_sticky_photo = \TT\Modules\Players\Services\PlayerPhoto::url( $player ); ?>
+                                <?php if ( $tt_sticky_photo !== '' ) : ?>
+                                    <img class="tt-player-sticky__photo" src="<?php echo esc_url( $tt_sticky_photo ); ?>" alt="" />
                                 <?php else : ?>
                                     <?php echo esc_html( self::initialsFor( $name ) ); ?>
                                 <?php endif; ?>
@@ -550,7 +551,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\ArchivedDetailCard::render( 'player', $resolved, [
             'title'            => $name,
             'initials'         => self::initialsFor( $name ),
-            'photo_url'        => (string) ( $player->photo_url ?? '' ),
+            'photo_url'        => \TT\Modules\Players\Services\PlayerPhoto::url( $player ),
             'fields'           => $fields,
             'list_url'         => $players_url,
             'restore_redirect' => $self_url,
@@ -564,7 +565,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      */
     private static function renderHero( object $player, string $name, ?object $team, string $team_url, ?array $phv_row = null ): void {
         $status    = (string) ( $player->status ?? 'inactive' );
-        $photo     = (string) ( $player->photo_url ?? '' );
+        $photo     = \TT\Modules\Players\Services\PlayerPhoto::url( $player );
         $jersey    = ! empty( $player->jersey_number ) ? (int) $player->jersey_number : 0;
         $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         // #3329 — one pill per position, in stored order.

@@ -70,7 +70,7 @@ class AssignedPlayersGridWidget extends AbstractWidget {
                     [ 'tt_view' => 'scout-my-players', 'player_id' => $pid ],
                     $ctx->base_url
                 );
-                $photo = (string) ( $player->photo_url ?? '' );
+                $photo = \TT\Modules\Players\Services\PlayerPhoto::url( $player );
                 $photo_html = $photo !== ''
                     ? '<img src="' . esc_url( $photo ) . '" alt="" loading="lazy" width="40" height="40" />'
                     : '<span class="tt-pd-assigned-initials" aria-hidden="true">' . esc_html( self::initials( $name ) ) . '</span>';

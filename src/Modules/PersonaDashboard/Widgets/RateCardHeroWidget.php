@@ -50,7 +50,7 @@ class RateCardHeroWidget extends AbstractWidget {
         $last     = (string) ( $player->last_name ?? '' );
         $name     = trim( $first . ' ' . $last );
         $position = self::primaryPosition( $player );
-        $photo    = (string) ( $player->photo_url ?? '' );
+        $photo    = \TT\Modules\Players\Services\PlayerPhoto::url( $player );
 
         // #1352 — show the raw rolling rating to one decimal, exactly
         // like the My-team card. The old `(rolling / 5.0) * 99`

@@ -626,6 +626,26 @@ class PlayersPage {
             }
         }
 
+        // #3399 — a photo picked through the media library arrives here as a
+        // public uploads URL, which is the defect this issue is about. Import
+        // it into the private store and delete the public copy, using the
+        // same importer migration 0261 sweeps existing academies with.
+        //
+        // After the write, not before: the import needs a player id, and a
+        // create has only just got one. An import that fails leaves the URL
+        // in the column and `PlayerPhoto` keeps rendering it, so a photo is
+        // never lost to a storage problem.
+        if ( $ok !== false && $id > 0 && ! empty( $data['photo_url'] ) ) {
+            $media_id = \TT\Modules\Players\Services\PlayerPhotoImporter::fromUploadsUrl( $id, (string) $data['photo_url'] );
+            if ( $media_id > 0 ) {
+                $wpdb->update(
+                    $wpdb->prefix . 'tt_players',
+                    [ 'photo_media_id' => $media_id, 'photo_url' => '' ],
+                    [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+                );
+            }
+        }
+
         if ( $ok === false ) {
             Logger::error( 'player.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
             self::saveFormState( [

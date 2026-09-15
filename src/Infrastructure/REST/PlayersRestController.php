@@ -463,7 +463,10 @@ class PlayersRestController {
             'preferred_foot_pill_html' => $pl->preferred_foot
                 ? LookupPill::render( 'foot_option', (string) $pl->preferred_foot )
                 : '',
-            'photo_url'        => (string) ( $pl->photo_url ?? '' ),
+            // #3399 — the gated delivery URL, not the raw column. A REST
+            // consumer gets a link that still needs the caller's session,
+            // which is the whole point of moving photos off uploads/.
+            'photo_url'        => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ),
             'date_of_birth'    => $pl->date_of_birth ?: null,
             'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
@@ -766,7 +769,7 @@ class PlayersRestController {
             'jersey_number'       => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
             'team_id'             => (int) $pl->team_id,
             'date_joined'         => $pl->date_joined ?: null,
-            'photo_url'           => $pl->photo_url ?: null,
+            'photo_url'           => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ) ?: null,
             'guardian_name'       => $pl->guardian_name ?: null,
             'guardian_email'      => $pl->guardian_email ?: null,
             'guardian_phone'      => $pl->guardian_phone ?: null,

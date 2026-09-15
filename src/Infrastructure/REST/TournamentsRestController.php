@@ -1580,7 +1580,7 @@ class TournamentsRestController {
     private static function fetchSquad( int $tournament_id ): array {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT s.*, pl.first_name, pl.last_name, pl.photo_url
+            "SELECT s.*, pl.first_name, pl.last_name, pl.photo_url, pl.photo_media_id
                FROM {$p}tt_tournament_squad s
                JOIN {$p}tt_players pl ON pl.id = s.player_id AND pl.club_id = s.club_id
               WHERE s.tournament_id = %d AND s.club_id = %d
@@ -1593,7 +1593,9 @@ class TournamentsRestController {
                 'first_name'         => (string) $row['first_name'],
                 'last_name'          => (string) $row['last_name'],
                 'full_name'          => trim( ( (string) $row['first_name'] ) . ' ' . ( (string) $row['last_name'] ) ),
-                'photo_url'          => (string) ( $row['photo_url'] ?? '' ),
+                // #3399 — gated URL. `$row` is an array here, so cast to the
+                // object shape the accessor reads.
+                'photo_url'          => \TT\Modules\Players\Services\PlayerPhoto::url( (object) $row ),
                 'eligible_positions' => json_decode( (string) $row['eligible_positions'], true ) ?: [],
                 'target_minutes'     => $row['target_minutes'] !== null ? (int) $row['target_minutes'] : null,
                 'notes'              => (string) ( $row['notes'] ?? '' ),

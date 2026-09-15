@@ -343,14 +343,18 @@ class PlayerCardView {
     }
 
     /**
-     * Resolve the player's photo URL. Plugin stores it as an attachment
-     * id on $player->photo_id; fall back to empty if none configured.
+     * Resolve the player's photo URL.
+     *
+     * #3399 — this read `$player->photo_id`, an attachment id on a column
+     * that exists on no table: `grep photo_id database/migrations/` returns
+     * nothing. So it has always returned '' and the player card has never
+     * shown a face, on any install, since it was written. Found while
+     * moving photographs into the private store; fixed here because the
+     * alternative is deleting a branch and leaving the card blank for
+     * another year.
      */
     private static function resolvePhotoUrl( object $player ): string {
-        $pid = isset( $player->photo_id ) ? (int) $player->photo_id : 0;
-        if ( $pid <= 0 ) return '';
-        $url = wp_get_attachment_image_url( $pid, 'medium' );
-        return $url ? (string) $url : '';
+        return \TT\Modules\Players\Services\PlayerPhoto::url( $player );
     }
 
     private static function resolveTeamName( object $player ): string {

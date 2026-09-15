@@ -117,7 +117,7 @@ final class ParentChildSwitcher {
      */
     private static function renderCard( object $child, string $url, bool $is_active ): void {
         $name  = self::childName( $child );
-        $photo = (string) ( $child->photo_url ?? '' );
+        $photo = \TT\Modules\Players\Services\PlayerPhoto::url( $child );
         $cls   = $is_active ? 'tt-child-switcher-card is-active' : 'tt-child-switcher-card';
 
         echo '<li>';

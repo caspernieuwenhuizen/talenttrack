@@ -170,7 +170,7 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
         $params[] = self::MAX_ROWS + 1;
 
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.id, p.first_name, p.last_name, p.photo_url, p.wp_user_id,
+            "SELECT p.id, p.first_name, p.last_name, p.photo_url, p.photo_media_id, p.wp_user_id,
                     t.name AS team_name, t.age_group
                FROM {$wpdb->prefix}tt_players p
           LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
@@ -240,8 +240,9 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
 
         // Anchor: photo + name + meta.
         echo '<div class="tt-pa-id">';
-        if ( ! empty( $r->photo_url ) ) {
-            echo '<img class="tt-pa-avatar" src="' . esc_url( (string) $r->photo_url ) . '" alt="" width="40" height="40" loading="lazy" />';
+        $tt_photo = \TT\Modules\Players\Services\PlayerPhoto::url( $r );
+        if ( $tt_photo !== '' ) {
+            echo '<img class="tt-pa-avatar" src="' . esc_url( $tt_photo ) . '" alt="" width="40" height="40" loading="lazy" />';
         } else {
             echo '<span class="tt-pa-avatar tt-pa-avatar--initials" aria-hidden="true">' . esc_html( self::initials( $name ) ) . '</span>';
         }

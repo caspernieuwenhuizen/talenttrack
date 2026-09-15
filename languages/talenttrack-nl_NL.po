@@ -60271,6 +60271,10 @@ msgstr "Onbekend veldtype: %s"
 #~ "Welkom bij TalentTrack! Dit is de ontwikkelhome van %1$s. Jij kiest wat "
 #~ "%2$s met je deelt."
 
+#: src/Modules/Players/Services/PlayerPhotoImporter.php
+msgid "Player photo"
+msgstr "Spelersfoto"
+
 #~ msgid ""
 #~ "No goals assigned yet. Your coaches will add development goals here as "
 #~ "you progress."
