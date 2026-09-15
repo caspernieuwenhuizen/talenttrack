@@ -150,7 +150,26 @@ class FrontendMySettingsView extends FrontendViewBase {
             </form>
 
             <?php self::renderAppearanceCard( $user_id ); ?>
-            <?php self::renderMatchLayoutCard( $user_id ); ?>
+            <?php
+            // #3388 — #2934's card configures the live-match surface, which
+            // `FrontendMatchExecutionView::render()` gates on
+            // `tt_edit_activities`. A player or parent cannot open it, so
+            // the card was a switch that did nothing on a page that should
+            // hold two or three settings, not five.
+            //
+            // The usual safety net does not reach this one: `match-execution`
+            // registers no tile, so `entityForViewSlug()` returns null and
+            // `CrossViewLinkRegistry::fallbackAllows()` admits everyone.
+            // Nothing was ever going to hide it on its own — hence the
+            // explicit gate rather than a registration fix.
+            //
+            // Passing `gate` also routes through `surfaceSwitchedOff()`, so
+            // the card correctly disappears when Match execution is switched
+            // off (#2599).
+            if ( \TT\Shared\Frontend\Components\CrossViewLink::allows( 'match-execution', [ 'gate' => 'tt_edit_activities' ] ) ) {
+                self::renderMatchLayoutCard( $user_id );
+            }
+            ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
             <?php self::renderMessagePreferencesCard( $user_id ); ?>
@@ -577,6 +596,15 @@ class FrontendMySettingsView extends FrontendViewBase {
         if ( $action === 'update_match_layout' ) {
             if ( ! isset( $_POST['tt_my_settings_match_layout_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_match_layout_nonce'] ) ), 'tt_my_settings_match_layout' ) ) {
                 $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            // #3388 — the same gate the card is rendered behind. A hidden
+            // card is a UI decision; this is what makes it a rule. Without
+            // it the preference is still writable by posting the form
+            // directly, which would leave user meta saying a player prefers
+            // a layout for a screen they cannot open.
+            if ( ! user_can( $user_id, 'tt_edit_activities' ) ) {
+                $out['errors'][] = __( 'That setting is not available to you.', 'talenttrack' );
                 return $out;
             }
             MatchExecutionLayout::setUserOverride(

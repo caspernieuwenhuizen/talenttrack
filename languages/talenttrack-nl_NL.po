@@ -60174,6 +60174,10 @@ msgstr "Herinneringen dat een proefperiode nog je invoer nodig heeft"
 msgid "Scout reports sent to you"
 msgstr "Scoutingrapporten die naar jou zijn gestuurd"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "That setting is not available to you."
+msgstr "Die instelling is niet voor jou beschikbaar."
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
