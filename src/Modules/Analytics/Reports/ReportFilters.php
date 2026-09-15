@@ -137,6 +137,13 @@ final class ReportFilters {
             'label'         => __( 'Period', 'talenttrack' ),
             'active_label'  => $range_chip ?? (string) ( $labels[ $effective ] ?? $labels[''] ),
             'options'       => $options,
+            // #3346 — the empty key is where these surfaces open: no
+            // `?period=`, the seeded season window. Declaring it is what lets
+            // `FilterBar::activeChips()` tell "this season, because that is
+            // where the report opens" from "this season, because the reader
+            // picked it" — without it the default would chip itself on
+            // arrival, which is the inversion #3320 fixed on the alerts inbox.
+            'default_value' => '',
             'custom'        => [
                 'from' => [ 'name' => $from_name, 'value' => $from ],
                 'to'   => [ 'name' => $to_name,   'value' => $to ],

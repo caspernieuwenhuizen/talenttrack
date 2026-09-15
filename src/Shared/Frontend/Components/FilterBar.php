@@ -68,7 +68,9 @@ use TT\Infrastructure\Filters\FilterParam;
  * date_range: 'from' => ['name','value'], 'to' => ['name','value'],
  *         'label_from', 'label_to' (per-input labels).
  * period/status: 'options' => [ ['value','label','url','active', 'dot'?] ],
- *         'active_label' (text shown on the period pill trigger).
+ *         'active_label' (text shown on the period pill trigger),
+ *         'default_value' — the option the surface opens on, which is not a
+ *         filter the reader set and so raises no chip (#3346).
  * menu:   'options' as above, plus 'default_value' — the option that needs no
  *         announcing. Any other active option raises the chip + accent.
  * toggle: 'name', 'on' (bool), 'on_label' (the "Tonen" text),

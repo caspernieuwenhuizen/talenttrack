@@ -2102,11 +2102,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'options'     => $type_select_options,
                 ],
                 [
-                    'type'         => 'period',
-                    'key'          => 'period',
-                    'label'        => __( 'Period', 'talenttrack' ),
-                    'active_label' => (string) ( $period_labels[ $period_filter ] ?? $period_labels[''] ),
-                    'options'      => $period_options,
+                    'type'          => 'period',
+                    'key'           => 'period',
+                    'label'         => __( 'Period', 'talenttrack' ),
+                    'active_label'  => (string) ( $period_labels[ $period_filter ] ?? $period_labels[''] ),
+                    'options'       => $period_options,
+                    // #3346 — "All" is where this list opens, so it is not a
+                    // filter the reader set and must not chip itself.
+                    'default_value' => '',
                 ],
                 // #2622 — the archive state collapses to the icon overflow
                 // menu here too. This view builds its group by hand (its list
