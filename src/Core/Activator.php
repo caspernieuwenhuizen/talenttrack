@@ -650,7 +650,6 @@ class Activator {
             template_key VARCHAR(20) NOT NULL,
             scheduled_at DATETIME DEFAULT NULL,
             conducted_at DATETIME DEFAULT NULL,
-            agenda LONGTEXT,
             notes LONGTEXT,
             agreed_actions LONGTEXT,
             player_reflection LONGTEXT,
