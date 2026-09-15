@@ -60233,17 +60233,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:54
+#: src/Shared/Frontend/FrontendMyGoalsView.php
 msgid "No goals set for you yet"
 msgstr "Er zijn nog geen doelen voor je ingesteld"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:55
+#: src/Shared/Frontend/FrontendMyGoalsView.php
 msgid ""
 "Your coach sets development goals during your talks. When they do, they "
 "appear here with the conversation about each one."
 msgstr ""
 "Je trainer stelt ontwikkeldoelen op tijdens jullie gesprekken. Zodra dat "
 "gebeurt, verschijnen ze hier, samen met het gesprek over elk doel."
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
