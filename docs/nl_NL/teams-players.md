@@ -120,6 +120,17 @@ Eenmalig bij het bijwerken: teams die vóór deze wijziging waren gearchiveerd l
 
 De spelerdetailpagina is een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop.
 
+### Wat de speler en zijn ouders hier zien
+
+Dezelfde pagina bedient de staf, de speler zelf en zijn ouders, en laat ieder van hen zien waar hij recht op heeft.
+
+Een speler en een ouder krijgen de tabs waarvan de gegevens van henzelf zijn — Profiel, Doelen, Evaluaties, Activiteiten en de rest die ze mogen inzien — en elke regel daarop opent de eigen versie van het record (**Mijn doelen**, **Mijn activiteiten**) in plaats van het stafscherm, dat ze niet kunnen openen. De staf ziet de stafschermen precies zoals voorheen.
+
+Twee dingen verschijnen alleen bij de staf:
+
+- **Explorer** — de analyse-explorer vereist het analyserecht, dus de snelkoppeling wordt niet aangeboden aan wie er toch zou worden tegengehouden.
+- **BMI-naar-leeftijd** — dit is een screeningscijfer over het lichaam van een kind. Het staat op de tab Metingen van de trainer en in het selectierapport, en niet bij de speler of de ouders. Zo'n getal hoort een gezin te bereiken via een gesprek met een trainer, niet via een tabblad. Het rapport **Speler · BMI-naar-leeftijd** werkte al zo; de tab volgt dat nu.
+
 ## Spelersdossier-UX (v3.92.6 — #0082)
 
 Het spelersdossier kreeg een herontworpen hero-kaart en lege-staat-CTA's per tab.

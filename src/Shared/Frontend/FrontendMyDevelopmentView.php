@@ -345,12 +345,10 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
      * pill back to this home (§5).
      */
     private static function meUrl( string $view, object $player, bool $is_self ): string {
-        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
-        $url  = add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) );
-        if ( ! $is_self ) {
-            $url = add_query_arg( 'player_id', (int) $player->id, $url );
-        }
-        return BackLink::appendTo( $url );
+        // #3393 — the implementation moved to RecordLink beside
+        // meDetailUrl(), so the player file's "View all" shares it. This
+        // stays as the local signature the callers below use.
+        return RecordLink::meUrl( $view, $is_self ? null : (int) $player->id );
     }
 
     /**

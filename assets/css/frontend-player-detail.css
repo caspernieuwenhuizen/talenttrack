@@ -655,6 +655,29 @@
     display: inline-flex;
     align-items: center;
 }
+/* #3393 — these three were inline `style` attributes on the goals-tab
+   head, grandfathered under the #1389 gate. They sat in the blast radius
+   of this issue's changes, so they moved here rather than being retyped.
+   The 48px min-height is the touch-target rule the inline version missed. */
+.tt-player-card__head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.tt-player-card__cta--secondary {
+    background: transparent;
+    border: 1px solid var(--tt-line);
+    color: var(--tt-muted);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--tt-radius);
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 48px;
+}
+
 .tt-player-card__body {
     padding: 8px var(--tt-gap-lg) var(--tt-gap-lg);
 }
