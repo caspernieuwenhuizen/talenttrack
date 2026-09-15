@@ -44,6 +44,16 @@ use TT\Shared\Frontend\Components\RecordLink;
  * `status IN ('pending','expired')`: the expiry sweep is lazy, so a row
  * whose token ran out months ago can still read `pending` and a swept one
  * reads `expired`. Both mean nobody used it.
+ *
+ * ## Boundary with `onboarding.invitation_never_sent`
+ *
+ * This definition is about invitations that were **sent** — the whole
+ * question is what happened between sending and acceptance, so it measures
+ * from `sent_at` and skips rows that have none. An invitation created and
+ * held (#2964) has never been mailed to anybody, so "never accepted" is
+ * not a fault of the recipient's and not what its holder needs to be told;
+ * #3387's definition owns that state, and the `sent_at IS NOT NULL` clause
+ * below is what keeps one invitation from being reported by both.
  */
 final class InvitationStaleAlert extends AbstractPlayerAlert {
 
@@ -174,7 +184,7 @@ final class InvitationStaleAlert extends AbstractPlayerAlert {
         // class treat a staff invitation as having no player and no team
         // without a second code path.
         $sql = $wpdb->prepare(
-            "SELECT i.id AS subject_id, i.kind, i.created_at AS invited_at, i.created_by,
+            "SELECT i.id AS subject_id, i.kind, i.sent_at AS invited_at, i.created_by,
                     i.prefill_first_name, i.prefill_last_name, i.prefill_email,
                     i.target_person_id,
                     COALESCE( pl.id, 0 )      AS player_id,
@@ -195,12 +205,13 @@ final class InvitationStaleAlert extends AbstractPlayerAlert {
                 AND i.accepted_at IS NULL
                 AND i.revoked_at IS NULL
                 AND i.status IN ( 'pending', 'expired' )
-                AND i.created_at < DATE_SUB( NOW(), INTERVAL %d DAY )
+                AND i.sent_at IS NOT NULL
+                AND i.sent_at < DATE_SUB( NOW(), INTERVAL %d DAY )
                 AND ( i.target_player_id IS NULL OR i.target_player_id = 0 OR pl.id IS NOT NULL )
                 AND COALESCE( pl.wp_user_id, 0 ) = 0
                 AND COALESCE( pe.wp_user_id, 0 ) = 0"
             . $context->applyScope( self::SUBJECT_TYPE, 'i.id' ) . "
-              ORDER BY i.created_at ASC, i.id ASC",
+              ORDER BY i.sent_at ASC, i.id ASC",
             $days
         );
 

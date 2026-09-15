@@ -60267,6 +60267,26 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:99
+msgid "Invitations waiting to be sent"
+msgstr "Uitnodigingen wachten om verstuurd te worden"
+
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:103
+msgid ""
+"Invitations were created and held, and nobody has sent them. The people they "
+"are for have not been told anything at all."
+msgstr ""
+"Er zijn uitnodigingen aangemaakt en vastgehouden, en niemand heeft ze "
+"verstuurd. De mensen om wie het gaat hebben helemaal niets gehoord."
+
+#. translators: %s: number of invitations that have been created but not sent
+#: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:130
+#, php-format
+msgid "%s invitation is ready to send."
+msgid_plural "%s invitations are ready to send."
+msgstr[0] "%s uitnodiging staat klaar om te versturen."
+msgstr[1] "%s uitnodigingen staan klaar om te versturen."
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "

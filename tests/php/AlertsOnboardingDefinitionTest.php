@@ -157,6 +157,21 @@ final class AlertsOnboardingDefinitionTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new InvitationStaleAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    /**
+     * #3387 — the boundary with `onboarding.invitation_never_sent`. A held
+     * invitation was never mailed, so the question this definition asks
+     * ("did it arrive?") does not apply to it.
+     */
+    public function test_invitation_that_was_never_sent_is_not_this_definitions_business(): void {
+        global $wpdb;
+        $team   = $this->insertTeam();
+        $player = $this->insertPlayer( $team, 0 );
+        $id     = $this->insertInvitation( 'player', $player, 0, 'pending', $this->daysAgo( 30 ) );
+        $wpdb->update( "{$this->p}tt_invitations", [ 'sent_at' => null ], [ 'id' => $id ] );
+
+        $this->assertSame( [], ( new InvitationStaleAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
     public function test_expired_invitation_still_counts(): void {
         $team   = $this->insertTeam();
         $player = $this->insertPlayer( $team, 0 );
@@ -239,6 +254,7 @@ final class AlertsOnboardingDefinitionTest extends WP_UnitTestCase {
             'target_person_id' => $person_id > 0 ? $person_id : null,
             'created_by'       => $this->sender,
             'created_at'       => $created_on . ' 09:00:00',
+            'sent_at'          => $created_on . ' 09:00:00',
             'expires_at'       => $this->daysAhead( 7 ) . ' 09:00:00',
             'status'           => $status,
         ] );
@@ -262,6 +278,7 @@ final class AlertsOnboardingDefinitionTest extends WP_UnitTestCase {
             'prefill_email'       => 'trainer@example.test',
             'created_by'          => $this->sender,
             'created_at'          => $created_on . ' 09:00:00',
+            'sent_at'             => $created_on . ' 09:00:00',
             'expires_at'          => $this->daysAhead( 7 ) . ' 09:00:00',
             'status'              => $status,
         ] );
