@@ -51,7 +51,7 @@ final class CommsReachabilityTest extends WP_UnitTestCase {
         $this->registerSpies();
         $this->setQuietHours( '00:00', '23:59' );
 
-        $results = ( new CommsService() )->send( $this->request( [ $this->unreachable() ] ) );
+        $results = ( new CommsService() )->send( $this->quietHoursRequest( [ $this->unreachable() ] ) );
 
         $this->assertSame( CommsResult::STATUS_QUIET_HOURS, $results[0]->status, 'the status is unchanged' );
         $this->assertFalse( $results[0]->reachable );
