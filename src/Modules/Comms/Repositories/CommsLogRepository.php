@@ -52,9 +52,16 @@ final class CommsLogRepository {
         $per_page = max( 1, min( self::MAX_PER_PAGE, $per_page ) );
         $offset   = ( max( 1, $page ) - 1 ) * $per_page;
 
+        // #3383 — `reachable` is only selected where migration 0264 has run.
+        // The alternative is a SELECT that errors on an install between the
+        // update and the migration, which would empty the log rather than
+        // leave one column unanswered.
+        $reachable = CommsLogSchema::hasReachable() ? 'reachable' : 'NULL AS reachable';
+
         $sql = "SELECT id, uuid, created_at, template_key, message_type, channel,
                        sender_user_id, recipient_user_id, recipient_player_id,
-                       recipient_kind, address_blob, subject, status, error_code, attempt
+                       recipient_kind, address_blob, subject, status, {$reachable},
+                       error_code, attempt
                   FROM {$this->table}{$where}
                  ORDER BY created_at DESC, id DESC
                  LIMIT %d OFFSET %d";

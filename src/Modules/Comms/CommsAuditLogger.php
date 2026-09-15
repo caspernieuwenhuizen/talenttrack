@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
 use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Repositories\CommsLogSchema;
 
 /**
  * CommsAuditLogger (#0066) — writes the per-send row in `tt_comms_log`.
@@ -53,7 +54,7 @@ final class CommsAuditLogger {
         }
 
         try {
-            $inserted = $wpdb->insert( $table, [
+            $row = [
                 'club_id'             => (int) $request->clubId,
                 'uuid'                => $uuid,
                 'template_key'        => $request->templateKey,
@@ -70,7 +71,17 @@ final class CommsAuditLogger {
                 'error_code'          => $result->errorCode,
                 'attempt'             => 1,
                 'attached_export_id'  => $request->attachedExportId,
-            ] );
+            ];
+
+            // #3383 — the second fact, written beside the status rather than
+            // folded into it. NULL is a real value here: the send stopped
+            // before anything about the recipient was consulted, and a row
+            // that guessed would be worse than one that says so.
+            if ( CommsLogSchema::hasReachable() ) {
+                $row['reachable'] = $result->reachable === null ? null : ( $result->reachable ? 1 : 0 );
+            }
+
+            $inserted = $wpdb->insert( $table, $row );
 
             // #2603 — `$wpdb->insert()` reports a rejected row by returning
             // false, not by throwing, so the catch below never sees it. That

@@ -46,6 +46,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\Migration;
+use TT\Infrastructure\Database\MigrationHelpers;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Pdp\Prep\PdpPrepQuestionDefaults;
 
@@ -67,6 +68,14 @@ return new class extends Migration {
             if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
                 return;
             }
+        }
+
+        // #3381 — migration 0263 drops `agenda`, and the Activator no longer
+        // creates it. There is nothing to move on a table that has already
+        // reached that state; without this guard the SELECT below would be a
+        // hard error rather than a no-op.
+        if ( ! MigrationHelpers::columnExists( $conversations, 'agenda' ) ) {
+            return;
         }
 
         $rows = $wpdb->get_results(

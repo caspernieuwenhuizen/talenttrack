@@ -3,7 +3,7 @@ title: Messaging
 group: configuration
 summary: How the academy's outgoing messages work — templates, channels, quiet hours, opt-outs and the send log.
 audience: [user, admin]
-views: [messages, my-messages]
+views: [messages, my-messages, safeguarding-broadcast]
 order: 55
 ---
 
@@ -65,6 +65,22 @@ Switching a template off suppresses the message and **not** the evidence: the se
 
 There is a second, coarser switch under Modules: **Scheduled messaging** turns off the daily cron that sends goal nudges, attendance flags, onboarding nudges and staff-development reminders. Event-driven messages — the ones that fire the moment something happens — are unaffected by it.
 
+## Sending a safeguarding broadcast
+
+**Configuration → Safeguarding broadcast.**
+
+This is the one message an academy sends that nobody can refuse. It ignores every messaging preference the recipients have set and it ignores quiet hours — at 23:00 it arrives at 23:00. *My settings* has always told families as much; until now nothing could actually send one.
+
+**Who can send it.** Only the academy admin, and the WordPress administrator. Not a coach, and not the head of development — a coach can already email one parent, and emailing every family unrefusably is not the same act. An academy whose safeguarding lead is somebody else grants them the permission deliberately. See [Access control](access-control.md) for the capability and how to grant it.
+
+**Who it reaches.** Either every family in the academy, or the families of one team. You have to choose; there is no default, because the default would be everyone. A concern about one squad is better sent to that squad — if it turns out to be wider, send a second one. That costs less than having reached every family the first time.
+
+Every parent receives one copy, even when they have two children at the academy, and families whose child has left are not on the list.
+
+**The confirm step.** Before anything is sent you are shown the exact number of people it reaches, what the audience is in words, and three things about the message: recipients cannot refuse it, quiet hours will not hold it, and it cannot be recalled. You confirm that count explicitly. You can still fix the wording at that point; changing *who it reaches* means going back and choosing again, because the number you agreed to was about the old audience.
+
+**Afterwards.** It appears in the send log like every other message, one row per recipient. There is no second send path and no separate record.
+
 ## The send log
 
 **Configuration → Message log**, or from a player's record under **⋯ → Messages sent**.
@@ -74,6 +90,10 @@ Every send attempt writes a row, whatever the outcome. The row records who sent 
 The screen filters by player, kind of message, outcome and date range. The player filter offers only players the log has actually carried a message about — a list of every player in the academy would mostly be options that return nothing.
 
 Outcomes are shown in words, not in database keys, and in three tones rather than two: delivered, deliberately withheld, and a problem. An opt-out the product honoured and an address that bounced are both "not delivered" and want opposite reactions, so they are not painted the same colour.
+
+**A row says two things, not one.** The outcome explains why the send stopped. Beside it sits a second fact: whether the recipient could be reached at all. Those are different questions, and answering both with one word is what made the same parent — the one with no email address and no phone number on file — read as *no address* at ten in the morning and *held until morning* at ten at night. Same family, same missing detail, described by whichever rule happened to stop the message first. A row now says *held until morning* **and** *no contact details on file*, which is the pair you actually need: the first explains the delay, the second is the one you can do something about.
+
+Rows written before this arrived say the reachability was **never established**, and they are deliberately left that way rather than worked out now. A send from last month would be judged against today's contact details, not the ones that were on file at the time, and a log that filled its own gaps in would stop being evidence.
 
 If a scheduled detector has been failing, a warning sits above the table naming it and when it last ran. That is the only place that difference shows: a detector with nothing to send and a detector crashing every night both leave no rows behind.
 

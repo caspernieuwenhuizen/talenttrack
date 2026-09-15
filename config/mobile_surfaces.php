@@ -131,6 +131,7 @@ return [
     'scouting-visit'                => [ 'viewable', 'One planned visit. Nothing on it needs width.' ],
     'scouting-visits'               => [ 'viewable', 'Planned visits, scanned in a list.' ],
     'plan'                          => [ 'viewable', 'The plan, two cap counters and a feature matrix. The matrix is wide, so it scrolls inside its own container rather than pushing the page sideways; nothing here is edited, and a coach meeting a locked feature is as likely to be on a phone as at a desk.' ],
+    'safeguarding-broadcast'        => [ 'viewable', 'Question 3 would say desktop_only on blast radius, and question 1 gets there first: a safeguarding concern happens at the ground, not at a desk, which is the same reason the message ignores quiet hours. Gating it to a desk would delay the one message the product refuses to delay. Not native either — it is three fields and a confirm step, and it needs no pattern library to work at 360px.' ],
     'staff-overview'                => [ 'viewable', 'Staff development at a glance.' ],
     'submission-review'             => [ 'viewable', 'Reviewing a submitted item.' ],
     'submit-idea'                   => [ 'viewable', 'Submitting an idea. Low frequency, no strong device pull.' ],

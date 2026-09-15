@@ -3,7 +3,7 @@ title: Berichten
 group: configuration
 summary: Hoe de berichten van de academie werken — sjablonen, kanalen, stiltetijden, afmeldingen en het verzendlogboek.
 audience: [user, admin]
-views: [messages, my-messages]
+views: [messages, my-messages, safeguarding-broadcast]
 order: 55
 ---
 
@@ -65,6 +65,22 @@ Een sjabloon uitzetten onderdrukt het bericht en **niet** het bewijs: het verzen
 
 Er is nog een tweede, grovere schakelaar onder Modules: **Geplande berichten** zet de dagelijkse cron uit die doelaansporingen, aanwezigheidssignalen, onboarding-aansporingen en herinneringen voor stafontwikkeling verstuurt. Gebeurtenisgestuurde berichten — die afgaan op het moment dat er iets gebeurt — blijven daarbij ongemoeid.
 
+## Een veiligheidsbericht versturen
+
+**Instellingen → Veiligheidsbericht.**
+
+Dit is het ene bericht van een academie dat niemand kan weigeren. Het negeert elke berichtvoorkeur van de ontvangers en het negeert de stiltetijden — verstuur je het om 23:00, dan komt het om 23:00 aan. *Mijn instellingen* vertelt gezinnen dat al sinds het begin; tot nu toe kon er alleen niets verstuurd worden.
+
+**Wie het mag versturen.** Alleen de academiebeheerder en de WordPress-administrator. Geen coach, en ook niet het hoofd ontwikkeling — een coach kan al één ouder mailen, en alle gezinnen onweigerbaar aanschrijven is niet dezelfde handeling. Een academie waarvan de aandachtsfunctionaris veiligheid iemand anders is, geeft die persoon dat recht bewust. Zie [Toegangsbeheer](access-control.md) voor de capability en hoe je die verleent.
+
+**Wie het bereikt.** Óf elk gezin in de academie, óf de gezinnen van één team. Je moet kiezen; er is geen standaard, want de standaard zou "iedereen" zijn. Een zorg over één ploeg stuur je beter naar die ploeg — blijkt het breder te liggen, stuur dan een tweede bericht. Dat kost minder dan meteen elk gezin bereikt te hebben.
+
+Elke ouder krijgt één exemplaar, ook met twee kinderen op de academie, en gezinnen van wie het kind is vertrokken staan niet op de lijst.
+
+**De bevestigingsstap.** Voordat er iets wordt verstuurd zie je precies hoeveel mensen het bereikt, wat de doelgroep in woorden is, en drie dingen over het bericht: ontvangers kunnen het niet weigeren, de stiltetijden houden het niet tegen, en het is niet terug te halen. Dat aantal bevestig je expliciet. De tekst kun je op dat moment nog aanpassen; *wie het bereikt* wijzigen betekent teruggaan en opnieuw kiezen, want het aantal waarmee je akkoord ging hoorde bij de oude doelgroep.
+
+**Daarna.** Het verschijnt in het verzendlogboek als elk ander bericht, één regel per ontvanger. Er is geen tweede verzendpad en geen apart logboek.
+
 ## Het verzendlogboek
 
 **Instellingen → Berichtenlogboek**, of vanaf het spelersdossier via **⋯ → Verstuurde berichten**.
@@ -74,6 +90,10 @@ Elke verzendpoging schrijft een regel, wat de uitkomst ook is. Die regel legt va
 Het scherm filtert op speler, soort bericht, uitkomst en datumbereik. Het spelersfilter biedt alleen spelers aan waar het logboek daadwerkelijk een bericht over heeft gedragen — een lijst met elke speler van de academie zou vooral bestaan uit keuzes die niets opleveren.
 
 Uitkomsten staan er in gewone taal, niet als databasesleutel, en in drie tinten in plaats van twee: bezorgd, bewust tegengehouden, en een probleem. Een afmelding die het product netjes heeft gerespecteerd en een adres dat bounced zijn allebei "niet bezorgd" en vragen om een tegengestelde reactie, dus ze krijgen niet dezelfde kleur.
+
+**Een regel zegt twee dingen, geen één.** De uitkomst legt uit waarom het bericht is gestopt. Daarnaast staat een tweede feit: of de ontvanger überhaupt bereikbaar was. Dat zijn twee verschillende vragen, en ze allebei met één woord beantwoorden is precies waarom dezelfde ouder — die zonder e-mailadres en zonder telefoonnummer in het dossier — om tien uur 's ochtends als *geen adres* verscheen en om tien uur 's avonds als *tot morgenochtend vastgehouden*. Hetzelfde gezin, hetzelfde ontbrekende gegeven, beschreven door de regel die het bericht toevallig als eerste tegenhield. Een regel zegt nu *tot morgenochtend vastgehouden* **én** *geen contactgegevens bekend*, en dat is het paar dat je nodig hebt: het eerste verklaart de vertraging, het tweede is het feit waar je iets aan kunt doen.
+
+Regels die vóór deze wijziging zijn geschreven, melden dat de bereikbaarheid **nooit is vastgesteld**, en dat blijft bewust zo staan. Een verzending van vorige maand zou worden beoordeeld op de contactgegevens van vandaag en niet op die van toen; een logboek dat zijn eigen gaten invult, houdt op bewijs te zijn.
 
 Als een geplande detectie blijft mislukken, staat er een waarschuwing boven de tabel met welke het is en wanneer die voor het laatst liep. Dat is de enige plek waar dat verschil zichtbaar wordt: een detectie zonder iets te versturen en een detectie die elke nacht crasht laten allebei geen regels achter.
 

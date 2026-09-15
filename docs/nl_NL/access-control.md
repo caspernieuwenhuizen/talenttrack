@@ -282,6 +282,39 @@ Dit is de **enige eigenaar van definitief verwijderen**: de oude per-entiteit
 zodat geen verwijderpad zwakker is dan de prullenbak. Zie
 [Prullenbak](recycle-bin.md) voor de bewaartermijn en AVG-grondslag.
 
+## Veiligheidsbericht — `tt_send_safeguarding_broadcast`
+
+Een veiligheidsbericht bereikt elk gezin in de gekozen doelgroep en **geen
+enkele ontvanger kan het weigeren**: het negeert berichtvoorkeuren en het
+negeert de stille uren. Maximaal bereik plus geen afmeldmogelijkheid is de
+reden dat het een eigen capability heeft, **`tt_send_safeguarding_broadcast`**,
+in plaats van mee te liften op een bestaande.
+
+Twee bestaande capabilities lagen voor de hand en zijn allebei verkeerd.
+`tt_send_email` heeft elke coach — één ouder mailen en alle gezinnen
+onweigerbaar aanschrijven zijn niet dezelfde handeling. En
+`tt_view_player_safeguarding` is een *lees*recht op een gevoelige gebeurtenis
+in het dossier van één speler: het juiste onderwerp, het verkeerde werkwoord
+en het verkeerde bereik.
+
+Hij wordt **alleen** verleend aan de WordPress-administrator en de rol
+Academiebeheerder (`tt_club_admin`), en net als `tt_manage_recycle_bin` zit
+hij bewust niet in `RolesService::VIEW_CAPS` / `EDIT_CAPS`, zodat hij niet
+doorstroomt naar het Hoofd Ontwikkeling of de Alleen-lezen Waarnemer. Een
+**hoofdcoach kan er standaard geen versturen**, en het Hoofd Ontwikkeling
+evenmin.
+
+Een academie waarvan de aandachtsfunctionaris veiligheid geen
+academiebeheerder is, verleent die persoon de capability. Dat is de bedoelde
+route: verbreden is een bewuste, vastgelegde handeling en niet iets wat een
+rol erft.
+
+Puur capability-gestuurd, **geen matrix-entiteit** (het precedent van de
+Databrowser). De matrix modelleert bereik, en dit bericht heeft daar geen
+zinvolle bereikdimensie — de doelgroep wordt per verzending gekozen, vóór een
+bevestigingsstap die het aantal ontvangers noemt en vermeldt dat zij het niet
+kunnen weigeren.
+
 ## Modulebeheer — `tt_manage_modules` / `module_management`
 
 Een hele TalentTrack-module aan- of uitzetten is een beheerder-niveau

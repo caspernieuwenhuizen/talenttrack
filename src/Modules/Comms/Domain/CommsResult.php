@@ -32,14 +32,43 @@ final class CommsResult {
     /** Something threw. The row exists so the failure is never invisible. */
     public const STATUS_EXCEPTION = 'exception';
 
+    /**
+     * @param bool|null $reachable Whether the academy holds contact details
+     *                             that could reach this recipient. NULL means
+     *                             *not established* — the send stopped before
+     *                             anything about the recipient was consulted.
+     *                             A second fact beside `status`, never a
+     *                             substitute for it (#3383).
+     */
     public function __construct(
         public string $uuid,
         public string $status,            // self::STATUS_*
         public string $channelUsed,       // 'push' / 'email' / 'sms' / 'whatsapp_link' / 'inapp' / '' on opt-out
         public Recipient $recipient,
         public ?string $errorCode = null,
-        public ?string $note = null
+        public ?string $note = null,
+        public ?bool $reachable = null
     ) {}
+
+    /**
+     * The same outcome, carrying the reachability fact.
+     *
+     * A channel adapter returns its own `CommsResult` and has no business
+     * knowing about this column; the service that called it does. Returning
+     * a copy rather than assigning keeps the value object immutable in
+     * practice as well as in intent.
+     */
+    public function withReachable( ?bool $reachable ): self {
+        return new self(
+            $this->uuid,
+            $this->status,
+            $this->channelUsed,
+            $this->recipient,
+            $this->errorCode,
+            $this->note,
+            $reachable
+        );
+    }
 
     public function isSuccess(): bool {
         return in_array( $this->status, [ self::STATUS_SENT, self::STATUS_DELIVERED ], true );

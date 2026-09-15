@@ -86,6 +86,43 @@ final class CommsStatusLabels {
     }
 
     /**
+     * The reachability fact in words (#3383).
+     *
+     * `tt_comms_log` carries two facts about a send that did not arrive:
+     * why it stopped, and whether the recipient could have been reached at
+     * all. The second one used to be inferable only from the first, which
+     * is how the same parent with no contact details read as *"held until
+     * morning"* at 22:00 and *"no email address on file"* at 10:00.
+     *
+     * Three answers, and the third is not the second: NULL means the send
+     * stopped before contact details were consulted, or the row predates
+     * the column. A surface that rendered it as "reachable" would be
+     * inventing the reassurance the column was added to stop inventing.
+     *
+     * Empty for a message that arrived — the status has already answered.
+     *
+     * @param int|null $reachable 1, 0, or null for *not established*
+     */
+    public static function reachabilityNote( string $status, ?int $reachable ): string {
+        if ( in_array( $status, self::DELIVERED, true ) ) return '';
+        if ( $reachable === null ) {
+            return __( 'Whether the recipient could be reached was never established.', 'talenttrack' );
+        }
+        return $reachable === 1
+            ? __( 'The recipient has contact details on file.', 'talenttrack' )
+            : __( 'The recipient has no contact details on file.', 'talenttrack' );
+    }
+
+    /**
+     * The tone for {@see self::reachabilityNote()}: `problem` for a
+     * recipient nobody can reach, `muted` for everything else. An
+     * unestablished fact is not a warning — it is the absence of one.
+     */
+    public static function reachabilityTone( ?int $reachable ): string {
+        return $reachable === 0 ? 'problem' : 'muted';
+    }
+
+    /**
      * A coarse tone for the surface to colour on: `ok`, `withheld` or
      * `problem`. Deliberately three and not two — an honoured opt-out and
      * a bounced address are both "not delivered" and want opposite

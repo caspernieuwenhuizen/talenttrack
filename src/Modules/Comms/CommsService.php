@@ -11,6 +11,7 @@ use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
 use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
 use TT\Modules\Comms\RateLimit\RateLimiter;
+use TT\Modules\Comms\Recipient\RecipientReachability;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateChannels;
 use TT\Modules\Comms\Template\TemplateSwitch;
@@ -43,6 +44,15 @@ use TT\Modules\Comms\Template\TemplateSwitch;
  * the template / channel adapter / recipient is unresolvable; nothing
  * here throws. Callers get one `CommsResult` per recipient; the
  * dispatcher itself returns the full list.
+ *
+ * Every per-recipient exit path also records whether the recipient was
+ * reachable at all (#3383), derived from `RecipientReachability` before
+ * step 1 and written to `tt_comms_log.reachable` beside the status. It is
+ * a second fact, not a second status: "deferred until morning" and "no
+ * contact details on file" are both true of the same row, and the sender
+ * needs the one the status was never able to carry. The whole-send guards
+ * in `send()` leave it NULL — they stop before any recipient is examined,
+ * and NULL means *not established* rather than *reachable*.
  *
  * Every exit path writes an audit row — including the guard clauses.
  * A send that resolves to nobody, or names a template that isn't
@@ -214,49 +224,62 @@ final class CommsService {
      * four recipients who have no email address at all.
      */
     private function preflightOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {
+        // #3383 — established once, at the top, and carried onto every
+        // verdict below. `sendOne()` derives it from the same helper, so a
+        // warning and the row it becomes cannot describe the same person
+        // differently.
+        $reachable = RecipientReachability::isReachable( $recipient );
+
         if ( $this->optOut->isOptedOut( $recipient->userId, $request->messageType ) ) {
-            return new CommsResult( '', CommsResult::STATUS_OPTED_OUT, '', $recipient );
+            return new CommsResult( '', CommsResult::STATUS_OPTED_OUT, '', $recipient, null, null, $reachable );
         }
 
         $channelKey = $this->resolveChannel( $request, $recipient, $template->supportedChannels() );
         if ( $channelKey === null ) {
-            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available' );
+            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available', null, $reachable );
         }
         if ( ChannelAdapterRegistry::get( $channelKey ) === null ) {
-            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing' );
+            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing', null, $reachable );
         }
 
         if ( $this->quietHours->shouldDefer( $request ) ) {
-            return new CommsResult( '', CommsResult::STATUS_QUIET_HOURS, $channelKey, $recipient );
+            return new CommsResult( '', CommsResult::STATUS_QUIET_HOURS, $channelKey, $recipient, null, null, $reachable );
         }
         if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
-            return new CommsResult( '', CommsResult::STATUS_RATE_LIMITED, $channelKey, $recipient );
+            return new CommsResult( '', CommsResult::STATUS_RATE_LIMITED, $channelKey, $recipient, null, null, $reachable );
         }
 
         // Would be sent to. Not yet sent — hence queued, not sent.
-        return new CommsResult( '', CommsResult::STATUS_QUEUED, $channelKey, $recipient );
+        return new CommsResult( '', CommsResult::STATUS_QUEUED, $channelKey, $recipient, null, null, $reachable );
     }
 
     private function sendOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {
         $uuid = wp_generate_uuid4();
 
+        // #3383 — the second fact every row below carries. Contact details
+        // only: no channel resolution, no send work, so the ordering under
+        // it is untouched. A message deferred to tomorrow morning still
+        // never resolves a channel — it just stops claiming, by omission,
+        // that the family it was meant for could have been reached.
+        $reachable = RecipientReachability::isReachable( $recipient );
+
         // 1. Opt-out
         if ( $this->optOut->isOptedOut( $recipient->userId, $request->messageType ) ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_OPTED_OUT, '', $recipient );
+            $result = new CommsResult( $uuid, CommsResult::STATUS_OPTED_OUT, '', $recipient, null, null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
 
         // 2. Quiet hours
         if ( $this->quietHours->shouldDefer( $request ) ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_QUIET_HOURS, '', $recipient );
+            $result = new CommsResult( $uuid, CommsResult::STATUS_QUIET_HOURS, '', $recipient, null, null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
 
         // 3. Rate limit
         if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_RATE_LIMITED, '', $recipient );
+            $result = new CommsResult( $uuid, CommsResult::STATUS_RATE_LIMITED, '', $recipient, null, null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
@@ -264,14 +287,14 @@ final class CommsService {
         // 4. Channel resolution
         $channelKey = $this->resolveChannel( $request, $recipient, $template->supportedChannels() );
         if ( $channelKey === null ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available' );
+            $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available', null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
 
         $adapter = ChannelAdapterRegistry::get( $channelKey );
         if ( $adapter === null ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing' );
+            $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing', null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
@@ -283,7 +306,8 @@ final class CommsService {
         [ $subject, $body ] = $template->render( $channelKey, $request, $recipient, $locale );
 
         // 6. Dispatch
-        $result = $adapter->send( $request, $recipient, $uuid, $subject, $body );
+        $result = $adapter->send( $request, $recipient, $uuid, $subject, $body )
+            ->withReachable( $reachable );
 
         // 7. Audit + rate-limit accounting
         if ( $result->isSuccess() ) {

@@ -5,10 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Comms\Domain\CommsOutcomeSummary;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
 use TT\Modules\Comms\Repositories\CommsInboxRepository;
 use TT\Modules\Comms\Repositories\CommsLogRepository;
+use TT\Modules\Comms\Send\SafeguardingBroadcastSender;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
 use WP_REST_Request;
@@ -24,6 +26,8 @@ use WP_REST_Request;
  *   PATCH /comms/templates/{key}   flip one template's switch
  *   GET   /comms/preferences       the caller's per-message-type opt-outs
  *   PUT   /comms/preferences       replace them
+ *   GET   /comms/safeguarding-broadcasts/recipients  how many an audience reaches
+ *   POST  /comms/safeguarding-broadcasts             compose and send one
  *
  * Comms was the last module of its size with no REST surface at all, which
  * put it outside CLAUDE.md §4: every feature has to be reachable by a
@@ -50,6 +54,12 @@ use WP_REST_Request;
  *
  * The template-switch routes gate on `tt_edit_settings`: turning a
  * template off is a configuration change for the whole academy.
+ *
+ * The safeguarding-broadcast routes gate on
+ * `tt_send_safeguarding_broadcast` (#3423) — a cap of its own, held by
+ * the academy admin and nobody else by default. Not `tt_send_email`,
+ * which every coach holds: writing to one parent and writing to every
+ * family unrefusably are not the same act.
  */
 final class CommsRestController extends BaseController {
 
@@ -142,6 +152,38 @@ final class CommsRestController extends BaseController {
                 'args'                => [
                     'key'     => [ 'sanitize_callback' => 'sanitize_key' ],
                     'enabled' => [ 'sanitize_callback' => 'rest_sanitize_boolean', 'required' => true ],
+                ],
+            ],
+        ] );
+
+        // #3423 — the safeguarding broadcast. Two routes: what an audience
+        // would reach, and creating one (which sends it). The recipient
+        // count is its own GET because the confirm step has to state the
+        // blast radius *before* anything is committed, and a count that
+        // came back from the send would be a fact about the past.
+        register_rest_route( self::NS, '/comms/safeguarding-broadcasts/recipients', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'listBroadcastRecipients' ],
+                'permission_callback' => self::permCan( SafeguardingBroadcastSender::CAP ),
+                'args'                => [
+                    'scope'   => [ 'sanitize_callback' => 'sanitize_key', 'default' => SafeguardingBroadcastSender::SCOPE_ACADEMY ],
+                    'team_id' => [ 'sanitize_callback' => 'absint', 'required' => false ],
+                ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/comms/safeguarding-broadcasts', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'createBroadcast' ],
+                'permission_callback' => self::permCan( SafeguardingBroadcastSender::CAP ),
+                'args'                => [
+                    'subject' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => true ],
+                    'body'    => [ 'sanitize_callback' => 'sanitize_textarea_field', 'required' => true ],
+                    'scope'   => [ 'sanitize_callback' => 'sanitize_key', 'default' => SafeguardingBroadcastSender::SCOPE_ACADEMY ],
+                    'team_id' => [ 'sanitize_callback' => 'absint', 'required' => false ],
+                    'acknowledged' => [ 'sanitize_callback' => 'rest_sanitize_boolean', 'required' => true ],
                 ],
             ],
         ] );
@@ -240,6 +282,10 @@ final class CommsRestController extends BaseController {
             ],
             'subject'        => isset( $row['subject'] ) ? (string) $row['subject'] : null,
             'status'         => (string) ( $row['status'] ?? '' ),
+            // #3383 — a second fact beside the status, and a tri-state on
+            // purpose: null means the send stopped before contact details
+            // were consulted, which is not the same as "reachable".
+            'reachable'      => isset( $row['reachable'] ) ? (bool) $row['reachable'] : null,
             'error_code'     => isset( $row['error_code'] ) ? (string) $row['error_code'] : null,
             'attempt'        => (int) ( $row['attempt'] ?? 1 ),
         ];
@@ -352,6 +398,75 @@ final class CommsRestController extends BaseController {
         TemplateSwitch::setDisabled( $disabled );
 
         return RestResponse::success( [ 'key' => $key, 'enabled' => TemplateSwitch::isEnabled( $key ) ] );
+    }
+
+    // ── the safeguarding broadcast ──────────────────────────────────────
+
+    /**
+     * How many people an audience reaches, for the confirm step.
+     *
+     * Deliberately a count and not a list: naming every family an academy
+     * is about to message would put a roster of minors' households in a
+     * payload that only needs a number.
+     */
+    public static function listBroadcastRecipients( WP_REST_Request $req ): \WP_REST_Response {
+        $sender  = new SafeguardingBroadcastSender();
+        $scope   = SafeguardingBroadcastSender::sanitizeScope( (string) $req->get_param( 'scope' ) );
+        $team_id = (int) $req->get_param( 'team_id' );
+
+        if ( $scope === SafeguardingBroadcastSender::SCOPE_TEAM && $team_id <= 0 ) {
+            return RestResponse::error( 'team_required', __( 'A team-scoped broadcast needs a team.', 'talenttrack' ), 400 );
+        }
+
+        return RestResponse::success( [
+            'scope'       => $scope,
+            'team_id'     => $team_id > 0 ? $team_id : null,
+            'count'       => $sender->recipientCount( $scope, $team_id ),
+            'can_opt_out' => false,
+            'quiet_hours' => 'bypassed',
+        ] );
+    }
+
+    /**
+     * Compose and send one.
+     *
+     * `acknowledged` is required and must be true. A message that reaches
+     * every family and that none of them can refuse does not get sent by a
+     * caller who forgot a field — the API asks for the same explicit
+     * acknowledgement the screen does, for the same reason.
+     */
+    public static function createBroadcast( WP_REST_Request $req ): \WP_REST_Response {
+        $subject = trim( (string) $req->get_param( 'subject' ) );
+        $body    = trim( (string) $req->get_param( 'body' ) );
+        $scope   = SafeguardingBroadcastSender::sanitizeScope( (string) $req->get_param( 'scope' ) );
+        $team_id = (int) $req->get_param( 'team_id' );
+
+        if ( ! $req->get_param( 'acknowledged' ) ) {
+            return RestResponse::error(
+                'not_acknowledged',
+                __( 'Confirm you understand this reaches every recipient in the audience and cannot be refused.', 'talenttrack' ),
+                400
+            );
+        }
+        if ( $subject === '' || $body === '' ) {
+            return RestResponse::error( 'bad_payload', __( 'A subject and a message are both required.', 'talenttrack' ), 400 );
+        }
+        if ( $scope === SafeguardingBroadcastSender::SCOPE_TEAM && $team_id <= 0 ) {
+            return RestResponse::error( 'team_required', __( 'A team-scoped broadcast needs a team.', 'talenttrack' ), 400 );
+        }
+
+        $results = ( new SafeguardingBroadcastSender() )->send( $subject, $body, $scope, $team_id );
+        if ( $results === [] ) {
+            return RestResponse::error( 'no_recipients', __( 'Nobody in this audience could be reached.', 'talenttrack' ), 409 );
+        }
+
+        return RestResponse::success( [
+            'scope'      => $scope,
+            'team_id'    => $team_id > 0 ? $team_id : null,
+            'recipients' => count( $results ),
+            'sent'       => CommsOutcomeSummary::sentCount( $results ),
+            'problems'   => CommsOutcomeSummary::hasProblems( $results ),
+        ] );
     }
 
     // ── the caller's own opt-outs ───────────────────────────────────────

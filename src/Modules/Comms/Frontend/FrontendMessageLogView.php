@@ -302,6 +302,12 @@ final class FrontendMessageLogView extends FrontendViewBase {
                     $status = (string) ( $row['status'] ?? '' );
                     $error  = (string) ( $row['error_code'] ?? '' );
                     $hint   = CommsStatusLabels::hint( $status, $error );
+
+                    // #3383 — two facts, both rendered. A row can be held
+                    // until morning AND about a family nobody can reach;
+                    // the status alone could only ever say one of those.
+                    $reachable  = isset( $row['reachable'] ) ? (int) $row['reachable'] : null;
+                    $reach_note = CommsStatusLabels::reachabilityNote( $status, $reachable );
                     ?>
                     <tr>
                         <td data-label="<?php esc_attr_e( 'When', 'talenttrack' ); ?>">
@@ -325,6 +331,11 @@ final class FrontendMessageLogView extends FrontendViewBase {
                             </span>
                             <?php if ( $hint !== '' ) : ?>
                                 <span class="tt-msglog-hint"><?php echo esc_html( $hint ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $reach_note !== '' ) : ?>
+                                <span class="tt-msglog-reach tt-msglog-reach--<?php echo esc_attr( CommsStatusLabels::reachabilityTone( $reachable ) ); ?>">
+                                    <?php echo esc_html( $reach_note ); ?>
+                                </span>
                             <?php endif; ?>
                         </td>
                     </tr>

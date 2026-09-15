@@ -247,7 +247,6 @@ final class AutosaveWriteContractTest extends WP_UnitTestCase {
             'sequence'       => 1,
             'template_key'   => 'start',
             'scheduled_at'   => '2026-09-01 10:00:00',
-            'agenda'         => 'Agreed agenda.',
             'notes'          => 'What was said.',
             'agreed_actions' => 'What happens next.',
         ], $conv ) );
@@ -266,7 +265,6 @@ final class AutosaveWriteContractTest extends WP_UnitTestCase {
         $row = $this->row( 'tt_pdp_conversations', $conv_id );
         $this->assertNotNull( $row );
         $this->assertSame( 'What was said, in more detail.', $row['notes'] );
-        $this->assertSame( 'Agreed agenda.', $row['agenda'] );
         $this->assertSame( 'What happens next.', $row['agreed_actions'] );
         $this->assertSame( '2026-09-01 10:00:00', (string) $row['scheduled_at'] );
     }
