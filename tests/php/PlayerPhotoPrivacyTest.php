@@ -74,6 +74,35 @@ final class PlayerPhotoPrivacyTest extends WP_UnitTestCase {
         $this->assertNotSame( '', (string) $media->storage_key );
     }
 
+    public function test_the_imported_row_describes_the_file_it_points_at(): void {
+        // #3421 — the original assertion above checked only that a key was
+        // written, which was true while everything else on the row was
+        // wrong: `store()` *moves* the file, and the metadata was read
+        // afterwards, so every migrated photo got size 0, no dimensions
+        // and no checksum. The checksum is what `findByChecksum()` dedupes
+        // on, so each one was unmatchable.
+        //
+        // Asserting the thing that was easy to assert rather than the thing
+        // that mattered is what let it ship.
+        [ $url, $path ] = $this->seedUploadsImage();
+        $expected_size  = filesize( $path );
+        $expected_hash  = hash_file( 'sha256', $path );
+
+        $media_id = PlayerPhotoImporter::fromUploadsUrl( $this->player, $url );
+        $this->assertGreaterThan( 0, $media_id );
+
+        global $wpdb;
+        $media = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$this->p}tt_media WHERE id = %d",
+            $media_id
+        ) );
+
+        $this->assertSame( (int) $expected_size, (int) $media->file_size, 'file_size feeds the storage total' );
+        $this->assertSame( $expected_hash, (string) $media->checksum, 'checksum feeds findByChecksum() dedupe' );
+        $this->assertSame( 1, (int) $media->width );
+        $this->assertSame( 1, (int) $media->height );
+    }
+
     public function test_the_stored_photo_is_served_through_the_gated_route(): void {
         [ $url ] = $this->seedUploadsImage();
         $media_id = PlayerPhotoImporter::fromUploadsUrl( $this->player, $url );
