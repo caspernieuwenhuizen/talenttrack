@@ -60267,6 +60267,33 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: %s is a comma-separated list of missing inputs, e.g. "potential".
+#: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:180
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:165
+#, php-format
+msgid "Computed without %s."
+msgstr "Berekend zonder %s."
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:129
+msgctxt "status input, as in \"Computed without potential.\""
+msgid "evaluations"
+msgstr "evaluaties"
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:130
+msgctxt "status input, as in \"Computed without potential.\""
+msgid "behaviour"
+msgstr "gedrag"
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:131
+msgctxt "status input, as in \"Computed without potential.\""
+msgid "attendance"
+msgstr "aanwezigheid"
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:132
+msgctxt "status input, as in \"Computed without potential.\""
+msgid "potential"
+msgstr "potentieel"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "

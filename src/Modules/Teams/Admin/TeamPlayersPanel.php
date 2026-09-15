@@ -74,7 +74,8 @@ class TeamPlayersPanel {
                         $verdict = $status_calc->calculate( (int) $pl->id );
                     ?>
                         <tr>
-                            <td><?php echo PlayerStatusRenderer::dot( $verdict->color ); ?></td>
+                            <?php // #3413 — hollow dot + named missing inputs when the verdict was computed on partial evidence. ?>
+                            <td><?php echo PlayerStatusRenderer::dotFor( $verdict ); ?></td>
                             <td>
                                 <a href="<?php echo esc_url( $edit_url ); ?>">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>

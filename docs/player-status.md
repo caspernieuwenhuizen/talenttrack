@@ -45,6 +45,18 @@ A behaviour rating below the midpoint of your rating scale floors the colour at 
 
 Coaches and HoD see the full breakdown (the four input scores + the threshold reasons). Parents and players see only the soft label ("On track" / "Extra attention" / "Could use extra support right now") — never the numerics, never internal staff framing.
 
+## A hollow dot means the colour was computed on less
+
+The status is a weighted average of the inputs that actually have a value. If a player has no potential band recorded, potential is left out and the remaining weights are shared out between them — which is the right sum, but it means two players showing the same amber may have been judged on different evidence.
+
+The dot now says so. **A dot with a hollow centre was computed without at least one of the weighted inputs**, and hovering it (or reading it with a screen reader) names which: *"Extra attention — Computed without potential."* A solid dot means every input the methodology asks for was there. The same sentence appears in the breakdown's reasons, so you see it on the player's file as well as on the squad table.
+
+The signal is deliberately not a fifth colour. The colour still says where the player is; the ring says how much the academy actually knows before it says it.
+
+Grey — **Building first picture** — is unchanged and still means *every* input is missing, not just one.
+
+Integrations get the same thing as data rather than as a shape: the status payload carries `coverage` (0–1, the share of the weighted inputs that contributed), `missing_inputs` (the ones that did not) and `coverage_note` (the sentence). Sorting a squad by `coverage` is how you find the players nobody has assessed yet.
+
 ## Capturing the inputs
 
 - **Behaviour ratings** — the **Log behaviour** popover on the player profile hero, or `POST /players/{id}/behaviour-ratings` for integrations. A 1-5 score with optional notes and a related activity.

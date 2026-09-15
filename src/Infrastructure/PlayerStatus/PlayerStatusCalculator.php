@@ -115,17 +115,42 @@ final class PlayerStatusCalculator {
         ];
 
         // Compose: weighted average over enabled inputs that have a value.
-        $weighted_sum = 0.0;
-        $weight_total = 0;
+        //
+        // #3413 — the same loop now also records what it skipped.
+        // `$enabled_weight_total` is what the methodology *asks* for;
+        // `$weight_total` is what it got. A zero-weight input is neither:
+        // it contributes nothing to the composite, so it cannot be missing
+        // from it either. Dropping it before the null check keeps the
+        // arithmetic identical to before (it added 0 to both sums) while
+        // keeping `missing_inputs` about evidence that would have counted.
+        $weighted_sum         = 0.0;
+        $weight_total         = 0;
+        $enabled_weight_total = 0;
+        /** @var list<string> $missing */
+        $missing = [];
         foreach ( $inputs as $key => $row ) {
             $enabled = (bool) ( $methodology['inputs'][ $key ]['enabled'] ?? true );
             if ( ! $enabled ) continue;
-            if ( $row['score'] === null ) continue;
-            $weighted_sum += $row['score'] * $row['weight'];
-            $weight_total += $row['weight'];
+            $weight = (int) $row['weight'];
+            if ( $weight <= 0 ) continue;
+            $enabled_weight_total += $weight;
+            if ( $row['score'] === null ) {
+                $missing[] = (string) $key;
+                continue;
+            }
+            $weighted_sum += $row['score'] * $weight;
+            $weight_total += $weight;
         }
 
+        $coverage = $enabled_weight_total > 0
+            ? round( $weight_total / $enabled_weight_total, 4 )
+            : 0.0;
+
         if ( $weight_total === 0 ) {
+            // Unchanged: every input missing is still `unknown`, with the
+            // reason it has always carried. Coverage is 0.0 and every
+            // enabled input is named, so a consumer can tell "we know
+            // nothing" from "we know most of it" without re-deriving it.
             $reasons[] = __( 'Insufficient signal — needs first evaluation and a few activities.', 'talenttrack' );
             return new StatusVerdict(
                 StatusVerdict::COLOR_UNKNOWN,
@@ -133,7 +158,9 @@ final class PlayerStatusCalculator {
                 $inputs,
                 $reasons,
                 $as_of,
-                (string) ( $methodology['version_id'] ?? 'shipped' )
+                (string) ( $methodology['version_id'] ?? 'shipped' ),
+                0.0,
+                $missing
             );
         }
 
@@ -161,13 +188,31 @@ final class PlayerStatusCalculator {
             }
         }
 
+        // #3413 — say it out loud. A partial verdict reaching a surface
+        // without this reads as a full one, and the surface has no way to
+        // tell. Deliberately after the `unknown` return above, so the
+        // all-inputs-missing case keeps exactly the reason it had.
+        if ( $missing !== [] ) {
+            $labels = array_map(
+                static fn( string $key ): string => StatusVerdict::inputLabel( $key ),
+                $missing
+            );
+            $reasons[] = sprintf(
+                /* translators: %s is a comma-separated list of missing inputs, e.g. "potential". */
+                __( 'Computed without %s.', 'talenttrack' ),
+                implode( ', ', $labels )
+            );
+        }
+
         return new StatusVerdict(
             $color,
             $composite,
             $inputs,
             $reasons,
             $as_of,
-            (string) ( $methodology['version_id'] ?? 'shipped' )
+            (string) ( $methodology['version_id'] ?? 'shipped' ),
+            $coverage,
+            $missing
         );
     }
 
