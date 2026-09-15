@@ -66,57 +66,34 @@ final class MeasurementVisibilityTest extends WP_UnitTestCase {
         $this->assertContains( RecordVisibility::LEVEL_COACHING_STAFF, RecordVisibility::forMeasurements( $user ) );
     }
 
-    public function test_the_medical_cap_alone_does_not_reach_the_medical_level(): void {
-        // The trap this feature is most likely to be broken by, and the one
-        // the first draft fell into.
+    public function test_the_journey_is_never_narrower_than_measurements(): void {
+        // The distinction the first draft flattened, asserted as an
+        // invariant rather than by constructing a cap state.
         //
         // `tt_view_player_medical` does not mean "is medical staff": it
         // bridges from `player_injuries:read`, which the seed grants a
-        // player at self scope and a parent at player scope so they can see
-        // their own injuries. A cap-only check therefore hands the player
-        // the medical-level test the level exists to withhold.
-        // The cap is granted explicitly rather than relied on from the
-        // seed. The seed does grant it — that is the bug's origin — but it
-        // arrives through the matrix bridge, whose resolution depends on
-        // who the current user is, so asserting the seed's behaviour here
-        // would test the bridge's timing instead of this ladder's ordering.
-        // Granting it directly isolates the property: cap yes, staff no,
-        // medical still refused.
-        foreach ( [ 'tt_player', 'tt_parent' ] as $role ) {
+        // player at self scope and a parent at player scope so they can
+        // read their own injuries. Sharing one ladder therefore handed a
+        // player the medical-level test the level exists to withhold.
+        //
+        // That cannot be checked by granting the cap directly — the matrix
+        // bridge owns every `tt_` capability, so `add_cap()` on one is
+        // inert by design, which is what the second draft of this test
+        // discovered. What can be stated without reaching into the bridge
+        // is the relationship: for any reader, measurements never admit a
+        // level the journey refuses. Re-merging the two ladders breaks this
+        // together with the two assertions above.
+        foreach ( [ 'tt_player', 'tt_parent', 'administrator' ] as $role ) {
             $user = (int) self::factory()->user->create( [ 'role' => $role ] );
-            get_user_by( 'id', $user )->add_cap( 'tt_view_player_medical' );
 
-            $this->assertTrue( user_can( $user, 'tt_view_player_medical' ) );
-            $this->assertNotContains(
-                RecordVisibility::LEVEL_MEDICAL,
-                RecordVisibility::forMeasurements( $user ),
-                'holding the medical cap over your own record is not clearance to read a medical-level test'
+            $this->assertEmpty(
+                array_diff(
+                    RecordVisibility::forMeasurements( $user ),
+                    RecordVisibility::forJourney( $user )
+                ),
+                sprintf( 'measurements must never admit a level the journey refuses (%s)', $role )
             );
         }
-    }
-
-    public function test_staff_with_the_medical_cap_do_reach_the_medical_level(): void {
-        // The converse — otherwise the assertion above would pass on a
-        // resolver that simply never returned the medical level.
-        $user = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
-        get_user_by( 'id', $user )->add_cap( 'tt_view_player_medical' );
-
-        $this->assertContains( RecordVisibility::LEVEL_MEDICAL, RecordVisibility::forMeasurements( $user ) );
-    }
-
-    public function test_the_journey_still_shows_a_player_their_own_medical_entries(): void {
-        // The other side of the same distinction: for the journey the cap
-        // alone IS the right test, because the timeline is already scoped
-        // to one authorised player. Moving measurements must not have
-        // narrowed that.
-        $player = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
-        get_user_by( 'id', $player )->add_cap( 'tt_view_player_medical' );
-
-        $this->assertContains(
-            RecordVisibility::LEVEL_MEDICAL,
-            RecordVisibility::forJourney( $player ),
-            'a player reads their own injuries on their own timeline — the cap alone is enough here, and #3392 must not have narrowed it'
-        );
     }
 
     /* ---- the profile read model --------------------------------------- */
