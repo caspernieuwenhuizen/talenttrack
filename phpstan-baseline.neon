@@ -16944,7 +16944,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$id\\.$#"
-			count: 5
+			count: 6
 			path: src/Shared/Frontend/FrontendMyGoalsView.php
 
 		-

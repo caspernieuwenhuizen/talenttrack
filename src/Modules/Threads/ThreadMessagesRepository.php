@@ -87,6 +87,45 @@ final class ThreadMessagesRepository {
     }
 
     /**
+     * #3396 — message counts for many threads of one type, in one query.
+     *
+     * The goals board needed a number per card and was calling
+     * `listForThread()` once per goal, hydrating every message body to
+     * `count()` the array. Same visibility rule, same answer, one round
+     * trip and no bodies.
+     *
+     * @param  list<int> $thread_ids
+     * @return array<int,int> thread_id => count, missing ids omitted.
+     */
+    public function countsForThreads( string $thread_type, array $thread_ids, bool $can_see_private ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $thread_ids ) ) ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $thread_type  = sanitize_key( $thread_type );
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        $sql  = "SELECT thread_id, COUNT(*) AS n FROM {$this->table()}
+                  WHERE thread_type = %s
+                    AND club_id     = %d
+                    AND thread_id IN ({$placeholders})";
+        $args = array_merge( [ $thread_type, CurrentClub::id() ], $ids );
+        if ( ! $can_see_private ) {
+            $sql   .= " AND visibility = %s";
+            $args[] = ThreadVisibility::PUBLIC_LEVEL;
+        }
+        $sql .= " GROUP BY thread_id";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $args ) );
+        $out  = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->thread_id ] = (int) $row->n;
+        }
+        return $out;
+    }
+
+    /**
      * Edit body within the 5-minute window. Returns false when window
      * elapsed, message missing, or author mismatch.
      */
