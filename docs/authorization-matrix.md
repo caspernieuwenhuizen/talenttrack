@@ -10,7 +10,9 @@ order: 60
 
 **Configuration → Authorization matrix** (`?tt_view=matrix`), or **TalentTrack → Access Control → Authorization Matrix** in wp-admin.
 
-The authorization matrix is the single source of truth for "what can each persona do, on what?". Eight personas × ~30 entities × three activities (read / change / create_delete) = a few hundred cells. The shipped defaults match what each role does today; admins can edit per-cell to redefine the rules without writing code.
+The authorization matrix is the source of truth for "what can each persona do, on what?". Eight personas × ~30 entities × three activities (read / change / create_delete) = a few hundred cells. The shipped defaults match what each role does today; admins can edit per-cell to redefine the rules without writing code.
+
+One thing the grid does not show: two functional roles carry a small grant set of their own, on the team they are held on. See [The functional-role axis](#the-functional-role-axis-3257) below — that is the only access in the product the matrix does not decide alone.
 
 ## Who can edit it, and what they cannot
 
@@ -455,13 +457,52 @@ A first pass proposed global read on **all 138 entities**, reasoning from the ro
 | `players` | read, change | team |
 | `people` | read, change | team |
 | `player_notes` | read, change | team |
+| `measurements` | read, change | team |
 | `my_person` | read, change | self |
 
 `my_person` is the one row not derived from a capability mapping — the self-service slice of `people:change`, so a physio can maintain their own record before being attached to a squad. It is strictly narrower than the `people` grant above.
 
+`measurements` was added by #3232. #3232 also added `player_injuries [rc, team]`, which #3257 removed again and moved onto the Physio functional role — see the next section.
+
 **`players:create_delete` is deliberately not granted.** The role holds `tt_manage_players` as a raw WP capability, but that capability is not "manage the roster" in this codebase: it gates season rollover, player-account provisioning, custom-field definitions and player deletion, and `BehaviourPendingSource` uses it as the "sees every player in the academy" marker for — in its own comment — HoDs and admins. Seeding it would hand a kit manager the academy-admin surface. Declining changes no live behaviour: on a matrix-active install the role currently has nothing, and on a matrix-inactive one the seed is not consulted. Whether the raw grant should stay on the role definition is a separate question, because removing it *would* change matrix-inactive installs.
 
 Migration `0249_authorization_seed_topup_observer_and_staff` backfills both personas on existing installs — idempotent `INSERT IGNORE`, walking only these two personas, and refusing to write a non-`read` activity for the observer even if the seed file later gains one. No other persona's answer moves.
+
+## The functional-role axis (#3257)
+
+The matrix keys on `(persona, entity, activity, scope_kind)`. A physio and a kit manager hold the same `tt_staff` WordPress role, so they resolve to the same persona — `staff` — and **no cell on this grid can tell them apart**. That is not a gap in the seed; it is the shape of the key. #3232's `player_injuries [rc, team]` grant therefore reached every Staff account, including ones issued for entirely non-clinical reasons.
+
+What separates those two people is the job they do on a squad, which the product already records: `tt_team_people.functional_role_id`. #3257 makes that a fourth axis.
+
+### How it resolves
+
+`config/functional_role_grants.php` holds two sections, and `TT\Modules\Authorization\FunctionalRoleGrants` reads both inside `MatrixGate`:
+
+| Section | What it does |
+| --- | --- |
+| `grants` | functional role key → entity → activities. Always **team**-scoped, because a functional role is held on a team; there is no other scope to pick. Unioned with whatever the user's personas grant. |
+| `supersedes` | persona → the entities whose answer the functional-role layer owns. For a user holding at least one functional role, that persona's own matrix row on those entities is **skipped**. |
+
+Shipped contents: `physio` grants `player_injuries [rc]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` is superseded on `player_injuries`, and nothing else is superseded at all.
+
+**The resolution happens in `MatrixGate`, not at call sites.** `can()`, `canAnyScope()`, `hasAuthority()`, `hasAuthorityAnyScope()` and `describeAccess()` all route through the same two private resolvers, and both gained the union and the skip. `AuthorizationService::canRecordInjury()` — the call site every injury route and view goes through — therefore agrees with the gate without knowing the axis exists, and `FunctionalRoleAccessTest` asserts that it does. Two answers in two places is how `tt_view_players` and its parent persona drifted apart in #3391.
+
+`describeAccess()` reports a functional-role allow with `persona` set to `fn:<role_key>` and a null `source_row_id`, because there is no matrix row to point at.
+
+### Why `head_coach` is not superseded
+
+Head coaches hold `player_injuries [rc, team]` on their own reasoning — they are the person on the pitch when the hamstring goes (#0220 topup) — and most of them also hold the `head_coach` functional role. Superseding their persona would have taken injuries away from every head coach on the install the moment this shipped. That is a different decision from the one #3257 makes, so `supersedes` names `staff` only.
+
+### Upgrade behaviour, and why there is no migration
+
+Nothing migrates the `staff` persona's `player_injuries` rows out of an existing `tt_authorization_matrix`. That stale row **is** the upgrade behaviour: an existing Staff account that holds no functional role keeps exactly the access it has today, because supersession only engages for a user who holds one. Silently narrowing would have taken the injury screen away from physios using it, mid-season, with no signal.
+
+The narrower state is what somebody lands in once an academy assigns them a functional role — an act, not a default. On a **fresh** install the seed no longer carries the row at all, so the two states converge as soon as an academy fills in who does what.
+
+Two more things fail narrow rather than wide, deliberately:
+
+- A grant is read only from an assignment that is live today (`start_date` / `end_date` on `tt_team_people`). Supersession is read from the assignment whatever its dates. So an expired physio assignment loses the grant and does **not** fall back to the old persona-wide row.
+- The functional-role union is only consulted for a user who resolves to at least one persona. A functional role on an account with no TalentTrack role grants nothing.
 
 ## See also
 

@@ -41,6 +41,25 @@ final class FrontendInjuriesView extends FrontendViewBase {
         $see_all = $is_admin || MatrixGate::can( $user_id, 'player_injuries', 'read', 'global' );
         $teams   = $see_all ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
+        // #3257 — "the teams you are attached to" and "the teams whose
+        // injuries you may read" stopped being the same set the moment
+        // injury access started following the functional role. A staff
+        // member who is the physio of one squad and the kit manager of
+        // another is scoped to both and may read one, so ask the gate per
+        // team rather than trusting the scope list. Same chokepoint, one
+        // call per row in a list that is a handful of teams long.
+        if ( ! $see_all ) {
+            $teams = array_values( array_filter(
+                (array) $teams,
+                static function ( $t ) use ( $user_id ): bool {
+                    $vars    = get_object_vars( (object) $t );
+                    $team_id = isset( $vars['id'] ) ? (int) $vars['id'] : 0;
+                    return $team_id > 0
+                        && MatrixGate::can( $user_id, 'player_injuries', 'read', MatrixGate::SCOPE_TEAM, $team_id );
+                }
+            ) );
+        }
+
         self::enqueueAssets();
 
         // #2671 — the way in. Empty fallback on purpose, the same

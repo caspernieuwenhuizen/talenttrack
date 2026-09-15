@@ -36,7 +36,9 @@ A person with no linked account keeps their contact details as before — nothin
 
 ## Functional roles
 
-Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**. These map to authorization roles via the [Access control](access-control.md) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.
+Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**, **Kit manager**. These map to authorization roles via the [Access control](access-control.md) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.
+
+Two of them decide access on their own, for the team the role is held on: **Physio** reads and records that team's injuries, and **Kit manager** does not. That is the one place where the role somebody does on a squad, rather than their account-wide role, is what opens a screen — see [Access control](access-control.md) for the full picture and for what happens to staff accounts that have no functional role yet.
 
 ## Assigning people to teams
 
