@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T04:52:35+00:00\n"
+"POT-Creation-Date: 2026-09-15T05:18:38+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -7139,7 +7139,7 @@ msgstr "Berichten"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:356
 #: src/Shared/Frontend/FrontendExportsView.php:366
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:157
-#: src/Shared/Frontend/FrontendMySettingsView.php:491
+#: src/Shared/Frontend/FrontendMySettingsView.php:531
 #: src/Shared/Frontend/FrontendOverviewView.php:236
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:205
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1309
@@ -7187,7 +7187,7 @@ msgstr "Evaluaties"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:55
 #: src/Shared/Frontend/FrontendGoalsManageView.php:163
-#: src/Shared/Frontend/FrontendMySettingsView.php:492
+#: src/Shared/Frontend/FrontendMySettingsView.php:532
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:202
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:912
 #: src/Shared/Frontend/FrontendTrialCaseView.php:568
@@ -7310,7 +7310,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:934
-#: src/Shared/Frontend/FrontendMySettingsView.php:494
+#: src/Shared/Frontend/FrontendMySettingsView.php:534
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:209
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:940
 msgid "Measurements"
@@ -17209,13 +17209,13 @@ msgstr "Je hebt geen rechten om de styling aan te passen."
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:119
-#: src/Shared/Frontend/FrontendMySettingsView.php:522
-#: src/Shared/Frontend/FrontendMySettingsView.php:539
-#: src/Shared/Frontend/FrontendMySettingsView.php:555
-#: src/Shared/Frontend/FrontendMySettingsView.php:568
-#: src/Shared/Frontend/FrontendMySettingsView.php:600
-#: src/Shared/Frontend/FrontendMySettingsView.php:641
-#: src/Shared/Frontend/FrontendMySettingsView.php:657
+#: src/Shared/Frontend/FrontendMySettingsView.php:562
+#: src/Shared/Frontend/FrontendMySettingsView.php:579
+#: src/Shared/Frontend/FrontendMySettingsView.php:595
+#: src/Shared/Frontend/FrontendMySettingsView.php:608
+#: src/Shared/Frontend/FrontendMySettingsView.php:640
+#: src/Shared/Frontend/FrontendMySettingsView.php:681
+#: src/Shared/Frontend/FrontendMySettingsView.php:703
 msgid "Security check failed. Reload and try again."
 msgstr "Beveiligingscontrole mislukt. Herlaad en probeer opnieuw."
 
@@ -43003,7 +43003,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:179
 #: src/Modules/Vct/Wizard/ReviewStep.php:59
 #: src/Modules/Vct/Wizard/ThemeStep.php:20
-#: src/Shared/Frontend/FrontendMySettingsView.php:415
+#: src/Shared/Frontend/FrontendMySettingsView.php:455
 msgid "Theme"
 msgstr "Thema"
 
@@ -50630,7 +50630,7 @@ msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
 #: src/Shared/Frontend/DashboardShortcode.php:932
-#: src/Shared/Frontend/FrontendMySettingsView.php:493
+#: src/Shared/Frontend/FrontendMySettingsView.php:533
 #: src/Shared/Frontend/FrontendPlayersManageView.php:674
 msgid "Journey"
 msgstr "Reis"
@@ -52186,7 +52186,7 @@ msgid "Colours"
 msgstr "Kleuren"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1706
-#: src/Shared/Frontend/FrontendMySettingsView.php:418
+#: src/Shared/Frontend/FrontendMySettingsView.php:458
 msgid "Visual theme"
 msgstr "Visueel thema"
 
@@ -52331,7 +52331,7 @@ msgstr ""
 "worden getoond."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1925
-#: src/Shared/Frontend/FrontendMySettingsView.php:319
+#: src/Shared/Frontend/FrontendMySettingsView.php:359
 msgid "Navigation layout"
 msgstr "Navigatie-indeling"
 
@@ -52348,7 +52348,7 @@ msgstr ""
 "indeling kiezen; dit is wat ze krijgen tot ze dat doen."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1946
-#: src/Shared/Frontend/FrontendMySettingsView.php:366
+#: src/Shared/Frontend/FrontendMySettingsView.php:406
 msgid "Live match screen"
 msgstr "Livewedstrijdscherm"
 
@@ -55151,34 +55151,54 @@ msgstr "Mededelingen voor de hele academie"
 msgid "Notifications about your tasks and conversations"
 msgstr "Meldingen over je taken en gesprekken"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php:281
+msgid "A summary of your open alerts"
+msgstr "Een overzicht van je openstaande signalen"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:282
+msgid "Messages written to you by academy staff"
+msgstr "Berichten die de staf van de academie je stuurt"
+
 #: src/Shared/Frontend/FrontendMySettingsView.php:283
+msgid "Reports delivered on a schedule"
+msgstr "Rapportages die volgens een schema worden verstuurd"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:284
+msgid "Reminders that a trial still needs your input"
+msgstr "Herinneringen dat een proefperiode nog je invoer nodig heeft"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:285
+msgid "Scout reports sent to you"
+msgstr "Scoutingrapporten die naar jou zijn gestuurd"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:323
 msgid "Safeguarding messages"
 msgstr "Veiligheidsberichten"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:284
+#: src/Shared/Frontend/FrontendMySettingsView.php:324
 msgid "Getting back into your account"
 msgstr "Weer toegang krijgen tot je account"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:289
+#: src/Shared/Frontend/FrontendMySettingsView.php:329
 msgid "A training is cancelled"
 msgstr "Een training wordt afgelast"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:316
-#: src/Shared/Frontend/FrontendMySettingsView.php:369
+#: src/Shared/Frontend/FrontendMySettingsView.php:356
+#: src/Shared/Frontend/FrontendMySettingsView.php:409
 msgid "Layout"
 msgstr "Indeling"
 
 #. translators: %s: the club-wide default layout name.
 #. translators: %s: the academy-wide default live-match layout name.
 #. translators: %s: the club-wide default theme name.
-#: src/Shared/Frontend/FrontendMySettingsView.php:324
-#: src/Shared/Frontend/FrontendMySettingsView.php:374
-#: src/Shared/Frontend/FrontendMySettingsView.php:423
+#: src/Shared/Frontend/FrontendMySettingsView.php:364
+#: src/Shared/Frontend/FrontendMySettingsView.php:414
+#: src/Shared/Frontend/FrontendMySettingsView.php:463
 #, php-format
 msgid "Use the academy default (%s)"
 msgstr "Gebruik de standaard van de academie (%s)"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:332
+#: src/Shared/Frontend/FrontendMySettingsView.php:372
 msgid ""
 "The app shell keeps a navigation sidebar on screen on a laptop, and a slide-"
 "out menu on a phone. Classic returns you to the tile overview to switch "
@@ -55188,13 +55208,13 @@ msgstr ""
 "telefoon een uitschuifmenu. Klassiek brengt je terug naar het tegeloverzicht "
 "om van sectie te wisselen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:337
-#: src/Shared/Frontend/FrontendMySettingsView.php:387
+#: src/Shared/Frontend/FrontendMySettingsView.php:377
+#: src/Shared/Frontend/FrontendMySettingsView.php:427
 #: src/Shared/Frontend/FrontendTeamDetailView.php:456
 msgid "Save layout"
 msgstr "Indeling opslaan"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:382
+#: src/Shared/Frontend/FrontendMySettingsView.php:422
 msgid ""
 "Classic puts everything on one long page. Sections keeps the score and the "
 "clock fixed at the top and puts a row of tabs within thumb reach at the "
@@ -55204,7 +55224,7 @@ msgstr ""
 "vast bovenaan en zet een rij tabs binnen duimbereik onderaan, zodat de bank "
 "één tik ver is in plaats van drie keer scrollen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:431
+#: src/Shared/Frontend/FrontendMySettingsView.php:471
 msgid ""
 "Changes colours, corners and heading type only — never what you can see or "
 "do. A theme supplies the whole colour scheme for the application; your "
@@ -55214,15 +55234,15 @@ msgstr ""
 "doen. Een thema levert het complete kleurenschema van de applicatie; je "
 "academielogo en -naam blijven ongewijzigd."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:436
+#: src/Shared/Frontend/FrontendMySettingsView.php:476
 msgid "Save theme"
 msgstr "Thema opslaan"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:465
+#: src/Shared/Frontend/FrontendMySettingsView.php:505
 msgid "What your parent can see"
 msgstr "Wat je ouder kan zien"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:467
+#: src/Shared/Frontend/FrontendMySettingsView.php:507
 msgid ""
 "Choose which parts of your record your parent or guardian can see. "
 "Everything is shared by default. Your coaches and the academy are not "
@@ -55232,69 +55252,69 @@ msgstr ""
 "wordt alles gedeeld. Je coaches en de academie worden niet beïnvloed door "
 "deze keuzes."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:482
+#: src/Shared/Frontend/FrontendMySettingsView.php:522
 msgid "Save visibility"
 msgstr "Zichtbaarheid opslaan"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:495
+#: src/Shared/Frontend/FrontendMySettingsView.php:535
 msgid "Development plan (PDP)"
 msgstr "Ontwikkelplan (POP)"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:498
+#: src/Shared/Frontend/FrontendMySettingsView.php:538
 msgid "Training history"
 msgstr "Trainingsgeschiedenis"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:529
+#: src/Shared/Frontend/FrontendMySettingsView.php:569
 msgid "Layout updated. Reload to see the change everywhere."
 msgstr "Indeling bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:546
+#: src/Shared/Frontend/FrontendMySettingsView.php:586
 msgid "Live match layout updated. Open a match to see the change."
 msgstr ""
 "Indeling van het livewedstrijdscherm bijgewerkt. Open een wedstrijd om het "
 "verschil te zien."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:562
+#: src/Shared/Frontend/FrontendMySettingsView.php:602
 msgid "Theme updated. Reload to see the change everywhere."
 msgstr "Thema bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:586
+#: src/Shared/Frontend/FrontendMySettingsView.php:626
 msgid "Please enter a valid email address."
 msgstr "Vul een geldig e-mailadres in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:594
+#: src/Shared/Frontend/FrontendMySettingsView.php:634
 msgid "Profile saved."
 msgstr "Profiel opgeslagen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:607
+#: src/Shared/Frontend/FrontendMySettingsView.php:647
 msgid "Please fill in both your current and new password."
 msgstr "Vul je huidige en je nieuwe wachtwoord beide in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:611
+#: src/Shared/Frontend/FrontendMySettingsView.php:651
 msgid "New password must be at least 8 characters."
 msgstr "Het nieuwe wachtwoord moet minimaal 8 tekens hebben."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:615
+#: src/Shared/Frontend/FrontendMySettingsView.php:655
 msgid "New password and confirmation do not match."
 msgstr "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:620
+#: src/Shared/Frontend/FrontendMySettingsView.php:660
 msgid "Current password is incorrect."
 msgstr "Het huidige wachtwoord klopt niet."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:630
+#: src/Shared/Frontend/FrontendMySettingsView.php:670
 msgid "Password changed. Other devices have been logged out."
 msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:651
+#: src/Shared/Frontend/FrontendMySettingsView.php:697
 msgid "Message preferences saved."
 msgstr "Berichtvoorkeuren opgeslagen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:662
+#: src/Shared/Frontend/FrontendMySettingsView.php:708
 msgid "Only players can set parent visibility."
 msgstr "Alleen spelers kunnen ouderzichtbaarheid instellen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:672
+#: src/Shared/Frontend/FrontendMySettingsView.php:718
 msgid "Saved what your parent can see."
 msgstr "Opgeslagen wat je ouder kan zien."
 
@@ -60153,26 +60173,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Shared/Frontend/FrontendMySettingsView.php
-msgid "A summary of your open alerts"
-msgstr "Een overzicht van je openstaande signalen"
-
-#: src/Shared/Frontend/FrontendMySettingsView.php
-msgid "Messages written to you by academy staff"
-msgstr "Berichten die de staf van de academie je stuurt"
-
-#: src/Shared/Frontend/FrontendMySettingsView.php
-msgid "Reports delivered on a schedule"
-msgstr "Rapportages die volgens een schema worden verstuurd"
-
-#: src/Shared/Frontend/FrontendMySettingsView.php
-msgid "Reminders that a trial still needs your input"
-msgstr "Herinneringen dat een proefperiode nog je invoer nodig heeft"
-
-#: src/Shared/Frontend/FrontendMySettingsView.php
-msgid "Scout reports sent to you"
-msgstr "Scoutingrapporten die naar jou zijn gestuurd"
 
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
