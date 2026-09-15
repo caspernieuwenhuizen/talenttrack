@@ -106,9 +106,15 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
 
         $body = $is_self
             ? __( 'Welcome to TalentTrack! This is your development home: your talks, goals, form and journey, all in one place.', 'talenttrack' )
+            // #3398 — this used to read "You choose what <child> shares with
+            // you", which names the wrong person. The control belongs to the
+            // player (#1867, PlayerParentVisibilityRepository): a young person
+            // may withhold evaluations, goals, journey, measurements, PDP and
+            // training from a parent. Telling the parent they hold it, on the
+            // first screen they ever see, is worse than saying nothing.
             : sprintf(
                 /* translators: %1$s and %2$s are both the child's name (parent viewing their child). */
-                __( "Welcome to TalentTrack! This is %1\$s's development home. You choose what %2\$s shares with you.", 'talenttrack' ),
+                __( "Welcome to TalentTrack! This is %1\$s's development home. %2\$s chooses what to share with you.", 'talenttrack' ),
                 $name, $name
             );
         ?>
