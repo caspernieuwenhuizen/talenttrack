@@ -64,6 +64,15 @@ class FrontendComparisonView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #3352 — the radar + trend bootstrap, out of the page and into a
+        // file so it can redraw after an in-place filter refresh.
+        wp_enqueue_script(
+            'tt-comparison-charts',
+            TT_PLUGIN_URL . 'assets/js/components/comparison-charts.js',
+            [ 'tt-chartjs' ],
+            TT_VERSION,
+            true
+        );
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Player comparison', 'talenttrack' ) );
         self::renderHeader( __( 'Player comparison', 'talenttrack' ) );
@@ -172,7 +181,12 @@ class FrontendComparisonView extends FrontendViewBase {
             <?php esc_html_e( 'Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group.', 'talenttrack' ); ?>
         </p>
 
-        <form method="get" action="" class="tt-fcompare-form">
+        <form method="get" action="" class="tt-fcompare-form"<?php
+            // #3352 — the bar renders inside this form (`form => false`), so
+            // the markers filter-bar.js and filter-refresh.js bind to belong
+            // here. Fixed markup hooks, no escaping needed.
+            echo \TT\Shared\Frontend\Components\FilterBar::hostFormAttrs(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        ?>>
             <?php
             // Preserve tt_view + any other non-filter args
             foreach ( $_GET as $k => $v ) {
@@ -232,18 +246,25 @@ class FrontendComparisonView extends FrontendViewBase {
             </script>
 
             <?php
-            // #2176 — the date + evaluation-type filters render via the
-            // shared FilterBar component (one date_range group + one
-            // select). FilterBar emits its own <form>, but here it sits
-            // inside the surrounding .tt-fcompare-form: the HTML parser
-            // drops the nested <form> tag and re-associates its controls
-            // with the outer form, so the single "Compare" submit below
-            // still posts the player picks AND these filters together —
-            // behaviour is unchanged. The select opts OUT of auto-submit
-            // (auto_submit => false) so changing it doesn't fire an early
-            // GET; the user commits via Compare, exactly as before. No
-            // `hidden` fields are passed because the outer form already
-            // re-emits every preserved GET param above.
+            // #2176 / #3352 — the date + evaluation-type filters render via
+            // the shared FilterBar component (one date_range group + one
+            // select), with `form => false`.
+            //
+            // The bar used to emit its own <form> here, inside
+            // .tt-fcompare-form. Nested forms are invalid HTML and browsers
+            // repair them by discarding the inner one, which is the only
+            // reason this worked: the controls re-associated with the outer
+            // form and Compare posted everything together. It also meant
+            // `refresh => true` could never take — the attribute landed on
+            // the form the parser had already thrown away.
+            //
+            // So the bar renders its groups bare and this form owns them.
+            // `refresh => true` now binds to THIS form, and filter-refresh.js
+            // only treats a change inside the bar as a filter change: picking
+            // a player still waits for Compare, which stays the commit
+            // (CLAUDE.md §6 — a half-assembled comparison is not worth
+            // running). No `hidden` fields are passed because the form
+            // already re-emits every preserved GET param above.
             $sel_from     = (string) ( $filters['date_from'] ?? '' );
             $sel_to       = (string) ( $filters['date_to'] ?? '' );
             $sel_evaltype = (int) ( $filters['eval_type_id'] ?? 0 );
@@ -265,6 +286,8 @@ class FrontendComparisonView extends FrontendViewBase {
             }
 
             \TT\Shared\Frontend\Components\FilterBar::render( [
+                'form'         => false,
+                'refresh'      => true,
                 'active_count' => $active_count,
                 'chips'        => $chips,
                 // #3333 — this was the one FilterBar surface with no way back
@@ -310,8 +333,17 @@ class FrontendComparisonView extends FrontendViewBase {
         </form>
 
         <?php
+        // #3352 — the region filter-refresh.js swaps. Everything the filters
+        // change lives inside it, including the empty state: a window with no
+        // evaluations in it has to be able to replace a populated comparison.
+        printf(
+            '<div class="tt-fcompare-results" data-tt-filter-region data-tt-filter-count="%d">',
+            count( $players )
+        );
+
         if ( empty( $players ) ) {
             echo '<p class="tt-fcompare-note-empty"><em>' . esc_html__( 'Pick at least one player above and click Compare.', 'talenttrack' ) . '</em></p>';
+            echo '</div>';
             return;
         }
 
@@ -430,21 +462,23 @@ class FrontendComparisonView extends FrontendViewBase {
             <canvas id="tt-fcompare-trend"></canvas>
         </div>
 
-        <?php self::renderChartScripts( $players, $trends, $radar_sets ); ?>
-        <?php
+        <?php self::renderChartData( $players, $trends, $radar_sets ); ?>
+        </div><?php // .tt-fcompare-results
     }
 
     /**
-     * #0077 M6 — radar + trend overlay scripts, mirrors
-     * PlayerComparisonPage::renderChartScripts. Single-axis trend
-     * (no per-category lines) to keep the frontend chart readable on
-     * mobile; radar is multi-dataset so all picked players overlay.
+     * #0077 M6 — the radar + trend overlay datasets, same shape as
+     * PlayerComparisonPage. Single-axis trend (no per-category lines) to
+     * keep the frontend chart readable on mobile; radar is multi-dataset so
+     * all picked players overlay.
+     *
+     * Emits a JSON payload; comparison-charts.js draws it (#3352).
      *
      * @param array<int,object> $players
      * @param array<int,array<string,mixed>> $trends
      * @param array<int,array<int,array<string,mixed>>> $radar_sets
      */
-    private static function renderChartScripts( array $players, array $trends, array $radar_sets ): void {
+    private static function renderChartData( array $players, array $trends, array $radar_sets ): void {
         // v4.0.7 (#878) — `getRadarSnapshots()` returns an associative
         // object `{ labels, datasets[] }`. The previous consumer
         // indexed `$radar_sets[$pid][0]` which is a numeric lookup on
@@ -526,72 +560,26 @@ class FrontendComparisonView extends FrontendViewBase {
         }
 
         $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
-        ?>
-        <script>
-        (function(){
-            if (typeof Chart === 'undefined') return;
-            var ratingMax = <?php echo wp_json_encode( $rating_max ); ?>;
 
-            var radarLabels = <?php echo wp_json_encode( $radar_labels_display ); ?>;
-            var radarSets = <?php echo wp_json_encode( $radar_datasets ); ?>;
-            var radarEl = document.getElementById('tt-fcompare-radar');
-            if (radarEl && radarLabels.length > 0 && radarSets.length > 0) {
-                new Chart(radarEl.getContext('2d'), {
-                    type: 'radar',
-                    data: {
-                        labels: radarLabels,
-                        datasets: radarSets.map(function (s) {
-                            return {
-                                label: s.label,
-                                data: s.values,
-                                borderColor: s.color,
-                                backgroundColor: s.color + '22',
-                                pointBackgroundColor: s.color,
-                                spanGaps: true
-                            };
-                        })
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { r: { min: 0, max: ratingMax, ticks: { stepSize: 1 } } },
-                        plugins: { legend: { position: 'bottom' } }
-                    }
-                });
-            }
-
-            var trendLabels = <?php echo wp_json_encode( $trend_labels_union ); ?>;
-            var trendSets = <?php echo wp_json_encode( $trend_datasets ); ?>;
-            var trendEl = document.getElementById('tt-fcompare-trend');
-            if (trendEl && trendLabels.length > 0 && trendSets.length > 0) {
-                new Chart(trendEl.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: trendLabels,
-                        datasets: trendSets.map(function (s) {
-                            return {
-                                label: s.label,
-                                data: s.points,
-                                borderColor: s.color,
-                                backgroundColor: s.color + '22',
-                                pointBackgroundColor: s.color,
-                                spanGaps: true,
-                                pointRadius: 3
-                            };
-                        })
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: {
-                            y: { min: 0, max: ratingMax, ticks: { stepSize: 1 } },
-                            x: { ticks: { maxTicksLimit: 8, autoSkip: true } }
-                        },
-                        plugins: { legend: { position: 'bottom' } }
-                    }
-                });
-            }
-        })();
-        </script>
-        <?php
+        // #3352 — a data island, not an inline <script>.
+        //
+        // The chart bootstrap used to be an IIFE printed here. Scripts
+        // injected by `innerHTML` never execute, so after an in-place filter
+        // refresh both canvases would have stayed blank with nothing to say
+        // why. comparison-charts.js draws from this payload on load and again
+        // on `tt:filter-refreshed`, which is the event filter-refresh.js
+        // fires for exactly this case.
+        //
+        // JSON_HEX_TAG so a player name containing `<` cannot close the tag.
+        echo '<script type="application/json" data-tt-compare-charts>'
+            . wp_json_encode( [
+                'ratingMax'   => $rating_max,
+                'radarLabels' => $radar_labels_display,
+                'radarSets'   => $radar_datasets,
+                'trendLabels' => $trend_labels_union,
+                'trendSets'   => $trend_datasets,
+            ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+            . '</script>';
     }
 
     /**

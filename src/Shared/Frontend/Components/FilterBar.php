@@ -84,8 +84,32 @@ use TT\Infrastructure\Filters\FilterParam;
  * escaped) can be injected into both the inline row and the sheet body
  * via `extra_controls` — used by FrontendListTable for its card-mode
  * sort dropdown.
+ *
+ * `form => false` (#3352) emits the groups with NO form of their own, for
+ * the one surface that is a form which happens to contain a bar rather than
+ * a bar that owns a form: the comparison view, where picking players and a
+ * window and an evaluation type is one commit pressed on Compare. Nesting
+ * the bar's form inside that one was invalid HTML, and the browser repair
+ * for it — discard the inner form — is the only reason the surface worked.
+ * The host form takes `hostFormAttrs()` so the scripts still bind to it.
  */
 final class FilterBar {
+
+	/** The marker filter-bar.js and filter-refresh.js look for on the form. */
+	public const FORM_MARKER = 'data-tt-filterbar-form';
+
+	/** The opt-in marker for in-place filtering (#3336). */
+	public const REFRESH_MARKER = 'data-tt-filter-refresh';
+
+	/**
+	 * The attributes a `form => false` host form needs so the bar's scripts
+	 * bind to it (#3352). Echoed into the caller's own <form> tag; both names
+	 * are fixed markup hooks, so nothing here needs escaping.
+	 */
+	public static function hostFormAttrs( bool $refresh = true ): string {
+		return ' ' . self::FORM_MARKER
+			. ( $refresh ? ' ' . self::REFRESH_MARKER . '="1"' : '' );
+	}
 
 	/** Ensure the shared stylesheet is enqueued exactly once. */
 	private static bool $css_enqueued = false;
@@ -381,7 +405,8 @@ final class FilterBar {
 	 *   title?:string,
 	 *   filters_label?:string,
 	 *   reset_url?:string,
-	 *   noscript_label?:string
+	 *   noscript_label?:string,
+	 *   form?:bool
 	 * } $args
 	 */
 	public static function render( array $args ): void {
@@ -457,10 +482,20 @@ final class FilterBar {
 		// way (#2082).
 		$refresh = ! empty( $args['refresh'] );
 		if ( $refresh ) {
-			$form_attrs['data-tt-filter-refresh'] = '1';
 			foreach ( $groups as $i => $g ) {
 				if ( is_array( $g ) ) $groups[ $i ]['auto_submit'] = false;
 			}
+		}
+
+		// #3352 — `form => false`: the caller owns the form and the bar
+		// renders inside it. Its own <form> would nest, which is invalid HTML
+		// that browsers silently repair by discarding the inner one — so the
+		// markers, the refresh opt-in and the noscript commit all belong to
+		// the host form instead (see hostFormAttrs()). Default true: no
+		// existing caller changes.
+		$with_form = ! isset( $args['form'] ) || ! empty( $args['form'] );
+		if ( $refresh && $with_form ) {
+			$form_attrs[ self::REFRESH_MARKER ] = '1';
 		}
 		$extra      = (string) ( $args['extra_controls'] ?? '' );
 
@@ -480,10 +515,14 @@ final class FilterBar {
 		$saved_views_html = self::savedViewsHtml( $args, $groups, $hidden );
 
 		$out = '<div class="tt-filterbar" data-tt-filterbar>';
-		$out .= '<form method="get" class="tt-filterbar__form" data-tt-filterbar-form'
-			. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' )
-			. $form_attr_html . '>';
+		if ( $with_form ) {
+			$out .= '<form method="get" class="tt-filterbar__form" ' . self::FORM_MARKER
+				. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' )
+				. $form_attr_html . '>';
+		}
 
+		// Emitted either way: without a form of our own these still belong to
+		// the host form, which is what a `form => false` caller wants.
 		foreach ( $hidden as $name => $value ) {
 			$out .= '<input type="hidden" name="' . esc_attr( (string) $name )
 				. '" value="' . esc_attr( (string) $value ) . '" />';
@@ -702,10 +741,13 @@ final class FilterBar {
 		$out .= '</dialog>'; // .tt-filter-sheet
 
 		// noscript fallback — a real submit button for JS-off browsers.
-		$out .= '<noscript><button type="submit" class="tt-btn tt-btn-secondary">'
-			. esc_html( $ns_label ) . '</button></noscript>';
-
-		$out .= '</form>';
+		// A `form => false` host already has its own commit (Compare on the
+		// comparison view); a second submit beside it would be a duplicate.
+		if ( $with_form ) {
+			$out .= '<noscript><button type="submit" class="tt-btn tt-btn-secondary">'
+				. esc_html( $ns_label ) . '</button></noscript>';
+			$out .= '</form>';
+		}
 		$out .= '</div>'; // .tt-filterbar
 
 		return $out;

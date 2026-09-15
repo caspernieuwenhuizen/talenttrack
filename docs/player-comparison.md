@@ -32,8 +32,12 @@ filter bar below the player selectors:
 
 On wide screens the filters show as a single inline row; on phones and
 tablets they collapse behind a **Filters** button that opens a bottom sheet
-holding the same controls. Set the filters, then click **Compare** — every
-picked player's numbers update together.
+holding the same controls.
+
+Changing a filter updates the comparison straight away, without reloading
+the page. Picking players is different: the slots wait for **Compare**, so
+you can assemble a four-player line-up and run it once rather than watching
+it recompute after every pick.
 
 ## What you see
 

@@ -156,11 +156,34 @@ come from the module; a surface does not implement them. Without JS the
 link-based groups still navigate and the form still submits, so this stays
 progressive enhancement.
 
-**Not yet migrated**, both for stated reasons rather than oversight:
+**Not yet migrated**, for a stated reason rather than oversight:
 `FrontendStandardReportsView` (eight sub-reports through one bar, each needing
-its body extracted first) and `FrontendComparisonView` (its FilterBar form is
-nested inside the view's own, so the marker lands on a form the browser
-discards — #3352).
+its body extracted first).
+
+### A surface that owns the form — `form => false`
+
+`FilterBar::render( [ 'form' => false ] )` emits the groups with **no `<form>`
+of their own**, for a surface that is a form which happens to contain a bar.
+There is exactly one: the comparison view, where picking four players, a window
+and an evaluation type is a single commit pressed on **Compare** (CLAUDE.md §6),
+so the bar is part of a larger form rather than the owner of one.
+
+It was emitting its form *inside* that one. Nested forms are invalid HTML and
+every browser repairs them by discarding the inner one — which is the only
+reason the surface worked, and why `refresh => true` could never take there:
+the marker landed on the form the parser had already thrown away.
+
+The host form takes `FilterBar::hostFormAttrs()`, which carries both markers
+(`data-tt-filterbar-form` so the scripts find it, `data-tt-filter-refresh` so
+it opts in). `filter-refresh.js` then notices that the bar is a *descendant*
+of the form rather than an ancestor, and treats only a change inside the bar
+as a filter change — the rest of the form still waits for its own submit,
+which the script takes over. The bar also skips its `noscript` Apply, because
+the host already has a commit button.
+
+Default stays `true`. This is an opt-out for one surface, not a new
+convention: if a surface has nothing to commit but its filters, the bar owns
+the form.
 
 **`FrontendListTable` renders its filter chrome through FilterBar** (#2082) —
 every list adopter inherits the mobile-first treatment with no per-view change.

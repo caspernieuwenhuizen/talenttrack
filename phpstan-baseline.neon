@@ -16393,7 +16393,7 @@ parameters:
 			path: src/Shared/Frontend/FrontendComparisonView.php
 
 		-
-			message: "#^Parameter \\#3 \\$radar_sets of static method TT\\\\Shared\\\\Frontend\\\\FrontendComparisonView\\:\\:renderChartScripts\\(\\) expects array\\<int, array\\<int, array\\<string, mixed\\>\\>\\>, array\\<int, array\\<string, array\\<array\\<string, array\\<int, float\\|int\\>\\|string\\>\\|string\\>\\>\\> given\\.$#"
+			message: "#^Parameter \\#3 \\$radar_sets of static method TT\\\\Shared\\\\Frontend\\\\FrontendComparisonView\\:\\:renderChartData\\(\\) expects array\\<int, array\\<int, array\\<string, mixed\\>\\>\\>, array\\<int, array\\<string, array\\<array\\<string, array\\<int, float\\|int\\>\\|string\\>\\|string\\>\\>\\> given\\.$#"
 			count: 1
 			path: src/Shared/Frontend/FrontendComparisonView.php
 
