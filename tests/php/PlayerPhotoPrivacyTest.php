@@ -106,10 +106,9 @@ final class PlayerPhotoPrivacyTest extends WP_UnitTestCase {
     }
 
     public function test_a_non_image_is_refused(): void {
-        $uploads = wp_get_upload_dir();
-        $dir     = $uploads['basedir'] . '/tt-tests';
-        wp_mkdir_p( $dir );
-        $path = $dir . '/notes.txt';
+        $uploads = wp_upload_dir();
+        $dir     = $this->uploadsTestDir();
+        $path    = $dir . '/notes.txt';
         file_put_contents( $path, 'not an image' );
 
         $media_id = PlayerPhotoImporter::fromUploadsUrl( $this->player, $uploads['baseurl'] . '/tt-tests/notes.txt' );
@@ -150,11 +149,32 @@ final class PlayerPhotoPrivacyTest extends WP_UnitTestCase {
         $wpdb->update( "{$this->p}tt_players", [ $column => $value ], [ 'id' => $this->player ] );
     }
 
+    /**
+     * A writable `uploads/tt-tests` directory.
+     *
+     * `wp_upload_dir()` rather than `wp_get_upload_dir()`: the former
+     * creates the uploads tree as a side effect, and in a fresh container
+     * it does not exist yet — which is why `wp_mkdir_p()` alone left
+     * `file_put_contents()` with nowhere to write.
+     */
+    private function uploadsTestDir(): string {
+        $uploads = wp_upload_dir();
+        $dir     = $uploads['basedir'] . '/tt-tests';
+
+        if ( ! is_dir( $dir ) ) {
+            wp_mkdir_p( $dir );
+        }
+        if ( ! is_dir( $dir ) || ! is_writable( $dir ) ) {
+            $this->markTestSkipped( 'uploads directory is not writable; this test moves real files' );
+        }
+
+        return $dir;
+    }
+
     /** @return array{0:string,1:string} url, absolute path */
     private function seedUploadsImage(): array {
-        $uploads = wp_get_upload_dir();
-        $dir     = $uploads['basedir'] . '/tt-tests';
-        wp_mkdir_p( $dir );
+        $uploads = wp_upload_dir();
+        $dir     = $this->uploadsTestDir();
 
         $path = $dir . '/face-' . wp_generate_password( 6, false ) . '.png';
 

@@ -54,7 +54,10 @@ final class PlayerPhoto {
 
         $media = self::media( $player );
         if ( $media !== null ) {
-            return MediaDelivery::url( (string) $media->uuid );
+            $uuid = (string) ( $media->uuid ?? '' );
+            if ( $uuid !== '' ) {
+                return MediaDelivery::url( $uuid );
+            }
         }
 
         return self::legacyUrl( $player );

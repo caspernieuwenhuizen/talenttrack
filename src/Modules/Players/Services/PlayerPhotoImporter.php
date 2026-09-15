@@ -64,9 +64,11 @@ final class PlayerPhotoImporter {
             return 0;
         }
 
+        // Both keys always exist; each is `string|false`, so cast rather
+        // than `??`, which PHPStan reads as a check that can never fire.
         $type = wp_check_filetype( $path );
-        $mime = (string) ( $type['type'] ?? '' );
-        $ext  = (string) ( $type['ext'] ?? '' );
+        $mime = (string) $type['type'];
+        $ext  = (string) $type['ext'];
         if ( $mime === '' || strpos( $mime, 'image/' ) !== 0 ) {
             Logger::warning( 'player_photo.import.not_an_image', [ 'player' => $player_id, 'mime' => $mime ] );
             return 0;
