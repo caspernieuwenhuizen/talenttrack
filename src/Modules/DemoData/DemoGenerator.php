@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Import\Excel\ExcelImporter;
@@ -33,6 +34,24 @@ class DemoGenerator {
         'medium' => [ 'teams' => 6,  'players_per_team' => 12, 'weeks' => 16 ],
         'large'  => [ 'teams' => 12, 'players_per_team' => 12, 'weeks' => 36 ],
     ];
+
+    /**
+     * The most a per-run size override may ask for. `weeks` went from 104 to
+     * 156 in #3403 — three years rather than two, which is a full academy
+     * arc and what the multi-season shape (#3402) and the four-rounds-a-
+     * season cadence (#3401) were built for. Nothing argues for more teams
+     * or bigger squads, so those two are unchanged.
+     *
+     * @var array<string,int>
+     */
+    public const SIZE_CEILINGS = [
+        'teams'            => 40,
+        'players_per_team' => 40,
+        'weeks'            => 156,
+    ];
+
+    /** Where a clamped size override is left for the admin page to read. */
+    public const TRANSIENT_CLAMPS = 'tt_demo_last_clamps';
 
     /**
      * @param array<string,mixed> $opts preset, size, domain, password, seed,
@@ -89,13 +108,24 @@ class DemoGenerator {
         // a range a run can finish. An absent or unusable value leaves the
         // preset's, so an operator who overrides nothing gets exactly the
         // dataset they got before this existed.
-        $size = $opts['size'] ?? [];
-        foreach ( [ 'teams' => 40, 'players_per_team' => 40, 'weeks' => 104 ] as $key => $max ) {
+        //
+        // #3403 — a clamp says so. It used to reduce the value silently, so
+        // an operator asking for 156 weeks got 104 with nothing on screen to
+        // tell them, which is how the old two-year ceiling was found in the
+        // first place. Refusing outright would be worse: they should still
+        // get a run, just an honest one.
+        $size   = $opts['size'] ?? [];
+        $clamps = [];
+        foreach ( self::SIZE_CEILINGS as $key => $max ) {
             if ( ! isset( $size[ $key ] ) ) continue;
             $value = (int) $size[ $key ];
             if ( $value <= 0 ) continue;
             $config[ $key ] = min( $max, $value );
+            if ( $value > $max ) {
+                $clamps[] = [ 'key' => $key, 'requested' => $value, 'used' => $max ];
+            }
         }
+        self::reportClamps( $clamps );
 
         $seed = (int) ( $opts['seed'] ?? 20260504 );
 
@@ -329,7 +359,8 @@ class DemoGenerator {
             $registry,
             self::teamsFor( $state ),
             $users,
-            (int) ( $config['players_per_team'] ?? 0 )
+            (int) ( $config['players_per_team'] ?? 0 ),
+            (int) ( $config['weeks'] ?? 0 )
         );
         $state->addCounts( [ 'players' => count( $playerGen->generate() ) ] );
     }
@@ -379,7 +410,8 @@ class DemoGenerator {
             self::teamsFor( $state ),
             self::playersFor( $state ),
             $config,
-            (string) $state->get( 'content_language', 'en_US' )
+            (string) $state->get( 'content_language', 'en_US' ),
+            self::formerPlayersFor( $state )
         );
     }
 
@@ -414,6 +446,22 @@ class DemoGenerator {
     }
 
     /**
+     * #3402 — the players this run wrote who have since left the academy.
+     *
+     * Kept apart from the active roster on purpose: nothing should give a
+     * departed player next week's injury or a place in this season's squad.
+     * The generators that write history ask the context for both.
+     *
+     * @return object[]
+     */
+    private static function formerPlayersFor( DemoRunState $state ): array {
+        $scoped = (string) $state->get( 'source', 'procedural' ) !== 'procedural'
+            || (bool) $state->get( 'gen_players', true );
+
+        return self::loadPlayers( $scoped ? $state->batchId() : null, PlayerStatus::RELEASED );
+    }
+
+    /**
      * The shape `run()` has always returned, assembled from a finished (or
      * failed) run.
      *
@@ -440,6 +488,47 @@ class DemoGenerator {
         }
 
         return $out;
+    }
+
+    /**
+     * Say which size overrides were reduced, and to what (#3403).
+     *
+     * On the CLI that is a warning on the run's own output; on the form path
+     * it is a transient the demo-data page renders as a notice next to the
+     * "generation complete" one. Either way the operator is told the number
+     * the run actually used rather than being left to infer it from the
+     * dataset.
+     *
+     * @param list<array{key:string, requested:int, used:int}> $clamps
+     */
+    private static function reportClamps( array $clamps ): void {
+        if ( $clamps === [] ) return;
+
+        $labels = [
+            'teams'            => __( 'Teams', 'talenttrack' ),
+            'players_per_team' => __( 'Players per team', 'talenttrack' ),
+            'weeks'            => __( 'Weeks of history', 'talenttrack' ),
+        ];
+
+        $lines = [];
+        foreach ( $clamps as $clamp ) {
+            $key     = (string) $clamp['key'];
+            $lines[] = sprintf(
+                /* translators: 1: size field label, 2: the number asked for, 3: the number used */
+                __( '%1$s: asked for %2$d, generating %3$d — the most a run can finish.', 'talenttrack' ),
+                $labels[ $key ] ?? $key,
+                (int) $clamp['requested'],
+                (int) $clamp['used']
+            );
+        }
+
+        if ( defined( 'WP_CLI' ) && WP_CLI && class_exists( '\WP_CLI' ) ) {
+            foreach ( $lines as $line ) {
+                \WP_CLI::warning( $line );
+            }
+        }
+
+        set_transient( self::TRANSIENT_CLAMPS, $lines, 10 * MINUTE_IN_SECONDS );
     }
 
     /**
@@ -586,17 +675,18 @@ class DemoGenerator {
     }
 
     /**
-     * The active players a run works with. `$batch_id` narrows to what this
-     * run wrote; null means every active player in the club, which is what
-     * selective generation (`gen_players=false`) works against.
+     * The players a run works with at one lifecycle status. `$batch_id`
+     * narrows to what this run wrote; null means every matching player in
+     * the club, which is what selective generation (`gen_players=false`)
+     * works against.
      *
      * @return object[]
      */
-    private static function loadPlayers( ?string $batch_id ): array {
+    private static function loadPlayers( ?string $batch_id, string $status = PlayerStatus::ACTIVE ): array {
         global $wpdb;
 
-        $where  = [ 'p.club_id = %d', "p.status = 'active'" ];
-        $params = [ CurrentClub::id() ];
+        $where  = [ 'p.club_id = %d', 'p.status = %s' ];
+        $params = [ CurrentClub::id(), $status ];
 
         if ( $batch_id !== null ) {
             $where[]  = "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_demo_tags d

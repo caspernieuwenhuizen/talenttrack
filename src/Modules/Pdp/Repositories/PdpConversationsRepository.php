@@ -130,18 +130,52 @@ class PdpConversationsRepository {
             }
         }
 
+        $dates = self::evenlySpacedDates( $season_start, $season_end, $cycle_size );
+        if ( $dates === [] ) return 0;
+
+        return $this->createCycleOn( $file_id, $dates, $season_start, $season_end );
+    }
+
+    /**
+     * Distribute a cycle evenly across a season. The Nth conversation lands
+     * at the mid-point of the Nth slice — first conversation early-season,
+     * last conversation late-season, never on the very first or last day.
+     *
+     * @return list<string> `Y-m-d H:i:s`, ordered; empty when the season's
+     *                     dates do not make a range.
+     */
+    public static function evenlySpacedDates( string $season_start, string $season_end, int $cycle_size ): array {
+        $start_ts = strtotime( $season_start . ' 00:00:00' );
+        $end_ts   = strtotime( $season_end   . ' 23:59:59' );
+        if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts || $cycle_size < 1 ) return [];
+
+        $step = (int) floor( ( $end_ts - $start_ts ) / ( $cycle_size + 1 ) );
+
+        $out = [];
+        for ( $i = 1; $i <= $cycle_size; $i++ ) {
+            $out[] = gmdate( 'Y-m-d H:i:s', $start_ts + $step * $i );
+        }
+        return $out;
+    }
+
+    /**
+     * Seed a cycle on dates the caller chose, inside the season's bounds.
+     *
+     * The even divide above is one such choice; the demo generator makes
+     * another, aligning each conversation with the evaluation round that
+     * is its evidence (#3401). Both land here so there is one place that
+     * decides template keys and planning windows.
+     *
+     * @param list<string> $dates one per conversation, in sequence order
+     */
+    public function createCycleOn( int $file_id, array $dates, string $season_start, string $season_end ): int {
+        if ( $file_id <= 0 || $dates === [] ) return 0;
+
         $start_ts = strtotime( $season_start . ' 00:00:00' );
         $end_ts   = strtotime( $season_end   . ' 23:59:59' );
         if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts ) return 0;
 
-        // Distribute evenly. The Nth conversation lands at the
-        // mid-point of the Nth slice — first conversation early-
-        // season, last conversation late-season, never on the very
-        // first or last day.
-        $span = $end_ts - $start_ts;
-        $step = (int) floor( $span / ( $cycle_size + 1 ) );
-
-        $template_keys = $this->templateKeysFor( $cycle_size );
+        $template_keys = $this->templateKeysFor( count( $dates ) );
 
         // #0054 — planning window length is admin-configurable (default 21 days).
         $window_days = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'pdp_planning_window_days', '21' );
@@ -149,9 +183,10 @@ class PdpConversationsRepository {
         $half = (int) floor( $window_days / 2 );
 
         $inserted = 0;
-        for ( $i = 1; $i <= $cycle_size; $i++ ) {
-            $when_ts = $start_ts + $step * $i;
-            $when    = gmdate( 'Y-m-d H:i:s', $when_ts );
+        foreach ( array_values( $dates ) as $index => $date ) {
+            $when_ts = strtotime( $date );
+            if ( $when_ts === false ) continue;
+            $when_ts = max( $start_ts, min( $end_ts, $when_ts ) );
 
             $win_start = max( $start_ts, $when_ts - $half * 86400 );
             $win_end   = min( $end_ts,   $when_ts + $half * 86400 );
@@ -159,9 +194,9 @@ class PdpConversationsRepository {
             $ok = $this->wpdb->insert( $this->table, [
                 'club_id'               => CurrentClub::id(),
                 'pdp_file_id'           => $file_id,
-                'sequence'              => $i,
-                'template_key'          => $template_keys[ $i - 1 ] ?? 'mid',
-                'scheduled_at'          => $when,
+                'sequence'              => $index + 1,
+                'template_key'          => $template_keys[ $index ] ?? 'mid',
+                'scheduled_at'          => gmdate( 'Y-m-d H:i:s', $when_ts ),
                 'planning_window_start' => gmdate( 'Y-m-d', $win_start ),
                 'planning_window_end'   => gmdate( 'Y-m-d', $win_end ),
             ] );

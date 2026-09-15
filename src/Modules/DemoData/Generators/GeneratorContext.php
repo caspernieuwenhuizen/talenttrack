@@ -4,6 +4,8 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoRoster;
 
 /**
  * Everything a dependent generator needs, assembled once by the
@@ -24,8 +26,21 @@ class GeneratorContext {
     /** @var object[] tt_teams rows */
     public array $teams;
 
-    /** @var object[] tt_players rows */
+    /** @var object[] tt_players rows — the current, active roster */
     public array $players;
+
+    /**
+     * Players who left the academy inside the generated window (#3402).
+     *
+     * They are not on any current roster, so they are deliberately absent
+     * from `$players`: nothing should give a departed player an injury next
+     * week or a place in this season's squad. The generators that write
+     * history — attendance, evaluations, test results, the PDP dossier that
+     * ends in their release — read `historicPlayers()` instead.
+     *
+     * @var object[] tt_players rows
+     */
+    public array $formerPlayers;
 
     /** @var array{teams:int, players_per_team:int, weeks:int} */
     public array $preset;
@@ -33,12 +48,17 @@ class GeneratorContext {
     /** Locale the generated content is written in, e.g. `nl_NL`. */
     public string $contentLanguage;
 
+    private ?DemoCalendar $calendar = null;
+
+    private ?DemoRoster $roster = null;
+
     /**
      * @param array<string,int>  $users
      * @param object[]           $persons
      * @param object[]           $teams
      * @param object[]           $players
      * @param array{teams:int, players_per_team:int, weeks:int} $preset
+     * @param object[]           $formerPlayers
      */
     public function __construct(
         DemoBatchRegistry $registry,
@@ -47,7 +67,8 @@ class GeneratorContext {
         array $teams,
         array $players,
         array $preset,
-        string $contentLanguage
+        string $contentLanguage,
+        array $formerPlayers = []
     ) {
         $this->registry        = $registry;
         $this->users           = $users;
@@ -56,6 +77,7 @@ class GeneratorContext {
         $this->players         = $players;
         $this->preset          = $preset;
         $this->contentLanguage = $contentLanguage;
+        $this->formerPlayers   = $formerPlayers;
     }
 
     public function weeks(): int {
@@ -64,5 +86,31 @@ class GeneratorContext {
 
     public function playersPerTeam(): int {
         return (int) ( $this->preset['players_per_team'] ?? 0 );
+    }
+
+    /**
+     * Everyone the window covers — the current roster plus the players who
+     * left inside it.
+     *
+     * @return object[]
+     */
+    public function historicPlayers(): array {
+        return array_merge( $this->players, $this->formerPlayers );
+    }
+
+    /** The run's seasons, round dates and fixture slots. Built once. */
+    public function calendar(): DemoCalendar {
+        if ( $this->calendar === null ) {
+            $this->calendar = new DemoCalendar( $this->weeks() );
+        }
+        return $this->calendar;
+    }
+
+    /** Which team each player was in, season by season. Built once. */
+    public function roster(): DemoRoster {
+        if ( $this->roster === null ) {
+            $this->roster = new DemoRoster( $this->calendar(), $this->teams, $this->historicPlayers() );
+        }
+        return $this->roster;
     }
 }

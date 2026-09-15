@@ -36,7 +36,7 @@ records nooit raakt.
 | Spelersprofiel | Historie per leeftijdsgroep, attribuutwaarden, eigen velden van de club met waarden, en koppelingen tussen doelen en evaluaties |
 | Spelersrapporten | Gegenereerde rapporten voor de doelgroepen die een academie gebruikt |
 | Metingen | Een testbatterij, streefwaarden per leeftijdsgroep, testsessies per team en één resultaat per speler |
-| POP-cyclus | Het seizoen, een ontwikkeldossier per speler, de gesprekscyclus, agendakoppelingen en eindoordelen |
+| POP-cyclus | Eén seizoen per jaar dat het venster beslaat, een ontwikkeldossier per speler per seizoen, de gesprekscyclus, agendakoppelingen en eindoordelen |
 | Trainingsinhoud | Oefeningen en principes per training, oefeningsuitzonderingen per team, vakantieperiodes |
 | Wedstrijddag | Wedstrijdvoorbereiding voor elke wedstrijd, plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden |
 | Testtrainingen | Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep |
@@ -54,6 +54,23 @@ Elke preset genereert 12 spelers per team.
 
 De teams worden **gespreid over je leeftijdsladder** in plaats van vanaf de jongste kant genomen, dus een academie van drie teams krijgt een jong team, een ouder team en iets ertussenin. Dat is meer dan variatie: potentieelklassen, POP-cycli en beoordelingen met ontwikkelplannen laat je niet zien op zevenjarigen, en vóór dit was de oudste demospeler zeven. Leeftijdsgroepen zonder leeftijd in de naam — een verzamelgroep **Senior** bijvoorbeeld — worden overgeslagen, omdat de generator het geboortejaar van een speler uit de groepsnaam afleidt en zo'n team anders met kinderen zou vullen.
 
+**Evaluaties komen in twee ritmes**, omdat er twee dingen worden vastgelegd.
+**Ronde-evaluaties** worden vier keer per seizoen geschreven — een nulmeting
+aan het begin, twee rondes halverwege en een eindevaluatie — een paar dagen
+vóór het POP-gesprek dat ze bespreekt, zodat het onderbouwingspaneel bij elk
+gegenereerd gesprek de ronde erachter heeft staan. **Wedstrijdevaluaties**
+worden geschreven bij de wedstrijden die de run genereert, in hun eigen ritme
+per wedstrijd, voor ruwweg een derde van de wedstrijden waarvoor een speler
+beschikbaar was. Een venster van drie jaar levert een speler daarmee zo'n
+twaalf ronde-evaluaties op in plaats van driehonderd — het verschil tussen een
+lijst die een trainer overziet en een lijst waar hij doorheen scrolt.
+
+Beoordelingen worden geschreven **op de schaal die de installatie gebruikt** en
+landen op waarden die die schaal kan uitdrukken — geen 6,4 bij een stap van 1.
+Een archetype dat vooruitgaat schuift per seizoen minstens een hele stap op,
+zodat het ontwikkelverhaal uit de lijst te lezen is zonder een grafiek te
+openen.
+
 **Gedrag en potentieel** worden mét hun gaten gevuld. Ongeveer één op de vijf spelers die oud genoeg is voor een potentieelklasse heeft er geen, per team blijft er één te lang onaangeroerd, en bij één wordt de klasse naar **beneden** bijgesteld in plaats van omhoog. Dat is bewust: het stoplicht, de melding *Potentieel niet herzien* en het potentieelverloop bestaan juist om ontbrekende en bewegende gegevens zichtbaar te maken, en een demo waarin nooit iets ontbreekt of te laat is, laat ze lijken op functies die nooit afgaan. Onder de 13 jaar wordt helemaal geen potentieel gevuld — het product vraagt er daar niet naar, dus de demo ook niet.
 
 Het aantal weken is hoe ver het activiteitenvenster **terug** loopt. Daar
@@ -66,6 +83,41 @@ beoordelingen en geen wedstrijduitvoering. Wedstrijdvoorbereiding wordt er wel
 voor geschreven — precies zoals het scherm van een trainer er midden in de week
 uitziet.
 
+## Seizoenen
+
+Het venster bepaalt hoeveel **seizoenen** een run bouwt: één per seizoensjaar
+dat hij raakt, volgens de clubconventie van augustus tot juni. Een kort venster
+geeft één seizoen; drie jaar historie geeft er drie of vier, afhankelijk van
+waar in de kalender de run begint. Een seizoen dat de club al heeft, wordt
+hergebruikt in plaats van gedupliceerd, en wordt nooit door een wisbeurt
+verwijderd.
+
+Elk seizoen draagt zijn **eigen POP-cyclus** — een dossier per speler, vier
+gesprekken, en de voorbereiding van de trainer op elk daarvan. Afgeronde
+seizoenen worden **afgesloten met een eindoordeel**; het huidige seizoen blijft
+open, op het punt waar het venster het achterlaat. Bij een venster dat maar één
+seizoen beslaat, wordt in plaats daarvan een minderheid van de dossiers
+afgesloten, zodat er naast de open dossiers toch een afgerond dossier in beeld
+staat. Eerdere seizoenen worden **niet gearchiveerd** — gearchiveerde rijen
+vallen uit de meeste lijsten, en het grootste deel verbergen van wat er is
+gegenereerd is precies het tegenovergestelde van waarom het is gegenereerd.
+
+De selectie **schuift door tussen seizoenen**. Een speler die dit seizoen O13
+is, zat vorig seizoen in O12 en het seizoen daarvoor in O11, en zijn
+`tt_player_team_history` zegt dat ook — net als het werk zelf: de trainingen
+waar hij bij was, de evaluaties die over hem zijn geschreven en de testsessies
+waar hij in een eerder seizoen aan meedeed, horen bij het team waar hij **toen**
+in zat, niet bij het team van nu. Een team dat de lichtingen van de academie in
+een vroeg seizoen nog niet hadden bereikt, krijgt daarin geen trainingen, in
+plaats van een kalender vol sessies waar niemand bij was.
+
+Spelers **komen en gaan**. Sommigen sluiten halverwege het venster aan, en een
+paar per team zijn aan het eind van een eerder seizoen vertrokken — uitgestroomd,
+van elke huidige selectie af, maar met de historie die ze achterlaten intact,
+tot en met het dossier waarvan het eindoordeel het vertrek zelf is. In een run
+waarvan het venster één seizoen beslaat vertrekt niemand: een selectie kan niet
+tussen seizoenen zijn veranderd die er niet twee zijn.
+
 **Eigen aantallen instellen** onder de preset opent drie velden — teams, spelers
 per team, weken historie — voorgevuld vanuit de gekozen preset en per run aan te
 passen. Dit is de enige manier om het aantal spelers te wijzigen, en daarmee het
@@ -73,8 +125,13 @@ aantal demo-accounts: elke preset levert 12 spelers per team, wat past bij een
 O15-selectie en niet bij een O8 die zes-tegen-zes speelt. Laat je een veld leeg,
 dan wordt de waarde van de preset gebruikt, dus als je niets aanraakt krijg je
 precies wat de preset altijd al genereerde. De regel onder de velden toont
-tijdens het typen hoeveel spelers en accounts dat oplevert. Waarden worden
-begrensd tot wat een run kan afmaken.
+tijdens het typen hoeveel spelers en accounts dat oplevert.
+
+Waarden worden begrensd tot wat een run kan afmaken — maximaal **40 teams**,
+**40 spelers per team** en **156 weken** (drie jaar) historie. Een getal boven
+een maximum wordt niet geweigerd: de run gaat door met het maximum en **zegt
+dat ook**, in een melding op deze pagina en als waarschuwing op de
+commandoregel, met het gevraagde getal en het gebruikte getal erbij.
 
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op — en dezelfde academie of je hem nu in één keer

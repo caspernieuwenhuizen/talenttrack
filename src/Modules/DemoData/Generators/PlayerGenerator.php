@@ -65,6 +65,8 @@ class PlayerGenerator implements GeneratorInterface {
 
     private int $perTeam;
 
+    private int $weeks;
+
     public static function category(): string {
         return 'players';
     }
@@ -77,12 +79,14 @@ class PlayerGenerator implements GeneratorInterface {
         DemoBatchRegistry $registry,
         array $teams,
         array $users,
-        int $perTeam = 12
+        int $perTeam = 12,
+        int $weeks = 8
     ) {
         $this->registry = $registry;
         $this->teams    = $teams;
         $this->users    = $users;
         $this->perTeam  = $perTeam;
+        $this->weeks    = max( 1, $weeks );
     }
 
     /**
@@ -115,7 +119,8 @@ class PlayerGenerator implements GeneratorInterface {
         $all = [];
 
         foreach ( $this->teams as $team ) {
-            $age = $this->ageFromGroup( (string) $team->age_group );
+            $team_id = (int) $team->id;
+            $age     = $this->ageFromGroup( (string) $team->age_group );
             $used_jerseys = [];
 
             for ( $i = 0; $i < $this->perTeam; $i++ ) {
@@ -158,7 +163,7 @@ class PlayerGenerator implements GeneratorInterface {
                     'preferred_foot'      => $foot,
                     'preferred_positions' => (string) wp_json_encode( $pos ),
                     'jersey_number'       => $jersey,
-                    'team_id'             => (int) $team->id,
+                    'team_id'             => $team_id,
                     'date_joined'         => $date_joined,
                     // #1772 — NULL (not 0) for an unbound demo player so
                     // the UNIQUE (club_id, wp_user_id) index holds.
@@ -174,7 +179,7 @@ class PlayerGenerator implements GeneratorInterface {
                 if ( $player_id > 0 ) {
                     do_action( 'tt_player_created', $player_id, [
                         'date_joined' => $date_joined,
-                        'team_id'     => (int) $team->id,
+                        'team_id'     => $team_id,
                         'status'      => PlayerStatus::ACTIVE,
                     ] );
                 }
@@ -189,19 +194,110 @@ class PlayerGenerator implements GeneratorInterface {
                 $archetype = $this->pickArchetype();
                 $this->registry->tag( 'player', $player_id, [
                     'archetype'    => $archetype,
-                    'team_id'      => (int) $team->id,
+                    'team_id'      => $team_id,
                     'bound_slot'   => $wp_user_id > 0 ? 'player' . ( $player_binding_slot - 1 ) : null,
                 ] );
 
                 $all[] = (object) [
                     'id'         => $player_id,
-                    'team_id'    => (int) $team->id,
+                    'team_id'    => $team_id,
                     'archetype'  => $archetype,
                     'wp_user_id' => $wp_user_id,
                 ];
             }
+
+            foreach ( $this->generateDeparted( $team_id, $age + 1, $first, $last ) as $gone ) {
+                $all[] = $gone;
+            }
         }
         return $all;
+    }
+
+    /**
+     * #3402 — the squad has to change between seasons.
+     *
+     * A handful of players per team left the academy at the end of the last
+     * completed season. They are `released`, so they are off every current
+     * roster and out of `DemoGenerator::loadPlayers()`; what they leave
+     * behind is the history the window covers — the trainings they attended,
+     * the evaluations written about them, and the dossier whose verdict is
+     * the release itself. A roster that never moves is the one thing every
+     * academy would notice as false.
+     *
+     * Nothing is generated when the window covers a single season: a squad
+     * cannot have changed between seasons there are not two of.
+     *
+     * @param int      $age   a year above this season's squad — they were in
+     *                        this age group when they left, and that was at
+     *                        least a season ago
+     * @param string[] $first
+     * @param string[] $last
+     * @return list<object>
+     */
+    private function generateDeparted( int $team_id, int $age, array $first, array $last ): array {
+        global $wpdb;
+
+        if ( ( new \TT\Modules\DemoData\DemoCalendar( $this->weeks ) )->seasonCount() < 2 ) {
+            return [];
+        }
+
+        // A quarter of a squad's worth, which is roughly the churn a youth
+        // academy has between seasons.
+        $count = max( 1, (int) floor( $this->perTeam / 4 ) );
+
+        $out = [];
+        for ( $i = 0; $i < $count; $i++ ) {
+            $fn = $first[ mt_rand( 0, count( $first ) - 1 ) ];
+            $ln = $last[ mt_rand( 0, count( $last ) - 1 ) ];
+
+            $height = $this->heightForAge( $age );
+            $wpdb->insert( "{$wpdb->prefix}tt_players", [
+                'club_id'             => CurrentClub::id(),
+                'first_name'          => $fn,
+                'last_name'           => $ln,
+                'date_of_birth'       => $this->randomDobForAge( $age ),
+                'sex'                 => \TT\Domain\Vocabularies\Lookups\PlayerSex::MALE,
+                'nationality'         => 'NL',
+                'height_cm'           => $height,
+                'weight_kg'           => $this->weightForAge( $age, $height ),
+                'preferred_foot'      => $this->pickFoot(),
+                'preferred_positions' => (string) wp_json_encode( $this->pickPositions() ),
+                'jersey_number'       => null,
+                'team_id'             => $team_id,
+                'date_joined'         => gmdate( 'Y-m-d', strtotime( '-' . ( $this->weeks + 52 ) . ' weeks' ) ?: time() ),
+                'wp_user_id'          => null,
+                'status'              => PlayerStatus::RELEASED,
+            ] );
+            $player_id = (int) $wpdb->insert_id;
+            if ( $player_id <= 0 ) continue;
+
+            // The same two hooks the real create-then-release path fires, so
+            // the timeline carries both the arrival and the departure rather
+            // than a player who appears already gone.
+            do_action( 'tt_player_created', $player_id, [
+                'team_id' => $team_id,
+                'status'  => PlayerStatus::ACTIVE,
+            ] );
+            do_action(
+                'tt_player_save_diff',
+                $player_id,
+                [ 'status' => PlayerStatus::ACTIVE ],
+                [ 'status' => PlayerStatus::RELEASED ]
+            );
+
+            $this->registry->tag( 'player', $player_id, [
+                'archetype' => \TT\Modules\DemoData\DemoRoster::ARCHETYPE_DEPARTED,
+                'team_id'   => $team_id,
+            ] );
+
+            $out[] = (object) [
+                'id'         => $player_id,
+                'team_id'    => $team_id,
+                'archetype'  => \TT\Modules\DemoData\DemoRoster::ARCHETYPE_DEPARTED,
+                'wp_user_id' => 0,
+            ];
+        }
+        return $out;
     }
 
     /**

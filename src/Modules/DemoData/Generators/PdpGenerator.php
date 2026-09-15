@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
@@ -14,6 +16,12 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 /**
  * PdpGenerator — seasons, PDP dossiers, their conversation cycle, the
  * verdicts that close them, and calendar links.
+ *
+ * One season per year the history window covers (#3402), not one season per
+ * run. A two-year window used to produce a single season stretched across
+ * both, so a player's dossier covered two age groups at once and the
+ * "previous season" every carry-over and comparison surface reads had
+ * nothing in it.
  *
  * Goes through the PDP repositories so the conversation cycle is spaced by
  * the same block/planning-window logic the real flow uses, and so a signed-off
@@ -44,12 +52,16 @@ class PdpGenerator implements DependentGeneratorInterface {
         ],
     ];
 
-    /** Verdict mix — most players stay, a few move up, releases are rare. */
+    /**
+     * Verdict mix for a player who is still at the academy — most stay, a
+     * few move up. Release and transfer are deliberately absent: a verdict
+     * that released a player who is on next season's roster is the kind of
+     * contradiction the multi-season demo exists to remove (#3402). The
+     * departed cohort carries those decisions instead.
+     */
     private const DECISION_WEIGHTS = [
-        [ 20, PdpVerdictDecision::PROMOTE ],
-        [ 88, PdpVerdictDecision::RETAIN ],
-        [ 96, PdpVerdictDecision::RELEASE ],
-        [ 100, PdpVerdictDecision::TRANSFER ],
+        [ 22, PdpVerdictDecision::PROMOTE ],
+        [ 100, PdpVerdictDecision::RETAIN ],
     ];
 
     private DemoBatchRegistry $registry;
@@ -67,12 +79,25 @@ class PdpGenerator implements DependentGeneratorInterface {
 
     private string $language;
 
+    private DemoCalendar $calendar;
+
+    private DemoRoster $roster;
+
     public static function category(): string {
         return 'pdp';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->users, $ctx->weeks(), $ctx->contentLanguage );
+        return new self(
+            $ctx->registry,
+            $ctx->historicPlayers(),
+            $ctx->teams,
+            $ctx->users,
+            $ctx->weeks(),
+            $ctx->contentLanguage,
+            $ctx->calendar(),
+            $ctx->roster()
+        );
     }
 
     /**
@@ -86,7 +111,9 @@ class PdpGenerator implements DependentGeneratorInterface {
         array $teams,
         array $users,
         int $weeks,
-        string $language = ''
+        string $language = '',
+        ?DemoCalendar $calendar = null,
+        ?DemoRoster $roster = null
     ) {
         $this->registry = $registry;
         $this->players  = $players;
@@ -94,14 +121,13 @@ class PdpGenerator implements DependentGeneratorInterface {
         $this->users    = $users;
         $this->weeks    = max( 1, $weeks );
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $this->calendar = $calendar ?? new DemoCalendar( $this->weeks );
+        $this->roster   = $roster ?? new DemoRoster( $this->calendar, $teams, $players );
     }
 
     public function generate(): int {
-        $season_id = $this->ensureCurrentSeason();
-        if ( $season_id <= 0 ) return 0;
-
-        $season = ( new SeasonsRepository() )->find( $season_id );
-        if ( ! $season ) return 0;
+        $seasons = $this->ensureSeasons();
+        if ( $seasons === [] ) return 0;
 
         $copy  = self::COPY_BY_LANGUAGE[ self::resolveLanguage( $this->language ) ];
         $files = new PdpFilesRepository();
@@ -113,38 +139,60 @@ class PdpGenerator implements DependentGeneratorInterface {
             $coach_by_team[ (int) $t->id ] = (int) ( $t->head_coach_user_id ?? 0 );
         }
 
-        $total = 1; // the season itself
-        foreach ( $this->players as $p ) {
-            $player_id = (int) ( $p->id ?? 0 );
-            if ( $player_id <= 0 ) continue;
+        $last_index = (int) array_key_last( $seasons );
 
-            $coach_id   = (int) ( $coach_by_team[ (int) ( $p->team_id ?? 0 ) ] ?? 0 );
-            $cycle_size = [ 2, 3, 3, 4 ][ mt_rand( 0, 3 ) ];
+        $total = count( $seasons ); // the seasons themselves
+        foreach ( $seasons as $index => $season ) {
+            $start = (string) $season['start'];
+            $end   = (string) $season['end'];
 
-            $file_id = $files->create( [
-                'player_id'      => $player_id,
-                'season_id'      => $season_id,
-                'owner_coach_id' => $coach_id > 0 ? $coach_id : null,
-                'cycle_size'     => $cycle_size,
-                'notes'          => $copy['prep'],
-            ] );
-            if ( $file_id <= 0 ) continue;
+            // The dossier's conversations sit where the evaluation rounds
+            // put them, so `EvidencePacket::forConversation()` has the round
+            // behind each talk rather than an empty packet (#3401).
+            $dates        = $this->calendar->conversationDates( [ 'start_date' => $start, 'end_date' => $end ] );
+            $season_files = [];
+            $is_current   = $index === $last_index;
 
-            $this->registry->tag( 'pdp_file', $file_id, [ 'player_id' => $player_id, 'cycle_size' => $cycle_size ] );
-            $total++;
+            foreach ( $this->players as $p ) {
+                $player_id = (int) ( $p->id ?? 0 );
+                if ( $player_id <= 0 ) continue;
 
-            $convs->createCycle(
-                $file_id,
-                $cycle_size,
-                (string) $season->start_date,
-                (string) $season->end_date,
-                $season_id
-            );
+                $team_id = $this->roster->teamForPlayerInSeason( $player_id, $index );
+                if ( $team_id <= 0 ) continue; // not at the academy that season
 
-            $total += $this->fillCycle( $file_id, $coach_id, $copy );
+                $coach_id = (int) ( $coach_by_team[ $team_id ] ?? 0 );
+
+                $file_id = $files->create( [
+                    'player_id'      => $player_id,
+                    'season_id'      => $season['id'],
+                    'owner_coach_id' => $coach_id > 0 ? $coach_id : null,
+                    'cycle_size'     => DemoCalendar::ROUNDS_PER_SEASON,
+                    'notes'          => $copy['prep'],
+                ] );
+                if ( $file_id <= 0 ) continue;
+
+                $this->registry->tag( 'pdp_file', $file_id, [
+                    'player_id'  => $player_id,
+                    'cycle_size' => DemoCalendar::ROUNDS_PER_SEASON,
+                    'season_id'  => $season['id'],
+                ] );
+                $total++;
+                $season_files[ $file_id ] = $player_id;
+
+                $convs->createCycleOn( $file_id, $dates, $start, $end );
+                $total += $this->fillCycle( $file_id, $coach_id, $copy );
+            }
+
+            // #3402 — a finished season with an open conversation cycle is
+            // not a state a real academy is in. Prior seasons close with a
+            // verdict; the current one stays open at whatever stage the
+            // window puts it. A window covering only one season keeps the
+            // old sample so a completed dossier is still on screen.
+            $total += $is_current && count( $seasons ) > 1
+                ? 0
+                : $this->closeFiles( $files, $hoa, $copy, $season_files, $end, $is_current, (int) $index );
         }
 
-        $total += $this->closeSomeFiles( $files, $hoa, $copy );
         return $total;
     }
 
@@ -259,26 +307,43 @@ class PdpGenerator implements DependentGeneratorInterface {
     }
 
     /**
-     * Close a minority of dossiers with a verdict, so both an open cycle and
-     * a completed one are on screen. Signed-off verdicts raise their journey
-     * event through the repository.
+     * Write the verdicts that close a season's dossiers.
      *
+     * A season that has finished closes all of them — an academy does not
+     * carry an open cycle into the next year (#3402). The current season
+     * only reaches here when it is the only season the window covers, and
+     * then a minority close, so a completed dossier is still on screen next
+     * to the open ones.
+     *
+     * Signed-off verdicts raise their journey event through the repository.
+     *
+     * @param array<int,int> $season_files file id => the player it is about
      * @param array{prep:string, notes:string, actions:string, reflection:string, summary:string} $copy
      */
-    private function closeSomeFiles( PdpFilesRepository $files, int $hoa, array $copy ): int {
+    private function closeFiles(
+        PdpFilesRepository $files,
+        int $hoa,
+        array $copy,
+        array $season_files,
+        string $season_end,
+        bool $is_current,
+        int $season_index
+    ): int {
         $verdicts = new PdpVerdictsRepository();
-        $file_ids = $this->registry->entityIds( 'pdp_file' );
 
         $total = 0;
-        foreach ( $file_ids as $file_id ) {
-            if ( mt_rand( 1, 100 ) > 30 ) continue;
+        foreach ( $season_files as $file_id => $player_id ) {
+            if ( $is_current && mt_rand( 1, 100 ) > 30 ) continue;
 
             $file = $files->find( (int) $file_id );
             if ( ! $file ) continue;
 
-            $signed_off = gmdate( 'Y-m-d H:i:s', strtotime( '-' . mt_rand( 3, 30 ) . ' days' ) ?: time() );
+            $signed_off = $is_current
+                ? gmdate( 'Y-m-d H:i:s', strtotime( '-' . mt_rand( 3, 30 ) . ' days' ) ?: time() )
+                : gmdate( 'Y-m-d H:i:s', strtotime( $season_end . ' -' . mt_rand( 1, 21 ) . ' days' ) ?: time() );
+
             $ok = $verdicts->upsertForFile( (int) $file_id, [
-                'decision'           => $this->pickDecision(),
+                'decision'           => $this->pickDecision( (int) $player_id, $season_index ),
                 'summary'            => $copy['summary'],
                 'coach_id'           => (int) ( $file->owner_coach_id ?? 0 ),
                 'head_of_academy_id' => $hoa,
@@ -297,38 +362,72 @@ class PdpGenerator implements DependentGeneratorInterface {
     }
 
     /**
-     * Reuse the club's current season when it has one; otherwise create a
-     * season spanning the generated window so dossiers and conversations
-     * fall inside it.
+     * One season row per year the window covers, oldest first.
+     *
+     * A season the club already has is reused rather than duplicated — and
+     * kept untagged, so a demo wipe never takes an academy's own season with
+     * it. Only the ones this run creates are tagged. The last is made
+     * current.
+     *
+     * @return array<int, array{id:int, start:string, end:string}> keyed by the calendar's season index
      */
-    private function ensureCurrentSeason(): int {
-        $seasons = new SeasonsRepository();
-
-        $current = $seasons->current();
-        if ( $current ) {
-            return (int) $current->id;
+    private function ensureSeasons(): array {
+        $repo     = new SeasonsRepository();
+        $existing = [];
+        foreach ( $repo->all() as $object ) {
+            $row = (array) $object;
+            $existing[ (string) ( $row['name'] ?? '' ) ]       = $row;
+            $existing[ (string) ( $row['start_date'] ?? '' ) ] = $row;
         }
 
-        $start_ts = strtotime( '-' . $this->weeks . ' weeks' );
-        if ( $start_ts === false ) $start_ts = time();
-        // Round out to a plausible season rather than exactly the window, so
-        // the upcoming conversation still has room ahead of it.
-        $start = gmdate( 'Y-m-d', $start_ts );
-        $end   = gmdate( 'Y-m-d', strtotime( '+' . max( 8, (int) round( $this->weeks / 2 ) ) . ' weeks' ) ?: time() );
+        $out     = [];
+        $current = 0;
+        foreach ( $this->calendar->seasons() as $season ) {
+            $row = $existing[ (string) $season['name'] ] ?? $existing[ (string) $season['start_date'] ] ?? null;
 
-        $id = $seasons->create( [
-            'name'       => gmdate( 'Y', $start_ts ) . '/' . gmdate( 'y', strtotime( $end ) ?: time() ),
-            'start_date' => $start,
-            'end_date'   => $end,
-        ] );
-        if ( $id > 0 ) {
-            $seasons->setCurrent( $id );
-            $this->registry->tag( 'season', $id );
+            if ( $row === null ) {
+                $id = $repo->create( [
+                    'name'       => (string) $season['name'],
+                    'start_date' => (string) $season['start_date'],
+                    'end_date'   => (string) $season['end_date'],
+                ] );
+                if ( $id <= 0 ) continue;
+                $this->registry->tag( 'season', $id );
+
+                $created = $repo->find( $id );
+                if ( $created === null ) continue;
+                $row = (array) $created;
+            }
+
+            $out[ (int) $season['index'] ] = [
+                'id'    => (int) ( $row['id'] ?? 0 ),
+                'start' => (string) ( $row['start_date'] ?? '' ),
+                'end'   => (string) ( $row['end_date'] ?? '' ),
+            ];
+            $current = (int) ( $row['id'] ?? 0 );
         }
-        return $id;
+
+        if ( $current > 0 ) {
+            $repo->setCurrent( $current );
+        }
+        return $out;
     }
 
-    private function pickDecision(): string {
+    /**
+     * What a season's verdict says. The verdict that ends a departed
+     * player's last season is the release itself; everyone else stays or
+     * moves up.
+     */
+    private function pickDecision( int $player_id, int $season_index ): string {
+        $leaving = $player_id > 0
+            && $this->roster->teamForPlayerInSeason( $player_id, $season_index ) > 0
+            && $this->roster->teamForPlayerInSeason( $player_id, $season_index + 1 ) === 0
+            && $season_index < $this->calendar->seasonCount() - 1;
+
+        if ( $leaving ) {
+            return PdpVerdictDecision::RELEASE;
+        }
+
         $roll = mt_rand( 1, 100 );
         foreach ( self::DECISION_WEIGHTS as [ $cut, $decision ] ) {
             if ( $roll <= $cut ) return $decision;
