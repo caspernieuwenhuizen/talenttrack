@@ -71,6 +71,13 @@ use TT\Infrastructure\Filters\FilterParam;
  *         'active_label' (text shown on the period pill trigger),
  *         'default_value' — the option the surface opens on, which is not a
  *         filter the reader set and so raises no chip (#3346).
+ *         A `period` group may also own the custom From/To (#3331) via
+ *         'custom' => ['from' => [name, value], 'to' => [...], 'label'?] plus
+ *         'custom_active'; declare 'default_from' / 'default_to' alongside
+ *         them — the window the surface SEEDS — so a range raises a chip only
+ *         when it differs from that (#3346). Without the declaration the bar
+ *         chips no range at all, because a chip on a seeded window would be
+ *         permanent and unremovable-in-effect.
  * menu:   'options' as above, plus 'default_value' — the option that needs no
  *         announcing. Any other active option raises the chip + accent.
  * toggle: 'name', 'on' (bool), 'on_label' (the "Tonen" text),
@@ -257,11 +264,15 @@ final class FilterBar {
 	 * caller-supplied `chips` list is bare labels and cannot be made
 	 * removable; this can.
 	 *
-	 * `date_range` is deliberately NOT derived. Every report seeds a default
-	 * From/To, so "has a value" does not mean "the reader filtered": a
-	 * derived chip would be permanent and unremovable-in-effect. Whether a
-	 * window is the default is knowledge the caller has, and
-	 * `ReportFilters::customRangeChip()` (#3293) is where it lives.
+	 * A window is derived only when the caller says what its default is.
+	 * Every report seeds a From/To, so "has a value" does not mean "the reader
+	 * filtered": a chip on the seeded one would be permanent and
+	 * unremovable-in-effect. That was why `date_range` was left underived —
+	 * not a gap, a constraint. #3346 satisfies it rather than removing it: a
+	 * `period` group declares `default_from` / `default_to` (the knowledge
+	 * `ReportFilters::customRangeChip()` held privately since #3293) and the
+	 * bar chips a range only when it differs. A standalone `date_range` group
+	 * still declares nothing and so is still not derived.
 	 *
 	 * @param array<int,array<string,mixed>> $groups
 	 * @return list<array{label:string, clear_url:string}>
@@ -301,6 +312,23 @@ final class FilterBar {
 					];
 					break;
 
+				case 'date_range':
+					// #3346 — derived only for a caller that declared its
+					// default window; see rangeChip(). Both bounds clear
+					// together: half a range is not a filter anyone set.
+					$range = self::rangeChip( $group );
+					if ( $range === '' ) break;
+					$from_cfg = isset( $group['from'] ) && is_array( $group['from'] ) ? $group['from'] : [];
+					$to_cfg   = isset( $group['to'] )   && is_array( $group['to'] )   ? $group['to']   : [];
+					$chips[] = [
+						'label'     => self::chipLabel( $glabel, $range ),
+						'clear_url' => FilterParam::removeFromUrl(
+							(string) ( $to_cfg['name'] ?? '' ),
+							FilterParam::removeFromUrl( (string) ( $from_cfg['name'] ?? '' ) )
+						),
+					];
+					break;
+
 				case 'toggle':
 					// `on`, not `checked` — same mismatch as `select` above.
 					// A toggle group carries `on`; `checked` is not a key the
@@ -328,9 +356,9 @@ final class FilterBar {
 					foreach ( $options as $opt ) {
 						if ( is_array( $opt ) && ! empty( $opt['active'] ) ) { $active = $opt; break; }
 					}
-					if ( $active === null ) break;
-					if ( (string) ( $active['value'] ?? '' ) === $default ) break; // already the default
 
+					// The URL back to the default — the ✕ target for either
+					// chip below.
 					$clear = '';
 					foreach ( $options as $opt ) {
 						if ( is_array( $opt ) && (string) ( $opt['value'] ?? '' ) === $default ) {
@@ -338,15 +366,84 @@ final class FilterBar {
 							break;
 						}
 					}
-					$chips[] = [
-						'label'     => self::chipLabel( $glabel, (string) ( $active['label'] ?? '' ) ),
-						'clear_url' => $clear,
-					];
+
+					if ( $active !== null && (string) ( $active['value'] ?? '' ) !== $default ) {
+						$chips[] = [
+							'label'     => self::chipLabel( $glabel, (string) ( $active['label'] ?? '' ) ),
+							'clear_url' => $clear,
+						];
+						break;
+					}
+
+					// #3346 — no preset is active, so a `period` group's own
+					// From/To (#3331) may be what the query ran on.
+					//
+					// This is what `date_range` could never be derived from.
+					// Every report SEEDS a window, so "has a value" does not
+					// mean "the reader filtered", and a chip on the seeded one
+					// would be permanent and unremovable-in-effect. The caller
+					// declares its default window; a range that differs from
+					// it is a filter, and one that matches is furniture.
+					//
+					// Only when no preset is active: a preset already
+					// describes its window, and `this_season` runs to the
+					// season's end date while the seeded default stops today,
+					// so the two never compare equal and both would chip.
+					$range = self::rangeChip( $group );
+					if ( $range !== '' ) {
+						$chips[] = [
+							'label'     => self::chipLabel( $glabel, $range ),
+							// Back to the default window, not to an empty one.
+							'clear_url' => $clear,
+						];
+					}
 					break;
 			}
 		}
 
 		return $chips;
+	}
+
+	/**
+	 * The value half of a chip for a `period` group's own From/To (#3346), or
+	 * '' when the window is the one the surface seeded.
+	 *
+	 * The caller declares `default_from` / `default_to`; without them a
+	 * seeded window would chip itself and its ✕ would appear to do nothing,
+	 * which is why `date_range` was deliberately underived before this.
+	 *
+	 * @param array<string,mixed> $group
+	 */
+	private static function rangeChip( array $group ): string {
+		// A `period` group keeps its dates under `custom` (#3331); a standalone
+		// `date_range` group carries them at the top level. Same two fields,
+		// two shapes, one reader.
+		$custom = isset( $group['custom'] ) && is_array( $group['custom'] ) ? $group['custom'] : $group;
+
+		$from_cfg = isset( $custom['from'] ) && is_array( $custom['from'] ) ? $custom['from'] : [];
+		$to_cfg   = isset( $custom['to'] )   && is_array( $custom['to'] )   ? $custom['to']   : [];
+		$from = trim( (string) ( $from_cfg['value'] ?? '' ) );
+		$to   = trim( (string) ( $to_cfg['value'] ?? '' ) );
+		if ( $from === '' && $to === '' ) return '';
+
+		// A caller that has not said what its default window is gets no chip.
+		// Guessing produces exactly the permanent, unremovable-in-effect chip
+		// this declaration exists to prevent — so the DECLARATION is the
+		// opt-in, not its value: a surface that seeds nothing (the comparison
+		// view) declares empty strings and every value it holds is a filter.
+		if ( ! array_key_exists( 'default_from', $group )
+			&& ! array_key_exists( 'default_to', $group ) ) {
+			return '';
+		}
+		$default_from = trim( (string) ( $group['default_from'] ?? '' ) );
+		$default_to   = trim( (string) ( $group['default_to'] ?? '' ) );
+		if ( $from === $default_from && $to === $default_to ) return '';
+
+		if ( $from !== '' && $to !== '' ) {
+			/* translators: 1: window start date, 2: window end date. */
+			return sprintf( __( '%1$s – %2$s', 'talenttrack' ), $from, $to );
+		}
+		return $from !== '' ? $from : $to;
 	}
 
 	/** "Team: Ajax U17", or just the value when the group carries no label. */
