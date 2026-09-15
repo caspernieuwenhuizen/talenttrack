@@ -16,3 +16,10 @@ Links are now built for whoever is reading. Staff keep the Players route;
 a player goes to their own profile, and a parent to their child's. Nobody
 gained access to anything — the destinations were always permission-checked,
 and the player was simply being sent to the wrong one.
+
+The **player card** had the same dead end, on three screens: your own card on
+your profile, on My profile and on My team all clicked through to the staff
+surface. A card that already shows the record you are looking at now carries
+no click-through at all — which also removes a link that, for staff, only
+ever pointed back at the page they were on. Cards in a podium or a list,
+where clicking through actually goes somewhere, are unchanged.

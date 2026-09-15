@@ -102,6 +102,32 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_the_player_card_on_the_profile_carries_no_click_through(): void {
+        // #3391 — the card IS the record this page shows. Its link pointed at
+        // the staff profile: the same page for staff, a dead end for the
+        // player whose card it is.
+        $user = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $this->linkAccount( $user );
+        wp_set_current_user( $user );
+
+        $html = $this->renderFor( $user );
+
+        $this->assertStringNotContainsString( 'tt-pc-link', $html );
+    }
+
+    public function test_a_podium_card_keeps_its_link(): void {
+        // The other direction: 'none' must not have disarmed every card. A
+        // card rendered somewhere the record is NOT already on screen still
+        // clicks through.
+        wp_set_current_user( (int) self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        ob_start();
+        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $this->player, 'sm', true );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'tt-pc-link', $html );
+    }
+
     /* ---- fixtures ------------------------------------------------------- */
 
     private function renderFor( int $user_id ): string {

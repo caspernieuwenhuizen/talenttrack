@@ -1231,7 +1231,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         </div>
                     <?php endif; ?>
                     <div class="tt-player-cardtab__fifa">
-                        <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true ); ?>
+                        <?php
+                        // #3391 — 'none': this card is the record the page is
+                        // already showing. Its click-through pointed at the
+                        // staff profile, which is this same page for staff and
+                        // a dead end for the player whose card it is.
+                        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true, null, true, 'none' );
+                        ?>
                     </div>
                 </div>
                 <?php self::renderCardKpis( $heads, $max ); ?>
