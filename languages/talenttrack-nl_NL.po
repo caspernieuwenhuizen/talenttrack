@@ -60154,6 +60154,26 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/Visibility/RecordVisibility.php
+msgid "Everyone who can see the player — including the player and their parents"
+msgstr "Iedereen die de speler kan zien — inclusief de speler zelf en zijn ouders"
+
+#: src/Infrastructure/Visibility/RecordVisibility.php
+msgid "Staff only — recorded and reported, but not shown to the player or their parents"
+msgstr "Alleen staf — wel vastgelegd en gerapporteerd, maar niet zichtbaar voor de speler of zijn ouders"
+
+#: src/Infrastructure/Visibility/RecordVisibility.php
+msgid "Medical staff only"
+msgstr "Alleen medische staf"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Who may see the results"
+msgstr "Wie de resultaten mag zien"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "A staff-only test is still recorded, reported and trended — it simply does not appear on the player’s own screen or their parents’. Use it for figures a coach should meet a player about rather than have them read alone."
+msgstr "Een test die alleen voor staf is, wordt gewoon vastgelegd, gerapporteerd en in trends meegenomen — hij verschijnt alleen niet op het eigen scherm van de speler of dat van zijn ouders. Gebruik dit voor cijfers waarover een trainer een gesprek met de speler hoort te voeren, in plaats van ze alleen te laten lezen."
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 

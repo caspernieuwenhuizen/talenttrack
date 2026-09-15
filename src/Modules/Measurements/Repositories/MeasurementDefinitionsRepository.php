@@ -53,18 +53,38 @@ class MeasurementDefinitionsRepository {
      *
      * @return array<int, object>
      */
-    public function listActiveForProfile(): array {
+    public function listActiveForProfile( ?array $allowed_visibilities = null ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #3392 — null means "no audience filter", which is what reports,
+        // exports and the test-setup screens want: they are already gated
+        // as a whole and must keep seeing every test. The profile read
+        // model always passes a list.
+        $levels = $allowed_visibilities === null
+            ? \TT\Infrastructure\Visibility\RecordVisibility::measurementLevels()
+            : array_values( $allowed_visibilities );
+
+        if ( $levels === [] ) {
+            return [];
+        }
+
+        // FIND_IN_SET rather than an IN () with a generated placeholder run.
+        // A run built from count() is not a literal-string expression, so
+        // the query would fail PHPStan level 8 and need a baseline entry —
+        // and the baseline is checked by exact count. One bound parameter
+        // keeps the SQL literal and the filter in the WHERE, where it
+        // belongs. The levels are fixed tokens with no commas in them.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT d.*, lt.name AS category_name, lt.lookup_type AS category_lookup_type
                FROM {$p}tt_measurement_definitions d
                LEFT JOIN {$p}tt_lookups lt ON d.category_id = lt.id
               WHERE d.club_id = %d AND d.archived_at IS NULL AND d.is_active = 1
                 AND d.show_on_profile = 1
+                AND FIND_IN_SET( d.visibility, %s )
               ORDER BY lt.sort_order ASC, d.sort_order ASC, d.name ASC",
-            CurrentClub::id()
+            CurrentClub::id(),
+            implode( ',', $levels )
         ) );
         if ( ! is_array( $rows ) ) return [];
 
@@ -159,6 +179,7 @@ class MeasurementDefinitionsRepository {
             'direction'   => $this->safeDirection( $data['direction'] ?? 'higher' ),
             'is_active'   => isset( $data['is_active'] ) ? (int) (bool) $data['is_active'] : 1,
             'show_on_profile' => isset( $data['show_on_profile'] ) ? (int) (bool) $data['show_on_profile'] : 1,
+            'visibility'  => $this->safeVisibility( $data['visibility'] ?? null ),
             'sort_order'  => (int) ( $data['sort_order'] ?? 0 ),
             'created_by'  => get_current_user_id() ?: null,
             'created_at'  => current_time( 'mysql', true ),
@@ -188,6 +209,7 @@ class MeasurementDefinitionsRepository {
         if ( array_key_exists( 'direction', $data ) )   $fields['direction']   = $this->safeDirection( $data['direction'] );
         if ( array_key_exists( 'is_active', $data ) )   $fields['is_active']   = (int) (bool) $data['is_active'];
         if ( array_key_exists( 'show_on_profile', $data ) ) $fields['show_on_profile'] = (int) (bool) $data['show_on_profile'];
+        if ( array_key_exists( 'visibility', $data ) )  $fields['visibility']  = $this->safeVisibility( $data['visibility'] );
         if ( array_key_exists( 'sort_order', $data ) )  $fields['sort_order']  = (int) $data['sort_order'];
 
         // #3273 — giving a previously unclassified test a real unit is the one
@@ -290,6 +312,23 @@ class MeasurementDefinitionsRepository {
 
     private function safeDirection( string $value ): string {
         return in_array( $value, [ 'higher', 'lower', 'neutral' ], true ) ? $value : 'higher';
+    }
+
+    /**
+     * #3392 — keep the audience column to its known members.
+     *
+     * An unrecognised value falls back to `public`, matching the column
+     * default and every pre-upgrade row. Failing towards *visible* is the
+     * deliberate direction here even though this is the privacy feature:
+     * a typo that hid a test would be invisible to the operator who made
+     * it, and the operator's own screen shows which level is set, so the
+     * wrong one is something they can see and correct.
+     */
+    private function safeVisibility( $value ): string {
+        $value = is_string( $value ) ? $value : '';
+        return in_array( $value, \TT\Infrastructure\Visibility\RecordVisibility::measurementLevels(), true )
+            ? $value
+            : \TT\Infrastructure\Visibility\RecordVisibility::LEVEL_PUBLIC;
     }
 
     /**
