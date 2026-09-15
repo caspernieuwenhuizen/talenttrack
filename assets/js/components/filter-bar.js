@@ -214,8 +214,15 @@
 		// Apply button rather than auto-submitting. #2327 — keep each edit in
 		// lockstep with its same-named sheet/inline sibling on change, so when
 		// Apply finally submits, the stale copy can't overwrite the user's edit.
+		//
+		// #3352 — selects belong here too. The list above only reaches one
+		// carrying `data-tt-filter-submit`, and a select opted out of
+		// auto-submit carries none: on the comparison view, changing the
+		// evaluation type inline and pressing Compare sent the sheet's stale
+		// copy instead. The same gap opens on every `refresh` surface, which
+		// turns auto-submit off on all of its groups.
 		Array.prototype.forEach.call(
-			bar.querySelectorAll( '.tt-fildate__input, .tt-filtext__input' ),
+			bar.querySelectorAll( '.tt-fildate__input, .tt-filtext__input, .tt-filsel__select' ),
 			function ( input ) {
 				input.addEventListener( 'change', function () {
 					var form = input.form || bar.querySelector( '[data-tt-filterbar-form]' );

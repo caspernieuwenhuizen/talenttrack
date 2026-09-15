@@ -32,8 +32,12 @@ filterbalk onder de spelerkiezers:
 
 Op brede schermen staan de filters in één inline rij; op telefoons en
 tablets vallen ze samen achter een **Filters**-knop die een onderpaneel
-opent met dezelfde besturingselementen. Stel de filters in en klik op
-**Vergelijken** — de cijfers van elke gekozen speler updaten dan samen.
+opent met dezelfde besturingselementen.
+
+Pas je een filter aan, dan wordt de vergelijking meteen bijgewerkt zonder
+dat de pagina opnieuw laadt. Spelers kiezen werkt anders: de slots wachten
+op **Vergelijken**, zodat je eerst een viertal samenstelt en het daarna in
+één keer doorrekent in plaats van na elke keuze opnieuw.
 
 ## Wat je ziet
 

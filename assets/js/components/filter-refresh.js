@@ -92,7 +92,18 @@
 			return;
 		}
 
-		var bar     = form.closest( '[data-tt-filterbar]' ) || form;
+		// #3352 — two shapes of host form.
+		//
+		// Normally the bar owns the form and the form sits inside the bar, so
+		// every named control in it is a filter. On the comparison view the
+		// form owns the BAR: it also carries four player slot pickers and a
+		// Compare button, and Compare is the commit (CLAUDE.md §6). So when
+		// the bar is a descendant rather than an ancestor, only a change
+		// INSIDE the bar refreshes — the rest of the form waits for submit,
+		// which this script takes over anyway.
+		var owner   = form.closest( '[data-tt-filterbar]' );
+		var bar     = owner || form.querySelector( '[data-tt-filterbar]' ) || form;
+		var hosted  = ! owner;
 		var pending = null;   // AbortController for the in-flight request
 		var timer   = null;   // PENDING_DELAY handle
 
@@ -229,6 +240,7 @@
 		form.addEventListener( 'change', function ( e ) {
 			var ctrl = e.target;
 			if ( ! ctrl || ! ctrl.name ) { return; }
+			if ( hosted && ! bar.contains( ctrl ) ) { return; }
 			requestRefresh( function () {
 				if ( ! committed.has( ctrl ) ) { return; }
 				var was = committed.get( ctrl );
