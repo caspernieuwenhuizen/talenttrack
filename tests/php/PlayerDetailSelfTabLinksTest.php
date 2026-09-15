@@ -65,10 +65,13 @@ final class PlayerDetailSelfTabLinksTest extends WP_UnitTestCase {
 
         $links = $this->tabLinksIn( $this->renderFor( $user ) );
 
+        // `esc_url()` encodes the separator as `&#038;`, not `&amp;`.
+        $sep = '(&amp;|&#038;|&|\?)';
+
         $this->assertNotEmpty( $links );
         foreach ( $links as $href ) {
-            $this->assertMatchesRegularExpression( '/(&amp;|&|\?)tab=[a-z_]+/', $href );
-            $this->assertDoesNotMatchRegularExpression( '/(&amp;|&|\?)id=/', $href );
+            $this->assertMatchesRegularExpression( '/' . $sep . 'tab=[a-z_]+/', $href );
+            $this->assertDoesNotMatchRegularExpression( '/' . $sep . 'id=/', $href );
         }
     }
 
