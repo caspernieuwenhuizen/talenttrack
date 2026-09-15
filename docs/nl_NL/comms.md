@@ -37,7 +37,7 @@ Vijf dingen, in deze volgorde. Elk daarvan wordt vastgelegd, dus bij een bericht
 | Verzendlimiet | Eén afzender heeft ongewoon veel berichten in een uur verstuurd. |
 | Geen adres | Niemand op het dossier heeft een e-mailadres of telefoonnummer dat dit kanaal kan gebruiken. |
 
-Twee uitzonderingen zijn bewust gemaakt. **Berichten over veiligheid en welzijn en accountherstelmail kun je niet uitzetten** — dat zijn geen voorkeuren. En **een afgelaste training negeert de stiltetijden**, want een training die vanavond niet doorgaat is morgen geen nieuws meer.
+Sommige uitzonderingen zijn bewust gemaakt. **Berichten over veiligheid en welzijn, accountherstelmail en afgelastingen kun je niet uitzetten** — dat zijn geen voorkeuren. Een afgelasting **negeert ook de stiltetijden**, want een training die vanavond niet doorgaat is morgen geen nieuws meer; die twee regels horen bij elkaar, en een tijdlang gold alleen de tweede.
 
 ## Stiltetijden
 
@@ -45,7 +45,9 @@ Standaard gaat er tussen **21:00 en 07:00** niets uit dat niet urgent is. Een be
 
 ## Afmelden
 
-Iedereen beheert zijn eigen voorkeuren via **Mijn instellingen**. De lijst is per berichtsoort, niet alles-of-niets: een ouder kan doelherinneringen dempen en toch bericht krijgen over een afgelaste training. Berichten over veiligheid en welzijn en accountherstel staan niet in de lijst, omdat ze niet optioneel zijn.
+Iedereen beheert zijn eigen voorkeuren via **Mijn instellingen**. De lijst is per berichtsoort, niet alles-of-niets: een ouder kan doelherinneringen dempen en toch bericht krijgen over een afgelaste training.
+
+Drie soorten staan niet in de lijst, omdat ze niet optioneel zijn: berichten over veiligheid en welzijn, accountherstelmail en afgelastingen. Ze staan wél op het scherm, aangevinkt en grijs, met de reden erbij — een voorkeurenpagina die stilzwijgend weglaat wat je niet kunt weigeren, vertelt je minder dan een die het benoemt.
 
 ## Een soort bericht voor iedereen uitzetten
 

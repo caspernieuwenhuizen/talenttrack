@@ -37,7 +37,7 @@ Five things, in this order. Each of them is recorded, so a message that did not 
 | Rate limited | One sender has sent an unusual number of messages in an hour. |
 | No address | Nobody on the record has an email address or phone number this channel could use. |
 
-Two exceptions are deliberate. **Safeguarding messages and account-recovery email cannot be opted out of** — those are not preferences. And **a cancelled training ignores quiet hours**, because a training called off tonight is useless news tomorrow.
+Some exceptions are deliberate. **Safeguarding messages, account-recovery email and cancellations cannot be opted out of** — those are not preferences. A cancellation also **ignores quiet hours**, because a training called off tonight is useless news tomorrow; the two rules go together, and for a while only the second one did.
 
 ## Quiet hours
 
@@ -45,7 +45,9 @@ By default nothing non-urgent goes out between **21:00 and 07:00**. A message ca
 
 ## Opting out
 
-Each person controls their own preferences from **My settings**. The list is per message type, not all-or-nothing: a parent can mute goal reminders and still hear about a cancelled training. Safeguarding and account-recovery messages are not on the list, because they are not optional.
+Each person controls their own preferences from **My settings**. The list is per message type, not all-or-nothing: a parent can mute goal reminders and still hear about a cancelled training.
+
+Three kinds are not on the list, because they are not optional: safeguarding messages, account-recovery email, and cancellations. They are shown on the screen anyway, ticked and greyed out, with the reason — a preferences page that quietly omits what you cannot refuse tells you less than one that names it.
 
 ## Turning a kind of message off for everyone
 
