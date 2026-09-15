@@ -100,13 +100,15 @@ final class MyActivitiesPlannedAttendanceTest extends WP_UnitTestCase {
     /* ---- helpers -------------------------------------------------------- */
 
     private function rowFor( int $activity_id ): ?object {
-        $rows = ( new ActivitiesRepository() )->listWithFilters( [
+        // `searchForRest()` is what `ActivitiesRestController::list_sessions`
+        // calls, and `your_status_pid` is the argument that adds the column
+        // this test is about.
+        $result = ( new ActivitiesRepository() )->searchForRest( [
             'your_status_pid' => $this->player,
             'per_page'        => 100,
         ] );
-        $list = is_array( $rows ) && isset( $rows['rows'] ) ? $rows['rows'] : $rows;
 
-        foreach ( (array) $list as $row ) {
+        foreach ( $result['rows'] as $row ) {
             if ( (int) ( $row->id ?? 0 ) === $activity_id ) return $row;
         }
         return null;
