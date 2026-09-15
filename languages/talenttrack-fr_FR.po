@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T17:19:34+00:00\n"
+"POT-Creation-Date: 2026-09-15T17:33:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -35412,7 +35412,7 @@ msgstr ""
 msgid "Graduate"
 msgstr ""
 
-#: src/Modules/Players/Services/PlayerPhotoImporter.php:89
+#: src/Modules/Players/Services/PlayerPhotoImporter.php:96
 msgid "Player photo"
 msgstr ""
 
