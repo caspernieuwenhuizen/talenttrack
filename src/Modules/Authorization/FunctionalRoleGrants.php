@@ -111,6 +111,7 @@ final class FunctionalRoleGrants {
      */
     public static function grantsOnTeam( int $user_id, string $entity, string $activity, int $team_id ): bool {
         if ( $team_id <= 0 ) return false;
+        if ( ! self::anyRoleMentions( $entity ) ) return false;
 
         foreach ( self::assignmentsFor( $user_id ) as $assignment ) {
             if ( ! $assignment['live'] ) continue;
@@ -126,6 +127,8 @@ final class FunctionalRoleGrants {
      * question and supplies `describeAccess()` with a concrete team id.
      */
     public static function firstTeamGranting( int $user_id, string $entity, string $activity ): ?int {
+        if ( ! self::anyRoleMentions( $entity ) ) return null;
+
         foreach ( self::assignmentsFor( $user_id ) as $assignment ) {
             if ( ! $assignment['live'] ) continue;
             if ( self::roleGrants( $assignment['role_key'], $entity, $activity ) ) return $assignment['team_id'];
@@ -158,6 +161,21 @@ final class FunctionalRoleGrants {
     public static function entitiesFor( string $role_key ): array {
         $config = self::config();
         return array_keys( $config['grants'][ $role_key ] ?? [] );
+    }
+
+    /**
+     * Does ANY functional role grant this entity at all?
+     *
+     * Cheap config-only check that runs before the assignment query, so
+     * the gate does not go to the database for the ~130 entities no
+     * functional role mentions. `MatrixGate` asks on every team-scoped
+     * decision, which is why this guard is here and not at the call site.
+     */
+    private static function anyRoleMentions( string $entity ): bool {
+        foreach ( self::config()['grants'] as $entities ) {
+            if ( isset( $entities[ $entity ] ) ) return true;
+        }
+        return false;
     }
 
     /**
