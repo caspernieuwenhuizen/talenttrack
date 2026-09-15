@@ -60238,6 +60238,34 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php
+#, php-format
+msgid ""
+"Welcome to TalentTrack! This is %1$s's development home. %2$s chooses what "
+"to share with you."
+msgstr ""
+"Welkom bij TalentTrack! Dit is het ontwikkelhuis van %1$s. %2$s bepaalt zelf "
+"wat je te zien krijgt."
+
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php
+msgid ""
+"Everything that has happened so far, newest first. Filter by what you want "
+"to see, or switch to milestones for the big moments only."
+msgstr ""
+"Alles wat tot nu toe is gebeurd, het nieuwste eerst. Filter op wat je wilt "
+"zien, of schakel over naar mijlpalen voor alleen de grote momenten."
+
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php
+#, php-format
+msgid "%d entry is only visible to your coaches. Ask them if you want to know more."
+msgid_plural "%d entries are only visible to your coaches. Ask them if you want to know more."
+msgstr[0] ""
+"%d item is alleen zichtbaar voor je begeleiders. Vraag het ze als je er meer "
+"over wilt weten."
+msgstr[1] ""
+"%d items zijn alleen zichtbaar voor je begeleiders. Vraag het ze als je er "
+"meer over wilt weten."
+
 #~ msgid ""
 #~ "No goals assigned yet. Your coaches will add development goals here as "
 #~ "you progress."

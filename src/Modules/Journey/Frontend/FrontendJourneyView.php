@@ -3,6 +3,7 @@ namespace TT\Modules\Journey\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Journey\EventTypeDefinition;
 use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
@@ -53,6 +54,14 @@ class FrontendJourneyView {
         // coach's player-detail page (parent: Players → [name]). The
         // `tt_view` GET param tells us which.
         $view_slug = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        // #3398 — the player reading their own record, as opposed to a coach
+        // reading it or a parent reading their child's. The slug already told
+        // us this for the breadcrumb; the body copy now asks the same question.
+        // A parent lands on `my-journey` with ?player_id=N, so the subject
+        // being someone else is what separates them from the player.
+        $is_own_journey = $view_slug === 'my-journey'
+            && (int) ( $player->wp_user_id ?? 0 ) === $user_id
+            && $user_id > 0;
         $name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player );
         if ( $view_slug === 'my-journey' ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My journey', 'talenttrack' ) );
@@ -102,39 +111,87 @@ class FrontendJourneyView {
         ?>
         <section class="tt-journey">
             <header class="tt-journey-head">
-                <h2><?php echo esc_html( sprintf( __( 'Journey — %s', 'talenttrack' ), trim( $player->first_name . ' ' . $player->last_name ) ) ); ?></h2>
+                <?php
+                // #3398 — this view backs two slugs, and until now it branched
+                // on that for the breadcrumb only, then told a player their own
+                // record was "for this player" and pointed them at "the parent
+                // meeting". Both are a coach's vocabulary. FrontendMyPdpView
+                // and FrontendMyDevelopmentView already branch their copy the
+                // same way; this is that, applied here.
+                ?>
+                <h2>
+                    <?php
+                    echo esc_html( $is_own_journey
+                        ? __( 'My journey', 'talenttrack' )
+                        : sprintf(
+                            /* translators: %s: player display name */
+                            __( 'Journey — %s', 'talenttrack' ),
+                            trim( $player->first_name . ' ' . $player->last_name )
+                        )
+                    );
+                    ?>
+                </h2>
                 <p class="tt-muted">
-                    <?php esc_html_e( 'Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting.', 'talenttrack' ); ?>
+                    <?php
+                    echo esc_html( $is_own_journey
+                        ? __( 'Everything that has happened so far, newest first. Filter by what you want to see, or switch to milestones for the big moments only.', 'talenttrack' )
+                        : __( 'Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting.', 'talenttrack' )
+                    );
+                    ?>
                 </p>
 
-                <div class="tt-journey-tabs" role="tablist">
+                <?php
+                // #3398 — these are two links that navigate to different URLs,
+                // not a tab widget. `role="tablist"` told a screen reader to
+                // expect arrow-key traversal between panels that do not exist,
+                // and none of the tab keyboard model was implemented.
+                ?>
+                <div class="tt-journey-tabs">
                     <a href="<?php echo esc_url( self::buildModeUrl( 'timeline' ) ); ?>"
                        class="tt-btn <?php echo $mode === 'timeline' ? 'tt-btn-primary' : 'tt-btn-secondary'; ?>"
-                       role="tab"
-                       aria-selected="<?php echo $mode === 'timeline' ? 'true' : 'false'; ?>">
+                       <?php echo $mode === 'timeline' ? 'aria-current="page"' : ''; ?>>
                         <?php esc_html_e( 'Timeline', 'talenttrack' ); ?>
                     </a>
                     <a href="<?php echo esc_url( self::buildModeUrl( 'transitions' ) ); ?>"
                        class="tt-btn <?php echo $mode === 'transitions' ? 'tt-btn-primary' : 'tt-btn-secondary'; ?>"
-                       role="tab"
-                       aria-selected="<?php echo $mode === 'transitions' ? 'true' : 'false'; ?>">
+                       <?php echo $mode === 'transitions' ? 'aria-current="page"' : ''; ?>>
                         <?php esc_html_e( 'Transitions', 'talenttrack' ); ?>
                     </a>
                 </div>
             </header>
 
             <?php if ( $mode === 'timeline' ) : ?>
-                <?php self::renderFilters( $selected_types, $full ); ?>
+                <?php self::renderFilters( $selected_types, $full, $is_own_journey ); ?>
             <?php endif; ?>
 
             <?php if ( $hidden > 0 ) : ?>
                 <p class="tt-notice tt-notice-info">
                     <?php
-                    echo esc_html( sprintf(
-                        /* translators: %d: count of events hidden because the viewer lacks the medical or safeguarding cap */
-                        _n( '%d entry hidden — visible to other roles only.', '%d entries hidden — visible to other roles only.', $hidden, 'talenttrack' ),
-                        $hidden
-                    ) );
+                    // #3398 — the count stays for everyone: a timeline with
+                    // silent gaps is its own kind of dishonesty on a record
+                    // that is about the person reading it. What changes is
+                    // the voice. "Visible to other roles only" is staff
+                    // vocabulary; a player gets told plainly who can see the
+                    // rest and that asking is how to find out, because that
+                    // conversation belongs with their coach rather than with
+                    // a notice bar (decided 2026-09-14).
+                    echo esc_html( $is_own_journey
+                        ? sprintf(
+                            /* translators: %d: count of entries on the player's own journey that they may not read */
+                            _n(
+                                '%d entry is only visible to your coaches. Ask them if you want to know more.',
+                                '%d entries are only visible to your coaches. Ask them if you want to know more.',
+                                $hidden,
+                                'talenttrack'
+                            ),
+                            $hidden
+                        )
+                        : sprintf(
+                            /* translators: %d: count of events hidden because the viewer lacks the medical or safeguarding cap */
+                            _n( '%d entry hidden — visible to other roles only.', '%d entries hidden — visible to other roles only.', $hidden, 'talenttrack' ),
+                            $hidden
+                        )
+                    );
                     ?>
                 </p>
             <?php endif; ?>
@@ -163,7 +220,7 @@ class FrontendJourneyView {
     /**
      * @param list<string> $selected_types
      */
-    private static function renderFilters( array $selected_types, bool $full ): void {
+    private static function renderFilters( array $selected_types, bool $full, bool $is_own_journey = false ): void {
         $types = EventTypeRegistry::all();
         ?>
         <form method="get" class="tt-journey-filters">
@@ -177,8 +234,23 @@ class FrontendJourneyView {
             ?>
             <span class="tt-muted"><?php esc_html_e( 'Show:', 'talenttrack' ); ?></span>
             <?php
-            // Primary filters always visible — the milestones coaches scan for.
-            $primary_keys = [ 'evaluation_completed', 'injury_started', 'trial_ended' ];
+            // The three chips that stay visible; the rest fold behind "More
+            // filters". #3398 — the staff set is "the milestones coaches scan
+            // for"; a signed player has no trials, so `trial_ended` was a
+            // permanently empty filter taking one of only three slots on their
+            // own screen. Theirs is the set that describes progress: what a
+            // coach wrote, what they were set to work on, and moving up.
+            $primary_keys = $is_own_journey
+                ? [
+                    JourneyEventType::EVALUATION_COMPLETED,
+                    JourneyEventType::GOAL_SET,
+                    JourneyEventType::AGE_GROUP_PROMOTED,
+                ]
+                : [
+                    JourneyEventType::EVALUATION_COMPLETED,
+                    JourneyEventType::INJURY_STARTED,
+                    JourneyEventType::TRIAL_ENDED,
+                ];
             $primary = array_filter( $types, static fn( $def ) => in_array( $def->key, $primary_keys, true ) );
             $secondary = array_filter( $types, static fn( $def ) => ! in_array( $def->key, $primary_keys, true ) );
             $any_secondary_active = false;
