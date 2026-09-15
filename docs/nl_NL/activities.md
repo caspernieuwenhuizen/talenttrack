@@ -38,6 +38,8 @@ Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingekl
 
 Boven de lijst staat één **filterbalk**. Op een desktopscherm staat alles op één regel; op een telefoon of tablet klapt de balk in tot een knop **Filters** (met een telbadge voor het aantal actieve filters) en een rij samenvattingschips — tik op **Filters** om een onderpaneel te openen met dezelfde knoppen, en kies daarna **Toepassen** of **Wissen**.
 
+Elke chip noemt het filter waar hij voor staat — *Team: Ajax U17*, *Periode: Vorige week* — en heeft een **✕** die alleen dat ene filter weghaalt; de rest blijft staan. Met **Wissen** haal je ze in één keer allemaal weg. Een filter dat op de waarde staat waarmee het scherm opent, heb je niet zelf ingesteld: dat krijgt geen chip en telt niet mee in de badge.
+
 De balk heeft vijf knoppen, elk onder een eigen label:
 
 - **Team** — beperk tot één team. Standaard staan alle teams aan waar de coach toegang toe heeft.

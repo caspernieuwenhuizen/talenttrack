@@ -468,21 +468,8 @@ class FrontendAuditLogView extends FrontendViewBase {
             $hidden['tt_view'] = sanitize_key( (string) $_GET['tt_view'] );
         }
 
-        // Active-count + summary chips for the mobile collapsed state.
-        $active_count = 0;
-        $chips = [];
-        if ( $sel_action !== '' ) { $active_count++; $chips[] = $sel_action; }
-        if ( $sel_entity !== '' ) { $active_count++; $chips[] = $sel_entity; }
-        if ( $sel_user   !== '' ) { $active_count++; $chips[] = '#' . $sel_user; }
-        if ( $sel_from   !== '' || $sel_to !== '' ) {
-            $active_count++;
-            $chips[] = trim( $sel_from . ' – ' . $sel_to, ' –' );
-        }
-
         \TT\Shared\Frontend\Components\FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => self::clearUrl(),
             // #3336 — filter in place. The audit log is the surface most
             // likely to expose a missing pending state: the largest result
@@ -519,13 +506,18 @@ class FrontendAuditLogView extends FrontendViewBase {
                     'inputmode'  => 'numeric',
                 ],
                 [
-                    'type'       => 'date_range',
-                    'key'        => 'date',
-                    'label'      => __( 'Date', 'talenttrack' ),
-                    'label_from' => __( 'From', 'talenttrack' ),
-                    'label_to'   => __( 'To', 'talenttrack' ),
-                    'from'       => [ 'name' => 'f_date_from', 'value' => $sel_from ],
-                    'to'         => [ 'name' => 'f_date_to',   'value' => $sel_to ],
+                    'type'         => 'date_range',
+                    'key'          => 'date',
+                    'label'        => __( 'Date', 'talenttrack' ),
+                    'label_from'   => __( 'From', 'talenttrack' ),
+                    'label_to'     => __( 'To', 'talenttrack' ),
+                    'from'         => [ 'name' => 'f_date_from', 'value' => $sel_from ],
+                    'to'           => [ 'name' => 'f_date_to',   'value' => $sel_to ],
+                    // #3346 — the log seeds no window, so any value here is
+                    // one the reader typed. Declaring that is what lets the
+                    // bar derive the chip instead of the view spelling it out.
+                    'default_from' => '',
+                    'default_to'   => '',
                 ],
             ],
         ] );

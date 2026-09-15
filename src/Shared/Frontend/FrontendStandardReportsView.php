@@ -453,20 +453,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( $period !== '' )              $hidden['period']  = $period;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
-        // #3293 — a custom window is a filter and was counted nowhere.
-        $range_chip = \TT\Modules\Analytics\Reports\ReportFilters::customRangeChip( $period, $from, $to );
-        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
-
         $reset_args = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
         \TT\Shared\Frontend\Components\FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #3338 — NOT migrated to in-place refresh, deliberately.
             //

@@ -274,22 +274,9 @@ class FrontendComparisonView extends FrontendViewBase {
                 $eval_options[ (string) (int) $t->id ] = (string) $t->name;
             }
 
-            $active_count = 0;
-            $chips = [];
-            if ( $sel_from !== '' || $sel_to !== '' ) {
-                $active_count++;
-                $chips[] = trim( $sel_from . ' – ' . $sel_to, ' –' );
-            }
-            if ( $sel_evaltype > 0 && isset( $eval_options[ (string) $sel_evaltype ] ) ) {
-                $active_count++;
-                $chips[] = $eval_options[ (string) $sel_evaltype ];
-            }
-
             \TT\Shared\Frontend\Components\FilterBar::render( [
                 'form'         => false,
                 'refresh'      => true,
-                'active_count' => $active_count,
-                'chips'        => $chips,
                 // #3333 — this was the one FilterBar surface with no way back
                 // to unfiltered: without a `reset_url` the bar renders no
                 // Clear at all, and the two controls here are a date range and
@@ -305,13 +292,19 @@ class FrontendComparisonView extends FrontendViewBase {
                 ),
                 'groups'       => [
                     [
-                        'type'       => 'date_range',
-                        'key'        => 'date',
-                        'label'      => __( 'Date', 'talenttrack' ),
-                        'label_from' => __( 'Date from', 'talenttrack' ),
-                        'label_to'   => __( 'Date to', 'talenttrack' ),
-                        'from'       => [ 'name' => 'date_from', 'value' => $sel_from ],
-                        'to'         => [ 'name' => 'date_to',   'value' => $sel_to ],
+                        'type'         => 'date_range',
+                        'key'          => 'date',
+                        'label'        => __( 'Date', 'talenttrack' ),
+                        'label_from'   => __( 'Date from', 'talenttrack' ),
+                        'label_to'     => __( 'Date to', 'talenttrack' ),
+                        'from'         => [ 'name' => 'date_from', 'value' => $sel_from ],
+                        'to'           => [ 'name' => 'date_to',   'value' => $sel_to ],
+                        // #3346 — the comparison seeds no window, so any value
+                        // here is one the reader set. Declaring that is what
+                        // lets the bar derive the chip, and its ✕ drop the two
+                        // params without touching the player picks.
+                        'default_from' => '',
+                        'default_to'   => '',
                     ],
                     [
                         'type'        => 'select',

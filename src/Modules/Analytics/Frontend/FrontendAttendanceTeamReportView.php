@@ -346,14 +346,6 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         if ( $period !== '' )              $hidden['period']  = $period;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
-        // #3293 — a custom window is a filter and was counted nowhere.
-        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
-        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
-        if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
-
         $reset_args = [ 'tt_view' => 'attendance-report-team' ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
@@ -361,8 +353,6 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
 
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #3338 — filter in place (epic #3335). A report is where
             // the pending state earns its keep: the server work is the

@@ -102,6 +102,29 @@ doing. Build it with `ReportFilters::periodGroup()`, which takes the
 trigger then reads the window the query actually ran on: a preset's label, or
 the range. Don't add a `date_range` group beside a `period` one.
 
+### The chips are derived — a surface passes none
+
+**Never pass `chips` or `active_count`** (#3346). The bar builds the summary
+chips from the groups it was given, each with the URL that removes just that
+filter, and the badge is the number of chips it rendered. Fourteen surfaces
+used to hand it a flat list of pre-rendered labels: not removable, invisible
+to assistive tech, and a second source of truth that drifted — several counted
+a custom date window nowhere, so the bar said "nothing filtered" over a
+filtered report until #3293 patched each of them by hand. Both arguments are
+now ignored outright; there is one path.
+
+What a group has to declare for the derivation to be right:
+
+| Key | On | Why |
+| --- | --- | --- |
+| `default_value` | `select`, `period`, `status`, `menu` | The option the surface *opens* on. Without it the default chips itself on arrival — the #3320 inversion. An empty value is the assumed default, so declare it whenever "no filter" is a real option (`0 => All teams`). |
+| `default_from` / `default_to` | `date_range`, and a `period` group's `custom` branch | The window the surface **seeds**. A report seeds one, so "has a value" does not mean "the reader filtered", and a chip on the seeded window would be permanent and unremovable-in-effect. The *declaration* is the opt-in, not its value: a surface that seeds nothing declares empty strings and every value it holds is a filter. Declare neither and no range is chipped at all. |
+| `selected_label` | `player` | The bar holds no repository (CLAUDE.md §4), so the caller resolves the name; without it the chip would read as a numeric id. |
+| `chip => false` | any | For a control that is **not a filter** — a per-team report's Team select, which has no "all teams" to walk back to, so a ✕ would lead nowhere. Not an escape hatch for a filter whose chip reads awkwardly. |
+
+`ReportFilters::periodGroup()` fills the first two in for the nine period
+surfaces, so a report that builds its time control through it needs nothing.
+
 ### How a filtered surface behaves
 
 **One behaviour, and it is in-place.** A filter change updates the result
@@ -202,8 +225,10 @@ endpoint since #2625 — renders as an icon-only `⋯` overflow menu instead of 
 pill row, on every viewport. No per-view flag: the key is the signal, which is
 why normalising it first mattered. The list defaults to Active and its URL is
 param-free; when the reader is not in that default the trigger takes the accent
-colour **and** a clearable chip appears beside it, because an icon alone would
-make an archived list indistinguishable from a short active one.
+colour **and** a chip names the state, because an icon alone would make an
+archived list indistinguishable from a short active one. Since #3346 that chip
+is the bar's own derived one, in the utility cluster with every other filter's
+— the menu no longer renders a second copy of it beside the trigger.
 
 There is deliberately no "All" option. The one the builder used to inject
 cleared the param, and every controller reads an absent param as `active`, so

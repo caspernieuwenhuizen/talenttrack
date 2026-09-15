@@ -130,6 +130,7 @@ final class ReportFilters {
     ): array {
         $labels     = self::periodLabels();
         $range_chip = self::customRangeChip( $effective, $from, $to );
+        $seeded     = self::seasonDefaultWindow();
 
         return [
             'type'          => 'period',
@@ -137,10 +138,24 @@ final class ReportFilters {
             'label'         => __( 'Period', 'talenttrack' ),
             'active_label'  => $range_chip ?? (string) ( $labels[ $effective ] ?? $labels[''] ),
             'options'       => $options,
+            // #3346 — the empty key is where these surfaces open: no
+            // `?period=`, the seeded season window. Declaring it is what lets
+            // `FilterBar::activeChips()` tell "this season, because that is
+            // where the report opens" from "this season, because the reader
+            // picked it" — without it the default would chip itself on
+            // arrival, which is the inversion #3320 fixed on the alerts inbox.
+            'default_value' => '',
             'custom'        => [
                 'from' => [ 'name' => $from_name, 'value' => $from ],
                 'to'   => [ 'name' => $to_name,   'value' => $to ],
             ],
+            // #3346 — the window the surface seeds when the reader has picked
+            // neither a preset nor a range. `has a value` is not `the reader
+            // filtered` on these surfaces, which is why the bar could not
+            // derive a range chip and `customRangeChip()` had to be called by
+            // hand; this is the same knowledge, handed over.
+            'default_from'  => $seeded['from'],
+            'default_to'    => $seeded['to'],
             'custom_active' => $range_chip !== null,
         ];
     }

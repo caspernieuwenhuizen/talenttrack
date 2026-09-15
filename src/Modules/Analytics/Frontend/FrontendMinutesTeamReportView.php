@@ -415,14 +415,6 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         if ( $period !== '' )              $hidden['period']  = $period;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $period !== '' )         { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
-        // #3293 — a custom window is a filter and was counted nowhere.
-        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
-        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
-        if ( $type_filter !== 'all' && isset( $type_options[ $type_filter ] ) ) { $active_count++; $chips[] = $type_options[ $type_filter ]; }
-
         $reset_args = [ 'tt_view' => 'minutes-report-team', 'team_id' => $team_id ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
@@ -430,8 +422,6 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
 
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #3338 — filter in place (epic #3335). A report is where
             // the pending state earns its keep: the server work is the
@@ -451,6 +441,10 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
                     'name'     => 'team_id',
                     'selected' => (string) $team_id,
                     'options'  => $team_options,
+                    // #3346 — this report is per-team: the select has no "all
+                    // teams" option, so its chip could never be cleared. The
+                    // hand-rolled chips left it out for the same reason.
+                    'chip'     => false,
                 ],
                 // #3331 — one time control: the presets and the custom
                 // From/To answer the same question, so they are one
