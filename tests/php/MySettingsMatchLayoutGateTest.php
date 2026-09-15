@@ -65,13 +65,11 @@ final class MySettingsMatchLayoutGateTest extends WP_UnitTestCase {
         $user = $this->userWith( 'tt_player' );
         wp_set_current_user( $user );
 
-        $_POST = [
-            'tt_my_settings_action'                  => 'update_match_layout',
-            'tt_my_settings_match_layout_nonce'      => wp_create_nonce( 'tt_my_settings_match_layout' ),
-            'tt_match_layout'                        => MatchExecutionLayout::SECTIONS,
-        ];
-        $html = $this->renderFor( $user );
-        $_POST = [];
+        $html = $this->postAs( $user, [
+            'tt_my_settings_action'             => 'update_match_layout',
+            'tt_my_settings_match_layout_nonce' => wp_create_nonce( 'tt_my_settings_match_layout' ),
+            'tt_match_layout'                   => MatchExecutionLayout::SECTIONS,
+        ] );
 
         $this->assertSame(
             MatchExecutionLayout::INHERIT,
@@ -85,14 +83,15 @@ final class MySettingsMatchLayoutGateTest extends WP_UnitTestCase {
         $user = $this->userWith( 'administrator' );
         wp_set_current_user( $user );
 
-        $_POST = [
+        $this->postAs( $user, [
             'tt_my_settings_action'             => 'update_match_layout',
             'tt_my_settings_match_layout_nonce' => wp_create_nonce( 'tt_my_settings_match_layout' ),
             'tt_match_layout'                   => MatchExecutionLayout::SECTIONS,
-        ];
-        $this->renderFor( $user );
-        $_POST = [];
+        ] );
 
+        // This one is the control for the test above: if the POST plumbing
+        // ever stops working, this fails rather than the refusal test
+        // passing because nothing happened at all.
         $this->assertSame( MatchExecutionLayout::SECTIONS, MatchExecutionLayout::userOverride( $user ) );
     }
 
@@ -107,5 +106,25 @@ final class MySettingsMatchLayoutGateTest extends WP_UnitTestCase {
         ob_start();
         FrontendMySettingsView::render();
         return (string) ob_get_clean();
+    }
+
+    /**
+     * `handlePost()` returns before reading the action unless the request
+     * is a POST, so a test that only fills `$_POST` exercises nothing and
+     * passes its negative assertions for the wrong reason. Restored after
+     * each use so the render-only tests stay GETs.
+     *
+     * @param array<string, mixed> $post
+     */
+    private function postAs( int $user_id, array $post ): string {
+        $was = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = $post;
+        try {
+            return $this->renderFor( $user_id );
+        } finally {
+            $_POST = [];
+            $_SERVER['REQUEST_METHOD'] = $was;
+        }
     }
 }
