@@ -49,6 +49,14 @@ Iedereen beheert zijn eigen voorkeuren via **Mijn instellingen**. De lijst is pe
 
 Drie soorten staan niet in de lijst, omdat ze niet optioneel zijn: berichten over veiligheid en welzijn, accountherstelmail en afgelastingen. Ze staan wél op het scherm, aangevinkt en grijs, met de reden erbij — een voorkeurenpagina die stilzwijgend weglaat wat je niet kunt weigeren, vertelt je minder dan een die het benoemt.
 
+**De lijst die je ziet, is de post die je ook echt kunt ontvangen.** Bij elke berichtsoort staat voor wie hij bedoeld is — de speler, het gezin of de staf van de academie — en het scherm toont alleen de soorten die jou bereiken. Aan een speler wordt niet gevraagd of hij herinneringen wil over de ontwikkelingsgesprekken van een trainer, en aan een trainer niet of hij uitnodigingen voor ouderavonden wil.
+
+Wie allebei is — een trainer met een eigen kind op de academie — houdt elke regel die een van beide ontvangt. Het filteren kost dus nooit iemand een schakelaar.
+
+Staat bij een berichtsoort nog niet voor wie hij bedoeld is, dan tonen we hem aan iedereen in plaats van hem te verbergen. Dat is een bewuste keuze: een overbodige regel op je scherm is rommelig, maar een ontbrekende regel betekent post die binnenkomt zonder dat je die kunt weigeren.
+
+Je voorkeuren opslaan verandert alleen de regels die je voor je ziet. Wat je niet kunt zien, wordt niet aangepast als je op Opslaan drukt — een voorkeur die je instelde toen je een andere rol had, staat er dus nog steeds als je die rol opnieuw krijgt.
+
 ## Een soort bericht voor iedereen uitzetten
 
 Er is per sjabloon een schakelaar voor de hele academie. Gebruik die als een soort bericht niet past bij hoe jullie werken — een academie die nooit doelaansporingen stuurt kan die uitzetten zonder de aanwezigheidssignalen kwijt te raken.

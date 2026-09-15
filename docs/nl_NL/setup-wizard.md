@@ -37,6 +37,18 @@ De wizard is bereikbaar vanuit vier plekken — kies welke je het eerst tegenkom
 
 Het Klaar-scherm zie je één keer, als je afrondt. Open je de wizard daarna opnieuw, dan krijg je een korte regel "Installatie is voltooid" met de resetlink, niet het overzicht.
 
+## Je staf toevoegen
+
+De stap **Je staf toevoegen** maakt een record aan voor elke trainer of stafmedewerker en zet een uitnodiging klaar voor iedereen bij wie je een e-mailadres invult. Versturen doet hij niet. Er gaat niets naar buiten tot je op **Uitnodigingen versturen en doorgaan** drukt, dus je kunt de hele technische staf invoeren, de installatie afmaken en rondkijken voordat er ook maar één mail vertrekt.
+
+Verlaat je de stap zonder te versturen — of verlaat je de installatie helemaal — dan blijven de klaargezette uitnodigingen staan onder **Configuratie → Uitnodigingen**. Er gaat niets verloren en er wordt niets per ongeluk verstuurd. Een academie die zich weken later afvraagt waarom niemand een login kreeg, is precies wat deze stap wil voorkomen; daarom staat het aantal wachtende uitnodigingen op de knop zelf, en niet ergens in een zinnetje eronder.
+
+Wie je toevoegt zonder e-mailadres staat gewoon op de staflijst en kan later alsnog een adres krijgen; alleen uitnodigen om in te loggen kan pas daarna.
+
+**De uitnodiging zelf komt nooit op het scherm.** Hij gaat per e-mail en alleen per e-mail. Iedereen die een uitnodigingslink kan lezen, kan daarmee het account van die persoon claimen — en dit scherm staat vaak open op een telefoon in een kantine of op een laptop langs de lijn, waar iemand achter je meekijkt. Omdat deze accounts toegang geven tot gegevens over kinderen, reist de link per mail naar de persoon zelf en verder nergens heen. Krijgt iemand zijn uitnodiging niet, verstuur hem dan opnieuw via **Configuratie → Uitnodigingen** in plaats van te zoeken naar een link om te kopiëren.
+
+Deze stap werkt hetzelfde of je de installatie nu vanaf de voorkant doorloopt (`?tt_view=setup`) of in wp-admin. Beide schermen maken de persoon aan en houden de uitnodiging vast via dezelfde code, dus je kunt in het ene beginnen en in het andere afmaken.
+
 ## De berichtenstap is degene die je niet moet overslaan
 
 Een gloednieuwe academie verstuurt helemaal niets. Dat is met opzet — dit zijn berichten aan de ouders van minderjarigen, en TalentTrack begint niet namens een academie te mailen voordat iemand daar bewust voor gekozen heeft.

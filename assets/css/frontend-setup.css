@@ -331,6 +331,52 @@
     margin: 0 0 var(--tt-sp-3);
 }
 
+/* ---- Staff added so far (#3261) ------------------------------------- */
+/* A list, not a table: three facts per person on a 360px screen, where a
+   three-column table would either scroll sideways or squeeze the email to
+   an ellipsis. Stacked here, one row per person from 480px up. */
+.tt-dashboard .tt-setup__added {
+    list-style: none;
+    margin: 0 0 var(--tt-sp-4);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-setup__added-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-dashboard .tt-setup__added-name {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-setup__added-email,
+.tt-dashboard .tt-setup__added-state {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-setup__added-row {
+        flex-direction: row;
+        align-items: baseline;
+        flex-wrap: wrap;
+        column-gap: var(--tt-sp-3);
+    }
+
+    .tt-dashboard .tt-setup__added-state {
+        margin-left: auto;
+    }
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-setup__field {
         max-width: 28rem;

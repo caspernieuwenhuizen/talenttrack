@@ -49,6 +49,14 @@ Each person controls their own preferences from **My settings**. The list is per
 
 Three kinds are not on the list, because they are not optional: safeguarding messages, account-recovery email, and cancellations. They are shown on the screen anyway, ticked and greyed out, with the reason — a preferences page that quietly omits what you cannot refuse tells you less than one that names it.
 
+**The list you see is the mail you can actually receive.** Every message type says who it is addressed to — the player, the family, or the academy's staff — and the screen only offers the ones that reach you. A player is not asked whether they want reminders about a coach's development review, and a coach is not asked about invitations to parent meetings.
+
+Someone who is both — a coach whose own child is at the academy — keeps every row either of them receives, so filtering never costs anybody a switch.
+
+If a message type has not said who it is for, it is shown to everyone rather than hidden. That is the deliberate direction: a spare row on your screen is untidy, while a missing one means mail arriving that you have no way to refuse.
+
+Changing your preferences only ever writes the rows in front of you. Nothing you cannot see is altered by pressing Save, so a preference set while you held a different role is still there if you hold it again.
+
 ## Turning a kind of message off for everyone
 
 An academy-wide switch exists per template. Use it when a kind of message does not fit how you work — an academy that never sends goal nudges can switch that one off without losing attendance flags with it.
