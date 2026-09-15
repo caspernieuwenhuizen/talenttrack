@@ -51,6 +51,9 @@ class MeasurementDefinitionsRepository {
      * listActive() — the profile read model uses this so a test toggled off
      * for the profile stops rendering there while staying in reports/exports.
      *
+     * @param list<string>|null $allowed_visibilities #3392 — the levels this
+     *        reader may see. Null means no audience filter, for callers that
+     *        are gated as a whole and must keep seeing every test.
      * @return array<int, object>
      */
     public function listActiveForProfile( ?array $allowed_visibilities = null ): array {
@@ -323,6 +326,8 @@ class MeasurementDefinitionsRepository {
      * a typo that hid a test would be invisible to the operator who made
      * it, and the operator's own screen shows which level is set, so the
      * wrong one is something they can see and correct.
+     *
+     * @param mixed $value Raw from a form post or a REST payload.
      */
     private function safeVisibility( $value ): string {
         $value = is_string( $value ) ? $value : '';

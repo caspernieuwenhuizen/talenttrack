@@ -66,6 +66,45 @@ final class MeasurementVisibilityTest extends WP_UnitTestCase {
         $this->assertContains( RecordVisibility::LEVEL_COACHING_STAFF, RecordVisibility::forMeasurements( $user ) );
     }
 
+    public function test_the_medical_cap_alone_does_not_reach_the_medical_level(): void {
+        // The trap this feature is most likely to be broken by, and the one
+        // the first draft fell into.
+        //
+        // `tt_view_player_medical` does not mean "is medical staff": it
+        // bridges from `player_injuries:read`, which the seed grants a
+        // player at self scope and a parent at player scope so they can see
+        // their own injuries. A cap-only check therefore hands the player
+        // the medical-level test the level exists to withhold.
+        $player = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+
+        foreach ( [ $player, $parent ] as $user ) {
+            $this->assertTrue(
+                user_can( $user, 'tt_view_player_medical' ),
+                'the premise: they do hold the cap, over their own record'
+            );
+            $this->assertNotContains(
+                RecordVisibility::LEVEL_MEDICAL,
+                RecordVisibility::forMeasurements( $user ),
+                'holding the cap over your own record is not clearance to read a medical-level test'
+            );
+        }
+    }
+
+    public function test_the_journey_still_shows_a_player_their_own_medical_entries(): void {
+        // The other side of the same distinction: for the journey the cap
+        // alone IS the right test, because the timeline is already scoped
+        // to one authorised player. Moving measurements must not have
+        // narrowed that.
+        $player = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+
+        $this->assertContains(
+            RecordVisibility::LEVEL_MEDICAL,
+            RecordVisibility::forJourney( $player ),
+            'a player reads their own injuries on their own timeline — unchanged by #3392'
+        );
+    }
+
     /* ---- the profile read model --------------------------------------- */
 
     public function test_a_player_does_not_see_a_staff_only_test(): void {

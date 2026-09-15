@@ -20,14 +20,30 @@ use TT\Modules\Authorization\MatrixGate;
  * means something specific to an operator, so "who may see this" is one
  * question across the product instead of two that drift.
  *
- * THE LADDER LIVES HERE, ONCE
+ * THE VOCABULARY IS SHARED; THE TWO RESOLVERS ARE NOT THE SAME LADDER
  *
- * The levels are ordered: everyone who can see `coaching_staff` can also
- * see `public`. What differs per module is only which users count as
- * staff — the journey asks about evaluations, measurements asks about the
- * measurements grant at team or global scope. So the shape is shared and
- * the predicate is passed in, rather than the ladder being copied and
- * then quietly diverging the first time one of them gains a level.
+ * The levels and their meaning live here once. The resolvers deliberately
+ * do not share an implementation, because the two modules disagree about
+ * one rung — and flattening that disagreement would be a privacy bug in
+ * the feature built to prevent one.
+ *
+ * `tt_view_player_medical` does not mean "is medical staff". It bridges
+ * from `player_injuries:read`, which the authorization seed grants a
+ * **player** at `self` scope and a **parent** at `player` scope, so that a
+ * player can see their own injuries and a parent their child's.
+ *
+ * For the journey that is the right answer: `timelineForPlayer()` is
+ * already scoped to one player the caller was authorised to view, so a
+ * medical entry on your own timeline is yours to read.
+ *
+ * For measurements it inverts the feature. A medical-level test is one the
+ * academy decided the family should meet in a conversation; granting it to
+ * the player it is about, because they hold the cap over their own record,
+ * would hand them the exact figure the level exists to withhold. So here
+ * the medical rung sits *above* the staff rung rather than beside it.
+ *
+ * The first draft of this class did share one ladder and CI caught it.
+ * That is the note worth leaving: the two look identical and are not.
  */
 final class RecordVisibility {
 
@@ -97,7 +113,28 @@ final class RecordVisibility {
             || MatrixGate::can( $user_id, 'measurements', 'read', MatrixGate::SCOPE_GLOBAL )
             || MatrixGate::can( $user_id, 'measurements', 'read', MatrixGate::SCOPE_TEAM );
 
-        return self::ladder( $is_staff, $user_id );
+        $out = [ self::LEVEL_PUBLIC ];
+        if ( ! $is_staff ) {
+            return $out;
+        }
+
+        $out[] = self::LEVEL_COACHING_STAFF;
+
+        // Staff FIRST, then the cap. Reversing these two is the bug the
+        // class docblock describes: a player holds the medical cap over
+        // their own record, so a cap-only check hands them the test the
+        // level exists to keep from them.
+        //
+        // #1538's feature switch applies on top, as it does on the
+        // timeline, so an academy that turned medical visibility off has
+        // turned it off in both places rather than discovering a second
+        // switch here.
+        if ( user_can( $user_id, 'tt_view_player_medical' )
+            && \TT\Core\FeatureRegistry::isEnabled( 'journey_medical_visibility' ) ) {
+            $out[] = self::LEVEL_MEDICAL;
+        }
+
+        return $out;
     }
 
     /**
@@ -111,41 +148,26 @@ final class RecordVisibility {
      * @return list<string>
      */
     public static function forJourney( int $user_id ): array {
-        $is_staff = user_can( $user_id, 'tt_edit_evaluations' )
-            || user_can( $user_id, 'tt_edit_settings' );
-
-        $out = self::ladder( $is_staff, $user_id );
-
-        if ( user_can( $user_id, 'tt_view_player_safeguarding' ) ) {
-            $out[] = self::LEVEL_SAFEGUARDING;
-        }
-
-        return $out;
-    }
-
-    /**
-     * Public, plus the staff level when they are staff, plus medical when
-     * they hold the medical cap AND the sub-feature is on.
-     *
-     * #1538 — the medical gate is two conditions, not one: the
-     * `journey_medical_visibility` feature switch hides medical entries
-     * from the timeline even for staff holding the cap, without touching
-     * the cap itself. Measurements inherit that rather than inventing a
-     * second switch, so an academy that has turned medical visibility off
-     * has turned it off everywhere.
-     *
-     * @return list<string>
-     */
-    private static function ladder( bool $is_staff, int $user_id ): array {
         $out = [ self::LEVEL_PUBLIC ];
 
-        if ( $is_staff ) {
+        if ( user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_edit_settings' ) ) {
             $out[] = self::LEVEL_COACHING_STAFF;
         }
 
+        // Cap alone, no staff test — see the class docblock. The timeline
+        // is already scoped to one authorised player, so a player reading a
+        // medical entry here is reading their own, which is the point of
+        // the seed granting them `player_injuries:read` at self scope.
+        //
+        // #1538 — two conditions, not one: the feature switch hides medical
+        // entries even from staff holding the cap, without touching the cap.
         if ( user_can( $user_id, 'tt_view_player_medical' )
             && \TT\Core\FeatureRegistry::isEnabled( 'journey_medical_visibility' ) ) {
             $out[] = self::LEVEL_MEDICAL;
+        }
+
+        if ( user_can( $user_id, 'tt_view_player_safeguarding' ) ) {
+            $out[] = self::LEVEL_SAFEGUARDING;
         }
 
         return $out;
