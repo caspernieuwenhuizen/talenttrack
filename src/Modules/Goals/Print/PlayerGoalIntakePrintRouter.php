@@ -321,7 +321,7 @@ class PlayerGoalIntakePrintRouter {
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
                     pl.jersey_number, pl.preferred_foot, pl.team_id, pl.club_id,
-                    pl.photo_url,
+                    pl.photo_url, pl.photo_media_id,
                     t.name AS team_name
                FROM {$p}tt_players pl
                LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
@@ -356,10 +356,10 @@ class PlayerGoalIntakePrintRouter {
     <section class="identity">
         <div class="identity__photo">
             <?php
-            // #1267 — same column fix. Reads photo_url directly per
-            // FrontendPlayerDetailView::294 etc., no wp_get_attachment_image_url
-            // round-trip needed since photo_url already stores the URL.
-            $photo = (string) ( $player->photo_url ?? '' );
+            // #3399 — inline bytes rather than a URL. This is print output;
+            // it may be rendered without a session, and a photo printed from
+            // a broken link is a blank box on a sheet a coach hands out.
+            $photo = \TT\Modules\Players\Services\PlayerPhoto::dataUri( $player );
             if ( $photo !== '' ) {
                 echo '<img src="' . esc_url( $photo ) . '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:2mm;">';
             } else {

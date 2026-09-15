@@ -124,6 +124,10 @@ guesses the address can open it, and that address cannot be withdrawn afterwards
 Instead, TalentTrack keeps media in a private folder of its own (`uploads/tt-media/`) with randomly-named files. There is no web address that
 serves them. Every view of a photo or video goes through TalentTrack, which checks who is asking before it sends a single byte.
 
+**Player photographs are kept here too.** They were the one exception for a long time: a player's photo was picked through the WordPress media library and stored as a public address, so the same academy's media library was locked while its player photos were not. They now go through the private store like everything else, and uploading one removes the public copy the media library would otherwise keep.
+
+When you upgrade, existing player photographs are moved across and the public copies are deleted. Any address that pointed straight at a player's photo file will stop working — that is the point of the change, since those are exactly the links that could be opened by anyone. A photo hosted somewhere else entirely, such as your own club CDN, is left alone.
+
 Two guards, and it is worth knowing which one is doing the work:
 
 - The folder carries a rule blocking direct web access. **On Apache servers this works. On nginx servers it does nothing** — nginx does not read

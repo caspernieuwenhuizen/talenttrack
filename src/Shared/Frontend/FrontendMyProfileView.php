@@ -63,7 +63,7 @@ class FrontendMyProfileView extends FrontendViewBase {
         $team_name   = $team ? (string) $team->name : '';
         $age_group   = $team ? (string) ( $team->age_group ?? '' ) : '';
         $jersey      = $player->jersey_number ? '#' . (int) $player->jersey_number : '';
-        $photo       = (string) ( $player->photo_url ?? '' );
+        $photo       = \TT\Modules\Players\Services\PlayerPhoto::url( $player );
         $initials    = self::initialsFor( $name );
         ?>
         <section class="tt-profile-hero">

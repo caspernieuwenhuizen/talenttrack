@@ -438,7 +438,7 @@ final class StravaRestController {
             $items[] = [
                 'player_id'        => (int) $row->player_id,
                 'player_name'      => $name !== '' ? $name : __( '(unknown player)', 'talenttrack' ),
-                'photo_url'        => (string) ( $row->photo_url ?? '' ),
+                'photo_url'        => \TT\Modules\Players\Services\PlayerPhoto::url( $row ),
                 'athlete_id'       => (int) ( $row->strava_athlete_id ?? 0 ),
                 'status'           => (string) ( $row->status ?? '' ),
                 'connected_at'     => (string) ( $row->connected_at ?? '' ),

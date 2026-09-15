@@ -191,12 +191,10 @@ class FrontendMyTeamView extends FrontendViewBase {
                     </h3>
                     <div class="tt-mt-roster">
                         <?php foreach ( $teammates as $mate ) :
-                            $photo_url = '';
-                            if ( isset( $mate->photo_id ) && (int) $mate->photo_id > 0 ) {
-                                $photo_url = (string) wp_get_attachment_image_url( (int) $mate->photo_id, 'thumbnail' );
-                            } elseif ( ! empty( $mate->photo_url ) ) {
-                                $photo_url = (string) $mate->photo_url;
-                            }
+                            // #3399 — was a two-branch fallback whose first
+                            // branch read `photo_id`, a column on no table,
+                            // so it never fired. One accessor now, gated.
+                            $photo_url = \TT\Modules\Players\Services\PlayerPhoto::url( $mate );
                             $initials = strtoupper(
                                 mb_substr( (string) ( $mate->first_name ?? '' ), 0, 1 )
                                 . mb_substr( (string) ( $mate->last_name ?? '' ), 0, 1 )

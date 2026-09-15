@@ -132,6 +132,10 @@ TalentTrack bewaart media in plaats daarvan in een eigen, afgeschermde map (`upl
 webadres dat ze uitserveert. Elke weergave van een foto of video loopt via TalentTrack, dat eerst controleert wie het opvraagt voordat er ook maar
 één byte verstuurd wordt.
 
+**Spelersfoto's staan hier nu ook.** Die waren lange tijd de uitzondering: een spelersfoto werd via de WordPress-mediabibliotheek gekozen en als openbaar adres opgeslagen, waardoor de mediabibliotheek van dezelfde academie wél op slot zat en de spelersfoto's niet. Ze gaan nu net als al het andere door de afgeschermde opslag, en bij het uploaden wordt de openbare kopie die de mediabibliotheek anders zou bewaren verwijderd.
+
+Bij het bijwerken worden bestaande spelersfoto's overgezet en worden de openbare kopieën verwijderd. Elk adres dat rechtstreeks naar het fotobestand van een speler wees, werkt daarna niet meer — en dat is precies de bedoeling, want juist die links kon iedereen openen. Een foto die ergens anders staat, bijvoorbeeld op de eigen CDN van de club, blijft ongemoeid.
+
 Twee beveiligingen, en het is goed om te weten welke het echte werk doet:
 
 - De map bevat een regel die directe toegang via het web blokkeert. **Op Apache-servers werkt dit. Op nginx-servers doet het niets** — nginx leest

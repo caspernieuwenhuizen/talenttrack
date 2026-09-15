@@ -120,7 +120,9 @@ class PdpPrintRouter {
         ) );
 
         $name  = $player ? QueryHelpers::player_display_name( $player ) : '';
-        $photo = $player && ! empty( $player->photo_url ) ? (string) $player->photo_url : '';
+        // #3399 — inline bytes; see PlayerPhoto::dataUri() for why print
+        // output cannot use the session-bound delivery URL.
+        $photo = \TT\Modules\Players\Services\PlayerPhoto::dataUri( $player );
 
         ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
