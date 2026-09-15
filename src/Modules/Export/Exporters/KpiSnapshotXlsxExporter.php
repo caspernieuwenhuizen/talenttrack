@@ -5,12 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
+use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 
 /**
  * KpiSnapshotXlsxExporter (#865) — point-in-time KPI snapshot for board
  * meetings / quarterly reviews.
  *
- * Single sheet, one row per KPI:
+ * Sheet 1, one row per KPI:
  *   - Active players
  *   - Total players (incl. archived / trial)
  *   - Active teams
@@ -18,6 +20,26 @@ use TT\Modules\Export\ExporterInterface;
  *   - Evaluations in period
  *   - Attendance: present rows / total
  *   - Goals: active / completed / total
+ *   - Potential: how many active players have a band recorded, and how many
+ *     do not
+ *
+ * Sheet 2, one row per active player: their current potential band and when
+ * it was recorded (#3414).
+ *
+ * ## Why potential is here and not on the roster CSV
+ *
+ * A potential band is a staff judgement about a minor. `PlayersListCsvExporter`
+ * is a roster and contact sheet that gets mailed around, and putting the band
+ * on it would change who can carry that judgement out of the system; this
+ * export is already staff-scoped and analytical, and a KPI snapshot missing
+ * the academy's only recorded answer to *where is this player going* is
+ * missing its point (#3385).
+ *
+ * The band is read through `PlayerPotentialRepository::latestFor()` — the
+ * accessor `PlayerStatusCalculator` uses — so the sheet and the player's
+ * status dot can never disagree about what the current band is. One query
+ * per active player, which a periodic export can afford and a disagreement
+ * with the traffic light is not.
  *
  * URL:
  *   `POST /wp-json/talenttrack/v1/exports/kpi_snapshot?format=xlsx`
@@ -130,6 +152,12 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
             $club_id
         ) );
 
+        $potential = $this->potentialRows( $club_id );
+        $with_band = 0;
+        foreach ( $potential as $player_row ) {
+            if ( $player_row[2] !== '' ) $with_band++;
+        }
+
         $headers = [
             __( 'Metric', 'talenttrack' ),
             __( 'Value',  'talenttrack' ),
@@ -150,8 +178,82 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
             [ __( 'Goals — total',      'talenttrack' ), $goals_total ],
             [ __( 'Goals — active',     'talenttrack' ), $goals_active ],
             [ __( 'Goals — completed',  'talenttrack' ), $goals_completed ],
+            [ __( 'Potential — band recorded', 'talenttrack' ), $with_band ],
+            [ __( 'Potential — no band recorded', 'talenttrack' ), count( $potential ) - $with_band ],
         ];
 
-        return [ 'headers' => $headers, 'rows' => $rows ];
+        return [
+            'sheets' => [
+                __( 'KPI snapshot', 'talenttrack' ) => [ $headers, $rows ],
+                self::potentialSheetName()          => [
+                    [
+                        __( 'Player', 'talenttrack' ),
+                        __( 'Team', 'talenttrack' ),
+                        __( 'Potential band', 'talenttrack' ),
+                        __( 'Recorded on', 'talenttrack' ),
+                    ],
+                    $potential,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Tab name for the per-player sheet.
+     *
+     * `_x()` rather than `__()`: one word on its own picks up whichever
+     * sense a translator met first, and "Potential" has two other uses in
+     * the product already.
+     */
+    public static function potentialSheetName(): string {
+        return _x( 'Potential', 'export sheet name — potential band per player', 'talenttrack' );
+    }
+
+    /**
+     * One row per active player: name, team, current band, date recorded.
+     *
+     * A player with no potential row gets an empty cell rather than a
+     * guessed default. On an academy that has not been through a potential
+     * round this is a visibly sparse column, and that is the honest
+     * rendering — a default would read as a judgement nobody made.
+     *
+     * Active players only, matching the "Active players" metric on the
+     * first sheet: a released player's band is history, not a snapshot of
+     * where the academy is now.
+     *
+     * @return list<list<string>>
+     */
+    private function potentialRows( int $club_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $players = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id, pl.first_name, pl.last_name, COALESCE( t.name, '' ) AS team_name
+               FROM {$p}tt_players pl
+          LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+              WHERE pl.club_id = %d AND pl.status = 'active'
+              ORDER BY pl.last_name ASC, pl.first_name ASC, pl.id ASC",
+            $club_id
+        ) );
+
+        $repo = new PlayerPotentialRepository();
+        $out  = [];
+
+        foreach ( is_array( $players ) ? $players : [] as $player ) {
+            $latest = $repo->latestFor( (int) $player->id );
+
+            $out[] = [
+                trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) ),
+                (string) ( $player->team_name ?? '' ),
+                $latest === null
+                    ? ''
+                    : ExportValueFormatter::potentialBand( (string) ( $latest->potential_band ?? '' ) ),
+                $latest === null
+                    ? ''
+                    : substr( (string) ( $latest->set_at ?? '' ), 0, 10 ),
+            ];
+        }
+
+        return $out;
     }
 }

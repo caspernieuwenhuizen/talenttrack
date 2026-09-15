@@ -60287,6 +60287,23 @@ msgid_plural "%s invitations are ready to send."
 msgstr[0] "%s uitnodiging staat klaar om te versturen."
 msgstr[1] "%s uitnodigingen staan klaar om te versturen."
 
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:181
+msgid "Potential — band recorded"
+msgstr "Potentieel — band vastgelegd"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:182
+msgid "Potential — no band recorded"
+msgstr "Potentieel — geen band vastgelegd"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:193
+msgid "Recorded on"
+msgstr "Vastgelegd op"
+
+#: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:209
+msgctxt "export sheet name — potential band per player"
+msgid "Potential"
+msgstr "Potentieel"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "
