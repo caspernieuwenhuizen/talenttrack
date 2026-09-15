@@ -10,6 +10,7 @@ use TT\Infrastructure\Players\PlayerDeletionCascade;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\RecycleBin\RecycleBinAuditActions;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 
 /**
@@ -356,6 +357,7 @@ class ArchiveRepository {
         // propagates to the caller, which surfaces the dependency report.
         if ( CascadeRegistry::has( $entity ) ) {
             $result = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
+            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'] );
             return (int) $result['deleted'];
         }
 
@@ -543,7 +545,9 @@ class ArchiveRepository {
             return array_merge( $base, ( new PlayerDeletionCascade() )->cascade( $ids ) );
         }
         if ( CascadeRegistry::has( $entity ) ) {
-            return array_merge( $base, ( new GenericCascadeDeleter() )->cascade( $entity, $ids ) );
+            $result = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
+            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'] );
+            return array_merge( $base, $result );
         }
 
         // Entities with no cascade plan: a plain club-scoped DELETE, same as
@@ -554,6 +558,30 @@ class ArchiveRepository {
         $sql   = "DELETE FROM {$table} WHERE id IN ({$ph}) AND club_id = %d";
         $deleted = (int) $wpdb->query( $wpdb->prepare( $sql, ...array_merge( $ids, [ CurrentClub::id() ] ) ) );
         return array_merge( $base, [ 'deleted' => $deleted ] );
+    }
+
+    /**
+     * #3376 — tell the rest of the plugin that rows are gone for good.
+     *
+     * The cascade plan only reaches references it can name as a column, so
+     * polymorphic links (media, keyed on entity_type + entity_id) survive a
+     * cascade delete untouched. Announcing lets the owning module clean up
+     * what the declaration cannot express.
+     *
+     * Fired after the delete, so a fail-closed refusal (DeleteBlockedException,
+     * thrown before any write) never reaches a subscriber. Ids that turned out
+     * not to exist are harmless: every subscriber clears references to a
+     * missing row, which is a no-op when there are none.
+     *
+     * @param int[] $ids
+     */
+    private function announceHardDelete( string $entity, array $ids, int $deleted ): void {
+        if ( $deleted <= 0 ) return;
+        if ( $entity !== 'activity' ) return;
+
+        foreach ( $ids as $id ) {
+            ActivitiesRepository::announceDeleted( (int) $id );
+        }
     }
 
     /**

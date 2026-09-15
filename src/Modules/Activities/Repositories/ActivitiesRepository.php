@@ -1092,6 +1092,30 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #3376 — announce a hard-deleted activity to the modules that keep
+     * their own references to it (VCT session bindings, media links).
+     *
+     * Static because the other hard-delete path is the recycle bin's
+     * cascade, which never constructs this repository. Both call here so
+     * there is one place that defines when the event fires.
+     */
+    public static function announceDeleted( int $activity_id ): void {
+        if ( $activity_id <= 0 ) return;
+
+        /**
+         * An activity row was hard-deleted.
+         *
+         * Fired after the row is gone, which is what the subscribers need:
+         * they clear references to an activity that no longer exists. Does
+         * not fire on archive or trash — those keep the row, and a
+         * subscriber that cleaned up on them would break restore.
+         *
+         * @param int $activity_id
+         */
+        do_action( 'tt_activity_deleted', $activity_id );
+    }
+
+    /**
      * #1320 admin-CRUD slice — hard-delete an activity and ALL its
      * attendance rows (roster + guests). Club-scoped.
      *
@@ -1104,12 +1128,18 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
         $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] ) !== false;
+        $deleted = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
         // Fired after the activity is gone on purpose: the alert definitions
         // then return nothing for it, which is what resolves the occurrences
         // a deleted activity left behind.
         $this->announceAttendanceChange( $activity_id );
-        return $ok;
+        // Only when a row actually went: an id that was never there (or
+        // belongs to another club) must not make subscribers tear down
+        // references to an activity that is still live.
+        if ( (int) $deleted > 0 ) {
+            self::announceDeleted( $activity_id );
+        }
+        return $deleted !== false;
     }
 
     /**
