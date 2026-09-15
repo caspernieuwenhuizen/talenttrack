@@ -100,6 +100,32 @@ final class ReportsRestController extends BaseController {
                 'args'                => $attendance_args,
             ],
         ] );
+        // #3412 — a squad's potential bands, the same filtered set the
+        // rendered report shows the same caller (CLAUDE.md §4). Three gates
+        // in one callback because all three govern the rendered view too:
+        // the analytics cap, the player-status cap, and the squad-level
+        // visibility policy that keeps a player or parent out whatever the
+        // dot toggle says. The team set is narrowed to what the caller may
+        // read inside the query itself, so `scope` can never widen access.
+        register_rest_route( self::NS, '/reports/potential-overview', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'potentialOverview' ],
+                'permission_callback' => static function (): bool {
+                    if ( ! current_user_can( 'tt_view_analytics' ) ) return false;
+                    if ( ! current_user_can( 'tt_view_player_status' ) ) return false;
+                    if ( ! \TT\Core\FeatureRegistry::isEnabled( 'analytics_potential_overview' ) ) return false;
+                    return \TT\Modules\Players\Frontend\PlayerStatusVisibility::squadVisibleTo( get_current_user_id() );
+                },
+                'args'                => [
+                    'scope'     => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+                    'team_id'   => [ 'sanitize_callback' => 'absint',              'required' => false ],
+                    'age_group' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'sort'      => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+                    'dir'       => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+                ],
+            ],
+        ] );
         // #2368 — read-only minutes-audit matrix (games × players) for a
         // team + window. Gated on `tt_view_analytics` (the same cap the
         // PHP-rendered view dispatch checks); results are additionally
@@ -149,6 +175,61 @@ final class ReportsRestController extends BaseController {
      * enforced on the activity's own team — a coach who deep-links to a
      * match on a team they don't coach gets a 403, not another team's roster.
      */
+    /**
+     * #3412 — every player in a team or age group with their current
+     * potential band, the movement that produced it, and when it was set.
+     *
+     * The same `PotentialOverviewQuery` the rendered report calls, with the
+     * same caller id, so a non-WordPress front end gets the same rows —
+     * including the players with nothing recorded, which are the ones the
+     * report exists to find. `bands` narrows the set; it is read as a
+     * repeated query parameter or a comma-separated list, because both
+     * shapes reach a WordPress REST route depending on the client.
+     */
+    public static function potentialOverview( WP_REST_Request $req ): \WP_REST_Response {
+        $user_id = get_current_user_id();
+        $query   = new \TT\Modules\Analytics\Reports\PotentialOverviewQuery();
+
+        $scope     = \TT\Modules\Analytics\Reports\PotentialOverviewQuery::sanitizeScope(
+            (string) $req->get_param( 'scope' )
+        );
+        $team_id   = (int) $req->get_param( 'team_id' );
+        $age_group = (string) $req->get_param( 'age_group' );
+
+        $raw_bands = $req->get_param( 'bands' );
+        if ( is_string( $raw_bands ) ) {
+            $raw_bands = $raw_bands === '' ? [] : explode( ',', $raw_bands );
+        }
+        $bands = \TT\Modules\Analytics\Reports\PotentialOverviewQuery::sanitizeBands(
+            array_map( 'strval', is_array( $raw_bands ) ? $raw_bands : [] )
+        );
+
+        $rows = $query->rows(
+            $user_id,
+            $scope,
+            $team_id,
+            $age_group,
+            $bands,
+            (string) $req->get_param( 'sort' ),
+            (string) $req->get_param( 'dir' )
+        );
+
+        // The summary describes the scope, not the filtered slice — the
+        // same choice the rendered report makes, so the two cannot report
+        // different coverage for the same squad.
+        $all = $bands === [] ? $rows : $query->rows( $user_id, $scope, $team_id, $age_group );
+
+        return RestResponse::success( [
+            'scope'     => $scope,
+            'team_id'   => $team_id,
+            'age_group' => $age_group,
+            'bands'     => $bands,
+            'teams'     => $query->teamsInScope( $user_id, $scope, $team_id, $age_group ),
+            'summary'   => \TT\Modules\Analytics\Reports\PotentialOverviewQuery::summarise( $all ),
+            'rows'      => $rows,
+        ] );
+    }
+
     public static function minutesAuditEditor( WP_REST_Request $req ): \WP_REST_Response {
         $activity_id = (int) $req->get_param( 'activity_id' );
         $data = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->editorRows( $activity_id );

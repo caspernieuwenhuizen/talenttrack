@@ -15,10 +15,29 @@
 .tt-status-dot.tt-status-red     { background: #b91c1c; }
 .tt-status-dot.tt-status-unknown { background: #cbd5e1; }
 
+/* #3413 — a verdict computed without one of its weighted inputs.
+   A hollow centre, so "judged on less evidence" survives a glance
+   without adding a fifth colour: the colour still says where the
+   player is, the ring says how much the academy actually knows.
+   The accessible name carries the same thing in words. */
+.tt-status-dot.tt-status-partial {
+    box-shadow: inset 0 0 0 3px var(--tt-paper, #fff);
+}
+
 .tt-status-dot.tt-status-tappable {
     width: 18px;
     height: 18px;
     cursor: pointer;
+}
+
+.tt-status-dot.tt-status-tappable.tt-status-partial {
+    box-shadow: inset 0 0 0 5px var(--tt-paper, #fff);
+}
+
+@media (pointer: coarse) {
+    .tt-status-dot.tt-status-tappable.tt-status-partial {
+        box-shadow: inset 0 0 0 12px var(--tt-paper, #fff);
+    }
 }
 
 @media (pointer: coarse) {

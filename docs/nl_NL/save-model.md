@@ -94,6 +94,8 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
 **Waar.**
 
 - De drie invoerrasters: aanwezigheid, minuten, beoordelingen.
+- De potentieelkolom op het [Potentieeloverzicht](potential-overview.md), dat
+  in alles behalve de naam een vierde raster is.
 - Korte recordformulieren: speler, team, persoon, activiteit en de rest.
 - Een evaluatie of doel **aanmaken** — in tegenstelling tot bewerken.
 - Configuratieschermen en keuzelijsten.

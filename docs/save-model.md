@@ -91,6 +91,8 @@ first in tab order and Save on the right where the thumb finds it.
 **Where.**
 
 - The three data-entry grids: attendance, minutes, ratings.
+- The band column on the [Potential overview](potential-overview.md), which
+  is a fourth grid in everything but name.
 - Short record forms: player, team, person, activity, and the rest.
 - Creating an evaluation or a goal — as opposed to editing one.
 - Configuration screens and lookup lists.

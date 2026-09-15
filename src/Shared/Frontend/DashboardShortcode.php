@@ -2071,6 +2071,13 @@ class DashboardShortcode {
                     \TT\Modules\Analytics\Frontend\FrontendMinutesAuditView::render( $user_id, $is_admin );
                 }
                 return true;
+            // #3412 — a squad's potential bands, sortable and editable in
+            // place. Self-gates on tt_view_analytics + tt_view_player_status
+            // + the squad-visibility policy, and scopes its team set to what
+            // the caller may read.
+            case 'potential-overview':
+                \TT\Modules\Analytics\Frontend\FrontendPotentialOverviewView::render( $user_id, $is_admin );
+                return true;
             case 'eval-coverage':
                 \TT\Modules\Analytics\Frontend\FrontendEvalCoverageView::render( $user_id, $is_admin );
                 return true;

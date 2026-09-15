@@ -90,7 +90,25 @@ class PotentialTrajectory {
     public function forPlayer( int $player_id ): array {
         if ( $player_id <= 0 ) return [];
 
-        $rows = array_reverse( $this->repo->historyFor( $player_id ) );
+        return self::seriesFrom( $this->repo->historyFor( $player_id ) );
+    }
+
+    /**
+     * The same decoration, from rows a caller already holds (#3412).
+     *
+     * A squad-level read fetches one player's whole cohort in a single
+     * query and groups in PHP; without this it would have to re-derive
+     * direction, and a second implementation of "a lower index is a better
+     * band" is exactly the thing that ends up backwards on one surface.
+     *
+     * @param list<object> $history newest-first, as the repository returns it
+     * @return list<array{
+     *     id:int, band:string, label:string, set_at:string, set_by:int,
+     *     set_by_name:string, notes:string, direction:string, steps:int
+     * }>
+     */
+    public static function seriesFrom( array $history ): array {
+        $rows = array_reverse( $history );
 
         $out       = [];
         $prev_rank = null;
@@ -130,6 +148,17 @@ class PotentialTrajectory {
         }
 
         return $out;
+    }
+
+    /**
+     * The band's position, for a caller that sorts by it (#3412).
+     *
+     * Public because ordering a squad best-band-first is the same question
+     * as "which of these two is higher", and a report computing it from a
+     * local copy of the vocabulary is how the two drift apart.
+     */
+    public static function rank( string $band ): ?int {
+        return self::rankOf( $band );
     }
 
     /**

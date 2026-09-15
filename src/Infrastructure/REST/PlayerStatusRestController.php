@@ -10,7 +10,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
-use TT\Modules\Players\Repositories\PlayerPotentialRepository;
+use TT\Modules\Players\Services\PotentialRecorder;
 use TT\Modules\Players\Services\PotentialTrajectory;
 
 /**
@@ -166,17 +166,31 @@ final class PlayerStatusRestController {
     public static function setPotential( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $band      = isset( $r['potential_band'] ) ? sanitize_key( (string) $r['potential_band'] ) : '';
-        $valid     = PotentialBand::ALL;
-        if ( $player_id <= 0 || ! in_array( $band, $valid, true ) ) {
-            return RestResponse::error( 'bad_input', __( 'Player and a valid potential band are required.', 'talenttrack' ), 400, [ 'allowed' => $valid ] );
+        $notes     = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;
+
+        // #3412 — the three write rules (valid band, the #3265 age floor,
+        // the #2876 no-op on a bare re-statement) moved to
+        // `PotentialRecorder` when the squad report became a second writer.
+        // This method is transport over them now; the rules are unchanged,
+        // and so are the status codes each one produces.
+        $outcome = ( new PotentialRecorder() )->record( $player_id, $band, $notes );
+
+        if ( $outcome['result'] === PotentialRecorder::NO_PLAYER
+             || $outcome['result'] === PotentialRecorder::INVALID
+        ) {
+            return RestResponse::error(
+                'bad_input',
+                __( 'Player and a valid potential band are required.', 'talenttrack' ),
+                400,
+                [ 'allowed' => PotentialBand::ALL ]
+            );
         }
 
-        // #3265 — the age floor is not screen-deep. The capture view hides
-        // the form below it, but a rule that only exists in a view is a rule
-        // any other client ignores, and this endpoint is the one a future
-        // SaaS front end will be calling. 409 rather than 403: the caller
-        // holds the capability; the player's age is what rejects the write.
-        if ( ! \TT\Modules\Players\PlayerStatusModule::potentialAppliesToPlayer( $player_id ) ) {
+        // #3265 — 409 rather than 403: the caller holds the capability; the
+        // player's age is what rejects the write. The age floor is not
+        // screen-deep, so a client that never renders the capture form still
+        // meets it here.
+        if ( $outcome['result'] === PotentialRecorder::BELOW_AGE ) {
             return RestResponse::error(
                 'potential_below_age_floor',
                 sprintf(
@@ -189,43 +203,11 @@ final class PlayerStatusRestController {
             );
         }
 
-        $notes = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;
-
-        // #2876 — a bare re-statement of the standing band is not a change of
-        // mind and does not belong in the history. Until the popover
-        // pre-selected the current band a coach could not see what it was, so
-        // re-submitting the same value was the normal outcome rather than a
-        // deliberate one, and the history filled with rows that looked like
-        // revisions.
-        //
-        // Same band AND no notes: accept the request and record nothing.
-        // Re-affirming a band *with* notes is a real act — "still first team,
-        // but the last six weeks have been flat" — so that still appends.
-        $repo   = new PlayerPotentialRepository();
-        $latest = $repo->latestFor( $player_id );
-        if ( $latest
-             && (string) ( $latest->potential_band ?? '' ) === $band
-             && ( $notes === null || $notes === '' )
-        ) {
-            return RestResponse::success( [
-                'id'             => (int) ( $latest->id ?? 0 ),
-                'potential_band' => $band,
-                'set_at'         => (string) ( $latest->set_at ?? '' ),
-                'unchanged'      => true,
-            ] );
-        }
-
-        $set_at = current_time( 'mysql' );
-        $id = $repo->create( [
-            'player_id'      => $player_id,
-            'potential_band' => $band,
-            'notes'          => $notes,
-        ] );
         return RestResponse::success( [
-            'id'             => $id,
-            'potential_band' => $band,
-            'set_at'         => $set_at,
-            'unchanged'      => false,
+            'id'             => $outcome['id'],
+            'potential_band' => $outcome['band'],
+            'set_at'         => $outcome['set_at'],
+            'unchanged'      => $outcome['result'] === PotentialRecorder::UNCHANGED,
         ] );
     }
 

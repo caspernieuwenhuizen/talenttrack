@@ -646,7 +646,10 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                             <td><?php
                                 if ( class_exists( '\TT\Infrastructure\PlayerStatus\PlayerStatusCalculator' ) ) {
                                     $verdict = ( new \TT\Infrastructure\PlayerStatus\PlayerStatusCalculator() )->calculate( (int) $pl->id );
-                                    echo \TT\Modules\Players\Frontend\PlayerStatusRenderer::dot( (string) $verdict->color );
+                                    // #3413 — the verdict, not just its colour: a dot
+                                    // computed without potential renders hollow and says
+                                    // so, so the squad comparison is like-for-like.
+                                    echo \TT\Modules\Players\Frontend\PlayerStatusRenderer::dotFor( $verdict );
                                 }
                             ?></td>
                         <?php endif; ?>

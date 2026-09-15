@@ -45,6 +45,18 @@ Een gedragsscore onder het midden van je beoordelingsschaal plafonneert de kleur
 
 Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels). Ouders en spelers zien alleen het zachte label ("Op koers" / "Extra aandacht" / "Kan nu extra ondersteuning gebruiken") — nooit cijfers, nooit interne stafterminologie.
 
+## Een holle stip betekent: berekend met minder
+
+De status is een gewogen gemiddelde van de ingrediënten die daadwerkelijk een waarde hebben. Heeft een speler geen potentieel vastgelegd, dan valt potentieel weg en worden de overige wegingen onderling verdeeld — rekenkundig juist, maar het betekent wel dat twee spelers met dezelfde oranje stip op verschillende gronden beoordeeld kunnen zijn.
+
+De stip zegt dat nu. **Een stip met een holle kern is berekend zonder minstens één van de gewogen ingrediënten**, en er overheen hoveren (of hem laten voorlezen) noemt welke: *"Extra aandacht — Berekend zonder potentieel."* Een gevulde stip betekent dat alles wat de methodiek vraagt aanwezig was. Diezelfde zin staat ook bij de redenen in de onderbouwing, dus je ziet het zowel op het spelersdossier als in de teamtabel.
+
+Het signaal is bewust geen vijfde kleur. De kleur zegt nog steeds waar de speler staat; de ring zegt hoeveel de academie werkelijk weet voordat ze dat zegt.
+
+Grijs — **Eerste beeld nog niet klaar** — is ongewijzigd en betekent nog steeds dat *alle* ingrediënten ontbreken, niet slechts één.
+
+Integraties krijgen hetzelfde, maar dan als data: de statusrespons draagt `coverage` (0–1, het aandeel van de gewogen ingrediënten dat meetelde), `missing_inputs` (de ingrediënten die ontbraken) en `coverage_note` (de zin). Sorteren op `coverage` is de manier om de spelers te vinden die nog door niemand beoordeeld zijn.
+
 ## Inputs vastleggen
 
 - **Gedragsobservaties** — de **Gedrag vastleggen**-popover op de hero van het spelersprofiel, of `POST /players/{id}/behaviour-ratings` voor integraties. Een 1-5 score met optionele notitie en gerelateerde activiteit.

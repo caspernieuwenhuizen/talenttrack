@@ -198,6 +198,7 @@ return [
     'mobile-settings'               => [ 'desktop_only', 'The mobile gate’s own switch. Configuration, ironically enough.' ],
     'modules'                       => [ 'desktop_only', 'Turning modules on and off, install-wide.' ],
     'parent-accounts'               => [ 'desktop_only', 'The same for parents.' ],
+    'potential-overview'            => [ 'viewable', 'Five columns, one row per player, and the band cell is a select. #3412 asked for it to work at 360px rather than gate it: the table scrolls inside its card with the player column pinned, so you can always see whose band you are changing. Desk work most of the time, but a head of development revising a band after watching a session should not have to wait until Monday.' ],
     'pdp-planning'                  => [ 'desktop_only', 'Planning development across a squad.' ],
     'persona-templates'             => [ 'desktop_only', 'A drag-and-drop canvas with a palette and a properties panel. There is no version of that which works under a thumb.' ],
     'player-accounts'               => [ 'desktop_only', 'Linking player records to sign-ins.' ],

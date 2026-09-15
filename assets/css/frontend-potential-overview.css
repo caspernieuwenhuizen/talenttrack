@@ -1,0 +1,312 @@
+/*
+ * frontend-potential-overview.css (#3412)
+ * A squad's potential bands, sortable, filterable and editable in place.
+ *
+ * Mobile-first: base styles target ~360px and the table scrolls inside
+ * its own card so the page never scrolls sideways. The player column is
+ * sticky, because a grid you scroll horizontally is useless the moment
+ * you cannot tell which row you are editing.
+ *
+ * Reads the shared design tokens (assets/css/tokens.css) — no raw hex.
+ * Every class is tt-po- prefixed.
+ */
+
+.tt-po-intro {
+    color: var(--tt-muted);
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ---- filters --------------------------------------------------------- */
+
+.tt-po-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+}
+
+.tt-po-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.tt-po-field__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tt-ink);
+    padding: 0;
+}
+
+.tt-po-filters .tt-input {
+    /* 16px so iOS does not zoom the page on focus, 48px so a thumb can
+       hit it. */
+    font-size: 1rem;
+    min-height: 48px;
+    width: 100%;
+    touch-action: manipulation;
+}
+
+.tt-po-bands {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    padding: 0.75rem;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.tt-po-band-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 0.25rem;
+    font-size: 0.9rem;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.tt-po-band-choice input {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.tt-po-hint {
+    flex: 1 0 100%;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted);
+}
+
+.tt-po-filters__submit {
+    min-height: 48px;
+    align-self: flex-start;
+    touch-action: manipulation;
+}
+
+/* ---- KPI strip ------------------------------------------------------- */
+
+.tt-po-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.tt-po-footnote {
+    margin: -0.5rem 0 1rem;
+    font-size: 0.85rem;
+    color: var(--tt-muted);
+}
+
+/* ---- the grid -------------------------------------------------------- */
+
+.tt-po-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+
+.tt-po-card__title {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: var(--tt-fs-lg);
+    border-bottom: 1px solid var(--tt-line);
+}
+
+.tt-po-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tt-po-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 40rem;
+}
+
+.tt-po-table thead th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    background: var(--tt-bg-soft);
+    border-bottom: 2px solid var(--tt-line);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.tt-po-cell {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--tt-line-soft);
+    vertical-align: top;
+    text-align: left;
+}
+
+.tt-po-row:last-child .tt-po-cell {
+    border-bottom: 0;
+}
+
+/* The subject of every row stays put while the rest scrolls. */
+.tt-po-cell--player,
+.tt-po-table thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--tt-paper);
+    font-weight: 600;
+    min-width: 9rem;
+}
+
+.tt-po-table thead th:first-child {
+    background: var(--tt-bg-soft);
+    z-index: 2;
+}
+
+.tt-po-row--unrecorded .tt-po-cell {
+    background: var(--tt-warning-subtle);
+}
+
+.tt-po-row--unrecorded .tt-po-cell--player {
+    /* The sticky column paints over the row tint, so re-state it. */
+    background: var(--tt-warning-subtle);
+}
+
+/* ---- sortable headers ------------------------------------------------ */
+
+.tt-po-sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 48px;
+    color: inherit;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-po-sort:hover,
+.tt-po-sort:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-po-sort.is-active {
+    color: var(--tt-link);
+}
+
+.tt-po-sort__dir {
+    font-size: 0.85em;
+}
+
+/* ---- band cell ------------------------------------------------------- */
+
+.tt-po-select {
+    font-size: 1rem;
+    min-height: 48px;
+    width: 100%;
+    min-width: 11rem;
+    touch-action: manipulation;
+}
+
+.tt-po-band {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.tt-po-band--none,
+.tt-po-band--na {
+    font-weight: 400;
+    color: var(--tt-muted);
+}
+
+/* ---- movement -------------------------------------------------------- */
+
+.tt-po-move {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.tt-po-move--up    { color: var(--tt-success); }
+.tt-po-move--down  { color: var(--tt-danger); }
+.tt-po-move--same,
+.tt-po-move--first,
+.tt-po-move--none  { color: var(--tt-muted); }
+
+.tt-po-move__arrow {
+    font-weight: 700;
+}
+
+/* ---- recorded-at ----------------------------------------------------- */
+
+.tt-po-when__date,
+.tt-po-when__who,
+.tt-po-when__count,
+.tt-po-when--none {
+    display: block;
+}
+
+.tt-po-when__who,
+.tt-po-when__count {
+    font-size: 0.8rem;
+    color: var(--tt-muted);
+}
+
+.tt-po-when--none {
+    color: var(--tt-muted);
+}
+
+/* ---- save ------------------------------------------------------------ */
+
+.tt-po-save-help {
+    margin: 0.75rem 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--tt-muted);
+}
+
+.tt-po-form .tt-form-actions .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+/* ---- large phone ----------------------------------------------------- */
+
+@media (min-width: 480px) {
+    .tt-po-kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* ---- tablet up ------------------------------------------------------- */
+
+@media (min-width: 768px) {
+    .tt-po-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .tt-po-field {
+        flex: 0 1 16rem;
+    }
+
+    .tt-po-bands {
+        flex: 1 1 22rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-po-scroll {
+        scroll-behavior: auto;
+    }
+}
