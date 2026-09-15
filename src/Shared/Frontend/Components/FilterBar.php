@@ -282,6 +282,15 @@ final class FilterBar {
 
 		foreach ( $groups as $group ) {
 			if ( ! is_array( $group ) ) continue;
+			// #3346 — `chip => false` for a control that is not a filter.
+			//
+			// A per-team report's Team select is a required scope: there is no
+			// "all teams" to walk back to, so a chip's ✕ would lead nowhere
+			// and the badge could never read zero. The hand-rolled arrays left
+			// those out by hand; this is how that judgement survives the
+			// derivation. It is not an escape hatch for a filter whose chip
+			// reads awkwardly.
+			if ( isset( $group['chip'] ) && ! $group['chip'] ) continue;
 
 			$type  = (string) ( $group['type'] ?? '' );
 			$glabel = trim( (string) ( $group['label'] ?? '' ) );
@@ -295,10 +304,30 @@ final class FilterBar {
 					// text and the link-based groups.
 					$value = (string) ( $group['selected'] ?? '' );
 					if ( $value === '' ) break; // the placeholder is "no filter"
+					// #3346 — not every select says "no filter" with an empty
+					// value. Several reports spell it `0 => All teams` as a
+					// real option, and without this the bar would chip the
+					// default on arrival and never be able to clear it.
+					if ( $value === (string) ( $group['default_value'] ?? '' ) ) break;
 					$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
 					$olabel  = (string) ( $options[ $value ] ?? $value );
 					$chips[] = [
 						'label'     => self::chipLabel( $glabel, $olabel ),
+						'clear_url' => FilterParam::removeFromUrl( (string) ( $group['name'] ?? '' ) ),
+					];
+					break;
+
+				case 'player':
+					// #3346 — a picker holds an id; the chip has to say a
+					// name. The caller resolves it (`selected_label`) because
+					// the bar holds no repository — CLAUDE.md §4. Without one
+					// there is nothing worth showing: the list surfaces chipped
+					// the bare numeric id before this.
+					if ( (int) ( $group['selected'] ?? 0 ) <= 0 ) break;
+					$value = trim( (string) ( $group['selected_label'] ?? '' ) );
+					if ( $value === '' ) break;
+					$chips[] = [
+						'label'     => self::chipLabel( $glabel, $value ),
 						'clear_url' => FilterParam::removeFromUrl( (string) ( $group['name'] ?? '' ) ),
 					];
 					break;
@@ -499,8 +528,6 @@ final class FilterBar {
 	 *   form_action?:string,
 	 *   hidden?:array<string,string>,
 	 *   groups:array<int,array<string,mixed>>,
-	 *   active_count?:int,
-	 *   chips?:array<int,string>,
 	 *   title?:string,
 	 *   filters_label?:string,
 	 *   reset_url?:string,
@@ -524,29 +551,25 @@ final class FilterBar {
 		$groups   = isset( $args['groups'] ) && is_array( $args['groups'] ) ? $args['groups'] : [];
 		$hidden   = isset( $args['hidden'] ) && is_array( $args['hidden'] ) ? $args['hidden'] : [];
 		$action   = (string) ( $args['form_action'] ?? '' );
-		$active   = (int) ( $args['active_count'] ?? 0 );
-		$chips    = isset( $args['chips'] ) && is_array( $args['chips'] ) ? $args['chips'] : [];
 
-		// #3292 — chips the component derives itself, each carrying the URL
-		// that removes just that filter.
+		// #3292 / #3346 — the chips are derived here, each carrying the URL
+		// that removes just that filter, and derivation is now the ONLY path.
 		//
-		// A caller-supplied `chips` is a flat list of pre-rendered labels: no
-		// param name, no value, no way back. So the component could not make
-		// them removable without a shape change, and they were marked
-		// `aria-hidden` — which left the only readback of WHICH filters are
-		// applied unavailable to assistive tech in any form. A screen reader
-		// heard "Filters, 3" and could not learn what the three were.
+		// Fourteen callers used to pass their own `chips` + `active_count`:
+		// a flat list of pre-rendered labels with no param name, no value and
+		// no way back. They could not be made removable without a shape
+		// change, so they were marked `aria-hidden` — which left the only
+		// readback of WHICH filters are applied unavailable to assistive tech
+		// entirely. A screen reader heard "Filters, 3" and could not learn
+		// what the three were. They also drifted: several surfaces counted a
+		// custom date window nowhere, so the bar reported "nothing filtered"
+		// over a filtered report until #3293 patched each one by hand.
 		//
-		// The bar already holds every group's options and active state, so it
-		// can answer both questions. Callers that still pass `chips` keep
-		// today's rendering (minus the `aria-hidden`, which was wrong
-		// regardless); callers that pass none — the alerts inbox and the
-		// comparison view — gain removable chips for free.
-		$derived_chips = $chips === [] ? self::activeChips( $groups ) : [];
-		if ( $derived_chips !== [] && ! isset( $args['active_count'] ) ) {
-			// One source of truth: the badge cannot disagree with the chips.
-			$active = count( $derived_chips );
-		}
+		// The bar already holds every group's options and active state, which
+		// answers both questions for every surface at once.
+		$derived_chips = self::activeChips( $groups );
+		// One source of truth: the badge cannot disagree with the chips.
+		$active = count( $derived_chips );
 		$title    = (string) ( $args['title'] ?? __( 'Filters', 'talenttrack' ) );
 		$ftrigger = (string) ( $args['filters_label'] ?? __( 'Filters', 'talenttrack' ) );
 		$reset    = (string) ( $args['reset_url'] ?? '' );
@@ -701,7 +724,7 @@ final class FilterBar {
 		// #3296 — and so do the saved views: a surface with views but no
 		// filters set and no reset URL still needs the cluster to hold its
 		// chips.
-		if ( $derived_chips !== [] || $chips !== [] || $reset !== '' || $saved_views_html !== '' ) {
+		if ( $derived_chips !== [] || $reset !== '' || $saved_views_html !== '' ) {
 			$out .= '<div class="tt-filterbar__utils">';
 			// #3292 — a real list, and NOT aria-hidden. The chips are the only
 			// place the bar says which filters are applied; hiding them from
@@ -727,16 +750,6 @@ final class FilterBar {
 							) ) . '">&#10005;</a>';
 					}
 					$out .= '</li>';
-				}
-				$out .= '</ul>';
-			} elseif ( $chips !== [] ) {
-				// Caller-supplied labels. Not removable — they arrive as bare
-				// strings with no param to drop — but no longer hidden from
-				// assistive tech.
-				$out .= '<ul class="tt-chips">';
-				foreach ( $chips as $chip ) {
-					$out .= '<li class="tt-chip"><span class="tt-chip__label">'
-						. esc_html( (string) $chip ) . '</span></li>';
 				}
 				$out .= '</ul>';
 			}
@@ -1241,8 +1254,9 @@ final class FilterBar {
 	 *
 	 * The closed state still has to say when the list is NOT in its default
 	 * state — an icon alone would make an archived list indistinguishable from
-	 * a short active one. Two cues, both only when off-default: the trigger
-	 * takes the accent treatment, and a clearable chip renders beside it.
+	 * a short active one. The trigger takes the accent treatment when the
+	 * selection is off-default; the naming, removable chip is the bar's own
+	 * (`activeChips()`), which is where every other filter's chip is too.
 	 *
 	 * @param array<string,mixed> $group
 	 */
@@ -1259,33 +1273,22 @@ final class FilterBar {
 		}
 		$is_default = $active === null || (string) ( $active['value'] ?? '' ) === $default;
 
-		// The URL that clears back to the default — the chip's ✕ target.
-		$clear_url = '';
-		foreach ( $options as $opt ) {
-			if ( (string) ( $opt['value'] ?? '' ) === $default ) {
-				$clear_url = (string) ( $opt['url'] ?? '' );
-				break;
-			}
-		}
-
 		$out = '<div class="tt-ovmenu-wrap">';
 
-		// Off-default cue #1 — a chip naming the state, with a clear action.
-		if ( ! $is_default && $active !== null ) {
-			$out .= '<span class="tt-ovmenu__chip">'
-				. esc_html( $label . ': ' . (string) ( $active['label'] ?? '' ) );
-			if ( $clear_url !== '' ) {
-				$out .= '<a class="tt-ovmenu__clear" href="' . esc_url( $clear_url ) . '"'
-					. ' aria-label="' . esc_attr(
-						/* translators: %s: the filter's name, e.g. "Archive". */
-						sprintf( __( 'Clear the %s filter', 'talenttrack' ), $label )
-					) . '">&#10005;</a>';
-			}
-			$out .= '</span>';
-		}
-
+		// #3346 — the chip that used to render here is gone.
+		//
+		// #2622 gave the closed menu two off-default cues: an accent on the
+		// trigger and a clearable chip beside it. `activeChips()` was modelled
+		// on that chip, and now that derivation is the only path it emits the
+		// same label with the same ✕ and the same clear URL for this group —
+		// so the two rendered side by side, word for word. The derived one
+		// wins because it renders in both layouts (this block is inline-only;
+		// in the sheet it is behind a closed dialog) and sits with the other
+		// filters' chips rather than apart from them.
+		//
+		// The accent cue stays: it is what the trigger itself says.
 		$out .= '<details class="tt-ovmenu" data-tt-perdrop>';
-		// Off-default cue #2 — the trigger itself carries the accent.
+		// Off-default: the trigger itself carries the accent.
 		$out .= '<summary class="tt-ovmenu__btn' . ( $is_default ? '' : ' tt-ovmenu__btn--on' ) . '"'
 			. ' aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '">'
 			. '<span aria-hidden="true">&#8943;</span></summary>';

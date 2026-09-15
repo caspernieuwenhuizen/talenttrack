@@ -25,19 +25,20 @@ final class FilterBarUtilityClusterTest extends WP_UnitTestCase {
     /** @param array<string,mixed> $extra */
     private function render( array $extra = [] ): string {
         return FilterBar::html( array_merge( [
-            'action'       => '/',
-            'method'       => 'get',
-            'reset_url'    => '/?reset=1',
-            'active_count' => 2,
-            'chips'        => [ 'Team: Ajax U17', 'Position: Striker' ],
-            'groups'       => [
+            'action'    => '/',
+            'method'    => 'get',
+            'reset_url' => '/?reset=1',
+            // #3346 — the chips are derived from the groups; `selected` is the
+            // key that makes this select an active filter, and passing a
+            // `chips` list of our own no longer does anything.
+            'groups'    => [
                 [
-                    'type'    => 'select',
-                    'key'     => 'team',
-                    'name'    => 'team_id',
-                    'label'   => 'Team',
-                    'value'   => '2',
-                    'options' => [ '' => 'All', '2' => 'Ajax U17' ],
+                    'type'     => 'select',
+                    'key'      => 'team',
+                    'name'     => 'team_id',
+                    'label'    => 'Team',
+                    'selected' => '2',
+                    'options'  => [ '' => 'All', '2' => 'Ajax U17' ],
                 ],
             ],
         ], $extra ) );
@@ -101,7 +102,19 @@ final class FilterBarUtilityClusterTest extends WP_UnitTestCase {
 
     /** Nothing to say, nothing rendered — an empty cluster would be a stray box. */
     public function test_no_cluster_without_chips_or_a_reset_url(): void {
-        $html = $this->render( [ 'chips' => [], 'reset_url' => '', 'active_count' => 0 ] );
+        $html = $this->render( [
+            'reset_url' => '',
+            'groups'    => [
+                [
+                    'type'     => 'select',
+                    'key'      => 'team',
+                    'name'     => 'team_id',
+                    'label'    => 'Team',
+                    'selected' => '',
+                    'options'  => [ '' => 'All', '2' => 'Ajax U17' ],
+                ],
+            ],
+        ] );
 
         $this->assertStringNotContainsString( 'tt-filterbar__utils', $html );
     }

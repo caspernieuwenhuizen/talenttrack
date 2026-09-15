@@ -339,16 +339,6 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         if ( $period !== '' )              $hidden['period']  = $period;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $team_id > 0 && isset( $team_options[ (string) $team_id ] ) ) { $active_count++; $chips[] = $team_options[ (string) $team_id ]; }
-        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
-        // #3293 — a custom window is a filter and was counted nowhere.
-        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
-        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
-        if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
-        if ( $n > 0 ) { $active_count++; $chips[] = sprintf( /* translators: %d row cap */ __( 'Top %d', 'talenttrack' ), $n ); }
-
         $reset_args = [ 'tt_view' => 'attendance-leaderboard' ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
@@ -356,8 +346,6 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
 
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #3338 — filter in place (epic #3335). A report is where
             // the pending state earns its keep: the server work is the
@@ -371,12 +359,15 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             ],
             'groups'       => [
                 [
-                    'type'     => 'select',
-                    'key'      => 'team',
-                    'label'    => __( 'Team', 'talenttrack' ),
-                    'name'     => 'team_id',
-                    'selected' => $team_id > 0 ? (string) $team_id : '0',
-                    'options'  => $team_options,
+                    'type'          => 'select',
+                    'key'           => 'team',
+                    'label'         => __( 'Team', 'talenttrack' ),
+                    'name'          => 'team_id',
+                    'selected'      => $team_id > 0 ? (string) $team_id : '0',
+                    // #3346 — "no filter" is a real option here (`0 => All
+                    // teams`), not an empty value.
+                    'default_value' => '0',
+                    'options'       => $team_options,
                 ],
                 // #3331 — one time control: the presets and the custom
                 // From/To answer the same question, so they are one

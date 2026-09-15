@@ -399,39 +399,9 @@
 	background: var(--tt-secondary, #e8b624);
 	border-color: var(--tt-secondary, #e8b624);
 }
-.tt-dashboard .tt-ovmenu__chip {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	min-height: 48px;
-	padding: 0 4px 0 12px;
-	font-size: 0.8125rem;
-	font-weight: 700;
-	color: var(--tt-primary, #0b3d2e);
-	background: var(--tt-bg-soft, #f4f6f3);
-	border: 1px solid var(--tt-line, #e3e6e1);
-	border-radius: var(--tt-radius, 8px);
-	white-space: nowrap;
-}
-.tt-dashboard .tt-ovmenu__clear {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 40px;
-	min-height: 40px;
-	color: var(--tt-ink-soft, #6a6d66);
-	text-decoration: none;
-	border-radius: var(--tt-radius, 8px);
-	touch-action: manipulation;
-}
-.tt-dashboard .tt-ovmenu__clear:hover {
-	color: var(--tt-danger, #d8453b);
-	background: var(--tt-paper, #fff);
-}
-.tt-dashboard .tt-ovmenu__clear:focus-visible {
-	outline: 2px solid var(--tt-primary, #0b3d2e);
-	outline-offset: -2px;
-}
+/* #3346 — `.tt-ovmenu__chip` / `.tt-ovmenu__clear` are gone. The menu's own
+   off-default chip was an exact duplicate of the one `activeChips()` derives
+   for the same group, and the derived one renders in both layouts. */
 .tt-dashboard .tt-ovmenu__menu {
 	position: absolute;
 	top: calc(100% + 6px);

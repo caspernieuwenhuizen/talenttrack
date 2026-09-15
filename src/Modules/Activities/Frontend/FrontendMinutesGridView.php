@@ -511,20 +511,11 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         if ( $period !== '' )              $hidden['period']  = $period;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
-        // #3293 — a custom window is a filter and was counted nowhere.
-        $range_chip = ReportFilters::customRangeChip( $period, $from, $to );
-        if ( $range_chip !== null ) { $active_count++; $chips[] = $range_chip; }
-
         $reset_args = [ 'tt_view' => 'minutes-grid', 'team_id' => $team_id ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #3337 — filter in place (epic #3335), guarded against losing
             // unsaved cells by `frontend-minutes-grid.js`.
@@ -537,6 +528,9 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                     'name'     => 'team_id',
                     'selected' => (string) $team_id,
                     'options'  => $team_options,
+                    // #3346 — the grid is per-team and the select has no "all
+                    // teams" option, so a chip here could never be cleared.
+                    'chip'     => false,
                 ],
                 // #3331 — one time control: the presets and the custom
                 // From/To answer the same question, so they are one

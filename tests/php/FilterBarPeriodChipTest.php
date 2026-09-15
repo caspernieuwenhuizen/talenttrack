@@ -210,6 +210,35 @@ final class FilterBarPeriodChipTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( '2026-03-01 – 2026-03-31', $html );
     }
 
+    /* ---- step 3: derivation is the only path ------------------------- */
+
+    /**
+     * The regression this refactor exists to make impossible. A caller's own
+     * list is a second source of truth for "what is filtered", and the
+     * fourteen that had one had drifted from the groups beside it.
+     */
+    public function test_no_surface_passes_its_own_chips(): void {
+        $root = dirname( __DIR__, 2 ) . '/src';
+        $files = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root ) );
+
+        $offenders = [];
+        foreach ( $files as $file ) {
+            if ( ! $file->isFile() || $file->getExtension() !== 'php' ) continue;
+            $source = (string) file_get_contents( $file->getPathname() );
+            if ( preg_match( "/'(?:chips|active_count)'\s*=>/", $source ) ) {
+                $offenders[] = str_replace( $root, 'src', $file->getPathname() );
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $offenders,
+            "FilterBar derives its chips from the groups. Declare `default_value` / "
+            . "`default_from` / `default_to` / `selected_label` on the group instead, "
+            . "or `chip => false` for a control that is not a filter."
+        );
+    }
+
     /** @return array<string,mixed> */
     private function dateRange( string $from, string $to, bool $declare ): array {
         $group = [

@@ -38,6 +38,8 @@ Past **planned** activities (not closed off) are NOT in this collapsed bucket �
 
 A single **filter bar** sits above the list. On a desktop screen it shows everything on one line; on a phone or tablet it collapses to a **Filters** button (with a badge counting how many filters are active) and a row of summary chips — tap **Filters** to open a bottom sheet holding the same controls, then **Apply** or **Clear**.
 
+Each chip names the filter it stands for — *Team: Ajax U17*, *Period: Last week* — and carries a **✕** that takes off just that one, leaving the rest set. **Clear** still takes them all off at once. A filter sitting on the value the screen opens with is not something you set, so it raises no chip and does not count towards the badge.
+
 The bar holds five controls, each under its own label:
 
 - **Team** — narrow to one team. Defaults to all teams the coach has access to.

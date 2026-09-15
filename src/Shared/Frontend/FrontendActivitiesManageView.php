@@ -2040,30 +2040,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $date_to_override   !== '' )  $hidden['date_to']      = $date_to_override;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back']      = (string) $_GET['tt_back'];
 
-        // --- Active-count + summary chips for the mobile collapsed state.
-        $active_count = 0;
-        $chips = [];
-        if ( $team_filter > 0 && isset( $team_select_options[ (string) $team_filter ] ) ) {
-            $active_count++;
-            $chips[] = $team_select_options[ (string) $team_filter ];
-        }
-        if ( $type_filter !== '' && isset( $type_select_options[ $type_filter ] ) ) {
-            $active_count++;
-            $chips[] = $type_select_options[ $type_filter ];
-        }
-        if ( $period_filter !== '' ) {
-            $active_count++;
-            $chips[] = (string) ( $period_labels[ $period_filter ] ?? '' );
-        }
-        if ( $archived_view !== 'active' ) {
-            $active_count++;
-            $chips[] = (string) ( $status_labels[ $archived_view ] ?? '' );
-        }
-        if ( $show_cancelled ) {
-            $active_count++;
-            $chips[] = __( 'Cancelled shown', 'talenttrack' );
-        }
-
         // --- "Clear" target: the bare list with no filter params.
         $reset_args = [ 'tt_view' => 'activities' ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = (string) $_GET['tt_back'];
@@ -2077,8 +2053,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
             // #2449 — personal saved views for the activities list.
             'saved_views'  => [ 'key' => 'activities-list' ],

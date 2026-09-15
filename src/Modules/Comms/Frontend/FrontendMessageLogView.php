@@ -209,20 +209,8 @@ final class FrontendMessageLogView extends FrontendViewBase {
         // the moment somebody narrows the list they arrived at.
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( (string) wp_unslash( $_GET['tt_back'] ) );
 
-        $active_count = 0;
-        $chips = [];
-        if ( $sel_player !== '' )   { $active_count++; $chips[] = $players[ (int) $sel_player ] ?? ( '#' . $sel_player ); }
-        if ( $sel_template !== '' ) { $active_count++; $chips[] = $template_options[ $sel_template ] ?? $sel_template; }
-        if ( $sel_status !== '' )   { $active_count++; $chips[] = $status_options[ $sel_status ] ?? $sel_status; }
-        if ( $sel_from !== '' || $sel_to !== '' ) {
-            $active_count++;
-            $chips[] = trim( $sel_from . ' – ' . $sel_to, ' –' );
-        }
-
         FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => self::clearUrl(),
             // #3339 — filter in place (epic #3335).
             'refresh'      => true,
@@ -262,13 +250,17 @@ final class FrontendMessageLogView extends FrontendViewBase {
                     'options'     => $status_options,
                 ],
                 [
-                    'type'       => 'date_range',
-                    'key'        => 'date',
-                    'label'      => __( 'Date', 'talenttrack' ),
-                    'label_from' => __( 'From', 'talenttrack' ),
-                    'label_to'   => __( 'To', 'talenttrack' ),
-                    'from'       => [ 'name' => 'f_date_from', 'value' => $sel_from ],
-                    'to'         => [ 'name' => 'f_date_to',   'value' => $sel_to ],
+                    'type'         => 'date_range',
+                    'key'          => 'date',
+                    'label'        => __( 'Date', 'talenttrack' ),
+                    'label_from'   => __( 'From', 'talenttrack' ),
+                    'label_to'     => __( 'To', 'talenttrack' ),
+                    'from'         => [ 'name' => 'f_date_from', 'value' => $sel_from ],
+                    'to'           => [ 'name' => 'f_date_to',   'value' => $sel_to ],
+                    // #3346 — the log seeds no window, so any value is one the
+                    // reader typed; declaring that makes the chip derivable.
+                    'default_from' => '',
+                    'default_to'   => '',
                 ],
             ],
         ] );

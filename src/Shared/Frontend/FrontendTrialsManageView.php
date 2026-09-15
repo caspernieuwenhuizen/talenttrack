@@ -256,34 +256,12 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $hidden = [ 'tt_view' => 'trials' ];
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
-        // Active-count + summary chips for the mobile collapsed state.
-        $active_count = 0;
-        $chips = [];
-        if ( $filters['status'] !== '' && isset( $status_options[ $filters['status'] ] ) ) {
-            $active_count++;
-            $chips[] = $status_options[ $filters['status'] ];
-        }
-        if ( $filters['track_id'] > 0 && isset( $track_options[ (string) $filters['track_id'] ] ) ) {
-            $active_count++;
-            $chips[] = $track_options[ (string) $filters['track_id'] ];
-        }
-        if ( $filters['decision'] !== '' && isset( $decision_options[ $filters['decision'] ] ) ) {
-            $active_count++;
-            $chips[] = $decision_options[ $filters['decision'] ];
-        }
-        if ( $filters['include_archived'] ) {
-            $active_count++;
-            $chips[] = __( 'Archived included', 'talenttrack' );
-        }
-
         // "Clear" target: the bare list with no filter params.
         $reset_args = [ 'tt_view' => 'trials' ];
         if ( ! empty( $hidden['tt_back'] ) ) $reset_args['tt_back'] = $hidden['tt_back'];
 
         \TT\Shared\Frontend\Components\FilterBar::render( [
             'hidden'       => $hidden,
-            'active_count' => $active_count,
-            'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] ) ),
             'groups'       => [
                 [

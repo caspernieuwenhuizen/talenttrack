@@ -226,16 +226,18 @@ final class FilterChipsRemovableTest extends WP_UnitTestCase {
     }
 
     /**
-     * A caller still passing `chips` keeps its labels. They cannot be
-     * removable — bare strings carry no param to drop — but they are no
-     * longer hidden from assistive tech, which was wrong either way.
+     * #3346 — derivation is the only path. A caller's own `chips` /
+     * `active_count` are ignored outright rather than winning, because
+     * whichever one won, the other was a second source of truth for the same
+     * question: fourteen surfaces drifted from the groups they described
+     * until #3293 patched each by hand.
      */
-    public function test_caller_supplied_chips_still_render_and_are_not_hidden(): void {
-        $html = $this->render( [ 'chips' => [ 'Period: This month' ], 'active_count' => 1 ] );
+    public function test_caller_supplied_chips_are_ignored(): void {
+        $html = $this->render( [ 'chips' => [ 'Period: This month' ], 'active_count' => 9 ] );
 
-        $this->assertStringContainsString( 'Period: This month', $html );
-        $this->assertStringNotContainsString( 'aria-hidden="true"><span class="tt-chip', $html );
-        // The caller's own count is respected rather than overwritten.
-        $this->assertMatchesRegularExpression( '/tt-filterbtn__badge">1</', $html );
+        $this->assertStringNotContainsString( 'Period: This month', $html );
+        // The groups say two filters are set, and the badge says two.
+        $this->assertStringContainsString( 'Team: Ajax U17', $html );
+        $this->assertMatchesRegularExpression( '/tt-filterbtn__badge">2</', $html );
     }
 }

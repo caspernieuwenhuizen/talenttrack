@@ -384,15 +384,23 @@ class FrontendListTable {
             // dispatches a bubbling `change`, which is the event this table's
             // hydrator already live-filters on.
             if ( $type === 'player' ) {
+                $player_id = (int) ( $current[ $key ] ?? 0 );
+                // #3346 — the chip has to name the player, not their id. The
+                // bar holds no repository, so the name is resolved here; one
+                // row, and only when the filter is actually set.
+                $picked = $player_id > 0 ? \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id ) : null;
                 $groups[] = [
-                    'type'     => 'player',
-                    'key'      => $key,
-                    'label'    => $label,
-                    'name'     => 'filter[' . $key . ']',
-                    'selected' => (int) ( $current[ $key ] ?? 0 ),
-                    'team_id'  => (int) ( $filter['team_id'] ?? 0 ),
-                    'user_id'  => (int) ( $filter['user_id'] ?? get_current_user_id() ),
-                    'is_admin' => ! empty( $filter['is_admin'] ),
+                    'type'           => 'player',
+                    'key'            => $key,
+                    'label'          => $label,
+                    'name'           => 'filter[' . $key . ']',
+                    'selected'       => $player_id,
+                    'selected_label' => $picked
+                        ? (string) \TT\Infrastructure\Query\QueryHelpers::player_display_name( $picked )
+                        : '',
+                    'team_id'        => (int) ( $filter['team_id'] ?? 0 ),
+                    'user_id'        => (int) ( $filter['user_id'] ?? get_current_user_id() ),
+                    'is_admin'       => ! empty( $filter['is_admin'] ),
                 ];
                 continue;
             }
@@ -439,13 +447,17 @@ class FrontendListTable {
                 $from = (string) ( $filter['param_from'] ?? ( $key . '_from' ) );
                 $to   = (string) ( $filter['param_to']   ?? ( $key . '_to' ) );
                 $groups[] = [
-                    'type'       => 'date_range',
-                    'key'        => $key,
-                    'label'      => $label,
-                    'label_from' => (string) ( $filter['label_from'] ?? __( 'From', 'talenttrack' ) ),
-                    'label_to'   => (string) ( $filter['label_to']   ?? __( 'To', 'talenttrack' ) ),
-                    'from'       => [ 'name' => 'filter[' . $from . ']', 'value' => (string) ( $current[ $from ] ?? '' ) ],
-                    'to'         => [ 'name' => 'filter[' . $to . ']',   'value' => (string) ( $current[ $to ] ?? '' ) ],
+                    'type'         => 'date_range',
+                    'key'          => $key,
+                    'label'        => $label,
+                    'label_from'   => (string) ( $filter['label_from'] ?? __( 'From', 'talenttrack' ) ),
+                    'label_to'     => (string) ( $filter['label_to']   ?? __( 'To', 'talenttrack' ) ),
+                    'from'         => [ 'name' => 'filter[' . $from . ']', 'value' => (string) ( $current[ $from ] ?? '' ) ],
+                    'to'           => [ 'name' => 'filter[' . $to . ']',   'value' => (string) ( $current[ $to ] ?? '' ) ],
+                    // #3346 — a list seeds no window, so any value here is one
+                    // the reader set; declaring that makes the chip derivable.
+                    'default_from' => '',
+                    'default_to'   => '',
                 ];
             } else {
                 // text (default)
@@ -470,13 +482,8 @@ class FrontendListTable {
         // full submit doesn't drop tile-router / back-nav state.
         $hidden = self::passthroughQueryArgs( $filters );
 
-        // --- Active-count + summary chips for the mobile collapsed bar.
-        [ $active_count, $chips ] = self::activeSummary( $filters, $search_cfg, $state );
-
         $args = [
             'hidden'         => $hidden,
-            'active_count'   => $active_count,
-            'chips'          => $chips,
             'reset_url'      => self::resetUrl(),
             'form_attrs'     => [ 'data-tt-list-form' => '1' ],
             'extra_controls' => $extra,
@@ -638,56 +645,6 @@ class FrontendListTable {
         }
         $out .= '</select></div></div>';
         return $out;
-    }
-
-    /**
-     * Count active filters + build summary chips for the mobile collapsed
-     * bar. A select/text filter contributes its current value; a
-     * date_range contributes a from/to chip; the search box contributes
-     * the search term.
-     *
-     * @param array<string,mixed> $filters
-     * @param array<string,mixed> $search_cfg
-     * @param array<string,mixed> $state
-     * @return array{0:int,1:array<int,string>}
-     */
-    private static function activeSummary( array $filters, array $search_cfg, array $state ): array {
-        $current = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
-        $count   = 0;
-        $chips   = [];
-
-        $search = (string) ( $state['search'] ?? '' );
-        if ( ! empty( $search_cfg ) && $search !== '' ) {
-            $count++;
-            $chips[] = $search;
-        }
-
-        foreach ( $filters as $key => $filter ) {
-            $key  = (string) $key;
-            $type = (string) ( $filter['type'] ?? 'text' );
-            if ( $type === 'date_range' ) {
-                $from = (string) ( $filter['param_from'] ?? ( $key . '_from' ) );
-                $to   = (string) ( $filter['param_to']   ?? ( $key . '_to' ) );
-                $fv   = (string) ( $current[ $from ] ?? '' );
-                $tv   = (string) ( $current[ $to ] ?? '' );
-                if ( $fv !== '' || $tv !== '' ) {
-                    $count++;
-                    $chips[] = trim( $fv . ' – ' . $tv, ' –' );
-                }
-                continue;
-            }
-            $val = (string) ( $current[ $key ] ?? '' );
-            if ( $val === '' ) continue;
-            $count++;
-            // Prefer the human label for selects; fall back to the value.
-            if ( $type === 'select' && is_array( $filter['options'] ?? null ) && isset( $filter['options'][ $val ] ) ) {
-                $chips[] = (string) $filter['options'][ $val ];
-            } else {
-                $chips[] = $val;
-            }
-        }
-
-        return [ $count, $chips ];
     }
 
     /**
