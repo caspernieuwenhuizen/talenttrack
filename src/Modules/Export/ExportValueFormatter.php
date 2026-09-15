@@ -94,6 +94,19 @@ final class ExportValueFormatter {
         return $code === '' ? '' : LabelTranslator::goalPriority( $code );
     }
 
+    /**
+     * Potential band: `first_team` → "Eerste elftal".
+     *
+     * Through the `potential_band` lookup, so a sheet carries the label an
+     * academy edited rather than the key the calculator scores.
+     *
+     * @param mixed $value
+     */
+    public static function potentialBand( $value ): string {
+        $code = self::str( $value );
+        return $code === '' ? '' : LookupTranslator::byTypeAndName( 'potential_band', $code );
+    }
+
     /** Preferred foot: stored as a lookup value (`Right`, `Both`). */
     public static function preferredFoot( $value ): string {
         $code = self::str( $value );

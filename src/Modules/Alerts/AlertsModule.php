@@ -13,6 +13,7 @@ use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
+use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
@@ -144,6 +145,11 @@ final class AlertsModule implements ModuleInterface {
 
         // #2636 instalment 6 — Onboarding. Completes the wave 6 catalogue.
         $alerts[] = new InvitationStaleAlert();
+
+        // #3387 — the other half of the invitation story. Setup creates
+        // invitations and holds them deliberately; this is what stops a
+        // held one being invisible once the operator has left that screen.
+        $alerts[] = new InvitationNeverSentAlert();
 
         // #3139 — the recovery #3113's acceptance criteria left to be
         // filed: an academy that skipped the setup wizard's messaging step

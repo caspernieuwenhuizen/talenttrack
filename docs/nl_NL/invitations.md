@@ -110,9 +110,10 @@ Elke gebeurtenis wordt geregistreerd in `tt_audit_log` met de actor + entiteit:
 
 ## Hooks voor uitbreidingen
 
-De InvitationsModule vuurt drie acties voor plugin-uitbreidingen:
+De InvitationsModule vuurt vier acties voor plugin-uitbreidingen:
 
-- `do_action( 'tt_invitation_created', $id, $kind )` — vuurt nadat de rij is opgeslagen.
+- `do_action( 'tt_invitation_created', $id, $kind )` — vuurt nadat de rij is opgeslagen, ongeacht of er iemand is gemaild.
+- `do_action( 'tt_invitation_sent', $id )` — vuurt nadat een vastgehouden uitnodiging is verstuurd en `sent_at` is gezet.
 - `do_action( 'tt_invitation_accepted', $id, $kind, $user_id )` — vuurt nadat de WP-gebruiker is aangemaakt en de koppelstap is geslaagd.
 - `do_action( 'tt_invitation_revoked', $id )` — vuurt na intrekken.
 
