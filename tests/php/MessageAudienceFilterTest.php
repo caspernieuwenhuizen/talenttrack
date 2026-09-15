@@ -34,16 +34,39 @@ final class MessageAudienceFilterTest extends WP_UnitTestCase {
     /* ---- the map ---------------------------------------------------- */
 
     public function test_every_opt_outable_type_declares_an_audience(): void {
-        // The runtime default is "everyone", so a missing entry is silent.
-        // `tools/check-message-audiences.php` is the real gate; this is the
-        // same assertion where a developer will actually see it fail.
+        // Read the map, not the return value. Six types are genuinely
+        // addressed to all three audiences, so a declared [player, parent,
+        // staff] and the unmapped fallback are the same value — comparing
+        // against the default would fail on correctly-mapped types and pass
+        // on nothing useful.
+        //
+        // `tools/check-message-audiences.php` is the real gate (it also
+        // catches an unlabelled type); this is the same coverage assertion
+        // where a developer running the suite will see it.
+        $map = ( new \ReflectionClass( MessageType::class ) )->getConstant( 'AUDIENCES' );
+        $this->assertIsArray( $map );
+
         foreach ( MessageType::all() as $type ) {
             if ( MessageType::isOperational( $type ) ) continue;
 
-            $this->assertNotEquals(
-                MessageAudience::all(),
-                MessageType::audiences( $type ),
+            $this->assertArrayHasKey(
+                $type,
+                $map,
                 sprintf( 'every opt-outable type declares an audience; "%s" falls through to the default', $type )
+            );
+        }
+    }
+
+    public function test_the_map_holds_no_operational_type(): void {
+        // The other half of the gate's contract. An audience for something
+        // nobody can refuse is never read, and having one there invites a
+        // later change to filter the always-sent block.
+        $map = (array) ( new \ReflectionClass( MessageType::class ) )->getConstant( 'AUDIENCES' );
+
+        foreach ( array_keys( $map ) as $type ) {
+            $this->assertFalse(
+                MessageType::isOperational( (string) $type ),
+                sprintf( '"%s" is operational and does not belong in the audience map', $type )
             );
         }
     }
