@@ -43,12 +43,15 @@ use TT\Shared\Frontend\Components\RecordLink;
  * per held invitation would bury that under a list of names they already
  * know they typed.
  *
- * ## Sweep-only, like `comms.messaging_never_configured`
+ * ## One subject, and the invitation events move it
  *
- * The subject is the backlog rather than any one invitation, so nothing
- * invalidates it and the hourly reconcile is what re-runs it. That is soon
- * enough for a condition measured in days. The `isFullSweep()` guard keeps
- * a narrowed run from reaching a verdict about the whole install.
+ * The subject is the backlog rather than any one invitation, so it has
+ * exactly one id. That is what makes a narrowed run safe here: every
+ * narrowed run about this subject type is a run about the whole condition,
+ * so there is no scope for it to resolve something it did not look at.
+ * `AlertInvalidationMap` points the four invitation events at it, which is
+ * why sending the invitations clears the alert on the next render rather
+ * than within the hour.
  *
  * It self-resolves for the same reason every definition in the epic does:
  * the reconcile returns the current truth and stamps `resolved_at` on what
@@ -65,15 +68,19 @@ use TT\Shared\Frontend\Components\RecordLink;
 final class InvitationNeverSentAlert extends AbstractDataQualityAlert {
 
     /**
-     * The backlog, not any one invitation — see the class docblock. A
-     * subject nothing invalidates, deliberately: pointing it at
-     * `invitation` would put a whole-install verdict inside a narrowed run
-     * about one row.
+     * The backlog, not any one invitation — see the class docblock. Its
+     * own subject type deliberately: pointing it at `invitation` would put
+     * a whole-install verdict inside a narrowed run about one row, and
+     * every other definition about that subject would be dragged along.
      */
     public const SUBJECT_TYPE = 'invitation_backlog';
 
-    /** There is one backlog per install, so the subject id is a constant. */
-    private const SUBJECT_ID = 1;
+    /**
+     * There is one backlog per install, so the subject id is a constant.
+     * Public because `AlertInvalidationMap` names it: an invitation event
+     * invalidates this one subject rather than an id from the payload.
+     */
+    public const SUBJECT_ID = 1;
 
     /** tt_config key: days an invitation may sit unsent before this fires. */
     public const CONFIG_KEY_UNSENT_DAYS = 'alerts_invitation_unsent_days';
@@ -165,9 +172,6 @@ final class InvitationNeverSentAlert extends AbstractDataQualityAlert {
      * @return list<object>
      */
     protected function rows( AlertContext $context ): array {
-        // See the class docblock: sweep-only.
-        if ( ! $context->isFullSweep() ) return [];
-
         global $wpdb;
         $p    = $wpdb->prefix;
         $days = $this->threshold( self::CONFIG_KEY_UNSENT_DAYS, self::DEFAULT_UNSENT_DAYS );

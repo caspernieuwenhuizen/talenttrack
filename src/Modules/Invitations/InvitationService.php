@@ -179,6 +179,18 @@ class InvitationService {
         // this dispatch as another deferred one.
         InvitationEmailNotifier::dispatch( $invitationId, (string) $invitation->kind );
 
+        /**
+         * A held invitation has been delivered (#3387).
+         *
+         * Distinct from `tt_invitation_created`, which fires whether or not
+         * anybody was mailed: this one says the recipient has now heard
+         * from the academy, which is what the unsent-backlog alert waits
+         * for.
+         *
+         * @param int $invitation_id
+         */
+        do_action( 'tt_invitation_sent', $invitationId );
+
         return true;
     }
 

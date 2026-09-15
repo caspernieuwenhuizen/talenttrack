@@ -6,6 +6,7 @@ use TT\Infrastructure\Config\ConfigService;
 use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
+use TT\Modules\Alerts\Invalidation\AlertInvalidationMap;
 
 /**
  * #3387 — `onboarding.invitation_never_sent`.
@@ -140,15 +141,44 @@ final class AlertsInvitationNeverSentTest extends WP_UnitTestCase {
     }
 
     /**
-     * A whole-install verdict must not be reached inside a run narrowed to
-     * one subject — the reconcile would resolve what it never looked at.
+     * The backlog has exactly one subject id, so a run narrowed to it is a
+     * run about the whole condition. It must evaluate rather than return
+     * nothing — a definition that went quiet inside its own narrowed run
+     * would have the reconcile resolve an alert that is still true.
      */
-    public function test_a_narrowed_run_does_not_evaluate_the_backlog(): void {
+    public function test_a_narrowed_run_on_the_backlog_still_evaluates(): void {
         $this->heldInvitation( 5 );
 
-        $narrowed = new AlertContext( $this->club, 'invitation', [ 1 ] );
+        $narrowed = new AlertContext(
+            $this->club,
+            InvitationNeverSentAlert::SUBJECT_TYPE,
+            [ InvitationNeverSentAlert::SUBJECT_ID ]
+        );
 
-        $this->assertSame( [], ( new InvitationNeverSentAlert() )->evaluate( $narrowed ) );
+        $this->assertNotSame( [], ( new InvitationNeverSentAlert() )->evaluate( $narrowed ) );
+    }
+
+    /** Sending clears it on the next render, not within the hour. */
+    public function test_the_invitation_events_invalidate_the_backlog(): void {
+        AlertInvalidationMap::flush();
+
+        $subjects = [];
+        foreach ( [ 'tt_invitation_created', 'tt_invitation_sent', 'tt_invitation_accepted', 'tt_invitation_revoked' ] as $event ) {
+            $extractor = AlertInvalidationMap::all()[ $event ] ?? null;
+            $this->assertIsCallable( $extractor, $event . ' has no invalidation entry' );
+
+            foreach ( (array) $extractor( 7 ) as $pair ) {
+                $subjects[ $event ][] = (string) $pair[0];
+            }
+        }
+
+        foreach ( $subjects as $event => $types ) {
+            $this->assertContains(
+                InvitationNeverSentAlert::SUBJECT_TYPE,
+                $types,
+                $event . ' does not move the unsent backlog'
+            );
+        }
     }
 
     /**

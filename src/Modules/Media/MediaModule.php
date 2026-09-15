@@ -94,6 +94,24 @@ class MediaModule implements ModuleInterface {
         }, 20 );
 
         add_action( 'init', [ self::class, 'registerTiles' ], 20 );
+
+        // #3376 — cleanup, registered with the module rather than with the
+        // retention tile. These sat inside `registerTiles()` below its
+        // `isEnabled()` early return, so on any install with media
+        // retention switched off neither ran: a deleted player's or
+        // activity's media kept its link rows and its bytes. Neither
+        // subscription has anything to do with a tile.
+        //
+        // A player's media is part of the player's record, so erasing the
+        // player must erase it. `PlayerDeletionCascade` deletes the link
+        // rows inside its transaction and fires this once the batch is
+        // durable; removing bytes is not something a rollback could undo,
+        // so it deliberately happens after the commit rather than during.
+        add_action( 'tt_media_links_pruned', [ self::class, 'onLinksPruned' ], 10, 1 );
+
+        // Activities announce their own deletion; teams and players do not
+        // (players go through the cascade above).
+        add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
     }
 
     /**
@@ -124,17 +142,6 @@ class MediaModule implements ModuleInterface {
         // on activation, so an install whose uploads directory only
         // becomes writable later still gets them.
         add_action( 'init', [ self::class, 'ensureStorage' ] );
-
-        // A player's media is part of the player's record, so erasing the
-        // player must erase it. `PlayerDeletionCascade` deletes the link
-        // rows inside its transaction and fires this once the batch is
-        // durable; removing bytes is not something a rollback could undo,
-        // so it deliberately happens after the commit rather than during.
-        add_action( 'tt_media_links_pruned', [ self::class, 'onLinksPruned' ], 10, 1 );
-
-        // Activities announce their own deletion; teams and players do not
-        // (players go through the cascade above).
-        add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
     }
 
     /**

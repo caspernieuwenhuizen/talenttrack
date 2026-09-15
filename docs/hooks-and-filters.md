@@ -21,6 +21,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_activity_saved`                      | After an activity row is created or updated. Any edit — distinct from `tt_activity_completed`, which is one transition | `int $activity_id`, `array $data` |
 | `tt_activity_attendance_changed`         | After attendance rows for an activity are created, changed or removed. Says nothing about the new contents; re-read if you care | `int $activity_id` |
 | `tt_activity_deleted`                    | After an activity row is hard-deleted, on both delete paths (wp-admin and the recycle bin's purge). Not fired on archive or trash — those keep the row. Subscribers clear their references to a row that is already gone | `int $activity_id` |
+| `tt_invitation_sent`                     | After a held invitation is delivered and `sent_at` is stamped. Distinct from `tt_invitation_created`, which fires whether or not anybody was mailed | `int $invitation_id` |
 | `tt_measurement_result_saved`            | After a measurement result is created, edited or archived                      | `int $result_id`, `int $player_id`         |
 | `tt_staff_certification_saved`           | After a staff certificate is recorded, renewed or archived                     | `int $certification_id`, `int $person_id`  |
 | `tt_pdp_conversation_saved`              | After a conversation in a PDP cycle is updated (including being marked conducted) | `int $conversation_id`, `int $pdp_file_id` |

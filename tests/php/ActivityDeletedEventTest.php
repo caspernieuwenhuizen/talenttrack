@@ -61,7 +61,14 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
         $this->assertSame( 0, $seen );
     }
 
-    /** The subscribers are registered, so the publisher reaches them. */
+    /**
+     * The subscribers are registered, so the publisher reaches them.
+     *
+     * Media's two cleanup subscriptions used to sit inside `registerTiles()`
+     * behind the media-retention enabled check, so on an install with
+     * retention off they were never added at all and the publisher had
+     * nothing to reach. This assertion is what catches that coming back.
+     */
     public function test_the_subscribers_are_wired_to_the_action(): void {
         $this->assertNotFalse(
             has_action( 'tt_activity_deleted', [ VctModule::class, 'onActivityDeleted' ] ),

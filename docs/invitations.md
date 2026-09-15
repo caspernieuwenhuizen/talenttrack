@@ -110,9 +110,10 @@ Every invitation event is logged to `tt_audit_log` with the actor + entity:
 
 ## Hooks for extensions
 
-The InvitationsModule fires three actions for plugin extensions:
+The InvitationsModule fires four actions for plugin extensions:
 
-- `do_action( 'tt_invitation_created', $id, $kind )` — fires after the row is persisted.
+- `do_action( 'tt_invitation_created', $id, $kind )` — fires after the row is persisted, whether or not anybody was mailed.
+- `do_action( 'tt_invitation_sent', $id )` — fires after a held invitation is delivered and `sent_at` is stamped.
 - `do_action( 'tt_invitation_accepted', $id, $kind, $user_id )` — fires after the WP user is created and the linking step succeeded.
 - `do_action( 'tt_invitation_revoked', $id )` — fires after revocation.
 

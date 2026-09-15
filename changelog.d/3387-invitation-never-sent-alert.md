@@ -8,8 +8,8 @@ the invitations had failed.
 
 A new alert, **Invitations waiting to be sent**, names how many are waiting
 and links to Configuration → Invitations, where Send all invitations lives.
-It appears a day after an invitation was created and clears itself once the
-invitations are sent or deleted — no dismissing required. The threshold is
+It appears a day after an invitation was created and clears itself on the next
+screen once the invitations are sent or deleted — no dismissing required. The threshold is
 `alerts_invitation_unsent_days` for academies that prepare invitations over
 several days.
 
