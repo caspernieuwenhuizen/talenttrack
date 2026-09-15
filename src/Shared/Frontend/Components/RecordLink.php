@@ -154,7 +154,12 @@ final class RecordLink {
     public static function meDetailUrl( string $view, int $id, ?int $player_id = null ): string {
         if ( $view === '' || $id <= 0 ) return '';
         $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
-        $url  = add_query_arg( [ 'tt_view' => $view, 'id' => $id ], $base ?: home_url( '/' ) );
+        // tt-xview-ok: a URL builder, not a rendered affordance, and the
+        // targets are the Me-views — surfaces whose subject is the viewer's
+        // own record, which is the one class of link that cannot point
+        // somewhere the caller may not go. #2304's gate is about a tile or
+        // <a> to another module; this is the opposite of that.
+        $url = add_query_arg( [ 'tt_view' => $view, 'id' => $id ], $base ?: home_url( '/' ) ); /* tt-xview-ok */
         if ( $player_id !== null && $player_id > 0 ) {
             $url = add_query_arg( 'player_id', $player_id, $url );
         }

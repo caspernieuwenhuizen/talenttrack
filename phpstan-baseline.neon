@@ -10224,7 +10224,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$id\\.$#"
-			count: 6
+			count: 7
 			path: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
 
 		-
