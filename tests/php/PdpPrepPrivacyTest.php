@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Domain\Vocabularies\Enums\PdpConversationTemplate;
+use TT\Infrastructure\Database\MigrationHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Frontend\FrontendMyPdpView;
@@ -88,21 +89,28 @@ final class PdpPrepPrivacyTest extends WP_UnitTestCase {
 
     public function test_agenda_is_no_longer_writable_through_the_repository(): void {
         // Belt and braces on the retirement: even a caller that still sends
-        // the field cannot put anything back into the column.
+        // the field cannot put anything back. It has two guards now — the
+        // repository's writable set, and migration 0263, which took the
+        // column away (#3381). The second one is asserted first, because a
+        // write that lands nowhere looks identical to one that is ignored.
         global $wpdb;
+
+        $this->assertFalse(
+            MigrationHelpers::columnExists( "{$this->p}tt_pdp_conversations", 'agenda' ),
+            'the column is dropped'
+        );
 
         ( new PdpConversationsRepository() )->update( $this->conversation, [
             'agenda' => 'Written the old way.',
             'notes'  => 'Written the new way.',
         ] );
 
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT agenda, notes FROM {$this->p}tt_pdp_conversations WHERE id = %d",
+        $notes = $wpdb->get_var( $wpdb->prepare(
+            "SELECT notes FROM {$this->p}tt_pdp_conversations WHERE id = %d",
             $this->conversation
         ) );
 
-        $this->assertNull( $row->agenda );
-        $this->assertSame( 'Written the new way.', $row->notes );
+        $this->assertSame( 'Written the new way.', $notes, 'the field it does accept still lands' );
     }
 
     /* ---- fixtures ------------------------------------------------------- */
