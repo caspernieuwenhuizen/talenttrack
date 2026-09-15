@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T15:01:17+00:00\n"
+"POT-Creation-Date: 2026-09-15T15:02:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -172,7 +172,7 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:325
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:223
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
-#: src/Modules/Stats/Admin/PlayerCardView.php:299
+#: src/Modules/Stats/Admin/PlayerCardView.php:303
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:69
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:274
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:507
@@ -1102,31 +1102,31 @@ msgid ""
 msgstr ""
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:40
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:519
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:546
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2041
 msgid "Start of season"
 msgstr ""
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:41
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:520
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:547
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2042
 msgid "Mid season"
 msgstr ""
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:42
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:521
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:548
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2043
 msgid "Mid-season A"
 msgstr ""
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:43
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:522
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:549
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2044
 msgid "Mid-season B"
 msgstr ""
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:44
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:523
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:550
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2045
 msgid "End of season"
 msgstr ""
@@ -2422,7 +2422,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:67
 #: src/Modules/Knowledge/Frontend/LearningReports.php:332
 #: src/Modules/Knowledge/Frontend/LearningReports.php:365
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:503
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:530
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1726
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2033
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
@@ -5258,7 +5258,7 @@ msgstr "Mettre à jour"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1266
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:440
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:430
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:457
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:131
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:163
@@ -7205,7 +7205,7 @@ msgstr "Annulé"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:158
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:661
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:504
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:531
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:294
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:389
@@ -13771,7 +13771,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:198
 #: src/Shared/Frontend/FrontendConfigurationView.php:329
 #: src/Shared/Frontend/FrontendMyProfileView.php:109
-#: src/Shared/Frontend/FrontendTeammateView.php:101
+#: src/Shared/Frontend/FrontendTeammateView.php:109
 msgid "Positions"
 msgstr "Postes"
 
@@ -15159,7 +15159,7 @@ msgstr "Poids (kg)"
 #: src/Shared/Frontend/FrontendMyProfileView.php:113
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1348
 #: src/Shared/Frontend/FrontendPlayersManageView.php:425
-#: src/Shared/Frontend/FrontendTeammateView.php:109
+#: src/Shared/Frontend/FrontendTeammateView.php:117
 msgid "Preferred foot"
 msgstr ""
 
@@ -31361,64 +31361,64 @@ msgid "No active goals yet. Your coach will set some during your next talk."
 msgstr ""
 
 #. translators: %s = goal due date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:335
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:362
 #, php-format
 msgid "Target date: %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:362
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:389
 msgid "Preparing for your talk"
 msgstr ""
 
 #. translators: %1$s = conversation template label, %2$s = talk date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:366
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:393
 #, php-format
 msgid "Self-reflection · %1$s (%2$s)"
 msgstr ""
 
 #. translators: %s = conversation template label
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:371
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:398
 #, php-format
 msgid "Self-reflection · %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:381
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:408
 msgid "No self-reflection has been added for this talk yet."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:387
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:414
 msgid ""
 "Write your own reflection before the talk. Only the next planned talk can "
 "take a reflection — the other talks cannot. It is optional, never required."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:390
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:417
 msgid ""
 "The reflection window opens 2 weeks before the talk. Check back closer to "
 "the planned date."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:424
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:451
 msgid "Add or update your self-reflection"
 msgstr ""
 
 #. translators: %s = last-saved timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:443
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:470
 #, php-format
 msgid "Last saved · %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:450
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:477
 msgid "No reflection saved yet."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:459
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:486
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1033
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:252
 msgid "End-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:460
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:487
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1035
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:253
 msgid "Decision:"
@@ -31426,13 +31426,13 @@ msgstr ""
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:468
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:495
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1045
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:506
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:533
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2290
 msgid "Later"
 msgstr ""
@@ -33386,7 +33386,7 @@ msgstr ""
 #. translators: %s is the signed rating change since last month, e.g. "+0.4".
 #. translators: %s is the (negative) rating change since last month, e.g. "-0.3".
 #: src/Modules/PersonaDashboard/Kpis/MyRatingTrend.php:33
-#: src/Shared/Frontend/FrontendMyTeamView.php:270
+#: src/Shared/Frontend/FrontendMyTeamView.php:274
 #, php-format
 msgid "%s since last month"
 msgstr ""
@@ -37068,34 +37068,34 @@ msgid ""
 msgstr ""
 
 #. translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average.
-#: src/Modules/Stats/Admin/PlayerCardView.php:169
+#: src/Modules/Stats/Admin/PlayerCardView.php:173
 #, php-format
 msgid "%1$s — %2$s tier, %3$s rolling average"
 msgstr ""
 
 #. translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated).
-#: src/Modules/Stats/Admin/PlayerCardView.php:175
+#: src/Modules/Stats/Admin/PlayerCardView.php:179
 #, php-format
 msgid "%1$s — %2$s tier"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:272
+#: src/Modules/Stats/Admin/PlayerCardView.php:276
 msgid "Not enough ranked players yet"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:296
+#: src/Modules/Stats/Admin/PlayerCardView.php:300
 msgid "Gold"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:297
+#: src/Modules/Stats/Admin/PlayerCardView.php:301
 msgid "Silver"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:298
+#: src/Modules/Stats/Admin/PlayerCardView.php:302
 msgid "Bronze"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:300
+#: src/Modules/Stats/Admin/PlayerCardView.php:304
 msgid "Unrated"
 msgstr ""
 
@@ -50778,12 +50778,12 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMyProfileView.php:118
 #: src/Shared/Frontend/FrontendTeamDetailView.php:623
-#: src/Shared/Frontend/FrontendTeammateView.php:105
+#: src/Shared/Frontend/FrontendTeammateView.php:113
 msgid "Jersey #"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyProfileView.php:131
-#: src/Shared/Frontend/FrontendTeammateView.php:98
+#: src/Shared/Frontend/FrontendTeammateView.php:106
 msgid "Playing details"
 msgstr ""
 
@@ -51319,36 +51319,36 @@ msgstr ""
 msgid "Teammates on %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:239
+#: src/Shared/Frontend/FrontendMyTeamView.php:243
 msgid "Your progress"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:240
+#: src/Shared/Frontend/FrontendMyTeamView.php:244
 msgid "Your rating trend will appear after your first evaluation."
 msgstr ""
 
 #. translators: %s is the player's average rating so far, e.g. "7.2".
-#: src/Shared/Frontend/FrontendMyTeamView.php:249
+#: src/Shared/Frontend/FrontendMyTeamView.php:253
 #, php-format
 msgid "%s average so far"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:252
+#: src/Shared/Frontend/FrontendMyTeamView.php:256
 msgid "Your trend appears after your next evaluation."
 msgstr ""
 
 #. translators: %s is the rating increase since last month, e.g. "0.4".
-#: src/Shared/Frontend/FrontendMyTeamView.php:262
+#: src/Shared/Frontend/FrontendMyTeamView.php:266
 #, php-format
 msgid "+%s since last month"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:276
+#: src/Shared/Frontend/FrontendMyTeamView.php:280
 msgid "Level with last month"
 msgstr ""
 
 #. translators: %s is a skill category label, e.g. "Technical".
-#: src/Shared/Frontend/FrontendMyTeamView.php:287
+#: src/Shared/Frontend/FrontendMyTeamView.php:291
 #, php-format
 msgid "Improving most: %s"
 msgstr ""
@@ -53989,19 +53989,20 @@ msgstr ""
 msgid "VCT defaults saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:36
+#: src/Shared/Frontend/FrontendTeammateView.php:43
+#: src/Shared/Frontend/FrontendTeammateView.php:44
 msgid "Teammate"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:39
+#: src/Shared/Frontend/FrontendTeammateView.php:47
 msgid "No teammate selected."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:54
+#: src/Shared/Frontend/FrontendTeammateView.php:62
 msgid "This player is not on your team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:121
+#: src/Shared/Frontend/FrontendTeammateView.php:129
 msgid ""
 "Teammate details are read-only. Individual ratings, evaluations, and goals "
 "stay private."
