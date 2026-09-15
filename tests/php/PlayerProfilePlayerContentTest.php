@@ -71,8 +71,39 @@ final class PlayerProfilePlayerContentTest extends WP_UnitTestCase {
         // `tt_view_analytics`.
         $html = $this->renderAsPlayer( 'goals' );
 
+        $this->assertFalse(
+            current_user_can( 'tt_view_analytics' ),
+            'the premise: a player holds no analytics grant, so the button was a door that would refuse them'
+        );
         $this->assertStringNotContainsString( 'Explorer', $html );
         $this->assertStringNotContainsString( 'tt_view=explore', $html );
+    }
+
+    public function test_the_explorer_button_tracks_the_analytics_grant(): void {
+        // Asserted as a relationship rather than a fixed expectation per
+        // persona: `tt_view_analytics` is matrix-owned, so whether a given
+        // test user holds it depends on how the environment seeds the
+        // matrix, and `add_cap()` on a `tt_` capability is inert by design.
+        //
+        // What must hold either way is that the button appears exactly when
+        // both conditions do. A gate on the module toggle alone — which is
+        // what this issue removes — breaks this for any user who lacks the
+        // grant while the module is on.
+        $this->seedGoal();
+
+        foreach ( [ 'tt_player', 'administrator' ] as $role ) {
+            $user = (int) self::factory()->user->create( [ 'role' => $role ] );
+            $html = $this->renderFor( $user, 'goals' );
+
+            $expected = \TT\Modules\Analytics\AnalyticsModule::explorerEnabled()
+                && current_user_can( 'tt_view_analytics' );
+
+            $this->assertSame(
+                $expected,
+                strpos( $html, 'Explorer' ) !== false,
+                sprintf( 'the Explorer affordance must track module-on AND the grant (%s)', $role )
+            );
+        }
     }
 
     public function test_no_bmi_figure_reaches_a_player(): void {
@@ -136,13 +167,18 @@ final class PlayerProfilePlayerContentTest extends WP_UnitTestCase {
         );
     }
 
-    public function test_staff_keep_the_explorer_button(): void {
+    public function test_staff_keep_the_rest_of_the_goals_tab_head(): void {
+        // The Explorer button's own direction is covered by
+        // test_the_explorer_button_tracks_the_analytics_grant(), which does
+        // not depend on how the environment seeds the matrix. This asserts
+        // the gate did not take the whole card head with it.
         $this->seedGoal();
         $staff = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
 
         $html = $this->renderFor( $staff, 'goals' );
 
-        $this->assertStringContainsString( 'Explorer', $html );
+        $this->assertStringContainsString( 'tt-player-card__head-actions', $html );
+        $this->assertStringContainsString( 'Add goal', $html );
     }
 
     /* ---- the inline styling the issue names --------------------------- */
