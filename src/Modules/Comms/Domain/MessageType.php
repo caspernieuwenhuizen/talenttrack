@@ -178,6 +178,75 @@ final class MessageType {
     }
 
     /**
+     * Who each type is addressed to.
+     *
+     * #3389 — the preferences card rendered every type to every persona,
+     * so a player was asked whether they wanted "reminders about your own
+     * development review": mail sent to coaches about theirs. The evidence
+     * for each row is the send path in `src/`, recorded on the issue.
+     *
+     * Only the opt-outable types are listed. An operational type reaches
+     * whoever it concerns and cannot be refused by any of them, so an
+     * audience for it would be a fact nothing reads — and listing one
+     * would invite a later change to filter the always-sent block, which
+     * would be wrong.
+     *
+     * Six of these have no sender yet. They take their intended audience
+     * now (issue decision 3): while nothing sends them, a wrong guess
+     * hides a toggle for mail nobody is receiving, and each send path
+     * confirms or corrects its own row when it lands.
+     *
+     * @var array<string, list<string>>
+     */
+    private const AUDIENCES = [
+        // Reaches the player and the family.
+        self::PDP_READY                 => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::GOAL_NUDGE                => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::SELECTION_LETTER          => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::GUEST_PLAYER_INVITE       => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+
+        // The family only.
+        self::ONBOARDING_NUDGE_INACTIVE => [ MessageAudience::PARENT ],
+        self::PARENT_MEETING_INVITE     => [ MessageAudience::PARENT ],
+        // Sent on intake, before the player has an account of their own.
+        self::TRIAL_PLAYER_WELCOME      => [ MessageAudience::PARENT ],
+
+        // Staff only. These are the rows that read as actively misleading
+        // on a player's screen: each describes someone else's job.
+        self::STAFF_DEVELOPMENT_REMINDER => [ MessageAudience::STAFF ],
+        self::METHODOLOGY_DELIVERED      => [ MessageAudience::STAFF ],
+        self::ATTENDANCE_FLAG            => [ MessageAudience::STAFF ],
+        self::SCHEDULED_REPORT           => [ MessageAudience::STAFF ],
+        self::TRIAL_INPUT_REMINDER       => [ MessageAudience::STAFF ],
+        self::SCOUT_REPORT_DELIVERY      => [ MessageAudience::STAFF ],
+
+        // Anyone with an account can be the subject or the recipient.
+        self::NOTIFICATION               => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::SCHEDULE_CHANGE_FROM_SPOND => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::LETTER_DELIVERY            => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::MASS_ANNOUNCEMENT          => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::ALERT_DIGEST               => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::DIRECT_MESSAGE             => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+    ];
+
+    /**
+     * The audiences a message type is addressed to.
+     *
+     * An unmapped type returns every audience, and `tools/check-message-audiences.php`
+     * fails the build when an opt-outable type has no entry. Those two
+     * together are the point: the only failure that matters here is a
+     * *missing* toggle for mail somebody is receiving, which leaves them
+     * unable to refuse it. A spare row is untidy; a lost row is a person
+     * who cannot stop mail about their child. So the runtime default is
+     * "show it" and the gate catches the omission before it ships.
+     *
+     * @return list<string>
+     */
+    public static function audiences( string $messageType ): array {
+        return self::AUDIENCES[ $messageType ] ?? MessageAudience::all();
+    }
+
+    /**
      * Whether the type bypasses quiet-hours. Spec note: emergencies
      * (safeguarding, cancellation within 12h) bypass; everything else
      * defers to next morning. Opt-out + quiet-hours are independent

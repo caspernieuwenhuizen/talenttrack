@@ -60154,6 +60154,26 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "A summary of your open alerts"
+msgstr "Een overzicht van je openstaande signalen"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Messages written to you by academy staff"
+msgstr "Berichten die de staf van de academie je stuurt"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Reports delivered on a schedule"
+msgstr "Rapportages die volgens een schema worden verstuurd"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Reminders that a trial still needs your input"
+msgstr "Herinneringen dat een proefperiode nog je invoer nodig heeft"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Scout reports sent to you"
+msgstr "Scoutingrapporten die naar jou zijn gestuurd"
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
