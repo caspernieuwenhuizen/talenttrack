@@ -60264,6 +60264,7 @@ msgstr[0] ""
 msgstr[1] ""
 "%d items zijn alleen zichtbaar voor je begeleiders. Vraag het ze als je er "
 "meer over wilt weten."
+
 #~ msgid ""
 #~ "No goals assigned yet. Your coaches will add development goals here as "
 #~ "you progress."
