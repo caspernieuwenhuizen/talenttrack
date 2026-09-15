@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-15T05:33:57+00:00\n"
+"POT-Creation-Date: 2026-09-15T05:49:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -6427,7 +6427,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:356
 #: src/Shared/Frontend/FrontendExportsView.php:366
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:157
-#: src/Shared/Frontend/FrontendMySettingsView.php:531
+#: src/Shared/Frontend/FrontendMySettingsView.php:550
 #: src/Shared/Frontend/FrontendOverviewView.php:236
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:205
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1309
@@ -6475,7 +6475,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:55
 #: src/Shared/Frontend/FrontendGoalsManageView.php:163
-#: src/Shared/Frontend/FrontendMySettingsView.php:532
+#: src/Shared/Frontend/FrontendMySettingsView.php:551
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:202
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:912
 #: src/Shared/Frontend/FrontendTrialCaseView.php:568
@@ -6594,7 +6594,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:934
-#: src/Shared/Frontend/FrontendMySettingsView.php:534
+#: src/Shared/Frontend/FrontendMySettingsView.php:553
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:209
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:940
 msgid "Measurements"
@@ -15105,13 +15105,13 @@ msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:119
-#: src/Shared/Frontend/FrontendMySettingsView.php:562
-#: src/Shared/Frontend/FrontendMySettingsView.php:579
-#: src/Shared/Frontend/FrontendMySettingsView.php:595
-#: src/Shared/Frontend/FrontendMySettingsView.php:608
-#: src/Shared/Frontend/FrontendMySettingsView.php:640
-#: src/Shared/Frontend/FrontendMySettingsView.php:681
-#: src/Shared/Frontend/FrontendMySettingsView.php:703
+#: src/Shared/Frontend/FrontendMySettingsView.php:581
+#: src/Shared/Frontend/FrontendMySettingsView.php:598
+#: src/Shared/Frontend/FrontendMySettingsView.php:623
+#: src/Shared/Frontend/FrontendMySettingsView.php:636
+#: src/Shared/Frontend/FrontendMySettingsView.php:668
+#: src/Shared/Frontend/FrontendMySettingsView.php:709
+#: src/Shared/Frontend/FrontendMySettingsView.php:731
 msgid "Security check failed. Reload and try again."
 msgstr ""
 
@@ -37624,7 +37624,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:179
 #: src/Modules/Vct/Wizard/ReviewStep.php:59
 #: src/Modules/Vct/Wizard/ThemeStep.php:20
-#: src/Shared/Frontend/FrontendMySettingsView.php:455
+#: src/Shared/Frontend/FrontendMySettingsView.php:474
 msgid "Theme"
 msgstr ""
 
@@ -44112,7 +44112,7 @@ msgid "Page not found"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:932
-#: src/Shared/Frontend/FrontendMySettingsView.php:533
+#: src/Shared/Frontend/FrontendMySettingsView.php:552
 #: src/Shared/Frontend/FrontendPlayersManageView.php:674
 msgid "Journey"
 msgstr ""
@@ -45438,7 +45438,7 @@ msgid "Colours"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1706
-#: src/Shared/Frontend/FrontendMySettingsView.php:458
+#: src/Shared/Frontend/FrontendMySettingsView.php:477
 msgid "Visual theme"
 msgstr ""
 
@@ -45526,7 +45526,7 @@ msgid "Default language for date and number formatting. Only installed languages
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1925
-#: src/Shared/Frontend/FrontendMySettingsView.php:359
+#: src/Shared/Frontend/FrontendMySettingsView.php:378
 msgid "Navigation layout"
 msgstr ""
 
@@ -45535,7 +45535,7 @@ msgid "The app shell keeps a navigation sidebar on screen on a laptop and a slid
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1946
-#: src/Shared/Frontend/FrontendMySettingsView.php:406
+#: src/Shared/Frontend/FrontendMySettingsView.php:425
 msgid "Live match screen"
 msgstr ""
 
@@ -47683,226 +47683,230 @@ msgstr ""
 msgid "At least 8 characters. Saving will end any other active sessions."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:182
+#: src/Shared/Frontend/FrontendMySettingsView.php:201
 msgid "Messages you receive"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:184
+#: src/Shared/Frontend/FrontendMySettingsView.php:203
 msgid "Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:208
+#: src/Shared/Frontend/FrontendMySettingsView.php:227
 msgid "These are always sent and cannot be switched off: safeguarding messages, messages about getting back into your account, and cancellations — missing one of those would mean turning up to a training that is not happening."
 msgstr ""
 
 #. translators: %s: link to the alert settings screen
-#: src/Shared/Frontend/FrontendMySettingsView.php:231
+#: src/Shared/Frontend/FrontendMySettingsView.php:250
 #, php-format
 msgid "Alerts about your own data — unmarked activities, missing attendance — are set separately under %s."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:232
+#: src/Shared/Frontend/FrontendMySettingsView.php:251
 msgid "alert settings"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:240
+#: src/Shared/Frontend/FrontendMySettingsView.php:259
 msgid "Save message preferences"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:260
+#: src/Shared/Frontend/FrontendMySettingsView.php:279
 msgid "An activity changes time or place"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:261
+#: src/Shared/Frontend/FrontendMySettingsView.php:280
 msgid "Selection decisions"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:262
+#: src/Shared/Frontend/FrontendMySettingsView.php:281
 msgid "A development plan is ready to read"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:263
+#: src/Shared/Frontend/FrontendMySettingsView.php:282
 msgid "Invitations to parent meetings"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:264
+#: src/Shared/Frontend/FrontendMySettingsView.php:283
 msgid "Welcome messages for trial players"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:265
+#: src/Shared/Frontend/FrontendMySettingsView.php:284
 msgid "Invitations to join an activity as a guest"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:266
+#: src/Shared/Frontend/FrontendMySettingsView.php:285
 msgid "Reminders to update a goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:267
+#: src/Shared/Frontend/FrontendMySettingsView.php:286
 msgid "Alerts about repeated absence"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:268
+#: src/Shared/Frontend/FrontendMySettingsView.php:287
 msgid "New training plans are published"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:269
+#: src/Shared/Frontend/FrontendMySettingsView.php:288
 msgid "Reminders when you have not logged in for a while"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:270
+#: src/Shared/Frontend/FrontendMySettingsView.php:289
 msgid "Reminders about your own development review"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:271
+#: src/Shared/Frontend/FrontendMySettingsView.php:290
 msgid "Formal letters"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:272
+#: src/Shared/Frontend/FrontendMySettingsView.php:291
 msgid "Academy-wide announcements"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:276
+#: src/Shared/Frontend/FrontendMySettingsView.php:295
 msgid "Notifications about your tasks and conversations"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:281
+#: src/Shared/Frontend/FrontendMySettingsView.php:300
 msgid "A summary of your open alerts"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:282
+#: src/Shared/Frontend/FrontendMySettingsView.php:301
 msgid "Messages written to you by academy staff"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:283
+#: src/Shared/Frontend/FrontendMySettingsView.php:302
 msgid "Reports delivered on a schedule"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:284
+#: src/Shared/Frontend/FrontendMySettingsView.php:303
 msgid "Reminders that a trial still needs your input"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:285
+#: src/Shared/Frontend/FrontendMySettingsView.php:304
 msgid "Scout reports sent to you"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:323
+#: src/Shared/Frontend/FrontendMySettingsView.php:342
 msgid "Safeguarding messages"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:324
+#: src/Shared/Frontend/FrontendMySettingsView.php:343
 msgid "Getting back into your account"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:329
+#: src/Shared/Frontend/FrontendMySettingsView.php:348
 msgid "A training is cancelled"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:356
-#: src/Shared/Frontend/FrontendMySettingsView.php:409
+#: src/Shared/Frontend/FrontendMySettingsView.php:375
+#: src/Shared/Frontend/FrontendMySettingsView.php:428
 msgid "Layout"
 msgstr ""
 
 #. translators: %s: the club-wide default layout name.
 #. translators: %s: the academy-wide default live-match layout name.
 #. translators: %s: the club-wide default theme name.
-#: src/Shared/Frontend/FrontendMySettingsView.php:364
-#: src/Shared/Frontend/FrontendMySettingsView.php:414
-#: src/Shared/Frontend/FrontendMySettingsView.php:463
+#: src/Shared/Frontend/FrontendMySettingsView.php:383
+#: src/Shared/Frontend/FrontendMySettingsView.php:433
+#: src/Shared/Frontend/FrontendMySettingsView.php:482
 #, php-format
 msgid "Use the academy default (%s)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:372
+#: src/Shared/Frontend/FrontendMySettingsView.php:391
 msgid "The app shell keeps a navigation sidebar on screen on a laptop, and a slide-out menu on a phone. Classic returns you to the tile overview to switch between sections."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:377
-#: src/Shared/Frontend/FrontendMySettingsView.php:427
+#: src/Shared/Frontend/FrontendMySettingsView.php:396
+#: src/Shared/Frontend/FrontendMySettingsView.php:446
 #: src/Shared/Frontend/FrontendTeamDetailView.php:456
 msgid "Save layout"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:422
+#: src/Shared/Frontend/FrontendMySettingsView.php:441
 msgid "Classic puts everything on one long page. Sections keeps the score and the clock fixed at the top and puts a row of tabs within thumb reach at the bottom, so the bench is one tap away instead of three scrolls."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:471
+#: src/Shared/Frontend/FrontendMySettingsView.php:490
 msgid "Changes colours, corners and heading type only — never what you can see or do. A theme supplies the whole colour scheme for the application; your academy logo and name are unaffected."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:476
+#: src/Shared/Frontend/FrontendMySettingsView.php:495
 msgid "Save theme"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:505
+#: src/Shared/Frontend/FrontendMySettingsView.php:524
 msgid "What your parent can see"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:507
+#: src/Shared/Frontend/FrontendMySettingsView.php:526
 msgid "Choose which parts of your record your parent or guardian can see. Everything is shared by default. Your coaches and the academy are not affected by these choices."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:522
+#: src/Shared/Frontend/FrontendMySettingsView.php:541
 msgid "Save visibility"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:535
+#: src/Shared/Frontend/FrontendMySettingsView.php:554
 msgid "Development plan (PDP)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:538
+#: src/Shared/Frontend/FrontendMySettingsView.php:557
 msgid "Training history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:569
+#: src/Shared/Frontend/FrontendMySettingsView.php:588
 msgid "Layout updated. Reload to see the change everywhere."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:586
+#: src/Shared/Frontend/FrontendMySettingsView.php:607
+msgid "That setting is not available to you."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:614
 msgid "Live match layout updated. Open a match to see the change."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:602
+#: src/Shared/Frontend/FrontendMySettingsView.php:630
 msgid "Theme updated. Reload to see the change everywhere."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:626
+#: src/Shared/Frontend/FrontendMySettingsView.php:654
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:634
+#: src/Shared/Frontend/FrontendMySettingsView.php:662
 msgid "Profile saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:647
+#: src/Shared/Frontend/FrontendMySettingsView.php:675
 msgid "Please fill in both your current and new password."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:651
+#: src/Shared/Frontend/FrontendMySettingsView.php:679
 msgid "New password must be at least 8 characters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:655
+#: src/Shared/Frontend/FrontendMySettingsView.php:683
 msgid "New password and confirmation do not match."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:660
+#: src/Shared/Frontend/FrontendMySettingsView.php:688
 msgid "Current password is incorrect."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:670
+#: src/Shared/Frontend/FrontendMySettingsView.php:698
 msgid "Password changed. Other devices have been logged out."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:697
+#: src/Shared/Frontend/FrontendMySettingsView.php:725
 msgid "Message preferences saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:708
+#: src/Shared/Frontend/FrontendMySettingsView.php:736
 msgid "Only players can set parent visibility."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:718
+#: src/Shared/Frontend/FrontendMySettingsView.php:746
 msgid "Saved what your parent can see."
 msgstr ""
 
