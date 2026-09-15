@@ -33,6 +33,14 @@ class FrontendTeammateView extends FrontendViewBase {
 
     public static function render( object $viewer, int $teammate_id ): void {
         self::enqueueAssets();
+        // #3395 — the chain, before anything can return. This view is
+        // routable (`?tt_view=teammate`), not a sub-view composed into
+        // another, so §5a applies to it like every other Me-view: a
+        // breadcrumb chain ending at Dashboard on every code path, and
+        // the `tt_back` pill above it when the entry URL carried one.
+        // Without it a player who tapped a teammate had the browser's
+        // back button and nothing else.
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Teammate', 'talenttrack' ) );
         self::renderHeader( __( 'Teammate', 'talenttrack' ) );
 
         if ( $teammate_id <= 0 ) {

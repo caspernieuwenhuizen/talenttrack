@@ -134,6 +134,39 @@ final class RecordLink {
     }
 
     /**
+     * #3397 — a record link for the **player-facing** Me-views.
+     *
+     * `detailUrlForWithBack()` targets the staff list slugs, which a
+     * player holds no grant over: `?tt_view=goals&id=N` answers a player
+     * with "Not authorized". A Me-view's records live behind their own
+     * slugs (`my-goals`, `my-activities`, …), and a parent reaching their
+     * child's copy carries `player_id` as well.
+     *
+     * Lifted out of `FrontendMyDevelopmentView`, which had the only
+     * working version of this, so the PDP page and anything added later
+     * share one implementation rather than growing a third copy.
+     *
+     * @param string   $view      Me-view slug, e.g. `my-goals`.
+     * @param int      $id        Record id.
+     * @param int|null $player_id Set only when the viewer is NOT the
+     *                            subject — a parent reading their child.
+     */
+    public static function meDetailUrl( string $view, int $id, ?int $player_id = null ): string {
+        if ( $view === '' || $id <= 0 ) return '';
+        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
+        // tt-xview-ok: a URL builder, not a rendered affordance, and the
+        // targets are the Me-views — surfaces whose subject is the viewer's
+        // own record, which is the one class of link that cannot point
+        // somewhere the caller may not go. #2304's gate is about a tile or
+        // <a> to another module; this is the opposite of that.
+        $url = add_query_arg( [ 'tt_view' => $view, 'id' => $id ], $base ?: home_url( '/' ) ); /* tt-xview-ok */
+        if ( $player_id !== null && $player_id > 0 ) {
+            $url = add_query_arg( 'player_id', $player_id, $url );
+        }
+        return BackLink::appendTo( $url );
+    }
+
+    /**
      * v3.70.1 hotfix — resolve the URL of the page hosting the
      * `[talenttrack_dashboard]` shortcode, so links built from REST /
      * admin contexts route through it instead of `home_url('/')`. Falls

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T05:57:17+00:00\n"
+"POT-Creation-Date: 2026-09-15T15:01:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2011,7 +2011,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:389
 #: src/Shared/Frontend/FrontendGoalsManageView.php:414
 #: src/Shared/Frontend/FrontendHolidaysView.php:97
-#: src/Shared/Frontend/FrontendMyGoalsView.php:61
+#: src/Shared/Frontend/FrontendMyGoalsView.php:81
 #: src/Shared/Frontend/FrontendPeopleManageView.php:130
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2752
 #: src/Shared/Frontend/FrontendPlayersManageView.php:262
@@ -9889,7 +9889,7 @@ msgstr "Sleutel"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:278
 #: src/Shared/Frontend/FrontendGoalsManageView.php:226
 #: src/Shared/Frontend/FrontendGoalsManageView.php:551
-#: src/Shared/Frontend/FrontendMyGoalsView.php:227
+#: src/Shared/Frontend/FrontendMyGoalsView.php:267
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:194
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 msgid "Description"
@@ -30588,7 +30588,7 @@ msgid "Could not delete this entry."
 msgstr "Dit item kon niet worden verwijderd."
 
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:197
-#: src/Shared/Frontend/FrontendMyGoalsView.php:79
+#: src/Shared/Frontend/FrontendMyGoalsView.php:99
 msgid "Nothing here yet."
 msgstr "Nog niks hier."
 
@@ -33978,7 +33978,7 @@ msgstr "POP-bestand details"
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:242
 #: src/Shared/Frontend/FrontendGoalsManageView.php:657
-#: src/Shared/Frontend/FrontendMyGoalsView.php:250
+#: src/Shared/Frontend/FrontendMyGoalsView.php:290
 msgid "Conversation"
 msgstr "Gesprek"
 
@@ -35744,9 +35744,9 @@ msgstr "Mijn activiteiten"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59
 #: src/Shared/CoreSurfaceRegistration.php:569
 #: src/Shared/CoreSurfaceRegistration.php:1629
-#: src/Shared/Frontend/FrontendMyGoalsView.php:30
-#: src/Shared/Frontend/FrontendMyGoalsView.php:38
-#: src/Shared/Frontend/FrontendMyGoalsView.php:39
+#: src/Shared/Frontend/FrontendMyGoalsView.php:33
+#: src/Shared/Frontend/FrontendMyGoalsView.php:41
+#: src/Shared/Frontend/FrontendMyGoalsView.php:42
 msgid "My goals"
 msgstr "Mijn doelen"
 
@@ -41544,7 +41544,7 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:252
 #: src/Shared/Frontend/FrontendGoalsManageView.php:667
-#: src/Shared/Frontend/FrontendMyGoalsView.php:253
+#: src/Shared/Frontend/FrontendMyGoalsView.php:293
 msgid "How does this work?"
 msgstr "Hoe werkt dit?"
 
@@ -42302,7 +42302,7 @@ msgstr "%s schreef:"
 msgid "View:"
 msgstr "Bekijken:"
 
-#: src/Modules/Threads/ThreadMessagesRepository.php:125
+#: src/Modules/Threads/ThreadMessagesRepository.php:164
 #: src/Shared/Frontend/Components/FrontendThreadView.php:115
 #: src/Shared/Frontend/Components/FrontendThreadView.php:167
 msgid "Message deleted."
@@ -53669,7 +53669,7 @@ msgid "Edit goal"
 msgstr "Doel bewerken"
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:54
-#: src/Shared/Frontend/FrontendMyGoalsView.php:29
+#: src/Shared/Frontend/FrontendMyGoalsView.php:32
 msgid "Goal detail"
 msgstr "Doel-detail"
 
@@ -53680,7 +53680,7 @@ msgstr "Doel bewerken — %s"
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:71
 #: src/Shared/Frontend/FrontendGoalsManageView.php:140
-#: src/Shared/Frontend/FrontendMyGoalsView.php:201
+#: src/Shared/Frontend/FrontendMyGoalsView.php:241
 msgid "Goal not found"
 msgstr "Doel niet gevonden"
 
@@ -53699,18 +53699,18 @@ msgid "Archive this goal? It will be hidden but the data is preserved."
 msgstr "Dit doel archiveren? Het wordt verborgen maar de data blijft bewaard."
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:203
-#: src/Shared/Frontend/FrontendMyGoalsView.php:102
-#: src/Shared/Frontend/FrontendMyGoalsView.php:222
+#: src/Shared/Frontend/FrontendMyGoalsView.php:118
+#: src/Shared/Frontend/FrontendMyGoalsView.php:262
 msgid "Due:"
 msgstr "Deadline:"
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:390
-#: src/Shared/Frontend/FrontendMyGoalsView.php:62
+#: src/Shared/Frontend/FrontendMyGoalsView.php:82
 msgid "Achieved"
 msgstr "Behaald"
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:391
-#: src/Shared/Frontend/FrontendMyGoalsView.php:63
+#: src/Shared/Frontend/FrontendMyGoalsView.php:83
 msgid "Missed"
 msgstr "Gemist"
 
@@ -54897,27 +54897,31 @@ msgstr "Details tonen"
 msgid "Hide detail"
 msgstr "Details verbergen"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:49
+#: src/Shared/Frontend/FrontendMyGoalsView.php:56
+msgid "No goals set for you yet"
+msgstr "Er zijn nog geen doelen voor je ingesteld"
+
+#: src/Shared/Frontend/FrontendMyGoalsView.php:57
 msgid ""
-"No goals assigned yet. Your coaches will add development goals here as you "
-"progress."
+"Your coach sets development goals during your talks. When they do, they "
+"appear here with the conversation about each one."
 msgstr ""
-"Nog geen doelen toegewezen. Je coaches voegen hier ontwikkelingsdoelen toe "
-"naarmate je vordert."
+"Je trainer stelt ontwikkeldoelen op tijdens jullie gesprekken. Zodra dat "
+"gebeurt, verschijnen ze hier, samen met het gesprek over elk doel."
 
 #. translators: %d is the number of messages on this goal's conversation thread.
-#: src/Shared/Frontend/FrontendMyGoalsView.php:113
+#: src/Shared/Frontend/FrontendMyGoalsView.php:129
 #, php-format
 msgid "Open conversation (%d message)"
 msgid_plural "Open conversation (%d messages)"
 msgstr[0] "Open gesprek (%d bericht)"
 msgstr[1] "Open gesprek (%d berichten)"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:116
+#: src/Shared/Frontend/FrontendMyGoalsView.php:132
 msgid "Open goal &amp; start the conversation"
 msgstr "Doel openen &amp; gesprek starten"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:202
+#: src/Shared/Frontend/FrontendMyGoalsView.php:242
 msgid "That goal is no longer available, or it does not belong to your record."
 msgstr "Dit doel is niet meer beschikbaar, of hoort niet bij jouw record."
 
@@ -60260,6 +60264,12 @@ msgstr[0] ""
 msgstr[1] ""
 "%d items zijn alleen zichtbaar voor je begeleiders. Vraag het ze als je er "
 "meer over wilt weten."
+#~ msgid ""
+#~ "No goals assigned yet. Your coaches will add development goals here as "
+#~ "you progress."
+#~ msgstr ""
+#~ "Nog geen doelen toegewezen. Je coaches voegen hier ontwikkelingsdoelen "
+#~ "toe naarmate je vordert."
 
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."

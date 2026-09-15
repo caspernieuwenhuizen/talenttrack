@@ -152,9 +152,13 @@ class PlayerCardView {
         // reading. A card that IS the record needs no click-through.
         $detail_url = '';
         if ( $link_mode === 'teammate' ) {
-            $detail_url = add_query_arg(
-                [ 'tt_view' => 'teammate', 'player_id' => $player_id ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            // #3395 — carry the back-target, so the teammate view can render
+            // the contextual pill back to whichever podium sent the viewer.
+            $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg(
+                    [ 'tt_view' => 'teammate', 'player_id' => $player_id ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                )
             );
         } elseif ( $link_mode !== 'none' ) {
             $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );

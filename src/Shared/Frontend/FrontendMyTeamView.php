@@ -201,10 +201,14 @@ class FrontendMyTeamView extends FrontendViewBase {
                                 mb_substr( (string) ( $mate->first_name ?? '' ), 0, 1 )
                                 . mb_substr( (string) ( $mate->last_name ?? '' ), 0, 1 )
                             );
-                            $mate_url = esc_url( add_query_arg( [
-                                'tt_view'   => 'teammate',
-                                'player_id' => (int) $mate->id,
-                            ], $teammate_base ) );
+                            // #3395 — carry the back-target so the teammate
+                            // view renders a "← Back to My team" pill (§5a).
+                            $mate_url = esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo(
+                                add_query_arg( [
+                                    'tt_view'   => 'teammate',
+                                    'player_id' => (int) $mate->id,
+                                ], $teammate_base )
+                            ) );
                             ?>
                             <a href="<?php echo $mate_url; ?>" class="tt-mt-mate">
                                 <span class="tt-mt-mate__avatar">

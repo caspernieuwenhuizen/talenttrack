@@ -710,6 +710,23 @@
     flex-direction: column;
     gap: 0.5rem;
 }
+/* #3397 — the card became an <a> to the goal. The whole card is the
+   target, not just the title, so the 1rem padding already clears the
+   48px floor. Inherit colour rather than taking the link blue: this
+   reads as a card, and the title carries its own weight above. */
+.tt-dashboard a.tt-goal {
+    text-decoration: none;
+    color: inherit;
+    touch-action: manipulation;
+}
+.tt-dashboard a.tt-goal:hover,
+.tt-dashboard a.tt-goal:active {
+    border-color: var(--tt-accent, var(--tt-primary, #0b3d2e));
+}
+.tt-dashboard a.tt-goal:focus-visible {
+    outline: 2px solid var(--tt-accent, var(--tt-primary, #0b3d2e));
+    outline-offset: 2px;
+}
 .tt-dashboard .tt-goal__top {
     display: flex;
     justify-content: space-between;
