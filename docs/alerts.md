@@ -100,6 +100,9 @@ These two go to whoever looks after the records rather than to a coach, because 
 | Alert | What it means | Which player question it answers |
 | --- | --- | --- |
 | **Invitation never accepted** | A player or staff invitation was sent a fortnight ago and never accepted. | *Where has this player come from?* An invitation is the first step of a player's journey through the academy's own systems, and an unaccepted one is a journey that never started — no account, no sight of their own evaluations, no reading the feedback their coach wrote for them. |
+| **Invitations waiting to be sent** | Invitations were created and held, and nobody has sent them. The people they are for have been told nothing at all. | *Where has this player come from?* — one step removed. A coach who was never invited cannot sign in, and their players' records go unwritten. |
+
+The two invitation alerts ask different questions, so they never report the same invitation. **Invitation never accepted** asks *did it arrive?* and only looks at invitations that were sent. **Invitations waiting to be sent** asks *was it ever sent?* — the setup flow creates invitations and holds them on purpose, so an academy can add its staff, look around, and send when ready; this is what stops a held invitation being invisible once you have left that screen. It names how many are waiting and links to **Configuration → Invitations**, where **Send all invitations** lives. Send them and it clears itself.
 
 Parent invitations have their own alert (**Parent invited but never activated**), because the question they raise is different: a parent invitation that was never accepted may still be fine if the family is linked another way. Splitting them keeps each message specific.
 
@@ -136,7 +139,8 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
 | `alerts_potential_stale_days` | 180 days | How long a player's potential may go without being revisited. Two missed quarters against a quarterly cadence: one missed quarter is a busy season, two is nobody looking. If your academy reviews potential on a different rhythm, this is the number to change. |
 | `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
-| `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted before the alert appears. |
+| `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted, counted from the day it was sent, before the alert appears. |
+| `alerts_invitation_unsent_days` | 1 day | How long an invitation may sit created but unsent before the alert appears. Held for the first hours is the feature working — you are still adding people. Raise it if your academy prepares invitations over several days. |
 
 ## New alerts arrive switched on
 

@@ -27,6 +27,14 @@ De ingeklapte kop van elk blok toont de exporttitel plus een format-badge per on
 
 Elk blok is afgeschermd op rechten: je ziet alleen de exporteurs die je rol toestaat, en een sectie zonder toegestane exporteur toont geen kop. Een export uitvoeren is ongewijzigd — hij post naar de export-handler met een nonce en streamt het bestand.
 
+## Wat er in de KPI-momentopname staat
+
+Twee tabbladen. Het eerste bevat de kerncijfers over de gekozen periode: actieve en totale spelers, actieve teams, activiteiten, evaluaties, aanwezigheid en doelen, plus van hoeveel actieve spelers een potentieelband is vastgelegd en van hoeveel niet.
+
+Het tweede tabblad bevat elke actieve speler met zijn huidige potentieelband en de datum waarop die is vastgelegd. Het is dezelfde band waarop het statusbolletje van de speler is gebaseerd, dus het tabblad en het spelersprofiel kunnen nooit iets anders zeggen. Een speler die nog niet is beoordeeld krijgt een lege cel in plaats van een standaardwaarde — een academie die nog geen potentieelronde heeft gedaan ziet dus een dunbevolkte kolom, en dat is het eerlijke beeld.
+
+Potentieel is een oordeel van de staf over een kind, dus het staat hier en niet in de spelerslijst. Die export is een team- en contactlijst die bedoeld is om te delen; deze is alleen voor de staf en vereist de rapportagebevoegdheid.
+
 ## Hoe de waarden eruitzien
 
 Exports die voor mensen bedoeld zijn bevatten dezelfde labels als op het scherm, in de taal waarin de academie werkt. De status van een speler staat er als *Actief* en niet als `active`, de rol van een trainer als *Trainer* en niet als `coach`, en voorkeursposities als *Centrale verdediger / Linksback* in plaats van `["CB","LB"]`. Dit is meestal het bestand dat de academie verlaat — naar een ouder, een bondsbureau of het bestuur — dus degene die het opent zou het niet hoeven ontcijferen.

@@ -27,6 +27,14 @@ Each block's collapsed header shows the export title plus a format badge per sup
 
 Every block is cap-gated: you only see the exporters your role permits, and a section with no permitted exporter renders no heading. Running an export is unchanged — it posts to the export handler with a nonce and streams the file.
 
+## What the KPI snapshot contains
+
+Two sheets. The first is the headline figures for the period you chose: active and total players, active teams, activities, evaluations, attendance and goals, plus how many active players have a potential band recorded and how many do not.
+
+The second sheet lists every active player with their current potential band and the date it was recorded. The band is the one their status dot is calculated from, so the sheet and the player's profile can never disagree. A player nobody has assessed yet gets an empty cell rather than a default — an academy that has not been through a potential round will see a sparse column, and that is the honest picture.
+
+Potential is a staff judgement about a child, so it appears here and not on the Players list. That export is a roster and contact sheet meant to be shared; this one is staff-scoped and needs the reports capability to run.
+
 ## What the values look like
 
 Human-facing exports carry the same labels you see on screen, in the language the academy runs in. A player's status reads *Actief* rather than `active`, a coach's role reads *Trainer* rather than `coach`, and preferred positions read *Centrale verdediger / Linksback* rather than `["CB","LB"]`. This file is usually the one that leaves the academy — to a parent, a federation desk or the board — so it should not need decoding by whoever opens it.

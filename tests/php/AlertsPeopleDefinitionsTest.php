@@ -173,6 +173,21 @@ final class AlertsPeopleDefinitionsTest extends WP_UnitTestCase {
     }
 
     /**
+     * #3387 — a held invitation was never mailed, so the parent was never
+     * asked to activate anything and cannot be described as not having.
+     */
+    public function test_parent_invitation_that_was_never_sent_produces_nothing(): void {
+        global $wpdb;
+        $team   = $this->insertTeam();
+        $this->assignHeadCoach( $team, $this->head );
+        $player = $this->insertPlayer( $team, $this->birthdayIn( 900 ) );
+        $id     = $this->insertInvitation( 'parent', $player, $this->head, 'pending', $this->daysAgo( 30 ) );
+        $wpdb->update( "{$this->p}tt_invitations", [ 'sent_at' => null ], [ 'id' => $id ] );
+
+        $this->assertSame( [], ( new ParentNeverActivatedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
      * A parent invited twice who accepted the other one, or linked directly
      * by an admin, leaves a stale pending row behind. Neither is a problem
      * and neither should keep nagging.
@@ -354,6 +369,9 @@ final class AlertsPeopleDefinitionsTest extends WP_UnitTestCase {
             'target_player_id' => $player_id,
             'created_by'       => $created_by,
             'created_at'       => $created_on . ' 09:00:00',
+            // Sent the day it was created: the pre-#2964 behaviour, and what
+            // every fixture here means by "invited" (#3387).
+            'sent_at'          => $created_on . ' 09:00:00',
             'expires_at'       => $this->daysAhead( 7 ) . ' 09:00:00',
             'status'           => $status,
         ] );

@@ -1074,31 +1074,38 @@ return array_merge(
         // Strictly narrower than the `people` grant above, and the same
         // row every other staff-side persona carries.
         'my_person'    => [ 'rc', 'self', $mod_people ],
-        // #3232 — the two things this seat exists for, both team-scoped
-        // and neither with create_delete.
-        //
-        // `measurements` is the uncontroversial half: height, weight,
-        // sprint times. `team_manager` already holds `[r, team]`, so this
-        // is the write half of a shape that already exists.
-        //
-        // `player_injuries` is a deliberate decision on the record, not an
-        // oversight. A physio is the most obviously correct holder of an
-        // injury record — more so than a head coach, who holds `rc` at team
-        // scope on the reasoning that they are the person on the pitch when
-        // the hamstring goes. But `tt_staff` is ONE undifferentiated role
-        // covering physio and kit manager alike, so this grants medical
-        // data about minors to every Staff account, including ones handed
-        // out for entirely non-clinical reasons. That is the same reasoning
-        // the seed uses to withhold `player_injuries` from
-        // `assistant_coach`, and it was raised and accepted (2026-08-30).
-        //
-        // Two things hold the line until the physio / kit-manager split
-        // exists: the grant is `team`, never `global`, and
-        // `docs/access-control.md` says plainly what handing somebody the
-        // Staff role now gives them. `create_delete` stays with HoD /
-        // academy admin — deleting a minor's medical record is not a
-        // touchline decision.
+        // #3232 — `measurements` is the uncontroversial half of what this
+        // seat exists for: height, weight, sprint times. `team_manager`
+        // already holds `[r, team]`, so this is the write half of a shape
+        // that already exists, and it stays on the persona because every
+        // staff member records it. `create_delete` stays with HoD /
+        // academy admin.
         'measurements'     => [ 'rc', 'team', $mod_measurements ],
-        'player_injuries'  => [ 'rc', 'team', $mod_journey ],
+
+        // #3257 — `player_injuries [rc, team]` used to sit here, and does
+        // not any more.
+        //
+        // #3232 granted it on the reasoning that a physio is the most
+        // obviously correct holder of an injury record — more so than a
+        // head coach, who holds `rc` at team scope because they are the
+        // person on the pitch when the hamstring goes. That reasoning was
+        // right about the physio and wrong about the seat: `tt_staff` is
+        // ONE role covering physio and kit manager alike, and the matrix
+        // keys on `(persona, entity, activity, scope_kind)`, so no row
+        // here can tell those two people apart. Every Staff account got
+        // medical data about minors, including one issued to move shirts.
+        //
+        // The grant now lives on the **Physio functional role**, in
+        // `config/functional_role_grants.php`, where it reaches a person
+        // on the teams they are actually the physio for.
+        // `FunctionalRoleGrants` unions it into `MatrixGate`.
+        //
+        // Removing the row here narrows FRESH installs. Existing ones
+        // keep the row in `tt_authorization_matrix` — deliberately, and
+        // without a migration: that stale row is the documented upgrade
+        // behaviour, and supersession is what takes it away, only once an
+        // academy assigns somebody a functional role. See
+        // `docs/access-control.md` § "What changes for an existing Staff
+        // account".
     ] )
 );

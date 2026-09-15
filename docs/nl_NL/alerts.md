@@ -101,6 +101,10 @@ Deze twee gaan naar wie de administratie beheert in plaats van naar een trainer,
 | --- | --- | --- |
 | **Uitnodiging nooit geaccepteerd** | Een uitnodiging voor een speler of staflid is twee weken geleden verstuurd en nooit geaccepteerd. | *Waar komt deze speler vandaan?* Een uitnodiging is de eerste stap in de reis van een speler door de systemen van de academie, en een uitnodiging die nooit is geaccepteerd is een reis die nooit begon — geen account, geen zicht op de eigen evaluaties, geen feedback van de trainer om te lezen. |
 
+| **Uitnodigingen wachten om verstuurd te worden** | Er zijn uitnodigingen aangemaakt en vastgehouden, en niemand heeft ze verstuurd. De mensen om wie het gaat hebben helemaal niets gehoord. | *Waar komt deze speler vandaan?* — één stap verderop. Een trainer die nooit is uitgenodigd kan niet inloggen, en dan wordt er niets vastgelegd over zijn spelers. |
+
+De twee uitnodigingsmeldingen stellen verschillende vragen en melden daardoor nooit dezelfde uitnodiging. **Uitnodiging nooit geaccepteerd** vraagt *is hij aangekomen?* en kijkt alleen naar verstuurde uitnodigingen. **Uitnodigingen wachten om verstuurd te worden** vraagt *is hij ooit verstuurd?* — de setup-flow maakt uitnodigingen bewust aan zonder ze te versturen, zodat een academie eerst haar staf kan toevoegen, rond kan kijken en pas verstuurt wanneer het uitkomt; deze melding voorkomt dat zo'n vastgehouden uitnodiging onzichtbaar wordt zodra je dat scherm verlaat. Hij noemt hoeveel er wachten en verwijst naar **Configuratie → Uitnodigingen**, waar **Alle uitnodigingen versturen** staat. Versturen laat de melding vanzelf verdwijnen.
+
 Ouderuitnodigingen hebben hun eigen melding (**Ouder uitgenodigd maar nooit geactiveerd**), omdat de vraag daar anders ligt: een ouderuitnodiging die nooit is geaccepteerd kan prima zijn als het gezin op een andere manier gekoppeld is. Gescheiden houden maakt elke boodschap concreter.
 
 ### Berichten
@@ -136,7 +140,8 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_measurement_grace_days` | 60 dagen | Hoe ver in een seizoen voordat "nog geen meting" een melding wordt. In week één zou hij voor elke speler in de academie tegelijk afgaan, en dat komt op hetzelfde neer als niets zeggen. |
 | `alerts_potential_stale_days` | 180 dagen | Hoe lang het potentieel van een speler onaangeroerd mag blijven. Twee gemiste kwartalen bij een kwartaalritme: één gemist kwartaal is een druk seizoen, twee is niemand die kijkt. Hanteert jullie academie een ander ritme, dan is dit het getal om aan te passen. |
 | `alerts_player_without_team_grace_days` | 7 dagen | Hoe lang een nieuw toegevoegde speler zonder team mag blijven voordat de melding verschijnt. Het team toewijzen is vaak de volgende stap in dezelfde sessie. |
-| `alerts_invitation_stale_days` | 14 dagen | Hoe lang een uitnodiging voor een speler of staflid ongeaccepteerd mag blijven voordat de melding verschijnt. |
+| `alerts_invitation_stale_days` | 14 dagen | Hoe lang een uitnodiging voor een speler of staflid ongeaccepteerd mag blijven — geteld vanaf de dag dat hij is verstuurd — voordat de melding verschijnt. |
+| `alerts_invitation_unsent_days` | 1 dag | Hoe lang een uitnodiging aangemaakt maar onverstuurd mag blijven voordat de melding verschijnt. De eerste uren vasthouden is de functie zoals bedoeld — je bent nog mensen aan het toevoegen. Zet hem hoger als jouw academie uitnodigingen over meerdere dagen voorbereidt. |
 
 ## Nieuwe meldingen staan meteen aan
 

@@ -20,6 +20,11 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
  *      coach who looks at their own child's page as a parent does not
  *      stop being a coach. Use Impersonation (#0071) to act as another
  *      role.
+ *   1b. #3257 — skip any (persona, entity) pair the functional-role
+ *      layer supersedes for this user, and union in what the functional
+ *      roles they hold grant on the teams they hold them on. Both halves
+ *      resolve HERE, in the gate, so a call site cannot answer
+ *      differently. See FunctionalRoleGrants.
  *   2. For each persona, look up the matrix row for
  *      (persona, entity, activity, scope_kind).
  *   3. If `scope_kind` is not `global`, verify the user actually holds
@@ -104,6 +109,10 @@ class MatrixGate {
         $repo = new MatrixRepository();
 
         foreach ( $personas as $persona ) {
+            // #3257 — the functional-role layer owns this pair for this
+            // user; their persona row does not get a say.
+            if ( FunctionalRoleGrants::supersedes( $user_id, $persona, $entity ) ) continue;
+
             foreach ( [ self::SCOPE_GLOBAL, self::SCOPE_TEAM, self::SCOPE_PLAYER, self::SCOPE_SELF ] as $scope_kind ) {
                 if ( ! $repo->lookup( $persona, $entity, $activity, $scope_kind ) ) continue;
 
@@ -115,6 +124,10 @@ class MatrixGate {
                 if ( self::userHasAnyScope( $user_id, $scope_kind ) )    return true;
             }
         }
+
+        // #3257 — the additive half. A physio holding the role on any
+        // team reads that team's injuries, so "at any scope" is true.
+        if ( FunctionalRoleGrants::firstTeamGranting( $user_id, $entity, $activity ) !== null ) return true;
 
         return false;
     }
@@ -154,6 +167,10 @@ class MatrixGate {
         $repo = new MatrixRepository();
 
         foreach ( $personas as $persona ) {
+            // #3257 — superseded pairs are answered by the
+            // functional-role block below, not by the persona row.
+            if ( FunctionalRoleGrants::supersedes( $user_id, $persona, $entity ) ) continue;
+
             foreach ( [ self::SCOPE_GLOBAL, self::SCOPE_TEAM, self::SCOPE_PLAYER, self::SCOPE_SELF ] as $scope_kind ) {
                 if ( ! $repo->lookup( $persona, $entity, $activity, $scope_kind ) ) continue;
 
@@ -189,6 +206,21 @@ class MatrixGate {
                     ];
                 }
             }
+        }
+
+        // #3257 — a functional-role grant has no matrix row to point at,
+        // so `persona` names the role that carries it (`fn:physio`) and
+        // `source_row_id` stays null. The admin page shows where the
+        // answer came from rather than an allow with no visible source.
+        $fn_team = FunctionalRoleGrants::firstTeamGranting( $user_id, $entity, $activity );
+        if ( $fn_team !== null ) {
+            return [
+                'allowed'       => true,
+                'persona'       => 'fn:' . (string) FunctionalRoleGrants::roleGranting( $user_id, $entity, $activity, $fn_team ),
+                'scope_kind'    => self::SCOPE_TEAM,
+                'scope_value'   => $fn_team,
+                'source_row_id' => null,
+            ];
         }
 
         return $denied;
@@ -295,7 +327,27 @@ class MatrixGate {
 
         $repo = new MatrixRepository();
 
+        // #3257 — the additive half, checked first because it is the
+        // cheaper question and because a functional-role grant is the
+        // more specific fact: this person does this job on this squad.
+        if ( $scope_kind === self::SCOPE_TEAM
+            && $scope_target_id !== null
+            && FunctionalRoleGrants::grantsOnTeam( $user_id, $entity, $activity, $scope_target_id )
+        ) {
+            return true;
+        }
+
         foreach ( $personas as $persona ) {
+            // #3257 — the narrowing half. For a user who holds a
+            // functional role, the persona's own row on a superseded
+            // entity is not consulted; the block above already decided.
+            // A user holding no functional role never reaches this
+            // `continue`, which is what keeps an existing Staff account
+            // exactly as it was.
+            if ( FunctionalRoleGrants::supersedes( $user_id, $persona, $entity ) ) {
+                continue;
+            }
+
             if ( ! $repo->lookup( $persona, $entity, $activity, $scope_kind ) ) {
                 continue;
             }

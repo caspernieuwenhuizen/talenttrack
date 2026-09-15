@@ -3,6 +3,8 @@ namespace TT\Modules\Alerts\Invalidation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
+
 /**
  * AlertInvalidationMap (#2731, epic #2629) — which domain event touches
  * which subject.
@@ -154,12 +156,38 @@ final class AlertInvalidationMap {
             // (both subject `invitation`); people.player_turns_18 and
             // dataquality.player_without_team (subject `player`).
 
+            // #3387 — the same three events also move the unsent backlog
+            // (`onboarding.invitation_never_sent`, subject
+            // `invitation_backlog`). That subject has exactly one id: the
+            // alert is about how many invitations are waiting, not about
+            // any one of them, so a narrowed run on it covers the whole
+            // condition and resolving inside that scope is correct.
+            'tt_invitation_created' => static function ( $invitation_id ): array {
+                return [
+                    [ 'invitation',          [ (int) $invitation_id ] ],
+                    [ 'invitation_backlog',  [ InvitationNeverSentAlert::SUBJECT_ID ] ],
+                ];
+            },
+
+            'tt_invitation_sent' => static function ( $invitation_id ): array {
+                return [
+                    [ 'invitation',          [ (int) $invitation_id ] ],
+                    [ 'invitation_backlog',  [ InvitationNeverSentAlert::SUBJECT_ID ] ],
+                ];
+            },
+
             'tt_invitation_accepted' => static function ( $invitation_id ): array {
-                return [ [ 'invitation', [ (int) $invitation_id ] ] ];
+                return [
+                    [ 'invitation',          [ (int) $invitation_id ] ],
+                    [ 'invitation_backlog',  [ InvitationNeverSentAlert::SUBJECT_ID ] ],
+                ];
             },
 
             'tt_invitation_revoked' => static function ( $invitation_id ): array {
-                return [ [ 'invitation', [ (int) $invitation_id ] ] ];
+                return [
+                    [ 'invitation',          [ (int) $invitation_id ] ],
+                    [ 'invitation_backlog',  [ InvitationNeverSentAlert::SUBJECT_ID ] ],
+                ];
             },
 
             'tt_after_player_save' => static function ( $player_id ): array {

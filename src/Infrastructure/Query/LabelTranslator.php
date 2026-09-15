@@ -167,6 +167,9 @@ class LabelTranslator {
             case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
             case 'manager':             return __( 'Manager', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );
+            // #3257 — the kit-manager seat, split out of Staff so the
+            // Physio functional role can carry the injury grant alone.
+            case 'kit_manager':         return __( 'Kit manager', 'talenttrack' );
             case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
             case 'mentor':              return __( 'Mentor', 'talenttrack' );
             case 'other':               return __( 'Other', 'talenttrack' );

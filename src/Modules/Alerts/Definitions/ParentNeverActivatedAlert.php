@@ -38,6 +38,14 @@ use TT\Modules\Alerts\Domain\Severity;
  * deliberate: they go to different people, they say different things, and
  * one alert covering all three would be muted by whoever cared about only
  * one of them.
+ *
+ * ## Boundary with `onboarding.invitation_never_sent`
+ *
+ * An invitation created and held (#2964) was never mailed to the parent,
+ * so nothing about it is the family's doing and "never activated" reads as
+ * an accusation of someone who was never asked. The window is measured
+ * from `sent_at` for that reason, and a held invitation belongs to #3387's
+ * definition instead.
  */
 final class ParentNeverActivatedAlert extends AbstractPlayerAlert {
 
@@ -117,7 +125,7 @@ final class ParentNeverActivatedAlert extends AbstractPlayerAlert {
         // id, so the NOT EXISTS selects a literal rather than a column.
         $sql = $wpdb->prepare(
             "SELECT i.id AS subject_id, i.target_player_id AS player_id,
-                    i.created_at AS invited_at, i.created_by,
+                    i.sent_at AS invited_at, i.created_by,
                     p.first_name, p.last_name, p.team_id
                FROM {$p}tt_invitations i
          INNER JOIN {$p}tt_players p ON p.id = i.target_player_id
@@ -126,7 +134,8 @@ final class ParentNeverActivatedAlert extends AbstractPlayerAlert {
                 AND i.accepted_at IS NULL
                 AND i.revoked_at IS NULL
                 AND i.status IN ( 'pending', 'expired' )
-                AND i.created_at < DATE_SUB( NOW(), INTERVAL %d DAY )
+                AND i.sent_at IS NOT NULL
+                AND i.sent_at < DATE_SUB( NOW(), INTERVAL %d DAY )
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_player_parents pp
                      WHERE pp.player_id = i.target_player_id
@@ -134,7 +143,7 @@ final class ParentNeverActivatedAlert extends AbstractPlayerAlert {
                 )
                 AND " . $this->activePlayerWhere( 'p' )
             . $context->applyScope( self::SUBJECT_TYPE, 'i.id' ) . "
-              ORDER BY i.created_at ASC, i.id ASC",
+              ORDER BY i.sent_at ASC, i.id ASC",
             $days
         );
 

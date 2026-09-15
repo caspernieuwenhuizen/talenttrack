@@ -1533,6 +1533,19 @@ class Activator {
                 'sort_order'  => 40,
                 'maps_to'     => [ 'physio' ],
             ],
+            // #3257 — the other half of the Staff seat, and the reason
+            // the split exists. A kit manager needs the squad list, the
+            // people around it and the calendar; they do not need a
+            // child's injury record. Giving the job a functional role of
+            // its own is what lets `config/functional_role_grants.php`
+            // say that positively instead of by subtraction.
+            [
+                'key'         => 'kit_manager',
+                'label'       => 'Kit manager',
+                'description' => 'Handles kit, equipment and matchday logistics for a team. No medical or evaluative access.',
+                'sort_order'  => 42,
+                'maps_to'     => [ 'team_member' ],
+            ],
             [
                 'key'         => 'head_of_development',
                 'label'       => 'Head of Development',
