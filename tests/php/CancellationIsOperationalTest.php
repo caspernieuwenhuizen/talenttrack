@@ -41,6 +41,19 @@ final class CancellationIsOperationalTest extends WP_UnitTestCase {
         $this->assertTrue( MessageType::isOperational( MessageType::ACCOUNT_RECOVERY ) );
     }
 
+    public function test_the_type_list_holds_only_types(): void {
+        // `all()` reads the class's own constants, and this change added a
+        // private one holding a *list* of types. Every caller declares
+        // `list<string>`, so an array slipping in is fatal rather than
+        // merely wrong — hence an assertion on the shape, not the contents.
+        foreach ( MessageType::all() as $type ) {
+            $this->assertIsString( $type );
+            $this->assertNotSame( '', $type );
+        }
+
+        $this->assertNotContains( 'Array', MessageType::all() );
+    }
+
     public function test_an_ordinary_type_is_still_mutable(): void {
         $this->assertFalse( MessageType::isOperational( MessageType::GOAL_NUDGE ) );
         $this->assertContains( MessageType::GOAL_NUDGE, MessageType::optOutable() );

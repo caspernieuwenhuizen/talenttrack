@@ -113,12 +113,22 @@ final class MessageType {
      * behind: a type added above appears here on the same commit. Sorted
      * as declared, so the operational ones stay last.
      *
+     * Public constants only. #3382 added a private one holding a *list* of
+     * types rather than a type, and `getConstants()` returns those too —
+     * which put an array into a `list<string>` and made every caller of
+     * this method fatal. Visibility is the right discriminator: a message
+     * type is part of this class's contract, anything private is bookkeeping.
+     *
      * @return list<string>
      */
     public static function all(): array {
-        /** @var array<string,string> $constants */
-        $constants = ( new \ReflectionClass( self::class ) )->getConstants();
-        return array_values( array_map( 'strval', $constants ) );
+        $out = [];
+        foreach ( ( new \ReflectionClass( self::class ) )->getReflectionConstants() as $constant ) {
+            if ( $constant->isPublic() ) {
+                $out[] = (string) $constant->getValue();
+            }
+        }
+        return $out;
     }
 
     /**
