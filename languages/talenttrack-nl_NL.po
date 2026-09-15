@@ -60195,6 +60195,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "That setting is not available to you."
+msgstr "Die instelling is niet voor jou beschikbaar."
+
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
