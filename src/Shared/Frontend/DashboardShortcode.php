@@ -1565,6 +1565,13 @@ class DashboardShortcode {
             case 'messages':
                 \TT\Modules\Comms\Frontend\FrontendMessageLogView::render( $user_id, $is_admin );
                 return true;
+            // #3423 — composing a safeguarding broadcast. Cap-gated inside
+            // the view on `tt_send_safeguarding_broadcast`, the same cap the
+            // REST route checks, so the screen and the API refuse the same
+            // people.
+            case 'safeguarding-broadcast':
+                \TT\Modules\Comms\Frontend\FrontendSafeguardingBroadcastView::render( $user_id, $is_admin );
+                return true;
             case 'translations':
                 // #1935 — frontend port of the wp-admin Configuration →
                 // Translations tab (auto-translation engine config + usage

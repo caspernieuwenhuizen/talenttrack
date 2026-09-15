@@ -60279,6 +60279,180 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Comms/Send/SafeguardingBroadcastSender.php:120
+msgid "Safeguarding"
+msgstr "Veiligheid en welzijn"
+
+#: src/Modules/Comms/Send/SafeguardingBroadcastSender.php:205
+msgid "The academy"
+msgstr "De academie"
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:77
+msgid "You do not have permission to send a safeguarding broadcast."
+msgstr "Je hebt geen rechten om een veiligheidsbericht te versturen."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:139
+msgid ""
+"A safeguarding broadcast reaches every family in the audience you choose. "
+"Nobody can switch it off, and it is delivered whatever the time of day. Use "
+"it for a concern the academy needs every family to read."
+msgstr ""
+"Een veiligheidsbericht bereikt elk gezin in de doelgroep die je kiest. "
+"Niemand kan het uitzetten, en het wordt bezorgd hoe laat het ook is. Gebruik "
+"het voor een zorg die elk gezin van de academie moet lezen."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:144
+msgid "You will see exactly how many people it reaches before anything is sent."
+msgstr ""
+"Je ziet precies hoeveel mensen het bereikt voordat er iets wordt verstuurd."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:161
+msgid "Who this reaches"
+msgstr "Wie dit bereikt"
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:166
+msgid "Every family in the academy"
+msgstr "Elk gezin in de academie"
+
+#. translators: %s: the team's name
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:176
+#, php-format
+msgid "The families of %s"
+msgstr "De gezinnen van %s"
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:184
+msgid ""
+"A concern about one squad is better sent to that squad. Send a second one if "
+"it turns out to be wider."
+msgstr ""
+"Een zorg over één ploeg stuur je beter naar die ploeg. Stuur een tweede "
+"bericht als het breder blijkt te liggen."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:200
+msgid "Review before sending"
+msgstr "Controleren voor verzenden"
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:224
+msgid "Check this before it goes"
+msgstr "Controleer dit voordat het weggaat"
+
+#. translators: %d: number of people the message will be sent to
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:228
+#, php-format
+msgid "This message will be sent to %d person."
+msgid_plural "This message will be sent to %d people."
+msgstr[0] "Dit bericht gaat naar %d persoon."
+msgstr[1] "Dit bericht gaat naar %d personen."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:236
+msgid ""
+"Recipients cannot refuse it. A safeguarding message ignores every messaging "
+"preference they have set."
+msgstr ""
+"Ontvangers kunnen het niet weigeren. Een veiligheidsbericht negeert elke "
+"berichtvoorkeur die zij hebben ingesteld."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:237
+msgid "It ignores quiet hours. If you send it at 23:00 it arrives at 23:00."
+msgstr ""
+"Het negeert de stiltetijden. Verstuur je het om 23:00, dan komt het om 23:00 "
+"aan."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:238
+msgid "It cannot be recalled. Every send is recorded in the message log."
+msgstr ""
+"Het is niet terug te halen. Elke verzending wordt vastgelegd in het "
+"berichtenlogboek."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:242
+msgid ""
+"Nobody in this audience can be reached, so there is nothing to send. Check "
+"the contact details on the player records first."
+msgstr ""
+"Niemand in deze doelgroep is bereikbaar, dus er is niets te versturen. "
+"Controleer eerst de contactgegevens in de spelersdossiers."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:268
+msgid ""
+"You can still change the wording. Changing who it reaches means going back "
+"and choosing again."
+msgstr ""
+"De tekst kun je nog aanpassen. Wie het bereikt wijzigen betekent teruggaan "
+"en opnieuw kiezen."
+
+#. translators: %d: number of people the message will be sent to
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:276
+#, php-format
+msgid "I understand this reaches %d person who cannot refuse it."
+msgid_plural "I understand this reaches %d people who cannot refuse it."
+msgstr[0] "Ik begrijp dat dit %d persoon bereikt die het niet kan weigeren."
+msgstr[1] "Ik begrijp dat dit %d personen bereikt die het niet kunnen weigeren."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:299
+msgid "Nothing was sent — the audience resolved to nobody."
+msgstr "Er is niets verstuurd — de doelgroep leverde niemand op."
+
+#. translators: %d: number of people the message reached
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:306
+#, php-format
+msgid "Sent to %d person."
+msgid_plural "Sent to %d people."
+msgstr[0] "Verstuurd naar %d persoon."
+msgstr[1] "Verstuurd naar %d personen."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:104
+msgid "A subject and a message are both required."
+msgstr "Een onderwerp en een bericht zijn allebei verplicht."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:108
+msgid "Choose who this reaches before continuing."
+msgstr "Kies wie dit bereikt voordat je verdergaat."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:122
+msgid "Confirm you understand what this message does before sending it."
+msgstr "Bevestig dat je begrijpt wat dit bericht doet voordat je het verstuurt."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:371
+msgid "Every family in the academy."
+msgstr "Elk gezin in de academie."
+
+#. translators: %s: the team's name
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:377
+#, php-format
+msgid "The families of %s."
+msgstr "De gezinnen van %s."
+
+#: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:383
+msgid "One team."
+msgstr "Eén team."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:250
+msgid "A team-scoped broadcast needs a team."
+msgstr "Een teamgericht bericht heeft een team nodig."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:276
+msgid ""
+"Confirm you understand this reaches every recipient in the audience and "
+"cannot be refused."
+msgstr ""
+"Bevestig dat je begrijpt dat dit elke ontvanger in de doelgroep bereikt en "
+"niet geweigerd kan worden."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:290
+msgid "Nobody in this audience could be reached."
+msgstr "Niemand in deze doelgroep was bereikbaar."
+
+#: src/Shared/CoreSurfaceRegistration.php:1527
+msgid ""
+"Send a safeguarding message every family receives and nobody can switch off."
+msgstr ""
+"Verstuur een veiligheidsbericht dat elk gezin ontvangt en niemand kan "
+"uitzetten."
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php:72
+msgid "Back to Safeguarding broadcast"
+msgstr "Terug naar Veiligheidsbericht"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "

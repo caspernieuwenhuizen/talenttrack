@@ -1,0 +1,98 @@
+/*
+ * frontend-safeguarding-broadcast.css (#3423) — composing the one message
+ * an academy's families cannot refuse.
+ *
+ * Mobile-first per CLAUDE.md §2: one column at 360px, fields full width,
+ * and the confirm panel reading as a block of consequences rather than a
+ * decorated warning. Nothing widens until 768px, where the form gains a
+ * reading measure instead of running the width of a desktop screen.
+ */
+
+.tt-safeguarding-intro {
+    margin: 0 0 var(--tt-sp-4, 1rem);
+    color: var(--tt-muted, #55584f);
+}
+
+.tt-safeguarding-intro p {
+    margin: 0 0 var(--tt-sp-2, 0.5rem);
+}
+
+.tt-safeguarding-form .tt-field {
+    margin: 0 0 var(--tt-sp-4, 1rem);
+}
+
+.tt-safeguarding-form .tt-input {
+    width: 100%;
+}
+
+.tt-safeguarding-form .tt-field-hint {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+}
+
+/* The confirm step. Coloured as a problem because that is what it is
+   about to become for everybody it reaches — the point of the panel is
+   that a sender reads it rather than clicks past it. */
+.tt-safeguarding-confirm {
+    margin: 0 0 var(--tt-sp-4, 1rem);
+    padding: var(--tt-sp-4, 1rem);
+    border: 1px solid var(--tt-warn-fg, #8a2c1c);
+    border-radius: var(--tt-radius, 0.375rem);
+    background: var(--tt-warn-bg, #fbe6e2);
+    color: var(--tt-warn-fg, #8a2c1c);
+}
+
+.tt-safeguarding-confirm-title {
+    margin: 0 0 var(--tt-sp-2, 0.5rem);
+    font-size: 1.125rem;
+}
+
+.tt-safeguarding-count {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.tt-safeguarding-audience {
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+}
+
+.tt-safeguarding-consequences {
+    margin: 0;
+    padding-inline-start: 1.25rem;
+}
+
+.tt-safeguarding-consequences li {
+    margin-bottom: 0.25rem;
+}
+
+/* The acknowledgement. A 48px target with the label inside it, so the
+   whole line is tappable rather than a 13px box next to some text. */
+.tt-safeguarding-ack .tt-check {
+    display: flex;
+    gap: var(--tt-sp-2, 0.5rem);
+    align-items: flex-start;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 0.5rem);
+    border: 1px solid var(--tt-border, #dcdfd9);
+    border-radius: var(--tt-radius, 0.375rem);
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.tt-safeguarding-ack input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+@media (min-width: 768px) {
+    .tt-safeguarding-form,
+    .tt-safeguarding-confirm,
+    .tt-safeguarding-intro {
+        max-width: 42rem;
+    }
+}

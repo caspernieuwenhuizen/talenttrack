@@ -260,6 +260,35 @@ weaker `tt_edit_settings`) are re-gated onto this same capability, so no
 purge path is weaker than the bin. See [Recycle bin](recycle-bin.md) for the
 retention window and GDPR basis.
 
+## Safeguarding broadcast — `tt_send_safeguarding_broadcast`
+
+A safeguarding broadcast reaches every family in its audience and **no
+recipient can refuse it**: it ignores messaging preferences and it ignores
+quiet hours. Maximum reach plus no opt-out is why it has a capability of its
+own, **`tt_send_safeguarding_broadcast`**, rather than riding on an existing
+one.
+
+Two existing capabilities were the obvious candidates and both are wrong.
+`tt_send_email` is held by every coach — writing to one parent and writing
+to every family unrefusably are not the same act. `tt_view_player_safeguarding`
+is a *read* capability governing a sensitive event on one player's record:
+the right subject, the wrong verb and the wrong scope.
+
+It is granted to **the WordPress administrator and the Academy Admin role
+(`tt_club_admin`) only**, and like `tt_manage_recycle_bin` it is deliberately
+kept out of `RolesService::VIEW_CAPS` / `EDIT_CAPS` so it does not propagate
+to the Head of Development or the Read-Only Observer. A **head coach cannot
+send one** by default, and neither can a Head of Development.
+
+An academy whose designated safeguarding lead is not an academy admin grants
+them the capability. That is the intended route: widening it is a deliberate,
+recorded act rather than something a role inherits.
+
+Pure capability-gated, **no matrix entity** (the Data Browser precedent). The
+matrix models scope, and this message has no scope dimension worth expressing
+there — its audience is chosen per send, in front of a confirm step that
+states the recipient count and that recipients cannot refuse it.
+
 ## Module management — `tt_manage_modules` / `module_management`
 
 Turning a whole TalentTrack module on or off is an operator-level act, so it

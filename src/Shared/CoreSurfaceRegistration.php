@@ -1519,6 +1519,23 @@ final class CoreSurfaceRegistration {
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_audit_log',
         ]);
+        // #3423 — the safeguarding broadcast. Names CommsModule for the same
+        // reason the message log does: with Comms off there is nothing to
+        // send through. Its cap is its own — `tt_send_safeguarding_broadcast`
+        // is held by the academy admin and by nobody else by default, because
+        // this reaches every family and none of them can refuse it.
+        TileRegistry::register([
+            'module_class' => self::M_COMMS,
+            'view_slug'    => 'safeguarding-broadcast',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 32,
+            'label'        => __( 'Safeguarding broadcast', 'talenttrack' ),
+            'description'  => __( 'Send a safeguarding message every family receives and nobody can switch off.', 'talenttrack' ),
+            'icon'         => 'audit-log',
+            'color'        => '#8a2c1c',
+            'cap'          => 'tt_send_safeguarding_broadcast',
+        ]);
         // #1859 — Data Browser. Read-only browser over the live tt_* schema,
         // matrix/academy-admin only. Pure cap-gated (no matrix entity) on the
         // dedicated tt_view_data_browser cap so only administrator + Club Admin

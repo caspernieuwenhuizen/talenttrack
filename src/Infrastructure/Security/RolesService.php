@@ -267,6 +267,37 @@ class RolesService {
         'tt_manage_recycle_bin',
     ];
 
+    /**
+     * #3423 (epic #3384) — sending a safeguarding broadcast.
+     *
+     * The one message that reaches every family in the academy and that no
+     * recipient can refuse. That combination is why it gets its own cap
+     * rather than riding on `tt_send_email`: every coach holds that one,
+     * and writing to one parent is not the same act as writing to all of
+     * them unrefusably. `tt_view_player_safeguarding` was the other
+     * candidate and is the wrong verb — it governs reading a sensitive
+     * event on one player's record.
+     *
+     * DELIBERATELY NOT in VIEW_CAPS / EDIT_CAPS, for the same reason as
+     * RECYCLE_BIN_CAPS / DATA_BROWSER_CAPS: those propagate to Head of
+     * Development and the Read-Only Observer through `allViewCapsTrue()`.
+     * `ensureCapabilities()` grants this to WP `administrator`, and the
+     * `tt_club_admin` role definition lists it. No other role definition
+     * mentions it, so a coach, a head of development or a scout holds it
+     * only if an academy grants it on purpose — which is exactly how a
+     * designated safeguarding lead who is not an academy admin is served.
+     *
+     * Pure cap-gated, no matrix entity (the Data Browser precedent). The
+     * matrix models scope, and this message has no scope dimension worth
+     * expressing: its audience is chosen per send, in front of a confirm
+     * step that names the count.
+     *
+     * @var list<string>
+     */
+    public const SAFEGUARDING_BROADCAST_CAPS = [
+        'tt_send_safeguarding_broadcast',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -349,6 +380,9 @@ class RolesService {
                         'tt_access_frontend_admin' => true,
                         'tt_view_data_browser'     => true, // #1859 — academy admin
                         'tt_manage_recycle_bin'    => true, // #2020 — academy admin only
+                        // #3423 — the only role that sends a message every
+                        // family gets and none of them can refuse.
+                        'tt_send_safeguarding_broadcast' => true,
                     ],
                     array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
@@ -519,6 +553,7 @@ class RolesService {
             self::VCT_CAPS,
             self::DATA_BROWSER_CAPS,
             self::RECYCLE_BIN_CAPS,
+            self::SAFEGUARDING_BROADCAST_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

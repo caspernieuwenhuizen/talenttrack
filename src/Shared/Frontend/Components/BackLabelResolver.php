@@ -69,6 +69,7 @@ final class BackLabelResolver {
             case 'configuration':   return __( 'Back to Configuration', 'talenttrack' );
             case 'audit-log':       return __( 'Back to Audit log', 'talenttrack' );
             case 'messages':        return __( 'Back to Message log', 'talenttrack' );
+            case 'safeguarding-broadcast': return __( 'Back to Safeguarding broadcast', 'talenttrack' );
             case 'my-messages':     return __( 'Back to My messages', 'talenttrack' );
             case 'mygoals':         return __( 'Back to My goals', 'talenttrack' );
             case 'myactivities':    return __( 'Back to My activities', 'talenttrack' );

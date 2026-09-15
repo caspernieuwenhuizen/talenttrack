@@ -3,7 +3,7 @@ title: Messaging
 group: configuration
 summary: How the academy's outgoing messages work — templates, channels, quiet hours, opt-outs and the send log.
 audience: [user, admin]
-views: [messages, my-messages]
+views: [messages, my-messages, safeguarding-broadcast]
 order: 55
 ---
 
@@ -64,6 +64,22 @@ An academy-wide switch exists per template. Use it when a kind of message does n
 Switching a template off suppresses the message and **not** the evidence: the send log still records that the message would have been sent and that the switch stopped it. That is on purpose. "We turned it off" and "it silently failed" must not look the same six months later.
 
 There is a second, coarser switch under Modules: **Scheduled messaging** turns off the daily cron that sends goal nudges, attendance flags, onboarding nudges and staff-development reminders. Event-driven messages — the ones that fire the moment something happens — are unaffected by it.
+
+## Sending a safeguarding broadcast
+
+**Configuration → Safeguarding broadcast.**
+
+This is the one message an academy sends that nobody can refuse. It ignores every messaging preference the recipients have set and it ignores quiet hours — at 23:00 it arrives at 23:00. *My settings* has always told families as much; until now nothing could actually send one.
+
+**Who can send it.** Only the academy admin, and the WordPress administrator. Not a coach, and not the head of development — a coach can already email one parent, and emailing every family unrefusably is not the same act. An academy whose safeguarding lead is somebody else grants them the permission deliberately. See [Access control](access-control.md) for the capability and how to grant it.
+
+**Who it reaches.** Either every family in the academy, or the families of one team. You have to choose; there is no default, because the default would be everyone. A concern about one squad is better sent to that squad — if it turns out to be wider, send a second one. That costs less than having reached every family the first time.
+
+Every parent receives one copy, even when they have two children at the academy, and families whose child has left are not on the list.
+
+**The confirm step.** Before anything is sent you are shown the exact number of people it reaches, what the audience is in words, and three things about the message: recipients cannot refuse it, quiet hours will not hold it, and it cannot be recalled. You confirm that count explicitly. You can still fix the wording at that point; changing *who it reaches* means going back and choosing again, because the number you agreed to was about the old audience.
+
+**Afterwards.** It appears in the send log like every other message, one row per recipient. There is no second send path and no separate record.
 
 ## The send log
 

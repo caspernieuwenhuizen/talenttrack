@@ -3,7 +3,7 @@ title: Berichten
 group: configuration
 summary: Hoe de berichten van de academie werken — sjablonen, kanalen, stiltetijden, afmeldingen en het verzendlogboek.
 audience: [user, admin]
-views: [messages, my-messages]
+views: [messages, my-messages, safeguarding-broadcast]
 order: 55
 ---
 
@@ -64,6 +64,22 @@ Er is per sjabloon een schakelaar voor de hele academie. Gebruik die als een soo
 Een sjabloon uitzetten onderdrukt het bericht en **niet** het bewijs: het verzendlogboek legt nog steeds vast dat het bericht verstuurd zou zijn en dat de schakelaar het heeft tegengehouden. Dat is met opzet. "We hebben het uitgezet" en "het is stilletjes misgegaan" mogen er over een half jaar niet hetzelfde uitzien.
 
 Er is nog een tweede, grovere schakelaar onder Modules: **Geplande berichten** zet de dagelijkse cron uit die doelaansporingen, aanwezigheidssignalen, onboarding-aansporingen en herinneringen voor stafontwikkeling verstuurt. Gebeurtenisgestuurde berichten — die afgaan op het moment dat er iets gebeurt — blijven daarbij ongemoeid.
+
+## Een veiligheidsbericht versturen
+
+**Instellingen → Veiligheidsbericht.**
+
+Dit is het ene bericht van een academie dat niemand kan weigeren. Het negeert elke berichtvoorkeur van de ontvangers en het negeert de stiltetijden — verstuur je het om 23:00, dan komt het om 23:00 aan. *Mijn instellingen* vertelt gezinnen dat al sinds het begin; tot nu toe kon er alleen niets verstuurd worden.
+
+**Wie het mag versturen.** Alleen de academiebeheerder en de WordPress-administrator. Geen coach, en ook niet het hoofd ontwikkeling — een coach kan al één ouder mailen, en alle gezinnen onweigerbaar aanschrijven is niet dezelfde handeling. Een academie waarvan de aandachtsfunctionaris veiligheid iemand anders is, geeft die persoon dat recht bewust. Zie [Toegangsbeheer](access-control.md) voor de capability en hoe je die verleent.
+
+**Wie het bereikt.** Óf elk gezin in de academie, óf de gezinnen van één team. Je moet kiezen; er is geen standaard, want de standaard zou "iedereen" zijn. Een zorg over één ploeg stuur je beter naar die ploeg — blijkt het breder te liggen, stuur dan een tweede bericht. Dat kost minder dan meteen elk gezin bereikt te hebben.
+
+Elke ouder krijgt één exemplaar, ook met twee kinderen op de academie, en gezinnen van wie het kind is vertrokken staan niet op de lijst.
+
+**De bevestigingsstap.** Voordat er iets wordt verstuurd zie je precies hoeveel mensen het bereikt, wat de doelgroep in woorden is, en drie dingen over het bericht: ontvangers kunnen het niet weigeren, de stiltetijden houden het niet tegen, en het is niet terug te halen. Dat aantal bevestig je expliciet. De tekst kun je op dat moment nog aanpassen; *wie het bereikt* wijzigen betekent teruggaan en opnieuw kiezen, want het aantal waarmee je akkoord ging hoorde bij de oude doelgroep.
+
+**Daarna.** Het verschijnt in het verzendlogboek als elk ander bericht, één regel per ontvanger. Er is geen tweede verzendpad en geen apart logboek.
 
 ## Het verzendlogboek
 
