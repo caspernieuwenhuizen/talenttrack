@@ -468,7 +468,6 @@ class FrontendAuditLogView extends FrontendViewBase {
             $hidden['tt_view'] = sanitize_key( (string) $_GET['tt_view'] );
         }
 
-        // Active-count + summary chips for the mobile collapsed state.
         \TT\Shared\Frontend\Components\FilterBar::render( [
             'hidden'       => $hidden,
             'reset_url'    => self::clearUrl(),
