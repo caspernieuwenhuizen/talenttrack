@@ -7,39 +7,54 @@ use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoRatingScale;
+use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\DemoData\SeedLoader;
 
 /**
  * EvaluationGenerator — writes tt_evaluations + tt_eval_ratings.
  *
- * Cadence: ~2 evaluations per player per week across the activity
- * window. Mix of Training (75%) and Match (25%). Match rows also carry
- * opponent, competition, home/away, result, minutes_played.
+ * Two cadences, because there are two things (#3401):
+ *
+ *   - **Round evaluations.** Four a season — start, two mid, end — dated a
+ *     few days ahead of the PDP conversation that reviews them, so
+ *     `EvidencePacket::forConversation()` has the round behind every talk.
+ *     This replaced a flat two-per-week stream, which gave a player 312
+ *     evaluations across a three-year window and buried the development
+ *     story it was meant to tell.
+ *   - **Match evaluations.** Written against the fixtures the run
+ *     generates, on their own per-match cadence. They used to be 25% of the
+ *     same stream and were about no match in particular.
  *
  * Ratings are archetype-driven. Each player's archetype is read from
- * tt_demo_tags.extra_json.archetype (set by PlayerGenerator) and
- * mapped to a trajectory function over normalized time t ∈ [0,1]:
+ * tt_demo_tags.extra_json.archetype (set by PlayerGenerator) and mapped to
+ * a trajectory over normalised window time t ∈ [0,1], expressed in the
+ * install's own rating units:
  *
- *   rising_star   — climbs 2.5 → 4.5 linearly
- *   in_a_slump    — 4.0 → 2.5 over first half, flat 2.5 after
- *   steady_solid  — flat 3.5
- *   late_bloomer  — flat 3.0 for first half, 3.0 → 4.5 after
- *   inconsistent  — 3.0 mean with ±1.5 swing per evaluation
- *   new_arrival   — only last 4–6 weeks, ~3.0 with tiny climb
+ *   rising_star   — climbs a step a season, from below average
+ *   in_a_slump    — falls the same distance over the first half, flat after
+ *   steady_solid  — flat, a little above the middle
+ *   late_bloomer  — flat for the first half, then climbs
+ *   inconsistent  — middling, swinging a step either way per evaluation
+ *   new_arrival   — starts middling with a small climb
+ *   departed      — slides, which is the story the release verdict tells
  *
- * Per-category bias adds ±0.3 so the radar shows a plausible shape
- * rather than a flat polygon. Per-eval noise adds ±0.3 on top.
+ * Every value is snapped to the configured scale (`DemoRatingScale`), so a
+ * season's climb reads as 6 → 7 rather than as 6.4 → 6.7 on a scale whose
+ * step is 1.
  */
 class EvaluationGenerator implements DependentGeneratorInterface {
 
-    private const TYPE_TRAINING_PROB = 75; // out of 100
+    /** Share of a team's played fixtures a player is written up for. */
+    private const MATCH_EVAL_PROB = 35; // out of 100
 
-    /** Per-category flavour adjustment applied to every eval of a player. */
+    /** Per-category flavour adjustment, in scale steps, applied to every eval. */
     private const CATEGORY_BIASES = [
-        'Technical' => 0.25,
-        'Tactical'  => -0.15,
+        'Technical' => 0.5,
+        'Tactical'  => -0.5,
         'Physical'  => 0.0,
-        'Mental'    => 0.1,
+        'Mental'    => 0.25,
     ];
 
     private DemoBatchRegistry $registry;
@@ -52,12 +67,23 @@ class EvaluationGenerator implements DependentGeneratorInterface {
 
     private int $weeks;
 
+    private DemoCalendar $calendar;
+
+    private DemoRoster $roster;
+
     public static function category(): string {
         return 'evaluations';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->weeks() );
+        return new self(
+            $ctx->registry,
+            $ctx->historicPlayers(),
+            $ctx->teams,
+            $ctx->weeks(),
+            $ctx->calendar(),
+            $ctx->roster()
+        );
     }
 
     /**
@@ -68,20 +94,19 @@ class EvaluationGenerator implements DependentGeneratorInterface {
         DemoBatchRegistry $registry,
         array $players,
         array $teams,
-        int $weeks
+        int $weeks,
+        ?DemoCalendar $calendar = null,
+        ?DemoRoster $roster = null
     ) {
         $this->registry = $registry;
         $this->players  = $players;
         $this->teams    = $teams;
         $this->weeks    = max( 1, $weeks );
+        $this->calendar = $calendar ?? new DemoCalendar( $this->weeks );
+        $this->roster   = $roster ?? new DemoRoster( $this->calendar, $teams, $players );
     }
 
-    /**
-     * @return array{evaluations:int, ratings:int}
-     */
     public function generate(): int {
-        global $wpdb;
-
         $categories = $this->loadMainCategories();
         if ( ! $categories ) {
             throw new \RuntimeException( 'No main evaluation categories found — run the plugin\'s migrations first.' );
@@ -99,122 +124,167 @@ class EvaluationGenerator implements DependentGeneratorInterface {
             $team_coach[ (int) $t->id ] = (int) $t->head_coach_user_id;
         }
 
+        $seasons = $this->calendar->seasons();
+        $scale   = DemoRatingScale::fromConfig();
+        $climb   = $scale->climbOver( count( $seasons ) );
+
+        $fixtures = [];
+        foreach ( $this->calendar->activitySlots() as $slot ) {
+            if ( $slot['is_game'] && ! $slot['is_future'] ) $fixtures[] = $slot['date'];
+        }
+
         $opponents = SeedLoader::opponents();
         $results   = SeedLoader::matchResults();
+        $now       = $this->calendar->now();
 
-        $total_evals   = 0;
-        $total_ratings = 0;
-
-        $start_date = strtotime( '-' . $this->weeks . ' weeks' );
-        if ( $start_date === false ) $start_date = time();
-
+        $total_evals = 0;
         foreach ( $this->players as $p ) {
+            $player_id = (int) ( $p->id ?? 0 );
+            if ( $player_id <= 0 ) continue;
             $archetype = (string) ( $p->archetype ?? 'steady_solid' );
-            $coach_id  = $team_coach[ (int) $p->team_id ] ?? 0;
-            if ( ! $coach_id ) continue;
 
-            $window_start = $archetype === 'new_arrival'
-                ? $start_date + (int) floor( ( $this->weeks * 0.6 ) * WEEK_IN_SECONDS )
-                : $start_date;
-            $window_len = max( 1, (int) floor( ( time() - $window_start ) / WEEK_IN_SECONDS ) );
+            foreach ( $seasons as $season ) {
+                $team_id = $this->roster->teamForPlayerInSeason( $player_id, (int) $season['index'] );
+                $coach_id = (int) ( $team_coach[ $team_id ] ?? 0 );
+                if ( $team_id <= 0 || $coach_id <= 0 ) continue;
 
-            $eval_count = $window_len * 2;   // ~2 per week
-            for ( $i = 0; $i < $eval_count; $i++ ) {
-                $t = $eval_count === 1 ? 1.0 : ( $i / ( $eval_count - 1 ) );
-                $offset = (int) ( ( $i / $eval_count ) * $window_len * WEEK_IN_SECONDS );
-                $eval_date = gmdate( 'Y-m-d', $window_start + $offset );
+                foreach ( $this->calendar->roundDates( $season ) as $round => $when ) {
+                    $ts = (int) strtotime( $when );
+                    if ( $ts <= 0 || $ts > $now ) continue; // a round that has not come round yet
 
-                $is_match = $match_id && mt_rand( 1, 100 ) > self::TYPE_TRAINING_PROB;
-                $type_id  = $is_match ? $match_id : $training_id;
-
-                $eval_row = [
-                    'club_id'      => CurrentClub::id(),
-                    'player_id'    => (int) $p->id,
-                    'coach_id'     => (int) $coach_id,
-                    'eval_type_id' => (int) $type_id,
-                    'eval_date'    => $eval_date,
-                    'notes'        => '',
-                ];
-                if ( $is_match ) {
-                    $eval_row['opponent']       = $opponents[ mt_rand( 0, max( 0, count( $opponents ) - 1 ) ) ] ?? '';
-                    $eval_row['competition']    = $this->pickCompetition();
-                    $eval_row['game_result']   = $results[ mt_rand( 0, max( 0, count( $results ) - 1 ) ) ] ?? '';
-                    $eval_row['home_away']      = mt_rand( 0, 1 ) ? 'H' : 'A';
-                    $eval_row['minutes_played'] = mt_rand( 45, 90 );
-                }
-
-                $wpdb->insert( "{$wpdb->prefix}tt_evaluations", $eval_row );
-                $eval_id = (int) $wpdb->insert_id;
-                if ( ! $eval_id ) continue;
-
-                $this->registry->tag( 'evaluation', $eval_id, [
-                    'player_id'  => (int) $p->id,
-                    'archetype'  => $archetype,
-                    'progress_t' => round( $t, 3 ),
-                ] );
-                $total_evals++;
-
-                // v3.91.7 — fire the runtime hook so JourneyEventSubscriber
-                // writes an `evaluation_completed` journey event for this
-                // evaluation. Without this hook, demo runs leave
-                // `tt_player_events` empty for this category.
-                do_action( 'tt_evaluation_saved', (int) $p->id, $eval_id );
-
-                // v3.110.116 — was hardcoded 1.0–5.0 clamp. Reads
-                // configured min/max so demo data lands inside the
-                // active rating scale (5–10 by default). Archetype
-                // base outputs stay 1–5 internally; we linearly
-                // remap to the configured range before clamping so
-                // the relative "rising star vs steady solid" shape
-                // is preserved across any scale.
-                $rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
-                $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
-                $remap = static function ( float $x ) use ( $rmin, $rmax ): float {
-                    // map 1..5 → rmin..rmax linearly
-                    return $rmin + ( $x - 1 ) * ( $rmax - $rmin ) / 4.0;
-                };
-                foreach ( $categories as $cat ) {
-                    $bias       = self::CATEGORY_BIASES[ $cat->name ] ?? 0.0;
-                    $main_base  = $this->archetypeRating( $archetype, $t ) + $bias;
-                    $main_value = max( $rmin, min( $rmax, round( $remap( $main_base + ( mt_rand( -30, 30 ) / 100 ) ), 1 ) ) );
-
-                    $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
-                        'club_id'       => CurrentClub::id(),
-                        'evaluation_id' => $eval_id,
-                        'category_id'   => (int) $cat->id,
-                        'rating'        => $main_value,
+                    $eval_id = $this->writeEvaluation( [
+                        'club_id'      => CurrentClub::id(),
+                        'player_id'    => $player_id,
+                        'coach_id'     => $coach_id,
+                        'eval_type_id' => (int) $training_id,
+                        'eval_date'    => $when,
+                        'notes'        => '',
+                    ], $player_id, $archetype, [
+                        'round'     => $round + 1,
+                        'season'    => (string) $season['name'],
+                        'team_id'   => $team_id,
                     ] );
-                    $rating_id = (int) $wpdb->insert_id;
-                    if ( $rating_id ) {
-                        $this->registry->tag( 'eval_rating', $rating_id );
-                        $total_ratings++;
-                    }
+                    if ( $eval_id <= 0 ) continue;
 
-                    // Subcategory ratings — give demo evaluations the same
-                    // shape a coach actually records when they drill into a
-                    // main. Values cluster around the main score with a
-                    // small ±0.4 noise, so radar/trend views stay coherent
-                    // with the main rating but the detail drill-in shows
-                    // plausible variation.
-                    foreach ( $this->subcategoriesFor( (int) $cat->id ) as $sub ) {
-                        $sub_value = max( $rmin, min( $rmax, round( $remap( $main_base + ( mt_rand( -40, 40 ) / 100 ) ), 1 ) ) );
-                        $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
-                            'club_id'       => CurrentClub::id(),
-                            'evaluation_id' => $eval_id,
-                            'category_id'   => (int) $sub->id,
-                            'rating'        => $sub_value,
-                        ] );
-                        $sub_rating_id = (int) $wpdb->insert_id;
-                        if ( $sub_rating_id ) {
-                            $this->registry->tag( 'eval_rating', $sub_rating_id );
-                            $total_ratings++;
-                        }
-                    }
+                    $total_evals++;
+                    $this->writeRatings(
+                        $eval_id,
+                        $categories,
+                        $archetype,
+                        $this->calendar->progressForDate( $when ),
+                        $scale,
+                        $climb
+                    );
                 }
+            }
+
+            if ( $match_id <= 0 ) continue;
+
+            foreach ( $fixtures as $when ) {
+                $team_id  = $this->roster->teamForPlayerOn( $player_id, $when );
+                $coach_id = (int) ( $team_coach[ $team_id ] ?? 0 );
+                if ( $team_id <= 0 || $coach_id <= 0 ) continue;
+                if ( mt_rand( 1, 100 ) > self::MATCH_EVAL_PROB ) continue;
+
+                $eval_id = $this->writeEvaluation( [
+                    'club_id'        => CurrentClub::id(),
+                    'player_id'      => $player_id,
+                    'coach_id'       => $coach_id,
+                    'eval_type_id'   => (int) $match_id,
+                    'eval_date'      => $when,
+                    'notes'          => '',
+                    'opponent'       => $opponents[ mt_rand( 0, max( 0, count( $opponents ) - 1 ) ) ] ?? '',
+                    'competition'    => $this->pickCompetition(),
+                    'game_result'    => $results[ mt_rand( 0, max( 0, count( $results ) - 1 ) ) ] ?? '',
+                    'home_away'      => mt_rand( 0, 1 ) ? 'H' : 'A',
+                    'minutes_played' => mt_rand( 45, 90 ),
+                ], $player_id, $archetype, [ 'match' => 1, 'team_id' => $team_id ] );
+                if ( $eval_id <= 0 ) continue;
+
+                $total_evals++;
+                $this->writeRatings(
+                    $eval_id,
+                    $categories,
+                    $archetype,
+                    $this->calendar->progressForDate( $when ),
+                    $scale,
+                    $climb
+                );
             }
         }
 
         return $total_evals;
+    }
+
+    /**
+     * @param array<string,mixed> $row
+     * @param array<string,mixed> $tag
+     */
+    private function writeEvaluation( array $row, int $player_id, string $archetype, array $tag ): int {
+        global $wpdb;
+
+        $wpdb->insert( "{$wpdb->prefix}tt_evaluations", $row );
+        $eval_id = (int) $wpdb->insert_id;
+        if ( ! $eval_id ) return 0;
+
+        $this->registry->tag( 'evaluation', $eval_id, array_merge(
+            [ 'player_id' => $player_id, 'archetype' => $archetype ],
+            $tag
+        ) );
+
+        // v3.91.7 — fire the runtime hook so JourneyEventSubscriber writes an
+        // `evaluation_completed` journey event for this evaluation. Without
+        // it, demo runs leave `tt_player_events` empty for this category.
+        do_action( 'tt_evaluation_saved', $player_id, $eval_id );
+
+        return $eval_id;
+    }
+
+    /**
+     * One rating per main category, plus one per subcategory so the detail
+     * drill-in shows plausible variation around the main score.
+     *
+     * @param object[] $categories
+     */
+    private function writeRatings(
+        int $eval_id,
+        array $categories,
+        string $archetype,
+        float $t,
+        DemoRatingScale $scale,
+        float $climb
+    ): void {
+        $step = $scale->step();
+        foreach ( $categories as $cat ) {
+            $bias   = ( self::CATEGORY_BIASES[ $cat->name ] ?? 0.0 ) * $step;
+            $centre = $this->archetypeRating( $archetype, $t, $scale, $climb ) + $bias;
+
+            $main = $scale->quantise( $centre + ( mt_rand( -40, 40 ) / 100 ) * $step );
+            $this->writeRating( $eval_id, (int) $cat->id, $main );
+
+            foreach ( $this->subcategoriesFor( (int) $cat->id ) as $sub ) {
+                $this->writeRating(
+                    $eval_id,
+                    (int) $sub->id,
+                    $scale->quantise( $centre + ( mt_rand( -60, 60 ) / 100 ) * $step )
+                );
+            }
+        }
+    }
+
+    private function writeRating( int $eval_id, int $category_id, float $rating ): void {
+        global $wpdb;
+
+        $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
+            'club_id'       => CurrentClub::id(),
+            'evaluation_id' => $eval_id,
+            'category_id'   => $category_id,
+            'rating'        => $rating,
+        ] );
+        $rating_id = (int) $wpdb->insert_id;
+        if ( $rating_id ) {
+            $this->registry->tag( 'eval_rating', $rating_id );
+        }
     }
 
     /**
@@ -280,21 +350,33 @@ class EvaluationGenerator implements DependentGeneratorInterface {
         return $this->competition_options[ mt_rand( 0, count( $this->competition_options ) - 1 ) ];
     }
 
-    private function archetypeRating( string $archetype, float $t ): float {
+    /**
+     * An archetype's rating at window-time `$t`, in the install's own units.
+     *
+     * Public so a test can assert the property that matters: across a
+     * season, an improving archetype moves at least one step of whatever
+     * scale the academy has configured (#3401).
+     */
+    public function archetypeRating( string $archetype, float $t, DemoRatingScale $scale, float $climb ): float {
+        $low = $scale->min() + ( $scale->span() - $climb ) * 0.35;
+        $mid = $scale->min() + $scale->span() * 0.5;
+
         switch ( $archetype ) {
             case 'rising_star':
-                return 2.5 + 2.0 * $t;
+                return $low + $climb * $t;
             case 'in_a_slump':
-                return $t < 0.5 ? 4.0 - 3.0 * $t : 2.5;
+                return $t < 0.5 ? $low + $climb * ( 1 - 2 * $t ) : $low;
             case 'late_bloomer':
-                return $t < 0.5 ? 3.0 : 3.0 + 3.0 * ( $t - 0.5 );
+                return $t < 0.5 ? $low : $low + $climb * 2 * ( $t - 0.5 );
             case 'inconsistent':
-                return 3.0 + ( mt_rand( -150, 150 ) / 100 );
+                return $mid + ( mt_rand( -100, 100 ) / 100 ) * $scale->step();
             case 'new_arrival':
-                return 3.0 + 0.5 * $t;
+                return $low + $climb * ( 0.25 + 0.4 * $t );
+            case DemoRoster::ARCHETYPE_DEPARTED:
+                return $mid - $climb * 0.5 * $t;
             case 'steady_solid':
             default:
-                return 3.5;
+                return $scale->min() + $scale->span() * 0.55;
         }
     }
 }
