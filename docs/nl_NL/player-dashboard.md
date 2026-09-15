@@ -48,7 +48,13 @@ Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/b
 Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
 
 ### Mijn activiteiten
-De trainingen, wedstrijden en andere activiteiten waar je bij was — alleen die van jou, nooit die van een andere speler. Zoek op titel of locatie, filter op datumbereik, sorteer op datum, titel of team, en blader door pagina's als er meer activiteiten zijn dan in één keer passen. De kolom **Jouw status** laat in één oogopslag zien hoe je per activiteit aanwezig was — aanwezig / afwezig / laat / geblesseerd / met afmelding. Tik op een rij om **Mijn activiteit-detail** te openen — datum, type, locatie, coach-notities bij de activiteit, jouw aanwezigheidsstatus en eventuele notities die de coach voor jou heeft achtergelaten.
+Twee helften: wat eraan komt, en waar je bij was.
+
+**Binnenkort** staat bovenaan — de eerstvolgende activiteiten van je team, de dichtstbijzijnde eerst. Tik erop om het detail te openen. Er staat geen aanwezigheid bij, want een training die nog moet komen is niet iets waar je bij bent geweest; en als je coach de selectie al heeft gemaakt, is dat aan hem of haar om te vertellen — niet iets wat dit scherm aankondigt.
+
+Daaronder je **geschiedenis**: de trainingen, wedstrijden en andere activiteiten waar je bij was — alleen die van jou, nooit die van een andere speler — de recentste eerst, tot en met vandaag. Zoek op titel of locatie, filter op datumbereik, sorteer op datum, titel of team, en blader door pagina’s als er meer activiteiten zijn dan in één keer passen. De kolom **Jouw status** laat zien hoe je per activiteit aanwezig was — aanwezig / afwezig / laat / geblesseerd / met afmelding — en blijft leeg zolang er niets is vastgelegd. Tik op een rij om **Mijn activiteit-detail** te openen — datum, type, locatie, coach-notities bij de activiteit, jouw aanwezigheidsstatus en eventuele notities die de coach voor jou heeft achtergelaten.
+
+Verbreed je zelf het datumbereik, dan zie je weer activiteiten voorbij vandaag; daar staat simpelweg geen aanwezigheid bij totdat die is vastgelegd.
 
 ### Mijn doelen
 De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status. Tik een doel aan om het te openen: lees de volledige omschrijving, zie prioriteit + streefdatum, en doe mee aan het gesprek (je kan reacties plaatsen die je coach + ouders kunnen zien).

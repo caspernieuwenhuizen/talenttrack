@@ -84,7 +84,12 @@ class FrontendMyProfileView extends FrontendViewBase {
                 </div>
             </div>
             <div class="tt-profile-hero-card">
-                <?php PlayerCardView::renderCard( (int) $player->id, 'sm', true ); ?>
+                <?php
+                // #3391 — 'none': the viewer's own card, on the viewer's own
+                // page. Its click-through went to the staff profile, which
+                // this reader holds no grant for.
+                PlayerCardView::renderCard( (int) $player->id, 'sm', true, null, true, 'none' );
+                ?>
             </div>
         </section>
         <?php

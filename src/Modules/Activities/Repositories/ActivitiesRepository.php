@@ -1724,9 +1724,22 @@ final class ActivitiesRepository {
 
         $your_status_pid = (int) ( $args['your_status_pid'] ?? 0 );
         if ( $your_status_pid > 0 ) {
+            // #3390 — `record_type = 'actual'` is load-bearing, not tidiness.
+            // Since #2248 the activity plan writes `expected` rows, and
+            // `plannedStatusMap()` stores the plan key `expected` as the
+            // status `Present`; match prep's lineup upsert inserts an
+            // expected row with no status at all, which the column defaults
+            // to `present`. Without this filter a player's own screen told
+            // them they had been present at a fixture two weeks away, the
+            // moment their coach planned a squad.
+            //
+            // This is the filter migration 0121's reporting sweep added to
+            // every read surface that counts actuals; this subquery was
+            // written after that sweep and never audited against it.
             $select_cols .= $wpdb->prepare(
                 ", (SELECT a.status FROM {$p}tt_attendance a
                        WHERE a.activity_id = s.id AND a.club_id = s.club_id
+                         AND a.record_type = 'actual'
                          AND ( a.player_id = %d OR a.guest_player_id = %d )
                        LIMIT 1) AS your_attendance_status",
                 $your_status_pid, $your_status_pid

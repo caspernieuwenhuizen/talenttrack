@@ -150,7 +150,26 @@ class FrontendMySettingsView extends FrontendViewBase {
             </form>
 
             <?php self::renderAppearanceCard( $user_id ); ?>
-            <?php self::renderMatchLayoutCard( $user_id ); ?>
+            <?php
+            // #3388 — #2934's card configures the live-match surface, which
+            // `FrontendMatchExecutionView::render()` gates on
+            // `tt_edit_activities`. A player or parent cannot open it, so
+            // the card was a switch that did nothing on a page that should
+            // hold two or three settings, not five.
+            //
+            // The usual safety net does not reach this one: `match-execution`
+            // registers no tile, so `entityForViewSlug()` returns null and
+            // `CrossViewLinkRegistry::fallbackAllows()` admits everyone.
+            // Nothing was ever going to hide it on its own — hence the
+            // explicit gate rather than a registration fix.
+            //
+            // Passing `gate` also routes through `surfaceSwitchedOff()`, so
+            // the card correctly disappears when Match execution is switched
+            // off (#2599).
+            if ( \TT\Shared\Frontend\Components\CrossViewLink::allows( 'match-execution', [ 'gate' => 'tt_edit_activities' ] ) ) {
+                self::renderMatchLayoutCard( $user_id );
+            }
+            ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
             <?php self::renderMessagePreferencesCard( $user_id ); ?>
@@ -173,7 +192,7 @@ class FrontendMySettingsView extends FrontendViewBase {
      */
     private static function renderMessagePreferencesCard( int $user_id ): void {
         $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
-        $labels = self::messageTypeLabels();
+        $labels = self::visibleMessageTypeLabels( $user_id );
         ?>
         <form method="post" class="tt-form tt-msettings-card">
             <?php wp_nonce_field( 'tt_my_settings_comms', 'tt_my_settings_comms_nonce' ); ?>
@@ -205,7 +224,7 @@ class FrontendMySettingsView extends FrontendViewBase {
                 </div>
             <?php endforeach; ?>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'Safeguarding messages, and messages about getting back into your account, are always sent. They cannot be switched off.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'These are always sent and cannot be switched off: safeguarding messages, messages about getting back into your account, and cancellations — missing one of those would mean turning up to a training that is not happening.', 'talenttrack' ); ?>
             </p>
 
             <?php
@@ -255,7 +274,8 @@ class FrontendMySettingsView extends FrontendViewBase {
      */
     private static function messageTypeLabels(): array {
         return [
-            \TT\Modules\Comms\Domain\MessageType::TRAINING_CANCELLED         => __( 'A training is cancelled', 'talenttrack' ),
+            // #3382 — "A training is cancelled" used to be here. It is now
+            // operational and appears in the always-sent block below.
             \TT\Modules\Comms\Domain\MessageType::SCHEDULE_CHANGE_FROM_SPOND => __( 'An activity changes time or place', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::SELECTION_LETTER           => __( 'Selection decisions', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::PDP_READY                  => __( 'A development plan is ready to read', 'talenttrack' ),
@@ -273,7 +293,47 @@ class FrontendMySettingsView extends FrontendViewBase {
             // you, a reply on a conversation) now route through Comms, so
             // they belong on this list like everything else that reaches you.
             \TT\Modules\Comms\Domain\MessageType::NOTIFICATION               => __( 'Notifications about your tasks and conversations', 'talenttrack' ),
+            // #3389 — these five are opt-outable and had no toggle
+            // anywhere. Three of them reach players. That is precisely the
+            // failure this card's docblock warned about, already present:
+            // mail you receive with no way to refuse it.
+            \TT\Modules\Comms\Domain\MessageType::ALERT_DIGEST              => __( 'A summary of your open alerts', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::DIRECT_MESSAGE            => __( 'Messages written to you by academy staff', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::SCHEDULED_REPORT          => __( 'Reports delivered on a schedule', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::TRIAL_INPUT_REMINDER      => __( 'Reminders that a trial still needs your input', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::SCOUT_REPORT_DELIVERY     => __( 'Scout reports sent to you', 'talenttrack' ),
         ];
+    }
+
+    /**
+     * The rows this particular user should see.
+     *
+     * #3389 — the full list above is the vocabulary; this is the view of
+     * it for one reader. A row renders when the user's audience overlaps
+     * the type's: a coach who is also a parent at the academy keeps every
+     * row either of them receives.
+     *
+     * Render and save both call this, with the same `$user_id`. That is
+     * load-bearing rather than tidy — {@see handlePost()} writes an
+     * opt-out for every type it iterates, so if it iterated the unfiltered
+     * list it would silently mute every hidden type the moment a user
+     * pressed Save on a card that never offered them.
+     *
+     * @return array<string,string> message_type => user-facing label
+     */
+    private static function visibleMessageTypeLabels( int $user_id ): array {
+        $mine = \TT\Modules\Comms\Domain\MessageAudience::forUser( $user_id );
+
+        return array_filter(
+            self::messageTypeLabels(),
+            static function ( string $type ) use ( $mine ): bool {
+                return array_intersect(
+                    \TT\Modules\Comms\Domain\MessageType::audiences( $type ),
+                    $mine
+                ) !== [];
+            },
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /** @return string[] labels for the types that cannot be refused. */
@@ -281,6 +341,11 @@ class FrontendMySettingsView extends FrontendViewBase {
         return [
             __( 'Safeguarding messages', 'talenttrack' ),
             __( 'Getting back into your account', 'talenttrack' ),
+            // #3382 — a cancellation you did not get means a child dropped
+            // at a pitch nobody came to. The product already wakes a family
+            // out of hours for it; letting the same family mute it entirely
+            // was the inconsistent half.
+            __( 'A training is cancelled', 'talenttrack' ),
         ];
     }
 
@@ -533,6 +598,15 @@ class FrontendMySettingsView extends FrontendViewBase {
                 $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
                 return $out;
             }
+            // #3388 — the same gate the card is rendered behind. A hidden
+            // card is a UI decision; this is what makes it a rule. Without
+            // it the preference is still writable by posting the form
+            // directly, which would leave user meta saying a player prefers
+            // a layout for a screen they cannot open.
+            if ( ! user_can( $user_id, 'tt_edit_activities' ) ) {
+                $out['errors'][] = __( 'That setting is not available to you.', 'talenttrack' );
+                return $out;
+            }
             MatchExecutionLayout::setUserOverride(
                 $user_id,
                 sanitize_key( wp_unslash( (string) ( $_POST['tt_match_layout'] ?? '' ) ) )
@@ -639,7 +713,13 @@ class FrontendMySettingsView extends FrontendViewBase {
                 ? array_map( 'sanitize_text_field', wp_unslash( $_POST['comms_opt_in'] ) )
                 : [];
             $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
-            foreach ( array_keys( self::messageTypeLabels() ) as $type ) {
+            // #3389 — the *visible* list, not the full one. A type this
+            // user's card never offered has no checkbox, so it would read
+            // as unticked here and be muted by a Save the user made about
+            // something else entirely. Filtering the write to what was
+            // rendered is what makes the audience filter a render concern
+            // rather than a silent data migration.
+            foreach ( array_keys( self::visibleMessageTypeLabels( $user_id ) ) as $type ) {
                 $policy->setOptedOut( $user_id, $type, ! in_array( $type, $opted_in, true ) );
             }
             $out['success'] = __( 'Message preferences saved.', 'talenttrack' );

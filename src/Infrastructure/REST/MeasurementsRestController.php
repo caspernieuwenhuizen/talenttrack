@@ -351,6 +351,10 @@ class MeasurementsRestController {
                 'unit'       => (string) ( $d->unit ?? '' ),
                 'frequency'  => (string) $d->frequency,
                 'direction'  => (string) $d->direction,
+                // #3392 — who may see the results. Exposed so a non-WordPress
+                // front end renders and sets the same audience the plugin does
+                // rather than inferring one.
+                'visibility' => (string) ( $d->visibility ?? \TT\Infrastructure\Visibility\RecordVisibility::LEVEL_PUBLIC ),
             ];
         }, $defs );
         return new \WP_REST_Response( [ 'definitions' => $out ], 200 );
@@ -471,6 +475,7 @@ class MeasurementsRestController {
             'unit'        => sanitize_text_field( (string) ( $r['unit'] ?? '' ) ),
             'frequency'   => sanitize_text_field( (string) ( $r['frequency'] ?? 'adhoc' ) ),
             'direction'   => sanitize_text_field( (string) ( $r['direction'] ?? 'higher' ) ),
+            'visibility'  => sanitize_text_field( (string) ( $r['visibility'] ?? '' ) ),
         ] );
         if ( $id <= 0 ) {
             return new \WP_Error( 'tt_insert_failed', __( 'Could not save the test.', 'talenttrack' ), [ 'status' => 500 ] );
@@ -481,7 +486,7 @@ class MeasurementsRestController {
     public static function update_definition( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
         $data = [];
-        foreach ( [ 'category_id', 'name', 'value_type', 'unit', 'frequency', 'direction', 'is_active' ] as $k ) {
+        foreach ( [ 'category_id', 'name', 'value_type', 'unit', 'frequency', 'direction', 'is_active', 'visibility' ] as $k ) {
             if ( $r->has_param( $k ) ) {
                 $data[ $k ] = is_string( $r[ $k ] ) ? sanitize_text_field( (string) $r[ $k ] ) : $r[ $k ];
             }
