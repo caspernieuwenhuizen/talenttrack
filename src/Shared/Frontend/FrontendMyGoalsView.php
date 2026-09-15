@@ -3,8 +3,11 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\Threads\ThreadMessagesRepository;
+use TT\Shared\Frontend\Components\EmptyStateCard;
 
 /**
  * FrontendMyGoalsView — the "My goals" tile destination.
@@ -46,12 +49,29 @@ class FrontendMyGoalsView extends FrontendViewBase {
         $goals = ( new GoalsRepository() )->listForPlayer( (int) $player->id );
 
         if ( empty( $goals ) ) {
-            echo '<p><em>' . esc_html__( 'No goals assigned yet. Your coaches will add development goals here as you progress.', 'talenttrack' ) . '</em></p>';
+            // #3396 — the guided empty state (#1362) every comparable player
+            // surface already uses, instead of a bare italic line.
+            EmptyStateCard::render( [
+                'icon'      => 'goals',
+                'headline'  => __( 'No goals set for you yet', 'talenttrack' ),
+                'explainer' => __( 'Your coach sets development goals during your talks. When they do, they appear here with the conversation about each one.', 'talenttrack' ),
+            ] );
             return;
         }
 
-        $base         = remove_query_arg( [ 'id' ] );
-        $threads_repo = class_exists( ThreadMessagesRepository::class ) ? new ThreadMessagesRepository() : null;
+        $base = remove_query_arg( [ 'id' ] );
+
+        // #3396 — one grouped count for the whole board. This used to call
+        // listForThread() per goal, hydrating every message body to count
+        // the array: N queries and N result sets for N numbers.
+        $msg_counts = [];
+        if ( class_exists( ThreadMessagesRepository::class ) ) {
+            $msg_counts = ( new ThreadMessagesRepository() )->countsForThreads(
+                'goal',
+                array_map( static fn( $g ): int => (int) $g->id, $goals ),
+                false
+            );
+        }
 
         // #1687 — 2026 restyle: group goals into the three mockup columns
         // (Active / Achieved / Missed) keyed on the same status buckets
@@ -80,15 +100,11 @@ class FrontendMyGoalsView extends FrontendViewBase {
                         <?php endif; ?>
                         <?php foreach ( $col['goals'] as $g ) :
                             $detail_url = add_query_arg( 'id', (int) $g->id, $base );
-                            $msg_count  = 0;
-                            if ( $threads_repo !== null ) {
-                                // Count public + player-readable messages so the
-                                // CTA reflects what the player can actually see.
-                                $msgs = $threads_repo->listForThread( 'goal', (int) $g->id, false );
-                                $msg_count = is_array( $msgs ) ? count( $msgs ) : 0;
-                            }
+                            // Public + player-readable messages only, so the CTA
+                            // reflects what the player can actually open.
+                            $msg_count     = (int) ( $msg_counts[ (int) $g->id ] ?? 0 );
                             $priority_chip = self::priorityChipClass( (string) ( $g->priority ?? '' ) );
-                            $status_chip   = self::statusChipClass( $bucket );
+                            $status_chip   = self::statusChipClass( (string) ( $g->status ?? '' ), $bucket );
                             ?>
                             <a class="tt-goal-card tt-goal-card--<?php echo esc_attr( $bucket ); ?> tt-record-link"
                                href="<?php echo esc_url( $detail_url ); ?>">
@@ -141,46 +157,70 @@ class FrontendMyGoalsView extends FrontendViewBase {
     }
 
     /**
-     * #1687 — map a raw goal status to one of the three board buckets.
-     * Mirrors GoalsRepository's completed / cancelled split; everything
-     * else (pending, in_progress, null) is "active".
+     * Map a stored goal status to one of the three board buckets.
+     *
+     * #3396 — compares against `GoalStatus`, the authority for what is
+     * actually in `tt_goals.status`. The previous version matched
+     * `achieved`, `signed_off`, `missed` and `canceled`, none of which the
+     * product stores, while the two values that DO fall through here —
+     * `pending_approval` and `on_hold` — were silently indistinguishable
+     * from live work.
+     *
+     * Both stay in **Active**, deliberately. A goal waiting on a coach's
+     * approval and a goal the coach has paused are still assigned to the
+     * player; filing either under "Missed" would be a verdict nobody has
+     * reached. What they get instead is their own chip — see
+     * `statusChipClass()` — so the column is honest without the board
+     * inventing a fourth one.
+     *
+     * An unrecognised value (an academy's own vocabulary) reads as active,
+     * which is the safe end: a goal that exists is one to work on until
+     * something says otherwise.
      */
     private static function bucketFor( string $status ): string {
         $s = strtolower( str_replace( ' ', '_', trim( $status ) ) );
-        if ( $s === 'completed' || $s === 'achieved' || $s === 'signed_off' ) {
-            return 'done';
-        }
-        if ( $s === 'cancelled' || $s === 'canceled' || $s === 'missed' ) {
-            return 'missed';
-        }
+        if ( $s === GoalStatus::COMPLETED ) return 'done';
+        if ( $s === GoalStatus::CANCELLED ) return 'missed';
         return 'active';
     }
 
     /**
-     * #1687 — status-chip modifier class for a board bucket.
+     * Status-chip modifier class.
+     *
+     * #3396 — keyed on the canonical status rather than the bucket alone,
+     * so the two statuses that share the Active column do not share its
+     * styling. The chip's text is `status_localised`, which already names
+     * them; this is what makes the difference visible at a glance.
      */
-    private static function statusChipClass( string $bucket ): string {
-        if ( $bucket === 'done' ) {
-            return 'tt-goal-chip--status tt-goal-chip--status-done';
-        }
-        if ( $bucket === 'missed' ) {
-            return 'tt-goal-chip--status tt-goal-chip--status-missed';
-        }
-        return 'tt-goal-chip--status';
+    private static function statusChipClass( string $status, string $bucket ): string {
+        $base = 'tt-goal-chip--status';
+        $s    = strtolower( str_replace( ' ', '_', trim( $status ) ) );
+
+        if ( $bucket === 'done' )   return $base . ' ' . $base . '-done';
+        if ( $bucket === 'missed' ) return $base . ' ' . $base . '-missed';
+        if ( $s === GoalStatus::PENDING_APPROVAL ) return $base . ' ' . $base . '-awaiting';
+        if ( $s === GoalStatus::ON_HOLD )          return $base . ' ' . $base . '-onhold';
+
+        return $base;
     }
 
     /**
-     * #1687 — priority-chip modifier class from a raw priority value.
+     * Priority-chip modifier class from a stored priority value.
+     *
+     * #3396 — `GoalPriority` members only. This used to also match `hoog`
+     * and `laag`, which are Dutch *labels* from `tt_lookups` and never
+     * reach the column: two dead branches, and the shape of them is the
+     * mistake #2909 fixed for attendance — comparing against something an
+     * operator can rename in the admin.
      */
     private static function priorityChipClass( string $priority ): string {
-        $p = strtolower( trim( $priority ) );
-        if ( $p === 'high' || $p === 'hoog' ) {
-            return 'tt-goal-chip--priority tt-goal-chip--priority-high';
-        }
-        if ( $p === 'low' || $p === 'laag' ) {
-            return 'tt-goal-chip--priority tt-goal-chip--priority-low';
-        }
-        return 'tt-goal-chip--priority';
+        $p    = strtolower( trim( $priority ) );
+        $base = 'tt-goal-chip--priority';
+
+        if ( $p === GoalPriority::HIGH ) return $base . ' ' . $base . '-high';
+        if ( $p === GoalPriority::LOW )  return $base . ' ' . $base . '-low';
+
+        return $base;
     }
 
     /**
@@ -214,7 +254,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
         <div class="tt-goal-detail-grid">
         <article class="tt-goal-card tt-goal-detail-card tt-goal-card--<?php echo esc_attr( $bucket ); ?>">
             <div class="tt-goal-card__meta">
-                <span class="tt-goal-chip <?php echo esc_attr( self::statusChipClass( $bucket ) ); ?>"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
+                <span class="tt-goal-chip <?php echo esc_attr( self::statusChipClass( $status, $bucket ) ); ?>"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
                 <?php if ( $priority !== '' ) : ?>
                     <span class="tt-goal-chip <?php echo esc_attr( self::priorityChipClass( $priority ) ); ?>"><?php echo esc_html( (string) $goal->priority_localised ); ?></span>
                 <?php endif; ?>

@@ -54,6 +54,19 @@
     background: #fbe7e4;
     color: #9a3329;
 }
+/* #3396 — the two statuses that share the Actief column. Both are live
+   goals, so neither takes the done/missed colours; they read as "not
+   started yet" rather than as a verdict. Amber for awaiting approval
+   (something is expected of the coach), slate for on hold (nothing is
+   expected of anyone right now). Both clear 4.5:1 on their ground. */
+.tt-dashboard .tt-goal-chip--status-awaiting {
+    background: #fdf2dc;
+    color: #8a5a00;
+}
+.tt-dashboard .tt-goal-chip--status-onhold {
+    background: #eceff1;
+    color: #4a5960;
+}
 
 /* Due-date pill — muted, sits beside the chips */
 .tt-dashboard .tt-goal-due {
