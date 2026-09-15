@@ -113,12 +113,22 @@ final class MessageType {
      * behind: a type added above appears here on the same commit. Sorted
      * as declared, so the operational ones stay last.
      *
+     * Public constants only. #3382 added a private one holding a *list* of
+     * types rather than a type, and `getConstants()` returns those too —
+     * which put an array into a `list<string>` and made every caller of
+     * this method fatal. Visibility is the right discriminator: a message
+     * type is part of this class's contract, anything private is bookkeeping.
+     *
      * @return list<string>
      */
     public static function all(): array {
-        /** @var array<string,string> $constants */
-        $constants = ( new \ReflectionClass( self::class ) )->getConstants();
-        return array_values( array_map( 'strval', $constants ) );
+        $out = [];
+        foreach ( ( new \ReflectionClass( self::class ) )->getReflectionConstants() as $constant ) {
+            if ( $constant->isPublic() ) {
+                $out[] = (string) $constant->getValue();
+            }
+        }
+        return $out;
     }
 
     /**
@@ -134,11 +144,106 @@ final class MessageType {
     }
 
     /**
+     * Types that are operational without carrying the suffix.
+     *
+     * #3382 — the `_OPERATIONAL` suffix is a naming convention, not the
+     * definition. `TRAINING_CANCELLED` is operational in every sense that
+     * matters and has been treated as such by {@see bypassesQuietHours()}
+     * since the module shipped: the product will wake a family at 23:00 to
+     * tell them a training is off. It simply could not carry the suffix,
+     * because the constant's *value* is persisted — in
+     * `tt_comms_log.message_type` and `tt_comms_optouts.message_type` — so
+     * renaming it would orphan every historical row and rewrite the audit
+     * trail to say something it did not say at the time.
+     *
+     * So the list exists, and the trade is stated rather than implied: a
+     * muted cancellation means a child dropped at a pitch nobody came to.
+     *
+     * @var list<string>
+     */
+    private const OPERATIONAL_BY_POLICY = [
+        self::TRAINING_CANCELLED,
+    ];
+
+    /**
      * True when the message type is operational (opt-out forbidden).
-     * Convention: any constant ending in `_OPERATIONAL`.
+     *
+     * Either the constant ends in `_OPERATIONAL` — the convention — or it
+     * appears in {@see self::OPERATIONAL_BY_POLICY}, for the one type whose
+     * stored value predates the convention.
      */
     public static function isOperational( string $messageType ): bool {
-        return substr( $messageType, -12 ) === '_OPERATIONAL';
+        return substr( $messageType, -12 ) === '_OPERATIONAL'
+            || in_array( $messageType, self::OPERATIONAL_BY_POLICY, true );
+    }
+
+    /**
+     * Who each type is addressed to.
+     *
+     * #3389 — the preferences card rendered every type to every persona,
+     * so a player was asked whether they wanted "reminders about your own
+     * development review": mail sent to coaches about theirs. The evidence
+     * for each row is the send path in `src/`, recorded on the issue.
+     *
+     * Only the opt-outable types are listed. An operational type reaches
+     * whoever it concerns and cannot be refused by any of them, so an
+     * audience for it would be a fact nothing reads — and listing one
+     * would invite a later change to filter the always-sent block, which
+     * would be wrong.
+     *
+     * Six of these have no sender yet. They take their intended audience
+     * now (issue decision 3): while nothing sends them, a wrong guess
+     * hides a toggle for mail nobody is receiving, and each send path
+     * confirms or corrects its own row when it lands.
+     *
+     * @var array<string, list<string>>
+     */
+    private const AUDIENCES = [
+        // Reaches the player and the family.
+        self::PDP_READY                 => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::GOAL_NUDGE                => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::SELECTION_LETTER          => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+        self::GUEST_PLAYER_INVITE       => [ MessageAudience::PLAYER, MessageAudience::PARENT ],
+
+        // The family only.
+        self::ONBOARDING_NUDGE_INACTIVE => [ MessageAudience::PARENT ],
+        self::PARENT_MEETING_INVITE     => [ MessageAudience::PARENT ],
+        // Sent on intake, before the player has an account of their own.
+        self::TRIAL_PLAYER_WELCOME      => [ MessageAudience::PARENT ],
+
+        // Staff only. These are the rows that read as actively misleading
+        // on a player's screen: each describes someone else's job.
+        self::STAFF_DEVELOPMENT_REMINDER => [ MessageAudience::STAFF ],
+        self::METHODOLOGY_DELIVERED      => [ MessageAudience::STAFF ],
+        self::ATTENDANCE_FLAG            => [ MessageAudience::STAFF ],
+        self::SCHEDULED_REPORT           => [ MessageAudience::STAFF ],
+        self::TRIAL_INPUT_REMINDER       => [ MessageAudience::STAFF ],
+        self::SCOUT_REPORT_DELIVERY      => [ MessageAudience::STAFF ],
+
+        // Anyone with an account can be the subject or the recipient.
+        self::NOTIFICATION               => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::SCHEDULE_CHANGE_FROM_SPOND => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::LETTER_DELIVERY            => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::MASS_ANNOUNCEMENT          => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::ALERT_DIGEST               => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+        self::DIRECT_MESSAGE             => [ MessageAudience::PLAYER, MessageAudience::PARENT, MessageAudience::STAFF ],
+    ];
+
+    /**
+     * The audiences a message type is addressed to.
+     *
+     * An unmapped type returns every audience, and `tools/check-message-audiences.php`
+     * fails the build when an opt-outable type has no entry. Those two
+     * together are the point: the only failure that matters here is a
+     * *missing* toggle for mail somebody is receiving, which leaves them
+     * unable to refuse it. A spare row is untidy; a lost row is a person
+     * who cannot stop mail about their child. So the runtime default is
+     * "show it" and the gate catches the omission before it ships.
+     *
+     * @return list<string>
+     */
+    public static function audiences( string $messageType ): array {
+        return self::AUDIENCES[ $messageType ] ?? MessageAudience::all();
     }
 
     /**
@@ -150,7 +255,9 @@ final class MessageType {
      * `urgent` flag is true at send time.
      */
     public static function bypassesQuietHours( string $messageType ): bool {
-        return self::isOperational( $messageType )
-            || $messageType === self::TRAINING_CANCELLED;
+        // #3382 — `TRAINING_CANCELLED` used to be named again here. It is
+        // now operational (see OPERATIONAL_BY_POLICY), so the first branch
+        // already covers it.
+        return self::isOperational( $messageType );
     }
 }

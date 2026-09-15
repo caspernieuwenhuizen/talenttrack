@@ -305,6 +305,25 @@ up — name, category, unit, direction and cadence — with its **Active** or
  exports. Useful for internal or experimental tests you don't want to show
  players and parents yet. Every existing test stays visible after the
  upgrade.
+- **Who may see the results** — a per-test audience, for the tests that do
+ show on the profile. *Everyone who can see the player* is the default and
+ means what it always meant. *Staff only* keeps the test recorded,
+ reported and trended while removing it from the player's own Metingen
+ screen and from their parents' view of it — the coach still sees the
+ value, the flag and the trend on the player's Measurements tab. *Medical
+ staff only* narrows it further, to the same people who can see medical
+ entries on the journey.
+
+ This is the setting for a figure a player should meet in a conversation
+ rather than read alone: a maturation or body-composition number, a
+ psychological screen, a physio's return-to-play benchmark. Before it
+ existed the only way to keep one off a child's screen was not to record
+ it, which lost it for the coaches too.
+
+ The two settings stack. *Show on the player profile* decides whether the
+ test appears on a profile at all; the audience decides whose. Every
+ existing test is *Everyone who can see the player* after the upgrade, so
+ nothing changes until you change it.
 - **Activate / Deactivate** — an inactive test stays in the catalogue and
  keeps its history, but is hidden from the *Record measurements* picker so
  staff can't log new results against it.
