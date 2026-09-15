@@ -73,6 +73,14 @@ class AuthorizationService {
         self::$cache_team_roles = [];
         self::$cache_scopes = [];
         self::$cache_decisions = [];
+
+        // #3257 — the functional-role grant layer caches a user's team /
+        // role assignments per request, and `tt_person_assigned_to_team`
+        // is exactly the event that invalidates them. Without this, a
+        // physio assigned mid-request keeps the pre-assignment answer.
+        if ( class_exists( '\\TT\\Modules\\Authorization\\FunctionalRoleGrants' ) ) {
+            \TT\Modules\Authorization\FunctionalRoleGrants::clearCache();
+        }
     }
 
     /**

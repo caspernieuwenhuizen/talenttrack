@@ -12,6 +12,8 @@ order: 60
 
 De authorisatie­matrix is de centrale bron voor "wat mag elke persona, op welke entiteit?". Acht persona's × ~30 entiteiten × drie acties (lezen / wijzigen / aanmaken-verwijderen) = enkele honderden cellen. De meegeleverde standaardwaarden komen overeen met wat elke rol vandaag al doet; beheerders kunnen per cel afwijken zonder code te schrijven.
 
+Eén ding dat het raster niet toont: twee functionele rollen dragen een eigen kleine set rechten, op het team waarop ze gehouden worden. Zie [De functionele-rol-as](#de-functionele-rol-as-3257) verderop — dat is de enige toegang in het product die de matrix niet alleen bepaalt.
+
 ## Wie mag hem bewerken, en wat niet
 
 Er zijn twee schermen voor hetzelfde raster, met dezelfde schrijver eronder:
@@ -448,13 +450,52 @@ Een eerste voorstel was globale leestoegang op **alle 138 entiteiten**, geredene
 | `players` | lezen, wijzigen | team |
 | `people` | lezen, wijzigen | team |
 | `player_notes` | lezen, wijzigen | team |
+| `measurements` | lezen, wijzigen | team |
 | `my_person` | lezen, wijzigen | self |
 
 `my_person` is de enige rij die niet uit een rechtenkoppeling volgt — het zelfbedieningsdeel van `people:change`, zodat een fysio zijn eigen dossier kan bijhouden voordat die aan een elftal is gekoppeld. Strikt smaller dan de `people`-grant hierboven.
 
+`measurements` kwam erbij met #3232. #3232 voegde ook `player_injuries [rc, team]` toe; #3257 heeft die er weer afgehaald en op de functionele rol Fysio gezet — zie de volgende paragraaf.
+
 **`players:create_delete` wordt bewust niet gegeven.** De rol houdt `tt_manage_players` als kaal WP-recht, maar dat recht is in deze codebase geen "selectie beheren": het dekt de seizoensovergang, het aanmaken van spelersaccounts, maatwerkvelddefinities en het verwijderen van spelers, en `BehaviourPendingSource` gebruikt het als markering voor "ziet elke speler in de academie" voor — in het eigen commentaar — HoD's en beheerders. Dat seeden zou een materiaalman het beheerdersoppervlak geven. Niet seeden verandert niets aan het huidige gedrag: op een matrix-actieve installatie heeft de rol nu niets, en op een matrix-inactieve wordt de seed niet geraadpleegd. Of het kale recht op de roldefinitie moet blijven staan is een aparte vraag, want dát weghalen zou matrix-inactieve installaties wél veranderen.
 
 Migratie `0249_authorization_seed_topup_observer_and_staff` vult beide persona's aan op bestaande installaties — idempotente `INSERT IGNORE`, alleen deze twee persona's, en weigert voor de waarnemer een andere activiteit dan `read` weg te schrijven, ook als de seed er later een zou krijgen. Voor geen enkele andere persona verandert het antwoord.
+
+## De functionele-rol-as (#3257)
+
+De matrix sleutelt op `(persona, entiteit, activiteit, scope_kind)`. Een fysio en een materiaalman houden dezelfde WordPress-rol `tt_staff`, komen dus uit op dezelfde persona — `staff` — en **geen enkele cel in dit raster kan die twee uit elkaar houden**. Dat is geen gat in de seed; dat is de vorm van de sleutel. De grant `player_injuries [rc, team]` uit #3232 bereikte daardoor elk Staf-account, ook accounts die om volstrekt niet-medische redenen waren uitgedeeld.
+
+Wat die twee mensen wél scheidt, is het werk dat ze op een elftal doen, en dat legt het product al vast: `tt_team_people.functional_role_id`. #3257 maakt daar een vierde as van.
+
+### Hoe het opgelost wordt
+
+`config/functional_role_grants.php` bevat twee secties, en `TT\Modules\Authorization\FunctionalRoleGrants` leest ze allebei binnen `MatrixGate`:
+
+| Sectie | Wat die doet |
+| --- | --- |
+| `grants` | sleutel van functionele rol → entiteit → activiteiten. Altijd op **team**scope, want een functionele rol wordt op een team gehouden; een andere scope bestaat hier niet. Wordt samengevoegd met wat de persona's van de gebruiker geven. |
+| `supersedes` | persona → de entiteiten waarvan de functionele-rollaag het antwoord bezit. Voor een gebruiker met minstens één functionele rol wordt de eigen matrixrij van die persona op die entiteiten **overgeslagen**. |
+
+Meegeleverde inhoud: `physio` geeft `player_injuries [rc]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` wordt overruled op `player_injuries`, en verder wordt er niets overruled.
+
+**Het oplossen gebeurt in `MatrixGate`, niet bij de aanroepers.** `can()`, `canAnyScope()`, `hasAuthority()`, `hasAuthorityAnyScope()` en `describeAccess()` lopen allemaal via dezelfde twee private resolvers, en die kregen allebei de samenvoeging en de overslag. `AuthorizationService::canRecordInjury()` — de aanroepplek waar elke blessureroute en -weergave doorheen gaat — komt daardoor op hetzelfde antwoord uit zonder van de as te weten, en `FunctionalRoleAccessTest` legt dat vast. Twee antwoorden op twee plekken is precies hoe `tt_view_players` en de bovenliggende persona in #3391 uit elkaar liepen.
+
+`describeAccess()` rapporteert een toekenning uit een functionele rol met `persona` op `fn:<role_key>` en een lege `source_row_id`, want er is geen matrixrij om naar te wijzen.
+
+### Waarom `head_coach` niet overruled wordt
+
+Hoofdtrainers houden `player_injuries [rc, team]` op eigen gronden — zij staan langs de lijn als de hamstring gaat (topup #0220) — en de meesten houden daarnaast de functionele rol `head_coach`. Ook hun persona overrulen zou op het moment van uitrollen elke hoofdtrainer op de installatie de blessures hebben afgenomen. Dat is een andere beslissing dan die #3257 neemt, dus `supersedes` noemt alleen `staff`.
+
+### Upgradegedrag, en waarom er geen migratie is
+
+Niets haalt de `player_injuries`-rijen van de persona `staff` uit een bestaande `tt_authorization_matrix`. Die achtergebleven rij **is** het upgradegedrag: een bestaand Staf-account zonder functionele rol houdt exact de toegang die het vandaag heeft, omdat de overslag alleen aanslaat bij een gebruiker die er wél een heeft. Stilletjes versmallen zou het blessurescherm midden in het seizoen hebben weggehaald bij fysio's die het gebruiken, zonder enig signaal.
+
+De smallere toestand is waar iemand in belandt zodra een academie een functionele rol toekent — een handeling, geen standaard. Op een **verse** installatie staat de rij helemaal niet meer in de seed, dus beide toestanden komen samen zodra een academie invult wie wat doet.
+
+Nog twee dingen falen bewust naar smal in plaats van naar breed:
+
+- Een toekenning wordt alleen gelezen uit een koppeling die vandaag loopt (`start_date` / `end_date` op `tt_team_people`). De overslag wordt gelezen uit de koppeling ongeacht die datums. Een afgelopen fysiokoppeling verliest dus de toekenning en valt **niet** terug op de oude persona-brede rij.
+- De samenvoeging wordt alleen geraadpleegd voor een gebruiker die op minstens één persona uitkomt. Een functionele rol op een account zonder TalentTrack-rol geeft niets.
 
 ## Zie ook
 

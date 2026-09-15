@@ -51,37 +51,53 @@ final class StaffPersonaGrantsTest extends WP_UnitTestCase {
 
     // --- the under-grant, now fixed --------------------------------------
 
-    public function test_staff_can_read_and_change_measurements_and_injuries(): void {
+    public function test_staff_can_read_and_change_measurements(): void {
         $rows = $this->seedRowsFor( 'staff' );
 
-        foreach ( [ 'measurements', 'player_injuries' ] as $entity ) {
-            $this->assertArrayHasKey( $entity, $rows, "staff needs a {$entity} row to do a physio's job" );
-            $this->assertContains( 'read', $rows[ $entity ] );
-            $this->assertContains( 'change', $rows[ $entity ] );
-        }
+        $this->assertArrayHasKey( 'measurements', $rows, 'staff records height, weight and sprint times' );
+        $this->assertContains( 'read', $rows['measurements'] );
+        $this->assertContains( 'change', $rows['measurements'] );
     }
 
     /**
-     * Team scope, never global. A physio sees the players they work with —
-     * this is half of what makes the wider injury grant acceptable while
-     * the physio / kit-manager split (#3257) does not exist.
+     * #3257 — the named successor to this test's injury half.
+     *
+     * `player_injuries` was seeded here by #3232 and is not any more: it
+     * moved onto the Physio functional role, because `tt_staff` is one
+     * persona covering physio and kit manager and the matrix cannot
+     * separate them. The grant's own assertions live in
+     * `FunctionalRoleAccessTest`; what belongs here is that the persona
+     * no longer carries it, so a future edit putting it back has to argue
+     * with this rather than sail past a deleted test.
      */
-    public function test_the_medical_grants_are_team_scoped(): void {
+    public function test_the_injury_grant_has_left_the_staff_persona(): void {
+        $rows = $this->seedRowsFor( 'staff' );
+
+        $this->assertArrayNotHasKey(
+            'player_injuries',
+            $rows,
+            'a Staff account issued to move shirts must not reach medical data about minors'
+        );
+    }
+
+    /**
+     * Team scope, never global. A staff member sees the players they work
+     * with.
+     */
+    public function test_the_measurement_grant_is_team_scoped(): void {
         $scopes = $this->seedScopesFor( 'staff' );
 
         $this->assertSame( 'team', $scopes['measurements'] ?? '' );
-        $this->assertSame( 'team', $scopes['player_injuries'] ?? '' );
     }
 
     /**
      * Deleting a minor's medical record is not a touchline decision, and
      * that stays with HoD / academy admin.
      */
-    public function test_staff_cannot_delete_measurements_or_injuries(): void {
+    public function test_staff_cannot_delete_measurements(): void {
         $rows = $this->seedRowsFor( 'staff' );
 
         $this->assertNotContains( 'create_delete', $rows['measurements'] ?? [] );
-        $this->assertNotContains( 'create_delete', $rows['player_injuries'] ?? [] );
     }
 
     // --- the over-grant, now removed -------------------------------------

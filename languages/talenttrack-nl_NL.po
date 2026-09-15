@@ -60267,6 +60267,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/Query/LabelTranslator.php:172
+msgid "Kit manager"
+msgstr "Materiaalman"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "
