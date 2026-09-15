@@ -321,9 +321,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // reach the Players list, so the "Players" crumb would be a dead end;
         // give them the personal "Dashboard › My card" (self) / "Dashboard ›
         // Name" (parent viewing a child) crumb instead.
-        $is_staff = current_user_can( 'tt_view_players' );
-        $is_self  = $user_id > 0 && (int) ( $player->wp_user_id ?? 0 ) === $user_id;
-        if ( $is_staff ) {
+        // #3391 — the discriminator is the **relationship**, not the
+        // capability. `tt_view_players` is true for a parent as well: the
+        // parent persona holds `players` at player scope and the matrix
+        // bridge turns that into the cap. So `$is_staff` alone sent a parent
+        // down the staff route — which is why the comment above says a parent
+        // cannot reach the Players list while the code happily linked them to
+        // it. Asking "is this my own record, or my child's?" decides it.
+        $is_staff  = current_user_can( 'tt_view_players' );
+        $is_self   = $user_id > 0 && (int) ( $player->wp_user_id ?? 0 ) === $user_id;
+        $is_family = $is_self
+            || in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true );
+
+        if ( $is_staff && ! $is_family ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
                 [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => RecordLink::dashboardUrl() ],
                 [ 'label' => __( 'Players', 'talenttrack' ),   'url' => $players_url ],
@@ -343,7 +353,30 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! array_key_exists( $active_tab, $tab_set ) ) {
             $active_tab = array_key_exists( $default_tab, $tab_set ) ? $default_tab : 'profile';
         }
-        $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() );
+        // #3391 — the tab strip and the At-a-glance rail built every link
+        // against the staff `players` slug, for every reader. The player
+        // persona holds no `players` entity in the authorization seed —
+        // deliberately, because a player reaches their own record through the
+        // Me-slugs — so all seven tabs on a player's own profile dead-ended on
+        // the not-authorized notice. A parent got through only because their
+        // persona happens to hold `players` at player scope, which made this
+        // look like a Media bug rather than every link on the screen.
+        //
+        // Route by who is reading rather than by which view rendered. Staff
+        // keep the Players slug. Everyone else goes to `?tt_view=overview`,
+        // which resolves its own subject: the viewer's own player record, or
+        // `?player_id=N` for a parent opening their child — both gated by
+        // `canViewPlayer` in the dispatcher, so this widens nothing.
+        // Same discriminator the breadcrumb above uses, so the chain and the
+        // tabs agree about who is reading.
+        $base_url = $is_family
+            ? add_query_arg(
+                $is_self
+                    ? [ 'tt_view' => 'overview' ]
+                    : [ 'tt_view' => 'overview', 'player_id' => $player_id ],
+                RecordLink::dashboardUrl()
+            ) /* tt-xview-ok — same view, reached by the Me-slug */
+            : add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() ); /* tt-xview-ok — same view; the base for this page's own tabs */
 
         $counts = PlayerFileCounts::for( $player_id );
         ?>
@@ -1210,7 +1243,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         </div>
                     <?php endif; ?>
                     <div class="tt-player-cardtab__fifa">
-                        <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true ); ?>
+                        <?php
+                        // #3391 — 'none': this card is the record the page is
+                        // already showing. Its click-through pointed at the
+                        // staff profile, which is this same page for staff and
+                        // a dead end for the player whose card it is.
+                        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true, null, true, 'none' );
+                        ?>
                     </div>
                 </div>
                 <?php self::renderCardKpis( $heads, $max ); ?>
