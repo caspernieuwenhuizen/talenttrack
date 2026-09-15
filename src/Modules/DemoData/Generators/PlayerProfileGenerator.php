@@ -19,8 +19,51 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  */
 class PlayerProfileGenerator implements DependentGeneratorInterface {
 
-    /** Age-group ladder, youngest first, used to invent prior spells. */
-    private const LADDER = [ 'JO8', 'JO9', 'JO10', 'JO11', 'JO12', 'JO13', 'JO14', 'JO15', 'JO16', 'JO17', 'JO19' ];
+    /**
+     * #3404 — the ladder is derived from the academy's own teams, not
+     * hardcoded.
+     *
+     * It used to be a `JO8 … JO19` constant. No install seeds that
+     * vocabulary: `Activator` seeds `U7 … U23, Senior`, the canonical list
+     * in `LookupCanonicalSeeds` is `U*`, and the Dutch *label* for `U10` is
+     * `O10` — so `array_search( $age_group, LADDER )` returned false for
+     * every team ever generated, `$prior` was always 0, and not one player
+     * on any install got a prior spell. The age-group history the player
+     * profile renders was empty by construction.
+     *
+     * Reading the teams answers it in whatever notation the academy uses,
+     * and only ever names rungs that exist — which is what the loop needs,
+     * since `teamForAgeGroup()` returning 0 skips the spell anyway. The
+     * lookup table is no help here: its `age_group` seed order is
+     * `U8, U10, U12, … , U7, U9, …`, which is not a ladder.
+     *
+     * @return list<string> age groups, youngest first.
+     */
+    private function ladder(): array {
+        $rungs = [];
+        foreach ( $this->teams as $t ) {
+            $age_group = isset( $t->age_group ) ? trim( (string) $t->age_group ) : '';
+            if ( $age_group === '' ) continue;
+            $rungs[ $age_group ] = self::rungAge( $age_group );
+        }
+        // Ascending by the number in the label; anything without one
+        // (`Senior`) sorts last, where it belongs on a ladder.
+        asort( $rungs, SORT_NUMERIC );
+
+        return array_keys( $rungs );
+    }
+
+    /**
+     * The age in an age-group label, whatever the notation — `U14`, `JO14`,
+     * `O14` and `14` all read as 14. `Senior` and anything else with no
+     * digits sorts to the top end.
+     */
+    private static function rungAge( string $age_group ): int {
+        if ( preg_match( '/(\d+)/', $age_group, $m ) === 1 ) {
+            return (int) $m[1];
+        }
+        return PHP_INT_MAX;
+    }
 
     /**
      * Club-authored custom fields a fresh install has none of. Kept small
@@ -101,6 +144,9 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
             $teams_by_id[ (int) $t->id ] = $t;
         }
 
+        // #3404 — resolved once for the whole run.
+        $ladder = $this->ladder();
+
         $total = 0;
         foreach ( $this->players as $p ) {
             $player_id = (int) ( $p->id ?? 0 );
@@ -113,7 +159,7 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
 
             $team      = $teams_by_id[ $team_id ] ?? null;
             $age_group = $team && isset( $team->age_group ) ? (string) $team->age_group : '';
-            $rung      = array_search( $age_group, self::LADDER, true );
+            $rung      = array_search( $age_group, $ladder, true );
 
             // One season per prior rung, up to three, capped by how far down
             // the ladder this age group actually sits.
@@ -122,7 +168,7 @@ class PlayerProfileGenerator implements DependentGeneratorInterface {
 
             $spell_end = $joined_current;
             for ( $i = 1; $i <= $prior; $i++ ) {
-                $prior_team = $this->teamForAgeGroup( self::LADDER[ (int) $rung - $i ] ?? '' );
+                $prior_team = $this->teamForAgeGroup( $ladder[ (int) $rung - $i ] ?? '' );
                 if ( $prior_team <= 0 ) continue;
 
                 $start = gmdate( 'Y-m-d', strtotime( $spell_end . ' -1 year' ) ?: time() );
