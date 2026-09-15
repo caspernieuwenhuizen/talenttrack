@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T05:49:25+00:00\n"
+"POT-Creation-Date: 2026-09-15T05:57:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3206,7 +3206,7 @@ msgstr "Een team is vereist."
 #: src/Infrastructure/REST/CohortBoardRestController.php:54
 #: src/Infrastructure/REST/MeasurementsRestController.php:201
 #: src/Infrastructure/REST/MeasurementsRestController.php:258
-#: src/Infrastructure/REST/MeasurementsRestController.php:392
+#: src/Infrastructure/REST/MeasurementsRestController.php:396
 #: src/Infrastructure/REST/MinutesRestController.php:71
 #: src/Infrastructure/REST/TeamsRestController.php:342
 #: src/Infrastructure/REST/TeamsRestController.php:367
@@ -3792,27 +3792,27 @@ msgid "You do not have access to this player."
 msgstr "Je hebt geen toegang tot deze speler."
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:242
-#: src/Infrastructure/REST/MeasurementsRestController.php:367
-#: src/Infrastructure/REST/MeasurementsRestController.php:429
+#: src/Infrastructure/REST/MeasurementsRestController.php:371
+#: src/Infrastructure/REST/MeasurementsRestController.php:433
 msgid "A test must be chosen."
 msgstr "Er moet een test gekozen worden."
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:441
+#: src/Infrastructure/REST/MeasurementsRestController.php:445
 msgid "Could not save the measurement."
 msgstr "De meting kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:465
+#: src/Infrastructure/REST/MeasurementsRestController.php:469
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:210
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:252
 msgid "A test needs a name."
 msgstr "Een test heeft een naam nodig."
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:476
+#: src/Infrastructure/REST/MeasurementsRestController.php:481
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:216
 msgid "Could not save the test."
 msgstr "De test kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:502
+#: src/Infrastructure/REST/MeasurementsRestController.php:507
 msgid "Could not schedule the test."
 msgstr "De test kon niet worden ingepland."
 
@@ -4999,6 +4999,24 @@ msgstr "Aankomende activiteiten"
 msgid "Media"
 msgstr "Media"
 
+#: src/Infrastructure/Visibility/RecordVisibility.php:66
+msgid ""
+"Everyone who can see the player — including the player and their parents"
+msgstr ""
+"Iedereen die de speler kan zien — inclusief de speler zelf en zijn ouders"
+
+#: src/Infrastructure/Visibility/RecordVisibility.php:67
+msgid ""
+"Staff only — recorded and reported, but not shown to the player or their "
+"parents"
+msgstr ""
+"Alleen staf — wel vastgelegd en gerapporteerd, maar niet zichtbaar voor de "
+"speler of zijn ouders"
+
+#: src/Infrastructure/Visibility/RecordVisibility.php:68
+msgid "Medical staff only"
+msgstr "Alleen medische staf"
+
 #: src/Modules/Activities/Admin/ActivitiesPage.php:56
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:377
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:469
@@ -5512,7 +5530,7 @@ msgstr "Bijwerken"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:236
 #: src/Modules/License/Admin/AccountPage.php:322
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1266
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:418
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:440
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:430
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
@@ -16272,7 +16290,7 @@ msgstr ""
 "datumbereik om oudere te zien."
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:103
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:496
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:518
 #: src/Shared/Frontend/FrontendTeamDetailView.php:729
 msgid "Level"
 msgstr "Niveau"
@@ -28427,25 +28445,25 @@ msgid "Everyone is up to date."
 msgstr "Iedereen is up-to-date."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:168
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:774
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:798
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:79
 msgid "Once a season"
 msgstr "Eén keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:169
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:775
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:799
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:80
 msgid "Twice a season"
 msgstr "Twee keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:170
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:776
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:800
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:81
 msgid "Four times a season"
 msgstr "Vier keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:171
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:777
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:801
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:82
 msgid "Monthly"
 msgstr "Maandelijks"
@@ -28548,7 +28566,7 @@ msgstr[0] "%1$d waarde is niet vastgelegd: %2$s"
 msgstr[1] "%1$d waarden zijn niet vastgelegd: %2$s"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:430
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:805
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:829
 msgid "Add test"
 msgstr "+ Nieuwe test"
 
@@ -28638,7 +28656,7 @@ msgid "Edit test"
 msgstr "Test bewerken"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:228
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:554
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:576
 msgid "That test could not be found."
 msgstr "Die test kon niet worden gevonden."
 
@@ -28734,11 +28752,27 @@ msgstr "Actief (beschikbaar bij het vastleggen van resultaten)"
 msgid "Show this test’s results on the player profile"
 msgstr "Toon de resultaten van deze test op het spelersprofiel"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:386
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:393
+msgid "Who may see the results"
+msgstr "Wie de resultaten mag zien"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:402
+msgid ""
+"A staff-only test is still recorded, reported and trended — it simply does "
+"not appear on the player’s own screen or their parents’. Use it for figures "
+"a coach should meet a player about rather than have them read alone."
+msgstr ""
+"Een test die alleen voor staf is, wordt gewoon vastgelegd, gerapporteerd en "
+"in trends meegenomen — hij verschijnt alleen niet op het eigen scherm van de "
+"speler of dat van zijn ouders. Gebruik dit voor cijfers waarover een trainer "
+"een gesprek met de speler hoort te voeren, in plaats van ze alleen te laten "
+"lezen."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:408
 msgid "Target bands per age group"
 msgstr "Streefbanden per leeftijdsgroep"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:388
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:410
 msgid ""
 "Optional. The green band is on target and the amber band is a warning; "
 "anything outside flags red. Leave blank to skip an age group."
@@ -28746,47 +28780,47 @@ msgstr ""
 "Optioneel. De groene band is op koers en de oranje band is een waarschuwing; "
 "alles daarbuiten krijgt rood. Laat leeg om een leeftijdsgroep over te slaan."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:403
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:425
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:54
 msgid "Green from"
 msgstr "Groen vanaf"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:404
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:426
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:55
 msgid "Green to"
 msgstr "Groen tot"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:405
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:56
 msgid "Amber from"
 msgstr "Oranje vanaf"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:406
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:428
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:57
 msgid "Amber to"
 msgstr "Oranje tot"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:428
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:450
 msgid "Export results"
 msgstr "Resultaten exporteren"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:430
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:452
 msgid ""
 "Download every recorded result for this test as a formatted Excel workbook."
 msgstr ""
 "Download alle vastgelegde resultaten van deze test als een opgemaakt Excel-"
 "bestand."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:462
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:484
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:216
 msgid "Export Excel"
 msgstr "Exporteren naar Excel"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:482
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:504
 msgid "Status levels"
 msgstr "Statusniveaus"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:484
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:506
 msgid ""
 "List the status levels from lowest to highest. Each level shows as a "
 "coloured chip on the player profile. Clear a level’s label to remove it."
@@ -28795,71 +28829,71 @@ msgstr ""
 "gekleurde chip op het spelersprofiel. Maak het label van een niveau leeg om "
 "het te verwijderen."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:499
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:521
 msgid "e.g. On track"
 msgstr "bijv. Op koers"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:502
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:524
 #: src/Shared/Frontend/FrontendHolidaysView.php:311
 msgid "Colour"
 msgstr "Kleur"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:563
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:585
 msgid "Test activated."
 msgstr "Test geactiveerd."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:564
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:586
 msgid "Test deactivated."
 msgstr "Test gedeactiveerd."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:572
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:594
 msgid "Test archived."
 msgstr "Test gearchiveerd."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:573
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:595
 msgid "That test could not be archived."
 msgstr "Die test kon niet worden gearchiveerd."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:579
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:601
 msgid "Test saved."
 msgstr "Test opgeslagen."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:755
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:779
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:42
 msgid "A number (with a unit)"
 msgstr "Een getal (met een eenheid)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:756
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:780
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:43
 msgid "A scale score"
 msgstr "Een schaalscore"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:757
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:781
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:44
 msgid "Pass / fail"
 msgstr "Geslaagd / niet geslaagd"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:758
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:782
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:45
 msgid "A status (coloured levels)"
 msgstr "Een status (gekleurde niveaus)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:765
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:789
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:67
 msgid "Higher is better"
 msgstr "Hoger is beter"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:766
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:790
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:68
 msgid "Lower is better"
 msgstr "Lager is beter"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:767
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:791
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:69
 msgid "Neither (just track it)"
 msgstr "Geen van beide (alleen bijhouden)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:778
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:802
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:83
 msgid "No fixed cadence"
 msgstr "Geen vaste frequentie"
@@ -60198,26 +60232,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Infrastructure/Visibility/RecordVisibility.php
-msgid "Everyone who can see the player — including the player and their parents"
-msgstr "Iedereen die de speler kan zien — inclusief de speler zelf en zijn ouders"
-
-#: src/Infrastructure/Visibility/RecordVisibility.php
-msgid "Staff only — recorded and reported, but not shown to the player or their parents"
-msgstr "Alleen staf — wel vastgelegd en gerapporteerd, maar niet zichtbaar voor de speler of zijn ouders"
-
-#: src/Infrastructure/Visibility/RecordVisibility.php
-msgid "Medical staff only"
-msgstr "Alleen medische staf"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
-msgid "Who may see the results"
-msgstr "Wie de resultaten mag zien"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
-msgid "A staff-only test is still recorded, reported and trended — it simply does not appear on the player’s own screen or their parents’. Use it for figures a coach should meet a player about rather than have them read alone."
-msgstr "Een test die alleen voor staf is, wordt gewoon vastgelegd, gerapporteerd en in trends meegenomen — hij verschijnt alleen niet op het eigen scherm van de speler of dat van zijn ouders. Gebruik dit voor cijfers waarover een trainer een gesprek met de speler hoort te voeren, in plaats van ze alleen te laten lezen."
 
 #~ msgid "Training activities and games you've attended."
 #~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
