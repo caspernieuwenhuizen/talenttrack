@@ -167,6 +167,28 @@ final class RecordLink {
     }
 
     /**
+     * #3393 — the Me-view itself (`?tt_view=my-goals`), no record id.
+     *
+     * The list counterpart of {@see meDetailUrl()}, lifted out of
+     * `FrontendMyDevelopmentView` for the same reason: the player file's
+     * "View all" needs it, and a second copy would be the third.
+     *
+     * @param string   $view      Me-view slug, e.g. `my-activities`.
+     * @param int|null $player_id Set only when the viewer is NOT the
+     *                            subject — a parent reading their child.
+     */
+    public static function meUrl( string $view, ?int $player_id = null ): string {
+        if ( $view === '' ) return '';
+        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
+        // tt-xview-ok — same reasoning as meDetailUrl() above.
+        $url  = add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) ); /* tt-xview-ok */
+        if ( $player_id !== null && $player_id > 0 ) {
+            $url = add_query_arg( 'player_id', $player_id, $url );
+        }
+        return BackLink::appendTo( $url );
+    }
+
+    /**
      * v3.70.1 hotfix — resolve the URL of the page hosting the
      * `[talenttrack_dashboard]` shortcode, so links built from REST /
      * admin contexts route through it instead of `home_url('/')`. Falls

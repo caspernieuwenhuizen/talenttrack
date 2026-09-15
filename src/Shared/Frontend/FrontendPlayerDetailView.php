@@ -194,21 +194,56 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * / `renderTrialsTab` which gate again on entry for defense in
      * depth (direct `?tab=evaluations` URL needs the same answer).
      *
+     * #3393 — "always-on" was written about an assistant coach and now also
+     * admits the player. Goals and Activities ask for the entity the viewer
+     * actually holds: the player persona carries `my_goals` / `my_activities`
+     * rather than `goals` / `activities`, which #1482 split deliberately. So
+     * a player keeps both tabs, a stranger gets neither, and the AC keeps
+     * what they had.
+     *
+     * The Evaluations gate had the same split the other way round and lost
+     * the argument: it asked only for `evaluations`, which a player does not
+     * hold, so the one tab a coach writes *for the player to read* was the
+     * one hidden from them.
+     *
      * @return array<string,string>  tab key => human label
      */
+    /**
+     * #3393 — does this viewer hold either the staff entity or its
+     * player-facing twin?
+     *
+     * #1482 split `goals` / `activities` / `evaluations` from `my_goals` /
+     * `my_activities` / `my_evaluations` so that reading a squad's records
+     * and reading your own are different rights. A gate naming only one
+     * half answers the wrong question on a profile that serves both: ask
+     * for `evaluations` and the player it is about is refused; skip the
+     * gate entirely, as Goals and Activities did, and everyone is admitted.
+     *
+     * The player persona holds the `my_` entity at `self` scope and a
+     * parent at `player` scope, so this widens nothing — the dispatcher
+     * has already decided whose record is on screen.
+     */
+    private static function mayRead( int $user_id, string $entity, string $own_entity ): bool {
+        return MatrixGate::canAnyScope( $user_id, $entity, MatrixGate::READ )
+            || MatrixGate::canAnyScope( $user_id, $own_entity, MatrixGate::READ );
+    }
+
     private static function tabs( int $user_id ): array {
-        $tabs = [
-            'profile' => __( 'Profile', 'talenttrack' ),
-            'goals'   => __( 'Goals', 'talenttrack' ),
-        ];
-        if ( MatrixGate::canAnyScope( $user_id, 'evaluations', MatrixGate::READ ) ) {
+        $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
+
+        if ( self::mayRead( $user_id, 'goals', 'my_goals' ) ) {
+            $tabs['goals'] = __( 'Goals', 'talenttrack' );
+        }
+        if ( self::mayRead( $user_id, 'evaluations', 'my_evaluations' ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
         // #1892 — measurements in context, beside evaluations (dev-data).
         if ( MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ ) ) {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
-        $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        if ( self::mayRead( $user_id, 'activities', 'my_activities' ) ) {
+            $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        }
         // #2725 — what this player has repeatedly been marked as after a
         // match, and in which phase of play. The individual notes are
         // already on the journey; this is the summary above them. Gated on
@@ -332,6 +367,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $is_self   = $user_id > 0 && (int) ( $player->wp_user_id ?? 0 ) === $user_id;
         $is_family = $is_self
             || in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true );
+
+        // #3393 — the same three facts the tabs' contents need. Computed
+        // once here, where the relationship is already established, and
+        // threaded into the tab renderers rather than each of them asking
+        // again and drifting apart.
+        $viewer = [
+            'is_family' => $is_family,
+            'is_self'   => $is_self,
+            'player_id' => $player_id,
+        ];
 
         if ( $is_staff && ! $is_family ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
@@ -478,10 +523,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <section class="tt-player-tab-panel">
                     <?php
                     switch ( $active_tab ) {
-                        case 'goals':       self::renderGoalsTab( $player_id ); break;
+                        case 'goals':       self::renderGoalsTab( $player_id, $viewer ); break;
                         case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
-                        case 'measurements': self::renderMeasurementsTab( $player_id ); break;
-                        case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
+                        case 'measurements': self::renderMeasurementsTab( $player_id, $viewer ); break;
+                        case 'activities':  self::renderActivitiesTab( $player_id, $player, $viewer ); break;
                         case 'training':
                             \TT\Modules\Training\Frontend\PlayerTrainingTab::render( $player_id, $user_id );
                             break;
@@ -1724,7 +1769,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * Goals tab — the player's active goals, with their finished ones in a
      * collapsed section underneath (#3033).
      */
-    private static function renderGoalsTab( int $player_id ): void {
+    private static function renderGoalsTab( int $player_id, array $viewer ): void {
         // #1358 — list shape lives in GoalsRepository (urgency order:
         // dated goals by nearest due date, undated last by recency).
         $goals_repo = new \TT\Infrastructure\Goals\GoalsRepository();
@@ -1765,9 +1810,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     echo esc_html( sprintf( __( 'Active goals · %d', 'talenttrack' ), $active_total ) );
                     ?>
                 </h3>
-                <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
-                    <?php if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) : // #1552 — gate behind the Explorer toggle. ?>
-                    <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $goals_explore_url ); ?>">
+                <div class="tt-player-card__head-actions">
+                    <?php
+                    // #1552 gated this on the Explorer module toggle alone.
+                    // #3393 — a module being switched on is not a permission:
+                    // `FrontendExploreView::render()` refuses anyone without
+                    // `tt_view_analytics`, so a player was shown a button to
+                    // a screen that would turn them away. Both conditions,
+                    // because they answer different questions.
+                    if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled()
+                        && current_user_can( 'tt_view_analytics' ) ) :
+                    ?>
+                    <a class="tt-player-card__cta tt-player-card__cta--secondary" href="<?php echo esc_url( $goals_explore_url ); ?>">
                         <?php esc_html_e( 'Explorer →', 'talenttrack' ); ?>
                     </a>
                     <?php endif; ?>
@@ -1778,7 +1832,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                             home_url( '/' )
                         );
                         ?>
-                        <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $intake_url ); ?>" target="_blank" rel="noopener">
+                        <a class="tt-player-card__cta tt-player-card__cta--secondary" href="<?php echo esc_url( $intake_url ); ?>" target="_blank" rel="noopener">
                             <?php esc_html_e( 'Print doelenintake', 'talenttrack' ); ?>
                         </a>
                         <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'Add goal', 'talenttrack' ); ?></a>
@@ -1789,7 +1843,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <p class="tt-player-card__empty"><?php esc_html_e( 'No active goals — every goal on this player is finished.', 'talenttrack' ); ?></p>
             <?php else : ?>
                 <ul class="tt-player-list">
-                    <?php foreach ( $rows as $g ) { self::renderGoalRow( $g ); } ?>
+                    <?php foreach ( $rows as $g ) { self::renderGoalRow( $g, $viewer ); } ?>
                 </ul>
             <?php endif; ?>
             <?php if ( ! empty( $closed_rows ) ) : ?>
@@ -1801,7 +1855,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         ?>
                     </summary>
                     <ul class="tt-player-list">
-                        <?php foreach ( $closed_rows as $g ) { self::renderGoalRow( $g ); } ?>
+                        <?php foreach ( $closed_rows as $g ) { self::renderGoalRow( $g, $viewer ); } ?>
                     </ul>
                 </details>
             <?php endif; ?>
@@ -1809,9 +1863,38 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         <?php
     }
 
-    /** One goal row on the player-file Goals tab — active and finished lists share it (#3033). */
-    private static function renderGoalRow( object $g ): void {
-        $url      = RecordLink::detailUrlForWithBack( 'goals', (int) $g->id );
+    /**
+     * #3393 — the record link for a row inside a tab, routed by who is
+     * reading.
+     *
+     * Staff open the staff surface. A player or a parent open the Me-view
+     * for the same record, which is the one they hold a grant for: their
+     * rows used to point at `?tt_view=goals&id=N`, a slug the player
+     * persona has no grant for, so every readable row on their own profile
+     * was a dead end that ended on the not-authorized notice.
+     *
+     * `RecordLink::meDetailUrl()` is the same builder
+     * `FrontendMyDevelopmentView` and My PDP use, so this is the third
+     * caller of one implementation rather than a third copy.
+     *
+     * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
+     */
+    private static function recordUrl( array $viewer, string $staff_view, string $me_view, int $id ): string {
+        if ( $id <= 0 ) return '';
+        if ( ! $viewer['is_family'] ) {
+            return RecordLink::detailUrlForWithBack( $staff_view, $id );
+        }
+        return RecordLink::meDetailUrl( $me_view, $id, $viewer['is_self'] ? null : $viewer['player_id'] );
+    }
+
+    /**
+     * One goal row on the player-file Goals tab — active and finished lists
+     * share it (#3033).
+     *
+     * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
+     */
+    private static function renderGoalRow( object $g, array $viewer ): void {
+        $url      = self::recordUrl( $viewer, 'goals', 'my-goals', (int) ( $g->id ?? 0 ) );
         $date_bit = self::dueDateBadge( (string) ( $g->due_date ?? '' ) );
         ?>
         <li>
@@ -1848,7 +1931,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // URL still routes here (sanitize_key + array_key_exists guards
         // the active tab against the post-filter set). If the user
         // shouldn't see the tab they shouldn't see the query either.
-        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'evaluations', MatrixGate::READ ) ) {
+        // #3393 — the same question tabs() now asks, so the tab and the
+        // direct URL keep agreeing. `my_evaluations` is what the player
+        // persona holds; asking only for `evaluations` refused the player
+        // the one tab a coach writes for them to read.
+        if ( ! self::mayRead( get_current_user_id(), 'evaluations', 'my_evaluations' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -1946,7 +2033,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * tabs() hides this for users without `measurements:read`, but a
      * direct `?tab=measurements` URL still routes here.
      */
-    private static function renderMeasurementsTab( int $player_id ): void {
+    private static function renderMeasurementsTab( int $player_id, array $viewer = [] ): void {
         if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
@@ -1956,7 +2043,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // for, and it renders through the same BmiBlock the report does, so a
         // coach reading a player's file and a coach reading the roster report
         // cannot be shown different percentiles for the same child.
-        self::renderBmiBlock( $player_id );
+        self::renderBmiBlock( $player_id, $viewer );
 
         \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::renderBody( $player_id );
     }
@@ -1974,8 +2061,24 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * on `Player · BMI-for-age`; see `BmiBlock::renderStanding()` for why the
      * split falls there.
      */
-    private static function renderBmiBlock( int $player_id ): void {
+    private static function renderBmiBlock( int $player_id, array $viewer = [] ): void {
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
+            return;
+        }
+
+        // #3393 — not to the player or their family, matching the decision
+        // the `player-bmi` report tile already carries:
+        //
+        //   'hide_for_personas' => [ 'player', 'parent' ] — this is a
+        //   screening figure about a child's body, and a player or parent
+        //   meeting it without context on a dashboard tile is not how it
+        //   should reach them.
+        //
+        // #2895 made that call for the report and this tab rendered the same
+        // `BmiBlock` straight past it, because the gate here asked for
+        // `measurements:read` — which a player holds at `self` scope. The
+        // figure reaches a family through a conversation, not a tab.
+        if ( ! empty( $viewer['is_family'] ) ) {
             return;
         }
 
@@ -2014,7 +2117,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /** Activities tab — recent attended + planned activities for the player. */
-    private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
+    private static function renderActivitiesTab( int $player_id, ?object $player = null, array $viewer = [] ): void {
         // v3.110.185 (#789) — both planned and completed activities;
         // planned rows render a neutral "Planned" pill instead of the
         // wizard's default-Present pre-fill so coach intent stays
@@ -2069,7 +2172,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
             return;
         }
-        $list_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() );
+        // #3393 — "View all" goes where the reader is allowed to go. A player
+        // holds no `activities` grant, so this pointed at the not-authorized
+        // notice; `?tt_view=my-activities` is the same list for them, and the
+        // one they own.
+        $list_url = ! empty( $viewer['is_family'] )
+            ? RecordLink::meUrl( 'my-activities', empty( $viewer['is_self'] ) ? (int) ( $viewer['player_id'] ?? 0 ) : null )
+            : add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() );
 
         // #3045 — goals + assists per match for the rows below. One query for
         // the whole tab, keyed by activity id, from the domain service that
@@ -2096,7 +2205,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 $today = gmdate( 'Y-m-d', current_time( 'timestamp' ) );
                 foreach ( $rows as $a ) :
                     $activity_id = (int) $a->id;
-                    $url        = RecordLink::detailUrlForWithBack( 'activities', $activity_id );
+                    $url        = self::recordUrl( $viewer, 'activities', 'my-activities', $activity_id );
                     $date_bit   = self::dateBadge( (string) ( $a->session_date ?? '' ) );
                     $is_today   = (string) ( $a->session_date ?? '' ) === $today;
                     $is_planned = in_array( (string) ( $a->plan_state ?? '' ), [ 'planned', 'scheduled' ], true );

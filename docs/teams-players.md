@@ -119,6 +119,17 @@ One-off on upgrade: teams that were archived *before* this shipped left their ac
 
 Player detail is a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link.
 
+### What the player and their parents see here
+
+The same page serves staff, the player themselves and their parents, and it shows each of them what they are allowed to have.
+
+A player and a parent get the tabs whose records are theirs to read — Profile, Goals, Evaluations, Activities and the rest they hold — and every row on them opens the player's own version of the record (**My goals**, **My activities**) rather than the staff screen, which they cannot open. Staff see the staff screens exactly as before.
+
+Two things appear only for staff:
+
+- **Explorer** — the analytics explorer needs the analytics permission, so the shortcut is not offered to anyone who would be turned away at it.
+- **BMI-for-age** — this is a screening figure about a child's body. It is on the coach's view of the Measurements tab and on the roster report, and on neither the player's nor the parents'. It reaches a family through a conversation with a coach, not off a tab. The **Player · BMI-for-age** report already worked this way; the tab now matches it.
+
 ## Player file UX (v3.92.6 — #0082)
 
 The player file got a hero-card redesign and per-tab empty-state CTAs.
