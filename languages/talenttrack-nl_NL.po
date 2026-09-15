@@ -60267,6 +60267,16 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: 1: size field label, 2: the number asked for, 3: the number used
+#: src/Modules/DemoData/DemoGenerator.php:518
+#, php-format
+msgid "%1$s: asked for %2$d, generating %3$d — the most a run can finish."
+msgstr "%1$s: gevraagd om %2$d, er wordt %3$d gegenereerd — het meeste dat een run kan afmaken."
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:182
+msgid "Some numbers were above the maximum, so the run used the maximum:"
+msgstr "Een paar getallen lagen boven het maximum, dus de run heeft het maximum gebruikt:"
+
 #, php-format
 #~ msgid ""
 #~ "Welcome to TalentTrack! This is %1$s's development home. You choose what "

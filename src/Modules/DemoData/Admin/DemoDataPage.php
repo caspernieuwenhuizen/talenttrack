@@ -116,15 +116,18 @@ class DemoDataPage {
         $raw_counts      = get_transient( self::TRANSIENT_COUNTS );
         $raw_user_stats  = get_transient( self::TRANSIENT_USER_STATS );
         $raw_missing     = get_transient( self::TRANSIENT_MISSING_COACH );
+        $raw_clamps      = get_transient( DemoGenerator::TRANSIENT_CLAMPS );
         $last_accounts   = is_array( $raw_accounts )   ? $raw_accounts   : [];
         $last_counts     = is_array( $raw_counts )     ? $raw_counts     : [];
         $last_user_stats = is_array( $raw_user_stats ) ? $raw_user_stats : [];
         $last_missing    = is_array( $raw_missing )    ? $raw_missing    : [];
+        $last_clamps     = is_array( $raw_clamps )     ? $raw_clamps     : [];
         if ( $notice === 'generated' ) {
             delete_transient( self::TRANSIENT_ACCOUNTS );
             delete_transient( self::TRANSIENT_COUNTS );
             delete_transient( self::TRANSIENT_USER_STATS );
             delete_transient( self::TRANSIENT_MISSING_COACH );
+            delete_transient( DemoGenerator::TRANSIENT_CLAMPS );
         }
 
         ?>
@@ -139,6 +142,7 @@ class DemoDataPage {
             </p>
 
             <?php self::renderNotices( $notice, $batch, $error, $last_counts, $last_user_stats, $last_missing ); ?>
+            <?php self::renderClampNotice( $last_clamps ); ?>
             <?php
             // #3041 — a run that never finished is named here rather than
             // leaving a half-written dataset with nothing on screen to say so.
@@ -163,8 +167,32 @@ class DemoDataPage {
     // Render partials
 
     /**
+     * #3403 — the size overrides this run reduced, and what it used instead.
+     *
+     * Rendered outside the "generation complete" notice because a chunked
+     * run lands back on this page before it finishes, and the number the run
+     * is using is worth knowing while it is still running.
+     *
+     * @param string[] $clamps
+     */
+    private static function renderClampNotice( array $clamps ): void {
+        if ( ! $clamps ) return;
+        ?>
+        <div class="notice notice-warning">
+            <p><strong><?php esc_html_e( 'Some numbers were above the maximum, so the run used the maximum:', 'talenttrack' ); ?></strong></p>
+            <ul>
+                <?php foreach ( $clamps as $line ) : ?>
+                    <li><?php echo esc_html( (string) $line ); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php
+    }
+
+    /**
      * @param array<string,int> $counts
      * @param array<string,int> $user_stats
+     * @param string[]          $missing_coach
      */
     private static function renderNotices( string $notice, string $batch, string $error, array $counts, array $user_stats, array $missing_coach = [] ): void {
         if ( $notice === 'generated' && $batch ) {
@@ -540,9 +568,9 @@ class DemoDataPage {
                             // an operator who touches nothing gets exactly today's
                             // dataset.
                             $size_fields = [
-                                'teams'            => [ __( 'Teams', 'talenttrack' ), 1, 40 ],
-                                'players_per_team' => [ __( 'Players per team', 'talenttrack' ), 1, 40 ],
-                                'weeks'            => [ __( 'Weeks of history', 'talenttrack' ), 1, 104 ],
+                                'teams'            => [ __( 'Teams', 'talenttrack' ), 1, DemoGenerator::SIZE_CEILINGS['teams'] ],
+                                'players_per_team' => [ __( 'Players per team', 'talenttrack' ), 1, DemoGenerator::SIZE_CEILINGS['players_per_team'] ],
+                                'weeks'            => [ __( 'Weeks of history', 'talenttrack' ), 1, DemoGenerator::SIZE_CEILINGS['weeks'] ],
                             ];
                             ?>
                             <details data-tt-demo-size>
@@ -1012,11 +1040,16 @@ class DemoDataPage {
         // dataset the preset produced before this existed. Bounds are
         // clamped rather than rejected: the numbers here only decide how
         // much is generated, and a typo should not lose the rest of a
-        // filled-in form. The upper bounds are what a run can finish.
+        // filled-in form.
+        //
+        // #3403 — the clamping itself is `DemoGenerator`'s, not this form's,
+        // so there is one ceiling and one place that reports having hit it.
+        // Clamping here as well would hand the generator a number already
+        // reduced, and the operator would never be told.
         $size = [];
-        foreach ( [ 'teams' => 40, 'players_per_team' => 40, 'weeks' => 104 ] as $key => $max ) {
+        foreach ( array_keys( DemoGenerator::SIZE_CEILINGS ) as $key ) {
             if ( ! isset( $_POST[ $key ] ) || $_POST[ $key ] === '' ) continue;
-            $size[ $key ] = max( 1, min( $max, (int) $_POST[ $key ] ) );
+            $size[ $key ] = max( 1, (int) $_POST[ $key ] );
         }
         $club_name        = isset( $_POST['club_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['club_name'] ) ) : '';
         $content_language = isset( $_POST['content_language'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['content_language'] ) ) : '';
