@@ -75,6 +75,11 @@ class PlayerCardView {
      *                          authorised to open. Player-facing callers
      *                          (e.g. the "My team" podium) pass 'teammate' so
      *                          the card doesn't dead-end on "not authorized".
+     *                          #3391 — 'none' renders the card with no link
+     *                          at all. Pass it wherever the card already IS
+     *                          the record on screen: the click-through would
+     *                          point at the current page, and for a player it
+     *                          pointed at a staff surface they cannot open.
      */
     public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null, bool $show_ratings = true, string $link_mode = 'staff' ): void {
         $player = QueryHelpers::get_player( $player_id );
@@ -140,6 +145,12 @@ class PlayerCardView {
         // #2156 — in 'teammate' link-mode (player-facing podiums) point at
         // the minimal teammate profile the viewer is authorised to open,
         // not the staff-only unified profile (which 403s for a player).
+        // #3391 — 'none' renders no link at all. The card on a player's own
+        // profile was linking to the staff profile, which a player holds no
+        // grant for: the same dead end the tab strip had. And the link was
+        // pointless for staff too — it pointed at the page they were already
+        // reading. A card that IS the record needs no click-through.
+        $detail_url = '';
         if ( $link_mode === 'teammate' ) {
             // #3395 — carry the back-target, so the teammate view can render
             // the contextual pill back to whichever podium sent the viewer.
@@ -149,11 +160,13 @@ class PlayerCardView {
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                 )
             );
-        } else {
+        } elseif ( $link_mode !== 'none' ) {
             $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );
         }
         ?>
+        <?php if ( $detail_url !== '' ) : ?>
         <a href="<?php echo esc_url( $detail_url ); ?>" class="tt-pc-link">
+        <?php endif; ?>
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" role="img"
              aria-label="<?php echo esc_attr( $show_ratings ? sprintf(
                  /* translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average. */
@@ -215,7 +228,9 @@ class PlayerCardView {
 
             <div class="tt-pc__frame"></div>
         </div>
+        <?php if ( $detail_url !== '' ) : ?>
         </a>
+        <?php endif; ?>
         <?php
     }
 

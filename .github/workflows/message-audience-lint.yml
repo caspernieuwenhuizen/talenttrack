@@ -1,0 +1,48 @@
+name: Message audience lint
+
+# Fails a PR that adds an opt-outable message type without saying who it
+# reaches, or without a toggle for refusing it (#3389).
+#
+# MessageType::audiences() deliberately fails open: an unmapped type shows
+# up for everyone, because the failure that matters is a *missing* toggle
+# for mail somebody is actually receiving, which leaves them unable to
+# refuse it. A spare row is untidy; a lost row is a person who cannot stop
+# mail about their child.
+#
+# But a default that silently absorbs every omission is also a default
+# that quietly undoes the feature one type at a time — and #3389 exists
+# precisely because fifteen rows were shown to every persona. So the
+# runtime fails open and the build fails closed.
+#
+# The label half of the check is the one that already caught something:
+# five opt-outable types had no toggle on any screen, three of which
+# reached players.
+
+on:
+  pull_request:
+    paths:
+      - 'src/Modules/Comms/Domain/MessageType.php'
+      - 'src/Modules/Comms/Domain/MessageAudience.php'
+      - 'src/Shared/Frontend/FrontendMySettingsView.php'
+      - 'tools/check-message-audiences.php'
+      - '.github/workflows/message-audience-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audiences:
+    name: Every opt-outable message type declares its audience
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Audiences and labels cover every opt-outable type
+        run: php tools/check-message-audiences.php

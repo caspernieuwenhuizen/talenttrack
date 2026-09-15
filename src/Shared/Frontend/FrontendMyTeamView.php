@@ -147,7 +147,14 @@ class FrontendMyTeamView extends FrontendViewBase {
             <?php endif; ?>
 
             <div class="tt-mt-card tt-mt-own-card-wrap">
-                <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
+                <?php
+                // #3391 — 'none': the player's own card in the own-card slot.
+                // It linked to the staff profile, which a player cannot open.
+                // Removing the broken link rather than inventing a new
+                // destination — My profile is already a tile away, and a new
+                // affordance here would spend the view's § 5 budget.
+                \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true, null, true, 'none' );
+                ?>
                 <?php if ( $show_rank ) : ?>
                     <?php if ( $rank_info !== null ) : ?>
                         <span class="tt-mt-rank-badge<?php echo $own_in_top ? ' tt-mt-rank-badge-podium' : ''; ?>">

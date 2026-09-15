@@ -1,3 +1,167 @@
+# TalentTrack v4.119.0 — Adding your staff now works on the frontend too (#3261)
+
+The setup flow's **Add your staff** step is available from the frontend
+(`?tt_view=setup`), not only in wp-admin. It was the last step still showing
+a not-yet-available notice, so an operator who set the academy up from the
+frontend reached their coaching staff and had to switch to the admin to
+enter them.
+
+It behaves exactly as the admin version does, because it runs the same code:
+each person gets a record, anyone with an email address gets an invitation
+prepared, and **nothing is sent until you say so**. Leave the step — or
+setup entirely — and the prepared invitations stay ready and waiting under
+**Configuration → Invitations**. The number waiting is written on the button
+rather than left for you to work out, because an academy wondering weeks
+later why nobody received a login is the outcome this step is shaped to
+avoid.
+
+The invitation itself is never shown on screen, on either surface. It is
+emailed and only emailed: anyone who can read an invitation link can use it
+to claim that person's account, and these accounts reach a database about
+children. If somebody does not receive theirs, resend it from
+**Configuration → Invitations**.
+
+With this, all ten setup steps work from the frontend.
+
+# TalentTrack v4.119.0 — A cancellation can no longer be switched off (#3382)
+
+TalentTrack already treated *"a training is cancelled"* as urgent in one
+direction: it ignores quiet hours, so it will reach a family at 23:00 rather
+than wait for morning. At the same time it sat on the opt-out list, so the
+same family could switch it off entirely.
+
+One of those two judgements had to be wrong, and it was not the first. A
+cancellation nobody received means a child dropped at a pitch where nothing
+is happening. It is now unmutable, alongside safeguarding messages and
+account-recovery email.
+
+Anyone who had already muted it will start receiving cancellations again,
+and their stored preference is cleared so the setting matches what the screen
+shows. **My settings** now lists all three unmutable kinds explicitly —
+ticked, greyed out, with the reason — rather than leaving them off the page:
+a preferences screen that quietly omits what you cannot refuse tells you less
+than one that names it.
+
+Nothing in the message log was rewritten. Sends that were suppressed by an
+opt-out that was valid at the time stay recorded as they happened.
+
+# TalentTrack v4.119.0 — The Live match screen setting is only shown to people who have one (#3388)
+
+**My settings** offered every persona a choice between the two live-match
+layouts, including players and parents — who cannot open that screen at all.
+The setting did nothing for them, and it was one of five cards on a page
+that should hold two or three.
+
+It now appears only for staff who can run a match, and disappears entirely
+when the Match execution module is switched off. Coaches see it exactly as
+before.
+
+**Layout** and **Theme** are unchanged and stay available to everyone: those
+are settings any persona can use, and the academy advertises them as such.
+
+# TalentTrack v4.119.0 — The message preferences list now matches the mail you actually get (#3389)
+
+**My settings** asked everyone the same question fifteen times. A
+thirteen-year-old player was offered a switch for *"reminders about your own
+development review"* — a message sent to coaches about theirs — along with
+invitations to parent meetings, welcome mail for trial players, and alerts
+about repeated absence that go to club administrators.
+
+Every message type now records who it is addressed to: the player, the
+family, or the academy's staff. The screen offers the rows that reach you and
+leaves out the rest. A player sees ten switches where they saw fifteen, and
+none of them describe somebody else's job.
+
+Nobody loses a switch in the process. Someone who is both a coach and a
+parent at the academy keeps every row either of them receives, and a message
+type that has not yet said who it is for is shown to everyone rather than
+hidden — a spare row is untidy, while a missing one means mail arriving that
+you cannot refuse.
+
+Five kinds of message that could be switched off had no switch anywhere:
+the summary of your open alerts, messages written to you by staff, scheduled
+reports, trial input reminders and scout reports. Three of those reach
+players. They are on the screen now, for the people who receive them.
+
+Saving your preferences only writes the rows in front of you, so a setting
+you made while holding a different role is still there if you hold it again.
+
+# TalentTrack v4.119.0 — My activities: what's coming up, and no attendance on a game that hasn't happened (#3390)
+
+Two problems met on one screen, and the second was the serious one.
+
+**A player was shown as present at matches that had not been played.** The
+moment a coach planned a squad, the player's own activities list put a green
+*Aanwezig* pill on a fixture two weeks away. The plan writes its rows using
+the same vocabulary as recorded attendance, and this one column never learned
+to tell the two apart — so coach intent read as fact, on the screen the player
+trusts most. The column now shows recorded attendance only, and stays blank
+until something is actually recorded.
+
+**The list also opened on the future.** It was sorted newest-first with no
+date bound, so on any academy with a season planned ahead the whole first page
+was next month — on a screen whose tile promised what you had attended.
+
+It is now two halves. **Coming up** sits at the top: your team's next
+activities, soonest first, with no attendance on them. Below it, your history,
+bounded to today. Widening the date range yourself still shows later
+activities; they simply carry no attendance until there is some.
+
+A planned squad stays the coach's to announce. Publishing it here — as a pill,
+or behind an academy setting — was considered and rejected: it would leak a
+selection decision the coach has not made public yet.
+
+# TalentTrack v4.119.0 — A player can open the tabs on their own profile again (#3391)
+
+A player opening their own profile and clicking any tab — Profile, Player
+card, Measurements, Media, PDP, Injuries, Strava — landed on *"Not
+authorized"*. So did all five links on the At-a-glance rail. Every route out
+of a player's own profile was a dead end.
+
+The profile itself was fine. Since the player, parent and coach views were
+unified onto one permission-aware screen, the tab strip had gone on building
+its links against the staff Players surface, which a player holds no access
+to and never should. A parent got through only because their role happens to
+carry that access for their own child, which is why this looked like a
+problem with one tab rather than with every link on the page.
+
+Links are now built for whoever is reading. Staff keep the Players route;
+a player goes to their own profile, and a parent to their child's. Nobody
+gained access to anything — the destinations were always permission-checked,
+and the player was simply being sent to the wrong one.
+
+The **player card** had the same dead end, on three screens: your own card on
+your profile, on My profile and on My team all clicked through to the staff
+surface. A card that already shows the record you are looking at now carries
+no click-through at all — which also removes a link that, for staff, only
+ever pointed back at the page they were on. Cards in a podium or a list,
+where clicking through actually goes somewhere, are unchanged.
+
+# TalentTrack v4.119.0 — A measurement test can be staff-only (#3392)
+
+Some figures should not be on a child's screen. A maturation or
+body-composition number, a psychological screen, a physio's return-to-play
+benchmark: the coaches need them, and the academy may have decided the
+player meets them in a conversation rather than on a dashboard tile.
+
+Until now there was no way to say that. *Show on the player profile* looked
+like the lever but is viewer-agnostic — switching it off hid the test from
+the coach too. So the only way to keep a figure off a player's screen was
+not to record it at all, which lost it for everybody.
+
+Each test now carries an audience alongside that checkbox: everyone who can
+see the player, staff only, or medical staff only. A staff-only test is
+still recorded, flagged, trended, reported and exported exactly as before;
+it simply does not appear on the player's own **Metingen** screen or in what
+their parents see, while the coach still sees the value and its trend on the
+player's Measurements tab.
+
+The vocabulary is the one the journey timeline already uses, so "who may see
+this" means one thing across the product rather than two.
+
+Every existing test keeps its current audience on upgrade — nothing
+disappears from a player's screen until an operator changes it.
+
 # TalentTrack v4.118.0 — PDP evidence: the Evidence tab shows what the record actually says (#3303)
 
 The Evidence tab on a PDP conversation listed evaluation **dates** — no

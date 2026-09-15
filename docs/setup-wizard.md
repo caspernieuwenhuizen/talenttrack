@@ -35,6 +35,18 @@ The wizard is reachable from four places — pick whichever you find first.
 8. **Dashboard page** — creates a WordPress page holding the `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so signing in lands straight on the dashboard. If a page with the shortcode already exists it is reused (and published if it was a draft), never duplicated. You can skip this step, and you can change the homepage later under Settings → Reading.
 9. **Done** — summary of what was set up, including how many message types are switched on, and "Recommended next steps" cards (add players, invite first coach, customize branding, set up backups). The **Go to dashboard** button opens the frontend dashboard page created in the previous step (or the wp-admin dashboard if you skipped it).
 
+## Adding your staff
+
+The **Add your staff** step creates a record for each coach or staff member and prepares an invitation for anyone you give an email address to. It does not send them. Nothing reaches anybody until you press **Send invitations and continue**, so you can add the whole coaching team, finish setting up and look around before a single email goes out.
+
+If you leave the step without sending — or leave setup entirely — the invitations you prepared stay ready and waiting under **Configuration → Invitations**. Nothing is lost and nothing is sent by accident. An academy wondering weeks later why nobody received a login is the one outcome this step is shaped to avoid, so the number waiting is written on the button rather than left for you to work out.
+
+Somebody added without an email address is still on the staff list and can be given an address later; they simply cannot be invited to sign in until then.
+
+**The invitation itself is never shown on screen.** It is emailed and only emailed. Anyone who can read an invitation link can use it to claim that person's account, and this screen is often open on a phone in a clubhouse or a laptop on a touchline, where whoever is standing behind you can read it too. Since these accounts reach a database about children, the link travels by email to the person it belongs to and nowhere else. If somebody does not receive theirs, resend it from **Configuration → Invitations** rather than looking for a link to copy.
+
+This step works the same way whether you run setup from the frontend (`?tt_view=setup`) or in wp-admin. Both screens create the person and hold the invitation through the same code, so you can start in one and finish in the other.
+
 ## The messaging step is the one not to skip
 
 A brand-new academy sends nothing at all. That is deliberate — these are messages to the parents of minors, and TalentTrack does not start mailing them on an academy's behalf before somebody decided it should.

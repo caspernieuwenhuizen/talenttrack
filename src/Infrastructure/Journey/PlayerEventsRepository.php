@@ -27,25 +27,18 @@ final class PlayerEventsRepository {
     /**
      * Compute the visibility levels a viewer is allowed to see.
      *
+     * #3392 — the ladder moved to
+     * {@see \TT\Infrastructure\Visibility\RecordVisibility} so measurements
+     * could reuse it instead of growing a second copy that drifts. This
+     * stays the name the journey code calls, and the behaviour is
+     * unchanged: public, plus coaching-staff for anyone who may edit
+     * evaluations or settings, plus medical when the cap and the #1538
+     * sub-feature both hold, plus safeguarding on its own cap.
+     *
      * @return list<string>
      */
     public static function visibilitiesForUser( int $user_id ): array {
-        $out = [ EventTypeDefinition::VISIBILITY_PUBLIC ];
-        if ( user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_edit_settings' ) ) {
-            $out[] = EventTypeDefinition::VISIBILITY_COACHING_STAFF;
-        }
-        // #1538 — the medical-events sub-feature gates timeline visibility
-        // on top of the permission. When off, medical events are hidden
-        // from the timeline even for staff who hold the cap; the cap
-        // itself is untouched. Both must hold to surface medical events.
-        if ( user_can( $user_id, 'tt_view_player_medical' )
-            && \TT\Core\FeatureRegistry::isEnabled( 'journey_medical_visibility' ) ) {
-            $out[] = EventTypeDefinition::VISIBILITY_MEDICAL;
-        }
-        if ( user_can( $user_id, 'tt_view_player_safeguarding' ) ) {
-            $out[] = EventTypeDefinition::VISIBILITY_SAFEGUARDING;
-        }
-        return $out;
+        return \TT\Infrastructure\Visibility\RecordVisibility::forJourney( $user_id );
     }
 
     /**
