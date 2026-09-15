@@ -381,6 +381,28 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 </label>
             </div>
 
+            <?php
+            // #3392 — the audience among those left. `show_on_profile` says
+            // whether the test appears on a profile at all; this says whose.
+            // The labels describe what each level means to a family rather
+            // than naming a tier, because that is the decision an operator
+            // is actually making.
+            $tt_vis_current = (string) ( $def->visibility ?? \TT\Infrastructure\Visibility\RecordVisibility::LEVEL_PUBLIC );
+            ?>
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-mt-visibility"><?php esc_html_e( 'Who may see the results', 'talenttrack' ); ?></label>
+                <select id="tt-mt-visibility" name="visibility" class="tt-input">
+                    <?php foreach ( \TT\Infrastructure\Visibility\RecordVisibility::measurementChoices() as $tt_vis_key => $tt_vis_label ) : ?>
+                        <option value="<?php echo esc_attr( $tt_vis_key ); ?>"<?php selected( $tt_vis_current, $tt_vis_key ); ?>>
+                            <?php echo esc_html( $tt_vis_label ); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'A staff-only test is still recorded, reported and trended — it simply does not appear on the player’s own screen or their parents’. Use it for figures a coach should meet a player about rather than have them read alone.', 'talenttrack' ); ?>
+                </p>
+            </div>
+
             <?php if ( $value_type !== 'passfail' && $value_type !== 'status' && ! empty( $age_groups ) ) : ?>
                 <fieldset class="tt-mt-targets">
                     <legend><?php esc_html_e( 'Target bands per age group', 'talenttrack' ); ?></legend>
@@ -639,6 +661,8 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             'frequency'   => $frequency,
             'is_active'   => isset( $_POST['is_active'] ) ? 1 : 0,
             'show_on_profile' => isset( $_POST['show_on_profile'] ) ? 1 : 0,
+            // Repository::safeVisibility() keeps this to its known members.
+            'visibility'      => isset( $_POST['visibility'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['visibility'] ) ) : '',
         ];
         if ( $name !== '' ) {
             $data['name'] = $name;

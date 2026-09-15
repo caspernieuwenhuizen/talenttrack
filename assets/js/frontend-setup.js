@@ -196,7 +196,28 @@
         });
     });
 
-    // ---- Skip a step (first-team / dashboard-page) ----------------------
+    // ---- Send the held invitations and continue (#3261) -----------------
+    // Its own binding rather than a second form: the step's form adds one
+    // person, and this commits everything added so far. Posting it through
+    // the form would make "Add this person" and "Send them all" the same
+    // submit, which is the confusion the two buttons exist to avoid.
+    bindButton('[data-tt-setup-send-invites]', function (btn) {
+        btn.disabled = true;
+        setMsg('', '');
+        post('staff', { send_invites: 1 }).then(function (r) {
+            if (r.ok && r.json && r.json.success) {
+                reloadSoon();
+            } else {
+                btn.disabled = false;
+                setMsg(firstError(r.json) || i18n.error || 'Error.', 'error');
+            }
+        }).catch(function () {
+            btn.disabled = false;
+            setMsg(i18n.network_error || 'Network error.', 'error');
+        });
+    });
+
+    // ---- Skip a step (first-team / dashboard-page / staff) --------------
     root.querySelectorAll('[data-tt-setup-skip]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var endpoint = btn.getAttribute('data-tt-setup-skip') || '';
