@@ -75,6 +75,7 @@ final class PlayerFileCounts {
         // shows planned activities, which have only an `expected` row.
         // DISTINCT on the activity is what stops a player holding both rows
         // counting twice.
+        // /* both-kinds-ok */ — the paragraph above is the decision.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT att.activity_id)
                FROM {$p}tt_attendance att

@@ -118,8 +118,15 @@ final class MinutesGridQuery {
         }
 
         // 3. Squad membership + effective minutes per (activity, player). Squad
-        //    = any non-guest attendance row; minutes = COALESCE(override,
-        //    played) so a coach's explicit correction is what the grid shows.
+        //    = any non-guest RECORDED attendance row; minutes = COALESCE(
+        //    override, played) so a coach's explicit correction is what the
+        //    grid shows.
+        //
+        //    #3451 — "any non-guest row" used to include the planned squad,
+        //    which widened the grid to players nobody had registered. They
+        //    carried no minutes, so the cells read 0 rather than wrong, but
+        //    a grid that offers a minutes box for a player who was not there
+        //    invites somebody to fill it in.
         $activity_ids = array_map( static fn( array $a ): int => $a['activity_id'], $activities );
         $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -130,6 +137,7 @@ final class MinutesGridQuery {
               WHERE activity_id IN ($in_ids)
                 AND club_id = %d
                 AND is_guest = 0
+                AND record_type = 'actual'
                 AND player_id > 0
               GROUP BY activity_id, player_id",
             array_merge( $activity_ids, [ $club_id ] )

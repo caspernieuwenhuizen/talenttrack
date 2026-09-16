@@ -829,6 +829,12 @@ final class RateActorsStep implements WizardStepInterface {
         // is the existing capture mechanism. DISTINCT guards against
         // a player appearing as both a roster row and a linked-guest
         // row for the same activity (rare but possible).
+        //
+        // #3451 — the RECORDED register only, matching what
+        // `RateConfirmStep::countRatable()` was fixed to in #3443. A planned
+        // squad stores Expected as `Present`, so the coach was handed a
+        // rating form for players nobody had registered — and the count on
+        // the previous step and the roster on this one now agree.
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT pl.id, pl.first_name, pl.last_name
                FROM {$p}tt_attendance att
@@ -836,6 +842,7 @@ final class RateActorsStep implements WizardStepInterface {
                    ON pl.id = COALESCE( att.guest_player_id, att.player_id )
                    AND pl.club_id = att.club_id
               WHERE att.activity_id = %d AND att.club_id = %d
+                AND att.record_type = 'actual'
                 AND LOWER(att.status) IN ( 'present', 'late' )
                 AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
                 AND pl.archived_at IS NULL

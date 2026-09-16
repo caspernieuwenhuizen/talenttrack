@@ -32,8 +32,9 @@ it's built for a desktop or laptop.
  **Total** columns on the right sum each player's minutes, goals and assists
  across the shown period.
 - **Hatched cells** mean the player wasn't in that match's squad, so there are
- no minutes to record. Add them to the match first (via attendance) if that's
- wrong.
+ no minutes to record. The squad here is the attendance you **recorded**, not
+ the one you planned — a player you selected for the match but never marked
+ present stays hatched. Mark their attendance first if that's wrong.
 - A **"live"** badge on a column means those minutes come from a match run
  through the match sheet. You can still correct a figure here — your entry is
  kept as a correction that survives a recount.

@@ -3,6 +3,7 @@ namespace TT\Modules\TeamDevelopment\Chemistry;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\TeamDevelopment\Repositories\PlayerAttributesRepository;
 
@@ -57,15 +58,26 @@ final class ChemistryProfileLoader {
         }
 
         // Shared completed-activity attendance (present, non-guest).
+        //
+        // #3451 — both halves of this were wrong. `record_type = 'actual'`
+        // was missing, and a planned squad stores Expected as `Present`
+        // (`plannedStatusMap()`), so two players named in the same
+        // selection counted as having played together. And it gated on
+        // `plan_state`, which #2521 moved reporting off: the column was
+        // added `DEFAULT 'completed'` and only the team planner ever sets
+        // it, so sessions nobody had completed were being read as
+        // chemistry. Two players who were never on a pitch together could
+        // come out of this as a partnership.
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id, a.id AS activity_id, a.activity_type_key
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id IN ($in)
                 AND att.is_guest = 0
+                AND att.record_type = 'actual'
                 AND att.status = 'present'
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
+                AND " . ActivityLifecycle::completedClause( 'a' ) . "
                 AND ( a.club_id = %d OR a.club_id IS NULL )",
             CurrentClub::id()
         ) );

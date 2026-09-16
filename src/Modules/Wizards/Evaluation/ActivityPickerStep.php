@@ -169,6 +169,13 @@ final class ActivityPickerStep implements WizardStepInterface {
         //      partial evaluations stay listed, annotated with how many
         //      present players still lack a rating; fully-evaluated
         //      ones drop out as before.
+        //
+        // #3451 — `unrated_present` counts the RECORDED register. A planned
+        // squad stores Expected as `Present`, so the annotation used to
+        // promise a coach twelve players to rate on an activity where
+        // nobody had taken a register. The `HAVING rated_count = 0 OR …`
+        // means an activity with no evaluations is still listed either way,
+        // which is what keeps the attendance step reachable (#3443).
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name AS team_name,
                     (SELECT COUNT(DISTINCT e.player_id) FROM {$p}tt_evaluations e
@@ -179,6 +186,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                            ON pl.id = COALESCE( att.guest_player_id, att.player_id )
                            AND pl.club_id = att.club_id
                       WHERE att.activity_id = a.id AND att.club_id = a.club_id
+                        AND att.record_type = 'actual'
                         AND LOWER(att.status) IN ( 'present', 'late' )
                         AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
                         AND NOT EXISTS (

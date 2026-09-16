@@ -809,6 +809,7 @@ class MatchExecutionRepository {
               WHERE activity_id = %d
                 AND club_id = %d
                 AND is_guest = 0
+                AND record_type = 'actual'
                 AND COALESCE(minutes_override, minutes_played) IS NOT NULL
                 AND COALESCE(minutes_override, minutes_played) > 0",
             $activity_id, CurrentClub::id()
@@ -833,12 +834,19 @@ class MatchExecutionRepository {
      */
     public function attendanceRowsByActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
+        // #3451 — the RECORDED row, because the id this returns is what the
+        // correction form PATCHes. Unscoped, a player with both kinds of row
+        // could hand back the planned one, and the coach's corrected minutes
+        // would land where no minutes reader looks — #3445 one surface over.
+        // A player with no recorded row gets no entry, which the caller
+        // already handles as `attendance_id => 0`.
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT id, player_id, minutes_played, minutes_override
                FROM {$this->wpdb->prefix}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
-                AND is_guest = 0",
+                AND is_guest = 0
+                AND record_type = 'actual'",
             $activity_id, CurrentClub::id()
         ) );
         $map = [];

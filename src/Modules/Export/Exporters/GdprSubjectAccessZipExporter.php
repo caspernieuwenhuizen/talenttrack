@@ -98,6 +98,11 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             $player_id
         ), ARRAY_A );
 
+        // Both kinds, deliberately: a subject-access request must return
+        // everything held about the person, and a squad they were selected
+        // for is data held about them just as much as a register they
+        // appear in. Scoping this would be a compliance defect, not a
+        // narrower query. /* both-kinds-ok */
         $attendance = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.*, a.session_date, a.title AS activity_title, a.location
                 FROM {$p}tt_attendance att

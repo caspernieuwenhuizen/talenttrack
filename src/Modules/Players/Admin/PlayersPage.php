@@ -698,6 +698,9 @@ class PlayersPage {
      */
     private static function stubPlayerFromGuest( int $attendance_id ): ?object {
         global $wpdb;
+        // One row by primary key — the id already names one row of one kind,
+        // and a guest who was planned for a session is as promotable as one
+        // who turned up to it. /* both-kinds-ok */
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_attendance WHERE id = %d AND is_guest = 1 AND club_id = %d LIMIT 1",
             $attendance_id, CurrentClub::id()

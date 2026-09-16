@@ -116,10 +116,25 @@ class AnalyticsModule implements ModuleInterface {
                 new Dimension( 'status',    __( 'Attendance status', 'talenttrack' ), Dimension::TYPE_ENUM ),
                 new Dimension( 'month',     __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%Y-%m')" ),
             ],
+            // #3451 — the MEASURES are scoped to the recorded register, the
+            // FACT is not. A planned squad stores Expected as `Present`, so
+            // an unscoped "Present" count answered a question about
+            // selections, not about who turned up — the same defect the
+            // migration 0121 reporting sweep closed everywhere else and this
+            // fact was written after.
+            //
+            // Scoping the measure rather than the fact is deliberate: the
+            // data browser exists to slice arbitrary rows, and a base filter
+            // would hide the plan from a tool whose whole purpose is showing
+            // what is there. The numbers are what had to be right.
             measures: [
-                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' THEN 1 END" ),
-                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' THEN 1 END" ),
-                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN LOWER(f.status)='present' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' AND f.record_type='actual' THEN 1 END" ),
+                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' AND f.record_type='actual' THEN 1 END" ),
+                // The percentage needs the planned rows out of the
+                // DENOMINATOR as well, so they resolve to NULL rather than
+                // to 0 — `AVG` skips NULLs, and a selection scoring 0%
+                // attendance would be the same error upside down.
+                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type <> 'actual' THEN NULL WHEN LOWER(f.status)='present' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',

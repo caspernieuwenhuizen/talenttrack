@@ -61,6 +61,23 @@ Conventions:
 
 Tracking table: `<prefix>tt_migrations` with columns `id`, `migration` (UNIQUE), `applied_at`.
 
+### `tt_attendance` holds two kinds of row
+
+Migration 0121 split the attendance table in two, and the only thing telling them apart is `record_type`:
+
+- **`expected`** — a squad somebody **planned**. Written by the activity wizard, the activity form's planned-attendance panel, and match prep's line-up projection.
+- **`actual`** — a register somebody **took**. Every report of what happened counts these and only these.
+
+Two properties make this the most-repeated bug in the codebase. The column is `NOT NULL DEFAULT 'actual'`, so a write that says nothing claims a register was taken; and the planned rows carry *real statuses* — the plan stores Expected as `Present`, Not coming as `Absent`, Maybe as `Excused`, and match prep's line-up upsert writes a planned row with no status at all, which the column defaults to `present`. So a query asking *"was this player present?"* without naming `record_type` gets **yes** from a squad nobody has registered.
+
+Ten instances landed in one week (#3390, #3443 ×3, #3444, #3445, #3451 ×3, #3456). Both halves of the table are now defended, differently, because reads and writes fail differently:
+
+**Writes go through `TT\Modules\Activities\Repositories\AttendanceWriter`, and nothing else writes the table.** Its property is that no method writes a row without naming the kind — `recordActual()` / `planExpected()` / `clearActual()` / `clearExpected()` / `clearActualExcept()` — and no delete can reach the other kind by omission. The two deliberate exceptions say so in their names: `clearForDeletedActivity()` (the activity itself is going) and the primary-key `updateRow()` / `deleteRow()` (the id already names one row of one kind). `updateRow()` strips `record_type` from the field map: relabelling an existing row is not an edit, it is the bug. The `tt_activity_attendance_changed` event fires from the writer, so a path cannot record attendance without the alerts hearing about it. The one write outside the writer is `Activator::backfillAttendanceStatus()`, which heals rows written before the split existed.
+
+**Reads are gated rather than refactored.** Thirty files read the table and most get the distinction right; `tools/check-attendance-scope.php` (workflow `attendance-scope-lint.yml`) fails a PR where a function touching `tt_attendance` neither names `record_type` nor carries a `/* both-kinds-ok */` comment. The unit is the enclosing function, not the statement, so a query assembled in pieces is not reported. The marker is the point rather than an escape hatch — a subject-access export, a backup preset and an archive cascade all legitimately span both kinds, and narrowing the first of those would be a compliance defect. **A marker on a query that is actually wrong is worse than no gate**, so it asks for a sentence saying why, not a flag. The parser is `tools/lib/attendance-scope.php`, tested against snippets in `tests/php/AttendanceScopeGateTest.php`.
+
+Neither half is retrospective: rows already lost to an unscoped delete cannot be recovered, and a backfill would fabricate a plan that never existed.
+
 ## Soft-delete tiers — archive → recycle bin → purge (#2018)
 
 Deletion is three-tiered, not a single hard delete. Every bin-archivable entity (the 20 in `ArchiveRepository::TABLE_MAP`) carries two column pairs: `archived_at` / `archived_by` (the archive tier, migration 0010) and `trashed_at` / `trashed_by` (the recycle-bin tier, migration 0186). The states are:

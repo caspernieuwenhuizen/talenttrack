@@ -203,11 +203,17 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                 ] );
 
             case 'Session_Attendance':
+                // #3451 — the RECORDED register only. The sheet has no
+                // column for the kind of row, and `ExcelImporter` writes
+                // every row back as `actual`, so exporting the planned half
+                // would relabel a squad as a register on the next import.
+                // Lossy is right here; wrong is not.
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT att.activity_id, att.player_id, att.status, att.notes
                         FROM {$p}tt_attendance att
                         JOIN {$p}tt_players pl ON pl.id = att.player_id
                         WHERE pl.club_id = %d
+                          AND att.record_type = 'actual'
                         ORDER BY att.id ASC",
                     $club_id
                 ), ARRAY_A );

@@ -60,6 +60,7 @@ class BackupDependencyMap {
             'tt_activities' => [
                 [ 'column' => 'team_id', 'parent_table' => 'tt_teams', 'parent_column' => 'id' ],
             ],
+            // A backup restores the table, not one half of it. /* both-kinds-ok */
             'tt_attendance' => [
                 [ 'column' => 'activity_id', 'parent_table' => 'tt_activities', 'parent_column' => 'id' ],
                 [ 'column' => 'player_id',  'parent_table' => 'tt_players',  'parent_column' => 'id' ],

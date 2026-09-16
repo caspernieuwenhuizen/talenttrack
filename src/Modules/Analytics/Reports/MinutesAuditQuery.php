@@ -345,7 +345,12 @@ final class MinutesAuditQuery {
             ->attendanceRowsByActivity( $activity_id );
 
         // Union the squad: every non-guest attendance row (planned OR actual)
-        // plus anyone who already has a minutes row above.
+        // plus anyone who already has a minutes row above. Both kinds on
+        // purpose — the audit editor's job is to let somebody put minutes on
+        // a player the register missed, and a player who was selected and
+        // never registered is precisely that case. What they get written to
+        // is a different question, and `attendanceRowsByActivity()` above
+        // answers it with the recorded row or nothing. /* both-kinds-ok */
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $squad = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT player_id

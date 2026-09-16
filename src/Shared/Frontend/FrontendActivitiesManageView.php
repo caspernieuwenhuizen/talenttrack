@@ -3980,6 +3980,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      */
     private static function loadGuests( int $activity_id ): array {
         global $wpdb; $p = $wpdb->prefix;
+        // Both kinds: a guest can be planned for a session (the activity
+        // wizard and `replacePlannedAttendance()` both write guest
+        // `expected` rows) as well as recorded at one, and the guests panel
+        // is the only place either is visible. /* both-kinds-ok */
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, pl.first_name, pl.last_name, t.name AS home_team_name
              FROM {$p}tt_attendance a

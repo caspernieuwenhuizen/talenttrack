@@ -62,6 +62,9 @@ final class CorePiiRegistrations {
             'Development goals set with or by the player.',
             'TT\\Modules\\Goals\\GoalsModule'
         );
+        // Personal data is personal data whether the row is a plan or a
+        // register — a privacy map that covered half the table would be a
+        // compliance defect, not a narrower scope. /* both-kinds-ok */
         PlayerDataMap::register(
             'tt_attendance',
             'player_id',

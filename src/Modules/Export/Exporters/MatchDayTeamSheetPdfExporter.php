@@ -448,13 +448,22 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
      * / `position_played`. Used when no match-prep row exists for the
      * activity (legacy installs, or activities created before #838).
      *
+     * #3451 — both kinds of row are read on purpose, for the same reason
+     * `ActivitiesRepository::lineupForActivity()` reads both: the line-up
+     * projection sits on the planned row on a current install and on the
+     * recorded one where an older save already took the plan, and this is
+     * the fallback for exactly the installs where that happened. What it
+     * must NOT do is print a player twice, which reading both without
+     * de-duplicating did the moment a player held both — so one row per
+     * player, the plan preferred.
+     *
      * @return array{0:list<object>,1:list<object>,2:list<object>}
      */
     private static function partitionFromAttendance( int $activity_id, int $club_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $roster = $wpdb->get_results( $wpdb->prepare(
+        $roster = $wpdb->get_results( $wpdb->prepare( /* both-kinds-ok */
             "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number,
                     pl.preferred_positions,
                     att.status, att.lineup_role, att.position_played
@@ -474,6 +483,18 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             $club_id
         ) );
         $roster = is_array( $roster ) ? $roster : [];
+
+        // One row per player — see the docblock. The ORDER BY already puts
+        // starters first, then the bench, then rows carrying no role at all,
+        // so the first row seen for a player is the one with something to
+        // say about the line-up and the rest are the duplicate.
+        $unique = [];
+        foreach ( $roster as $r ) {
+            $pid = (int) ( $r->player_id ?? 0 );
+            if ( $pid <= 0 || isset( $unique[ $pid ] ) ) continue;
+            $unique[ $pid ] = $r;
+        }
+        $roster = array_values( $unique );
 
         $starting = [];
         $bench    = [];

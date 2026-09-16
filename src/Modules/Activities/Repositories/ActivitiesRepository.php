@@ -347,6 +347,13 @@ final class ActivitiesRepository {
      */
     public function listRecentCompletedForPlayer( int $player_id, int $limit ): array {
         global $wpdb;
+        // #3451 — both kinds, because the question is "which completed
+        // activities is this player connected to?", not "was this player
+        // present?". Nothing here reads `status`. Narrowing it would drop
+        // an activity a coach completed without taking a register, which is
+        // exactly the one they are most likely to be writing a note about.
+        // DISTINCT on the activity keeps a player holding both rows from
+        // listing it twice. /* both-kinds-ok */
         $p     = $wpdb->prefix;
         $limit = max( 1, min( 100, $limit ) );
         $rows  = $wpdb->get_results( $wpdb->prepare(
@@ -881,6 +888,9 @@ final class ActivitiesRepository {
      */
     public function listGuestAttendance( int $activity_id ): array {
         global $wpdb;
+        // Both kinds: a guest can be planned for a session as well as
+        // recorded at one, and this read-only panel is where an
+        // administrator sees either. /* both-kinds-ok */
         $p    = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.*, pl.first_name, pl.last_name, t.name AS guest_team_name
@@ -1952,11 +1962,20 @@ final class ActivitiesRepository {
     /**
      * #1712 — count ALL attendance rows for an activity (roster + guest),
      * club-scoped. Used to detect "already has attendance" before seeding.
+     *
+     * #3451 — both kinds on purpose. The question is "has anybody put
+     * anything here yet?", and the only caller
+     * (`ActivitiesRestController::seedCompletedRosterPresent()`) uses the
+     * answer to decide whether to invent a register. Counting only the
+     * recorded half would have it manufacture one on top of a squad a coach
+     * had just selected, which is the #3456 failure arriving by a third
+     * door.
      */
     public function countAttendance( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $p = $wpdb->prefix;
+        /* both-kinds-ok */
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d",
             $activity_id, CurrentClub::id()
@@ -2115,6 +2134,8 @@ final class ActivitiesRepository {
     public function findAttendanceRow( int $id ): ?object {
         if ( $id <= 0 ) return null;
         global $wpdb;
+        // By primary key: the id already names one row of one kind, so
+        // there is no scope left to get wrong. /* both-kinds-ok */
         $p   = $wpdb->prefix;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$p}tt_attendance WHERE id = %d AND club_id = %d LIMIT 1",

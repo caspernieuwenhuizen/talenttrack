@@ -505,12 +505,19 @@ class FrontendTrialCaseView extends FrontendViewBase {
         self::cardClose();
 
         // Activities — schema names: tt_activities + tt_attendance.
+        //
+        // #3451 — the join is scoped to the RECORDED register. A planned
+        // squad stores Expected as `Present`, so the trial case's Attendance
+        // column claimed the player had turned up to a session nobody had
+        // registered, and a player holding both kinds of row listed the
+        // activity twice.
         /** @var array<int,object> $activities */
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.activity_date, a.activity_type_key, a.notes, att.status AS attendance
                FROM {$wpdb->prefix}tt_activities a
           LEFT JOIN {$wpdb->prefix}tt_attendance att
                  ON att.activity_id = a.id AND att.player_id = %d AND att.club_id = a.club_id
+                AND att.record_type = 'actual'
               WHERE a.activity_date BETWEEN %s AND %s
                 AND a.club_id = %d
               ORDER BY a.activity_date DESC LIMIT 500", $pid, $start, $end, CurrentClub::id()

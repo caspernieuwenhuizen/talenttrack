@@ -317,6 +317,9 @@ final class CascadeRegistry {
                 [ 'tt_match_analysis_notes', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
             ],
             'cascade'      => [
+                // An archived activity takes its plan and its register with
+                // it; a surviving half would reference a row nobody can
+                // reach. /* both-kinds-ok */
                 [ 'tt_attendance', 'activity_id' ],
                 [ 'tt_activity_exercises', 'activity_id' ],
                 [ 'tt_activity_principles', 'activity_id' ],

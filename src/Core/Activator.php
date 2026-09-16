@@ -520,6 +520,9 @@ class Activator {
             KEY idx_archived_at (archived_at)
         ) $c;";
 
+        // The table itself, both kinds of row. `record_type` is added by
+        // migration 0121 rather than here, which is why this shape does not
+        // name it. /* both-kinds-ok */
         $queries[] = "CREATE TABLE {$p}tt_attendance (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             session_id BIGINT UNSIGNED NOT NULL,

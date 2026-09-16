@@ -455,8 +455,10 @@ final class AttendanceWriter {
         ) );
     }
 
+    /** The table name. Every method above says which kind of row it means. */
     private function table(): string {
         global $wpdb;
+        /* both-kinds-ok */
         return $wpdb->prefix . 'tt_attendance';
     }
 }

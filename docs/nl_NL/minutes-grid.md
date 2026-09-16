@@ -32,8 +32,11 @@ een desktop of laptop.
  spreadsheet. De **Totaal**-kolommen rechts tellen minuten, doelpunten en
  assists van elke speler over de getoonde periode op.
 - **Gearceerde cellen** betekenen dat de speler niet in de selectie van die
- wedstrijd zat, dus er is niets vast te leggen. Voeg de speler eerst aan de
- wedstrijd toe (via aanwezigheid) als dat niet klopt.
+ wedstrijd zat, dus er is niets vast te leggen. De selectie is hier de
+ aanwezigheid die je hebt **vastgelegd**, niet de selectie die je vooraf
+ had gepland — een speler die je wel had opgesteld maar nooit aanwezig hebt
+ gemeld, blijft gearceerd. Leg eerst zijn aanwezigheid vast als dat niet
+ klopt.
 - Een **"live"**-label op een kolom betekent dat die minuten uit een via het
  wedstrijdformulier gespeelde wedstrijd komen. Je mag hier toch een waarde
  corrigeren — je invoer wordt bewaard als correctie die een herberekening
