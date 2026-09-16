@@ -294,14 +294,12 @@ class PdpConversationsRestController {
         return ( $ts - $now ) <= $window;
     }
 
+    /**
+     * #3476 — delegates to the canonical resolver. This used to be its own
+     * pivot query with no club scope and no status filter, one of four such
+     * copies that had drifted apart on what a released child means.
+     */
     private static function isParentOfPlayer( int $user_id, int $player_id ): bool {
-        if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        global $wpdb; $p = $wpdb->prefix;
-        $hit = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT 1 FROM {$p}tt_player_parents
-              WHERE player_id = %d AND parent_user_id = %d LIMIT 1",
-            $player_id, $user_id
-        ) );
-        return $hit === 1;
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $player_id );
     }
 }

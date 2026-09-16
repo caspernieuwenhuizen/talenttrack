@@ -442,6 +442,10 @@ De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club
 
 `tt_players.guardian_email` is **geen** live koppelbron. Het is een uitnodigings-/seed-hint: het mag een rij in `tt_player_parents` *aanmaken* wanneer een ouder wordt uitgenodigd, geïmporteerd of geseed, maar wordt nooit tijdens runtime bevraagd om toegang te bepalen. Een ouder die alleen via een overeenkomende `guardian_email` is gekoppeld (en zonder pivotrij) verschijnt pas wanneer hij opnieuw wordt gekoppeld via de uitnodigings-/seed-route of door een beheerder — er is geen migratie.
 
+**Afscheid beëindigt de toegang van de verzorger.** De resolver filtert op `status = 'active'`, dus zodra een speler vertrekt, doorstroomt of anderszins van de actieve selectie af gaat, houden de gekoppelde personen op verzorger te zijn voor toegangsdoeleinden: hun dashboard, de kindwisselaar, de ontwikkelpagina's van het kind, de rechtenmatrix, de print van het ontwikkelplan en de gespreks-endpoints gaan tegelijk dicht. Dat was eerder inconsistent — zes plekken stelden de vraag "is dit een verzorger van deze speler" met hun eigen query, en de plekken zonder statusfilter lieten het dossier van een vertrokken kind via een directe URL bereikbaar terwijl het dashboard niets toonde. `ParentChildResolver::isParentOf()` is nu de enige implementatie, en die is club-scoped.
+
+Een gezin dat het dossier ná het afscheid nodig heeft, hoort een **inzageverzoek-export** te krijgen — een bewuste handeling met een spoor van wie erom vroeg — in plaats van een login die stilletjes blijft werken.
+
 ## Ouderdashboard en kindgerichte me-views (#1991 / #1992)
 
 Een verzorger die aan een speler gekoppeld is maar zelf geen spelerrecord heeft, bereikt nu het dossier van **zijn of haar kind**:

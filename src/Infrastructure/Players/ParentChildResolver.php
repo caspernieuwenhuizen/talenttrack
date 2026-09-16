@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Invitations\PlayerParentsRepository;
 
 /**
  * ParentChildResolver (#1993) — the single canonical answer to
@@ -135,14 +134,59 @@ final class ParentChildResolver {
     }
 
     /**
-     * Convenience accessor reusing the canonical repository so callers
-     * that only need the linked player IDs (not full records) don't
-     * re-query.
+     * The linked player IDs, for callers that don't need the full records.
+     *
+     * #3476 — derived from `children()` rather than straight from the pivot,
+     * so it carries the same club scope *and* the same `status = 'active'`
+     * filter as everything else here. It used to call
+     * `PlayerParentsRepository::playersForParent()`, which is club-scoped but
+     * says nothing about status, and that difference was one of the ways the
+     * product disagreed with itself about a released child.
      *
      * @return list<int>
      */
     public static function childIds( int $parent_user_id ): array {
         if ( $parent_user_id <= 0 ) return [];
-        return ( new PlayerParentsRepository() )->playersForParent( $parent_user_id );
+
+        $ids = [];
+        foreach ( self::children( $parent_user_id ) as $child ) {
+            $id = (int) ( $child->id ?? 0 );
+            if ( $id > 0 ) $ids[] = $id;
+        }
+        return $ids;
+    }
+
+    /**
+     * #3476 — **the** answer to "is this user a guardian of this player?".
+     *
+     * Four places used to ask it with their own inline
+     * `SELECT 1 FROM tt_player_parents WHERE player_id = %d AND
+     * parent_user_id = %d` — `MatrixGate` twice (the `player` scope, on both
+     * the any-scope and the specific-target path), `PdpPrintRouter`, and
+     * `PdpConversationsRestController`. None was club-scoped, which on the
+     * authorization path is the worst place for a query that does not know
+     * what tenant it is in (CLAUDE.md §4).
+     *
+     * ## Release ends guardian access
+     *
+     * The copies also disagreed with this class about a released child: they
+     * had no status filter, so a guardian whose child had been released got
+     * no parent dashboard and no child switcher — `children()` filters on
+     * `active` — and could still open that child's record by typing the URL.
+     *
+     * Settled deliberately (2026-09-16) rather than left to whichever query
+     * a surface happened to call: **a release ends the guardian's access.**
+     * The club has finished with the player, and the family's link to the
+     * academy's record of them ends with it. Everything here now agrees:
+     * dashboard, switcher, Me-view subject resolution, matrix scope, PDP
+     * print and PDP conversations.
+     *
+     * If a family needs the history after a release, that is a subject-access
+     * export — a deliberate act with a record of who asked — not a login that
+     * quietly keeps working.
+     */
+    public static function isParentOf( int $parent_user_id, int $player_id ): bool {
+        if ( $parent_user_id <= 0 || $player_id <= 0 ) return false;
+        return in_array( $player_id, self::childIds( $parent_user_id ), true );
     }
 }

@@ -243,11 +243,11 @@ class MatrixGate {
             ) );
             if ( $self_player > 0 ) return $self_player;
 
-            $parent_player = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT player_id FROM {$p}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
-                $user_id
-            ) );
-            return $parent_player > 0 ? $parent_player : null;
+            // #3476 — was a fifth inline pivot query, club-unscoped like the
+            // rest. The resolver orders most-recent link first, which is the
+            // same default subject the dashboard and the Me-views resolve.
+            $children = \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id );
+            return $children[0] ?? null;
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
@@ -405,11 +405,11 @@ class MatrixGate {
             ) );
             if ( $self_player > 0 ) return true;
 
-            $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT 1 FROM {$p}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
-                $user_id
-            ) );
-            return $is_parent === 1;
+            // #3476 — the canonical, club-scoped, status-filtered answer.
+            // This used to be an inline pivot query with neither filter, so
+            // a guardian of a released child still satisfied `player` scope
+            // here while the dashboard showed them nothing.
+            return \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [];
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
@@ -451,14 +451,9 @@ class MatrixGate {
             ) );
             if ( $self_player === $target_id ) return true;
 
-            // Parent of the player?
-            $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT 1 FROM {$p}tt_player_parents WHERE player_id = %d AND parent_user_id = %d LIMIT 1",
-                $target_id, $user_id
-            ) );
-            if ( $is_parent === 1 ) return true;
-
-            return false;
+            // Parent of the player? #3476 — one club-scoped implementation,
+            // not a fifth copy of the pivot query.
+            return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $target_id );
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
