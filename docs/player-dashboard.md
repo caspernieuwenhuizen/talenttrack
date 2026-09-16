@@ -44,6 +44,10 @@ The other tabs hold the rest of your picture: **Profile** (your playing details 
 ### My team
 The team podium leads — top 3 players by rolling rating, gold/silver/bronze. Below the podium your own player card sits with a **personal growth trend** — how your rolling rating has moved since last month and the skill category you're improving most. By default you do *not* see a numeric "#N of M" team rank: academies can turn that on (Configuration → Rating scale → "Show each player their team rank"), and when on it appears alongside the trend. Either way, no other teammate's rank is ever shown — only the podium positions are public. The team's **next match** and a **recent results** form line (win/draw/loss, most recent first) also appear — non-sensitive team info, with no individual teammate ratings. Tapping a podium player opens that teammate's **minimal team profile** — the same authorised page the roster links use, not a coach-only profile. The teammate roster at the bottom shows names + photos only; tap a teammate to see their basic playing details (position, jersey, foot, height, weight). Their evaluations, goals and ratings stay private.
 
+**Parents see the same page without the podium.** A parent opening their child's team gets the next match, the form line, their child's own card and growth trend, and the teammate roster — but not the top-three ranking. The podium is a dressing-room thing for the players in it; handed to another family's parent it becomes a league table of other people's children, so it stays with the players.
+
+Throughout these pages, a parent is addressed as the parent: headings read "Bas's goals" and "How Bas is doing" rather than "My goals" and "How you're doing", and the parent's navigation drops the "My" from the labels that are about their child.
+
 ### My evaluations
 Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings — compact by default, expand a row to see the full subcategory breakdown.
 

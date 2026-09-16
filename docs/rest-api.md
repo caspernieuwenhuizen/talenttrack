@@ -621,6 +621,49 @@ not `0`.
 unattended caller gets public and coaching-staff events only, never medical or
 safeguarding ones.
 
+## A player's evaluations, player-facing (#3478)
+
+### `GET /players/{id}/evaluations?scope=current|all`
+
+The evaluations "My evaluations" shows, in the shape the player and their
+guardians see: date, type, coach, match, the coach's `player_feedback`, the
+main-category ratings, and whether a breakdown exists. **Never the staff-only
+`notes` field.**
+
+`scope=current` (the default) narrows to the club's current season;
+`earlier_count` says how many more `scope=all` would add. With no current
+season set, `current` behaves as `all` rather than returning nothing.
+
+```json
+{ "scope": "current", "season": "2026/2027", "from": "2026-08-01", "to": "2027-06-30",
+  "earlier_count": 181,
+  "items": [ { "id": 912, "eval_date": "2026-09-11", "type": "Training", "coach": "…",
+               "opponent": "", "game_result": "", "player_feedback": "…",
+               "main_ratings": [ { "label": "Technical", "rating": 7.1 } ],
+               "has_detail": true } ] }
+```
+
+### `GET /players/{id}/evaluations/{evaluation_id}/detail`
+
+The subcategory breakdown for one evaluation, grouped under its main category —
+what the page fetches when a row is opened, instead of rendering every row's
+breakdown hidden.
+
+```json
+{ "groups": [ { "label": "Technical",
+                "subs": [ { "label": "First touch", "rating": 7.0 } ] } ] }
+```
+
+`404` with `{ "code": "not_found" }` when the evaluation does not exist, is
+archived, **or belongs to a different player** — the same answer for all three,
+so an id cannot be probed through a player you are allowed to read.
+
+**Permission (both routes):** `canViewPlayer()` — own record, linked guardian,
+team or global staff — **and** the child's section preference (#1867), under
+which a player may keep their evaluations from a parent. Why not
+`GET /evaluations/{id}`: that route needs `tt_view_evaluations`, which players
+and parents do not hold (#1482), and returns the full staff record.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

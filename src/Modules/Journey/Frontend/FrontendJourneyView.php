@@ -62,9 +62,17 @@ class FrontendJourneyView {
         $is_own_journey = $view_slug === 'my-journey'
             && (int) ( $player->wp_user_id ?? 0 ) === $user_id
             && $user_id > 0;
-        $name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player );
+        // #3474 — three readers, not two. `$is_own_journey` false used to mean
+        // "coach", so a parent was handed a sentence written to staff about
+        // "this player" and "the parent meeting".
+        $voice = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player, $user_id );
+        $name  = $voice->name();
         if ( $view_slug === 'my-journey' ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My journey', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $voice->pick(
+                __( 'My journey', 'talenttrack' ),
+                /* translators: %s: player display name */
+                sprintf( __( 'Journey of %s', 'talenttrack' ), $name )
+            ) );
         } else {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 /* translators: %s: player display name */
@@ -133,10 +141,18 @@ class FrontendJourneyView {
                 </h2>
                 <p class="tt-muted">
                     <?php
-                    echo esc_html( $is_own_journey
-                        ? __( 'Everything that has happened so far, newest first. Filter by what you want to see, or switch to milestones for the big moments only.', 'talenttrack' )
-                        : __( 'Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting.', 'talenttrack' )
-                    );
+                    if ( $is_own_journey ) {
+                        $lead = __( 'Everything that has happened so far, newest first. Filter by what you want to see, or switch to milestones for the big moments only.', 'talenttrack' );
+                    } elseif ( $voice->isParent() ) {
+                        $lead = sprintf(
+                            /* translators: %s: the child's first name */
+                            __( "Everything that has happened in %s's time at the academy, newest first. Switch to milestones to see just the big moments.", 'talenttrack' ),
+                            $voice->firstName()
+                        );
+                    } else {
+                        $lead = __( 'Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting.', 'talenttrack' );
+                    }
+                    echo esc_html( $lead );
                     ?>
                 </p>
 
