@@ -6,6 +6,7 @@ use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Alerts\Definitions\NoMeasurementThisSeasonAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
+use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -45,6 +46,10 @@ final class AlertsMeasurementDefinitionTest extends WP_UnitTestCase {
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
         MatrixRepository::clearCache();
+        // #3433 — the audience filter now consults the functional-role layer,
+        // which memoises assignments per request. Clear it so a scenario
+        // built here is not answered from a previous test's fixture.
+        FunctionalRoleGrants::clearCache();
 
         $this->head   = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
         $this->config = new ConfigService();
@@ -58,6 +63,7 @@ final class AlertsMeasurementDefinitionTest extends WP_UnitTestCase {
     public function tear_down(): void {
         ( new MatrixRepository() )->removeRow( self::PERSONA, 'measurements', 'read', 'global' );
         MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
         parent::tear_down();
     }
 
@@ -161,15 +167,42 @@ final class AlertsMeasurementDefinitionTest extends WP_UnitTestCase {
      * has no legacy capability, so the evaluator's `capRequired()` gate
      * cannot express it. Without this the alert would name a player to
      * somebody with no access to their measurement history.
+     *
+     * #3433 narrowed what that case looks like without removing it. The
+     * audience is the team's head coach, and holding the `head_coach`
+     * functional role on a team now grants `measurements [r]` there — so a
+     * *live* head coach is admitted by the functional role even on a persona
+     * with no measurement row, which is the case below. The gap that
+     * remains, and the one this asserts, is an assignment that has ENDED:
+     * `TeamHeadCoachLookup` reads no dates and still names them the head
+     * coach, while `FunctionalRoleGrants` reads only live assignments and
+     * grants them nothing. Without the filter the alert would reach
+     * somebody who can no longer open the screen it points at.
      */
     public function test_recipient_without_measurements_access_receives_nothing(): void {
+        $this->insertCurrentSeason();
+        $team = $this->insertTeam();
+        $this->assignHeadCoach( $team, $this->head, true );
+        $this->insertPlayer( $team );
+
+        // No matrix grant for the scout persona, and an assignment that ended.
+        $this->assertSame( [], ( new NoMeasurementThisSeasonAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * The other side of the same change, stated so it is a decision rather
+     * than a surprise. A live head coach of the team reaches the alert on
+     * the strength of the functional role alone — no `measurements` matrix
+     * row for their persona anywhere — because #3433 is exactly the claim
+     * that the head coach of a squad reads that squad's measurements.
+     */
+    public function test_a_live_head_coach_is_admitted_by_the_functional_role_alone(): void {
         $this->insertCurrentSeason();
         $team = $this->insertTeam();
         $this->assignHeadCoach( $team, $this->head );
         $this->insertPlayer( $team );
 
-        // No matrix grant for the scout persona this time.
-        $this->assertSame( [], ( new NoMeasurementThisSeasonAlert() )->evaluate( new AlertContext( $this->club ) ) );
+        $this->assertCount( 1, ( new NoMeasurementThisSeasonAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
     public function test_grace_period_comes_from_config_not_from_code(): void {
@@ -256,8 +289,17 @@ final class AlertsMeasurementDefinitionTest extends WP_UnitTestCase {
     /**
      * Head-coach assignment through `tt_team_people`, the single source of
      * truth since #1315 retired `tt_teams.head_coach_id`.
+     *
+     * `$ended` closes the assignment in the past. `TeamHeadCoachLookup`
+     * reads no dates, so such a person is still resolved as the team's head
+     * coach and still receives the alert — while `FunctionalRoleGrants`
+     * reads only live assignments, so they hold no measurement access
+     * through the role. That gap is what the audience filter below is for
+     * since #3433, and it is the only way to build the "recipient without
+     * access" case now that holding `head_coach` on a team grants
+     * `measurements [r]`.
      */
-    private function assignHeadCoach( int $team_id, int $user_id ): void {
+    private function assignHeadCoach( int $team_id, int $user_id, bool $ended = false ): void {
         global $wpdb;
 
         $role_id = (int) $wpdb->get_var( $wpdb->prepare(
@@ -281,11 +323,16 @@ final class AlertsMeasurementDefinitionTest extends WP_UnitTestCase {
         ] );
         $person_id = (int) $wpdb->insert_id;
 
-        $wpdb->insert( "{$this->p}tt_team_people", [
+        $row = [
             'club_id'            => $this->club,
             'team_id'            => $team_id,
             'person_id'          => $person_id,
             'functional_role_id' => $role_id,
-        ] );
+        ];
+        if ( $ended ) {
+            $row['start_date'] = '2000-01-01';
+            $row['end_date']   = '2000-06-30';
+        }
+        $wpdb->insert( "{$this->p}tt_team_people", $row );
     }
 }

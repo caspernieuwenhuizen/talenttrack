@@ -421,7 +421,11 @@ beheren*.
 Teamgebonden staf (coaches met alleen *lees*-rechten op hun eigen teams)
 ziet uitsluitend resultaten van die teams; lezers met academiebreed bereik
 zien iedereen. Een coach zonder teamtoewijzing ziet hier niets, niet de hele
-academie. Dezelfde rijen zijn beschikbaar via REST op
+academie. Op een Staf-account zijn de teams die waarop de persoon een
+functionele rol houdt die metingen leest — Fysio, Hoofdcoach of
+Assistent-coach — en dat zijn niet per se alle elftallen waaraan die
+gekoppeld is; zie [Toegangsbeheer](access-control.md). Dezelfde rijen zijn
+beschikbaar via REST op
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
 `measurements`-*lees*-rechten en beperkt tot dezelfde teams als het scherm:

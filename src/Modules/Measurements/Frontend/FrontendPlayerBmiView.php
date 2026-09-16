@@ -66,8 +66,13 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
             return;
         }
 
+        // #3433 — resolved from the measurement gate rather than from the
+        // team-scope list. Growth data on a minor is the payload of this
+        // report, and measurement access now follows the functional role
+        // held on a squad, so "attached to the team" is no longer an answer
+        // to "may read this team's measurements".
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'read', 'global' );
-        $teams   = QueryHelpers::get_teams_in_scope( $user_id, $see_all );
+        $teams   = QueryHelpers::get_permitted_teams( $user_id, 'measurements', 'read', $see_all );
 
         if ( $teams === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams are in your scope yet.', 'talenttrack' ) . '</p>';
@@ -87,8 +92,21 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         // team-scoped coach could read any club player's height, weight, BMI
         // and percentile history — growth data on a minor — by editing one
         // URL parameter. Same guard, same already-resolved scope.
+        //
+        // #3433 — the guard reads the permitted-team list resolved above
+        // rather than `coach_owns_player()`, which answers "are you attached
+        // to this player's squad?". Since measurement access follows the
+        // functional role, a staff member attached to two squads may read
+        // one of them, and the attachment question would have re-opened the
+        // drilldown #3156 closed.
+        $player_team = 0;
+        if ( $player_id > 0 ) {
+            $player      = QueryHelpers::get_player( $player_id );
+            $player_vars = $player === null ? [] : get_object_vars( $player );
+            $player_team = isset( $player_vars['team_id'] ) ? (int) $player_vars['team_id'] : 0;
+        }
         if ( $player_id > 0 && ! $see_all
-            && ! QueryHelpers::coach_owns_player( $user_id, $player_id )
+            && ! ( $player_team > 0 && in_array( $player_team, $allowed, true ) )
         ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p>';
             return;

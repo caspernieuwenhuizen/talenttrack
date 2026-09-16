@@ -66,9 +66,12 @@ final class FrontendTestTrendsView extends FrontendViewBase {
 
         self::renderHeader( $title );
 
+        // #3433 — ask the gate per team rather than trusting the scope list:
+        // measurement access follows the functional role held on a squad, so
+        // being attached to a team and being allowed to read its test
+        // results stopped being the same question.
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'read', 'global' );
-        $teams   = $see_all ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
-        $teams   = is_array( $teams ) ? $teams : [];
+        $teams   = QueryHelpers::get_permitted_teams( $user_id, 'measurements', 'read', $see_all );
 
         $definitions = ( new MeasurementDefinitionsRepository() )->listAll();
         if ( $definitions === [] ) {

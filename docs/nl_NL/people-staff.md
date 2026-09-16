@@ -38,7 +38,7 @@ Een persoon zonder gekoppeld account houdt zijn contactgegevens zoals voorheen �
 
 Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**, **Assistent-coach**, **Fysio**, **Materiaalman**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](access-control.md) — door iemand de functionele rol Hoofdcoach toe te kennen, krijgt hij/zij automatisch de benodigde rechten.
 
-Twee ervan bepalen zelf toegang, voor het team waarop de rol gehouden wordt: **Fysio** leest en legt de blessures van dat team vast, **Materiaalman** niet. Dat is de enige plek waar het werk dat iemand op een elftal doet — in plaats van zijn accountbrede rol — een scherm opent; zie [Toegangsbeheer](access-control.md) voor het hele plaatje en voor wat er gebeurt met stafaccounts die nog geen functionele rol hebben.
+Vier ervan bepalen zelf toegang, voor het team waarop de rol gehouden wordt: **Fysio** leest en legt de blessures van dat team vast en leest de metingen, **Hoofdcoach** en **Assistent-coach** lezen de metingen, en **Materiaalman** leest geen van beide. Dat is de enige plek waar het werk dat iemand op een elftal doet — in plaats van zijn accountbrede rol — een scherm opent; zie [Toegangsbeheer](access-control.md) voor het hele plaatje en voor wat er gebeurt met stafaccounts die nog geen functionele rol hebben.
 
 ## Personen toewijzen aan teams
 

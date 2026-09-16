@@ -173,8 +173,11 @@ class MeasurementsRestController {
         }
 
         $uid     = get_current_user_id();
+        // #3433 — the permitted set, not the attachment set. Measurement
+        // access follows the functional role held on a squad, so a staff
+        // member scoped to two teams may read one of them.
         $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
-        $teams   = \TT\Infrastructure\Query\QueryHelpers::get_teams_in_scope( $uid, $see_all );
+        $teams   = \TT\Infrastructure\Query\QueryHelpers::get_permitted_teams( $uid, 'measurements', 'read', $see_all );
         $allowed = array_map( static fn ( $t ): int => (int) ( $t->id ?? 0 ), $teams );
 
         $query = new \TT\Modules\Measurements\Reports\BmiQuery();
@@ -249,8 +252,11 @@ class MeasurementsRestController {
         $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
         $allowed = null;
         if ( ! $see_all ) {
-            $teams   = \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $uid );
-            $allowed = array_map( static fn ( $t ) => (int) $t->id, is_array( $teams ) ? $teams : [] );
+            // #3433 — gate-resolved, so the trends window narrows to the
+            // teams this reader may read measurements for rather than the
+            // teams they happen to be attached to.
+            $teams   = \TT\Infrastructure\Query\QueryHelpers::get_permitted_teams( $uid, 'measurements', 'read' );
+            $allowed = array_map( static fn ( $t ) => (int) $t->id, $teams );
         }
 
         $team_id = absint( $r['team_id'] ?? 0 );
@@ -388,9 +394,11 @@ class MeasurementsRestController {
         $uid     = get_current_user_id();
         $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
         if ( ! $see_all ) {
+            // #3433 — same narrowing as the sibling routes: permitted teams,
+            // not attached teams.
             $allowed = array_map(
                 static fn ( $t ) => (int) ( $t->id ?? 0 ),
-                \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $uid )
+                \TT\Infrastructure\Query\QueryHelpers::get_permitted_teams( $uid, 'measurements', 'read' )
             );
             if ( $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
                 return new \WP_Error( 'tt_forbidden_team', __( 'You do not have access to this team.', 'talenttrack' ), [ 'status' => 403 ] );

@@ -12,7 +12,7 @@ order: 60
 
 De authorisatie­matrix is de centrale bron voor "wat mag elke persona, op welke entiteit?". Acht persona's × ~30 entiteiten × drie acties (lezen / wijzigen / aanmaken-verwijderen) = enkele honderden cellen. De meegeleverde standaardwaarden komen overeen met wat elke rol vandaag al doet; beheerders kunnen per cel afwijken zonder code te schrijven.
 
-Eén ding dat het raster niet toont: twee functionele rollen dragen een eigen kleine set rechten, op het team waarop ze gehouden worden. Zie [De functionele-rol-as](#de-functionele-rol-as-3257) verderop — dat is de enige toegang in het product die de matrix niet alleen bepaalt.
+Eén ding dat het raster niet toont: vier functionele rollen dragen een eigen kleine set rechten, op het team waarop ze gehouden worden. Zie [De functionele-rol-as](#de-functionele-rol-as-3257-3433) verderop — dat is de enige toegang in het product die de matrix niet alleen bepaalt.
 
 ## Wie mag hem bewerken, en wat niet
 
@@ -450,18 +450,17 @@ Een eerste voorstel was globale leestoegang op **alle 138 entiteiten**, geredene
 | `players` | lezen, wijzigen | team |
 | `people` | lezen, wijzigen | team |
 | `player_notes` | lezen, wijzigen | team |
-| `measurements` | lezen, wijzigen | team |
 | `my_person` | lezen, wijzigen | self |
 
 `my_person` is de enige rij die niet uit een rechtenkoppeling volgt — het zelfbedieningsdeel van `people:change`, zodat een fysio zijn eigen dossier kan bijhouden voordat die aan een elftal is gekoppeld. Strikt smaller dan de `people`-grant hierboven.
 
-`measurements` kwam erbij met #3232. #3232 voegde ook `player_injuries [rc, team]` toe; #3257 heeft die er weer afgehaald en op de functionele rol Fysio gezet — zie de volgende paragraaf.
+#3232 voegde hier `measurements [rc, team]` en `player_injuries [rc, team]` toe. Beide zijn er inmiddels af: #3257 zette de blessures op de functionele rol Fysio, en #3433 zette de metingen op de functionele rollen Fysio, Hoofdcoach en Assistent-coach. De stoel draagt nu geen van beide — zie de volgende paragraaf.
 
 **`players:create_delete` wordt bewust niet gegeven.** De rol houdt `tt_manage_players` als kaal WP-recht, maar dat recht is in deze codebase geen "selectie beheren": het dekt de seizoensovergang, het aanmaken van spelersaccounts, maatwerkvelddefinities en het verwijderen van spelers, en `BehaviourPendingSource` gebruikt het als markering voor "ziet elke speler in de academie" voor — in het eigen commentaar — HoD's en beheerders. Dat seeden zou een materiaalman het beheerdersoppervlak geven. Niet seeden verandert niets aan het huidige gedrag: op een matrix-actieve installatie heeft de rol nu niets, en op een matrix-inactieve wordt de seed niet geraadpleegd. Of het kale recht op de roldefinitie moet blijven staan is een aparte vraag, want dát weghalen zou matrix-inactieve installaties wél veranderen.
 
 Migratie `0249_authorization_seed_topup_observer_and_staff` vult beide persona's aan op bestaande installaties — idempotente `INSERT IGNORE`, alleen deze twee persona's, en weigert voor de waarnemer een andere activiteit dan `read` weg te schrijven, ook als de seed er later een zou krijgen. Voor geen enkele andere persona verandert het antwoord.
 
-## De functionele-rol-as (#3257)
+## De functionele-rol-as (#3257, #3433)
 
 De matrix sleutelt op `(persona, entiteit, activiteit, scope_kind)`. Een fysio en een materiaalman houden dezelfde WordPress-rol `tt_staff`, komen dus uit op dezelfde persona — `staff` — en **geen enkele cel in dit raster kan die twee uit elkaar houden**. Dat is geen gat in de seed; dat is de vorm van de sleutel. De grant `player_injuries [rc, team]` uit #3232 bereikte daardoor elk Staf-account, ook accounts die om volstrekt niet-medische redenen waren uitgedeeld.
 
@@ -476,21 +475,35 @@ Wat die twee mensen wél scheidt, is het werk dat ze op een elftal doen, en dat 
 | `grants` | sleutel van functionele rol → entiteit → activiteiten. Altijd op **team**scope, want een functionele rol wordt op een team gehouden; een andere scope bestaat hier niet. Wordt samengevoegd met wat de persona's van de gebruiker geven. |
 | `supersedes` | persona → de entiteiten waarvan de functionele-rollaag het antwoord bezit. Voor een gebruiker met minstens één functionele rol wordt de eigen matrixrij van die persona op die entiteiten **overgeslagen**. |
 
-Meegeleverde inhoud: `physio` geeft `player_injuries [rc]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` wordt overruled op `player_injuries`, en verder wordt er niets overruled.
+Meegeleverde inhoud: `physio` geeft `player_injuries [rc]` en `measurements [r]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+
+### Waarom `measurements` een release later volgde (#3433)
+
+#3257 verplaatste de blessures en liet `measurements` bewust op de persona staan, op de redenering van #3232 dat lengte, gewicht en sprinttijden nu eenmaal zijn wat elke stafmedewerker vastlegt. Dat klopte over het werk en niet over de stoel, op precies dezelfde manier als bij de blessuregrant: `tt_staff` is één persona, dus een Staf-account dat was uitgedeeld om shirts te sjouwen las nog steeds de groeicurve van elke speler. #3433 sluit dat, en de gesloten lijst van wie via een functionele rol metingen leest staat vast in `FunctionalRoleAccessTest` in plaats van in een `contains`-controle.
+
+**De overslag geldt per entiteit, niet per activiteit.** Voor een overruled gebruiker wordt de hele `staff`-rij op `measurements` overgeslagen en beslissen de functionele-rolgrants alleen — en dat is `read` en verder niets, want dat is wat de beslissing van #3433 noemt. Een meting vastleggen is een **persona**-grant van `head_coach` / `coach` / `team_manager`, en geen van die persona's wordt overruled, dus niemand die vandaag metingen invoert raakt het formulier kwijt. Wil je de schrijfhelft ooit op een functionele rol, dan is dat een beslissing en een wijziging van één letter, geen gevolgtrekking.
+
+`measurements` is bovendien de bodem op personaniveau en geen vervanging van de per-test-as uit #3392: `tt_measurement_definitions.visibility` bepaalt nog steeds *welke* tests een lezer ziet zodra die is toegelaten, via `RecordVisibility::forMeasurements()`. De twee staan los van elkaar, en een test die als alleen-medisch is gemarkeerd blijft dat voor iedereen die deze wijziging toelaat.
 
 **Het oplossen gebeurt in `MatrixGate`, niet bij de aanroepers.** `can()`, `canAnyScope()`, `hasAuthority()`, `hasAuthorityAnyScope()` en `describeAccess()` lopen allemaal via dezelfde twee private resolvers, en die kregen allebei de samenvoeging en de overslag. `AuthorizationService::canRecordInjury()` — de aanroepplek waar elke blessureroute en -weergave doorheen gaat — komt daardoor op hetzelfde antwoord uit zonder van de as te weten, en `FunctionalRoleAccessTest` legt dat vast. Twee antwoorden op twee plekken is precies hoe `tt_view_players` en de bovenliggende persona in #3391 uit elkaar liepen.
 
 `describeAccess()` rapporteert een toekenning uit een functionele rol met `persona` op `fn:<role_key>` en een lege `source_row_id`, want er is geen matrixrij om naar te wijzen.
 
+### Teamkiezers en repositoryfilters moeten de poort vragen, niet de scopelijst
+
+`QueryHelpers::get_teams_for_coach()` beantwoordt "aan welke elftallen ben je gekoppeld?". Tot deze as bestond was dat dezelfde verzameling als "op welke elftallen mag je handelen", en een lange staart aan kiezers, `team_ids`-filters en exportscopes is daarop gebouwd. Diezelfde verzameling is het niet meer: wie fysio is van het ene elftal en materiaalman van het andere, is aan beide gekoppeld en mag er één lezen.
+
+`QueryHelpers::get_permitted_teams( $user_id, $entity, $activity, $see_all )` is die lijst, per team gefilterd door `MatrixGate::can()` — dezelfde nauwe doorgang die het scherm al voor zijn eigen poort raadpleegt, zodat de kiezer en het dossier niet uit elkaar kunnen lopen. #3257 zette het filter nog in `FrontendInjuriesView` zelf; #3433 vond hetzelfde gat op vijf metingsschermen tegelijk (de twee rapportweergaven, het BMI-rapport, de REST-routes voor bladeren en trends, en de export van testuitslagen) en bracht het hierheen. **Elk nieuw scherm dat een gevoelige entiteit op team afbakent hoort dit te gebruiken in plaats van de kale koppelingslijst.**
+
 ### Waarom `head_coach` niet overruled wordt
 
-Hoofdtrainers houden `player_injuries [rc, team]` op eigen gronden — zij staan langs de lijn als de hamstring gaat (topup #0220) — en de meesten houden daarnaast de functionele rol `head_coach`. Ook hun persona overrulen zou op het moment van uitrollen elke hoofdtrainer op de installatie de blessures hebben afgenomen. Dat is een andere beslissing dan die #3257 neemt, dus `supersedes` noemt alleen `staff`.
+Hoofdtrainers houden `player_injuries [rc, team]` en `measurements [rcd, team]` op eigen gronden — zij staan langs de lijn als de hamstring gaat (topup #0220), en zij draaien de testavond — en de meesten houden daarnaast de functionele rol `head_coach`. Ook hun persona overrulen zou op het moment van uitrollen elke hoofdtrainer op de installatie beide entiteiten hebben afgenomen. Dat is een andere beslissing dan die #3257 en #3433 nemen, dus `supersedes` noemt alleen `staff`. Let op dat `head_coach` wél in `grants` staat en niet in `supersedes`: de functionele rol *voegt* leestoegang op metingen toe aan een Staf-stoel, en neemt niets af van de gelijknamige persona.
 
 ### Upgradegedrag, en waarom er geen migratie is
 
-Niets haalt de `player_injuries`-rijen van de persona `staff` uit een bestaande `tt_authorization_matrix`. Die achtergebleven rij **is** het upgradegedrag: een bestaand Staf-account zonder functionele rol houdt exact de toegang die het vandaag heeft, omdat de overslag alleen aanslaat bij een gebruiker die er wél een heeft. Stilletjes versmallen zou het blessurescherm midden in het seizoen hebben weggehaald bij fysio's die het gebruiken, zonder enig signaal.
+Niets haalt de `player_injuries`- of `measurements`-rijen van de persona `staff` uit een bestaande `tt_authorization_matrix`. Die achtergebleven rijen **zijn** het upgradegedrag: een bestaand Staf-account zonder functionele rol houdt exact de toegang die het vandaag heeft — metingen vastleggen inbegrepen — omdat de overslag alleen aanslaat bij een gebruiker die er wél een heeft. Stilletjes versmallen zou het blessurescherm midden in het seizoen hebben weggehaald bij fysio's die het gebruiken, of het invoerformulier bij wie de testavond draait, zonder enig signaal.
 
-De smallere toestand is waar iemand in belandt zodra een academie een functionele rol toekent — een handeling, geen standaard. Op een **verse** installatie staat de rij helemaal niet meer in de seed, dus beide toestanden komen samen zodra een academie invult wie wat doet.
+De smallere toestand is waar iemand in belandt zodra een academie een functionele rol toekent — een handeling, geen standaard. Op een **verse** installatie staan de rijen helemaal niet meer in de seed, dus beide toestanden komen samen zodra een academie invult wie wat doet.
 
 Nog twee dingen falen bewust naar smal in plaats van naar breed:
 

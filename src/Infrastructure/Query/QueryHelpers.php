@@ -392,6 +392,53 @@ class QueryHelpers {
     }
 
     /**
+     * #3433 — the teams a viewer may act on for ONE entity, rather than the
+     * teams they are attached to.
+     *
+     * Those were the same set until #3257 made access follow the functional
+     * role held on a squad. A staff member who is the physio of one team and
+     * the kit manager of another is scoped to both and may read one, so a
+     * picker or a repository filter built from `get_teams_for_coach()` alone
+     * now hands back a team the gate would refuse. #3257 found the same gap
+     * on the injuries list; #3433 found it on five measurement surfaces at
+     * once, which is why the filter lives here instead of being inlined a
+     * sixth time.
+     *
+     * Global readers get every team, exactly as the callers did before. The
+     * per-team question goes to `MatrixGate`, the same chokepoint the surface
+     * already asked for its own gate, so the picker and the record cannot
+     * answer differently. One call per row in a list that is a handful of
+     * teams long.
+     *
+     * @return object[]
+     */
+    public static function get_permitted_teams(
+        int $user_id,
+        string $entity,
+        string $activity = 'read',
+        bool $see_all = false
+    ): array {
+        if ( $see_all || \TT\Modules\Authorization\MatrixGate::can( $user_id, $entity, $activity, 'global' ) ) {
+            return self::get_teams();
+        }
+
+        return array_values( array_filter(
+            self::get_teams_for_coach( $user_id ),
+            static function ( $team ) use ( $user_id, $entity, $activity ): bool {
+                $vars    = get_object_vars( (object) $team );
+                $team_id = isset( $vars['id'] ) ? (int) $vars['id'] : 0;
+                return $team_id > 0 && \TT\Modules\Authorization\MatrixGate::can(
+                    $user_id,
+                    $entity,
+                    $activity,
+                    \TT\Modules\Authorization\MatrixGate::SCOPE_TEAM,
+                    $team_id
+                );
+            }
+        ) );
+    }
+
+    /**
      * #2867 — age categories that actually have teams in them, for use in
      * **filters**.
      *

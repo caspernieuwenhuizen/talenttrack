@@ -4,6 +4,7 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
+use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
@@ -11,6 +12,7 @@ use TT\Modules\Authorization\PersonaResolver;
 
 /**
  * #3257 — a physio needs injuries, a kit manager does not.
+ * #3433 — and a kit manager does not need measurements either.
  *
  * Both are the `staff` persona, from the one `tt_staff` WordPress role,
  * so the matrix — which keys on `(persona, entity, activity,
@@ -18,6 +20,13 @@ use TT\Modules\Authorization\PersonaResolver;
  * [rc, team]` grant therefore reached every Staff account, including one
  * issued to move shirts. The functional role held on a squad is what
  * separates them, and `FunctionalRoleGrants` is where that is read.
+ *
+ * #3433 is the same shape one entity over. `measurements [rc, team]` was
+ * left on the persona by #3257 on #3232's reasoning that height and
+ * weight are what every staff member records — which was true about the
+ * job and wrong about the seat, in exactly the way the injury grant was.
+ * It now follows the functional role too: Physio, Head coach and
+ * Assistant coach read it, Kit manager does not.
  *
  * The negative assertions carry the weight here. The failure mode of an
  * authorization change is WIDENING access to medical data about minors,
@@ -28,6 +37,9 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
 
     private const PERSONA = 'staff';
     private const ENTITY  = 'player_injuries';
+
+    /** #3433 — the second entity to follow the functional role. */
+    private const MEASUREMENTS = 'measurements';
 
     /** @var int */
     private $team_with_role = 7301;
@@ -45,6 +57,7 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         $this->removeLegacyStaffInjuryRow();
+        $this->removeLegacyStaffMeasurementRow();
         MatrixRepository::clearCache();
         FunctionalRoleGrants::clearCache();
         parent::tear_down();
@@ -157,6 +170,24 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
         $repo->removeRow( self::PERSONA, self::ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
     }
 
+    /**
+     * #3433's equivalent: an upgraded install still carries #3232's
+     * `measurements [rc, team]` rows for the `staff` persona, because
+     * nothing migrates them away either.
+     */
+    private function addLegacyStaffMeasurementRow(): void {
+        $repo = new MatrixRepository();
+        $repo->setRow( self::PERSONA, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM, '' );
+        $repo->setRow( self::PERSONA, self::MEASUREMENTS, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, '' );
+        MatrixRepository::clearCache();
+    }
+
+    private function removeLegacyStaffMeasurementRow(): void {
+        $repo = new MatrixRepository();
+        $repo->removeRow( self::PERSONA, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $repo->removeRow( self::PERSONA, self::MEASUREMENTS, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
+    }
+
     private function makePlayerOnTeam( int $team_id ): int {
         global $wpdb;
 
@@ -192,10 +223,45 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
 
     /** And it is on the Physio functional role instead, read + change, no delete. */
     public function test_the_physio_functional_role_carries_the_injury_grant(): void {
-        $this->assertSame(
-            [ self::ENTITY ],
+        $this->assertContains(
+            self::ENTITY,
             FunctionalRoleGrants::entitiesFor( 'physio' )
         );
+    }
+
+    /**
+     * #3433 — the same criterion for measurements. Stated as data so a
+     * future edit putting the row back on the persona has to argue with
+     * this rather than sail past a deleted test.
+     */
+    public function test_the_staff_persona_is_no_longer_seeded_measurements(): void {
+        $seed = require dirname( __DIR__, 2 ) . '/config/authorization_seed.php';
+
+        foreach ( $seed as $row ) {
+            if ( ( $row['persona'] ?? '' ) !== self::PERSONA ) continue;
+            $this->assertNotSame(
+                self::MEASUREMENTS,
+                (string) ( $row['entity'] ?? '' ),
+                'The measurement grant belongs to the functional roles, not to every Staff account.'
+            );
+        }
+    }
+
+    /**
+     * Exactly three functional roles read measurements, and the closed
+     * list is the assertion — a "contains" check would not catch a fourth
+     * role being handed a minor's growth data.
+     */
+    public function test_three_functional_roles_read_measurements_and_no_others(): void {
+        $reads = [];
+        foreach ( [ 'physio', 'head_coach', 'assistant_coach', 'kit_manager', 'manager', 'head_of_development', 'club_admin', 'other' ] as $role_key ) {
+            if ( in_array( self::MEASUREMENTS, FunctionalRoleGrants::entitiesFor( $role_key ), true ) ) {
+                $reads[] = $role_key;
+            }
+        }
+        sort( $reads );
+
+        $this->assertSame( [ 'assistant_coach', 'head_coach', 'physio' ], $reads );
     }
 
     /**
@@ -332,6 +398,162 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
         }
     }
 
+    // ── measurements: the three roles admitted, and everyone else ──────
+
+    /**
+     * #3433's positive direction, for all three roles the decision names.
+     * Each reads the measurements of the squad they hold the role on.
+     */
+    public function test_the_three_named_roles_read_the_measurements_of_their_own_squad(): void {
+        foreach ( [ 'physio', 'head_coach', 'assistant_coach' ] as $role_key ) {
+            $uid = $this->makeStaffUser();
+            $this->assignFunctionalRole( $uid, $this->team_with_role, $role_key );
+
+            $this->assertTrue(
+                MatrixGate::can( $uid, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $this->team_with_role ),
+                sprintf( '%s must read the measurements of the squad they hold the role on', $role_key )
+            );
+            $this->assertTrue(
+                MatrixGate::canAnyScope( $uid, self::MEASUREMENTS, MatrixGate::READ ),
+                sprintf( 'the tile gate must offer %s the measurement surfaces', $role_key )
+            );
+        }
+    }
+
+    /**
+     * The load-bearing negative, measurement edition. The user holds the
+     * team scope on `team_without_role` AND the install still carries
+     * #3232's staff matrix row — the widest state an upgraded install can
+     * be in — and the answer is still no, because they hold no functional
+     * role there.
+     */
+    public function test_a_physio_reaches_no_measurements_on_a_team_they_hold_no_functional_role_on(): void {
+        $uid = $this->makeStaffUser();
+        $this->assignFunctionalRole( $uid, $this->team_with_role, 'physio' );
+        $this->scopeToTeam( $uid, $this->team_without_role );
+        $this->addLegacyStaffMeasurementRow();
+
+        $this->assertFalse(
+            MatrixGate::can( $uid, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $this->team_without_role ),
+            'holding a team scope is not holding a measuring role on that team'
+        );
+    }
+
+    /**
+     * The case #3433 is named for. The kit manager is attached to the
+     * squad, holds the team scope on two teams, and the install still
+     * carries #3232's staff row. No measurement, no activity, no team.
+     */
+    public function test_a_kit_manager_reaches_no_measurements_on_any_team(): void {
+        $uid = $this->makeStaffUser();
+        $this->assignFunctionalRole( $uid, $this->team_with_role, 'kit_manager' );
+        $this->scopeToTeam( $uid, $this->team_with_role );
+        $this->scopeToTeam( $uid, $this->team_without_role );
+        $this->addLegacyStaffMeasurementRow();
+
+        foreach ( [ $this->team_with_role, $this->team_without_role ] as $team_id ) {
+            foreach ( [ MatrixGate::READ, MatrixGate::CHANGE, MatrixGate::CREATE_DELETE ] as $activity ) {
+                $this->assertFalse(
+                    MatrixGate::can( $uid, self::MEASUREMENTS, $activity, MatrixGate::SCOPE_TEAM, $team_id ),
+                    sprintf( 'kit manager reached measurements:%s on team %d', $activity, $team_id )
+                );
+            }
+        }
+
+        $this->assertFalse(
+            MatrixGate::canAnyScope( $uid, self::MEASUREMENTS, MatrixGate::READ ),
+            'a kit manager must not even be offered the test-results surface'
+        );
+    }
+
+    /**
+     * The decision names READ and nothing else. No functional role
+     * carries the write half, so a superseded Staff account reads and
+     * does not record — recording stays a `head_coach` / `coach` /
+     * `team_manager` persona grant, and those personas are not
+     * superseded. Asserted rather than left implied, because granting
+     * `change` here would be the widening this layer exists to prevent.
+     */
+    public function test_no_functional_role_carries_the_measurement_write_half(): void {
+        foreach ( [ 'physio', 'head_coach', 'assistant_coach' ] as $role_key ) {
+            $uid = $this->makeStaffUser();
+            $this->assignFunctionalRole( $uid, $this->team_with_role, $role_key );
+            $this->addLegacyStaffMeasurementRow();
+
+            foreach ( [ MatrixGate::CHANGE, MatrixGate::CREATE_DELETE ] as $activity ) {
+                $this->assertFalse(
+                    MatrixGate::can( $uid, self::MEASUREMENTS, $activity, MatrixGate::SCOPE_TEAM, $this->team_with_role ),
+                    sprintf( '%s reached measurements:%s through a functional role', $role_key, $activity )
+                );
+            }
+        }
+    }
+
+    /**
+     * `team_manager` is a persona of its own, from the `tt_team_manager`
+     * WordPress role, and holds `measurements [r, team]` on its own row.
+     * Supersession names the `staff` persona and nothing else, so this
+     * account is untouched — including when it also holds a functional
+     * role, which a team manager routinely does.
+     */
+    public function test_a_team_manager_is_unaffected_by_the_supersession(): void {
+        global $wpdb;
+
+        $uid = self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
+        $this->assertContains( 'team_manager', PersonaResolver::personasFor( $uid ) );
+
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Team',
+            'last_name'  => 'Manager',
+            'role_type'  => 'staff',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $this->scopeToTeam( $uid, $this->team_with_role );
+        $this->assignFunctionalRole( $uid, $this->team_with_role, 'manager' );
+
+        $this->assertTrue(
+            FunctionalRoleGrants::holdsAnyFunctionalRole( $uid ),
+            'the fixture must be the case supersession would engage on, if it named this persona'
+        );
+        $this->assertFalse(
+            FunctionalRoleGrants::supersedes( $uid, 'team_manager', self::MEASUREMENTS ),
+            'only the staff persona is superseded'
+        );
+        $this->assertTrue(
+            MatrixGate::can( $uid, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $this->team_with_role ),
+            'a team manager reads their squad\'s measurements on their own persona row'
+        );
+    }
+
+    /**
+     * #3392 is a different axis and stays one. Being admitted to
+     * measurements by a functional role decides WHETHER this person
+     * reaches the surface; `tt_measurement_definitions.visibility`
+     * decides WHICH tests they see once there. Assigning the role must
+     * therefore not move the visibility ladder at all — and in
+     * particular must not hand out the medical level.
+     */
+    public function test_admission_by_functional_role_does_not_widen_the_per_test_visibility(): void {
+        $uid    = $this->makeStaffUser();
+        $before = RecordVisibility::forMeasurements( $uid );
+
+        $this->assignFunctionalRole( $uid, $this->team_with_role, 'assistant_coach' );
+        $after = RecordVisibility::forMeasurements( $uid );
+
+        $this->assertSame(
+            $before,
+            $after,
+            'the per-test visibility ladder is #3392\'s axis; admission must not move it'
+        );
+        $this->assertNotContains(
+            RecordVisibility::LEVEL_MEDICAL,
+            $after,
+            'a test marked medical-only stays medical-only for somebody admitted by #3433'
+        );
+    }
+
     // ── upgrade behaviour ──────────────────────────────────────────────
 
     /**
@@ -355,6 +577,28 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
         );
         $this->assertTrue(
             MatrixGate::can( $uid, self::ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $this->team_with_role )
+        );
+    }
+
+    /**
+     * #3433's half of the same sentence, and the reason the change needs
+     * no migration. A Staff account nobody has given a functional role
+     * keeps the `measurements [rc, team]` it has today — read AND change,
+     * so the person entering heights on a Tuesday evening does not find
+     * the form gone mid-season because a config file moved.
+     */
+    public function test_a_legacy_staff_account_keeps_its_measurement_grant(): void {
+        $uid = $this->makeStaffUser();
+        $this->scopeToTeam( $uid, $this->team_with_role );
+        $this->addLegacyStaffMeasurementRow();
+
+        $this->assertFalse( FunctionalRoleGrants::holdsAnyFunctionalRole( $uid ) );
+        $this->assertTrue(
+            MatrixGate::can( $uid, self::MEASUREMENTS, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $this->team_with_role )
+        );
+        $this->assertTrue(
+            MatrixGate::can( $uid, self::MEASUREMENTS, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $this->team_with_role ),
+            'narrowing silently takes the entry form away from somebody using it'
         );
     }
 

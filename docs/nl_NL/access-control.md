@@ -100,7 +100,7 @@ uit die koppelingen, niet uit het recht.
 | **Clubbeheerder** | Alle onderdelen | Teams, Spelers, Personen, Sessies, Doelen, Instellingen|
 | **Coach** | Alles behalve Instellingen | Evaluaties, Sessies, Doelen |
 | **Scout** | Teams, Spelers, Evals | Evaluaties |
-| **Staf** | Teams, Spelers, Personen, Metingen | Spelers, Personen, Metingen |
+| **Staf** | Teams, Spelers, Personen | Spelers, Personen |
 | **Speler** | Alleen eigen data | Alleen eigen profiel |
 | **Ouder** | Alleen data van kind | *(geen)* |
 | **Alleen-lezen Waarnemer** | **Alle onderdelen** | **Geen** |
@@ -159,32 +159,40 @@ De rol Staf is de stoel voor de fysio, de materiaalman en algemene clubstaf. Ze 
 | **Spelers** van die teams | Bij een elftal komen waaraan ze niet verbonden zijn |
 | **Personen** van die teams | Een speler aanmaken of verwijderen |
 | **Spelersnotities** — het staf-only logboek in het spelersdossier | Een seizoensovergang draaien of spelersaccounts aanmaken |
-| **Metingen** — lengte, gewicht, sprinttijden vastleggen en lezen | Een meting verwijderen |
 | Hun eigen stafdossier, altijd | Een blessuredossier lezen, tenzij ze de fysio van dat team zijn |
+| | Metingen lezen, tenzij hun functionele rol dat zegt |
 
-Teamgegevens zijn voor staf alleen-lezen; bewerken kan bij spelers, personen, spelersnotities en metingen.
+Teamgegevens zijn voor staf alleen-lezen; bewerken kan bij spelers, personen en spelersnotities.
 
-### Blessures volgen de functionele rol, niet de rol Staf
+### Blessures en metingen volgen de functionele rol, niet de rol Staf
 
-Staf is één rol die de fysio, de materiaalman en alles daartussen dekt. Voorheen droeg die rol ook **blessures** — voor een fysio precies goed, voor een materiaalman veel meer dan nodig, en er was geen manier om de één de shirts te geven zonder de ander de medische historie.
+Staf is één rol die de fysio, de materiaalman en alles daartussen dekt. Voorheen droeg die rol ook **blessures** en **metingen** — voor een fysio precies goed, voor een materiaalman veel meer dan nodig, en er was geen manier om de één de shirts te geven zonder de ander de medische historie en de groeicurves.
 
-Blessuretoegang komt nu van de **functionele rol die iemand op een team heeft**, in te stellen via **Personen → Functionele rollen**:
+Beide komen nu van de **functionele rol die iemand op een team heeft**, in te stellen via **Personen → Functionele rollen**:
 
-| Functionele rol op het team | Leest en legt blessures van dat team vast |
-| --- | --- |
-| **Fysio** | Ja — op dat team, en op geen enkel ander |
-| **Materiaalman** | Nee |
-| Hoofdcoach, Assistent-coach, Manager, Overig | Nee (hoofdtrainers houden hun eigen blessuretoegang via de rol Coach) |
+| Functionele rol op het team | Blessures van dat team | Metingen van dat team |
+| --- | --- | --- |
+| **Fysio** | Lezen en vastleggen | Lezen |
+| **Hoofdcoach** | — | Lezen |
+| **Assistent-coach** | — | Lezen |
+| **Materiaalman** | — | — |
+| Manager, Overig | — | — |
+
+Hoofdtrainers en assistent-trainers houden hun eigen, ruimere toegang via de rollen Coach: dat zijn WordPress-rollen met hun eigen rechten, en daar verandert hier niets aan. De tabel hierboven gaat over wat de *functionele rol* toevoegt aan een Staf-stoel.
 
 Uit "op dat team, en op geen enkel ander" volgen twee dingen. Een fysio die aan drie elftallen gekoppeld is, leest de blessures van drie elftallen. Een fysio die aan één elftal gekoppeld is en bij een tweede alleen op de lijst staat, leest er één. En loopt de koppeling af, dan vervalt de toegang.
+
+**Metingen vastleggen verandert niet.** De functionele rollen hierboven geven het *lezen* van de cijfers. Lengte, gewicht en testuitslagen invoeren hoort bij de rollen Coach, Hoofdcoach en Teammanager, en die blijven ongemoeid — niemand die vandaag een testavond draait, raakt het invoerscherm kwijt.
+
+**Wélke tests iemand vervolgens ziet, is een aparte vraag.** Elke test in je catalogus heeft een zichtbaarheidsniveau, in te stellen via **Tests beheren**. De functionele rol bepaalt of iemand de metingsschermen überhaupt bereikt; het niveau van de test bepaalt welke cijfers daar te zien zijn. Een test die je als alleen-medisch hebt gemarkeerd, blijft dat voor iedereen.
 
 Wat blijft: niemand in deze groep kan een blessuredossier of een meting **verwijderen**. Het weghalen van een medisch dossier van een minderjarige blijft bij het hoofd opleiding en de academiebeheerder.
 
 ### Wat er verandert voor een bestaand Staf-account
 
-**Niets, totdat je die persoon een functionele rol geeft.** Een bestaand Staf-account zonder functionele rol op enig team houdt exact de toegang die het had — blessures van de gekoppelde elftallen inbegrepen. Dat is bewust: stilletjes versmallen zou het blessurescherm midden in het seizoen weghalen bij fysio's die het gebruiken, zonder enige melding waarom.
+**Niets, totdat je die persoon een functionele rol geeft.** Een bestaand Staf-account zonder functionele rol op enig team houdt exact de toegang die het had — blessures en metingen van de gekoppelde elftallen inbegrepen, en ook het vastleggen van die metingen. Dat is bewust: stilletjes versmallen zou het blessurescherm of het invoerscherm midden in het seizoen weghalen bij mensen die ze gebruiken, zonder enige melding waarom.
 
-De smallere vorm is iets waar een academie zelf voor kiest, persoon voor persoon, door een functionele rol toe te kennen. Zodra iemand als **Fysio** van een team staat geregistreerd, wordt de blessuretoegang precies dat team. Zodra iemand als **Materiaalman** staat geregistreerd, vervalt ze.
+De smallere vorm is iets waar een academie zelf voor kiest, persoon voor persoon, door een functionele rol toe te kennen. Zodra iemand als **Fysio** van een team staat geregistreerd, wordt de blessure- en metingstoegang precies dat team. Zodra iemand als **Materiaalman** staat geregistreerd, vervallen beide.
 
 Het migratiepad is dus: ga naar **Personen → Functionele rollen**, geef elke stafmedewerker de rol die zijn of haar werk beschrijft, en de toegang volgt. Tot die tijd verandert er niets aan hun account.
 
@@ -202,14 +210,16 @@ Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt
 
 ### Een functionele rol kan ook zelf toegang geven
 
-De meeste functionele rollen koppelen alleen aan een WordPress-rol, zoals hierboven. Twee ervan gaan verder en dragen een kleine set rechten die geldt **op het team waarop de rol gehouden wordt, en nergens anders**:
+De meeste functionele rollen koppelen alleen aan een WordPress-rol, zoals hierboven. Vier ervan gaan verder en dragen een kleine set rechten die geldt **op het team waarop de rol gehouden wordt, en nergens anders**:
 
 | Functionele rol | Wat die op dat team geeft |
 | --- | --- |
-| **Fysio** | Blessures lezen en vastleggen |
+| **Fysio** | Blessures lezen en vastleggen; metingen lezen |
+| **Hoofdcoach** | Metingen lezen |
+| **Assistent-coach** | Metingen lezen |
 | **Materiaalman** | De selectie, de mensen eromheen en de activiteitenkalender lezen |
 
-De lijst voor de materiaalman staat er bewust helemaal uitgeschreven. "Alles wat de rol Staf heeft, behalve blessures" zou een definitie door aftrekken zijn, en het volgende gevoelige onderdeel dat aan Staf wordt toegevoegd zou dan op de stoel van de materiaalman belanden zonder dat iemand dat besloten heeft.
+De lijst voor de materiaalman staat er bewust helemaal uitgeschreven. "Alles wat de rol Staf heeft, behalve blessures" zou een definitie door aftrekken zijn, en het volgende gevoelige onderdeel dat aan Staf wordt toegevoegd zou dan op de stoel van de materiaalman belanden zonder dat iemand dat besloten heeft. Dat is geen theorie: de metingen bleven na de blessures nog één release op de Staf-stoel staan, en precies zo lang las een materiaalman de groeicurve van elke speler.
 
 Dit is een echte tweede bron van toegang, geen etiket: het antwoord voor een persoon is wat zijn rol geeft **plus** wat deze functionele rollen geven, samen opgelost. De set staat in `config/functional_role_grants.php`; eigen regels toevoegen is een codewijziging, geen instelling.
 

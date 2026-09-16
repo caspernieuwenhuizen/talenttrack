@@ -104,7 +104,7 @@ scope comes from those assignments, not from the capability.
 | **Club Admin** | All areas | Teams, Players, People, Sessions, Goals, Settings |
 | **Coach** | All except Settings| Evaluations, Sessions, Goals |
 | **Scout** | Teams, Players, Evals | Evaluations |
-| **Staff** | Teams, Players, People, Measurements | Players, People, Measurements |
+| **Staff** | Teams, Players, People | Players, People |
 | **Player** | Own data only | Own profile only |
 | **Parent** | Child's data only | *(none)* |
 | **Read-Only Observer** | **All areas** | **None** |
@@ -163,32 +163,40 @@ The Staff role is the physio, kit manager and general club-staff seat. It is sco
 | **Players** on those teams | Reach a squad they are not attached to |
 | **People** records on those teams | Create or delete a player |
 | **Player notes** — the staff-only running log on a player's file | Run a season rollover, or create player accounts |
-| **Measurements** — record and read height, weight, sprint times | Delete a measurement |
 | Their own staff record, always | Read an injury record, unless they are the team's physio |
+| | Read measurements, unless their functional role says so |
 
-Team details are read-only for staff; the editable surfaces are players, people, player notes and measurements.
+Team details are read-only for staff; the editable surfaces are players, people and player notes.
 
-### Injuries follow the functional role, not the Staff role
+### Injuries and measurements follow the functional role, not the Staff role
 
-Staff is one role covering the physio, the kit manager and everyone in between. It used to carry **injuries** as well — which is right for a physio and a great deal more than a kit manager needs, and there was no way to give one the shirts without the other the medical history.
+Staff is one role covering the physio, the kit manager and everyone in between. It used to carry **injuries** and **measurements** as well — right for a physio, and a great deal more than a kit manager needs, with no way to give one the shirts without the other the medical history and the growth curves.
 
-Injury access now comes from the **functional role a person holds on a team**, set under **People → Functional roles**:
+Both now come from the **functional role a person holds on a team**, set under **People → Functional roles**:
 
-| Functional role on the team | Reads and records that team's injuries |
-| --- | --- |
-| **Physio** | Yes — on that team, and on no other |
-| **Kit manager** | No |
-| Head coach, Assistant coach, Manager, Other | No (head coaches keep their own separate injury access through the Coach role) |
+| Functional role on the team | Injuries for that team | Measurements for that team |
+| --- | --- | --- |
+| **Physio** | Read and record | Read |
+| **Head coach** | — | Read |
+| **Assistant coach** | — | Read |
+| **Kit manager** | — | — |
+| Manager, Other | — | — |
+
+Head coaches and assistant coaches keep their own separate, wider access through the Coach roles: those are WordPress roles with their own permissions, and nothing here narrows them. The table above is about what the *functional role* adds on a Staff seat.
 
 Two things follow from "on that team, and on no other". A physio attached to three squads reads three squads' injuries. A physio attached to one squad and merely *listed* against another reads one. And when their assignment ends, so does the access.
+
+**Recording a measurement is unchanged.** The functional roles above grant *reading* the numbers. Entering height, weight and test results is part of the Coach, Head coach and Team manager roles, and those are untouched — nobody who runs a testing session today loses the entry form.
+
+**Which tests, once admitted, is a separate question.** Each test in your catalogue carries a visibility level, set under **Manage tests**. The functional role decides whether somebody reaches the measurement screens at all; the test's own level decides which figures they see there. A test you have marked medical-only stays medical-only for everyone.
 
 Still true: nobody in this group can **delete** an injury record or a measurement. Removing a minor's medical record stays with the head of development and the academy admin.
 
 ### What changes for an existing Staff account
 
-**Nothing, until you give that person a functional role.** An existing Staff account that holds no functional role on any team keeps exactly the access it had before — including injuries for the squads it is attached to. That is deliberate: silently narrowing would take the injury screen away from physios who are using it today, mid-season, with no message explaining why.
+**Nothing, until you give that person a functional role.** An existing Staff account that holds no functional role on any team keeps exactly the access it had before — including injuries and measurements for the squads it is attached to, and including recording those measurements. That is deliberate: silently narrowing would take the injury screen or the entry form away from people who are using them today, mid-season, with no message explaining why.
 
-The narrower shape is something an academy opts into, one person at a time, by assigning them a functional role. The moment somebody is recorded as the **Physio** of a team, their injury access becomes exactly that team's. The moment somebody is recorded as the **Kit manager**, it goes away.
+The narrower shape is something an academy opts into, one person at a time, by assigning them a functional role. The moment somebody is recorded as the **Physio** of a team, their injury and measurement access becomes exactly that team's. The moment somebody is recorded as the **Kit manager**, both go away.
 
 So the migration path is: go to **People → Functional roles**, give each Staff member the role that describes their job, and the access follows. Until you do, nothing about their account moves.
 
@@ -206,14 +214,16 @@ Assigning a person via Functional Roles also writes a row to `tt_user_role_scope
 
 ### A functional role can also grant access of its own
 
-Most functional roles only map to a WordPress role, as above. Two of them go further and carry a small grant set that applies **on the team the role is held on, and nowhere else**:
+Most functional roles only map to a WordPress role, as above. Four of them go further and carry a small grant set that applies **on the team the role is held on, and nowhere else**:
 
 | Functional role | What it grants on that team |
 | --- | --- |
-| **Physio** | Read and record injuries |
+| **Physio** | Read and record injuries; read measurements |
+| **Head coach** | Read measurements |
+| **Assistant coach** | Read measurements |
 | **Kit manager** | Read the squad, the people around it and the activity calendar |
 
-The kit-manager list is written out in full on purpose. "Everything the Staff role has, except injuries" would be a definition by subtraction, and the next sensitive thing added to Staff would land on the kit manager's seat without anyone deciding it should.
+The kit-manager list is written out in full on purpose. "Everything the Staff role has, except injuries" would be a definition by subtraction, and the next sensitive thing added to Staff would land on the kit manager's seat without anyone deciding it should. That is not a hypothetical: measurements stayed on the Staff seat for one release after injuries left it, and a kit manager read every player's growth curve for exactly that long.
 
 This is a real second source of access, not a label: a person's answer is what their role grants **plus** what these functional roles grant, resolved together. The grant set lives in `config/functional_role_grants.php`; adding your own entries there is a code change, not a configuration one.
 
