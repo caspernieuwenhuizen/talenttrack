@@ -20,8 +20,17 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 final class ReportFilters {
 
-    /** Period keys this surface accepts. The empty string = manual range. */
-    public const PERIODS = [ 'last_week', 'this_month', 'this_season' ];
+    /**
+     * Period keys this surface accepts. The empty string = manual range.
+     *
+     * #3459 — `last_month` joined for the team monthly report, which is
+     * written on the 1st about the month that just ended; `this_month` is
+     * not that. It appears on every report that renders the shared bar, on
+     * purpose: "last month" is a reasonable window on attendance and minutes
+     * too, and one report forking a private vocabulary is how pills and data
+     * came to disagree before #3293.
+     */
+    public const PERIODS = [ 'last_week', 'last_month', 'this_month', 'this_season' ];
 
     /**
      * Human labels for the period pills, keyed by period key. The empty
@@ -33,6 +42,7 @@ final class ReportFilters {
         return [
             ''            => __( 'Custom range', 'talenttrack' ),
             'last_week'   => __( 'Last week', 'talenttrack' ),
+            'last_month'  => __( 'Last month', 'talenttrack' ),
             'this_month'  => __( 'This month', 'talenttrack' ),
             'this_season' => __( 'This season', 'talenttrack' ),
         ];
@@ -206,6 +216,19 @@ final class ReportFilters {
                     'from' => gmdate( 'Y-m-d', $last_monday ),
                     'to'   => gmdate( 'Y-m-d', $last_monday + 6 * DAY_IN_SECONDS ),
                 ];
+
+            case 'last_month':
+                // #3459 — the whole previous calendar month. Integer month
+                // arithmetic: a "-1 month" relative string from the 29th–31st
+                // lands in the wrong month.
+                $year  = (int) gmdate( 'Y', $base );
+                $month = (int) gmdate( 'n', $base ) - 1;
+                if ( $month < 1 ) {
+                    $month = 12;
+                    $year--;
+                }
+                $first = (int) gmmktime( 0, 0, 0, $month, 1, $year );
+                return [ 'from' => gmdate( 'Y-m-01', $first ), 'to' => gmdate( 'Y-m-t', $first ) ];
 
             case 'this_month':
                 // Month-to-date: first of the month through today.

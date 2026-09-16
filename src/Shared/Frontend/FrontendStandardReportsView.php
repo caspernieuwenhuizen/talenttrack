@@ -41,6 +41,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // #2835 — the relative figure the minutes family was missing: what
         // share of the minutes the team actually played did each player get.
         'minutes-share'                => 'Team · Minutes share',
+        // #3459 (epic #3457) — the document a monthly staff meeting runs on.
+        'team-monthly'                 => 'Team · Monthly report',
         'team-squad-evaluation-summary' => 'Team · Squad evaluation summary',
         // #2725 — a season of match analyses read as a per-phase trend.
         'match-analysis-trends'        => 'Team · Match analysis trends',
@@ -151,6 +153,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'player-minutes-played':        self::renderPlayerMinutesPlayed(); break;
             case 'team-minutes-distribution':    self::renderTeamMinutesDistribution(); break;
             case 'minutes-share':                self::renderMinutesShare(); break;
+            case 'team-monthly':                 self::renderTeamMonthly(); break;
             case 'team-squad-evaluation-summary': self::renderSquadEvaluationSummary(); break;
             case 'match-analysis-trends':        self::renderMatchAnalysisTrends(); break;
             case 'season-summary':               self::renderSeasonSummary(); break;
@@ -801,6 +804,63 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '</tbody></table></div></div>';
         echo '</section>';
+    }
+
+    // ── #3459 Team · Monthly report ─────────────────────────────────
+
+    /**
+     * Chrome for the team monthly report: the team picker, the scope guard,
+     * the window and the shared period bar. The panel and the body are
+     * `TeamMonthlyReportPage`'s, the same split the learning reports use.
+     *
+     * The report opens on last month. It is written at the start of a month
+     * about the month that ended, so with no `period` and no manual range in
+     * the URL the window is last month rather than the season default the
+     * other reports seed.
+     */
+    private static function renderTeamMonthly(): void {
+        $title   = __( 'Team · Monthly report', 'talenttrack' );
+        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
+        if ( $team === null ) {
+            self::renderHeader( $title );
+            self::renderTeamPicker( \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::SLUG );
+            return;
+        }
+
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( $team_id, $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( $title );
+            self::renderEmpty();
+            return;
+        }
+
+        $has_choice = isset( $_GET['period'] ) || isset( $_GET['from'] ) || isset( $_GET['to'] );
+        if ( ! $has_choice ) {
+            $last  = \TT\Modules\Analytics\Reports\ReportFilters::periodWindow(
+                \TT\Modules\Analytics\Reports\TeamMonthlyReport::DEFAULT_PERIOD,
+                gmdate( 'Y-m-d' )
+            );
+            $win = [
+                'from'   => $last['from'] ?? gmdate( 'Y-m-01' ),
+                'to'     => $last['to'] ?? gmdate( 'Y-m-d' ),
+                'period' => \TT\Modules\Analytics\Reports\TeamMonthlyReport::DEFAULT_PERIOD,
+            ];
+        } else {
+            $win = self::resolveReportWindow();
+        }
+
+        self::renderPeriodFilterBar(
+            \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::SLUG,
+            $win['from'],
+            $win['to'],
+            $win['period'],
+            [ 'team_id' => $team_id ]
+        );
+
+        \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::render( $team, $win );
     }
 
     /**

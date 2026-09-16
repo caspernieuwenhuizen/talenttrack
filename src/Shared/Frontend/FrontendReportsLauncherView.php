@@ -119,6 +119,16 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 // re-checks both the feature and team scope on arrival.
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'minutes-share' ], $base_url ), /* tt-xview-ok */
             ],
+            // #3459 (epic #3457) — the squad picture a monthly staff meeting
+            // runs on, assembled from the reports around it. Gated like its
+            // siblings: the `report_*` filter below drops it when switched
+            // off, and standard-report re-checks feature and team scope.
+            [
+                'slug'  => 'team-monthly',
+                'label' => __( 'Team · Monthly report', 'talenttrack' ),
+                'desc'  => __( 'One document for the monthly staff meeting: status, attendance, minutes, what changed and who needs a conversation.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-monthly' ], $base_url ), /* tt-xview-ok */
+            ],
             // #1592 — attendance reports were only reachable through the
             // flag-gated Analytics surface; surface them here next to the
             // minutes reports. Labels/descriptions reuse the existing
@@ -315,7 +325,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // by a group falls through to a trailing "Other reports" section
         // so a future addition is never silently dropped.
         $groups = [
-            [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
+            [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'team-monthly', 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
             [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-share', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
