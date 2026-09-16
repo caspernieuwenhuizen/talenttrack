@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T20:53:01+00:00\n"
+"POT-Creation-Date: 2026-09-16T21:12:58+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1823,55 +1823,55 @@ msgstr ""
 "Ouderaccount aangemaakt en gekoppeld. Er is een e-mail verstuurd om een "
 "wachtwoord in te stellen."
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:75
-msgctxt "parent dashboard tile noun"
-msgid "measurements"
-msgstr "metingen"
-
-#: src/Infrastructure/Players/ParentDashboardTiles.php:58
+#: src/Infrastructure/Players/ParentDashboardTiles.php:67
 msgctxt "parent dashboard tile noun"
 msgid "development"
 msgstr "ontwikkeling"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:59
+#: src/Infrastructure/Players/ParentDashboardTiles.php:68
 msgctxt "parent dashboard tile noun"
 msgid "journey"
 msgstr "reis"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:60
+#: src/Infrastructure/Players/ParentDashboardTiles.php:69
 msgctxt "parent dashboard tile noun"
 msgid "profile"
 msgstr "profiel"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:61
+#: src/Infrastructure/Players/ParentDashboardTiles.php:70
 msgctxt "parent dashboard tile noun"
 msgid "team"
 msgstr "team"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:62
+#: src/Infrastructure/Players/ParentDashboardTiles.php:71
 msgctxt "parent dashboard tile noun"
 msgid "evaluations"
 msgstr "evaluaties"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:63
+#: src/Infrastructure/Players/ParentDashboardTiles.php:72
 msgctxt "parent dashboard tile noun"
 msgid "activities"
 msgstr "activiteiten"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:64
+#: src/Infrastructure/Players/ParentDashboardTiles.php:73
 msgctxt "parent dashboard tile noun"
 msgid "goals"
 msgstr "doelen"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:65
+#: src/Infrastructure/Players/ParentDashboardTiles.php:74
 msgctxt "parent dashboard tile noun"
 msgid "development plan"
 msgstr "ontwikkelplan"
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:66
+#: src/Infrastructure/Players/ParentDashboardTiles.php:75
 msgctxt "parent dashboard tile noun"
 msgid "tasks"
 msgstr "taken"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php:81
+msgctxt "parent dashboard tile noun"
+msgid "measurements"
+msgstr "metingen"
 
 #: src/Infrastructure/Players/PlayerAccountService.php:90
 msgid "That account is already linked to another player."
@@ -15855,7 +15855,7 @@ msgstr "Toggles opslaan"
 #: src/Modules/Onboarding/OnboardingState.php:61
 #: src/Shared/CoreSurfaceRegistration.php:1932
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:121
-#: src/Shared/Frontend/FrontendTileGrid.php:783
+#: src/Shared/Frontend/FrontendTileGrid.php:815
 msgid "Welcome"
 msgstr "Welkom"
 
@@ -23845,6 +23845,7 @@ msgstr ""
 "om je in te loggen en je account te herstellen als je je wachtwoord vergeet."
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:101
+#: src/Shared/Frontend/FrontendTileGrid.php:771
 msgid "Your account"
 msgstr "Je account"
 
@@ -59303,7 +59304,7 @@ msgid "%1$s's %2$s"
 msgstr "%1$s's %2$s"
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:780
+#: src/Shared/Frontend/FrontendTileGrid.php:812
 #, php-format
 msgid "Welcome, %s"
 msgstr "Welkom, %s"
