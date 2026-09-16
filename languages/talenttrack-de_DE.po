@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T05:41:32+00:00\n"
+"POT-Creation-Date: 2026-09-16T16:06:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -4536,7 +4536,7 @@ msgid "Tournament not found."
 msgstr ""
 
 #: src/Infrastructure/REST/TournamentsRestController.php:580
-#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:264
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:269
 msgid "The match could not be created."
 msgstr ""
 
@@ -15709,7 +15709,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:402
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:88
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:119
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:163
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:168
 #: src/Shared/Frontend/CoachForms.php:258
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1166
 #: src/Shared/Frontend/FrontendEvaluationsView.php:292
@@ -20339,7 +20339,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:250
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:426
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:154
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:159
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:296
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
 #: src/Shared/Admin/OptionSetEditor.php:135
@@ -21093,7 +21093,7 @@ msgstr ""
 #. translators: %s is the opponent name.
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:610
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:163
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:139
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:144
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:80
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:39
 #: src/Shared/Frontend/FrontendMyTeamView.php:111
@@ -39794,7 +39794,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:115
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:158
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:163
 msgid "Label (optional)"
 msgstr ""
 
@@ -39803,39 +39803,39 @@ msgid "e.g. Final, Round 1…"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:123
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:167
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:172
 msgid "Opponent level"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:125
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:169
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:174
 #: src/Modules/Wizards/Goal/LinkStep.php:54
 msgid "— pick one —"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:132
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:176
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:181
 msgid "Formation override"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:141
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:185
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:190
 #: src/Modules/Vct/Wizard/DurationStep.php:55
 msgid "Duration (minutes)"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:145
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:189
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:194
 msgid "Substitution windows (minutes from kickoff)"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:147
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:194
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:199
 msgid "Add a minute and press Enter"
 msgstr ""
 
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:150
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:196
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:201
 msgid "Press Enter or comma to add. Values must be 1–"
 msgstr ""
 
@@ -39947,33 +39947,33 @@ msgstr ""
 msgid "Match #%d needs either a label or an opponent name."
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:101
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:106
 msgid "Add at least one match."
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:141
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:146
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:40
 msgid "New match — fill in opponent below"
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:144
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:149
 #, php-format
 msgid "— use default (%s) —"
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:145
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:150
 msgid "— use default —"
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:159
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:164
 msgid "e.g. Final, Round 1, Pool A…"
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:160
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:165
 msgid "Used as the headline when set; otherwise shows \"vs <opponent>\"."
 msgstr ""
 
-#: src/Modules/Tournaments/Wizard/MatchesStep.php:192
+#: src/Modules/Tournaments/Wizard/MatchesStep.php:197
 #, php-format
 msgid "Remove %d"
 msgstr ""
