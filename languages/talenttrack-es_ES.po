@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T18:42:34+00:00\n"
+"POT-Creation-Date: 2026-09-16T19:11:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -24607,6 +24607,47 @@ msgstr ""
 
 #: src/Modules/License/Admin/DevOverridePage.php:154
 msgid "Developer license override is active. Click to manage."
+msgstr ""
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:78
+msgid ""
+"Commercial mode is on with no entitlement recorded, so this install resolves "
+"to the unentitled state and free-tier caps apply. Record one with: wp tt "
+"entitlement set --tier=standard"
+msgstr ""
+
+#. translators: 1: the value the operator typed, 2: comma-separated list of valid tiers
+#: src/Modules/License/Cli/EntitlementCliCommand.php:113
+#, php-format
+msgid "Unknown tier \"%1$s\". Expected one of: %2$s."
+msgstr ""
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:123
+msgid "--fetched-at must be a Unix timestamp."
+msgstr ""
+
+#. translators: 1: tier slug, 2: the tier LicenseGate now returns
+#: src/Modules/License/Cli/EntitlementCliCommand.php:132
+#, php-format
+msgid ""
+"Entitlement recorded as \"%1$s\". This install now resolves to \"%2$s\"."
+msgstr ""
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:138
+msgid ""
+"Commercial mode is off on this install, so the stored entitlement is ignored "
+"at runtime and every feature stays unlocked. Add TT_COMMERCIAL_MODE to wp-"
+"config.php to enforce it."
+msgstr ""
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:158
+msgid "No entitlement was recorded — nothing to clear."
+msgstr ""
+
+#. translators: %s: the tier LicenseGate now returns
+#: src/Modules/License/Cli/EntitlementCliCommand.php:166
+#, php-format
+msgid "Entitlement cleared. This install now resolves to \"%s\"."
 msgstr ""
 
 #: src/Modules/License/FeatureMap.php:323
