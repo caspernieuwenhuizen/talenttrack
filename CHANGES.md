@@ -1,3 +1,164 @@
+# TalentTrack v4.122.0 — The evaluation wizard no longer mistakes a planned squad for a register (#3443)
+
+Tick the expected squad when you plan an activity, tap **Complete activity**
+later, and the wizard skipped its own attendance step, opened the next screen
+with "Attendance is saved.", and completed the activity with nothing recorded.
+Attendance for every player on that date was silently lost.
+
+The planned squad and the recorded register live in the same table and are
+told apart by one column, and four of the wizard's reads never looked at it.
+They do now: the step renders whenever there is no register, the roster opens
+on its **present** default instead of pre-filling from the plan (a planned
+"Maybe" is stored as excused, so it used to arrive pre-set to an absence
+nobody recorded), the "N players marked Present or Late" count counts only
+recorded rows, and saving the register inserts new rows rather than
+overwriting the plan — so the activity's **Expected attendance** card still
+shows what was planned, beside what happened.
+
+Existing data is untouched; nothing is migrated. Activities already completed
+this way still hold no register, and recording it after the fact works as it
+always has.
+
+# TalentTrack v4.122.0 — The "attendance not recorded" alert now reads the register, not the plan (#3444)
+
+`tt_attendance` holds the roster you plan ahead of an activity and the register
+you take on the day in the same table, separated only by a record type — and the
+planned rows carry real statuses, since "expected" is stored as "present". The
+alert built for exactly one failure ("this activity is completed and nobody
+recorded who was there") counted a planned roster as a register, so the most
+common version of that failure was invisible to it: tick the expected roster at
+creation, never take the register, mark the activity completed, and the alert
+stayed silent. It now looks only at non-guest rows from the register itself. A
+guest row is somebody else's player turning out and says nothing about whether
+this squad was registered.
+
+The same query gated completion on `plan_state`, which is `completed` by default
+on every create path except the team planner — so the alert also fired on
+activities nobody had completed, which is the "past activity still planned"
+alert's subject, not this one's. It now uses the shared lifecycle predicate that
+reads the status the coach actually set.
+
+Both directions are covered by tests, including that an alert already raised on
+a plan-only activity resolves itself on the next sweep once the register is
+taken. No wording changed and nothing is stored differently; existing open
+occurrences are re-evaluated on the next hourly sweep.
+
+# TalentTrack v4.122.0 — A match can no longer close with no attendance and no minutes, quietly (#3445)
+
+Ending a match recomputed attendance and minutes from the match plan plus
+the substitution log, and that step could give up without writing anything
+and without saying so — the activity still flipped to completed, read
+"Completed" everywhere, and nobody went back for it.
+
+The recompute now reports why it stopped instead of answering a bare
+`false` that all four of its callers discarded: no execution row, no match
+plan, nobody on the availability list, or a failed write. Each one logs a
+warning naming the activity and the execution.
+
+The final whistle is still never refused — the match was played, and a
+coach on a touchline cannot un-play it. Instead `POST …/finish` answers
+`attendance_recorded`, `attendance_rows` and, where there is nothing to
+show, an `attendance_gap` block naming the cause and where to fix it. The
+post-match screen renders the same warning with a **Record attendance**
+button pointing at the attendance grid for that team and date. The notice
+is read back out of the match rather than carried in the response, so it
+survives a reload and is there for whoever opens the match next, until the
+register is recorded.
+
+Two related repairs in the same write path: derived minutes are now written
+to the `actual` attendance row, never into a planned (`expected`) one where
+the minutes reports cannot see them, and the reconcile sweep no longer
+deletes planned rows for players outside the availability list.
+
+# TalentTrack v4.122.0 — Completing an activity with nobody on the register now asks first (#3446)
+
+Five paths reached "completed" and none of them checked whether any
+attendance had been recorded, so an activity could close with every
+player's participation for that date missing — and read "Completed" on
+every screen afterwards, which is why nobody went back for it.
+
+Completing an activity with an empty register now raises a dialog that
+names the gap and offers the remedy beside the override: **Record
+attendance** goes to that team's attendance grid on the activity's own
+date and leaves the activity planned, **Complete anyway** completes it,
+and Cancel or Escape means don't. It fires on the wizard's Skip branch
+and on the wizard-off **Mark completed** button.
+
+It warns rather than forbids, because empty registers are sometimes
+correct — an imported fixture, a club-wide activity with no squad, a match
+played with a borrowed team. A *partly* recorded register raises nothing:
+marking the eight players you were sure about is a real answer, and a
+dialog that fires on it is one coaches learn to tap past. Meetings, *other*
+activities and activities with no team complete in silence — there is no
+roster whose participation could go missing.
+
+The wizard's "Rate now?" step also stops claiming "Attendance is saved."
+on an activity that has none.
+
+For integrators: `POST /activities/{id}/status` now returns
+`register_state` (`none` / `partial` / `complete` / `not_applicable`), so a
+non-WordPress client can raise the same warning instead of inventing its
+own definition of an empty register.
+
+# TalentTrack v4.122.0 — Activity list: how much of each register actually exists (#3447)
+
+Every completed activity on the activities list now carries a small `N/N`
+on the right of its card saying how much of its register was really
+recorded — attendance on a training, attendance and minutes on a match.
+The counts are right-aligned and use tabular numerals, so they line up
+down the list and a session nobody wrote up stands out without opening
+anything. A card reading `0/14` also offers a link straight to that
+activity's column in the attendance grid, because a completed activity
+with nothing recorded is a task rather than a statistic.
+
+The counts read recorded (`record_type = 'actual'`) rows only. The
+planned roster lives in the same table and carries real statuses, so a
+count that included it would have reported a full register for exactly
+the activity whose register is missing — the failure this readout exists
+to surface. The denominator is the roster the coach planned for the
+activity where one was captured, otherwise the team's current squad, so a
+September training keeps reading `14/14` after somebody leaves in March.
+Minutes are owed only by the players marked Present or Late; guests count
+on neither side.
+
+The numbers come from the same `ActivityRegisterProgress` service the
+empty-register warning grades on, so the card and the dialog can never
+tell you different things about the same activity; the readout adds a
+batched page projection that reads a whole list in two queries rather
+than two per row. It is exposed on the activities REST payload as
+`register`, so a non-WordPress front end draws the same row.
+
+# TalentTrack v4.122.0 — Activity dates now say which day of the week they are (#3448)
+
+An activity is a scheduled event, and a coach thinks in "Friday training"
+rather than "the 11th" — but the activities list and the activity detail
+page were the two surfaces that printed no weekday anywhere, while eight
+others already did.
+
+The list card's date tile now stacks weekday, day and month, and stays
+square (52px instead of 44px): three lines centred inside a fixed square
+cost 8px of row height, where stretching the tile into a 44-wide
+rectangle cost 13px. The detail hero, the date fact, the record spine,
+match prep, match analysis, the match list, the ratings grid and the
+player's own activity list all carry the weekday too, via a new
+`TTDate::dateWithDay()`.
+
+It **composes** with the academy's configured date notation rather than
+replacing it — `Fri 11-09-2026` if you picked `31-12-2026`, `Fri
+2026-09-11` if you picked ISO — and it takes the day name from the locale
+exactly as that language writes it, so Dutch reads `vr` and not `Vr`. A
+System-default format that already names the weekday is left alone rather
+than printing it twice. Plain dates are untouched: a player's date of
+birth and an audit stamp gain no weekday.
+
+Three long-standing defects fixed alongside it: the team page's upcoming
+activities printed the raw `2026-09-11` out of the column with no
+formatter at all; the player profile's row badges built their month
+abbreviation with `gmdate()`, so every one read English on a Dutch
+install; and a match's facts strip had no Date fact at all — it ran from
+Opponent to Formation, and the date cell existed only on the training
+branch.
+
 # TalentTrack v4.121.1 — A VCT session no longer stays published when its activity is purged (#3426)
 
 Deleting an activity out of the recycle bin (or through
