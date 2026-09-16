@@ -1033,10 +1033,18 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #1320 admin-CRUD slice — wipe + rewrite the roster attendance
-     * rows for an activity. Only touches `is_guest = 0` rows: guest
-     * rows are managed via the frontend / REST endpoints and survive a
-     * legacy admin save cycle (#0026).
+     * #1320 admin-CRUD slice — wipe + rewrite the RECORDED roster
+     * attendance rows for an activity. Only touches `is_guest = 0` rows:
+     * guest rows are managed via the frontend / REST endpoints and
+     * survive a legacy admin save cycle (#0026).
+     *
+     * #3456 — and only `record_type = 'actual'` rows. The wp-admin form
+     * records what happened; the planned squad (`expected`) belongs to
+     * the coach's match prep and is not this form's to rewrite. Until
+     * migration 0121 split the table there was one kind of row and the
+     * unscoped delete was correct; afterwards it meant an administrator
+     * fixing a kick-off time deleted the plan and the rewrite brought it
+     * back as a register nobody had taken.
      *
      * @param array<int, array{status: string, notes: string}> $entries
      *                  Keyed by player id; values already sanitized.
@@ -1046,7 +1054,7 @@ final class ActivitiesRepository {
     public function replaceRosterAttendance( int $activity_id, array $entries ): array {
         global $wpdb;
         $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id(), 'record_type' => 'actual' ] );
         $failed = [];
         foreach ( $entries as $player_id => $entry ) {
             $ok = $wpdb->insert( "{$p}tt_attendance", [
@@ -1056,6 +1064,10 @@ final class ActivitiesRepository {
                 'notes'       => (string) ( $entry['notes'] ?? '' ),
                 'is_guest'    => 0,
                 'club_id'     => CurrentClub::id(),
+                // Named rather than left to the column default, so the
+                // kind of row this writes is on the page beside the
+                // delete that scopes to the same kind.
+                'record_type' => 'actual',
             ] );
             if ( $ok === false ) $failed[ (int) $player_id ] = (string) $wpdb->last_error;
         }
@@ -1157,7 +1169,11 @@ final class ActivitiesRepository {
 
     /**
      * #1320 admin-CRUD slice — hard-delete an activity and ALL its
-     * attendance rows (roster + guests). Club-scoped.
+     * attendance rows (roster + guests, planned + recorded). Club-scoped.
+     *
+     * The delete deliberately spans both record types (#3456 survey): the
+     * activity itself is going, so a surviving plan would reference a row
+     * that no longer exists.
      *
      * #1712 — returns the activity-delete result so the REST controller
      * can surface a DB failure (the wp-admin caller ignores the return).
@@ -1919,6 +1935,11 @@ final class ActivitiesRepository {
      * the caller's responsibility (it varies by write path). Returns the
      * new row id, or null on a DB error (read `lastError()` for the message).
      *
+     * #3456 — `$row` should name `record_type`. A map that omits it lands
+     * on the column default (`actual`), which is right for a register and
+     * silently wrong for a plan; the kind of row belongs in the caller
+     * that knows which it is writing.
+     *
      * @param array<string, mixed> $row
      */
     public function insertAttendance( array $row ): ?int {
@@ -1933,6 +1954,17 @@ final class ActivitiesRepository {
     /**
      * #1712 — wipe the non-guest (roster) attendance rows for an
      * activity. Guest rows survive (managed via the guest endpoints).
+     *
+     * #3456 survey — this delete still spans BOTH record types, and that
+     * is not deliberate: its one caller (the REST activity update, when
+     * the payload carries attendance) rewrites the rows as `actual`, so
+     * it has the same defect `replaceRosterAttendance()` just lost. It is
+     * not fixed here because the fix is not local to this method: the
+     * caller snapshots the line-up with `lineupProjectionFor( id, null )`
+     * — widened precisely because this delete is wide — and narrowing one
+     * without the other makes `lineupForActivity()` list every starter
+     * twice, once from the surviving `expected` row and once from the new
+     * `actual` one. Both halves move together, on #3451.
      */
     public function deleteRosterAttendance( int $activity_id ): void {
         global $wpdb;
