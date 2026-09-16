@@ -26,7 +26,12 @@ class PrinciplesRepository {
     }
 
     /**
+     * `methodology_id` overrides the ambient scope — pass it when the
+     * caller already knows the set, as `SubPrinciplesRepository` does.
+     * Omitted, the active set answers.
+     *
      * @param array{
+     *   methodology_id?: int,
      *   team_function?: string,
      *   team_task?: string,
      *   source?: string,             // 'shipped' | 'club' | 'both' (default)

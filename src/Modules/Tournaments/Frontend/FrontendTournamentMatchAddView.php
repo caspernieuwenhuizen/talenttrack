@@ -222,7 +222,12 @@ final class FrontendTournamentMatchAddView extends FrontendViewBase {
         }
 
         $windows = [];
-        foreach ( preg_split( '/[\s,]+/', $windows_raw ) as $token ) {
+        // preg_split() answers `false` on a pattern that will not compile,
+        // and PHP 8 raises on a foreach over it. This pattern is a literal,
+        // so the guard describes the shape rather than a case a request can
+        // reach.
+        $tokens = preg_split( '/[\s,]+/', $windows_raw );
+        foreach ( ( $tokens === false ? [] : $tokens ) as $token ) {
             $w = (int) trim( (string) $token );
             if ( $w > 0 && $w < $duration ) $windows[] = $w;
         }

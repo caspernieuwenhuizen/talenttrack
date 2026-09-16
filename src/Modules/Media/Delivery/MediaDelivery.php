@@ -216,7 +216,10 @@ final class MediaDelivery {
      * for one, and hand-rolling that encoding to serve a private
      * photograph is a poor trade.
      *
-     * @return array{0:int,1:int}|string|null
+     * The only string it ever answers is `unsatisfiable`, which the type
+     * says so the caller's destructure is provably on a pair.
+     *
+     * @return array{0:int,1:int}|'unsatisfiable'|null
      */
     public static function parseRange( ?string $range, int $total ) {
         if ( $range === null || $range === '' || $total <= 0 ) return null;

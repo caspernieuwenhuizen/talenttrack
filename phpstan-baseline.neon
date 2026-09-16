@@ -10405,24 +10405,6 @@ parameters:
 			path: src/Modules/Media/Authorization/MediaVisibilityService.php
 
 		-
-			message: '#^Cannot use array destructuring on list\<int\>\|string\.$#'
-			identifier: offsetAccess.nonArray
-			count: 1
-			path: src/Modules/Media/Delivery/MediaDelivery.php
-
-		-
-			message: '#^Parameter \#6 \$start of class TT\\Modules\\Media\\Delivery\\MediaDeliveryPlan constructor expects int, int\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Modules/Media/Delivery/MediaDelivery.php
-
-		-
-			message: '#^Parameter \#7 \$end of class TT\\Modules\\Media\\Delivery\\MediaDeliveryPlan constructor expects int, int\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Modules/Media/Delivery/MediaDelivery.php
-
-		-
 			message: '#^Method TT\\Modules\\Media\\Ingest\\MediaIngestResult\:\:__construct\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -11939,12 +11921,6 @@ parameters:
 			identifier: missingType.parameter
 			count: 1
 			path: src/Modules/Methodology/Repositories/MethodologyAssetsRepository.php
-
-		-
-			message: '#^Call to function array_key_exists\(\) with ''methodology_id'' and array\{team_function\?\: string, team_task\?\: string, source\?\: string, formation_id\?\: int, search\?\: string, include_archived\?\: bool\} will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Modules/Methodology/Repositories/PrinciplesRepository.php
 
 		-
 			message: '#^Variable \$args in empty\(\) always exists and is not falsy\.$#'
@@ -16285,12 +16261,6 @@ parameters:
 			path: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
 
 		-
-			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
-
-		-
 			message: '#^Method TT\\Modules\\Tournaments\\Repositories\\TournamentsRepository\:\:listForTeamPicker\(\) should return list\<object\> but returns array\<mixed\>\.$#'
 			identifier: return.type
 			count: 1
@@ -16325,12 +16295,6 @@ parameters:
 			identifier: return.unusedType
 			count: 1
 			path: src/Modules/Tournaments/Wizard/FormationStep.php
-
-		-
-			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/Modules/Tournaments/Wizard/MatchesStep.php
 
 		-
 			message: '#^Method TT\\Modules\\Tournaments\\Wizard\\MatchesStep\:\:blankRow\(\) return type has no value type specified in iterable type array\.$#'
