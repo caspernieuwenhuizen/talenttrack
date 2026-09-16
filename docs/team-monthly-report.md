@@ -46,6 +46,27 @@ bottom first, and the agenda to its two most urgent players, before the page is
 reported as too full. If it still does not fit, drop a section or switch to the
 three-page pack.
 
+## Saving your usual report
+
+Most coaches compose the same report every month. Once it looks right, open the
+**bookmark** in the period bar and choose **Save current filters**. The saved
+view keeps everything: the team, the period, the report type and the sections.
+Mark it as your default, and opening the monthly report takes you straight to
+it. A period like *last month* is worked out again each time you open it, so
+the same view shows September in October and October in November.
+
+The panel tells you when you are looking at one of your saved views. If you
+opened your default and changed something, it tells you that too. To keep the
+changed version, save it as a new view.
+
+A link that already names a team, period, type or sections always opens exactly
+that report, even if you have a default.
+
+Saved views are **personal**. Nobody else sees them, and changing or deleting
+one only affects you. A saved view from before a section was added or renamed
+still opens: whatever it cannot recognise is left out, and a view that names no
+sections shows all of them.
+
 ## Printing
 
 **Download PDF** under the panel prints exactly the report you composed: the

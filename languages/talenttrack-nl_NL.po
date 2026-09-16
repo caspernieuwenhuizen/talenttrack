@@ -23423,6 +23423,14 @@ msgstr "Vooruit %1$d · achteruit %2$d"
 msgid "Team monthly report (PDF)"
 msgstr "Maandrapport team (PDF)"
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Your saved view “%s”."
+msgstr "Je opgeslagen weergave “%s”."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Changed from your default view “%s”. To keep this version, save it as a new view from the bookmark above and make that your default."
+msgstr "Aangepast ten opzichte van je standaardweergave “%s”. Wil je deze versie houden, sla hem dan via de bladwijzer hierboven op als nieuwe weergave en maak die je standaard."
+
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:50
 msgid "Team planner (week-by-week)"
 msgstr "Teamplanner (week voor week)"

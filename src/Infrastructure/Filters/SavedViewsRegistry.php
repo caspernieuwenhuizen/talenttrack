@@ -75,6 +75,10 @@ final class SavedViewsRegistry {
         'report-season-summary'                => 'tt_view_analytics',
         'report-season-trial-funnel'           => 'tt_view_analytics',
         'report-scout-report-card'             => 'tt_view_analytics',
+
+        // #3461 — the team monthly report. A view here stores a whole
+        // composition (team, window, layout, sections), not only filters.
+        'report-team-monthly'                  => 'tt_view_analytics',
     ];
 
     /**

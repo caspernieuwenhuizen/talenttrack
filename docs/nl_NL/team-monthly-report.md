@@ -47,6 +47,28 @@ ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
 voordat de pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
 sectie weg of kies het pakket van drie pagina's.
 
+## Je vaste rapport bewaren
+
+De meeste trainers stellen elke maand hetzelfde rapport samen. Ziet het er goed
+uit, open dan de **bladwijzer** in de periodebalk en kies **Huidige filters
+opslaan**. De opgeslagen weergave bewaart alles: het team, de periode, de
+rapportsoort en de secties. Maak je er je standaard van, dan kom je bij het
+openen van het maandrapport meteen daar uit. Een periode als *vorige maand*
+wordt elke keer opnieuw bepaald, dus dezelfde weergave toont in oktober september
+en in november oktober.
+
+Het paneel laat zien wanneer je naar een van je opgeslagen weergaven kijkt. Heb
+je je standaard geopend en iets veranderd, dan zie je dat ook. Wil je de
+veranderde versie houden, sla die dan op als nieuwe weergave.
+
+Een link die al een team, periode, soort of secties noemt, opent altijd precies
+dat rapport, ook als je een standaard hebt.
+
+Opgeslagen weergaven zijn **persoonlijk**. Niemand anders ziet ze, en wat je
+eraan verandert of verwijdert geldt alleen voor jou. Een weergave van voordat een
+sectie werd toegevoegd of hernoemd, opent nog steeds: wat niet meer herkend wordt
+valt weg, en een weergave zonder secties toont ze allemaal.
+
 ## Afdrukken
 
 **PDF downloaden** onder het paneel maakt de afdruk van precies het rapport dat
