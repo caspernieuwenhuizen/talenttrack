@@ -3,6 +3,7 @@ namespace TT\Modules\Alerts\Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
@@ -85,7 +86,7 @@ final class NoCoachAssignedAlert extends AbstractActivityAlert {
               WHERE " . $this->baseWhere( 'a' ) . "
                 AND a.session_date >= CURDATE()
                 AND a.session_date <= DATE_ADD( CURDATE(), INTERVAL %d DAY )
-                AND a.plan_state IN ( 'planned', 'scheduled' )
+                AND " . ActivityLifecycle::outstandingClause( 'a' ) . "
                 AND ( a.coach_id IS NULL OR a.coach_id = 0 )"
             . $context->applyScope( self::SUBJECT_TYPE, 'a.id' ) . "
               ORDER BY a.session_date ASC, a.id ASC",

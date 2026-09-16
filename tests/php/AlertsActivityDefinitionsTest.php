@@ -439,6 +439,56 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    /**
+     * #3463 — the third bug from the same column. `plan_state` defaults to
+     * `completed` on every create path except the team planner, so an
+     * uncoached activity next Tuesday made by the wizard, the flat form or
+     * the Spond import failed the old `plan_state IN ('planned','scheduled')`
+     * predicate and raised nothing at all.
+     *
+     * This is the most expensive of the three silences: the activity has not
+     * happened yet, so the alert could have prevented the loss rather than
+     * reported it.
+     */
+    public function test_uncoached_activity_alerts_whatever_plan_state_says(): void {
+        $head = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->assignHeadCoach( $team, $head );
+
+        // What every non-planner create path writes: plan_state 'completed'
+        // by default, while the status the coach sees still reads planned.
+        $this->insertActivity( $team, $this->daysAhead( 3 ), 'completed', 0, 'planned' );
+
+        $out = ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) );
+
+        $this->assertCount( 1, $out, 'An uncoached upcoming activity alerts on the status axis, not the planner axis.' );
+        $this->assertSame( $head, $out[0]->recipientUserId );
+    }
+
+    public function test_uncoached_activity_completed_on_the_status_axis_produces_nothing(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->assignHeadCoach( $team, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->insertActivity( $team, $this->daysAhead( 3 ), 'planned', 0, 'completed' );
+
+        $this->assertSame(
+            [],
+            ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ),
+            'Somebody has finished with it. Chasing a coach for it would be noise.'
+        );
+    }
+
+    public function test_uncoached_cancelled_activity_produces_nothing(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->assignHeadCoach( $team, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->insertActivity( $team, $this->daysAhead( 3 ), 'planned', 0, 'cancelled' );
+
+        $this->assertSame(
+            [],
+            ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ),
+            'A cancelled activity never needs a coach.'
+        );
+    }
+
     // ── fixtures ───────────────────────────────────────────────────────
 
     private function daysAgo( int $n ): string {
