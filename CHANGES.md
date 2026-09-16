@@ -1,3 +1,86 @@
+# TalentTrack v4.121.1 — A VCT session no longer stays published when its activity is purged (#3426)
+
+Deleting an activity out of the recycle bin (or through
+`DELETE /activities/{id}/permanent`) left the session that was planned on it
+unbound but still marked published, which a coach met as a session they could
+neither re-publish nor archive. The wp-admin delete already reverted it; the
+purge did not, because the cascade clears the session's link to the activity
+as part of the delete, so by the time the modules were told the activity was
+gone there was nothing left to look up.
+
+The binding is now read before the delete runs and handed to the modules
+afterwards, so the session ends up unbound and back in draft on every delete
+path. The delete itself is unchanged — it is still announced only after the
+rows are actually gone, so a refused delete never reaches a cleanup handler.
+
+# TalentTrack v4.121.1 — A capability a release adds is granted without a trip to wp-admin (#3432)
+
+A capability declared in a release reached the roles that should hold it only
+once somebody loaded a WordPress-admin page: the re-assert hung off
+`admin_init`, and nothing else triggered it between the update and that visit.
+That was a safe assumption while running an academy meant going to wp-admin. It
+stopped being one when Setup, the permission matrix and the dashboard all moved
+to the frontend — an academy that works entirely in the app can go indefinitely
+without an admin page load, so the grant did not arrive late, it did not arrive.
+The safeguarding broadcast is the sharpest illustration: the capability that
+permits the one message nobody can refuse sat ungranted on such an install while
+the preferences screen told every parent the message could not be switched off.
+
+The role and capability shape is now asserted on the plugin version change, the
+same trigger the schema already uses, from any surface that loads a page. It
+carries its own stamp rather than riding the schema's, so a failed migration
+cannot hold a capability grant hostage. The re-assert stays additive: it hands a
+role what its definition says it should have and removes nothing, so a grant an
+operator withdrew through the authorization matrix — a separate store this never
+writes — stays withdrawn.
+
+The wp-admin re-assert is kept as a self-heal for installs that do use it. Tests
+cover both directions, and deliberately never fire `admin_init` — the suite's
+not firing it is why this shipped.
+
+# TalentTrack v4.121.1 — Measurements follow the functional role, not the Staff seat (#3433)
+
+The previous release moved injury records off the generic Staff seat and
+onto the Physio functional role, and left measurements where they were.
+That fixed half the problem: `tt_staff` is one WordPress role covering the
+physio, the kit manager and everyone in between, so a Staff account issued
+to move shirts still read every player's height, weight and test results.
+
+Measurement *reading* now comes from the functional role a person holds on
+a team, the same way injuries do. Physio, Head coach and Assistant coach
+read the measurements of the squads they hold that role on. Kit manager
+reads none, on any team.
+
+Recording a measurement is unchanged. Entering heights and test results is
+part of the Coach, Head coach and Team manager roles, which this does not
+touch — nobody who runs a testing session loses the entry form.
+
+**Nothing changes for an existing Staff account until you give that person
+a functional role.** An account with no functional role on any team keeps
+exactly the access it has today, including recording. The narrower shape
+is something an academy opts into, one person at a time, under
+**People → Functional roles**. There is no migration and no data change.
+
+This is the persona-level floor and not a replacement for the per-test
+visibility level: which tests a reader sees once admitted is still decided
+per test under **Manage tests**, and a test marked medical-only stays
+medical-only for everybody.
+
+One knock-on worth knowing: the *no measurement this season* alert is sent
+to the head coach of the player's team and then filtered to recipients who
+may read measurements. Holding the Head coach role on a team now is that
+permission, so a head coach whose account did not otherwise reach
+measurements starts receiving the alert — which is the point of the change
+rather than a side effect of it. A head coach whose assignment has ended
+still receives nothing.
+
+Also fixed alongside it: the team pickers and export scopes on the
+measurement surfaces asked "which teams are you attached to?" rather than
+"which teams may you read measurements for?". Those were the same question
+until access started following the functional role; now they are not, and
+the two test reports, the BMI report, the browse and trends REST routes
+and the results export all ask the permission question per team.
+
 # TalentTrack v4.121.0 — Injury access now follows the functional role, not the Staff role (#3257)
 
 The Staff role is one seat covering a physio, a kit manager and everyone in
