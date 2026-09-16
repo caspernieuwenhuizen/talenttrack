@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T17:40:24+00:00\n"
+"POT-Creation-Date: 2026-09-16T18:42:34+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6503,7 +6503,7 @@ msgstr ""
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:53
-#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:56
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:59
 msgid "Untitled activity"
 msgstr "Naamloze activiteit"
 
@@ -6726,11 +6726,11 @@ msgid "%s's parent was invited but never activated their account."
 msgstr ""
 "De ouder van %s is uitgenodigd maar heeft het account nooit geactiveerd."
 
-#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:36
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:39
 msgid "Past activity still planned"
 msgstr "Activiteit uit het verleden staat nog op gepland"
 
-#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:40
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:43
 msgid ""
 "An activity whose date has passed is still marked as planned. Until it is "
 "completed or cancelled, its attendance and minutes are missing from every "
@@ -6741,7 +6741,7 @@ msgstr ""
 "speelminuten in elk rapport."
 
 #. translators: 1: activity name, 2: number of days it has been unmarked
-#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:60
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:63
 #, php-format
 msgid "%1$s is still marked as planned, %2$d day after it took place."
 msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
