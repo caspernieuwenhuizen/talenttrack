@@ -9,6 +9,16 @@ tests/e2e/.auth/
 # wp-env
 .wp-env.override.json
 
+# Composer dev tooling (#3439). The runtime half of vendor/ is committed on
+# purpose — e2e.yml installs nothing and loads it straight from the checkout.
+# These three paths are the dev half: nothing at runtime loads them, all three
+# release ZIP builds already exclude them, and a committed PHPStan binary is
+# free to drift out of step with composer.json and analyse against a baseline
+# it cannot read. Get them from `composer install`. See DEVOPS.md.
+/vendor/bin/
+/vendor/phpstan/
+/vendor/szepeviktor/
+
 # Claude Code session state (worktrees + per-session locks)
 .claude/
 

@@ -76,6 +76,31 @@ Ask "show me what you did" before saying "ship it" if you want to review in the 
 
 To ship: "merge the PR and delete the branch". Claude Code runs `gh pr merge --squash --delete-branch`.
 
+### Dependencies — half of `vendor/` is committed, half is not
+
+Run `composer install` once in a fresh clone. Until you do, there is no
+`vendor/bin/phpstan`, no PHPUnit, and every `vendor/bin/*` invocation reports
+that the file does not exist.
+
+`vendor/` is deliberately split, which is surprising enough to be worth
+stating so nobody "tidies" it away:
+
+| half | committed? | why |
+| --- | --- | --- |
+| Runtime — Dompdf, PhpSpreadsheet, their dependencies, `vendor/autoload.php` | **yes** | `e2e.yml` runs no `composer install` and sets up no host PHP; every PHP process in that job runs inside wp-env against the mounted checkout. It loads these straight from the tree. Dropping the install was a measured win (#2416) and, with no `composer.lock` in the repo, also the only thing keeping the Playwright run on a fixed set of runtime versions. |
+| Dev tooling — `vendor/bin/`, `vendor/phpstan/`, `vendor/szepeviktor/` | **no** (#3439) | Nothing at runtime loads them, and all three release ZIP builds already `--exclude` exactly these paths, so they never shipped. Committing them only lets a stale binary drift: before #3439 the tree carried PHPStan 1.12.33 while `composer.json` asked for `^2.2`, so anyone running `vendor/bin/phpstan` without installing got 1.12 analysing a 2.x baseline — not an error, just a flood of wording mismatches. |
+
+So: touching `composer.json` for a **runtime** package means committing the
+refreshed tree along with it, and touching it for a **dev** package means
+committing nothing. The rest of the toolchain re-resolves per run —
+`release.yml`, `auto-release.yml`, `release-tag.yml` and `php-tests.yml` each
+install their own dependencies and never read the committed tree.
+
+Two known gaps, both deliberate and both wanting their own PR: the committed
+Dompdf is 2.0.8 against a required `^3.0` (releases resolve fresh and already
+ship 3.x, so this affects only the E2E job and local clones), and there is no
+`composer.lock`.
+
 ### Local checks before you push
 
 `tools/dev-check.ps1` runs the gating checks locally so a red PR is the exception, not the norm:
