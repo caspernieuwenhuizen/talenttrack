@@ -356,8 +356,9 @@ class ArchiveRepository {
         // raw DELETE can no longer strand child rows. The exception
         // propagates to the caller, which surfaces the dependency report.
         if ( CascadeRegistry::has( $entity ) ) {
-            $result = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
-            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'] );
+            $context = $this->captureDeleteContext( $entity, $ids );
+            $result  = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
+            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'], $context );
             return (int) $result['deleted'];
         }
 
@@ -545,8 +546,9 @@ class ArchiveRepository {
             return array_merge( $base, ( new PlayerDeletionCascade() )->cascade( $ids ) );
         }
         if ( CascadeRegistry::has( $entity ) ) {
-            $result = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
-            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'] );
+            $context = $this->captureDeleteContext( $entity, $ids );
+            $result  = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
+            $this->announceHardDelete( $entity, $ids, (int) $result['deleted'], $context );
             return array_merge( $base, $result );
         }
 
@@ -573,15 +575,42 @@ class ArchiveRepository {
      * not to exist are harmless: every subscriber clears references to a
      * missing row, which is a no-op when there are none.
      *
-     * @param int[] $ids
+     * #3426 — the cascade plan nulls declared foreign keys on its way
+     * through, so a reference the subscriber would look up is already gone
+     * when it runs. `$context` carries what `captureDeleteContext()` read
+     * before the first write, keyed by entity id.
+     *
+     * @param int[]                          $ids
+     * @param array<int,array<string,mixed>> $context
      */
-    private function announceHardDelete( string $entity, array $ids, int $deleted ): void {
+    private function announceHardDelete( string $entity, array $ids, int $deleted, array $context = [] ): void {
         if ( $deleted <= 0 ) return;
         if ( $entity !== 'activity' ) return;
 
         foreach ( $ids as $id ) {
-            ActivitiesRepository::announceDeleted( (int) $id );
+            ActivitiesRepository::announceDeleted( (int) $id, $context[ (int) $id ] ?? [] );
         }
+    }
+
+    /**
+     * #3426 — read the references a cascade is about to erase, before it
+     * runs. Keyed by entity id, handed to the subscribers afterwards.
+     *
+     * Only activities collect anything today; the modules that keep the
+     * references answer for their own tables through the filter, so this
+     * repository stays free of module tables.
+     *
+     * @param int[] $ids
+     * @return array<int,array<string,mixed>>
+     */
+    private function captureDeleteContext( string $entity, array $ids ): array {
+        if ( $entity !== 'activity' ) return [];
+
+        $out = [];
+        foreach ( $ids as $id ) {
+            $out[ (int) $id ] = ActivitiesRepository::captureDeleteContext( (int) $id );
+        }
+        return $out;
     }
 
     /**
