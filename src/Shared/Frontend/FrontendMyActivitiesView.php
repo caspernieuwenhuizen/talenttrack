@@ -176,7 +176,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                     $title       = trim( (string) ( $row->title ?? '' ) );
                     if ( $title === '' ) $title = __( 'Activity', 'talenttrack' );
                     $location = trim( (string) ( $row->location ?? '' ) );
-                    $date     = \TT\Shared\Dates\TTDate::date( (string) ( $row->session_date ?? '' ) );
+                    $date     = \TT\Shared\Dates\TTDate::dateWithDay( (string) ( $row->session_date ?? '' ) );
                     $url      = add_query_arg(
                         [ 'tt_view' => 'my-activities', 'id' => $activity_id ],
                         \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -261,7 +261,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         <article class="tt-activity-detail">
             <p class="tt-activity-detail-meta">
                 <?php if ( $session_date !== '' ) : ?>
-                    <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $session_date ) ); ?></span>
+                    <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::dateWithDay( $session_date ) ); ?></span>
                 <?php endif; ?>
                 <?php if ( $team_name !== '' ) : ?>
                     <span class="tt-meta-chip"><?php esc_html_e( 'Team:', 'talenttrack' ); ?> <strong><?php echo esc_html( $team_name ); ?></strong></span>

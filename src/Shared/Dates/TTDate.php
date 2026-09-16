@@ -109,6 +109,82 @@ class TTDate {
     }
 
     /**
+     * The same format string with the abbreviated weekday in front —
+     * `D d-m-Y`, `D j F Y`, and so on (#3448).
+     *
+     * Composed rather than hardcoded on purpose. Eight surfaces already
+     * print a weekday (bucket headers, the dashboard's upcoming table,
+     * the planner's column heads, the landing greeting), and every one of
+     * them is a hand-rolled `wp_date()` call that ignores the academy's
+     * configured preset. A method with a shape of its own would be a
+     * ninth; prefixing whatever `dateFormat()` resolves means the
+     * operator's choice still decides the date part.
+     *
+     * None of the seven presets contains `D` or `l`, but the `system`
+     * preset defers to the WordPress date-format option, which an
+     * operator can set to anything — so a format that already names the
+     * weekday is returned untouched rather than printed twice.
+     */
+    public static function dateWithDayFormat(): string {
+        $fmt = self::dateFormat();
+        return self::formatNamesWeekday( $fmt ) ? $fmt : 'D ' . $fmt;
+    }
+
+    /**
+     * The timestamp behind any input this class accepts, or null when it
+     * is unparseable — for the few surfaces that need a single component
+     * rather than a whole formatted date (a badge printing just the month
+     * abbreviation and the day number).
+     *
+     * Exists so those surfaces stop reaching for a bare `strtotime()`.
+     * WordPress pins PHP's default timezone to UTC, so `strtotime()` on a
+     * bare `Y-m-d` yields midnight *UTC*; feeding that to `wp_date()` in a
+     * negative-offset academy lands on the previous day. Parsing against
+     * `wp_timezone()` is the #2437 fix, and it belongs here rather than
+     * being re-derived at each call site.
+     *
+     * @param int|string|\DateTimeInterface|null $when
+     */
+    public static function timestamp( $when ): ?int {
+        return self::ts( $when );
+    }
+
+    /**
+     * Format a date with its weekday in front, per the academy preset.
+     * Same input contract as {@see date()}.
+     *
+     * Scope is *scheduled events* — an activity, a fixture, a training.
+     * `date()` itself is deliberately untouched, so a player's date of
+     * birth and an audit stamp keep the plain preset: a weekday on a
+     * birthdate is noise, and on an audit row it is misleading.
+     *
+     * No `ucfirst()` here. `wp_date()` already returns the locale's own
+     * casing — Dutch `vr`, English `Fri` — and capitalising it would be
+     * wrong in every locale that does not capitalise its weekdays.
+     *
+     * @param int|string|\DateTimeInterface|null $when
+     */
+    public static function dateWithDay( $when ): string {
+        $ts = self::ts( $when );
+        if ( $ts === null ) return '';
+        return (string) wp_date( self::dateWithDayFormat(), $ts );
+    }
+
+    /**
+     * Does this `date()` format string already print a weekday? `D` and
+     * `l` are the two that do; a backslash-escaped character is a literal
+     * and never counts (`\D` in a format means the letter D).
+     */
+    private static function formatNamesWeekday( string $fmt ): bool {
+        $len = strlen( $fmt );
+        for ( $i = 0; $i < $len; $i++ ) {
+            if ( $fmt[ $i ] === '\\' ) { $i++; continue; }
+            if ( $fmt[ $i ] === 'D' || $fmt[ $i ] === 'l' ) return true;
+        }
+        return false;
+    }
+
+    /**
      * Format a date *with* its clock time per the academy preset — used
      * for DATETIME values (created/updated stamps, sign-offs). The date
      * part follows the preset; the time is appended as 24-hour `H:i`.

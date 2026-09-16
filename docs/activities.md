@@ -26,7 +26,26 @@ The **Activities** tile opens a date-bucketed card list. The buckets read top to
 
 Empty buckets don't render their header at all — if there's nothing on for next week, the "Next week" header simply doesn't appear.
 
-Each row is a card: a date badge on the left (month + day, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
+Each row is a card: a square date badge on the left (weekday, day and month stacked, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
+
+### Is the register complete?
+
+Every **completed** activity carries a small count on the right of its card, saying how much of its register actually exists. A training shows attendance; a match shows attendance **and** minutes. The counts line up down the list, so a session nobody wrote up stands out without opening anything.
+
+- `✓ 14/14` — everything expected is recorded.
+- `9/13` — somebody started and stopped.
+- `⚠ 0/14` — the activity is completed and nothing was recorded at all. This is the case that used to be invisible until a report turned it up, so the card also offers a **Mark attendance** link straight to that activity's column in the [attendance grid](attendance-grid.md) (or **Record minutes** when attendance is there but minutes aren't).
+
+What each half counts:
+
+- **Attendance** — the players you actually marked. The denominator is the roster on the activity's [Expected attendance](#expected-attendance) panel where you filled one in, otherwise the team's current squad. Using the plan is what keeps a September training reading `14/14` after somebody leaves in March, instead of drifting to `13/14` on its own.
+- **Minutes** (matches only) — the players who have minutes recorded, out of the players you marked **Present** or **Late**. Somebody who was absent isn't missing minutes.
+
+Guests are left out of both halves, the same way the minutes reports count. Planned attendance is never counted as recorded attendance: the expected roster is what you thought would happen, and the point of this readout is whether anybody wrote down what did.
+
+Activities still to come show no count — nothing is late yet. Neither do cancelled activities, meetings and "other" activities, which have no register to be missing.
+
+These are the same three states the [completing-with-nobody-on-the-register](#completing-with-nobody-on-the-register) warning grades on, read from the same place, so the card and the dialog can never tell you different things about the same activity.
 
 ### Past activities
 
@@ -62,7 +81,7 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
 
 - **Hero** — a type-coloured icon chip, the title, and a sub-line reading `date · time · team · location`. For a match day with both teams known the title reads `Your team vs Opponent` and the sub-line shows the kick-off time and whether it's home or away. Pills below the title show the type (plus the game subtype or the Other label) and the status. Edit, Mark attendance and the other actions stay in the page header above.
 - **Stat strip** — a compact row of the key numbers under the hero. A match shows **Present** (turned up / roster) · **Substitutes** · **Match length**; a training shows **Present** · **Duration**. Numbers with no value are left out. **Present** appears only once the activity is **completed**, matching the Attendance card below it: on a session still marked *Planned* the number would state a turnout that has not happened yet. It counts recorded attendance only — the planned roster on the **Expected attendance** card is a separate list and is never added in.
-- **Facts strip** — four quick facts. A training shows Date · Time · Type · Status; a match day shows Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out.
+- **Facts strip** — a few quick facts. A training shows Date · Time · Type · Status; a match day shows Date · Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out. Every activity date here carries its weekday — `Fri 11-09-2026` — because a coach reads a fixture by the day it falls on.
 - **Cards** — each with a titled header, only the cards that have something to show appear, so the page stays uncluttered:
  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
  - **Notes** — the activity's free-text notes.
