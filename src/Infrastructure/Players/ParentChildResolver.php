@@ -85,16 +85,52 @@ final class ParentChildResolver {
     }
 
     /**
-     * True when this user has no own player record but does have at least
-     * one linked child — i.e. they reach the player surfaces purely as a
-     * guardian. Used by the dashboard to decide whether to render the
-     * child-scoped parent rail instead of the own-player rail.
+     * True when this user reaches the player surfaces **purely** as a
+     * guardian, and the dashboard should therefore render the child-scoped
+     * parent rail instead of the own-player rail.
+     *
+     * Two things disqualify them.
+     *
+     * Having their own player record — a player who is also linked as a
+     * guardian is still a player on their own dashboard.
+     *
+     * And, since #3479, holding any staff persona. This used to ask only
+     * about the player record, so a coach whose own child plays in the
+     * academy — routine in youth football — matched, and `FrontendTileGrid`
+     * returned early with the parent rail and none of their coaching tiles.
+     * Under the default `classic` shell there is no sidebar to fall back on,
+     * so they had no route to any coaching surface at all.
+     *
+     * The rule is that a staff seat wins: they get their staff dashboard and
+     * reach their own child through the Players list like any other player.
+     * Nothing here touches their parent-side *data* access — the seed grants
+     * and `canViewPlayer()` are a separate path, and a coach-parent keeps
+     * whatever the guardian link gives them.
      */
     public static function isParentViewer( int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
         $own = QueryHelpers::get_player_for_user( $user_id );
         if ( $own && (int) $own->id > 0 ) return false;
+        if ( self::holdsStaffPersona( $user_id ) ) return false;
         return self::childCount( $user_id ) > 0;
+    }
+
+    /**
+     * #3479 — does this user hold a persona whose own dashboard they would
+     * lose to the parent rail?
+     *
+     * Expressed as "anything but the two subject personas" rather than as a
+     * list of staff keys, so a persona added later is staff by default —
+     * the failure mode to avoid is a new seat silently inheriting the parent
+     * rail, which is the bug this method exists to fix.
+     */
+    private static function holdsStaffPersona( int $user_id ): bool {
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) return false;
+
+        foreach ( \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id ) as $persona ) {
+            if ( $persona !== 'parent' && $persona !== 'player' ) return true;
+        }
+        return false;
     }
 
     /**

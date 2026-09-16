@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T20:53:01+00:00\n"
+"POT-Creation-Date: 2026-09-16T21:12:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -1646,49 +1646,54 @@ msgstr ""
 msgid "Parent account created and linked. A set-password email has been sent."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:58
+#: src/Infrastructure/Players/ParentDashboardTiles.php:67
 msgctxt "parent dashboard tile noun"
 msgid "development"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:59
+#: src/Infrastructure/Players/ParentDashboardTiles.php:68
 msgctxt "parent dashboard tile noun"
 msgid "journey"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:60
+#: src/Infrastructure/Players/ParentDashboardTiles.php:69
 msgctxt "parent dashboard tile noun"
 msgid "profile"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:61
+#: src/Infrastructure/Players/ParentDashboardTiles.php:70
 msgctxt "parent dashboard tile noun"
 msgid "team"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:62
+#: src/Infrastructure/Players/ParentDashboardTiles.php:71
 msgctxt "parent dashboard tile noun"
 msgid "evaluations"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:63
+#: src/Infrastructure/Players/ParentDashboardTiles.php:72
 msgctxt "parent dashboard tile noun"
 msgid "activities"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:64
+#: src/Infrastructure/Players/ParentDashboardTiles.php:73
 msgctxt "parent dashboard tile noun"
 msgid "goals"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:65
+#: src/Infrastructure/Players/ParentDashboardTiles.php:74
 msgctxt "parent dashboard tile noun"
 msgid "development plan"
 msgstr ""
 
-#: src/Infrastructure/Players/ParentDashboardTiles.php:66
+#: src/Infrastructure/Players/ParentDashboardTiles.php:75
 msgctxt "parent dashboard tile noun"
 msgid "tasks"
+msgstr ""
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php:81
+msgctxt "parent dashboard tile noun"
+msgid "measurements"
 msgstr ""
 
 #: src/Infrastructure/Players/PlayerAccountService.php:90
@@ -14611,7 +14616,7 @@ msgstr ""
 #: src/Modules/Onboarding/OnboardingState.php:61
 #: src/Shared/CoreSurfaceRegistration.php:1932
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:121
-#: src/Shared/Frontend/FrontendTileGrid.php:783
+#: src/Shared/Frontend/FrontendTileGrid.php:815
 msgid "Welcome"
 msgstr ""
 
@@ -22020,6 +22025,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:101
+#: src/Shared/Frontend/FrontendTileGrid.php:771
 msgid "Your account"
 msgstr ""
 
@@ -54739,7 +54745,7 @@ msgid "%1$s's %2$s"
 msgstr ""
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:780
+#: src/Shared/Frontend/FrontendTileGrid.php:812
 #, php-format
 msgid "Welcome, %s"
 msgstr ""
