@@ -389,6 +389,12 @@
 .tt-parent-dash-tile {
     display: flex;
     align-items: center;
+    /* The tile can carry a third child — the under-development badge, which
+       is nowrap and claims ~120px. In a 220px grid column that leaves the
+       label about one character wide, and the label breaks anywhere, so it
+       printed one letter per line. Wrapping lets the badge drop below the
+       label instead of crushing it. */
+    flex-wrap: wrap;
     gap: 0.75rem;
     min-height: 56px;
     padding: 0.875rem;
@@ -412,12 +418,18 @@
     outline-offset: 2px;
 }
 .tt-parent-dash-tile-label {
-    flex: 1;
+    /* 8ch basis, not 0: this is what stops a nowrap sibling squeezing the
+       label below a readable width before the row wraps. */
+    flex: 1 1 8ch;
     min-width: 0;
     font-weight: 600;
     font-size: 0.95rem;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    /* break-word, not anywhere: break a genuinely long word, never every
+       character of a short one. */
+    overflow-wrap: break-word;
+}
+.tt-parent-dash-tile .tt-tile-dev-badge {
+    flex: 0 0 auto;
 }
 
 /* Child switcher (inline strip + full picker page). */
