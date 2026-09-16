@@ -129,7 +129,7 @@ final class ScheduledReportsRepository {
      * `report_key` defaults to a KPI schedule. A team-monthly schedule passes
      * its `composition`, which is stored as the schedule's own copy.
      *
-     * @param array{name:string, kpi_key?:string, frequency:string, recipients:string[], format:string, report_key?:string, composition?:array<string,mixed>} $data
+     * @param array{name:string, kpi_key?:string, frequency:string, recipients:string[], format?:string, report_key?:string, composition?:array<string,mixed>} $data
      */
     public function create( array $data, int $created_by ): int {
         global $wpdb;
@@ -143,8 +143,8 @@ final class ScheduledReportsRepository {
             'report_key'  => (string) ( $data['report_key'] ?? self::REPORT_KPI ),
             'kpi_key'     => (string) ( $data['kpi_key'] ?? '' ),
             'frequency'   => (string) $data['frequency'],
-            'recipients'  => (string) wp_json_encode( (array) ( $data['recipients'] ?? [] ) ),
-            'format'      => (string) ( $data['format'] ?? 'csv' ),
+            'recipients'  => (string) wp_json_encode( $data['recipients'] ),
+            'format'      => $data['format'] ?? 'csv',
             'next_run_at' => $next_run,
             'status'      => self::STATUS_ACTIVE,
             'created_by'  => $created_by,
