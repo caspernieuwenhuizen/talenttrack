@@ -38,7 +38,7 @@ Elke **afgeronde** activiteit heeft rechts op de kaart een klein getal dat zegt 
 
 Wat elke helft telt:
 
-- **Aanwezigheid** — de spelers die je echt hebt afgevinkt. De noemer is de selectie die je voor de activiteit hebt gepland als je die op het paneel [Verwachte opkomst](#verwachte-opkomst) hebt vastgelegd, en anders de huidige selectie van het team. Juist dankzij die planning blijft een training van september `14/14` lezen als er in maart iemand vertrekt, in plaats van vanzelf naar `13/14` te zakken.
+- **Aanwezigheid** — de spelers die je echt hebt afgevinkt. De noemer is de selectie op het paneel [Verwachte opkomst](#verwachte-opkomst) van de activiteit als je die hebt ingevuld, en anders de huidige selectie van het team. Juist dankzij die planning blijft een training van september `14/14` lezen als er in maart iemand vertrekt, in plaats van vanzelf naar `13/14` te zakken.
 - **Minuten** (alleen wedstrijden) — de spelers met geregistreerde minuten, van de spelers die je op **Aanwezig** of **Te laat** hebt gezet. Wie afwezig was, mist geen minuten.
 
 Gasten tellen in geen van beide helften mee, net als in de minutenrapportages. Geplande aanwezigheid geldt nooit als geregistreerde aanwezigheid: de verwachte selectie is wat je dacht dat er zou gebeuren, en deze uitlezing gaat er juist over of iemand heeft opgeschreven wat er wél gebeurde.

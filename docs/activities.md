@@ -38,7 +38,7 @@ Every **completed** activity carries a small count on the right of its card, say
 
 What each half counts:
 
-- **Attendance** — the players you actually marked. The denominator is the roster you planned for the activity where you captured one on the [Expected attendance](#expected-attendance) panel, otherwise the team's current squad. Using the plan is what keeps a September training reading `14/14` after somebody leaves in March, instead of drifting to `13/14` on its own.
+- **Attendance** — the players you actually marked. The denominator is the roster on the activity's [Expected attendance](#expected-attendance) panel where you filled one in, otherwise the team's current squad. Using the plan is what keeps a September training reading `14/14` after somebody leaves in March, instead of drifting to `13/14` on its own.
 - **Minutes** (matches only) — the players who have minutes recorded, out of the players you marked **Present** or **Late**. Somebody who was absent isn't missing minutes.
 
 Guests are left out of both halves, the same way the minutes reports count. Planned attendance is never counted as recorded attendance: the expected roster is what you thought would happen, and the point of this readout is whether anybody wrote down what did.
