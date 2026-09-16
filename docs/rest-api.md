@@ -565,6 +565,62 @@ value are dropped server-side rather than rendered blank. **Read-only in v1** �
 editing inside a panel means a second save path and a stale-parent problem, on a
 surface whose job is orientation rather than data entry.
 
+## Team monthly report (#3458, epic #3457)
+
+### `GET /teams/{id}/monthly-report?from=&to=&period=&blocks=`
+
+One team, one window, composed from blocks — the document a monthly staff
+meeting runs on, as data. The online view, the PDF exporter and the scheduled
+mailing all render this payload and compute nothing themselves.
+
+**Window.** `from` + `to` (`Y-m-d`) win. Without them, `period` resolves one —
+`last_month` by default, or any shared report period (`last_week`,
+`this_month`, `this_season`). A malformed window or unknown period is `400`.
+
+**Blocks.** `blocks` is comma-separated; empty means every block. The fixed
+vocabulary, in print order: `letterhead` (always included), `coverage`, `kpi`,
+`status`, `attendance`, `minutes`, `attention`, `changes`, `tests`, `roster`,
+`notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
+not asked for is absent from `data` **and is not queried**.
+
+**Permission.** A `reports` read at global scope, or at team scope on this team
+— the gate the other team reports use. Checked in the permission callback, so a
+refused caller never reaches the composer.
+
+```json
+{ "team_id": 12, "from": "2026-08-01", "to": "2026-08-31",
+  "previous": { "from": "2026-07-01", "to": "2026-07-31" },
+  "blocks": [ "letterhead", "coverage", "kpi" ],
+  "data": {
+    "letterhead": { "team_name": "JO14-1", "head_coach": "…", "squad_size": 14, "activity_count": 17, … },
+    "coverage":   { "completed": 17, "with_register": 16,
+                    "missing": [ { "activity_id": 881, "title": "Training 4.2", "date": "2026-08-20" } ],
+                    "state": "partial" },
+    "kpi": {
+      "activities":               { "value": 17,   "previous": 15,   "delta": 2 },
+      "attendance_pct":           { "value": 86,   "previous": null, "delta": null },
+      "minutes_share_median_pct": { "value": 48.5, "previous": 51.0, "delta": -2.5 },
+      "evaluated":                { "value": 11, "of": 14, "pct": 78.6, "delta": 7.2 },
+      "squad_rating":             { "value": 6.9,  "previous": 6.8,  "delta": 0.1 },
+      "needs_attention":          { "value": 3,    "previous": 4,    "delta": -1 }
+    }
+  } }
+```
+
+**Deltas** are against the preceding window of equal length — the previous
+calendar month when the window is exactly one, otherwise the N days before
+`from`. When that window had no completed activities every `previous` and
+`delta` is `null`; consumers render "—", never `0%`.
+
+**Denominators.** Attendance: the planned roster where one was captured, else
+the team roster (`ActivityRegisterProgress`). Minutes share: minutes available in
+matches whose minutes were actually recorded — no recorded minutes is `null`,
+not `0`.
+
+**Visibility of "what changed".** The caller's journey visibility applies; an
+unattended caller gets public and coaching-staff events only, never medical or
+safeguarding ones.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

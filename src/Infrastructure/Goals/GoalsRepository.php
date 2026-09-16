@@ -277,6 +277,44 @@ class GoalsRepository {
      *
      * @return array<int, object>
      */
+    /**
+     * #3458 — open goals per player across a team, in one query: the team
+     * monthly report's roster column. "Open" is `activeStatusClause()`, the
+     * same rule `topActiveForPlayer()` uses, so the count on the report and
+     * the goals a player sees on their own page cannot disagree.
+     *
+     * Players with no open goal are absent from the map; callers read a
+     * missing key as zero.
+     *
+     * @return array<int,int> player_id => open goal count
+     */
+    public function openCountsForTeam( int $team_id ): array {
+        if ( $team_id <= 0 ) return [];
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT g.player_id, COUNT(*) AS n
+               FROM {$p}tt_goals g
+               JOIN {$p}tt_players pl ON pl.id = g.player_id
+              WHERE pl.team_id = %d
+                AND pl.club_id = %d
+                AND " . ArchiveRepository::filterClause( 'active', 'pl' ) . "
+                AND " . ArchiveRepository::filterClause( 'active', 'g' ) . "
+                AND ( g.club_id = %d OR g.club_id IS NULL )
+                AND " . self::activeStatusClause( 'g' ) . "
+              GROUP BY g.player_id",
+            $team_id, CurrentClub::id(), CurrentClub::id()
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->player_id ] = (int) $row->n;
+        }
+        return $out;
+    }
+
     public function topActiveForPlayer( int $player_id, int $limit = 3 ): array {
         if ( $player_id <= 0 ) return [];
         $limit = max( 1, min( 20, $limit ) );

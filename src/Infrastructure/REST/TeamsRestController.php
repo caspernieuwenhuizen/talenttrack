@@ -118,6 +118,23 @@ class TeamsRestController {
                 'permission_callback' => $can_view_team,
             ],
         ] );
+        // #3458 (epic #3457) — the team monthly report as data. Gated in the
+        // permission callback itself, on the same `reports` read the sibling
+        // team reports use, so a refused caller never reaches the composer and
+        // its per-player status calculations.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/monthly-report', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_monthly_report' ],
+                'permission_callback' => static fn( \WP_REST_Request $r ): bool => self::canReadTeamReports( absint( $r['id'] ) ),
+                'args'                => [
+                    'from'   => [ 'type' => 'string' ],
+                    'to'     => [ 'type' => 'string' ],
+                    'period' => [ 'type' => 'string' ],
+                    'blocks' => [ 'type' => 'string' ],
+                ],
+            ],
+        ] );
         // #1470 — archive lifecycle: restore + gated permanent delete.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/restore', [
             [
@@ -382,6 +399,45 @@ class TeamsRestController {
             [ 'team_id' => $id, 'player_id' => $player_id, 'from' => $from, 'to' => $to ],
             $row
         ) );
+    }
+
+    /**
+     * #3458 — `GET /teams/{id}/monthly-report`.
+     *
+     * Window: explicit `from` + `to` win; otherwise `period` resolves one
+     * (`last_month` by default). `blocks` is a comma-separated list; empty
+     * means every block. An unknown block or a malformed window is a 400, not
+     * a silently different report.
+     */
+    public static function get_monthly_report( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+
+        $from = (string) ( $r['from'] ?? '' );
+        $to   = (string) ( $r['to'] ?? '' );
+        if ( $from === '' || $to === '' ) {
+            $period = sanitize_key( (string) ( $r['period'] ?? '' ) );
+            $window = \TT\Modules\Analytics\Reports\TeamMonthlyReport::periodWindow(
+                $period !== '' ? $period : 'last_month',
+                gmdate( 'Y-m-d' )
+            );
+            if ( $window === null ) {
+                return RestResponse::error( 'bad_period', __( 'Unknown period.', 'talenttrack' ), 400 );
+            }
+            $from = $window['from'];
+            $to   = $window['to'];
+        }
+
+        $raw    = trim( (string) ( $r['blocks'] ?? '' ) );
+        $blocks = $raw === '' ? [] : array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ), static fn( string $k ): bool => $k !== '' ) );
+
+        try {
+            $report = ( new \TT\Modules\Analytics\Reports\TeamMonthlyReport() )->forTeam( $id, $from, $to, $blocks, get_current_user_id() );
+        } catch ( \InvalidArgumentException $e ) {
+            return RestResponse::error( 'bad_request', $e->getMessage(), 400 );
+        }
+
+        return RestResponse::success( $report );
     }
 
     /**

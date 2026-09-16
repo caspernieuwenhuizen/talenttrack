@@ -172,6 +172,56 @@ final class PlayerEventsRepository {
         return $rows ?: [];
     }
 
+    /**
+     * #3458 — every journey event of the given types for a team's players in a
+     * window: the team monthly report's "what changed" block.
+     *
+     * `cohortByType()` answers one type across the academy for a head of
+     * development; this answers several types across one squad for the monthly
+     * meeting. The squad is the team's players as they stand, and superseded
+     * events are left out for the same reason the timeline leaves them out.
+     *
+     * The upper bound is exclusive of the day after `$to`, not `<= $to`:
+     * `event_date` carries a time, and a comparison against a bare date would
+     * drop everything that happened on the last day of the month after
+     * midnight.
+     *
+     * @param list<string> $event_types
+     * @param list<string> $allowed_visibilities
+     * @return list<object>
+     */
+    public function forTeamBetween( int $team_id, string $from, string $to, array $event_types, array $allowed_visibilities ): array {
+        if ( $team_id <= 0 || $event_types === [] || $allowed_visibilities === [] ) return [];
+
+        $type_placeholders = implode( ',', array_fill( 0, count( $event_types ), '%s' ) );
+        $vis_placeholders  = implode( ',', array_fill( 0, count( $allowed_visibilities ), '%s' ) );
+
+        $sql = "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
+                       p.first_name, p.last_name
+                  FROM {$this->table} e
+                  JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
+                 WHERE p.team_id = %d
+                   AND e.club_id = %d
+                   AND e.event_type IN ($type_placeholders)
+                   AND e.event_date >= %s
+                   AND e.event_date < DATE_ADD( %s, INTERVAL 1 DAY )
+                   AND e.superseded_by_event_id IS NULL
+                   AND e.visibility IN ($vis_placeholders)
+                 ORDER BY e.event_date DESC, e.id DESC
+                 LIMIT 200";
+
+        $params = array_merge(
+            [ $team_id, CurrentClub::id() ],
+            $event_types,
+            [ $from, $to ],
+            $allowed_visibilities
+        );
+
+        /** @var list<object> $rows */
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$params ) );
+        return $rows ?: [];
+    }
+
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(

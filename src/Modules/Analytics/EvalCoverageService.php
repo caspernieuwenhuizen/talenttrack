@@ -183,6 +183,63 @@ final class EvalCoverageService {
     }
 
     /**
+     * #3458 — evaluation coverage for one team over an explicit window: how
+     * many of the squad were evaluated at least once between `$from` and
+     * `$to`, out of how many.
+     *
+     * `coverage()` answers the season-long question against the configured
+     * evaluation windows; the team monthly report asks the month's question,
+     * "evaluated n/N in this period", so it needs its own window rather than
+     * the season's. Same squad definition as `fetchPlayers()`: active,
+     * unarchived players currently on the team.
+     *
+     * `evaluated_ids` is returned so the report can name who was missed
+     * without a second query.
+     *
+     * @return array{evaluated:int, squad:int, evaluated_ids:list<int>}
+     */
+    public function coverageBetween( int $team_id, string $from, string $to ): array {
+        $empty = [ 'evaluated' => 0, 'squad' => 0, 'evaluated_ids' => [] ];
+        if ( $team_id <= 0 ) return $empty;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $squad = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_players
+              WHERE team_id = %d AND club_id = %d
+                AND status = 'active' AND archived_at IS NULL",
+            $team_id, CurrentClub::id()
+        ) );
+        if ( $squad <= 0 ) return $empty;
+
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT e.player_id
+               FROM {$p}tt_evaluations e
+               JOIN {$p}tt_players pl ON pl.id = e.player_id AND pl.club_id = e.club_id
+              WHERE pl.team_id = %d
+                AND pl.club_id = %d
+                AND pl.status = 'active'
+                AND pl.archived_at IS NULL
+                AND e.archived_at IS NULL
+                AND e.eval_date BETWEEN %s AND %s",
+            $team_id, CurrentClub::id(), $from, $to
+        ) );
+        $ids = array_values( array_map( 'intval', is_array( $ids ) ? $ids : [] ) );
+
+        return [ 'evaluated' => count( $ids ), 'squad' => $squad, 'evaluated_ids' => $ids ];
+    }
+
+    /**
+     * #3458 — the head coach's display name for one team, through the same
+     * team-staff path the coverage matrix uses, or '' when the team has none.
+     */
+    public function headCoachNameForTeam( int $team_id ): string {
+        $map = $this->fetchHeadCoaches();
+        return isset( $map[ $team_id ] ) ? $map[ $team_id ]['coach_name'] : '';
+    }
+
+    /**
      * Distinct coaches who own at least one evaluation, for the coach
      * filter on the evaluations list.
      *
