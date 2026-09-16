@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T21:12:58+00:00\n"
+"POT-Creation-Date: 2026-09-16T21:34:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2502,7 +2502,7 @@ msgstr ""
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: src/Infrastructure/Query/QueryHelpers.php:822
+#: src/Infrastructure/Query/QueryHelpers.php:821
 #: src/Modules/License/FeatureMap.php:390
 msgid "Radar charts"
 msgstr ""
@@ -3852,7 +3852,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:846
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:887
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:939
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 #: src/Modules/People/Admin/PeoplePage.php:188
 #: src/Modules/People/Admin/PeoplePage.php:362
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -4974,7 +4974,7 @@ msgstr "Filter"
 #: src/Modules/Methodology/VocabularyCatalog.php:219
 #: src/Modules/Methodology/VocabularyCatalog.php:238
 #: src/Modules/Methodology/VocabularyCatalog.php:255
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:213
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:212
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
@@ -6614,7 +6614,7 @@ msgstr[1] ""
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:341
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:296
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
@@ -7148,7 +7148,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:182
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:213
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:22
 #: src/Shared/Frontend/CoachForms.php:635
@@ -7281,7 +7281,7 @@ msgstr ""
 #: src/Modules/Analytics/CohortBoardService.php:112
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:322
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:321
 #: src/Shared/Frontend/FrontendExportsView.php:121
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
@@ -20839,7 +20839,7 @@ msgid "No squad recorded for this match."
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:285
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:263
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:262
 msgid "Coach signature"
 msgstr ""
 
@@ -21249,7 +21249,7 @@ msgstr ""
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:76
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:792
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:172
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:171
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:201
@@ -21269,7 +21269,7 @@ msgstr "Drucken"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:845
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:203
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:93
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:191
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:190
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:756
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
@@ -23366,7 +23366,7 @@ msgid "Progress"
 msgstr "Fortschritt"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:95
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:216
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachForms.php:654
@@ -31887,7 +31887,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1257
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:233
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:232
 msgid "Agreed actions"
 msgstr ""
 
@@ -31982,13 +31982,13 @@ msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:486
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1033
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:254
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:253
 msgid "End-of-season verdict"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:487
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1035
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:255
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:254
 msgid "Decision:"
 msgstr ""
 
@@ -32377,7 +32377,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1138
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1844
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:270
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:269
 msgid "Evidence"
 msgstr ""
 
@@ -32622,7 +32622,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:90
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:203
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:202
 msgid "Season:"
 msgstr ""
 
@@ -32828,58 +32828,58 @@ msgid "Log in to print this PDP file."
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:133
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:132
 #, php-format
 msgid "PDP — %s"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:174
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:173
 msgid "Re-render with evidence page"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:176
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:175
 msgid "Single A4 only"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:203
 msgid "Status:"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:205
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
 msgid "Cycle size:"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:209
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:208
 msgid "Current goals"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:230
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:229
 msgid "No active goals."
 msgstr ""
 
 #. translators: %d = sequence
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:241
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:240
 #, php-format
 msgid "Conversation %d"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:248
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:247
 msgid "No agreed actions recorded yet."
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:263
 msgid "Player signature"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:265
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
 msgid "Parent signature"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:298
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 msgid "Closed"
 msgstr ""
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:321
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 msgctxt "a PDP verdict decision on a historical row"
 msgid "Review"
 msgstr ""

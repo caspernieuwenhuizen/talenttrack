@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T21:12:58+00:00\n"
+"POT-Creation-Date: 2026-09-16T21:34:01+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2687,7 +2687,7 @@ msgstr "Gepubliceerd"
 msgid "Completed"
 msgstr "Voltooid"
 
-#: src/Infrastructure/Query/QueryHelpers.php:822
+#: src/Infrastructure/Query/QueryHelpers.php:821
 #: src/Modules/License/FeatureMap.php:390
 msgid "Radar charts"
 msgstr "Radarkaarten"
@@ -4087,7 +4087,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:846
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:887
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:939
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 #: src/Modules/People/Admin/PeoplePage.php:188
 #: src/Modules/People/Admin/PeoplePage.php:362
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -5241,7 +5241,7 @@ msgstr "Filteren"
 #: src/Modules/Methodology/VocabularyCatalog.php:219
 #: src/Modules/Methodology/VocabularyCatalog.php:238
 #: src/Modules/Methodology/VocabularyCatalog.php:255
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:213
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:212
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
@@ -7007,7 +7007,7 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:341
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:296
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
@@ -7571,7 +7571,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:182
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:213
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:22
 #: src/Shared/Frontend/CoachForms.php:635
@@ -7705,7 +7705,7 @@ msgstr "Prospects per scout vastgelegd"
 #: src/Modules/Analytics/CohortBoardService.php:112
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:322
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:321
 #: src/Shared/Frontend/FrontendExportsView.php:121
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
@@ -22580,7 +22580,7 @@ msgid "No squad recorded for this match."
 msgstr "Geen selectie geregistreerd voor deze wedstrijd."
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:285
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:263
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:262
 msgid "Coach signature"
 msgstr "Handtekening coach"
 
@@ -22994,7 +22994,7 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:76
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:792
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:172
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:171
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:201
@@ -23014,7 +23014,7 @@ msgstr "Printen"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:845
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:203
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:93
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:191
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:190
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:756
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
@@ -25278,7 +25278,7 @@ msgid "Progress"
 msgstr "Voortgang"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:95
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:216
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachForms.php:654
@@ -34437,7 +34437,7 @@ msgstr "Gevoerd %s"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1257
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:233
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:232
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
 
@@ -34539,13 +34539,13 @@ msgstr "Nog geen reflectie opgeslagen."
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:486
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1033
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:254
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:253
 msgid "End-of-season verdict"
 msgstr "Eindeseizoens­oordeel"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:487
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1035
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:255
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:254
 msgid "Decision:"
 msgstr "Beslissing:"
 
@@ -34956,7 +34956,7 @@ msgstr "Voorbereiding"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1138
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1844
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:270
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:269
 msgid "Evidence"
 msgstr "Bewijs"
 
@@ -35219,7 +35219,7 @@ msgstr ""
 "speler voor dat team × blok."
 
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:90
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:203
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:202
 msgid "Season:"
 msgstr "Seizoen:"
 
@@ -35439,58 +35439,58 @@ msgid "Log in to print this PDP file."
 msgstr "Log in om dit POP-dossier te printen."
 
 #. translators: %s = player name
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:133
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:132
 #, php-format
 msgid "PDP — %s"
 msgstr "POP — %s"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:174
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:173
 msgid "Re-render with evidence page"
 msgstr "Opnieuw renderen met bewijspagina"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:176
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:175
 msgid "Single A4 only"
 msgstr "Alleen één A4"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:203
 msgid "Status:"
 msgstr "Status:"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:205
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
 msgid "Cycle size:"
 msgstr "Cyclus­grootte:"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:209
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:208
 msgid "Current goals"
 msgstr "Huidige doelen"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:230
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:229
 msgid "No active goals."
 msgstr "Geen actieve doelen."
 
 #. translators: %d = sequence
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:241
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:240
 #, php-format
 msgid "Conversation %d"
 msgstr "Gesprek %d"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:248
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:247
 msgid "No agreed actions recorded yet."
 msgstr "Nog geen afgesproken acties vastgelegd."
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:263
 msgid "Player signature"
 msgstr "Handtekening speler"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:265
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
 msgid "Parent signature"
 msgstr "Handtekening ouder"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:298
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 msgid "Closed"
 msgstr "Gesloten"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:321
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 msgctxt "a PDP verdict decision on a historical row"
 msgid "Review"
 msgstr "Te beoordelen"
