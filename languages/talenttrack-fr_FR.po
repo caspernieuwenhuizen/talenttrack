@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T20:02:29+00:00\n"
+"POT-Creation-Date: 2026-09-16T20:27:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -18470,7 +18470,7 @@ msgid "Tagging journey events"
 msgstr ""
 
 #. translators: 1: demo persona slot, 2: the underlying WordPress error.
-#: src/Modules/DemoData/Generators/UserGenerator.php:126
+#: src/Modules/DemoData/Generators/UserGenerator.php:132
 #, php-format
 msgid "Failed to create demo user %1$s: %2$s"
 msgstr ""
