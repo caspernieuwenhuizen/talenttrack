@@ -60898,6 +60898,159 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's focus"
+msgstr "Focus van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "How %s is doing"
+msgstr "Hoe %s ervoor staat"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's journey"
+msgstr "Reis van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "No active goals yet. A coach will set some at the next development talk with %s."
+msgstr "Nog geen actieve doelen. Een trainer stelt ze op bij het volgende ontwikkelgesprek met %s."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "No evaluations yet. The first rating appears here once a coach completes one for %s."
+msgstr "Nog geen evaluaties. De eerste beoordeling verschijnt hier zodra een trainer er een voor %s invult."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "Up %s on the season average"
+msgstr "%s boven het seizoensgemiddelde"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "Down %s on the season average"
+msgstr "%s onder het seizoensgemiddelde"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgid "Steady with the season average"
+msgstr "Gelijk aan het seizoensgemiddelde"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgid "See the full journey"
+msgstr "Bekijk de hele reis"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's academy story starts here. Milestones will appear as the season unfolds."
+msgstr "Het academieverhaal van %s begint hier. Mijlpalen verschijnen naarmate het seizoen vordert."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's goals"
+msgstr "Doelen van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's team"
+msgstr "Team van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s is not on a team yet."
+msgstr "%s zit nog niet in een team."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's activities"
+msgstr "Activiteiten van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "my activities column, about the player"
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "No activities recorded for %s yet."
+msgstr "Nog geen activiteiten vastgelegd voor %s."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "No activities recorded for %s yet"
+msgstr "Nog geen activiteiten vastgelegd voor %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "When a coach plans trainings or matches for %s's team, they show up here together with the attendance."
+msgstr "Als een trainer trainingen of wedstrijden voor het team van %s plant, verschijnen ze hier samen met de aanwezigheid."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "%s's active goals"
+msgstr "Actieve doelen van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "What %s is working on now"
+msgstr "Waar %s nu aan werkt"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "Preparing for %s's talk"
+msgstr "Voorbereiding op het gesprek van %s"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+#, php-format
+msgid "Everything that has happened in %s's time at the academy, newest first. Switch to milestones to see just the big moments."
+msgstr "Alles wat er in de academietijd van %s is gebeurd, nieuwste eerst. Schakel over naar mijlpalen voor alleen de grote momenten."
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Development"
+msgstr "Ontwikkeling"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Profile"
+msgstr "Profiel"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Team"
+msgstr "Team"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Activities"
+msgstr "Activiteiten"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Goals"
+msgstr "Doelen"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Development plan"
+msgstr "Ontwikkelplan"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Journey"
+msgstr "Reis"
+
+#: src/Shared/Frontend/Components/SubjectVoice.php
+msgctxt "parent navigation label"
+msgid "Measurements"
+msgstr "Metingen"
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

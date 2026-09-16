@@ -15,6 +15,7 @@ use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\SubjectVoice;
 
 /**
  * FrontendMyDevelopmentView — the player + parent "development home"
@@ -52,15 +53,21 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         // preference before the card is rendered below.
         self::maybeHandleWelcomeDismiss();
 
-        $is_self = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
-        $name    = QueryHelpers::player_display_name( $player );
-        $title   = $is_self
-            ? __( 'My development', 'talenttrack' )
-            : sprintf(
-                /* translators: %s = the child's name (parent viewing their child) */
+        // #3477 — the reader, resolved once. `$is_self` stays because the
+        // section-visibility gate and the link builders below are genuinely
+        // binary (self vs everyone else); the *wording* is not, which is what
+        // the voice is for.
+        $voice   = SubjectVoice::forPlayer( $player );
+        $is_self = $voice->isSelf();
+        $name    = $voice->name();
+        $title   = $voice->pick(
+            __( 'My development', 'talenttrack' ),
+            sprintf(
+                /* translators: %s = the player's name, to a parent or a coach. */
                 __( "%s's development", 'talenttrack' ),
                 $name
-            );
+            )
+        );
 
         FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
@@ -75,20 +82,20 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             self::renderTodayBand( $player, $is_self, $name );
         }
         if ( self::sectionVisible( $player, $is_self, 'goals' ) ) {
-            self::renderFocus( $player, $is_self );
+            self::renderFocus( $player, $is_self, $voice );
         } else {
-            self::renderPrivateBlock( __( 'Your focus', 'talenttrack' ) );
+            self::renderPrivateBlock( self::focusHeading( $voice ) );
         }
         if ( self::sectionVisible( $player, $is_self, 'evaluations' ) ) {
-            self::renderForm( $player, $is_self );
+            self::renderForm( $player, $is_self, $voice );
         } else {
-            self::renderPrivateBlock( __( "How you're doing", 'talenttrack' ) );
+            self::renderPrivateBlock( self::formHeading( $voice ) );
         }
         self::renderComingUp( $player, $is_self );
         if ( self::sectionVisible( $player, $is_self, 'journey' ) ) {
-            self::renderJourney( $player, $is_self );
+            self::renderJourney( $player, $is_self, $voice );
         } else {
-            self::renderPrivateBlock( __( 'Your journey', 'talenttrack' ) );
+            self::renderPrivateBlock( self::journeyHeading( $voice ) );
         }
         echo '</div>';
     }
@@ -220,12 +227,45 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         echo '</a>';
     }
 
-    /** Your focus — top active goals preview → My goals. */
-    private static function renderFocus( object $player, bool $is_self ): void {
+    /**
+     * #3477 — the three section headings, resolved for the reader in one
+     * place so the heading and its "kept private" placeholder cannot say
+     * different things about whose focus, form or journey it is.
+     */
+    private static function focusHeading( SubjectVoice $voice ): string {
+        return $voice->pick(
+            __( 'Your focus', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( "%s's focus", 'talenttrack' ), $voice->firstName() )
+        );
+    }
+
+    private static function formHeading( SubjectVoice $voice ): string {
+        return $voice->pick(
+            __( "How you're doing", 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( 'How %s is doing', 'talenttrack' ), $voice->firstName() )
+        );
+    }
+
+    private static function journeyHeading( SubjectVoice $voice ): string {
+        return $voice->pick(
+            __( 'Your journey', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( "%s's journey", 'talenttrack' ), $voice->firstName() )
+        );
+    }
+
+    /** Focus — top active goals preview → My goals. */
+    private static function renderFocus( object $player, bool $is_self, SubjectVoice $voice ): void {
         $goals = ( new GoalsRepository() )->topActiveForPlayer( (int) $player->id, 3 );
-        self::sectionOpen( __( 'Your focus', 'talenttrack' ), self::meUrl( 'my-goals', $player, $is_self ), __( 'See all goals', 'talenttrack' ) );
+        self::sectionOpen( self::focusHeading( $voice ), self::meUrl( 'my-goals', $player, $is_self ), __( 'See all goals', 'talenttrack' ) );
         if ( empty( $goals ) ) {
-            echo '<p class="tt-devhome-empty">' . esc_html__( 'No active goals yet. Your coach will set some during your next talk.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-devhome-empty">' . esc_html( $voice->pick(
+                __( 'No active goals yet. Your coach will set some during your next talk.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( 'No active goals yet. A coach will set some at the next development talk with %s.', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
         } else {
             echo '<ul class="tt-devhome-list">';
             foreach ( $goals as $g ) {
@@ -247,7 +287,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
     }
 
     /** How you're doing — headline rating + momentum → My evaluations. */
-    private static function renderForm( object $player, bool $is_self ): void {
+    private static function renderForm( object $player, bool $is_self, SubjectVoice $voice ): void {
         $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $heads = ( new PlayerStatsService() )->getHeadlineNumbers( (int) $player->id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
@@ -255,9 +295,13 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         $latest  = isset( $heads['latest'] )  && $heads['latest']  !== null ? (float) $heads['latest']  : null;
         $headline = $rolling !== null ? $rolling : $latest;
 
-        self::sectionOpen( __( "How you're doing", 'talenttrack' ), self::meUrl( 'my-evaluations', $player, $is_self ), __( 'See all evaluations', 'talenttrack' ) );
+        self::sectionOpen( self::formHeading( $voice ), self::meUrl( 'my-evaluations', $player, $is_self ), __( 'See all evaluations', 'talenttrack' ) );
         if ( $headline === null ) {
-            echo '<p class="tt-devhome-empty">' . esc_html__( 'No evaluations yet. Your first rating will appear here once your coach completes one.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-devhome-empty">' . esc_html( $voice->pick(
+                __( 'No evaluations yet. Your first rating will appear here once your coach completes one.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( 'No evaluations yet. The first rating appears here once a coach completes one for %s.', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
         } else {
             $max_str = number_format_i18n( $max, 0 );
             echo '<div class="tt-devhome-rating">';
@@ -266,20 +310,31 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             echo '</div>';
             if ( $rolling !== null && $alltime !== null ) {
                 $diff = round( $rolling - $alltime, 1 );
+                // #3477 — "your average" is the player's average, and a
+                // parent reading it about their child is being told it is
+                // theirs. The third-person form drops the possessive rather
+                // than repeating the name a third time in one block.
                 if ( $diff > 0 ) {
-                    $momentum = sprintf(
+                    $delta    = '+' . number_format_i18n( $diff, 1 );
+                    $momentum = $voice->pick(
                         /* translators: %s = signed rating delta, e.g. +0.4 */
-                        __( 'Up %s on your average', 'talenttrack' ),
-                        '+' . number_format_i18n( $diff, 1 )
+                        sprintf( __( 'Up %s on your average', 'talenttrack' ), $delta ),
+                        /* translators: %s = signed rating delta, e.g. +0.4 */
+                        sprintf( __( 'Up %s on the season average', 'talenttrack' ), $delta )
                     );
                 } elseif ( $diff < 0 ) {
-                    $momentum = sprintf(
+                    $delta    = number_format_i18n( $diff, 1 );
+                    $momentum = $voice->pick(
                         /* translators: %s = signed rating delta, e.g. -0.3 */
-                        __( 'Down %s on your average', 'talenttrack' ),
-                        number_format_i18n( $diff, 1 )
+                        sprintf( __( 'Down %s on your average', 'talenttrack' ), $delta ),
+                        /* translators: %s = signed rating delta, e.g. -0.3 */
+                        sprintf( __( 'Down %s on the season average', 'talenttrack' ), $delta )
                     );
                 } else {
-                    $momentum = __( 'Steady with your average', 'talenttrack' );
+                    $momentum = $voice->pick(
+                        __( 'Steady with your average', 'talenttrack' ),
+                        __( 'Steady with the season average', 'talenttrack' )
+                    );
                 }
                 echo '<p class="tt-devhome-rating__meta">' . esc_html( $momentum ) . '</p>';
             }
@@ -308,14 +363,25 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
     }
 
     /** Your journey — most recent milestone → My journey. */
-    private static function renderJourney( object $player, bool $is_self ): void {
+    private static function renderJourney( object $player, bool $is_self, SubjectVoice $voice ): void {
         $vis    = PlayerEventsRepository::visibilitiesForUser( get_current_user_id() );
         $events = ( new PlayerEventsRepository() )->transitionsForPlayer( (int) $player->id, $vis );
         $latest = ! empty( $events ) ? $events[0] : null;
 
-        self::sectionOpen( __( 'Your journey', 'talenttrack' ), self::meUrl( 'my-journey', $player, $is_self ), __( 'See your journey', 'talenttrack' ) );
+        self::sectionOpen(
+            self::journeyHeading( $voice ),
+            self::meUrl( 'my-journey', $player, $is_self ),
+            $voice->pick(
+                __( 'See your journey', 'talenttrack' ),
+                __( 'See the full journey', 'talenttrack' )
+            )
+        );
         if ( $latest === null ) {
-            echo '<p class="tt-devhome-empty">' . esc_html__( 'Your academy story starts here. Milestones will appear as your season unfolds.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-devhome-empty">' . esc_html( $voice->pick(
+                __( 'Your academy story starts here. Milestones will appear as your season unfolds.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( "%s's academy story starts here. Milestones will appear as the season unfolds.", 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
         } else {
             echo '<div class="tt-devhome-row">';
             echo self::rowTitleLink( 'my-journey', (int) ( $latest->id ?? 0 ), (string) ( $latest->summary ?? '' ), $player, $is_self ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — rowTitleLink escapes label + URL.

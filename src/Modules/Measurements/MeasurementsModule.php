@@ -65,6 +65,8 @@ class MeasurementsModule implements ModuleInterface {
                 'kind'              => 'work',
                 'order'             => 45,
                 'label'             => __( 'My measurements', 'talenttrack' ),
+                // #3477 — see the Me-tiles in CoreSurfaceRegistration.
+                'labels'            => [ 'parent' => _x( 'Measurements', 'parent navigation label', 'talenttrack' ) ],
                 'description'       => __( 'Your test results and how they trend.', 'talenttrack' ),
                 'icon'              => 'trend-up',
                 'color'             => '#0e7c66',

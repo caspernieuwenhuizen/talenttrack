@@ -44,6 +44,10 @@ De overige tabbladen bevatten de rest van je beeld: **Profiel** (je speelgegeven
 ### Mijn team
 Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/brons. Daaronder staat je eigen spelerskaart met een **persoonlijke groeitrend** — hoe je rolling-rating sinds vorige maand is bewogen en de categorie waarin je het meest vooruitgaat. Standaard zie je géén numerieke teamrang "#N van M": academies kunnen die aanzetten (Configuratie → Beoordelingsschaal → "Toon elke speler zijn teamrang"), en als die aanstaat verschijnt hij naast de trend. In beide gevallen wordt de rang van een andere teamgenoot nooit getoond — alleen het podium is openbaar. Tik je op een speler op het podium, dan opent diens **minimale teamprofiel** — dezelfde toegestane pagina als de links in de spelerslijst, niet een trainer-only profiel. De **volgende wedstrijd** van het team en een **recente resultaten**-vormlijn (winst/gelijk/verlies, meest recente eerst) verschijnen er ook — niet-gevoelige teaminformatie, zonder individuele scores van teamgenoten. De lijst met teamgenoten onderaan toont alleen namen en foto's; tik op een teamgenoot om hun basisgegevens (positie, rugnummer, voet, lengte, gewicht) te zien. Hun evaluaties, doelen en scores blijven privé.
 
+**Ouders zien dezelfde pagina zonder het podium.** Een ouder die het team van zijn kind opent, krijgt de volgende wedstrijd, de vormlijn, de eigen kaart en groeitrend van het kind, en de lijst met teamgenoten — maar niet de top-drie. Het podium hoort bij de kleedkamer, bij de spelers zelf; in handen van een andere ouder wordt het een ranglijst van andermans kinderen, dus het blijft bij de spelers.
+
+Op al deze pagina's wordt een ouder als ouder aangesproken: koppen luiden "Doelen van Bas" en "Hoe Bas ervoor staat" in plaats van "Mijn doelen" en "Hoe je ervoor staat", en in de navigatie van de ouder valt het "Mijn" weg bij de onderdelen die over het kind gaan.
+
 ### Mijn evaluaties
 Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
 

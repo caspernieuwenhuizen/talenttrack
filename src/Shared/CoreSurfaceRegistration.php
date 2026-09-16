@@ -488,6 +488,11 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 1,
             'label'        => __( 'My development', 'talenttrack' ),
+            // #3477 — the parent's sidebar named these "Mijn …", about
+            // their child. The registry has no child name to frame them
+            // with (the dashboard grid does, per-request), so the parent
+            // entry drops the possessive rather than claiming it.
+            'labels'       => [ 'parent' => _x( 'Development', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your development at a glance: talks, goals, form and journey.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#0b3d2e',
@@ -501,6 +506,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 10,
             'label'        => __( 'My profile', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Profile', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your card, ratings and headline numbers.', 'talenttrack' ),
             'icon'         => 'rate-card',
             'color'        => '#1d7874',
@@ -515,6 +521,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 20,
             'label'        => __( 'My team', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Team', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your teammates and the team podium.', 'talenttrack' ),
             'icon'         => 'teams',
             'color'        => '#2271b1',
@@ -537,6 +544,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 30,
             'label'        => __( 'My evaluations', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Evaluations', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Ratings and feedback from your coaches.', 'talenttrack' ),
             'icon'         => 'evaluations',
             'color'        => '#7c3a9e',
@@ -551,6 +559,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 40,
             'label'        => __( 'My activities', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Activities', 'parent navigation label', 'talenttrack' ) ],
             // #3390 — the surface is both halves now: what is coming up, and
             // what you turned up to. The old text named only the second and
             // the screen opened on the first.
@@ -568,6 +577,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 50,
             'label'        => __( 'My goals', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Goals', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Development goals to work toward.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#b32d2e',
@@ -588,6 +598,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 60,
             'label'        => __( 'My PDP', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Development plan', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your plan: talks, reflections, season verdict.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
@@ -608,6 +619,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 5,
             'label'        => __( 'My journey', 'talenttrack' ),
+            'labels'       => [ 'parent' => _x( 'Journey', 'parent navigation label', 'talenttrack' ) ],
             'description'  => __( 'Your academy story: milestones and progress.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#0d9488',

@@ -47,6 +47,16 @@ class FrontendMyActivitiesView extends FrontendViewBase {
     }
 
     public static function render( object $player ): void {
+        // #3477 — a parent reading their child's activities was addressed as
+        // the child: "Mijn activiteiten", a "Jouw status" column, and an empty
+        // state about "your coach" and "your attendance".
+        $voice      = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $list_title = $voice->pick(
+            __( 'My activities', 'talenttrack' ),
+            /* translators: %s = the player's name, to a parent or a coach. */
+            sprintf( __( "%s's activities", 'talenttrack' ), $voice->name() )
+        );
+
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
             // v3.110.46 — migrated from fromDashboardWithBack() (referer-
@@ -57,15 +67,15 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             // chain when the entry URL captured a back-target.
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Activity detail', 'talenttrack' ),
-                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-activities', __( 'My activities', 'talenttrack' ) ) ]
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-activities', $list_title ) ]
             );
             self::renderDetail( $player, $id );
             return;
         }
 
         self::enqueueAssets();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My activities', 'talenttrack' ) );
-        self::renderHeader( __( 'My activities', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $list_title );
+        self::renderHeader( $list_title );
 
         // v3.92.7 — full migration to `FrontendListTable::render`. The
         // surface previously ran a custom $wpdb query (joined attendance
@@ -116,7 +126,15 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                 'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
                 'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
                 'location'            => [ 'label' => __( 'Location', 'talenttrack' ), 'sortable' => false ],
-                'your_attendance_status' => [ 'label' => __( 'Your status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'your_attendance_pill_html' ],
+                'your_attendance_status' => [
+                    'label'     => $voice->pick(
+                        __( 'Your status', 'talenttrack' ),
+                        _x( 'Attendance', 'my activities column, about the player', 'talenttrack' )
+                    ),
+                    'sortable'  => false,
+                    'render'    => 'html',
+                    'value_key' => 'your_attendance_pill_html',
+                ],
             ],
             'filters' => [
                 'date' => [
@@ -129,14 +147,26 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             ],
             'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
-            'empty_state'  => __( 'No activities recorded for you yet.', 'talenttrack' ),
+            'empty_state'  => $voice->pick(
+                __( 'No activities recorded for you yet.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( 'No activities recorded for %s yet.', 'talenttrack' ), $voice->firstName() )
+            ),
             // #1362 — guided fresh empty state. Player-self surface:
             // activities are planned at team level by the coach, so
             // there's no CTA — the explainer sets the expectation.
             'empty_state_card' => [
                 'icon'      => 'activities',
-                'headline'  => __( 'No activities recorded for you yet', 'talenttrack' ),
-                'explainer' => __( 'When your coach plans trainings or matches for your team, they show up here together with your attendance.', 'talenttrack' ),
+                'headline'  => $voice->pick(
+                    __( 'No activities recorded for you yet', 'talenttrack' ),
+                    /* translators: %s = the player's first name. */
+                    sprintf( __( 'No activities recorded for %s yet', 'talenttrack' ), $voice->firstName() )
+                ),
+                'explainer' => $voice->pick(
+                    __( 'When your coach plans trainings or matches for your team, they show up here together with your attendance.', 'talenttrack' ),
+                    /* translators: %s = the player's first name. */
+                    sprintf( __( "When a coach plans trainings or matches for %s's team, they show up here together with the attendance.", 'talenttrack' ), $voice->firstName() )
+                ),
             ],
         ] );
         echo '</div>';
