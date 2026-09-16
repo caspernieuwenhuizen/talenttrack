@@ -159,11 +159,18 @@ Staff certifications are the one category that can come back empty: they
 require the club's `cert_type` vocabulary, which has no default seed
 (see #2490). The generator skips them rather than inventing lookup entries.
 
-A guardian link needs a WP account, and the demo user set ships one parent
-persona, so each parent account is given a small family (one to three
-children) rather than every player getting a guardian. That is enough for the
-parent persona to sign in and see a populated dashboard; the rest of the
-roster has no linked guardian, which is also what a real academy looks like.
+A guardian link needs a WP account, and the demo user set ships two parent
+personas, so each parent account is given a small family rather than every
+player getting a guardian. That is enough for the parent persona to sign in
+and see a populated dashboard; the rest of the roster has no linked guardian,
+which is also what a real academy looks like.
+
+The two families are deliberately different sizes, and the sizes are fixed
+rather than rolled. **Demo Parent** gets one child — a guardian who lands
+straight on that child's record. **Demo Parent Of Two** gets two, which is
+what makes the child picker and the dashboard child switcher reachable. Every
+generated academy therefore demonstrates both, instead of the multi-child
+guardian appearing in roughly two runs out of three.
 
 Generation is reproducible: the same seed, preset and content language
 produce the same academy every time — and the same academy whether it was
