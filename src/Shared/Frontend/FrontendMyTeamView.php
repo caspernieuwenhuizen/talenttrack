@@ -35,12 +35,25 @@ class FrontendMyTeamView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My team', 'talenttrack' ) );
-        self::renderHeader( __( 'My team', 'talenttrack' ) );
+        // #3477 — a parent's crumb and heading named the reader, not the
+        // subject: "Mijn team", about their child's squad.
+        $voice = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $title = $voice->pick(
+            __( 'My team', 'talenttrack' ),
+            /* translators: %s = the player's name, to a parent or a coach. */
+            sprintf( __( "%s's team", 'talenttrack' ), $voice->name() )
+        );
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $team_id = isset( $player->team_id ) ? (int) $player->team_id : 0;
         if ( $team_id <= 0 ) {
-            echo '<p>' . esc_html__( 'You are not on a team yet.', 'talenttrack' ) . '</p>';
+            echo '<p>' . esc_html( $voice->pick(
+                __( 'You are not on a team yet.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( '%s is not on a team yet.', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
             return;
         }
 
@@ -70,6 +83,21 @@ class FrontendMyTeamView extends FrontendViewBase {
         }
         ?>
         <div class="tt-mt-stack">
+            <?php
+            // #3480 — the podium is for the player, not for their parents.
+            //
+            // #1354 got the careful half right: no rating numbers leave the
+            // staff side, only position, name, photo and tier. What is left
+            // is still an ordinal ranking of named minors — 1st, 2nd, 3rd of
+            // the squad — and #1354 was reasoning about a player seeing their
+            // own dressing room, not about a third-party adult being handed a
+            // league table of other families' children. §1's privacy clause
+            // points one way on that: when in doubt, less.
+            //
+            // Not anonymised instead: a three-name squad is identifiable to
+            // any parent in it, so blanking the names would buy nothing.
+            ?>
+            <?php if ( $voice->isSelf() ) : ?>
             <div class="tt-mt-card tt-mt-podium-block">
                 <?php if ( ! empty( $top ) ) : ?>
                     <h3 class="tt-mt-card__title"><?php esc_html_e( 'Top players on the team', 'talenttrack' ); ?></h3>
@@ -88,6 +116,7 @@ class FrontendMyTeamView extends FrontendViewBase {
                     <p class="tt-mt-empty"><?php esc_html_e( 'Not enough rated teammates yet for a podium.', 'talenttrack' ); ?></p>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
 
             <?php
             // #1989 — non-sensitive team fixtures the player may see: the next

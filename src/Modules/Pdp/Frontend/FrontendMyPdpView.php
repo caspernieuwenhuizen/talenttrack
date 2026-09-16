@@ -62,15 +62,22 @@ class FrontendMyPdpView extends FrontendViewBase {
 
         // A parent reaching this for their child sees the child's name
         // framing, not "My …".
-        $is_self   = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
-        $is_parent = ! $is_self;
-        $title     = $is_self
-            ? __( 'My development plan', 'talenttrack' )
-            : sprintf(
-                /* translators: %s = the child's name (parent viewing their child) */
+        //
+        // #3477 — `$is_parent` used to be `! $is_self`, which made every
+        // non-player reader a parent: a coach opening a player's plan through
+        // `?player_id` was offered the parent-acknowledgement control on each
+        // conversation. The voice tells the three readers apart.
+        $voice     = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $is_self   = $voice->isSelf();
+        $is_parent = $voice->isParent();
+        $title     = $voice->pick(
+            __( 'My development plan', 'talenttrack' ),
+            sprintf(
+                /* translators: %s = the player's name, to a parent or a coach. */
                 __( "%s's development plan", 'talenttrack' ),
-                \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player )
-            );
+                $voice->name()
+            )
+        );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
@@ -98,8 +105,8 @@ class FrontendMyPdpView extends FrontendViewBase {
         $next_planned = PdpCycleState::nextPlanned( $convs );
 
         self::renderSeasonTimeline( $current, $convs, $next_planned, (int) $player->id, $is_self, $is_parent );
-        self::renderActiveGoals( $player );
-        self::renderSelfReflection( $next_planned, $is_self );
+        self::renderActiveGoals( $player, $voice );
+        self::renderSelfReflection( $next_planned, $is_self, $voice );
 
         if ( $verdict !== null ) {
             self::renderVerdictCard( $verdict );
@@ -305,15 +312,27 @@ class FrontendMyPdpView extends FrontendViewBase {
      * label is goal-specific via `status_localised` ("In ontwikkeling"),
      * not a generic "Pending".
      */
-    private static function renderActiveGoals( object $player ): void {
+    private static function renderActiveGoals( object $player, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
         $goals = ( new GoalsRepository() )->topActiveForPlayer( (int) $player->id, 3 );
 
         echo '<section class="tt-card">';
-        echo '<p class="tt-eyebrow">' . esc_html__( 'Your active goals', 'talenttrack' ) . '</p>';
-        echo '<h2 class="tt-pdp-goals__h">' . esc_html__( 'What you are working on now', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-eyebrow">' . esc_html( $voice->pick(
+            __( 'Your active goals', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( "%s's active goals", 'talenttrack' ), $voice->firstName() )
+        ) ) . '</p>';
+        echo '<h2 class="tt-pdp-goals__h">' . esc_html( $voice->pick(
+            __( 'What you are working on now', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( 'What %s is working on now', 'talenttrack' ), $voice->firstName() )
+        ) ) . '</h2>';
 
         if ( empty( $goals ) ) {
-            echo '<p class="tt-pdp-empty">' . esc_html__( 'No active goals yet. Your coach will set some during your next talk.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-pdp-empty">' . esc_html( $voice->pick(
+                __( 'No active goals yet. Your coach will set some during your next talk.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( 'No active goals yet. A coach will set some at the next development talk with %s.', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
             echo '</section>';
             return;
         }
@@ -376,7 +395,7 @@ class FrontendMyPdpView extends FrontendViewBase {
      * stacked on mobile (`.tt-reflect-split`). Parents see the saved
      * reflection read-only, no input.
      */
-    private static function renderSelfReflection( ?object $conv, bool $is_self ): void {
+    private static function renderSelfReflection( ?object $conv, bool $is_self, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
         if ( $conv === null ) return;
 
         $cid    = (int) ( $conv->id ?? 0 );
@@ -386,7 +405,11 @@ class FrontendMyPdpView extends FrontendViewBase {
         $open   = PdpCycleState::reflectionWindowOpen( $conv );
 
         echo '<section class="tt-card tt-reflect">';
-        echo '<p class="tt-eyebrow">' . esc_html__( 'Preparing for your talk', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-eyebrow">' . esc_html( $voice->pick(
+            __( 'Preparing for your talk', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( "Preparing for %s's talk", 'talenttrack' ), $voice->firstName() )
+        ) ) . '</p>';
         $heading = $date !== ''
             ? sprintf(
                 /* translators: %1$s = conversation template label, %2$s = talk date */

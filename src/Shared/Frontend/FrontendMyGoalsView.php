@@ -38,8 +38,18 @@ class FrontendMyGoalsView extends FrontendViewBase {
 
         self::enqueueAssets();
         self::enqueueGoalsStyle();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My goals', 'talenttrack' ) );
-        self::renderHeader( __( 'My goals', 'talenttrack' ) );
+
+        // #3477 — a parent opening their child's goals was told they were
+        // "Mijn doelen", in the crumb and in the heading.
+        $voice = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $title = $voice->pick(
+            __( 'My goals', 'talenttrack' ),
+            /* translators: %s = the player's name, to a parent or a coach. */
+            sprintf( __( "%s's goals", 'talenttrack' ), $voice->name() )
+        );
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         // #1077 — was inline SQL + per-row LabelTranslator calls in
         // the loop below. GoalsRepository centralises the read +

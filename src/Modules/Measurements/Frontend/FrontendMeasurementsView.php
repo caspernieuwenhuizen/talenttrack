@@ -25,14 +25,18 @@ class FrontendMeasurementsView extends FrontendViewBase {
     public static function render( object $player ): void {
         self::enqueueAssets();
 
-        $name = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
-
-        FrontendBreadcrumbs::fromDashboard( __( 'Measurements', 'talenttrack' ) );
-        self::renderHeader(
-            $name !== ''
-                ? sprintf( /* translators: %s: player name */ __( 'Measurements — %s', 'talenttrack' ), $name )
-                : __( 'Measurements', 'talenttrack' )
+        // #3477 — the crumb said "Measurements" and the heading beneath it
+        // "Measurements — Bas Willems": two answers to whose page this is,
+        // one line apart. The voice gives one, used for both.
+        $voice = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $title = $voice->pick(
+            __( 'My measurements', 'talenttrack' ),
+            /* translators: %s: player name */
+            sprintf( __( 'Measurements — %s', 'talenttrack' ), $voice->name() )
         );
+
+        FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         self::renderBody( (int) $player->id );
     }
