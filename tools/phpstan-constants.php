@@ -12,7 +12,12 @@
  *
  * This file is never loaded at runtime: it is listed in `phpstan.neon`'s
  * `scanFiles`, which collects symbols without executing or analysing them.
- * The values are placeholders — only the names and types matter.
+ *
+ * TT_PLUGIN_URL is a placeholder — nothing resolves a URL. TT_PLUGIN_DIR is
+ * the real checkout root, because `src` builds `require` paths out of it and
+ * PHPStan 2.x folds the constant before checking that the required file
+ * exists. A placeholder there reports every one of those requires as a
+ * missing file.
  *
  * Keep it in step with `talenttrack.php` when a constant is added there.
  */
@@ -21,5 +26,5 @@ if ( ! defined( 'TT_PLUGIN_URL' ) ) {
     define( 'TT_PLUGIN_URL', 'https://example.test/wp-content/plugins/talenttrack/' );
 }
 if ( ! defined( 'TT_PLUGIN_DIR' ) ) {
-    define( 'TT_PLUGIN_DIR', '/srv/www/wp-content/plugins/talenttrack/' );
+    define( 'TT_PLUGIN_DIR', dirname( __DIR__ ) . '/' );
 }
