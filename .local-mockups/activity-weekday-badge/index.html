@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Activity date badge — weekday variants</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror TT production (assets/css/tokens.css).
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:            #1a1d21;
+    --tt-ink-soft:       #5b6e75;
+    --tt-paper:          #ffffff;
+    --tt-bg:             #f5f7f6;
+    --tt-line:           #d6dadd;
+    --tt-accent:         #2271b1;
+    --tt-success:        #2e7d4f;
+    --tt-warn:           #c75c1f;
+    --tt-mute:           #f0f3f2;
+    --tt-info-subtle:    #e6f0fa;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-radius:         8px;
+    --tt-sp-3:           12px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome (not production).
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #222; color: #eee;
+    font-size: 12px; padding: 10px 12px;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    border-bottom: 2px solid #000;
+    padding-top: calc(10px + env(safe-area-inset-top));
+}
+.mockup-bar strong { color: #ffd; }
+.mockup-bar button {
+    font: inherit; font-size: 12px;
+    background: #3a3a3a; color: #eee;
+    border: 1px solid #555; border-radius: 6px;
+    padding: 6px 10px; cursor: pointer;
+    min-height: 32px; touch-action: manipulation;
+}
+.mockup-bar button[aria-pressed="true"] { background: #ffd; color: #222; border-color: #ffd; font-weight: 700; }
+
+.mockup-wrap { padding: 16px 12px 64px; }
+.mockup-note {
+    max-width: 62ch; margin: 0 auto 20px;
+    font-size: 13px; line-height: 1.6; color: #444;
+}
+.mockup-note code { background: #e8ebe9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+.variants { display: grid; gap: 20px; justify-content: center; }
+@media (min-width: 900px)  { .variants { grid-template-columns: repeat(2, 380px); } }
+@media (min-width: 1320px) { .variants { grid-template-columns: repeat(3, 380px); } }
+
+.variant { min-width: 0; }
+.variant__head {
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+    margin: 0 0 8px; padding: 0 4px;
+}
+.variant__name { font-size: 14px; font-weight: 700; margin: 0; }
+.variant__tag {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 999px;
+    background: var(--tt-mute); color: var(--tt-ink-soft);
+}
+.variant__tag--pick { background: #e0efe5; color: #2e7d4f; }
+.variant__tag--base { background: #e8e8e8; color: #666; }
+.variant__cost { font-size: 12px; color: #666; margin: 0 0 8px; padding: 0 4px; }
+.variant__cost b { color: var(--tt-ink); font-variant-numeric: tabular-nums; }
+
+/* 360px phone frame — the width the repo standard targets. */
+.phone {
+    width: 360px; max-width: 100%;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   PRODUCTION CSS — copied verbatim from assets/css/frontend-activities-manage.css
+   so proportions are truthful. Do not "improve" while comparing.
+   --------------------------------------------------------------------------- */
+.tt-dashboard .tt-act-list { list-style: none; margin: 0; padding: 0; }
+
+.tt-dashboard .tt-act-bucket-head {
+    padding: 14px 16px 6px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.tt-dashboard .tt-act-bucket-head__count {
+    font-size: 12px; font-weight: 500; color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-act-card {
+    background: #fff;
+    border-top: 1px solid var(--tt-mute);
+    border-bottom: 1px solid var(--tt-mute);
+    margin-bottom: -1px;
+    padding: 0;
+}
+.tt-dashboard .tt-act-card__link {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: inherit;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-card__link:active { background: var(--tt-mute); }
+.tt-dashboard .tt-act-card__link:focus-visible { outline: 2px solid var(--tt-accent); outline-offset: -2px; }
+
+.tt-dashboard .tt-act-date {
+    text-align: center;
+    background: var(--tt-mute);
+    border-radius: 10px;
+    padding: 6px 0;
+    line-height: 1;
+    min-width: 44px;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-act-date--today { background: var(--tt-accent); color: #fff; }
+.tt-dashboard .tt-act-date--overdue { background: var(--tt-warn); color: #fff; }
+.tt-dashboard .tt-act-date__m {
+    display: block; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    font-weight: 600; margin-bottom: 2px; opacity: 0.85;
+}
+.tt-dashboard .tt-act-date__d {
+    display: block; font-size: 18px; font-weight: 800;
+    font-variant-numeric: tabular-nums; margin-top: 2px;
+}
+
+.tt-dashboard .tt-act-card__body { min-width: 0; margin: 0; }
+.tt-dashboard .tt-act-card__title {
+    font-size: 15px; font-weight: 600; margin: 0; color: var(--tt-ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tt-dashboard .tt-act-card__meta {
+    font-size: 12px; color: var(--tt-ink-soft); margin: 2px 0 0; line-height: 1.5;
+}
+.tt-dashboard .tt-act-card__tail { display: inline; color: var(--tt-ink-soft); }
+.tt-dashboard .tt-act-card__chev { color: var(--tt-line); font-size: 18px; font-weight: 700; }
+
+.tt-dashboard .tt-act-pill {
+    display: inline-block; padding: 1px 8px; border-radius: 8px;
+    font-size: 12px; font-weight: 600; margin-right: 4px; vertical-align: middle;
+    background: var(--tt-mute); color: var(--tt-ink-soft);
+    text-transform: uppercase; letter-spacing: 0.3px;
+}
+.tt-dashboard .tt-act-pill[data-type="training"] { background: #e1eef5; color: #0d4a7a; }
+.tt-dashboard .tt-act-pill[data-type="match"]    { background: #fde6e2; color: #8a2a26; }
+.tt-dashboard .tt-act-pill[data-status="completed"] { background: #e0efe5; color: #2e7d4f; }
+
+/* ---------------------------------------------------------------------------
+   PROPOSED — the weekday line. One new element, four placements.
+   --------------------------------------------------------------------------- */
+
+/* Hidden in the baseline variant. */
+.tt-act-date__w { display: none; }
+.tt-act-card__tail-w { display: none; }
+
+/* --- Shared by both A variants: three lines, weekday / day / month.
+   The weekday leads (it is what a coach scans for), the day number keeps
+   the visual centre, the month anchors the bottom. Reading order
+   top-to-bottom matches how the date is spoken. */
+.v-a .tt-dashboard .tt-act-date__w,
+.v-a-sq .tt-dashboard .tt-act-date__w {
+    display: block;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+/* --- A□ (CHOSEN 2026-09-16): three lines inside a TRUE SQUARE ---
+   The tile keeps its 1:1 proportion rather than stretching into a
+   rectangle. Three lines need ~42px of type, so the square grows
+   44 → 52px — which, counter-intuitively, ends up SHORTER than the
+   44-wide rectangle, because centring in a fixed square lets the
+   gaps tighten. `aspect-ratio: 1` + flex centring holds the square
+   whatever the locale does to line widths. */
+.v-a-sq .tt-dashboard .tt-act-card__link { grid-template-columns: 52px 1fr auto; }
+.v-a-sq .tt-dashboard .tt-act-date {
+    min-width: 52px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 2px;
+    padding: 4px 2px;
+}
+.v-a-sq .tt-dashboard .tt-act-date__w { font-size: 10px; }
+.v-a-sq .tt-dashboard .tt-act-date__d { font-size: 18px; margin: 0; }
+.v-a-sq .tt-dashboard .tt-act-date__m { font-size: 10px; margin: 0; }
+
+/* --- A (kept for diffing): the same three lines in the shipped
+   44px column, so the tile stretches to 44×57. */
+.v-a .tt-dashboard .tt-act-date__w { font-size: 10px; margin-bottom: 2px; }
+.v-a .tt-dashboard .tt-act-date__d { margin-top: 0; margin-bottom: 2px; }
+.v-a .tt-dashboard .tt-act-date__m { margin-bottom: 0; }
+
+/* --- B: weekday joins the month line, tile widens ------------
+   Sized to fit "FRI SEP" without wrapping — 56px was not enough, so the
+   grid column has to give the tile 68px and take it off the title. */
+.v-b .tt-dashboard .tt-act-card__link { grid-template-columns: 68px 1fr auto; }
+.v-b .tt-dashboard .tt-act-date { min-width: 68px; padding: 6px 4px; }
+.v-b .tt-dashboard .tt-act-date__w {
+    display: inline;
+    font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    opacity: 0.7; margin-right: 3px;
+}
+.v-b .tt-dashboard .tt-act-date__m { display: inline; margin-bottom: 0; }
+.v-b .tt-dashboard .tt-act-date__m,
+.v-b .tt-dashboard .tt-act-date__w { white-space: nowrap; }
+
+/* --- C: weekday inline before the day number -----------------
+   Same story: "FRI 11" at 11px + 18px needs ~64px of tile. */
+.v-c .tt-dashboard .tt-act-card__link { grid-template-columns: 64px 1fr auto; }
+.v-c .tt-dashboard .tt-act-date { min-width: 64px; padding: 6px 4px; }
+.v-c .tt-dashboard .tt-act-date__w {
+    display: inline;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    opacity: 0.7; margin-right: 4px;
+    vertical-align: 1px;
+}
+.v-c .tt-dashboard .tt-act-date__d { display: inline; }
+.v-c .tt-dashboard .tt-act-date { white-space: nowrap; }
+
+/* --- D: weekday in the meta tail, tile untouched ------------- */
+.v-d .tt-dashboard .tt-act-card__tail-w { display: inline; }
+
+/* Highlight the changed bit while comparing. */
+body.show-diff .tt-act-date__w,
+body.show-diff .tt-act-card__tail-w {
+    background: #fff3a8;
+    color: #5a4a00;
+    border-radius: 3px;
+    opacity: 1;
+}
+body.show-diff .v-a .tt-act-date__w,
+body.show-diff .v-a-sq .tt-act-date__w { display: block; }
+
+/* Optional 1:1 guide — proves the tile is actually square, not nearly. */
+body.show-square .v-a-sq .tt-act-date,
+body.show-square .tt-act-date {
+    outline: 1px dashed #d63638;
+    outline-offset: 1px;
+}
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>Weekday on the activity date badge</strong>
+    <span>Locale:</span>
+    <button type="button" data-loc="en" aria-pressed="true">EN</button>
+    <button type="button" data-loc="nl" aria-pressed="false">NL</button>
+    <button type="button" data-loc="de" aria-pressed="false">DE</button>
+    <button type="button" data-loc="fr" aria-pressed="false">FR</button>
+    <span style="width:1px;height:20px;background:#555;"></span>
+    <button type="button" id="diff" aria-pressed="false">Highlight the change</button>
+    <button type="button" id="sq" aria-pressed="false">Outline the tile</button>
+</div>
+
+<div class="mockup-wrap">
+
+<p class="mockup-note">
+    The same five rows, six ways. Everything except the weekday element is production CSS
+    copied verbatim from <code>assets/css/frontend-activities-manage.css</code>, so the row
+    heights below are real, not sketched. Card heights are measured live and printed under
+    each heading; a <code>□</code> in that readout means the tile measured exactly square.
+    Switch locale to stress-test the abbreviation width — Dutch gives two characters,
+    French four with a full stop. <strong>Outline the tile</strong> draws its bounding box
+    so the 1:1 claim is checkable rather than asserted.
+</p>
+
+<div class="variants" id="variants"></div>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Sample rows — one real week of a JO13-1 squad, matching the screenshot.
+   `w` indices are weekday numbers; labels come from the locale table below.
+   --------------------------------------------------------------------------- */
+var ROWS = [
+    { m: 8, d: 11, w: 5, title: 'Training – pressing in zone 2', type: 'training', status: 'completed', tail: 'JO13-1 · 18:30', mode: '' },
+    { m: 8, d: 13, w: 0, title: 'Match vs. VV Hedel JO13-1',          type: 'match',    status: '',          tail: 'JO13-1 · 10:30 · Sportpark', mode: '' },
+    { m: 8, d: 16, w: 3, title: 'Training – transition moments',  type: 'training', status: '',          tail: 'JO13-1 · 18:30', mode: 'today' },
+    { m: 8, d: 18, w: 5, title: 'Training – finishing under pressure', type: 'training', status: '',     tail: 'JO13-1 · 18:30 · Sportpark De Hoef', mode: '' },
+    { m: 8, d: 20, w: 0, title: 'Match vs. RKSV Nuenen JO13-1',        type: 'match',    status: '',          tail: 'JO13-1 · 12:00', mode: '' }
+];
+
+var LOCALES = {
+    en: { months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          days:   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+          training: 'Training', match: 'Match', completed: 'Completed', label: 'English — 3 chars' },
+    nl: { months: ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'],
+          days:   ['zo','ma','di','wo','do','vr','za'],
+          training: 'Training', match: 'Wedstrijd', completed: 'Afgerond', label: 'Nederlands — 2 chars' },
+    de: { months: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+          days:   ['So','Mo','Di','Mi','Do','Fr','Sa'],
+          training: 'Training', match: 'Spiel', completed: 'Erledigt', label: 'Deutsch — 2 chars' },
+    fr: { months: ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'],
+          days:   ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'],
+          training: 'Entraînement', match: 'Match', completed: 'Terminé', label: 'Français — 4 chars + stop' }
+};
+
+var VARIANTS = [
+    { cls: '',    name: 'Current', tag: 'base',  tagText: 'Shipped today',
+      cost: 'Two lines, 44px column. No weekday anywhere on the row.' },
+    { cls: 'v-a-sq', name: 'A□ — weekday / day / month, square tile', tag: 'pick', tagText: 'Chosen',
+      cost: 'Square held at 1:1. Column 44px → 52px; 8px off the title, and SHORTER rows than the rectangle below.' },
+    { cls: 'v-a', name: 'A — same three lines, 44px column', tag: '', tagText: '',
+      cost: 'Kept for diffing. The tile stretches to 44×57 — no longer a square, and taller than A□.' },
+    { cls: 'v-b', name: 'B — weekday joins the month line', tag: '', tagText: '',
+      cost: 'Needs a 68px column for "FRI SEP" not to wrap — 24px taken off the title.' },
+    { cls: 'v-c', name: 'C — weekday before the day number', tag: '', tagText: '',
+      cost: 'Needs a 64px column. Day number no longer centred in the tile.' },
+    { cls: 'v-d', name: 'D — in the meta tail', tag: '', tagText: '',
+      cost: 'Nothing moves. No CSS grid change at all. Weakest scan — buried in a 12px text run.' }
+];
+
+var loc = 'en';
+
+function pill(text, attr, val) {
+    return '<span class="tt-act-pill" ' + attr + '="' + val + '">' + text + '</span>';
+}
+
+function cardHtml(row, L) {
+    var dateCls = 'tt-act-date' + (row.mode === 'today' ? ' tt-act-date--today' : '');
+    var pills = pill(row.type === 'match' ? L.match : L.training, 'data-type', row.type);
+    if (row.status === 'completed') pills += pill(L.completed, 'data-status', 'completed');
+
+    var tailW = '<span class="tt-act-card__tail-w">' + L.days[row.w] + ' · </span>';
+
+    return '<li class="tt-act-card">' +
+        '<a class="tt-act-card__link" href="#">' +
+            '<div class="' + dateCls + '">' +
+                '<span class="tt-act-date__w">' + L.days[row.w] + '</span>' +
+                '<span class="tt-act-date__m">' + L.months[row.m] + '</span>' +
+                '<span class="tt-act-date__d">' + row.d + '</span>' +
+            '</div>' +
+            '<div class="tt-act-card__body">' +
+                '<p class="tt-act-card__title">' + row.title + '</p>' +
+                '<p class="tt-act-card__meta">' + pills +
+                    ' <span class="tt-act-card__tail">' + tailW + row.tail + '</span>' +
+                '</p>' +
+            '</div>' +
+            '<span class="tt-act-card__chev" aria-hidden="true">›</span>' +
+        '</a>' +
+    '</li>';
+}
+
+/* Variant A orders the tile weekday / day / month; B and C keep the shipped
+   month / day order with the weekday inline. Reorder in the DOM per variant
+   rather than duplicating the markup. */
+function reorderForVariant(root, cls) {
+    if (cls !== 'v-a' && cls !== 'v-a-sq') return;
+    root.querySelectorAll('.tt-act-date').forEach(function (tile) {
+        tile.appendChild(tile.querySelector('.tt-act-date__d'));
+        tile.appendChild(tile.querySelector('.tt-act-date__m'));
+    });
+}
+
+function render() {
+    var L = LOCALES[loc];
+    var out = '';
+
+    VARIANTS.forEach(function (v, i) {
+        var tag = v.tag
+            ? '<span class="variant__tag variant__tag--' + v.tag + '">' + v.tagText + '</span>'
+            : '';
+        out += '<section class="variant ' + v.cls + '" data-cls="' + v.cls + '">' +
+            '<div class="variant__head">' +
+                '<h2 class="variant__name">' + v.name + '</h2>' + tag +
+                '<span class="variant__tag" data-measure="' + i + '">–</span>' +
+            '</div>' +
+            '<p class="variant__cost">' + v.cost + '</p>' +
+            '<div class="phone">' +
+                '<div class="tt-dashboard">' +
+                    '<ul class="tt-act-list">' +
+                        '<li><div class="tt-act-bucket-head"><span>This week</span>' +
+                            '<span class="tt-act-bucket-head__count">5 activities</span></div></li>' +
+                        ROWS.map(function (r) { return cardHtml(r, L); }).join('') +
+                    '</ul>' +
+                '</div>' +
+            '</div>' +
+        '</section>';
+    });
+
+    var host = document.getElementById('variants');
+    host.innerHTML = out;
+
+    host.querySelectorAll('.variant').forEach(function (sec, i) {
+        reorderForVariant(sec, sec.dataset.cls);
+        /* Measure EVERY card, not the first — a variant that wraps the meta
+           on some rows only is worse than one that is uniformly taller. */
+        var hs = [].map.call(sec.querySelectorAll('.tt-act-card'), function (c) {
+            return Math.round(c.getBoundingClientRect().height);
+        });
+        var lo = Math.min.apply(null, hs), hi = Math.max.apply(null, hs);
+        var badge = sec.querySelector('.tt-act-date');
+        var bw = badge ? Math.round(badge.getBoundingClientRect().width) : 0;
+        var bh = badge ? Math.round(badge.getBoundingClientRect().height) : 0;
+        var rows = (lo === hi) ? ('row ' + hi + 'px') : ('row ' + lo + '–' + hi + 'px ragged');
+        var square = (bw === bh) ? ' □' : '';
+        var out = sec.querySelector('[data-measure="' + i + '"]');
+        if (out) out.textContent = rows + ' · tile ' + bw + '×' + bh + square;
+    });
+}
+
+document.querySelectorAll('.mockup-bar [data-loc]').forEach(function (b) {
+    b.addEventListener('click', function () {
+        loc = b.dataset.loc;
+        document.querySelectorAll('.mockup-bar [data-loc]').forEach(function (o) {
+            o.setAttribute('aria-pressed', String(o === b));
+        });
+        render();
+    });
+});
+
+document.getElementById('diff').addEventListener('click', function () {
+    var on = document.body.classList.toggle('show-diff');
+    this.setAttribute('aria-pressed', String(on));
+});
+
+document.getElementById('sq').addEventListener('click', function () {
+    var on = document.body.classList.toggle('show-square');
+    this.setAttribute('aria-pressed', String(on));
+});
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Activity completeness readout — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens — mirrored from tokens.css / frontend-activities-manage.css so the
+   port is mechanical. Nothing here is invented.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-accent:     #2271b1;
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+    --tt-info:       #2d6fb3;
+
+    /* Completeness states — the only new surface colours. Each is the
+       existing semantic token on its own subtle wash, contrast >= 4.5:1. */
+    --tt-ok-wash:    #e0efe5;
+    --tt-warn-wash:  #fdecd9;
+    --tt-gap-wash:   #fde6e2;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- Mockup-only chrome ------------------------------------------------ */
+.mockup-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #222; color: #eee; font-size: 12px;
+    padding: 8px 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer; font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.mockup-bar label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.mockup-note {
+    background: #fffbe6; border: 1px solid #e8d98a; border-radius: 8px;
+    padding: 10px 12px; margin: 12px var(--gap-lg); font-size: 12.5px; line-height: 1.5;
+    color: #5b4a10;
+}
+.mockup-note code { background: #f5edcb; padding: 1px 4px; border-radius: 3px; }
+
+.frame { max-width: 360px; margin: 0 auto; background: var(--tt-bg); min-height: 100vh; padding-bottom: 40px; }
+@media (min-width: 768px)  { .frame { max-width: 720px; } }
+@media (min-width: 1100px) { .frame { max-width: 880px; } }
+
+.page-head { padding: var(--gap-lg) var(--gap-lg) var(--gap); background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); }
+.crumb { font-size: 12px; color: var(--tt-ink-soft); margin: 0 0 6px; }
+.crumb a { color: var(--tt-info); text-decoration: none; }
+.page-head__title { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.2; }
+.page-head__sub { margin: 4px 0 0; font-size: 13px; color: var(--tt-ink-soft); }
+
+/* =============================================================
+   PRODUCTION CLASSES — copied from frontend-activities-manage.css
+   ============================================================= */
+.tt-act-bucket { margin: 0 0 var(--gap-lg); }
+.tt-act-bucket__head {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: var(--gap-lg) var(--gap-lg) 6px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--tt-ink-soft);
+}
+.tt-act-bucket__count { font-weight: 600; color: var(--tt-ink-soft); text-transform: none; letter-spacing: 0; }
+.tt-act-list { list-style: none; margin: 0; padding: 0 var(--gap-lg); display: grid; gap: 8px; }
+
+.tt-act-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.tt-act-card__link {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 12px; align-items: center;
+    padding: 12px 16px; text-decoration: none; color: inherit;
+    min-height: 48px; touch-action: manipulation;
+}
+.tt-act-card__link:active { background: var(--tt-mute); }
+.tt-act-card__link:focus-visible { outline: 2px solid var(--tt-accent); outline-offset: -2px; }
+
+.tt-act-date {
+    text-align: center; background: var(--tt-mute); border-radius: 10px;
+    padding: 6px 0; line-height: 1; min-width: 44px; color: var(--tt-ink);
+}
+.tt-act-date__m { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; font-weight: 600; margin-bottom: 2px; opacity: .85; }
+.tt-act-date__d { display: block; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+.tt-act-card__body { min-width: 0; margin: 0; }
+.tt-act-card__title { font-size: 15px; font-weight: 600; margin: 0; color: var(--tt-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-act-card__meta { font-size: 12px; color: var(--tt-ink-soft); margin: 2px 0 0; line-height: 1.5; }
+.tt-act-card__tail { display: inline; color: var(--tt-ink-soft); }
+.tt-act-card__chev { color: var(--tt-line); font-size: 18px; font-weight: 700; }
+
+.tt-act-pill {
+    display: inline-block; padding: 1px 8px; border-radius: 8px; font-size: 12px;
+    font-weight: 600; margin-right: 4px; vertical-align: middle;
+    background: var(--tt-mute); color: var(--tt-ink-soft);
+    text-transform: uppercase; letter-spacing: .3px;
+}
+.tt-act-pill[data-type="training"] { background: #e1eef5; color: #0d4a7a; }
+.tt-act-pill[data-type="match"]    { background: #fde6e2; color: #8a2a26; }
+.tt-act-pill[data-type="friendly"] { background: #fff3d9; color: #8a5e0a; }
+.tt-act-pill[data-type="other"]    { background: var(--tt-mute); color: var(--tt-ink-soft); }
+.tt-act-pill[data-status="completed"] { background: #e0efe5; color: #2e7d4f; }
+.tt-act-pill[data-status="cancelled"] { background: #ffe0e0; color: #8a2a26; }
+
+/* =============================================================
+   NEW — .tt-act-reg, the completeness readout.
+   One block, three presentations, switched by the variant picker.
+   ============================================================= */
+
+/* Shared: the count itself. Tabular numerals so 7/14 and 14/14 line up
+   in a vertical scan — that alignment IS the feature. */
+.tt-act-reg__n { font-variant-numeric: tabular-nums; font-weight: 700; }
+.tt-act-reg__icon { font-style: normal; }
+
+/* State colours. Applied to whichever presentation is active. */
+[data-state="ok"]      { --reg-fg: var(--tt-success); --reg-bg: var(--tt-ok-wash); }
+[data-state="partial"] { --reg-fg: var(--tt-warn);    --reg-bg: var(--tt-warn-wash); }
+[data-state="gap"]     { --reg-fg: #a32b22;           --reg-bg: var(--tt-gap-wash); }
+[data-state="na"]      { --reg-fg: var(--tt-ink-soft);--reg-bg: var(--tt-mute); }
+
+/* ---- Variant A — right rail (recommended) ------------------------------ */
+/* Its own grid column between the body and the chevron; right-aligned,
+   one line per measure so a match stacks attendance over minutes. */
+body[data-variant="A"] .tt-act-card__link { grid-template-columns: 44px 1fr auto auto; }
+body[data-variant="A"] .tt-act-reg--rail { display: grid; gap: 3px; justify-items: end; text-align: right; }
+body[data-variant="A"] .tt-act-reg--rail .tt-act-reg__row {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; line-height: 1.25; color: var(--reg-fg);
+    white-space: nowrap;
+}
+body[data-variant="A"] .tt-act-reg--rail .tt-act-reg__label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+    font-weight: 700; opacity: .75;
+}
+/* The label is noise at 360px — the icon carries the meaning there. */
+@media (max-width: 479px) {
+    body[data-variant="A"] .tt-act-reg--rail .tt-act-reg__label { display: none; }
+}
+
+/* ---- Variant B — meta-line chips --------------------------------------- */
+body[data-variant="B"] .tt-act-reg--chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 1px 8px; border-radius: 8px; margin-left: 4px;
+    font-size: 12px; vertical-align: middle;
+    background: var(--reg-bg); color: var(--reg-fg);
+    white-space: nowrap;
+}
+
+/* ---- Variant C — footer strip ------------------------------------------ */
+body[data-variant="C"] .tt-act-reg--strip {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 7px 16px 9px;
+    border-top: 1px dashed var(--tt-line);
+    font-size: 12px; color: var(--tt-ink-soft);
+    background: #fbfcfc;
+}
+body[data-variant="C"] .tt-act-reg--strip .tt-act-reg__row {
+    display: inline-flex; align-items: center; gap: 5px; color: var(--reg-fg);
+}
+body[data-variant="C"] .tt-act-reg__bar {
+    display: block; width: 44px; height: 4px; border-radius: 2px;
+    background: var(--tt-line); overflow: hidden;
+}
+body[data-variant="C"] .tt-act-reg__bar i { display: block; height: 100%; background: var(--reg-fg); }
+
+/* Only one presentation renders at a time. */
+.tt-act-reg--rail, .tt-act-reg--chip, .tt-act-reg--strip { display: none; }
+body[data-variant="A"] .tt-act-reg--rail  { display: grid; }
+body[data-variant="B"] .tt-act-reg--chip  { display: inline-flex; }
+body[data-variant="C"] .tt-act-reg--strip { display: flex; }
+body[data-variant="base"] .tt-act-reg--rail,
+body[data-variant="base"] .tt-act-reg--chip,
+body[data-variant="base"] .tt-act-reg--strip { display: none; }
+
+/* ---- The gap affordance ------------------------------------------------
+   A completed activity with nothing recorded is not just a number — it is
+   a thing to go and fix. Sits OUTSIDE the card's tap-to-open <a>, exactly
+   like the existing AlertChip and "Complete activity" quick-action do
+   (#2633 / #2245): a nested anchor is invalid markup.                      */
+.tt-act-card__fix {
+    display: flex; align-items: center; gap: 6px;
+    margin: 0 16px 12px; min-height: 48px; padding: 0 14px;
+    border: 1px solid #f0c4bc; border-radius: 10px;
+    background: var(--tt-gap-wash); color: #8a2a26;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-act-card__fix:active { background: #fbd8d2; }
+.tt-act-card__fix:focus-visible { outline: 2px solid var(--tt-accent); outline-offset: 2px; }
+@media (min-width: 480px) { .tt-act-card__fix { display: inline-flex; margin-right: auto; } }
+body:not([data-fix="on"]) .tt-act-card__fix { display: none; }
+
+/* Comparison view */
+.compare { display: grid; gap: 18px; padding: 0 var(--gap-lg); }
+@media (min-width: 1100px) { .compare { grid-template-columns: repeat(2, 1fr); } }
+.compare h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--tt-ink-soft); }
+
+.legend {
+    margin: 0 var(--gap-lg) var(--gap-lg);
+    padding: 12px 14px; background: var(--tt-paper);
+    border: 1px solid var(--tt-line); border-radius: var(--radius-lg);
+    font-size: 12px; color: var(--tt-ink-soft);
+}
+.legend ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.legend b { color: var(--tt-ink); }
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+</style>
+</head>
+<body data-variant="A" data-fix="on">
+
+<div class="mockup-bar">
+    <strong>Variant</strong>
+    <button type="button" data-v="A" aria-pressed="true">A · Right rail (recommended)</button>
+    <button type="button" data-v="B" aria-pressed="false">B · Meta chips</button>
+    <button type="button" data-v="C" aria-pressed="false">C · Footer strip</button>
+    <button type="button" data-v="base" aria-pressed="false">Today (baseline)</button>
+    <label><input type="checkbox" id="fix" checked> "Fix" affordance on gaps</label>
+</div>
+
+<div class="frame">
+
+    <div class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; Activities</p>
+        <h1 class="page-head__title">Activities</h1>
+        <p class="page-head__sub">JO13-1 &middot; past 30 days</p>
+    </div>
+
+    <div class="mockup-note">
+        Every card below is a real case from the investigation. The point of the readout
+        is the two rows marked <b>0/14</b>: both activities read <code>completed</code> on
+        every screen today, and only the reports know they are empty.
+    </div>
+
+    <!-- ================= PAST BUCKET ================= -->
+    <section class="tt-act-bucket">
+        <div class="tt-act-bucket__head">
+            Past <span class="tt-act-bucket__count">6 activities</span>
+        </div>
+        <ul class="tt-act-list">
+
+            <!-- 1. Training, fully recorded -->
+            <li class="tt-act-card" data-type="training">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Sep</span><span class="tt-act-date__d">11</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">Training &ndash; pressing in zone 2</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="training">Training</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-reg--chip" data-state="ok">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i><span class="tt-act-reg__n">14/14</span>
+                            </span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 18:30</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail" data-state="ok">
+                        <span class="tt-act-reg__row">
+                            <span class="tt-act-reg__label">Att</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i>
+                            <span class="tt-act-reg__n">14/14</span>
+                            <span class="sr-only">Attendance recorded for 14 of 14 players</span>
+                        </span>
+                    </div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+                <div class="tt-act-reg--strip" data-state="ok">
+                    <span class="tt-act-reg__row">
+                        Attendance <span class="tt-act-reg__n">14/14</span>
+                        <span class="tt-act-reg__bar"><i style="width:100%"></i></span>
+                    </span>
+                </div>
+            </li>
+
+            <!-- 2. Training completed, NOTHING recorded — the reported bug -->
+            <li class="tt-act-card" data-type="training">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Sep</span><span class="tt-act-date__d">09</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">Training &ndash; finishing</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="training">Training</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-reg--chip" data-state="gap">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#9888;</i><span class="tt-act-reg__n">0/14</span>
+                            </span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 18:30</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail" data-state="gap">
+                        <span class="tt-act-reg__row">
+                            <span class="tt-act-reg__label">Att</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#9888;</i>
+                            <span class="tt-act-reg__n">0/14</span>
+                            <span class="sr-only">No attendance recorded &mdash; 0 of 14 players</span>
+                        </span>
+                    </div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+                <div class="tt-act-reg--strip" data-state="gap">
+                    <span class="tt-act-reg__row">
+                        Attendance <span class="tt-act-reg__n">0/14</span>
+                        <span class="tt-act-reg__bar"><i style="width:0"></i></span>
+                    </span>
+                </div>
+                <a class="tt-act-card__fix" href="#">&#9888; Record attendance</a>
+            </li>
+
+            <!-- 3. Match, fully recorded, both measures -->
+            <li class="tt-act-card" data-type="match">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Sep</span><span class="tt-act-date__d">07</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">JO13-1 &ndash; Ajax JO13-2</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="match">Match</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-reg--chip" data-state="ok">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i><span class="tt-act-reg__n">16/16</span>
+                            </span>
+                            <span class="tt-act-reg--chip" data-state="ok">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i><span class="tt-act-reg__n">14/14</span>
+                            </span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 11:00</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail">
+                        <span class="tt-act-reg__row" data-state="ok">
+                            <span class="tt-act-reg__label">Att</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i>
+                            <span class="tt-act-reg__n">16/16</span>
+                            <span class="sr-only">Attendance recorded for 16 of 16 players</span>
+                        </span>
+                        <span class="tt-act-reg__row" data-state="ok">
+                            <span class="tt-act-reg__label">Min</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i>
+                            <span class="tt-act-reg__n">14/14</span>
+                            <span class="sr-only">Minutes recorded for 14 of 14 players who played</span>
+                        </span>
+                    </div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+                <div class="tt-act-reg--strip">
+                    <span class="tt-act-reg__row" data-state="ok">
+                        Attendance <span class="tt-act-reg__n">16/16</span>
+                        <span class="tt-act-reg__bar"><i style="width:100%"></i></span>
+                    </span>
+                    <span class="tt-act-reg__row" data-state="ok">
+                        Minutes <span class="tt-act-reg__n">14/14</span>
+                        <span class="tt-act-reg__bar"><i style="width:100%"></i></span>
+                    </span>
+                </div>
+            </li>
+
+            <!-- 4. Match: attendance in, minutes partial -->
+            <li class="tt-act-card" data-type="match">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Aug</span><span class="tt-act-date__d">31</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">PSV JO13-1 &ndash; JO13-1</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="match">Match</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-reg--chip" data-state="ok">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i><span class="tt-act-reg__n">15/15</span>
+                            </span>
+                            <span class="tt-act-reg--chip" data-state="partial">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i><span class="tt-act-reg__n">9/13</span>
+                            </span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 14:30</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail">
+                        <span class="tt-act-reg__row" data-state="ok">
+                            <span class="tt-act-reg__label">Att</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#10003;</i>
+                            <span class="tt-act-reg__n">15/15</span>
+                            <span class="sr-only">Attendance recorded for 15 of 15 players</span>
+                        </span>
+                        <span class="tt-act-reg__row" data-state="partial">
+                            <span class="tt-act-reg__label">Min</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i>
+                            <span class="tt-act-reg__n">9/13</span>
+                            <span class="sr-only">Minutes recorded for 9 of 13 players who played</span>
+                        </span>
+                    </div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+                <div class="tt-act-reg--strip">
+                    <span class="tt-act-reg__row" data-state="ok">
+                        Attendance <span class="tt-act-reg__n">15/15</span>
+                        <span class="tt-act-reg__bar"><i style="width:100%"></i></span>
+                    </span>
+                    <span class="tt-act-reg__row" data-state="partial">
+                        Minutes <span class="tt-act-reg__n">9/13</span>
+                        <span class="tt-act-reg__bar"><i style="width:69%"></i></span>
+                    </span>
+                </div>
+                <a class="tt-act-card__fix" href="#">&#9888; 4 players without minutes</a>
+            </li>
+
+            <!-- 5. Match finished on the match sheet with no prep -->
+            <li class="tt-act-card" data-type="match">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Aug</span><span class="tt-act-date__d">24</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">JO13-1 &ndash; Feyenoord JO13-3</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="match">Match</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-reg--chip" data-state="gap">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#9888;</i><span class="tt-act-reg__n">0/14</span>
+                            </span>
+                            <span class="tt-act-reg--chip" data-state="gap">
+                                <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i><span class="tt-act-reg__n">0/14</span>
+                            </span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 09:45</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail">
+                        <span class="tt-act-reg__row" data-state="gap">
+                            <span class="tt-act-reg__label">Att</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#9888;</i>
+                            <span class="tt-act-reg__n">0/14</span>
+                            <span class="sr-only">No attendance recorded &mdash; 0 of 14 players</span>
+                        </span>
+                        <span class="tt-act-reg__row" data-state="gap">
+                            <span class="tt-act-reg__label">Min</span>
+                            <i class="tt-act-reg__icon" aria-hidden="true">&#9201;</i>
+                            <span class="tt-act-reg__n">0/14</span>
+                            <span class="sr-only">No minutes recorded &mdash; 0 of 14 players</span>
+                        </span>
+                    </div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+                <div class="tt-act-reg--strip">
+                    <span class="tt-act-reg__row" data-state="gap">
+                        Attendance <span class="tt-act-reg__n">0/14</span>
+                        <span class="tt-act-reg__bar"><i style="width:0"></i></span>
+                    </span>
+                    <span class="tt-act-reg__row" data-state="gap">
+                        Minutes <span class="tt-act-reg__n">0/14</span>
+                        <span class="tt-act-reg__bar"><i style="width:0"></i></span>
+                    </span>
+                </div>
+                <a class="tt-act-card__fix" href="#">&#9888; Record attendance and minutes</a>
+            </li>
+
+            <!-- 6. Meeting — no register applies -->
+            <li class="tt-act-card" data-type="other">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Aug</span><span class="tt-act-date__d">20</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">Parents evening</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="other">Meeting</span>
+                            <span class="tt-act-pill" data-status="completed">Completed</span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 20:00</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail" data-state="na"><span class="tt-act-reg__row">&nbsp;</span></div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+            </li>
+
+        </ul>
+    </section>
+
+    <!-- ================= UPCOMING — readout must NOT appear ================= -->
+    <section class="tt-act-bucket">
+        <div class="tt-act-bucket__head">
+            This week <span class="tt-act-bucket__count">1 activity</span>
+        </div>
+        <ul class="tt-act-list">
+            <li class="tt-act-card" data-type="training">
+                <a class="tt-act-card__link" href="#">
+                    <div class="tt-act-date"><span class="tt-act-date__m">Sep</span><span class="tt-act-date__d">18</span></div>
+                    <div class="tt-act-card__body">
+                        <p class="tt-act-card__title">Training &ndash; transition</p>
+                        <p class="tt-act-card__meta">
+                            <span class="tt-act-pill" data-type="training">Training</span>
+                            <span class="tt-act-card__tail">JO13-1 &middot; 18:30 &middot; Veld 2</span>
+                        </p>
+                    </div>
+                    <div class="tt-act-reg--rail" data-state="na"><span class="tt-act-reg__row">&nbsp;</span></div>
+                    <span class="tt-act-card__chev" aria-hidden="true">&rsaquo;</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <div class="legend">
+        <b>Reading the counts</b>
+        <ul>
+            <li><b>&#10003; 14/14</b> &mdash; every player on the roster has a recorded attendance status.</li>
+            <li><b>9/13</b> &mdash; partial. Somebody started and stopped.</li>
+            <li><b>&#9888; 0/14</b> &mdash; completed with nothing recorded. This is the case that is invisible today.</li>
+            <li><b>&#9201;</b> &mdash; minutes, matches only. Denominator is the players marked present or late, not the squad: a player who was absent is not missing minutes.</li>
+            <li>No counts on planned or cancelled activities, and none on meetings &mdash; there is no register to be missing.</li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    var body = document.body;
+    document.querySelectorAll('.mockup-bar button[data-v]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            document.querySelectorAll('.mockup-bar button[data-v]').forEach(function (o) {
+                o.setAttribute('aria-pressed', String(o === b));
+            });
+            body.setAttribute('data-variant', b.getAttribute('data-v'));
+        });
+    });
+    document.getElementById('fix').addEventListener('change', function () {
+        body.setAttribute('data-fix', this.checked ? 'on' : 'off');
+    });
+})();
+</script>
+</body>
+</html>

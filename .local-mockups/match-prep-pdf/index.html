@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match prep — PDF export (mockups)</title>
+<style>
+/* ---------------------------------------------------------------------------
+   TT design tokens — same values as .local-mockups/match-preparation/index.html
+   so the paper sheet and the screen surface read as one product.
+   --------------------------------------------------------------------------- */
+:root {
+  --tt-ink:        #1a1d21;
+  --tt-ink-soft:   #5b6e75;
+  --tt-paper:      #ffffff;
+  --tt-bg:         #eceef0;
+  --tt-line:       #c8ccd0;
+  --tt-line-soft:  #e3e6ea;
+  --tt-accent:     #2271b1;
+  --tt-warn:       #c75c1f;
+  --tt-mute:       #f0f3f2;
+  --tt-pitch:      #eef4fa;
+  --tt-pitch-line: #b9d2ea;
+  --tt-green:      #0b3d2e;
+  --font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+
+  /* A4 landscape, 8mm margins — the @page rule the print route already
+     declares. 297-16 × 210-16 = 281 × 194mm printable. */
+  --page-w:   297mm;
+  --page-h:   210mm;
+  --page-pad: 8mm;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  color: var(--tt-ink);
+  background: var(--tt-bg);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Mockup chrome ------------------------------------------------------------ */
+.mockup-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #222; color: #eee;
+  font-size: 12px; padding: 8px 14px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar .sep { width: 1px; height: 20px; background: #555; margin: 0 4px; }
+.mockup-bar button {
+  background: #444; color: #eee; border: 1px solid #666;
+  padding: 5px 11px; border-radius: 4px; font: inherit; cursor: pointer; font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.lab { padding: 22px 16px 60px; }
+.lab-head { max-width: 297mm; margin: 0 auto 14px; }
+.lab-head h1 { font-size: 19px; margin: 0 0 4px; }
+.lab-head p { margin: 0; color: #5b6e75; font-size: 13px; max-width: 92ch; }
+.stage { display: flex; justify-content: center; }
+.variant[hidden] { display: none; }
+.vnote {
+  max-width: 297mm; margin: 0 auto 12px; font-size: 12.5px; color: #454b52;
+  background: #fff; border: 1px solid var(--tt-line-soft); border-left: 4px solid var(--tt-accent);
+  border-radius: 4px; padding: 9px 12px;
+}
+.vnote b { color: var(--tt-ink); }
+.vnote code { background: #f2f4f5; padding: 1px 4px; border-radius: 3px; font-size: 11.5px; }
+
+/* The sheet ---------------------------------------------------------------- */
+.page {
+  width: var(--page-w); height: var(--page-h); padding: var(--page-pad);
+  background: var(--tt-paper); box-shadow: 0 2px 16px rgba(0,0,0,.16);
+  position: relative; display: flex; flex-direction: column; overflow: hidden;
+}
+.page.portrait { width: 210mm; height: 297mm; }
+
+/* --- header band ---------------------------------------------------------- */
+.pp-head {
+  display: flex; align-items: flex-start; gap: 4mm;
+  border-bottom: 0.6mm solid var(--tt-green);
+  padding-bottom: 2mm; margin-bottom: 3mm; flex: none;
+}
+.pp-crest {
+  width: 11mm; height: 11mm; border-radius: 2mm; flex: none;
+  background: var(--tt-green); color: #fff;
+  display: grid; place-items: center; font-weight: 800; font-size: 7.5pt; letter-spacing: .02em;
+}
+.pp-id { flex: 1 1 auto; min-width: 0; }
+.pp-id .pp-fixture { font-size: 12.5pt; font-weight: 800; letter-spacing: -.01em; line-height: 1.12; }
+.pp-id .pp-fixture .pp-vs { color: var(--tt-ink-soft); font-weight: 600; margin: 0 1.2mm; }
+.pp-id .pp-when { font-size: 7.5pt; color: var(--tt-ink-soft); margin-top: 0.7mm; }
+.pp-id .pp-when b { color: var(--tt-ink); font-weight: 700; }
+.pp-stats { display: flex; gap: 2mm; flex: none; }
+.pp-stat { border: 0.25mm solid var(--tt-line); border-radius: 1.5mm; padding: 1mm 2.6mm; min-width: 21mm; text-align: center; }
+.pp-stat .k { display: block; font-size: 5.5pt; text-transform: uppercase; letter-spacing: .06em; color: var(--tt-ink-soft); }
+.pp-stat .v { display: block; font-size: 10.5pt; font-weight: 800; line-height: 1.15; }
+
+/* --- layout scaffolding --------------------------------------------------- */
+.pp-body { flex: 1 1 auto; min-height: 0; display: grid; gap: 3mm; }
+.pp-row  { display: grid; gap: 3mm; align-items: start; min-height: 0; }
+.pp-col  { min-width: 0; }
+.pp-block + .pp-block { margin-top: 3mm; }
+
+.pp-panel-head {
+  font-size: 6.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--tt-ink-soft); border-bottom: 0.5mm solid var(--tt-ink);
+  padding-bottom: 0.8mm; margin-bottom: 1.2mm;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 2mm;
+}
+.pp-panel-head .hint { font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 6pt; }
+
+/* --- selection / minutes -------------------------------------------------- */
+table.pp-tbl { width: 100%; border-collapse: collapse; font-size: 8pt; }
+table.pp-tbl th {
+  font-size: 5.5pt; text-transform: uppercase; letter-spacing: .05em; color: var(--tt-ink-soft);
+  font-weight: 700; text-align: right; padding: 0 0 0.6mm; border-bottom: 0.2mm solid var(--tt-line);
+}
+table.pp-tbl th.n, table.pp-tbl td.n { text-align: left; }
+table.pp-tbl td { padding: 1.05mm 0; border-bottom: 0.2mm solid var(--tt-line-soft); text-align: right; }
+table.pp-tbl td.n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+table.pp-tbl .num { width: 7mm; font-variant-numeric: tabular-nums; }
+table.pp-tbl .tot { width: 8mm; font-weight: 700; font-variant-numeric: tabular-nums; }
+table.pp-tbl tr.off td { color: #98a1a8; }
+table.pp-tbl tr.off td.n::after { content: ' · niet inzetbaar'; font-size: 5.5pt; }
+table.pp-tbl tfoot td { border-top: 0.4mm solid var(--tt-ink); border-bottom: 0; padding-top: 1mm; font-weight: 800; font-size: 7.5pt; }
+table.pp-tbl tfoot td.n { text-transform: uppercase; letter-spacing: .05em; font-size: 5.5pt; color: var(--tt-ink-soft); }
+.pp-sel-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+
+/* --- pitches -------------------------------------------------------------- */
+.pp-pitches { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.pp-pitch-wrap { min-width: 0; }
+.pp-pitch-cap {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: 6.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--tt-ink-soft); margin-bottom: 1mm;
+  border-bottom: 0.5mm solid var(--tt-ink); padding-bottom: 0.8mm;
+}
+.pp-pitch-cap .mins { font-weight: 600; letter-spacing: 0; text-transform: none; }
+.pp-pitch {
+  position: relative; aspect-ratio: 68 / 75;
+  background: var(--tt-pitch); border: 0.3mm solid var(--tt-pitch-line);
+  border-radius: 1.5mm; overflow: hidden;
+}
+.pp-pitch .line { position: absolute; border: 0.25mm solid #fff; }
+.pp-pitch .halfway { left: 0; right: 0; top: 6%; border-width: 0; border-top-width: 0.25mm; }
+.pp-pitch .arc { left: 38%; right: 38%; top: 6%; height: 7%; border-width: 0 0.25mm 0.25mm; border-radius: 0 0 100% 100% / 0 0 100% 100%; }
+.pp-pitch .pbox { left: 22%; right: 22%; bottom: 0; height: 17%; border-bottom-width: 0; }
+.pp-pitch .gbox { left: 38%; right: 38%; bottom: 0; height: 7%; border-bottom-width: 0; }
+.pp-slot {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; align-items: center; gap: 0.8mm;
+  background: #fff; border: 0.25mm solid var(--tt-line); border-radius: 1.2mm;
+  padding: 0.5mm 1.2mm 0.5mm 0.5mm; white-space: nowrap;
+}
+.pp-slot .no {
+  display: inline-grid; place-items: center; width: 4mm; height: 4mm; border-radius: 0.9mm;
+  background: var(--tt-green); color: #fff; font-size: 5.5pt; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.pp-slot .nm { font-size: 6.5pt; font-weight: 700; letter-spacing: -.01em; }
+.pp-slot .pos { font-size: 5pt; color: var(--tt-ink-soft); font-weight: 700; }
+.pp-slot.sub { border-color: var(--tt-warn); border-width: 0.4mm; }
+.pp-slot.sub .no { background: var(--tt-warn); }
+.pp-slot.empty { background: repeating-linear-gradient(135deg,#fff 0 1.5mm,#f4f6f7 1.5mm 3mm); }
+.pp-slot.empty .nm { color: #b6bcc1; }
+/* a lone, large pitch (layout B) can afford bigger chips */
+.pp-pitch.big .pp-slot .nm { font-size: 7.2pt; }
+.pp-pitch.compact .pp-slot { padding: 0.35mm 0.9mm 0.35mm 0.35mm; gap: 0.5mm; }
+.pp-pitch.compact .pp-slot .nm { font-size: 5.6pt; }
+.pp-pitch.compact .pp-slot .pos { display: none; }
+.pp-pitch.compact .pp-slot .no { width: 3.2mm; height: 3.2mm; font-size: 4.8pt; }
+.pp-pitch.big .pp-slot .pos { font-size: 5.2pt; }
+.pp-pitch.big .pp-slot .no { width: 4.6mm; height: 4.6mm; font-size: 6.2pt; }
+
+.pp-changes { font-size: 6.5pt; color: var(--tt-ink-soft); border-top: 0.2mm solid var(--tt-line-soft); padding-top: 1mm; margin-top: 1.5mm; }
+.pp-changes b { color: var(--tt-warn); }
+.pp-changes.boxed { border: 0.25mm solid var(--tt-warn); border-radius: 1.5mm; padding: 1.4mm 2mm; margin-top: 0; background: #fdf6f0; }
+
+/* --- goal boxes ----------------------------------------------------------- */
+.pp-goals { display: grid; gap: 2.5mm; }
+.pp-goals.two { grid-template-columns: 1fr 1fr; }
+.pp-gbox { border: 0.25mm solid var(--tt-line); border-radius: 1.5mm; padding: 1.2mm 2mm 1.6mm; }
+.pp-gbox-title { font-size: 6pt; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--tt-ink-soft); margin-bottom: 1mm; }
+.pp-gline { font-size: 7.5pt; line-height: 1.45; border-bottom: 0.2mm dotted var(--tt-line); min-height: 4.2mm; padding-bottom: 0.3mm; margin-bottom: 0.8mm; }
+.pp-gline:last-child { margin-bottom: 0; }
+.pp-gline.blank { color: transparent; }
+/* layout C reads these aloud in the dressing room — bump the type */
+.pp-gbox.loud .pp-gline { font-size: 9pt; min-height: 5.4mm; line-height: 1.5; }
+.pp-gbox.loud .pp-gbox-title { font-size: 7pt; }
+
+/* --- player focus --------------------------------------------------------- */
+.pp-focus { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+.pp-focus th { font-size: 5.5pt; text-transform: uppercase; letter-spacing: .05em; color: var(--tt-ink-soft); font-weight: 700; text-align: left; padding-bottom: 0.6mm; border-bottom: 0.2mm solid var(--tt-line); }
+.pp-focus th.c, .pp-focus td.c { text-align: center; width: 4.5mm; }
+.pp-focus td { padding: 1.05mm 0; border-bottom: 0.2mm solid var(--tt-line-soft); vertical-align: top; }
+.pp-focus td.nm { font-weight: 700; white-space: nowrap; width: 16mm; padding-right: 1.5mm; }
+.pp-focus .flag { font-weight: 800; color: var(--tt-warn); }
+.pp-focus .cam { color: var(--tt-accent); font-size: 7pt; }
+.pp-focus tr.blank td { height: 5.6mm; }
+
+/* --- roles ---------------------------------------------------------------- */
+.pp-roles { display: grid; gap: 0; }
+.pp-roles.two { grid-template-columns: 1fr 1fr; column-gap: 4mm; }
+.pp-role { display: flex; align-items: baseline; justify-content: space-between; gap: 2mm; font-size: 7.5pt; padding: 1.2mm 0; border-bottom: 0.2mm solid var(--tt-line-soft); }
+.pp-role .k { color: var(--tt-ink-soft); font-size: 6.5pt; text-transform: uppercase; letter-spacing: .04em; }
+.pp-role .v { font-weight: 700; }
+.pp-role .v.none { color: var(--tt-line); font-weight: 400; letter-spacing: .3em; }
+
+/* A column carrying two full-length lists (selection + roles) runs a notch
+   tighter so both clear the footer. Still above the 7pt readability floor. */
+.pp-col.tight table.pp-tbl td { padding: 0.75mm 0; }
+.pp-col.tight table.pp-tbl tfoot td { padding-top: 0.8mm; }
+.pp-col.tight .pp-role { padding: 0.85mm 0; }
+.pp-col.tight .pp-block + .pp-block { margin-top: 2mm; }
+
+/* --- notes ---------------------------------------------------------------- */
+.pp-notes { display: grid; }
+.pp-noteline { height: 6mm; border-bottom: 0.2mm dotted var(--tt-line); }
+.page.dense .pp-noteline { height: 5mm; }
+
+/* --- footer --------------------------------------------------------------- */
+.pp-foot {
+  flex: none; margin-top: 2.5mm; padding-top: 1.2mm; border-top: 0.2mm solid var(--tt-line);
+  display: flex; justify-content: space-between; gap: 4mm; font-size: 6pt; color: var(--tt-ink-soft);
+}
+
+/* --- density: what shrink-to-fit actually does ---------------------------- */
+.page.dense table.pp-tbl { font-size: 7pt; }
+.page.dense table.pp-tbl td { padding: 0.7mm 0; }
+.page.dense .pp-focus { font-size: 7pt; }
+.page.dense .pp-focus td { padding: 0.75mm 0; }
+.page.dense .pp-focus tr.blank td { height: 4.6mm; }
+.page.dense .pp-role { font-size: 7pt; padding: 0.85mm 0; }
+.page.dense .pp-gline { font-size: 7pt; min-height: 3.6mm; }
+.page.dense .pp-gbox.loud .pp-gline { font-size: 8pt; min-height: 4.6mm; }
+
+/* --- printable-area ruler ------------------------------------------------- */
+.fit-ruler { position: absolute; inset: var(--page-pad); pointer-events: none; border: 0.4mm dashed rgba(34,113,177,.55); border-radius: 1mm; }
+.fit-ruler::after { content: '281 × 194 mm bedrukbaar'; position: absolute; right: 0; top: -4.4mm; font-size: 6pt; color: var(--tt-accent); letter-spacing: .04em; }
+
+/* ===========================================================================
+   BASELINE — a faithful simulation of today's output. The button captures
+   .tt-mp-grid at whatever width the browser happens to be (≈1320px on
+   desktop) and lays it on PORTRAIT A4, fitted to width only: 1320px → 194mm
+   is a 0.556 scale, and buildPdf() never looks at page height.
+   =========================================================================== */
+.sim-wrap { position: absolute; left: 8mm; top: 14mm; width: 194mm; }
+.sim-scale { width: 1320px; transform-origin: top left; transform: scale(0.5556); }
+.sim-grid { display: grid; grid-template-columns: 14rem minmax(0,1fr) 22rem; gap: 14px; font-size: 13px; align-items: start; }
+.sim-panel { border: 1px solid var(--tt-line); border-radius: 6px; overflow: hidden; background: #fff; }
+.sim-panel-head { padding: 8px 10px; background: var(--tt-mute); border-bottom: 1px solid var(--tt-line); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--tt-ink-soft); }
+.sim-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sim-tbl td { padding: 5px 8px; border-bottom: 1px solid var(--tt-line-soft); text-align: right; }
+.sim-tbl td.n { text-align: left; }
+.sim-pitches { display: grid; grid-template-columns: 1fr 2.25rem 1fr; gap: 4px; }
+.sim-pitch { aspect-ratio: 68/75; background: var(--tt-pitch); border: 1px solid var(--tt-pitch-line); border-radius: 6px; position: relative; }
+.sim-slot { position: absolute; transform: translate(-50%,-50%); background: #fff; border: 1px solid var(--tt-line); border-radius: 5px; padding: 2px 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.sim-copy { display: grid; place-items: center; color: var(--tt-line); font-size: 20px; }
+.sim-gbox { border: 1px solid var(--tt-line); border-radius: 6px; padding: 6px 8px; margin-top: 10px; }
+.sim-gbox-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--tt-ink-soft); letter-spacing: .04em; }
+.sim-gline { border-bottom: 1px dotted var(--tt-line); min-height: 20px; font-size: 13px; }
+.sim-goals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sim-role { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid var(--tt-line-soft); font-size: 13px; }
+.waste {
+  position: absolute; left: 8mm; right: 8mm; bottom: 8mm;
+  border: 0.5mm dashed #d63638; border-radius: 1mm;
+  background: repeating-linear-gradient(135deg, rgba(214,54,56,.05) 0 3mm, transparent 3mm 6mm);
+  display: grid; place-items: center; text-align: center;
+}
+.waste span { font-size: 9pt; color: #d63638; font-weight: 700; }
+.waste small { display: block; font-weight: 400; font-size: 7.5pt; margin-top: 1mm; color: #93454a; }
+.miss { position: absolute; left: 8mm; right: 8mm; top: 4mm; font-size: 7pt; color: #d63638; font-weight: 700; text-align: right; }
+
+@media print {
+  body { background: #fff; }
+  .mockup-bar, .lab-head, .vnote { display: none; }
+  .lab { padding: 0; }
+  .page { box-shadow: none; }
+  .fit-ruler { display: none; }
+  @page { size: A4 landscape; margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+  <strong>Match prep — PDF</strong>
+  <button type="button" data-v="A" aria-pressed="true">A · Drieluik (gekozen)</button>
+  <button type="button" data-v="B">B · Opstelling boven</button>
+  <button type="button" data-v="C">C · Praatplaat</button>
+  <button type="button" data-v="D">D · Kwadranten</button>
+  <button type="button" data-v="X">Vandaag · portret</button>
+  <span class="sep"></span>
+  <button type="button" data-toggle="dense" aria-pressed="false">Krappe selectie (22)</button>
+  <button type="button" data-toggle="ruler" aria-pressed="false">Bedrukbaar vlak</button>
+  <span class="sep"></span>
+  <button type="button" data-zoom="1" aria-pressed="true">100%</button>
+  <button type="button" data-zoom="0.75">75%</button>
+  <button type="button" data-zoom="0.55">55%</button>
+</div>
+
+<div class="lab">
+  <div class="lab-head">
+    <h1>Match prep — PDF-export, vier indelingen</h1>
+    <p>Allemaal A4 <b>liggend</b>, één vel, 281 × 194 mm bedrukbaar, en allemaal met dezelfde
+       blokken: wedstrijdkop, selectie · minuten, twee helften, doelen, doen per speler, rollen.
+       Wat per variant verschilt is <b>waar die blokken landen</b> en dus wat het eerst gelezen
+       wordt. “Krappe selectie (22)” laat zien wat verkleinen-tot-het-past met elke indeling doet.</p>
+  </div>
+
+  <section class="variant" data-variant="A">
+    <div class="vnote">
+      <b>A · Drieluik — gekozen 2026-09-02.</b> Selectie plus rollen links (dezelfde spelerslijst,
+      dezelfde leesrichting), speelplan in het midden, vijftien regels doelen per speler rechts:
+      precies de leesvolgorde van het scherm, dus geen heroriëntatie voor wie de sheet naast de
+      laptop legt. Dit is de indeling waar de implementatie tegenaan gebouwd wordt.
+    </div>
+    <div class="stage"><div class="page" data-layout="A"></div></div>
+  </section>
+
+  <section class="variant" data-variant="B" hidden>
+    <div class="vnote">
+      <b>B · Opstelling boven — het elftal is de kop van het vel.</b> Twee grote velden over de
+      volle breedte, met de wissels, de rollen en de algemene doelen ernaast; alle tabellen zakken
+      naar de onderste band. Op armlengte langs de lijn is dit de leesbaarste: de namen in het veld
+      zijn hier bijna twee keer zo groot als in A. Prijs: de selectietabel moet in twee kolommen.
+    </div>
+    <div class="stage"><div class="page" data-layout="B"></div></div>
+  </section>
+
+  <section class="variant" data-variant="C" hidden>
+    <div class="vnote">
+      <b>C · Praatplaat — de doelen leiden.</b> De afspraken staan links op 9 pt, groot genoeg om
+      in de kleedkamer van voor te lezen; de velden zijn teruggebracht tot een geheugensteun en de
+      selectie staat rechts als naslag. Dit is de enige variant die een duidelijke leesrichting
+      afdwingt in plaats van alles even zwaar te maken.
+    </div>
+    <div class="stage"><div class="page" data-layout="C"></div></div>
+  </section>
+
+  <section class="variant" data-variant="D" hidden>
+    <div class="vnote">
+      <b>D · Kwadranten — vier gelijke blokken.</b> Velden linksboven, doelen rechtsboven, selectie
+      linksonder, afspraken rechtsonder. Niets is belangrijker dan iets anders, en elk blok is met
+      één blik te vinden — handig als meerdere mensen (hoofdtrainer, assistent, analist) van
+      hetzelfde vel lezen. Ook de indeling die het rustigst blijft als er ruimte overblijft.
+    </div>
+    <div class="stage"><div class="page" data-layout="D"></div></div>
+  </section>
+
+  <section class="variant" data-variant="X" hidden>
+    <div class="vnote">
+      <b>Vandaag.</b> Portret A4, het schermraster van ±1320 px geperst in 194 mm breedte
+      (schaal 0,56 → romptekst rond de 5 pt), en de onderste helft van het vel blijft leeg omdat
+      <code>buildPdf()</code> alleen op breedte past. De wedstrijdgegevens ontbreken volledig:
+      de export legt alleen <code>.tt-mp-grid</code> vast, en titel, KPI-strip en opstelling
+      staan daarbuiten.
+    </div>
+    <div class="stage"><div class="page portrait" data-layout="X"></div></div>
+  </section>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Demo data — roster from .local-mockups/match-preparation/, formation geometry
+   from FrontendMatchPrepView::defaultSlotLayouts()['4-3-3'], Dutch labels as
+   they resolve in languages/talenttrack-nl_NL.po.
+   --------------------------------------------------------------------------- */
+const SLOTS = [
+  { num: 9,  pos: 'ST',  x: 50, y: 12 }, { num: 11, pos: 'LW',  x: 18, y: 28 },
+  { num: 10, pos: 'AM',  x: 50, y: 28 }, { num: 7,  pos: 'RW',  x: 82, y: 28 },
+  { num: 8,  pos: 'LCM', x: 36, y: 45 }, { num: 6,  pos: 'RCM', x: 64, y: 45 },
+  { num: 5,  pos: 'LB',  x: 16, y: 64 }, { num: 4,  pos: 'LCB', x: 38, y: 64 },
+  { num: 3,  pos: 'RCB', x: 62, y: 64 }, { num: 2,  pos: 'RB',  x: 84, y: 64 },
+  { num: 1,  pos: 'GK',  x: 50, y: 88 },
+];
+
+const ROSTER = [
+  { n: 'Joeri',    m1: 35, m2: 35, ok: true },
+  { n: 'Senna',    m1: 35, m2: 35, ok: true },
+  { n: 'Javi',     m1: 35, m2: 35, ok: true },
+  { n: 'Luuk N',   m1: 35, m2: 35, ok: true },
+  { n: 'Jens',     m1: 35, m2: 35, ok: true },
+  { n: 'Morris',   m1: 35, m2: 35, ok: true },
+  { n: 'Jesse',    m1: 35, m2: 35, ok: true },
+  { n: 'Daan',     m1: 35, m2: 35, ok: true },
+  { n: 'Jason',    m1: 35, m2:  0, ok: true },
+  { n: 'Duco',     m1: 35, m2: 35, ok: true },
+  { n: 'Samuel',   m1: 35, m2:  0, ok: true },
+  { n: 'Milan',    m1:  0, m2:  0, ok: true },
+  { n: 'Cataleya', m1:  0, m2: 35, ok: true },
+  { n: 'Nine',     m1:  0, m2: 35, ok: true },
+  { n: 'Khalid',   m1:  0, m2:  0, ok: true },
+  { n: 'Amin',     m1:  0, m2:  0, ok: true },
+  { n: 'Kenan',    m1:  0, m2:  0, ok: false },
+  { n: 'Luuk',     m1:  0, m2:  0, ok: false },
+  { n: 'Siem',     m1:  0, m2:  0, ok: false },
+];
+const EXTRA = [
+  { n: 'Tygo', m1: 0, m2: 0, ok: true }, { n: 'Ravi', m1: 0, m2: 0, ok: true },
+  { n: 'Bo',   m1: 0, m2: 0, ok: true },
+];
+
+const XI1 = { 1:'Joeri', 2:'Senna', 3:'Javi', 4:'Luuk N', 5:'Jens', 6:'Morris',
+              7:'Jesse', 8:'Jason', 9:'Daan', 10:'Duco', 11:'Samuel' };
+const XI2 = Object.assign({}, XI1, { 8:'Cataleya', 11:'Nine' });
+const SUBBED = { 8: 'Cataleya', 11: 'Nine' };
+
+const FOCUS = [
+  { n: 'Joeri',    t: 'Uittrappen naar de zijkant, niet centraal inspelen.', spec: true,  cam: false },
+  { n: 'Senna',    t: 'Doorschuiven bij balbezit — durf de lijn te halen.',  spec: false, cam: true  },
+  { n: 'Luuk N',   t: 'Coachen bij standaardsituaties tegen.',               spec: false, cam: false },
+  { n: 'Morris',   t: 'Eerste balcontact vooruit, kop omhoog vóór aanname.', spec: true,  cam: true  },
+  { n: 'Jesse',    t: 'Buitenom blijven tot de bal komt.',                   spec: false, cam: false },
+  { n: 'Daan',     t: 'Diepte houden, laatste man vastzetten.',              spec: true,  cam: false },
+  { n: 'Duco',     t: 'Terugschakelen binnen 5 seconden.',                   spec: false, cam: false },
+  { n: 'Cataleya', t: 'Na rust: tempo hoog in de omschakeling.',             spec: false, cam: true  },
+];
+
+const ROLES = [
+  { k: 'Aanvoerder',                  v: 'Luuk N' },
+  { k: 'Hoekschop links',             v: 'Duco'   },
+  { k: 'Hoekschop rechts',            v: 'Samuel' },
+  { k: 'Vrije trap links (voorzet)',  v: 'Duco'   },
+  { k: 'Vrije trap rechts (voorzet)', v: ''       },
+  { k: 'Strafschop',                  v: 'Daan'   },
+];
+
+const GOALS = {
+  algemeen:   ['Wij bepalen het tempo in de eerste 10 minuten.',
+               'Bij balverlies: druk binnen 5 seconden, samen.',
+               'Rust aan de bal in de opbouw — geen lange bal onder druk.', ''],
+  aanvallen:  ['Breedte houden, dan diep.', 'Tweede paal bezetten bij voorzet.', ''],
+  verdedigen: ['Compact tussen de linies.', 'Buitenspelval alleen op teken van #4.', ''],
+  shAanval:   ['Korte hoekschop rechts is het eerste beeld.', ''],
+  shVerded:   ['Man-op-man bij hoekschop tegen; #1 blijft op de lijn.', ''],
+};
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* --- blocks ---------------------------------------------------------------
+   One function per block. Every layout composes the same set; nothing is
+   dropped or invented per variant — that is the point of the comparison.
+   ------------------------------------------------------------------------- */
+function pitch(xi, subbed, big) {
+  const slots = SLOTS.map(s => {
+    const name = xi[s.num] || '';
+    const isSub = subbed && subbed[s.num] === name;
+    return `<div class="pp-slot${isSub ? ' sub' : ''}${name ? '' : ' empty'}" style="left:${s.x}%;top:${s.y}%">
+              <span class="no">${s.num}</span><span class="nm">${esc(name || '—')}</span><span class="pos">${s.pos}</span>
+            </div>`;
+  }).join('');
+  return `<div class="pp-pitch${big ? ' big' : ''}">
+            <div class="line halfway"></div><div class="line arc"></div>
+            <div class="line pbox"></div><div class="line gbox"></div>${slots}
+          </div>`;
+}
+
+function selRows(list) {
+  return list.map(p => `<tr class="${p.ok ? '' : 'off'}">
+      <td class="n">${esc(p.n)}</td><td class="num">${p.m1 || '·'}</td>
+      <td class="num">${p.m2 || '·'}</td><td class="tot">${(p.m1 + p.m2) || '·'}</td></tr>`).join('');
+}
+function selTable(list, foot) {
+  return `<table class="pp-tbl">
+      <thead><tr><th class="n">Speler</th><th class="num">1e</th><th class="num">2e</th><th class="tot">Tot</th></tr></thead>
+      <tbody>${selRows(list)}</tbody>
+      ${foot ? `<tfoot><tr><td class="n">Totaal</td><td class="num"></td><td class="num"></td><td class="tot">${foot}</td></tr></tfoot>` : ''}
+    </table>`;
+}
+function gbox(title, lines, minLines, loud, maxLines) {
+  const out = lines.slice();
+  while (out.length < (minLines || 0)) out.push('');
+  /* A trailing blank line is writing room; where height is the scarce thing it
+     is the first thing to go, before any type size is touched. */
+  if (maxLines) while (out.length > maxLines && out[out.length - 1] === '') out.pop();
+  return `<div class="pp-gbox${loud ? ' loud' : ''}">
+            <div class="pp-gbox-title">${esc(title)}</div>
+            ${out.map(l => `<div class="pp-gline${l ? '' : ' blank'}">${esc(l || '·')}</div>`).join('')}
+          </div>`;
+}
+
+/* Individual player goals: 15 rows on every sheet, filled or not. */
+const FOCUS_LINES = 15;
+
+function noteBlock(lines) {
+  return `<div class="pp-block">
+      <div class="pp-panel-head"><span>Notities</span><span class="hint">langs de lijn</span></div>
+      <div class="pp-notes">${Array.from({ length: lines }, () => '<div class="pp-noteline"></div>').join('')}</div>
+    </div>`;
+}
+
+const BLOCK = {
+  /* both halves side by side */
+  pit: () => `<div class="pp-block"><div class="pp-pitches">
+        <div class="pp-pitch-wrap"><div class="pp-pitch-cap"><span>1e helft</span><span class="mins">0′–35′</span></div>${pitch(XI1, null, false)}</div>
+        <div class="pp-pitch-wrap"><div class="pp-pitch-cap"><span>2e helft</span><span class="mins">35′–70′</span></div>${pitch(XI2, SUBBED, false)}</div>
+      </div></div>`,
+  /* both halves side by side, small chips — for a narrow middle column */
+  pitCompact: () => `<div class="pp-block"><div class="pp-pitches">
+        <div class="pp-pitch-wrap"><div class="pp-pitch-cap"><span>1e helft</span><span class="mins">0′–35′</span></div>${pitch(XI1, null, false).replace('pp-pitch"', 'pp-pitch compact"')}</div>
+        <div class="pp-pitch-wrap"><div class="pp-pitch-cap"><span>2e helft</span><span class="mins">35′–70′</span></div>${pitch(XI2, SUBBED, false).replace('pp-pitch"', 'pp-pitch compact"')}</div>
+      </div></div>`,
+  /* one half, large (layout B) */
+  p1: () => `<div class="pp-block"><div class="pp-pitch-cap"><span>1e helft</span><span class="mins">0′–35′</span></div>${pitch(XI1, null, true)}</div>`,
+  p2: () => `<div class="pp-block"><div class="pp-pitch-cap"><span>2e helft</span><span class="mins">35′–70′</span></div>${pitch(XI2, SUBBED, true)}</div>`,
+
+  chg:      () => `<div class="pp-block"><div class="pp-changes">Wissels rust: <b>Cataleya</b> voor Jason (#8) · <b>Nine</b> voor Samuel (#11)</div></div>`,
+  chgBoxed: () => `<div class="pp-block"><div class="pp-changes boxed">Wissels rust: <b>Cataleya</b> voor Jason (#8) · <b>Nine</b> voor Samuel (#11)</div></div>`,
+
+  sel: r => `<div class="pp-block">
+      <div class="pp-panel-head"><span>Selectie · minuten</span><span class="hint">1e / 2e / tot</span></div>
+      ${selTable(r, r.reduce((a, p) => a + p.m1 + p.m2, 0))}</div>`,
+  sel2: r => {
+    const half = Math.ceil(r.length / 2);
+    return `<div class="pp-block">
+      <div class="pp-panel-head"><span>Selectie · minuten</span><span class="hint">1e / 2e / tot · ${r.reduce((a,p)=>a+p.m1+p.m2,0)} min verdeeld</span></div>
+      <div class="pp-sel-split">${selTable(r.slice(0, half), 0)}${selTable(r.slice(half), 0)}</div></div>`;
+  },
+
+  gA:     () => `<div class="pp-block">${gbox('Algemeen', GOALS.algemeen, 4)}</div>`,
+  gAloud: () => `<div class="pp-block"><div class="pp-panel-head"><span>Wedstrijddoelen</span><span class="hint">voorlezen in de kleedkamer</span></div>${gbox('Algemeen', GOALS.algemeen, 4, true)}</div>`,
+  gB:     () => `<div class="pp-block"><div class="pp-goals two">
+      ${gbox('Aanvallen', GOALS.aanvallen, 3)}${gbox('Verdedigen', GOALS.verdedigen, 3)}
+      ${gbox('Spelhervatting (aanval)', GOALS.shAanval, 2)}${gbox('Spelhervatting (verdediging)', GOALS.shVerded, 2)}
+    </div></div>`,
+  gBstack: () => `<div class="pp-block"><div class="pp-goals">
+      ${gbox('Aanvallen', GOALS.aanvallen, 3, true)}${gbox('Verdedigen', GOALS.verdedigen, 3, true)}
+      ${gbox('Spelhervatting (aanval)', GOALS.shAanval, 2, true)}${gbox('Spelhervatting (verdediging)', GOALS.shVerded, 2, true)}
+    </div></div>`,
+  /* Same four boxes, one ruled line less each — for a bottom band where the
+     height is what is scarce. */
+  gBtight: () => `<div class="pp-block"><div class="pp-goals two">
+      ${gbox('Aanvallen', GOALS.aanvallen, 2, false, 2)}${gbox('Verdedigen', GOALS.verdedigen, 2, false, 2)}
+      ${gbox('Spelhervatting (aanval)', GOALS.shAanval, 1, false, 1)}${gbox('Spelhervatting (verdediging)', GOALS.shVerded, 1, false, 1)}
+    </div></div>`,
+  gAllTight: () => `<div class="pp-block">
+      <div class="pp-panel-head"><span>Wedstrijddoelen</span><span class="hint">lege regels zijn schrijfruimte</span></div>
+      ${gbox('Algemeen', GOALS.algemeen, 4)}
+      <div class="pp-goals two" style="margin-top:2.5mm">
+        ${gbox('Aanvallen', GOALS.aanvallen, 2, false, 2)}${gbox('Verdedigen', GOALS.verdedigen, 2, false, 2)}
+        ${gbox('Spelhervatting (aanval)', GOALS.shAanval, 1, false, 1)}${gbox('Spelhervatting (verdediging)', GOALS.shVerded, 1, false, 1)}
+      </div></div>`,
+  gAll: () => `<div class="pp-block">
+      <div class="pp-panel-head"><span>Wedstrijddoelen</span><span class="hint">lege regels zijn schrijfruimte</span></div>
+      ${gbox('Algemeen', GOALS.algemeen, 4)}
+      <div class="pp-goals two" style="margin-top:2.5mm">
+        ${gbox('Aanvallen', GOALS.aanvallen, 3)}${gbox('Verdedigen', GOALS.verdedigen, 3)}
+        ${gbox('Spelhervatting (aanval)', GOALS.shAanval, 2)}${gbox('Spelhervatting (verdediging)', GOALS.shVerded, 2)}
+      </div></div>`,
+
+  /* FOCUS_LINES rows, always: the players who already carry a note, then ruled
+     rows to the count. A squad's worth of individual goals is the block the
+     coach writes in during the warm-up, so the room is reserved, not earned. */
+  foc: () => `<div class="pp-block">
+      <div class="pp-panel-head"><span>Doen per speler</span><span class="hint">! specifiek · ▮ video</span></div>
+      <table class="pp-focus">
+        <thead><tr><th>Speler</th><th>Afspraak</th><th class="c">!</th><th class="c">▮</th></tr></thead>
+        <tbody>
+          ${FOCUS.map(f => `<tr><td class="nm">${esc(f.n)}</td><td class="tx">${esc(f.t)}</td>
+             <td class="c">${f.spec ? '<span class="flag">!</span>' : ''}</td>
+             <td class="c">${f.cam ? '<span class="cam">▮</span>' : ''}</td></tr>`).join('')}
+          ${Array.from({ length: Math.max(0, FOCUS_LINES - FOCUS.length) }, () => '<tr class="blank"><td class="nm"></td><td class="tx"></td><td class="c"></td><td class="c"></td></tr>').join('')}
+        </tbody></table></div>`,
+
+  /* Leftover column space becomes writing room rather than white space — which
+     is also half the answer to "not all the space is used". */
+  notes3: () => noteBlock(3),
+  notes4: () => noteBlock(4),
+  notes6: () => noteBlock(6),
+
+  rol:  () => `<div class="pp-block"><div class="pp-panel-head"><span>Rollen &amp; standaardsituaties</span></div>
+      <div class="pp-roles">${ROLES.map(r => `<div class="pp-role"><span class="k">${esc(r.k)}</span><span class="v${r.v ? '' : ' none'}">${r.v ? esc(r.v) : '…'}</span></div>`).join('')}</div></div>`,
+  rol2: () => `<div class="pp-block"><div class="pp-panel-head"><span>Rollen &amp; standaardsituaties</span></div>
+      <div class="pp-roles two">${ROLES.map(r => `<div class="pp-role"><span class="k">${esc(r.k)}</span><span class="v${r.v ? '' : ' none'}">${r.v ? esc(r.v) : '…'}</span></div>`).join('')}</div></div>`,
+};
+
+function head(roster) {
+  const avail = roster.filter(p => p.ok).length;
+  return `<header class="pp-head">
+    <div class="pp-crest">AJA</div>
+    <div class="pp-id">
+      <div class="pp-fixture">VVV Venlo JO17-1 <span class="pp-vs">—</span> Ajax JO17-1</div>
+      <div class="pp-when"><b>zaterdag 14 september</b> · aftrap 14:30 · uit · Sportpark De Koel, Venlo</div>
+    </div>
+    <div class="pp-stats">
+      <div class="pp-stat"><span class="k">Opstelling</span><span class="v">4-3-3</span></div>
+      <div class="pp-stat"><span class="k">Speelduur</span><span class="v">2 × 35′</span></div>
+      <div class="pp-stat"><span class="k">Beschikbaar</span><span class="v">${avail}/${roster.length}</span></div>
+    </div>
+  </header>`;
+}
+const foot = `<footer class="pp-foot">
+    <span>Ajax JO17-1 · wedstrijdvoorbereiding · TalentTrack</span>
+    <span>Afgedrukt 14-09-2026 09:12 · pagina 1 van 1</span>
+  </footer>`;
+
+/* --- layouts ---------------------------------------------------------------
+   Each layout is a list of rows; each row a list of columns with a width and
+   the blocks that land in it. Same blocks everywhere, different landing spots.
+   ------------------------------------------------------------------------- */
+const LAYOUTS = {
+  /* Roles sit under the selection: both blocks are the same squad list, read
+     the same way (a name per line), so they belong in the same column — and
+     that frees the right column for 15 individual goals. */
+  A: { rows: [ { cols: [
+        { w: '62mm',  cls: 'tight', b: ['sel', 'rol'] },
+        { w: '135mm', b: ['pit', 'chg', 'gA', 'gB'] },
+        { w: '78mm',  b: ['foc'] },
+      ] } ] },
+
+  B: { rows: [
+        { h: 'auto', cols: [
+          { w: '72mm',  b: ['p1'] },
+          { w: '72mm',  b: ['p2'] },
+          { w: '130mm', b: ['foc'] },
+        ] },
+        { h: '1fr', cols: [
+          { w: '104mm', b: ['sel2'] },
+          { w: '96mm',  b: ['gA', 'gBtight'] },
+          { w: '75mm',  b: ['chgBoxed', 'rol'] },
+        ] },
+      ] },
+
+  C: { rows: [ { cols: [
+        { w: '92mm',  b: ['gAloud', 'gBstack'] },
+        { w: '111mm', b: ['pitCompact', 'chg', 'foc'] },
+        { w: '72mm',  cls: 'tight', b: ['sel', 'rol'] },
+      ] } ] },
+
+  D: { rows: [
+        { h: 'auto', cols: [
+          { w: '130mm', b: ['pit', 'chg'] },
+          { w: '148mm', b: ['foc'] },
+        ] },
+        { h: '1fr', cols: [
+          { w: '104mm', b: ['sel2'] },
+          { w: '96mm',  b: ['gAllTight'] },
+          { w: '75mm',  b: ['rol', 'notes3'] },
+        ] },
+      ] },
+};
+
+function renderLayout(key, roster) {
+  const L = LAYOUTS[key];
+  const rows = L.rows.map(r => {
+    const cols = r.cols.map(c => {
+      const blocks = c.b.map(name => {
+        const fn = BLOCK[name];
+        if (name === 'sel' || name === 'sel2') return fn(roster);
+        return fn();
+      }).join('');
+      return `<div class="pp-col${c.cls ? ' ' + c.cls : ''}">${blocks}</div>`;
+    }).join('');
+    const tpl = r.cols.map(c => c.w).join(' ');
+    return `<div class="pp-row" style="grid-template-columns:${tpl}">${cols}</div>`;
+  }).join('');
+  const rowTpl = L.rows.map(r => r.h || 'auto').join(' ');
+  return head(roster) + `<div class="pp-body" style="grid-template-rows:${rowTpl}">${rows}</div>` + foot
+       + '<div class="fit-ruler" hidden></div>';
+}
+
+/* --- baseline simulation --------------------------------------------------- */
+function baseline() {
+  const rows = ROSTER.map(p => `<tr><td class="n">${esc(p.n)}</td><td>${p.m1||'·'}</td><td>${p.m2||'·'}</td><td>${(p.m1+p.m2)||'·'}</td></tr>`).join('');
+  const simSlots = xi => SLOTS.map(s => `<div class="sim-slot" style="left:${s.x}%;top:${s.y}%">${s.num} ${esc(xi[s.num]||'—')}</div>`).join('');
+  const simGbox = (t, l) => `<div class="sim-gbox"><div class="sim-gbox-title">${esc(t)}</div>${l.map(x=>`<div class="sim-gline">${esc(x||' ')}</div>`).join('')}</div>`;
+  return `
+  <div class="miss">geen wedstrijdkop: titel, datum, tegenstander en opstelling staan buiten .tt-mp-grid</div>
+  <div class="sim-wrap"><div class="sim-scale"><div class="sim-grid">
+    <div class="sim-panel"><div class="sim-panel-head">Selectie · minuten</div><table class="sim-tbl">${rows}</table></div>
+    <div>
+      <div class="sim-pitches">
+        <div class="sim-pitch">${simSlots(XI1)}</div><div class="sim-copy">→</div><div class="sim-pitch">${simSlots(XI2)}</div>
+      </div>
+      ${simGbox('Algemeen', GOALS.algemeen)}
+      <div class="sim-goals-row">${simGbox('Aanvallen', GOALS.aanvallen)}${simGbox('Verdedigen', GOALS.verdedigen)}</div>
+      <div class="sim-goals-row">${simGbox('Spelhervatting (aanval)', GOALS.shAanval)}${simGbox('Spelhervatting (verdediging)', GOALS.shVerded)}</div>
+    </div>
+    <div>
+      <div class="sim-panel"><div class="sim-panel-head">Doen per speler</div>
+        <table class="sim-tbl">${FOCUS.map(f=>`<tr><td class="n">${esc(f.n)}</td><td class="n">${esc(f.t)}</td></tr>`).join('')}</table></div>
+      <div class="sim-panel" style="margin-top:14px"><div class="sim-panel-head">Rollen &amp; standaardsituaties</div>
+        ${ROLES.map(r=>`<div class="sim-role"><span>${esc(r.k)}</span><b>${esc(r.v||'— Kies speler —')}</b></div>`).join('')}</div>
+    </div>
+  </div></div></div>
+  <div class="waste" id="waste"><span>ongebruikt<small>buildPdf() past alleen op breedte — de resterende paginahoogte wordt nooit gevuld</small></span></div>`;
+}
+
+/* --- boot ------------------------------------------------------------------ */
+let dense = false;
+function paint() {
+  const roster = dense ? ROSTER.concat(EXTRA) : ROSTER;
+  ['A', 'B', 'C', 'D'].forEach(k => {
+    const page = document.querySelector(`.page[data-layout="${k}"]`);
+    page.classList.toggle('dense', dense);
+    page.innerHTML = renderLayout(k, roster);
+  });
+  document.querySelector('.page[data-layout="X"]').innerHTML = baseline();
+  sizeWaste();
+  applyRuler();
+}
+function sizeWaste() {
+  const wrap = document.querySelector('.page[data-layout="X"] .sim-scale');
+  const waste = document.getElementById('waste');
+  const page = document.querySelector('.page[data-layout="X"]');
+  if (!wrap || !waste) return;
+  const r = wrap.getBoundingClientRect(), p = page.getBoundingClientRect();
+  waste.style.top = (r.top - p.top + r.height + 12) + 'px';
+}
+let ruler = false;
+function applyRuler() { document.querySelectorAll('.fit-ruler').forEach(r => { r.hidden = !ruler; }); }
+
+paint();
+
+/* ?v=B&dense=1&zoom=0.75 — lets a screenshot run pick a variant without
+   clicking, which is the only way to check the sheets headlessly. */
+(function fromQuery() {
+  const q = new URLSearchParams(location.search);
+  const v = (q.get('v') || '').toUpperCase();
+  if (q.get('dense') === '1') { dense = true; document.querySelector('[data-toggle="dense"]').setAttribute('aria-pressed', 'true'); paint(); }
+  if (q.get('ruler') === '1') { ruler = true; document.querySelector('[data-toggle="ruler"]').setAttribute('aria-pressed', 'true'); applyRuler(); }
+  if (['A','B','C','D','X'].includes(v)) {
+    document.querySelectorAll('[data-v]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === v)));
+    document.querySelectorAll('.variant').forEach(s => { s.hidden = s.dataset.variant !== v; });
+    sizeWaste();
+  }
+  const z = q.get('zoom');
+  if (z) document.querySelectorAll('.page').forEach(p => { p.style.zoom = z; });
+})();
+
+const bar = document.querySelector('.mockup-bar');
+bar.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.v) {
+    bar.querySelectorAll('[data-v]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    document.querySelectorAll('.variant').forEach(v => { v.hidden = v.dataset.variant !== b.dataset.v; });
+    sizeWaste();
+  }
+  if (b.dataset.zoom) {
+    bar.querySelectorAll('[data-zoom]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    document.querySelectorAll('.page').forEach(p => { p.style.zoom = b.dataset.zoom; });
+  }
+  if (b.dataset.toggle === 'dense') {
+    dense = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(dense));
+    paint();
+  }
+  if (b.dataset.toggle === 'ruler') {
+    ruler = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(ruler));
+    applyRuler();
+  }
+});
+window.addEventListener('resize', sizeWaste);
+</script>
+</body>
+</html>
