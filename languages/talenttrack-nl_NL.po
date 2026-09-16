@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T21:56:48+00:00\n"
+"POT-Creation-Date: 2026-09-16T22:21:43+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3048,7 +3048,7 @@ msgstr "Niet jouw team."
 #: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:199
-#: src/Infrastructure/REST/TeamsRestController.php:173
+#: src/Infrastructure/REST/TeamsRestController.php:190
 msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
 
@@ -3278,8 +3278,8 @@ msgstr "Een team is vereist."
 #: src/Infrastructure/REST/MeasurementsRestController.php:264
 #: src/Infrastructure/REST/MeasurementsRestController.php:404
 #: src/Infrastructure/REST/MinutesRestController.php:71
-#: src/Infrastructure/REST/TeamsRestController.php:342
-#: src/Infrastructure/REST/TeamsRestController.php:367
+#: src/Infrastructure/REST/TeamsRestController.php:359
+#: src/Infrastructure/REST/TeamsRestController.php:384
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:163
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:93
@@ -4613,9 +4613,9 @@ msgstr "De overgang kon niet worden voltooid."
 #: src/Infrastructure/REST/SpondRestController.php:641
 #: src/Infrastructure/REST/SpondRestController.php:676
 #: src/Infrastructure/REST/SpondRestController.php:703
-#: src/Infrastructure/REST/TeamsRestController.php:324
-#: src/Infrastructure/REST/TeamsRestController.php:520
-#: src/Infrastructure/REST/TeamsRestController.php:533
+#: src/Infrastructure/REST/TeamsRestController.php:341
+#: src/Infrastructure/REST/TeamsRestController.php:576
+#: src/Infrastructure/REST/TeamsRestController.php:589
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
 #: src/Modules/Spond/SpondSync.php:79
@@ -4705,54 +4705,59 @@ msgstr "Kon het Strava-webhookabonnement niet aanmaken."
 msgid "Expected an object under `sections`."
 msgstr "Verwacht een object onder `sections`."
 
-#: src/Infrastructure/REST/TeamsRestController.php:339
-#: src/Infrastructure/REST/TeamsRestController.php:466
-#: src/Infrastructure/REST/TeamsRestController.php:487
-#: src/Infrastructure/REST/TeamsRestController.php:518
-#: src/Infrastructure/REST/TeamsRestController.php:527
+#: src/Infrastructure/REST/TeamsRestController.php:356
+#: src/Infrastructure/REST/TeamsRestController.php:414
+#: src/Infrastructure/REST/TeamsRestController.php:522
+#: src/Infrastructure/REST/TeamsRestController.php:543
+#: src/Infrastructure/REST/TeamsRestController.php:574
+#: src/Infrastructure/REST/TeamsRestController.php:583
 msgid "Invalid team id."
 msgstr "Ongeldig team-id."
 
-#: src/Infrastructure/REST/TeamsRestController.php:363
-#: src/Infrastructure/REST/TeamsRestController.php:542
-#: src/Infrastructure/REST/TeamsRestController.php:571
+#: src/Infrastructure/REST/TeamsRestController.php:380
+#: src/Infrastructure/REST/TeamsRestController.php:598
+#: src/Infrastructure/REST/TeamsRestController.php:627
 msgid "Invalid team or player id."
 msgstr "Ongeldig team- of speler-id."
 
-#: src/Infrastructure/REST/TeamsRestController.php:376
+#: src/Infrastructure/REST/TeamsRestController.php:393
 msgid "That player has no recorded minutes for this team in this window."
 msgstr ""
 "Voor deze speler zijn in deze periode geen minuten vastgelegd bij dit team."
 
-#: src/Infrastructure/REST/TeamsRestController.php:448
-#: src/Infrastructure/REST/TeamsRestController.php:469
+#: src/Infrastructure/REST/TeamsRestController.php:425
+msgid "Unknown period."
+msgstr "Onbekende periode."
+
+#: src/Infrastructure/REST/TeamsRestController.php:504
+#: src/Infrastructure/REST/TeamsRestController.php:525
 #: src/Modules/Wizards/Team/BasicsStep.php:45
 #: src/Modules/Wizards/Team/ReviewStep.php:56
 msgid "Team name is required."
 msgstr "Teamnaam is verplicht."
 
-#: src/Infrastructure/REST/TeamsRestController.php:455
+#: src/Infrastructure/REST/TeamsRestController.php:511
 msgid "The team could not be created."
 msgstr "Het team kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/TeamsRestController.php:475
+#: src/Infrastructure/REST/TeamsRestController.php:531
 msgid "The team could not be updated."
 msgstr "Het team kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/TeamsRestController.php:501
-#: src/Infrastructure/REST/TeamsRestController.php:505
+#: src/Infrastructure/REST/TeamsRestController.php:557
+#: src/Infrastructure/REST/TeamsRestController.php:561
 msgid "The team could not be archived."
 msgstr "Het team kon niet worden gearchiveerd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:555
+#: src/Infrastructure/REST/TeamsRestController.php:611
 msgid "Team not found in your club."
 msgstr "Team niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/TeamsRestController.php:561
+#: src/Infrastructure/REST/TeamsRestController.php:617
 msgid "The player could not be added to the team."
 msgstr "De speler kon niet aan het team worden toegevoegd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:578
+#: src/Infrastructure/REST/TeamsRestController.php:634
 msgid "The player could not be removed from the team."
 msgstr "De speler kon niet uit het team worden verwijderd."
 
@@ -61121,10 +61126,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Infrastructure/REST/TeamsRestController.php
-msgid "Unknown period."
-msgstr "Onbekende periode."
 
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
