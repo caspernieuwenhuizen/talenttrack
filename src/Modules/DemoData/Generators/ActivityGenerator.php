@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
@@ -180,14 +181,36 @@ class ActivityGenerator implements DependentGeneratorInterface {
                 $this->registry->tag( 'activity', $activity_id, [ 'team_id' => $team_id ] );
                 $total++;
 
+                // #3484 — plan the squad, then register it. The two are
+                // separate rows of separate kinds, and a generated academy
+                // used to contain only the second: 13,344 `actual` rows and
+                // zero `expected` ones, so half of what `tt_attendance`
+                // models did not exist in demo data.
+                //
+                // That is why the ten defects of the last week — a planned
+                // roster read as a recorded register, or a write landing on
+                // the wrong kind of row — were none of them reproducible
+                // locally, and why the fixes for them cannot be exercised
+                // end to end either.
+                //
+                // A coach plans, then registers, so the plan is written for
+                // every activity including the future ones.
+                $this->planSquad( $attendance_writer, $activity_id, $roster );
+
                 // #3030 — an activity that has not happened yet carries no
-                // attendance. These rows are `record_type = 'actual'`, the
-                // record of who turned up; writing them for next Tuesday
-                // would be inventing a result, and it would leave the
-                // attendance flow with nothing to demonstrate. Match prep
-                // for future fixtures still comes from MatchDayGenerator,
-                // which already writes prep without execution.
+                // *register*. Writing `actual` rows for next Tuesday would be
+                // inventing a result, and would leave the attendance flow
+                // with nothing to demonstrate. The plan above is exactly the
+                // state `your_attendance_status` got wrong in #3390.
                 if ( $is_future ) continue;
+
+                // #3484 — and a deliberate minority of past activities are
+                // left planned-but-unregistered, so the completeness work
+                // from epic #3442 (the empty-register confirm, the N/N
+                // counts, AttendanceUnrecordedAlert) has a case to show.
+                // One in eight, by a stable hash of the activity rather than
+                // a roll, so the same seed produces the same academy.
+                if ( $activity_id % 8 === 3 ) continue;
 
                 foreach ( $roster as $player ) {
                     $player_id = (int) ( $player->id ?? 0 );
@@ -217,6 +240,53 @@ class ActivityGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * #3484 — the planned roster for one activity: one `expected` row per
+     * player on the squad, written when the activity is created.
+     *
+     * The statuses are the real plan vocabulary, not all-Present. The plan
+     * form offers Expected / Not coming / Maybe, which store as Present /
+     * Absent / Excused (`ActivitiesRestController::plannedStatusMap()`), and
+     * "a Maybe pre-selecting as a recorded Excused" was one of #3443's three
+     * bugs — a demo where every plan says Present cannot show it.
+     *
+     * Mostly Expected, because that is what a squad list looks like: a
+     * handful of replies and everyone else assumed in.
+     *
+     * @param list<object> $roster tt_players rows.
+     */
+    private function planSquad(
+        \TT\Modules\Activities\Repositories\AttendanceWriter $writer,
+        int $activity_id,
+        array $roster
+    ): void {
+        foreach ( $roster as $player ) {
+            $player_id = (int) ( $player->id ?? 0 );
+            if ( $player_id <= 0 ) continue;
+
+            $roll = mt_rand( 1, 100 );
+            if ( $roll <= 8 ) {
+                $status = AttendanceStatus::ABSENT;   // "Not coming"
+            } elseif ( $roll <= 20 ) {
+                $status = AttendanceStatus::EXCUSED;  // "Maybe"
+            } else {
+                $status = AttendanceStatus::PRESENT;  // "Expected"
+            }
+
+            $row_id = (int) ( $writer->planExpected( [
+                'club_id'     => CurrentClub::id(),
+                'activity_id' => $activity_id,
+                'player_id'   => $player_id,
+                'status'      => $status,
+                'notes'       => '',
+            ] ) ?? 0 );
+
+            if ( $row_id ) {
+                $this->registry->tag( 'attendance', $row_id );
+            }
+        }
     }
 
     /**
