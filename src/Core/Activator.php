@@ -820,13 +820,24 @@ class Activator {
         $wpdb->query( "ALTER TABLE `$table` MODIFY COLUMN `$column` $definition" );
     }
 
+    /**
+     * Fill `status` from the long-dead boolean `present` column on installs
+     * that still carry it.
+     *
+     * The one attendance write outside `AttendanceWriter` (#3451), and
+     * deliberately so: this is schema healing at activation time, not a
+     * domain write. It predates migration 0121's `expected` / `actual`
+     * split entirely — every row it can reach was written when there was
+     * one kind of row — and a row with no status is wrong whichever kind it
+     * has since become. Scoping it would leave half the install unhealed.
+     */
     private static function backfillAttendanceStatus(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        $has_present = $wpdb->get_row( "SHOW COLUMNS FROM `{$p}tt_attendance` LIKE 'present'" );
+        $has_present = $wpdb->get_row( "SHOW COLUMNS FROM `{$p}tt_attendance` LIKE 'present'" ); /* both-kinds-ok */
         if ( ! $has_present ) return;
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Present' WHERE present=1 AND (status IS NULL OR status='')" );
-        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Absent'  WHERE present=0 AND (status IS NULL OR status='')" );
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Present' WHERE present=1 AND (status IS NULL OR status='')" ); /* both-kinds-ok */
+        $wpdb->query( "UPDATE {$p}tt_attendance SET status='Absent'  WHERE present=0 AND (status IS NULL OR status='')" ); /* both-kinds-ok */
     }
 
     private static function markMigrationsApplied(): void {

@@ -675,15 +675,14 @@ class PlayersPage {
         // historical guest visit is preserved with a real reference.
         $from_attendance_id = isset( $_POST['from_attendance_id'] ) ? absint( $_POST['from_attendance_id'] ) : 0;
         if ( $from_attendance_id > 0 && $id > 0 ) {
-            $wpdb->update(
-                $wpdb->prefix . 'tt_attendance',
+            ( new \TT\Modules\Activities\Repositories\AttendanceWriter() )->updateGuestRow(
+                $from_attendance_id,
                 [
                     'guest_player_id' => $id,
                     'guest_name'      => null,
                     'guest_age'       => null,
                     'guest_position'  => null,
-                ],
-                [ 'id' => $from_attendance_id, 'is_guest' => 1, 'club_id' => CurrentClub::id() ]
+                ]
             );
         }
 

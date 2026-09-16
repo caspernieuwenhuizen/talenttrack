@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
@@ -317,43 +317,24 @@ class MatchPrepRestController {
     }
 
     /**
-     * UPSERT the lineup projection onto tt_attendance. Updates an
-     * existing (activity_id, player_id, is_guest=0) row if present;
-     * otherwise inserts a new row tagged record_type='expected' so the
-     * edit form's pre-seeded roster path (#1297) treats it identically
-     * to wizard-created expected rows.
+     * UPSERT the lineup projection onto tt_attendance.
+     *
+     * #3451 — the row it lands on used to be "the first non-guest row for
+     * this (activity, player)", which is ambiguous the moment a player has
+     * both a planned and a recorded row: the projection could be written
+     * onto the register and the Line-up card would then read the plan's
+     * stale role instead. `AttendanceWriter::upsertLineupProjection()` picks
+     * the plan first and states its fallbacks; the seeded row is still
+     * `expected`, so the edit form's pre-seeded roster path (#1297) treats
+     * it identically to wizard-created planned rows.
      */
     private static function upsertAttendanceLineup( int $activity_id, int $player_id, ?string $lineup_role, ?string $position_played ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $existing_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_attendance
-              WHERE activity_id = %d AND player_id = %d AND is_guest = 0
-              LIMIT 1",
-            $activity_id, $player_id
-        ) );
-        if ( $existing_id > 0 ) {
-            $wpdb->update(
-                "{$p}tt_attendance",
-                [
-                    'lineup_role'     => $lineup_role,
-                    'position_played' => $position_played,
-                ],
-                [ 'id' => $existing_id ]
-            );
-            return;
-        }
-
-        $wpdb->insert( "{$p}tt_attendance", [
-            'club_id'         => CurrentClub::id(),
-            'activity_id'     => $activity_id,
-            'player_id'       => $player_id,
-            'is_guest'        => 0,
-            'record_type'     => 'expected',
-            'lineup_role'     => $lineup_role,
-            'position_played' => $position_played,
-        ] );
+        ( new AttendanceWriter() )->upsertLineupProjection(
+            $activity_id,
+            $player_id,
+            $lineup_role,
+            $position_played
+        );
     }
 
     /**
