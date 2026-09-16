@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-15T21:28:58+00:00\n"
+"POT-Creation-Date: 2026-09-16T05:18:04+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Plugin Name of the plugin
-#: talenttrack.php src/Core/Activator.php:171
+#: talenttrack.php src/Core/Activator.php:175
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
 #: src/Modules/Reports/ScoutDelivery.php:125 src/Shared/Admin/Menu.php:51
 msgid "TalentTrack"
@@ -76,7 +76,7 @@ msgstr ""
 #: database/migrations/0025_invitations.php:129
 #: src/Infrastructure/Query/LabelTranslator.php:90
 #: src/Infrastructure/Query/LabelTranslator.php:139
-#: src/Infrastructure/Security/RolesService.php:502
+#: src/Infrastructure/Security/RolesService.php:512
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:267
 #: src/Modules/Documentation/AudienceResolver.php:48
@@ -107,7 +107,7 @@ msgstr "Team Manager"
 
 #: includes/Activator.php:178
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
-#: src/Infrastructure/Security/RolesService.php:498
+#: src/Infrastructure/Security/RolesService.php:508
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:234
@@ -246,7 +246,7 @@ msgid "Player"
 msgstr "Speler"
 
 #: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:77
-#: src/Infrastructure/Security/RolesService.php:391
+#: src/Infrastructure/Security/RolesService.php:401
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:193
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
@@ -275,7 +275,7 @@ msgstr "Trainer"
 #: includes/Activator.php:182 src/Infrastructure/Query/LabelTranslator.php:86
 #: src/Infrastructure/Query/LabelTranslator.php:132
 #: src/Infrastructure/Query/LabelTranslator.php:173
-#: src/Infrastructure/Security/RolesService.php:305
+#: src/Infrastructure/Security/RolesService.php:315
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:513
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
@@ -292,7 +292,7 @@ msgid "Head of Development"
 msgstr "Hoofd opleiding"
 
 #: includes/Activator.php:186 src/Infrastructure/Query/LabelTranslator.php:87
-#: src/Infrastructure/Security/RolesService.php:452
+#: src/Infrastructure/Security/RolesService.php:462
 #: src/Infrastructure/Teams/TeamDetailSections.php:61
 #: src/Modules/Invitations/InvitationKind.php:54
 #: src/Modules/People/Admin/PeoplePage.php:514
@@ -2199,7 +2199,7 @@ msgstr "Fysio"
 #: src/Infrastructure/Query/LabelTranslator.php:89
 #: src/Infrastructure/Query/LabelTranslator.php:138
 #: src/Infrastructure/Query/LabelTranslator.php:245
-#: src/Infrastructure/Security/RolesService.php:425
+#: src/Infrastructure/Security/RolesService.php:435
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:271
@@ -2282,7 +2282,7 @@ msgid "Archived"
 msgstr "Gearchiveerd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:131
-#: src/Infrastructure/Security/RolesService.php:358
+#: src/Infrastructure/Security/RolesService.php:368
 #: src/Modules/Authorization/Admin/RolesPage.php:431
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:153
 #: src/Shared/Frontend/FrontendRolesView.php:71
@@ -4996,7 +4996,7 @@ msgstr ""
 "handmatige flow."
 
 # ===== v2.21.0 — Tile-based frontend + Read-Only Observer role =====
-#: src/Infrastructure/Security/RolesService.php:507
+#: src/Infrastructure/Security/RolesService.php:517
 #: src/Shared/Frontend/FrontendRolesView.php:60
 msgid "Read-Only Observer"
 msgstr "Alleen-lezen Waarnemer"
