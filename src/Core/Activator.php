@@ -65,7 +65,11 @@ class Activator {
      * @return array<int, array{name:string, error:string}>
      */
     public static function runMigrations(): array {
-        ( new RolesService() )->installRoles();
+        // #3432 — forced: activation and the operator-triggered re-run both
+        // mean "assert the shape now", stamp or no stamp. The stamp it leaves
+        // behind is what stops Kernel::boot() repeating the work on the very
+        // next request.
+        ( new RolesService() )->syncForVersion( TT_VERSION, true );
 
         // v2.12.0 dbDelta silently dropped the `key` column on some
         // hosts (MySQL reserved word). Detect that corrupt state and

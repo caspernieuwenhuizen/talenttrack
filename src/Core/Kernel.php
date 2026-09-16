@@ -84,6 +84,26 @@ class Kernel {
 
         $this->registerCoreServices();
 
+        // #3432 — assert the role + capability shape on the version change,
+        // the same trigger the schema already uses above. It used to hang off
+        // `admin_init` only, which assumed somebody opens wp-admin; Setup is
+        // fully on the frontend now (#3211), so an academy can run an entire
+        // install without ever loading a wp-admin page and a capability
+        // declared in a release was granted never rather than late.
+        //
+        // Deliberately NOT folded into the migration branch above: that one
+        // is skipped while `MigrationRunner::FAILURES_OPTION` is non-empty,
+        // and a capability grant must not be held hostage to an unrelated
+        // schema failure. Its own stamp, its own guard.
+        //
+        // Runs before `loadModules()` so every cap check during this request
+        // — tiles, dispatcher, REST permission callbacks — sees the shape the
+        // running version declares. On a request where nothing changed this
+        // is one autoloaded option read plus a string compare.
+        /** @var RolesService $roles */
+        $roles = $this->container->get( 'roles' );
+        $roles->syncForVersion( TT_VERSION );
+
         /** @var ConfigService $config */
         $config = $this->container->get( 'config' );
         QueryHelpers::setConfigService( $config );
@@ -199,6 +219,11 @@ class Kernel {
         $access = $this->container->get( 'frontend.access' );
         $access->register();
 
+        // Belt-and-braces self-heal for installs that do use wp-admin: an
+        // unguarded re-assert on every admin page load, which catches a role
+        // whose caps another plugin or a hand edit clobbered mid-version.
+        // The version-stamped sync above is the trigger that actually ships
+        // new capabilities (#3432); this is no longer the only one.
         add_action( 'admin_init', function () {
             /** @var RolesService $roles */
             $roles = $this->container->get( 'roles' );

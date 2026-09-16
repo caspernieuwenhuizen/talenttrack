@@ -361,6 +361,16 @@ separate `global`-scoped grant held by Head Coach and Academy Admin, and is
 unaffected by the player grant. See
 [authorization matrix](authorization-matrix.md#matrix-entity-strava_integration--personal-activity-connection-2127-2153).
 
+## When a capability change takes effect
+
+Releases add capabilities. The safeguarding broadcast brought one with it, and most new gated surfaces bring one eventually. A capability a release adds reaches the roles that should hold it **the first time anybody loads a TalentTrack page after the update** — any page, on any surface. The frontend dashboard counts. A coach opening a player counts. There is nothing to run and nothing to click, and an academy that never opens the WordPress admin is not waiting on anybody.
+
+That matters because it did not always work this way. The re-assert used to run only on a WordPress-admin page load, which was a safe assumption when running an academy meant going there. It stopped being one when Setup, permissions and the dashboard all moved to the frontend: an academy that works entirely in the app could go indefinitely without loading a wp-admin page, and a capability a release had added would sit ungranted for exactly as long. If a role looks like it is missing something a release note promised, loading any page is now enough; **Configuration → Database update** also re-asserts the whole role and capability shape on demand.
+
+The re-assert is **additive**, and deliberately so. It hands a role the capabilities its definition says it should have, and it never takes one away — so a capability an academy granted a role itself survives every update.
+
+**Narrowing a role is the matrix's job.** The authorization matrix is a separate store, and the re-assert neither reads nor writes it: a grant you withdraw in **Configuration → Authorization matrix** stays withdrawn across every future update. Withdrawing a capability from a role in WordPress directly does not stick the same way — the role definition still lists it, so the next update hands it back. Use the matrix.
+
 ## Permission debug
 
 **Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
