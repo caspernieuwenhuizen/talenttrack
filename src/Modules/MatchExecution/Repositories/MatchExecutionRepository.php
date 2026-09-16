@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Domain\AttendanceRecomputeOutcome;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
@@ -937,25 +938,39 @@ class MatchExecutionRepository {
      *
      * The user's #1048 decision (2026-05-30): on recompute failure
      * (DB error mid-write), this method swallows the error, logs it
-     * at warn level, and returns false. The caller's primary action
-     * (the edit) has already succeeded; aborting the edit because a
-     * side-effect failed would be hostile, and the recompute will
+     * at warn level, and returns without writing. The caller's primary
+     * action (the edit) has already succeeded; aborting the edit because
+     * a side-effect failed would be hostile, and the recompute will
      * fire again on the next edit or on finalize.
      *
-     * @return bool true on success, false on caught exception.
+     * #3445 — it now says *why* it gave up. It used to answer `bool`,
+     * and all four call sites discarded the answer, so a match could
+     * complete with the register silently un-written. Every bail logs a
+     * warning naming the activity and the execution, and returns a
+     * reason the caller can put in front of the coach.
+     *
+     * Attendance written here is `record_type = 'actual'` — the record
+     * of who played. The planned roster (`expected`, migration 0121) is
+     * a different kind of row and is neither read nor swept here; the
+     * reconcile below would otherwise delete the plan that the
+     * completeness denominator is built from.
      */
-    public function recomputeAttendanceAndMinutes( int $execution_id ): bool {
+    public function recomputeAttendanceAndMinutes( int $execution_id ): AttendanceRecomputeOutcome {
         try {
             $exec = $this->wpdb->get_row( $this->wpdb->prepare(
                 "SELECT id, activity_id FROM {$this->t_exec} WHERE id = %d AND club_id = %d",
                 $execution_id, CurrentClub::id()
             ) );
-            if ( ! $exec ) return false;
+            if ( ! $exec ) {
+                return $this->bail( $execution_id, 0, AttendanceRecomputeOutcome::REASON_NO_EXECUTION );
+            }
             $activity_id = (int) $exec->activity_id;
 
             $prep_repo = new MatchPrepRepository();
             $prep      = $prep_repo->findByActivity( $activity_id );
-            if ( ! $prep ) return false;
+            if ( ! $prep ) {
+                return $this->bail( $execution_id, $activity_id, AttendanceRecomputeOutcome::REASON_NO_PREP );
+            }
 
             $prep_id = (int) $prep->id;
             $avail   = $prep_repo->listAvailability( $prep_id );
@@ -985,18 +1000,25 @@ class MatchExecutionRepository {
                 $pid = (int) $a->player_id;
                 if ( $pid > 0 ) $avail_pids[] = $pid;
             }
-            if ( ! empty( $avail_pids ) ) {
-                $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$p}tt_attendance
-                      WHERE activity_id = %d
-                        AND club_id     = %d
-                        AND player_id NOT IN ($in)",
-                    array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
-                ) );
+            if ( empty( $avail_pids ) ) {
+                // Prep exists but nobody is on the availability list, so
+                // there is nothing to derive a register from. Writing
+                // nothing and saying nothing is the #3445 failure.
+                return $this->bail( $execution_id, $activity_id, AttendanceRecomputeOutcome::REASON_NO_AVAILABILITY );
             }
 
+            $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$p}tt_attendance
+                  WHERE activity_id = %d
+                    AND club_id     = %d
+                    AND record_type = 'actual'
+                    AND player_id NOT IN ($in)",
+                array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
+            ) );
+
+            $rows_written = 0;
             foreach ( $avail as $a ) {
                 $pid    = (int) $a->player_id;
                 $status = (string) $a->status;
@@ -1004,36 +1026,61 @@ class MatchExecutionRepository {
                     $status = 'Present';
                 }
                 $minutes = $minutes_map[ $pid ] ?? 0;
+                // #3445 — `record_type` scopes both halves of this write.
+                // Without it the lookup could land on the planned
+                // (`expected`) row for the same player and UPDATE the
+                // derived minutes into it, where every `actual` reader —
+                // the minutes reports among them — cannot see them.
                 $existing = $wpdb->get_var( $wpdb->prepare(
                     "SELECT id FROM {$p}tt_attendance
-                      WHERE activity_id = %d AND player_id = %d AND club_id = %d LIMIT 1",
+                      WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                        AND record_type = 'actual' LIMIT 1",
                     $activity_id, $pid, CurrentClub::id()
                 ) );
                 if ( $existing ) {
-                    $wpdb->update( "{$p}tt_attendance", [
+                    $ok = $wpdb->update( "{$p}tt_attendance", [
                         'status'         => $status,
                         'minutes_played' => $minutes,
                     ], [ 'id' => (int) $existing ] );
                 } else {
-                    $wpdb->insert( "{$p}tt_attendance", [
+                    $ok = $wpdb->insert( "{$p}tt_attendance", [
                         'club_id'        => CurrentClub::id(),
                         'activity_id'    => $activity_id,
                         'player_id'      => $pid,
                         'status'         => $status,
                         'minutes_played' => $minutes,
+                        'record_type'    => 'actual',
                     ] );
                 }
+                if ( $ok !== false ) $rows_written++;
             }
-            return true;
+
+            if ( $rows_written === 0 ) {
+                return $this->bail( $execution_id, $activity_id, AttendanceRecomputeOutcome::REASON_DB_ERROR );
+            }
+            return AttendanceRecomputeOutcome::recorded( $rows_written );
         } catch ( \Throwable $e ) {
             // #1048 — swallow + log; the caller's edit succeeded, the
             // recompute is a side effect that will re-fire on the
             // next edit / finalize.
-            Logger::warn( 'match_execution.recompute_failed', [
+            Logger::warning( 'match_execution.recompute_failed', [
                 'execution_id' => $execution_id,
                 'message'      => $e->getMessage(),
             ] );
-            return false;
+            return AttendanceRecomputeOutcome::failed( AttendanceRecomputeOutcome::REASON_DB_ERROR );
         }
+    }
+
+    /**
+     * #3445 — one exit for every "could not derive a register" branch,
+     * so no future early return can be added without a log line.
+     */
+    private function bail( int $execution_id, int $activity_id, string $reason ): AttendanceRecomputeOutcome {
+        Logger::warning( 'match_execution.recompute.' . $reason, [
+            'execution_id' => $execution_id,
+            'activity_id'  => $activity_id,
+            'reason'       => $reason,
+        ] );
+        return AttendanceRecomputeOutcome::failed( $reason );
     }
 }

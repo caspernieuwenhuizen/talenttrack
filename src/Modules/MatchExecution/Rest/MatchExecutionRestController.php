@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Domain\MatchRegisterGap;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchExecution\Repositories\TrackedEventsRepository;
 use TT\Modules\MatchExecution\Services\MatchEventFeedService;
@@ -884,20 +885,38 @@ class MatchExecutionRestController {
         // log. The inline write block lives on the repository now so
         // PENDING_REVIEW edits + finalize can re-fire it (see
         // `MatchExecutionRepository::recomputeAttendanceAndMinutes`).
-        $repo->recomputeAttendanceAndMinutes( $exec_id );
+        $outcome = $repo->recomputeAttendanceAndMinutes( $exec_id );
 
         Logger::info( 'match_execution.finish', [
-            'activity_id'  => $activity_id,
-            'execution_id' => $exec_id,
-            'home_score'   => (int) $exec->home_score,
-            'away_score'   => (int) $exec->away_score,
+            'activity_id'      => $activity_id,
+            'execution_id'     => $exec_id,
+            'home_score'       => (int) $exec->home_score,
+            'away_score'       => (int) $exec->away_score,
+            'attendance_rows'  => $outcome->rowsWritten(),
+            'recompute_reason' => $outcome->reason(),
         ] );
 
-        return RestResponse::success( [
-            'execution_id' => $exec_id,
-            'activity_id'  => $activity_id,
-            'state'        => MatchExecutionState::PENDING_REVIEW,
-        ] );
+        // 4. #3445 — the match genuinely finished, so it stays completed:
+        // refusing the final whistle would strand a coach on a touchline
+        // with a played match and nowhere to put it. What it must not do
+        // is close quietly. `MatchRegisterGap` reads the register back
+        // out of the database, so the payload and the notice the coach
+        // lands on cannot disagree with what was actually written.
+        $payload = [
+            'execution_id'        => $exec_id,
+            'activity_id'         => $activity_id,
+            'state'               => MatchExecutionState::PENDING_REVIEW,
+            'attendance_recorded' => $outcome->isRecorded(),
+            'attendance_rows'     => $outcome->rowsWritten(),
+        ];
+
+        $gap = MatchRegisterGap::forActivity( $activity_id );
+        if ( $gap ) {
+            $payload['attendance_recorded'] = false;
+            $payload['attendance_gap']      = $gap->toArray();
+        }
+
+        return RestResponse::success( $payload );
     }
 
     /**
@@ -943,22 +962,30 @@ class MatchExecutionRestController {
         // every PENDING_REVIEW edit already recomputed, a fresh pass
         // here closes the window where a missed write (offline-queue
         // replay, transient DB error) leaves derived totals stale.
-        $repo = new MatchExecutionRepository();
-        $repo->recomputeAttendanceAndMinutes( $exec_id );
+        //
+        // #3445 — the outcome is reported, not acted on: finalize only
+        // locks a state the match already reached on the final whistle,
+        // and that is where the gap was surfaced. Repeating the notice
+        // here would tell the coach something the screen already says.
+        $repo    = new MatchExecutionRepository();
+        $outcome = $repo->recomputeAttendanceAndMinutes( $exec_id );
 
         $repo->update( $exec_id, [
             'state' => MatchExecutionState::FINALIZED,
         ] );
 
         Logger::info( 'match_execution.finalize', [
-            'execution_id' => $exec_id,
-            'activity_id'  => (int) $exec->activity_id,
+            'execution_id'     => $exec_id,
+            'activity_id'      => (int) $exec->activity_id,
+            'attendance_rows'  => $outcome->rowsWritten(),
+            'recompute_reason' => $outcome->reason(),
         ] );
 
         return RestResponse::success( [
-            'execution_id' => $exec_id,
-            'activity_id'  => (int) $exec->activity_id,
-            'state'        => MatchExecutionState::FINALIZED,
+            'execution_id'        => $exec_id,
+            'activity_id'         => (int) $exec->activity_id,
+            'state'               => MatchExecutionState::FINALIZED,
+            'attendance_recorded' => $outcome->isRecorded(),
         ] );
     }
 
@@ -1003,6 +1030,11 @@ class MatchExecutionRestController {
 
         // Re-derive minutes so a re-opened match starts from a consistent
         // baseline; every subsequent correction re-fires this too.
+        //
+        // #3445 — the outcome is deliberately not surfaced here. Re-open
+        // hands the coach back the editing surface, which carries the
+        // register-gap notice on render; a second message on the way in
+        // would say the same thing twice.
         $repo->recomputeAttendanceAndMinutes( $exec_id );
 
         ( new \TT\Infrastructure\Audit\AuditService() )->record(
@@ -1091,6 +1123,13 @@ class MatchExecutionRestController {
      * attendance table and the final pass on `route_finish` covers
      * the live trio. PENDING_REVIEW edits are the ones that need
      * the side-effect to keep derived totals fresh.
+     *
+     * #3445 — the outcome is not returned to the caller on purpose.
+     * These are per-tap live writes (a goal, a sub, a score nudge); the
+     * recompute is their side effect, not their subject, and the gap is
+     * already logged by the repository and rendered by the view. The
+     * one call site that does report it is the final whistle, where the
+     * coach is deciding whether the match is done.
      */
     private static function recomputeIfPendingReview( MatchExecutionRepository $repo, int $exec_id ): void {
         global $wpdb;

@@ -1149,6 +1149,39 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         }
                         ?>
                     </p>
+                    <?php
+                    // #3445 — a match that closed with no register says so
+                    // here, where the coach lands after the final whistle.
+                    // The gap is read back out of the database rather than
+                    // passed down from the finish call, so a reload, a
+                    // colleague opening the match later, or a register
+                    // recorded by hand in between all show the truth.
+                    $register_gap = \TT\Modules\MatchExecution\Domain\MatchRegisterGap::forActivity( $activity_id );
+                    if ( $register_gap ) :
+                        $gap_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( $register_gap->fixUrl() );
+                        $gap_slug = $register_gap->targetSlug();
+                        ?>
+                        <p class="tt-notice tt-notice-warning tt-mexec-register-gap" role="status">
+                            <?php echo esc_html( $register_gap->message() ); ?>
+                            <?php
+                            // The repair link is an affordance like any
+                            // other: hidden when the viewer can't reach
+                            // the surface it points at.
+                            if ( $gap_url !== '' ) {
+                                \TT\Shared\Frontend\Components\CrossViewLink::render(
+                                    $gap_slug,
+                                    static function () use ( $gap_url, $register_gap ) {
+                                        printf(
+                                            '<a class="tt-btn tt-btn-secondary" href="%s">%s</a>',
+                                            esc_url( $gap_url ),
+                                            esc_html( $register_gap->fixLabel() )
+                                        );
+                                    }
+                                );
+                            }
+                            ?>
+                        </p>
+                    <?php endif; ?>
                     <?php if ( $state === MatchExecutionState::PENDING_REVIEW ) : ?>
                         <p class="tt-mexec-finalize-help">
                             <?php esc_html_e( 'Review the score, subs, goals and minutes below. Turn on Edit to correct any datapoint, then Finalize to lock the match.', 'talenttrack' ); ?>
