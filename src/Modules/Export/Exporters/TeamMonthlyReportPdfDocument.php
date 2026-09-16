@@ -376,15 +376,22 @@ final class TeamMonthlyReportPdfDocument {
         // A fixed-layout table takes its widths from the header cells
         // (`.w0`…, see css()), so a long name is cut, never squeezes its
         // neighbours. DomPDF ignores `<col>` widths.
-        $heads = $wide
-            ? [ '', '', 'r', '', 'r', 'r', '', 'r', 'c' ]
-            : [ '', '', 'r', 'r', 'r', 'r', 'c' ];
-        $labels = $wide
-            ? [ __( 'Player', 'talenttrack' ), _x( 'Status', 'team monthly report column', 'talenttrack' ), __( 'Attendance', 'talenttrack' ), '', __( 'Minutes', 'talenttrack' ), _x( 'Share', 'minutes share column', 'talenttrack' ), '', __( 'Open goals', 'talenttrack' ), _x( 'Injured', 'team monthly report column', 'talenttrack' ) ]
-            : [ __( 'Player', 'talenttrack' ), _x( 'Status', 'team monthly report column', 'talenttrack' ), __( 'Attendance', 'talenttrack' ), __( 'Minutes', 'talenttrack' ), _x( 'Share', 'minutes share column', 'talenttrack' ), __( 'Open goals', 'talenttrack' ), _x( 'Injured', 'team monthly report column', 'talenttrack' ) ];
+        // [ label, alignment class ]; the matrix adds a bar column after
+        // attendance and after share.
+        $cols   = [];
+        $cols[] = [ __( 'Player', 'talenttrack' ), '' ];
+        $cols[] = [ _x( 'Status', 'team monthly report column', 'talenttrack' ), '' ];
+        $cols[] = [ __( 'Attendance', 'talenttrack' ), 'r' ];
+        if ( $wide ) $cols[] = [ '', '' ];
+        $cols[] = [ __( 'Minutes', 'talenttrack' ), 'r' ];
+        $cols[] = [ _x( 'Share', 'minutes share column', 'talenttrack' ), 'r' ];
+        if ( $wide ) $cols[] = [ '', '' ];
+        $cols[] = [ __( 'Open goals', 'talenttrack' ), 'r' ];
+        $cols[] = [ _x( 'Injured', 'team monthly report column', 'talenttrack' ), 'c' ];
+
         $out .= '<table class="tbl"><thead><tr>';
-        foreach ( $labels as $i => $label ) {
-            $out .= '<th class="w' . $i . ( $heads[ $i ] !== '' ? ' ' . $heads[ $i ] : '' ) . '">' . esc_html( $label ) . '</th>';
+        foreach ( $cols as $i => $col ) {
+            $out .= '<th class="w' . $i . ( $col[1] !== '' ? ' ' . $col[1] : '' ) . '">' . esc_html( $col[0] ) . '</th>';
         }
         $out .= '</tr></thead><tbody>';
         foreach ( $rows as $row ) {

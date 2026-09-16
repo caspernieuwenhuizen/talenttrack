@@ -54,6 +54,10 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         return user_can( $user_id, 'tt_view_reports' );
     }
 
+    /**
+     * @param array<string,mixed> $raw
+     * @return array<string,mixed>|null
+     */
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? absint( $raw['team_id'] ) : 0;
         if ( $team_id <= 0 ) return null;
