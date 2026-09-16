@@ -88,7 +88,8 @@ stating so nobody "tidies" it away:
 | half | committed? | why |
 | --- | --- | --- |
 | Runtime — Dompdf, PhpSpreadsheet, their dependencies, `vendor/autoload.php` | **yes** | `e2e.yml` runs no `composer install` and sets up no host PHP; every PHP process in that job runs inside wp-env against the mounted checkout. It loads these straight from the tree. Dropping the install was a measured win (#2416) and, with no `composer.lock` in the repo, also the only thing keeping the Playwright run on a fixed set of runtime versions. |
-| Dev tooling — `vendor/bin/`, `vendor/phpstan/`, `vendor/szepeviktor/` | **no** (#3439) | Nothing at runtime loads them, and all three release ZIP builds already `--exclude` exactly these paths, so they never shipped. Committing them only lets a stale binary drift: before #3439 the tree carried PHPStan 1.12.33 while `composer.json` asked for `^2.2`, so anyone running `vendor/bin/phpstan` without installing got 1.12 analysing a 2.x baseline — not an error, just a flood of wording mismatches. |
+| Dev tooling — `vendor/bin/`, `vendor/szepeviktor/` | **no** (#3439) | Nothing at runtime loads them — the binaries are entry points, and the PHPStan WordPress extension is reached only through PSR-4, so neither is touched unless you invoke PHPStan. All three release ZIP builds already `--exclude` them, so they never shipped. Committing them only let a stale binary drift: before #3439 the tree carried PHPStan 1.12.33 while `composer.json` asked for `^2.2`, so anyone running `vendor/bin/phpstan` without installing got 1.12 analysing a 2.x baseline — not an error, just a flood of wording mismatches. Now they get "no such file", and `tools/dev-check.ps1` reports `SKIP — run 'composer install' first`. |
+| `vendor/phpstan/` — the package itself | **yes**, reluctantly | It is dev tooling and ought to be in the row above. It cannot be, because the committed `vendor/composer/` was generated **with** dev dependencies: `autoload_files.php` maps hash `9b38cf48…` to `phpstan/phpstan/bootstrap.php` and `vendor/autoload.php` requires it unconditionally. Untracking the directory therefore fatals the plugin on load for anyone reading the committed tree — which is the E2E job. Verified the hard way on #3440. |
 
 So: touching `composer.json` for a **runtime** package means committing the
 refreshed tree along with it, and touching it for a **dev** package means
@@ -96,10 +97,15 @@ committing nothing. The rest of the toolchain re-resolves per run —
 `release.yml`, `auto-release.yml`, `release-tag.yml` and `php-tests.yml` each
 install their own dependencies and never read the committed tree.
 
-Two known gaps, both deliberate and both wanting their own PR: the committed
+Three known gaps, all deliberate and each wanting its own PR: the committed
 Dompdf is 2.0.8 against a required `^3.0` (releases resolve fresh and already
-ship 3.x, so this affects only the E2E job and local clones), and there is no
-`composer.lock`.
+ship 3.x, so this affects only the E2E job and local clones); there is no
+`composer.lock`; and the committed `vendor/composer/` is a dev-flavoured
+autoloader, which is the only reason `vendor/phpstan/` is still tracked.
+Regenerating it with `--no-dev` would close the third and let that row move
+up — but with no lockfile, regenerating also re-resolves the runtime tree and
+drags the Dompdf major bump along with it, so the two have to be done
+together, with export testing.
 
 ### Local checks before you push
 

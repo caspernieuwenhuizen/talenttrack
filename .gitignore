@@ -11,12 +11,14 @@ tests/e2e/.auth/
 
 # Composer dev tooling (#3439). The runtime half of vendor/ is committed on
 # purpose — e2e.yml installs nothing and loads it straight from the checkout.
-# These three paths are the dev half: nothing at runtime loads them, all three
-# release ZIP builds already exclude them, and a committed PHPStan binary is
-# free to drift out of step with composer.json and analyse against a baseline
-# it cannot read. Get them from `composer install`. See DEVOPS.md.
+# These two are the dev half that nothing loads: the binaries, and a PHPStan
+# extension reached only through PSR-4. Get them from `composer install`.
+#
+# vendor/phpstan/ is NOT listed here and cannot be, until the committed
+# vendor/composer/ is regenerated with --no-dev: autoload_files.php requires
+# phpstan/phpstan/bootstrap.php unconditionally, so removing the directory
+# fatals the plugin on load. See DEVOPS.md.
 /vendor/bin/
-/vendor/phpstan/
 /vendor/szepeviktor/
 
 # Claude Code session state (worktrees + per-session locks)
