@@ -23440,6 +23440,76 @@ msgstr "Vooruit %1$d · achteruit %2$d"
 msgid "Team monthly report (PDF)"
 msgstr "Maandrapport team (PDF)"
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Schedule monthly"
+msgstr "Maandelijks inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Schedule the monthly report"
+msgstr "Het maandrapport inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "You cannot schedule a report for this team."
+msgstr "Je kunt voor dit team geen rapport inplannen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "%1$s · %2$s · %3$d section. Sent on the 1st of every month as a PDF, covering the month before."
+msgid_plural "%1$s · %2$s · %3$d sections. Sent on the 1st of every month as a PDF, covering the month before."
+msgstr[0] "%1$s · %2$s · %3$d sectie. Wordt elke 1e van de maand als pdf verstuurd, over de maand ervoor."
+msgstr[1] "%1$s · %2$s · %3$d secties. Wordt elke 1e van de maand als pdf verstuurd, over de maand ervoor."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "The schedule keeps its own copy of this report. Changing or deleting a saved view later does not change what it sends."
+msgstr "De planning bewaart een eigen kopie van dit rapport. Wat je later aan een opgeslagen weergave verandert of verwijdert, verandert niet wat er wordt verstuurd."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Monthly report %s"
+msgstr "Maandrapport %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "The report names players and describes their development. Send it to staff only."
+msgstr "Het rapport noemt spelers bij naam en beschrijft hun ontwikkeling. Stuur het alleen naar stafleden."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Schedule report"
+msgstr "Rapport inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Monthly report · %s"
+msgstr "Maandrapport · %s"
+
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "Not sent: none of the recipients has an email address."
+msgstr "Niet verstuurd: geen van de ontvangers heeft een e-mailadres."
+
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "Not sent: the PDF could not be prepared for sending."
+msgstr "Niet verstuurd: de pdf kon niet worden klaargezet voor verzending."
+
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
+msgid "Not sent: no recipient could be emailed. Check their addresses and email preferences."
+msgstr "Niet verstuurd: geen enkele ontvanger kon worden gemaild. Controleer hun adressen en e-mailvoorkeuren."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "Stopped: the team in this schedule no longer exists."
+msgstr "Gestopt: het team in deze planning bestaat niet meer."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "Stopped: the team in this schedule has been archived."
+msgstr "Gestopt: het team in deze planning is gearchiveerd."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "Stopped: the person who set up this schedule can no longer read this team’s reports."
+msgstr "Gestopt: degene die deze planning heeft ingesteld, mag de rapporten van dit team niet meer inzien."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "Monthly report %1$s, %2$s"
+msgstr "Maandrapport %1$s, %2$s"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "The PDF could not be created this time. The schedule will try again next month."
+msgstr "De pdf kon deze keer niet worden gemaakt. De planning probeert het volgende maand opnieuw."
+
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:50
 msgid "Team planner (week-by-week)"
 msgstr "Teamplanner (week voor week)"

@@ -15,6 +15,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *   [
  *     'id' => int, 'club_id' => int, 'uuid' => string,
  *     'name' => string, 'kpi_key' => string|null,
+ *     'report_key' => string,            // 'kpi' | 'team_monthly' (#3462)
+ *     'composition' => array|null,       // the schedule's own copy of a report composition
+ *     'last_error' => string|null,       // why the last run did not send
  *     'explorer_state' => array|null,    // decoded
  *     'frequency' => string,             // 'weekly_monday' | 'monthly_first' | 'season_end'
  *     'recipients' => string[],          // decoded JSON list
@@ -33,6 +36,12 @@ final class ScheduledReportsRepository {
     public const STATUS_ACTIVE   = ScheduledReportStatus::ACTIVE;
     public const STATUS_PAUSED   = ScheduledReportStatus::PAUSED;
     public const STATUS_ARCHIVED = ScheduledReportStatus::ARCHIVED;
+
+    /** A KPI rendered as CSV — every schedule before #3462. */
+    public const REPORT_KPI = 'kpi';
+
+    /** The team monthly report rendered as PDF (#3462). */
+    public const REPORT_TEAM_MONTHLY = 'team_monthly';
 
     /**
      * Operator-editable label for a stored frequency value. Resolves
@@ -117,17 +126,21 @@ final class ScheduledReportsRepository {
     }
 
     /**
-     * @param array{name:string, kpi_key:string, frequency:string, recipients:string[], format:string} $data
+     * `report_key` defaults to a KPI schedule. A team-monthly schedule passes
+     * its `composition`, which is stored as the schedule's own copy.
+     *
+     * @param array{name:string, kpi_key?:string, frequency:string, recipients:string[], format:string, report_key?:string, composition?:array<string,mixed>} $data
      */
     public function create( array $data, int $created_by ): int {
         global $wpdb;
         $now = current_time( 'mysql', true );
         $next_run = self::computeNextRun( (string) $data['frequency'], $now );
 
-        $ok = $wpdb->insert( $this->table(), [
+        $row = [
             'club_id'     => CurrentClub::id(),
             'uuid'        => wp_generate_uuid4(),
             'name'        => (string) $data['name'],
+            'report_key'  => (string) ( $data['report_key'] ?? self::REPORT_KPI ),
             'kpi_key'     => (string) ( $data['kpi_key'] ?? '' ),
             'frequency'   => (string) $data['frequency'],
             'recipients'  => (string) wp_json_encode( (array) ( $data['recipients'] ?? [] ) ),
@@ -137,8 +150,37 @@ final class ScheduledReportsRepository {
             'created_by'  => $created_by,
             'created_at'  => $now,
             'updated_at'  => $now,
-        ] );
+        ];
+        if ( isset( $data['composition'] ) ) {
+            $row['composition_json'] = (string) wp_json_encode( $data['composition'] );
+        }
+
+        $ok = $wpdb->insert( $this->table(), $row );
         return $ok === false ? 0 : (int) $wpdb->insert_id;
+    }
+
+    /**
+     * Record why a run did not send, so the schedules screen can say so.
+     * Cleared by the next run that does send.
+     */
+    public function recordError( int $id, string $message ): bool {
+        global $wpdb;
+        $ok = $wpdb->update(
+            $this->table(),
+            [ 'last_error' => mb_substr( $message, 0, 255 ), 'updated_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
+    public function clearError( int $id ): bool {
+        global $wpdb;
+        $ok = $wpdb->update(
+            $this->table(),
+            [ 'last_error' => null ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
     }
 
     public function setStatus( int $id, string $status ): bool {
@@ -221,11 +263,20 @@ final class ScheduledReportsRepository {
             $decoded = json_decode( $exp_json, true );
             if ( is_array( $decoded ) ) $explorer = $decoded;
         }
+        $composition = null;
+        $comp_json   = (string) ( $row['composition_json'] ?? '' );
+        if ( $comp_json !== '' ) {
+            $decoded = json_decode( $comp_json, true );
+            if ( is_array( $decoded ) ) $composition = $decoded;
+        }
         return [
             'id'             => (int) $row['id'],
             'club_id'        => (int) $row['club_id'],
             'uuid'           => (string) ( $row['uuid'] ?? '' ),
             'name'           => (string) ( $row['name'] ?? '' ),
+            'report_key'     => (string) ( $row['report_key'] ?? '' ) ?: self::REPORT_KPI,
+            'composition'    => $composition,
+            'last_error'     => isset( $row['last_error'] ) && $row['last_error'] !== '' ? (string) $row['last_error'] : null,
             'kpi_key'        => (string) ( $row['kpi_key'] ?? '' ) ?: null,
             'explorer_state' => $explorer,
             'frequency'      => (string) ( $row['frequency'] ?? '' ),
