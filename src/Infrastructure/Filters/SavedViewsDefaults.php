@@ -69,6 +69,14 @@ final class SavedViewsDefaults {
             'tt_view' => 'minutes-audit',
             'params'  => [ 'period', 'from', 'to', 'team_id' ],
         ],
+        // #3461 — a coach's default composition opens the report they
+        // compose every month. Any composition parameter on the URL, the
+        // team included, counts as their own choice and wins.
+        'report-team-monthly' => [
+            'tt_view' => 'standard-report',
+            'slug'    => 'team-monthly',
+            'params'  => \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::PARAMS,
+        ],
     ];
 
     public static function init(): void {

@@ -169,6 +169,15 @@
 .tt-mr-fit__msg.is-tight { color: var(--tt-warning-ink); }
 .tt-mr-fit__msg.is-over  { color: var(--tt-danger-ink); }
 
+/* #3461 — which saved view this is, or that the default was changed. */
+.tt-mr-preset {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-mr-preset.is-active  { font-weight: 600; }
+.tt-mr-preset.is-drifted { color: var(--tt-warning-ink); }
+
 /* ---- Report body -------------------------------------------------------- */
 
 .tt-mr-empty,
@@ -392,6 +401,7 @@
     .tt-mr-panel .tt-mr-panel__group:first-of-type { grid-column: 1 / -1; }
     .tt-mr-blocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tt-mr-panel__actions { grid-column: 1 / -1; }
+    .tt-mr-preset { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

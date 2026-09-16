@@ -857,7 +857,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $win['from'],
             $win['to'],
             $win['period'],
-            [ 'team_id' => $team_id ]
+            \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::barParams( $team_id )
         );
 
         \TT\Modules\Analytics\Frontend\TeamMonthlyReportPage::render( $team, $win );

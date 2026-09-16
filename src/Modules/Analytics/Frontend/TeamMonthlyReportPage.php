@@ -4,7 +4,9 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
+use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
@@ -95,28 +97,48 @@ final class TeamMonthlyReportPage {
      * ------------------------------------------------------------- */
 
     private static function requestedLayout(): string {
-        $raw = isset( $_GET['layout'] ) ? strtoupper( sanitize_key( wp_unslash( (string) $_GET['layout'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
-        return TeamMonthlyReportLayout::isValid( $raw ) ? $raw : TeamMonthlyReportLayout::DEFAULT;
+        $raw = isset( $_GET['layout'] ) ? sanitize_key( wp_unslash( (string) $_GET['layout'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        return TeamMonthlyReportComposition::normalise( [ 'layout' => $raw ] )['layout'];
     }
 
     /**
-     * `blocks=a,b,c` from the script or a shared link; `blk[]=a` from the
-     * no-script submit. Unknown keys from a hand-edited URL are dropped rather
-     * than erroring the page — the composer is strict, the screen forgiving.
+     * `blocks=a,b,c` from the script, a shared link or a saved view; `blk[]=a`
+     * from the no-script submit. Unknown keys — a hand-edited URL, a view saved
+     * before a section was renamed — are dropped rather than erroring the page:
+     * the composer is strict, the screen forgiving.
      *
      * @return list<string>
      */
     private static function requestedBlocks(): array {
         $keys = [];
         if ( isset( $_GET['blocks'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
-            $keys = explode( ',', sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) ) );
+            $keys = sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) );
         } elseif ( isset( $_GET['blk'] ) && is_array( $_GET['blk'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
-            foreach ( wp_unslash( $_GET['blk'] ) as $k ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized per key below.
-                $keys[] = (string) $k;
+            $keys = [];
+            foreach ( wp_unslash( $_GET['blk'] ) as $k ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized in normalise().
+                $keys[] = is_scalar( $k ) ? (string) $k : '';
             }
         }
-        $keys = array_map( static fn( string $k ): string => sanitize_key( trim( $k ) ), $keys );
-        return array_values( array_filter( $keys, [ TeamMonthlyReportBlock::class, 'isValid' ] ) );
+        return TeamMonthlyReportComposition::normalise( [ 'blocks' => $keys ] )['blocks'];
+    }
+
+    /**
+     * The composition parameters the period bar carries, so changing the
+     * window keeps the layout and sections, and so a saved view captures them.
+     * Only what is on the URL: an absent layout or section list is the default,
+     * and saving it as absent keeps it following the default.
+     *
+     * @return array<string,string>
+     */
+    public static function barParams( int $team_id ): array {
+        $params = [ 'team_id' => (string) $team_id ];
+        if ( isset( $_GET['layout'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $params['layout'] = self::requestedLayout();
+        }
+        if ( isset( $_GET['blocks'] ) || isset( $_GET['blk'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $params['blocks'] = implode( ',', self::requestedBlocks() );
+        }
+        return $params;
     }
 
     private static function enqueue(): void {
@@ -233,7 +255,41 @@ final class TeamMonthlyReportPage {
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
         echo '</div>';
+
+        self::renderPresetStatus( TeamMonthlyReportComposition::normalise( [
+            'team_id' => $team_id,
+            'period'  => $window['period'],
+            'from'    => $window['period'] === '' ? $window['from'] : '',
+            'to'      => $window['period'] === '' ? $window['to'] : '',
+            'layout'  => $layout,
+            'blocks'  => $selected,
+        ] ) );
         echo '</form>';
+    }
+
+    /**
+     * Says which saved view the reader is looking at, or that they changed
+     * their default — so saving a new view is an informed choice.
+     *
+     * @param array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>} $current
+     */
+    private static function renderPresetStatus( array $current ): void {
+        if ( ! SavedViewsRegistry::currentUserCan( TeamMonthlyReportComposition::VIEW_KEY ) ) return;
+
+        $status = TeamMonthlyReportComposition::savedViewStatus( get_current_user_id(), $current );
+        if ( $status['state'] === 'active' ) {
+            echo '<p class="tt-mr-preset is-active">' . esc_html( sprintf(
+                /* translators: %s: name of the reader's saved view */
+                __( 'Your saved view “%s”.', 'talenttrack' ),
+                $status['name']
+            ) ) . '</p>';
+        } elseif ( $status['state'] === 'drifted' ) {
+            echo '<p class="tt-mr-preset is-drifted">' . esc_html( sprintf(
+                /* translators: %s: name of the reader's default saved view */
+                __( 'Changed from your default view “%s”. To keep this version, save it as a new view from the bookmark above and make that your default.', 'talenttrack' ),
+                $status['name']
+            ) ) . '</p>';
+        }
     }
 
     /**
