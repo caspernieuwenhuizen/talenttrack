@@ -77,10 +77,10 @@ final class PlayerEvaluationsRestController extends BaseController {
 
         $items = [];
         foreach ( $reader->listForPlayer( $player_id, $scope ) as $row ) {
-            $eid     = (int) $row->id;
+            $eid     = (int) ( $row->id ?? 0 );
             $items[] = [
                 'id'              => $eid,
-                'eval_date'       => (string) $row->eval_date,
+                'eval_date'       => (string) ( $row->eval_date ?? '' ),
                 'type'            => (string) ( $row->type_name ?? '' ),
                 'coach'           => (string) ( $row->coach_name ?? '' ),
                 'opponent'        => (string) ( $row->opponent ?? '' ),

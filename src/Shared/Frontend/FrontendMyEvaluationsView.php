@@ -149,14 +149,14 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         }
 
         $max      = (float) QueryHelpers::get_config( 'rating_max', '10' );
-        $eval_ids = array_map( static fn( $e ) => (int) $e->id, $evals );
+        $eval_ids = array_map( static fn( $e ) => (int) ( $e->id ?? 0 ), $evals );
         $overalls = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $eval_ids );
 
         // Summary KPIs over the rows in the window. Newest-first, so the first
         // rated entry is the current rating and the next one the prior cut.
         $rated_values = [];
         foreach ( $evals as $e ) {
-            $v = $overalls[ (int) $e->id ]['value'] ?? null;
+            $v = $overalls[ (int) ( $e->id ?? 0 ) ]['value'] ?? null;
             if ( $v !== null ) $rated_values[] = (float) $v;
         }
         $latest_rating = $rated_values[0] ?? null;
@@ -194,7 +194,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         </div>
         <ol class="tt-mye-list" aria-label="<?php esc_attr_e( 'Evaluations, newest first', 'talenttrack' ); ?>">
             <?php foreach ( $evals as $ev ) :
-                $eid           = (int) $ev->id;
+                $eid           = (int) ( $ev->id ?? 0 );
                 $overall_value = $overalls[ $eid ]['value'] ?? null;
                 $row_id        = 'tt-mye-row-' . $eid;
                 $detail_id     = $row_id . '-detail';
@@ -209,14 +209,16 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                             <span class="tt-rp-badge tt-rp-attention" aria-label="<?php esc_attr_e( 'No overall rating yet', 'talenttrack' ); ?>" role="img"><span aria-hidden="true">—</span></span>
                         <?php endif; ?>
                         <div class="tt-mye-meta">
-                            <div class="tt-mye-date"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $ev->eval_date ) ); ?></div>
-                            <div class="tt-mye-type"><?php echo esc_html( (string) ( $ev->type_name ?: '—' ) ); ?></div>
-                            <?php if ( ! empty( $ev->coach_name ) ) : ?>
+                            <div class="tt-mye-date"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $ev->eval_date ?? '' ) ) ); ?></div>
+                            <?php $type_name = (string) ( $ev->type_name ?? '' ); ?>
+                            <div class="tt-mye-type"><?php echo esc_html( $type_name !== '' ? $type_name : '—' ); ?></div>
+                            <?php $coach_name = (string) ( $ev->coach_name ?? '' ); ?>
+                            <?php if ( $coach_name !== '' ) : ?>
                                 <div class="tt-mye-coach"><?php
                                     printf(
                                         /* translators: %s is the coach's display name */
                                         esc_html__( 'by %s', 'talenttrack' ),
-                                        esc_html( (string) $ev->coach_name )
+                                        esc_html( $coach_name )
                                     );
                                 ?></div>
                             <?php endif; ?>
@@ -224,14 +226,17 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                     </div>
 
                     <div class="tt-mye-body">
-                        <?php if ( ! empty( $ev->opponent ) ) : ?>
+                        <?php
+                        $opponent    = (string) ( $ev->opponent ?? '' );
+                        $game_result = (string) ( $ev->game_result ?? '' );
+                        if ( $opponent !== '' ) : ?>
                             <p class="tt-mye-match">
                                 <?php
                                 printf(
                                     /* translators: 1: opponent name, 2: match result */
                                     esc_html__( 'vs %1$s (%2$s)', 'talenttrack' ),
-                                    esc_html( (string) $ev->opponent ),
-                                    esc_html( (string) ( $ev->game_result ?: '—' ) )
+                                    esc_html( $opponent ),
+                                    esc_html( $game_result !== '' ? $game_result : '—' )
                                 );
                                 ?>
                             </p>

@@ -155,14 +155,15 @@ final class PlayerEvaluationsReader {
 
         $groups = [];
         foreach ( (array) ( $full->ratings ?? [] ) as $r ) {
-            if ( empty( $r->category_parent_id ) ) continue;
-            $parent = (int) $r->category_parent_id;
+            if ( ! is_object( $r ) ) continue;
+            $parent = (int) ( $r->category_parent_id ?? 0 );
+            if ( $parent <= 0 ) continue;
             if ( ! isset( $groups[ $parent ] ) ) {
                 $groups[ $parent ] = [ 'label' => $main_labels[ $parent ] ?? '', 'subs' => [] ];
             }
             $groups[ $parent ]['subs'][] = [
-                'label'  => EvalCategoriesRepository::displayLabel( (string) $r->category_name, (int) $r->category_id ),
-                'rating' => (float) $r->rating,
+                'label'  => EvalCategoriesRepository::displayLabel( (string) ( $r->category_name ?? '' ), (int) ( $r->category_id ?? 0 ) ),
+                'rating' => (float) ( $r->rating ?? 0 ),
             ];
         }
         return array_values( $groups );
