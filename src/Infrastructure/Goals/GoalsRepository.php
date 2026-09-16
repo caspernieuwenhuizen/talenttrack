@@ -269,15 +269,6 @@ class GoalsRepository {
     }
 
     /**
-     * #1851 — the player's top active goals for a "Your focus" preview:
-     * non-archived, not completed/cancelled, nearest due date first,
-     * undated last. Used by the state-aware PDP surface and the
-     * development home (#1850) so both show the same short focus list
-     * without re-deriving the query in a view.
-     *
-     * @return array<int, object>
-     */
-    /**
      * #3458 — open goals per player across a team, in one query: the team
      * monthly report's roster column. "Open" is `activeStatusClause()`, the
      * same rule `topActiveForPlayer()` uses, so the count on the report and
@@ -310,11 +301,20 @@ class GoalsRepository {
 
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row->player_id ] = (int) $row->n;
+            $out[ (int) ( $row->player_id ?? 0 ) ] = (int) ( $row->n ?? 0 );
         }
         return $out;
     }
 
+    /**
+     * #1851 — the player's top active goals for a "Your focus" preview:
+     * non-archived, not completed/cancelled, nearest due date first,
+     * undated last. Used by the state-aware PDP surface and the
+     * development home (#1850) so both show the same short focus list
+     * without re-deriving the query in a view.
+     *
+     * @return array<int, object>
+     */
     public function topActiveForPlayer( int $player_id, int $limit = 3 ): array {
         if ( $player_id <= 0 ) return [];
         $limit = max( 1, min( 20, $limit ) );

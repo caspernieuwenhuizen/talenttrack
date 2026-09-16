@@ -409,7 +409,7 @@ class TeamsRestController {
      * means every block. An unknown block or a malformed window is a 400, not
      * a silently different report.
      */
-    public static function get_monthly_report( \WP_REST_Request $r ) {
+    public static function get_monthly_report( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
 

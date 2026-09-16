@@ -193,32 +193,31 @@ final class PlayerEventsRepository {
     public function forTeamBetween( int $team_id, string $from, string $to, array $event_types, array $allowed_visibilities ): array {
         if ( $team_id <= 0 || $event_types === [] || $allowed_visibilities === [] ) return [];
 
-        $type_placeholders = implode( ',', array_fill( 0, count( $event_types ), '%s' ) );
-        $vis_placeholders  = implode( ',', array_fill( 0, count( $allowed_visibilities ), '%s' ) );
-
-        $sql = "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
-                       p.first_name, p.last_name
-                  FROM {$this->table} e
-                  JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
-                 WHERE p.team_id = %d
-                   AND e.club_id = %d
-                   AND e.event_type IN ($type_placeholders)
-                   AND e.event_date >= %s
-                   AND e.event_date < DATE_ADD( %s, INTERVAL 1 DAY )
-                   AND e.superseded_by_event_id IS NULL
-                   AND e.visibility IN ($vis_placeholders)
-                 ORDER BY e.event_date DESC, e.id DESC
-                 LIMIT 200";
-
-        $params = array_merge(
-            [ $team_id, CurrentClub::id() ],
-            $event_types,
-            [ $from, $to ],
-            $allowed_visibilities
-        );
+        // The lists go in as one comma-joined parameter each and are matched
+        // with FIND_IN_SET, so the SQL stays a literal string for `prepare()`
+        // rather than being assembled from placeholder runs. Keys are
+        // vocabulary constants with no commas in them. The squad is small
+        // enough that losing an index on `event_type` does not matter.
+        $types = implode( ',', $event_types );
+        $vis   = implode( ',', $allowed_visibilities );
 
         /** @var list<object> $rows */
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$params ) );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
+                    p.first_name, p.last_name
+               FROM {$this->wpdb->prefix}tt_player_events e
+               JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
+              WHERE p.team_id = %d
+                AND e.club_id = %d
+                AND FIND_IN_SET( e.event_type, %s ) > 0
+                AND e.event_date >= %s
+                AND e.event_date < DATE_ADD( %s, INTERVAL 1 DAY )
+                AND e.superseded_by_event_id IS NULL
+                AND FIND_IN_SET( e.visibility, %s ) > 0
+              ORDER BY e.event_date DESC, e.id DESC
+              LIMIT 200",
+            $team_id, CurrentClub::id(), $types, $from, $to, $vis
+        ) );
         return $rows ?: [];
     }
 
