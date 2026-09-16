@@ -201,12 +201,16 @@ final class PlayerEventsRepository {
         $types = implode( ',', $event_types );
         $vis   = implode( ',', $allowed_visibilities );
 
+        // The global handle rather than `$this->wpdb`: its `prefix` is what
+        // keeps the interpolated SQL a literal string for the type checker.
+        global $wpdb;
+
         /** @var list<object> $rows */
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
                     p.first_name, p.last_name
-               FROM {$this->wpdb->prefix}tt_player_events e
-               JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
+               FROM {$wpdb->prefix}tt_player_events e
+               JOIN {$wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
               WHERE p.team_id = %d
                 AND e.club_id = %d
                 AND FIND_IN_SET( e.event_type, %s ) > 0
