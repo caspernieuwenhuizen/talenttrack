@@ -25,13 +25,23 @@ class LabelTranslator {
         // Pending/In Progress vocabulary other modules share. The Dutch
         // `pending` reads "In ontwikkeling" here without renaming the generic
         // "Pending" elsewhere.
-        switch ( $code ) {
-            case 'pending':      return _x( 'Pending', 'goal status', 'talenttrack' );
-            case 'in_progress':  return _x( 'In Progress', 'goal status', 'talenttrack' );
-            case 'completed':    return _x( 'Completed', 'goal status', 'talenttrack' );
-            case 'on_hold':      return _x( 'On Hold', 'goal status', 'talenttrack' );
-            case 'cancelled':    return _x( 'Cancelled', 'goal status', 'talenttrack' );
-            default:             return self::humanise( $code );
+        //
+        // #3471 — `tt_goals.status` does not always hold the snake_case code.
+        // The `goal_status` lookup is seeded in TitleCase, and a write path
+        // that picks a lookup label stores that label, so the column also
+        // carries "In Progress" and "Pending Approval" (and, per
+        // GoalPastTargetDateAlert, display-cased strings from older imports).
+        // Normalising first is what `bucketFor()` and `statusChipClass()` in
+        // FrontendMyGoalsView already do — without it here, the goal landed
+        // in the right column wearing an untranslated English chip.
+        switch ( self::normaliseCode( $code ) ) {
+            case 'pending':          return _x( 'Pending', 'goal status', 'talenttrack' );
+            case 'pending_approval': return _x( 'Pending approval', 'goal status', 'talenttrack' );
+            case 'in_progress':      return _x( 'In Progress', 'goal status', 'talenttrack' );
+            case 'completed':        return _x( 'Completed', 'goal status', 'talenttrack' );
+            case 'on_hold':          return _x( 'On Hold', 'goal status', 'talenttrack' );
+            case 'cancelled':        return _x( 'Cancelled', 'goal status', 'talenttrack' );
+            default:                 return self::humanise( $code );
         }
     }
 
@@ -45,7 +55,10 @@ class LabelTranslator {
     }
 
     public static function playerStatus( string $code ): string {
-        switch ( $code ) {
+        // #3471 — same normalisation as goalStatus: the `player_status`
+        // lookup is seeded in TitleCase too, so a display-cased value must
+        // still resolve rather than falling through to humanise().
+        switch ( self::normaliseCode( $code ) ) {
             case PlayerStatus::ACTIVE:    return __( 'Active', 'talenttrack' );
             case PlayerStatus::INACTIVE:  return __( 'Inactive', 'talenttrack' );
             case PlayerStatus::TRIAL:     return __( 'Trial', 'talenttrack' );
@@ -488,5 +501,19 @@ class LabelTranslator {
      */
     private static function humanise( string $code ): string {
         return ucwords( str_replace( [ '_', '-' ], ' ', $code ) );
+    }
+
+    /**
+     * #3471 — the inverse of `humanise()`: fold a stored value to the
+     * snake_case code the switches are keyed on, so a TitleCase lookup label
+     * ("In Progress", "Pending Approval") resolves to the same arm as the
+     * code ("in_progress", "pending_approval").
+     *
+     * Same expression `FrontendMyGoalsView::bucketFor()` uses, so the label,
+     * the board bucket and the chip class cannot disagree about what a status
+     * string is.
+     */
+    private static function normaliseCode( string $code ): string {
+        return strtolower( str_replace( [ ' ', '-' ], '_', trim( $code ) ) );
     }
 }
