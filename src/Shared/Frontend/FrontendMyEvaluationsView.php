@@ -3,7 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
+use TT\Infrastructure\Evaluations\PlayerEvaluationsReader;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\RatingPillComponent;
@@ -110,38 +110,50 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         echo '</tbody></table></div></div>';
     }
 
+    /**
+     * The player / parent branch.
+     *
+     * #3478 — this used to query every evaluation the player had ever been
+     * given and render each one's full subcategory breakdown into the page,
+     * hidden: 2.5 MB and 4,368 rating rows for one child with 208
+     * evaluations, plus two queries per row to build it. Decided 2026-09-16:
+     * the current season by default, earlier seasons on request, and the
+     * breakdown fetched from `GET /players/{id}/evaluations/{eid}/detail`
+     * when a row is opened. The query and the cut live in
+     * `PlayerEvaluationsReader`, which the REST route reads too.
+     */
     public static function render( object $player ): void {
         self::enqueueAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );
         self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
 
-        global $wpdb;
-        $p = $wpdb->prefix;
+        $player_id = (int) $player->id;
+        $scope     = ( isset( $_GET['eval_scope'] ) && sanitize_key( (string) wp_unslash( $_GET['eval_scope'] ) ) === PlayerEvaluationsReader::SCOPE_ALL ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            ? PlayerEvaluationsReader::SCOPE_ALL
+            : PlayerEvaluationsReader::SCOPE_CURRENT;
 
-        $evals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.*, lt.name AS type_name, u.display_name AS coach_name
-             FROM {$p}tt_evaluations e
-             LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
-             LEFT JOIN {$wpdb->users} u ON e.coach_id = u.ID
-             WHERE e.player_id = %d AND e.archived_at IS NULL
-             ORDER BY e.eval_date DESC",
-            (int) $player->id
-        ) );
+        $reader  = new PlayerEvaluationsReader();
+        $evals   = $reader->listForPlayer( $player_id, $scope );
+        $window  = $reader->window( $scope );
+        $earlier = $reader->countOutside( $player_id, $scope );
+
+        self::enqueueDetailScript( $player_id );
+        self::renderScopeBar( $scope, $window['season_name'], $earlier );
 
         if ( empty( $evals ) ) {
-            echo '<p><em>' . esc_html__( 'No evaluations yet. Your coaches will record them here as training and matches progress.', 'talenttrack' ) . '</em></p>';
+            $msg = $earlier > 0
+                ? __( 'No evaluations yet this season. Earlier seasons are one tap away above.', 'talenttrack' )
+                : __( 'No evaluations yet. Your coaches will record them here as training and matches progress.', 'talenttrack' );
+            echo '<p><em>' . esc_html( $msg ) . '</em></p>';
             return;
         }
 
-        $max          = (float) QueryHelpers::get_config( 'rating_max', '10' );
-        $eval_ids     = array_map( fn( $e ) => (int) $e->id, $evals );
-        $ratings_repo = new EvalRatingsRepository();
-        $overalls     = $ratings_repo->overallRatingsForEvaluations( $eval_ids );
+        $max      = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $eval_ids = array_map( static fn( $e ) => (int) $e->id, $evals );
+        $overalls = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $eval_ids );
 
-        // Summary KPIs — composed from data already fetched above; no new
-        // query. $evals is newest-first, so the first entry with an overall
-        // value is the current rating, and the next one is the prior cut we
-        // diff against for the trend chip.
+        // Summary KPIs over the rows in the window. Newest-first, so the first
+        // rated entry is the current rating and the next one the prior cut.
         $rated_values = [];
         foreach ( $evals as $e ) {
             $v = $overalls[ (int) $e->id ]['value'] ?? null;
@@ -154,7 +166,9 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             <?php
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
-                'label' => __( 'Evaluations', 'talenttrack' ),
+                'label' => $scope === PlayerEvaluationsReader::SCOPE_CURRENT && $window['season_name'] !== null
+                    ? __( 'Evaluations this season', 'talenttrack' )
+                    : __( 'Evaluations', 'talenttrack' ),
                 'value' => (string) number_format_i18n( count( $evals ) ),
             ] );
 
@@ -181,49 +195,16 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         <ol class="tt-mye-list" aria-label="<?php esc_attr_e( 'Evaluations, newest first', 'talenttrack' ); ?>">
             <?php foreach ( $evals as $ev ) :
                 $eid           = (int) $ev->id;
-                $full          = QueryHelpers::get_evaluation( $eid );
                 $overall_value = $overalls[ $eid ]['value'] ?? null;
                 $row_id        = 'tt-mye-row-' . $eid;
                 $detail_id     = $row_id . '-detail';
-
-                // v3.110.53 — populate main pills via
-                // `effectiveMainRatingsFor()` so a main category whose
-                // value rolls up from subcategory ratings (the
-                // either-or storage model — coach may enter a direct
-                // main OR rate sub-categories, see EvalRatingsRepository
-                // docblock) still surfaces a pill on this surface.
-                // Previously we walked `$full->ratings` directly and
-                // only added a pill when the row had `parent_id IS NULL`,
-                // which silently hid every main on a sub-only
-                // evaluation — the user's report "only the total
-                // rating is shown, no category or subcategory
-                // breakdown is shown".
-                $main_pills  = [];
-                $main_labels = [];
-                $effective_mains = $ratings_repo->effectiveMainRatingsFor( $eid );
-                foreach ( $effective_mains as $main_id => $row ) {
-                    if ( $row['value'] === null ) continue;
-                    $label = EvalCategoriesRepository::displayLabel( (string) $row['label'], (int) $main_id );
-                    $main_pills[ (int) $main_id ]  = [ 'label' => $label, 'rating' => (float) $row['value'] ];
-                    $main_labels[ (int) $main_id ] = $label;
-                }
-
-                // Sub groups (still walked from the rating rows so we
-                // get the actual per-sub values, not the rollup average).
-                $sub_groups = [];
-                if ( $full && ! empty( $full->ratings ) ) {
-                    foreach ( $full->ratings as $r ) {
-                        if ( empty( $r->category_parent_id ) ) continue;
-                        $label = EvalCategoriesRepository::displayLabel( (string) $r->category_name, (int) $r->category_id );
-                        $sub_groups[ (int) $r->category_parent_id ][] = [ 'label' => $label, 'rating' => (float) $r->rating ];
-                    }
-                }
-                $has_detail = ! empty( $sub_groups );
+                $main_pills    = $reader->mainPills( $eid );
+                $has_detail    = $reader->hasDetail( $eid );
                 ?>
                 <li class="tt-mye-item" id="<?php echo esc_attr( $row_id ); ?>">
                     <div class="tt-mye-badge-wrap">
                         <?php if ( $overall_value !== null ) :
-                            echo RatingPillComponent::badge( (float) $overall_value, $max );
+                            echo RatingPillComponent::badge( (float) $overall_value, $max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- component escapes.
                         else : ?>
                             <span class="tt-rp-badge tt-rp-attention" aria-label="<?php esc_attr_e( 'No overall rating yet', 'talenttrack' ); ?>" role="img"><span aria-hidden="true">—</span></span>
                         <?php endif; ?>
@@ -258,17 +239,16 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
 
                         <?php if ( ! empty( $main_pills ) ) : ?>
                             <div class="tt-mye-pills">
-                                <?php foreach ( $main_pills as $main_id => $row ) : ?>
-                                    <?php echo RatingPillComponent::pill( $row['label'], $row['rating'], $max ); ?>
+                                <?php foreach ( $main_pills as $pill ) : ?>
+                                    <?php echo RatingPillComponent::pill( $pill['label'], $pill['rating'], $max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- component escapes. ?>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
 
                         <?php
-                        // #1386 — coach's player-facing feedback. Optional and
-                        // distinct from the staff-only `notes` field (never
-                        // rendered on this surface). Shown to the player and,
-                        // via the same view, their parents.
+                        // #1386 — coach's player-facing feedback. Distinct from
+                        // the staff-only `notes` field, which the reader never
+                        // selects.
                         $feedback = trim( (string) ( $ev->player_feedback ?? '' ) );
                         if ( $feedback !== '' ) : ?>
                             <div class="tt-mye-feedback">
@@ -278,53 +258,70 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                         <?php endif; ?>
 
                         <?php if ( $has_detail ) : ?>
-                            <button type="button" class="tt-mye-toggle" data-tt-mye-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $detail_id ); ?>">
+                            <button type="button" class="tt-mye-toggle" data-tt-mye-toggle data-eval-id="<?php echo (int) $eid; ?>" aria-expanded="false" aria-controls="<?php echo esc_attr( $detail_id ); ?>">
                                 <span class="tt-mye-toggle-show"><?php esc_html_e( 'Show detail', 'talenttrack' ); ?></span>
                                 <span class="tt-mye-toggle-hide"><?php esc_html_e( 'Hide detail', 'talenttrack' ); ?></span>
                             </button>
-                            <div class="tt-mye-detail" id="<?php echo esc_attr( $detail_id ); ?>" hidden>
-                                <?php foreach ( $sub_groups as $main_id => $subs ) :
-                                    $main_label = $main_labels[ $main_id ] ?? '';
-                                    ?>
-                                    <div class="tt-mye-detail-group">
-                                        <?php if ( $main_label !== '' ) : ?>
-                                            <div class="tt-mye-detail-heading"><?php echo esc_html( $main_label ); ?></div>
-                                        <?php endif; ?>
-                                        <ul class="tt-mye-detail-list">
-                                            <?php foreach ( $subs as $sub ) : ?>
-                                                <li>
-                                                    <span class="tt-mye-detail-label"><?php echo esc_html( $sub['label'] ); ?></span>
-                                                    <span class="tt-mye-detail-rating"><?php echo esc_html( number_format_i18n( $sub['rating'], 1 ) ); ?></span>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
+                            <div class="tt-mye-detail" id="<?php echo esc_attr( $detail_id ); ?>" aria-live="polite" hidden></div>
                         <?php endif; ?>
                     </div>
                 </li>
             <?php endforeach; ?>
         </ol>
-
-        <script>
-        // Document-level delegation so the toggle keeps working when the
-        // dashboard is rendered (or re-rendered) via REST/fetch — the
-        // previous querySelectorAll-on-IIFE only bound on initial DOM
-        // parse and the click silently failed after any re-render.
-        (function(){
-            if (window.__ttMyEvalsBound) return;
-            window.__ttMyEvalsBound = true;
-            document.addEventListener('click', function(e){
-                var btn = e.target && e.target.closest ? e.target.closest('[data-tt-mye-toggle]') : null;
-                if (!btn) return;
-                var open = btn.getAttribute('aria-expanded') === 'true';
-                btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-                var detail = document.getElementById(btn.getAttribute('aria-controls'));
-                if (detail) detail.hidden = open;
-            });
-        })();
-        </script>
         <?php
+    }
+
+    /**
+     * #3478 — which cut is showing, and the way to the other one.
+     *
+     * A link, not a JS control: it works without script, survives a reload
+     * and can be bookmarked, and "earlier seasons" is a rare enough request
+     * that a page load is the right price for it.
+     */
+    private static function renderScopeBar( string $scope, ?string $season_name, int $earlier ): void {
+        if ( $scope === PlayerEvaluationsReader::SCOPE_CURRENT && ( $season_name === null || $earlier === 0 ) ) {
+            return; // Nothing narrowed, so nothing to widen.
+        }
+        echo '<p class="tt-mye-scope">';
+        if ( $scope === PlayerEvaluationsReader::SCOPE_CURRENT ) {
+            echo esc_html( sprintf(
+                /* translators: %s: season name, e.g. 2026/2027 */
+                __( 'Season %s.', 'talenttrack' ),
+                (string) $season_name
+            ) ) . ' ';
+            echo '<a class="tt-link" href="' . esc_url( add_query_arg( 'eval_scope', PlayerEvaluationsReader::SCOPE_ALL ) ) . '">'
+                . esc_html( sprintf(
+                    /* translators: %d: number of evaluations from earlier seasons */
+                    _n( 'Show %d evaluation from earlier seasons', 'Show %d evaluations from earlier seasons', $earlier, 'talenttrack' ),
+                    $earlier
+                ) )
+                . '</a>';
+        } else {
+            echo esc_html__( 'All seasons.', 'talenttrack' ) . ' ';
+            echo '<a class="tt-link" href="' . esc_url( remove_query_arg( 'eval_scope' ) ) . '">'
+                . esc_html__( 'Show this season only', 'talenttrack' )
+                . '</a>';
+        }
+        echo '</p>';
+    }
+
+    /** #3478 — the detail fetch, enqueued rather than inlined (CLAUDE.md §2). */
+    private static function enqueueDetailScript( int $player_id ): void {
+        wp_enqueue_script(
+            'tt-frontend-my-evaluations',
+            TT_PLUGIN_URL . 'assets/js/frontend-my-evaluations.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-frontend-my-evaluations', 'TTMyEvaluations', [
+            'detailUrl' => esc_url_raw( rest_url( 'talenttrack/v1/players/' . $player_id . '/evaluations/' ) ),
+            'nonce'     => wp_create_nonce( 'wp_rest' ),
+            'i18n'      => [
+                'loading' => __( 'Loading…', 'talenttrack' ),
+                'error'   => __( 'The detail could not be loaded. Try again.', 'talenttrack' ),
+                'empty'   => __( 'No category breakdown for this evaluation.', 'talenttrack' ),
+            ],
+        ] );
     }
 }

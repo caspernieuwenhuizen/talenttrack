@@ -159,6 +159,9 @@ class Kernel {
         // activities, so neither belongs to one module's boot.
         \TT\Infrastructure\REST\SearchRestController::init();
         \TT\Infrastructure\REST\PeekRestController::init();
+        // #3478 — a player's evaluations in the player-facing shape, and the
+        // per-row breakdown "My evaluations" now fetches on open.
+        \TT\Infrastructure\REST\PlayerEvaluationsRestController::init();
         // #2448 — personal saved filter views for any FilterBar surface.
         // Registered here rather than from AnalyticsModule (where #2385 put
         // it): the surfaces now span list views too, so the endpoint must

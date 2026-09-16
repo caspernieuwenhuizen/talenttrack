@@ -178,6 +178,30 @@
     padding: 0.25rem 0;
 }
 .tt-dashboard .tt-mye-detail-label { color: var(--tt-ink, #0e1a14); }
+
+/* #3478 — the breakdown is fetched when a row opens; these are its three
+   interim states. Same muted body size as the lead line. */
+.tt-dashboard .tt-mye-detail-loading,
+.tt-dashboard .tt-mye-detail-empty,
+.tt-dashboard .tt-mye-detail-error {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-mye-detail-error { color: var(--tt-danger, #b32d2e); }
+
+/* #3478 — which cut of the list is showing, and the link to the other. */
+.tt-dashboard .tt-mye-scope {
+    margin: 0 0 var(--tt-sp-3, 0.75rem);
+    font-size: 0.9375rem;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-mye-scope .tt-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    touch-action: manipulation;
+}
 .tt-dashboard .tt-mye-detail-rating {
     font-variant-numeric: tabular-nums;
     font-weight: 700;

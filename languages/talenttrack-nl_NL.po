@@ -60898,6 +60898,42 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "No evaluations yet this season. Earlier seasons are one tap away above."
+msgstr "Nog geen evaluaties dit seizoen. Eerdere seizoenen staan hierboven."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Evaluations this season"
+msgstr "Evaluaties dit seizoen"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+#, php-format
+msgid "Season %s."
+msgstr "Seizoen %s."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+#, php-format
+msgid "Show %d evaluation from earlier seasons"
+msgid_plural "Show %d evaluations from earlier seasons"
+msgstr[0] "Toon %d evaluatie uit eerdere seizoenen"
+msgstr[1] "Toon %d evaluaties uit eerdere seizoenen"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "All seasons."
+msgstr "Alle seizoenen."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Show this season only"
+msgstr "Toon alleen dit seizoen"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "The detail could not be loaded. Try again."
+msgstr "De details konden niet worden geladen. Probeer het opnieuw."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "No category breakdown for this evaluation."
+msgstr "Geen uitsplitsing per categorie voor deze evaluatie."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."
