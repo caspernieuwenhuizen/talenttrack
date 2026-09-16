@@ -247,6 +247,10 @@ final class LookupTranslationSeeds {
                 // written (migrations 0224 / 0230, epics #2493 and #2704).
                 'training_observed'    => [ 'nl_NL' => 'Waargenomen tijdens training',   'fr_FR' => "Observé à l'entraînement",           'de_DE' => 'Im Training beobachtet',           'es_ES' => 'Observado en entrenamiento' ],
                 'match_observed'       => [ 'nl_NL' => 'Waargenomen in een wedstrijd',   'fr_FR' => 'Observé en match',                  'de_DE' => 'Im Spiel beobachtet',              'es_ES' => 'Observado en partido' ],
+                // #3470 — declared in code since #0053 and only seeded as a
+                // lookup row by migration 0265, so it reaches this map late
+                // for the same reason the two observation types did.
+                'goal_set'             => [ 'nl_NL' => 'Doel gesteld',                   'fr_FR' => 'Objectif fixé',                     'de_DE' => 'Ziel gesetzt',                     'es_ES' => 'Objetivo fijado' ],
             ],
 
             // #3117 — re-keyed to the eight values migration 0031 seeds.
