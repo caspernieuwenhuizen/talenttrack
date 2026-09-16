@@ -132,13 +132,24 @@ final class RateConfirmStep implements WizardStepInterface {
         return [ 'redirect_url' => $url ];
     }
 
-    private static function countRatable( int $activity_id ): int {
+    /**
+     * How many players are actually available to rate.
+     *
+     * #3443 — filters `record_type = 'actual'`. A planned roster lives in
+     * the same table and its statuses are the register's own vocabulary
+     * (Expected is stored as `Present`), so without the filter this counted
+     * a squad somebody intends to field as a squad somebody watched — and
+     * printed "12 players marked Present or Late" under the sentence
+     * "Attendance is saved." on an activity with no register at all.
+     */
+    public static function countRatable( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $p = $wpdb->prefix;
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance
               WHERE activity_id = %d AND club_id = %d
+                AND record_type = 'actual'
                 AND LOWER(status) IN ( 'present', 'late' )",
             $activity_id, CurrentClub::id()
         ) );
