@@ -1074,13 +1074,35 @@ return array_merge(
         // Strictly narrower than the `people` grant above, and the same
         // row every other staff-side persona carries.
         'my_person'    => [ 'rc', 'self', $mod_people ],
-        // #3232 — `measurements` is the uncontroversial half of what this
-        // seat exists for: height, weight, sprint times. `team_manager`
-        // already holds `[r, team]`, so this is the write half of a shape
-        // that already exists, and it stays on the persona because every
-        // staff member records it. `create_delete` stays with HoD /
-        // academy admin.
-        'measurements'     => [ 'rc', 'team', $mod_measurements ],
+        // #3433 — `measurements [rc, team]` used to sit here, and does
+        // not any more.
+        //
+        // #3232 granted it on the reasoning that height, weight and
+        // sprint times are the uncontroversial half of what this seat
+        // exists for, and called the injury half the contested one.
+        // #3257 moved the injuries and left this row, which left the
+        // defect one entity short of fixed: the seat is still ONE
+        // persona covering physio and kit manager, so a Staff account
+        // issued to move shirts still read every player's growth curve.
+        //
+        // It now lives on the **Physio, Head coach and Assistant coach
+        // functional roles**, in `config/functional_role_grants.php`,
+        // read only — the #3433 decision names read and nothing else,
+        // and the personas that record measurements (`head_coach`,
+        // `coach`, `team_manager`) hold their own rows below and are not
+        // superseded, so nobody who enters a measurement today through
+        // one of those loses it.
+        //
+        // Same upgrade story as the injury row: removing it here narrows
+        // FRESH installs, existing ones keep the stale
+        // `tt_authorization_matrix` row, and supersession is what takes
+        // it away — only once an academy assigns somebody a functional
+        // role. See `docs/access-control.md` § "What changes for an
+        // existing Staff account".
+        //
+        // This is the persona-level floor and not a replacement for
+        // #3392: which TESTS a reader admitted here sees is still
+        // decided per definition by `tt_measurement_definitions.visibility`.
 
         // #3257 — `player_injuries [rc, team]` used to sit here, and does
         // not any more.

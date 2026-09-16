@@ -49,14 +49,29 @@ final class StaffPersonaGrantsTest extends WP_UnitTestCase {
         return $out;
     }
 
-    // --- the under-grant, now fixed --------------------------------------
+    // --- what the seat carries, and what has left it ---------------------
 
-    public function test_staff_can_read_and_change_measurements(): void {
+    /**
+     * #3433 — the named successor to this test's measurement half.
+     *
+     * #3232 seeded `measurements [rc, team]` here as "the uncontroversial
+     * half", and #3257 moved only the injuries, which left the defect one
+     * entity short of fixed: `tt_staff` is still ONE persona covering
+     * physio and kit manager, so a Staff account issued to move shirts
+     * still read every player's growth curve. The grant moved onto the
+     * Physio / Head coach / Assistant coach functional roles; its own
+     * assertions live in `FunctionalRoleAccessTest`. What belongs here is
+     * that the persona no longer carries it, so a future edit putting it
+     * back has to argue with this rather than sail past a deleted test.
+     */
+    public function test_the_measurement_grant_has_left_the_staff_persona(): void {
         $rows = $this->seedRowsFor( 'staff' );
 
-        $this->assertArrayHasKey( 'measurements', $rows, 'staff records height, weight and sprint times' );
-        $this->assertContains( 'read', $rows['measurements'] );
-        $this->assertContains( 'change', $rows['measurements'] );
+        $this->assertArrayNotHasKey(
+            'measurements',
+            $rows,
+            'a Staff account issued to move shirts must not reach a minor\'s growth data'
+        );
     }
 
     /**
@@ -82,22 +97,37 @@ final class StaffPersonaGrantsTest extends WP_UnitTestCase {
 
     /**
      * Team scope, never global. A staff member sees the players they work
-     * with.
+     * with, and nothing the seat still carries says otherwise.
      */
-    public function test_the_measurement_grant_is_team_scoped(): void {
+    public function test_every_remaining_staff_grant_is_team_or_self_scoped(): void {
         $scopes = $this->seedScopesFor( 'staff' );
 
-        $this->assertSame( 'team', $scopes['measurements'] ?? '' );
+        $this->assertNotSame( [], $scopes, 'the staff persona must still be seeded something' );
+
+        foreach ( $scopes as $entity => $scope_kind ) {
+            $this->assertContains(
+                $scope_kind,
+                [ 'team', 'self' ],
+                sprintf( 'staff.%s is %s-scoped; a physio should not read the academy.', $entity, $scope_kind )
+            );
+        }
     }
 
     /**
-     * Deleting a minor's medical record is not a touchline decision, and
-     * that stays with HoD / academy admin.
+     * Deleting a record about a minor is not a touchline decision, and that
+     * stays with HoD / academy admin. Stated over the whole seat now that
+     * the measurement row has left it, which is the wider claim anyway.
      */
-    public function test_staff_cannot_delete_measurements(): void {
+    public function test_staff_holds_no_create_delete_at_all(): void {
         $rows = $this->seedRowsFor( 'staff' );
 
-        $this->assertNotContains( 'create_delete', $rows['measurements'] ?? [] );
+        foreach ( $rows as $entity => $activities ) {
+            $this->assertNotContains(
+                'create_delete',
+                $activities,
+                sprintf( 'staff.%s must not carry create_delete', $entity )
+            );
+        }
     }
 
     // --- the over-grant, now removed -------------------------------------

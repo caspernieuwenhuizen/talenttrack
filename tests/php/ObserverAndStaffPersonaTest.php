@@ -215,11 +215,16 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
      *
      * #3232 added `measurements` and `player_injuries`, with the tradeoff
      * on the record: `tt_staff` is one role covering physio and kit
-     * manager, so injuries reached both. #3257 closed that — the injury
+     * manager, so both reached both. #3257 closed the injury half — the
      * grant moved onto the Physio functional role
      * (`config/functional_role_grants.php`), where it reaches a person
-     * only on the teams they are the physio for. `measurements` stayed,
-     * because height and weight are what every staff member records.
+     * only on the teams they are the physio for — and #3433 closed the
+     * measurement half the same way, onto Physio, Head coach and
+     * Assistant coach.
+     *
+     * What is left here is a seat that reaches a squad, its players, the
+     * people around it and the staff-only running note. Nothing medical,
+     * nothing about a minor's body.
      *
      * This list is deliberately exhaustive rather than a "contains" check:
      * it is the assertion that catches the next entity being added to a
@@ -233,7 +238,7 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         sort( $entities );
 
         $this->assertSame(
-            [ 'measurements', 'my_person', 'people', 'player_notes', 'players', 'team' ],
+            [ 'my_person', 'people', 'player_notes', 'players', 'team' ],
             array_values( $entities )
         );
     }

@@ -54,11 +54,15 @@ final class FrontendTestResultsView extends FrontendViewBase {
 
         self::renderHeader( $title );
 
-        // Team scope: global readers see all teams; team-scoped readers only
-        // their own (mirrors FrontendMeasurementCoverageView).
+        // Team scope: global readers see all teams; everyone else only the
+        // teams the gate admits them to.
+        //
+        // #3433 — that is no longer the same as "the teams you are attached
+        // to". Measurement access follows the functional role held on a
+        // squad, so a staff member who is the physio of one team and the kit
+        // manager of another is scoped to both and may read one.
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'read', 'global' );
-        $teams   = $see_all ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
-        $teams   = is_array( $teams ) ? $teams : [];
+        $teams   = QueryHelpers::get_permitted_teams( $user_id, 'measurements', 'read', $see_all );
 
         $definitions = ( new MeasurementDefinitionsRepository() )->listAll();
         if ( $definitions === [] ) {

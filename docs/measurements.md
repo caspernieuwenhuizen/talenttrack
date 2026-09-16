@@ -397,7 +397,11 @@ the same formatted workbook the *Manage tests* export produces.
 
 Team-scoped staff (coaches who hold *read* on their own teams only) see
 results for their teams only; academy-wide readers see everyone. A coach
-with no team assignments sees nothing here, not the academy. The same rows
+with no team assignments sees nothing here, not the academy. On a Staff
+account the teams are the ones where the person holds a functional role
+that reads measurements — Physio, Head coach or Assistant coach — which is
+not necessarily every squad they are attached to; see
+[Access control](access-control.md). The same rows
 are available over REST at
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), gated on the same `measurements`

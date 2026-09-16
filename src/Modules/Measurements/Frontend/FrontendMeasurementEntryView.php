@@ -42,8 +42,14 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             return;
         }
 
+        // #3433 — the picker asks the gate per team. Recording a measurement
+        // is a persona grant and no functional role carries it, so this list
+        // is unchanged for everybody who records today; asking the gate is
+        // what keeps it that way if a role ever does.
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'change', 'global' );
-        $teams   = $see_all ? self::allTeams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $teams   = $see_all
+            ? self::allTeams()
+            : QueryHelpers::get_permitted_teams( $user_id, 'measurements', 'change' );
         if ( empty( $teams ) ) {
             self::renderHeader( __( 'Record measurements', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'No teams are available to you yet.', 'talenttrack' ) . '</p>';

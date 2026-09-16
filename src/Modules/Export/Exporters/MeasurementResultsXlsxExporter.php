@@ -149,9 +149,13 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
         // now answer identically for the same caller.
         $filters = $request->filters;
         if ( ! MatrixGate::can( $request->requesterUserId, 'measurements', 'read', 'global' ) ) {
+            // #3433 — the workbook follows the same gate as the browse
+            // route, per team. Measurement access follows the functional
+            // role held on a squad, so the attachment list would export a
+            // team this caller may not read.
             $allowed = array_map(
                 static fn ( $t ) => (int) ( $t->id ?? 0 ),
-                QueryHelpers::get_teams_for_coach( $request->requesterUserId )
+                QueryHelpers::get_permitted_teams( $request->requesterUserId, 'measurements', 'read' )
             );
 
             $requested_team = (int) ( $filters['team_id'] ?? 0 );
