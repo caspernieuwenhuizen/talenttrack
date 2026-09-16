@@ -3,6 +3,7 @@ namespace TT\Modules\Alerts\Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
@@ -68,18 +69,31 @@ final class AttendanceUnrecordedAlert extends AbstractActivityAlert {
         // at the first attendance row instead of aggregating all of them,
         // which matters on a table with one row per player per activity.
         //
-        // The status check is deliberate. A row with an empty status is a
-        // roster placeholder, not a recorded observation, so an activity full
-        // of blank rows still counts as unrecorded.
+        // Three predicates decide what counts as "a recorded observation",
+        // and all three exclude rows that look like attendance but are not:
+        //
+        //  - status: a row with an empty status is a roster placeholder.
+        //  - record_type: `tt_attendance` holds the planned roster and the
+        //    recorded register in one table (migration 0121), and planned
+        //    rows carry real statuses — Expected is stored as Present. So a
+        //    coach who ticked the expected roster used to satisfy this
+        //    NOT EXISTS with rows that record nothing, which silenced the
+        //    alert on the most common version of the gap it exists for.
+        //  - is_guest: a guest row is not the roster's register.
+        //
+        // The last two match what PlayerAttendanceCalculator and
+        // TeamKpisRepository already scope to.
         $sql = $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.team_id, a.coach_id
                FROM {$p}tt_activities a
               WHERE " . $this->baseWhere( 'a' ) . "
-                AND a.plan_state = 'completed'
+                AND " . ActivityLifecycle::completedClause( 'a' ) . "
                 AND a.session_date < DATE_SUB( NOW(), INTERVAL %d HOUR )
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_attendance att
                      WHERE att.activity_id = a.id
+                       AND att.record_type = 'actual'
+                       AND att.is_guest = 0
                        AND att.status IS NOT NULL
                        AND att.status <> ''
                 )"

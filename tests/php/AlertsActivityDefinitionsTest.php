@@ -168,6 +168,68 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    /**
+     * #3444 — the case the alert exists for and used to miss. `tt_attendance`
+     * holds the planned roster and the recorded register in one table
+     * (migration 0121), and planned rows carry real statuses: Expected is
+     * stored as Present. A coach who ticked the expected roster therefore
+     * left rows behind that satisfied the old NOT EXISTS while recording
+     * nothing at all.
+     */
+    public function test_planned_roster_rows_do_not_count_as_a_recorded_register(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'expected' );
+
+        $this->assertCount( 1, ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /** A guest row is somebody else's player, not this roster's register. */
+    public function test_guest_rows_do_not_count_as_a_recorded_register(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'actual', 1 );
+
+        $this->assertCount( 1, ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * An activity carrying both a plan and a register is recorded — the
+     * expected rows must not make the actual ones invisible.
+     */
+    public function test_a_register_alongside_a_plan_still_counts_as_recorded(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'expected' );
+        $this->insertAttendance( $id, $player, 'present', 'actual' );
+
+        $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * #2521 — `plan_state` was added DEFAULT 'completed' and only the team
+     * planner ever sets it, so this combination is not a contrived edge
+     * case: it is what most rows look like. The alert gates on
+     * `activity_status_key` for exactly this reason.
+     */
+    public function test_a_planned_activity_does_not_alert_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach, 'planned' );
+
+        $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /** The gate is case-insensitive, matching ActivityLifecycle. */
+    public function test_the_completed_gate_ignores_casing(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach, 'Completed' );
+
+        $this->assertCount( 1, ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
     // ── activities.no_coach_assigned ───────────────────────────────────
 
     public function test_upcoming_activity_without_a_coach_alerts_the_team_head_coach(): void {
@@ -226,29 +288,49 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function insertActivity( int $team_id, string $date, string $plan_state, int $coach_id ): int {
+    /**
+     * `$status_key` defaults to `$plan_state` so the two lifecycle columns
+     * agree, which is the ordinary case. Pass it explicitly to build the
+     * disagreement #2521 was about — `plan_state` carries DEFAULT
+     * 'completed' and only the team planner ever sets it, so an activity
+     * reading "Planned" on screen can be 'completed' in that column.
+     */
+    private function insertActivity(
+        int $team_id,
+        string $date,
+        string $plan_state,
+        int $coach_id,
+        ?string $status_key = null
+    ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
-            'club_id'           => $this->club,
-            'team_id'           => $team_id,
-            'title'             => 'Training ' . $date,
-            'session_date'      => $date,
-            'activity_type_key' => 'training',
-            'plan_state'        => $plan_state,
-            'coach_id'          => $coach_id,
+            'club_id'             => $this->club,
+            'team_id'             => $team_id,
+            'title'               => 'Training ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => 'training',
+            'plan_state'          => $plan_state,
+            'activity_status_key' => $status_key ?? $plan_state,
+            'coach_id'            => $coach_id,
         ] );
         return (int) $wpdb->insert_id;
     }
 
-    private function insertAttendance( int $activity_id, int $player_id, string $status ): void {
+    private function insertAttendance(
+        int $activity_id,
+        int $player_id,
+        string $status,
+        string $record_type = 'actual',
+        int $is_guest = 0
+    ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_attendance", [
             'club_id'     => $this->club,
             'activity_id' => $activity_id,
             'player_id'   => $player_id,
             'status'      => $status,
-            'is_guest'    => 0,
-            'record_type' => 'actual',
+            'is_guest'    => $is_guest,
+            'record_type' => $record_type,
         ] );
     }
 
