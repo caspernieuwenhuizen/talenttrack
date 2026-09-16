@@ -195,6 +195,27 @@ Matches you never run through match execution are unaffected: there's no
 execution to own their minutes, so you record them the usual way on the
 activity's attendance.
 
+### Both attendance and minutes come from the match plan
+
+Attendance and minutes are worked out from **the match plan plus the
+substitution log**: the plan's availability list says who was in the squad,
+its line-up says who started, and the sub log says who came on and off. So
+a match with no plan behind it — or a plan nobody was added to — records
+neither. There is nothing to derive them from.
+
+The screen will not let you run a match without a plan, and the server
+refuses the same thing if something tries: you are sent to **Plan match
+prep** first.
+
+A plan with an empty availability list is the case that can still get
+through, because the match itself runs perfectly well without one. When it
+does, the final whistle is never refused — the match was played, and
+ending it is the only honest thing to do — but the post-match screen opens
+with a warning saying no attendance or minutes could be worked out, and a
+**Record attendance** button that takes you to the attendance grid for that
+team and date. The warning is read from the match itself, so it stays put
+until somebody records the register, whoever opens the match next.
+
 ## Undoing a goal or substitution
 
 Every logged goal and substitution in the **Live progress** feed carries an
@@ -348,6 +369,11 @@ future web app:
  — the first-half starting eleven with position coordinates.
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — undo a logged substitution (soft-delete; the minutes recompute).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/finish`
+ — the final whistle. Answers `attendance_recorded` and
+ `attendance_rows`, plus an `attendance_gap` block (`reason`, `message`,
+ `fix_url`) when no attendance or minutes could be worked out, so a
+ caller can say so rather than close silently.
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
  — re-open a finalized match for corrections (returns it to *pending
  review*; audit-logged).

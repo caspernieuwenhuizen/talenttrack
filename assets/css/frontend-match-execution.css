@@ -1696,6 +1696,26 @@
     color: var(--tt-ink-soft, #5b6e75);
     line-height: 1.4;
 }
+
+/* #3445 — "this match closed with no register" notice. Sits directly
+   under the state pill so it is the first thing read after the final
+   whistle. Colours come from the shared .tt-notice-warning in
+   public.css; only the layout of the repair button is set here. */
+.tt-mexec-register-gap {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.tt-mexec-register-gap .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
 .tt-mexec-late-event {
     margin: 12px 0;
     padding: 12px 14px;

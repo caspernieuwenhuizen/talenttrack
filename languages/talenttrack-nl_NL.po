@@ -60742,6 +60742,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:72
+msgid "This match is closed, but no attendance or minutes could be worked out: it was run without a match plan, and minutes come from the plan's line-up plus the substitution log. Record attendance by hand."
+msgstr "Deze wedstrijd is afgesloten, maar er konden geen aanwezigheid en minuten worden afgeleid: hij is gespeeld zonder wedstrijdvoorbereiding, en minuten komen uit de opstelling van die voorbereiding plus het wissellog. Leg de aanwezigheid met de hand vast."
+
+#: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:74
+msgid "This match is closed, but no attendance or minutes could be worked out: the match plan has nobody on its availability list. Record attendance by hand."
+msgstr "Deze wedstrijd is afgesloten, maar er konden geen aanwezigheid en minuten worden afgeleid: de wedstrijdvoorbereiding heeft niemand op de beschikbaarheidslijst staan. Leg de aanwezigheid met de hand vast."
+
+#: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:76
+msgid "This match is closed, but no attendance or minutes were recorded for it. Record attendance by hand."
+msgstr "Deze wedstrijd is afgesloten, maar er zijn geen aanwezigheid en minuten voor vastgelegd. Leg de aanwezigheid met de hand vast."
+
+#: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:82
+msgid "Record attendance"
+msgstr "Aanwezigheid vastleggen"
+
 #, php-format
 #~ msgid "Top %d"
 #~ msgstr "Top %d"

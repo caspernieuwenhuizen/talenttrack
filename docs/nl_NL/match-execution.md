@@ -215,6 +215,29 @@ Wedstrijden die je nooit via wedstrijduitvoering speelt, blijven
 ongewijzigd: er is geen uitvoering die de minuten bezit, dus registreer je
 ze op de gebruikelijke manier bij de aanwezigheid van de activiteit.
 
+### Aanwezigheid én minuten komen uit de wedstrijdvoorbereiding
+
+Aanwezigheid en minuten worden afgeleid uit **de wedstrijdvoorbereiding plus
+het wissellog**: de beschikbaarheidslijst zegt wie in de selectie zat, de
+opstelling zegt wie begon, en het wissellog zegt wie erin en eruit ging. Een
+wedstrijd zonder voorbereiding — of met een voorbereiding waar niemand aan
+is toegevoegd — legt dus geen van beide vast. Er is niets om ze uit af te
+leiden.
+
+Het scherm laat je een wedstrijd zonder voorbereiding niet spelen, en de
+server weigert hetzelfde als iets het toch probeert: je wordt eerst naar
+**Wedstrijd voorbereiden** gestuurd.
+
+Een voorbereiding met een lege beschikbaarheidslijst is het geval dat er nog
+wel doorheen komt, want de wedstrijd zelf loopt prima zonder. Gebeurt dat,
+dan wordt het laatste fluitsignaal nooit geweigerd — de wedstrijd is
+gespeeld, en afsluiten is het enige eerlijke — maar het scherm na de
+wedstrijd opent met een waarschuwing dat er geen aanwezigheid of minuten
+konden worden afgeleid, plus een knop **Aanwezigheid vastleggen** die je
+naar het aanwezigheidsraster van dat team en die datum brengt. De
+waarschuwing wordt uit de wedstrijd zelf gelezen, dus hij blijft staan
+totdat iemand de registratie invult — wie de wedstrijd daarna ook opent.
+
 ## Een doelpunt of wissel ongedaan maken
 
 Elk vastgelegd doelpunt en elke wissel in het **Live verloop** heeft een
@@ -386,6 +409,12 @@ toekomstige webapp:
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
  herberekenen).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/finish`
+ — het laatste fluitsignaal. Antwoordt met `attendance_recorded` en
+ `attendance_rows`, plus een blok `attendance_gap` (`reason`, `message`,
+ `fix_url`) wanneer er geen aanwezigheid of minuten konden worden
+ afgeleid, zodat een client dat kan melden in plaats van stil af te
+ sluiten.
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
  — een afgesloten wedstrijd heropenen voor correcties (terug naar
  *nabespreking*; vastgelegd in het auditlog).
