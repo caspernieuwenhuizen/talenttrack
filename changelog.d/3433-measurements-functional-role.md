@@ -28,6 +28,14 @@ visibility level: which tests a reader sees once admitted is still decided
 per test under **Manage tests**, and a test marked medical-only stays
 medical-only for everybody.
 
+One knock-on worth knowing: the *no measurement this season* alert is sent
+to the head coach of the player's team and then filtered to recipients who
+may read measurements. Holding the Head coach role on a team now is that
+permission, so a head coach whose account did not otherwise reach
+measurements starts receiving the alert — which is the point of the change
+rather than a side effect of it. A head coach whose assignment has ended
+still receives nothing.
+
 Also fixed alongside it: the team pickers and export scopes on the
 measurement surfaces asked "which teams are you attached to?" rather than
 "which teams may you read measurements for?". Those were the same question
