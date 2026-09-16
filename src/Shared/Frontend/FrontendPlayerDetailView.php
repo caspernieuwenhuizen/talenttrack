@@ -729,12 +729,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php endif; ?>
                     </h1>
                     <?php if ( $team ) : ?>
+                        <?php $team_name = (string) $team->name; ?>
                         <p class="tt-player-hero__sub">
                             <?php // #3473 — no link when the reader can reach neither the staff team page nor a Me-view. ?>
                             <?php if ( $team_url !== '' ) : ?>
-                                <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
+                                <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( $team_name ); ?></a>
                             <?php else : ?>
-                                <span><?php echo esc_html( (string) $team->name ); ?></span>
+                                <span><?php echo esc_html( $team_name ); ?></span>
                             <?php endif; ?>
                             <?php if ( ! empty( $team->age_group ) ) : ?>
                                 <span> · <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?></span>
@@ -1522,10 +1523,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( $team ) {
             // #3473 — routed by who is reading; '' when neither the staff slug
             // nor a Me-view is reachable, in which case the name is text.
-            $team_url   = self::teamLinkUrl( (int) $team->id, (int) $player->id, get_current_user_id() );
+            $team_name  = esc_html( (string) $team->name );
+            $team_url   = self::teamLinkUrl( (int) $team->id, $player_id, get_current_user_id() );
             $team_html  = $team_url !== ''
-                ? '<a href="' . esc_url( $team_url ) . '">' . esc_html( (string) $team->name ) . '</a>'
-                : esc_html( (string) $team->name );
+                ? '<a href="' . esc_url( $team_url ) . '">' . $team_name . '</a>'
+                : $team_name;
             if ( ! empty( $team->age_group ) ) {
                 $team_html .= ' · ' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) );
             }
