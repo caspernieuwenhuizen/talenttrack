@@ -365,8 +365,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // status changes via POST /activities/{id}/status.
                 // $status_now / $is_planned / $is_completed are computed
                 // above the action list (#2685).
+                $activity_id  = (int) $session->id;
                 $detail_back  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id );
-                $status_rest  = 'activities/' . (int) $session->id . '/status';
+                $status_rest  = 'activities/' . $activity_id . '/status';
 
                 // #2401 — seed the grid deep-link's team + date from the row
                 // already loaded, so the completion resolver and the grid
@@ -428,7 +429,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         // left alone — it is a legitimate end state, and a
                         // dialog that fires on it is a dialog coaches learn
                         // to dismiss.
-                        $register_empty = \TT\Modules\Activities\Services\EmptyRegisterConfirm::applies( (int) $session->id );
+                        $register_empty = \TT\Modules\Activities\Services\EmptyRegisterConfirm::applies( $activity_id );
                         $complete_attrs = [
                             'tt-archive-rest-path'     => $status_rest,
                             'tt-archive-method'        => 'POST',
@@ -446,7 +447,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         ];
                         if ( $register_empty ) {
                             $record_url = \TT\Modules\Activities\Services\EmptyRegisterConfirm::recordUrl(
-                                (int) $session->id,
+                                $activity_id,
                                 get_current_user_id()
                             );
                             if ( $record_url !== '' ) {
