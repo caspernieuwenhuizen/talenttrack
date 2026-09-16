@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T21:45:31+00:00\n"
+"POT-Creation-Date: 2026-09-16T21:56:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -6861,7 +6861,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:344
 #: src/Shared/Frontend/FrontendEvaluationsView.php:356
 #: src/Shared/Frontend/FrontendExportsView.php:366
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:157
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:171
 #: src/Shared/Frontend/FrontendMySettingsView.php:550
 #: src/Shared/Frontend/FrontendOverviewView.php:236
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:218
@@ -8718,7 +8718,7 @@ msgstr "Nie"
 #. translators: %s is the coach's display name
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:334
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:303
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:237
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:220
 #, php-format
 msgid "by %s"
 msgstr ""
@@ -20780,7 +20780,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:237
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:251
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:237
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr ""
@@ -28952,6 +28952,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:252
 #: src/Shared/Frontend/DashboardShortcode.php:286
 #: src/Shared/Frontend/DashboardShortcode.php:2391
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:326
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:486
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -33724,8 +33725,8 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1696
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:115
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:116
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:127
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:128
 msgid "My evaluations"
 msgstr ""
 
@@ -35969,7 +35970,7 @@ msgid "Age group promoted"
 msgstr ""
 
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:529
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:184
 msgid "No change"
 msgstr ""
 
@@ -51464,39 +51465,77 @@ msgstr ""
 msgid "Evaluations you authored in the last %d days, newest first."
 msgstr ""
 
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:145
+msgid "No evaluations yet this season. Earlier seasons are one tap away above."
+msgstr ""
+
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:132
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:146
 msgid ""
 "No evaluations yet. Your coaches will record them here as training and "
 "matches progress."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:153
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:165
 msgid "Evaluation summary"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:163
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
+msgid "Evaluations this season"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:177
 msgid "Latest rating"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:181
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:195
 msgid "Evaluations, newest first"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:228
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:209
 msgid "No overall rating yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:275
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:260
 msgid "Feedback from your coach"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:282
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:267
 msgid "Show detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:283
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:268
 msgid "Hide detail"
+msgstr ""
+
+#. translators: %s: season name, e.g. 2026/2027
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:294
+#, php-format
+msgid "Season %s."
+msgstr ""
+
+#. translators: %d: number of evaluations from earlier seasons
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:300
+#, php-format
+msgid "Show %d evaluation from earlier seasons"
+msgid_plural "Show %d evaluations from earlier seasons"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:305
+msgid "All seasons."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:307
+msgid "Show this season only"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:327
+msgid "The detail could not be loaded. Try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:328
+msgid "No category breakdown for this evaluation."
 msgstr ""
 
 #. translators: %s = the player's name, to a parent or a coach.
