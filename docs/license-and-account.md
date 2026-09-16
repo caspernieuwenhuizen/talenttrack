@@ -225,9 +225,32 @@ The wp-admin Account page keeps all three, plus its own copies of the plan and p
 
 ## Non-commercial test instances
 
-`TT_COMMERCIAL_MODE` in `talenttrack.php` decides whether any of this is enforced.
+`TT_COMMERCIAL_MODE` decides whether any of this is enforced.
 
-When it is `false` — the default, and the case on every developer and demo install — the install is a **non-commercial test instance**: every feature is unlocked, caps do not apply, and the Account page renders a single explanatory notice instead of the plan UI. When it is `true`, the resolution order above applies.
+When it is `false` — the default — the install is a **non-commercial test instance**: every feature is unlocked, caps do not apply, and the Account page renders a single explanatory notice instead of the plan UI. When it is `true`, the resolution order above applies.
+
+**It is a property of the install, not of the release.** Set it in that install's `wp-config.php`:
+
+```php
+define( 'TT_COMMERCIAL_MODE', true );
+```
+
+The plugin only defines the `false` default when `wp-config.php` has not already spoken, so one install can enforce plans while another does not, and updating the plugin never changes an install's commercial state.
+
+### Recording the plan on an install
+
+An install in commercial mode with no plan recorded resolves to **Not activated** — caps apply and everything above the free tier locks. So the plan is recorded when the install is provisioned, before anyone signs in, using wp-cli:
+
+```
+wp tt entitlement show               # what this install resolves to, and why
+wp tt entitlement set --tier=standard
+wp tt entitlement set --tier=pro
+wp tt entitlement clear              # back to Not activated
+```
+
+`show` reports the recorded plan, how old the record is, whether it is due a refresh, and the plan the install actually resolves to — which can differ when commercial mode is off or a developer override is live.
+
+This needs shell access on purpose. There is no screen, no setting and no REST route that writes it, because what a club is entitled to is not something the club's own site can be talked into changing.
 
 ## Developer tier override (owner-only)
 

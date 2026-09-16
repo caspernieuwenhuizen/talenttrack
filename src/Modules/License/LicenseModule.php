@@ -23,6 +23,10 @@ use TT\Core\ModuleInterface;
  *     feature matrix, open to everyone).
  *   - Hidden ?page=tt-dev-license (DevOverridePage), only when constant is set
  *
+ * Operator surfaces:
+ *   - `wp tt entitlement show|set|clear` (Cli\EntitlementCliCommand) —
+ *     the write path for the cached entitlement, shell-access gated.
+ *
  * Entitlement is **operator-set, not customer-set**. An install learns
  * its tier from the control plane and caches the answer; there is no
  * checkout in the plugin and nothing a club admin can toggle to change
@@ -38,6 +42,12 @@ class LicenseModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\AccountPage::init();
             Admin\DevOverridePage::init();
+        }
+        // #3466 — the entitlement write path. Provisioning calls this to
+        // record what the control plane says a club bought; shell access
+        // is the gate, which is why there is no UI equivalent.
+        if ( class_exists( 'WP_CLI' ) ) {
+            \WP_CLI::add_command( 'tt entitlement', Cli\EntitlementCliCommand::class );
         }
     }
 }

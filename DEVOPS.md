@@ -165,10 +165,12 @@ When in doubt: would a careful senior engineer write this? If the answer is "the
 
 ## Plugin constants in wp-config.php
 
-Some features rely on secrets that must never live in the database (DB values leak into backups, staging clones, and migration exports). Add these to `wp-config.php` on the server, not via wp-admin.
+Some features rely on secrets that must never live in the database (DB values leak into backups, staging clones, and migration exports), and some settings belong to one install rather than to the release. Add these to `wp-config.php` on the server, not via wp-admin.
 
 | Constant | Required for | Notes |
 | --- | --- | --- |
+| `TT_COMMERCIAL_MODE` | Enforcing plans on this install | `define('TT_COMMERCIAL_MODE', true);` makes `LicenseGate` enforce tiers. The plugin ships the `false` default and only applies it when `wp-config.php` has not already defined the constant, so this is **per install** — one install can enforce plans while another does not, and a plugin update never changes it. An install in commercial mode with no plan recorded resolves to Not activated, so record one first: `wp tt entitlement set --tier=standard`. |
+| `TT_DEV_OVERRIDE_SECRET` | Developer tier override on owner installs | bcrypt hash of a password you memorise. Present only on dev / demo installs; absent on a club's install, where `DevOverridePage` then refuses to register. Grants a 24-hour tier override — a testing affordance, not a way to run an install. |
 | `TT_GITHUB_TOKEN` | #0009 Development management — promoting ideas to GitHub | Fine-grained PAT scoped to the talenttrack repo with `Contents: Read & write`. Until set, the **Approve & promote** button is disabled and a banner shows on the Approval queue. Submitting and refining still work. |
 | `TT_IDEAS_REPO` | #0009 (optional) | Override the target repo, e.g. `myorg/myrepo`. Defaults to `caspernieuwenhuizen/talenttrack`. |
 | `TT_IDEAS_BASE_BRANCH` | #0009 (optional) | Override the branch the promoter commits to. Defaults to `main`. The branch must not have protection enabled — if it does, the GitHub API `PUT` returns 422 and a fallback PR-flow would be needed (not currently implemented). |

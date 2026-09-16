@@ -230,9 +230,32 @@ De Accountpagina in wp-admin houdt alle drie, plus haar eigen versies van het pa
 
 ## Niet-commerciële testinstallaties
 
-`TT_COMMERCIAL_MODE` in `talenttrack.php` bepaalt of hier iets van wordt afgedwongen.
+`TT_COMMERCIAL_MODE` bepaalt of hier iets van wordt afgedwongen.
 
-Staat de constante op `false` — de standaard, en het geval op elke ontwikkel- en demo-installatie — dan is het een **niet-commerciële testinstallatie**: alles is ontgrendeld, limieten gelden niet, en de Accountpagina toont één uitleg in plaats van de pakket-UI. Staat ze op `true`, dan geldt de volgorde hierboven.
+Staat de constante op `false` — de standaard — dan is het een **niet-commerciële testinstallatie**: alles is ontgrendeld, limieten gelden niet, en de Accountpagina toont één uitleg in plaats van de pakket-UI. Staat ze op `true`, dan geldt de volgorde hierboven.
+
+**Het is een eigenschap van de installatie, niet van de release.** Zet de constante in de `wp-config.php` van die installatie:
+
+```php
+define( 'TT_COMMERCIAL_MODE', true );
+```
+
+De plugin zet de standaard `false` alleen als `wp-config.php` nog niets heeft gezegd. Zo kan de ene installatie pakketten afdwingen en de andere niet, en verandert een plugin-update nooit de commerciële status van een installatie.
+
+### Het pakket vastleggen op een installatie
+
+Een installatie in commerciële modus zonder vastgelegd pakket komt uit op **Niet geactiveerd** — limieten gelden en alles boven het gratis niveau gaat op slot. Daarom wordt het pakket vastgelegd bij het inrichten van de installatie, voordat er iemand inlogt, met wp-cli:
+
+```
+wp tt entitlement show               # waar deze installatie op uitkomt, en waarom
+wp tt entitlement set --tier=standard
+wp tt entitlement set --tier=pro
+wp tt entitlement clear              # terug naar Niet geactiveerd
+```
+
+`show` toont het vastgelegde pakket, hoe oud die vastlegging is, of ze toe is aan verversing, en het pakket waar de installatie feitelijk op uitkomt — dat kan afwijken als de commerciële modus uitstaat of er een ontwikkelaars-override actief is.
+
+Hier is bewust shell-toegang voor nodig. Er is geen scherm, geen instelling en geen REST-route die dit schrijft, want waar een club recht op heeft, is niet iets waar de site van de club zelf toe te praten valt.
 
 ## Ontwikkelaars-override (alleen eigenaar)
 

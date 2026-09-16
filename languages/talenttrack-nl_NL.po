@@ -60839,6 +60839,52 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/License/Cli/EntitlementCliCommand.php:78
+msgid ""
+"Commercial mode is on with no entitlement recorded, so this install resolves "
+"to the unentitled state and free-tier caps apply. Record one with: wp tt "
+"entitlement set --tier=standard"
+msgstr ""
+"De commerciële modus staat aan zonder vastgelegd pakket, dus deze installatie "
+"komt uit op Niet geactiveerd en de gratis-limieten gelden. Leg er een vast "
+"met: wp tt entitlement set --tier=standard"
+
+#. translators: 1: the value the operator typed, 2: comma-separated list of valid tiers
+#: src/Modules/License/Cli/EntitlementCliCommand.php:113
+#, php-format
+msgid "Unknown tier \"%1$s\". Expected one of: %2$s."
+msgstr "Onbekend pakket \"%1$s\". Verwacht een van: %2$s."
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:123
+msgid "--fetched-at must be a Unix timestamp."
+msgstr "--fetched-at moet een Unix-tijdstempel zijn."
+
+#. translators: 1: tier slug, 2: the tier LicenseGate now returns
+#: src/Modules/License/Cli/EntitlementCliCommand.php:132
+#, php-format
+msgid "Entitlement recorded as \"%1$s\". This install now resolves to \"%2$s\"."
+msgstr "Pakket vastgelegd als \"%1$s\". Deze installatie komt nu uit op \"%2$s\"."
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:138
+msgid ""
+"Commercial mode is off on this install, so the stored entitlement is ignored "
+"at runtime and every feature stays unlocked. Add TT_COMMERCIAL_MODE to wp-"
+"config.php to enforce it."
+msgstr ""
+"De commerciële modus staat uit op deze installatie, dus het vastgelegde "
+"pakket wordt tijdens het draaien genegeerd en blijft alles ontgrendeld. Zet "
+"TT_COMMERCIAL_MODE in wp-config.php om het af te dwingen."
+
+#: src/Modules/License/Cli/EntitlementCliCommand.php:158
+msgid "No entitlement was recorded — nothing to clear."
+msgstr "Er was geen pakket vastgelegd — niets om te wissen."
+
+#. translators: %s: the tier LicenseGate now returns
+#: src/Modules/License/Cli/EntitlementCliCommand.php:166
+#, php-format
+msgid "Entitlement cleared. This install now resolves to \"%s\"."
+msgstr "Pakket gewist. Deze installatie komt nu uit op \"%s\"."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."
