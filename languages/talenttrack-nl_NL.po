@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T19:31:20+00:00\n"
+"POT-Creation-Date: 2026-09-16T20:02:29+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6502,7 +6502,7 @@ msgstr ""
 "voor die datum ontbreekt."
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:53
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:54
 #: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:59
 msgid "Untitled activity"
 msgstr "Naamloze activiteit"
@@ -6651,11 +6651,11 @@ msgstr ""
 msgid "This academy is not sending any messages yet."
 msgstr "Deze academie verstuurt nog geen berichten."
 
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:39
 msgid "Upcoming activity has no coach"
 msgstr "Aankomende activiteit zonder trainer"
 
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:42
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:43
 msgid ""
 "An activity in the next week has nobody assigned to run it. Unstaffed "
 "activities tend to be cancelled late, which costs every player in the squad "
@@ -6666,13 +6666,13 @@ msgstr ""
 "selectie een trainingsmoment."
 
 #. translators: %s: activity name
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:59
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:60
 #, php-format
 msgid "%s is today and has no coach assigned."
 msgstr "%s is vandaag en heeft geen trainer toegewezen."
 
 #. translators: 1: activity name, 2: number of days until it takes place
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:66
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:67
 #, php-format
 msgid "%1$s is in %2$d day and has no coach assigned."
 msgid_plural "%1$s is in %2$d days and has no coach assigned."

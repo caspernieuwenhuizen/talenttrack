@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T19:31:20+00:00\n"
+"POT-Creation-Date: 2026-09-16T20:02:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -6170,7 +6170,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:53
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:54
 #: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:59
 msgid "Untitled activity"
 msgstr ""
@@ -6299,11 +6299,11 @@ msgstr ""
 msgid "This academy is not sending any messages yet."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:39
 msgid "Upcoming activity has no coach"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:42
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:43
 msgid ""
 "An activity in the next week has nobody assigned to run it. Unstaffed "
 "activities tend to be cancelled late, which costs every player in the squad "
@@ -6311,13 +6311,13 @@ msgid ""
 msgstr ""
 
 #. translators: %s: activity name
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:59
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:60
 #, php-format
 msgid "%s is today and has no coach assigned."
 msgstr ""
 
 #. translators: 1: activity name, 2: number of days until it takes place
-#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:66
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:67
 #, php-format
 msgid "%1$s is in %2$d day and has no coach assigned."
 msgid_plural "%1$s is in %2$d days and has no coach assigned."
