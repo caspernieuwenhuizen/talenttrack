@@ -10,11 +10,20 @@ use TT\Shared\Wizards\WizardStepInterface;
 /**
  * AttendanceStep (#0072) — captures attendance for the activity if it
  * isn't already recorded. Skipped silently when `tt_attendance` already
- * has rows for the picked activity.
+ * holds a RECORDED register for the picked activity.
  *
  * Writes are real `tt_attendance` rows — not a wizard-only side store —
  * so revisiting the activity later shows the attendance as expected.
  * Only `present` and `late` players flow forward to RateActorsStep.
+ *
+ * #3443 — every read here filters `record_type = 'actual'`. `tt_attendance`
+ * holds the planned roster and the recorded register in the same table,
+ * separated only by that column (migration 0121), and the planned rows
+ * carry real statuses: `plannedStatusMap()` stores Expected as `Present`,
+ * Not coming as `Absent` and Maybe as `Excused`. Without the filter a
+ * coach who ticked the expected squad at creation had the whole step
+ * skipped, landed on RateConfirmStep's "Attendance is saved." and
+ * completed the activity with zero actual rows.
  */
 final class AttendanceStep implements WizardStepInterface {
 
@@ -30,7 +39,7 @@ final class AttendanceStep implements WizardStepInterface {
         // The eval wizard leaves it unset and keeps the original
         // "skip when already recorded" optimisation.
         if ( ! empty( $state['_attendance_force_render'] ) ) return false;
-        return self::activityHasAttendance( $aid );
+        return self::hasRecordedAttendance( $aid );
     }
 
     public function render( array $state ): void {
@@ -71,15 +80,7 @@ final class AttendanceStep implements WizardStepInterface {
         // activity sees the saved state, not a reset to "all present".
         // Wizard state in-flight takes precedence; existing rows fall
         // back; final default is 'present'.
-        $existing_by_player = [];
-        $existing_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT player_id, status FROM {$p}tt_attendance
-              WHERE activity_id = %d AND club_id = %d",
-            $aid, CurrentClub::id()
-        ) );
-        foreach ( (array) $existing_rows as $row ) {
-            $existing_by_player[ (int) $row->player_id ] = (string) $row->status;
-        }
+        $existing_by_player = self::recordedStatusesFor( $aid );
 
         // v3.110.120 — card UI requires the canonical 5-status vocabulary
         // (or a subset). Clubs that customised `attendance_status` with
@@ -409,8 +410,19 @@ final class AttendanceStep implements WizardStepInterface {
                 // in, so the column carries one vocabulary regardless of which
                 // surface wrote the row.
                 $status = (string) ( AttendanceStatus::normalise( (string) $status ) ?? $status );
+                // #3443 — the lookup is scoped to the RECORDED register.
+                // Without `record_type`, the mark-attendance alias (which
+                // force-renders the step over an activity that already has a
+                // planned roster) found the `expected` row and UPDATEd it.
+                // The row kept `record_type = 'expected'`, so every report —
+                // all of which filter to `'actual'` — still read zero, and
+                // the plan was overwritten on the way. Both halves are wrong:
+                // an actual row must be INSERTed and the plan left alone.
                 $existing = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT id FROM {$p}tt_attendance WHERE activity_id = %d AND player_id = %d AND club_id = %d LIMIT 1",
+                    "SELECT id FROM {$p}tt_attendance
+                      WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                        AND record_type = 'actual'
+                      LIMIT 1",
                     $aid, $player_id, CurrentClub::id()
                 ) );
                 if ( $existing ) {
@@ -421,6 +433,10 @@ final class AttendanceStep implements WizardStepInterface {
                         'activity_id' => $aid,
                         'player_id'   => $player_id,
                         'status'      => $status,
+                        // Explicit rather than leaning on the column default,
+                        // for the same reason `write_attendance()` spells it
+                        // out (#2159): a default is a silent contract.
+                        'record_type' => 'actual',
                     ] );
                 }
             }
@@ -484,12 +500,52 @@ final class AttendanceStep implements WizardStepInterface {
     }
     public function submit( array $state ) { return null; }
 
-    private static function activityHasAttendance( int $activity_id ): bool {
+    /**
+     * #3443 — does a RECORDED register exist for this activity?
+     *
+     * A planned roster is not an answer to that question, so the read
+     * filters `record_type = 'actual'`. `is_guest` is deliberately not
+     * filtered: the wizard roster is non-guest by construction and guests
+     * are managed through their own endpoints (#0026).
+     *
+     * Public so the skip decision can be asserted directly — it is the
+     * whole of `notApplicableFor()` on the eval path, and the bug it
+     * carried was a wrong answer rather than an error.
+     */
+    public static function hasRecordedAttendance( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
         global $wpdb;
         $p = $wpdb->prefix;
         return (bool) $wpdb->get_var( $wpdb->prepare(
-            "SELECT 1 FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d LIMIT 1",
+            "SELECT 1 FROM {$p}tt_attendance
+              WHERE activity_id = %d AND club_id = %d AND record_type = 'actual'
+              LIMIT 1",
             $activity_id, CurrentClub::id()
         ) );
+    }
+
+    /**
+     * #3443 — the recorded statuses the roster pre-fills from, keyed by
+     * player id. Planned rows are excluded: pre-filling from the plan put
+     * a status in front of the coach that they never recorded — a "Maybe"
+     * is stored as `Excused`, so the card opened on Excused and one tap on
+     * "All present" was all it took to commit it as a real absence.
+     *
+     * @return array<int,string>
+     */
+    public static function recordedStatusesFor( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT player_id, status FROM {$p}tt_attendance
+              WHERE activity_id = %d AND club_id = %d AND record_type = 'actual'",
+            $activity_id, CurrentClub::id()
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $out[ (int) $row->player_id ] = (string) $row->status;
+        }
+        return $out;
     }
 }

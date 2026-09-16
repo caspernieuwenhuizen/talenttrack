@@ -35,6 +35,9 @@
  *                                            ('danger' default)
  *   data-tt-archive-confirm-title="Reopen activity" — modal title
  *                                            (#2265; default "Archive record")
+ *   data-tt-archive-alt-label="Record attendance"  — #3446, optional remedy
+ *   data-tt-archive-alt-href="…?tt_view=…"           link shown in the modal
+ *                                            beside Cancel; needs both to show
  * Restore (POST .../restore) and permanent-delete (DELETE .../permanent)
  * on the activities archived list ride on these; existing archive
  * buttons keep the DELETE / danger defaults and are untouched.
@@ -73,6 +76,13 @@
                 '</label>' +
                 '<div class="tt-modal-actions">' +
                     '<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' + escapeHtml( i18n.cancel ) + '</button>' +
+                    // #3446 — optional remedy link. Some confirms exist to
+                    // warn about a gap ("nobody is marked present"), and the
+                    // useful answer is neither "do it" nor "forget it" but
+                    // "let me go and fix that". Navigates rather than
+                    // resolving, so the dialog's own two outcomes keep
+                    // meaning what they meant.
+                    '<a class="tt-btn tt-btn-secondary" data-tt-archive-modal-alt hidden></a>' +
                     '<button type="submit" value="confirm" class="tt-btn tt-btn-danger" data-tt-archive-modal-confirm>' + escapeHtml( i18n.confirm ) + '</button>' +
                 '</div>' +
             '</form>';
@@ -115,6 +125,19 @@
         if ( confirmBtn ) {
             confirmBtn.textContent = opts.confirmLabel || i18n.confirm;
             confirmBtn.className = 'tt-btn ' + ( opts.variant === 'primary' ? 'tt-btn-primary' : 'tt-btn-danger' );
+        }
+        // #3446 — optional remedy link, shown only when the button declares
+        // both a label and a destination.
+        var altBtn = dialog.querySelector( '[data-tt-archive-modal-alt]' );
+        if ( altBtn ) {
+            if ( opts.altLabel && opts.altHref ) {
+                altBtn.textContent = opts.altLabel;
+                altBtn.setAttribute( 'href', opts.altHref );
+                altBtn.hidden = false;
+            } else {
+                altBtn.removeAttribute( 'href' );
+                altBtn.hidden = true;
+            }
         }
         // #2411 — optional opt-in checkbox. Shown only when the button
         // declares one; its state travels back with the confirmation so the
@@ -175,6 +198,9 @@
                     title:        btn.getAttribute('data-tt-archive-confirm-title') || '',
                     confirmLabel: btn.getAttribute('data-tt-archive-confirm-label') || '',
                     variant:      btn.getAttribute('data-tt-archive-variant') || 'danger',
+                    // #3446 — remedy link inside the dialog.
+                    altLabel:     btn.getAttribute('data-tt-archive-alt-label') || '',
+                    altHref:      btn.getAttribute('data-tt-archive-alt-href') || '',
                     optionLabel:  optionKey ? ( btn.getAttribute('data-tt-archive-option-label') || '' ) : '',
                     optionDefault: btn.getAttribute('data-tt-archive-option-default') !== '0'
                 };

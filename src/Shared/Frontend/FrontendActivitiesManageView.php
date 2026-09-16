@@ -365,8 +365,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // status changes via POST /activities/{id}/status.
                 // $status_now / $is_planned / $is_completed are computed
                 // above the action list (#2685).
+                $activity_id  = (int) $session->id;
                 $detail_back  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id );
-                $status_rest  = 'activities/' . (int) $session->id . '/status';
+                $status_rest  = 'activities/' . $activity_id . '/status';
 
                 // #2401 — seed the grid deep-link's team + date from the row
                 // already loaded, so the completion resolver and the grid
@@ -418,18 +419,46 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // complete an activity with no attendance recorded.
                     // `tt_edit_activities` comes from the enclosing block.
                     if ( ! $wizard_on ) {
+                        // #3446 — the confirm used to be the same sentence
+                        // whether or not a register existed, and the half of
+                        // it that mattered ("record attendance first if you
+                        // have not") was advice the plugin could have
+                        // checked. It checks now: on an activity with no
+                        // register the dialog names the gap and offers the
+                        // remedy beside the override. A partial register is
+                        // left alone — it is a legitimate end state, and a
+                        // dialog that fires on it is a dialog coaches learn
+                        // to dismiss.
+                        $register_empty = \TT\Modules\Activities\Services\EmptyRegisterConfirm::applies( $activity_id );
+                        $complete_attrs = [
+                            'tt-archive-rest-path'     => $status_rest,
+                            'tt-archive-method'        => 'POST',
+                            'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::COMPLETED ] ),
+                            'tt-archive-confirm'       => $register_empty
+                                ? \TT\Modules\Activities\Services\EmptyRegisterConfirm::message()
+                                : __( 'Mark this activity completed? You can reopen it later.', 'talenttrack' ),
+                            'tt-archive-confirm-label' => $register_empty
+                                ? \TT\Modules\Activities\Services\EmptyRegisterConfirm::confirmLabel()
+                                : __( 'Mark completed', 'talenttrack' ),
+                            'tt-archive-confirm-title' => $register_empty
+                                ? \TT\Modules\Activities\Services\EmptyRegisterConfirm::title()
+                                : __( 'Mark activity completed', 'talenttrack' ),
+                            'tt-archive-redirect'      => $detail_back,
+                        ];
+                        if ( $register_empty ) {
+                            $record_url = \TT\Modules\Activities\Services\EmptyRegisterConfirm::recordUrl(
+                                $activity_id,
+                                get_current_user_id()
+                            );
+                            if ( $record_url !== '' ) {
+                                $complete_attrs['tt-archive-alt-label'] = \TT\Modules\Activities\Services\EmptyRegisterConfirm::recordLabel();
+                                $complete_attrs['tt-archive-alt-href']  = esc_url_raw( $record_url );
+                            }
+                        }
                         $detail_actions[] = [
                             'label'      => __( 'Mark completed', 'talenttrack' ),
                             'variant'    => 'secondary',
-                            'data_attrs' => [
-                                'tt-archive-rest-path'     => $status_rest,
-                                'tt-archive-method'        => 'POST',
-                                'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::COMPLETED ] ),
-                                'tt-archive-confirm'       => __( 'Mark this activity completed? Record attendance first if you have not — you can reopen it later.', 'talenttrack' ),
-                                'tt-archive-confirm-label' => __( 'Mark completed', 'talenttrack' ),
-                                'tt-archive-confirm-title' => __( 'Mark activity completed', 'talenttrack' ),
-                                'tt-archive-redirect'      => $detail_back,
-                            ],
+                            'data_attrs' => $complete_attrs,
                         ];
                     }
                     $detail_actions[] = [

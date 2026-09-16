@@ -2,11 +2,13 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Modules\Alerts\AlertEvaluator;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
+use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
 
 /**
  * #2631 — the three wave 1 Activities definitions.
@@ -168,6 +170,124 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    // ── #3444: the plan is not the register ────────────────────────────
+
+    /**
+     * The case the alert was built for and could not see. A coach ticks the
+     * expected roster when the activity is created, never takes the register,
+     * and marks the activity completed. Planned rows carry real statuses —
+     * Expected is stored as Present — so before #3444 the `NOT EXISTS` was
+     * satisfied by the plan and the alert stayed silent.
+     */
+    public function test_expected_roster_alone_does_not_count_as_recorded(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'expected' );
+
+        $out = ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) );
+
+        $this->assertCount( 1, $out );
+        $this->assertSame( $id, $out[0]->subjectId );
+    }
+
+    /**
+     * A guest row is somebody else's player turning out. It is not this
+     * squad's register, so it cannot stand in for one.
+     */
+    public function test_guest_rows_alone_do_not_count_as_recorded(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'actual', 1 );
+
+        $this->assertCount( 1, ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * The other direction: once a real register exists alongside the plan,
+     * the condition is gone. A definition that fired on both would be an
+     * alert nobody could clear.
+     */
+    public function test_an_actual_row_beside_the_expected_roster_clears_it(): void {
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'expected' );
+        $this->insertAttendance( $id, $player, 'absent', 'actual' );
+
+        $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * The whole point of a state-derived alert: nobody tells the engine the
+     * problem is fixed, the definition simply stops seeing it and the
+     * reconcile resolves the open row. Worth asserting end-to-end here
+     * because #3444 changed the predicate that decides "still true".
+     */
+    public function test_recording_the_register_resolves_an_open_occurrence(): void {
+        global $wpdb;
+        $wpdb->query( "DELETE FROM {$this->p}tt_alert_occurrences" );
+
+        $user = new \WP_User( $this->coach );
+        $user->add_cap( 'tt_edit_activities' );
+        clean_user_cache( $this->coach );
+
+        $team   = $this->insertTeam( 'U14 alerts' );
+        $id     = $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach );
+        $player = $this->insertPlayer( $team );
+        $this->insertAttendance( $id, $player, 'present', 'expected' );
+
+        $alert = new AttendanceUnrecordedAlert();
+        $ev    = new AlertEvaluator();
+        $repo  = new AlertOccurrencesRepository();
+
+        $ev->run( $alert, new AlertContext( $this->club ) );
+        $this->assertSame( 1, $repo->openCountForUser( $this->coach ), 'the plan-only activity raises it' );
+
+        $this->insertAttendance( $id, $player, 'present', 'actual' );
+        $stat = $ev->run( $alert, new AlertContext( $this->club ) );
+
+        $this->assertSame( 1, $stat['resolved'] );
+        $this->assertSame( 0, $repo->openCountForUser( $this->coach ) );
+    }
+
+    // ── #3444: the lifecycle gate ──────────────────────────────────────
+
+    /**
+     * The default-value case the whole of #2521 was about. `plan_state`
+     * defaults to `completed` on every create path but the team planner, so
+     * an activity the coach never completed carried it anyway — and this
+     * alert fired on activities that had not happened yet, doubling up on
+     * `PastStillPlannedAlert`.
+     */
+    public function test_activity_still_planned_does_not_alert_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 5 ), 'completed', $this->coach, 'planned' );
+
+        $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * And the converse: the coach completed it on the axis the UI shows,
+     * while `plan_state` was left at whatever its create path wrote. The
+     * status the user set is the status the alert honours.
+     */
+    public function test_activity_completed_on_the_status_axis_alerts_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 5 ), 'scheduled', $this->coach, 'completed' );
+
+        $this->assertCount( 1, ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /** Cancelled is not completed, and a cancelled activity has no register. */
+    public function test_cancelled_activity_produces_nothing(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 5 ), 'cancelled', $this->coach );
+
+        $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
     // ── activities.no_coach_assigned ───────────────────────────────────
 
     public function test_upcoming_activity_without_a_coach_alerts_the_team_head_coach(): void {
@@ -226,29 +346,36 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function insertActivity( int $team_id, string $date, string $plan_state, int $coach_id ): int {
+    /**
+     * `$status_key` defaults to mirroring `$plan_state`, which is the only
+     * state a well-behaved row is ever in. Pass it explicitly to build the
+     * divergence #2521 was about — `plan_state = 'completed'` by default on a
+     * row the coach never completed.
+     */
+    private function insertActivity( int $team_id, string $date, string $plan_state, int $coach_id, ?string $status_key = null ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
-            'club_id'           => $this->club,
-            'team_id'           => $team_id,
-            'title'             => 'Training ' . $date,
-            'session_date'      => $date,
-            'activity_type_key' => 'training',
-            'plan_state'        => $plan_state,
-            'coach_id'          => $coach_id,
+            'club_id'             => $this->club,
+            'team_id'             => $team_id,
+            'title'               => 'Training ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => 'training',
+            'plan_state'          => $plan_state,
+            'activity_status_key' => $status_key ?? $plan_state,
+            'coach_id'            => $coach_id,
         ] );
         return (int) $wpdb->insert_id;
     }
 
-    private function insertAttendance( int $activity_id, int $player_id, string $status ): void {
+    private function insertAttendance( int $activity_id, int $player_id, string $status, string $record_type = 'actual', int $is_guest = 0 ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_attendance", [
             'club_id'     => $this->club,
             'activity_id' => $activity_id,
             'player_id'   => $player_id,
             'status'      => $status,
-            'is_guest'    => 0,
-            'record_type' => 'actual',
+            'is_guest'    => $is_guest,
+            'record_type' => $record_type,
         ] );
     }
 

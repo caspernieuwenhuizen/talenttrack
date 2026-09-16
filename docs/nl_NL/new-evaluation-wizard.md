@@ -41,7 +41,13 @@ Klik een activiteit aan en **Doorgaan**. Is de lijst leeg, dan zegt de stap dat 
 
 ### Stap 2 · Aanwezigheid
 
-Stilletjes overgeslagen als de aanwezigheid al is geregistreerd. Anders: vink de status aan voor elke speler (aanwezig / te laat / afwezig / verontschuldigd). Standaard is **aanwezig**. Deze stap schrijft echte aanwezigheidsrijen, dus de activiteit zelf weerspiegelt ze daarna.
+Stilletjes overgeslagen als de aanwezigheid al is **geregistreerd**. Anders: vink de status aan voor elke speler (aanwezig / te laat / afwezig / verontschuldigd). Standaard is **aanwezig**. Deze stap schrijft echte aanwezigheidsrijen, dus de activiteit zelf weerspiegelt ze daarna.
+
+**Een selectie plannen is geen aanwezigheid registreren.** De verwachte selectie die je aanvinkt bij het aanmaken of plannen van een activiteit, en de opstelling die je in de wedstrijdvoorbereiding bouwt, zijn het *plan* — wie je er wilt hebben. De presentielijst is wat er werkelijk gebeurde. Ze worden apart bewaard, en alleen de presentielijst telt mee voor rapporten, speelminuten en de schermen van de speler zelf. Dus:
+
+- Een activiteit met een geplande selectie en zonder presentielijst toont je deze stap gewoon. Hij wordt niet overgeslagen.
+- De kaarten openen op de standaard **aanwezig**, niet op het plan. Een speler die je in het plan op *Misschien* zette, staat hier niet vooraf op verontschuldigd — dat zou een status tonen die niemand heeft vastgelegd.
+- Het opslaan van de presentielijst laat het plan ongemoeid, dus de kaart **Verwachte aanwezigheid** op de activiteit blijft tonen wat er gepland was, naast wat er gebeurde.
 
 Voor het veelvoorkomende "iedereen was er"-geval is er bovenaan een sneltoets — **Iedereen was er - doorgaan** zet de hele selectie op aanwezig en gaat in één tik direct door naar beoordelen. Markeer eerst eventuele afwezigen op de kaarten hieronder als dat nodig is, en gebruik hem dan (of de gewone **Volgende**).
 

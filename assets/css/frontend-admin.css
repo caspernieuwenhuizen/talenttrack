@@ -1251,6 +1251,29 @@
     gap: 8px;
 }
 .tt-confirm-actions .button { min-width: 88px; }
+/* #3446 — the optional remedy link ("Record attendance") renders as an
+   <a> so it navigates rather than resolving the dialog. It has to read
+   and size as a button: core's .button gives it the wp-admin look, this
+   gives it the touch target and the centring an <a> does not inherit. */
+.tt-confirm-actions { flex-wrap: wrap; }
+.tt-confirm-actions .button,
+.tt-confirm-actions .tt-btn,
+.tt-confirm-actions .tt-confirm-alt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 16px;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-confirm-alt[hidden] { display: none !important; }
+@media (max-width: 480px) {
+    .tt-confirm-actions { justify-content: stretch; }
+    .tt-confirm-actions .button,
+    .tt-confirm-actions .tt-btn,
+    .tt-confirm-actions .tt-confirm-alt { flex: 1 1 100%; }
+}
 .tt-confirm-overlay.tt-confirm-danger .tt-confirm-ok.button-primary {
     background: var(--tt-danger, #b32d2e);
     border-color: var(--tt-danger, #b32d2e);

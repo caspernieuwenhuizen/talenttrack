@@ -471,6 +471,8 @@ Direct, confirmed status transition for the detail view's buttons. Body `{ statu
 
 Writes `activity_status_key` **and** the derived `plan_state` (`planned` → `scheduled`, otherwise the same value), then fires `tt_activity_status_changed`.
 
+The response carries `register_state` (#3446) — `none` | `partial` | `complete` | `not_applicable`, from `ActivityRegisterProgress`. It is **advisory**: the endpoint does not refuse an empty register, because legitimate empty registers exist (imports, club-wide activities with no squad, a borrowed team). A client that offers a completion action should raise the same warning the plugin's own dialog raises on `none`, and stay quiet on the other three — `partial` is a legitimate end state, and `not_applicable` means there is no roster whose participation could go missing. A recorded row is `record_type = 'actual'`, `is_guest = 0`, non-empty `status`; the denominator is the planned roster where one was captured, falling back to the team's current roster.
+
 ## Search + peek (#2458)
 
 Backs the command palette and the peek panel in the app shell. Both exist as REST
