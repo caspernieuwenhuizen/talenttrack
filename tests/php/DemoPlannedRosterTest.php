@@ -68,10 +68,19 @@ final class DemoPlannedRosterTest extends WP_UnitTestCase {
     private function generate(): void {
         global $wpdb;
 
-        $teams    = $wpdb->get_results( $wpdb->prepare(
+        $teams = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_teams WHERE id = %d",
             $this->team_id
         ) );
+        // The generator reads the team rows `GeneratorContext` hands it, which
+        // carry a resolved head coach alongside the table's own columns.
+        // `tt_teams` has no such column, so a raw row is not the shape it
+        // expects — supply it here rather than teaching the generator to
+        // tolerate a shape it never really receives.
+        foreach ( $teams as $team ) {
+            $team->head_coach_user_id = 0;
+        }
+
         $calendar = new DemoCalendar( 8, self::NOW );
 
         ( new ActivityGenerator(
