@@ -1171,8 +1171,14 @@ class ActivitiesRestController {
         // projection is snapshotted here, once, while it still exists.
         // Taking it inside either block would leave the other one reading an
         // already-emptied table.
+        //
+        // #3451 — each snapshot is scoped to the kind of row the block
+        // below it deletes. The roster one was `null` ("any kind") while
+        // `deleteRosterAttendance()` was equally wide; now that the delete
+        // spares the plan, snapshotting the plan here would re-apply its
+        // line-up onto the new `actual` rows and list every starter twice.
         $planned_lineup = $repo->lineupProjectionFor( $activity_id, 'expected' );
-        $roster_lineup  = $repo->lineupProjectionFor( $activity_id, null );
+        $roster_lineup  = $repo->lineupProjectionFor( $activity_id, 'actual' );
 
         if ( self::request_has_attendance( $r ) ) {
             // #0026 — only wipe the roster rows; guest rows are

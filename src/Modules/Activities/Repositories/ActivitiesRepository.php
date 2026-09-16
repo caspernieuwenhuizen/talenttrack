@@ -1281,6 +1281,17 @@ final class ActivitiesRepository {
      * Keeping the grouping in the repository means REST and the rendered
      * card read the same line-up shape (CLAUDE.md §4).
      *
+     * #3451 — the projection can sit on either kind of row, so this reads
+     * both and keeps ONE row per player. Match prep writes the Starting XI
+     * onto the planned (`expected`) row, but installs that ran the REST or
+     * wp-admin save before #3456 / #3451 have the projection on an
+     * `actual` row instead, with the plan it came from already deleted.
+     * Scoping to one kind would empty the Line-up card on those, and
+     * reading both without de-duplicating lists every starter twice the
+     * moment a player has both kinds — which is exactly what narrowing
+     * `deleteRosterAttendance()` makes the normal case. The plan wins when
+     * both carry a role: that is where match prep puts it.
+     *
      * @return object {
      *   starting: list<object{player_id:int,name:string,jersey:string,position:string}>,
      *   bench:    list<object{...}>
@@ -1294,7 +1305,7 @@ final class ActivitiesRepository {
         $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
         $rows    = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.player_id, a.lineup_role, a.position_played,
+            "SELECT a.player_id, a.lineup_role, a.position_played, a.record_type,
                     pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
                FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
@@ -1305,9 +1316,29 @@ final class ActivitiesRepository {
             $activity_id, $club_id
         ) );
 
+        // #3451 — one row per player, plan first. See the note above: the
+        // projection lives on the `expected` row on a current install and
+        // on an `actual` one where an older save already took the plan, so
+        // both kinds are read and the duplicate is resolved here.
+        $seen = [];
         foreach ( (array) $rows as $r ) {
-            $pid  = (int) ( $r->player_id ?? 0 );
+            $pid = (int) ( $r->player_id ?? 0 );
             if ( $pid <= 0 ) continue;
+            $kind = strtolower( (string) ( $r->record_type ?? '' ) );
+            if ( isset( $seen[ $pid ] ) ) {
+                // A second row for the same player: keep the plan's, drop
+                // the other. Never emit both — that is the Starting XI
+                // listing every starter twice.
+                if ( $kind === 'expected' ) {
+                    $seen[ $pid ] = $r;
+                }
+                continue;
+            }
+            $seen[ $pid ] = $r;
+        }
+
+        foreach ( $seen as $r ) {
+            $pid  = (int) ( $r->player_id ?? 0 );
             $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
             if ( $name === '' ) $name = '#' . $pid;
 
@@ -1952,24 +1983,27 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #1712 — wipe the non-guest (roster) attendance rows for an
+     * #1712 — wipe the RECORDED non-guest (roster) attendance rows for an
      * activity. Guest rows survive (managed via the guest endpoints).
      *
-     * #3456 survey — this delete still spans BOTH record types, and that
-     * is not deliberate: its one caller (the REST activity update, when
-     * the payload carries attendance) rewrites the rows as `actual`, so
-     * it has the same defect `replaceRosterAttendance()` just lost. It is
-     * not fixed here because the fix is not local to this method: the
-     * caller snapshots the line-up with `lineupProjectionFor( id, null )`
-     * — widened precisely because this delete is wide — and narrowing one
-     * without the other makes `lineupForActivity()` list every starter
-     * twice, once from the surviving `expected` row and once from the new
-     * `actual` one. Both halves move together, on #3451.
+     * #3451 — and the planned squad survives too. This delete used to span
+     * both record types while its one caller (the REST activity update,
+     * when the payload carries attendance) rewrote the rows as `actual`,
+     * so the REST path destroyed the plan exactly the way the wp-admin
+     * path did before #3456.
+     *
+     * Narrowing it was not local to this method, which is why #3456 left
+     * it standing: the caller snapshotted the line-up with
+     * `lineupProjectionFor( id, null )` — widened precisely because this
+     * delete was wide — and `lineupForActivity()` reads both kinds. Both
+     * moved with it: the caller now snapshots `'actual'`, and the line-up
+     * reader keeps one row per player, so a starter carrying both an
+     * `expected` and an `actual` row is listed once.
      */
     public function deleteRosterAttendance( int $activity_id ): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id(), 'record_type' => 'actual' ] );
         $this->announceAttendanceChange( $activity_id );
     }
 
