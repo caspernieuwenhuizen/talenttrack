@@ -130,6 +130,27 @@ Het menu opent met een klik, met Enter en met de spatiebalk, sluit met Escape of
 
 **Staan de begeleide wizards uit**, dan heet de knop **Aanwezigheid registreren** en opent hij het [aanwezigheidsraster](attendance-grid.md) op de kolom van die activiteit — op dezelfde plek op de lijstkaart en het detailscherm, en ook de hero **Aanwezigheid registreren** op je dashboard gaat daarheen. Een wedstrijd die je wél live volgt, gaat nog steeds naar Hervatten / Afronden. Omdat één keer opslaan in het raster weken aan sessies kan omvatten, rondt aanwezigheid registreren daar bewust niets af: een geplande activiteit krijgt daarvoor de knop **Markeren als afgerond**, naast Annuleren. Vul eerst de aanwezigheid in en markeer de activiteit daarna als afgerond — met **Heropenen** draai je dat terug.
 
+### Afronden zonder iemand op de presentielijst
+
+Rond je een activiteit af waarvoor **geen aanwezigheid is geregistreerd**, dan vraagt de app eerst:
+
+> **Niemand staat op aanwezig**
+> Voor deze activiteit is geen aanwezigheid geregistreerd. Rond je hem nu af, dan ontbreekt bij elke speler wat hij op deze datum heeft gedaan.
+>
+> *Annuleren · Aanwezigheid registreren · Toch afronden*
+
+**Aanwezigheid registreren** brengt je naar het [aanwezigheidsraster](attendance-grid.md) van die ploeg, op de datum van de activiteit, en laat de activiteit gepland staan. **Toch afronden** rondt hem af. Annuleren — net als Escape en een klik ernaast — betekent: niet afronden.
+
+Het is een waarschuwing, geen regel. Soms klopt een lege presentielijst gewoon: een geïmporteerde wedstrijd, een clubbrede activiteit zonder selectie, een wedstrijd met een geleende ploeg. Je hoort wat je dreigt kwijt te raken; de keuze blijft van jou.
+
+Drie gevallen vragen bewust **niets**:
+
+- **Een half ingevulde presentielijst.** De acht spelers waar je zeker van bent, zijn een echt antwoord — en een melding die daarop afgaat, is een melding die je leert weg te tikken. Half ingevuld zie je terug in de tellingen op de activiteitenlijst.
+- **Alleen een geplande selectie.** De verwachte selectie is wat je van plan was, niet wat er gebeurde, en telt dus niet als presentielijst — precies het geval waarvoor de melding bestaat.
+- **Vergaderingen, *overige* activiteiten en activiteiten zonder ploeg.** Er is geen selectie wiens deelname kan ontbreken, dus valt er niets te waarschuwen.
+
+Imports ronden af zonder melding, want er zit niemand klaar om er een te beantwoorden. Zij laten in plaats daarvan een signaal achter.
+
 ### Speelminuten (papieren wedstrijden)
 
 Wanneer je een **wedstrijd**-type activiteit voltooit die nooit live is gevolgd, krijgt de aanwezigheidsstap van de wizard kolommen **Basisspeler** en **Minuten** zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld. De minuten voeden het minutenrapport en het belastingsbeeld van de speler. Voor een wedstrijd die je *wel* live volgde, komen de minuten uit het afronden van de wedstrijduitvoering.

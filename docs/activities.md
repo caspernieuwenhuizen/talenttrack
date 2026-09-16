@@ -130,6 +130,27 @@ The menu opens on click, on Enter and on Space, closes on Escape or a click outs
 
 **With the guided wizards switched off** the button reads **Mark attendance** instead and opens the [attendance grid](attendance-grid.md) on that activity's own column — same place on the list card and the detail view, and the dashboard's **Mark attendance** hero goes there too. A match that *is* live-tracked still routes to Resume / Finalize. Because a single grid save can cover weeks of sessions, recording attendance there deliberately doesn't complete anything: a planned activity gains a **Mark completed** button for that, next to Cancel. Record attendance first, then mark it completed — **Reopen** undoes it.
 
+### Completing with nobody on the register
+
+Completing an activity where **no attendance has been recorded** asks first:
+
+> **Nobody is marked present**
+> No attendance has been recorded for this activity. Completing it now means every player's participation for this date is missing from their record.
+>
+> *Cancel · Record attendance · Complete anyway*
+
+**Record attendance** takes you to the [attendance grid](attendance-grid.md) for that team, on that activity's date, and leaves the activity planned. **Complete anyway** completes it. Cancel — and Escape, and a click outside — mean don't complete.
+
+It is a warning, not a rule. Empty registers are sometimes correct: an imported fixture, a club-wide activity with no squad, a match played with a borrowed team. You are told what you are about to lose; the decision stays yours.
+
+Three things deliberately do **not** raise it:
+
+- **A partly recorded register.** Marking the eight players you are sure about is a real answer, and a dialog that fired on it is a dialog you would learn to tap past. The counts on the activity list are where partial shows up instead.
+- **A planned squad on its own.** The expected squad is what you intended, not what happened, so it does not count as a register — it is exactly the case the dialog exists for.
+- **Meetings, *other* activities and activities with no team.** There is no roster whose participation could go missing, so there is nothing to warn about.
+
+Imports complete without a dialog, because there is nobody sitting there to answer one. They raise an alert instead.
+
 ### Match minutes (paper matches)
 
 When you complete a **match**-type activity that was never live-tracked, the wizard's attendance step gains **Starter** and **Minutes** columns so you can log how long each player actually played. The minutes feed the minutes report and the player's load picture. For a match you *did* live-track, the minutes come from the match execution's finalize instead.
