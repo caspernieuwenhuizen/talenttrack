@@ -40,7 +40,13 @@ Click an activity to select it, then **Continue**. If the list is empty, the ste
 
 ### Step 2 · Attendance
 
-Skipped silently when attendance is already recorded for the activity. If shown: tick each player's status (present / late / absent / excused). Default is **present**. The step writes real attendance rows, so the activity itself reflects them afterwards.
+Skipped silently when attendance has already been **recorded** for the activity. If shown: tick each player's status (present / late / absent / excused). Default is **present**. The step writes real attendance rows, so the activity itself reflects them afterwards.
+
+**Planning a squad is not recording attendance.** The expected squad you tick when you create or plan an activity, and the lineup you build in match prep, are the *plan* — who you intend to have there. The register is what actually happened. They are stored apart, and only the register counts towards reports, minutes and a player's own screens. So:
+
+- An activity with a planned squad and no register still shows you this step. It is not skipped.
+- The cards open on the **present** default, not on the plan. A player you marked *Maybe* in the plan does not arrive here pre-set to excused — that would put a status in front of you that nobody recorded.
+- Saving the register leaves the plan alone, so the activity's **Expected attendance** card keeps showing what was planned, next to what happened.
 
 For the common "everyone was here" case there's a one-tap shortcut at the top — **Everyone was here - continue** marks the whole roster present and moves straight on to rating in a single tap. Mark any absences on the cards below first if you need to, then use it (or the normal **Next**).
 

@@ -45,6 +45,8 @@ Gasten tellen in geen van beide helften mee, net als in de minutenrapportages. G
 
 Activiteiten die nog moeten komen tonen geen getal — er is nog niets te laat. Geannuleerde activiteiten, vergaderingen en "overige" activiteiten evenmin: die hebben geen registratie die kan ontbreken.
 
+Het zijn dezelfde drie toestanden waarop de waarschuwing bij [afronden zonder iemand op de presentielijst](#afronden-zonder-iemand-op-de-presentielijst) beoordeelt, uit dezelfde bron gelezen, zodat de kaart en het dialoogvenster je nooit iets anders over dezelfde activiteit kunnen vertellen.
+
 ### Voorbije activiteiten
 
 Voorbije activiteiten (Voltooid of Geannuleerd) zijn boven aan de lijst vastgepind als één knop — `N voorbije activiteiten verborgen · Toon ▼`. Tik om uit te klappen; tik nogmaals om in te klappen. De stand wordt bewaard in de URL als `?include_past=1`, zodat een gedeelde link dezelfde weergave toont als degene die hem deelde.
@@ -146,6 +148,27 @@ Het menu opent met een klik, met Enter en met de spatiebalk, sluit met Escape of
 **De wedstrijdanalyse wacht op voltooien.** Die verscheen voorheen zodra de datum was aangebroken, waardoor een wedstrijd die om zeven uur 's avonds begon *wedstrijdanalyse schrijven* aanbood naast *activiteit voltooien*. Voltooi de activiteit en de knop verschijnt.
 
 **Staan de begeleide wizards uit**, dan heet de knop **Aanwezigheid registreren** en opent hij het [aanwezigheidsraster](attendance-grid.md) op de kolom van die activiteit — op dezelfde plek op de lijstkaart en het detailscherm, en ook de hero **Aanwezigheid registreren** op je dashboard gaat daarheen. Een wedstrijd die je wél live volgt, gaat nog steeds naar Hervatten / Afronden. Omdat één keer opslaan in het raster weken aan sessies kan omvatten, rondt aanwezigheid registreren daar bewust niets af: een geplande activiteit krijgt daarvoor de knop **Markeren als afgerond**, naast Annuleren. Vul eerst de aanwezigheid in en markeer de activiteit daarna als afgerond — met **Heropenen** draai je dat terug.
+
+### Afronden zonder iemand op de presentielijst
+
+Rond je een activiteit af waarvoor **geen aanwezigheid is geregistreerd**, dan vraagt de app eerst:
+
+> **Niemand staat op aanwezig**
+> Voor deze activiteit is geen aanwezigheid geregistreerd. Rond je hem nu af, dan ontbreekt bij elke speler wat hij op deze datum heeft gedaan.
+>
+> *Annuleren · Aanwezigheid registreren · Toch afronden*
+
+**Aanwezigheid registreren** brengt je naar het [aanwezigheidsraster](attendance-grid.md) van die ploeg, op de datum van de activiteit, en laat de activiteit gepland staan. **Toch afronden** rondt hem af. Annuleren — net als Escape en een klik ernaast — betekent: niet afronden.
+
+Het is een waarschuwing, geen regel. Soms klopt een lege presentielijst gewoon: een geïmporteerde wedstrijd, een clubbrede activiteit zonder selectie, een wedstrijd met een geleende ploeg. Je hoort wat je dreigt kwijt te raken; de keuze blijft van jou.
+
+Drie gevallen vragen bewust **niets**:
+
+- **Een half ingevulde presentielijst.** De acht spelers waar je zeker van bent, zijn een echt antwoord — en een melding die daarop afgaat, is een melding die je leert weg te tikken. Half ingevuld zie je terug in de tellingen op de activiteitenlijst.
+- **Alleen een geplande selectie.** De verwachte selectie is wat je van plan was, niet wat er gebeurde, en telt dus niet als presentielijst — precies het geval waarvoor de melding bestaat.
+- **Vergaderingen, *overige* activiteiten en activiteiten zonder ploeg.** Er is geen selectie wiens deelname kan ontbreken, dus valt er niets te waarschuwen.
+
+Imports ronden af zonder melding, want er zit niemand klaar om er een te beantwoorden. Zij laten in plaats daarvan een signaal achter.
 
 ### Speelminuten (papieren wedstrijden)
 

@@ -4,17 +4,16 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
+use TT\Modules\Activities\Services\EmptyRegisterConfirm;
 
 /**
- * #3447 — the `N/N` completeness readout on the activity list.
+ * #3446 — how much of an activity's register exists.
  *
- * The load-bearing assertion is the first one: `tt_attendance` holds the
- * planned roster and the recorded register in the same table, and the
- * planned rows carry real statuses. A readout that counted them would
- * report a full register for exactly the activity whose register is
- * missing — the failure this epic exists to make visible, relocated into
- * the fix. Three separate defects this week came from that one missing
- * predicate (#3390, #3443, #3444), so it is tested in both directions.
+ * The predicate behind the "nobody is marked present" confirm. Every case
+ * below is asserted in both directions, because the failure this guards
+ * against is a wrong answer rather than an error: a planned roster that
+ * reads as a register raises no dialog and loses a day of attendance, and
+ * a register that reads as empty raises a dialog on work already done.
  */
 final class ActivityRegisterProgressTest extends WP_UnitTestCase {
 
@@ -26,198 +25,241 @@ final class ActivityRegisterProgressTest extends WP_UnitTestCase {
         global $wpdb;
         $this->p    = $wpdb->prefix;
         $this->club = (int) CurrentClub::id();
+        ActivityRegisterProgress::forget();
     }
 
-    // ---- actual vs planned: both directions -------------------------
+    public function tear_down(): void {
+        ActivityRegisterProgress::forget();
+        parent::tear_down();
+    }
 
-    public function test_planned_rows_alone_are_not_a_register(): void {
-        $team = $this->insertTeam( 'U14 planned only' );
-        $a    = $this->insertActivity( $team, 'training' );
-        foreach ( range( 1, 3 ) as $n ) {
-            // Planned rows carry a real status — Expected maps to Present —
-            // which is precisely why counting them lies.
-            $this->insertAttendance( $a, $this->insertPlayer( $team, 'Plan', 'Ned' . $n ), 'Present', 'expected' );
+    /* ---- the record_type distinction ------------------------------------ */
+
+    public function test_a_planned_roster_alone_is_an_empty_register(): void {
+        $team = $this->insertTeam( 'U13 planned' );
+        $a    = $this->insertActivity( $team );
+        foreach ( [ 'One', 'Two', 'Three' ] as $name ) {
+            // The plan stores Expected as `Present` — the register's own
+            // vocabulary, which is exactly why the filter matters.
+            $this->insertAttendance( $a, $this->insertPlayer( $team, $name ), 'Present', 'expected' );
         }
 
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertSame( 0, $out['attendance']['recorded'], 'a planned roster is not a register' );
-        $this->assertSame( 3, $out['attendance']['expected'], 'the plan IS the denominator' );
-        $this->assertSame( ActivityRegisterProgress::GAP, $out['attendance']['state'] );
+        $this->assertSame( ActivityRegisterProgress::NONE, ActivityRegisterProgress::state( $a ) );
+        $this->assertTrue( ActivityRegisterProgress::isEmpty( $a ) );
+        $this->assertSame( 0, ActivityRegisterProgress::recordedCount( $a ) );
+        $this->assertSame( 3, ActivityRegisterProgress::expectedCount( $a ) );
     }
 
-    public function test_actual_rows_are_the_register(): void {
-        $team = $this->insertTeam( 'U14 recorded' );
-        $a    = $this->insertActivity( $team, 'training' );
-        foreach ( range( 1, 3 ) as $n ) {
-            $pid = $this->insertPlayer( $team, 'Real', 'Row' . $n );
+    public function test_the_same_activity_with_a_recorded_row_is_not_empty(): void {
+        $team    = $this->insertTeam( 'U13 recorded' );
+        $a       = $this->insertActivity( $team );
+        $players = [ $this->insertPlayer( $team, 'One' ), $this->insertPlayer( $team, 'Two' ) ];
+        foreach ( $players as $pid ) {
             $this->insertAttendance( $a, $pid, 'Present', 'expected' );
-            $this->insertAttendance( $a, $pid, $n === 3 ? 'Absent' : 'Present', 'actual' );
         }
+        $this->insertAttendance( $a, $players[0], 'Present', 'actual' );
 
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertSame( 3, $out['attendance']['recorded'] );
-        $this->assertSame( 3, $out['attendance']['expected'] );
-        $this->assertSame( ActivityRegisterProgress::OK, $out['attendance']['state'] );
+        $this->assertFalse( ActivityRegisterProgress::isEmpty( $a ) );
+        $this->assertSame( ActivityRegisterProgress::PARTIAL, ActivityRegisterProgress::state( $a ) );
     }
 
-    public function test_a_half_recorded_register_reads_partial(): void {
-        $team = $this->insertTeam( 'U14 half' );
-        $a    = $this->insertActivity( $team, 'training' );
-        foreach ( range( 1, 4 ) as $n ) {
-            $pid = $this->insertPlayer( $team, 'Half', 'Way' . $n );
-            if ( $n <= 2 ) $this->insertAttendance( $a, $pid, 'Present', 'actual' );
+    public function test_a_full_register_reads_as_complete(): void {
+        $team = $this->insertTeam( 'U13 full' );
+        $a    = $this->insertActivity( $team );
+        foreach ( [ 'One', 'Two' ] as $name ) {
+            $this->insertAttendance( $a, $this->insertPlayer( $team, $name ), 'Present', 'actual' );
         }
 
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertSame( 2, $out['attendance']['recorded'] );
-        $this->assertSame( 4, $out['attendance']['expected'], 'no plan captured, so the roster is the denominator' );
-        $this->assertSame( ActivityRegisterProgress::PARTIAL, $out['attendance']['state'] );
+        $this->assertSame( ActivityRegisterProgress::COMPLETE, ActivityRegisterProgress::state( $a ) );
+        $this->assertFalse( ActivityRegisterProgress::isEmpty( $a ) );
     }
 
     /**
-     * The denominator is the plan where one exists, so a September
-     * training keeps reading 14/14 after a player leaves in March instead
-     * of drifting to 13/14 on its own.
+     * A register of absences is still a register. "Nobody is marked
+     * present" is the dialog's headline, but the fact it guards is
+     * "nothing was recorded" — a squad that was all marked absent has been
+     * observed and must not be interrupted.
      */
-    public function test_the_plan_outranks_a_roster_that_has_since_changed(): void {
-        $team = $this->insertTeam( 'U14 drifted' );
-        $a    = $this->insertActivity( $team, 'training' );
-        foreach ( range( 1, 3 ) as $n ) {
-            $pid = $this->insertPlayer( $team, 'Was', 'There' . $n );
+    public function test_a_register_of_absences_is_still_a_register(): void {
+        $team = $this->insertTeam( 'U13 absent' );
+        $a    = $this->insertActivity( $team );
+        foreach ( [ 'One', 'Two' ] as $name ) {
+            $this->insertAttendance( $a, $this->insertPlayer( $team, $name ), 'Absent', 'actual' );
+        }
+
+        $this->assertFalse( ActivityRegisterProgress::isEmpty( $a ) );
+    }
+
+    /* ---- what does not count as recorded -------------------------------- */
+
+    public function test_a_guest_row_is_not_the_teams_register(): void {
+        $team = $this->insertTeam( 'U13 guest' );
+        $a    = $this->insertActivity( $team );
+        $this->insertPlayer( $team, 'Roster' );
+        $this->insertAttendance( $a, $this->insertPlayer( $team, 'Visitor' ), 'Present', 'actual', 1 );
+
+        $this->assertSame( 0, ActivityRegisterProgress::recordedCount( $a ) );
+        $this->assertTrue( ActivityRegisterProgress::isEmpty( $a ) );
+    }
+
+    public function test_a_status_less_row_is_a_lineup_not_a_register(): void {
+        // Match prep's lineup upsert writes a row with no status: it means
+        // "in the squad", not "was here".
+        $team = $this->insertTeam( 'U13 lineup' );
+        $a    = $this->insertActivity( $team );
+        $this->insertAttendance( $a, $this->insertPlayer( $team, 'Named' ), '', 'actual' );
+
+        $this->assertSame( 0, ActivityRegisterProgress::recordedCount( $a ) );
+        $this->assertTrue( ActivityRegisterProgress::isEmpty( $a ) );
+    }
+
+    /* ---- nothing to be missing ------------------------------------------ */
+
+    public function test_a_meeting_has_no_register_to_miss(): void {
+        $team = $this->insertTeam( 'U13 meeting' );
+        $a    = $this->insertActivity( $team, 'meeting' );
+        $this->insertPlayer( $team, 'Attendee' );
+
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( $a ) );
+        $this->assertFalse( ActivityRegisterProgress::isEmpty( $a ) );
+    }
+
+    public function test_an_other_type_has_no_register_to_miss(): void {
+        $team = $this->insertTeam( 'U13 other' );
+        $a    = $this->insertActivity( $team, 'other' );
+        $this->insertPlayer( $team, 'Someone' );
+
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( $a ) );
+    }
+
+    public function test_a_teamless_activity_has_no_roster_to_record(): void {
+        $a = $this->insertActivity( 0 );
+
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( $a ) );
+        $this->assertFalse( ActivityRegisterProgress::isEmpty( $a ) );
+    }
+
+    public function test_a_team_with_nobody_on_it_has_no_register_to_miss(): void {
+        $a = $this->insertActivity( $this->insertTeam( 'U13 empty squad' ) );
+
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( $a ) );
+    }
+
+    public function test_an_unknown_activity_is_never_a_lookup(): void {
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( 0 ) );
+        $this->assertSame( ActivityRegisterProgress::NOT_APPLICABLE, ActivityRegisterProgress::state( 987654 ) );
+    }
+
+    /* ---- the denominator ------------------------------------------------ */
+
+    public function test_the_plan_is_the_denominator_when_one_was_captured(): void {
+        $team = $this->insertTeam( 'U13 denominator' );
+        $a    = $this->insertActivity( $team );
+        // Roster of four; only three were planned for this activity.
+        $planned = [ $this->insertPlayer( $team, 'A' ), $this->insertPlayer( $team, 'B' ), $this->insertPlayer( $team, 'C' ) ];
+        $this->insertPlayer( $team, 'D' );
+        foreach ( $planned as $pid ) {
             $this->insertAttendance( $a, $pid, 'Present', 'expected' );
             $this->insertAttendance( $a, $pid, 'Present', 'actual' );
         }
-        // One of them has since left the academy.
-        global $wpdb;
-        $wpdb->query( "UPDATE {$this->p}tt_players SET status = 'left' WHERE last_name = 'There3'" );
 
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertSame( 3, $out['attendance']['expected'] );
-        $this->assertSame( ActivityRegisterProgress::OK, $out['attendance']['state'] );
-    }
-
-    public function test_guests_are_excluded_from_both_sides(): void {
-        $team = $this->insertTeam( 'U14 guests' );
-        $a    = $this->insertActivity( $team, 'training' );
-        $this->insertAttendance( $a, $this->insertPlayer( $team, 'Own', 'Player' ), 'Present', 'actual' );
-        $this->insertAttendance( $a, $this->insertPlayer( $team, 'Guest', 'Player' ), 'Present', 'actual', 1 );
-
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertSame( 1, $out['attendance']['recorded'], 'the guest row is not part of the register' );
-    }
-
-    // ---- minutes ----------------------------------------------------
-
-    public function test_minutes_are_owed_only_by_the_players_who_played(): void {
-        $team = $this->insertTeam( 'U14 match' );
-        $a    = $this->insertActivity( $team, 'game' );
-        $p1   = $this->insertPlayer( $team, 'On', 'Pitch' );
-        $p2   = $this->insertPlayer( $team, 'Came', 'Late' );
-        $p3   = $this->insertPlayer( $team, 'Stayed', 'Home' );
-        $this->insertAttendance( $a, $p1, 'Present', 'actual', 0, 60 );
-        $this->insertAttendance( $a, $p2, 'Late', 'actual' );
-        $this->insertAttendance( $a, $p3, 'Absent', 'actual' );
-
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'game' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertNotNull( $out['minutes'] );
-        $this->assertSame( 1, $out['minutes']['recorded'] );
-        $this->assertSame( 2, $out['minutes']['expected'], 'an absent player is not missing minutes' );
-        $this->assertSame( ActivityRegisterProgress::PARTIAL, $out['minutes']['state'] );
-    }
-
-    public function test_a_training_is_never_asked_for_minutes(): void {
-        $team = $this->insertTeam( 'U14 no minutes' );
-        $a    = $this->insertActivity( $team, 'training' );
-        $this->insertAttendance( $a, $this->insertPlayer( $team, 'Just', 'Training' ), 'Present', 'actual' );
-
-        $out = ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training' ) );
-
-        $this->assertNotNull( $out );
-        $this->assertNull( $out['minutes'] );
-    }
-
-    // ---- when the readout renders nothing at all --------------------
-
-    public function test_nothing_renders_before_the_activity_happened(): void {
-        $team = $this->insertTeam( 'U14 upcoming' );
-        $a    = $this->insertActivity( $team, 'training', 'planned' );
-        $this->insertPlayer( $team, 'Not', 'Yet' );
-
-        $this->assertNull(
-            ActivityRegisterProgress::forRow( $this->row( $a, $team, 'training', 'planned' ) ),
-            'nothing is late on an activity that has not happened'
+        $this->assertSame( 3, ActivityRegisterProgress::expectedCount( $a ) );
+        $this->assertSame(
+            ActivityRegisterProgress::COMPLETE,
+            ActivityRegisterProgress::state( $a ),
+            'a squad of three that was fully recorded is not two-thirds done'
         );
     }
 
-    public function test_a_meeting_has_no_register_to_be_missing(): void {
-        $team = $this->insertTeam( 'U14 meeting' );
-        $a    = $this->insertActivity( $team, 'meeting' );
-        $this->insertPlayer( $team, 'No', 'Register' );
+    public function test_the_current_roster_is_the_denominator_when_nothing_was_planned(): void {
+        $team = $this->insertTeam( 'U13 fallback' );
+        $a    = $this->insertActivity( $team );
+        $this->insertPlayer( $team, 'A' );
+        $this->insertPlayer( $team, 'B' );
 
-        $this->assertNull( ActivityRegisterProgress::forRow( $this->row( $a, $team, 'meeting' ) ) );
+        $this->assertSame( 2, ActivityRegisterProgress::expectedCount( $a ) );
     }
 
-    public function test_no_denominator_renders_nothing_rather_than_a_division_by_zero(): void {
-        $a = $this->insertActivity( 0, 'training' );
+    /* ---- the confirm the predicate feeds -------------------------------- */
 
-        $this->assertNull(
-            ActivityRegisterProgress::forRow( $this->row( $a, 0, 'training' ) ),
-            'a club-wide activity with no plan has nothing to divide by'
-        );
+    public function test_the_guard_attributes_are_emitted_only_on_an_empty_register(): void {
+        $team    = $this->insertTeam( 'U13 guard' );
+        $empty   = $this->insertActivity( $team );
+        $taken   = $this->insertActivity( $team );
+        $players = [ $this->insertPlayer( $team, 'A' ), $this->insertPlayer( $team, 'B' ) ];
+        foreach ( $players as $pid ) {
+            $this->insertAttendance( $empty, $pid, 'Present', 'expected' );
+            $this->insertAttendance( $taken, $pid, 'Present', 'actual' );
+        }
+
+        $this->assertTrue( EmptyRegisterConfirm::applies( $empty ) );
+        $this->assertFalse( EmptyRegisterConfirm::applies( $taken ) );
+
+        $attrs = EmptyRegisterConfirm::guardAttributes( $empty, 0 );
+        $this->assertStringContainsString( 'data-tt-empty-register-guard="1"', $attrs );
+        $this->assertStringContainsString( esc_attr( EmptyRegisterConfirm::title() ), $attrs );
+        $this->assertStringContainsString( esc_attr( EmptyRegisterConfirm::confirmLabel() ), $attrs );
     }
-
-    // ---- batching ---------------------------------------------------
 
     /**
-     * `renderActivityCard()` runs inside the bucket loop, so a per-card
-     * read would be an N+1 across the whole page. Asserted by query count
-     * rather than by reading the code, which is what the acceptance
-     * criterion asks for.
+     * A remedy button with nowhere to go would dead-click, so it is only
+     * rendered when the grid is actually reachable. User 0 can reach
+     * nothing.
      */
-    public function test_a_whole_page_costs_two_queries(): void {
-        global $wpdb;
-        $team = $this->insertTeam( 'U14 page' );
-        $rows = [];
-        foreach ( range( 1, 6 ) as $n ) {
-            $a      = $this->insertActivity( $team, 'training' );
-            $rows[] = $this->row( $a, $team, 'training' );
-            $this->insertAttendance( $a, $this->insertPlayer( $team, 'Page', 'Player' . $n ), 'Present', 'actual' );
-        }
+    public function test_the_remedy_button_is_dropped_when_the_grid_is_unreachable(): void {
+        $team = $this->insertTeam( 'U13 remedy' );
+        $a    = $this->insertActivity( $team );
+        $this->insertAttendance( $a, $this->insertPlayer( $team, 'A' ), 'Present', 'expected' );
 
-        $before = $wpdb->num_queries;
-        ActivityRegisterProgress::prime( $rows );
-        $primed = $wpdb->num_queries - $before;
-        $this->assertSame( 2, $primed, 'one GROUP BY for the counts, one for the roster sizes' );
-
-        $after_prime = $wpdb->num_queries;
-        foreach ( $rows as $row ) {
-            $this->assertNotNull( ActivityRegisterProgress::forRow( $row ) );
-        }
-        $this->assertSame( $after_prime, $wpdb->num_queries, 'rendering the cards reads nothing more' );
+        $this->assertSame( '', EmptyRegisterConfirm::recordUrl( $a, 0 ) );
+        $this->assertStringNotContainsString(
+            'data-tt-empty-register-alt-href',
+            EmptyRegisterConfirm::guardAttributes( $a, 0 )
+        );
     }
 
-    // ---- fixtures ---------------------------------------------------
+    /**
+     * The wizard's Skip branch is a commit point — either Skip button
+     * flips the activity to completed — so both carry the guard when
+     * there is no register, and neither carries it when there is.
+     */
+    public function test_the_wizard_skip_buttons_carry_the_guard_only_when_the_register_is_empty(): void {
+        $team    = $this->insertTeam( 'U13 wizard skip' );
+        $empty   = $this->insertActivity( $team );
+        $taken   = $this->insertActivity( $team );
+        $players = [ $this->insertPlayer( $team, 'A' ), $this->insertPlayer( $team, 'B' ) ];
+        foreach ( $players as $pid ) {
+            $this->insertAttendance( $empty, $pid, 'Present', 'expected' );
+            $this->insertAttendance( $taken, $pid, 'Present', 'actual' );
+        }
 
-    private function row( int $id, int $team_id, string $type, string $status = 'completed' ): object {
-        return (object) [
-            'id'                  => $id,
-            'team_id'             => $team_id,
-            'activity_type_key'   => $type,
-            'activity_status_key' => $status,
-        ];
+        $on_empty = $this->renderRateConfirm( $empty );
+        $this->assertSame(
+            2,
+            substr_count( $on_empty, 'data-tt-empty-register-guard' ),
+            'both Skip buttons complete the activity, so both are guarded'
+        );
+        $this->assertStringNotContainsString(
+            'Attendance is saved.',
+            $on_empty,
+            'the step must not claim a register that does not exist'
+        );
+
+        $on_taken = $this->renderRateConfirm( $taken );
+        $this->assertStringNotContainsString( 'data-tt-empty-register-guard', $on_taken );
+        $this->assertStringContainsString( 'Attendance is saved.', $on_taken );
     }
+
+    private function renderRateConfirm( int $activity_id ): string {
+        ob_start();
+        ( new \TT\Modules\Wizards\Evaluation\RateConfirmStep() )->render( [
+            '_path'       => 'activity-first',
+            'activity_id' => $activity_id,
+        ] );
+        return (string) ob_get_clean();
+    }
+
+    /* ---- fixtures ------------------------------------------------------- */
 
     private function insertTeam( string $name ): int {
         global $wpdb;
@@ -225,48 +267,41 @@ final class ActivityRegisterProgressTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function insertPlayer( int $team_id, string $first, string $last ): int {
+    private function insertPlayer( int $team_id, string $first ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_players", [
             'club_id'    => $this->club,
             'team_id'    => $team_id,
             'first_name' => $first,
-            'last_name'  => $last,
+            'last_name'  => 'Player',
             'status'     => 'active',
         ] );
         return (int) $wpdb->insert_id;
     }
 
-    private function insertActivity( int $team_id, string $type, string $status = 'completed' ): int {
+    private function insertActivity( int $team_id, string $type = 'training' ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
             'club_id'             => $this->club,
             'team_id'             => $team_id,
-            'title'               => 'Register fixture',
-            'session_date'        => '2026-09-11',
+            'title'               => 'Activity ' . $type,
+            'session_date'        => '2026-09-16',
             'activity_type_key'   => $type,
-            'activity_status_key' => $status,
+            'activity_status_key' => 'planned',
+            'plan_state'          => 'scheduled',
         ] );
         return (int) $wpdb->insert_id;
     }
 
-    private function insertAttendance(
-        int $activity_id,
-        int $player_id,
-        string $status,
-        string $record_type,
-        int $is_guest = 0,
-        ?int $minutes = null
-    ): void {
+    private function insertAttendance( int $activity_id, int $player_id, string $status, string $record_type, int $is_guest = 0 ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_attendance", [
-            'club_id'        => $this->club,
-            'activity_id'    => $activity_id,
-            'player_id'      => $player_id,
-            'status'         => $status,
-            'is_guest'       => $is_guest,
-            'record_type'    => $record_type,
-            'minutes_played' => $minutes,
+            'club_id'     => $this->club,
+            'activity_id' => $activity_id,
+            'player_id'   => $player_id,
+            'status'      => $status,
+            'is_guest'    => $is_guest,
+            'record_type' => $record_type,
         ] );
     }
 }

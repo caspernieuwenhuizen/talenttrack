@@ -34,11 +34,11 @@
  *     .tt-act-card__tail           — team / time / location tail text
  *     .tt-act-card__chev           — chevron on the right
  *     .tt-act-reg--rail            — completeness readout, right rail (#3447)
- *     .tt-act-reg__row             — one measure's line (data-state ok/partial/gap)
+ *     .tt-act-reg__row             — one measure's line (data-state complete/partial/none)
  *     .tt-act-reg__label           — "Att" / "Min" (480px and up)
- *     .tt-act-reg__icon            — measure glyph, warning glyph on a gap
+ *     .tt-act-reg__icon            — measure glyph, warning glyph when nothing is recorded
  *     .tt-act-reg__n               — the N/N itself, tabular numerals
- *     .tt-act-card__fix            — "go and record it" link on a gap (#3447)
+ *     .tt-act-card__fix            — "go and record it" link when nothing is recorded (#3447)
  *     .tt-act-card__fix-icon       — its warning glyph
  *     .tt-act-date                 — 52px square date badge (default mute)
  *     .tt-act-date--today          — blue badge for Today
@@ -381,9 +381,9 @@
     white-space: nowrap;
     color: var(--tt-reg-ink, var(--tt-ink-soft, #6a6d66));
 }
-.tt-dashboard .tt-act-reg__row[data-state="ok"]      { --tt-reg-ink: var(--tt-success-ink, #1f6d41); }
+.tt-dashboard .tt-act-reg__row[data-state="complete"]      { --tt-reg-ink: var(--tt-success-ink, #1f6d41); }
 .tt-dashboard .tt-act-reg__row[data-state="partial"] { --tt-reg-ink: var(--tt-warning-ink, #8a5300); }
-.tt-dashboard .tt-act-reg__row[data-state="gap"]     { --tt-reg-ink: var(--tt-danger-ink, #a32b22); }
+.tt-dashboard .tt-act-reg__row[data-state="none"]     { --tt-reg-ink: var(--tt-danger-ink, #a32b22); }
 .tt-dashboard .tt-act-reg__n {
     font-variant-numeric: tabular-nums;
     font-weight: 700;

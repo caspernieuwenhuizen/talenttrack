@@ -668,7 +668,18 @@ dialog.tt-modal::backdrop {
     justify-content: flex-end;
     flex-wrap: wrap;
 }
-.tt-modal-actions .tt-btn { min-height: 44px; }
+/* #3446 — 48px, not 44: the row now carries up to three choices and one
+   of them is a remedy link, which is exactly the tap a coach makes on a
+   phone in the rain. An <a> also needs the centring and the
+   text-decoration reset a <button> gets for free. */
+.tt-modal-actions .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+.tt-modal-actions a.tt-btn[hidden] { display: none !important; }
 @media (max-width: 480px) {
     .tt-modal-actions { justify-content: stretch; }
     .tt-modal-actions .tt-btn { flex: 1 1 100%; }

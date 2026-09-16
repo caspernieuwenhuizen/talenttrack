@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minutes + statistics grid — mockup</title>
+<style>
+/* ================================================================
+   Mockup — Minutes + statistics grid
+   Production classes (.tt-agrid-*) copied from
+   assets/css/frontend-attendance-grid.css + frontend-minutes-grid.css
+   so the port is mechanical. New classes are .tt-agrid-stat*.
+   ================================================================ */
+
+:root {
+  --tt-green:  #123a2b;
+  --tt-green2: #0d3325;
+  --tt-gold:   #e8b624;
+  --tt-line:   #e3e6e1;
+  --tt-line2:  #b9c2b6;
+  --tt-muted:  #6a6d66;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  background: #f3f6f3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #14231b;
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+
+/* ---- mockup chrome (not production) -------------------------- */
+.mk-bar {
+  background: #fff; border: 1px solid var(--tt-line); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 18px;
+}
+.mk-bar h1 { margin: 0 0 4px; font-size: 15px; }
+.mk-bar p  { margin: 0 0 10px; font-size: 12px; color: var(--tt-muted); max-width: 80ch; }
+.mk-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-pick button {
+  min-height: 36px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--tt-line); background: #fff; color: var(--tt-green);
+  font-size: 12px; font-weight: 700;
+}
+.mk-pick button[aria-pressed="true"] { background: var(--tt-green); color: #fff; border-color: var(--tt-green); }
+.mk-note {
+  background: #fffdf3; border: 1px solid #f0e3b8; border-left: 4px solid var(--tt-gold);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-size: 13px; line-height: 1.55;
+}
+.mk-note b { color: #8a6a10; }
+.mk-note ul { margin: 8px 0 0; padding-left: 18px; }
+.mk-note li { margin-bottom: 4px; }
+.variant { display: none; }
+.variant.is-on { display: block; }
+
+/* ---- lead + mode nav (production) ---------------------------- */
+.tt-agrid-lead { color: #4b5563; font-size: 14px; margin: 0 0 16px; max-width: 70ch; }
+.tt-agrid-modes {
+  display: inline-flex; border: 1px solid var(--tt-line);
+  border-radius: 8px; overflow: hidden; margin: 0 0 16px;
+}
+.tt-agrid-modes > * {
+  min-height: 40px; display: inline-flex; align-items: center; padding: 6px 16px;
+  font-weight: 700; font-size: 13px; text-decoration: none;
+  color: var(--tt-green); background: #fff; border-left: 1px solid var(--tt-line);
+}
+.tt-agrid-modes > *:first-child { border-left: 0; }
+.tt-agrid-modes .is-on { background: var(--tt-green); color: #fff; }
+
+/* ---- card shell (production) --------------------------------- */
+.tt-agrid-card {
+  background: #fff; border: 1px solid var(--tt-line);
+  border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+}
+.tt-agrid-card__head {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 12px 14px; background: var(--tt-green); color: #fff;
+}
+.tt-agrid-card__title { margin: 0; font-size: 15px; }
+.tt-agrid-card__hint  { font-size: 12px; color: #bcd3c8; }
+
+/* ---- NEW: which stat columns are on -------------------------- */
+.tt-agrid-statpick {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 10px 14px; border-bottom: 1px solid var(--tt-line); background: #fafbfa;
+}
+.tt-agrid-statpick__label { font-size: 12px; font-weight: 700; color: var(--tt-muted); margin-right: 2px; }
+.tt-agrid-statchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 32px; padding: 4px 11px; border-radius: 999px;
+  border: 1px solid var(--tt-line); background: #fff;
+  font-size: 12px; font-weight: 700; color: var(--tt-green); cursor: pointer;
+}
+.tt-agrid-statchip[aria-pressed="true"] { background: #e7f5ec; border-color: #9ccdb0; color: #1c6b3f; }
+.tt-agrid-statchip[aria-pressed="true"]::before { content: "✓"; font-size: 11px; }
+.tt-agrid-statchip[aria-pressed="false"]::before { content: "＋"; font-size: 11px; color: #b3b8b2; }
+
+/* ---- the grid (production) ----------------------------------- */
+.tt-agrid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.tt-agrid { border-collapse: collapse; width: 100%; font-size: 13px; }
+.tt-agrid th, .tt-agrid td { border: 1px solid var(--tt-line2); padding: 0; text-align: center; }
+.tt-agrid thead th {
+  position: sticky; top: 0; z-index: 2; background: var(--tt-green); color: #fff;
+  white-space: nowrap; font-size: 11px; font-weight: 700; padding: 6px 4px;
+}
+.tt-agrid th.tt-agrid__player, .tt-agrid td.tt-agrid__player {
+  position: sticky; left: 0; z-index: 1; background: #fff; text-align: left;
+  min-width: 184px; box-shadow: 1px 0 0 var(--tt-line); padding: 6px 10px; font-weight: 600;
+}
+.tt-agrid thead th.tt-agrid__player { z-index: 3; background: var(--tt-green); }
+.tt-agrid__who { display: flex; align-items: center; gap: 9px; }
+.tt-agrid__no { color: var(--tt-muted); font-weight: 800; font-size: 12px; min-width: 18px; text-align: right; }
+.tt-agrid__nm { font-weight: 600; }
+.tt-agrid__act { min-width: 58px; }
+.tt-agrid__act.is-match { background: var(--tt-green2); }
+.tt-agrid__act-date { display: block; font-weight: 800; font-size: 12px; }
+.tt-agrid__act-type { display: block; font-size: 13px; line-height: 1; margin: 2px 0; }
+.tt-agrid__act-owned {
+  display: block; margin-top: 2px; font-size: 9px; font-weight: 800;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--tt-gold);
+}
+.tt-agrid-cell { position: relative; }
+.tt-agrid-cell.tt-agrid-min { padding: 3px; }
+.tt-agrid-min-in {
+  width: 56px; min-height: 40px; text-align: center; border: 1px solid var(--tt-line);
+  border-radius: 6px; font-size: 15px; background: #fff; font-variant-numeric: tabular-nums;
+}
+.tt-agrid-min-in:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: -1px; }
+.tt-agrid-cell--na {
+  background: repeating-linear-gradient(45deg,#fafbfa,#fafbfa 5px,#f1f3f1 5px,#f1f3f1 10px);
+  color: #b3b8b2;
+}
+.tt-agrid td.tt-agrid__rate, .tt-agrid th.tt-agrid__rate {
+  min-width: 62px; background: #f0f3f2; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.tt-agrid thead th.tt-agrid__rate { background: var(--tt-green); }
+.tt-agrid-cell.is-dirty { box-shadow: inset 0 0 0 2px var(--tt-gold); }
+
+/* ---- Save bar (production) ----------------------------------- */
+.tt-agrid-savebar {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  background: #f3f6f3; border-top: 1px solid var(--tt-line);
+}
+.tt-agrid-savebar__status { font-size: 13px; font-weight: 700; color: var(--tt-muted); }
+.tt-agrid-savebar__status.is-dirty { color: #8a3d10; }
+.tt-agrid-savebar__actions { margin-left: auto; display: flex; gap: 10px; }
+.tt-btn {
+  min-height: 44px; padding: 8px 18px; border-radius: 8px; border: 1px solid var(--tt-line);
+  background: #fff; color: var(--tt-green); font-weight: 700; font-size: 13px;
+  text-decoration: none; display: inline-flex; align-items: center; cursor: pointer;
+}
+.tt-btn-primary { background: var(--tt-green); border-color: var(--tt-green); color: #fff; }
+
+/* ---- legend -------------------------------------------------- */
+.tt-agrid-legend {
+  display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 14px;
+  font-size: 12px; color: var(--tt-muted); border-top: 1px solid var(--tt-line);
+}
+.tt-agrid-legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ================================================================
+   A · sub-columns  (Min / G / A per match)
+   ================================================================ */
+.tt-agrid__actgroup { border-bottom: 1px solid rgba(255,255,255,.25); }
+.tt-agrid__sub {
+  background: var(--tt-green2); color: #cfe0d6; font-size: 10px; font-weight: 800;
+  letter-spacing: .03em; padding: 3px 2px; min-width: 42px;
+}
+.tt-agrid__sub.is-min { min-width: 56px; }
+.tt-agrid-stat { padding: 3px; }
+.tt-agrid-stat-in {
+  width: 38px; min-height: 40px; text-align: center; border: 1px solid var(--tt-line);
+  border-radius: 6px; font-size: 14px; background: #fff; font-variant-numeric: tabular-nums;
+  color: #14231b;
+}
+/* a zero reads as "nothing here", not as a value the coach entered */
+.tt-agrid-stat-in.is-zero { color: #c8ccc6; background: #fcfdfc; }
+.tt-agrid-stat-in:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: -1px; }
+.tt-agrid-cell--sep { border-left-width: 2px; border-left-color: #8fa08c; }
+
+/* ================================================================
+   B · one box, popover on focus
+   ================================================================ */
+.tt-agrid-min-wrap { position: relative; display: inline-block; }
+.tt-agrid-badge {
+  position: absolute; top: -3px; right: -6px;
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 1px 5px; border-radius: 999px; background: #123a2b; color: #fff;
+  font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px #fff;
+}
+.tt-agrid-badge__a { opacity: .62; }
+.tt-agrid-pop {
+  position: absolute; z-index: 6; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  min-width: 176px; background: #fff; border: 1px solid var(--tt-line2);
+  border-radius: 10px; box-shadow: 0 10px 24px rgba(18,58,43,.18); padding: 10px; text-align: left;
+}
+.tt-agrid-pop__row {
+  display: flex; align-items: center; gap: 8px; padding: 3px 0;
+}
+.tt-agrid-pop__lb { flex: 1; font-size: 12px; font-weight: 700; color: #14231b; }
+.tt-agrid-pop__in {
+  width: 52px; min-height: 36px; text-align: center; border: 1px solid var(--tt-line);
+  border-radius: 6px; font-size: 14px; font-variant-numeric: tabular-nums;
+}
+.tt-agrid-pop__in.is-here { outline: 2px solid var(--tt-gold); outline-offset: -1px; }
+.tt-agrid-pop__hint {
+  margin: 6px 0 0; font-size: 11px; color: var(--tt-muted); line-height: 1.4;
+  border-top: 1px dashed var(--tt-line); padding-top: 6px;
+}
+.tt-agrid-pop__hint kbd {
+  font: inherit; font-weight: 800; background: #f0f3f2; border: 1px solid var(--tt-line);
+  border-radius: 4px; padding: 0 4px;
+}
+
+/* ================================================================
+   C · row band
+   ================================================================ */
+.tt-agrid__expand {
+  border: 0; background: transparent; cursor: pointer; color: var(--tt-muted);
+  font-size: 13px; font-weight: 800; min-width: 22px; min-height: 40px;
+}
+.tt-agrid-row--stat td, .tt-agrid-row--stat th { background: #f7faf8; }
+.tt-agrid-row--stat .tt-agrid__player {
+  background: #f7faf8; font-weight: 600; font-size: 12px; color: var(--tt-muted); padding-left: 40px;
+}
+.tt-agrid-row--stat .tt-agrid-stat-in { min-height: 34px; }
+
+/* ---- footer reconciliation row (all variants) ---------------- */
+.tt-agrid tfoot td, .tt-agrid tfoot th {
+  background: #f0f3f2; font-size: 11px; font-weight: 800; color: var(--tt-muted);
+  padding: 5px 4px; font-variant-numeric: tabular-nums;
+}
+.tt-agrid tfoot th.tt-agrid__player { background: #f0f3f2; color: var(--tt-muted); font-size: 11px; }
+.tt-agrid-recon { display: inline-flex; align-items: center; gap: 4px; }
+.tt-agrid-recon.is-off { color: #8a5a10; }
+.tt-agrid-recon.is-off::after {
+  content: "!"; display: inline-grid; place-items: center; width: 13px; height: 13px;
+  border-radius: 50%; background: #e8902b; color: #fff; font-size: 9px; font-weight: 900;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mk-bar">
+  <h1>Minutes + statistics grid — three ways to fit goals and assists into the cell</h1>
+  <p><b>Variant A is the chosen design</b> (#3094). B and C are kept for the record. Same data in every variant: 8 players × 6 matches, one of which (19 jan) was run on the live match sheet. Goals and assists are rows in <code>tt_match_execution_goal_events</code> in all three, so the variant choice was purely the entry surface.</p>
+  <div class="mk-pick">
+    <button data-v="a" aria-pressed="true">A · Sub-columns  Min｜G｜A</button>
+    <button data-v="b" aria-pressed="false">B · One box, popover on focus</button>
+    <button data-v="c" aria-pressed="false">C · Expanding row band</button>
+    <button data-v="base" aria-pressed="false">Today (baseline)</button>
+  </div>
+</div>
+
+<div class="mk-note" id="mk-note"></div>
+
+<!-- ============================================================ A -->
+<section class="variant is-on" data-v="a">
+  <p class="tt-agrid-lead">Record match minutes and output for a whole period at once. Rows are players, columns are matches; fill the cells and Save. Only players in a match squad can be edited.</p>
+
+  <div class="tt-agrid-modes" role="tablist">
+    <a class="tt-agrid-mode" href="#">Attendance</a>
+    <span class="tt-agrid-mode is-on" aria-current="page">Minutes + stats</span>
+  </div>
+
+  <div class="tt-agrid-card">
+    <div class="tt-agrid-card__head">
+      <h2 class="tt-agrid-card__title">Minutes + statistics</h2>
+      <span class="tt-agrid-card__hint">fill the cells per match, then Save</span>
+    </div>
+
+    <div class="tt-agrid-statpick">
+      <span class="tt-agrid-statpick__label">Columns</span>
+      <button class="tt-agrid-statchip" aria-pressed="true" disabled title="Minutes are always shown">Minutes</button>
+      <button class="tt-agrid-statchip" aria-pressed="true">Goals</button>
+      <button class="tt-agrid-statchip" aria-pressed="true">Assists</button>
+    </div>
+
+    <div class="tt-agrid-scroll">
+      <table class="tt-agrid">
+        <thead>
+          <tr>
+            <th class="tt-agrid__player" scope="col" rowspan="2">Speler</th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">12 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">19 jan</span><span class="tt-agrid__act-type">⚽</span><span class="tt-agrid__act-owned">live</span></th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">26 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">2 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">9 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup"><span class="tt-agrid__act-date">16 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__rate" colspan="3" scope="colgroup">Totaal</th>
+          </tr>
+          <tr id="a-subs"></tr>
+        </thead>
+        <tbody id="a-body"></tbody>
+        <tfoot id="a-foot"></tfoot>
+      </table>
+    </div>
+
+    <div class="tt-agrid-legend">
+      <span><b>G</b> goals</span>
+      <span><b>A</b> assists</span>
+      <span style="color:#8a5a10"><b>2/3</b> attributed / scoreline — a mismatch means a goal has no scorer yet</span>
+      <span><b>live</b> played on the match sheet; edits here are kept as a correction</span>
+    </div>
+
+    <div class="tt-agrid-savebar">
+      <span class="tt-agrid-savebar__status is-dirty">3 unsaved changes</span>
+      <div class="tt-agrid-savebar__actions">
+        <a class="tt-btn" href="#">Cancel</a>
+        <button class="tt-btn tt-btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ B -->
+<section class="variant" data-v="b">
+  <p class="tt-agrid-lead">Record match minutes and output for a whole period at once. Rows are players, columns are matches; type the minutes per cell and Save. Only players in a match squad can be edited.</p>
+
+  <div class="tt-agrid-modes" role="tablist">
+    <a class="tt-agrid-mode" href="#">Attendance</a>
+    <span class="tt-agrid-mode is-on" aria-current="page">Minutes + stats</span>
+  </div>
+
+  <div class="tt-agrid-card">
+    <div class="tt-agrid-card__head">
+      <h2 class="tt-agrid-card__title">Minutes + statistics</h2>
+      <span class="tt-agrid-card__hint">type minutes, press + for goals and assists</span>
+    </div>
+
+    <div class="tt-agrid-scroll">
+      <table class="tt-agrid">
+        <thead>
+          <tr>
+            <th class="tt-agrid__player" scope="col">Speler</th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">12 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">19 jan</span><span class="tt-agrid__act-type">⚽</span><span class="tt-agrid__act-owned">live</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">26 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">2 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">9 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">16 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__rate">Min</th>
+            <th class="tt-agrid__rate">G+A</th>
+          </tr>
+        </thead>
+        <tbody id="b-body"></tbody>
+        <tfoot id="b-foot"></tfoot>
+      </table>
+    </div>
+
+    <div class="tt-agrid-legend">
+      <span><span class="tt-agrid-badge" style="position:static;box-shadow:none">2<span class="tt-agrid-badge__a">·1</span></span> 2 goals, 1 assist</span>
+      <span>a cell with no badge has no goals or assists recorded</span>
+      <span><b>live</b> played on the match sheet; edits here are kept as a correction</span>
+    </div>
+
+    <div class="tt-agrid-savebar">
+      <span class="tt-agrid-savebar__status is-dirty">3 unsaved changes</span>
+      <div class="tt-agrid-savebar__actions">
+        <a class="tt-btn" href="#">Cancel</a>
+        <button class="tt-btn tt-btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ C -->
+<section class="variant" data-v="c">
+  <p class="tt-agrid-lead">Record match minutes and output for a whole period at once. Rows are players, columns are matches. Open a player's row to record goals and assists.</p>
+
+  <div class="tt-agrid-modes" role="tablist">
+    <a class="tt-agrid-mode" href="#">Attendance</a>
+    <span class="tt-agrid-mode is-on" aria-current="page">Minutes + stats</span>
+  </div>
+
+  <div class="tt-agrid-card">
+    <div class="tt-agrid-card__head">
+      <h2 class="tt-agrid-card__title">Minutes + statistics</h2>
+      <span class="tt-agrid-card__hint">open a row to add goals and assists</span>
+    </div>
+
+    <div class="tt-agrid-scroll">
+      <table class="tt-agrid">
+        <thead>
+          <tr>
+            <th class="tt-agrid__player" scope="col">Speler</th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">12 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">19 jan</span><span class="tt-agrid__act-type">⚽</span><span class="tt-agrid__act-owned">live</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">26 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">2 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">9 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">16 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__rate">Totaal</th>
+          </tr>
+        </thead>
+        <tbody id="c-body"></tbody>
+        <tfoot id="c-foot"></tfoot>
+      </table>
+    </div>
+
+    <div class="tt-agrid-legend">
+      <span><b>▸</b> open the row to record goals and assists</span>
+      <span>a row with output stays open on load</span>
+      <span><b>live</b> played on the match sheet; edits here are kept as a correction</span>
+    </div>
+
+    <div class="tt-agrid-savebar">
+      <span class="tt-agrid-savebar__status is-dirty">3 unsaved changes</span>
+      <div class="tt-agrid-savebar__actions">
+        <a class="tt-btn" href="#">Cancel</a>
+        <button class="tt-btn tt-btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= base -->
+<section class="variant" data-v="base">
+  <p class="tt-agrid-lead">Record match minutes for a whole period at once. Rows are players, columns are matches; type the minutes per cell and Save. Only players in a match squad can be edited.</p>
+
+  <div class="tt-agrid-modes" role="tablist">
+    <a class="tt-agrid-mode" href="#">Attendance</a>
+    <span class="tt-agrid-mode is-on" aria-current="page">Minutes</span>
+  </div>
+
+  <div class="tt-agrid-card">
+    <div class="tt-agrid-card__head">
+      <h2 class="tt-agrid-card__title">Minutes</h2>
+      <span class="tt-agrid-card__hint">type minutes per match, then Save</span>
+    </div>
+    <div class="tt-agrid-scroll">
+      <table class="tt-agrid">
+        <thead>
+          <tr>
+            <th class="tt-agrid__player" scope="col">Speler</th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">12 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">19 jan</span><span class="tt-agrid__act-type">⚽</span><span class="tt-agrid__act-owned">live</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">26 jan</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">2 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">9 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__act is-match"><span class="tt-agrid__act-date">16 feb</span><span class="tt-agrid__act-type">⚽</span></th>
+            <th class="tt-agrid__rate">Totaal</th>
+          </tr>
+        </thead>
+        <tbody id="base-body"></tbody>
+      </table>
+    </div>
+    <div class="tt-agrid-savebar">
+      <span class="tt-agrid-savebar__status">No unsaved changes</span>
+      <div class="tt-agrid-savebar__actions">
+        <a class="tt-btn" href="#">Cancel</a>
+        <button class="tt-btn tt-btn-primary" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   One dataset, rendered four ways. min = null → not in squad.
+   --------------------------------------------------------------- */
+const MATCHES = [
+  { date: '12 jan', live: false, score: 3 },
+  { date: '19 jan', live: true,  score: 2 },
+  { date: '26 jan', live: false, score: 1 },
+  { date: '2 feb',  live: false, score: 4 },
+  { date: '9 feb',  live: false, score: 0 },
+  { date: '16 feb', live: false, score: 2 },
+];
+
+// [minutes, goals, assists] per match, null = not in squad
+const PLAYERS = [
+  { no: 9,  name: 'Sem de Vries',      cells: [[72,2,1],[45,1,0],[90,0,1],[80,2,0],[60,0,0],[90,1,1]] },
+  { no: 10, name: 'Noah Bakker',       cells: [[90,1,1],[90,1,1],[null,0,0],[90,1,2],[90,0,0],[75,1,0]] },
+  { no: 7,  name: 'Luuk Jansen',       cells: [[30,0,1],[null,0,0],[60,1,0],[25,0,1],[90,0,0],[40,0,1]] },
+  { no: 4,  name: 'Daan van Leeuwen',  cells: [[90,0,0],[90,0,0],[90,0,0],[90,1,0],[90,0,0],[90,0,0]] },
+  { no: 11, name: 'Mees Hendriks',     cells: [[15,0,0],[20,0,1],[90,0,0],[35,0,0],[null,0,0],[60,0,0]] },
+  { no: 6,  name: 'Tygo Willems',      cells: [[90,0,0],[90,0,0],[45,0,0],[90,0,1],[90,0,0],[90,0,0]] },
+  { no: 1,  name: 'Finn de Jong (K)',  cells: [[90,0,0],[90,0,0],[90,0,0],[90,0,0],[90,0,0],[90,0,0]] },
+  { no: 14, name: 'Jesse Smit',        cells: [[null,0,0],[30,0,0],[45,0,0],[null,0,0],[45,0,0],[20,0,0]] },
+];
+
+const NOTES = {
+  a: `<b>A · Sub-columns.</b> Every value is on the page — no interaction to discover, and a coach can read down a column to see who scored across the season. Tab runs Min → G → A → next match, which is exactly how a spreadsheet behaves, and the grid keeps its one explicit Save. The chips above the header switch stat columns off, so a coach who only does minutes collapses back to today's width and it is remembered per user.
+  <ul>
+    <li><b>Cost:</b> three times the columns. Six matches is 18 columns plus totals — it scrolls, which the grid already does, but a 20-match season is a long scroll.</li>
+    <li>Zeros are greyed so an untouched cell does not read as a recorded nil.</li>
+    <li>Goals and assists are the whole stat set — no own goals, no cards. See <code>notes.md</code>.</li>
+  </ul>`,
+  b: `<b>B · One box, popover on focus.</b> The grid at rest is today's grid — same width, same speed — and only cells that actually have output carry the small <span class="tt-agrid-badge" style="position:static;box-shadow:none">2<span class="tt-agrid-badge__a">·1</span></span> badge. Focus a cell and the popover offers Minutes / Goals / Assists; typing <kbd>+</kbd> inside the minutes box jumps straight into Goals, so <code>72+2+1</code> is one uninterrupted keystroke run.
+  <ul>
+    <li><b>Cost:</b> the values are hidden until you focus, so "who scored in February" cannot be scanned — it has to be read badge by badge. Most new JavaScript of the three.</li>
+    <li>Tab still moves cell-to-cell on minutes, so the minutes-only path is not slowed by two extra tab stops.</li>
+    <li>The badge is the discovery affordance for a coach who has never opened a cell.</li>
+  </ul>`,
+  c: `<b>C · Expanding row band.</b> The row is the unit: minutes on the closed row, a ▸ opens two sub-rows for goals and assists across all matches at once. Rows that already hold output open on load, so the season's scorers are visible without hunting.
+  <ul>
+    <li><b>Cost:</b> vertical instead of horizontal. Eight players fully open is 24 rows, and comparing two players' goals means scrolling between two open bands.</li>
+    <li>Reads well for the real workflow — a coach usually records output for the two or three players who had any.</li>
+    <li>No new keyboard vocabulary; the sub-row inputs are ordinary tab stops.</li>
+  </ul>`,
+  base: `<b>Today.</b> Minutes only. A player's goals and assists exist in the system solely if the match was run on the live match sheet — otherwise <code>GoalContributionQuery</code> has nothing to read and the player's output is permanently blank on their record. This is the gap all three variants close.`
+};
+
+const el = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
+const naCell = (cls) => `<td class="tt-agrid-cell tt-agrid-cell--na ${cls||''}" aria-label="Niet in de selectie">—</td>`;
+
+/* ---- A ---- */
+(function renderA(){
+  const subs = MATCHES.map(() =>
+    `<th class="tt-agrid__sub is-min" scope="col">Min</th><th class="tt-agrid__sub" scope="col">G</th><th class="tt-agrid__sub" scope="col">A</th>`
+  ).join('') + `<th class="tt-agrid__sub is-min" scope="col">Min</th><th class="tt-agrid__sub" scope="col">G</th><th class="tt-agrid__sub" scope="col">A</th>`;
+  document.getElementById('a-subs').innerHTML = subs;
+
+  document.getElementById('a-body').innerHTML = PLAYERS.map((p) => {
+    let tm = 0, tg = 0, ta = 0;
+    const cells = p.cells.map((c, i) => {
+      if (c[0] === null) return naCell('tt-agrid-cell--sep') + naCell('') + naCell('');
+      tm += c[0]; tg += c[1]; ta += c[2];
+      const dirty = (p.no === 9 && i === 5) ? ' is-dirty' : '';
+      return `<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep${dirty}">`
+           +   `<input class="tt-agrid-min-in" type="text" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}">`
+           + `</td>`
+           + `<td class="tt-agrid-cell tt-agrid-stat"><input class="tt-agrid-stat-in${c[1]?'':' is-zero'}" type="text" inputmode="numeric" value="${c[1]}" aria-label="Goals ${p.name} ${MATCHES[i].date}"></td>`
+           + `<td class="tt-agrid-cell tt-agrid-stat"><input class="tt-agrid-stat-in${c[2]?'':' is-zero'}" type="text" inputmode="numeric" value="${c[2]}" aria-label="Assists ${p.name} ${MATCHES[i].date}"></td>`;
+    }).join('');
+    return `<tr>
+      <th class="tt-agrid__player" scope="row"><span class="tt-agrid__who"><span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span></span></th>
+      ${cells}
+      <td class="tt-agrid__rate tt-agrid-cell--sep">${tm}</td>
+      <td class="tt-agrid__rate">${tg}</td>
+      <td class="tt-agrid__rate">${ta}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('a-foot').innerHTML = `<tr>
+    <th class="tt-agrid__player" scope="row">Toegekend / stand</th>
+    ${MATCHES.map((m, i) => {
+      const g = PLAYERS.reduce((s, p) => s + (p.cells[i][0] === null ? 0 : p.cells[i][1]), 0);
+      const off = g !== m.score;
+      return `<td colspan="3" class="tt-agrid-cell--sep"><span class="tt-agrid-recon${off?' is-off':''}">${g}/${m.score}</span></td>`;
+    }).join('')}
+    <td colspan="3" class="tt-agrid-cell--sep"></td>
+  </tr>`;
+})();
+
+/* ---- B ---- */
+(function renderB(){
+  document.getElementById('b-body').innerHTML = PLAYERS.map((p, r) => {
+    let tm = 0, tga = 0;
+    const cells = p.cells.map((c, i) => {
+      if (c[0] === null) return naCell();
+      tm += c[0]; tga += c[1] + c[2];
+      const open = (r === 0 && i === 5);
+      const badge = (c[1] || c[2])
+        ? `<span class="tt-agrid-badge">${c[1]}<span class="tt-agrid-badge__a">·${c[2]}</span></span>` : '';
+      const pop = open ? `<div class="tt-agrid-pop">
+          <div class="tt-agrid-pop__row"><span class="tt-agrid-pop__lb">Minuten</span><input class="tt-agrid-pop__in" value="${c[0]}"></div>
+          <div class="tt-agrid-pop__row"><span class="tt-agrid-pop__lb">Goals</span><input class="tt-agrid-pop__in is-here" value="${c[1]}"></div>
+          <div class="tt-agrid-pop__row"><span class="tt-agrid-pop__lb">Assists</span><input class="tt-agrid-pop__in" value="${c[2]}"></div>
+          <p class="tt-agrid-pop__hint">Typ <kbd>72+2+1</kbd> voor 72 minuten, 2 goals, 1 assist.</p>
+        </div>` : '';
+      return `<td class="tt-agrid-cell tt-agrid-min${open?' is-dirty':''}">
+        <span class="tt-agrid-min-wrap">
+          <input class="tt-agrid-min-in" type="text" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}${(c[1]||c[2])?`, ${c[1]} goals, ${c[2]} assists`:''}">
+          ${badge}
+        </span>${pop}
+      </td>`;
+    }).join('');
+    return `<tr>
+      <th class="tt-agrid__player" scope="row"><span class="tt-agrid__who"><span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span></span></th>
+      ${cells}
+      <td class="tt-agrid__rate">${tm}</td>
+      <td class="tt-agrid__rate">${tga}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('b-foot').innerHTML = `<tr>
+    <th class="tt-agrid__player" scope="row">Toegekend / stand</th>
+    ${MATCHES.map((m, i) => {
+      const g = PLAYERS.reduce((s, p) => s + (p.cells[i][0] === null ? 0 : p.cells[i][1]), 0);
+      return `<td><span class="tt-agrid-recon${g!==m.score?' is-off':''}">${g}/${m.score}</span></td>`;
+    }).join('')}
+    <td></td><td></td>
+  </tr>`;
+})();
+
+/* ---- C ---- */
+(function renderC(){
+  document.getElementById('c-body').innerHTML = PLAYERS.map((p) => {
+    const hasOutput = p.cells.some((c) => c[0] !== null && (c[1] || c[2]));
+    let tm = 0;
+    const mins = p.cells.map((c, i) => {
+      if (c[0] === null) return naCell();
+      tm += c[0];
+      return `<td class="tt-agrid-cell tt-agrid-min"><input class="tt-agrid-min-in" type="text" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}"></td>`;
+    }).join('');
+
+    const band = (which, idx) => `<tr class="tt-agrid-row--stat">
+      <th class="tt-agrid__player" scope="row">${which}</th>
+      ${p.cells.map((c, i) => c[0] === null ? naCell()
+        : `<td class="tt-agrid-cell tt-agrid-stat"><input class="tt-agrid-stat-in${c[idx]?'':' is-zero'}" type="text" inputmode="numeric" value="${c[idx]}" aria-label="${which} ${p.name} ${MATCHES[i].date}"></td>`).join('')}
+      <td class="tt-agrid__rate">${p.cells.reduce((s,c)=> s + (c[0]===null?0:c[idx]), 0)}</td>
+    </tr>`;
+
+    return `<tr>
+      <th class="tt-agrid__player" scope="row"><span class="tt-agrid__who">
+        <button class="tt-agrid__expand" aria-expanded="${hasOutput}" aria-label="Goals en assists voor ${p.name}">${hasOutput?'▾':'▸'}</button>
+        <span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span>
+      </span></th>
+      ${mins}
+      <td class="tt-agrid__rate">${tm}</td>
+    </tr>` + (hasOutput ? band('Goals', 1) + band('Assists', 2) : '');
+  }).join('');
+
+  document.getElementById('c-foot').innerHTML = `<tr>
+    <th class="tt-agrid__player" scope="row">Toegekend / stand</th>
+    ${MATCHES.map((m, i) => {
+      const g = PLAYERS.reduce((s, p) => s + (p.cells[i][0] === null ? 0 : p.cells[i][1]), 0);
+      return `<td><span class="tt-agrid-recon${g!==m.score?' is-off':''}">${g}/${m.score}</span></td>`;
+    }).join('')}
+    <td></td>
+  </tr>`;
+})();
+
+/* ---- baseline ---- */
+(function renderBase(){
+  document.getElementById('base-body').innerHTML = PLAYERS.map((p) => {
+    let tm = 0;
+    const cells = p.cells.map((c, i) => {
+      if (c[0] === null) return naCell();
+      tm += c[0];
+      return `<td class="tt-agrid-cell tt-agrid-min"><input class="tt-agrid-min-in" type="text" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}"></td>`;
+    }).join('');
+    return `<tr>
+      <th class="tt-agrid__player" scope="row"><span class="tt-agrid__who"><span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span></span></th>
+      ${cells}<td class="tt-agrid__rate">${tm}</td>
+    </tr>`;
+  }).join('');
+})();
+
+/* ---- picker ---- */
+const note = document.getElementById('mk-note');
+function show(v) {
+  document.querySelectorAll('.mk-pick button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  document.querySelectorAll('.variant').forEach((s) => s.classList.toggle('is-on', s.dataset.v === v));
+  note.innerHTML = NOTES[v];
+}
+document.querySelectorAll('.mk-pick button').forEach((b) => b.addEventListener('click', () => show(b.dataset.v)));
+show('a');
+
+/* stat column chips (variant A) — toggle the G / A columns off */
+document.querySelectorAll('.tt-agrid-statpick .tt-agrid-statchip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    if (chip.disabled) return;
+    const on = chip.getAttribute('aria-pressed') !== 'true';
+    chip.setAttribute('aria-pressed', String(on));
+    const which = chip.textContent.trim();
+    const idx = which === 'Goals' ? 1 : which === 'Assists' ? 2 : -1;
+    if (idx < 0) return;
+    const table = chip.closest('.tt-agrid-card').querySelector('table');
+    // sub-header + every body cell in that slot
+    table.querySelectorAll('tr').forEach((tr) => {
+      const cells = [...tr.children];
+      const start = tr.querySelector('.tt-agrid__player') ? 1 : 0;
+      cells.forEach((c, n) => {
+        if (n < start) return;
+        if (c.hasAttribute('colspan')) return;
+        if ((n - start) % 3 === idx) c.style.display = on ? '' : 'none';
+      });
+    });
+  });
+});
+</script>
+</body>
+</html>

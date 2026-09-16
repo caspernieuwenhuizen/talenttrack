@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecordLink hover — varianten</title>
+<style>
+/* ───────────────────────────────────────────────────────────────
+ * Design tokens — copied verbatim from assets/css/tokens.css so the
+ * mockup renders in the real palette. Brand values are the shipped
+ * defaults (BrandStyles emits these on :root in production).
+ * ─────────────────────────────────────────────────────────────── */
+.tt-root {
+    --tt-primary:   #0b3d2e;
+    --tt-secondary: #e8b624;
+    --tt-primary-rgb: 11, 61, 46;
+
+    --tt-ink:        #0e1a14;
+    --tt-ink-soft:   #6a6d66;
+    --tt-muted:      #6a6d66;
+
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f4f6f3;
+    --tt-line:       #e3e6e1;
+    --tt-line-soft:  #eef0ec;
+
+    --tt-success:    #2f9e5e;
+    --tt-danger:     #d8453b;
+    --tt-warning:    #e8902b;
+    --tt-info:       #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle:  #fde2e2;
+    --tt-info-subtle:    #e6f0fa;
+
+    --tt-radius:     8px;
+    --tt-radius-lg:  14px;
+
+    --tt-shadow-sm:  none;
+    --tt-shadow-md:  0 8px 24px -8px rgba(0,0,0,0.12);
+    --tt-shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+
+    --tt-motion-duration: 150ms;
+    --tt-motion-easing:   ease;
+
+    --tt-fs-body: 1rem;
+    --tt-lh-body: 1.5;
+    --tt-fs-sm:   0.85rem;
+    --tt-fs-lg:   1.125rem;
+    --tt-fs-h3:   1.25rem;
+    --tt-fs-h2:   1.5rem;
+    --tt-fs-h1:   1.75rem;
+
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 20px;
+    --tt-sp-6: 24px;
+
+    /* PROPOSED — the three tokens this mockup is arguing for. A theme
+       recolours links by redefining these; public.css stops hardcoding
+       rgba(11, 95, 255, 0.04).
+       CHOSEN 2026-09-02: info blue. --tt-link matches the existing
+       --tt-info (#2d6fb3), so the palette gains no new hue. */
+    --tt-link:       #2d6fb3;
+    --tt-link-hover: #1d4e80;
+    --tt-link-wash:  rgba(45, 111, 179, 0.10);
+}
+
+/* ─── mockup chrome (not production) ─────────────────────────── */
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #0e1a14;
+    background: #f4f6f3;
+    -webkit-text-size-adjust: 100%;
+}
+.mk-wrap { max-width: 1400px; margin: 0 auto; padding: var(--tt-sp-4, 16px); }
+.mk-head h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+.mk-head p  { margin: 0 0 1rem; color: #6a6d66; font-size: .9rem; max-width: 70ch; }
+.mk-head code { background: #e9ece8; padding: 1px 5px; border-radius: 4px; font-size: .82em; }
+
+.mk-bar {
+    position: sticky; top: 0; z-index: 10;
+    background: #f4f6f3; border-bottom: 1px solid #e3e6e1;
+    padding: var(--tt-sp-2, 8px) 0 var(--tt-sp-3, 12px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+.mk-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.mk-picker button {
+    font: inherit; font-size: .85rem;
+    min-height: 44px; padding: 0 12px;
+    border: 1px solid #cfd6d0; border-radius: 999px;
+    background: #fff; color: #0e1a14; cursor: pointer;
+    touch-action: manipulation;
+}
+.mk-picker button[aria-pressed="true"] { background: #0b3d2e; border-color: #0b3d2e; color: #fff; }
+.mk-picker button:focus-visible { outline: 2px solid #14664c; outline-offset: 2px; }
+
+.mk-toggles { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: .82rem; color: #45524b; }
+.mk-toggles label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; cursor: pointer; }
+.mk-toggles input { width: 18px; height: 18px; }
+.mk-swatches { display: flex; gap: 6px; align-items: center; }
+.mk-swatches button {
+    min-height: 32px; padding: 0 10px; font-size: .78rem;
+    border-radius: 999px; border: 1px solid #cfd6d0; background: #fff; cursor: pointer;
+}
+.mk-swatches button[aria-pressed="true"] { border-color: #0e1a14; box-shadow: inset 0 0 0 1px #0e1a14; }
+.mk-swatches .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+.mk-note {
+    background: #fff; border: 1px solid #e3e6e1; border-left: 4px solid #e8b624;
+    border-radius: var(--tt-radius, 8px);
+    padding: 12px 14px; margin: 0 0 var(--tt-sp-4, 16px);
+    font-size: .86rem; color: #45524b;
+}
+.mk-note strong { color: #0e1a14; }
+.mk-note code { background: #f4f6f3; padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+
+.mk-section-title {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .06em;
+    color: #6a6d66; margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-2, 8px);
+}
+.mk-contexts { display: grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px); }
+@media (min-width: 900px) { .mk-contexts { grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); align-items: start; } }
+
+.mk-compare { display: grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px); }
+@media (min-width: 780px)  { .mk-compare { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (min-width: 1000px) { .mk-compare { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (min-width: 1400px) { .mk-compare { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+.mk-compare-cell > h3 { font-size: .8rem; margin: 0 0 6px; color: #45524b; }
+.mk-compare-cell > h3 .tag { color: #6a6d66; font-weight: 400; }
+
+.mk-css {
+    background: #0e1a14; color: #d7e3da; border-radius: var(--tt-radius, 8px);
+    padding: 12px 14px; overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .74rem; line-height: 1.6; white-space: pre;
+    margin: var(--tt-sp-2, 8px) 0 0;
+}
+.mk-css .c { color: #7f9c8c; }
+[hidden] { display: none !important; }
+
+/* ───────────────────────────────────────────────────────────────
+ * PRODUCTION CSS — lifted from assets/css/frontend-pdp-planning.css
+ * and public.css so the mockup is a faithful reproduction.
+ * ─────────────────────────────────────────────────────────────── */
+.tt-dashboard .tt-pdp-block-col {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    border-top: 4px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-pdp-block-col--ok    { border-top-color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-pdp-block-col--warn  { border-top-color: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-pdp-block-col--alert { border-top-color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-pdp-block-col__head {
+    display: flex; align-items: center; gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-h3, 1.25rem); color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-pdp-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.5rem; height: 1.5rem; padding: 0 0.4rem;
+    border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+    background: var(--tt-bg-soft, #f4f6f3); color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-block-col--alert .tt-pdp-count { background: var(--tt-danger-subtle, #fde2e2); color: #a3322a; }
+.tt-dashboard .tt-pdp-block-col--ok    .tt-pdp-count { background: #eaf6ee; color: #1f7a45; }
+.tt-dashboard .tt-pdp-block-col__help {
+    color: var(--tt-muted, #6a6d66); font-size: 0.8rem; margin: 0 0 var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-pdp-block-list { list-style: none; padding: 0; margin: 0; }
+.tt-dashboard .tt-pdp-block-list li {
+    min-height: 44px; display: flex; align-items: center; flex-wrap: wrap;
+    gap: 0 var(--tt-sp-1, 4px); padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-pdp-block-list li:last-child { border-bottom: 0; }
+.tt-dashboard .tt-pdp-block-list .tt-muted { color: var(--tt-muted, #6a6d66); font-size: 0.8rem; }
+
+/* a stripped-down .tt-table, enough to judge the link inside a row */
+.tt-table { width: 100%; border-collapse: collapse; background: #fff;
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); overflow: hidden; }
+.tt-table th, .tt-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--tt-line-soft); font-size: .9rem; }
+.tt-table th { font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--tt-muted); background: var(--tt-bg-soft); }
+.tt-table tr:last-child td { border-bottom: 0; }
+.tt-card { background: #fff; border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: var(--tt-sp-4); box-shadow: var(--tt-shadow-md); }
+.tt-card h3 { margin: 0 0 var(--tt-sp-2); font-size: 1rem; }
+.tt-stack { list-style: none; margin: 0; padding: 0; }
+.tt-stack li { padding: 8px 0; border-bottom: 1px solid var(--tt-line-soft); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.tt-stack li:last-child { border-bottom: 0; }
+
+/* ───────────────────────────────────────────────────────────────
+ * BASELINE — public.css lines 1234-1252, exactly as shipped today.
+ * ─────────────────────────────────────────────────────────────── */
+[data-variant="base"] .tt-record-link {
+    display: inline-block;
+    text-decoration: none !important;
+    color: inherit !important;
+    border-radius: 4px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+[data-variant="base"] .tt-record-link:hover,
+[data-variant="base"] .tt-record-link:focus-visible {
+    text-decoration: none !important;
+    color: inherit !important;
+    background: rgba(11, 95, 255, 0.04);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    outline: none;
+}
+
+/* shared reset for every proposed variant */
+[data-variant]:not([data-variant="base"]) .tt-record-link {
+    display: inline-block;
+    text-decoration: none !important;
+    border-radius: 4px;
+    transition: color var(--tt-motion-duration) var(--tt-motion-easing),
+                background var(--tt-motion-duration) var(--tt-motion-easing),
+                box-shadow var(--tt-motion-duration) var(--tt-motion-easing);
+}
+/* Every variant restores a real focus ring — public.css sets `outline: none`
+   today, which is the accessibility bug underneath the cosmetic one. */
+[data-variant]:not([data-variant="base"]) .tt-record-link:focus-visible {
+    outline: 2px solid var(--tt-link, #14664c);
+    outline-offset: 2px;
+}
+
+/* ─── A · accent + underline ─────────────────────────────────── */
+[data-variant="a"] .tt-record-link {
+    color: var(--tt-link, #14664c) !important;
+    font-weight: 600;
+}
+[data-variant="a"] .tt-record-link:hover {
+    color: var(--tt-link-hover, #0b3d2e) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+}
+
+/* ─── B · underline only ─────────────────────────────────────── */
+[data-variant="b"] .tt-record-link { color: inherit !important; }
+[data-variant="b"] .tt-record-link:hover {
+    color: var(--tt-link-hover, #0b3d2e) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+}
+
+/* ─── C · tinted pill (CHOSEN 2026-09-02) ────────────────────── */
+[data-variant="c"] .tt-record-link,
+[data-variant="c2"] .tt-record-link {
+    color: inherit !important;
+    padding: 2px 6px;
+    margin: -2px -6px;
+    border-radius: var(--tt-radius, 8px);
+}
+[data-variant="c"] .tt-record-link:hover,
+[data-variant="c2"] .tt-record-link:hover {
+    background: var(--tt-link-wash, rgba(20, 102, 76, 0.10));
+    color: var(--tt-link-hover, #0b3d2e) !important;
+}
+
+/* ─── C2 · same pill, plus a resting cue ─────────────────────── */
+[data-variant="c2"] .tt-record-link { font-weight: 600; }
+
+/* ─── D · marker bar ─────────────────────────────────────────── */
+[data-variant="d"] .tt-record-link {
+    color: inherit !important;
+    box-shadow: inset 0 -2px 0 transparent;
+    border-radius: 0;
+}
+[data-variant="d"] .tt-record-link:hover {
+    box-shadow: inset 0 -2px 0 var(--tt-link, #14664c);
+    color: var(--tt-link-hover, #0b3d2e) !important;
+}
+
+/* Rest-state preview: what a phone shows, since there is no hover there.
+   Suppresses every hover rule so only the resting treatment is visible. */
+body.mk-rest [data-variant] .tt-record-link:hover {
+    color: inherit; background: none; box-shadow: none;
+    transform: none; text-decoration: none !important;
+}
+body.mk-rest [data-variant="a"] .tt-record-link:hover { color: var(--tt-link) !important; }
+body.mk-rest .mk-rest-flag { display: inline; }
+.mk-rest-flag { display: none; color: #a3322a; font-weight: 600; }
+
+/* Touch floor (#2800) — production applies this under coarse pointers.
+   Toggle it on to check the variants survive the 48px min-height. */
+body.mk-coarse .tt-record-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 48px; min-width: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-record-link { transition: none !important; }
+    [data-variant="base"] .tt-record-link:hover { transform: none; }
+}
+</style>
+</head>
+<body class="tt-root">
+<div class="mk-wrap">
+
+  <header class="mk-head">
+    <h1>RecordLink hover — vier varianten</h1>
+    <p>
+      Wat er nu op het scherm gebeurt is niet een tooltip maar de globale hover-state van
+      <code>.tt-record-link</code> (<code>assets/css/public.css</code> 1234–1252): een lift van 1px,
+      een blauwe waas en een schaduw van 12px — het kaart-idioom, toegepast op één woord.
+      De regel geldt voor ~760 links op 27 surfaces, dus wat je hier kiest verandert overal.
+      Zet de picker op <em>Vergelijk alle</em> om de vijf naast elkaar te zien.
+    </p>
+  </header>
+
+  <div class="mk-bar">
+    <div class="mk-picker" id="mk-picker" role="group" aria-label="Variant">
+      <button type="button" data-v="base" aria-pressed="false">Vandaag (baseline)</button>
+      <button type="button" data-v="a" aria-pressed="false">A · Accent + onderstreping</button>
+      <button type="button" data-v="b" aria-pressed="false">B · Alleen onderstreping</button>
+      <button type="button" data-v="c" aria-pressed="false">C · Getinte pil</button>
+      <button type="button" data-v="c2" aria-pressed="true">C2 · Getinte pil + rustcue ✓</button>
+      <button type="button" data-v="d" aria-pressed="false">D · Markeerbalk</button>
+      <button type="button" data-v="all" aria-pressed="false">Vergelijk alle</button>
+    </div>
+    <div class="mk-toggles">
+      <label><input type="checkbox" id="mk-rest"> Rusttoestand (zoals op mobiel — geen hover)</label>
+      <label><input type="checkbox" id="mk-coarse"> 48px touch-vloer (#2800)</label>
+      <span class="mk-swatches" aria-label="Linkkleur">
+        <button type="button" data-link="#2d6fb3" data-hover="#1d4e80" data-wash="rgba(45,111,179,0.10)" aria-pressed="true"><span class="dot" style="background:#2d6fb3"></span>Infoblauw ✓</button>
+        <button type="button" data-link="#14664c" data-hover="#0b3d2e" data-wash="rgba(20,102,76,0.10)" aria-pressed="false"><span class="dot" style="background:#14664c"></span>Linkgroen</button>
+        <button type="button" data-link="#0b3d2e" data-hover="#000000" data-wash="rgba(11,61,46,0.10)" aria-pressed="false"><span class="dot" style="background:#0b3d2e"></span>Clubgroen</button>
+      </span>
+    </div>
+  </div>
+
+  <p class="mk-note" id="mk-blurb"></p>
+
+  <!-- ── single-variant view ─────────────────────────────────── -->
+  <section id="mk-single">
+    <p class="mk-section-title">In context — POP-planning, blok 3</p>
+    <div class="tt-dashboard mk-contexts" data-variant="c" id="mk-single-scope">
+
+      <div class="tt-pdp-block-col tt-pdp-block-col--alert">
+        <h3 class="tt-pdp-block-col__head">Ontbrekend <span class="tt-pdp-count">12</span></h3>
+        <p class="tt-pdp-block-col__help">Actieve selectiespeler zonder gesprek in dit blok. Open hun POP-dossier om er één te starten.</p>
+        <ul class="tt-pdp-block-list">
+          <li><a class="tt-record-link" href="#">Jesse Boot</a></li>
+          <li><a class="tt-record-link" href="#">Senna Broekhuijsen</a></li>
+          <li><a class="tt-record-link" href="#">Nine Den Besten</a></li>
+          <li><a class="tt-record-link" href="#">Duco Gunnink</a></li>
+          <li><a class="tt-record-link" href="#">Samuel Liana</a></li>
+          <li><a class="tt-record-link" href="#">Wilson Nunez</a></li>
+          <li><a class="tt-record-link" href="#">Daan Portzgen</a></li>
+          <li><a class="tt-record-link" href="#">Sits van Abeelen</a></li>
+          <li><a class="tt-record-link" href="#">Javi van Ochten</a></li>
+          <li><a class="tt-record-link" href="#">Jens vd Zande</a></li>
+          <li><a class="tt-record-link" href="#">Joeri Veenhof</a></li>
+          <li><a class="tt-record-link" href="#">Luuk Visser</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="tt-pdp-block-col tt-pdp-block-col--ok" style="margin-bottom:16px">
+          <h3 class="tt-pdp-block-col__head">Gevoerd <span class="tt-pdp-count">4</span></h3>
+          <p class="tt-pdp-block-col__help">Het gesprek heeft een conducted_at — het heeft plaatsgevonden.</p>
+          <ul class="tt-pdp-block-list">
+            <li><a class="tt-record-link" href="#">Mees Aalbers</a><span class="tt-muted"> · gevoerd 2026-02-11</span></li>
+            <li><a class="tt-record-link" href="#">Tygo Bekkers</a><span class="tt-muted"> · gevoerd 2026-02-14</span></li>
+            <li><a class="tt-record-link" href="#">Ravi Dijkhuizen</a><span class="tt-muted"> · gevoerd 2026-02-19</span></li>
+            <li><a class="tt-record-link" href="#">Sem Kuiper</a><span class="tt-muted"> · gevoerd 2026-02-22</span></li>
+          </ul>
+        </div>
+
+        <p class="mk-section-title" style="margin-top:0">Dezelfde link in een tabel — spelersoverzicht</p>
+        <table class="tt-table">
+          <thead><tr><th>Speler</th><th>Team</th><th>Positie</th></tr></thead>
+          <tbody>
+            <tr><td><a class="tt-record-link" href="#">Jesse Boot</a></td><td><a class="tt-record-link" href="#">JO14-1</a></td><td>Centrale verdediger</td></tr>
+            <tr><td><a class="tt-record-link" href="#">Senna Broekhuijsen</a></td><td><a class="tt-record-link" href="#">JO14-1</a></td><td>Controlerende middenvelder</td></tr>
+            <tr><td><a class="tt-record-link" href="#">Luuk Visser</a></td><td><a class="tt-record-link" href="#">JO14-2</a></td><td>Spits</td></tr>
+          </tbody>
+        </table>
+
+        <p class="mk-section-title">En in een dashboard-tegel — korte labels, het krapste geval</p>
+        <div class="tt-card">
+          <h3>Aankomende activiteiten</h3>
+          <ul class="tt-stack">
+            <li><a class="tt-record-link" href="#">Training JO14-1</a><span class="tt-muted">di 19:00</span></li>
+            <li><a class="tt-record-link" href="#">Wedstrijd vs. Nivo Sparta</a><span class="tt-muted">za 11:30</span></li>
+            <li><span class="tt-muted">Rugnummer</span><a class="tt-record-link" href="#">9</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <pre class="mk-css" id="mk-code"></pre>
+  </section>
+
+  <!-- ── compare-all view ───────────────────────────────────── -->
+  <section id="mk-compare" hidden>
+    <p class="mk-section-title">Vergelijk alle — zelfde kaart, vijf behandelingen</p>
+    <div class="mk-compare tt-dashboard" id="mk-compare-grid"></div>
+  </section>
+
+  <p class="mk-note" style="margin-top:24px">
+    <strong>Los van de smaak, drie dingen die hoe dan ook mee moeten.</strong>
+    (1) <code>outline: none</code> op <code>:focus-visible</code> haalt de toetsenbord-focusring weg —
+    dat is CLAUDE.md §2 gebroken, en elke variant hierboven zet hem terug.
+    (2) <code>color: inherit</code> betekent dat op een telefoon niets verraadt dat die twaalf namen
+    klikbaar zijn; zet <em>Rusttoestand</em> aan en alleen variant A lost dat op.
+    (3) <code>rgba(11, 95, 255, 0.04)</code> is een hardgecodeerd blauw in een groen/goud product —
+    vandaar de voorgestelde tokens <code>--tt-link</code> / <code>--tt-link-hover</code> / <code>--tt-link-wash</code>,
+    zodat theme-federation.css en theme-leon-hutten.css links kunnen hertinten zonder public.css aan te raken.
+  </p>
+
+</div>
+
+<script>
+(function () {
+    var BLURBS = {
+        base: '<strong>Vandaag.</strong> <code>translateY(-1px)</code> + <code>box-shadow: 0 4px 12px</code> + een blauwe waas van 4%. De naam springt van zijn basislijn en de schaduw plakt tegen de letters aan omdat er geen padding is. In de tabel zie je het duidelijkst: de rij golft bij het overgaan.',
+        a: '<strong>A · Accent + onderstreping.</strong> De link is in rust al gekleurd, dus op een telefoon zie je dát het een link is — hover voegt alleen een onderstreping toe. Grootste visuele verandering: elke naam in het product wordt groen. Vergelijk de drie kleurchips: clubgroen (#0b3d2e) ligt zo dicht bij de inktkleur dat het nauwelijks als link leest — vandaar het lichtere linkgroen als voorstel.',
+        b: '<strong>B · Alleen onderstreping.</strong> De kleinste diff: geen beweging, geen schaduw, geen achtergrond. Netjes, maar in rust blijven het gewone woorden — het touch-probleem blijft staan.',
+        c: '<strong>C · Getinte pil.</strong> Houdt een achtergrond, maar dan bewust: echte horizontale padding met negatieve marge zodat de tekst niet verschuift, een tint die je kunt zien, geen transform en geen schaduw. Het dichtst bij wat er nu staat, alleen goed uitgevoerd. Zet <em>Rusttoestand</em> aan: in rust is er niets te zien, dus op een telefoon lezen de namen nog steeds als gewone tekst — dat is de prijs van C, en C2 hiernaast is de goedkoopste manier om die deels te betalen.',
+        c2: '<strong>C2 · Getinte pil + rustcue — gekozen 2026-09-02, met infoblauw.</strong> Exact dezelfde hover als C, met één regel erbij: <code>font-weight: 600</code> in rust. Namen krijgen daarmee net genoeg gewicht om als aanraakbaar te lezen zonder dat er iets gekleurd wordt. Zet <em>Rusttoestand</em> aan en vergelijk met C — dat is het hele verschil. De tint is <code>--tt-info</code> (#2d6fb3) op 10%, dus de blauwe waas die er nu al staat, alleen zichtbaar en via een token.',
+        d: '<strong>D · Markeerbalk.</strong> Een accentbalk van 2px groeit onder de naam, getekend met <code>inset box-shadow</code> zodat er niets beweegt en de regelhoogte gelijk blijft. Onderscheidend zonder het kaart-idioom te lenen.'
+    };
+    var CODE = {
+        base:
+'/* vandaag — public.css 1234-1252 */\n' +
+'.tt-record-link {\n  color: inherit !important;\n  text-decoration: none !important;\n  border-radius: 4px;\n}\n' +
+'.tt-record-link:hover,\n.tt-record-link:focus-visible {\n  background: rgba(11, 95, 255, 0.04);\n  transform: translateY(-1px);\n  box-shadow: 0 4px 12px rgba(0,0,0,0.06);\n  outline: none;            <span class="c">/* <- de a11y-bug */</span>\n}',
+        a:
+'.tt-record-link {\n  color: var(--tt-link) !important;\n  text-decoration: none !important;\n  font-weight: 600;\n}\n' +
+'.tt-record-link:hover {\n  color: var(--tt-link-hover) !important;\n  text-decoration: underline !important;\n  text-underline-offset: 3px;\n  text-decoration-thickness: 2px;\n}\n' +
+'.tt-record-link:focus-visible {\n  outline: 2px solid var(--tt-link);\n  outline-offset: 2px;\n}',
+        b:
+'.tt-record-link {\n  color: inherit !important;\n  text-decoration: none !important;\n}\n' +
+'.tt-record-link:hover {\n  color: var(--tt-link-hover) !important;\n  text-decoration: underline !important;\n  text-underline-offset: 3px;\n}\n' +
+'.tt-record-link:focus-visible {\n  outline: 2px solid var(--tt-link);\n  outline-offset: 2px;\n}',
+        c:
+'.tt-record-link {\n  color: inherit !important;\n  padding: 2px 6px;\n  margin: -2px -6px;   <span class="c">/* geen reflow */</span>\n  border-radius: var(--tt-radius);\n}\n' +
+'.tt-record-link:hover {\n  background: var(--tt-link-wash);\n  color: var(--tt-link-hover) !important;\n}\n' +
+'.tt-record-link:focus-visible {\n  outline: 2px solid var(--tt-link);\n  outline-offset: 2px;\n}',
+        c2:
+'.tt-record-link {\n  color: inherit !important;\n  font-weight: 600;   <span class="c">/* &lt;- het enige verschil met C */</span>\n  padding: 2px 6px;\n  margin: -2px -6px;\n  border-radius: var(--tt-radius);\n}\n' +
+'.tt-record-link:hover {\n  background: var(--tt-link-wash);\n  color: var(--tt-link-hover) !important;\n}\n' +
+'.tt-record-link:focus-visible {\n  outline: 2px solid var(--tt-link);\n  outline-offset: 2px;\n}',
+        d:
+'.tt-record-link {\n  color: inherit !important;\n  box-shadow: inset 0 -2px 0 transparent;\n}\n' +
+'.tt-record-link:hover {\n  box-shadow: inset 0 -2px 0 var(--tt-link);\n  color: var(--tt-link-hover) !important;\n}\n' +
+'.tt-record-link:focus-visible {\n  outline: 2px solid var(--tt-link);\n  outline-offset: 2px;\n}'
+    };
+    var LABELS = {
+        base: 'Vandaag <span class="tag">— lift + schaduw</span>',
+        a: 'A <span class="tag">— accent + onderstreping</span>',
+        b: 'B <span class="tag">— alleen onderstreping</span>',
+        c: 'C <span class="tag">— getinte pil</span>',
+        c2: 'C2 ✓ <span class="tag">— pil + rustcue</span>',
+        d: 'D <span class="tag">— markeerbalk</span>'
+    };
+    var NAMES = ['Jesse Boot','Senna Broekhuijsen','Nine Den Besten','Duco Gunnink','Samuel Liana',
+                 'Wilson Nunez','Daan Portzgen','Sits van Abeelen','Javi van Ochten','Jens vd Zande',
+                 'Joeri Veenhof','Luuk Visser'];
+
+    var scope   = document.getElementById('mk-single-scope');
+    var single  = document.getElementById('mk-single');
+    var compare = document.getElementById('mk-compare');
+    var grid    = document.getElementById('mk-compare-grid');
+    var blurb   = document.getElementById('mk-blurb');
+    var code    = document.getElementById('mk-code');
+
+    function card(v) {
+        var lis = NAMES.map(function (n) {
+            return '<li><a class="tt-record-link" href="#">' + n + '</a></li>';
+        }).join('');
+        return '<div class="mk-compare-cell"><h3>' + LABELS[v] + '</h3>' +
+               '<div data-variant="' + v + '">' +
+               '<div class="tt-pdp-block-col tt-pdp-block-col--alert">' +
+               '<h3 class="tt-pdp-block-col__head">Ontbrekend <span class="tt-pdp-count">12</span></h3>' +
+               '<ul class="tt-pdp-block-list">' + lis + '</ul>' +
+               '</div></div></div>';
+    }
+    grid.innerHTML = ['base','a','b','c','c2','d'].map(card).join('');
+
+    function select(v) {
+        Array.prototype.forEach.call(document.querySelectorAll('#mk-picker button'), function (b) {
+            b.setAttribute('aria-pressed', String(b.dataset.v === v));
+        });
+        if (v === 'all') {
+            single.hidden = true; compare.hidden = false;
+        } else {
+            single.hidden = false; compare.hidden = true;
+            scope.setAttribute('data-variant', v);
+            blurb.innerHTML = BLURBS[v];
+            code.innerHTML  = CODE[v];
+        }
+        try { history.replaceState(null, '', '?v=' + v); } catch (e) {}
+    }
+
+    document.getElementById('mk-picker').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (b) select(b.dataset.v);
+    });
+    document.getElementById('mk-rest').addEventListener('change', function (e) {
+        document.body.classList.toggle('mk-rest', e.target.checked);
+    });
+    document.getElementById('mk-coarse').addEventListener('change', function (e) {
+        document.body.classList.toggle('mk-coarse', e.target.checked);
+    });
+    document.querySelector('.mk-swatches').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) {
+            x.setAttribute('aria-pressed', String(x === b));
+        });
+        var root = document.body;
+        root.style.setProperty('--tt-link', b.dataset.link);
+        root.style.setProperty('--tt-link-hover', b.dataset.hover);
+        root.style.setProperty('--tt-link-wash', b.dataset.wash);
+    });
+
+    var q = (location.search.match(/[?&]v=([a-z0-9]+)/) || [])[1];
+    select(BLURBS[q] || q === 'all' ? q : 'c2');
+})();
+</script>
+</body>
+</html>

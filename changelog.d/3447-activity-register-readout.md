@@ -21,7 +21,9 @@ September training keeps reading `14/14` after somebody leaves in March.
 Minutes are owed only by the players marked Present or Late; guests count
 on neither side.
 
-The projection lives in a new `ActivityRegisterProgress` domain service
-rather than in the view, and it reads a whole page in two queries. It is
-exposed on the activities REST payload as `register`, so a non-WordPress
-front end draws the same row.
+The numbers come from the same `ActivityRegisterProgress` service the
+empty-register warning grades on, so the card and the dialog can never
+tell you different things about the same activity; the readout adds a
+batched page projection that reads a whole list in two queries rather
+than two per row. It is exposed on the activities REST payload as
+`register`, so a non-WordPress front end draws the same row.
