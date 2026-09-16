@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Evaluation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\EmptyRegisterConfirm;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -41,12 +42,34 @@ final class RateConfirmStep implements WizardStepInterface {
     public function render( array $state ): void {
         if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
             wp_enqueue_style( 'tt-rate-confirm', TT_PLUGIN_URL . 'assets/css/rate-confirm.css', [], TT_VERSION );
+            // #3446 — either Skip button completes the activity, so this
+            // step is a commit point and needs the empty-register guard.
+            wp_enqueue_script( 'tt-confirm', TT_PLUGIN_URL . 'assets/js/components/confirm.js', [], TT_VERSION, true );
+            wp_enqueue_script(
+                'tt-activity-complete-guard',
+                TT_PLUGIN_URL . 'assets/js/activity-complete-guard.js',
+                [ 'tt-confirm' ],
+                TT_VERSION,
+                true
+            );
         }
         $aid     = (int) ( $state['activity_id'] ?? 0 );
         $present = self::countRatable( $aid );
+        $empty   = EmptyRegisterConfirm::applies( $aid );
+        $guard   = $empty ? EmptyRegisterConfirm::guardAttributes( $aid, get_current_user_id() ) : '';
         ?>
         <p class="tt-rate-confirm-intro">
-            <?php esc_html_e( "Attendance is saved. While you're here, do you want to rate the players who were present?", 'talenttrack' ); ?>
+            <?php
+            // #3446 — this sentence used to be unconditional, and on an
+            // activity with no register it was the plugin telling a coach
+            // their attendance was saved moments before it completed the
+            // activity without any.
+            if ( $empty ) {
+                esc_html_e( 'No attendance has been recorded for this activity. Do you want to rate any players before finishing?', 'talenttrack' );
+            } else {
+                esc_html_e( "Attendance is saved. While you're here, do you want to rate the players who were present?", 'talenttrack' );
+            }
+            ?>
         </p>
         <?php if ( $present > 0 ) : ?>
             <p class="tt-rate-confirm-count">
@@ -64,10 +87,10 @@ final class RateConfirmStep implements WizardStepInterface {
             <button type="submit" name="_rate_choice" value="yes" class="tt-btn tt-btn-primary tt-rate-confirm-btn">
                 <?php esc_html_e( 'Rate players', 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_open" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_open" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate<?php echo $guard; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() in guardAttributes() ?>>
                 <?php esc_html_e( "Skip rating — I'll rate later", 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate<?php echo $guard; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() in guardAttributes() ?>>
                 <?php esc_html_e( 'Skip rating — no rating needed', 'talenttrack' ); ?>
             </button>
             <p class="tt-rate-confirm-hint">
@@ -76,7 +99,17 @@ final class RateConfirmStep implements WizardStepInterface {
         </div>
         <?php if ( $present === 0 ) : ?>
             <p class="tt-notice" role="status">
-                <?php esc_html_e( 'Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings.', 'talenttrack' ); ?>
+                <?php
+                // #3446 — "nobody was marked present" and "nobody was marked
+                // at all" are different facts with different remedies, and
+                // saying the first when the second is true is how an
+                // activity completed empty without anyone noticing.
+                if ( $empty ) {
+                    esc_html_e( 'Nothing has been recorded for this activity yet, so there is nobody to rate. Recording attendance first means every player on the roster gets this date on their record.', 'talenttrack' );
+                } else {
+                    esc_html_e( 'Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings.', 'talenttrack' );
+                }
+                ?>
             </p>
         <?php endif;
     }

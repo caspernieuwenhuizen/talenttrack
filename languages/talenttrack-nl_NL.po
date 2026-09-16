@@ -60742,6 +60742,34 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Services/EmptyRegisterConfirm.php:35
+msgid "Nobody is marked present"
+msgstr "Niemand staat op aanwezig"
+
+#: src/Modules/Activities/Services/EmptyRegisterConfirm.php:39
+msgid "No attendance has been recorded for this activity. Completing it now means every player's participation for this date is missing from their record."
+msgstr "Voor deze activiteit is geen aanwezigheid geregistreerd. Rond je hem nu af, dan ontbreekt bij elke speler wat hij op deze datum heeft gedaan."
+
+#: src/Modules/Activities/Services/EmptyRegisterConfirm.php:43
+msgid "Complete anyway"
+msgstr "Toch afronden"
+
+#: src/Modules/Activities/Services/EmptyRegisterConfirm.php:47
+msgid "Record attendance"
+msgstr "Aanwezigheid registreren"
+
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:73
+msgid "No attendance has been recorded for this activity. Do you want to rate any players before finishing?"
+msgstr "Voor deze activiteit is geen aanwezigheid geregistreerd. Wil je nog spelers beoordelen voordat je afsluit?"
+
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:113
+msgid "Nothing has been recorded for this activity yet, so there is nobody to rate. Recording attendance first means every player on the roster gets this date on their record."
+msgstr "Er is voor deze activiteit nog niets geregistreerd, dus er is niemand om te beoordelen. Registreer je eerst de aanwezigheid, dan krijgt elke speler uit de selectie deze datum op zijn dossier."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:441
+msgid "Mark this activity completed? You can reopen it later."
+msgstr "Deze activiteit markeren als afgerond? Je kunt hem later heropenen."
+
 #, php-format
 #~ msgid "Top %d"
 #~ msgstr "Top %d"

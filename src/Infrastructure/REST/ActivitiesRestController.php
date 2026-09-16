@@ -1891,7 +1891,17 @@ class ActivitiesRestController {
             return RestResponse::error( 'db_error', __( 'Could not update the activity status.', 'talenttrack' ), 500 );
         }
         do_action( 'tt_activity_status_changed', $id, $status );
-        return RestResponse::success( [ 'id' => $id, 'activity_status_key' => $status ] );
+        // #3446 — say how much of the register exists, so a non-WordPress
+        // consumer can raise the same warning the plugin's own dialog
+        // raises rather than inventing its own predicate (CLAUDE.md §4).
+        // Advisory only: this endpoint does not refuse an empty register,
+        // because legitimate empty ones exist.
+        \TT\Modules\Activities\Services\ActivityRegisterProgress::forget( $id );
+        return RestResponse::success( [
+            'id'                  => $id,
+            'activity_status_key' => $status,
+            'register_state'      => \TT\Modules\Activities\Services\ActivityRegisterProgress::state( $id ),
+        ] );
     }
 
     /**
