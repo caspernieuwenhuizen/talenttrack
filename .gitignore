@@ -9,6 +9,18 @@ tests/e2e/.auth/
 # wp-env
 .wp-env.override.json
 
+# Composer dev tooling (#3439). The runtime half of vendor/ is committed on
+# purpose — e2e.yml installs nothing and loads it straight from the checkout.
+# These two are the dev half that nothing loads: the binaries, and a PHPStan
+# extension reached only through PSR-4. Get them from `composer install`.
+#
+# vendor/phpstan/ is NOT listed here and cannot be, until the committed
+# vendor/composer/ is regenerated with --no-dev: autoload_files.php requires
+# phpstan/phpstan/bootstrap.php unconditionally, so removing the directory
+# fatals the plugin on load. See DEVOPS.md.
+/vendor/bin/
+/vendor/szepeviktor/
+
 # Claude Code session state (worktrees + per-session locks)
 .claude/
 
