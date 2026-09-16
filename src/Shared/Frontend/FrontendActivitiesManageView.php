@@ -1160,13 +1160,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         bool $is_match,
         string $window
     ): void {
+        // #3448 — a match had no Date fact at all: the branch below ran from
+        // Opponent to Formation and the Date cell lived only in the `else`.
+        // A fixture is the activity whose date a coach most wants stated, so
+        // both branches now lead with it, off one resolved value.
+        $date_fact = \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date );
+
         $cells = [];
         if ( $is_match ) {
-            // #3448 — a match had no Date fact at all: this branch ran from
-            // Opponent to Formation and the Date cell lived only in the
-            // `else`. A fixture is the activity whose date a coach most
-            // wants stated, so it leads the facts here as it does there.
-            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date ) ];
+            if ( $date_fact !== '' ) $cells[] = [ __( 'Date', 'talenttrack' ), $date_fact ];
 
             $opponent = (string) ( $session->opponent ?? '' );
             if ( $opponent !== '' ) $cells[] = [ __( 'Opponent', 'talenttrack' ), $opponent ];
@@ -1185,7 +1187,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $formation = (string) ( $session->formation ?? '' );
             if ( $formation !== '' ) $cells[] = [ __( 'Formation', 'talenttrack' ), $formation ];
         } else {
-            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date ) ];
+            if ( $date_fact !== '' ) $cells[] = [ __( 'Date', 'talenttrack' ), $date_fact ];
             if ( $window !== '' ) $cells[] = [ __( 'Time', 'talenttrack' ), $window ];
             $type_label = (string) ( \TT\Infrastructure\Query\LabelTranslator::activityType( $type_key ) ?? '' );
             if ( $type_label !== '' ) $cells[] = [ __( 'Type', 'talenttrack' ), $type_label ];
@@ -2481,7 +2483,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // wp_date() already returns the locale's own casing, and
                 // Dutch does not capitalise `vr`.
                 $month_short   = wp_date( 'M', $ts );
-                $weekday_short = wp_date( 'D', $ts );
+                $weekday_short = (string) wp_date( 'D', $ts );
                 $day_num       = (int) $m[3];
             }
         }

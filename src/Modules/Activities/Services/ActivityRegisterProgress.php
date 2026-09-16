@@ -83,7 +83,6 @@ final class ActivityRegisterProgress {
         $activity_ids = [];
         $team_ids     = [];
         foreach ( $rows as $row ) {
-            if ( ! is_object( $row ) ) continue;
             $id = (int) ( $row->id ?? 0 );
             if ( $id > 0 && ! isset( self::$counts[ $id ] ) ) $activity_ids[ $id ] = true;
             $team = (int) ( $row->team_id ?? 0 );

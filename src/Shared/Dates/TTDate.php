@@ -167,7 +167,7 @@ class TTDate {
     public static function dateWithDay( $when ): string {
         $ts = self::ts( $when );
         if ( $ts === null ) return '';
-        return wp_date( self::dateWithDayFormat(), $ts );
+        return (string) wp_date( self::dateWithDayFormat(), $ts );
     }
 
     /**

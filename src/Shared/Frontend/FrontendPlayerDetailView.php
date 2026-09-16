@@ -2737,8 +2737,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $ts = \TT\Shared\Dates\TTDate::timestamp( $iso );
         if ( $ts === null ) return [ 'm' => '—', 'd' => '' ];
         return [
-            'm' => wp_date( 'M', $ts ),
-            'd' => wp_date( 'j', $ts ),
+            'm' => (string) wp_date( 'M', $ts ),
+            'd' => (string) wp_date( 'j', $ts ),
         ];
     }
 
