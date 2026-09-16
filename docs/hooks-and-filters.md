@@ -20,7 +20,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_person_assigned_to_team`             | After a person (staff) row gets a team assignment                              | `int $team_id`, `int $person_id`, `string $role_key`, `int $functional_role_id` |
 | `tt_activity_saved`                      | After an activity row is created or updated. Any edit — distinct from `tt_activity_completed`, which is one transition | `int $activity_id`, `array $data` |
 | `tt_activity_attendance_changed`         | After attendance rows for an activity are created, changed or removed. Says nothing about the new contents; re-read if you care | `int $activity_id` |
-| `tt_activity_deleted`                    | After an activity row is hard-deleted, on both delete paths (wp-admin and the recycle bin's purge). Not fired on archive or trash — those keep the row. Subscribers clear their references to a row that is already gone | `int $activity_id` |
+| `tt_activity_deleted`                    | After an activity row is hard-deleted, on both delete paths (wp-admin and the recycle bin's purge). Not fired on archive or trash — those keep the row. Subscribers clear their references to a row that is already gone. `$context` carries whatever `tt_activity_delete_context` collected before the delete, for references the delete itself erased | `int $activity_id`, `array $context` |
 | `tt_invitation_sent`                     | After a held invitation is delivered and `sent_at` is stamped. Distinct from `tt_invitation_created`, which fires whether or not anybody was mailed | `int $invitation_id` |
 | `tt_measurement_result_saved`            | After a measurement result is created, edited or archived                      | `int $result_id`, `int $player_id`         |
 | `tt_staff_certification_saved`           | After a staff certificate is recorded, renewed or archived                     | `int $certification_id`, `int $person_id`  |
@@ -36,6 +36,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 
 | Hook                                  | What it filters                                                          | Args                                                |
 | ---                                   | ---                                                                      | ---                                                 |
+| `tt_activity_delete_context`          | References to an activity that is about to be hard-deleted, collected before any write and handed to `tt_activity_deleted`. Add only what the delete itself destroys — a cascade that nulls your foreign key leaves nothing to look up afterwards | `array $context`, `int $activity_id` |
 | `tt_dashboard_data`                   | The data array passed to the dashboard renderer                          | `array $data`                                       |
 | `tt_modify_categories`                | The evaluation category list before render                               | `array $categories`, `int $player_id`               |
 | `tt_auth_check`                       | Authorization check entry point — return `true`/`false` to override     | `bool $allow`, `string $cap`, `int|null $entity_id` |

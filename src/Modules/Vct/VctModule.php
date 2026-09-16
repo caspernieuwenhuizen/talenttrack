@@ -89,7 +89,14 @@ class VctModule implements ModuleInterface {
         // session's activity_id and revert it to draft. Per spec
         // § Integration with Activities — the session is preserved;
         // the coach can re-publish or archive it.
-        add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
+        add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 2 );
+
+        // #3426 — on the recycle bin's purge the cascade plan nulls
+        // `tt_vct_sessions.activity_id` as part of the delete, so the
+        // binding is gone before the event fires. Read it here, while the
+        // row still points at the activity, and let the handler use what
+        // it was told.
+        add_filter( 'tt_activity_delete_context', [ self::class, 'captureBoundSession' ], 10, 2 );
 
         // #912 — Register the nightly workload-aggregation task with
         // the Workflow module's template registry. The matching cron
@@ -120,19 +127,55 @@ class VctModule implements ModuleInterface {
     }
 
     /**
-     * Hook handler for `tt_activity_deleted`. The Activities module
-     * fires this action with the deleted activity_id; VCT looks up any
-     * session bound to that activity and reverts it.
+     * Filter handler for `tt_activity_delete_context` (#3426). Records the
+     * session bound to an activity that is about to be deleted, so the
+     * handler below can still revert it on the path where the cascade
+     * clears the binding on its way through.
+     *
+     * @param array<string,mixed> $context
+     * @return array<string,mixed>
      */
-    public static function onActivityDeleted( int $activity_id ): void {
+    public static function captureBoundSession( array $context, int $activity_id ): array {
+        $bound = self::boundSessionId( $activity_id );
+        if ( $bound > 0 ) {
+            $context['vct_session_id'] = $bound;
+        }
+        return $context;
+    }
+
+    /**
+     * Hook handler for `tt_activity_deleted`. The Activities module
+     * fires this action with the deleted activity_id; VCT reverts the
+     * session that was bound to that activity — preserved, unbound and
+     * back to draft, so the coach can re-publish or archive it.
+     *
+     * The binding comes from the pre-delete context when the caller
+     * collected one (#3426 — the recycle bin's cascade nulls the column
+     * itself, so there is nothing left to look up afterwards). The
+     * wp-admin path collects none and the lookup still answers there,
+     * because only the activity row is gone by then.
+     *
+     * @param array<string,mixed> $context
+     */
+    public static function onActivityDeleted( int $activity_id, array $context = [] ): void {
         if ( $activity_id <= 0 ) return;
+        $bound = isset( $context['vct_session_id'] )
+            ? (int) $context['vct_session_id']
+            : self::boundSessionId( $activity_id );
+        if ( $bound <= 0 ) return;
+        ( new VctSessionsRepository() )->updateStatus( $bound, 'draft', 0 );
+    }
+
+    /**
+     * Id of the session bound to an activity, 0 when there is none.
+     */
+    private static function boundSessionId( int $activity_id ): int {
+        if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $sessions = $wpdb->prefix . 'tt_vct_sessions';
-        $bound = (int) $wpdb->get_var( $wpdb->prepare(
+        return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$sessions} WHERE activity_id = %d LIMIT 1",
             $activity_id
         ) );
-        if ( $bound <= 0 ) return;
-        ( new VctSessionsRepository() )->updateStatus( $bound, 'draft', 0 );
     }
 }

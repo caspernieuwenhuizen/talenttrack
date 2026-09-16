@@ -1098,8 +1098,11 @@ final class ActivitiesRepository {
      * Static because the other hard-delete path is the recycle bin's
      * cascade, which never constructs this repository. Both call here so
      * there is one place that defines when the event fires.
+     *
+     * @param array<string,mixed> $context  Pre-delete references, from
+     *                                      `captureDeleteContext()`.
      */
-    public static function announceDeleted( int $activity_id ): void {
+    public static function announceDeleted( int $activity_id, array $context = [] ): void {
         if ( $activity_id <= 0 ) return;
 
         /**
@@ -1110,9 +1113,46 @@ final class ActivitiesRepository {
          * not fire on archive or trash — those keep the row, and a
          * subscriber that cleaned up on them would break restore.
          *
-         * @param int $activity_id
+         * `$context` carries whatever `tt_activity_delete_context` collected
+         * before the delete — empty on paths that did not collect any. A
+         * subscriber reads it only for references the delete itself erased;
+         * everything still readable it reads from the database as before.
+         *
+         * @param int                 $activity_id
+         * @param array<string,mixed> $context
          */
-        do_action( 'tt_activity_deleted', $activity_id );
+        do_action( 'tt_activity_deleted', $activity_id, $context );
+    }
+
+    /**
+     * #3426 — collect, BEFORE an activity is deleted, the references a
+     * subscriber will no longer be able to read afterwards.
+     *
+     * The recycle bin's cascade nulls declared foreign keys as part of the
+     * delete, so by the time `tt_activity_deleted` fires the binding a
+     * subscriber would query on is already gone. Announcing after the
+     * delete is deliberate — a fail-closed refusal must never reach a
+     * subscriber — so the context travels with the event instead.
+     *
+     * Each owning module answers for its own tables; this repository does
+     * not know what they keep.
+     *
+     * @return array<string,mixed>
+     */
+    public static function captureDeleteContext( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        /**
+         * Collect references to an activity that is about to be deleted.
+         *
+         * Runs before any write, so everything is still readable. Returned
+         * values are handed back to `tt_activity_deleted` subscribers as the
+         * second argument. Add only what the delete itself destroys.
+         *
+         * @param array<string,mixed> $context
+         * @param int                 $activity_id
+         */
+        return (array) apply_filters( 'tt_activity_delete_context', [], $activity_id );
     }
 
     /**

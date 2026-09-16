@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Vct\VctModule;
@@ -27,6 +28,8 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         global $wpdb;
+        // The bin's lifecycle methods record an actor on every transition.
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Delete Event Team' ] );
         $this->team_id = (int) $wpdb->insert_id;
     }
@@ -107,6 +110,63 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
         $this->assertSame( 'published', (string) $spared->status );
     }
 
+    /**
+     * #3426 — the path that was never covered. The recycle bin's purge
+     * routes through the cascade plan, which nulls
+     * `tt_vct_sessions.activity_id` on its way through, so a subscriber
+     * that re-queried the binding after the delete found nothing and the
+     * session stayed `published` — unbound, and stuck in a status the
+     * coach could not leave.
+     */
+    public function test_purged_activity_unbinds_and_reverts_its_vct_session(): void {
+        global $wpdb;
+        $activity_id = $this->activity();
+        $other_id    = $this->activity();
+        $bound       = $this->vctSession( $activity_id );
+        $untouched   = $this->vctSession( $other_id );
+
+        $this->inBin( $activity_id );
+        $deleted = ( new ArchiveRepository() )->purge( 'activity', [ $activity_id ], get_current_user_id() );
+
+        $this->assertSame( 1, $deleted, 'the activity was purged out of the bin' );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT activity_id, status FROM {$wpdb->prefix}tt_vct_sessions WHERE id = %d",
+            $bound
+        ) );
+        $this->assertNotNull( $row, 'The session is preserved — only its binding goes.' );
+        $this->assertNull( $row->activity_id );
+        $this->assertSame( 'draft', (string) $row->status, 'a purge leaves no session stuck on published' );
+
+        $spared = $wpdb->get_row( $wpdb->prepare(
+            "SELECT activity_id, status FROM {$wpdb->prefix}tt_vct_sessions WHERE id = %d",
+            $untouched
+        ) );
+        $this->assertSame( $other_id, (int) $spared->activity_id, 'A session bound elsewhere was unbound.' );
+        $this->assertSame( 'published', (string) $spared->status );
+    }
+
+    /**
+     * `DELETE /activities/{id}/permanent` reaches the same cascade without
+     * going through the bin, so it is asserted separately rather than
+     * assumed to follow.
+     */
+    public function test_permanent_delete_unbinds_and_reverts_its_vct_session(): void {
+        global $wpdb;
+        $activity_id = $this->activity();
+        $bound       = $this->vctSession( $activity_id );
+
+        $deleted = ( new ArchiveRepository() )->deletePermanently( 'activity', [ $activity_id ] );
+
+        $this->assertSame( 1, $deleted );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT activity_id, status FROM {$wpdb->prefix}tt_vct_sessions WHERE id = %d",
+            $bound
+        ) );
+        $this->assertNotNull( $row );
+        $this->assertNull( $row->activity_id );
+        $this->assertSame( 'draft', (string) $row->status );
+    }
+
     public function test_media_links_to_the_activity_are_removed(): void {
         global $wpdb;
         $activity_id = $this->activity();
@@ -142,6 +202,17 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
             'activity_type_key' => 'training',
         ] );
         return (int) $wpdb->insert_id;
+    }
+
+    /** Archive then trash an activity, so purge() considers it eligible. */
+    private function inBin( int $activity_id ): void {
+        global $wpdb;
+        $wpdb->update(
+            $wpdb->prefix . 'tt_activities',
+            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+            [ 'id' => $activity_id ]
+        );
+        ( new ArchiveRepository() )->trash( 'activity', [ $activity_id ], get_current_user_id() );
     }
 
     private function vctSession( int $activity_id ): int {
