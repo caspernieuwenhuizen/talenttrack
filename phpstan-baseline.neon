@@ -565,6 +565,12 @@ parameters:
 			path: src/Infrastructure/Players/ParentDashboardTiles.php
 
 		-
+			message: '#^Call to function is_array\(\) with list\<array\{view_slug\: string, label\: string, icon\: string, color\: string\}\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Infrastructure/Players/ParentDashboardTiles.php
+
+		-
 			message: '#^Access to an undefined property object\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1

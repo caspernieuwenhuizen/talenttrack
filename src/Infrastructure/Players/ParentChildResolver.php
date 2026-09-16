@@ -128,10 +128,7 @@ final class ParentChildResolver {
     private static function holdsStaffPersona( int $user_id ): bool {
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) return false;
 
-        $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id );
-        if ( ! is_array( $personas ) ) return false;
-
-        foreach ( $personas as $persona ) {
+        foreach ( \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id ) as $persona ) {
             if ( $persona !== 'parent' && $persona !== 'player' ) return true;
         }
         return false;

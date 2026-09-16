@@ -771,18 +771,20 @@ class FrontendTileGrid {
             echo '<h3 class="tt-parent-dash-own-heading">' . esc_html__( 'Your account', 'talenttrack' ) . '</h3>';
             echo '<div class="tt-parent-dash-grid">';
             foreach ( $own as $tile ) {
-                $slug = (string) ( $tile['view_slug'] ?? '' );
+                $slug = $tile['view_slug'];
                 if ( $slug === '' ) continue;
+                // tt-xview-ok: the slug came out of
+                // TileRegistry::tilesForUserGrouped( $user_id ), which has
+                // already applied the per-user capability, module and feature
+                // gates — the same question CrossViewLink would ask. The child
+                // rail above resolves its URLs the same way.
                 $url  = \TT\Shared\Frontend\Components\BackLink::appendTo(
-                    add_query_arg( [ 'tt_view' => $slug ], $base )
+                    add_query_arg( [ 'tt_view' => $slug ], $base ) /* tt-xview-ok */
                 );
-                $chip = TileIconChip::render(
-                    (string) ( $tile['icon'] ?? '' ),
-                    (string) ( $tile['color'] ?? '#0b3d2e' )
-                );
+                $chip = TileIconChip::render( $tile['icon'], $tile['color'] );
                 echo '<a class="tt-parent-dash-tile" href="' . esc_url( $url ) . '">';
                 echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs; IconRenderer returns trusted SVG.
-                echo '<span class="tt-parent-dash-tile-label">' . esc_html( (string) ( $tile['label'] ?? $slug ) ) . '</span>';
+                echo '<span class="tt-parent-dash-tile-label">' . esc_html( $tile['label'] ) . '</span>';
                 echo \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug( $slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title.
                 echo '</a>';
             }
