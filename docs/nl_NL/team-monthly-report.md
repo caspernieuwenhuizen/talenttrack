@@ -81,6 +81,28 @@ elke pagina staat dat het rapport vertrouwelijk is en alleen voor staf bedoeld.
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.
 
+## Elke maand laten versturen
+
+Met **Maandelijks inplannen** onder het paneel komt het rapport elke 1e van de
+maand als pdf per e-mail binnen. Elk rapport gaat over de maand die net voorbij
+is, dus het rapport van 1 oktober gaat over september. Je geeft de planning een
+naam en ontvangers; het team, de rapportsoort en de secties zijn die je hebt
+samengesteld. Het rapport noemt spelers bij naam, dus stuur het alleen naar
+stafleden.
+
+De planning bewaart **een eigen kopie** van het rapport. Wat je later aan een
+van je opgeslagen weergaven verandert of verwijdert, verandert niet wat er wordt
+verstuurd. Wil je iets anders versturen, archiveer de planning dan en maak een
+nieuwe.
+
+Je planningen staan onder **Analyses → Geplande rapporten**. Een planning die
+niet kon versturen, zegt daar waarom. Een planning **stopt vanzelf** in plaats
+van te versturen als het team is gearchiveerd, of als degene die haar instelde
+de rapporten van dat team niet meer mag inzien. Hervat de planning zodra dat is
+opgelost.
+
+Geplande rapporten horen bij het Standard-pakket en hoger.
+
 ## Wat de secties laten zien
 
 - **Datadekking** — hoeveel van de afgeronde trainingen en wedstrijden in de

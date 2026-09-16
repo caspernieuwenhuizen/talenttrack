@@ -3,7 +3,13 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\KpiRegistry;
+use TT\Modules\Analytics\Reports\TeamMonthlyReport;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
@@ -98,12 +104,97 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'The schedule could not be deleted because other records still reference it.', 'talenttrack' ) . '</div>';
         }
 
+        // #3462 — arriving from the team monthly report's "Schedule monthly"
+        // carries that report's composition; the form schedules exactly it.
+        $report = isset( $_GET['report'] ) ? sanitize_key( (string) $_GET['report'] ) : '';
+        if ( $report === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
+            self::renderTeamMonthlyForm();
+            self::renderScheduleList();
+            return;
+        }
+
         echo '<p class="tt-sched-intro">'
             . esc_html__( 'Recurring email reports. Pick a KPI, a frequency, and recipients; the daily cron runs the export and emails it on schedule.', 'talenttrack' )
             . '</p>';
 
         self::renderCreateForm();
         self::renderScheduleList();
+    }
+
+    /**
+     * Schedule the team monthly report as composed on the report page.
+     *
+     * The form carries a copy of the composition, not a saved view: the
+     * schedule keeps rendering the same document whatever happens to the
+     * coach's presets later. The window is always "the month before" — a
+     * monthly schedule of one fixed date range would mail the same month
+     * forever.
+     */
+    private static function renderTeamMonthlyForm(): void {
+        $composition = TeamMonthlyReportComposition::normalise( [
+            'team_id' => isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0,
+            'layout'  => isset( $_GET['layout'] ) ? sanitize_key( (string) $_GET['layout'] ) : '',
+            'blocks'  => isset( $_GET['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) ) : '',
+            'period'  => TeamMonthlyReport::DEFAULT_PERIOD,
+        ] );
+        $team = $composition['team_id'] > 0 ? QueryHelpers::get_team( $composition['team_id'] ) : null;
+
+        echo '<h3 class="tt-sched-heading">' . esc_html__( 'Schedule the monthly report', 'talenttrack' ) . '</h3>';
+        if ( $team === null || ! TeamReportAccess::canRead( get_current_user_id(), $composition['team_id'] ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You cannot schedule a report for this team.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $team_name = (string) ( $team->name ?? '' );
+        $layouts   = TeamMonthlyReportLayout::labels();
+        $sections  = count( TeamMonthlyReportBlock::normalise( $composition['blocks'] ) );
+
+        echo '<p class="tt-sched-intro">' . esc_html( sprintf(
+            /* translators: 1: team name, 2: report type (e.g. Three-page pack), 3: number of sections */
+            _n(
+                '%1$s · %2$s · %3$d section. Sent on the 1st of every month as a PDF, covering the month before.',
+                '%1$s · %2$s · %3$d sections. Sent on the 1st of every month as a PDF, covering the month before.',
+                $sections,
+                'talenttrack'
+            ),
+            $team_name,
+            $layouts[ $composition['layout'] ]['title'] ?? $composition['layout'],
+            $sections
+        ) ) . '</p>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'The schedule keeps its own copy of this report. Changing or deleting a saved view later does not change what it sends.', 'talenttrack' ) . '</p>';
+
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-sched-form">';
+        wp_nonce_field( 'tt_scheduled_reports_create', 'tt_sched_nonce' );
+        echo '<input type="hidden" name="action" value="tt_scheduled_reports_create">';
+        echo '<input type="hidden" name="report_key" value="' . esc_attr( ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) . '">';
+        echo '<input type="hidden" name="team_id" value="' . (int) $composition['team_id'] . '">';
+        echo '<input type="hidden" name="layout" value="' . esc_attr( $composition['layout'] ) . '">';
+        echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $composition['blocks'] ) ) . '">';
+
+        echo '<label class="tt-sched-field">';
+        echo '<span class="tt-sched-field__label">' . esc_html__( 'Name', 'talenttrack' ) . '</span>';
+        echo '<input type="text" name="name" required maxlength="255" value="' . esc_attr( sprintf(
+            /* translators: %s: team name */
+            __( 'Monthly report %s', 'talenttrack' ),
+            $team_name
+        ) ) . '">';
+        echo '</label>';
+
+        echo '<label class="tt-sched-field">';
+        echo '<span class="tt-sched-field__label">' . esc_html__( 'Recipients', 'talenttrack' ) . '</span>';
+        echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
+        echo '</label>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'The report names players and describes their development. Send it to staff only.', 'talenttrack' ) . '</p>';
+
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'scheduled-reports', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Schedule report', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
+        echo '</form>';
     }
 
     private static function renderCreateForm(): void {
@@ -176,8 +267,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
         foreach ( $schedules as $schedule ) {
-            $kpi    = KpiRegistry::find( (string) $schedule['kpi_key'] );
-            $label  = $kpi ? $kpi->label : (string) $schedule['kpi_key'];
+            $label = self::reportLabel( $schedule );
             $status = (string) $schedule['status'];
             $chip   = 'tt-sched-chip';
             if ( $status === 'active' )  $chip .= ' tt-sched-chip--active';
@@ -187,7 +277,13 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             echo '<td>' . esc_html( $label ) . '</td>';
             echo '<td>' . esc_html( self::frequencyLabel( (string) $schedule['frequency'] ) ) . '</td>';
             echo '<td><time>' . esc_html( (string) $schedule['next_run_at'] ) . ' UTC</time></td>';
-            echo '<td><span class="' . esc_attr( $chip ) . '">' . esc_html( ucfirst( $status ) ) . '</span></td>';
+            echo '<td><span class="' . esc_attr( $chip ) . '">' . esc_html( ucfirst( $status ) ) . '</span>';
+            // #3462 — a schedule that did not send says why, here, rather
+            // than just not arriving.
+            if ( ! empty( $schedule['last_error'] ) ) {
+                echo '<p class="tt-sched-error">' . esc_html( (string) $schedule['last_error'] ) . '</p>';
+            }
+            echo '</td>';
             echo '<td>';
             self::renderRowActions( (int) $schedule['id'], $status );
             echo '</td>';
@@ -235,6 +331,27 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             );
         }
         echo '</div>';
+    }
+
+    /**
+     * What a schedule sends: the KPI's label, or the team monthly report and
+     * its team.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    private static function reportLabel( array $schedule ): string {
+        if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
+            $raw     = is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [];
+            $team_id = TeamMonthlyReportComposition::normalise( $raw )['team_id'];
+            $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
+            return sprintf(
+                /* translators: %s: team name */
+                __( 'Monthly report · %s', 'talenttrack' ),
+                $team !== null ? (string) ( $team->name ?? '' ) : '—'
+            );
+        }
+        $kpi = KpiRegistry::find( (string) ( $schedule['kpi_key'] ?? '' ) );
+        return $kpi ? $kpi->label : (string) ( $schedule['kpi_key'] ?? '' );
     }
 
     private static function frequencyLabel( string $frequency ): string {

@@ -7,6 +7,7 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\KpiRegistry;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsOutcomeSummary;
@@ -57,6 +58,14 @@ final class ScheduledReportsRunner {
         $now  = current_time( 'mysql', true );
 
         foreach ( $due as $schedule ) {
+            // #3462 — the team monthly report renders a PDF from the
+            // schedule's own composition; a KPI schedule keeps the CSV path
+            // below exactly as it was.
+            if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
+                self::runTeamMonthly( $repo, $schedule, $now );
+                continue;
+            }
+
             $kpi_key = (string) ( $schedule['kpi_key'] ?? '' );
             if ( $kpi_key === '' || KpiRegistry::find( $kpi_key ) === null ) {
                 $repo->markRun( (int) $schedule['id'], $now );
@@ -125,6 +134,83 @@ final class ScheduledReportsRunner {
                 // one, so the failure is logged rather than suppressed.
                 self::discardStagingDir( $dir );
             }
+        }
+    }
+
+    /**
+     * One team monthly schedule: render, stage, send, stamp.
+     *
+     * A run that cannot send says why on the schedules screen. One that must
+     * not send — the team is gone, or its owner lost access — is also paused,
+     * so it stays stopped until someone who can still read the team resumes
+     * it. See `TeamMonthlyReportDelivery`.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    public static function runTeamMonthly( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
+        $id         = (int) ( $schedule['id'] ?? 0 );
+        $recipients = self::resolveRecipients( (array) ( $schedule['recipients'] ?? [] ) );
+        if ( $recipients === [] ) {
+            $repo->recordError( $id, __( 'Not sent: none of the recipients has an email address.', 'talenttrack' ) );
+            self::auditLog( $schedule, 0, false );
+            $repo->markRun( $id, $now_utc );
+            return;
+        }
+
+        $now_ts = strtotime( $now_utc . ' UTC' );
+        $result = TeamMonthlyReportDelivery::render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ) );
+        if ( ! $result['ok'] ) {
+            $repo->recordError( $id, $result['error'] );
+            self::auditLog( $schedule, count( $recipients ), false );
+            if ( $result['stop'] ) {
+                $repo->setStatus( $id, ScheduledReportsRepository::STATUS_PAUSED );
+            } else {
+                $repo->markRun( $id, $now_utc );
+            }
+            return;
+        }
+
+        $dir = self::stagingDir();
+        if ( $dir === '' ) {
+            $repo->recordError( $id, __( 'Not sent: the PDF could not be prepared for sending.', 'talenttrack' ) );
+            self::auditLog( $schedule, count( $recipients ), false );
+            $repo->markRun( $id, $now_utc );
+            return;
+        }
+
+        try {
+            $path = $dir . '/' . $result['filename'];
+            if ( file_put_contents( $path, $result['bytes'] ) === false ) {
+                $repo->recordError( $id, __( 'Not sent: the PDF could not be prepared for sending.', 'talenttrack' ) );
+                self::auditLog( $schedule, count( $recipients ), false );
+                $repo->markRun( $id, $now_utc );
+                return;
+            }
+
+            $results = CommsDispatcher::dispatchSync(
+                ScheduledReportTemplate::KEY,
+                [
+                    'schedule_name' => (string) ( $schedule['name'] ?? '' ),
+                    'kpi_label'     => $result['label'],
+                ],
+                $recipients,
+                [
+                    'message_type'   => MessageType::SCHEDULED_REPORT,
+                    'sender_user_id' => 0,
+                    'attachments'    => [ $path ],
+                ]
+            );
+
+            $sent = CommsOutcomeSummary::sentCount( $results ) > 0;
+            if ( $sent ) {
+                $repo->clearError( $id );
+            } else {
+                $repo->recordError( $id, __( 'Not sent: no recipient could be emailed. Check their addresses and email preferences.', 'talenttrack' ) );
+            }
+            self::auditLog( $schedule, count( $recipients ), $sent );
+            $repo->markRun( $id, $now_utc );
+        } finally {
+            self::discardStagingDir( $dir );
         }
     }
 
@@ -252,6 +338,7 @@ final class ScheduledReportsRunner {
             (int) ( $schedule['id'] ?? 0 ),
             [
                 'name'             => (string) ( $schedule['name'] ?? '' ),
+                'report_key'       => (string) ( $schedule['report_key'] ?? ScheduledReportsRepository::REPORT_KPI ),
                 'kpi_key'          => (string) ( $schedule['kpi_key'] ?? '' ),
                 'recipients_count' => $recipient_count,
                 'ok'               => $ok,

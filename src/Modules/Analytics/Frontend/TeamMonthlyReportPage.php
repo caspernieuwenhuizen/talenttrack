@@ -254,6 +254,10 @@ final class TeamMonthlyReportPage {
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        $schedule_url = self::scheduleUrl( $team_id, $layout, $selected );
+        if ( $schedule_url !== '' ) {
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
+        }
         echo '</div>';
 
         self::renderPresetStatus( TeamMonthlyReportComposition::normalise( [
@@ -290,6 +294,28 @@ final class TeamMonthlyReportPage {
                 $status['name']
             ) ) . '</p>';
         }
+    }
+
+    /**
+     * #3462 — "Schedule monthly": the schedules screen, carrying a copy of
+     * this composition. Empty when the reader cannot schedule reports (no
+     * analytics authoring, the tier lacks scheduled reports, or the screen is
+     * switched off), so the button is not offered to someone it would refuse.
+     *
+     * @param list<string> $selected
+     */
+    public static function scheduleUrl( int $team_id, string $layout, array $selected ): string {
+        if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) && ! \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' ) ) return '';
+        if ( ! CrossViewLink::allows( 'scheduled-reports' ) ) return '';
+
+        return BackLink::appendTo( add_query_arg( [
+            'tt_view' => 'scheduled-reports', /* tt-xview-ok */ // gated by CrossViewLink::allows() above
+            'report'  => 'team_monthly',
+            'team_id' => $team_id,
+            'layout'  => $layout,
+            'blocks'  => implode( ',', $selected ),
+        ], RecordLink::dashboardUrl() ) );
     }
 
     /**

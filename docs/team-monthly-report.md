@@ -78,6 +78,26 @@ fell in. Every page carries the confidential, staff-only line at the bottom.
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.
 
+## Sending it every month
+
+**Schedule monthly** under the panel sets the report up to arrive by email as a
+PDF on the 1st of every month. Each one covers the month that just ended, so
+the one sent on 1 October is about September. You give the schedule a name and
+its recipients; the team, report type and sections are the ones you composed.
+The report names players, so send it to staff only.
+
+The schedule keeps **its own copy** of the report. Changing or deleting one of
+your saved views later does not change what it sends. To send something
+different, archive the schedule and set up a new one.
+
+You can find your schedules under **Analytics → Scheduled reports**. A
+schedule that could not send says why there. A schedule **stops by itself**,
+rather than sending, when its team has been archived or when the person who
+set it up can no longer see that team's reports. Resume it once that has been
+put right.
+
+Scheduled reports are part of the Standard plan and above.
+
 ## What the sections show
 
 - **Data coverage** — how many of the period's completed trainings and matches

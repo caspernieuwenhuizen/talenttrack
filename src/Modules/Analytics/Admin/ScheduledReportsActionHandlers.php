@@ -59,6 +59,11 @@ final class ScheduledReportsActionHandlers {
         $frequency = isset( $_POST['frequency'] ) ? sanitize_key( (string) $_POST['frequency'] ) : '';
         $rec_raw   = isset( $_POST['recipients'] ) ? (string) wp_unslash( (string) $_POST['recipients'] ) : '';
 
+        $report_key = isset( $_POST['report_key'] ) ? sanitize_key( (string) $_POST['report_key'] ) : '';
+        if ( $report_key === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
+            self::createTeamMonthly( $name, $rec_raw );
+        }
+
         $valid_frequencies = [
             ScheduledReportsRepository::FREQUENCY_WEEKLY_MONDAY,
             ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
@@ -90,6 +95,44 @@ final class ScheduledReportsActionHandlers {
         self::redirectBack( 'schedule_created' );
     }
 
+    /**
+     * #3462 — a team monthly schedule. The composition is copied onto the
+     * schedule; the window is always the month before the run. The creator
+     * must be able to read the team's reports, because every run is rendered
+     * as them.
+     */
+    private static function createTeamMonthly( string $name, string $rec_raw ): void {
+        $composition = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::normalise( [
+            'team_id' => isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0,
+            'layout'  => isset( $_POST['layout'] ) ? sanitize_key( (string) $_POST['layout'] ) : '',
+            'blocks'  => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
+            'period'  => \TT\Modules\Analytics\Reports\TeamMonthlyReport::DEFAULT_PERIOD,
+        ] );
+        $recipients = array_values( array_filter( array_map( 'trim', preg_split( "/[\r\n]+/", $rec_raw ) ?: [] ) ) );
+
+        if ( $name === ''
+             || $recipients === []
+             || $composition['team_id'] <= 0
+             || ! \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( get_current_user_id(), $composition['team_id'] )
+        ) {
+            self::redirectBack( 'schedule_invalid' );
+        }
+
+        ( new ScheduledReportsRepository() )->create(
+            [
+                'name'        => $name,
+                'report_key'  => ScheduledReportsRepository::REPORT_TEAM_MONTHLY,
+                'composition' => $composition,
+                'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
+                'recipients'  => $recipients,
+                'format'      => 'pdf',
+            ],
+            get_current_user_id()
+        );
+
+        self::redirectBack( 'schedule_created' );
+    }
+
     public static function handlePause(): void {
         self::changeStatus( self::ACTION_PAUSE, ScheduledReportsRepository::STATUS_PAUSED, 'schedule_paused' );
     }
@@ -107,7 +150,14 @@ final class ScheduledReportsActionHandlers {
         check_admin_referer( $nonce_action, 'tt_sched_nonce' );
         $id = isset( $_POST['schedule_id'] ) ? (int) $_POST['schedule_id'] : 0;
         if ( $id <= 0 ) self::redirectBack( 'schedule_invalid' );
-        ( new ScheduledReportsRepository() )->setStatus( $id, $new_status );
+        $repo = new ScheduledReportsRepository();
+        $repo->setStatus( $id, $new_status );
+        // #3462 — resuming is the answer to a stopped schedule; its reason
+        // no longer describes it. The next run re-checks and says so again
+        // if nothing was fixed.
+        if ( $new_status === ScheduledReportsRepository::STATUS_ACTIVE ) {
+            $repo->clearError( $id );
+        }
         self::redirectBack( $msg );
     }
 

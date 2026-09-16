@@ -76,6 +76,13 @@
 }
 
 .tt-dashboard .tt-sched-tablewrap { max-width: 960px; }
+
+/* #3462 — why the last run did not send. */
+.tt-dashboard .tt-sched-error {
+    margin: var(--tt-sp-1, 0.25rem) 0 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-danger-ink);
+}
 .tt-dashboard .tt-sched-table th { white-space: nowrap; }
 .tt-dashboard .tt-sched-table td { vertical-align: middle; }
 
