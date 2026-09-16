@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T23:20:01+00:00\n"
+"POT-Creation-Date: 2026-09-16T23:37:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -126,7 +126,7 @@ msgstr "Team Manager"
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:206
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:231
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:174
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:751
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:777
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:160
 #: src/Modules/Authorization/Admin/RolesPage.php:357
 #: src/Modules/Authorization/Admin/RolesPage.php:440
@@ -1449,8 +1449,8 @@ msgid "Widget"
 msgstr "Widget"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:29
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:121
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:172
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:212
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:263
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:167
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:319
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:459
@@ -1948,7 +1948,7 @@ msgstr "Gedrag %s onder bodem %s — gemaximeerd op oranje."
 #. translators: %s: comma-separated list of missing inputs
 #: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:202
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:149
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:667
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:693
 #, php-format
 msgid "Computed without %s."
 msgstr "Berekend zonder %s."
@@ -2046,7 +2046,7 @@ msgstr "Hoog"
 
 #: src/Infrastructure/Query/LabelTranslator.php:62
 #: src/Infrastructure/Query/LabelTranslator.php:115
-#: src/Modules/Analytics/ScheduledReportsRepository.php:67
+#: src/Modules/Analytics/ScheduledReportsRepository.php:76
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:136
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:92
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:35
@@ -2265,7 +2265,7 @@ msgstr "Overig"
 #: src/Infrastructure/Query/LabelTranslator.php:117
 #: src/Infrastructure/Query/LabelTranslator.php:494
 #: src/Modules/Activities/Admin/ActivitiesPage.php:120
-#: src/Modules/Analytics/ScheduledReportsRepository.php:69
+#: src/Modules/Analytics/ScheduledReportsRepository.php:78
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:208
@@ -4057,7 +4057,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:307
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:257
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:266
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:114
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
 #: src/Modules/Configuration/Admin/FormSlugContract.php:71
@@ -5130,7 +5130,7 @@ msgstr "Alle types"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:215
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:162
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:171
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:468
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:494
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:486
 #: src/Modules/Authorization/Admin/RolesPage.php:492
@@ -5293,7 +5293,7 @@ msgstr "Bron"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:99
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:176
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:267
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:299
@@ -5543,8 +5543,8 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
 #: src/Modules/Analytics/AnalyticsModule.php:110
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:147
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:471
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:753
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:497
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:779
 #: src/Modules/DataBrowser/SemanticRegistry.php:102
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
@@ -5680,7 +5680,7 @@ msgstr "Opslaan"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:469
 #: src/Modules/Activities/Admin/ActivitiesPage.php:593
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
-#: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:116
+#: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:166
 #: src/Modules/Authorization/Admin/DebugPage.php:23
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:46
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:289
@@ -5967,7 +5967,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:209
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:350
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:754
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:780
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:201
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:386
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
@@ -7734,6 +7734,23 @@ msgstr "Prospects per scout vastgelegd"
 msgid "Pending"
 msgstr "In behandeling"
 
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:154
+msgid "Not sent: none of the recipients has an email address."
+msgstr "Niet verstuurd: geen van de ontvangers heeft een e-mailadres."
+
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:175
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:184
+msgid "Not sent: the PDF could not be prepared for sending."
+msgstr "Niet verstuurd: de pdf kon niet worden klaargezet voor verzending."
+
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:208
+msgid ""
+"Not sent: no recipient could be emailed. Check their addresses and email "
+"preferences."
+msgstr ""
+"Niet verstuurd: geen enkele ontvanger kon worden gemaild. Controleer hun "
+"adressen en e-mailvoorkeuren."
+
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:155
 #: src/Modules/Development/IdeaStatus.php:101
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:82
@@ -7815,7 +7832,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:67
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:61
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:57
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:63
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:90
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:38
 #: src/Modules/Development/Frontend/IdeasBoardView.php:35
@@ -7929,7 +7946,7 @@ msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:68
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:83
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:108
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:74
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:178
 #: src/Modules/Authorization/Admin/ModulesPage.php:91
 #: src/Modules/Documentation/HelpTopics.php:189
@@ -8455,8 +8472,9 @@ msgstr ""
 "worden. Maak een rij leeg om die te verwijderen."
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:141
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:116
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:171
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:207
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:262
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:564
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:614
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
@@ -8590,7 +8608,7 @@ msgid "Coverage matrix"
 msgstr "Dekkingsmatrix"
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:255
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:479
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:505
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:222
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1193
 msgid "Evaluated"
@@ -9341,50 +9359,50 @@ msgstr[1] ""
 "%d spelers zijn overgeslagen — die vallen buiten deze scope of onder de "
 "leeftijd waarop de klasse gevraagd wordt."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:58
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:64
 msgid "You do not have permission to manage scheduled reports."
 msgstr "Je hebt geen toegang om geplande rapporten te beheren."
 
 # v3.104.6 — #0083 Child 6: scheduled reports + CSV export
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:67
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:70
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:75
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:73
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:76
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:81
 #: src/Modules/License/FeatureMap.php:407
 msgid "Scheduled reports"
 msgstr "Geplande rapporten"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:79
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:85
 msgid "Scheduled reports are part of the Standard plan and above."
 msgstr "Geplande rapporten horen bij het Standard-plan en hoger."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:88
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:94
 msgid "Schedule created."
 msgstr "Schema aangemaakt."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:90
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:96
 msgid "Schedule paused."
 msgstr "Schema gepauzeerd."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:92
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:98
 msgid "Schedule resumed."
 msgstr "Schema hervat."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:94
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:100
 msgid "Schedule archived."
 msgstr "Schema gearchiveerd."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:96
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:102
 msgid "Schedule permanently deleted."
 msgstr "Planning definitief verwijderd."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:98
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:104
 msgid ""
 "The schedule could not be deleted because other records still reference it."
 msgstr ""
 "De planning kon niet worden verwijderd omdat andere gegevens er nog naar "
 "verwijzen."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:102
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:117
 msgid ""
 "Recurring email reports. Pick a KPI, a frequency, and recipients; the daily "
 "cron runs the export and emails it on schedule."
@@ -9392,62 +9410,115 @@ msgstr ""
 "Terugkerende e-mailrapporten. Kies een KPI, een frequentie en ontvangers; de "
 "dagelijkse cron draait de export en mailt hem op schema."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:110
-msgid "New schedule"
-msgstr "Nieuw schema"
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:142
+msgid "Schedule the monthly report"
+msgstr "Het maandrapport inplannen"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:117
-msgid "e.g. Weekly attendance digest"
-msgstr "bijv. Wekelijkse aanwezigheidsdigest"
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:144
+msgid "You cannot schedule a report for this team."
+msgstr "Je kunt voor dit team geen rapport inplannen."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:123
-msgid "— pick a KPI —"
-msgstr "— kies een KPI —"
+#. translators: 1: team name, 2: report type (e.g. Three-page pack), 3: number of sections
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:154
+#, php-format
+msgid ""
+"%1$s · %2$s · %3$d section. Sent on the 1st of every month as a PDF, "
+"covering the month before."
+msgid_plural ""
+"%1$s · %2$s · %3$d sections. Sent on the 1st of every month as a PDF, "
+"covering the month before."
+msgstr[0] ""
+"%1$s · %2$s · %3$d sectie. Wordt elke 1e van de maand als pdf verstuurd, "
+"over de maand ervoor."
+msgstr[1] ""
+"%1$s · %2$s · %3$d secties. Wordt elke 1e van de maand als pdf verstuurd, "
+"over de maand ervoor."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:131
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:173
-msgid "Frequency"
-msgstr "Frequentie"
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:164
+msgid ""
+"The schedule keeps its own copy of this report. Changing or deleting a saved "
+"view later does not change what it sends."
+msgstr ""
+"De planning bewaart een eigen kopie van dit rapport. Wat je later aan een "
+"opgeslagen weergave verandert of verwijdert, verandert niet wat er wordt "
+"verstuurd."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:133
-msgid "Weekly (Monday morning)"
-msgstr "Wekelijks (maandagochtend)"
+#. translators: %s: team name
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:178
+#, php-format
+msgid "Monthly report %s"
+msgstr "Maandrapport %s"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:134
-msgid "Monthly (first day)"
-msgstr "Maandelijks (eerste dag)"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:135
-msgid "Season end (1 July)"
-msgstr "Seizoenseinde (1 juli)"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:140
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:184
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
 msgid "Recipients"
 msgstr "Ontvangers"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:141
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:185
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:232
 msgid ""
 "One per line — email addresses or WordPress role keys (e.g. tt_head_dev)."
 msgstr ""
 "Eén per regel — e-mailadressen of WordPress-rolkeys (bijv. tt_head_dev)."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:152
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:187
+msgid ""
+"The report names players and describes their development. Send it to staff "
+"only."
+msgstr ""
+"Het rapport noemt spelers bij naam en beschrijft hun ontwikkeling. Stuur het "
+"alleen naar stafleden."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:194
+msgid "Schedule report"
+msgstr "Rapport inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:201
+msgid "New schedule"
+msgstr "Nieuw schema"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:208
+msgid "e.g. Weekly attendance digest"
+msgstr "bijv. Wekelijkse aanwezigheidsdigest"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:214
+msgid "— pick a KPI —"
+msgstr "— kies een KPI —"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:222
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:264
+msgid "Frequency"
+msgstr "Frequentie"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:224
+msgid "Weekly (Monday morning)"
+msgstr "Wekelijks (maandagochtend)"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:225
+msgid "Monthly (first day)"
+msgstr "Maandelijks (eerste dag)"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:226
+msgid "Season end (1 July)"
+msgstr "Seizoenseinde (1 juli)"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:243
 msgid "Add schedule"
 msgstr "Schema aanmaken"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:162
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:253
 msgid "Active and paused schedules"
 msgstr "Actieve en gepauzeerde schemas"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:164
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:255
 msgid "No schedules yet. Create one above."
 msgstr "Nog geen schemas. Maak er hierboven een."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:174
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:265
 msgid "Next run"
 msgstr "Volgende uitvoer"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:214
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:310
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:239
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:45
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1592
@@ -9456,12 +9527,12 @@ msgstr "Volgende uitvoer"
 msgid "Pause"
 msgstr "Pauzeren"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:216
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:312
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1593
 msgid "Resume"
 msgstr "Hervatten"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:223
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:319
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:571
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:275
 #: src/Shared/Admin/BulkActionsHelper.php:173
@@ -9476,12 +9547,12 @@ msgstr "Hervatten"
 msgid "Delete permanently"
 msgstr "Permanent verwijderen"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:225
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:321
 msgid "Permanently delete this schedule? This cannot be undone."
 msgstr ""
 "Deze planning definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:327
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:124
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:210
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:191
@@ -9520,9 +9591,15 @@ msgstr ""
 msgid "Archive"
 msgstr "Archiveren"
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:233
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:329
 msgid "Archive this schedule? It will stop running."
 msgstr "Dit schema archiveren? Het stopt dan met uitvoeren."
+
+#. translators: %s: team name
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:349
+#, php-format
+msgid "Monthly report · %s"
+msgstr "Maandrapport · %s"
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:66
 msgid ""
@@ -9563,14 +9640,18 @@ msgstr "Rapport bijwerken"
 msgid "Download PDF"
 msgstr "PDF downloaden"
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:259
+msgid "Schedule monthly"
+msgstr "Maandelijks inplannen"
+
 #. translators: %s: name of the reader's saved view
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:283
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:287
 #, php-format
 msgid "Your saved view “%s”."
 msgstr "Je opgeslagen weergave “%s”."
 
 #. translators: %s: name of the reader's default saved view
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:289
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:293
 #, php-format
 msgid ""
 "Changed from your default view “%s”. To keep this version, save it as a new "
@@ -9580,13 +9661,13 @@ msgstr ""
 "houden, sla hem dan via de bladwijzer hierboven op als nieuwe weergave en "
 "maak die je standaard."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:325
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:351
 msgctxt "team monthly report panel"
 msgid "Printed size"
 msgstr "Afdrukformaat"
 
 #. translators: %d: number of printed pages
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:328
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:354
 #, php-format
 msgid "%d page"
 msgid_plural "%d pages"
@@ -9594,25 +9675,25 @@ msgstr[0] "%d pagina"
 msgstr[1] "%d pagina's"
 
 #. translators: 1: page number, 2: how full the page is, as a percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:339
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:365
 #, php-format
 msgid "Page %1$d · %2$d%%"
 msgstr "Pagina %1$d · %2$d%%"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:350
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:376
 msgid ""
 "Does not fit on one page. Drop a section, or switch to the three-page pack."
 msgstr ""
 "Past niet op één pagina. Laat een sectie weg of kies het pakket van drie "
 "pagina's."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:351
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:377
 msgid "A page overflows. Drop a section to keep the pack to three pages."
 msgstr ""
 "Een pagina loopt over. Laat een sectie weg om het pakket op drie pagina's te "
 "houden."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:354
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:380
 msgid ""
 "Fits by shortening: long player lists keep their top and bottom, and the "
 "agenda keeps its two most urgent players."
@@ -9620,141 +9701,141 @@ msgstr ""
 "Past door in te korten: lange spelerslijsten houden hun top en onderkant, en "
 "de agenda houdt de twee dringendste spelers."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:356
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:382
 msgid "Everything fits."
 msgstr "Alles past."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:366
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:392
 msgctxt "team monthly report section"
 msgid "Letterhead"
 msgstr "Briefhoofd"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:366
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:392
 msgid "Team, period, head coach — always included"
 msgstr "Team, periode, hoofdtrainer — staat er altijd in"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:367
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:430
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:393
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:456
 msgctxt "team monthly report section"
 msgid "Data coverage"
 msgstr "Datadekking"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:367
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:393
 msgid "What the report could not see"
 msgstr "Wat het rapport niet kon zien"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:368
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:394
 msgctxt "team monthly report section"
 msgid "Headline numbers"
 msgstr "Kerncijfers"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:368
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:394
 msgid "Six figures against last period"
 msgstr "Zes cijfers vergeleken met de vorige periode"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:369
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:498
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:395
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:524
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:238
 msgctxt "team monthly report section"
 msgid "Squad status"
 msgstr "Status selectie"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:369
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:395
 msgid "How many players are on track"
 msgstr "Hoeveel spelers op koers liggen"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:370
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:539
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:396
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:565
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:132
 msgctxt "team monthly report section"
 msgid "Attendance"
 msgstr "Aanwezigheid"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:370
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:396
 msgid "Per player, lowest first"
 msgstr "Per speler, laagste eerst"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:371
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:571
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:397
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:597
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:133
 msgctxt "team monthly report section"
 msgid "Minutes share"
 msgstr "Minutenaandeel"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:371
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:397
 msgid "Per player, against the target"
 msgstr "Per speler, afgezet tegen de norm"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:372
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:633
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:398
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:659
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:293
 msgctxt "team monthly report section"
 msgid "Needs a conversation"
 msgstr "Gesprek nodig"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:372
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:398
 msgid "The agenda"
 msgstr "De agenda"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:373
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:683
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:399
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:709
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:323
 msgctxt "team monthly report section"
 msgid "What changed"
 msgstr "Wat veranderde"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:373
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:399
 msgid "Injuries, moves, signings"
 msgstr "Blessures, wissels, aanmeldingen"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:374
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:710
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:400
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:736
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:340
 msgctxt "team monthly report section"
 msgid "Tests"
 msgstr "Testen"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:374
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:400
 msgid "Test rounds held and who moved"
 msgstr "Gehouden testmomenten en wie veranderde"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:375
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:748
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:401
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:774
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:375
 msgctxt "team monthly report section"
 msgid "Player by player"
 msgstr "Per speler"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:375
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:401
 msgid "Every measure in one table"
 msgstr "Alle meetwaarden in één tabel"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:376
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:786
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:402
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:812
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:424
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:430
 msgctxt "team monthly report section"
 msgid "Decisions and actions"
 msgstr "Besluiten en acties"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:376
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:402
 msgid "Space to write on"
 msgstr "Ruimte om op te schrijven"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:377
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:803
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:403
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:829
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:455
 msgctxt "team monthly report section"
 msgid "Data quality"
 msgstr "Datakwaliteit"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:377
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:403
 msgid "What to fix before next month"
 msgstr "Wat vóór volgende maand aangevuld moet worden"
 
 #. translators: 1: window start date, 2: window end date
 #. translators: 1: window start date, 2: window end date.
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:393
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:419
 #: src/Modules/Analytics/Reports/ReportFilters.php:190
 #: src/Shared/Frontend/Components/FilterBar.php:473
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2820
@@ -9764,7 +9845,7 @@ msgid "%1$s – %2$s"
 msgstr "%1$s – %2$s"
 
 #. translators: %s: head coach's name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:401
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:427
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:162
 #, php-format
 msgid "Head coach %s"
@@ -9774,7 +9855,7 @@ msgstr "Hoofdtrainer %s"
 #. translators: %d: how many players took part
 #. translators: %d: number of players.
 #. translators: %d: number of players on the roster
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:405
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:431
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:165
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:115
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:121
@@ -9786,7 +9867,7 @@ msgstr[0] "%d speler"
 msgstr[1] "%d spelers"
 
 #. translators: %d: completed trainings and matches
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:408
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:434
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:168
 #, php-format
 msgid "%d completed activity"
@@ -9795,28 +9876,28 @@ msgstr[0] "%d afgeronde activiteit"
 msgstr[1] "%d afgeronde activiteiten"
 
 #. translators: %s: team name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:413
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:439
 #, php-format
 msgid "Monthly report — %s"
 msgstr "Maandrapport — %s"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:432
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:458
 msgid "Complete."
 msgstr "Volledig."
 
 #. translators: %d: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:434
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:460
 msgid "The one completed activity has an attendance register."
 msgid_plural "All %d completed activities have an attendance register."
 msgstr[0] "De afgeronde activiteit heeft een presentielijst."
 msgstr[1] "Alle %d afgeronde activiteiten hebben een presentielijst."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:438
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:464
 msgid "Read the numbers with this in mind:"
 msgstr "Lees de cijfers met dit in gedachten:"
 
 #. translators: 1: activities with a register, 2: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:440
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:466
 #, php-format
 msgid ""
 "the figures below are based on %1$d of %2$d completed activities. These have "
@@ -9826,168 +9907,168 @@ msgstr ""
 "activiteiten. Deze hebben geen presentielijst:"
 
 #. translators: 1: activity title, 2: activity date
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:450
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:476
 #, php-format
 msgid "%1$s, %2$s"
 msgstr "%1$s, %2$s"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:458
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:484
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:206
 msgid "No completed activities with a register in this window."
 msgstr "Geen afgeronde activiteiten met een presentielijst in deze periode."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:471
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:474
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:479
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:497
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:500
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:505
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:213
 msgctxt "percentage points"
 msgid "pts"
 msgstr "procentpunt"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:474
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:500
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:217
 msgid "Median minutes share"
 msgstr "Mediaan minutenaandeel"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:482
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:508
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:226
 #: src/Shared/Frontend/FrontendTeamDetailView.php:556
 msgid "Squad rating"
 msgstr "Selectiebeoordeling"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:485
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:511
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:227
 msgid "Need attention"
 msgstr "Aandacht nodig"
 
 #. translators: %s: last period's status split, e.g. "10 on track, 3 to watch, 1 needing action"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:513
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:539
 #, php-format
 msgid "Last period: %s."
 msgstr "Vorige periode: %s."
 
 #. translators: %s: team average attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:542
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:568
 #, php-format
 msgid "Team average %s. Lowest first."
 msgstr "Teamgemiddelde %s. Laagste eerst."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:543
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:569
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:135
 msgid "No attendance recorded."
 msgstr "Geen aanwezigheid geregistreerd."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:544
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:570
 msgid "Open the attendance report"
 msgstr "Open het aanwezigheidsrapport"
 
 #. translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:574
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:600
 #, php-format
 msgid "Minutes recorded for %1$d of %2$d matches played. Target %3$d%%."
 msgstr ""
 "Minuten vastgelegd voor %1$d van de %2$d gespeelde wedstrijden. Norm %3$d%%."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:579
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:605
 msgid "Open the minutes share report"
 msgstr "Open het rapport minutenaandeel"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:582
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:608
 msgid "No minutes recorded in this window."
 msgstr "Geen minuten vastgelegd in deze periode."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:619
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:645
 msgctxt "a player well below the attendance or minutes line"
 msgid "low"
 msgstr "laag"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:620
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:646
 msgctxt "a player just below the attendance or minutes line"
 msgid "watch"
 msgstr "opletten"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:634
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:660
 msgid "Players the status model flags, most urgent first."
 msgstr "Spelers die het statusmodel signaleert, dringendste eerst."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:637
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:663
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:295
 msgid "Nobody is flagged this period."
 msgstr "Niemand gesignaleerd deze periode."
 
 #. translators: %s: attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:654
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:680
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:304
 #, php-format
 msgid "Attendance %s"
 msgstr "Aanwezigheid %s"
 
 #. translators: %d: players with an open injury
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:686
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:712
 #, php-format
 msgid "%d player currently injured."
 msgid_plural "%d players currently injured."
 msgstr[0] "%d speler is op dit moment geblesseerd."
 msgstr[1] "%d spelers zijn op dit moment geblesseerd."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:691
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:717
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:325
 msgid "No injuries, moves or other changes recorded this period."
 msgstr "Geen blessures, wissels of andere wijzigingen vastgelegd deze periode."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:712
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:738
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:342
 msgid "No tests taken this period."
 msgstr "Deze periode zijn geen testen afgenomen."
 
 #. translators: 1: players tested, 2: squad size
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:723
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:749
 #, php-format
 msgid "%1$d of %2$d tested"
 msgstr "%1$d van de %2$d getest"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:728
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:754
 #, php-format
 msgid "Improved: %s"
 msgstr "Vooruitgegaan: %s"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:729
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:755
 #, php-format
 msgid "Declined: %s"
 msgstr "Achteruitgegaan: %s"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:752
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:778
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:383
 msgctxt "team monthly report column"
 msgid "Status"
 msgstr "Status"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:755
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:781
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:387
 msgctxt "minutes share column"
 msgid "Share"
 msgstr "Aandeel"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:756
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:782
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:17
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:389
 msgid "Open goals"
 msgstr "Openstaande doelen"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:757
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:783
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:390
 msgctxt "team monthly report column"
 msgid "Injured"
 msgstr "Geblesseerd"
 
 #. translators: 1: jersey number, 2: player name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:767
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:793
 #: src/Shared/Frontend/FrontendStandardReportsView.php:793
 #, php-format
 msgid "#%1$d %2$s"
 msgstr "#%1$d %2$s"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:777
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:803
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:415
 #: src/Modules/Pdp/Admin/SeasonsPage.php:80
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1542
@@ -9995,16 +10076,16 @@ msgstr "#%1$d %2$s"
 msgid "Yes"
 msgstr "Ja"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:787
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:813
 msgid "Ruled lines on the printed copy, for what the meeting agrees."
 msgstr "Lijntjes op de afdruk, voor wat het overleg afspreekt."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:804
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:830
 msgid "Fix these before next month and the report gets sharper."
 msgstr "Vul dit vóór volgende maand aan en het rapport wordt scherper."
 
 #. translators: %d: activities without an attendance register
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:809
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:835
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:438
 #, php-format
 msgid "%d completed activity has no attendance register."
@@ -10013,7 +10094,7 @@ msgstr[0] "%d afgeronde activiteit heeft geen presentielijst."
 msgstr[1] "%d afgeronde activiteiten hebben geen presentielijst."
 
 #. translators: %d: matches played without minutes recorded
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:813
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:839
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:441
 #, php-format
 msgid "%d match played has no minutes recorded."
@@ -10022,7 +10103,7 @@ msgstr[0] "%d gespeelde wedstrijd heeft geen minuten vastgelegd."
 msgstr[1] "%d gespeelde wedstrijden hebben geen minuten vastgelegd."
 
 #. translators: 1: number of players, 2: their names
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:818
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:844
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:446
 #, php-format
 msgid "%1$d player has no evaluation this period: %2$s."
@@ -10031,7 +10112,7 @@ msgstr[0] "%1$d speler heeft deze periode geen evaluatie: %2$s."
 msgstr[1] "%1$d spelers hebben deze periode geen evaluatie: %2$s."
 
 #. translators: %d: players whose status was computed on incomplete evidence
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:822
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:848
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:450
 #, php-format
 msgid "%d player's status was computed on incomplete evidence."
@@ -10039,7 +10120,7 @@ msgid_plural "%d players' statuses were computed on incomplete evidence."
 msgstr[0] "Van %d speler is de status berekend op onvolledige gegevens."
 msgstr[1] "Van %d spelers is de status berekend op onvolledige gegevens."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:826
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:852
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:452
 msgid ""
 "Nothing missing. Every register, minute and evaluation this report looks for "
@@ -10048,7 +10129,7 @@ msgstr ""
 "Niets ontbreekt. Elke presentielijst, minuut en evaluatie waar dit rapport "
 "naar kijkt, is ingevuld."
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:836
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:862
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:58
 msgid ""
 "Confidential — staff only. This report names minors and describes their "
@@ -10060,37 +10141,37 @@ msgstr ""
 "buiten de technische staf."
 
 #. translators: %s: signed change against the previous period, e.g. "+3 pts"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:901
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:927
 #, php-format
 msgid "%s vs last period"
 msgstr "%s t.o.v. vorige periode"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:919
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:945
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:507
 msgctxt "player status, staff report"
 msgid "On track"
 msgstr "Op koers"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:920
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:946
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:508
 msgctxt "player status, staff report"
 msgid "Watch"
 msgstr "In de gaten houden"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:921
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:947
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:509
 msgctxt "player status, staff report"
 msgid "Needs action"
 msgstr "Actie nodig"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:922
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:948
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:510
 msgctxt "player status, staff report"
 msgid "No read yet"
 msgstr "Nog geen beeld"
 
 #. translators: 1: on track, 2: to watch, 3: needing action, 4: without a read yet
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:930
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:956
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:250
 #, php-format
 msgid ""
@@ -10128,6 +10209,37 @@ msgstr "Dit seizoen"
 msgid "Period"
 msgstr "Periode"
 
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:66
+msgid "Stopped: the team in this schedule no longer exists."
+msgstr "Gestopt: het team in deze planning bestaat niet meer."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:70
+msgid "Stopped: the team in this schedule has been archived."
+msgstr "Gestopt: het team in deze planning is gearchiveerd."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:74
+msgid ""
+"Stopped: the person who set up this schedule can no longer read this team’s "
+"reports."
+msgstr ""
+"Gestopt: degene die deze planning heeft ingesteld, mag de rapporten van dit "
+"team niet meer inzien."
+
+#. translators: 1: team name, 2: month and year the report covers
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:88
+#, php-format
+msgid "Monthly report %1$s, %2$s"
+msgstr "Maandrapport %1$s, %2$s"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:121
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php:131
+msgid ""
+"The PDF could not be created this time. The schedule will try again next "
+"month."
+msgstr ""
+"De pdf kon deze keer niet worden gemaakt. De planning probeert het volgende "
+"maand opnieuw."
+
 #: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php:102
 msgid "One-pager"
 msgstr "Eén pagina"
@@ -10153,19 +10265,19 @@ msgid "A4 landscape, one page. The whole squad comparable in one read."
 msgstr ""
 "A4 liggend, één pagina. De hele selectie in één oogopslag vergelijkbaar."
 
-#: src/Modules/Analytics/ScheduledReportsRepository.php:50
+#: src/Modules/Analytics/ScheduledReportsRepository.php:59
 msgid "Weekly (Monday)"
 msgstr "Wekelijks (maandag)"
 
-#: src/Modules/Analytics/ScheduledReportsRepository.php:51
+#: src/Modules/Analytics/ScheduledReportsRepository.php:60
 msgid "Monthly (1st)"
 msgstr "Maandelijks (1e)"
 
-#: src/Modules/Analytics/ScheduledReportsRepository.php:52
+#: src/Modules/Analytics/ScheduledReportsRepository.php:61
 msgid "Season end"
 msgstr "Seizoenseinde"
 
-#: src/Modules/Analytics/ScheduledReportsRepository.php:68
+#: src/Modules/Analytics/ScheduledReportsRepository.php:77
 msgid "Paused"
 msgstr "Gepauzeerd"
 
@@ -23439,76 +23551,6 @@ msgstr "Vooruit %1$d · achteruit %2$d"
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php:37
 msgid "Team monthly report (PDF)"
 msgstr "Maandrapport team (PDF)"
-
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
-msgid "Schedule monthly"
-msgstr "Maandelijks inplannen"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Schedule the monthly report"
-msgstr "Het maandrapport inplannen"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "You cannot schedule a report for this team."
-msgstr "Je kunt voor dit team geen rapport inplannen."
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "%1$s · %2$s · %3$d section. Sent on the 1st of every month as a PDF, covering the month before."
-msgid_plural "%1$s · %2$s · %3$d sections. Sent on the 1st of every month as a PDF, covering the month before."
-msgstr[0] "%1$s · %2$s · %3$d sectie. Wordt elke 1e van de maand als pdf verstuurd, over de maand ervoor."
-msgstr[1] "%1$s · %2$s · %3$d secties. Wordt elke 1e van de maand als pdf verstuurd, over de maand ervoor."
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "The schedule keeps its own copy of this report. Changing or deleting a saved view later does not change what it sends."
-msgstr "De planning bewaart een eigen kopie van dit rapport. Wat je later aan een opgeslagen weergave verandert of verwijdert, verandert niet wat er wordt verstuurd."
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Monthly report %s"
-msgstr "Maandrapport %s"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "The report names players and describes their development. Send it to staff only."
-msgstr "Het rapport noemt spelers bij naam en beschrijft hun ontwikkeling. Stuur het alleen naar stafleden."
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Schedule report"
-msgstr "Rapport inplannen"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
-msgid "Monthly report · %s"
-msgstr "Maandrapport · %s"
-
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
-msgid "Not sent: none of the recipients has an email address."
-msgstr "Niet verstuurd: geen van de ontvangers heeft een e-mailadres."
-
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
-msgid "Not sent: the PDF could not be prepared for sending."
-msgstr "Niet verstuurd: de pdf kon niet worden klaargezet voor verzending."
-
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php
-msgid "Not sent: no recipient could be emailed. Check their addresses and email preferences."
-msgstr "Niet verstuurd: geen enkele ontvanger kon worden gemaild. Controleer hun adressen en e-mailvoorkeuren."
-
-#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
-msgid "Stopped: the team in this schedule no longer exists."
-msgstr "Gestopt: het team in deze planning bestaat niet meer."
-
-#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
-msgid "Stopped: the team in this schedule has been archived."
-msgstr "Gestopt: het team in deze planning is gearchiveerd."
-
-#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
-msgid "Stopped: the person who set up this schedule can no longer read this team’s reports."
-msgstr "Gestopt: degene die deze planning heeft ingesteld, mag de rapporten van dit team niet meer inzien."
-
-#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
-msgid "Monthly report %1$s, %2$s"
-msgstr "Maandrapport %1$s, %2$s"
-
-#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
-msgid "The PDF could not be created this time. The schedule will try again next month."
-msgstr "De pdf kon deze keer niet worden gemaakt. De planning probeert het volgende maand opnieuw."
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:50
 msgid "Team planner (week-by-week)"
