@@ -61126,6 +61126,432 @@ msgstr "Onbekend veldtype: %s"
 msgid "Unknown period."
 msgstr "Onbekende periode."
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "This team has no completed trainings or matches in this window, so there is nothing to report yet. Pick another period above."
+msgstr "Dit team heeft in deze periode geen afgeronde trainingen of wedstrijden, dus er valt nog niets te rapporteren. Kies hierboven een andere periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report panel"
+msgid "Report type"
+msgstr "Rapportsoort"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "The type shapes the printed copy. Online, every selected block is shown in full."
+msgstr "De soort bepaalt de afdruk. Op het scherm zie je elke gekozen sectie volledig."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report panel"
+msgid "Sections"
+msgstr "Secties"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Narrower on the one-pager"
+msgstr "Smaller op de versie van één pagina"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Update report"
+msgstr "Rapport bijwerken"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report panel"
+msgid "Printed size"
+msgstr "Afdrukformaat"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d page"
+msgid_plural "%d pages"
+msgstr[0] "%d pagina"
+msgstr[1] "%d pagina's"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Page %1$d · %2$d%%"
+msgstr "Pagina %1$d · %2$d%%"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Does not fit on one page. Drop a section, or switch to the three-page pack."
+msgstr "Past niet op één pagina. Laat een sectie weg of kies het pakket van drie pagina's."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A page overflows. Drop a section to keep the pack to three pages."
+msgstr "Een pagina loopt over. Laat een sectie weg om het pakket op drie pagina's te houden."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Fits by shortening: long player lists keep their top and bottom, and the agenda keeps its two most urgent players."
+msgstr "Past door in te korten: lange spelerslijsten houden hun top en onderkant, en de agenda houdt de twee dringendste spelers."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Everything fits."
+msgstr "Alles past."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Letterhead"
+msgstr "Briefhoofd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Team, period, head coach — always included"
+msgstr "Team, periode, hoofdtrainer — staat er altijd in"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Data coverage"
+msgstr "Datadekking"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "What the report could not see"
+msgstr "Wat het rapport niet kon zien"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Headline numbers"
+msgstr "Kerncijfers"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Six figures against last period"
+msgstr "Zes cijfers vergeleken met de vorige periode"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Squad status"
+msgstr "Status selectie"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "How many players are on track"
+msgstr "Hoeveel spelers op koers liggen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Per player, lowest first"
+msgstr "Per speler, laagste eerst"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Minutes share"
+msgstr "Minutenaandeel"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Per player, against the target"
+msgstr "Per speler, afgezet tegen de norm"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Needs a conversation"
+msgstr "Gesprek nodig"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "The agenda"
+msgstr "De agenda"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "What changed"
+msgstr "Wat veranderde"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Injuries, moves, signings"
+msgstr "Blessures, wissels, aanmeldingen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Tests"
+msgstr "Testen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Sessions held and who moved"
+msgstr "Gehouden testmomenten en wie veranderde"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Player by player"
+msgstr "Per speler"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Every measure in one table"
+msgstr "Alle meetwaarden in één tabel"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Decisions and actions"
+msgstr "Besluiten en acties"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Space to write on"
+msgstr "Ruimte om op te schrijven"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report section"
+msgid "Data quality"
+msgstr "Datakwaliteit"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "What to fix before next month"
+msgstr "Wat vóór volgende maand aangevuld moet worden"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Head coach %s"
+msgstr "Hoofdtrainer %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d completed activity"
+msgid_plural "%d completed activities"
+msgstr[0] "%d afgeronde activiteit"
+msgstr[1] "%d afgeronde activiteiten"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Monthly report — %s"
+msgstr "Maandrapport — %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Complete."
+msgstr "Volledig."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "The one completed activity has an attendance register."
+msgid_plural "All %d completed activities have an attendance register."
+msgstr[0] "De afgeronde activiteit heeft een presentielijst."
+msgstr[1] "Alle %d afgeronde activiteiten hebben een presentielijst."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Read the numbers with this in mind:"
+msgstr "Lees de cijfers met dit in gedachten:"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "the figures below are based on %1$d of %2$d completed activities. These have no attendance register:"
+msgstr "de cijfers hieronder zijn gebaseerd op %1$d van de %2$d afgeronde activiteiten. Deze hebben geen presentielijst:"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "No completed activities with a register in this window."
+msgstr "Geen afgeronde activiteiten met een presentielijst in deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "percentage points"
+msgid "pts"
+msgstr "procentpunt"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Median minutes share"
+msgstr "Mediaan minutenaandeel"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Need attention"
+msgstr "Aandacht nodig"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Last period: %s."
+msgstr "Vorige periode: %s."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Team average %s. Lowest first."
+msgstr "Teamgemiddelde %s. Laagste eerst."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Open the attendance report"
+msgstr "Open het aanwezigheidsrapport"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Minutes recorded for %1$d of %2$d matches played. Target %3$d%%."
+msgstr "Minuten vastgelegd voor %1$d van de %2$d gespeelde wedstrijden. Norm %3$d%%."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Open the minutes share report"
+msgstr "Open het rapport minutenaandeel"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "No minutes recorded in this window."
+msgstr "Geen minuten vastgelegd in deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "a player well below the attendance or minutes line"
+msgid "low"
+msgstr "laag"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "a player just below the attendance or minutes line"
+msgid "watch"
+msgstr "opletten"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Players the status model flags, most urgent first."
+msgstr "Spelers die het statusmodel signaleert, dringendste eerst."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Nobody is flagged this period."
+msgstr "Niemand gesignaleerd deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Attendance %s"
+msgstr "Aanwezigheid %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d player currently injured."
+msgid_plural "%d players currently injured."
+msgstr[0] "%d speler is op dit moment geblesseerd."
+msgstr[1] "%d spelers zijn op dit moment geblesseerd."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "No injuries, moves or other changes recorded this period."
+msgstr "Geen blessures, wissels of andere wijzigingen vastgelegd deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "No test sessions held this period."
+msgstr "Geen testmomenten gehouden deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%1$d of %2$d tested"
+msgstr "%1$d van de %2$d getest"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Improved: %s"
+msgstr "Vooruitgegaan: %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "Declined: %s"
+msgstr "Achteruitgegaan: %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report column"
+msgid "Status"
+msgstr "Status"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "minutes share column"
+msgid "Share"
+msgstr "Aandeel"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report column"
+msgid "Injured"
+msgstr "Geblesseerd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Ruled lines on the printed copy, for what the meeting agrees."
+msgstr "Lijntjes op de afdruk, voor wat het overleg afspreekt."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Fix these before next month and the report gets sharper."
+msgstr "Vul dit vóór volgende maand aan en het rapport wordt scherper."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d completed activity has no attendance register."
+msgid_plural "%d completed activities have no attendance register."
+msgstr[0] "%d afgeronde activiteit heeft geen presentielijst."
+msgstr[1] "%d afgeronde activiteiten hebben geen presentielijst."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d match played has no minutes recorded."
+msgid_plural "%d matches played have no minutes recorded."
+msgstr[0] "%d gespeelde wedstrijd heeft geen minuten vastgelegd."
+msgstr[1] "%d gespeelde wedstrijden hebben geen minuten vastgelegd."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%1$d player has no evaluation this period: %2$s."
+msgid_plural "%1$d players have no evaluation this period: %2$s."
+msgstr[0] "%1$d speler heeft deze periode geen evaluatie: %2$s."
+msgstr[1] "%1$d spelers hebben deze periode geen evaluatie: %2$s."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%d player's status was computed on incomplete evidence."
+msgid_plural "%d players' statuses were computed on incomplete evidence."
+msgstr[0] "Van %d speler is de status berekend op onvolledige gegevens."
+msgstr[1] "Van %d spelers is de status berekend op onvolledige gegevens."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Nothing missing. Every register, minute and evaluation this report looks for is in."
+msgstr "Niets ontbreekt. Elke presentielijst, minuut en evaluatie waar dit rapport naar kijkt, is ingevuld."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Confidential — staff only. This report names minors and describes their development. Do not share it with players, parents or anyone outside the coaching staff."
+msgstr "Vertrouwelijk — alleen voor staf. Dit rapport noemt minderjarigen bij naam en beschrijft hun ontwikkeling. Deel het niet met spelers, ouders of iemand buiten de technische staf."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%s vs last period"
+msgstr "%s t.o.v. vorige periode"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "player status, staff report"
+msgid "On track"
+msgstr "Op koers"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "player status, staff report"
+msgid "Watch"
+msgstr "In de gaten houden"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "player status, staff report"
+msgid "Needs action"
+msgstr "Actie nodig"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "player status, staff report"
+msgid "No read yet"
+msgstr "Nog geen beeld"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#, php-format
+msgid "%1$d on track, %2$d to watch, %3$d needing action, %4$d without a read yet"
+msgstr "%1$d op koers, %2$d in de gaten houden, %3$d actie nodig, %4$d nog geen beeld"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "One-pager"
+msgstr "Eén pagina"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A4 portrait, one page. A copy for everyone at the table."
+msgstr "A4 staand, één pagina. Een exemplaar voor iedereen aan tafel."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Three-page pack"
+msgstr "Pakket van drie pagina's"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A4 portrait, up to three pages. Room for the player-by-player table."
+msgstr "A4 staand, tot drie pagina's. Ruimte voor de tabel per speler."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Landscape matrix"
+msgstr "Liggend overzicht"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A4 landscape, one page. The whole squad comparable in one read."
+msgstr "A4 liggend, één pagina. De hele selectie in één oogopslag vergelijkbaar."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Team · Monthly report"
+msgstr "Team · Maandrapport"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "One document for the monthly staff meeting: status, attendance, minutes, what changed and who needs a conversation."
+msgstr "Eén document voor het maandelijkse stafoverleg: status, aanwezigheid, minuten, wat er veranderde en wie een gesprek nodig heeft."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

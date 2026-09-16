@@ -1,0 +1,399 @@
+/*
+ * Team monthly report — online view + composition panel (#3459, epic #3457).
+ *
+ * Mobile-first: base rules are the 360px phone; min-width queries scale up at
+ * the project's breakpoints. Every colour reads a tokens.css variable.
+ *
+ * Browser-only. The printed copy is #3460's own table-based stylesheet
+ * (DomPDF has no flexbox or grid), so nothing here is shared with the PDF.
+ */
+
+/* ---- Composition panel -------------------------------------------------- */
+
+.tt-mr-panel {
+    display: grid;
+    gap: var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-sm);
+}
+
+.tt-mr-panel__group {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.tt-mr-panel__legend {
+    margin: 0 0 var(--tt-sp-2);
+    padding: 0;
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-muted);
+}
+
+.tt-mr-panel__hint {
+    margin: var(--tt-sp-2) 0 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-types,
+.tt-mr-blocks {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-2);
+}
+
+.tt-mr-type,
+.tt-mr-block {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--tt-sp-2);
+    align-items: start;
+    min-height: 48px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-mr-type input,
+.tt-mr-block input {
+    grid-row: span 2;
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+}
+
+.tt-mr-type__t,
+.tt-mr-block__t {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+.tt-mr-type__d,
+.tt-mr-block__n {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-type:has(input:checked),
+.tt-mr-block:has(input:checked) {
+    border-color: var(--tt-primary);
+    background: var(--tt-bg-soft);
+}
+
+.tt-mr-type:has(input:focus-visible),
+.tt-mr-block:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+.tt-mr-block.is-locked {
+    cursor: default;
+    opacity: 0.75;
+}
+
+.tt-mr-panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mr-panel__actions .tt-btn {
+    min-height: 48px;
+}
+
+/* The script submits on change; the button stays for no-script. */
+.tt-mr-panel.is-live [data-tt-mr-submit] {
+    display: none;
+}
+
+/* ---- Fit meter ---------------------------------------------------------- */
+
+.tt-mr-fit__pages {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-lg);
+    font-weight: 800;
+    color: var(--tt-ink);
+}
+
+.tt-mr-fit__bars {
+    display: grid;
+    gap: var(--tt-sp-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-mr-fit__label {
+    display: block;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-fit__track {
+    display: block;
+    height: 8px;
+    overflow: hidden;
+    background: var(--tt-line-soft);
+    border-radius: 999px;
+}
+
+.tt-mr-fit__track i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+}
+
+.tt-mr-fit__bar.is-tight .tt-mr-fit__track i { background: var(--tt-warning); }
+.tt-mr-fit__bar.is-over  .tt-mr-fit__track i { background: var(--tt-danger); }
+
+.tt-mr-fit__msg {
+    margin: var(--tt-sp-2) 0 0;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+}
+
+.tt-mr-fit__msg.is-ok    { color: var(--tt-success-ink); }
+.tt-mr-fit__msg.is-tight { color: var(--tt-warning-ink); }
+.tt-mr-fit__msg.is-over  { color: var(--tt-danger-ink); }
+
+/* ---- Report body -------------------------------------------------------- */
+
+.tt-mr-empty,
+.tt-mr-muted {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-section__source {
+    font-size: var(--tt-fs-sm);
+}
+
+/* Coverage banner — sits above the numbers because it qualifies them. */
+.tt-mr-coverage {
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-left-width: 4px;
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-mr-coverage p { margin: 0; }
+
+.tt-mr-coverage.is-complete {
+    border-color: var(--tt-success);
+    background: var(--tt-success-subtle);
+    color: var(--tt-success-ink);
+}
+
+.tt-mr-coverage.is-partial {
+    border-color: var(--tt-warning);
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
+.tt-mr-coverage.is-empty {
+    border-color: var(--tt-info);
+    background: var(--tt-info-subtle);
+    color: var(--tt-info-ink);
+}
+
+.tt-mr-coverage__list {
+    margin: var(--tt-sp-2) 0 0;
+    padding-left: var(--tt-sp-4);
+}
+
+/* Squad status band. */
+.tt-mr-band {
+    display: flex;
+    overflow: hidden;
+    height: 32px;
+    margin: 0 0 var(--tt-sp-2);
+    border-radius: var(--tt-radius);
+}
+
+.tt-mr-band__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    color: var(--tt-paper);
+}
+
+.tt-mr-band__seg.is-green   { background: var(--tt-success); }
+.tt-mr-band__seg.is-amber   { background: var(--tt-warning); color: var(--tt-ink); }
+.tt-mr-band__seg.is-red     { background: var(--tt-danger); }
+.tt-mr-band__seg.is-unknown { background: var(--tt-muted); }
+
+/* Status pill — text always carries the meaning; colour only reinforces it. */
+.tt-mr-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+}
+
+.tt-mr-pill.is-green { background: var(--tt-success-subtle); color: var(--tt-success-ink); }
+.tt-mr-pill.is-amber { background: var(--tt-warning-subtle); color: var(--tt-warning-ink); }
+.tt-mr-pill.is-red   { background: var(--tt-danger-subtle);  color: var(--tt-danger-ink); }
+
+/* Ranked bars. A table so the name, track and value columns line up. */
+.tt-mr-bars {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-mr-bars th,
+.tt-mr-bars td {
+    padding: var(--tt-sp-1) var(--tt-sp-2) var(--tt-sp-1) 0;
+    text-align: left;
+    font-weight: 400;
+    vertical-align: middle;
+}
+
+.tt-mr-bars th { min-width: 8rem; }
+
+.tt-mr-bars__track { width: 100%; }
+
+.tt-mr-bars .num {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-track {
+    position: relative;
+    display: block;
+    height: 12px;
+    background: var(--tt-line-soft);
+    border-radius: 4px;
+}
+
+.tt-mr-track i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+    border-radius: 4px;
+}
+
+.tt-mr-bars .is-amber .tt-mr-track i { background: var(--tt-warning); }
+.tt-mr-bars .is-red   .tt-mr-track i { background: var(--tt-danger); }
+
+.tt-mr-track b {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 0;
+    border-left: 2px dashed var(--tt-ink-soft);
+}
+
+.tt-mr-flag {
+    margin-left: var(--tt-sp-1);
+    font-weight: 600;
+    color: var(--tt-danger-ink);
+}
+
+/* Attention cards. */
+.tt-mr-attention {
+    display: grid;
+    gap: var(--tt-sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-mr-attention__item {
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-left-width: 4px;
+    border-radius: var(--tt-radius);
+}
+
+.tt-mr-attention__item.is-red   { border-left-color: var(--tt-danger); }
+.tt-mr-attention__item.is-amber { border-left-color: var(--tt-warning); }
+
+.tt-mr-attention__name { margin: 0 0 var(--tt-sp-1); font-weight: 600; }
+.tt-mr-attention__facts { margin: 0; font-size: var(--tt-fs-sm); }
+
+/* Changes, tests, quality. */
+.tt-mr-changes,
+.tt-mr-quality {
+    margin: 0;
+    padding-left: var(--tt-sp-4);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-mr-changes li,
+.tt-mr-quality li { margin: 0 0 var(--tt-sp-1); }
+
+.tt-mr-changes__date {
+    color: var(--tt-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-test + .tt-mr-test {
+    margin-top: var(--tt-sp-3);
+    padding-top: var(--tt-sp-3);
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
+
+/* Ruled lines — the printed copy's writing space, shown online as a hint. */
+.tt-mr-lines span {
+    display: block;
+    height: 28px;
+    border-bottom: 1px solid var(--tt-line);
+}
+
+.tt-mr-confidential {
+    margin: var(--tt-sp-4) 0 0;
+    font-size: var(--tt-fs-sm);
+    font-style: italic;
+    color: var(--tt-muted);
+}
+
+/* ---- Scale up ----------------------------------------------------------- */
+
+@media (min-width: 480px) {
+    .tt-mr-blocks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 768px) {
+    .tt-mr-types { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+    .tt-mr-panel {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) minmax(0, 1fr);
+        align-items: start;
+    }
+    .tt-mr-panel .tt-mr-panel__group:first-of-type { grid-column: 1 / -1; }
+    .tt-mr-blocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tt-mr-panel__actions { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-mr-fit__track i { transition: none; }
+}

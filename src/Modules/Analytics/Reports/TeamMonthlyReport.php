@@ -171,18 +171,17 @@ final class TeamMonthlyReport {
         ];
     }
 
+    /** The period a monthly report opens on when the caller names none. */
+    public const DEFAULT_PERIOD = 'last_month';
+
     /**
      * Resolve a period key to a window, for callers that take `period=`.
-     * `last_month` is this report's default; the other keys are the shared
-     * report periods. Null for an unknown or empty key.
+     * Delegates to the shared report vocabulary, which carries `last_month`
+     * since #3459. Null for an unknown or empty key.
      *
      * @return Window|null
      */
     public static function periodWindow( string $period, string $today ): ?array {
-        if ( $period === 'last_month' ) {
-            $base = strtotime( $today . ' 00:00:00 UTC' );
-            return $base === false ? null : self::monthBefore( $base );
-        }
         return ReportFilters::periodWindow( $period, $today );
     }
 
