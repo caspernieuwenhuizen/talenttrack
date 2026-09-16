@@ -25,25 +25,27 @@ define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
 define( 'TT_PLUGIN_SLUG', 'talenttrack' );
 
-// v3.110.54 — Commercial mode toggle.
+// Commercial mode toggle — a property of the install, not of the release.
 //
-// When TRUE: the License module enforces tiers — `LicenseGate::tier()`
-//   resolves through DevOverride → Trial → Freemius → Free, free-tier
-//   caps apply, the AccountPage renders the trial / upgrade UI, and
-//   non-Pro features are gated behind purchases. Freemius credentials
-//   (TT_FREEMIUS_PRODUCT_ID + TT_FREEMIUS_PUBLIC_KEY) need to be wired
-//   for actual checkout to work.
+// When TRUE: the License module enforces tiers. `LicenseGate::tier()`
+//   resolves through DevOverride → Entitlement → Free, free-tier caps
+//   apply, the AccountPage renders the tier / upgrade UI, and features
+//   above the install's tier are gated. The entitlement is written by
+//   provisioning (`wp tt entitlement set --tier=…`); an install in
+//   commercial mode with no entitlement recorded resolves to Free.
 //
 // When FALSE (default): the install is treated as a non-commercial
-//   test instance owned by the developer. Every feature is unlocked,
-//   free-tier caps don't apply, the trial / upgrade UI hides, and
-//   `LicenseGate::tier()` returns Pro. Trial state on disk is
-//   preserved but ignored at runtime.
+//   test instance. Every feature is unlocked, free-tier caps don't
+//   apply, the upgrade UI hides, and `LicenseGate::tier()` returns Pro.
 //
-// Flip this to TRUE the day a paying customer goes live (and wire
-// Freemius alongside). One-line switch, no other code changes
-// required to enter commercial mode.
-define( 'TT_COMMERCIAL_MODE', false );
+// Set it per install in `wp-config.php` — one install can enforce
+// licences while another does not, which is what a fleet on different
+// plans needs. The definition below is only the shipped default, so
+// adding the constant to `wp-config.php` wins and updating the plugin
+// never changes an install's commercial state.
+if ( ! defined( 'TT_COMMERCIAL_MODE' ) ) {
+    define( 'TT_COMMERCIAL_MODE', false );
+}
 
 // v2.22.0 / v3.0.0 aliases used by newer classes (HelpTopics, SchemaStatus)
 // so they don't need to choose between TT_PLUGIN_DIR / TT_PLUGIN_FILE naming.
