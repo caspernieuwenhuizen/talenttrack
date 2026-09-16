@@ -60742,6 +60742,35 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2608
+msgctxt "attendance column, abbreviated"
+msgid "Att"
+msgstr "Aanw."
+
+#. translators: %d: number of players on the roster
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2612
+#, php-format
+msgid "No attendance recorded — 0 of %d players"
+msgstr "Geen aanwezigheid geregistreerd — 0 van %d spelers"
+
+#. translators: 1: players with attendance recorded, 2: players on the roster
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2617
+#, php-format
+msgid "Attendance recorded for %1$d of %2$d players"
+msgstr "Aanwezigheid geregistreerd voor %1$d van %2$d spelers"
+
+#. translators: %d: number of players who were present or late
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2632
+#, php-format
+msgid "No minutes recorded — 0 of %d players who played"
+msgstr "Geen minuten geregistreerd — 0 van %d spelers die speelden"
+
+#. translators: 1: players with minutes recorded, 2: players who were present or late
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2637
+#, php-format
+msgid "Minutes recorded for %1$d of %2$d players who played"
+msgstr "Minuten geregistreerd voor %1$d van %2$d spelers die speelden"
+
 #, php-format
 #~ msgid "Top %d"
 #~ msgstr "Top %d"

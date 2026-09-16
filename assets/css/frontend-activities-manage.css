@@ -33,6 +33,13 @@
  *     .tt-act-card__meta           — pills + tail line
  *     .tt-act-card__tail           — team / time / location tail text
  *     .tt-act-card__chev           — chevron on the right
+ *     .tt-act-reg--rail            — completeness readout, right rail (#3447)
+ *     .tt-act-reg__row             — one measure's line (data-state ok/partial/gap)
+ *     .tt-act-reg__label           — "Att" / "Min" (480px and up)
+ *     .tt-act-reg__icon            — measure glyph, warning glyph on a gap
+ *     .tt-act-reg__n               — the N/N itself, tabular numerals
+ *     .tt-act-card__fix            — "go and record it" link on a gap (#3447)
+ *     .tt-act-card__fix-icon       — its warning glyph
  *     .tt-act-date                 — 44px date badge (default mute)
  *     .tt-act-date--today          — blue badge for Today
  *     .tt-act-date--overdue        — orange badge for Needs attention
@@ -178,7 +185,10 @@
 }
 .tt-dashboard .tt-act-card__link {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    /* #3447 — a fourth column for the completeness rail, between the body
+     * and the chevron. `auto` so it collapses to nothing on the cards that
+     * render no readout. */
+    grid-template-columns: 44px 1fr auto auto;
     gap: 12px;
     align-items: center;
     padding: 12px 16px;
@@ -312,6 +322,94 @@
 .tt-dashboard .tt-act-pill--spond {
     background: var(--tt-info-subtle, #e6f0fa);
     color: #1c5aa0;
+}
+
+/* ---- Completeness readout (#3447) --------------------------
+ * A fourth grid column between the card body and the chevron, one line
+ * per measure, right-aligned and tabular-numeric. The vertical alignment
+ * down the list IS the feature — the rejected variants put the counts at
+ * a different x on every row, which is exactly what stops a column of
+ * numbers being scannable.
+ *
+ * Static text inside the card's own link: no extra tap target, no hover
+ * dependence. The state arrives as `data-state` from the domain service
+ * and is turned into colour here; the ink tokens (not the fill hues)
+ * carry it, so 12px numerals clear 4.5:1 on paper.
+ */
+.tt-dashboard .tt-act-reg--rail {
+    display: grid;
+    gap: 3px;
+    justify-items: end;
+    text-align: right;
+}
+.tt-dashboard .tt-act-reg__row {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: nowrap;
+    color: var(--tt-reg-ink, var(--tt-ink-soft, #6a6d66));
+}
+.tt-dashboard .tt-act-reg__row[data-state="ok"]      { --tt-reg-ink: var(--tt-success-ink, #1f6d41); }
+.tt-dashboard .tt-act-reg__row[data-state="partial"] { --tt-reg-ink: var(--tt-warning-ink, #8a5300); }
+.tt-dashboard .tt-act-reg__row[data-state="gap"]     { --tt-reg-ink: var(--tt-danger-ink, #a32b22); }
+.tt-dashboard .tt-act-reg__n {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+.tt-dashboard .tt-act-reg__icon {
+    font-style: normal;
+}
+/* The measure label is noise on a phone — the glyph carries it there. */
+.tt-dashboard .tt-act-reg__label {
+    display: none;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    opacity: 0.75;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-act-reg__label { display: inline; }
+}
+
+/* The gap affordance — a completed activity with nothing recorded is a
+ * task, not a statistic. Rendered outside the card's tap-to-open <a>
+ * (like the alert chip and the Complete quick-action), full-width on a
+ * phone so the 48px target is easy to hit. */
+.tt-dashboard .tt-act-card__fix {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 16px 12px;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--tt-danger-subtle, #fde2e2);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-card__fix:active {
+    border-color: var(--tt-danger, #d8453b);
+}
+.tt-dashboard .tt-act-card__fix:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-act-card__fix-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-act-card__fix {
+        display: inline-flex;
+        margin-right: auto;
+    }
 }
 
 /* =============================================================

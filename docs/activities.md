@@ -28,6 +28,23 @@ Empty buckets don't render their header at all — if there's nothing on for nex
 
 Each row is a card: a date badge on the left (month + day, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
 
+### Is the register complete?
+
+Every **completed** activity carries a small count on the right of its card, saying how much of its register actually exists. A training shows attendance; a match shows attendance **and** minutes. The counts line up down the list, so a session nobody wrote up stands out without opening anything.
+
+- `✓ 14/14` — everything expected is recorded.
+- `9/13` — somebody started and stopped.
+- `⚠ 0/14` — the activity is completed and nothing was recorded at all. This is the case that used to be invisible until a report turned it up, so the card also offers a **Mark attendance** link straight to that activity's column in the [attendance grid](attendance-grid.md) (or **Record minutes** when attendance is there but minutes aren't).
+
+What each half counts:
+
+- **Attendance** — the players you actually marked. The denominator is the roster you planned for the activity where you captured one on the [Expected attendance](#expected-attendance) panel, otherwise the team's current squad. Using the plan is what keeps a September training reading `14/14` after somebody leaves in March, instead of drifting to `13/14` on its own.
+- **Minutes** (matches only) — the players who have minutes recorded, out of the players you marked **Present** or **Late**. Somebody who was absent isn't missing minutes.
+
+Guests are left out of both halves, the same way the minutes reports count. Planned attendance is never counted as recorded attendance: the expected roster is what you thought would happen, and the point of this readout is whether anybody wrote down what did.
+
+Activities still to come show no count — nothing is late yet. Neither do cancelled activities, meetings and "other" activities, which have no register to be missing.
+
 ### Past activities
 
 Past activities (Completed or Cancelled) are pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1`, so a shared link reflects the same view the sender saw.

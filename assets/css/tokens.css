@@ -44,6 +44,15 @@
     --tt-warning-subtle: #fdf3d8;
     --tt-danger-subtle:  #fde2e2;
     --tt-info-subtle:    #e6f0fa;
+    /* Status INK (#3447). The four status hues above are calibrated as
+     * fills — as small text on paper they sit between 3:1 and 3.6:1, under
+     * the 4.5:1 body-text floor. These are the same hues darkened to clear
+     * it, for a status colour carrying words or numerals rather than
+     * painting a surface. Pick the ink for text, the hue for a fill. */
+    --tt-success-ink:    #1f6d41;
+    --tt-warning-ink:    #8a5300;
+    --tt-danger-ink:     #a32b22;
+    --tt-info-ink:       #1c5aa0;
 
     /* Record links (#3308).
      *

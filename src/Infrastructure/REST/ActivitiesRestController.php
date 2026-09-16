@@ -830,6 +830,11 @@ class ActivitiesRestController {
             'your_status_pid'   => isset( $filter['player_id'] ) && (int) $filter['player_id'] > 0 ? absint( $filter['player_id'] ) : 0,
         ] );
 
+        // #3447 — seed the completeness counts for the whole page before
+        // shaping any row, so `register` costs two queries rather than two
+        // per row.
+        \TT\Modules\Activities\Services\ActivityRegisterProgress::prime( $result['rows'] );
+
         return RestResponse::success( [
             'rows'     => array_map( [ __CLASS__, 'format_row' ], $result['rows'] ),
             'total'    => $result['total'],
@@ -1001,6 +1006,17 @@ class ActivitiesRestController {
             'present_count'            => $present,
             'roster_size'              => $roster,
             'attendance_pct'           => $attendance_pct,
+            // #3447 — how much of the register actually exists, as the
+            // activity list's `N/N` readout reads it: recorded vs expected
+            // for attendance, and for matches the same for minutes. `null`
+            // where there is no register to be missing (anything not
+            // completed, meetings, "other", or no denominator). Counts
+            // `record_type='actual'` rows ONLY — the planned roster lives in
+            // the same table and would report a full register for exactly
+            // the activity whose register is missing.
+            'register'                 => is_object( $row )
+                ? \TT\Modules\Activities\Services\ActivityRegisterProgress::restPayload( $row )
+                : null,
             // #1726 — per-match full length (minutes); null for non-match
             // types. Per-player minutes/lineup_role are persisted on
             // tt_attendance and read by the minutes report + match-execution

@@ -374,6 +374,28 @@ Same body shape. The handler **only wipes `is_guest = 0` rows** before re-insert
 
 The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each expected row's `status`, `plan_status`, and `notes`. Gated on `tt_edit_activities`.
 
+### `register` on the activity read payload (#3447)
+
+Every row the activity list endpoint returns carries a `register` object saying how much of that activity's register actually exists, so a non-WordPress front end can draw the same `N/N` readout the PHP list card draws:
+
+```json
+{
+  "register": {
+    "attendance": { "recorded": 9, "expected": 13, "state": "partial" },
+    "minutes":    { "recorded": 0, "expected": 11, "state": "gap" }
+  }
+}
+```
+
+`state` is `ok` (everything expected is recorded), `partial` (somebody started and stopped) or `gap` (completed with nothing recorded). `minutes` is `null` on anything that is not a match, and on a match where nobody was marked Present or Late. `register` itself is `null` where there is no register to be missing — an activity that is not completed, a meeting, an "other" activity, or one with no denominator (no team and no captured plan).
+
+What the counts mean:
+
+- **Attendance** — `tt_attendance` rows with `record_type = 'actual'`, `is_guest = 0` and a non-empty `status`, over the `record_type = 'expected'` count where the coach captured a plan, otherwise the team's current `status = 'active'`, non-archived roster.
+- **Minutes** — of the actual rows whose status is `Present` or `Late`, the ones carrying `minutes_played`, over all of them. A player who was absent is not missing minutes.
+
+**Actual rows only.** The planned roster lives in the same table under `record_type = 'expected'` and carries real statuses, so a count that omitted the predicate would report a full register for exactly the activity whose register is missing. The projection lives in `ActivityRegisterProgress`, which the list view and this controller both call; `prime()` reads a whole page in two queries and both callers use it.
+
 ### `GET /activities/{id}/principles` (#2831)
 
 The methodology principles an activity is linked to, read through the same
