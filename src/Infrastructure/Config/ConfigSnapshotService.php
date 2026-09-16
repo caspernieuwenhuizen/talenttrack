@@ -50,6 +50,11 @@ final class ConfigSnapshotService {
      */
     private const OPTION_KEYS = [
         'tt_installed_version',
+        // #3432 — the version whose role/capability shape was last asserted.
+        // Sits next to the schema stamp because it answers the twin support
+        // question: "the release added a capability, why has this role not
+        // got it?"
+        'tt_capabilities_version',
         'tt_dashboard_page_id',
         'tt_license_tier',
         'tt_license_plan',

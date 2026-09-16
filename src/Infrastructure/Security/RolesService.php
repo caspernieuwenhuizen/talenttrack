@@ -298,6 +298,16 @@ class RolesService {
         'tt_send_safeguarding_broadcast',
     ];
 
+    /**
+     * Option holding the plugin version whose role + capability shape was
+     * last asserted — see syncForVersion() (#3432).
+     *
+     * Deliberately separate from `tt_installed_version`: that one is stamped
+     * only when the migration runner reports zero failures, and a capability
+     * grant must not be held hostage to an unrelated schema failure.
+     */
+    public const CAPABILITY_VERSION_OPTION = 'tt_capabilities_version';
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -528,6 +538,42 @@ class RolesService {
             add_role( $slug, (string) $def['label'], (array) $def['caps'] );
         }
         $this->ensureCapabilities();
+    }
+
+    /**
+     * #3432 — assert the role + capability shape once per plugin version.
+     *
+     * Capability shape is install state, like the schema, and it changes on
+     * exactly the same event: a new plugin version. Before this existed the
+     * re-assert hung off `admin_init`, so a capability declared in a release
+     * reached an academy that never opens wp-admin never rather than late.
+     *
+     * `installRoles()` rather than `ensureCapabilities()` because a release
+     * that adds a whole ROLE has the same gap, and `add_role()` leaves an
+     * existing role's caps untouched, so the wider call is still additive.
+     *
+     * Additive on purpose: neither call removes a capability, so a grant an
+     * operator withdrew through the authorization matrix — a separate store
+     * that this never writes — stays withdrawn. This is a catch-up, not a
+     * reset.
+     *
+     * @param string $version The running plugin version (TT_VERSION).
+     * @param bool   $force   Skip the stamp check. Activation and the
+     *                        operator-triggered migration re-run pass true;
+     *                        the boot path never does.
+     * @return bool True when the shape was asserted on this call.
+     */
+    public function syncForVersion( string $version, bool $force = false ): bool {
+        if ( '' === $version ) {
+            return false;
+        }
+        if ( ! $force && (string) get_option( self::CAPABILITY_VERSION_OPTION, '' ) === $version ) {
+            return false;
+        }
+
+        $this->installRoles();
+        update_option( self::CAPABILITY_VERSION_OPTION, $version, true );
+        return true;
     }
 
     /**

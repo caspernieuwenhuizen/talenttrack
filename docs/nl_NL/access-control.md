@@ -364,6 +364,16 @@ Hoofdtrainer en Academie-beheerder hebben en wordt niet beïnvloed door het
 spelerrecht. Zie de
 [autorisatiematrix](authorization-matrix.md).
 
+## Wanneer een rechtenwijziging van kracht wordt
+
+Releases voegen rechten toe. Het veiligheidsbericht bracht er een mee, en de meeste nieuwe afgeschermde schermen brengen er vroeg of laat een mee. Een recht dat een release toevoegt, bereikt de rollen die het horen te hebben **zodra iemand na de update een TalentTrack-pagina opent** — welke pagina dan ook, op welk scherm dan ook. Het dashboard in de app telt mee. Een trainer die een speler opent telt mee. Je hoeft niets te draaien en niets aan te klikken, en een academie die de WordPress-beheeromgeving nooit opent wacht op niemand.
+
+Dat is van belang omdat het niet altijd zo werkte. De hercontrole liep vroeger alleen bij het laden van een WordPress-beheerpagina. Dat was een veilige aanname zolang een academie runnen betekende dat je daar kwam. Dat hield op toen Setup, rechten en het dashboard allemaal naar de app verhuisden: een academie die volledig in de app werkt kan onbeperkt zonder wp-admin-pagina toe, en een recht dat een release had toegevoegd bleef precies zo lang ongetoekend. Lijkt een rol iets te missen wat een release-notitie beloofde, dan is het openen van een willekeurige pagina nu genoeg; **Configuratie → Database-update** hercontroleert desgewenst ook de volledige rollen- en rechtenopzet.
+
+De hercontrole is **alleen aanvullend**, en dat is met opzet. Ze geeft een rol de rechten die de roldefinitie voorschrijft en neemt er nooit een weg — een recht dat een academie zelf aan een rol gaf, overleeft dus elke update.
+
+**Een rol versmallen is werk voor de matrix.** De autorisatiematrix is een aparte opslag, en de hercontrole leest noch schrijft die: een recht dat je intrekt in **Configuratie → Autorisatiematrix** blijft ingetrokken bij elke volgende update. Een recht rechtstreeks in WordPress bij een rol weghalen beklijft niet op dezelfde manier — de roldefinitie noemt het nog steeds, dus de volgende update geeft het terug. Gebruik de matrix.
+
 ## Permission debug
 
 Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een willekeurige gebruiker inspecteren. Handig als een gebruiker meldt "ik kan X niet zien" — controleer wat hij/zij daadwerkelijk heeft.
