@@ -653,17 +653,11 @@ class AuthorizationService {
         // read their own child's record — and ONLY their own. Filtered by
         // `parent_user_id`, so a guardian never gains scope over a
         // co-parent's view or any other child (#1725).
-        $children_player_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT pp.player_id
-               FROM {$wpdb->prefix}tt_player_parents pp
-               INNER JOIN {$wpdb->prefix}tt_players p
-                       ON p.id = pp.player_id AND p.club_id = pp.club_id
-              WHERE pp.parent_user_id = %d
-                AND pp.club_id = %d
-                AND p.status = 'active'",
-            $user_id, CurrentClub::id()
-        ) );
-        if ( is_array( $children_player_ids ) && ! empty( $children_player_ids ) ) {
+        // #3476 — this query was already club-scoped and active-only, i.e.
+        // already right; it is routed through the resolver so there is one
+        // implementation to keep right rather than two that happen to agree.
+        $children_player_ids = \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id );
+        if ( ! empty( $children_player_ids ) ) {
             $perms_parent = self::getPermissionsForRoleKey( 'parent' );
             foreach ( $children_player_ids as $pid ) {
                 $scopes[] = [

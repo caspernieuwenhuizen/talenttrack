@@ -97,11 +97,10 @@ class PdpPrintRouter {
             $user_id
         ) );
         if ( $self_player === (int) $file->player_id ) return true;
-        $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT 1 FROM {$p}tt_player_parents WHERE player_id = %d AND parent_user_id = %d LIMIT 1",
-            (int) $file->player_id, $user_id
-        ) );
-        return $is_parent === 1;
+
+        // #3476 — one club-scoped, status-filtered implementation of
+        // "is this user a guardian of this player", in ParentChildResolver.
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, (int) $file->player_id );
     }
 
     private static function emit( object $file, bool $include_evidence ): void {

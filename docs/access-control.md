@@ -449,6 +449,10 @@ The `tt_player_parents` pivot (`parent_user_id`, `player_id`, `is_primary`, `clu
 
 `tt_players.guardian_email` is **not** a live linkage source. It is an invite/seed hint: it may *create* a `tt_player_parents` row when a parent is invited, imported, or seeded, but it is never queried at runtime to decide access. A parent linked only by a matching `guardian_email` (and no pivot row) will not surface until they are re-linked through the invite/seed path or by an admin — there is no backfill.
 
+**A release ends the guardian's access.** The resolver filters to `status = 'active'`, so when a player is released, graduated or otherwise leaves the active roster, the people linked to them stop being guardians for access purposes: their dashboard, their child switcher, the child's development pages, the permission matrix, the development-plan print and the conversation endpoints all close together. This used to be inconsistent — six places asked "is this a guardian of this player" with their own query, and the ones that skipped the status filter let a released child's record stay reachable by direct URL while the dashboard showed nothing. `ParentChildResolver::isParentOf()` is now the only implementation, and it is club-scoped.
+
+A family who needs the record after a release should be given a **subject-access export** — a deliberate act with an audit trail — rather than a login that keeps working quietly.
+
 ## Parent dashboard and child-scoped me-views (#1991 / #1992)
 
 A guardian who is linked to a player but has no own player record now reaches **their child's** record:

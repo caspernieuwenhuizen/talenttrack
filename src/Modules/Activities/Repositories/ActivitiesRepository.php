@@ -1671,17 +1671,10 @@ final class ActivitiesRepository {
      * `tt_player_parents` table (returns false when it is absent).
      */
     public function userIsParentOfPlayer( int $wp_user_id, int $player_id ): bool {
-        if ( $wp_user_id <= 0 || $player_id <= 0 ) return false;
-        global $wpdb;
-        $parents_table = $wpdb->prefix . 'tt_player_parents';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) !== $parents_table ) {
-            return false;
-        }
-        $link = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
-            $wp_user_id, $player_id
-        ) );
-        return $link > 0;
+        // #3476 — delegates to the canonical resolver, which is club-scoped
+        // and active-only. This was a sixth copy of the pivot query, with
+        // neither filter; the table-exists guard it carried lives there too.
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $wp_user_id, $player_id );
     }
 
     /**

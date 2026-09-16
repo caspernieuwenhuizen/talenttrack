@@ -650,12 +650,11 @@ class QueryHelpers {
      */
     public static function user_is_linked_parent( int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
-        global $wpdb;
-        $hit = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT 1 FROM {$wpdb->prefix}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
-            $user_id
-        ) );
-        return $hit === 1;
+        // #3476 — one implementation, in ParentChildResolver: club-scoped and
+        // active-only, so this agrees with the matrix and the dashboard about
+        // a guardian whose child has been released rather than being a sixth
+        // opinion.
+        return \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [];
     }
 
     /**
