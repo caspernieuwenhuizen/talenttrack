@@ -1,3 +1,394 @@
+# TalentTrack v4.124.0 — Team monthly report: the numbers behind it, available over the API (#3458)
+
+The first part of the team monthly report — one document per team per month for
+the staff meeting, instead of four report tabs and a coach's memory. This part
+has no screen yet: it assembles the whole report as data, so the online view,
+the PDF and the monthly email that follow all show the same figures.
+
+For a team and a month it brings together what the existing reports already
+know — attendance, minutes, player status, injuries and other changes, test
+results, evaluation coverage, open goals — with each headline figure compared
+against the month before. A month with nothing to compare against says so
+rather than showing a zero.
+
+It also leads with how complete the data is: how many of the month's completed
+trainings and matches have an attendance register, and which ones do not. A
+missing register silently skews every percentage in a report like this, so the
+report states its own confidence first.
+
+Available at `GET /teams/{id}/monthly-report` to staff who can read that team's
+reports.
+
+# TalentTrack v4.124.0 — Team monthly report: on screen, composed the way the meeting needs it (#3459)
+
+**Reports → Development & performance → Team · Monthly report** puts a squad's
+month on one page: how complete the data is, the headline numbers against the
+month before, squad status, attendance and minutes per player, who needs a
+conversation, what changed, test results, a player-by-player table and what is
+missing. It opens on last month, because that is the month a staff meeting on
+the 1st is about.
+
+A panel above the report chooses what goes in. Pick the printed layout — a
+one-pager, a three-page pack or a landscape overview — and tick the sections you
+want; the report updates straight away, and the link in the address bar opens
+exactly that report for a colleague. A size meter shows how many pages the
+printed copy will take and warns before a one-pager overflows.
+
+The data-coverage banner sits above the numbers and says how many of the month's
+trainings and matches have an attendance register — in green when all of them
+do, so a complete month reads as confirmed rather than unchecked. Player names
+and figures link through to the profiles and reports they come from, and the
+report is marked confidential, staff only.
+
+Also: **Last month** is now a period choice on every report that offers This
+month and This season.
+
+# TalentTrack v4.124.0 — Team monthly report: download it as a PDF (#3460)
+
+The team monthly report now has a **Download PDF** button under its composition
+panel. The PDF prints the report exactly as composed: the chosen layout (A4
+one-pager, three-page pack or landscape matrix) and the chosen sections. It
+prints the same number of pages the panel's size meter shows.
+
+On the one-pager, long attendance and minutes lists keep their top and bottom
+players. A marker line says how many were left out and the range their values
+fell in. The agenda keeps its most urgent players and says how many more are on
+the online report. Every page carries the confidential, staff-only footer.
+
+The PDF answers to the same access rule as the report on screen. A coach who
+cannot read a team's reports gets a refusal, not an empty document. The size
+meter's estimate is now measured against the real PDF output, and a squad of 20
+fits the three-page pack.
+
+# TalentTrack v4.124.0 — Team monthly report: save the report you compose every month (#3461)
+
+The team monthly report now supports saved views. A saved view keeps the whole
+composition: team, period, report type and sections. Make one your default and
+the monthly report opens straight on it. A period such as *last month* is
+worked out again each time, so the same view keeps showing the month that just
+ended.
+
+The panel says which saved view you are looking at. It also says when you opened
+your default and changed it, so saving a new view is a deliberate choice.
+
+A link that names its own team, period, type or sections still opens exactly
+that report. Saved views are personal. An older view whose sections have since
+changed still opens, leaving out only what it no longer recognises.
+
+Changing the period in the period bar now keeps the chosen report type and
+sections.
+
+# TalentTrack v4.124.0 — Team monthly report: mailed as a PDF on the 1st (#3462)
+
+**Schedule monthly** on the team monthly report sets the report up to arrive by
+email as a PDF on the 1st of every month. Each one covers the month that just
+ended, and the file is named after the team and the month
+(`JO13-1-2026-09.pdf`). The schedule keeps its own copy of the report, so
+changing or deleting a saved view later does not change what it sends.
+
+The report names minors and goes out unattended, so a schedule stops rather
+than sends when its team has been archived, or when the person who set it up
+can no longer see that team's reports. The scheduled reports screen now shows
+why a schedule's last run did not send.
+
+Existing KPI schedules keep working as before.
+
+Migration 0266 adds the report kind, the composition and the last error to
+scheduled reports.
+
+# TalentTrack v4.124.0 — The "nobody is running this activity" alert now sees the activities nobody planned in the planner (#3463)
+
+An activity in the next week with no coach assigned is the one problem the
+alerts engine can still prevent rather than report — there is time to fix it
+before a squad loses a training to a late cancellation.
+
+It was reading the planner's workflow column. That column arrives set to
+`completed` on every create path except the team planner itself, so an
+uncoached activity made by the activity wizard, the flat form or the Spond
+import failed the check however plainly it read "Planned" on screen. The alert
+fired only for activities the team planner happened to create.
+
+It now reads the status the coach actually sets, through the shared lifecycle
+predicate the previous two fixes in this area introduced. A cancelled activity
+still raises nothing — it never needs a coach — and neither does one somebody
+has already finished with.
+
+This is the third bug from the same column and the last alert definition that
+read it. Nothing is stored differently; open occurrences are re-evaluated on
+the next hourly sweep.
+
+# TalentTrack v4.124.0 — A player and a parent can read the injury record the academy already grants them (#3468)
+
+The player profile showed an Injuries tab to the player it is about and to
+their parents, and the tab's entire content was a refusal: injury records are
+medical data and stay with the coaching staff, talk to your academy admin. For
+a guardian reading that about their own child, it said the academy was
+withholding their minor's medical history from them.
+
+The academy was not. The permission model grants a player read access to their
+own injuries and a guardian read access to their child's — that grant is why
+the tab appeared at all. The check behind the tab asked a narrower question,
+one only staff could ever answer, so the grant could never be satisfied by the
+people it was written for.
+
+Both now reach the record. A guardian still sees only their own child's, a
+player still cannot edit anything, and an assistant coach still sees no tab at
+all. The tab and the panel behind it now resolve from the same check, so they
+cannot drift apart again.
+
+# TalentTrack v4.124.0 — A parent's dashboard tile no longer prints its label one letter per line (#3469)
+
+The tile on the parent dashboard whose feature carries the "Under development"
+badge rendered its label as a vertical column of single characters, and the
+resulting card was tall enough to stretch every other tile in the rail with it.
+A parent's landing screen was seven near-empty cards deep.
+
+The tile is a single-line flex row. The badge does not wrap, and in the ~220px
+grid column the rail uses on a laptop it left the label about one character
+wide — at which point the label's own `overflow-wrap: anywhere` did exactly
+what it was told and broke at every character.
+
+The row now wraps, so the badge drops beneath the label instead of crushing it,
+and the label keeps a minimum readable width. Long child names still wrap at
+word boundaries. Tiles without the badge are unchanged, as is the player's own
+dashboard.
+
+# TalentTrack v4.124.0 — "Doel gesteld" on the journey, instead of the word `goal_set` (#3470)
+
+Every goal a player is given writes an entry on their journey, and every one of
+those entries showed the database's own name for it — the literal text
+`goal_set`, sitting between "Evaluatie voltooid" and "Proeftraining gestart" on
+the player's own timeline and on their parent's view of it.
+
+The journey reads its event types from the club's editable vocabulary, and this
+one had never been added to it. Everything else about the type existed: the code
+that writes it, the backfill that recovers old ones, even the documentation
+naming it. Only the row was missing, so the timeline had nothing to call it.
+
+It is now a proper type, which also puts it in the journey's filter list — goal
+entries can be filtered in or out and included in the milestones-only view, none
+of which was possible before — and makes its visibility editable like every
+other type's. It stays visible to the player and their guardians, which is what
+it already did.
+
+Existing entries pick the name up immediately; nothing is rewritten.
+
+# TalentTrack v4.124.0 — Goal statuses read in Dutch again, whichever casing the row was saved with (#3471)
+
+A goal's status chip showed the English "In Progress" on a Dutch install — on a
+player's own goals, on a parent's view of their child's, and on the coach
+surfaces, all of which read the same field. The priority chip beside it was
+translated, which is what made it look arbitrary.
+
+The `goal_status` lookup is seeded in Title Case, so depending on which path
+wrote the goal the column holds either `in_progress` or `In Progress`. The
+label resolver matched only the first shape and handed the second straight
+back. The goal still landed in the right board column with the right chip
+colour, because those two already folded the casing — only the words did not.
+
+Both shapes now resolve to the same label, leading and trailing whitespace from
+an import included, and `Pending approval` has a translation instead of
+rendering as an English fall-through. Player status got the same treatment, for
+the same reason. Nothing is stored differently and no goal changes state.
+
+# TalentTrack v4.124.0 — A parent's dashboard now shows every surface they are allowed to open (#3472)
+
+A parent can read their child's tests and measurements, and has an inbox of
+their own. Neither had a tile on the parent dashboard, and on the default
+chrome that dashboard is a parent's only navigation — so both were granted and
+unreachable at the same time.
+
+The parent dashboard framed each tile as "Luuk's measurements", and the list of
+nouns it uses to do that was quietly also deciding which tiles existed at all.
+Anything not in the list was dropped rather than shown unframed.
+
+Measurements now appears on the child rail with the rest of their record, and
+the parent's own surfaces — their messages, their account settings — appear in
+a second group beneath it, under their own names rather than the child's. The
+two lists together cover everything the parent can see, so a surface added
+later cannot go missing from this screen by omission.
+
+# TalentTrack v4.124.0 — The team name on a player's profile now leads somewhere they can go (#3473)
+
+Under the player's name on their profile sits their team, as a link. It pointed
+at the staff team page — for everybody, including the player and their parents,
+who have no access to it. Tapping the first thing on the screen that names your
+child's team produced "Niet geautoriseerd".
+
+Staff still reach the team record. A player and a parent now reach "My team"
+instead, scoped to the right child, and if a reader can reach neither the name
+is shown as plain text rather than as a link that goes nowhere.
+
+This is the same mistake as the two fixed before it in this area — a destination
+hard-coded at the point where the link is built, without asking who is reading.
+It was the last one on this page.
+
+# TalentTrack v4.124.0 — The journey no longer tells a parent it is for "the parent meeting" (#3474)
+
+A parent opening their child's journey read that it was a "chronological story
+for this player", filterable to milestones "for the parent meeting" — a sentence
+written for the coach, about the parent, shown to the parent. The breadcrumb
+above it said "Mijn reis".
+
+A parent now gets a sentence addressed to them about their child, and a
+breadcrumb that names the child. The player's own wording and the coach's are
+unchanged, and the milestones view itself stays: a parent looking at just the
+big moments is exactly what it is for.
+
+# TalentTrack v4.124.0 — Demo academies now always include a parent with two children (#3475)
+
+The guardian generator handed its single parent account one to three children
+at random. Two runs in three that was two or three and the multi-child paths
+worked; the other one left them unreachable — no child picker, no dashboard
+child switcher, nothing to demonstrate to a club and nothing to test against.
+
+Demo data now ships two parent accounts with fixed family sizes. **Demo
+Parent** has one child, the guardian who lands straight on that child's record.
+**Demo Parent Of Two** has two, which is what the picker and the switcher need.
+Further parent accounts, on installs that have more, still vary in size.
+
+Which players get a guardian is still varied — that part is meant to look like
+a real academy, where not every parent has registered. What is no longer left
+to chance is whether a code path exists in the generated data at all.
+
+# TalentTrack v4.124.0 — One answer to "is this a guardian of this player", and a clear rule about released players (#3476)
+
+Six places in the code asked whether a user was a registered guardian of a
+particular player, each with its own hand-written query, and none of them
+checked which academy the link belonged to. On a single-academy install that
+changes nothing today; on the authorization path it is the wrong thing to leave
+lying around before there is a second one.
+
+They had also drifted apart on a real question. A guardian whose child had been
+released saw no parent dashboard and no child switcher — those read one query —
+but could still open the child's record by typing the address, because the
+access check read another. Neither behaviour was chosen; they were two
+different queries that happened to disagree.
+
+**A release now ends the guardian's access**, consistently: dashboard,
+child switcher, the child's development pages, the permission matrix, the
+development-plan print and the conversation endpoints all give the same
+answer. The club has finished with the player, and the family's login to the
+academy's record of them ends with it.
+
+A family who needs their child's history after a release should ask for a
+subject-access export — a deliberate act, with a record of who asked — rather
+than relying on a login that quietly kept working. **Academies with a released
+player whose parents still have an account should expect those parents to lose
+access on update.**
+
+# TalentTrack v4.124.0 — Parents are spoken to as parents on their child's pages (#3477)
+
+A parent opening their child's development page read a correct heading —
+"Ontwikkeling van Bas" — followed by three sections written to the child:
+"Jouw focus", "Hoe je ervoor staat", "Jouw reis". Goals, team and activities
+were titled "Mijn doelen", "Mijn team", "Mijn activiteiten". The activities
+table had a "Jouw status" column, and its empty state talked about "your coach"
+and "your attendance". The sidebar said "Mijn" too, while the dashboard beside
+it said "Bas's".
+
+Every page a player and a parent share now works out who is reading and words
+itself for them: the player still reads "My goals" and "How you're doing", a
+parent reads "Bas's goals" and "How Bas is doing", and a parent's navigation
+drops the "My" from the items that are about their child.
+
+The same change fixes a quieter problem on the development plan page, which
+treated anyone who was not the player as the parent — so a coach opening a
+player's plan was offered the parent's acknowledgement button on each talk.
+
+# TalentTrack v4.124.0 — "My evaluations" opens on this season and loads fast (#3478)
+
+A player's evaluations page sent every evaluation they had ever been given,
+each with its full category-by-category breakdown hidden inside the page. For
+one child with 208 evaluations that was 2.5 MB of HTML, with more than four
+thousand rating rows nobody had asked to see — on the page players are most
+likely to open on a phone after training.
+
+The page now opens on the current season. A link above the list says how many
+evaluations earlier seasons hold and shows them all in one tap; nothing has
+been cut from a player's history. The breakdown under each evaluation is
+fetched when the row is opened instead of being shipped in advance, and says so
+if it cannot load.
+
+The same list is available to other front ends at
+`GET /players/{id}/evaluations`, returning what the player and their parents see
+— never the coach's private notes — and the per-row breakdown at
+`GET /players/{id}/evaluations/{evaluation_id}/detail`. A parent whose child has
+chosen to keep evaluations private gets nothing from either.
+
+# TalentTrack v4.124.0 — A coach whose child plays in the academy keeps their coach dashboard (#3479)
+
+Linking a staff member as a guardian replaced their whole dashboard with the
+child-scoped parent rail. They got eight tiles about their kid and none of
+their coaching work, and on the default chrome — which has no sidebar — that
+left them with no route to any coaching surface at all.
+
+The dashboard decided "this is a parent" by asking one question: does this
+person have their own player record? A coach does not, so a single guardian
+link was enough. Coaches being parents of players in the same club is ordinary
+in youth football, not an edge case.
+
+A staff seat now wins. Coaches, heads of development, scouts, team managers,
+staff and admins keep their own dashboard and reach their child through the
+Players list like any other player. Guardians who are only guardians are
+unaffected, and nobody's access to their own child's data changes — that runs
+through the guardian link, which is untouched.
+
+# TalentTrack v4.124.0 — The team podium is shown to players, not to their parents (#3480)
+
+"My team" opens with a podium of the three highest-rated players in the squad,
+named, pictured and ranked gold, silver and bronze. Rating numbers were already
+kept off it. But a parent opening their own child's team page was still handed
+a ranking of other families' children.
+
+Players keep the podium — it is their dressing room. Parents now see everything
+else on the page: the next match, the recent form, their own child's card and
+growth trend, and the list of teammates. Blanking the names instead would not
+have helped; in a squad of a dozen, three positions are easy to place.
+
+# TalentTrack v4.124.0 — The Strava tab is now shown only to people the academy grants it to (#3481)
+
+The Strava tab on a player's profile was added without a permission check of any
+kind, so every reader saw it — including a parent, who was then offered the
+consent checkbox and the "Connect Strava" button for their child's account.
+
+Nothing could actually be connected that way: the endpoint behind the button
+has always refused anyone who is neither the player nor a staff member with
+edit rights. But offering a control that cannot work, on a question as
+consequential as sharing a minor's fitness data with the academy, is its own
+problem.
+
+The tab now asks the same question every tab beside it asks. A player keeps it
+for their own profile and a coach for their squad; a parent no longer sees it,
+and a test pins the endpoint's refusal so the boundary does not rest on the
+tab being hidden.
+
+A guardian giving consent on behalf of a minor may well be the right thing to
+build. If it is, it needs a deliberate grant rather than a missing check.
+
+# TalentTrack v4.124.0 — Demo academies now contain planned squads, not just registers (#3484)
+
+Attendance is two things: the squad a coach planned, and the register they took
+afterwards. A generated demo academy contained only the second — thirteen
+thousand registers and not one planned squad — so half of what the attendance
+model holds did not exist locally.
+
+That is a bigger gap than it sounds. Most of the attendance defects found
+recently are a planned squad being read as a register, or a write landing on
+the wrong one. None of them could be reproduced on a demo install, because
+there was nothing there to confuse; they were found by reading code or reported
+against a real academy's data. The fixes have the same problem in reverse —
+until now there was no way to demonstrate locally that they work.
+
+A run now plans every squad before registering it, and produces all three
+states: past activities with both a plan and a register, future activities with
+a plan and no register, and a minority of past activities nobody ever
+registered — the case the empty-register confirm, the completeness counts and
+the *attendance not recorded* alert exist for. Planned squads use the real plan
+vocabulary rather than marking everybody as coming.
+
+Existing demo data is unaffected until the next generation.
+
 # TalentTrack v4.123.0 — Saving an activity from the frontend no longer deletes the planned squad (#3451)
 
 The second door onto the same data loss #3456 closed. Recording attendance
