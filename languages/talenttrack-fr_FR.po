@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T16:06:55+00:00\n"
+"POT-Creation-Date: 2026-09-16T17:02:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -6136,24 +6136,24 @@ msgstr ""
 msgid "this player"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:35
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:42
 msgid "Attendance not recorded"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:39
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:46
 msgid ""
 "An activity is marked completed but nobody recorded who was there. It counts "
 "as finished while every player's attendance for that date is missing."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:53
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:53
 #: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:56
 msgid "Untitled activity"
 msgstr ""
 
 #. translators: %s: activity name
-#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:57
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:64
 #, php-format
 msgid "No attendance was recorded for %s."
 msgstr ""
