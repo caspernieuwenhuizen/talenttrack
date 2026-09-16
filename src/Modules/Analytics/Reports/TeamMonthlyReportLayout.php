@@ -17,10 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * degradation ladder to apply before it renders. Neither measures anything of
  * its own.
  *
- * Heights are millimetres of printable A4 at the report's type scale. They are
- * an estimate, calibrated against the mockup's measured sheets; #3460 owns
- * checking them against DomPDF's real output and adjusting the constants here,
- * where both readers pick the change up.
+ * Heights are millimetres of printable A4, measured on DomPDF's real output of
+ * the PDF template. Change the template's row heights or type scale and these
+ * constants move with it — `TeamMonthlyReportPdfTest` renders a 20-player squad
+ * and fails when the estimate and the paper disagree on the page count.
  *
  * ## The one-pager degrades before it fails
  *
@@ -57,21 +57,28 @@ final class TeamMonthlyReportLayout {
     private const PORTRAIT_MM  = 273.0;
     private const LANDSCAPE_MM = 186.0;
 
-    /** Block heights, mm. `row` is per row / item; `base` covers heading and padding. */
+    /**
+     * Block heights, mm. `row` is per row / item; `section_base` covers a
+     * section's heading and spacing. Measured on DomPDF's output of
+     * `TeamMonthlyReportPdfDocument` (smallest paper that still renders one
+     * page, block by block, at 10 and 20 players); a table row is its CSS
+     * height plus its bottom border.
+     */
     private const MM = [
-        'letterhead'      => 24.0,
-        'coverage'        => 11.0,
-        'kpi'             => 21.0,
-        'status'          => 15.0,
-        'section_base'    => 9.0,
-        'bar_row'         => 4.4,
-        'attention_item'  => 15.0,
+        'letterhead'      => 24.5,
+        'coverage'        => 13.2,
+        'kpi'             => 25.0,
+        'status'          => 20.4,
+        'section_base'    => 9.5,
+        'bar_row'         => 3.85,
+        'attention_item'  => 17.2,
         'change_row'      => 4.6,
-        'test_round'      => 11.0,
-        'roster_row'      => 5.2,
-        'roster_row_mini' => 4.4,
-        'roster_row_wide' => 6.4,
-        'notes'           => 38.0,
+        'test_round'      => 9.2,
+        'roster_head'     => 5.5,
+        'roster_row'      => 5.5,
+        'roster_row_mini' => 4.7,
+        'roster_row_wide' => 4.7,
+        'notes'           => 48.5,
         'quality_row'     => 4.6,
         'matrix_footer'   => 42.0,
     ];
@@ -250,16 +257,85 @@ final class TeamMonthlyReportLayout {
                 $row = $layout === self::ONE_PAGER
                     ? self::MM['roster_row_mini']
                     : ( $layout === self::MATRIX ? self::MM['roster_row_wide'] : self::MM['roster_row'] );
-                return $base + self::count( $block_data, 'rows' ) * $row;
+                return $base + self::MM['roster_head'] + self::count( $block_data, 'rows' ) * $row;
 
             case 'quality':
-                $lines = count( self::listOf( $block_data, 'activities_without_register' ) )
-                    + count( self::listOf( $block_data, 'players_not_evaluated' ) )
-                    + count( self::listOf( $block_data, 'players_with_incomplete_status' ) )
-                    + 1;
-                return $base + min( $lines, 8 ) * self::MM['quality_row'];
+                return $base + self::qualityLines( $block_data ) * self::MM['quality_row'];
         }
         return 0.0;
+    }
+
+    /**
+     * How many lines the data-quality block prints: one per kind of gap, or a
+     * single "nothing missing" line. Public because the PDF template prints
+     * exactly these lines, and the estimate must count the same thing.
+     *
+     * @param array<string,mixed> $block_data
+     */
+    public static function qualityLines( array $block_data ): int {
+        $lines = 0;
+        if ( self::listOf( $block_data, 'activities_without_register' ) !== [] ) $lines++;
+        if ( (int) ( $block_data['matches_without_minutes'] ?? 0 ) > 0 ) $lines++;
+        if ( self::listOf( $block_data, 'players_not_evaluated' ) !== [] ) $lines++;
+        if ( self::listOf( $block_data, 'players_with_incomplete_status' ) !== [] ) $lines++;
+        return max( 1, $lines );
+    }
+
+    /**
+     * Apply the rungs `fit()` chose to the report's data, so what prints is
+     * what was measured.
+     *
+     * Elided ranked lists keep their first `ELIDE_KEEP_TOP` and last
+     * `ELIDE_KEEP_BOTTOM` rows, with one marker row between recording how many
+     * players were left out and the range their values spanned — "… 7 players
+     * between 75% and 94% …". The attention list keeps its most urgent items,
+     * which the composer already orders first.
+     *
+     * @param array{data:array<string,array<string,mixed>>} $report
+     * @param list<string>                                  $rungs
+     * @return array{data:array<string,array<string,mixed>>}
+     */
+    public static function degrade( array $report, array $rungs ): array {
+        if ( in_array( self::ELIDE_RANKED, $rungs, true ) ) {
+            foreach ( [ 'attendance' => 'present_pct', 'minutes' => 'share_pct' ] as $block => $value_key ) {
+                if ( ! isset( $report['data'][ $block ] ) ) continue;
+                $rows = self::listOf( $report['data'][ $block ], 'rows' );
+                $report['data'][ $block ]['rows'] = self::elide( array_values( $rows ), $value_key );
+            }
+        }
+        if ( in_array( self::TRIM_ATTENTION, $rungs, true ) && isset( $report['data']['attention'] ) ) {
+            $items = self::listOf( $report['data']['attention'], 'items' );
+            $report['data']['attention']['items']   = array_slice( array_values( $items ), 0, self::ATTENTION_KEEP );
+            $report['data']['attention']['omitted'] = max( 0, count( $items ) - self::ATTENTION_KEEP );
+        }
+        return $report;
+    }
+
+    /**
+     * @param list<mixed> $rows
+     * @return list<mixed>
+     */
+    private static function elide( array $rows, string $value_key ): array {
+        $keep = self::ELIDE_KEEP_TOP + self::ELIDE_KEEP_BOTTOM;
+        if ( count( $rows ) <= $keep + 1 ) return $rows;
+
+        $middle = array_slice( $rows, self::ELIDE_KEEP_TOP, count( $rows ) - $keep );
+        $values = [];
+        foreach ( $middle as $r ) {
+            if ( is_array( $r ) && isset( $r[ $value_key ] ) && ( is_int( $r[ $value_key ] ) || is_float( $r[ $value_key ] ) ) ) {
+                $values[] = (float) $r[ $value_key ];
+            }
+        }
+
+        return array_merge(
+            array_slice( $rows, 0, self::ELIDE_KEEP_TOP ),
+            [ [
+                'elided' => count( $middle ),
+                'min'    => $values !== [] ? min( $values ) : null,
+                'max'    => $values !== [] ? max( $values ) : null,
+            ] ],
+            array_slice( $rows, - self::ELIDE_KEEP_BOTTOM )
+        );
     }
 
     /** How many rows an elided ranked list prints: the kept ends plus one "…" row. */

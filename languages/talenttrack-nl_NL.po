@@ -61553,6 +61553,54 @@ msgstr "Team · Maandrapport"
 msgid "One document for the monthly staff meeting: status, attendance, minutes, what changed and who needs a conversation."
 msgstr "Eén document voor het maandelijkse stafoverleg: status, aanwezigheid, minuten, wat er veranderde en wie een gesprek nodig heeft."
 
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php
+msgid "Team monthly report (PDF)"
+msgstr "Maandrapport team (PDF)"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "This team has no completed trainings or matches in this window, so there is nothing to report yet."
+msgstr "Dit team heeft in deze periode geen afgeronde trainingen of wedstrijden, dus er is nog niets te rapporteren."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Monthly report"
+msgstr "Maandrapport"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Based on %1$d of %2$d completed activities. No register: %3$s"
+msgstr "Gebaseerd op %1$d van %2$d afgeronde activiteiten. Geen presentielijst: %3$s"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$s, %2$s — %3$d of %4$d tested"
+msgstr "%1$s, %2$s — %3$d van %4$d getest"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Improved %1$d · declined %2$d"
+msgstr "Vooruit %1$d · achteruit %2$d"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Complete: the one completed activity has an attendance register."
+msgid_plural "Complete: all %d completed activities have an attendance register."
+msgstr[0] "Compleet: de ene afgeronde activiteit heeft een presentielijst."
+msgstr[1] "Compleet: alle %d afgeronde activiteiten hebben een presentielijst."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "… %1$d player between %2$s and %3$s …"
+msgid_plural "… %1$d players between %2$s and %3$s …"
+msgstr[0] "… %1$d speler tussen %2$s en %3$s …"
+msgstr[1] "… %1$d spelers tussen %2$s en %3$s …"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "… %d more player …"
+msgid_plural "… %d more players …"
+msgstr[0] "… nog %d speler …"
+msgstr[1] "… nog %d spelers …"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "…and %d more on the online report."
+msgid_plural "…and %d more on the online report."
+msgstr[0] "…en nog %d in het online rapport."
+msgstr[1] "…en nog %d in het online rapport."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

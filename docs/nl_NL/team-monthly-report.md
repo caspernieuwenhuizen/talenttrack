@@ -47,6 +47,18 @@ ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
 voordat de pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
 sectie weg of kies het pakket van drie pagina's.
 
+## Afdrukken
+
+**PDF downloaden** onder het paneel maakt de afdruk van precies het rapport dat
+je samengesteld hebt: hetzelfde team, dezelfde periode, soort en secties. Het
+aantal pagina's is het aantal dat de meter liet zien, en wat op één pagina is
+ingekort, is in de PDF op dezelfde manier ingekort — een ingekorte lijst zegt
+hoeveel spelers er zijn weggelaten en tussen welke waarden die zaten. Onderaan
+elke pagina staat dat het rapport vertrouwelijk is en alleen voor staf bedoeld.
+
+Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
+ook niet via een doorgestuurde link.
+
 ## Wat de secties laten zien
 
 - **Datadekking** — hoeveel van de afgeronde trainingen en wedstrijden in de
