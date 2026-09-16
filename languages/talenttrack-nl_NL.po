@@ -61127,10 +61127,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Infrastructure/REST/TeamsRestController.php
-msgid "Unknown period."
-msgstr "Onbekende periode."
-
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
 msgid "This team has no completed trainings or matches in this window, so there is nothing to report yet. Pick another period above."
 msgstr "Dit team heeft in deze periode geen afgeronde trainingen of wedstrijden, dus er valt nog niets te rapporteren. Kies hierboven een andere periode."
