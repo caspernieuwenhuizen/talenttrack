@@ -67,7 +67,7 @@ final class TeamMonthlyReportLayout {
         'bar_row'         => 4.4,
         'attention_item'  => 15.0,
         'change_row'      => 4.6,
-        'test_session'    => 11.0,
+        'test_round'      => 11.0,
         'roster_row'      => 5.2,
         'roster_row_mini' => 4.4,
         'roster_row_wide' => 6.4,
@@ -244,7 +244,7 @@ final class TeamMonthlyReportLayout {
                 return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'events' ) * self::MM['change_row'];
 
             case 'tests':
-                return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'sessions' ) * self::MM['test_session'];
+                return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'rounds' ) * self::MM['test_round'];
 
             case 'roster':
                 $row = $layout === self::ONE_PAGER

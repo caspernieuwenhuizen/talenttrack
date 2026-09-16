@@ -64,7 +64,7 @@ three-page pack.
   first, with what the data says about them. This is the meeting's agenda.
 - **What changed** — injuries, position and team changes, development-plan
   decisions, signings and departures.
-- **Tests** — test sessions held, how many players took part, and who improved or
+- **Tests** — test rounds held, how many players took part, and who improved or
   declined since their last result.
 - **Player by player** — every measure for every player in one table.
 - **Decisions and actions** — space on the printed copy to write what the

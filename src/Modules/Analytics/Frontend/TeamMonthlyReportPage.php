@@ -289,7 +289,7 @@ final class TeamMonthlyReportPage {
             'minutes'    => [ 'title' => _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),        'note' => __( 'Per player, against the target', 'talenttrack' ) ],
             'attention'  => [ 'title' => _x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ), 'note' => __( 'The agenda', 'talenttrack' ) ],
             'changes'    => [ 'title' => _x( 'What changed', 'team monthly report section', 'talenttrack' ),         'note' => __( 'Injuries, moves, signings', 'talenttrack' ) ],
-            'tests'      => [ 'title' => _x( 'Tests', 'team monthly report section', 'talenttrack' ),                'note' => __( 'Sessions held and who moved', 'talenttrack' ) ],
+            'tests'      => [ 'title' => _x( 'Tests', 'team monthly report section', 'talenttrack' ),                'note' => __( 'Test rounds held and who moved', 'talenttrack' ) ],
             'roster'     => [ 'title' => _x( 'Player by player', 'team monthly report section', 'talenttrack' ),     'note' => __( 'Every measure in one table', 'talenttrack' ) ],
             'notes'      => [ 'title' => _x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ), 'note' => __( 'Space to write on', 'talenttrack' ) ],
             'quality'    => [ 'title' => _x( 'Data quality', 'team monthly report section', 'talenttrack' ),         'note' => __( 'What to fix before next month', 'talenttrack' ) ],
@@ -623,15 +623,15 @@ final class TeamMonthlyReportPage {
 
     /** @param array<string,mixed> $t */
     private static function renderTests( array $t ): void {
-        $sessions = is_array( $t['sessions'] ?? null ) ? $t['sessions'] : [];
+        $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
 
         self::sectionOpen( _x( 'Tests', 'team monthly report section', 'talenttrack' ) );
-        if ( $sessions === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No test sessions held this period.', 'talenttrack' ) . '</p>';
+        if ( $rounds === [] ) {
+            echo '<p class="tt-mr-muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</p>';
             self::sectionClose();
             return;
         }
-        foreach ( $sessions as $s ) {
+        foreach ( $rounds as $s ) {
             if ( ! is_array( $s ) ) continue;
             echo '<div class="tt-mr-test">';
             echo '<p class="tt-mr-test__name"><strong>' . esc_html( (string) ( $s['name'] ?? '' ) ) . '</strong> · '

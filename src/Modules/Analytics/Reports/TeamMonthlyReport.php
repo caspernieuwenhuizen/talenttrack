@@ -472,7 +472,7 @@ final class TeamMonthlyReport {
     }
 
     /**
-     * Test sessions the team held in the window, who was tested, and who moved
+     * Test rounds the team held in the window, who was tested, and who moved
      * in each direction since their previous reading.
      *
      * @return array<string,mixed>
@@ -534,7 +534,7 @@ final class TeamMonthlyReport {
             ];
         }
 
-        return [ 'sessions' => $out ];
+        return [ 'rounds' => $out ];
     }
 
     /**

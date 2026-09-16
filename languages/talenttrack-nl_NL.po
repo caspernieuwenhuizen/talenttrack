@@ -61263,7 +61263,7 @@ msgid "Tests"
 msgstr "Testen"
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
-msgid "Sessions held and who moved"
+msgid "Test rounds held and who moved"
 msgstr "Gehouden testmomenten en wie veranderde"
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
@@ -61413,8 +61413,8 @@ msgid "No injuries, moves or other changes recorded this period."
 msgstr "Geen blessures, wissels of andere wijzigingen vastgelegd deze periode."
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
-msgid "No test sessions held this period."
-msgstr "Geen testmomenten gehouden deze periode."
+msgid "No tests taken this period."
+msgstr "Deze periode zijn geen testen afgenomen."
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
 #, php-format
