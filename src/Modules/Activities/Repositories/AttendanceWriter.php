@@ -189,12 +189,14 @@ final class AttendanceWriter {
         }
         if ( $keep === [] ) return 0;
 
-        $table = $this->table();
-        // FIND_IN_SET rather than a generated `IN (%d, %d, …)` run: the
-        // placeholder string would not be a literal-string expression, which
-        // `$wpdb->prepare()` requires at PHPStan level 8.
-        $deleted = $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$table}
+        // `$p` rather than `$this->table()`: a method's declared `string`
+        // return widens away the literal-string type `$wpdb->prepare()`
+        // requires at PHPStan level 8. Same reason FIND_IN_SET stands in for
+        // a generated `IN (%d, %d, …)` run — that placeholder string is not
+        // literal either.
+        $p       = $wpdb->prefix;
+        $deleted = $wpdb->query( (string) $wpdb->prepare(
+            "DELETE FROM {$p}tt_attendance
               WHERE activity_id = %d
                 AND club_id     = %d
                 AND record_type = 'actual'
@@ -323,10 +325,10 @@ final class AttendanceWriter {
     public function actualRowIds( int $activity_id, int $player_id ): array {
         if ( $activity_id <= 0 || $player_id <= 0 ) return [];
         global $wpdb;
-        $table = $this->table();
+        $p = $wpdb->prefix;
 
         $ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$table}
+            "SELECT id FROM {$p}tt_attendance
               WHERE activity_id = %d AND player_id = %d AND club_id = %d
                 AND is_guest = 0 AND record_type = 'actual'
               ORDER BY id ASC",
@@ -342,10 +344,10 @@ final class AttendanceWriter {
     public function expectedRowId( int $activity_id, int $player_id ): int {
         if ( $activity_id <= 0 || $player_id <= 0 ) return 0;
         global $wpdb;
-        $table = $this->table();
+        $p = $wpdb->prefix;
 
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$table}
+            "SELECT id FROM {$p}tt_attendance
               WHERE activity_id = %d AND player_id = %d AND club_id = %d
                 AND is_guest = 0 AND record_type = 'expected'
               ORDER BY id DESC LIMIT 1",
@@ -447,10 +449,10 @@ final class AttendanceWriter {
     private function activityIdOfRow( int $row_id ): int {
         if ( $row_id <= 0 ) return 0;
         global $wpdb;
-        $table = $this->table();
+        $p = $wpdb->prefix;
 
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT activity_id FROM {$table} WHERE id = %d AND club_id = %d", /* both-kinds-ok */
+            "SELECT activity_id FROM {$p}tt_attendance WHERE id = %d AND club_id = %d", /* both-kinds-ok */
             $row_id, CurrentClub::id()
         ) );
     }
