@@ -208,7 +208,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      *
      * @return array<string,string>  tab key => human label
      */
-    private static function tabs( int $user_id ): array {
+    private static function tabs( int $user_id, int $player_id ): array {
         $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
 
         if ( self::mayRead( $user_id, 'goals', 'my_goals' ) ) {
@@ -241,17 +241,34 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
         // #2061 (epic #2002) — per-player Strava connection + imported
         // training, alongside the team-session activities.
-        $tabs['strava'] = __( 'Strava', 'talenttrack' );
+        //
+        // #3481 — gated, like every tab around it. It was added with no check
+        // at all, so it rendered for every viewer, and the panel behind it
+        // offers a consent checkbox and a "Connect with Strava" button for
+        // the player whose profile this is. The parent persona holds no
+        // `strava_integration` row, so it was offering a guardian a write
+        // affordance the matrix never granted them. The player holds it at
+        // `self` and a coach at `team`, so both keep the tab.
+        if ( MatrixGate::canAnyScope( $user_id, 'strava_integration', MatrixGate::READ ) ) {
+            $tabs['strava'] = __( 'Strava', 'talenttrack' );
+        }
         if ( MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ ) ) {
             $tabs['pdp'] = __( 'PDP cycle', 'talenttrack' );
         }
         if ( MatrixGate::canAnyScope( $user_id, 'trial_cases', MatrixGate::READ ) ) {
             $tabs['trials'] = __( 'Trials', 'talenttrack' );
         }
-        // #2609 — injuries in context. Gated on the `player_injuries`
-        // entity, so an assistant coach (who holds no row for it at all)
-        // never sees the tab, let alone its contents.
-        if ( MatrixGate::canAnyScope( $user_id, 'player_injuries', MatrixGate::READ ) ) {
+        // #2609 — injuries in context, so an assistant coach (who holds no
+        // `player_injuries` row at all) never sees the tab, let alone its
+        // contents.
+        //
+        // #3468 — asks the same question the panel does, rather than a looser
+        // one. `canAnyScope()` was true for a player at `self` and a parent at
+        // `player`, while `renderInjuriesTab()` gates on `canRecordInjury()` —
+        // so both met a tab that existed only to tell them the record was not
+        // theirs. Now the strip and the panel resolve from one call and cannot
+        // disagree again.
+        if ( \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::READ ) ) {
             $tabs['injuries'] = __( 'Injuries', 'talenttrack' );
         }
         // #2594 (epic #2589) — photos and video in context. Gated on the
@@ -290,6 +307,49 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     private static function mayRead( int $user_id, string $entity, string $own_entity ): bool {
         return MatrixGate::canAnyScope( $user_id, $entity, MatrixGate::READ )
             || MatrixGate::canAnyScope( $user_id, $own_entity, MatrixGate::READ );
+    }
+
+    /**
+     * #3473 — where the team name on this profile should lead, for the
+     * person looking at it.
+     *
+     * The two builders this replaces both hard-coded `?tt_view=teams&id=N`.
+     * A player and a parent hold `my_team`, never `teams`, so for them that
+     * was a link to "Niet geautoriseerd" — the same mistake #3391 fixed in
+     * the tab strip and #3393 fixed in the goal and activity rows, one layer
+     * further up, on the identity anchor that is the first thing a guardian
+     * taps.
+     *
+     * Staff keep the record link. A player goes to their own "My team"; a
+     * parent to the same, scoped to the child whose profile this is. Anyone
+     * the slug check and the family check both reject gets `''`, and the
+     * caller renders the team name as plain text rather than a dead link.
+     */
+    private static function teamLinkUrl( int $team_id, int $player_id, int $user_id ): string {
+        if ( $team_id <= 0 ) return '';
+
+        if ( \TT\Shared\Tiles\TileRegistry::canAccessViewSlug( 'teams', $user_id ) ) {
+            return RecordLink::detailUrlForWithBack( 'teams', $team_id );
+        }
+
+        $is_self = self::isOwnRecord( $user_id, $player_id );
+        $is_kid  = ! $is_self
+            && in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true );
+
+        if ( ! $is_self && ! $is_kid ) return '';
+
+        // `meUrl()` is the shared builder #3393 lifted out of
+        // FrontendMyDevelopmentView for exactly this. A parent's Me-views
+        // resolve their subject from `player_id`; the player's own do not
+        // need it.
+        return RecordLink::meUrl( 'my-team', $is_kid ? $player_id : null );
+    }
+
+    /** Is `$player_id` the viewer's own player record? */
+    private static function isOwnRecord( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        $player = QueryHelpers::get_player( $player_id );
+        return $player !== null && (int) ( $player->wp_user_id ?? 0 ) === $user_id;
     }
 
     public static function render( int $player_id, int $user_id, bool $is_admin, string $default_tab = 'profile' ): void {
@@ -391,9 +451,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
-        $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() ) : '';
+        $team_url   = $team ? self::teamLinkUrl( (int) $team->id, $player_id, $user_id ) : '';
 
-        $tab_set    = self::tabs( $user_id );
+        $tab_set    = self::tabs( $user_id, $player_id );
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : $default_tab;
         if ( ! array_key_exists( $active_tab, $tab_set ) ) {
             $active_tab = array_key_exists( $default_tab, $tab_set ) ? $default_tab : 'profile';
@@ -669,8 +729,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php endif; ?>
                     </h1>
                     <?php if ( $team ) : ?>
+                        <?php $team_name = (string) $team->name; ?>
                         <p class="tt-player-hero__sub">
-                            <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
+                            <?php // #3473 — no link when the reader can reach neither the staff team page nor a Me-view. ?>
+                            <?php if ( $team_url !== '' ) : ?>
+                                <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( $team_name ); ?></a>
+                            <?php else : ?>
+                                <span><?php echo esc_html( $team_name ); ?></span>
+                            <?php endif; ?>
                             <?php if ( ! empty( $team->age_group ) ) : ?>
                                 <span> · <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?></span>
                             <?php endif; ?>
@@ -1455,8 +1521,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
         $team_html = '';
         if ( $team ) {
-            $team_url   = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() );
-            $team_html  = '<a href="' . esc_url( $team_url ) . '">' . esc_html( (string) $team->name ) . '</a>';
+            // #3473 — routed by who is reading; '' when neither the staff slug
+            // nor a Me-view is reachable, in which case the name is text.
+            $team_name  = esc_html( (string) $team->name );
+            $team_url   = self::teamLinkUrl( (int) $team->id, $player_id, get_current_user_id() );
+            $team_html  = $team_url !== ''
+                ? '<a href="' . esc_url( $team_url ) . '">' . $team_name . '</a>'
+                : $team_name;
             if ( ! empty( $team->age_group ) ) {
                 $team_html .= ' · ' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) );
             }

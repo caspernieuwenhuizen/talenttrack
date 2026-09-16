@@ -143,6 +143,19 @@ class AuthorizationService {
      * otherwise the check narrows to the player's own team, so a head coach
      * records injuries for their squad and nobody else's.
      *
+     * #3468 — and then the subject's own two scopes, which this method never
+     * asked for. The seed grants `player_injuries` read to the player at
+     * `self` and to the parent at `player`; `canAnyScope()` sees those and put
+     * the Injuries tab on the unified profile, while this method checked only
+     * `global` and `team` and denied the panel behind it. The result was a tab
+     * that existed to tell a guardian their child's medical record was not
+     * theirs — against the grant, and against §1's "parents/guardians have
+     * visibility into their own child's record by default".
+     *
+     * Order matters only for cost: the two subject checks run last because
+     * they each cost a query, and staff — who are the overwhelming majority of
+     * callers on the write paths — resolve before reaching them.
+     *
      * `$activity` is `read` / `change` / `create_delete`.
      */
     public static function canRecordInjury( int $user_id, int $player_id, string $activity = 'change' ): bool {
@@ -154,9 +167,24 @@ class AuthorizationService {
         }
 
         $team_id = self::getPlayerTeamId( $player_id );
-        if ( ! $team_id ) return false;
+        if ( $team_id && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'team', $team_id ) ) {
+            return true;
+        }
 
-        return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'team', $team_id );
+        // The player themselves, at `self` scope.
+        if ( self::isPlayerOwnRecord( $user_id, $player_id )
+            && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'self', $user_id ) ) {
+            return true;
+        }
+
+        // A linked guardian, at `player` scope. The canonical pivot decides
+        // who is a parent of whom (§4) — no second inline query here.
+        if ( in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true )
+            && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'player', $player_id ) ) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function registerCacheInvalidators(): void {
