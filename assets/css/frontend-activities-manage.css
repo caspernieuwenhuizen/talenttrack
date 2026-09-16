@@ -40,11 +40,12 @@
  *     .tt-act-reg__n               — the N/N itself, tabular numerals
  *     .tt-act-card__fix            — "go and record it" link on a gap (#3447)
  *     .tt-act-card__fix-icon       — its warning glyph
- *     .tt-act-date                 — 44px date badge (default mute)
+ *     .tt-act-date                 — 52px square date badge (default mute)
  *     .tt-act-date--today          — blue badge for Today
  *     .tt-act-date--overdue        — orange badge for Needs attention
- *     .tt-act-date__m              — month abbreviation (top)
- *     .tt-act-date__d              — day number (bottom)
+ *     .tt-act-date__w              — weekday abbreviation (top, #3448)
+ *     .tt-act-date__d              — day number (middle)
+ *     .tt-act-date__m              — month abbreviation (bottom)
  *     .tt-act-pill                 — coloured chip (data-type / data-status)
  *
  *   Edit-form attendance (legacy, preserved):
@@ -188,7 +189,10 @@
     /* #3447 — a fourth column for the completeness rail, between the body
      * and the chevron. `auto` so it collapses to nothing on the cards that
      * render no readout. */
-    grid-template-columns: 44px 1fr auto auto;
+    /* #3448 — 52px, not 44: the date tile grew a weekday line and stays
+     * square. The title ellipsises 8px sooner at 360px, which is the
+     * measured cost of the change. */
+    grid-template-columns: 52px 1fr auto auto;
     gap: 12px;
     align-items: center;
     padding: 12px 16px;
@@ -225,14 +229,29 @@
     }
 }
 
-/* Date badge — 44px square, mute background by default. */
+/* Date badge — 52px square, mute background by default.
+ *
+ * #3448 — three lines now (weekday / day / month), so the square grew
+ * 44 → 52px. Counter-intuitively that makes the row SHORTER than fitting
+ * the same three lines into the 44px column (78px against 83px, measured
+ * at 360px): centring inside a fixed square lets the gaps tighten, where
+ * a stretched rectangle's stacked margins accumulate. Held with
+ * `aspect-ratio` + flex centring rather than a hardcoded height, so the
+ * square survives whatever a locale does to the line widths — French
+ * "ven." is the widest of EN/NL/DE/FR. */
 .tt-dashboard .tt-act-date {
     text-align: center;
     background: var(--tt-mute, #f0f3f2);
     border-radius: 10px;
-    padding: 6px 0;
+    padding: 4px 2px;
     line-height: 1;
-    min-width: 44px;
+    min-width: 52px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 2px;
     color: var(--tt-ink, #1a1d21);
 }
 .tt-dashboard .tt-act-date--today {
@@ -243,21 +262,32 @@
     background: var(--tt-warn, #c75c1f);
     color: #fff;
 }
-.tt-dashboard .tt-act-date__m {
+/* #3448 — the weekday leads: it is what a coach scans for. Reading the
+ * tile top to bottom then matches how the date is spoken ("Friday the
+ * 11th, September"). */
+.tt-dashboard .tt-act-date__w {
     display: block;
-    font-size: 12px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-weight: 600;
-    margin-bottom: 2px;
-    opacity: 0.85;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    opacity: 0.7;
 }
 .tt-dashboard .tt-act-date__d {
     display: block;
     font-size: 18px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    margin-top: 2px;
+}
+/* 10px, not the old 12px: three lines have to clear the square's inner
+ * height. Weight, casing and letter-spacing are unchanged. */
+.tt-dashboard .tt-act-date__m {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    opacity: 0.85;
 }
 
 /* Card body — title + meta. */

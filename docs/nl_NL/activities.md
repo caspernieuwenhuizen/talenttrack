@@ -26,7 +26,7 @@ De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groep
 
 Lege groepen tonen geen kop — als er volgende week niets gepland staat, verschijnt de kop "Volgende week" simpelweg niet.
 
-Elke rij is een kaart: een datumbadge links (maand + dag, blauw voor vandaag en oranje voor "Voorbij — nog open"), de titel van de activiteit in het midden met een kleurgecodeerde type-pill (Training blauw, Wedstrijd rood, Oefen geel, Overig grijs) en een chevron rechts. Activiteiten die vanuit Spond zijn geïmporteerd dragen een klein blauw **Spond**-chipje op de kaart, zodat je in één oogopslag ziet welke uit de integratie komen; handmatig aangemaakte en gegenereerde activiteiten tonen er geen. Tik ergens op de kaart om de detailpagina te openen.
+Elke rij is een kaart: een vierkante datumbadge links (weekdag, dag en maand onder elkaar, blauw voor vandaag en oranje voor "Voorbij — nog open"), de titel van de activiteit in het midden met een kleurgecodeerde type-pill (Training blauw, Wedstrijd rood, Oefen geel, Overig grijs) en een chevron rechts. Activiteiten die vanuit Spond zijn geïmporteerd dragen een klein blauw **Spond**-chipje op de kaart, zodat je in één oogopslag ziet welke uit de integratie komen; handmatig aangemaakte en gegenereerde activiteiten tonen er geen. Tik ergens op de kaart om de detailpagina te openen.
 
 ### Is de registratie compleet?
 
@@ -79,7 +79,7 @@ Door op een kaart te tikken open je de detailpagina van de activiteit. De hele d
 
 - **Hero** — een typegekleurd icoontje, de titel en een subregel met `datum · tijd · team · locatie`. Bij een wedstrijddag waarvan beide teams bekend zijn leest de titel `Jouw team vs Tegenstander` en toont de subregel de aftraptijd en of het thuis of uit is. De pillen onder de titel tonen het type (plus het wedstrijdsubtype of het Overig-label) en de status. Bewerken, Opkomst registreren en de overige acties staan in de paginakop erboven.
 - **Cijferstrook** — een compacte rij met de kerncijfers onder de hero. Een wedstrijd toont **Aanwezig** (gekomen / selectie) · **Wissels** · **Wedstrijdduur**; een training toont **Aanwezig** · **Duur**. Cijfers zonder waarde worden weggelaten. **Aanwezig** verschijnt pas als de activiteit **voltooid** is, net als de kaart Aanwezigheid eronder: bij een sessie die nog *Gepland* is, zou het cijfer een opkomst noemen die nog niet heeft plaatsgevonden. Het telt alleen geregistreerde aanwezigheid — de planning op de kaart **Verwachte opkomst** is een aparte lijst en wordt er nooit bij opgeteld.
-- **Feitenbalk** — vier snelle feiten. Een training toont Datum · Tijd · Type · Status; een wedstrijddag toont Tegenstander · Thuis/Uit · Aftrap · Opstelling. Feiten zonder waarde worden weggelaten.
+- **Feitenbalk** — een paar snelle feiten. Een training toont Datum · Tijd · Type · Status; een wedstrijddag toont Datum · Tegenstander · Thuis/Uit · Aftrap · Opstelling. Feiten zonder waarde worden weggelaten. Elke activiteitdatum draagt hier zijn weekdag — `vr 11-09-2026` — want een coach leest een wedstrijd aan de dag waarop hij valt.
 - **Kaarten** — elk met een kop met titel, alleen kaarten met inhoud verschijnen, zodat de pagina overzichtelijk blijft:
  - **Gekoppelde spelprincipes** — de geoefende principes als kleurgecodeerde O/A/V-pillen, elk met een link naar de methodiekverkenner.
  - **Notities** — de vrije tekstnotities van de activiteit.

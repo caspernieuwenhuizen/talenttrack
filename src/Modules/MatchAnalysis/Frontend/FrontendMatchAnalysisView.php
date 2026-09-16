@@ -301,7 +301,11 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
 
         $date = (string) ( $activity->session_date ?? '' );
         if ( $date !== '' ) {
-            $meta[] = date_i18n( (string) get_option( 'date_format' ), strtotime( $date ) );
+            // #3448 — through TTDate, so the academy's configured notation
+            // decides the shape, and with the weekday in front: a fixture is
+            // a scheduled event, and a coach recognises "Sat 11 Sep" faster
+            // than "11/09/2026".
+            $meta[] = \TT\Shared\Dates\TTDate::dateWithDay( $date );
         }
 
         $opponent = (string) ( $result['opponent'] ?? '' );

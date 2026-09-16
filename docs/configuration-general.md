@@ -31,6 +31,10 @@ Academy-wide basics that affect how dates and the calendar read across TalentTra
 
 Date notation resolves through a single helper, `TT\Shared\Dates\TTDate`, so the academy's choice is honoured in one place rather than re-decided at every call site. The **System default** preset reproduces the WordPress date format exactly, so an install that never touches the setting renders unchanged.
 
+**Scheduled events carry their weekday.** An activity is something on the calendar, and a coach thinks in "Friday training" rather than "the 11th" — so the activity detail page, the activity's date fact, match prep, match analysis, the match list and the ratings grid all print the weekday *in front of* your chosen notation: `Fri 11-09-2026` if you picked `31-12-2026`, `Fri 2026-09-11` if you picked ISO. The weekday is added to whatever you configured, never instead of it, and it takes the day name from your locale exactly as that language writes it (Dutch `vr`, not `Vr`). If you set **System default** and your WordPress date format already includes the weekday, nothing is added — it isn't printed twice.
+
+Dates that are *not* scheduled events keep the plain notation: a player's date of birth, a sign-off stamp, an audit row. A weekday there is noise.
+
 The date notation applies across the frontend wherever a **full date** is shown — player profiles, evaluations, activities, goals, PDP sign-offs, reports, scouting visits, and the audit "created / updated" stamps. **Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
 
 ## The install-on-mobile prompt

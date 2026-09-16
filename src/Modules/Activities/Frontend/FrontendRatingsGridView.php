@@ -124,7 +124,7 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             /* translators: 1: activity title, 2: activity date. */
             __( 'Rating %1$s (%2$s). Rows are players, columns are the categories this activity is rated on. Type a score per cell and Save.', 'talenttrack' ),
             (string) $activity->title,
-            \TT\Shared\Dates\TTDate::date( (string) $activity->session_date )
+            \TT\Shared\Dates\TTDate::dateWithDay( (string) $activity->session_date )
         ) ) . '</p>';
 
         $categories = $data['categories'];

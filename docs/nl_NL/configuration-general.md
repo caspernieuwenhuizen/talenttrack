@@ -31,6 +31,10 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 
 Datumnotatie loopt via één helper, `TT\Shared\Dates\TTDate`, zodat de keuze van de academie op één plek wordt nageleefd in plaats van bij elke aanroep opnieuw te worden bepaald. De preset **Systeemstandaard** reproduceert exact de WordPress-datumnotatie, zodat een installatie die de instelling nooit aanraakt ongewijzigd blijft.
 
+**Geplande activiteiten dragen hun weekdag.** Een activiteit staat in de agenda, en een coach denkt in "de training van vrijdag" in plaats van "de 11e" — daarom tonen de detailpagina van een activiteit, het datumgegeven, wedstrijdvoorbereiding, wedstrijdanalyse, de wedstrijdenlijst en het beoordelingsraster de weekdag *vóór* de notatie die jij hebt gekozen: `vr 11-09-2026` als je `31-12-2026` koos, `vr 2026-09-11` als je ISO koos. De weekdag komt erbij, nooit in plaats van je notatie, en wordt geschreven zoals jouw taal hem schrijft (Nederlands `vr`, niet `Vr`). Staat de instelling op **Systeemstandaard** en bevat je WordPress-datumnotatie al een weekdag, dan wordt er niets toegevoegd — hij verschijnt niet dubbel.
+
+Datums die géén geplande activiteit zijn, houden de kale notatie: een geboortedatum van een speler, een ondertekenstempel, een auditregel. Een weekdag is daar ruis.
+
 De datumnotatie wordt in de hele frontend toegepast overal waar een **volledige datum** wordt getoond — spelersprofielen, evaluaties, activiteiten, doelen, PDP-ondertekeningen, rapporten, scoutingbezoeken en de audit-stempels "aangemaakt / bijgewerkt". **Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
 
 ## De prompt om de app op mobiel te installeren

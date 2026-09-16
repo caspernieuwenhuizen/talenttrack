@@ -2729,11 +2729,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     private static function dateBadge( string $iso ): array {
         $iso = trim( $iso );
         if ( $iso === '' ) return [ 'm' => '—', 'd' => '' ];
-        $ts = strtotime( $iso );
-        if ( $ts === false ) return [ 'm' => '—', 'd' => '' ];
+        // #3448 — was `gmdate( 'M' )`, which is not localised: every badge
+        // on this page read "Sep" on a Dutch install where the rest of the
+        // product reads "sep". `wp_date()` translates; parsing through
+        // TTDate keeps a bare Y-m-d on the day it names in a
+        // negative-offset academy (#2437).
+        $ts = \TT\Shared\Dates\TTDate::timestamp( $iso );
+        if ( $ts === null ) return [ 'm' => '—', 'd' => '' ];
         return [
-            'm' => gmdate( 'M', $ts ),
-            'd' => gmdate( 'j', $ts ),
+            'm' => wp_date( 'M', $ts ),
+            'd' => wp_date( 'j', $ts ),
         ];
     }
 

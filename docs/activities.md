@@ -26,7 +26,7 @@ The **Activities** tile opens a date-bucketed card list. The buckets read top to
 
 Empty buckets don't render their header at all — if there's nothing on for next week, the "Next week" header simply doesn't appear.
 
-Each row is a card: a date badge on the left (month + day, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
+Each row is a card: a square date badge on the left (weekday, day and month stacked, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
 
 ### Is the register complete?
 
@@ -79,7 +79,7 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
 
 - **Hero** — a type-coloured icon chip, the title, and a sub-line reading `date · time · team · location`. For a match day with both teams known the title reads `Your team vs Opponent` and the sub-line shows the kick-off time and whether it's home or away. Pills below the title show the type (plus the game subtype or the Other label) and the status. Edit, Mark attendance and the other actions stay in the page header above.
 - **Stat strip** — a compact row of the key numbers under the hero. A match shows **Present** (turned up / roster) · **Substitutes** · **Match length**; a training shows **Present** · **Duration**. Numbers with no value are left out. **Present** appears only once the activity is **completed**, matching the Attendance card below it: on a session still marked *Planned* the number would state a turnout that has not happened yet. It counts recorded attendance only — the planned roster on the **Expected attendance** card is a separate list and is never added in.
-- **Facts strip** — four quick facts. A training shows Date · Time · Type · Status; a match day shows Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out.
+- **Facts strip** — a few quick facts. A training shows Date · Time · Type · Status; a match day shows Date · Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out. Every activity date here carries its weekday — `Fri 11-09-2026` — because a coach reads a fixture by the day it falls on.
 - **Cards** — each with a titled header, only the cards that have something to show appear, so the page stays uncluttered:
  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
  - **Notes** — the activity's free-text notes.

@@ -874,7 +874,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     $status_label = $status_key !== '' ? ucfirst( str_replace( '_', ' ', $status_key ) ) : '';
                     $st = (string) ( $r->start_time ?? '' );
                     $et = (string) ( $r->end_time   ?? '' );
-                    $date_text = (string) $r->session_date;
+                    // #3448 — this printed the raw `2026-09-11` out of the
+                    // column, with no formatter of any kind: the one activity
+                    // date in the product that ignored the academy's date
+                    // notation entirely.
+                    $date_text = \TT\Shared\Dates\TTDate::dateWithDay( (string) $r->session_date );
                     if ( $st !== '' ) {
                         $date_text .= ' · ' . substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' );
                     }

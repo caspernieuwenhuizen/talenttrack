@@ -1028,7 +1028,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
 
         $when = [];
         if ( $date !== '' ) {
-            $when[] = \TT\Shared\Dates\TTDate::date( $date );
+            $when[] = \TT\Shared\Dates\TTDate::dateWithDay( $date );
         }
         if ( $kickoff !== '' ) {
             $when[] = substr( $kickoff, 0, 5 );

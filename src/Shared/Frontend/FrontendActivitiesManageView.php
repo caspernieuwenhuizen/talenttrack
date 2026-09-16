@@ -630,7 +630,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 'initials' => \TT\Shared\Frontend\Components\RecordSpine::initials( (string) $session->title ),
                 'status'   => (string) ( $session->status ?? '' ),
                 'meta'     => ! empty( $session->session_date )
-                    ? \TT\Shared\Dates\TTDate::date( (string) $session->session_date )
+                    ? \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date )
                     : '',
             ] );
             self::renderDetail( $session, $is_admin );
@@ -1093,7 +1093,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         // Sub-line: date · time/kick-off · team (link) · location.
         $sub_parts = [];
-        $sub_parts[] = esc_html( \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) );
+        $sub_parts[] = esc_html( \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date ) );
         if ( $is_match ) {
             $kick = (string) ( $session->kickoff_time ?? '' );
             if ( $kick === '' && $window !== '' ) $kick = $window;
@@ -1162,6 +1162,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     ): void {
         $cells = [];
         if ( $is_match ) {
+            // #3448 — a match had no Date fact at all: this branch ran from
+            // Opponent to Formation and the Date cell lived only in the
+            // `else`. A fixture is the activity whose date a coach most
+            // wants stated, so it leads the facts here as it does there.
+            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date ) ];
+
             $opponent = (string) ( $session->opponent ?? '' );
             if ( $opponent !== '' ) $cells[] = [ __( 'Opponent', 'talenttrack' ), $opponent ];
 
@@ -1179,7 +1185,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $formation = (string) ( $session->formation ?? '' );
             if ( $formation !== '' ) $cells[] = [ __( 'Formation', 'talenttrack' ), $formation ];
         } else {
-            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) ];
+            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date ) ];
             if ( $window !== '' ) $cells[] = [ __( 'Time', 'talenttrack' ), $window ];
             $type_label = (string) ( \TT\Infrastructure\Query\LabelTranslator::activityType( $type_key ) ?? '' );
             if ( $type_label !== '' ) $cells[] = [ __( 'Type', 'talenttrack' ), $type_label ];
@@ -2457,20 +2463,32 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // §4); null on anything that cannot be missing a register.
         $register = \TT\Modules\Activities\Services\ActivityRegisterProgress::forRow( $row );
 
-        // Date badge — "May / 28" stacked.
-        $month_short = '';
-        $day_num     = '';
+        // Date badge — weekday / day / month stacked (#3448). An activity
+        // is a scheduled event and a coach thinks in "Friday training",
+        // not "the 11th"; the card carries no date text at all, so the
+        // weekday has to enter the tile.
+        $month_short   = '';
+        $day_num       = '';
+        $weekday_short = '';
         if ( preg_match( '/^(\d{4})-(\d{2})-(\d{2})/', $session_date, $m ) ) {
-            $ts = strtotime( $session_date );
-            if ( $ts ) {
-                // Localised abbreviated month name.
-                $month_short = wp_date( 'M', (int) $ts );
-                $day_num     = (int) $m[3];
+            // Through TTDate rather than strtotime(): WordPress pins PHP to
+            // UTC, so a bare Y-m-d parsed naively is midnight UTC and
+            // wp_date() then renders the previous day in a negative-offset
+            // academy (#2437).
+            $ts = \TT\Shared\Dates\TTDate::timestamp( $session_date );
+            if ( $ts !== null ) {
+                // Localised abbreviated month + weekday names. No ucfirst:
+                // wp_date() already returns the locale's own casing, and
+                // Dutch does not capitalise `vr`.
+                $month_short   = wp_date( 'M', $ts );
+                $weekday_short = wp_date( 'D', $ts );
+                $day_num       = (int) $m[3];
             }
         }
         if ( $day_num === '' ) {
-            $month_short = '—';
-            $day_num     = '';
+            $month_short   = '—';
+            $day_num       = '';
+            $weekday_short = '';
         }
 
         $date_cls = 'tt-act-date';
@@ -2523,8 +2541,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $card  = '<li class="' . esc_attr( $card_cls ) . '" data-type="' . esc_attr( $type_pill_key ) . '">';
         $card .= '<a class="tt-act-card__link" href="' . esc_url( $detail_url ) . '">';
         $card .= '<div class="' . esc_attr( $date_cls ) . '">';
-        $card .= '<span class="tt-act-date__m">' . esc_html( $month_short ) . '</span>';
+        // #3448 — weekday, day, month. This is a rewrite of the emit order,
+        // not an append: the tile used to print month then day. Nothing is
+        // keyed on that order (the stylesheet addresses each span by class
+        // and there is no sibling selector, script or print sheet reading
+        // the tile), which is what makes the reorder safe.
+        if ( $weekday_short !== '' ) {
+            $card .= '<span class="tt-act-date__w">' . esc_html( $weekday_short ) . '</span>';
+        }
         $card .= '<span class="tt-act-date__d">' . esc_html( (string) $day_num ) . '</span>';
+        $card .= '<span class="tt-act-date__m">' . esc_html( $month_short ) . '</span>';
         $card .= '</div>';
         $card .= '<div class="tt-act-card__body">';
         $card .= '<p class="tt-act-card__title">' . esc_html( $title !== '' ? $title : __( '(untitled activity)', 'talenttrack' ) ) . '</p>';
