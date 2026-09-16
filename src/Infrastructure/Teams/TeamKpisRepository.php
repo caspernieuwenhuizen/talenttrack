@@ -75,6 +75,72 @@ class TeamKpisRepository {
     }
 
     /**
+     * #3458 — `avgAttendance()` over an explicit window rather than the last
+     * N days, for the team monthly report. Same predicate otherwise: actual,
+     * non-guest rows on the team's completed, live activities.
+     *
+     * Status is compared case-insensitively. The register writes Title Case
+     * (`Present`) and the planned-roster path historically wrote lowercase
+     * (#2863), and the `days` variant above compares `= 'present'` against a
+     * column whose collation happens to be case-insensitive — this one does
+     * not lean on the collation.
+     *
+     * Null when nothing was recorded, so a quiet month renders as "—" rather
+     * than as 0%.
+     */
+    public function avgAttendanceBetween( int $team_id, string $from, string $to ): ?int {
+        if ( $team_id <= 0 ) return null;
+        global $wpdb;
+        $p         = $wpdb->prefix;
+        $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
+        $row       = $wpdb->get_row( $wpdb->prepare(
+            "SELECT
+                SUM(CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END) AS present_n,
+                COUNT(*) AS total_n
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND att.is_guest = 0
+                AND att.record_type = 'actual'
+                AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
+                AND {$completed}
+                AND a.session_date BETWEEN %s AND %s",
+            $team_id, CurrentClub::id(), $from, $to
+        ) );
+        if ( ! $row || (int) $row->total_n <= 0 ) return null;
+        return (int) round( ( (int) $row->present_n / (int) $row->total_n ) * 100 );
+    }
+
+    /**
+     * #3458 — `avgSquadRating()` restricted to evaluations dated inside a
+     * window, for the team monthly report's squad-rating KPI. The squad is the
+     * team's live roster, exactly as above. Null when nobody was rated in the
+     * window.
+     */
+    public function avgSquadRatingBetween( int $team_id, string $from, string $to ): ?float {
+        if ( $team_id <= 0 ) return null;
+        global $wpdb;
+        $p           = $wpdb->prefix;
+        $eval_live   = ArchiveRepository::filterClause( 'active', 'e' );
+        $player_live = ArchiveRepository::filterClause( 'active', 'pl' );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT AVG(r.rating) AS avg_r, COUNT(*) AS n
+               FROM {$p}tt_eval_ratings r
+               JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
+               JOIN {$p}tt_players pl ON pl.id = e.player_id
+              WHERE pl.team_id = %d
+                AND {$player_live}
+                AND pl.club_id = %d
+                AND {$eval_live}
+                AND e.eval_date BETWEEN %s AND %s",
+            $team_id, CurrentClub::id(), $from, $to
+        ) );
+        if ( ! $row || (int) $row->n <= 0 ) return null;
+        return (float) $row->avg_r;
+    }
+
+    /**
      * Average rating across every rating row on live evaluations of the
      * team's active roster players. Returns null when no team player has a
      * rating yet.

@@ -172,6 +172,59 @@ final class PlayerEventsRepository {
         return $rows ?: [];
     }
 
+    /**
+     * #3458 — every journey event of the given types for a team's players in a
+     * window: the team monthly report's "what changed" block.
+     *
+     * `cohortByType()` answers one type across the academy for a head of
+     * development; this answers several types across one squad for the monthly
+     * meeting. The squad is the team's players as they stand, and superseded
+     * events are left out for the same reason the timeline leaves them out.
+     *
+     * The upper bound is exclusive of the day after `$to`, not `<= $to`:
+     * `event_date` carries a time, and a comparison against a bare date would
+     * drop everything that happened on the last day of the month after
+     * midnight.
+     *
+     * @param list<string> $event_types
+     * @param list<string> $allowed_visibilities
+     * @return list<object>
+     */
+    public function forTeamBetween( int $team_id, string $from, string $to, array $event_types, array $allowed_visibilities ): array {
+        if ( $team_id <= 0 || $event_types === [] || $allowed_visibilities === [] ) return [];
+
+        // The lists go in as one comma-joined parameter each and are matched
+        // with FIND_IN_SET, so the SQL stays a literal string for `prepare()`
+        // rather than being assembled from placeholder runs. Keys are
+        // vocabulary constants with no commas in them. The squad is small
+        // enough that losing an index on `event_type` does not matter.
+        $types = implode( ',', $event_types );
+        $vis   = implode( ',', $allowed_visibilities );
+
+        // The global handle rather than `$this->wpdb`: its `prefix` is what
+        // keeps the interpolated SQL a literal string for the type checker.
+        global $wpdb;
+
+        /** @var list<object> $rows */
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary,
+                    p.first_name, p.last_name
+               FROM {$wpdb->prefix}tt_player_events e
+               JOIN {$wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
+              WHERE p.team_id = %d
+                AND e.club_id = %d
+                AND FIND_IN_SET( e.event_type, %s ) > 0
+                AND e.event_date >= %s
+                AND e.event_date < DATE_ADD( %s, INTERVAL 1 DAY )
+                AND e.superseded_by_event_id IS NULL
+                AND FIND_IN_SET( e.visibility, %s ) > 0
+              ORDER BY e.event_date DESC, e.id DESC
+              LIMIT 200",
+            $team_id, CurrentClub::id(), $types, $from, $to, $vis
+        ) );
+        return $rows ?: [];
+    }
+
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
