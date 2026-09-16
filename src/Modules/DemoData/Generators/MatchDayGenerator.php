@@ -493,8 +493,6 @@ class MatchDayGenerator implements DependentGeneratorInterface {
      * @param array<int,int>  $on_at    player id => absolute minute brought on.
      */
     private function writeMinutes( int $activity_id, array $starting, array $off_at, array $on_at ): void {
-        global $wpdb;
-
         $full = self::HALF_LENGTH * 2;
 
         $minutes = [];
@@ -508,21 +506,17 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $minutes[ (int) $player_id ] = $full - (int) $minute;
         }
 
+        // Minutes are the record of what happened, so they go on the
+        // recorded row — the one `ActivityGenerator` wrote. #3451 moved the
+        // scope from a key in the WHERE map to the writer's method names.
+        $writer = new \TT\Modules\Activities\Repositories\AttendanceWriter();
         foreach ( $minutes as $player_id => $played ) {
             if ( $played <= 0 ) continue;
 
-            $wpdb->update(
-                "{$wpdb->prefix}tt_attendance",
-                [ 'minutes_played' => $played ],
-                [
-                    'club_id'     => CurrentClub::id(),
-                    'activity_id' => $activity_id,
-                    'player_id'   => $player_id,
-                    'record_type' => 'actual',
-                ],
-                [ '%d' ],
-                [ '%d', '%d', '%d', '%s' ]
-            );
+            $row_id = $writer->actualRowId( $activity_id, (int) $player_id );
+            if ( $row_id <= 0 ) continue;
+
+            $writer->updateRow( $row_id, [ 'minutes_played' => $played ] );
         }
     }
 

@@ -276,6 +276,11 @@ final class EvidencePacket {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #3451 — the recorded register only. A planned squad stores Expected
+        // as `Present` and Maybe as `Excused`, so without `record_type` these
+        // numbers counted a selection nobody had registered — in a document a
+        // coach sits down and discusses with a family.
+
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
         $row = $wpdb->get_row( $wpdb->prepare(
@@ -289,6 +294,7 @@ final class EvidencePacket {
              WHERE att.player_id = %d
                AND att.club_id = %d
                AND att.is_guest = 0
+               AND att.record_type = 'actual'
                AND " . ArchiveRepository::filterClause( 'active', 'act' ) . "
                AND act.{$date_col} >= %s
                AND act.{$date_col} <= %s",

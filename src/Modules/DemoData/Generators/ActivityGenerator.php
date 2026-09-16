@@ -112,6 +112,8 @@ class ActivityGenerator implements DependentGeneratorInterface {
     public function generate(): int {
         global $wpdb;
 
+        $attendance_writer = new \TT\Modules\Activities\Repositories\AttendanceWriter();
+
         $attendance_lookup = $this->loadAttendanceLookups();
         if ( ! $attendance_lookup ) {
             // Tolerable: insert with label strings, the plugin stores the label.
@@ -194,22 +196,20 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     $label  = $this->pickAttendance( (int) ( $tendencies[ $player_id ] ?? 0 ) );
                     $status = $attendance_lookup[ $label ] ?? $label;
 
-                    $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+                    // #3029 — stated rather than inherited from the column
+                    // default. Every minutes and attendance read filters on
+                    // `record_type = 'actual'` (#2193), and MatchDayGenerator
+                    // matches on it when it writes minutes back onto these
+                    // rows; a demo dataset should not depend on a schema
+                    // default staying put for either to work. #3451 moved the
+                    // statement from a key in the map to the method name.
+                    $att_id = (int) ( $attendance_writer->recordActual( [
                         'club_id'     => CurrentClub::id(),
                         'activity_id' => $activity_id,
                         'player_id'  => $player_id,
                         'status'     => $status,
                         'notes'      => '',
-                        // #3029 — stated rather than inherited from the
-                        // column default. Every minutes and attendance
-                        // read filters on `record_type = 'actual'`
-                        // (#2193), and MatchDayGenerator matches on it
-                        // when it writes minutes back onto these rows;
-                        // a demo dataset should not depend on a schema
-                        // default staying put for either to work.
-                        'record_type' => 'actual',
-                    ] );
-                    $att_id = (int) $wpdb->insert_id;
+                    ] ) ?? 0 );
                     if ( $att_id ) {
                         $this->registry->tag( 'attendance', $att_id );
                     }

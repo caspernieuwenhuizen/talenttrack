@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchExecution\Domain\AttendanceRecomputeOutcome;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
@@ -808,6 +809,7 @@ class MatchExecutionRepository {
               WHERE activity_id = %d
                 AND club_id = %d
                 AND is_guest = 0
+                AND record_type = 'actual'
                 AND COALESCE(minutes_override, minutes_played) IS NOT NULL
                 AND COALESCE(minutes_override, minutes_played) > 0",
             $activity_id, CurrentClub::id()
@@ -832,12 +834,19 @@ class MatchExecutionRepository {
      */
     public function attendanceRowsByActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
+        // #3451 — the RECORDED row, because the id this returns is what the
+        // correction form PATCHes. Unscoped, a player with both kinds of row
+        // could hand back the planned one, and the coach's corrected minutes
+        // would land where no minutes reader looks — #3445 one surface over.
+        // A player with no recorded row gets no entry, which the caller
+        // already handles as `attendance_id => 0`.
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT id, player_id, minutes_played, minutes_override
                FROM {$this->wpdb->prefix}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
-                AND is_guest = 0",
+                AND is_guest = 0
+                AND record_type = 'actual'",
             $activity_id, CurrentClub::id()
         ) );
         $map = [];
@@ -864,21 +873,22 @@ class MatchExecutionRepository {
      * lives in a separate column. Targets the existing non-guest row
      * (recompute creates the roster rows); returns false when no such row
      * exists so the controller can 409.
+     *
+     * #3451 — "the existing non-guest row" used to mean any of them. A
+     * coach's override could therefore land on the planned row for the same
+     * player, where the minutes arbiter — which reads the recorded one —
+     * would never see it, and the override would read as simply not having
+     * been saved. Same failure as #3445, one column over.
      */
     public function setMinuteOverride( int $activity_id, int $player_id, ?int $minutes ): bool {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+
+        $writer = new AttendanceWriter();
+        $row_id = $writer->actualRowId( $activity_id, $player_id );
+        if ( $row_id <= 0 ) return false;
+
         $value = $minutes === null ? null : max( 0, min( 200, $minutes ) );
-        $affected = $this->wpdb->update(
-            $this->wpdb->prefix . 'tt_attendance',
-            [ 'minutes_override' => $value ],
-            [
-                'activity_id' => $activity_id,
-                'player_id'   => $player_id,
-                'club_id'     => CurrentClub::id(),
-                'is_guest'    => 0,
-            ]
-        );
-        return $affected !== false && $affected > 0;
+        return $writer->updateRow( $row_id, [ 'minutes_override' => $value ] );
     }
 
     /**
@@ -991,9 +1001,6 @@ class MatchExecutionRepository {
                 (int) $prep->half_length_minutes
             );
 
-            global $wpdb;
-            $p = $wpdb->prefix;
-
             // #1032 — reconcile stale attendance rows before re-writing.
             $avail_pids = [];
             foreach ( $avail as $a ) {
@@ -1007,16 +1014,15 @@ class MatchExecutionRepository {
                 return $this->bail( $execution_id, $activity_id, AttendanceRecomputeOutcome::REASON_NO_AVAILABILITY );
             }
 
-            $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$p}tt_attendance
-                  WHERE activity_id = %d
-                    AND club_id     = %d
-                    AND record_type = 'actual'
-                    AND player_id NOT IN ($in)",
-                array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
-            ) );
+            // #3445 — the kind of row is named on every statement here, and
+            // since #3451 it is named by the method rather than by a key
+            // somebody has to remember. Without it the sweep deleted the
+            // planned squad — the denominator a completeness count needs —
+            // and the per-player lookup could land on a planned row and
+            // UPDATE the derived minutes into it, where every `actual`
+            // reader, the minutes reports among them, cannot see them.
+            $writer = new AttendanceWriter();
+            $writer->clearActualExcept( $activity_id, $avail_pids );
 
             $rows_written = 0;
             foreach ( $avail as $a ) {
@@ -1025,34 +1031,23 @@ class MatchExecutionRepository {
                 if ( strcasecmp( $status, 'Present' ) === 0 ) {
                     $status = 'Present';
                 }
-                $minutes = $minutes_map[ $pid ] ?? 0;
-                // #3445 — `record_type` scopes both halves of this write.
-                // Without it the lookup could land on the planned
-                // (`expected`) row for the same player and UPDATE the
-                // derived minutes into it, where every `actual` reader —
-                // the minutes reports among them — cannot see them.
-                $existing = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT id FROM {$p}tt_attendance
-                      WHERE activity_id = %d AND player_id = %d AND club_id = %d
-                        AND record_type = 'actual' LIMIT 1",
-                    $activity_id, $pid, CurrentClub::id()
-                ) );
-                if ( $existing ) {
-                    $ok = $wpdb->update( "{$p}tt_attendance", [
+                $minutes  = $minutes_map[ $pid ] ?? 0;
+                $existing = $writer->actualRowId( $activity_id, $pid );
+                if ( $existing > 0 ) {
+                    $ok = $writer->updateRow( $existing, [
                         'status'         => $status,
                         'minutes_played' => $minutes,
-                    ], [ 'id' => (int) $existing ] );
+                    ] );
                 } else {
-                    $ok = $wpdb->insert( "{$p}tt_attendance", [
+                    $ok = $writer->recordActual( [
                         'club_id'        => CurrentClub::id(),
                         'activity_id'    => $activity_id,
                         'player_id'      => $pid,
                         'status'         => $status,
                         'minutes_played' => $minutes,
-                        'record_type'    => 'actual',
-                    ] );
+                    ] ) !== null;
                 }
-                if ( $ok !== false ) $rows_written++;
+                if ( $ok ) $rows_written++;
             }
 
             if ( $rows_written === 0 ) {

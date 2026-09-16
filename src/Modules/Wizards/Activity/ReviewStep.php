@@ -9,6 +9,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -303,24 +304,20 @@ final class ReviewStep implements WizardStepInterface {
     private static function insertExpectedAttendance( int $activity_id, int $player_id, bool $is_guest ): void {
         if ( $activity_id <= 0 || $player_id <= 0 ) return;
 
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         $row = [
             'club_id'     => CurrentClub::id(),
             'activity_id' => $activity_id,
             'player_id'   => $is_guest ? 0 : $player_id,
             'is_guest'    => $is_guest ? 1 : 0,
-            'record_type' => 'expected',
         ];
         if ( $is_guest ) {
             $row['guest_player_id'] = $player_id;
         }
 
-        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
-        if ( $ok === false ) {
+        $writer = new AttendanceWriter();
+        if ( $writer->planExpected( $row ) === null ) {
             Logger::error( 'wizard.activity.attendance.expected.failed', [
-                'db_error'   => (string) $wpdb->last_error,
+                'db_error'   => $writer->lastError(),
                 'activity_id' => $activity_id,
                 'player_id'  => $player_id,
                 'is_guest'   => $is_guest,
@@ -342,19 +339,17 @@ final class ReviewStep implements WizardStepInterface {
         $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         $present  = $statuses[0] ?? 'Present';
 
-        global $wpdb;
-        $p    = $wpdb->prefix;
-        $club = CurrentClub::id();
+        $club   = CurrentClub::id();
+        $writer = new AttendanceWriter();
         foreach ( $players as $pl ) {
             $pid = (int) $pl->id;
             if ( $pid <= 0 ) continue;
-            $wpdb->insert( "{$p}tt_attendance", [
+            $writer->recordActual( [
                 'club_id'     => $club,
                 'activity_id' => $activity_id,
                 'player_id'   => $pid,
                 'is_guest'    => 0,
                 'status'      => $present,
-                'record_type' => 'actual',
             ] );
         }
     }

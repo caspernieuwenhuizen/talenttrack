@@ -34,6 +34,7 @@ class PresetRegistry {
         ];
         $standard = array_merge( $minimal, [
             'tt_activities',
+            // A backup preset names tables, not halves of them. /* both-kinds-ok */
             'tt_attendance',
             'tt_goals',
             'tt_people',

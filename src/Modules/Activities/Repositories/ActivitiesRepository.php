@@ -347,6 +347,13 @@ final class ActivitiesRepository {
      */
     public function listRecentCompletedForPlayer( int $player_id, int $limit ): array {
         global $wpdb;
+        // #3451 — both kinds, because the question is "which completed
+        // activities is this player connected to?", not "was this player
+        // present?". Nothing here reads `status`. Narrowing it would drop
+        // an activity a coach completed without taking a register, which is
+        // exactly the one they are most likely to be writing a note about.
+        // DISTINCT on the activity keeps a player holding both rows from
+        // listing it twice. /* both-kinds-ok */
         $p     = $wpdb->prefix;
         $limit = max( 1, min( 100, $limit ) );
         $rows  = $wpdb->get_results( $wpdb->prepare(
@@ -599,8 +606,6 @@ final class ActivitiesRepository {
     public function replacePlannedAttendance( int $activity_id, array $rows, ?array $preserve_lineup = null ): void {
         if ( $activity_id <= 0 ) return;
 
-        global $wpdb;
-        $p    = $wpdb->prefix;
         $club = CurrentClub::id();
 
         // #2771 — the match prep writes its Starting XI through onto these
@@ -613,13 +618,11 @@ final class ActivitiesRepository {
         // partition until somebody re-saved the prep.
         $lineup = $preserve_lineup ?? $this->lineupProjectionFor( $activity_id );
 
-        // Wipe only the expected rows for this activity; actual + guest
-        // actual rows are on other record_type / managed separately.
-        $wpdb->delete( "{$p}tt_attendance", [
-            'activity_id' => $activity_id,
-            'club_id'     => $club,
-            'record_type' => 'expected',
-        ] );
+        // Guests too: this method rewrites the whole planned squad, and a
+        // planned guest is part of it (unlike the recorded register, where
+        // guest visits are managed through their own endpoints).
+        $writer = new AttendanceWriter();
+        $writer->clearExpected( $activity_id, true );
 
         foreach ( $rows as $pid => $fields ) {
             $pid = (int) $pid;
@@ -632,7 +635,6 @@ final class ActivitiesRepository {
                 'is_guest'    => $is_guest ? 1 : 0,
                 'status'      => (string) ( $fields['status'] ?? '' ),
                 'notes'       => (string) ( $fields['notes'] ?? '' ),
-                'record_type' => 'expected',
             ];
             if ( $is_guest ) {
                 $insert['guest_player_id'] = $pid;
@@ -641,7 +643,7 @@ final class ActivitiesRepository {
                 $insert['lineup_role']     = $lineup[ $pid ]['lineup_role'];
                 $insert['position_played'] = $lineup[ $pid ]['position_played'];
             }
-            $wpdb->insert( "{$p}tt_attendance", $insert );
+            $writer->planExpected( $insert );
         }
     }
 
@@ -886,6 +888,9 @@ final class ActivitiesRepository {
      */
     public function listGuestAttendance( int $activity_id ): array {
         global $wpdb;
+        // Both kinds: a guest can be planned for a session as well as
+        // recorded at one, and this read-only panel is where an
+        // administrator sees either. /* both-kinds-ok */
         $p    = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.*, pl.first_name, pl.last_name, t.name AS guest_team_name
@@ -1005,8 +1010,8 @@ final class ActivitiesRepository {
     /**
      * #3081 — say that an activity was cancelled.
      *
-     * Fired from the repository for the reason `announceAttendanceChange()`
-     * gives above: cancellation has two independent write paths —
+     * Fired from the repository for the reason `AttendanceWriter::announce()`
+     * gives: cancellation has two independent write paths —
      * `setStatus()` behind the detail view's Cancel button, and `update()`
      * behind both the REST edit form and the wp-admin activities page —
      * and an event only one of them emits is worse than none. A family told
@@ -1052,55 +1057,26 @@ final class ActivitiesRepository {
      *                  each row whose insert failed (caller logs).
      */
     public function replaceRosterAttendance( int $activity_id, array $entries ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id(), 'record_type' => 'actual' ] );
+        // #3451 — the kind of row is no longer this method's to remember:
+        // `clearActual()` cannot reach the plan and `recordActual()` cannot
+        // write one, so the delete and the insert are scoped by the names
+        // they are called by.
+        $writer = new AttendanceWriter();
+        $writer->clearActual( $activity_id );
+
         $failed = [];
         foreach ( $entries as $player_id => $entry ) {
-            $ok = $wpdb->insert( "{$p}tt_attendance", [
+            $new_id = $writer->recordActual( [
                 'activity_id' => $activity_id,
                 'player_id'   => (int) $player_id,
                 'status'      => (string) ( $entry['status'] ?? 'Present' ),
                 'notes'       => (string) ( $entry['notes'] ?? '' ),
                 'is_guest'    => 0,
                 'club_id'     => CurrentClub::id(),
-                // Named rather than left to the column default, so the
-                // kind of row this writes is on the page beside the
-                // delete that scopes to the same kind.
-                'record_type' => 'actual',
             ] );
-            if ( $ok === false ) $failed[ (int) $player_id ] = (string) $wpdb->last_error;
+            if ( $new_id === null ) $failed[ (int) $player_id ] = $writer->lastError();
         }
-        $this->announceAttendanceChange( $activity_id );
         return $failed;
-    }
-
-    /**
-     * #2731 — say that an activity's attendance rows changed.
-     *
-     * Fired from every method here that writes `tt_attendance`, rather than
-     * from the callers, because there are eight of those across REST, the
-     * grids, wp-admin and the tournament path, and an event only some of
-     * them emit is worse than none: the alert would clear when attendance
-     * is recorded one way and linger when it is recorded another, which
-     * reads as a bug rather than as staleness.
-     *
-     * @param int $activity_id
-     */
-    private function announceAttendanceChange( int $activity_id ): void {
-        if ( $activity_id <= 0 ) return;
-
-        /**
-         * Attendance rows for an activity were created, changed or removed.
-         *
-         * Says nothing about what the rows now contain — a listener that
-         * cares must re-read. That is deliberate: the write paths range
-         * from one cell of a grid to a whole roster rewrite, and a payload
-         * describing all of them would be a payload nobody could trust.
-         *
-         * @param int $activity_id
-         */
-        do_action( 'tt_activity_attendance_changed', $activity_id );
     }
 
     /**
@@ -1183,12 +1159,13 @@ final class ActivitiesRepository {
     public function deleteWithAttendance( int $activity_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+        ( new AttendanceWriter() )->clearForDeletedActivity( $activity_id );
         $deleted = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
         // Fired after the activity is gone on purpose: the alert definitions
         // then return nothing for it, which is what resolves the occurrences
-        // a deleted activity left behind.
-        $this->announceAttendanceChange( $activity_id );
+        // a deleted activity left behind. `clearForDeletedActivity()` stays
+        // silent for exactly this reason.
+        AttendanceWriter::announce( $activity_id );
         // Only when a row actually went: an id that was never there (or
         // belongs to another club) must not make subscribers tear down
         // references to an activity that is still live.
@@ -1281,6 +1258,17 @@ final class ActivitiesRepository {
      * Keeping the grouping in the repository means REST and the rendered
      * card read the same line-up shape (CLAUDE.md §4).
      *
+     * #3451 — the projection can sit on either kind of row, so this reads
+     * both and keeps ONE row per player. Match prep writes the Starting XI
+     * onto the planned (`expected`) row, but installs that ran the REST or
+     * wp-admin save before #3456 / #3451 have the projection on an
+     * `actual` row instead, with the plan it came from already deleted.
+     * Scoping to one kind would empty the Line-up card on those, and
+     * reading both without de-duplicating lists every starter twice the
+     * moment a player has both kinds — which is exactly what narrowing
+     * `deleteRosterAttendance()` makes the normal case. The plan wins when
+     * both carry a role: that is where match prep puts it.
+     *
      * @return object {
      *   starting: list<object{player_id:int,name:string,jersey:string,position:string}>,
      *   bench:    list<object{...}>
@@ -1294,7 +1282,7 @@ final class ActivitiesRepository {
         $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
         $rows    = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.player_id, a.lineup_role, a.position_played,
+            "SELECT a.player_id, a.lineup_role, a.position_played, a.record_type,
                     pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
                FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
@@ -1305,9 +1293,29 @@ final class ActivitiesRepository {
             $activity_id, $club_id
         ) );
 
+        // #3451 — one row per player, plan first. See the note above: the
+        // projection lives on the `expected` row on a current install and
+        // on an `actual` one where an older save already took the plan, so
+        // both kinds are read and the duplicate is resolved here.
+        $seen = [];
         foreach ( (array) $rows as $r ) {
-            $pid  = (int) ( $r->player_id ?? 0 );
+            $pid = (int) ( $r->player_id ?? 0 );
             if ( $pid <= 0 ) continue;
+            $kind = strtolower( (string) ( $r->record_type ?? '' ) );
+            if ( isset( $seen[ $pid ] ) ) {
+                // A second row for the same player: keep the plan's, drop
+                // the other. Never emit both — that is the Starting XI
+                // listing every starter twice.
+                if ( $kind === 'expected' ) {
+                    $seen[ $pid ] = $r;
+                }
+                continue;
+            }
+            $seen[ $pid ] = $r;
+        }
+
+        foreach ( $seen as $r ) {
+            $pid  = (int) ( $r->player_id ?? 0 );
             $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
             if ( $name === '' ) $name = '#' . $pid;
 
@@ -1930,57 +1938,44 @@ final class ActivitiesRepository {
     }
 
     /**
-     * #1712 — insert one attendance row (roster or guest). The caller
-     * supplies the fully-shaped, sanitized column map; club scoping is
-     * the caller's responsibility (it varies by write path). Returns the
-     * new row id, or null on a DB error (read `lastError()` for the message).
-     *
-     * #3456 — `$row` should name `record_type`. A map that omits it lands
-     * on the column default (`actual`), which is right for a register and
-     * silently wrong for a plan; the kind of row belongs in the caller
-     * that knows which it is writing.
-     *
-     * @param array<string, mixed> $row
-     */
-    public function insertAttendance( array $row ): ?int {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
-        if ( $ok === false ) return null;
-        $this->announceAttendanceChange( (int) ( $row['activity_id'] ?? 0 ) );
-        return (int) $wpdb->insert_id;
-    }
-
-    /**
-     * #1712 — wipe the non-guest (roster) attendance rows for an
+     * #1712 — wipe the RECORDED non-guest (roster) attendance rows for an
      * activity. Guest rows survive (managed via the guest endpoints).
      *
-     * #3456 survey — this delete still spans BOTH record types, and that
-     * is not deliberate: its one caller (the REST activity update, when
-     * the payload carries attendance) rewrites the rows as `actual`, so
-     * it has the same defect `replaceRosterAttendance()` just lost. It is
-     * not fixed here because the fix is not local to this method: the
-     * caller snapshots the line-up with `lineupProjectionFor( id, null )`
-     * — widened precisely because this delete is wide — and narrowing one
-     * without the other makes `lineupForActivity()` list every starter
-     * twice, once from the surviving `expected` row and once from the new
-     * `actual` one. Both halves move together, on #3451.
+     * #3451 — and the planned squad survives too. This delete used to span
+     * both record types while its one caller (the REST activity update,
+     * when the payload carries attendance) rewrote the rows as `actual`,
+     * so the REST path destroyed the plan exactly the way the wp-admin
+     * path did before #3456.
+     *
+     * Narrowing it was not local to this method, which is why #3456 left
+     * it standing: the caller snapshotted the line-up with
+     * `lineupProjectionFor( id, null )` — widened precisely because this
+     * delete was wide — and `lineupForActivity()` reads both kinds. Both
+     * moved with it: the caller now snapshots `'actual'`, and the line-up
+     * reader keeps one row per player, so a starter carrying both an
+     * `expected` and an `actual` row is listed once.
      */
     public function deleteRosterAttendance( int $activity_id ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
-        $this->announceAttendanceChange( $activity_id );
+        ( new AttendanceWriter() )->clearActual( $activity_id );
     }
 
     /**
      * #1712 — count ALL attendance rows for an activity (roster + guest),
      * club-scoped. Used to detect "already has attendance" before seeding.
+     *
+     * #3451 — both kinds on purpose. The question is "has anybody put
+     * anything here yet?", and the only caller
+     * (`ActivitiesRestController::seedCompletedRosterPresent()`) uses the
+     * answer to decide whether to invent a register. Counting only the
+     * recorded half would have it manufacture one on top of a squad a coach
+     * had just selected, which is the #3456 failure arriving by a third
+     * door.
      */
     public function countAttendance( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $p = $wpdb->prefix;
+        /* both-kinds-ok */
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d",
             $activity_id, CurrentClub::id()
@@ -2139,6 +2134,8 @@ final class ActivitiesRepository {
     public function findAttendanceRow( int $id ): ?object {
         if ( $id <= 0 ) return null;
         global $wpdb;
+        // By primary key: the id already names one row of one kind, so
+        // there is no scope left to get wrong. /* both-kinds-ok */
         $p   = $wpdb->prefix;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$p}tt_attendance WHERE id = %d AND club_id = %d LIMIT 1",
@@ -2154,43 +2151,14 @@ final class ActivitiesRepository {
      * @param array<string, mixed> $fields
      */
     public function updateAttendanceRow( int $id, array $fields ): bool {
-        global $wpdb;
-        $p  = $wpdb->prefix;
-        $ok = $wpdb->update( "{$p}tt_attendance", $fields, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
-        $this->announceAttendanceChange( $this->attendanceRowActivityId( $id ) );
-        return $ok;
-    }
-
-    /**
-     * #2731 — the activity one attendance row belongs to, or 0.
-     *
-     * A primary-key lookup on the single-row write paths, which handle one
-     * cell at a time and already cost a round trip. The alternative was to
-     * fire the event from the REST controllers that happen to know the
-     * activity id, which would leave the wp-admin and tournament callers
-     * silently uncovered.
-     */
-    private function attendanceRowActivityId( int $id ): int {
-        if ( $id <= 0 ) return 0;
-        global $wpdb;
-        $p = $wpdb->prefix;
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT activity_id FROM {$p}tt_attendance WHERE id = %d AND club_id = %d",
-            $id, CurrentClub::id()
-        ) );
+        return ( new AttendanceWriter() )->updateRow( $id, $fields );
     }
 
     /**
      * #1712 — delete one attendance row by id (club-scoped).
      */
     public function deleteAttendanceRow( int $id ): bool {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        // Read before the delete — afterwards there is no row to ask.
-        $activity_id = $this->attendanceRowActivityId( $id );
-        $ok          = $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
-        $this->announceAttendanceChange( $activity_id );
-        return $ok;
+        return ( new AttendanceWriter() )->deleteRow( $id );
     }
 
     /**
@@ -2206,59 +2174,45 @@ final class ActivitiesRepository {
      */
     public function upsertActualAttendanceStatus( int $activity_id, int $player_id, string $status ): bool {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
-        global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+
+        $writer = new AttendanceWriter();
 
         // All existing recorded rows for this (activity, player), newest last.
         // Legacy dirty data can leave more than one `actual` row (a wizard row
         // and a match-execution row); heal it here so the grid stops being
         // ambiguous — keep the latest, drop the rest.
-        $existing_ids = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_attendance
-              WHERE activity_id = %d AND player_id = %d AND club_id = %d
-                AND is_guest = 0 AND record_type = 'actual'
-              ORDER BY id ASC",
-            $activity_id, $player_id, $club_id
-        ) ) );
-        $keep_id = $existing_ids ? (int) end( $existing_ids ) : 0;
-        $stale   = array_filter( $existing_ids, static fn( int $id ): bool => $id !== $keep_id );
+        $existing_ids = $writer->actualRowIds( $activity_id, $player_id );
+        $keep_id      = $existing_ids ? (int) end( $existing_ids ) : 0;
+        $stale        = array_filter( $existing_ids, static fn( int $id ): bool => $id !== $keep_id );
 
-        // Blank status clears the cell — remove every recorded row.
+        // Blank status clears the cell — remove every recorded row. The plan
+        // is not this grid's to clear: a coach wiping a register has not
+        // unselected the squad.
         if ( $status === '' ) {
             $ok = true;
             foreach ( $existing_ids as $id ) {
-                if ( $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] ) === false ) $ok = false;
+                if ( ! $writer->deleteRow( $id ) ) $ok = false;
             }
-            $this->announceAttendanceChange( $activity_id );
+            AttendanceWriter::announce( $activity_id );
             return $ok;
         }
 
         // Drop the stale duplicates, then update the one we keep (or insert).
         foreach ( $stale as $id ) {
-            $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] );
+            $writer->deleteRow( $id );
         }
 
         if ( $keep_id > 0 ) {
-            $ok = $wpdb->update(
-                "{$p}tt_attendance",
-                [ 'status' => $status ],
-                [ 'id' => $keep_id, 'club_id' => $club_id ]
-            ) !== false;
-            $this->announceAttendanceChange( $activity_id );
-            return $ok;
+            return $writer->updateRow( $keep_id, [ 'status' => $status ] );
         }
 
-        $ok = $wpdb->insert( "{$p}tt_attendance", [
-            'club_id'     => $club_id,
+        return $writer->recordActual( [
+            'club_id'     => CurrentClub::id(),
             'activity_id' => $activity_id,
             'player_id'   => $player_id,
             'status'      => $status,
             'is_guest'    => 0,
-            'record_type' => 'actual',
-        ] ) !== false;
-        $this->announceAttendanceChange( $activity_id );
-        return $ok;
+        ] ) !== null;
     }
 
     /**
@@ -2273,25 +2227,13 @@ final class ActivitiesRepository {
      */
     public function updateActualAttendanceMinutes( int $activity_id, int $player_id, ?int $minutes ): bool {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
-        global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
 
-        $row_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_attendance
-              WHERE activity_id = %d AND player_id = %d AND club_id = %d
-                AND is_guest = 0 AND record_type = 'actual'
-              ORDER BY id DESC LIMIT 1",
-            $activity_id, $player_id, $club_id
-        ) );
+        $writer = new AttendanceWriter();
+        $row_id = $writer->actualRowId( $activity_id, $player_id );
         if ( $row_id <= 0 ) return false;
 
         $value = $minutes === null ? null : max( 0, min( 200, $minutes ) );
-        return $wpdb->update(
-            "{$p}tt_attendance",
-            [ 'minutes_played' => $value ],
-            [ 'id' => $row_id, 'club_id' => $club_id ]
-        ) !== false;
+        return $writer->updateRow( $row_id, [ 'minutes_played' => $value ] );
     }
 
     /**

@@ -1,0 +1,58 @@
+name: Attendance scope lint
+
+# #3451 — `tt_attendance` holds a planned squad (`record_type = 'expected'`)
+# and a recorded register (`record_type = 'actual'`) in one table, and the
+# column defaults to `actual`. Nothing about the table's shape warns a reader,
+# so the cheapest way to get it wrong is to say nothing at all.
+#
+# Ten defects came out of that in one week. Eight were reads returning the
+# wrong answer — a player's own screen saying they attended a fixture two
+# weeks away, an evaluation wizard skipping the attendance step, team
+# chemistry derived from squads nobody had registered. Two were writes, and
+# those destroyed a coach's planned roster (#3456, #3451) and hid a match's
+# derived minutes where no correct reader looks (#3445).
+#
+# The writes are closed by construction — `AttendanceWriter` has no method
+# that writes without naming the kind. Thirty files read the table, which is
+# too many to refactor for a distinction most of them get right, and exactly
+# the right size for a gate that makes the question unavoidable at review.
+#
+# The `both-kinds-ok` marker ships with the check rather than being added the
+# first time it fires: a subject-access export, a backup preset and an archive
+# cascade all legitimately span both kinds, and a gate that did not know that
+# would fail the build on queries that are correct.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-attendance-scope.php'
+      - 'tools/lib/attendance-scope.php'
+      - '.github/workflows/attendance-scope-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tools/check-attendance-scope.php'
+      - 'tools/lib/attendance-scope.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every attendance query says which kind of row it means
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check attendance scope
+        run: php tools/check-attendance-scope.php

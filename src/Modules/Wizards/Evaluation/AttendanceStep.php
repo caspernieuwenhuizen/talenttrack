@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -400,8 +401,7 @@ final class AttendanceStep implements WizardStepInterface {
         // Persist attendance rows now — this is a real attendance update.
         $aid = (int) ( $state['activity_id'] ?? 0 );
         if ( $aid > 0 && ! empty( $att ) ) {
-            global $wpdb;
-            $p = $wpdb->prefix;
+            $writer = new AttendanceWriter();
             foreach ( $att as $player_id => $status ) {
                 $player_id = (int) $player_id;
                 if ( $player_id <= 0 ) continue;
@@ -418,25 +418,19 @@ final class AttendanceStep implements WizardStepInterface {
                 // all of which filter to `'actual'` — still read zero, and
                 // the plan was overwritten on the way. Both halves are wrong:
                 // an actual row must be INSERTed and the plan left alone.
-                $existing = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT id FROM {$p}tt_attendance
-                      WHERE activity_id = %d AND player_id = %d AND club_id = %d
-                        AND record_type = 'actual'
-                      LIMIT 1",
-                    $aid, $player_id, CurrentClub::id()
-                ) );
-                if ( $existing ) {
-                    $wpdb->update( "{$p}tt_attendance", [ 'status' => $status ], [ 'id' => (int) $existing ] );
+                //
+                // #3451 — both halves now go through the writer, so the scope
+                // is the method name rather than a clause somebody has to
+                // remember to add.
+                $existing = $writer->actualRowId( $aid, $player_id );
+                if ( $existing > 0 ) {
+                    $writer->updateRow( $existing, [ 'status' => $status ] );
                 } else {
-                    $wpdb->insert( "{$p}tt_attendance", [
+                    $writer->recordActual( [
                         'club_id'     => CurrentClub::id(),
                         'activity_id' => $aid,
                         'player_id'   => $player_id,
                         'status'      => $status,
-                        // Explicit rather than leaning on the column default,
-                        // for the same reason `write_attendance()` spells it
-                        // out (#2159): a default is a silent contract.
-                        'record_type' => 'actual',
                     ] );
                 }
             }

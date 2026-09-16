@@ -8,6 +8,7 @@ use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 
 /**
  * TournamentsRestController — /wp-json/talenttrack/v1/tournaments
@@ -894,9 +895,19 @@ class TournamentsRestController {
             }
         }
 
-        // Sync to tt_attendance. Wipe existing rows for this activity
-        // first — idempotent re-sync.
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+        // Sync to tt_attendance. Wipe the existing REGISTER for this
+        // activity first — idempotent re-sync.
+        //
+        // #3451 — it used to wipe every row for the activity regardless of
+        // `record_type` and re-insert without naming one, so the rows landed
+        // on the column's `actual` default and a squad somebody had planned
+        // for the tournament fixture was destroyed on the way. Guests stay
+        // in scope of the wipe here (unlike the activity form's, #0026):
+        // this path rebuilds the whole register for the fixture from the
+        // tournament squad, and a guest row it did not write is a row it
+        // would otherwise orphan.
+        $writer = new AttendanceWriter();
+        $writer->clearActual( $activity_id, true );
 
         // Pull the full squad so benched-with-no-assignment players
         // also get attendance rows.
@@ -904,7 +915,7 @@ class TournamentsRestController {
         foreach ( $squad as $sq ) {
             $pid = (int) $sq['player_id'];
             $row = $per_player[ $pid ] ?? [ 'started' => false, 'position_played' => null ];
-            $wpdb->insert( "{$p}tt_attendance", [
+            $writer->recordActual( [
                 'club_id'         => CurrentClub::id(),
                 'activity_id'     => $activity_id,
                 'player_id'       => $pid,
@@ -913,13 +924,6 @@ class TournamentsRestController {
                 'position_played' => $row['position_played'],
             ] );
         }
-
-        /**
-         * #2731 — this path writes `tt_attendance` directly rather than
-         * through `ActivitiesRepository`, so it has to say so itself.
-         * Documented on `ActivitiesRepository::announceAttendanceChange()`.
-         */
-        do_action( 'tt_activity_attendance_changed', $activity_id );
 
         $wpdb->update(
             "{$p}tt_tournament_matches",

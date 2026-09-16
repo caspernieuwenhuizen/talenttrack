@@ -25,6 +25,7 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
     public function label(): string { return __( 'Child switcher with recap', 'talenttrack' ); }
 
     public function description(): string {
+        // Prose naming the tables the widget reads, not a query. /* both-kinds-ok */
         return __( 'Parent hero: pickers between the parent\'s linked players (when more than one) plus a weekly recap card — last activity attended, latest evaluation rating, open PDP conversation. Sourced from tt_players + tt_attendance + tt_evaluations scoped to the parent\'s linked children.', 'talenttrack' );
     }
 

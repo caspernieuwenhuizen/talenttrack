@@ -45,6 +45,14 @@ class ActivitiesRepository {
      * implicit "the player has an attendance row" join — historic
      * scope-strictness on this surface has been intentionally
      * permissive (#1149 family of bugs).
+     *
+     * #3451 — the join is scoped to the RECORDED register, which is what
+     * #3390 did to the LIST this detail belongs to. The list lives on
+     * `Modules\Activities\Repositories\ActivitiesRepository` and the detail
+     * on this class, they share a name, and the fix reached one of them:
+     * a player tapping through from a list that correctly said nothing
+     * about a fixture two weeks away landed on a detail screen telling them
+     * they had been present at it.
      */
     public function findForPlayer( int $activity_id, int $player_id ): ?object {
         if ( $activity_id <= 0 ) return null;
@@ -61,6 +69,7 @@ class ActivitiesRepository {
                LEFT JOIN {$p}tt_teams t ON a.team_id = t.id
                LEFT JOIN {$p}tt_attendance att
                       ON att.activity_id = a.id
+                     AND att.record_type = 'actual'
                      AND ( att.player_id = %d OR att.guest_player_id = %d )
               WHERE a.id = %d
               LIMIT 1",

@@ -114,6 +114,7 @@ class DemoCoverage {
             'written_by'  => ActivityGenerator::class,
             'depends_on'  => [ 'team' ],
         ],
+        // The coverage manifest is per table, not per kind of row. /* both-kinds-ok */
         'tt_attendance' => [
             'entity_type' => 'attendance',
             'category'    => 'activities',

@@ -55,6 +55,12 @@ final class SquadSizeEstimator {
         // Per-activity present counts over the trailing N completed
         // trainings, then averaged. Done in one statement so a team with
         // a long history does not pull rows into PHP to count them.
+        //
+        // #3451 — the RECORDED register only. A planned squad stores
+        // Expected as `Present`, so without `record_type` a team that plans
+        // attendance ahead had its turnout estimate counting the selection
+        // as well as the register, and the exercise sizing that reads this
+        // was built for a session twice the size of the one that happens.
         $sql = "SELECT AVG(present_count) FROM (
                     SELECT COUNT(*) AS present_count
                       FROM {$wpdb->prefix}tt_attendance att
@@ -65,6 +71,7 @@ final class SquadSizeEstimator {
                        AND a.activity_type_key = %s
                        AND a.activity_status_key = 'completed'
                        AND a.archived_at IS NULL
+                       AND att.record_type = 'actual'
                        AND att.status IN ({$placeholders})
                   GROUP BY att.activity_id
                   ORDER BY a.session_date DESC

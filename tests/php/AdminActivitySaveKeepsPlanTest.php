@@ -121,15 +121,26 @@ final class AdminActivitySaveKeepsPlanTest extends WP_UnitTestCase {
     public function test_the_method_names_record_type_on_both_statements(): void {
         $body = $this->methodSource( 'replaceRosterAttendance' );
 
-        $this->assertMatchesRegularExpression(
-            "/->delete\(.*'record_type'\s*=>\s*'actual'/s",
+        // #3451 — the method no longer spells `record_type` itself; it goes
+        // through `AttendanceWriter`, whose method names ARE the
+        // declaration. `clearActual()` cannot reach the plan and
+        // `recordActual()` cannot write one, which is a stronger version of
+        // what this test was pinning: there is no longer a way to write this
+        // method that omits the kind.
+        $this->assertStringContainsString(
+            'clearActual(',
             $body,
-            "the delete scopes to 'actual' so the planned roster survives"
+            "the delete scopes to the register so the planned roster survives"
         );
-        $this->assertMatchesRegularExpression(
-            "/->insert\(.*'record_type'\s*=>\s*'actual'/s",
+        $this->assertStringContainsString(
+            'recordActual(',
             $body,
-            "the insert names 'actual' rather than leaning on the column default"
+            'the insert names the kind of row it writes'
+        );
+        $this->assertStringNotContainsString(
+            'wpdb',
+            $body,
+            'no raw attendance SQL outside the writer'
         );
     }
 

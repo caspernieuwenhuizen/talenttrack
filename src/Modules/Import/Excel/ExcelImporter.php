@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Import\ImportTagSink;
 
 /**
@@ -501,13 +502,18 @@ final class ExcelImporter {
         }
         $counts['activities'] = count( $activity_id_by_key );
 
-        // Session attendance.
+        // Session attendance. A workbook's attendance sheet is a register:
+        // it says who turned up at a session that has already happened, so
+        // `recordActual()` is the right half of the table (#3451). It used
+        // to inherit that from the column default, which meant an import
+        // could not have expressed the other kind even deliberately.
         $counts['attendance'] = 0;
+        $attendance_writer    = new AttendanceWriter();
         foreach ( $rows['session_attendance'] ?? [] as $r ) {
             $activity_id = $activity_id_by_key[ (string) ( $r['session_key'] ?? '' ) ] ?? 0;
             $player_id   = $player_id_by_key[   (string) ( $r['player_key']  ?? '' ) ] ?? 0;
             if ( $activity_id <= 0 || $player_id <= 0 ) continue;
-            $wpdb->insert( "{$p}tt_attendance", [
+            $attendance_id = $attendance_writer->recordActual( [
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
                 'player_id'   => $player_id,
@@ -522,7 +528,7 @@ final class ExcelImporter {
                 'notes'       => (string) ( $r['notes']  ?? '' ),
                 'is_guest'    => 0,
             ] );
-            if ( (int) $wpdb->insert_id > 0 ) $counts['attendance']++;
+            if ( $attendance_id !== null && $attendance_id > 0 ) $counts['attendance']++;
         }
 
         // Evaluations.

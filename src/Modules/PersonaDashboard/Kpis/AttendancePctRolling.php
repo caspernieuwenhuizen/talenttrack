@@ -36,6 +36,9 @@ class AttendancePctRolling extends AbstractKpiDataSource {
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
+        // Table-name plumbing and a schema probe, not a query — the read
+        // itself is `pctInRange()` below, which scopes to
+        // `record_type = 'actual'`. /* both-kinds-ok */
         $att_table  = $wpdb->prefix . 'tt_attendance';
         $act_table  = $wpdb->prefix . 'tt_activities';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $att_table ) ) !== $att_table ) {

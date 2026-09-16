@@ -11,6 +11,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Activities\Repositories\AttendanceWriter;
 
 /**
  * ActivitiesRestController — /wp-json/talenttrack/v1/activities
@@ -1171,8 +1172,14 @@ class ActivitiesRestController {
         // projection is snapshotted here, once, while it still exists.
         // Taking it inside either block would leave the other one reading an
         // already-emptied table.
+        //
+        // #3451 — each snapshot is scoped to the kind of row the block
+        // below it deletes. The roster one was `null` ("any kind") while
+        // `deleteRosterAttendance()` was equally wide; now that the delete
+        // spares the plan, snapshotting the plan here would re-apply its
+        // line-up onto the new `actual` rows and list every starter twice.
         $planned_lineup = $repo->lineupProjectionFor( $activity_id, 'expected' );
-        $roster_lineup  = $repo->lineupProjectionFor( $activity_id, null );
+        $roster_lineup  = $repo->lineupProjectionFor( $activity_id, 'actual' );
 
         if ( self::request_has_attendance( $r ) ) {
             // #0026 — only wipe the roster rows; guest rows are
@@ -1663,7 +1670,8 @@ class ActivitiesRestController {
      */
     private static function write_attendance( int $activity_id, array $rows ): array {
         if ( ! $rows ) return [];
-        $repo = self::repo();
+        $repo   = self::repo();
+        $writer = new AttendanceWriter();
 
         // Look up the activity's team once; off-roster filter keys off it.
         $activity_team_id = $repo->activityTeamId( $activity_id );
@@ -1682,6 +1690,12 @@ class ActivitiesRestController {
                     continue;
                 }
             }
+            // #2159 — roster attendance written here is canonical recorded
+            // data, which is why it goes through `recordActual()`: manual
+            // per-player minutes land in the same `actual` / non-guest scope
+            // the hardened minutes reports (#2158) sum. #3451 moved the
+            // declaration from a key in this map to the method name, so an
+            // edit here cannot quietly drop it.
             $insert = [
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
@@ -1689,12 +1703,6 @@ class ActivitiesRestController {
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
                 'is_guest'   => 0,
-                // #2159 — roster attendance written here is canonical
-                // recorded data. Set `record_type='actual'` explicitly
-                // (matches the column default) so manual per-player
-                // minutes land in the same `actual` / non-guest scope the
-                // hardened minutes reports (#2158) sum.
-                'record_type' => 'actual',
             ];
             // #1726 — match-completion direct entry. Present only for match
             // activities; leave the columns at their default otherwise.
@@ -1709,8 +1717,8 @@ class ActivitiesRestController {
             if ( array_key_exists( 'minutes_played', $fields ) ) {
                 $insert['minutes_played'] = $fields['minutes_played'];
             }
-            if ( $repo->insertAttendance( $insert ) === null ) {
-                $failures[] = [ 'player_id' => $pid, 'db_error' => $repo->lastError() ];
+            if ( $writer->recordActual( $insert ) === null ) {
+                $failures[] = [ 'player_id' => $pid, 'db_error' => $writer->lastError() ];
             }
         }
         if ( $dropped ) {
@@ -1814,7 +1822,10 @@ class ActivitiesRestController {
             'guest_position'  => $linked_id > 0 ? null : ( $position !== '' ? $position : null ),
             'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
         ];
-        $new_id = $repo->insertAttendance( $row );
+        // A guest visit is something that happened — a register, not a plan
+        // (#3451). The row used to inherit that from the column default.
+        $writer = new AttendanceWriter();
+        $new_id = $writer->recordActual( $row );
 
         // v3.110.158 — defensive fallback for installs where
         // `tt_attendance.player_id` is still NOT NULL despite
@@ -1831,11 +1842,11 @@ class ActivitiesRestController {
         // real `tt_players.id`. The 0 is unambiguous sentinel for
         // "no player on this guest row" on installs stuck NOT NULL.
         if ( $new_id === null ) {
-            $err = $repo->lastError();
+            $err = $writer->lastError();
             if ( stripos( $err, "Column 'player_id' cannot be null" ) !== false
               || ( stripos( $err, 'player_id' ) !== false && stripos( $err, 'null' ) !== false ) ) {
                 $row['player_id'] = 0;
-                $new_id = $repo->insertAttendance( $row );
+                $new_id = $writer->recordActual( $row );
                 if ( $new_id !== null ) {
                     Logger::warning( 'attendance.guest.add.player_id_zero_fallback', [
                         'activity_id'      => $activity_id,
@@ -1846,7 +1857,7 @@ class ActivitiesRestController {
         }
 
         if ( $new_id === null ) {
-            $err = $repo->lastError();
+            $err = $writer->lastError();
             Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             // v3.110.143 — surface the actual db_error in the
             // user-visible message. Previously the message was
