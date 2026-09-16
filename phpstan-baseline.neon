@@ -40,13 +40,13 @@ parameters:
 			message: '#^Access to an undefined property object\:\:\$activity_type_localised\.$#'
 			identifier: property.notFound
 			count: 1
-			path: src/Infrastructure/Activities/ActivitiesRepository.php
+			path: src/Infrastructure/Activities/PlayerActivityReader.php
 
 		-
 			message: '#^Access to an undefined property object\:\:\$attendance_status_localised\.$#'
 			identifier: property.notFound
 			count: 1
-			path: src/Infrastructure/Activities/ActivitiesRepository.php
+			path: src/Infrastructure/Activities/PlayerActivityReader.php
 
 		-
 			message: '#^Method TT\\Infrastructure\\Archive\\ArchiveRepository\:\:archive\(\) has parameter \$ids with no value type specified in iterable type array\.$#'

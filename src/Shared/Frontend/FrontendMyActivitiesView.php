@@ -4,7 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
-use TT\Infrastructure\Activities\ActivitiesRepository;
+use TT\Infrastructure\Activities\PlayerActivityReader;
 
 /**
  * FrontendMyActivitiesView — the "My activities" tile destination.
@@ -181,7 +181,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
      * something the player has attended, and putting any pill on it would
      * publish a selection decision the coach has not announced.
      *
-     * Reads `ActivitiesRepository::upcomingForTeam()`, the same source the
+     * Reads `Modules\Activities\Repositories\ActivitiesRepository::upcomingForTeam()`, the same source the
      * development home and the profile's Upcoming card use, so the three
      * agree about what "next" means (from today, excluding completed and
      * cancelled, soonest first).
@@ -240,7 +240,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         // with activity_type_localised + attendance_status_localised,
         // so this view echoes the localised fields by construction.
         // Same shape as #1077 GoalsRepository / #1081 worked example.
-        $row = ( new ActivitiesRepository() )->findForPlayer( $activity_id, (int) $player->id );
+        $row = ( new PlayerActivityReader() )->findForPlayer( $activity_id, (int) $player->id );
 
         if ( ! $row ) {
             self::renderHeader( __( 'Activity not found', 'talenttrack' ) );

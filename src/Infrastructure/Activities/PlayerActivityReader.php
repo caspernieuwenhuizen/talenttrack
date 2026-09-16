@@ -6,7 +6,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LabelTranslator;
 
 /**
- * ActivitiesRepository — read-only repository for activity records.
+ * PlayerActivityReader — a player's view of one activity, localised.
+ *
+ * #3483 — renamed from `ActivitiesRepository`. That name was shared with
+ * `TT\Modules\Activities\Repositories\ActivitiesRepository`, the write-path
+ * repository behind wp-admin, REST, the line-up and the attendance readers —
+ * and the two looked identical at a call site. #3390's sweep for the
+ * planned-roster blind spot fixed the list in `FrontendMyActivitiesView` and
+ * missed the detail screen behind it, which read through this class, so a
+ * player could tap from a list that correctly said nothing into a detail
+ * telling them they had attended a fixture two weeks away. The collision
+ * hid which of the two classes the sweep had covered. It is a *reader*, and
+ * the question it answers is a *player's*, which is what the name now says.
+ * The module repository kept its name: it is what everybody means by "the
+ * activities repository".
  *
  * #1078 — module-by-module rollout of #806's architectural sweep.
  * Pattern established in v4.17.2 / #1081 (Evaluations) and v4.20.18 /
@@ -32,7 +45,7 @@ use TT\Infrastructure\Query\LabelTranslator;
  * NOT pre-localised here — its enum is engine-internal and view
  * surfaces don't render it as a user-facing pill today.
  */
-class ActivitiesRepository {
+class PlayerActivityReader {
 
     /**
      * Single activity with the requesting player's attendance row
