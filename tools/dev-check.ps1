@@ -89,7 +89,9 @@ if (-not (HavePhp)) {
 } elseif (-not (Test-Path 'vendor/bin/phpstan')) {
     Record 'PHPStan (advisory)' 'SKIP' 'run `composer install` first'
 } else {
-    & $Php vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+    # 2G, not 1G: a cold full sweep peaks at ~1.3G in the heaviest parallel
+    # worker, so 1G crashes a worker and reports the crash as a finding.
+    & $Php vendor/bin/phpstan analyse --memory-limit=2G --no-progress
     # CI does not gate on PHPStan (it appends `|| true`), so neither do we.
     if ($LASTEXITCODE -eq 0) { Record 'PHPStan (advisory)' 'PASS' }
     else { Record 'PHPStan (advisory)' 'WARN' 'findings above — not a CI gate, but worth a look' }
