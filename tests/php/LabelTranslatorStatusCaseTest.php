@@ -55,14 +55,23 @@ final class LabelTranslatorStatusCaseTest extends WP_UnitTestCase {
     }
 
     /**
-     * The regression itself: the stored TitleCase value must not come back
-     * unchanged, which is what `humanise()` did for every unmatched arm.
+     * The regression itself: a TitleCase value must reach its arm rather than
+     * falling through to `humanise()`.
+     *
+     * `pending_approval` is the one status where the two outcomes are
+     * distinguishable without a loaded translation catalog: `humanise()`
+     * returns the stored casing verbatim ("Pending Approval"), while the arm
+     * returns the msgid, which is sentence case per `docs/ui-copy.md`
+     * ("Pending approval"). The suite runs untranslated, so asserting on a
+     * Dutch string here would pass for the wrong reason — and asserting that
+     * "In Progress" changes would *fail* for the wrong reason, since that
+     * msgid is its own English label.
      */
-    public function test_a_titlecase_status_is_not_echoed_back_verbatim(): void {
+    public function test_a_titlecase_status_resolves_through_its_arm_not_humanise(): void {
         $this->assertNotSame(
-            'In Progress',
-            LabelTranslator::goalStatus( 'In Progress' ),
-            'A TitleCase status fell through to humanise() and printed the raw English.'
+            'Pending Approval',
+            LabelTranslator::goalStatus( 'Pending Approval' ),
+            'A TitleCase status fell through to humanise() instead of matching its arm.'
         );
     }
 
