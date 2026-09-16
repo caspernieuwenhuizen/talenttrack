@@ -74,9 +74,29 @@ story is legible from the list without opening a chart.
 The week count is how far **back** the activity window runs. On top of it every
 preset also generates **four weeks ahead**, so a demo install has a next match
 and upcoming trainings — the week planner, match prep and the upcoming-activity
-alerts all have something to show. Future activities are planned and carry no
-result: no attendance, no minutes, no ratings and no match execution. Match
-prep is written for them, which is what a coach's screen looks like mid-week.
+alerts all have something to show. Future activities carry no **result**: no
+register, no minutes, no ratings and no match execution. Match prep is written
+for them, which is what a coach's screen looks like mid-week.
+
+They do carry a **planned squad**, though, and so does every past activity.
+Attendance is two different things — the squad a coach planned and the register
+they took afterwards — and a generated academy used to contain only the second.
+That made half the attendance model invisible locally, including every state
+where the two disagree, which is the state most of the attendance bugs of the
+last year have turned on.
+
+A run now produces all three cases, so the surfaces that handle them have
+something to stand on:
+
+- **planned and registered** — a past activity where both exist for the same
+  player, which is the ordinary state and the one most easily misread;
+- **planned, not yet played** — a future activity with a squad and no register;
+- **planned, never registered** — a minority of past activities nobody took the
+  register for, so the empty-register confirm, the completeness counts and the
+  *attendance not recorded* alert have a case.
+
+Planned squads use the real plan vocabulary — mostly *Expected*, with some *Not
+coming* and *Maybe* — rather than marking everybody as coming.
 
 ## Seasons
 

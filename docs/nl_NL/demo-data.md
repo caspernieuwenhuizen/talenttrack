@@ -78,10 +78,35 @@ bovenop genereert elke preset ook **vier weken vooruit**, zodat een demo-
 installatie een volgende wedstrijd en aankomende trainingen heeft — de
 weekplanner, wedstrijdvoorbereiding en de meldingen over aankomende
 activiteiten hebben dan allemaal iets te tonen. Toekomstige activiteiten staan
-op gepland en dragen geen uitslag: geen aanwezigheid, geen minuten, geen
+op gepland en dragen geen **uitslag**: geen presentielijst, geen minuten, geen
 beoordelingen en geen wedstrijduitvoering. Wedstrijdvoorbereiding wordt er wel
 voor geschreven — precies zoals het scherm van een trainer er midden in de week
 uitziet.
+
+Een **geplande selectie** hebben ze wél, en elke activiteit uit het verleden
+ook. Aanwezigheid bestaat namelijk uit twee dingen — de selectie die de trainer
+vooraf opgaf en de presentielijst die hij achteraf afvinkte — en een
+gegenereerde academie bevatte alleen dat tweede. Daardoor was de helft van het
+aanwezigheidsmodel lokaal onzichtbaar, inclusief elke situatie waarin de twee
+van elkaar afwijken: precies waar de meeste aanwezigheidsbugs van het afgelopen
+jaar om draaiden.
+
+Een run levert nu alle drie de gevallen op, zodat de schermen die ze afhandelen
+iets hebben om op te staan:
+
+- **gepland en afgevinkt** — een activiteit uit het verleden waar allebei
+  bestaan voor dezelfde speler; het gewone geval, en het makkelijkst verkeerd
+  te lezen;
+- **gepland, nog niet gespeeld** — een toekomstige activiteit met een selectie
+  en zonder presentielijst;
+- **gepland, nooit afgevinkt** — een minderheid van activiteiten uit het
+  verleden waarvan niemand de presentielijst heeft ingevuld, zodat de
+  bevestiging bij een lege lijst, de volledigheidstellers en de melding
+  *aanwezigheid niet vastgelegd* een geval hebben.
+
+Geplande selecties gebruiken de echte planwoordenschat — meestal *Verwacht*,
+met wat *Komt niet* en *Misschien* — in plaats van iedereen op aanwezig te
+zetten.
 
 ## Seizoenen
 
