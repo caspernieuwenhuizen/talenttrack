@@ -46,6 +46,17 @@ bottom first, and the agenda to its two most urgent players, before the page is
 reported as too full. If it still does not fit, drop a section or switch to the
 three-page pack.
 
+## Printing
+
+**Download PDF** under the panel prints exactly the report you composed: the
+same team, period, type and sections. It prints the number of pages the meter
+showed, and whatever the one-pager shortened is shortened the same way on paper.
+A shortened list says how many players were left out and the range their values
+fell in. Every page carries the confidential, staff-only line at the bottom.
+
+Someone who cannot read a team's reports gets no PDF of that team, even from a
+forwarded link.
+
 ## What the sections show
 
 - **Data coverage** — how many of the period's completed trainings and matches

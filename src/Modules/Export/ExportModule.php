@@ -35,6 +35,7 @@ use TT\Modules\Export\Exporters\StaffDirectoryCsvExporter;
 use TT\Modules\Export\Exporters\TeamActivitiesCsvExporter;
 use TT\Modules\Export\Exporters\TeamPlannerXlsxExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
+use TT\Modules\Export\Exporters\TeamMonthlyReportPdfExporter;
 use TT\Modules\Export\Exporters\TeamPlanningPdfExporter;
 use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
 use TT\Modules\Export\Rest\ExportRestController;
@@ -133,6 +134,10 @@ class ExportModule implements ModuleInterface {
         // #2139 — a single test's recorded results as a formatted .xlsx,
         // triggered from the Manage-tests view by definition_id.
         ExporterRegistry::register( new MeasurementResultsXlsxExporter() );
+
+        // #3460 — the team monthly report on paper, in the layout the
+        // composition panel chose; the report page links straight to it.
+        ExporterRegistry::register( new TeamMonthlyReportPdfExporter() );
 
         ExportRestController::init();
 

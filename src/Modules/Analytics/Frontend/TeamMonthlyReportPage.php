@@ -231,8 +231,34 @@ final class TeamMonthlyReportPage {
 
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
         echo '</div>';
         echo '</form>';
+    }
+
+    /**
+     * The composition as it stands, printed: the same team, window, type and
+     * sections, handed to the `team_monthly_report_pdf` exporter. The page
+     * reloads on every panel change, so the link is never stale.
+     *
+     * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $selected
+     */
+    public static function pdfUrl( int $team_id, array $window, string $layout, array $selected ): string {
+        $args = [
+            'format'  => 'pdf',
+            'team_id' => $team_id,
+            'layout'  => $layout,
+            'blocks'  => implode( ',', $selected ),
+        ];
+        if ( $window['period'] !== '' ) {
+            $args['period'] = $window['period'];
+        } else {
+            $args['from'] = $window['from'];
+            $args['to']   = $window['to'];
+        }
+        $args['_wpnonce'] = wp_create_nonce( 'wp_rest' );
+        return add_query_arg( $args, rest_url( 'talenttrack/v1/exports/team_monthly_report_pdf' ) );
     }
 
     /**

@@ -450,17 +450,8 @@ class TeamsRestController {
      * reporting surface, and the two are not the same right.
      */
     private static function canReadTeamReports( int $team_id ): bool {
-        $uid = get_current_user_id();
-        if ( $uid <= 0 || $team_id <= 0 ) return false;
-        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
-            return current_user_can( 'tt_view_reports' );
-        }
-
-        if ( \TT\Modules\Authorization\MatrixGate::can( $uid, 'reports', 'read', 'global' ) ) {
-            return true;
-        }
-
-        return \TT\Modules\Authorization\MatrixGate::can( $uid, 'reports', 'read', 'team', $team_id );
+        // #3460 — one rule for the REST routes and the monthly report's PDF.
+        return \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( get_current_user_id(), $team_id );
     }
 
     /**
