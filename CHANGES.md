@@ -1,3 +1,103 @@
+# TalentTrack v4.123.0 — Saving an activity from the frontend no longer deletes the planned squad (#3451)
+
+The second door onto the same data loss #3456 closed. Recording attendance
+through the activity form's Save — the frontend and REST path, rather than
+wp-admin — rewrote the roster rows, and that rewrite began by deleting
+every one of them, the coach's planned squad included. The register came
+back labelled as recorded attendance and the plan was gone, so Saturday's
+selection disappeared behind an ordinary save exactly as it did in
+wp-admin.
+
+The rewrite now touches only the recorded half of the table. The planned
+squad, its statuses, notes and line-up survive untouched, and the Line-up
+card lists each starter once whether the line-up sits on the plan or, on
+an install that already lost its plan to the old behaviour, on the
+recorded row that replaced it.
+
+Behind that, every write to the attendance table now goes through one
+writer that has to be told which kind of row it is writing — a plan or a
+register — and a build check makes sure the queries that read the table
+say which kind they mean. Both are internal; the reason they are here is
+that this was the tenth time the two kinds were confused, and the two that
+confused them on the way in destroyed real data.
+
+Rows already deleted on an install cannot be recovered, and inventing a
+plan that never existed would be worse than the gap.
+
+# TalentTrack v4.123.0 — Past activity still planned: the alert now sees the activities it exists for (#3452)
+
+The "Past activity still planned" alert asked the wrong column. It gated on
+`plan_state`, which was added `DEFAULT 'completed'` and which only the team
+planner ever sets — so an activity created by the activity wizard, the flat
+form or the Spond import read as completed in the database however it looked
+on screen, and the one alert built to catch an unmarked activity could not
+see it. In practice it fired only for activities the planner happened to
+create.
+
+That mattered more from this release on: the previous release tightened the
+"Attendance not recorded" alert to fire only on genuinely completed
+activities, which was right, and which left a past, unfinished activity
+raising neither alert. Nobody was told.
+
+The gate now reads `activity_status_key` — the status the coach actually
+sets, and the axis all reporting has used since the same class of bug was
+fixed there — through a shared `ActivityLifecycle::outstandingClause()` so
+the two alert definitions cannot drift apart about what the lifecycle means
+again. A cancelled activity still raises nothing: it never happened and never
+will, so there is nothing to chase. The alert remains state-derived, and
+marking the activity completed or cancelled clears it on the next sweep with
+nothing to dismiss.
+
+# TalentTrack v4.123.0 — Saving an activity in wp-admin no longer deletes the planned squad (#3456)
+
+The wp-admin activity form rewrites the attendance it records, and until
+now that rewrite started by deleting every roster row on the activity —
+including the squad a coach had planned. An administrator fixing a title
+or a kick-off time destroyed the plan, and the rows that came back were
+labelled as a register, so the attendance reports and the completeness
+counts then agreed a register had been taken for an activity nobody had
+registered.
+
+The form now touches only the recorded half of the table: the planned
+squad, its statuses, notes and line-up survive a save untouched, and the
+rows the form writes say for themselves that they are recorded
+attendance. Correcting a register from wp-admin works exactly as before.
+
+Rows already deleted on an install cannot be recovered — there is nothing
+to restore them from, and inventing a plan that never existed would be
+worse than the gap.
+
+# TalentTrack v4.123.0 — Commercial mode is now a property of the install, and there is a way to record what a club bought (#3466)
+
+Whether an install enforces plans was decided in `talenttrack.php`, which
+meant it was decided for the whole fleet at once: turning it on for one
+install would have turned it on for every install on the next update.
+`TT_COMMERCIAL_MODE` is now only a default, applied when `wp-config.php`
+has not already said otherwise. An install opts in with one line in its own
+`wp-config.php`, and updating the plugin never changes that answer.
+
+The second half is the part that made commercial mode unusable rather than
+merely awkward. An install in commercial mode asks the control plane what
+the club is entitled to, keeps a local copy of the answer, and falls back
+to Not activated when there isn't one — and nothing anywhere wrote that
+copy. Every install flipped on would have locked itself to one team and
+twenty-five players on contact.
+
+`wp tt entitlement show | set --tier=… | clear` writes it. `show` reports
+the recorded plan, how old it is, whether it is due a refresh, whether it
+is still honoured, and the plan the install actually resolves to — which
+differs from the recorded one when commercial mode is off or a developer
+override is live. An unrecognised tier is refused rather than quietly
+normalised to Not activated, which is the shape this bug would otherwise
+have taken on a paying club's install.
+
+It needs shell access on purpose. There is still no screen, no setting and
+no REST route that writes a plan, because what a club is entitled to is not
+something the club's own site can be talked into changing.
+
+Nothing changes on an install that has not defined the constant, which is
+all of them today.
+
 # TalentTrack v4.122.0 — The evaluation wizard no longer mistakes a planned squad for a register (#3443)
 
 Tick the expected squad when you plan an activity, tap **Complete activity**
