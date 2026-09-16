@@ -386,6 +386,15 @@
     grid-template-columns: 1fr;
     gap: 0.625rem;
 }
+/* #3472 — the parent's own (non-child-scoped) surfaces, below the child rail. */
+.tt-parent-dash-own-heading {
+    margin: 1.5rem 0 0.625rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+}
 .tt-parent-dash-tile {
     display: flex;
     align-items: center;

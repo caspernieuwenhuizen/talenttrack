@@ -1823,6 +1823,11 @@ msgstr ""
 "Ouderaccount aangemaakt en gekoppeld. Er is een e-mail verstuurd om een "
 "wachtwoord in te stellen."
 
+#: src/Infrastructure/Players/ParentDashboardTiles.php:75
+msgctxt "parent dashboard tile noun"
+msgid "measurements"
+msgstr "metingen"
+
 #: src/Infrastructure/Players/ParentDashboardTiles.php:58
 msgctxt "parent dashboard tile noun"
 msgid "development"
