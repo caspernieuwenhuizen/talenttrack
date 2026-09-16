@@ -1984,7 +1984,12 @@ msgctxt "goal status"
 msgid "Pending"
 msgstr "In ontwikkeling"
 
-#: src/Infrastructure/Query/LabelTranslator.php:30
+#: src/Infrastructure/Query/LabelTranslator.php:38
+msgctxt "goal status"
+msgid "Pending approval"
+msgstr "Wacht op goedkeuring"
+
+#: src/Infrastructure/Query/LabelTranslator.php:39
 msgctxt "goal status"
 msgid "In Progress"
 msgstr "In uitvoering"
