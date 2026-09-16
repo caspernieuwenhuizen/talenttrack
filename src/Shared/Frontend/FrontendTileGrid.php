@@ -759,6 +759,38 @@ class FrontendTileGrid {
             echo '</a>';
         }
         echo '</div>';
+
+        // #3472 — the parent's OWN surfaces, unframed and unscoped. Their
+        // inbox is the one that mattered: under the default `classic` shell
+        // this grid is the whole navigation, and `my-messages` had no tile
+        // here and no entry in the user menu, so a parent could not reach it
+        // at all. Rendered as a second section so the child's record stays
+        // the anchor of the screen (§1) and these read as what they are.
+        $own = \TT\Infrastructure\Players\ParentDashboardTiles::ownTiles( $user_id );
+        if ( $own !== [] ) {
+            echo '<h3 class="tt-parent-dash-own-heading">' . esc_html__( 'Your account', 'talenttrack' ) . '</h3>';
+            echo '<div class="tt-parent-dash-grid">';
+            foreach ( $own as $tile ) {
+                $slug = $tile['view_slug'];
+                if ( $slug === '' ) continue;
+                // tt-xview-ok: the slug came out of
+                // TileRegistry::tilesForUserGrouped( $user_id ), which has
+                // already applied the per-user capability, module and feature
+                // gates — the same question CrossViewLink would ask. The child
+                // rail above resolves its URLs the same way.
+                $url  = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                    add_query_arg( [ 'tt_view' => $slug ], $base ) /* tt-xview-ok */
+                );
+                $chip = TileIconChip::render( $tile['icon'], $tile['color'] );
+                echo '<a class="tt-parent-dash-tile" href="' . esc_url( $url ) . '">';
+                echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs; IconRenderer returns trusted SVG.
+                echo '<span class="tt-parent-dash-tile-label">' . esc_html( $tile['label'] ) . '</span>';
+                echo \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug( $slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title.
+                echo '</a>';
+            }
+            echo '</div>';
+        }
+
         echo '</div>';
     }
 
