@@ -133,6 +133,19 @@ een maximum wordt niet geweigerd: de run gaat door met het maximum en **zegt
 dat ook**, in een melding op deze pagina en als waarschuwing op de
 commandoregel, met het gevraagde getal en het gebruikte getal erbij.
 
+Een verzorgerskoppeling heeft een WordPress-account nodig, en de demoset levert
+twee ouderaccounts. Niet elke speler krijgt dus een verzorger: elk ouderaccount
+krijgt een klein gezin en de rest van de selectie blijft zonder koppeling —
+precies zoals het er in een echte academie uitziet, waar ook niet iedere ouder
+zich heeft aangemeld.
+
+De twee gezinnen hebben met opzet een verschillende omvang, en die omvang ligt
+vast in plaats van dat hij geloot wordt. **Demo Parent** heeft één kind en komt
+dus meteen op het dossier van dat kind uit. **Demo Parent Of Two** heeft er
+twee, en dat is wat de kindkiezer en de kindwisselaar op het dashboard
+bereikbaar maakt. Elke gegenereerde academie laat allebei zien, in plaats van
+dat de ouder met meerdere kinderen in ongeveer twee van de drie runs opdook.
+
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op — en dezelfde academie of je hem nu in één keer
 of stap voor stap laat maken.

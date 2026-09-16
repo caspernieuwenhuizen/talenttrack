@@ -7,11 +7,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
- * UserGenerator — creates the Rich set of 36 persistent demo WP users
+ * UserGenerator — creates the Rich set of 37 persistent demo WP users
  * on first run, reuses them on every subsequent generate.
  *
- * Slot inventory (36 total):
- *   Fixed (7):    admin, hjo, hjo2, scout, staff, observer, parent
+ * Slot inventory (37 total):
+ *   Fixed (8):    admin, hjo, hjo2, scout, staff, observer, parent, parent2
  *   Coaches (12): coach1 .. coach12
  *   Assistants (12): assistant1 .. assistant12
  *   Players (5):  player1 .. player5
@@ -35,6 +35,12 @@ class UserGenerator implements GeneratorInterface {
         'staff'    => 'tt_staff',
         'observer' => 'tt_readonly_observer',
         'parent'   => 'tt_parent',
+        // #3475 — a second parent account so a generated academy always
+        // carries both guardian shapes: `parent` gets one child (the
+        // straight-through case) and `parent2` gets two (the child picker
+        // and the dashboard switcher). GuardianGenerator assigns the family
+        // sizes; this is only what makes two of them possible.
+        'parent2'  => 'tt_parent',
     ];
 
     private DemoBatchRegistry $registry;
@@ -63,7 +69,7 @@ class UserGenerator implements GeneratorInterface {
     public function reusedCount(): int  { return $this->reused_count; }
 
     /**
-     * Create or reuse all 36 accounts. Idempotent: every slot existing
+     * Create or reuse all 37 accounts. Idempotent: every slot existing
      * before the call is left untouched; every slot missing is created
      * and tagged.
      *
@@ -84,7 +90,7 @@ class UserGenerator implements GeneratorInterface {
     }
 
     /**
-     * All 36 accounts keyed by slot, with ids and display emails.
+     * All 37 accounts keyed by slot, with ids and display emails.
      * Used by the success screen on first-run to show credentials.
      *
      * @return array<string, array{user_id:int, email:string}>
@@ -183,6 +189,7 @@ class UserGenerator implements GeneratorInterface {
             'staff'    => 'Demo Staff',
             'observer' => 'Demo Observer',
             'parent'   => 'Demo Parent',
+            'parent2'  => 'Demo Parent Of Two',
         ];
         if ( isset( $labels[ $slot ] ) ) return $labels[ $slot ];
         if ( strpos( $slot, 'coach' ) === 0 )     return 'Demo Coach ' . substr( $slot, 5 );
