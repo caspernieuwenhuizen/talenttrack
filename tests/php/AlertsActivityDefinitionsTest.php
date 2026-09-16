@@ -114,6 +114,127 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    // ── #3452: the lifecycle gate ──────────────────────────────────────
+
+    /**
+     * The miss. `plan_state` defaults to `completed` on every create path but
+     * the team planner, so an activity the coach never completed carried it
+     * anyway — and this alert, gating on `plan_state`, could not see the
+     * overwhelming majority of the activities it exists for. Asserted at the
+     * default rather than at some contrived value because the default IS the
+     * real-world case.
+     */
+    public function test_past_planned_activity_alerts_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $id   = $this->insertActivity( $team, $this->daysAgo( 3 ), 'completed', $this->coach, 'planned' );
+
+        $out = ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) );
+
+        $this->assertCount( 1, $out );
+        $this->assertSame( $id, $out[0]->subjectId );
+    }
+
+    /**
+     * The other direction on the same axis: the coach completed it on the
+     * status axis the UI shows while the planner's column still reads
+     * `scheduled`. The status the user set is the status the alert honours,
+     * so there is nothing to chase.
+     */
+    public function test_activity_completed_on_the_status_axis_produces_nothing_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 3 ), 'scheduled', $this->coach, 'completed' );
+
+        $this->assertSame( [], ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * No regression for the one path that always worked: an activity the team
+     * planner created and left planned, both columns agreeing.
+     */
+    public function test_planner_created_activity_left_planned_still_alerts(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 3 ), 'scheduled', $this->coach, 'planned' );
+
+        $this->assertCount( 1, ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * Cancelled is finished in the only sense that matters: it never happened
+     * and never will. Chasing a coach about a call-off is noise, which is why
+     * `outstandingClause()` is not the literal negation of `completedClause()`.
+     */
+    public function test_cancelled_past_activity_produces_nothing(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 3 ), 'cancelled', $this->coach );
+
+        $this->assertSame( [], ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /** And a cancellation the planner never heard about is still a cancellation. */
+    public function test_cancelled_past_activity_produces_nothing_whatever_plan_state_says(): void {
+        $team = $this->insertTeam( 'U14 alerts' );
+        $this->insertActivity( $team, $this->daysAgo( 3 ), 'scheduled', $this->coach, 'cancelled' );
+
+        $this->assertSame( [], ( new PastStillPlannedAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
+    /**
+     * The state-derived contract (epic #2629): nobody dismisses anything. The
+     * coach marks the activity completed, the definition stops seeing it, and
+     * the next reconcile resolves the open row by itself. Asserted end-to-end
+     * because #3452 changed the predicate that decides "still true".
+     */
+    public function test_completing_the_activity_resolves_an_open_occurrence(): void {
+        global $wpdb;
+        $wpdb->query( "DELETE FROM {$this->p}tt_alert_occurrences" );
+
+        $user = new \WP_User( $this->coach );
+        $user->add_cap( 'tt_edit_activities' );
+        clean_user_cache( $this->coach );
+
+        $team = $this->insertTeam( 'U14 alerts' );
+        $id   = $this->insertActivity( $team, $this->daysAgo( 3 ), 'completed', $this->coach, 'planned' );
+
+        $alert = new PastStillPlannedAlert();
+        $ev    = new AlertEvaluator();
+        $repo  = new AlertOccurrencesRepository();
+
+        $ev->run( $alert, new AlertContext( $this->club ) );
+        $this->assertSame( 1, $repo->openCountForUser( $this->coach ), 'the unmarked activity raises it' );
+
+        $wpdb->update( "{$this->p}tt_activities", [ 'activity_status_key' => 'completed' ], [ 'id' => $id ] );
+        $stat = $ev->run( $alert, new AlertContext( $this->club ) );
+
+        $this->assertSame( 1, $stat['resolved'] );
+        $this->assertSame( 0, $repo->openCountForUser( $this->coach ) );
+    }
+
+    /** Cancelling it clears the alert just as completing it does. */
+    public function test_cancelling_the_activity_resolves_an_open_occurrence(): void {
+        global $wpdb;
+        $wpdb->query( "DELETE FROM {$this->p}tt_alert_occurrences" );
+
+        $user = new \WP_User( $this->coach );
+        $user->add_cap( 'tt_edit_activities' );
+        clean_user_cache( $this->coach );
+
+        $team = $this->insertTeam( 'U14 alerts' );
+        $id   = $this->insertActivity( $team, $this->daysAgo( 3 ), 'completed', $this->coach, 'planned' );
+
+        $alert = new PastStillPlannedAlert();
+        $ev    = new AlertEvaluator();
+        $repo  = new AlertOccurrencesRepository();
+
+        $ev->run( $alert, new AlertContext( $this->club ) );
+        $this->assertSame( 1, $repo->openCountForUser( $this->coach ) );
+
+        $wpdb->update( "{$this->p}tt_activities", [ 'activity_status_key' => 'cancelled' ], [ 'id' => $id ] );
+        $stat = $ev->run( $alert, new AlertContext( $this->club ) );
+
+        $this->assertSame( 1, $stat['resolved'] );
+        $this->assertSame( 0, $repo->openCountForUser( $this->coach ) );
+    }
+
     public function test_scope_narrows_the_query(): void {
         $team = $this->insertTeam( 'U14 alerts' );
         $a    = $this->insertActivity( $team, $this->daysAgo( 3 ), 'planned', $this->coach );

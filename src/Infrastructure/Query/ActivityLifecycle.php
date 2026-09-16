@@ -42,6 +42,21 @@ final class ActivityLifecycle {
     }
 
     /**
+     * "Nobody has finished with this activity yet." Neither completed nor
+     * cancelled — the coach still owes it an outcome. Use for any query that
+     * asks what is outstanding: the unmarked-activity alerts, planner
+     * chase-up lists, anything nudging somebody to come back to a row.
+     *
+     * Not the literal negation of `completedClause()`: a cancelled activity
+     * never happened and never will, so it is finished in the only sense
+     * that matters here. Chasing somebody about it would be noise.
+     */
+    public static function outstandingClause( string $alias = 'a' ): string {
+        $col = self::column( $alias );
+        return "LOWER(COALESCE({$col}, '')) NOT IN ( 'completed', 'cancelled' )";
+    }
+
+    /**
      * "This activity was not called off." Use for queries that legitimately
      * span planned and completed rows (entry grids, planner surfaces) and
      * only need to drop cancellations.

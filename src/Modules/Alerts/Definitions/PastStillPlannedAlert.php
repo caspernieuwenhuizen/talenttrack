@@ -3,14 +3,17 @@ namespace TT\Modules\Alerts\Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
 /**
  * PastStillPlannedAlert (#2631, epic #2629) — the driver case.
  *
- * An activity whose date has passed but which is still sitting at
- * `planned` / `scheduled`. Nobody marked it completed or cancelled, so as
+ * An activity whose date has passed but which is still outstanding on the
+ * status axis the coach sets — neither completed nor cancelled. A
+ * cancellation is excluded deliberately: it never happened and never will,
+ * so there is nothing to chase. Nobody marked it either way, so as
  * far as every report is concerned it never happened: attendance was never
  * recorded, minutes were never logged, and the attendance reports are
  * quietly wrong (the class of problem #2521 fixed on the reporting side —
@@ -73,6 +76,17 @@ final class PastStillPlannedAlert extends AbstractActivityAlert {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #3452 — the lifecycle gate reads `activity_status_key`, through the
+        // shared predicate #2521 introduced for exactly this question.
+        // Gating on `plan_state` made this alert almost inert: the column was
+        // added `DEFAULT 'completed'` and only the team planner ever sets it,
+        // so every activity from the wizard, the flat form or the Spond
+        // import read as completed however it looked on screen, and the one
+        // alert that exists to catch an unmarked activity could not see it.
+        // #3444 fixed the mirror of this on `AttendanceUnrecordedAlert`,
+        // which is what left a past unfinished activity raising neither.
+        $outstanding = ActivityLifecycle::outstandingClause( 'a' );
+
         // `session_date < CURDATE()` rather than `<=`: an activity happening
         // today has not finished yet, and telling a coach at 09:00 that
         // tonight's activity is unmarked would train them to ignore this.
@@ -80,7 +94,7 @@ final class PastStillPlannedAlert extends AbstractActivityAlert {
                   FROM {$p}tt_activities a
                  WHERE " . $this->baseWhere( 'a' ) . "
                    AND a.session_date < CURDATE()
-                   AND a.plan_state IN ( 'planned', 'scheduled' )"
+                   AND {$outstanding}"
              . $context->applyScope( self::SUBJECT_TYPE, 'a.id' ) . "
                  ORDER BY a.session_date ASC, a.id ASC";
 
