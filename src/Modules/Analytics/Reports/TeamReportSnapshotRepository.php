@@ -111,7 +111,10 @@ final class TeamReportSnapshotRepository {
             $team_id, CurrentClub::id(), $limit
         ) );
 
-        return is_array( $rows ) ? $rows : [];
+        if ( ! is_array( $rows ) ) return [];
+
+        /** @var list<object{id:int, uuid:string, team_id:int, title:string, period_from:string, period_to:string, created_by:int, created_at:string, updated_at:string}> $rows */
+        return $rows;
     }
 
     /**
