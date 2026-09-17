@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-16T23:37:57+00:00\n"
+"POT-Creation-Date: 2026-09-17T04:18:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1088,7 +1088,7 @@ msgstr ""
 msgid "Report: %s"
 msgstr ""
 
-#: src/Core/UpdateHardening.php:83
+#: src/Core/UpdateHardening.php:93
 #, php-format
 msgid ""
 "<strong>TalentTrack updates:</strong> no GitHub token is configured, so "
@@ -1097,31 +1097,31 @@ msgid ""
 "<code>wp-config.php</code> (a public-repo token needs no scopes)."
 msgstr ""
 
-#: src/Core/UpdateHardening.php:109
+#: src/Core/UpdateHardening.php:119
 msgid "Check for updates"
 msgstr ""
 
-#: src/Core/UpdateHardening.php:123
+#: src/Core/UpdateHardening.php:133
 msgid "You are not allowed to check for plugin updates."
 msgstr ""
 
 #. translators: %s = the newly available plugin version.
-#: src/Core/UpdateHardening.php:170
+#: src/Core/UpdateHardening.php:180
 #, php-format
 msgid "TalentTrack %s is available. Update it from the row below."
 msgstr ""
 
 #. translators: %s = the currently installed plugin version.
-#: src/Core/UpdateHardening.php:183
+#: src/Core/UpdateHardening.php:193
 #, php-format
 msgid "TalentTrack is up to date (version %s)."
 msgstr ""
 
-#: src/Core/UpdateHardening.php:186
+#: src/Core/UpdateHardening.php:196
 msgid "TalentTrack is up to date."
 msgstr ""
 
-#: src/Core/UpdateHardening.php:194
+#: src/Core/UpdateHardening.php:204
 msgid ""
 "The TalentTrack update check could not be completed. Check the GitHub token "
 "and the site's outbound connection, then try again."
@@ -13755,7 +13755,7 @@ msgstr[1] ""
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:284
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:167
-#: src/Modules/License/Admin/AccountPage.php:801
+#: src/Modules/License/Admin/AccountPage.php:826
 msgid "Send now"
 msgstr ""
 
@@ -16215,7 +16215,7 @@ msgid "No log entries match the current filter."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:122
-#: src/Modules/License/Admin/AccountPage.php:788
+#: src/Modules/License/Admin/AccountPage.php:813
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:251
 #: src/Shared/Frontend/DashboardShortcode.php:310
 #: src/Shared/Frontend/FrontendConfigurationView.php:537
@@ -20707,7 +20707,7 @@ msgid "Not found"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:577
-#: src/Modules/License/Admin/AccountPage.php:790
+#: src/Modules/License/Admin/AccountPage.php:815
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:174
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:438
@@ -25261,58 +25261,84 @@ msgid ""
 "features above it."
 msgstr ""
 
+#: src/Modules/License/Admin/AccountPage.php:747
+msgid "Not assigned. Updates are offered as soon as they are released."
+msgstr ""
+
+#. translators: %s: ring name, e.g. stable
+#: src/Modules/License/Admin/AccountPage.php:751
+#, php-format
+msgid "%s, but not confirmed for over a week. Updates are no longer held back."
+msgstr ""
+
+#. translators: %s: ring name, e.g. canary
 #: src/Modules/License/Admin/AccountPage.php:755
+#, php-format
+msgid "%s. No version ceiling: every release is offered."
+msgstr ""
+
+#. translators: 1: ring name, e.g. stable; 2: highest version this install may take
+#: src/Modules/License/Admin/AccountPage.php:758
+#, php-format
+msgid "%1$s. Updates are offered up to version %2$s."
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:777
 msgid "Admin Center phone-home"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:757
+#: src/Modules/License/Admin/AccountPage.php:779
 msgid "Install ID"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:758
-#: src/Modules/License/Admin/AccountPage.php:791
+#: src/Modules/License/Admin/AccountPage.php:780
+#: src/Modules/License/Admin/AccountPage.php:816
 msgid "Endpoint"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:759
+#: src/Modules/License/Admin/AccountPage.php:781
 msgid "Last sent"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:764
+#: src/Modules/License/Admin/AccountPage.php:786
 msgid "never (no successful send recorded yet)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:767
+#: src/Modules/License/Admin/AccountPage.php:789
 msgid "Last phoned version"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:768
+#: src/Modules/License/Admin/AccountPage.php:790
 msgid "(not yet recorded)"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:770
+#: src/Modules/License/Admin/AccountPage.php:792
+msgid "Release ring"
+msgstr ""
+
+#: src/Modules/License/Admin/AccountPage.php:795
 msgid "Next daily cron"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:775
+#: src/Modules/License/Admin/AccountPage.php:800
 msgid ""
 "NOT scheduled — wp-cron is not registered. This is the most likely cause "
 "when an install never phones home."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:783
+#: src/Modules/License/Admin/AccountPage.php:808
 msgid "Phone-home succeeded."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:783
+#: src/Modules/License/Admin/AccountPage.php:808
 msgid "Phone-home failed."
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:792
+#: src/Modules/License/Admin/AccountPage.php:817
 msgid "Body size"
 msgstr ""
 
-#: src/Modules/License/Admin/AccountPage.php:806
+#: src/Modules/License/Admin/AccountPage.php:831
 msgid ""
 "If \"Last sent\" is empty and \"Next daily cron\" is not scheduled, wp-cron "
 "is likely disabled (DISABLE_WP_CRON in wp-config.php) and no system cron "
