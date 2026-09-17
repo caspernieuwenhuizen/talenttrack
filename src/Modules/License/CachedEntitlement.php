@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   }
  *
  * **The cache is a cache, not an authority.** It is written by the
- * refresh path (which the control plane fills in — see the note at the
- * bottom) and read by `LicenseGate`. Nothing in the club's own admin
+ * refresh path — the signed answer to the daily phone-home, see
+ * `AdminCenterClient\ControlPlaneResponse` — and read by `LicenseGate`. Nothing in the club's own admin
  * writes it: there is no settings field and no filter, because a club
  * admin promoting themselves to Pro by toggling a checkbox is exactly
  * what this must not allow.
@@ -85,9 +85,10 @@ final class CachedEntitlement implements EntitlementSourceInterface {
     /**
      * Record what the control plane answered.
      *
-     * Called by provisioning when an install is stood up, and by the
-     * refresh path once that exists. Not called from anywhere a club
-     * admin can reach.
+     * Called by `wp tt entitlement set` when an install is stood up, and
+     * by the refresh path — the verified phone-home response
+     * (`AdminCenterClient\ControlPlaneResponse`, #3486). Not called from
+     * anywhere a club admin can reach.
      */
     public static function store( string $tier, ?int $fetched_at = null ): void {
         update_option(

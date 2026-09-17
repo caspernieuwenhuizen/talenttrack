@@ -15,7 +15,9 @@ use TT\Infrastructure\Logging\Logger;
  *
  *   - Network failure / 5xx  → silent, retry next tick.
  *   - 4xx                    → warn once per 24h ("our schema drifted").
- *   - 2xx                    → done.
+ *   - 2xx                    → the signed response is handed to
+ *                              `ControlPlaneResponse` (#3486), which
+ *                              applies what verifies and ignores the rest.
  *
  * The receiver URL is filterable; the default points at the
  * production mothership. Tests / dev installs override via the
@@ -41,7 +43,10 @@ final class Sender {
      * change paths go through send() above which discards the result —
      * fire-and-forget semantics are unchanged.
      *
-     * @return array{ok:bool, code:int, error:?string, duration_ms:int, endpoint:string, body_size:int, trigger:string}
+     * `response` says what the 2xx body did (`ControlPlaneResponse::OUTCOME_*`),
+     * empty when no 2xx came back.
+     *
+     * @return array{ok:bool, code:int, error:?string, duration_ms:int, endpoint:string, body_size:int, trigger:string, response?:string}
      */
     public static function sendDiagnostic( string $trigger ): array {
         $started = microtime( true );
@@ -90,6 +95,19 @@ final class Sender {
         update_option( 'tt_admin_center_last_sent_at', time(), false );
         update_option( 'tt_admin_center_last_sent_code', $code, false );
 
+        // #3486 — the response body is where the control plane's answer
+        // arrives: the entitlement today, more blocks later. Only a 2xx is
+        // read; anything else behaves exactly as before.
+        $outcome = '';
+        if ( $code >= 200 && $code < 300 ) {
+            $outcome = ControlPlaneResponse::handle(
+                (string) wp_remote_retrieve_body( $response ),
+                (string) wp_remote_retrieve_header( $response, self::SIGNATURE_HEADER ),
+                $install_id,
+                $site_url
+            );
+        }
+
         return [
             'ok'          => $code >= 200 && $code < 300,
             'code'        => $code,
@@ -98,6 +116,7 @@ final class Sender {
             'endpoint'    => $url,
             'body_size'   => strlen( $body ),
             'trigger'     => $trigger,
+            'response'    => $outcome,
         ];
     }
 
