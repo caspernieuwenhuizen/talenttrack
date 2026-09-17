@@ -69,6 +69,14 @@ final class ControlPlaneResponse {
             ReleaseRing::store( $ring );
         }
 
+        // #3497 — why features went away, when it is not an ordinary plan.
+        // Stored before the entitlement so a revocation and its reason land
+        // on the same answer.
+        $subscription = \TT\Modules\License\SubscriptionStatus::fromResponse( $decoded );
+        if ( $subscription !== null ) {
+            \TT\Modules\License\SubscriptionStatus::store( $subscription );
+        }
+
         if ( ! array_key_exists( 'entitlement', $decoded ) ) {
             return self::OUTCOME_NO_ENTITLEMENT;
         }

@@ -101,6 +101,13 @@ class UpgradePanel {
      * @param string $feature FeatureMap feature key.
      */
     public static function lockedTitle( string $feature ): string {
+        if ( SubscriptionStatus::isInterrupted() ) {
+            return sprintf(
+                /* translators: %s: feature name */
+                __( '%s is unavailable while this academy’s subscription is interrupted.', 'talenttrack' ),
+                FeatureMap::featureLabel( $feature )
+            );
+        }
         return sprintf(
             /* translators: 1: feature name, 2: plan name, e.g. "Pro" */
             __( '%1$s is part of the %2$s plan, which this install is not on.', 'talenttrack' ),
@@ -158,6 +165,10 @@ class UpgradePanel {
      * @param string $cap_type 'teams' | 'players'
      */
     public static function renderCap( string $cap_type ): string {
+        if ( SubscriptionStatus::isInterrupted() ) {
+            return self::interruptedShell( '' );
+        }
+
         $message = LicenseGate::capMessage( $cap_type );
 
         self::enqueue();
@@ -183,6 +194,10 @@ class UpgradePanel {
      * The markup itself. One place, so the copy cannot fork.
      */
     private static function shell( string $label, string $tier, bool $reads_kept, string $note ): string {
+        if ( SubscriptionStatus::isInterrupted() ) {
+            return self::interruptedShell( $label );
+        }
+
         $tier_label = FeatureMap::tierLabel( $tier );
 
         self::enqueue();
@@ -224,6 +239,38 @@ class UpgradePanel {
                     <?php esc_html_e( 'See the plan', 'talenttrack' ); ?>
                 </a>
             </p>
+        </section>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #3497 — the locked state while the subscription is suspended or has
+     * ended. Not a plan refusal: the club did not choose a smaller plan, so
+     * there is no plan name and no upgrade call to action, which would be
+     * the wrong next step. It says first that the records are safe.
+     *
+     * @param string $label Feature name, or '' for a cap refusal.
+     */
+    public static function interruptedShell( string $label ): string {
+        self::enqueue();
+
+        ob_start();
+        ?>
+        <section class="tt-root tt-upgrade-panel tt-upgrade-panel--interrupted" role="note">
+            <p class="tt-upgrade-panel__eyebrow">
+                <span class="tt-upgrade-panel__lock" aria-hidden="true">&#128274;</span>
+                <?php
+                echo esc_html( SubscriptionStatus::current() === SubscriptionStatus::CANCELLED
+                    ? __( 'Subscription ended', 'talenttrack' )
+                    : __( 'Subscription suspended', 'talenttrack' ) );
+                ?>
+            </p>
+            <?php if ( $label !== '' ) : ?>
+                <h2 class="tt-upgrade-panel__title"><?php echo esc_html( $label ); ?></h2>
+            <?php endif; ?>
+            <p class="tt-upgrade-panel__body"><?php echo esc_html( SubscriptionStatus::headline() ); ?></p>
+            <p class="tt-upgrade-panel__body tt-upgrade-panel__body--reassure"><?php echo esc_html( SubscriptionStatus::detail() ); ?></p>
         </section>
         <?php
         return (string) ob_get_clean();

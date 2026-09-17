@@ -39,6 +39,10 @@ class LicenseModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
+        // #3497 — a suspended or ended subscription says so everywhere,
+        // before any locked panel does.
+        Frontend\SubscriptionBanner::init();
+
         if ( is_admin() ) {
             Admin\AccountPage::init();
             Admin\DevOverridePage::init();
