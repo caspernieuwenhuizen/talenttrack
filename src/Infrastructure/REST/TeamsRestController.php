@@ -431,8 +431,15 @@ class TeamsRestController {
         $raw    = trim( (string) ( $r['blocks'] ?? '' ) );
         $blocks = $raw === '' ? [] : array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ), static fn( string $k ): bool => $k !== '' ) );
 
+        // #3515 — per-block options travel as JSON, forgivingly: an option a
+        // later version dropped must still return a report, not a 400.
+        $options = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::normalise( [
+            'blocks'  => $blocks,
+            'options' => $r['options'] ?? null,
+        ] )['options'];
+
         try {
-            $report = ( new \TT\Modules\Analytics\Reports\TeamMonthlyReport() )->forTeam( $id, $from, $to, $blocks, get_current_user_id() );
+            $report = ( new \TT\Modules\Analytics\Reports\TeamMonthlyReport() )->forTeam( $id, $from, $to, $blocks, get_current_user_id(), $options );
         } catch ( \InvalidArgumentException $e ) {
             return RestResponse::error( 'bad_request', $e->getMessage(), 400 );
         }

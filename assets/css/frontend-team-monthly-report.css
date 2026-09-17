@@ -369,6 +369,31 @@
 
 .tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
 
+/* Per-test readings (#3515). Numbers line up so a column can be scanned. */
+.tt-mr-test-readings td.num,
+.tt-mr-test-readings th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-test-readings td.is-up   { color: var(--tt-success-ink); }
+.tt-mr-test-readings td.is-down { color: var(--tt-danger-ink); }
+
+/* Section options in the panel (#3515). */
+.tt-mr-opts__row + .tt-mr-opts__row { margin-top: var(--tt-sp-3); }
+
+.tt-mr-opts__label {
+    display: block;
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+}
+
+.tt-mr-opts select {
+    width: 100%;
+    max-width: 22rem;
+}
+
 /* Ruled lines — the printed copy's writing space, shown online as a hint. */
 .tt-mr-lines span {
     display: block;

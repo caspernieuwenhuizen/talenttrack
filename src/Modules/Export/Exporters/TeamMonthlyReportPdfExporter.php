@@ -123,12 +123,15 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         $layout = (string) ( $request->filters['layout'] ?? TeamMonthlyReportLayout::DEFAULT );
         $blocks = is_array( $request->filters['blocks'] ?? null ) ? $request->filters['blocks'] : [];
 
+        $options = is_array( $request->filters['options'] ?? null ) ? $request->filters['options'] : [];
+
         $report = ( new TeamMonthlyReport() )->forTeam(
             $team_id,
             (string) $request->filters['from'],
             (string) $request->filters['to'],
             array_values( array_map( 'strval', $blocks ) ),
-            $request->requesterUserId
+            $request->requesterUserId,
+            $options
         );
 
         return self::payload( $report, $layout, (string) ( $team->name ?? '' ) );
