@@ -62055,12 +62055,13 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:274
-msgid "Match statistics for this team are coming in the next release."
-msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
 #: src/Infrastructure/REST/TeamsRestController.php:452
 msgid "Give both from and to as YYYY-MM-DD, with from on or before to."
 msgstr "Geef zowel van als tot op als JJJJ-MM-DD, met van op of vóór tot."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:274
+msgid "Match statistics for this team are coming in the next release."
+msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
 
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
