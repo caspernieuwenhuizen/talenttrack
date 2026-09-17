@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T20:52:33+00:00\n"
+"POT-Creation-Date: 2026-09-17T21:22:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -118,7 +118,8 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:206
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:231
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:174
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:821
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:953
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1011
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:160
 #: src/Modules/Authorization/Admin/RolesPage.php:357
 #: src/Modules/Authorization/Admin/RolesPage.php:440
@@ -145,7 +146,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:245
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:379
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:495
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:382
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:403
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:464
 #: src/Modules/Goals/Admin/GoalsPage.php:75
 #: src/Modules/Goals/Admin/GoalsPage.php:174
 #: src/Modules/Invitations/InvitationKind.php:52
@@ -1768,7 +1770,7 @@ msgstr ""
 #. translators: %s: comma-separated list of missing inputs
 #: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:202
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:149
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:737
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:781
 #, php-format
 msgid "Computed without %s."
 msgstr ""
@@ -4386,8 +4388,8 @@ msgstr ""
 #: src/Infrastructure/REST/SpondRestController.php:676
 #: src/Infrastructure/REST/SpondRestController.php:703
 #: src/Infrastructure/REST/TeamsRestController.php:341
-#: src/Infrastructure/REST/TeamsRestController.php:567
-#: src/Infrastructure/REST/TeamsRestController.php:580
+#: src/Infrastructure/REST/TeamsRestController.php:574
+#: src/Infrastructure/REST/TeamsRestController.php:587
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php:120
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
@@ -4474,16 +4476,16 @@ msgstr ""
 
 #: src/Infrastructure/REST/TeamsRestController.php:356
 #: src/Infrastructure/REST/TeamsRestController.php:414
-#: src/Infrastructure/REST/TeamsRestController.php:513
-#: src/Infrastructure/REST/TeamsRestController.php:534
-#: src/Infrastructure/REST/TeamsRestController.php:565
-#: src/Infrastructure/REST/TeamsRestController.php:574
+#: src/Infrastructure/REST/TeamsRestController.php:520
+#: src/Infrastructure/REST/TeamsRestController.php:541
+#: src/Infrastructure/REST/TeamsRestController.php:572
+#: src/Infrastructure/REST/TeamsRestController.php:581
 msgid "Invalid team id."
 msgstr ""
 
 #: src/Infrastructure/REST/TeamsRestController.php:380
-#: src/Infrastructure/REST/TeamsRestController.php:589
-#: src/Infrastructure/REST/TeamsRestController.php:618
+#: src/Infrastructure/REST/TeamsRestController.php:596
+#: src/Infrastructure/REST/TeamsRestController.php:625
 msgid "Invalid team or player id."
 msgstr ""
 
@@ -4495,35 +4497,35 @@ msgstr ""
 msgid "Unknown period."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:495
-#: src/Infrastructure/REST/TeamsRestController.php:516
+#: src/Infrastructure/REST/TeamsRestController.php:502
+#: src/Infrastructure/REST/TeamsRestController.php:523
 #: src/Modules/Wizards/Team/BasicsStep.php:45
 #: src/Modules/Wizards/Team/ReviewStep.php:56
 msgid "Team name is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:502
+#: src/Infrastructure/REST/TeamsRestController.php:509
 msgid "The team could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:522
+#: src/Infrastructure/REST/TeamsRestController.php:529
 msgid "The team could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:548
-#: src/Infrastructure/REST/TeamsRestController.php:552
+#: src/Infrastructure/REST/TeamsRestController.php:555
+#: src/Infrastructure/REST/TeamsRestController.php:559
 msgid "The team could not be archived."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:602
+#: src/Infrastructure/REST/TeamsRestController.php:609
 msgid "Team not found in your club."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:608
+#: src/Infrastructure/REST/TeamsRestController.php:615
 msgid "The player could not be added to the team."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:625
+#: src/Infrastructure/REST/TeamsRestController.php:632
 msgid "The player could not be removed from the team."
 msgstr ""
 
@@ -4863,14 +4865,14 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:215
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:162
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:171
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:538
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:582
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:486
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1320
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:215
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:216
 #: src/Modules/License/FeatureMap.php:380
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:671
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -5268,13 +5270,13 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
 #: src/Modules/Analytics/AnalyticsModule.php:110
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:147
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:541
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:823
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:585
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1013
 #: src/Modules/DataBrowser/SemanticRegistry.php:102
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:216
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:384
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:217
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:466
 #: src/Modules/License/FeatureMap.php:379
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:149
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:127
@@ -5672,9 +5674,9 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:209
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:350
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:824
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1014
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:201
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:386
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:468
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:621
 #: src/Shared/Frontend/Components/EvidencePanel.php:257
@@ -8172,8 +8174,8 @@ msgid "Coverage matrix"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:255
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:549
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:222
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:593
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:223
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1193
 msgid "Evaluated"
 msgstr ""
@@ -8329,7 +8331,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:485
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:163
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:168
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:176
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:177
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:425
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:547
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:223
@@ -9105,66 +9107,66 @@ msgstr ""
 msgid "Monthly report · %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:67
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:68
 msgid ""
 "This team has no completed trainings or matches in this window, so there is "
 "nothing to report yet. Pick another period above."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:247
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:289
 msgctxt "team monthly report panel"
 msgid "Report type"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:258
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:300
 msgid ""
 "The type shapes the printed copy. Online, every selected block is shown in "
 "full."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:263
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:305
 msgctxt "team monthly report panel"
 msgid "Sections"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:270
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:312
 msgid "Narrower on the one-pager"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:292
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:336
 msgid "Update report"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:293
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:337
 #: src/Modules/Stats/PrintRouter.php:204
 msgid "Download PDF"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:296
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:340
 msgid "Schedule monthly"
 msgstr ""
 
 #. translators: %s: name of the reader's saved view
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:325
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:369
 #, php-format
 msgid "Your saved view “%s”."
 msgstr ""
 
 #. translators: %s: name of the reader's default saved view
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:331
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:375
 #, php-format
 msgid ""
 "Changed from your default view “%s”. To keep this version, save it as a new "
 "view from the bookmark above and make that your default."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:395
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:439
 msgctxt "team monthly report panel"
 msgid "Printed size"
 msgstr ""
 
 #. translators: %d: number of printed pages
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:398
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:442
 #, php-format
 msgid "%d page"
 msgid_plural "%d pages"
@@ -9172,161 +9174,161 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: page number, 2: how full the page is, as a percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:409
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:453
 #, php-format
 msgid "Page %1$d · %2$d%%"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:420
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:464
 msgid ""
 "Does not fit on one page. Drop a section, or switch to the three-page pack."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:421
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:465
 msgid "A page overflows. Drop a section to keep the pack to three pages."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:424
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:468
 msgid ""
 "Fits by shortening: long player lists keep their top and bottom, and the "
 "agenda keeps its two most urgent players."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:426
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:470
 msgid "Everything fits."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:436
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:480
 msgctxt "team monthly report section"
 msgid "Letterhead"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:436
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:480
 msgid "Team, period, head coach — always included"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:437
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:500
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:481
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:544
 msgctxt "team monthly report section"
 msgid "Data coverage"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:437
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:481
 msgid "What the report could not see"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:438
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:482
 msgctxt "team monthly report section"
 msgid "Headline numbers"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:438
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:482
 msgid "Six figures against last period"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:439
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:568
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:238
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:483
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:612
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:239
 msgctxt "team monthly report section"
 msgid "Squad status"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:439
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:483
 msgid "How many players are on track"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:440
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:609
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:132
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:484
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:653
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:133
 msgctxt "team monthly report section"
 msgid "Attendance"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:440
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:484
 msgid "Per player, lowest first"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:441
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:641
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:133
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:485
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:685
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:134
 msgctxt "team monthly report section"
 msgid "Minutes share"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:441
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:485
 msgid "Per player, against the target"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:442
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:703
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:293
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:486
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:747
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:294
 msgctxt "team monthly report section"
 msgid "Needs a conversation"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:442
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:486
 msgid "The agenda"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:443
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:753
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:323
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:487
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:797
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:324
 msgctxt "team monthly report section"
 msgid "What changed"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:443
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:487
 msgid "Injuries, moves, signings"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:444
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:780
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:340
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:488
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:825
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:341
 msgctxt "team monthly report section"
 msgid "Tests"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:444
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:488
 msgid "Test rounds held and who moved"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:445
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:818
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:375
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:489
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1008
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:457
 msgctxt "team monthly report section"
 msgid "Player by player"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:445
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:489
 msgid "Every measure in one table"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:446
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:856
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:424
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:430
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:490
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1046
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:506
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:512
 msgctxt "team monthly report section"
 msgid "Decisions and actions"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:446
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:490
 msgid "Space to write on"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:447
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:873
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:455
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:491
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1063
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:537
 msgctxt "team monthly report section"
 msgid "Data quality"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:447
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:491
 msgid "What to fix before next month"
 msgstr ""
 
 #. translators: 1: window start date, 2: window end date
 #. translators: 1: window start date, 2: window end date.
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:463
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:507
 #: src/Modules/Analytics/Reports/ReportFilters.php:190
 #: src/Shared/Frontend/Components/FilterBar.php:473
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2820
@@ -9336,8 +9338,8 @@ msgid "%1$s – %2$s"
 msgstr ""
 
 #. translators: %s: head coach's name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:471
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:162
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:515
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:163
 #, php-format
 msgid "Head coach %s"
 msgstr ""
@@ -9346,8 +9348,8 @@ msgstr ""
 #. translators: %d: how many players took part
 #. translators: %d: number of players.
 #. translators: %d: number of players on the roster
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:475
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:165
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:519
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:166
 #: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:115
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:121
 #: src/Shared/Frontend/FrontendTeamDetailView.php:274
@@ -9358,8 +9360,8 @@ msgstr[0] "%d speler"
 msgstr[1] "%d spelers"
 
 #. translators: %d: completed trainings and matches
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:478
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:168
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:522
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:169
 #, php-format
 msgid "%d completed activity"
 msgid_plural "%d completed activities"
@@ -9367,28 +9369,28 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: team name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:483
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:527
 #, php-format
 msgid "Monthly report — %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:502
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:546
 msgid "Complete."
 msgstr ""
 
 #. translators: %d: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:504
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:548
 msgid "The one completed activity has an attendance register."
 msgid_plural "All %d completed activities have an attendance register."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:508
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:552
 msgid "Read the numbers with this in mind:"
 msgstr ""
 
 #. translators: 1: activities with a register, 2: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:510
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:554
 #, php-format
 msgid ""
 "the figures below are based on %1$d of %2$d completed activities. These have "
@@ -9396,185 +9398,235 @@ msgid ""
 msgstr ""
 
 #. translators: 1: activity title, 2: activity date
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:520
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:564
 #, php-format
 msgid "%1$s, %2$s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:528
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:206
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:572
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:207
 msgid "No completed activities with a register in this window."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:541
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:544
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:549
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:213
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:585
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:588
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:593
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:214
 msgctxt "percentage points"
 msgid "pts"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:544
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:217
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:588
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:218
 msgid "Median minutes share"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:552
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:226
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:596
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:227
 #: src/Shared/Frontend/FrontendTeamDetailView.php:556
 msgid "Squad rating"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:555
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:227
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:599
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:228
 msgid "Need attention"
 msgstr ""
 
 #. translators: %s: last period's status split, e.g. "10 on track, 3 to watch, 1 needing action"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:583
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:627
 #, php-format
 msgid "Last period: %s."
 msgstr ""
 
 #. translators: %s: team average attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:612
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:656
 #, php-format
 msgid "Team average %s. Lowest first."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:613
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:657
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:135
 msgid "No attendance recorded."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:614
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:658
 msgid "Open the attendance report"
 msgstr ""
 
 #. translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:644
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:688
 #, php-format
 msgid "Minutes recorded for %1$d of %2$d matches played. Target %3$d%%."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:649
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:693
 msgid "Open the minutes share report"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:652
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:696
 msgid "No minutes recorded in this window."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:689
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:733
 msgctxt "a player well below the attendance or minutes line"
 msgid "low"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:690
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:734
 msgctxt "a player just below the attendance or minutes line"
 msgid "watch"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:704
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:748
 msgid "Players the status model flags, most urgent first."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:707
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:295
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:751
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:296
 msgid "Nobody is flagged this period."
 msgstr ""
 
 #. translators: %s: attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:724
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:304
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:768
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:305
 #, php-format
 msgid "Attendance %s"
 msgstr ""
 
 #. translators: %d: players with an open injury
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:756
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:800
 #, php-format
 msgid "%d player currently injured."
 msgid_plural "%d players currently injured."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:761
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:325
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:805
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:326
 msgid "No injuries, moves or other changes recorded this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:782
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:342
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:827
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:343
 msgid "No tests taken this period."
 msgstr ""
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:839
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:944
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:358
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:396
+msgid "No readings this period."
+msgstr ""
+
 #. translators: 1: players tested, 2: squad size
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:793
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:848
 #, php-format
 msgid "%1$d of %2$d tested"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:798
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:860
 #, php-format
 msgid "Improved: %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:799
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:861
 #, php-format
 msgid "Declined: %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:822
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:383
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:900
+msgctxt "team monthly report panel"
+msgid "Tests"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:906
+msgid "Which tests"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:919
+msgid "Tick none to show every test taken this period."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:924
+msgid "How much to show"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:930
+msgid ""
+"Readings and change print as a table, which the one-pager shortens to the "
+"summary."
+msgstr ""
+
+#. translators: %s: unit of measurement, e.g. "s" or "cm"
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:958
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:408
+#, php-format
+msgctxt "monthly report tests column"
+msgid "Result (%s)"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:959
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:409
+msgctxt "monthly report tests column"
+msgid "Result"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:963
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:413
+msgctxt "monthly report tests column"
+msgid "Change"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1012
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:465
 msgctxt "team monthly report column"
 msgid "Status"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:825
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:387
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1015
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:469
 msgctxt "minutes share column"
 msgid "Share"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:826
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1016
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:17
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:389
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:471
 msgid "Open goals"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:827
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:390
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1017
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:472
 msgctxt "team monthly report column"
 msgid "Injured"
 msgstr ""
 
 #. translators: 1: jersey number, 2: player name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:837
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1027
 #: src/Shared/Frontend/FrontendStandardReportsView.php:793
 #, php-format
 msgid "#%1$d %2$s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:847
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:415
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1037
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:497
 #: src/Modules/Pdp/Admin/SeasonsPage.php:80
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1542
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:94
 msgid "Yes"
 msgstr "Sí"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:857
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1047
 msgid "Ruled lines on the printed copy, for what the meeting agrees."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:874
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1064
 msgid "Fix these before next month and the report gets sharper."
 msgstr ""
 
 #. translators: %d: activities without an attendance register
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:879
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:438
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1069
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:520
 #, php-format
 msgid "%d completed activity has no attendance register."
 msgid_plural "%d completed activities have no attendance register."
@@ -9582,8 +9634,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: matches played without minutes recorded
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:883
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:441
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1073
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:523
 #, php-format
 msgid "%d match played has no minutes recorded."
 msgid_plural "%d matches played have no minutes recorded."
@@ -9591,8 +9643,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of players, 2: their names
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:888
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:446
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1078
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:528
 #, php-format
 msgid "%1$d player has no evaluation this period: %2$s."
 msgid_plural "%1$d players have no evaluation this period: %2$s."
@@ -9600,23 +9652,23 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: players whose status was computed on incomplete evidence
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:892
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:450
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1082
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:532
 #, php-format
 msgid "%d player's status was computed on incomplete evidence."
 msgid_plural "%d players' statuses were computed on incomplete evidence."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:896
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:452
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1086
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:534
 msgid ""
 "Nothing missing. Every register, minute and evaluation this report looks for "
 "is in."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:906
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:58
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1096
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:59
 msgid ""
 "Confidential — staff only. This report names minors and describes their "
 "development. Do not share it with players, parents or anyone outside the "
@@ -9624,38 +9676,38 @@ msgid ""
 msgstr ""
 
 #. translators: %s: signed change against the previous period, e.g. "+3 pts"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:971
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1161
 #, php-format
 msgid "%s vs last period"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:989
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:507
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1179
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:589
 msgctxt "player status, staff report"
 msgid "On track"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:990
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:508
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1180
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:590
 msgctxt "player status, staff report"
 msgid "Watch"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:991
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:509
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1181
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:591
 msgctxt "player status, staff report"
 msgid "Needs action"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:992
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:510
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1182
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:592
 msgctxt "player status, staff report"
 msgid "No read yet"
 msgstr ""
 
 #. translators: 1: on track, 2: to watch, 3: needing action, 4: without a read yet
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1000
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:250
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1190
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:251
 #, php-format
 msgid ""
 "%1$d on track, %2$d to watch, %3$d needing action, %4$d without a read yet"
@@ -9740,6 +9792,26 @@ msgstr ""
 
 #: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php:111
 msgid "A4 landscape, one page. The whole squad comparable in one read."
+msgstr ""
+
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php:164
+msgctxt "monthly report tests option"
+msgid "Summary only"
+msgstr ""
+
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php:165
+msgctxt "monthly report tests option"
+msgid "Readings"
+msgstr ""
+
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php:166
+msgctxt "monthly report tests option"
+msgid "Change since last time"
+msgstr ""
+
+#: src/Modules/Analytics/Reports/TestsBlockOptions.php:167
+msgctxt "monthly report tests option"
+msgid "Readings and change"
 msgstr ""
 
 #: src/Modules/Analytics/ScheduledReportsRepository.php:59
@@ -21716,18 +21788,18 @@ msgstr ""
 msgid "TalentTrack activities"
 msgstr ""
 
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:47
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:48
 msgid ""
 "This team has no completed trainings or matches in this window, so there is "
 "nothing to report yet."
 msgstr ""
 
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:171
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:172
 msgid "Monthly report"
 msgstr ""
 
 #. translators: %d: completed activities
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:190
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:191
 msgid "Complete: the one completed activity has an attendance register."
 msgid_plural ""
 "Complete: all %d completed activities have an attendance register."
@@ -21735,13 +21807,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: activities with a register, 2: completed activities, 3: the activities without one
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:200
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:201
 #, php-format
 msgid "Based on %1$d of %2$d completed activities. No register: %3$s"
 msgstr ""
 
 #. translators: 1: number of players left out, 2: lowest value, 3: highest value
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:267
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:268
 #, php-format
 msgid "… %1$d player between %2$s and %3$s …"
 msgid_plural "… %1$d players between %2$s and %3$s …"
@@ -21749,7 +21821,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of players left out
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:269
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:270
 #, php-format
 msgid "… %d more player …"
 msgid_plural "… %d more players …"
@@ -21757,7 +21829,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: players on the agenda not printed on this page
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:315
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:316
 #, php-format
 msgid "…and %d more on the online report."
 msgid_plural "…and %d more on the online report."
@@ -21765,13 +21837,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: test name, 2: date, 3: players tested, 4: squad size
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:349
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:364
 #, php-format
 msgid "%1$s, %2$s — %3$d of %4$d tested"
 msgstr ""
 
 #. translators: 1: players improved, 2: players declined
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:357
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:379
 #, php-format
 msgid "Improved %1$d · declined %2$d"
 msgstr ""
