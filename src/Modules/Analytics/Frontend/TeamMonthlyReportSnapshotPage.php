@@ -191,7 +191,8 @@ final class TeamMonthlyReportSnapshotPage {
     }
 
     /**
-     * @param array<string,mixed> $report
+     * @param object{uuid:string, title:string, created_by:int, created_at:string} $row
+     * @param array<string,mixed>                                                  $report
      */
     private static function renderHeader( object $row, array $report ): void {
         $author = (int) ( $row->created_by ?? 0 );
@@ -275,6 +276,8 @@ final class TeamMonthlyReportSnapshotPage {
      * The snapshots taken for a team, for the live report to link to.
      *
      * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $blocks
+     * @param array<string,array<string,mixed>>          $options
      */
     public static function renderTakeAndList( int $team_id, array $window, string $layout, array $blocks, array $options ): void {
         if ( ! TeamReportAccess::canRead( get_current_user_id(), $team_id ) ) return;

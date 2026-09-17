@@ -146,12 +146,9 @@ final class TeamMonthlyReportPdfDocument {
      */
     private static function note( string $block ): string {
         $note = self::$notes[ $block ] ?? null;
-        if ( ! is_array( $note ) ) return '';
+        if ( $note === null || trim( $note['body'] ) === '' ) return '';
 
-        $body = (string) ( $note['body'] ?? '' );
-        if ( trim( $body ) === '' ) return '';
-
-        return '<div class="note">' . nl2br( esc_html( $body ) ) . '</div>';
+        return '<div class="note">' . nl2br( esc_html( $note['body'] ) ) . '</div>';
     }
 
     /** @param array<string,mixed> $d */

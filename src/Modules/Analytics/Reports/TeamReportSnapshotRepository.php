@@ -20,6 +20,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * The **uuid is the public identifier**. The URL carries it rather than the
  * autoincrement id, so snapshots cannot be walked by counting.
+ *
+ * @phpstan-type SnapshotRow object{id:int, uuid:string, club_id:int, team_id:int,
+ *     title:string, period_from:string, period_to:string, composition_json:?string,
+ *     data_json:?string, notes_json:?string, created_by:int, created_at:string,
+ *     updated_at:string, archived_at:?string}
  */
 final class TeamReportSnapshotRepository {
 
@@ -66,6 +71,8 @@ final class TeamReportSnapshotRepository {
     /**
      * One snapshot by its uuid, or null. Club-scoped; **not** permission-scoped
      * — see the class docblock.
+     *
+     * @return SnapshotRow|null
      */
     public function find( string $uuid ): ?object {
         global $wpdb;
@@ -86,7 +93,9 @@ final class TeamReportSnapshotRepository {
      * twenty frozen reports would otherwise drag twenty full documents through
      * memory to print twenty dates.
      *
-     * @return array<int,object>
+     * @return list<object{id:int, uuid:string, team_id:int, title:string,
+     *     period_from:string, period_to:string, created_by:int,
+     *     created_at:string, updated_at:string}>
      */
     public function listForTeam( int $team_id, int $limit = 20 ): array {
         global $wpdb;
