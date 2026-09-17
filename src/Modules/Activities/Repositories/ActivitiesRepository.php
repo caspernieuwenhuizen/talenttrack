@@ -1704,8 +1704,10 @@ final class ActivitiesRepository {
             $team_score = $has_score ? (int) ( $is_home ? $r->home_score : $r->away_score ) : null;
             $opp_score  = $has_score ? (int) ( $is_home ? $r->away_score : $r->home_score ) : null;
 
+            // No score recorded means no outcome, which is what keeps the match
+            // out of won/drawn/lost rather than counting as a goalless draw.
             $outcome = '';
-            if ( $team_score !== null && $opp_score !== null ) {
+            if ( $has_score ) {
                 $outcome = $team_score > $opp_score ? 'W' : ( $team_score < $opp_score ? 'L' : 'D' );
             }
 
