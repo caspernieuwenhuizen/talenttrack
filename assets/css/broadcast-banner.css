@@ -1,0 +1,63 @@
+/**
+ * TalentTrack — operator broadcasts (#3499)
+ *
+ * One bar per broadcast above every frontend view. Mobile-first: the body
+ * wraps and the dismiss control keeps its 48px target beside it. Colours
+ * come from tokens.css; warning and info differ in more than colour — the
+ * warning bar carries a heavier edge — so the two are distinguishable
+ * without relying on hue alone.
+ */
+
+.tt-broadcast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-2, 8px) var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-left: 3px solid var(--tt-info, #2a6db0);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-info-subtle, #e6eef7);
+    color: var(--tt-info-ink, #1d4f80);
+}
+
+.tt-broadcast--warning {
+    border-left-width: 6px;
+    border-left-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-weight: 600;
+}
+
+.tt-broadcast__body {
+    flex: 1 1 auto;
+    margin: 0;
+    line-height: var(--tt-lh-body, 1.5);
+    overflow-wrap: anywhere;
+}
+
+.tt-broadcast__form {
+    flex: 0 0 auto;
+    margin: calc(-1 * var(--tt-sp-2, 8px)) 0;
+}
+
+.tt-broadcast__dismiss {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-broadcast__dismiss:active {
+    opacity: 0.7;
+}
+
+.tt-broadcast__dismiss:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}

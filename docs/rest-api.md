@@ -664,6 +664,25 @@ which a player may keep their evaluations from a parent. Why not
 `GET /evaluations/{id}`: that route needs `tt_view_evaluations`, which players
 and parents do not hold (#1482), and returns the full staff record.
 
+## Operator broadcasts (#3499)
+
+Notices the operator's Admin Center sends to this install (maintenance windows, service announcements), for the logged-in user. They arrive on the phone-home response; these routes only read and dismiss them.
+
+### `GET /me/broadcasts`
+
+Active broadcasts the caller has not dismissed: `{ broadcasts: [ { id, body, severity, dismissable, ends_at } ] }`.
+
+- `severity` is `info` or `warning`.
+- `ends_at` is `Y-m-d H:i:s` UTC, or `''` when the broadcast has no end.
+- A broadcast past `ends_at` is never returned, even when the install has not heard from the Admin Center since.
+- `body` is plain operator text. Render it escaped, never as HTML.
+
+Gated on `is_user_logged_in()`: broadcasts are shown to every persona.
+
+### `POST /me/broadcasts/{id}/dismiss`
+
+Hides one broadcast for the caller only (user meta, keyed on id). A later broadcast has a new id and is not affected. Returns `{ dismissed: id }`, or **404** `not_dismissable` when no active broadcast has that id or it is marked `dismissable: false`.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

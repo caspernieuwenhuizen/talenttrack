@@ -77,6 +77,13 @@ final class ControlPlaneResponse {
             \TT\Modules\License\SubscriptionStatus::store( $subscription );
         }
 
+        // #3499 — operator broadcasts. Replaced wholesale, so one the control
+        // plane stopped sending disappears.
+        $broadcasts = Broadcasts::fromResponse( $decoded );
+        if ( $broadcasts !== null ) {
+            Broadcasts::store( $broadcasts );
+        }
+
         if ( ! array_key_exists( 'entitlement', $decoded ) ) {
             return self::OUTCOME_NO_ENTITLEMENT;
         }
