@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T15:34:58+00:00\n"
+"POT-Creation-Date: 2026-09-17T15:46:53+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5679,6 +5679,7 @@ msgstr "Opslaan"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:469
 #: src/Modules/Activities/Admin/ActivitiesPage.php:593
+#: src/Modules/AdminCenterClient/BroadcastBanner.php:81
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:166
 #: src/Modules/Authorization/Admin/DebugPage.php:23
@@ -6518,6 +6519,15 @@ msgstr "Toch afronden"
 #: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:82
 msgid "Record attendance"
 msgstr "Aanwezigheid registreren"
+
+#: src/Modules/AdminCenterClient/BroadcastBanner.php:76
+msgctxt "hide an operator broadcast"
+msgid "Dismiss"
+msgstr "Verbergen"
+
+#: src/Modules/AdminCenterClient/BroadcastsRestController.php:50
+msgid "There is no broadcast to dismiss with this id."
+msgstr "Er is geen mededeling met dit id om te verbergen."
 
 #: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
 #: src/Modules/Media/Wizard/MediaTargetStep.php:115
@@ -27743,15 +27753,6 @@ msgstr ""
 #: src/Modules/License/Frontend/SubscriptionBanner.php:50
 msgid "Hide this message for now"
 msgstr "Dit bericht voorlopig verbergen"
-
-#: src/Modules/AdminCenterClient/BroadcastBanner.php
-msgctxt "hide an operator broadcast"
-msgid "Dismiss"
-msgstr "Verbergen"
-
-#: src/Modules/AdminCenterClient/BroadcastsRestController.php
-msgid "There is no broadcast to dismiss with this id."
-msgstr "Er is geen mededeling met dit id om te verbergen."
 
 #. translators: 1: feature name, 2: required plan label
 #. translators: 1: feature name, 2: plan name, e.g. "Pro"

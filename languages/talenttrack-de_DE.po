@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T15:34:58+00:00\n"
+"POT-Creation-Date: 2026-09-17T15:46:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5401,6 +5401,7 @@ msgstr "Speichern"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:469
 #: src/Modules/Activities/Admin/ActivitiesPage.php:593
+#: src/Modules/AdminCenterClient/BroadcastBanner.php:81
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:166
 #: src/Modules/Authorization/Admin/DebugPage.php:23
@@ -6188,6 +6189,15 @@ msgstr ""
 #: src/Modules/Activities/Services/EmptyRegisterConfirm.php:46
 #: src/Modules/MatchExecution/Domain/MatchRegisterGap.php:82
 msgid "Record attendance"
+msgstr ""
+
+#: src/Modules/AdminCenterClient/BroadcastBanner.php:76
+msgctxt "hide an operator broadcast"
+msgid "Dismiss"
+msgstr ""
+
+#: src/Modules/AdminCenterClient/BroadcastsRestController.php:50
+msgid "There is no broadcast to dismiss with this id."
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
