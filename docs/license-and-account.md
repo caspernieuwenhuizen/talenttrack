@@ -90,6 +90,18 @@ Two different refusals exist and they never share a sentence:
 
 An integration reading the API sees the same split: a plan refusal comes back as HTTP **402 Payment Required**, a permission refusal as **403 Forbidden**. If something fails and you cannot tell which happened, that is a bug worth reporting.
 
+### A suspended subscription is not a smaller plan
+
+If an academy's subscription is **suspended**, for example over a payment, the operator's Admin Center tells the install so. The install then looks different from an install that is simply not on a plan:
+
+- A banner at the top of every screen, for everyone who logs in, says first that **your data is safe and nothing has been deleted**. It then explains that some features are unavailable until the subscription is resumed, and to contact your club administrator. You can hide the banner for the rest of your browser session. It comes back next time, because the situation has not changed.
+- Locked screens say the subscription is suspended rather than naming a plan, and there is no upgrade button, because choosing a plan is not the fix.
+- Records you already have stay readable, exactly as they do on a locked feature.
+
+If the subscription has **ended**, the banner says so instead. The data is kept for a retention period, and your club administrator can expect a message about getting it back or having it deleted.
+
+When the subscription is resumed, the banner and the suspended wording disappear on the install's next daily contact with the Admin Center.
+
 ### What that looks like, feature by feature
 
 The match-day and training features enforce the three answers above. What a

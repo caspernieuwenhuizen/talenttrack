@@ -90,6 +90,18 @@ Er bestaan twee soorten weigeringen en ze delen nooit dezelfde zin:
 
 Een koppeling die de API leest, ziet dezelfde scheiding: een pakketweigering komt terug als HTTP **402 Payment Required**, een rechtenweigering als **403 Forbidden**. Gaat er iets mis en kun je niet zien welke van de twee het was, dan is dat een bug die het melden waard is.
 
+### Een opgeschort abonnement is geen kleiner pakket
+
+Is het abonnement van een academie **opgeschort**, bijvoorbeeld vanwege een betaling, dan laat het Admin Center van de operator dat aan de installatie weten. De installatie ziet er dan anders uit dan een installatie die gewoon niet op een pakket zit:
+
+- Een banner boven elk scherm, voor iedereen die inlogt, zegt als eerste dat **je gegevens veilig zijn en er niets is verwijderd**. Daarna staat er dat sommige functies niet beschikbaar zijn tot het abonnement weer loopt, en dat je contact opneemt met je clubbeheerder. Je kunt de banner verbergen voor de rest van je browsersessie. De volgende keer staat hij er weer, omdat de situatie niet is veranderd.
+- Schermen op slot zeggen dat het abonnement is opgeschort in plaats van een pakket te noemen, en er is geen upgradeknop, want een pakket kiezen is niet de oplossing.
+- Wat al is vastgelegd blijft leesbaar, net als bij een functie op slot.
+
+Is het abonnement **beëindigd**, dan zegt de banner dat. De gegevens worden een bewaartermijn lang bewaard, en je clubbeheerder kan een bericht verwachten over het terugkrijgen of laten verwijderen ervan.
+
+Loopt het abonnement weer, dan verdwijnen de banner en de opschortingstekst bij het volgende dagelijkse contact van de installatie met het Admin Center.
+
 ### Hoe dat er per functie uitziet
 
 De wedstrijd- en trainingsfuncties passen de drie antwoorden hierboven toe.

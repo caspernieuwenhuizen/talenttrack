@@ -98,6 +98,54 @@
     font-size: var(--tt-fs-lg, 1.125rem);
 }
 
+/* #3497 — suspended or ended subscription: no plan, no call to action, and
+   the reassurance reads as body text rather than a footnote. */
+.tt-upgrade-panel--interrupted .tt-upgrade-panel__body--reassure {
+    font-size: var(--tt-fs-body, 1rem);
+}
+
+/* #3497 — the app-wide banner above every frontend view. */
+.tt-subscription-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-3, 12px) var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-left: 4px solid var(--tt-warning, #e8902b);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+}
+
+.tt-subscription-banner[hidden] {
+    display: none;
+}
+
+.tt-subscription-banner__text {
+    flex: 1 1 auto;
+    margin: 0;
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+.tt-subscription-banner__dismiss {
+    flex: 0 0 auto;
+    min-width: 48px;
+    min-height: 48px;
+    margin: calc(-1 * var(--tt-sp-2, 8px)) calc(-1 * var(--tt-sp-2, 8px)) 0 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-subscription-banner__dismiss:focus-visible {
+    outline: 2px solid var(--tt-warning-ink, #8a5300);
+    outline-offset: 2px;
+}
+
 @media (min-width: 480px) {
     .tt-upgrade-panel {
         padding: var(--tt-sp-6, 24px);

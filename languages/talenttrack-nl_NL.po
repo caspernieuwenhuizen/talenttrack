@@ -27363,6 +27363,38 @@ msgstr "(nog niet geregistreerd)"
 msgid "Release ring"
 msgstr "Release-ring"
 
+#: src/Modules/License/SubscriptionStatus.php
+msgid "This academy’s TalentTrack subscription has ended. Your data is safe and nothing has been deleted."
+msgstr "Het TalentTrack-abonnement van deze academie is beëindigd. Je gegevens zijn veilig en er is niets verwijderd."
+
+#: src/Modules/License/SubscriptionStatus.php
+msgid "This academy’s TalentTrack subscription is suspended. Your data is safe and nothing has been deleted."
+msgstr "Het TalentTrack-abonnement van deze academie is opgeschort. Je gegevens zijn veilig en er is niets verwijderd."
+
+#: src/Modules/License/SubscriptionStatus.php
+msgid "Existing records stay readable for now. The data is kept for a retention period, and your club administrator should expect a message about returning or deleting it."
+msgstr "Wat al is vastgelegd blijft voorlopig leesbaar. De gegevens worden een bewaartermijn lang bewaard, en je clubbeheerder kan een bericht verwachten over het terugkrijgen of laten verwijderen ervan."
+
+#: src/Modules/License/SubscriptionStatus.php
+msgid "Existing records stay readable, but some features are unavailable until the subscription is resumed. Contact your club administrator."
+msgstr "Wat al is vastgelegd blijft leesbaar, maar sommige functies zijn niet beschikbaar tot het abonnement weer loopt. Neem contact op met je clubbeheerder."
+
+#: src/Modules/License/UpgradePanel.php
+msgid "%s is unavailable while this academy’s subscription is interrupted."
+msgstr "%s is niet beschikbaar zolang het abonnement van deze academie onderbroken is."
+
+#: src/Modules/License/UpgradePanel.php
+msgid "Subscription ended"
+msgstr "Abonnement beëindigd"
+
+#: src/Modules/License/UpgradePanel.php
+msgid "Subscription suspended"
+msgstr "Abonnement opgeschort"
+
+#: src/Modules/License/Frontend/SubscriptionBanner.php
+msgid "Hide this message for now"
+msgstr "Dit bericht voorlopig verbergen"
+
 #: src/Modules/License/Admin/AccountPage.php:795
 msgid "Next daily cron"
 msgstr "Volgende dagelijkse cron"
