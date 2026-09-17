@@ -81,8 +81,9 @@ Door op een kaart te tikken open je de detailpagina van de activiteit. De hele d
 
 - **Hero** — een typegekleurd icoontje, de titel en een subregel met `datum · tijd · team · locatie`. Bij een wedstrijddag waarvan beide teams bekend zijn leest de titel `Jouw team vs Tegenstander` en toont de subregel de aftraptijd en of het thuis of uit is. De pillen onder de titel tonen het type (plus het wedstrijdsubtype of het Overig-label) en de status. Bewerken, Opkomst registreren en de overige acties staan in de paginakop erboven.
 - **Cijferstrook** — een compacte rij met de kerncijfers onder de hero. Een wedstrijd toont **Aanwezig** (gekomen / selectie) · **Wissels** · **Wedstrijdduur**; een training toont **Aanwezig** · **Duur**. Cijfers zonder waarde worden weggelaten. **Aanwezig** verschijnt pas als de activiteit **voltooid** is, net als de kaart Aanwezigheid eronder: bij een sessie die nog *Gepland* is, zou het cijfer een opkomst noemen die nog niet heeft plaatsgevonden. Het telt alleen geregistreerde aanwezigheid — de planning op de kaart **Verwachte opkomst** is een aparte lijst en wordt er nooit bij opgeteld.
-- **Feitenbalk** — een paar snelle feiten. Een training toont Datum · Tijd · Type · Status; een wedstrijddag toont Datum · Tegenstander · Thuis/Uit · Aftrap · Opstelling. Feiten zonder waarde worden weggelaten. Elke activiteitdatum draagt hier zijn weekdag — `vr 11-09-2026` — want een coach leest een wedstrijd aan de dag waarop hij valt.
+- **Feitenbalk** — een paar snelle feiten. Een training toont Datum · Tijd · Type · Status; een wedstrijddag toont Datum · Tegenstander · Thuis/Uit · Aftrap · Opstelling · Uitslag. Feiten zonder waarde worden weggelaten. Elke activiteitdatum draagt hier zijn weekdag — `vr 11-09-2026` — want een coach leest een wedstrijd aan de dag waarop hij valt.
 - **Kaarten** — elk met een kop met titel, alleen kaarten met inhoud verschijnen, zodat de pagina overzichtelijk blijft:
+ - **Uitslag** (wedstrijddag) — zie [De uitslag vastleggen](#de-uitslag-vastleggen) hieronder.
  - **Gekoppelde spelprincipes** — de geoefende principes als kleurgecodeerde O/A/V-pillen, elk met een link naar de methodiekverkenner.
  - **Notities** — de vrije tekstnotities van de activiteit.
  - **Opstelling** (wedstrijddag) — de basiself en de bank, elke speler met rugnummer en de gespeelde positie (met terugval op de voorkeurspositie).
@@ -95,6 +96,64 @@ Ziet die synchronisatie er verouderd uit — het event is in Spond verplaatst, o
 
 De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en verbreden naar twee kolommen op een tablet of desktop.
 
+## De uitslag vastleggen
+
+Een wedstrijddag heeft een kaart **Uitslag**: wat jouw team scoorde, wat de
+tegenstander scoorde, en hoeveel van je eigen doelpunten een naam hebben.
+
+De kaart verschijnt zodra de wedstrijd gespeeld is — meteen als hij op Afgerond
+staat, of vanaf zijn eigen datum, zodat je de uitslag van zaterdag op
+zaterdagavond kunt invullen zonder eerst een status om te zetten. Een wedstrijd
+die nog moet komen toont hem niet, en een afgelaste wedstrijd nooit.
+
+De twee getallen staan altijd **jouw doelpunten links en die van hen rechts**, op
+welk veld je ook speelde. Waár er gespeeld is, is een apart gegeven — het veld
+**Thuis / uit** op het activiteitenformulier — dus een uitoverwinning blijft een
+overwinning.
+
+### Als je de wedstrijd op het live wedstrijdformulier hebt gedraaid
+
+De kaart is een **alleen-lezen** samenvatting: de stand, het label *Uit het
+wedstrijdformulier*, en het doelpuntenlog met de minuut waarin elk doelpunt viel.
+Je kunt er niet overheen typen, want die stand is geen getal dat iemand heeft
+ingetikt — hij wordt geteld uit de vastgelegde doelpunten. Wil je hem wijzigen,
+pas dan een doelpunt aan in de **nabespreking** (de kaart linkt er rechtstreeks
+naartoe) en de stand volgt.
+
+Dat is met opzet zo: als de stand op twee plekken bewerkt kon worden, zou er
+stilletjes één winnen, en een scorebord dat 3–1 aangeeft boven een doelpuntenlijst
+met één doelpunt helpt niemand.
+
+### Als je dat niet hebt gedaan
+
+De kaart is twee vakjes en een knop **Uitslag opslaan**. Tik in hoe het geworden
+is, sla op, en elk scherm dat een uitslag leest — de vormregel op **Mijn team**
+van de speler, de kop van de wedstrijdanalyse, het minutenraster, de team- en
+maandrapportages — pikt hem op.
+
+Dit is de enige plek waar de doelpunten van de tegenstander worden vastgelegd, en
+ze worden vastgelegd als **aantal**, niet als losse doelpunten. Hun selectie zit
+niet in jouw academie, dus er is niemand om een naam aan te hangen, en de minuut
+zou giswerk zijn. `3 – 1` is de volledige, eerlijke registratie van wat zij deden.
+
+**Laat de vakjes leeg tot je het weet.** Een lege uitslag is geen 0 – 0, en het
+product houdt die twee uit elkaar: een wedstrijd zonder vastgelegde uitslag telt
+als *gespeeld, geen uitslag* en blijft buiten de winst/gelijk/verlies-balans van
+een team, in plaats van stilletjes als doelpuntloos gelijkspel te worden geboekt.
+
+### "2 van de 3 doelpunten hebben een naam"
+
+Onder de stand vertelt de kaart hoeveel van je eigen doelpunten zijn toegekend —
+hoeveel er een spelersnaam bij hebben staan. Vul de doelpuntenmakers in bij
+[Minuten + statistieken](minutes-grid.md); de kaart linkt ernaartoe.
+
+Het is een **constatering, nooit een regel**. Een verschil blokkeert het opslaan
+niet en herschrijft de stand niet. "We scoorden er drie en ik weet niet meer wie
+de derde maakte" is een ware toestand van een wedstrijd, en de kaart is er om dat
+te tonen, niet om het te verbieden. Andersom verandert het invullen van een
+doelpuntenmaker nooit de stand: wie scoorde is wat je wéét over de uitslag, niet
+de uitslag zelf.
+
 ## Een activiteit aanmaken
 
 1. Open de tegel **Activiteiten**.
@@ -102,8 +161,16 @@ De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en v
 3. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
 4. Bij **Overig**: geef het een korte omschrijving.
 5. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe. Bij een wedstrijd vult het invoeren van de aftraptijd automatisch de eindtijd 105 minuten later in (90' spelen + 15' rust); je kunt die altijd aanpassen.
-6. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnt een optioneel veld **Aanwezigheidstijd** — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
+6. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnen drie extra velden:
+ - **Aanwezigheidstijd** (optioneel) — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
+ - **Tegenstander** — tegen wie je speelt. Dit is wat de detailpagina `Jouw team vs Tegenstander` laat lezen, en het benoemt de uitkolom op het wedstrijdformulier, de PDF met het wedstrijdformulier en de weekplanner.
+ - **Thuis / uit** — *Thuis*, *Uit* of *Neutraal terrein*. Waar de wedstrijd gespeeld wordt; het verandert nooit welke kant van de uitslag van jou is.
 7. Opslaan. Nieuwe activiteiten starten op **Gepland**.
+
+Tegenstander en Thuis / uit horen bij de *wedstrijd zelf*, dus die zet je klaar
+wanneer je de wedstrijd plant. De **uitslag** hoort bij wat er gebeurd is en leg
+je achteraf vast op de eigen pagina van de activiteit — zie
+[De uitslag vastleggen](#de-uitslag-vastleggen).
 
 Het bewerkformulier verandert geen status — **status verander je met expliciete knoppen** (zie [Een activiteit voltooien](#een-activiteit-voltooien)). Aanwezigheid leg je normaal vast in de begeleide voltooiingsflow, maar zodra een **training** (niet-wedstrijd) is **voltooid** toont het bewerkformulier óók een **bewerkbare aanwezigheidstabel** — één regel per speler met een statuskeuzelijst en een notitie — zodat je een gemiste of verkeerde aanwezigheid daar direct corrigeert en op **Activiteit bijwerken** klikt. Dit is ook de terugvaloptie wanneer de begeleide wizards zijn uitgeschakeld. Wedstrijdactiviteiten houden hun minuten-bewuste voltooiingsflow, dus hun aanwezigheid blijft daar (het bewerkformulier linkt je ernaartoe).
 

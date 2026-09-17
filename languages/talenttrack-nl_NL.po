@@ -62238,6 +62238,64 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Reports/MatchResultQuery.php:153
+msgid "Goal against"
+msgstr "Doelpunt tegen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1215
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3614
+msgid "Neutral ground"
+msgstr "Neutraal terrein"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1501
+msgid "Save result"
+msgstr "Uitslag opslaan"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1552
+msgid "From the match sheet"
+msgstr "Uit het wedstrijdformulier"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1446
+msgid "Open post-match review"
+msgstr "Nabespreking openen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1492
+msgid "No result recorded yet. That is not the same as 0 – 0 — leave the boxes empty until you know."
+msgstr "Nog geen uitslag vastgelegd. Dat is niet hetzelfde als 0 – 0 — laat de vakjes leeg tot je het weet."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1518
+#, php-format
+msgid "Goals for %s"
+msgstr "Doelpunten voor %s"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1567
+msgid "No time"
+msgstr "Geen tijd"
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:749
+msgid "No score supplied."
+msgstr "Geen uitslag meegegeven."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:727
+msgid "This score follows the match sheet's goal log. Correct a goal in the post-match review and the score follows."
+msgstr "Deze stand volgt het doelpuntenlog van het wedstrijdformulier. Pas een doelpunt aan in de nabespreking en de stand volgt."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1631
+#, php-format
+msgid "%1$d of %2$d goals have a scorer."
+msgstr "%1$d van de %2$d doelpunten hebben een naam."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1476
+msgid "Our team"
+msgstr "Ons team"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1618
+#, php-format
+msgid "%d goal here has a scorer against it. Record the result above and the two reconcile."
+msgid_plural "%d goals here have a scorer against them. Record the result above and the two reconcile."
+msgstr[0] "%d doelpunt bij deze wedstrijd heeft een naam. Leg hierboven de uitslag vast en de twee sluiten op elkaar aan."
+msgstr[1] "%d doelpunten bij deze wedstrijd hebben een naam. Leg hierboven de uitslag vast en de twee sluiten op elkaar aan."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

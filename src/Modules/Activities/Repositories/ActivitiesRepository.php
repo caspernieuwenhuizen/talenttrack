@@ -1630,12 +1630,19 @@ final class ActivitiesRepository {
         if ( ! is_array( $rows ) ) return [];
 
         foreach ( $rows as $r ) {
-            // The academy team is 'home' unless the row says 'away'.
-            $is_home          = ( (string) ( $r->home_away ?? '' ) ) !== 'away';
-            $r->team_score    = (int) ( $is_home ? $r->home_score : $r->away_score );
-            $r->opp_score     = (int) ( $is_home ? $r->away_score : $r->home_score );
-            $r->outcome       = $r->team_score > $r->opp_score ? 'W'
-                              : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
+            // #3530 — `home_score` is what WE scored, whatever the venue.
+            // That is what the end-of-match copy writes: the execution's
+            // "home" side is `ClubIdentity::shortCode()` and its "away" side
+            // is the opponent (migration 0235 states the same convention for
+            // the goal-event rows). This loop used to swap the pair when
+            // `home_away === 'away'`, which would have inverted every away
+            // result — a 1-3 defeat reading as a 3-1 win on a player-facing
+            // surface. It never fired only because nothing populated
+            // `home_away`; the activity form now does, so the swap is gone.
+            $r->team_score = (int) $r->home_score;
+            $r->opp_score  = (int) $r->away_score;
+            $r->outcome    = $r->team_score > $r->opp_score ? 'W'
+                           : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
         }
 
         return $rows;
@@ -1996,6 +2003,34 @@ final class ActivitiesRepository {
      * #1712 — the activity's team id (club-scoped), or 0. Used by the
      * REST roster-integrity guard (#1148) to drop off-roster attendance.
      */
+    /**
+     * #3530 — write one match's scoreline, and only that.
+     *
+     * A partial update by construction: a key absent from `$patch` is never
+     * sent, so saving the result cannot blank the title, the date or the
+     * team the way posting two fields at the full activity-update route
+     * would. `null` clears a score back to NULL rather than writing 0 —
+     * "nobody recorded a result" is not "it finished goalless" (#3529).
+     *
+     * Ownership is NOT decided here. The endpoint asks
+     * `MatchResultQuery::isManuallyEditable()` first, so a match the live
+     * sheet owns is refused with a message rather than silently ignored.
+     *
+     * @param array{home_score?:?int, away_score?:?int} $patch
+     */
+    public function updateResult( int $activity_id, array $patch ): bool {
+        if ( $activity_id <= 0 ) return false;
+
+        $fields = [];
+        foreach ( [ 'home_score', 'away_score' ] as $col ) {
+            if ( ! array_key_exists( $col, $patch ) ) continue;
+            $fields[ $col ] = $patch[ $col ] === null ? null : max( 0, min( 99, (int) $patch[ $col ] ) );
+        }
+        if ( $fields === [] ) return false;
+
+        return $this->update( $activity_id, $fields );
+    }
+
     public function activityTeamId( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;

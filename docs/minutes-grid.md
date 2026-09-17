@@ -68,7 +68,9 @@ Two things are deliberately *not* recorded when you type a goal in afterwards:
  clock against it.
 - **No change to the score.** The match score stays exactly as it was
  recorded. The score is what happened; who scored is what we know about it,
- and typing a name should never quietly rewrite the result.
+ and typing a name should never quietly rewrite the result. You record the
+ score itself on the match's own page — see
+ [Recording the result](activities.md#recording-the-result).
 
 **An assist attaches to a goal.** Recording one does not add a goal to your
 team's total — it names who set up a goal that is already there. If there is

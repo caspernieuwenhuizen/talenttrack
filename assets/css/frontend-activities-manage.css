@@ -809,6 +809,179 @@
 .tt-dashboard .tt-act-card-d__body--prewrap { white-space: pre-wrap; }
 .tt-dashboard .tt-act-card-d__muted { color: var(--tt-ink-soft, #5b6e75); }
 
+/* ---- #3530: match-only rows on the activity form -------------
+   Opponent + Home/Away render for a fixture and hide for everything
+   else. The state is a class rather than an inline `display` so the
+   toggle lives where styling lives (#1389). */
+.tt-dashboard .tt-act-fixture-row.is-off { display: none; }
+
+/* ---- #3530: the Result card ---------------------------------
+   Two numbers, ours on the left and theirs on the right, whatever the
+   venue — `home_score` is what WE scored (see MatchResultQuery), so the
+   labels are the club's short code and the opponent's abbreviation and
+   never the words Home and Away.
+
+   Three columns rather than a flex row: the dash stays optically centred
+   between two sides of equal width even when one team's name is twice as
+   long as the other's, which is the common case. */
+.tt-dashboard .tt-act-result {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-act-result__side {
+    min-width: 0;
+    text-align: center;
+}
+.tt-dashboard .tt-act-result__abbr {
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #5b6e75);
+    margin-bottom: 5px;
+}
+/*
+ * 16px would be enough to stop iOS zooming on focus; the size here is
+ * about the number being the thing on the card. 56px tall clears the
+ * 48px touch floor with room for the digits to breathe.
+ */
+.tt-dashboard .tt-act-result__in {
+    width: 100%;
+    max-width: 88px;
+    min-height: 56px;
+    padding: 0;
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink, #1a1d21);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line2, #b9c2b6);
+    border-radius: 10px;
+    -moz-appearance: textfield;
+}
+/* The spinners are 12px of hover-only affordance on a control that is
+   already a number box on a phone keyboard — they cost width and reach
+   nobody on touch. */
+.tt-dashboard .tt-act-result__in::-webkit-outer-spin-button,
+.tt-dashboard .tt-act-result__in::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.tt-dashboard .tt-act-result__in:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-act-result__num {
+    font-size: 1.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 56px;
+}
+.tt-dashboard .tt-act-result__none { color: #b3b8b2; }
+.tt-dashboard .tt-act-result__dash {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--tt-ink-soft, #5b6e75);
+    padding: 0 2px;
+}
+.tt-dashboard .tt-act-result__team {
+    margin-top: 5px;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #5b6e75);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-act-result__hint {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+
+/* A scoreline the live sheet owns. The chip says where the number came
+   from, because a readout that will not let anyone change it has to
+   answer "where did that 3 come from". */
+.tt-dashboard .tt-act-result__derived-line {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    text-align: center;
+}
+.tt-dashboard .tt-act-result__derived {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 10px;
+    border: 1px solid #f0d9a8;
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.tt-dashboard .tt-act-result__log {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: 0;
+    list-style: none;
+}
+.tt-dashboard .tt-act-result__log li {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    align-items: baseline;
+    padding: 6px 0;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: 0.8125rem;
+}
+.tt-dashboard .tt-act-result__min {
+    min-width: 42px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+/* A goal recorded afterwards has no minute (migration 0246 refused to
+   invent one). Dimmed rather than blank so the column still reads as a
+   column. */
+.tt-dashboard .tt-act-result__min.is-none {
+    color: #b3b8b2;
+    font-weight: 600;
+}
+.tt-dashboard .tt-act-result__who { min-width: 0; }
+.tt-dashboard .tt-act-result__for {
+    margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-act-result__for--us {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: var(--tt-success-ink, #1f6d41);
+}
+.tt-dashboard .tt-act-result__for--them {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink-soft, #5b6e75);
+}
+
+/* Attributed goals against the recorded scoreline. Information, never a
+   validation gate — "we do not know who scored the third" is a true state
+   of the world (#3094). */
+.tt-dashboard .tt-act-result__recon {
+    margin: var(--tt-sp-4, 16px) 0 0;
+    padding-top: var(--tt-sp-3, 12px);
+    border-top: 1px dashed var(--tt-line, #e2e8f0);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-result__recon.is-mismatch { color: var(--tt-warning-ink, #8a5300); }
+.tt-dashboard .tt-act-result__recon a { color: var(--tt-link, #2d6fb3); }
+
 /* ---- #2834: inbound drill-down context ----------------------
    "Showing only: <player> · <window>" above the filter bar, when the list
    was reached from a report. Each chip's × clears that one constraint. */
