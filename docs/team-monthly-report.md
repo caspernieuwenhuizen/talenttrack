@@ -131,6 +131,7 @@ Scheduled reports are part of the Standard plan and above.
   without a read yet, and how that looked last period.
 - **Attendance** and **Minutes share** — per player, with links to the full
   attendance and minutes reports.
+- **Matches** — results and match statistics. See below.
 - **Needs a conversation** — the players the status model flags, most urgent
   first, with what the data says about them. This is the meeting's agenda.
 - **What changed** — injuries, position and team changes, development-plan
@@ -152,6 +153,38 @@ on every page and in the printed copy. Players without a number come last,
 alphabetically. Two tables are deliberately left alone: **Minutes share** is
 ordered by share played and **Needs a conversation** by urgency — there the
 order is itself the finding.
+
+## The match section
+
+The report used to say a great deal about development and nothing about
+results, so the score got read off someone's phone. **Matches** puts them in
+the document, from what is already recorded.
+
+It has three parts, each with its own tick box in the panel:
+
+- **Record** — played, won, drawn, lost, goals for and against, and the
+  difference. On by default.
+- **Scorers and assists** — per player over the period. On by default.
+- **Squad and minutes per match** — who played in each match and for how long.
+  **Off** by default: it is the longest part, and it repeats what the minutes
+  section already shows.
+
+Under those, each match is listed with its date, the opponent, whether it was
+home or away, and the score.
+
+Two things it deliberately does not do:
+
+- **A match with no score recorded is listed, but not counted** in won, drawn
+  or lost, and the section says how many. Treating a missing result as a
+  goalless draw would make the record quietly wrong, which is worse than an
+  obvious gap. If you want the record complete, fill the score in on the match.
+- **Tournaments are left out.** A tournament is a multi-game day, and one score
+  line cannot describe one. When any fall in the period the section says so,
+  rather than leaving you to wonder why the record does not match what you
+  remember.
+
+If a match has no home-or-away recorded, the opponent is shown without it
+rather than guessing which way round the score goes.
 
 ## Who can see it
 

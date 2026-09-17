@@ -1630,15 +1630,135 @@ final class ActivitiesRepository {
         if ( ! is_array( $rows ) ) return [];
 
         foreach ( $rows as $r ) {
-            // The academy team is 'home' unless the row says 'away'.
-            $is_home          = ( (string) ( $r->home_away ?? '' ) ) !== 'away';
-            $r->team_score    = (int) ( $is_home ? $r->home_score : $r->away_score );
-            $r->opp_score     = (int) ( $is_home ? $r->away_score : $r->home_score );
-            $r->outcome       = $r->team_score > $r->opp_score ? 'W'
-                              : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
+            // #3530 — `home_score` is what WE scored, whatever the venue.
+            // That is what the end-of-match copy writes: the execution's
+            // "home" side is `ClubIdentity::shortCode()` and its "away" side
+            // is the opponent (migration 0235 states the same convention for
+            // the goal-event rows). This loop used to swap the pair when
+            // `home_away === 'away'`, which would have inverted every away
+            // result — a 1-3 defeat reading as a 3-1 win on a player-facing
+            // surface. It never fired only because nothing populated
+            // `home_away`; the activity form now does, so the swap is gone.
+            $r->team_score = (int) $r->home_score;
+            $r->opp_score  = (int) $r->away_score;
+            $r->outcome    = $r->team_score > $r->opp_score ? 'W'
+                           : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
         }
 
         return $rows;
+    }
+
+    /**
+     * #3516 — the team's fixtures in a date window, for the monthly report's
+     * match section. Result framed from the team's perspective where a score
+     * was recorded; `null` scores where it was not.
+     *
+     * **Tournaments are excluded.** A tournament is a multi-game day (#2686)
+     * and one score line cannot describe one, so counting it would make the
+     * record disagree with what the coach remembers. They are reported
+     * separately by {@see tournamentCountInWindow()} so the section can say
+     * they were left out rather than silently dropping them.
+     *
+     * Unlike {@see recentResultsForTeam()} this keeps matches with no score:
+     * the match happened and nobody typed the result, which the report must
+     * show as a gap rather than as a goalless draw.
+     *
+     * Returns array shapes rather than rows, unlike its older neighbour: the
+     * result is derived (`team_score` and `outcome` do not exist as columns),
+     * and a shape says exactly what a caller may read.
+     *
+     * @return list<array{activity_id:int, date:string, opponent:string, home_away:string,
+     *         team_score:int|null, opp_score:int|null, outcome:string}>
+     */
+    public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
+        if ( $team_id <= 0 ) return [];
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        // Deliberately NOT MATCH_LIKE_SQL: that includes tournaments.
+        $game       = ActivityTypeKey::GAME;
+        $legacy     = ActivityTypeKey::LEGACY_GAME;
+        $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.{$date_col} AS session_date, a.opponent, a.home_away,
+                    a.home_score, a.away_score
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND LOWER(a.activity_type_key) IN ( %s, %s )
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                {$scope}
+           ORDER BY a.{$date_col} ASC, a.id ASC",
+            $team_id, CurrentClub::id(), $game, $legacy, $from, $to
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $home_away = (string) ( $r->home_away ?? '' );
+            $has_score = $r->home_score !== null && $r->away_score !== null;
+
+            // The academy team is 'home' unless the row says 'away'.
+            $is_home    = $home_away !== 'away';
+            $team_score = $has_score ? (int) ( $is_home ? $r->home_score : $r->away_score ) : null;
+            $opp_score  = $has_score ? (int) ( $is_home ? $r->away_score : $r->home_score ) : null;
+
+            // No score recorded means no outcome, which is what keeps the match
+            // out of won/drawn/lost rather than counting as a goalless draw.
+            $outcome = '';
+            if ( $has_score ) {
+                $outcome = $team_score > $opp_score ? 'W' : ( $team_score < $opp_score ? 'L' : 'D' );
+            }
+
+            $out[] = [
+                'activity_id' => (int) $r->id,
+                'date'        => (string) ( $r->session_date ?? '' ),
+                'opponent'    => (string) ( $r->opponent ?? '' ),
+                'home_away'   => $home_away,
+                'team_score'  => $team_score,
+                'opp_score'   => $opp_score,
+                'outcome'     => $outcome,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * #3516 — how many tournaments fall in the window, so the match section can
+     * say they were left out. Zero means the section says nothing about them.
+     */
+    public function tournamentCountInWindow( int $team_id, string $from, string $to ): int {
+        if ( $team_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $scope    = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND LOWER(a.activity_type_key) = %s
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                {$scope}",
+            $team_id, CurrentClub::id(), ActivityTypeKey::TOURNAMENT, $from, $to
+        ) );
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1883,6 +2003,34 @@ final class ActivitiesRepository {
      * #1712 — the activity's team id (club-scoped), or 0. Used by the
      * REST roster-integrity guard (#1148) to drop off-roster attendance.
      */
+    /**
+     * #3530 — write one match's scoreline, and only that.
+     *
+     * A partial update by construction: a key absent from `$patch` is never
+     * sent, so saving the result cannot blank the title, the date or the
+     * team the way posting two fields at the full activity-update route
+     * would. `null` clears a score back to NULL rather than writing 0 —
+     * "nobody recorded a result" is not "it finished goalless" (#3529).
+     *
+     * Ownership is NOT decided here. The endpoint asks
+     * `MatchResultQuery::isManuallyEditable()` first, so a match the live
+     * sheet owns is refused with a message rather than silently ignored.
+     *
+     * @param array{home_score?:?int, away_score?:?int} $patch
+     */
+    public function updateResult( int $activity_id, array $patch ): bool {
+        if ( $activity_id <= 0 ) return false;
+
+        $fields = [];
+        foreach ( [ 'home_score', 'away_score' ] as $col ) {
+            if ( ! array_key_exists( $col, $patch ) ) continue;
+            $fields[ $col ] = $patch[ $col ] === null ? null : max( 0, min( 99, (int) $patch[ $col ] ) );
+        }
+        if ( $fields === [] ) return false;
+
+        return $this->update( $activity_id, $fields );
+    }
+
     public function activityTeamId( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;

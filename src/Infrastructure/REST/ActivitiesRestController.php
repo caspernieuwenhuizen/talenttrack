@@ -265,6 +265,23 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
             ],
         ] );
+        // #3530 (epic #3529) — the match's own scoreline. Resource-oriented
+        // per CLAUDE.md §4, and its own endpoint rather than two more fields
+        // on `PUT /activities/{id}`: that route rebuilds the whole row from
+        // the request, so posting the Result card's two boxes into it would
+        // blank the title, the date and the team.
+        register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/result', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'put_result' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_result' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
     }
 
     public static function can_view( ?\WP_REST_Request $r = null ): bool {
@@ -660,6 +677,83 @@ class ActivitiesRestController {
      * `home_score` is information the grid shows in its footer, not an error
      * to correct behind the coach's back.
      */
+    /**
+     * #3530 — GET /activities/{id}/result. The same payload the rendered
+     * Result card is built from, so a non-WordPress front end gets the same
+     * answers the plugin's own HTML does (CLAUDE.md §4).
+     */
+    public static function get_result( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        $result      = ( new \TT\Modules\Activities\Reports\MatchResultQuery() )->forActivity( $activity_id );
+
+        if ( $result === null ) {
+            return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( $result );
+    }
+
+    /**
+     * #3530 — PUT /activities/{id}/result. Body: `{ home_score, away_score }`,
+     * either of which may be null to clear it.
+     *
+     * Three refusals, each of which would otherwise corrupt something quietly:
+     *
+     * - **Not a fixture.** A training has no result, and a tournament is a
+     *   multi-game day whose five fixtures one score line cannot describe
+     *   (#2686). `MatchResultQuery::forActivity()` returns null for both.
+     * - **The live sheet owns it.** That scoreline is derived from the goal
+     *   log, and #2857 removed the free-standing stepper precisely so there
+     *   would be no second place to record a goal. Writing here would
+     *   re-create the divergence, and the next goal event would silently
+     *   overwrite whatever was typed. 409, naming the post-match review.
+     * - **Not your team.** Recording a result for someone else's squad is not
+     *   a lesser mistake than recording their minutes, so it is scoped exactly
+     *   as `put_contributions()` is.
+     *
+     * Partial by construction: a key absent from the body is not written, so
+     * saving one side never blanks the other.
+     */
+    public static function put_result( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        $query       = new \TT\Modules\Activities\Reports\MatchResultQuery();
+        $result      = $query->forActivity( $activity_id );
+
+        if ( $result === null ) {
+            return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
+        }
+        if ( $result['owned_by_execution'] ) {
+            return RestResponse::error(
+                'execution_owned',
+                __( 'This score follows the match sheet\'s goal log. Correct a goal in the post-match review and the score follows.', 'talenttrack' ),
+                409
+            );
+        }
+
+        $team    = self::repo()->activityTeamId( $activity_id );
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
+        }
+
+        // An absent key is left alone; an explicit null clears the column.
+        // `''` arrives from an emptied number box and means the same as null
+        // — a coach who deletes the digits is saying "no result recorded",
+        // not "it finished 0-0" (#3529).
+        $patch = [];
+        foreach ( [ 'home_score', 'away_score' ] as $col ) {
+            if ( ! $r->has_param( $col ) ) continue;
+            $raw = $r->get_param( $col );
+            $patch[ $col ] = ( $raw === null || $raw === '' ) ? null : absint( $raw );
+        }
+        if ( $patch === [] ) {
+            return RestResponse::error( 'bad_request', __( 'No score supplied.', 'talenttrack' ), 400 );
+        }
+
+        self::repo()->updateResult( $activity_id, $patch );
+
+        return RestResponse::success( $query->forActivity( $activity_id ) ?? [] );
+    }
+
     public static function put_contributions( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
         $players     = $r['players'] ?? null;
@@ -1431,6 +1525,17 @@ class ActivitiesRestController {
             ? min( 300, $match_length_raw )
             : null;
 
+        // #3530 (epic #3529) — the fixture facts. Read by the detail hero and
+        // facts strip, the match-prep header and print, the team-sheet PDF,
+        // the week-plan print, the live sheet's score labels and the player's
+        // My-team fixture line — and, until this payload carried them,
+        // written by nothing at all. Match types only; a training that was
+        // once a match nulls them on save the way `game_subtype_key` does.
+        $is_fixture_type = in_array( $type, [ ActivityTypeKey::GAME, 'match', 'friendly', ActivityTypeKey::TOURNAMENT ], true );
+        $opponent_raw    = trim( (string) ( $r['opponent'] ?? '' ) );
+        $home_away_raw   = strtolower( trim( (string) ( $r['home_away'] ?? '' ) ) );
+        $home_away       = in_array( $home_away_raw, [ 'home', 'away', 'neutral' ], true ) ? $home_away_raw : null;
+
         $payload = [
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
@@ -1456,6 +1561,8 @@ class ActivitiesRestController {
             'other_label'         => $type === ActivityTypeKey::OTHER && $other !== ''   ? $other   : null,
             'tournament_id'       => $type === ActivityTypeKey::TOURNAMENT && $tournament_id > 0 ? $tournament_id : null,
             'match_length_minutes' => $match_length,
+            'opponent'            => ( $is_fixture_type && $opponent_raw !== '' ) ? sanitize_text_field( $opponent_raw ) : null,
+            'home_away'           => $is_fixture_type ? $home_away : null,
         ];
         if ( in_array( $plan_state, $allowed_plan_states, true ) ) {
             $payload['plan_state'] = $plan_state;

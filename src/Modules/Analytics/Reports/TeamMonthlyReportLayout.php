@@ -73,6 +73,9 @@ final class TeamMonthlyReportLayout {
         'bar_row'         => 3.85,
         'attention_item'  => 17.2,
         'change_row'      => 4.6,
+        'match_record'    => 11.0,
+        'match_row'       => 4.6,
+        'scorer_row'      => 4.4,
         'test_round'      => 9.2,
         'roster_head'     => 5.5,
         'roster_row'      => 5.5,
@@ -252,6 +255,23 @@ final class TeamMonthlyReportLayout {
 
             case 'tests':
                 return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'rounds' ) * self::MM['test_round'];
+
+            case 'matches':
+                if ( $layout === self::MATRIX ) return 0.0;
+                $shows = is_array( $block_data['shows'] ?? null ) ? $block_data['shows'] : [];
+                $mm    = $base;
+                if ( ! empty( $shows['record'] ) )  $mm += self::MM['match_record'];
+                if ( ! empty( $shows['scorers'] ) ) $mm += self::count( $block_data, 'scorers' ) * self::MM['scorer_row'];
+                $mm += self::count( $block_data, 'fixtures' ) * self::MM['match_row'];
+                if ( ! empty( $shows['squads'] ) ) {
+                    // Each fixture grows by its own squad, so this is the rung
+                    // the one-pager trips on — which is the point of the
+                    // option defaulting off.
+                    foreach ( self::listOf( $block_data, 'fixtures' ) as $fixture ) {
+                        $mm += self::count( is_array( $fixture ) ? $fixture : [], 'squad' ) * self::MM['bar_row'];
+                    }
+                }
+                return $mm;
 
             case 'roster':
                 $row = $layout === self::ONE_PAGER

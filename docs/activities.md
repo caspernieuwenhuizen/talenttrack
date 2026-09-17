@@ -81,8 +81,9 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
 
 - **Hero** — a type-coloured icon chip, the title, and a sub-line reading `date · time · team · location`. For a match day with both teams known the title reads `Your team vs Opponent` and the sub-line shows the kick-off time and whether it's home or away. Pills below the title show the type (plus the game subtype or the Other label) and the status. Edit, Mark attendance and the other actions stay in the page header above.
 - **Stat strip** — a compact row of the key numbers under the hero. A match shows **Present** (turned up / roster) · **Substitutes** · **Match length**; a training shows **Present** · **Duration**. Numbers with no value are left out. **Present** appears only once the activity is **completed**, matching the Attendance card below it: on a session still marked *Planned* the number would state a turnout that has not happened yet. It counts recorded attendance only — the planned roster on the **Expected attendance** card is a separate list and is never added in.
-- **Facts strip** — a few quick facts. A training shows Date · Time · Type · Status; a match day shows Date · Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out. Every activity date here carries its weekday — `Fri 11-09-2026` — because a coach reads a fixture by the day it falls on.
+- **Facts strip** — a few quick facts. A training shows Date · Time · Type · Status; a match day shows Date · Opponent · Home/Away · Kick-off · Formation · Result. Facts with no value are left out. Every activity date here carries its weekday — `Fri 11-09-2026` — because a coach reads a fixture by the day it falls on.
 - **Cards** — each with a titled header, only the cards that have something to show appear, so the page stays uncluttered:
+ - **Result** (match day) — see [Recording the result](#recording-the-result) below.
  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
  - **Notes** — the activity's free-text notes.
  - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
@@ -95,6 +96,62 @@ If that sync looks stale — the event moved in Spond, or the roster changed —
 
 The page reads cleanly on a phone: the cards stack in a single column and widen to two columns on a tablet or desktop.
 
+## Recording the result
+
+A match day carries a **Result** card: what your team scored, what the opposition
+scored, and how much of your own score has a name against it.
+
+It appears once the match has been played — as soon as it's marked Completed, or
+from its own date onwards, so you can fill in Saturday's score on Saturday evening
+without flipping a status first. A fixture still to come doesn't show it, and a
+cancelled match never does.
+
+The two numbers are always **yours on the left and theirs on the right**,
+whichever ground you played on. Where the match was played is a separate fact —
+the **Home / Away** field on the activity form — so an away win still reads as a
+win.
+
+### If you ran the match on the live match sheet
+
+The card is a **read-only** summary: the score, a *From the match sheet* label,
+and the goal log with the minute each goal went in. You can't type over it,
+because the score there isn't a number somebody typed — it's counted from the
+goals that were logged. To change it, change a goal in the **post-match review**
+(the card links straight to it) and the score follows.
+
+That's deliberate: if the score could be edited in two places, one of them would
+quietly win, and a scoreboard reading 3–1 over a goal list holding one goal helps
+nobody.
+
+### If you didn't
+
+The card is two boxes and a **Save result** button. Type what it finished, save,
+and every screen that reads a result — the player's **My team** form line, the
+match analysis header, the minutes grid, the team and monthly reports — picks it
+up.
+
+This is the only place the opposition's goals get recorded, and they're recorded
+as a **count**, not as individual goals. Their squad isn't in your academy, so
+there's nobody to put a name against, and the minute would be guesswork. `3 – 1`
+is the complete, honest record of what they did.
+
+**Leave the boxes empty until you know.** An empty result is not 0 – 0, and the
+product keeps the two apart: a match with no result recorded is counted as
+*played, no result* and left out of a team's win/draw/loss record, rather than
+quietly logged as a goalless draw.
+
+### "2 of 3 goals have a scorer"
+
+Under the score, the card says how much of your own scoreline is attributed —
+how many of those goals have a player's name against them. Name the scorers in
+[Minutes + statistics](minutes-grid.md); the card links there.
+
+It is a **statement, never a rule**. A mismatch never blocks the save and never
+rewrites the score. "We scored three and I can't remember who got the third" is a
+true state of a match, and the card's job is to show it rather than forbid it.
+Equally, naming a scorer never changes the score — who scored is what you know
+about the result, not the result itself.
+
 ## Creating an activity
 
 1. Open the **Activities** tile.
@@ -102,8 +159,15 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
 4. If you picked **Other**, give it a short label.
 5. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
-6. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
+6. For a **match** type (Game, Tournament, or a custom match/friendly type) three extra fields appear:
+ - **Presence time** (optional) — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
+ - **Opponent** — who you're playing. This is what makes the detail page read `Your team vs Opponent`, and it names the away column on the match sheet, the team-sheet PDF and the weekly planner.
+ - **Home / Away** — *Home*, *Away* or *Neutral ground*. Where the fixture is played; it never changes which side of the result is yours.
 7. Save. New activities start **Planned**.
+
+Opponent and Home / Away belong to the *fixture*, so you set them when you plan
+the match. The **result** belongs to what happened, so it's recorded afterwards on
+the activity's own page — see [Recording the result](#recording-the-result).
 
 The edit form does not change status — **status is changed with explicit buttons** (see [Completing an activity](#completing-an-activity)). Attendance is normally recorded in the guided completion flow, but once a **training** (non-match) activity is **completed** its edit form also shows an **editable attendance table** — one row per player with a status dropdown and a note — so you can correct a missed or wrong attendance right there and hit **Update activity**. This is also the fallback when the guided wizards are switched off. Match-type activities keep their minutes-aware completion flow, so their attendance stays there (the edit form links you to it).
 

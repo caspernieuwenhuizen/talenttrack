@@ -74,7 +74,8 @@ intypt:
 - **Geen wijziging aan de uitslag.** De uitslag blijft precies zoals hij is
  vastgelegd. De uitslag is wat er gebeurd is; wie er scoorde is wat we
  daarvan weten, en een naam intypen hoort dat resultaat niet stilletjes te
- herschrijven.
+ herschrijven. De uitslag zelf leg je vast op de eigen pagina van de
+ wedstrijd — zie [De uitslag vastleggen](activities.md#de-uitslag-vastleggen).
 
 **Een assist hangt aan een doelpunt.** Er een vastleggen telt geen extra
 doelpunt bij het team — het benoemt wie een doelpunt voorbereidde dat er al

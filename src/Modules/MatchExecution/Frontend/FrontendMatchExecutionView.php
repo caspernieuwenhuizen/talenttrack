@@ -1696,46 +1696,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
      * away column.
      *
      * Strips common age-group / team-number suffixes (`JO13`, `U14`,
-     * `-1`) before deriving so `Den Helder JO13` → `DEN`, not `DEN13`.
+     * `-1`) before deriving so `Den Helder JO13` → `DEH`, not `DEN13`.
      * Falls back to a localised `OPP` placeholder when the name is
      * empty — the score-box never renders the unreadable em-dash.
+     *
+     * #3530 — the derivation itself now lives on `ClubIdentity` beside
+     * `shortCode()`, because the match page's Result card labels the same
+     * two sides and must not derive them differently.
      */
     private static function abbreviate( string $name ): string {
-        $name = trim( $name );
-        if ( $name === '' ) {
-            return __( 'OPP', 'talenttrack' );
-        }
-        // Strip age-group / team-number suffixes (JO13, U14, O19, MO14, -1, etc.)
-        // so `Den Helder JO13` derives from `Den Helder`, not the suffix.
-        $name = preg_replace( '/\s*(?:JO|MO|O|U|-)\s*\d+\s*$/iu', '', $name );
-        $name = (string) preg_replace( '/-\d+$/u', '', (string) $name );
-        $name = trim( (string) $name );
-        if ( $name === '' ) {
-            return __( 'OPP', 'talenttrack' );
-        }
-        // Strip punctuation, split on whitespace.
-        $clean = preg_replace( '/[^\p{L}\p{N}\s]/u', '', $name );
-        $parts = preg_split( '/\s+/', (string) $clean, -1, PREG_SPLIT_NO_EMPTY );
-        if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
-            return __( 'OPP', 'talenttrack' );
-        }
-        if ( count( $parts ) === 1 ) {
-            return mb_strtoupper( mb_substr( $parts[0], 0, 3 ) );
-        }
-        // Two or more parts: take the first letter of each of the first
-        // three significant parts (or pad from the last word's letters).
-        $abbr = '';
-        foreach ( $parts as $part ) {
-            $abbr .= mb_substr( $part, 0, 1 );
-            if ( mb_strlen( $abbr ) >= 3 ) break;
-        }
-        if ( mb_strlen( $abbr ) < 3 ) {
-            // Pad from the last word so two-word names like "Den Helder"
-            // come out as `DEH` rather than `DE`.
-            $last = $parts[ count( $parts ) - 1 ];
-            $abbr .= mb_substr( $last, 1, 3 - mb_strlen( $abbr ) );
-        }
-        return mb_strtoupper( $abbr );
+        return ClubIdentity::abbreviateOpponent( $name );
     }
 
     /**

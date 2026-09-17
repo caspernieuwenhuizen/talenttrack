@@ -807,8 +807,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             echo '</div>';
         }
 
-        // #1618 — Match day: line-up card (Starting XI + Bench).
         if ( $is_match ) {
+            // #3530 (epic #3529) — the result, above the line-up because it
+            // is what a coach opens a played match for.
+            self::renderResultCard( $session );
+            // #1618 — line-up card (Starting XI + Bench).
             self::renderLineupCard( $session );
         }
 
@@ -1203,10 +1206,25 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( $opponent !== '' ) $cells[] = [ __( 'Opponent', 'talenttrack' ), $opponent ];
 
             $home_away = strtolower( (string) ( $session->home_away ?? '' ) );
-            if ( $home_away === 'home' ) {
-                $cells[] = [ __( 'Home / Away', 'talenttrack' ), __( 'Home', 'talenttrack' ) ];
-            } elseif ( $home_away === 'away' ) {
-                $cells[] = [ __( 'Home / Away', 'talenttrack' ), __( 'Away', 'talenttrack' ) ];
+            $venues    = [
+                'home'    => __( 'Home', 'talenttrack' ),
+                'away'    => __( 'Away', 'talenttrack' ),
+                'neutral' => __( 'Neutral ground', 'talenttrack' ),
+            ];
+            if ( isset( $venues[ $home_away ] ) ) {
+                $cells[] = [ __( 'Home / Away', 'talenttrack' ), $venues[ $home_away ] ];
+            }
+
+            // #3530 — the scoreline, framed as ours-then-theirs whatever the
+            // venue (see MatchResultQuery). Absent when no result has been
+            // recorded: an empty cell is honest, "0 – 0" would not be.
+            $ours   = $session->home_score ?? null;
+            $theirs = $session->away_score ?? null;
+            if ( $ours !== null && $theirs !== null ) {
+                $cells[] = [
+                    __( 'Result', 'talenttrack' ),
+                    sprintf( '%d – %d', (int) $ours, (int) $theirs ),
+                ];
             }
 
             $kick = (string) ( $session->kickoff_time ?? '' );
@@ -1367,6 +1385,305 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             strtolower( $type_key ),
             [ 'match', ActivityTypeKey::GAME ],
             true
+        );
+    }
+
+    /**
+     * #3530 (epic #3529) — the match's result.
+     *
+     * Until this card existed, `tt_activities.home_score` / `away_score` had
+     * exactly one writer in the plugin — the end-of-match copy off the
+     * execution row. A club that does its admin on a Sunday evening rather
+     * than running a stopwatch on the touchline could not record that a match
+     * finished 3-1, and could not record the opponent's goals at all: those
+     * are not attributable to a player, so the minutes grid's goals column
+     * (#3094) could never reach them.
+     *
+     * WHO MAY WRITE IT IS DECIDED BY THE MATCH, NOT BY THE COACH
+     *
+     * A match run on the live sheet has a scoreline derived from its goal log
+     * — #2857 removed the free-standing stepper precisely so there would be
+     * no second place to record a goal — so this card renders a readout and
+     * points corrections at the post-match review. A match without an
+     * execution row is typed in here. There is no mode to pick and therefore
+     * no mode to get wrong.
+     *
+     * THE TWO NUMBERS ARE OURS AND THEIRS, NOT HOME AND AWAY
+     *
+     * `home_score` is what we scored whatever the venue (see
+     * {@see \TT\Modules\Activities\Reports\MatchResultQuery}). The boxes are
+     * labelled with the club's short code and the opponent's abbreviation;
+     * the venue is its own field on the edit form.
+     *
+     * Model B — explicit Save with a real Cancel (CLAUDE.md §6). Two fields,
+     * a known set, and a half-committed scoreline is worse than a lost one.
+     * The form is a plain `.tt-ajax-form`, so it needs no script of its own.
+     */
+    private static function renderResultCard( object $session ): void {
+        if ( ! self::matchHasBeenPlayed( $session ) ) return;
+
+        $activity_id = (int) ( $session->id ?? 0 );
+        $result      = ( new \TT\Modules\Activities\Reports\MatchResultQuery() )->forActivity( $activity_id );
+        if ( $result === null ) return;
+
+        // Our side reads as the squad that played; the abbreviation above it
+        // is the CLUB's short code, which is deliberate (#1024 — a club's
+        // score box represents the club, not the age group).
+        $our_team   = trim( (string) ( $session->team_name ?? '' ) );
+        if ( $our_team === '' ) $our_team = trim( QueryHelpers::get_config( 'academy_name', '' ) );
+        if ( $our_team === '' ) $our_team = __( 'Our team', 'talenttrack' );
+
+        $their_team = $result['opponent'] !== '' ? (string) $result['opponent'] : __( 'Opponent', 'talenttrack' );
+
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+        $editable = $can_edit && ! $result['owned_by_execution'];
+
+        echo '<div class="tt-act-card-d tt-act-card-d--span2">';
+        echo '<div class="tt-act-card-d__head">';
+        echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Result', 'talenttrack' ) . '</h3>';
+
+        // The correction path, offered only to somebody who can actually walk
+        // it — the match-execution module is switchable and its surface is
+        // capability-gated, so `CrossViewLink` decides whether the link
+        // renders at all (#2304 / §7: hide the affordance, never dead-click
+        // it).
+        if ( $result['owned_by_execution'] ) {
+            \TT\Shared\Frontend\Components\CrossViewLink::render( 'match-execution', static function () use ( $activity_id ): void {
+                printf(
+                    '<a class="tt-act-card-d__link" href="%s">%s</a>',
+                    // §9 — a cross-surface link carries the back hint so the
+                    // review can render a contextual pill home.
+                    esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                        [ 'tt_view' => 'match-execution', 'activity_id' => $activity_id ], /* tt-xview-ok — gated by the enclosing CrossViewLink::render */
+                        RecordLink::dashboardUrl()
+                    ) ) ),
+                    esc_html__( 'Open post-match review', 'talenttrack' )
+                );
+            } );
+        }
+        echo '</div>';
+
+        echo '<div class="tt-act-card-d__body">';
+
+        if ( $editable ) {
+            self::renderResultForm( $activity_id, $result, $our_team, $their_team );
+        } else {
+            self::renderResultReadout( $result, $our_team, $their_team );
+        }
+
+        self::renderResultReconciliation( $activity_id, $result );
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Whether there is a result to talk about yet.
+     *
+     * A fixture three weeks away has no result, and offering two empty boxes
+     * and the words "no result recorded yet" on it would read as a nag about
+     * something nobody could have done. Completed says so outright; otherwise
+     * the date does, because a coach filling in Saturday's score on Saturday
+     * evening should not have to flip a status first. Cancelled matches never
+     * qualify — there was no match.
+     */
+    private static function matchHasBeenPlayed( object $session ): bool {
+        $status = strtolower( (string) ( $session->activity_status_key ?? '' ) );
+        if ( $status === ActivityStatusKey::CANCELLED ) return false;
+        if ( $status === ActivityStatusKey::COMPLETED ) return true;
+
+        $date = (string) ( $session->session_date ?? '' );
+        if ( $date === '' ) return false;
+
+        return $date <= current_time( 'Y-m-d' );
+    }
+
+    /**
+     * The two boxes. `type="number"` plus `inputmode="numeric"` so the phone
+     * keyboard is the right one (CLAUDE.md §2), and an empty box saves as
+     * NULL rather than 0 — "nobody recorded a result" is not "it finished
+     * goalless", and a silent zero would make a team's record wrong (#3519).
+     *
+     * @param array<string,mixed> $result
+     */
+    private static function renderResultForm( int $activity_id, array $result, string $our_team, string $their_team ): void {
+        $ours   = $result['our_score']   !== null ? (string) $result['our_score']   : '';
+        $theirs = $result['their_score'] !== null ? (string) $result['their_score'] : '';
+
+        printf(
+            '<form class="tt-ajax-form tt-act-result__form" data-rest-path="%s" data-rest-method="PUT" data-redirect-after-save="reload">',
+            esc_attr( 'activities/' . $activity_id . '/result' )
+        );
+
+        echo '<div class="tt-act-result">';
+        self::renderResultSide( 'home_score', (string) $result['our_abbr'], $our_team, $ours );
+        echo '<div class="tt-act-result__dash" aria-hidden="true">&ndash;</div>';
+        self::renderResultSide( 'away_score', (string) $result['their_abbr'], $their_team, $theirs );
+        echo '</div>';
+
+        if ( ! $result['has_score'] ) {
+            echo '<p class="tt-act-result__hint">'
+                . esc_html__( 'No result recorded yet. That is not the same as 0 – 0 — leave the boxes empty until you know.', 'talenttrack' )
+                . '</p>';
+        }
+
+        // §6 — Cancel lands back where the user was before they started
+        // typing, which for a card on the record's own page is the record's
+        // own page. A `tt_back` hint on the entry URL wins over it (#2869),
+        // which the helper resolves.
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes.
+            'label'      => __( 'Save result', 'talenttrack' ),
+            'cancel_url' => \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $activity_id ),
+        ] );
+
+        echo '</form>';
+    }
+
+    /**
+     * One side of the read-only score box. An em-dash rather than a 0 where
+     * no score was recorded: the two are different facts (#3529).
+     */
+    private static function renderResultNumber( string $abbr, ?int $score, string $team ): void {
+        echo '<div class="tt-act-result__side">';
+        printf( '<div class="tt-act-result__abbr">%s</div>', esc_html( $abbr ) );
+        echo '<div class="tt-act-result__num">';
+        if ( $score === null ) {
+            echo '<span class="tt-act-result__none">&mdash;</span>';
+        } else {
+            echo esc_html( (string) $score );
+        }
+        echo '</div>';
+        printf( '<div class="tt-act-result__team">%s</div>', esc_html( $team ) );
+        echo '</div>';
+    }
+
+    /**
+     * One side of the editable score box: abbreviation, input, full team name.
+     */
+    private static function renderResultSide( string $field, string $abbr, string $team, string $value ): void {
+        echo '<div class="tt-act-result__side">';
+        printf( '<div class="tt-act-result__abbr">%s</div>', esc_html( $abbr ) );
+        printf(
+            '<input class="tt-act-result__in" type="number" inputmode="numeric" min="0" max="99" step="1" name="%1$s" value="%2$s" aria-label="%3$s" />',
+            esc_attr( $field ),
+            esc_attr( $value ),
+            esc_attr( sprintf( /* translators: %s: team name. */ __( 'Goals for %s', 'talenttrack' ), $team ) )
+        );
+        printf( '<div class="tt-act-result__team">%s</div>', esc_html( $team ) );
+        echo '</div>';
+    }
+
+    /**
+     * The read-only face: an execution-owned match, or a viewer without the
+     * edit capability. An execution-owned match also prints its goal log,
+     * because "where did that 3 come from" is the question the readout has
+     * to answer if it will not let anyone change it.
+     *
+     * @param array<string,mixed> $result
+     */
+    private static function renderResultReadout( array $result, string $our_team, string $their_team ): void {
+        $ours   = $result['our_score']   === null ? null : (int) $result['our_score'];
+        $theirs = $result['their_score'] === null ? null : (int) $result['their_score'];
+
+        echo '<div class="tt-act-result">';
+        self::renderResultNumber( (string) $result['our_abbr'], $ours, $our_team );
+        echo '<div class="tt-act-result__dash" aria-hidden="true">&ndash;</div>';
+        self::renderResultNumber( (string) $result['their_abbr'], $theirs, $their_team );
+        echo '</div>';
+
+        if ( empty( $result['owned_by_execution'] ) ) return;
+
+        echo '<p class="tt-act-result__derived-line">'
+            . '<span class="tt-act-result__derived">' . esc_html__( 'From the match sheet', 'talenttrack' ) . '</span>'
+            . '</p>';
+
+        $log = is_array( $result['goal_log'] ) ? $result['goal_log'] : [];
+        if ( $log !== [] ) {
+            echo '<ul class="tt-act-result__log">';
+            foreach ( $log as $ev ) {
+                echo '<li>';
+                // A goal typed in after the fact carries no minute — migration
+                // 0246 refused to invent one — so the slot says so rather than
+                // showing a fabricated clock time.
+                printf(
+                    '<span class="tt-act-result__min%s">%s</span>',
+                    $ev['minute'] === null ? ' is-none' : '',
+                    esc_html( $ev['minute'] !== null
+                        ? sprintf( "%d'", (int) $ev['minute'] )
+                        : __( 'No time', 'talenttrack' ) )
+                );
+                echo '<span class="tt-act-result__who">' . esc_html( (string) $ev['scorer'] ) . '</span>';
+                printf(
+                    '<span class="tt-act-result__for tt-act-result__for--%1$s">%2$s</span>',
+                    esc_attr( $ev['team'] === 'them' ? 'them' : 'us' ),
+                    esc_html( (string) ( $ev['team'] === 'them' ? $result['their_abbr'] : $result['our_abbr'] ) )
+                );
+                echo '</li>';
+            }
+            echo '</ul>';
+        }
+    }
+
+    /**
+     * Attributed goals against the recorded scoreline — the same
+     * reconciliation the minutes grid's footer prints, and carrying the same
+     * ruling: information, never a validation gate. "We do not know who
+     * scored the third" is a true state of the world, and the surface's job
+     * is to show it rather than forbid it (#3094).
+     *
+     * @param array<string,mixed> $result
+     */
+    private static function renderResultReconciliation( int $activity_id, array $result ): void {
+        $attributed = (int) $result['attributed_goals'];
+        $ours       = $result['our_score'];
+
+        // The grid is where a scorer gets a name. Routed through the shared
+        // deep-link helper so this link carries the same feature toggle,
+        // capability gate and has-a-team precondition the activity header's
+        // own "Minutes + statistics" button does — and lands on this match's
+        // column rather than the whole period (#2401). Empty when the user
+        // cannot reach it, in which case the sentence stands on its own
+        // rather than offering a dead click.
+        $grid_url = \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( $activity_id, get_current_user_id() )
+            ? \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id )
+            : '';
+        $link = $grid_url === '' ? '' : sprintf(
+            '<a href="%s">%s</a>',
+            esc_url( $grid_url ),
+            esc_html__( 'Minutes + statistics', 'talenttrack' )
+        );
+
+        if ( $ours === null ) {
+            // No scoreline to reconcile against. Saying "0 of 0" would claim
+            // an agreement that was never tested, so the line only appears
+            // once there is something to say.
+            if ( $attributed === 0 ) return;
+            $sentence = sprintf(
+                /* translators: %d: number of goals that have a named scorer. */
+                esc_html( _n(
+                    '%d goal here has a scorer against it. Record the result above and the two reconcile.',
+                    '%d goals here have a scorer against them. Record the result above and the two reconcile.',
+                    $attributed,
+                    'talenttrack'
+                ) ),
+                $attributed
+            );
+            $mismatch = false;
+        } else {
+            $ours     = (int) $ours;
+            $mismatch = $attributed !== $ours;
+            $sentence = sprintf(
+                /* translators: 1: goals with a named scorer, 2: goals we scored. */
+                esc_html__( '%1$d of %2$d goals have a scorer.', 'talenttrack' ),
+                $attributed,
+                $ours
+            );
+        }
+
+        printf(
+            '<p class="tt-act-result__recon%s">%s%s</p>',
+            $mismatch ? ' is-mismatch' : '',
+            $sentence, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
+            $link === '' ? '' : ' ' . $link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built above.
         );
     }
 
@@ -3308,6 +3625,40 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <label class="tt-field-label" for="tt-activity-presence-time"><?php esc_html_e( 'Presence time (optional)', 'talenttrack' ); ?></label>
                     <input type="time" id="tt-activity-presence-time" class="tt-input" name="time_of_presence" value="<?php echo esc_attr( substr( $current_presence, 0, 5 ) ); ?>" />
                 </div>
+                <?php
+                // #3530 (epic #3529) — the fixture facts. Eight surfaces read
+                // `opponent` / `home_away` (the detail hero and facts strip,
+                // match prep on screen and in print, the team-sheet PDF, the
+                // week-plan print, the live sheet's score labels, the player's
+                // My-team fixture line) and until now nothing wrote them, so
+                // every one of them fell back on every real install.
+                //
+                // They live here rather than on the Result card because they
+                // are known before kick-off: the fixture is set up when the
+                // match is planned, the score is recorded after it is played.
+                $current_opponent  = (string) ( $session->opponent ?? '' );
+                $current_home_away = strtolower( (string) ( $session->home_away ?? '' ) );
+                ?>
+                <?php
+                // The show/hide toggle is a class rather than an inline
+                // `display`, because a show/hide state is exactly what belongs
+                // in a stylesheet (#1389 / CLAUDE.md §2). The older rows above
+                // predate that gate.
+                $fixture_row_class = 'tt-field tt-act-fixture-row' . ( $is_match_type ? '' : ' is-off' );
+                ?>
+                <div class="<?php echo esc_attr( $fixture_row_class ); ?>" id="tt-activity-opponent-row">
+                    <label class="tt-field-label" for="tt-activity-opponent"><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label>
+                    <input type="text" id="tt-activity-opponent" class="tt-input" name="opponent" maxlength="190" autocomplete="off" value="<?php echo esc_attr( $current_opponent ); ?>" />
+                </div>
+                <div class="<?php echo esc_attr( $fixture_row_class ); ?>" id="tt-activity-homeaway-row">
+                    <label class="tt-field-label" for="tt-activity-homeaway"><?php echo esc_html__( 'Home / Away', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-homeaway" class="tt-input" name="home_away">
+                        <option value=""><?php esc_html_e( '— Choose —', 'talenttrack' ); ?></option>
+                        <option value="home" <?php selected( $current_home_away, 'home' ); ?>><?php echo esc_html__( 'Home', 'talenttrack' ); ?></option>
+                        <option value="away" <?php selected( $current_home_away, 'away' ); ?>><?php echo esc_html__( 'Away', 'talenttrack' ); ?></option>
+                        <option value="neutral" <?php selected( $current_home_away, 'neutral' ); ?>><?php echo esc_html__( 'Neutral ground', 'talenttrack' ); ?></option>
+                    </select>
+                </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-location"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-location" class="tt-input" name="location" value="<?php echo esc_attr( (string) ( $session->location ?? '' ) ); ?>" />
@@ -3449,12 +3800,18 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 var otherRow       = document.getElementById('tt-activity-other-row');
                 var tournamentRow  = document.getElementById('tt-activity-tournament-row'); // #1324
                 var presenceRow    = document.getElementById('tt-activity-presence-row');   // #1729
+                var opponentRow    = document.getElementById('tt-activity-opponent-row');   // #3530
+                var homeAwayRow    = document.getElementById('tt-activity-homeaway-row');   // #3530
                 var matchTypes     = ['game','match','friendly','tournament'];
                 sel.addEventListener('change', function(){
+                    var isMatch = ( matchTypes.indexOf( sel.value ) !== -1 );
                     if ( subRow )        subRow.style.display        = ( sel.value === 'game' )       ? '' : 'none';
                     if ( otherRow )      otherRow.style.display      = ( sel.value === 'other' )      ? '' : 'none';
                     if ( tournamentRow ) tournamentRow.style.display = ( sel.value === 'tournament' ) ? '' : 'none';
-                    if ( presenceRow )   presenceRow.style.display   = ( matchTypes.indexOf( sel.value ) !== -1 ) ? '' : 'none';
+                    if ( presenceRow )   presenceRow.style.display   = isMatch ? '' : 'none';
+                    // #3530 — class toggle, not an inline display (#1389).
+                    if ( opponentRow )   opponentRow.classList.toggle( 'is-off', ! isMatch );
+                    if ( homeAwayRow )   homeAwayRow.classList.toggle( 'is-off', ! isMatch );
                 });
             })();
             </script>

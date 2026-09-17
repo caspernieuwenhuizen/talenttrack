@@ -94,6 +94,7 @@ first in tab order and Save on the right where the thumb finds it.
 - The band column on the [Potential overview](potential-overview.md), which
   is a fourth grid in everything but name.
 - Short record forms: player, team, person, activity, and the rest.
+- The **Result** card on a match — see [Activities](activities.md#recording-the-result).
 - Creating an evaluation or a goal — as opposed to editing one.
 - Configuration screens and lookup lists.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
@@ -115,6 +116,13 @@ being committed is a set of judgements that only make sense together.
 **Why the short record forms.** The fields are a small known set, and Save is
 a useful pause — the beat where you check the date is right before you commit
 it. Autosaving them would remove that pause and buy nothing.
+
+**Why the Result card.** Two number boxes, and nobody *composes* a scoreline —
+there is no draft of "we won 3–1" to protect. What there is to protect is the
+half-typed state: a debounce firing between the two boxes would publish `3 – `
+as a real result to the team record, the player's form line and the monthly
+report, until the second keystroke landed. One commit for the pair is the only
+honest shape.
 
 **Why creating is different from editing.** Autosave writes *to a record*, and
 while you are creating one there is nothing to write to. A create form that

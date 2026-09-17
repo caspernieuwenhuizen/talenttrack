@@ -475,6 +475,22 @@ final class MinutesQuery {
     }
 
     /**
+     * Who played in one match, and for how long (#3516).
+     *
+     * A thin public door onto {@see persistedMinutes()} rather than a second
+     * query, so the monthly report's per-match squads reconcile exactly with
+     * the minutes the rest of the product shows — the #2193 single source of
+     * truth, persisted `record_type = 'actual'` only.
+     *
+     * @return array<int,int> player_id => minutes
+     */
+    public static function squadForActivity( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        return self::persistedMinutes( $activity_id, (int) CurrentClub::id() );
+    }
+
+    /**
      * #2160 — per-match minutes breakdown for ONE player on a team over a
      * date window. Reads the exact same source as {@see forTeam()}:
      * persisted `record_type = 'actual'` minutes ONLY (#2193 — no report-

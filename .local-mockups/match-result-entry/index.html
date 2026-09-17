@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match result entry — mockup</title>
+<style>
+/* ================================================================
+   Mockup — recording a match result without the live match sheet.
+
+   Production classes are copied verbatim:
+     .tt-act-*      assets/css/frontend-activities-manage.css
+     .tt-agrid-*    assets/css/frontend-attendance-grid.css
+                    + assets/css/frontend-minutes-grid.css
+     tokens          assets/css/tokens.css
+   New classes are .tt-act-result__* and .tt-agrid-score*.
+   ================================================================ */
+
+:root {
+  --tt-ink:            #0e1a14;
+  --tt-ink-soft:       #6a6d66;
+  --tt-muted:          #6a6d66;
+  --tt-paper:          #ffffff;
+  --tt-bg-soft:        #f4f6f3;
+  --tt-line:           #e3e6e1;
+  --tt-line-soft:      #eef0ec;
+  --tt-line2:          #b9c2b6;
+  --tt-primary:        #0b3d2e;
+  --tt-primary2:       #0d3325;
+  --tt-gold:           #e8b624;
+  --tt-success:        #2f9e5e;
+  --tt-success-subtle: #dff5e1;
+  --tt-success-ink:    #1f6d41;
+  --tt-warning:        #e8902b;
+  --tt-warning-subtle: #fdf3d8;
+  --tt-warning-ink:    #8a5300;
+  --tt-danger:         #d8453b;
+  --tt-info:           #2d6fb3;
+  --tt-info-subtle:    #e6f0fa;
+  --tt-info-ink:       #1c5aa0;
+  --tt-link:           #2d6fb3;
+  --tt-radius:         8px;
+  --tt-radius-lg:      14px;
+  --tt-sp-1: 4px; --tt-sp-2: 8px; --tt-sp-3: 12px; --tt-sp-4: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 20px 16px; background: #f3f6f3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--tt-ink);
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+
+/* ---- mockup chrome (NOT production) -------------------------- */
+.mk-bar {
+  background: #fff; border: 1px solid var(--tt-line); border-radius: 10px;
+  padding: 14px; margin-bottom: 16px;
+}
+.mk-bar h1 { margin: 0 0 6px; font-size: 15px; }
+.mk-bar p { margin: 0 0 10px; font-size: 12.5px; line-height: 1.55; color: #3f4a44; max-width: 90ch; }
+.mk-bar code { background: #f0f3f2; border-radius: 3px; padding: 0 3px; font-size: 11.5px; }
+.mk-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.mk-row > b { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--tt-muted); margin-right: 2px; }
+.mk-row button {
+  min-height: 36px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--tt-line); background: #fff; color: var(--tt-primary);
+  font-size: 12px; font-weight: 700;
+}
+.mk-row button[aria-pressed="true"] { background: var(--tt-primary); color: #fff; border-color: var(--tt-primary); }
+.mk-note {
+  background: #fffdf3; border: 1px solid #f0e3b8; border-left: 4px solid var(--tt-gold);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-size: 13px; line-height: 1.6;
+}
+.mk-note b { color: #8a6a10; }
+.mk-note ul { margin: 8px 0 0; padding-left: 20px; }
+.mk-note li { margin-bottom: 5px; }
+.mk-note code { background: #f6f1e0; border-radius: 3px; padding: 0 3px; font-size: 11.5px; }
+.mk-bad {
+  display: inline-flex; align-items: center; gap: 4px; background: #fde2e2;
+  border: 1px dashed var(--tt-danger); border-radius: 6px;
+  padding: 1px 6px; font-size: 11px; font-weight: 700; color: #a32b22;
+}
+.mk-flag { outline: 2px dashed var(--tt-danger); outline-offset: 3px; }
+.variant, .state { display: none; }
+.variant.is-on, .state.is-on { display: block; }
+
+/* phone frame */
+.mk-stage { display: flex; justify-content: center; }
+.mk-stage.is-phone .tt-dashboard {
+  width: 360px; border: 10px solid #1d2420; border-radius: 26px;
+  padding: 10px; background: #f3f6f3; overflow-x: hidden;
+}
+.mk-stage:not(.is-phone) .tt-dashboard { width: 100%; }
+
+/* ================================================================
+   PRODUCTION — activity detail (frontend-activities-manage.css)
+   ================================================================ */
+.tt-act-panel {
+  background: var(--tt-line-soft); border: 1px solid var(--tt-line);
+  border-radius: var(--tt-radius-lg); padding: var(--tt-sp-4);
+  display: grid; gap: var(--tt-sp-4);
+}
+.tt-act-detail__hero {
+  display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap;
+  background: #fff; border: 1px solid var(--tt-line); border-radius: 16px; padding: 16px;
+}
+.tt-act-detail__icon {
+  width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  font-size: 19px; flex: 0 0 auto;
+}
+.tt-act-detail__hero-main { flex: 1; min-width: 0; }
+.tt-act-detail__name { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; line-height: 1.25; }
+.tt-act-detail__vs { color: var(--tt-ink-soft); font-weight: 600; font-size: .9em; }
+.tt-act-detail__sub { margin: 0 0 8px; font-size: .8125rem; color: var(--tt-ink-soft); line-height: 1.5; }
+.tt-act-detail__pills { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tt-pill {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; background: #5b6e75; color: #fff;
+}
+.tt-pill--game { background: #1c5aa0; }
+.tt-pill--done { background: var(--tt-success); }
+.tt-act-detail__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (min-width: 620px) { .tt-act-detail__facts { grid-template-columns: repeat(4, 1fr); } }
+.mk-stage.is-phone .tt-act-detail__facts { grid-template-columns: 1fr 1fr; }
+.tt-act-detail__fact {
+  background: var(--tt-bg-soft); border: 1px solid var(--tt-line);
+  border-radius: 12px; padding: 11px 13px;
+}
+.tt-act-detail__fact-k {
+  font-size: .625rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--tt-ink-soft); margin-bottom: 3px;
+}
+.tt-act-detail__fact-v { font-size: 1rem; font-weight: 700; }
+.tt-act-detail__fact-v.is-empty { color: #b3b8b2; font-weight: 600; }
+.tt-act-detail__grid { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
+@media (min-width: 768px) {
+  .tt-act-detail__grid { grid-template-columns: 1fr 1fr; }
+  .tt-act-card-d--span2 { grid-column: 1 / -1; }
+}
+.mk-stage.is-phone .tt-act-detail__grid { grid-template-columns: 1fr; }
+.tt-act-card-d {
+  background: #fff; border: 1px solid var(--tt-line); border-radius: 16px; overflow: hidden;
+}
+.tt-act-card-d__head {
+  padding: 12px 16px; border-bottom: 1px solid var(--tt-line);
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+}
+.tt-act-card-d__title { font-size: .875rem; font-weight: 700; margin: 0; }
+.tt-act-card-d__link {
+  font-size: .8125rem; color: var(--tt-link); text-decoration: none;
+  min-height: 48px; display: inline-flex; align-items: center; padding: 0 4px;
+  touch-action: manipulation;
+}
+.tt-act-card-d__link:hover, .tt-act-card-d__link:focus-visible { text-decoration: underline; }
+.tt-act-card-d__body { padding: 14px 16px; font-size: .875rem; }
+.tt-act-card-d__muted { color: var(--tt-ink-soft); }
+
+/* shared button (public.css) */
+.tt-btn {
+  min-height: 48px; padding: 10px 18px; border-radius: var(--tt-radius);
+  border: 1px solid var(--tt-line); background: #fff; color: var(--tt-primary);
+  font-weight: 700; font-size: 14px; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; touch-action: manipulation;
+}
+.tt-btn-primary { background: var(--tt-primary); border-color: var(--tt-primary); color: #fff; }
+.tt-btn-secondary { background: #fff; }
+/* FormSaveButton::render() wrapper — Cancel left, Save right (CLAUDE.md §6) */
+.tt-form-actions {
+  display: flex; gap: var(--tt-sp-2); align-items: center;
+  margin-top: var(--tt-sp-4); padding-top: var(--tt-sp-3);
+  border-top: 1px solid var(--tt-line);
+}
+.tt-form-actions .tt-btn-secondary { order: 1; }
+.tt-form-actions .tt-btn-primary { order: 2; margin-left: auto; }
+
+/* ================================================================
+   NEW — .tt-act-result__* (the Result card)
+   ================================================================ */
+.tt-act-result {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: var(--tt-sp-2);
+}
+.tt-act-result__side { min-width: 0; text-align: center; }
+.tt-act-result__abbr {
+  font-size: .625rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--tt-ink-soft); margin-bottom: 5px;
+}
+/* 16px+ so iOS does not zoom on focus; 48px floor on the target. */
+.tt-act-result__in {
+  width: 100%; max-width: 88px; min-height: 56px;
+  text-align: center; font-size: 1.75rem; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--tt-line2); border-radius: 10px;
+  background: #fff; color: var(--tt-ink); padding: 0;
+  -moz-appearance: textfield;
+}
+.tt-act-result__in::-webkit-outer-spin-button,
+.tt-act-result__in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tt-act-result__in:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: 1px; }
+.tt-act-result__num {
+  font-size: 1.75rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  line-height: 56px;
+}
+.tt-act-result__dash { font-size: 1.25rem; font-weight: 700; color: var(--tt-ink-soft); padding: 0 2px; }
+.tt-act-result__team {
+  font-size: .75rem; color: var(--tt-ink-soft); margin-top: 5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* home / away segmented control */
+.tt-act-result__venue { margin-top: var(--tt-sp-4); }
+.tt-act-result__vlabel {
+  display: block; font-size: .625rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--tt-ink-soft); margin-bottom: 6px;
+}
+.tt-seg { display: inline-flex; border: 1px solid var(--tt-line2); border-radius: var(--tt-radius); overflow: hidden; }
+.tt-seg label {
+  min-height: 48px; display: inline-flex; align-items: center; padding: 0 16px;
+  font-size: 14px; font-weight: 700; color: var(--tt-primary); background: #fff;
+  border-left: 1px solid var(--tt-line); cursor: pointer; touch-action: manipulation;
+}
+.tt-seg label:first-child { border-left: 0; }
+.tt-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.tt-seg label:has(input:checked) { background: var(--tt-primary); color: #fff; }
+.tt-seg label:focus-within { outline: 2px solid var(--tt-info); outline-offset: -2px; }
+
+/* the opponent field */
+.tt-field { margin-top: var(--tt-sp-4); }
+.tt-field__label {
+  display: block; font-size: .625rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--tt-ink-soft); margin-bottom: 6px;
+}
+.tt-input {
+  width: 100%; min-height: 48px; font-size: 16px; padding: 0 12px;
+  border: 1px solid var(--tt-line2); border-radius: var(--tt-radius); background: #fff;
+}
+.tt-input:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: 1px; }
+
+/* attribution / reconciliation line — information, never a gate */
+.tt-act-result__recon {
+  margin-top: var(--tt-sp-4); padding-top: var(--tt-sp-3);
+  border-top: 1px dashed var(--tt-line);
+  font-size: .8125rem; line-height: 1.55; color: var(--tt-ink-soft);
+}
+.tt-act-result__recon.is-mismatch { color: var(--tt-warning-ink); }
+.tt-act-result__recon b { font-variant-numeric: tabular-nums; }
+.tt-act-result__recon a { color: var(--tt-link); }
+
+/* derived (live-sheet) readout */
+.tt-act-result__derived {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--tt-warning-subtle); border: 1px solid #f0d9a8;
+  border-radius: 999px; padding: 2px 10px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--tt-warning-ink);
+}
+.tt-act-result__log { margin: var(--tt-sp-3) 0 0; padding: 0; list-style: none; }
+.tt-act-result__log li {
+  display: flex; gap: 8px; align-items: baseline;
+  padding: 6px 0; border-top: 1px solid var(--tt-line-soft); font-size: .8125rem;
+}
+.tt-act-result__min {
+  font-weight: 800; font-variant-numeric: tabular-nums; color: var(--tt-ink-soft);
+  min-width: 34px; font-size: .75rem;
+}
+.tt-act-result__min.is-none { color: #b3b8b2; font-weight: 600; }
+.tt-act-result__for {
+  margin-left: auto; font-size: 10px; font-weight: 800; letter-spacing: .04em;
+  padding: 1px 6px; border-radius: 4px;
+}
+.tt-act-result__for--us { background: var(--tt-success-subtle); color: var(--tt-success-ink); }
+.tt-act-result__for--them { background: #f0f3f2; color: var(--tt-ink-soft); }
+.tt-act-result__empty {
+  display: grid; gap: var(--tt-sp-3); justify-items: start;
+  color: var(--tt-ink-soft); font-size: .875rem;
+}
+
+/* ================================================================
+   PRODUCTION — the grid (attendance + minutes grid CSS)
+   ================================================================ */
+.tt-agrid-lead { color: #4b5563; font-size: 14px; margin: 0 0 14px; max-width: 70ch; }
+.tt-agrid-modes { display: inline-flex; border: 1px solid var(--tt-line); border-radius: 8px; overflow: hidden; margin: 0 0 14px; }
+.tt-agrid-modes > * {
+  min-height: 44px; display: inline-flex; align-items: center; padding: 6px 16px;
+  font-weight: 700; font-size: 13px; text-decoration: none;
+  color: var(--tt-primary); background: #fff; border-left: 1px solid var(--tt-line);
+}
+.tt-agrid-modes > *:first-child { border-left: 0; }
+.tt-agrid-modes .is-on { background: var(--tt-primary); color: #fff; }
+.tt-agrid-card { background: #fff; border: 1px solid var(--tt-line); border-radius: 10px; overflow: hidden; }
+.tt-agrid-card__head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 12px 14px; background: var(--tt-primary); color: #fff;
+}
+.tt-agrid-card__title { margin: 0; font-size: 15px; }
+.tt-agrid-card__hint { font-size: 12px; color: #bcd3c8; }
+.tt-agrid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.tt-agrid { border-collapse: collapse; width: 100%; font-size: 13px; }
+.tt-agrid th, .tt-agrid td { border: 1px solid var(--tt-line2); padding: 0; text-align: center; }
+.tt-agrid thead th {
+  position: sticky; top: 0; z-index: 2; background: var(--tt-primary); color: #fff;
+  white-space: nowrap; font-size: 11px; font-weight: 700; padding: 6px 4px;
+}
+.tt-agrid th.tt-agrid__player, .tt-agrid td.tt-agrid__player {
+  position: sticky; left: 0; z-index: 1; background: #fff; text-align: left;
+  min-width: 176px; box-shadow: 1px 0 0 var(--tt-line); padding: 6px 10px; font-weight: 600;
+}
+.tt-agrid thead th.tt-agrid__player { z-index: 3; background: var(--tt-primary); }
+.tt-agrid__who { display: flex; align-items: center; gap: 9px; }
+.tt-agrid__no { color: var(--tt-muted); font-weight: 800; font-size: 12px; min-width: 18px; text-align: right; }
+.tt-agrid__act { min-width: 58px; }
+.tt-agrid__act.is-match { background: var(--tt-primary2); }
+.tt-agrid__act-date { display: block; font-weight: 800; font-size: 12px; }
+.tt-agrid__act-type { display: block; font-size: 13px; line-height: 1; margin: 2px 0; }
+.tt-agrid__act-owned {
+  display: block; margin-top: 2px; font-size: 9px; font-weight: 800;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--tt-gold);
+}
+.tt-agrid__actgroup { border-bottom: 1px solid rgba(255,255,255,.25); }
+.tt-agrid__sub {
+  background: var(--tt-primary2); color: #cfe0d6; font-size: 10px; font-weight: 800;
+  letter-spacing: .03em; padding: 3px 2px; min-width: 42px;
+}
+.tt-agrid__sub.is-min { min-width: 56px; }
+.tt-agrid-cell { position: relative; }
+.tt-agrid-cell.tt-agrid-min { padding: 3px; }
+.tt-agrid-min-in {
+  width: 56px; min-height: 40px; text-align: center; border: 1px solid var(--tt-line);
+  border-radius: 6px; font-size: 16px; background: #fff; font-variant-numeric: tabular-nums;
+}
+.tt-agrid-stat { padding: 3px; }
+.tt-agrid-stat-in {
+  width: 38px; min-height: 40px; text-align: center; border: 1px solid var(--tt-line);
+  border-radius: 6px; font-size: 16px; background: #fff; font-variant-numeric: tabular-nums; color: var(--tt-ink);
+}
+.tt-agrid-stat-in.is-zero { color: #c8ccc6; background: #fcfdfc; }
+.tt-agrid-min-in:focus-visible, .tt-agrid-stat-in:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: -1px; }
+.tt-agrid-cell--na {
+  background: repeating-linear-gradient(45deg,#fafbfa,#fafbfa 5px,#f1f3f1 5px,#f1f3f1 10px);
+  color: #b3b8b2;
+}
+.tt-agrid-cell--sep { border-left-width: 2px; border-left-color: #8fa08c; }
+.tt-agrid td.tt-agrid__rate, .tt-agrid th.tt-agrid__rate {
+  min-width: 56px; background: #f0f3f2; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.tt-agrid thead th.tt-agrid__rate { background: var(--tt-primary); }
+.tt-agrid-savebar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; background: #f3f6f3; border-top: 1px solid var(--tt-line);
+}
+.tt-agrid-savebar__status { font-size: 13px; font-weight: 700; color: var(--tt-muted); }
+.tt-agrid-savebar__status.is-dirty { color: #8a3d10; }
+.tt-agrid-savebar__actions { margin-left: auto; display: flex; gap: 10px; }
+.tt-agrid-legend {
+  display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 14px;
+  font-size: 12px; color: var(--tt-muted); border-top: 1px solid var(--tt-line);
+}
+.tt-agrid-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.tt-agrid tfoot td, .tt-agrid tfoot th {
+  background: #f0f3f2; font-size: 11px; font-weight: 800; color: var(--tt-muted);
+  padding: 5px 4px; font-variant-numeric: tabular-nums;
+}
+.tt-agrid tfoot th.tt-agrid__player { background: #f0f3f2; color: var(--tt-muted); font-size: 11px; }
+.tt-agrid-recon { display: inline-flex; align-items: center; gap: 4px; }
+.tt-agrid-recon.is-off { color: #8a5a10; }
+.tt-agrid-recon.is-off::after {
+  content: "!"; display: inline-grid; place-items: center; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--tt-warning); color: #fff; font-size: 9px; font-weight: 900;
+}
+
+/* ---- NEW — .tt-agrid-score* (the score header rows) ---------- */
+.tt-agrid thead th.tt-agrid-score {
+  background: #0a2f22; padding: 4px 3px;
+}
+.tt-agrid-score__pair {
+  display: inline-flex; align-items: center; gap: 4px; justify-content: center;
+}
+.tt-agrid-score-in {
+  width: 34px; min-height: 34px; text-align: center; border: 1px solid #2c5a49;
+  border-radius: 5px; font-size: 16px; font-weight: 800; background: #fff;
+  color: var(--tt-ink); font-variant-numeric: tabular-nums; padding: 0;
+  -moz-appearance: textfield;
+}
+.tt-agrid-score-in::-webkit-outer-spin-button,
+.tt-agrid-score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tt-agrid-score-in:focus-visible { outline: 2px solid var(--tt-gold); outline-offset: 1px; }
+.tt-agrid-score-in.is-empty { color: #b3b8b2; }
+.tt-agrid-score__dash { color: #8fa08c; font-weight: 800; font-size: 12px; }
+/* a live column's scoreline is derived from the goal log — readout only */
+.tt-agrid-score__derived {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 15px; font-weight: 800; color: var(--tt-gold);
+  font-variant-numeric: tabular-nums; min-height: 34px;
+}
+.tt-agrid-score__lock { font-size: 10px; opacity: .8; }
+/* sits in the frozen column, so it freezes with it */
+.tt-agrid thead th.tt-agrid-score__rowlabel {
+  position: sticky; left: 0; z-index: 3;
+  min-width: 176px; box-shadow: 1px 0 0 #0a2f22;
+  background: #0a2f22; text-align: left; font-size: 10px; font-weight: 800;
+  letter-spacing: .05em; text-transform: uppercase; color: #a9c4b7; padding: 4px 10px;
+}
+
+/* ================================================================
+   C — the rejected "simplified match sheet"
+   ================================================================ */
+.mk-lite {
+  width: 360px; margin: 0 auto; border: 10px solid #1d2420; border-radius: 26px;
+  background: #0b3d2e; padding: 0; overflow: hidden;
+}
+.mk-lite__bar {
+  background: #0a2f22; color: #fff; padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.mk-lite__bar b { font-size: 13px; }
+.mk-lite__bar span { font-size: 11px; color: #a9c4b7; }
+.mk-lite__score {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  gap: 8px; padding: 18px 12px; background: #0b3d2e; color: #fff; text-align: center;
+}
+.mk-lite__abbr { font-size: 10px; font-weight: 800; letter-spacing: .09em; color: #a9c4b7; margin-bottom: 6px; }
+.mk-lite__num { font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.mk-lite__step {
+  min-width: 48px; min-height: 48px; margin-top: 10px; border-radius: 10px;
+  border: 1px solid #2c5a49; background: #114735; color: #fff;
+  font-size: 20px; font-weight: 800; cursor: pointer;
+}
+.mk-lite__panel { background: #fff; padding: 12px; }
+.mk-lite__panel h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--tt-ink-soft); }
+.mk-lite__row {
+  display: flex; align-items: center; gap: 8px; padding: 8px 0;
+  border-top: 1px solid var(--tt-line-soft); font-size: 13px;
+}
+.mk-lite__row select, .mk-lite__row input {
+  min-height: 44px; font-size: 16px; border: 1px solid var(--tt-line2);
+  border-radius: 6px; padding: 0 8px; flex: 1; min-width: 0;
+}
+.mk-lite__cta { padding: 12px; background: #f3f6f3; display: flex; gap: 8px; }
+.mk-lite__cta .tt-btn { flex: 1; }
+.mk-strike { position: relative; }
+.mk-strike::after {
+  content: "REJECTED"; position: absolute; inset: 0; display: grid; place-items: center;
+  font: 800 22px/1 -apple-system, "Segoe UI", sans-serif; letter-spacing: .18em;
+  color: rgba(216,69,59,.5); background: rgba(255,255,255,.28);
+  transform: rotate(-11deg); pointer-events: none;
+}
+
+/* ---- side-by-side compare ------------------------------------ */
+.mk-two { display: grid; gap: 16px; }
+@media (min-width: 900px) { .mk-two { grid-template-columns: 1fr 1fr; } }
+.mk-two h3 { margin: 0 0 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mk-bar">
+  <h1>Recording a match result without the live match sheet</h1>
+  <p>
+    Today <code>tt_activities.home_score</code> / <code>away_score</code> has exactly one writer in the whole
+    plugin: <code>MatchExecutionRestController::route_finish()</code>. A club that does its admin on a Sunday
+    evening has <b>no way at all</b> to record that the match ended 3–1 — and no way to record the opponent's
+    goals, which are not player-attributable and so were never reachable through the minutes grid's
+    <code>G</code> column. The same audit found <code>opponent</code> and <code>home_away</code> are read in
+    eight places and <b>written nowhere</b>: the activity create/update payload does not carry them.
+  </p>
+  <p>
+    <b>The proposal: the result belongs to the match record.</b> A <b>Result card</b> on the match's own page is
+    the primary surface (A); the minutes grid gains two score rows for bulk catch-up (B). A stripped-down
+    second match-execution surface (C) is rejected.
+  </p>
+  <div class="mk-row">
+    <b>Surface</b>
+    <button data-v="a" aria-pressed="true">A · Result card on the match page (chosen)</button>
+    <button data-v="b" aria-pressed="false">B · Score rows in the grid (also ships)</button>
+    <button data-v="c" aria-pressed="false">C · Simplified match sheet (rejected)</button>
+    <button data-v="base" aria-pressed="false">Today (baseline)</button>
+  </div>
+  <div class="mk-row" id="mk-states">
+    <b>State</b>
+    <button data-s="manual" aria-pressed="true">Typed up afterwards</button>
+    <button data-s="live" aria-pressed="false">Run on the live sheet</button>
+    <button data-s="none" aria-pressed="false">Played, no result yet</button>
+  </div>
+  <div class="mk-row">
+    <b>Viewport</b>
+    <button data-w="phone" aria-pressed="true">360px</button>
+    <button data-w="desk" aria-pressed="false">Desktop</button>
+  </div>
+</div>
+
+<div class="mk-note" id="mk-note"></div>
+
+<!-- ============================================================ A -->
+<section class="variant is-on" data-v="a">
+  <div class="mk-stage is-phone" id="stage-a">
+    <div class="tt-dashboard">
+      <div class="tt-act-panel">
+
+        <header class="tt-act-detail__hero">
+          <div class="tt-act-detail__icon" style="background:#e6f0fa;">⚽</div>
+          <div class="tt-act-detail__hero-main">
+            <h2 class="tt-act-detail__name">Ajax JO14-1 <span class="tt-act-detail__vs">vs</span> VVV JO14-1</h2>
+            <p class="tt-act-detail__sub">za 14 sep · Aftrap 11:30 · JO14-1 · Sportpark De Toekomst</p>
+            <p class="tt-act-detail__pills">
+              <span class="tt-pill tt-pill--game">Wedstrijd</span>
+              <span class="tt-pill tt-pill--done">Afgerond</span>
+            </p>
+          </div>
+        </header>
+
+        <div class="tt-act-detail__facts">
+          <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Datum</div><div class="tt-act-detail__fact-v">za 14 sep</div></div>
+          <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Tegenstander</div><div class="tt-act-detail__fact-v">VVV JO14-1</div></div>
+          <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Thuis / uit</div><div class="tt-act-detail__fact-v">Uit</div></div>
+          <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Uitslag</div><div class="tt-act-detail__fact-v" id="a-fact-score">3 – 1</div></div>
+        </div>
+
+        <div class="tt-act-detail__grid">
+
+          <!-- ---- the Result card ---------------------------------- -->
+          <div class="tt-act-card-d tt-act-card-d--span2" id="a-card"></div>
+
+          <!-- a neighbouring card, for context/density -------------- -->
+          <div class="tt-act-card-d">
+            <div class="tt-act-card-d__head">
+              <h3 class="tt-act-card-d__title">Opstelling</h3>
+              <a class="tt-act-card-d__link" href="#">Wedstrijdvoorbereiding</a>
+            </div>
+            <div class="tt-act-card-d__body tt-act-card-d__muted">
+              Basis 11 · 5 wissels
+            </div>
+          </div>
+
+          <div class="tt-act-card-d">
+            <div class="tt-act-card-d__head">
+              <h3 class="tt-act-card-d__title">Aanwezigheid</h3>
+              <a class="tt-act-card-d__link" href="#">Minuten + statistieken</a>
+            </div>
+            <div class="tt-act-card-d__body tt-act-card-d__muted">
+              14 van 16 aanwezig · 1 afwezig · 1 geblesseerd
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ B -->
+<section class="variant" data-v="b">
+  <div class="mk-stage" id="stage-b">
+    <div class="tt-dashboard">
+      <p class="tt-agrid-lead">
+        Leg minuten en output voor een hele periode in één keer vast. Rijen zijn spelers, kolommen zijn
+        wedstrijden. De uitslag staat boven de kolom waar hij bij hoort.
+      </p>
+
+      <div class="tt-agrid-modes" role="tablist">
+        <a class="tt-agrid-mode" href="#">Aanwezigheid</a>
+        <span class="tt-agrid-mode is-on" aria-current="page">Minuten + statistieken</span>
+      </div>
+
+      <div class="tt-agrid-card">
+        <div class="tt-agrid-card__head">
+          <h2 class="tt-agrid-card__title">Minuten + statistieken</h2>
+          <span class="tt-agrid-card__hint">JO14-1 · sep – okt · vul de cellen, dan Opslaan</span>
+        </div>
+
+        <div class="tt-agrid-scroll">
+          <table class="tt-agrid">
+            <thead>
+              <tr id="b-dates"></tr>
+              <tr id="b-us"></tr>
+              <tr id="b-them"></tr>
+              <tr id="b-subs"></tr>
+            </thead>
+            <tbody id="b-body"></tbody>
+            <tfoot id="b-foot"></tfoot>
+          </table>
+        </div>
+
+        <div class="tt-agrid-savebar">
+          <span class="tt-agrid-savebar__status is-dirty">3 wijzigingen nog niet opgeslagen</span>
+          <span class="tt-agrid-savebar__actions">
+            <button class="tt-btn tt-btn-secondary" type="button">Annuleren</button>
+            <button class="tt-btn tt-btn-primary" type="button">Opslaan</button>
+          </span>
+        </div>
+
+        <div class="tt-agrid-legend">
+          <span><b style="color:var(--tt-gold)">live</b> uitslag volgt het goal-log van de wedstrijdmodule — niet te typen</span>
+          <span><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:repeating-linear-gradient(45deg,#fafbfa,#fafbfa 4px,#f1f3f1 4px,#f1f3f1 8px);border:1px solid var(--tt-line)"></span> niet in de selectie</span>
+          <span><b>Toegekend / stand</b> hoeveel goals een naam hebben</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ C -->
+<section class="variant" data-v="c">
+  <div class="mk-two">
+    <div>
+      <h3>C · A second, stripped-down match sheet</h3>
+      <div class="mk-lite mk-strike">
+        <div class="mk-lite__bar">
+          <b>Uitslag invoeren</b>
+          <span>Ajax JO14-1 · 14 sep</span>
+        </div>
+        <div class="mk-lite__score">
+          <div>
+            <div class="mk-lite__abbr">AJA</div>
+            <div class="mk-lite__num">3</div>
+            <button class="mk-lite__step" type="button" aria-label="Goal voor AJA">+</button>
+          </div>
+          <div style="font-size:22px;color:#a9c4b7;font-weight:800;">–</div>
+          <div>
+            <div class="mk-lite__abbr">VVV</div>
+            <div class="mk-lite__num">1</div>
+            <button class="mk-lite__step" type="button" aria-label="Goal voor VVV">+</button>
+          </div>
+        </div>
+        <div class="mk-lite__panel">
+          <h4>Doelpuntenmakers</h4>
+          <div class="mk-lite__row"><select><option>Jong, D. de</option></select><input type="number" inputmode="numeric" value="" placeholder="min" style="max-width:74px;flex:0 0 auto"></div>
+          <div class="mk-lite__row"><select><option>Tahiri, Y.</option></select><input type="number" inputmode="numeric" value="" placeholder="min" style="max-width:74px;flex:0 0 auto"></div>
+          <div class="mk-lite__row"><select><option>— geen doelpuntenmaker —</option></select><input type="number" inputmode="numeric" value="" placeholder="min" style="max-width:74px;flex:0 0 auto"></div>
+        </div>
+        <div class="mk-lite__cta">
+          <button class="tt-btn tt-btn-secondary" type="button">Annuleren</button>
+          <button class="tt-btn tt-btn-primary" type="button">Vastleggen</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Why it does not earn its place</h3>
+      <div class="mk-note" style="margin:0">
+        <ul>
+          <li><b>It is not an execution.</b> No clock, no halves, no substitution log, no state machine — the
+            entire value of <code>tt_match_execution</code> is that it is running while the match runs. Strip
+            that out and what is left is two number boxes.</li>
+          <li><b>It needs a mode decision before kick-off.</b> "Live sheet or lite sheet?" is a question the
+            coach has to answer in advance, and get wrong at least once. The Result card needs no decision:
+            it is editable if nobody ran the sheet, and a readout if somebody did.</li>
+          <li><b>Two writers, one field.</b> A second surface writing <code>home_score</code> is exactly the
+            divergence #2857 removed, re-introduced — the scoreboard reading 3–1 over a goal list holding
+            one goal.</li>
+          <li><b>The scorer list is already built.</b> The <code>G</code> / <code>A</code> columns of the
+            minutes grid (#3094) do this, for a whole period at once, with reversal semantics and a
+            reconciliation footer. Rebuilding it per match is duplicate surface for less function.</li>
+          <li><b>It costs a route, a slug, a help topic, a <code>FeatureRegistry</code> entry and a
+            capability</b> — for a payload of two integers that the match record already has columns for.</li>
+        </ul>
+      </div>
+      <h3 style="margin-top:16px">What a genuinely thin surface looks like instead</h3>
+      <div class="mk-note" style="margin:0;background:#f2f9f4;border-color:#bfe0cb;border-left-color:var(--tt-success)">
+        The Result card in A, in its <i>Played, no result yet</i> state: one button, two boxes, Save. Same
+        two integers, on the record they belong to, with no new route and no mode to pick.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= base -->
+<section class="variant" data-v="base">
+  <div class="mk-two">
+    <div>
+      <h3>Today — the match's own page</h3>
+      <div class="mk-stage" style="display:block">
+        <div class="tt-dashboard">
+          <div class="tt-act-panel">
+            <header class="tt-act-detail__hero">
+              <div class="tt-act-detail__icon" style="background:#e6f0fa;">⚽</div>
+              <div class="tt-act-detail__hero-main">
+                <h2 class="tt-act-detail__name">Wedstrijd JO14-1</h2>
+                <p class="tt-act-detail__sub">za 14 sep · 11:30–13:00 · JO14-1 · Sportpark De Toekomst</p>
+                <p class="tt-act-detail__pills">
+                  <span class="tt-pill tt-pill--game">Wedstrijd</span>
+                  <span class="tt-pill tt-pill--done">Afgerond</span>
+                </p>
+              </div>
+            </header>
+            <div class="tt-act-detail__facts mk-flag">
+              <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Datum</div><div class="tt-act-detail__fact-v">za 14 sep</div></div>
+              <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Tijd</div><div class="tt-act-detail__fact-v">11:30–13:00</div></div>
+              <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Tegenstander</div><div class="tt-act-detail__fact-v is-empty">niet in te vullen</div></div>
+              <div class="tt-act-detail__fact"><div class="tt-act-detail__fact-k">Thuis / uit</div><div class="tt-act-detail__fact-v is-empty">niet in te vullen</div></div>
+            </div>
+            <div class="tt-act-detail__grid">
+              <div class="tt-act-card-d tt-act-card-d--span2">
+                <div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">Aanwezigheid</h3></div>
+                <div class="tt-act-card-d__body tt-act-card-d__muted">14 van 16 aanwezig · 1 afwezig · 1 geblesseerd</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mk-note" style="margin-top:12px">
+        <ul>
+          <li><span class="mk-bad">geen uitslag</span> There is no Result card, no score fact, and no field
+            anywhere on the page. The hero falls back to the activity title because
+            <code>opponent</code> is empty — and it is empty on every real install, because the activity
+            payload (<code>ActivitiesRestController</code> ~1434) never carries it.</li>
+          <li>The three facts a fixture is made of — <code>opponent</code>, <code>home_away</code>,
+            <code>formation</code> — are read by the match-prep header, the team-sheet PDF, the week-plan
+            print, the live sheet's score labels and the player's My-team fixture line, and
+            <b>written by nothing</b>. <code>MatchDayTeamSheetPdfExporter</code>'s docblock says so out
+            loud: <i>"Form-UI to populate the new columns is a deferred follow-up."</i></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3>Today — the minutes grid footer</h3>
+      <div class="tt-agrid-card">
+        <div class="tt-agrid-card__head">
+          <h2 class="tt-agrid-card__title">Minuten + statistieken</h2>
+          <span class="tt-agrid-card__hint">JO14-1 · sep – okt</span>
+        </div>
+        <div class="tt-agrid-scroll">
+          <table class="tt-agrid">
+            <thead><tr id="base-dates"></tr><tr id="base-subs"></tr></thead>
+            <tbody id="base-body"></tbody>
+            <tfoot id="base-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="mk-note" style="margin-top:12px">
+        <ul>
+          <li><span class="mk-bad">2 toegekend</span> The reconciliation footer
+            (<code>FrontendMinutesGridView::renderReconciliationFoot</code>) already wants to print
+            <code>toegekend / stand</code>. For every column that was not run on the live sheet the
+            scoreline is <code>NULL</code>, so it degrades to a bare count — <b>it is comparing against a
+            number the product gives nobody any way to enter.</b></li>
+          <li>Only the <b>19 sep</b> column, which was run live, shows a real ratio. That column is also the
+            only one whose result reaches the player's My-team page, the match-analysis header, and
+            (once built) #3520's team record.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   Shared fixture data. `us`/`them` are OUR goals and THEIRS —
+   which is what tt_activities.home_score / away_score actually
+   hold, whatever their names say. `live` = has a
+   tt_match_execution row, so the scoreline is derived.
+   `attributed` = goals in tt_match_execution_goal_events with a
+   scorer against them.
+   --------------------------------------------------------------- */
+const MATCHES = [
+  { date: '7 sep',  live: false, us: 2,    them: 0, attributed: 2, venue: 'home' },
+  { date: '14 sep', live: false, us: 3,    them: 1, attributed: 2, venue: 'away' },
+  { date: '19 sep', live: true,  us: 1,    them: 1, attributed: 1, venue: 'home' },
+  { date: '28 sep', live: false, us: 0,    them: 4, attributed: 0, venue: 'away' },
+  { date: '5 okt',  live: false, us: null, them: null, attributed: 1, venue: 'home' },
+  { date: '12 okt', live: false, us: 4,    them: 2, attributed: 4, venue: 'home' },
+];
+
+const PLAYERS = [
+  { no: 1,  name: 'Bakker, T.',   cells: [[80,0,0],[80,0,0],[70,0,0],[80,0,0],[80,0,0],[80,0,0]] },
+  { no: 4,  name: 'Jong, D. de',  cells: [[80,1,1],[80,1,0],[70,0,1],[80,0,0],[80,1,0],[80,2,0]] },
+  { no: 7,  name: 'Tahiri, Y.',   cells: [[65,1,0],[80,1,1],[null,0,0],[72,0,0],[80,0,1],[80,1,1]] },
+  { no: 9,  name: 'Visser, L.',   cells: [[40,0,1],[35,0,0],[70,1,0],[80,0,0],[null,0,0],[60,1,2]] },
+  { no: 11, name: 'Okafor, S.',   cells: [[null,0,0],[45,0,0],[25,0,0],[35,0,0],[80,0,0],[20,0,0]] },
+  { no: 14, name: 'Smit, R.',     cells: [[80,0,0],[80,0,1],[70,0,0],[80,0,0],[80,0,0],[80,0,1]] },
+];
+
+const OUR_ABBR = 'AJA', OUR_TEAM = 'Ajax JO14-1';
+const OPP_ABBR = 'VVV', OPP_TEAM = 'VVV JO14-1';
+
+/* =============================================================
+   A — the Result card, three states
+   ============================================================= */
+const A_CARD = {
+
+  /* ---- typed up afterwards: an editable form (model B) ------- */
+  manual: `
+    <div class="tt-act-card-d__head">
+      <h3 class="tt-act-card-d__title">Uitslag</h3>
+      <a class="tt-act-card-d__link" href="#">Minuten + statistieken</a>
+    </div>
+    <div class="tt-act-card-d__body">
+      <div class="tt-act-result">
+        <div class="tt-act-result__side">
+          <div class="tt-act-result__abbr">${OUR_ABBR}</div>
+          <input class="tt-act-result__in" type="number" inputmode="numeric" min="0" max="99"
+                 value="3" aria-label="Doelpunten ${OUR_TEAM}">
+          <div class="tt-act-result__team">${OUR_TEAM}</div>
+        </div>
+        <div class="tt-act-result__dash" aria-hidden="true">–</div>
+        <div class="tt-act-result__side">
+          <div class="tt-act-result__abbr">${OPP_ABBR}</div>
+          <input class="tt-act-result__in" type="number" inputmode="numeric" min="0" max="99"
+                 value="1" aria-label="Doelpunten ${OPP_TEAM}">
+          <div class="tt-act-result__team">${OPP_TEAM}</div>
+        </div>
+      </div>
+
+      <div class="tt-field">
+        <label class="tt-field__label" for="a-opp">Tegenstander</label>
+        <input class="tt-input" type="text" id="a-opp" value="VVV JO14-1" autocomplete="off">
+      </div>
+
+      <div class="tt-act-result__venue">
+        <span class="tt-act-result__vlabel">Thuis / uit</span>
+        <span class="tt-seg" role="radiogroup" aria-label="Thuis / uit">
+          <label><input type="radio" name="a-ha" value="home"> Thuis</label>
+          <label><input type="radio" name="a-ha" value="away" checked> Uit</label>
+          <label><input type="radio" name="a-ha" value="neutral"> Neutraal</label>
+        </span>
+      </div>
+
+      <p class="tt-act-result__recon is-mismatch">
+        <b>2 van de 3</b> doelpunten hebben een naam. Bij één weet nog niemand wie hem maakte —
+        vul dat in bij <a href="#">Minuten + statistieken</a>. De uitslag verandert daar niet van.
+      </p>
+
+      <div class="tt-form-actions">
+        <a class="tt-btn tt-btn-secondary" href="#">Annuleren</a>
+        <button class="tt-btn tt-btn-primary" type="submit">Uitslag opslaan</button>
+      </div>
+    </div>`,
+
+  /* ---- ran on the live sheet: a readout, never a second form -- */
+  live: `
+    <div class="tt-act-card-d__head">
+      <h3 class="tt-act-card-d__title">Uitslag</h3>
+      <a class="tt-act-card-d__link" href="#">Nabespreking openen</a>
+    </div>
+    <div class="tt-act-card-d__body">
+      <div class="tt-act-result">
+        <div class="tt-act-result__side">
+          <div class="tt-act-result__abbr">${OUR_ABBR}</div>
+          <div class="tt-act-result__num">1</div>
+          <div class="tt-act-result__team">${OUR_TEAM}</div>
+        </div>
+        <div class="tt-act-result__dash" aria-hidden="true">–</div>
+        <div class="tt-act-result__side">
+          <div class="tt-act-result__abbr">${OPP_ABBR}</div>
+          <div class="tt-act-result__num">1</div>
+          <div class="tt-act-result__team">${OPP_TEAM}</div>
+        </div>
+      </div>
+
+      <p style="margin:14px 0 0;text-align:center">
+        <span class="tt-act-result__derived">● uit het wedstrijdformulier</span>
+      </p>
+
+      <ul class="tt-act-result__log">
+        <li><span class="tt-act-result__min">34'</span> Jong, D. de
+            <span class="tt-act-result__for tt-act-result__for--us">${OUR_ABBR}</span></li>
+        <li><span class="tt-act-result__min">58'</span> Doelpunt tegen
+            <span class="tt-act-result__for tt-act-result__for--them">${OPP_ABBR}</span></li>
+      </ul>
+
+      <p class="tt-act-result__recon">
+        De stand volgt het doelpuntenlog: er is geen tweede plek waar een doelpunt wordt vastgelegd.
+        Corrigeer een doelpunt in de <a href="#">nabespreking</a> en de stand komt mee.
+      </p>
+    </div>`,
+
+  /* ---- played, nothing recorded yet ------------------------- */
+  none: `
+    <div class="tt-act-card-d__head">
+      <h3 class="tt-act-card-d__title">Uitslag</h3>
+    </div>
+    <div class="tt-act-card-d__body">
+      <div class="tt-act-result__empty">
+        <span>Nog geen uitslag vastgelegd. Dat is niet hetzelfde als 0–0.</span>
+        <button class="tt-btn tt-btn-primary" type="button">Uitslag invoeren</button>
+      </div>
+      <p class="tt-act-result__recon">
+        Er staat <b>1 doelpunt</b> met een naam bij deze wedstrijd. Zolang de uitslag leeg is, telt de
+        wedstrijd mee als <i>gespeeld, zonder uitslag</i> — en niet als gelijkspel.
+      </p>
+    </div>`,
+};
+
+const A_FACT = { manual: '3 – 1', live: '1 – 1', none: '<span class="is-empty" style="color:#b3b8b2;font-weight:600">nog niet vastgelegd</span>' };
+
+/* =============================================================
+   B — the grid with two score rows in the header
+   ============================================================= */
+function naCell(cols) { return `<td class="tt-agrid-cell tt-agrid-cell--na${cols?' tt-agrid-cell--sep':''}" aria-label="Niet in de selectie">·</td>`; }
+
+function renderB() {
+  document.getElementById('b-dates').innerHTML =
+    `<th class="tt-agrid__player" scope="col">Speler</th>` +
+    MATCHES.map((m) => `<th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup">
+        <span class="tt-agrid__act-date">${m.date}</span>
+        <span class="tt-agrid__act-type">${m.venue === 'away' ? 'uit' : 'thuis'}</span>
+        ${m.live ? '<span class="tt-agrid__act-owned">live</span>' : ''}
+      </th>`).join('') +
+    `<th class="tt-agrid__rate" colspan="3" scope="colgroup">Totaal</th>`;
+
+  const scoreRow = (which) => {
+    const label = which === 'us' ? OUR_ABBR : OPP_ABBR;
+    return `<th class="tt-agrid-score__rowlabel" scope="row">${label}</th>` +
+      MATCHES.map((m) => {
+        const v = m[which];
+        if (m.live) {
+          return `<th class="tt-agrid-score tt-agrid-cell--sep" colspan="3">
+            <span class="tt-agrid-score__derived" title="Volgt het doelpuntenlog van het wedstrijdformulier">${v}<span class="tt-agrid-score__lock">🔒</span></span>
+          </th>`;
+        }
+        return `<th class="tt-agrid-score tt-agrid-cell--sep" colspan="3">
+          <span class="tt-agrid-score__pair">
+            <input class="tt-agrid-score-in${v === null ? ' is-empty' : ''}" type="number"
+                   inputmode="numeric" min="0" max="99" value="${v === null ? '' : v}"
+                   aria-label="Doelpunten ${label} ${m.date}">
+          </span>
+        </th>`;
+      }).join('') +
+      `<th class="tt-agrid__rate" colspan="3">${MATCHES.reduce((s, m) => s + (m[which] || 0), 0)}</th>`;
+  };
+  document.getElementById('b-us').innerHTML = scoreRow('us');
+  document.getElementById('b-them').innerHTML = scoreRow('them');
+
+  document.getElementById('b-subs').innerHTML =
+    `<th class="tt-agrid__player" scope="col"></th>` +
+    MATCHES.map(() => `<th class="tt-agrid__sub is-min tt-agrid-cell--sep" scope="col">Min</th>
+       <th class="tt-agrid__sub" scope="col">G</th>
+       <th class="tt-agrid__sub" scope="col">A</th>`).join('') +
+    `<th class="tt-agrid__sub tt-agrid-cell--sep is-min" scope="col">Min</th>
+     <th class="tt-agrid__sub" scope="col">G</th>
+     <th class="tt-agrid__sub" scope="col">A</th>`;
+
+  document.getElementById('b-body').innerHTML = PLAYERS.map((p) => {
+    let tm = 0, tg = 0, ta = 0;
+    const cells = p.cells.map((c, i) => {
+      if (c[0] === null) return naCell(true) + naCell() + naCell();
+      tm += c[0]; tg += c[1]; ta += c[2];
+      return `<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep">
+          <input class="tt-agrid-min-in" type="number" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}">
+        </td>
+        <td class="tt-agrid-cell tt-agrid-stat">
+          <input class="tt-agrid-stat-in${c[1] ? '' : ' is-zero'}" type="number" inputmode="numeric" value="${c[1]}" aria-label="Doelpunten ${p.name} ${MATCHES[i].date}">
+        </td>
+        <td class="tt-agrid-cell tt-agrid-stat">
+          <input class="tt-agrid-stat-in${c[2] ? '' : ' is-zero'}" type="number" inputmode="numeric" value="${c[2]}" aria-label="Assists ${p.name} ${MATCHES[i].date}">
+        </td>`;
+    }).join('');
+    return `<tr>
+      <th class="tt-agrid__player" scope="row"><span class="tt-agrid__who"><span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span></span></th>
+      ${cells}
+      <td class="tt-agrid__rate tt-agrid-cell--sep">${tm}</td>
+      <td class="tt-agrid__rate">${tg}</td>
+      <td class="tt-agrid__rate">${ta}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('b-foot').innerHTML = `<tr>
+    <th class="tt-agrid__player" scope="row">Toegekend / stand</th>
+    ${MATCHES.map((m) => {
+      if (m.us === null) return `<td colspan="3" class="tt-agrid-cell--sep">${m.attributed} toegekend</td>`;
+      const off = m.attributed !== m.us;
+      return `<td colspan="3" class="tt-agrid-cell--sep" title="${off ? 'Niet elk doelpunt heeft een naam. De uitslag blijft ongewijzigd.' : 'Elk doelpunt in deze wedstrijd heeft een naam.'}"><span class="tt-agrid-recon${off ? ' is-off' : ''}">${m.attributed}/${m.us}</span></td>`;
+    }).join('')}
+    <td colspan="3" class="tt-agrid-cell--sep"></td>
+  </tr>`;
+}
+
+/* =============================================================
+   baseline grid — today's footer, no score anywhere
+   ============================================================= */
+function renderBase() {
+  document.getElementById('base-dates').innerHTML =
+    `<th class="tt-agrid__player" scope="col" rowspan="2">Speler</th>` +
+    MATCHES.map((m) => `<th class="tt-agrid__act is-match tt-agrid__actgroup" colspan="3" scope="colgroup">
+        <span class="tt-agrid__act-date">${m.date}</span><span class="tt-agrid__act-type">⚽</span>
+        ${m.live ? '<span class="tt-agrid__act-owned">live</span>' : ''}
+      </th>`).join('');
+  document.getElementById('base-subs').innerHTML = MATCHES.map(() =>
+    `<th class="tt-agrid__sub is-min tt-agrid-cell--sep" scope="col">Min</th>
+     <th class="tt-agrid__sub" scope="col">G</th>
+     <th class="tt-agrid__sub" scope="col">A</th>`).join('');
+  document.getElementById('base-body').innerHTML = PLAYERS.slice(0, 4).map((p) => {
+    const cells = p.cells.map((c, i) => c[0] === null ? naCell(true) + naCell() + naCell()
+      : `<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep"><input class="tt-agrid-min-in" type="number" inputmode="numeric" value="${c[0]}" aria-label="Minuten ${p.name} ${MATCHES[i].date}"></td>
+         <td class="tt-agrid-cell tt-agrid-stat"><input class="tt-agrid-stat-in${c[1] ? '' : ' is-zero'}" type="number" inputmode="numeric" value="${c[1]}" aria-label="Doelpunten ${p.name}"></td>
+         <td class="tt-agrid-cell tt-agrid-stat"><input class="tt-agrid-stat-in${c[2] ? '' : ' is-zero'}" type="number" inputmode="numeric" value="${c[2]}" aria-label="Assists ${p.name}"></td>`).join('');
+    return `<tr><th class="tt-agrid__player" scope="row"><span class="tt-agrid__who"><span class="tt-agrid__no">${p.no}</span><span class="tt-agrid__nm">${p.name}</span></span></th>${cells}</tr>`;
+  }).join('');
+  document.getElementById('base-foot').innerHTML = `<tr>
+    <th class="tt-agrid__player" scope="row">Toegekend / stand</th>
+    ${MATCHES.map((m) => m.live
+      ? `<td colspan="3" class="tt-agrid-cell--sep"><span class="tt-agrid-recon">${m.attributed}/${m.us}</span></td>`
+      : `<td colspan="3" class="tt-agrid-cell--sep" style="background:#fde2e2;color:#a32b22">${m.attributed} toegekend</td>`
+    ).join('')}
+  </tr>`;
+}
+
+/* =============================================================
+   notes
+   ============================================================= */
+const NOTES = {
+  a: `<b>A · Result card on the match page — the chosen surface.</b>
+    <ul>
+      <li><b>Why here.</b> The result is a fact about <i>this match</i>, and the match already has a record with
+        <code>home_score</code> / <code>away_score</code> columns waiting on it. This is also the page a coach
+        already lands on afterwards — the <i>Minuten + statistieken</i> and <i>Aanwezigheid</i> buttons are on it.</li>
+      <li><b>One writer per match, decided by the match, not by the coach.</b> No execution row → the card is a
+        form. Execution row → the card is a readout of the derived scoreline plus the goal log, with the
+        correction path pointing at the post-match review. #2857's rule ("there is no second place to record a
+        goal") survives intact.</li>
+      <li><b>Us and them, never home and away.</b> <code>tt_activities.home_score</code> is what
+        <i>we</i> scored whatever the venue — that is what <code>route_finish</code> copies off the execution,
+        whose "home" side is <code>ClubIdentity::shortCode()</code>. The card is labelled with the club
+        abbreviation and the opponent's name, and venue is a separate field. The column names are a misnomer;
+        renaming them is a data migration across ~20 readers and is deliberately not in scope.</li>
+      <li><b>Opponent and venue ship with it.</b> They have no form UI anywhere today (baseline tab), and a
+        scoreline whose opponent is blank is half a record. Three fields, one card, one Save.</li>
+      <li><b>Model B, explicit Save + Cancel</b> (CLAUDE.md §6): a known set of four fields, and a
+        half-committed scoreline is worse than a lost one. <code>FormSaveButton::render()</code> with a
+        <code>cancel_url</code>, Cancel-then-Save in the DOM.</li>
+      <li><b>Opponent goals are a count, not events.</b> Their squad is not in the system, so there is nobody to
+        attribute to, and a minute typed on Sunday would be invented — exactly what migration 0246 refused for
+        our own manual goals. <code>away_score = 1</code> is the complete, honest record of "they scored one".
+        Timed opponent goals stay a live-sheet capability.</li>
+      <li><b>Reconciliation, not validation.</b> "2 van de 3 doelpunten hebben een naam" is information, and
+        saving is never blocked on it — the same ruling the grid's footer already carries.</li>
+    </ul>`,
+
+  b: `<b>B · Two score rows in the minutes grid — ships alongside A, for catch-up.</b>
+    <ul>
+      <li><b>Nearly free.</b> The grid's <code>tfoot</code> already renders <code>toegekend / stand</code> per
+        match column. The rows above are the same cell geometry (<code>colspan="3"</code> over each match's
+        <code>Min｜G｜A</code> group), the same save bar, the same change counter, the same Cancel. No new
+        route, no new save model, no new surface.</li>
+      <li><b>It is the right shape for the real job.</b> A club catching up on a month enters six results and
+        ninety minute-cells in one pass. Six visits to six match pages is the wrong tool for that.</li>
+      <li><b>Same field, same endpoint, still one writer.</b> A and B both PATCH the activity's scoreline — two
+        views of one column, the way minutes are already editable in the grid and derivable from the sheet.
+        That is not the divergence #2857 closed; two <i>independent</i> stores would be.</li>
+      <li><b>A live column's scoreline is locked</b> (🔒 next to the gold <code>live</code> badge) because it is
+        derived. Note the asymmetry, which is deliberate: minutes on a live column stay editable as a
+        correction that survives a recount, the scoreline does not, because correcting it means correcting a
+        goal.</li>
+      <li><b>Empty ≠ 0–0.</b> The <b>5 okt</b> column has an empty box, not a zero. #3519 already ruled that a
+        match with no score must be counted as played-without-a-score and excluded from W/D/L; a silent zero
+        would make the team record wrong.</li>
+      <li>Desktop-only, like the rest of the grid (#2381). That is the second reason A exists: the phone path.</li>
+    </ul>`,
+
+  c: `<b>C · A simplified match-execution surface — rejected.</b>
+    <ul>
+      <li>Read the panel on the right. The short version: strip the clock, the halves, the substitution log and
+        the state machine out of <code>tt_match_execution</code> and what remains is two number boxes and a
+        scorer list that the minutes grid already provides better, for a whole period at once.</li>
+      <li>The one thing it would add — a per-goal scorer picker on the match's own page — is worth filing
+        separately if pilot feedback asks for it. It is a nicer <i>attribution</i> surface, not a way to record
+        a result, and it must not become a second writer of the scoreline.</li>
+    </ul>`,
+
+  base: `<b>Today — two halves of one gap.</b>
+    <ul>
+      <li><b>The scoreline has exactly one writer</b> in the entire plugin:
+        <code>MatchExecutionRestController::route_finish()</code> (~line 874), which copies the execution's
+        derived score onto the activity. No form, no REST field, nothing. A club that never runs the live sheet
+        has a permanently empty result on every match.</li>
+      <li><b>Everything downstream is empty or wrong for that club:</b> the player's My-team form line
+        (<code>recentResultsForTeam</code> filters on <code>home_score IS NOT NULL</code>), the match-analysis
+        header, the grid's reconciliation footer, #3516's monthly-report results block, and #3520 / #3522's
+        team record, form, GF/GA and clean sheets. This is a <b>prerequisite</b> for those, not a nice-to-have.</li>
+      <li><b>The fixture facts are in the same state.</b> <code>opponent</code> / <code>home_away</code> /
+        <code>formation</code>: read in eight places, written by nothing. Even
+        <code>MatchDayTeamSheetPdfExporter</code>'s docblock admits it — <i>"Form-UI to populate the new
+        columns is a deferred follow-up ... the operator can edit them via direct DB write or REST PATCH."</i>
+        The demo generator does not set <code>home_away</code> either, so no surface has ever been seen with
+        it populated.</li>
+      <li><b>A latent bug the new Home/Away field would activate.</b>
+        <code>ActivitiesRepository::recentResultsForTeam()</code> (lines 1633–1636) frames the result by venue:
+        <code>team_score = home_away === 'away' ? away_score : home_score</code>. The writer never swaps —
+        <code>home_score</code> is always ours. Because <code>home_away</code> is currently never populated the
+        branch never fires, so the bug is invisible. Ship a Home/Away control without fixing it and every away
+        result on the player's My-team page inverts: a 1–3 defeat reads as a 3–1 win. <b>It must be fixed in
+        the same PR, or the field must not ship.</b></li>
+    </ul>`,
+};
+
+/* =============================================================
+   picker + deep link
+   ============================================================= */
+let cur = { v: 'a', s: 'manual', w: 'phone' };
+
+function paintA() {
+  document.getElementById('a-card').innerHTML = A_CARD[cur.s];
+  document.getElementById('a-fact-score').innerHTML = A_FACT[cur.s];
+}
+
+function apply() {
+  document.querySelectorAll('.mk-row [data-v]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === cur.v)));
+  document.querySelectorAll('.mk-row [data-s]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === cur.s)));
+  document.querySelectorAll('.mk-row [data-w]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.w === cur.w)));
+  document.querySelectorAll('.variant').forEach((s) => s.classList.toggle('is-on', s.dataset.v === cur.v));
+  document.getElementById('mk-note').innerHTML = NOTES[cur.v];
+  // the state picker only means anything on A
+  document.getElementById('mk-states').style.opacity = cur.v === 'a' ? '1' : '.35';
+  document.getElementById('mk-states').style.pointerEvents = cur.v === 'a' ? '' : 'none';
+  // the grid is desktop-only, so B never renders in the phone frame
+  const stage = document.getElementById('stage-a');
+  stage.classList.toggle('is-phone', cur.w === 'phone');
+  paintA();
+  history.replaceState(null, '', `?v=${cur.v}&s=${cur.s}&w=${cur.w}`);
+}
+
+document.querySelectorAll('.mk-row button').forEach((b) => b.addEventListener('click', () => {
+  if (b.dataset.v) cur.v = b.dataset.v;
+  if (b.dataset.s) cur.s = b.dataset.s;
+  if (b.dataset.w) cur.w = b.dataset.w;
+  apply();
+}));
+
+const q = new URLSearchParams(location.search);
+if (q.get('v')) cur.v = q.get('v');
+if (q.get('s')) cur.s = q.get('s');
+if (q.get('w')) cur.w = q.get('w');
+
+renderB();
+renderBase();
+apply();
+</script>
+</body>
+</html>

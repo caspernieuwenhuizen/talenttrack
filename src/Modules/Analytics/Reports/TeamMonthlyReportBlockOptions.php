@@ -23,7 +23,8 @@ final class TeamMonthlyReportBlockOptions {
      */
     private static function map(): array {
         return [
-            TeamMonthlyReportBlock::TESTS => TestsBlockOptions::class,
+            TeamMonthlyReportBlock::TESTS   => TestsBlockOptions::class,
+            TeamMonthlyReportBlock::MATCHES => MatchesBlockOptions::class,
         ];
     }
 
