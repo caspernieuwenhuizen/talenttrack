@@ -109,7 +109,19 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
         );
 
+        // #3521 (epic #3519) — Overview / Statistics. Two tabs, not eight:
+        // the section list does not become the tab list, because eight tabs
+        // for eight panels would be worse than the scroll they replace.
+        // Unknown or absent falls back to Overview, so a stale bookmark lands
+        // on the page rather than on nothing.
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
+        if ( $tab !== 'stats' ) $tab = 'overview';
+
         // Per-user section visibility. The hero is always shown.
+        //
+        // `TeamDetailSections` keeps doing exactly what it did: the preference
+        // governs what appears **inside Overview**. A coach who has hidden the
+        // trial roster still has it hidden, and no preference migrates.
         $sections = TeamDetailSections::forUser( $user_id );
         // The customize control is for coaches who manage this team.
         $can_customize = AuthorizationService::canManageTeam( $user_id, $team_id );
@@ -123,6 +135,24 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             self::renderHero( $team, $roster, $staff );
             self::renderActionRow( $team, $can_customize );
 
+            // #2479 — pinned identity. The hero above anchors the screen on
+            // arrival and then scrolls away; this strip is what stays, so
+            // working down a long roster never loses which team you are in.
+            // The identity half emits nothing under the `classic` shell.
+            //
+            // #3521 — it now also carries the tab strip, and moved above the
+            // rail to do it. A strip you reach by scrolling past key facts and
+            // the KPI panel is not a tab strip, and the pinned identity was
+            // arriving late for the same reason.
+            self::renderTabs( $team, $team_id, $tab );
+
+            if ( $tab === 'stats' ) :
+                self::renderStatisticsTab();
+            else :
+
+            // The customize panel belongs to Overview: it toggles Overview's
+            // own sections, and offering it beside the statistics would be
+            // offering a control over something that is not on screen.
             if ( $can_customize ) {
                 self::enqueueCustomizeAssets( $team_id );
                 self::renderCustomizePanel( $sections );
@@ -142,18 +172,6 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
             <div class="tt-player-detail__main">
                 <?php
-                // #2479 — pinned identity. The hero above anchors the screen
-                // on arrival and then scrolls away; this strip is what stays,
-                // so working down a long roster never loses which team you are
-                // in. Emits nothing under the `classic` shell.
-                \TT\Shared\Frontend\Components\RecordSpine::render( [
-                    'name'   => (string) $team->name,
-                    'status' => $team->archived_at ? 'archived' : 'active',
-                    'meta'   => ! empty( $team->age_group )
-                        ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group )
-                        : '',
-                ] );
-
                 if ( $sections['roster'] ) {
                     self::renderRoster( $roster, $team_id );
                 }
@@ -188,8 +206,76 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 self::renderVctDefaultsPanel( $team_id, $vct_panel_notice );
                 ?>
             </div>
+            <?php endif; ?>
         </article>
         <?php
+    }
+
+    /**
+     * #3521 (epic #3519) — the record-scoped tab strip.
+     *
+     * §5c: record-scoped tabs are content, not navigation. They move within
+     * one team rather than away from it, so they cost nothing against the
+     * two-affordance budget — and they come from the shared spine rather than
+     * a hand-rolled strip, which is what stops tab styling, keyboard order and
+     * active state drifting apart across surfaces. This is a **new** surface,
+     * so `FrontendPlayerDetailView`'s grandfathering does not apply to it.
+     *
+     * **Navigating** tabs (`url`), not in-page ones. In-page tabs render every
+     * panel on every visit, so a coach opening the roster would pay for the
+     * statistics queries they did not ask for. Same view slug, so no new
+     * `?tt_view=` route is registered and none needs claiming.
+     *
+     * `tabs_always` because under the `classic` shell the spine's identity row
+     * does not render, and these tabs are the only route to the Statistics
+     * content — a surface whose sections are unreachable under `classic` is
+     * broken rather than degraded (#2822).
+     *
+     * The base keeps the rest of the query string, `tt_back` included, so
+     * switching tabs does not throw away the contextual back-pill the entry
+     * URL captured (CLAUDE.md §5a).
+     */
+    private static function renderTabs( object $team, int $team_id, string $tab ): void {
+        $base = remove_query_arg( [ 'tab' ] );
+        $args = [ 'tt_view' => 'teams', 'id' => $team_id ];
+
+        \TT\Shared\Frontend\Components\RecordSpine::render( [
+            'name'        => (string) $team->name,
+            'status'      => $team->archived_at ? 'archived' : 'active',
+            'meta'        => ! empty( $team->age_group )
+                ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group )
+                : '',
+            'tabs_always' => true,
+            'tabs'        => [
+                [
+                    'label'  => __( 'Overview', 'talenttrack' ),
+                    'url'    => add_query_arg( $args + [ 'tab' => 'overview' ], $base ), /* tt-xview-ok — same view, switching its own section */
+                    'active' => $tab === 'overview',
+                ],
+                [
+                    'label'  => __( 'Statistics', 'talenttrack' ),
+                    'url'    => add_query_arg( $args + [ 'tab' => 'stats' ], $base ), /* tt-xview-ok — same view, switching its own section */
+                    'active' => $tab === 'stats',
+                ],
+            ],
+        ] );
+    }
+
+    /**
+     * #3521 — the Statistics tab, structurally. Child #3522 fills it from
+     * `TeamMatchStatsQuery`.
+     *
+     * An explicit empty state rather than a blank panel: a tab that opens onto
+     * nothing reads as a broken page, and somebody will report it as one.
+     */
+    private static function renderStatisticsTab(): void {
+        echo '<div class="tt-player-detail__main">';
+        self::cardOpen( __( 'Statistics', 'talenttrack' ) );
+        echo '<p class="tt-player-empty">'
+            . esc_html__( 'Match statistics for this team are coming in the next release.', 'talenttrack' )
+            . '</p>';
+        self::cardClose();
+        echo '</div>';
     }
 
     /**
