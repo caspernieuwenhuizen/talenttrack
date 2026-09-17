@@ -47,4 +47,8 @@ return [
 
     'feature_flags_enabled'     => 'array',
     'custom_caps_in_use'        => 'boolean',
+
+    // #3494 — five club-wide integer counts; the self-check pins the keys
+    // and that nothing but integers ever rides in this block.
+    'value_signals'             => 'array',
 ];

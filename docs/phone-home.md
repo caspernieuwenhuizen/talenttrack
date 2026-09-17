@@ -70,6 +70,11 @@ JSON over HTTPS, signed with HMAC-SHA256.
 | `module_status.exports` | object / `null` | `{ runs_7d }`. Null when Export isn't installed. |
 | `feature_flags_enabled` | array | Names of TalentTrack-shipped feature flags currently on. Bounded vocabulary; doesn't leak custom flags. |
 | `custom_caps_in_use` | bool | `true` if any custom (non-TT, non-WP-default) capability is granted on a role. **Boolean only — cap names are not transmitted.** |
+| `value_signals.attendance_recorded_30d` | int | Activities in the last 30 days with a recorded attendance register. A planned roster does not count. |
+| `value_signals.minutes_recorded_30d` | int | Activities in the last 30 days with minutes recorded on their register. |
+| `value_signals.evaluations_recorded_30d` | int | Evaluations created in the last 30 days. |
+| `value_signals.pdps_active` | int | Development plans that are open: not completed and not archived. |
+| `value_signals.goals_active` | int | Goals whose stored status is not completed or cancelled, and that are not archived. |
 
 ## What's NEVER in the payload
 

@@ -127,6 +127,19 @@ function walkForbiddenKeys( $node, array $forbidden, string $path = '' ): array 
 $leaks = walkForbiddenKeys( $payload, $forbidden_keys );
 assertOrFail( empty( $leaks ), 'privacy: forbidden keys detected: ' . implode( ', ', $leaks ) );
 
+// #3494 — value signals are the block most tempted across the line
+// ("which players have no evaluation" is a useful question the mothership
+// may not answer). Exactly five club-wide counts, each an integer: no id,
+// no name, no text can fit.
+$signals = $payload['value_signals'] ?? null;
+assertOrFail(
+    is_array( $signals ) && array_keys( $signals ) === [ 'attendance_recorded_30d', 'minutes_recorded_30d', 'evaluations_recorded_30d', 'pdps_active', 'goals_active' ],
+    'privacy: value_signals keys changed — add a key here deliberately, after checking it is a club-wide count'
+);
+foreach ( is_array( $signals ) ? $signals : [] as $k => $v ) {
+    assertOrFail( is_int( $v ), "privacy: value_signals.$k is not an integer count" );
+}
+
 // ---- 3. Signing round-trip ------------------------------------------
 
 $canonical = Signer::canonicalize( $payload );

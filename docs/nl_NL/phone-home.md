@@ -71,6 +71,11 @@ JSON over HTTPS, ondertekend met HMAC-SHA256.
 | `module_status.exports` | object / `null` | `{ runs_7d }`. Null als Export niet is geïnstalleerd. |
 | `feature_flags_enabled` | array | Namen van TalentTrack-eigen feature flags die aanstaan. Beperkt vocabulaire; lekt geen custom-flags. |
 | `custom_caps_in_use` | bool | `true` als een rol een custom (niet-TT, niet-WP-default) capability heeft. **Alleen boolean — cap-namen worden niet meegestuurd.** |
+| `value_signals.attendance_recorded_30d` | int | Activiteiten in de laatste 30 dagen met een ingevulde presentielijst. Een geplande selectie telt niet mee. |
+| `value_signals.minutes_recorded_30d` | int | Activiteiten in de laatste 30 dagen met vastgelegde minuten op de presentielijst. |
+| `value_signals.evaluations_recorded_30d` | int | Evaluaties aangemaakt in de laatste 30 dagen. |
+| `value_signals.pdps_active` | int | Ontwikkelplannen die open staan: niet afgerond en niet gearchiveerd. |
+| `value_signals.goals_active` | int | Doelen waarvan de opgeslagen status niet afgerond of geannuleerd is, en die niet gearchiveerd zijn. |
 
 ## Wat staat er NOOIT in de payload
 
