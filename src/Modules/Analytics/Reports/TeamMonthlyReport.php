@@ -245,9 +245,7 @@ final class TeamMonthlyReport {
      * @return array<string,mixed>
      */
     private function optionsFor( string $block ): array {
-        $bag = $this->options[ $block ] ?? [];
-
-        return is_array( $bag ) ? TeamMonthlyReportBlockOptions::normalise( $block, $bag ) : [];
+        return TeamMonthlyReportBlockOptions::normalise( $block, $this->options[ $block ] ?? [] );
     }
 
     /**

@@ -154,7 +154,11 @@ final class TestsBlockOptions implements BlockOptionsInterface {
         return $show !== self::SHOW_SUMMARY;
     }
 
-    /** The labels for the `show` picker, in the order it offers them. */
+    /**
+     * The labels for the `show` picker, in the order it offers them.
+     *
+     * @return array<string,string>
+     */
     public static function showLabels(): array {
         return [
             self::SHOW_SUMMARY      => _x( 'Summary only', 'monthly report tests option', 'talenttrack' ),
