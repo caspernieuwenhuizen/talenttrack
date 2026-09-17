@@ -58,6 +58,16 @@ final class UpdateHardening {
      */
     public static function forceAutoUpdate( $update, $item ) {
         if ( isset( $item->plugin ) && $item->plugin === plugin_basename( TT_PLUGIN_FILE ) ) {
+            // #3493 — never force past the release ring's ceiling. The
+            // offer is normally already dropped from the update transient;
+            // this is the second lock on the one path that installs
+            // unattended at 03:00.
+            if ( isset( $item->new_version )
+                && class_exists( '\\TT\\Modules\\AdminCenterClient\\ReleaseRing' )
+                && ! \TT\Modules\AdminCenterClient\ReleaseRing::allows( (string) $item->new_version )
+            ) {
+                return false;
+            }
             return true;
         }
         return $update;

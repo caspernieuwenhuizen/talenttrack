@@ -111,6 +111,20 @@ Je install is streng in wat hij accepteert, en **zet zichzelf nooit een pakket l
 
 De CI-zelfcontrole dekt dit pad ook: een vervalst, gewijzigd of voor een andere install ondertekend antwoord, en een onbekend pakket, mogen nooit worden toegepast.
 
+### Release-ringen
+
+Hetzelfde antwoord vertelt je install in welke **release-ring** hij zit, en wat de hoogste versie is die hij mag nemen:
+
+```json
+{ "update_ring": { "ring": "stable", "max_version": "4.123.0" } }
+```
+
+Een release komt eerst bij een kleine canary-ring en later bij de stable-ring, zodat een fout een paar academies raakt in plaats van allemaal tegelijk. Zolang er een plafond geldt, wordt een nieuwere TalentTrack-versie niet als beschikbare update getoond en niet automatisch geïnstalleerd. Een versie op of onder het plafond wordt gewoon aangeboden, en `"max_version": null` betekent dat elke release wordt aangeboden.
+
+Je install **bevriest nooit updates omdat de mothership onbereikbaar is**. Zonder vastgelegde ring, bij een onbruikbaar antwoord, of bij een ring die al meer dan een week niet is bevestigd, worden updates aangeboden alsof er geen ringen bestaan. Een beveiligingsfix wacht niet tot onze server bereikbaar is.
+
+De rij **Release-ring** op het tabblad Account laat de geldende ring en het plafond zien, zodat "waarom krijg ik de nieuwste versie niet" zonder servertoegang te beantwoorden is.
+
 ## Foutscenario's
 
 - **Netwerkfout / DNS-fout / 5xx** — stil. Wordt op de volgende cron-tick opnieuw geprobeerd. Je install merkt er niets van.

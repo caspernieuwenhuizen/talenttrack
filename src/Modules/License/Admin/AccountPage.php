@@ -736,6 +736,28 @@ class AccountPage {
      * operator needs when one install is
      * silent and another from the same code base phones home fine.
      */
+    /**
+     * #3493 — which release ring this install is in and what it holds back,
+     * so "why am I not offered the newest version" is answerable without
+     * shell access.
+     */
+    private static function releaseRingLine(): string {
+        $record = \TT\Modules\AdminCenterClient\ReleaseRing::read();
+        if ( $record === null ) {
+            return __( 'Not assigned. Updates are offered as soon as they are released.', 'talenttrack' );
+        }
+        if ( \TT\Modules\AdminCenterClient\ReleaseRing::ceiling() === null && $record['max_version'] !== null ) {
+            /* translators: %s: ring name, e.g. stable */
+            return sprintf( __( '%s, but not confirmed for over a week. Updates are no longer held back.', 'talenttrack' ), $record['ring'] );
+        }
+        if ( $record['max_version'] === null ) {
+            /* translators: %s: ring name, e.g. canary */
+            return sprintf( __( '%s. No version ceiling: every release is offered.', 'talenttrack' ), $record['ring'] );
+        }
+        /* translators: 1: ring name, e.g. stable; 2: highest version this install may take */
+        return sprintf( __( '%1$s. Updates are offered up to version %2$s.', 'talenttrack' ), $record['ring'], $record['max_version'] );
+    }
+
     private static function renderPhoneHomeDiagnostics(): void {
         if ( ! class_exists( '\\TT\\Modules\\AdminCenterClient\\InstallId' ) ) return;
 
@@ -766,6 +788,9 @@ class AccountPage {
             </td></tr>
             <tr><th><?php esc_html_e( 'Last phoned version', 'talenttrack' ); ?></th><td>
                 <?php echo $last_phoned_v !== '' ? '<code>' . esc_html( $last_phoned_v ) . '</code>' : '<em>' . esc_html__( '(not yet recorded)', 'talenttrack' ) . '</em>'; ?>
+            </td></tr>
+            <tr><th><?php esc_html_e( 'Release ring', 'talenttrack' ); ?></th><td>
+                <?php echo esc_html( self::releaseRingLine() ); ?>
             </td></tr>
             <tr><th><?php esc_html_e( 'Next daily cron', 'talenttrack' ); ?></th><td>
                 <?php if ( $next_cron_ts ) : ?>

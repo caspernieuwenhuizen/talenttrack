@@ -27331,6 +27331,26 @@ msgstr "nooit (nog geen succesvolle verzending geregistreerd)"
 msgid "Last phoned version"
 msgstr "Laatst gemelde versie"
 
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Release ring"
+msgstr "Release-ring"
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Not assigned. Updates are offered as soon as they are released."
+msgstr "Niet toegewezen. Updates worden aangeboden zodra ze uitkomen."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "%s, but not confirmed for over a week. Updates are no longer held back."
+msgstr "%s, maar al meer dan een week niet bevestigd. Updates worden niet meer tegengehouden."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "%s. No version ceiling: every release is offered."
+msgstr "%s. Geen versieplafond: elke release wordt aangeboden."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "%1$s. Updates are offered up to version %2$s."
+msgstr "%1$s. Updates worden aangeboden tot en met versie %2$s."
+
 #: src/Modules/License/Admin/AccountPage.php:768
 msgid "(not yet recorded)"
 msgstr "(nog niet geregistreerd)"
