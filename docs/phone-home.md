@@ -115,6 +115,20 @@ Your install is strict about what it accepts, and **never downgrades itself beca
 
 The CI self-check covers this path too: a forged, tampered or foreign-signed answer, and an unknown tier, must never be applied.
 
+### Release rings
+
+The same answer tells your install which **release ring** it is in, and the highest version it may take:
+
+```json
+{ "update_ring": { "ring": "stable", "max_version": "4.123.0" } }
+```
+
+A release reaches a small canary ring first and the stable ring later, so a regression reaches a few academies rather than all of them at once. While a ceiling is in force, a newer TalentTrack version is not shown as an available update and is not installed automatically. A version at or below the ceiling is offered as usual, and `"max_version": null` means every release is offered.
+
+Your install **never freezes updates because the control plane is out of reach**. With no ring recorded, a malformed answer, or a ring not confirmed for over a week, updates are offered exactly as if rings did not exist. A security fix does not wait on our server being up.
+
+The **Release ring** row on the Account tab shows the ring and ceiling in force, so "why am I not offered the newest version" can be answered without server access.
+
 ## Failure modes
 
 - **Network error / DNS failure / 5xx** — silent. Retried on the next cron tick. Your install is unaffected.

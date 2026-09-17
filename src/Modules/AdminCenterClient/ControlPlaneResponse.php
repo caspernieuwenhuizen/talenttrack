@@ -61,6 +61,14 @@ final class ControlPlaneResponse {
             return self::OUTCOME_UNVERIFIED;
         }
 
+        // #3493 — the release ring rides on every verified answer. A
+        // malformed block is ignored and the ring already stored ages out
+        // on its own; nothing here can freeze updates.
+        $ring = ReleaseRing::fromResponse( $decoded );
+        if ( $ring !== null ) {
+            ReleaseRing::store( $ring );
+        }
+
         if ( ! array_key_exists( 'entitlement', $decoded ) ) {
             return self::OUTCOME_NO_ENTITLEMENT;
         }

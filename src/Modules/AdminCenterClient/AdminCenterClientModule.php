@@ -36,5 +36,7 @@ class AdminCenterClientModule implements ModuleInterface {
         DailyCron::init();
         ActivationHook::init();
         VersionChangeHook::init();
+        // #3493 — hold update offers to the ring the control plane assigns.
+        ReleaseRing::register();
     }
 }
