@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T21:22:31+00:00\n"
+"POT-Creation-Date: 2026-09-17T21:34:19+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3060,7 +3060,7 @@ msgstr "Niet jouw team."
 #: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:199
-#: src/Infrastructure/REST/TeamsRestController.php:190
+#: src/Infrastructure/REST/TeamsRestController.php:206
 msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
 
@@ -3290,8 +3290,8 @@ msgstr "Een team is vereist."
 #: src/Infrastructure/REST/MeasurementsRestController.php:264
 #: src/Infrastructure/REST/MeasurementsRestController.php:404
 #: src/Infrastructure/REST/MinutesRestController.php:71
-#: src/Infrastructure/REST/TeamsRestController.php:359
-#: src/Infrastructure/REST/TeamsRestController.php:384
+#: src/Infrastructure/REST/TeamsRestController.php:375
+#: src/Infrastructure/REST/TeamsRestController.php:400
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:163
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php:115
@@ -4626,9 +4626,9 @@ msgstr "De overgang kon niet worden voltooid."
 #: src/Infrastructure/REST/SpondRestController.php:641
 #: src/Infrastructure/REST/SpondRestController.php:676
 #: src/Infrastructure/REST/SpondRestController.php:703
-#: src/Infrastructure/REST/TeamsRestController.php:341
-#: src/Infrastructure/REST/TeamsRestController.php:574
-#: src/Infrastructure/REST/TeamsRestController.php:587
+#: src/Infrastructure/REST/TeamsRestController.php:357
+#: src/Infrastructure/REST/TeamsRestController.php:626
+#: src/Infrastructure/REST/TeamsRestController.php:639
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php:120
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
@@ -4719,59 +4719,64 @@ msgstr "Kon het Strava-webhookabonnement niet aanmaken."
 msgid "Expected an object under `sections`."
 msgstr "Verwacht een object onder `sections`."
 
-#: src/Infrastructure/REST/TeamsRestController.php:356
-#: src/Infrastructure/REST/TeamsRestController.php:414
-#: src/Infrastructure/REST/TeamsRestController.php:520
-#: src/Infrastructure/REST/TeamsRestController.php:541
+#: src/Infrastructure/REST/TeamsRestController.php:372
+#: src/Infrastructure/REST/TeamsRestController.php:433
+#: src/Infrastructure/REST/TeamsRestController.php:466
 #: src/Infrastructure/REST/TeamsRestController.php:572
-#: src/Infrastructure/REST/TeamsRestController.php:581
+#: src/Infrastructure/REST/TeamsRestController.php:593
+#: src/Infrastructure/REST/TeamsRestController.php:624
+#: src/Infrastructure/REST/TeamsRestController.php:633
 msgid "Invalid team id."
 msgstr "Ongeldig team-id."
 
-#: src/Infrastructure/REST/TeamsRestController.php:380
-#: src/Infrastructure/REST/TeamsRestController.php:596
-#: src/Infrastructure/REST/TeamsRestController.php:625
+#: src/Infrastructure/REST/TeamsRestController.php:396
+#: src/Infrastructure/REST/TeamsRestController.php:648
+#: src/Infrastructure/REST/TeamsRestController.php:677
 msgid "Invalid team or player id."
 msgstr "Ongeldig team- of speler-id."
 
-#: src/Infrastructure/REST/TeamsRestController.php:393
+#: src/Infrastructure/REST/TeamsRestController.php:409
 msgid "That player has no recorded minutes for this team in this window."
 msgstr ""
 "Voor deze speler zijn in deze periode geen minuten vastgelegd bij dit team."
 
-#: src/Infrastructure/REST/TeamsRestController.php:425
+#: src/Infrastructure/REST/TeamsRestController.php:444
+msgid "Give both from and to as YYYY-MM-DD, with from on or before to."
+msgstr "Geef zowel van als tot op als JJJJ-MM-DD, met van op of vóór tot."
+
+#: src/Infrastructure/REST/TeamsRestController.php:477
 msgid "Unknown period."
 msgstr "Onbekende periode."
 
-#: src/Infrastructure/REST/TeamsRestController.php:502
-#: src/Infrastructure/REST/TeamsRestController.php:523
+#: src/Infrastructure/REST/TeamsRestController.php:554
+#: src/Infrastructure/REST/TeamsRestController.php:575
 #: src/Modules/Wizards/Team/BasicsStep.php:45
 #: src/Modules/Wizards/Team/ReviewStep.php:56
 msgid "Team name is required."
 msgstr "Teamnaam is verplicht."
 
-#: src/Infrastructure/REST/TeamsRestController.php:509
+#: src/Infrastructure/REST/TeamsRestController.php:561
 msgid "The team could not be created."
 msgstr "Het team kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/TeamsRestController.php:529
+#: src/Infrastructure/REST/TeamsRestController.php:581
 msgid "The team could not be updated."
 msgstr "Het team kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/TeamsRestController.php:555
-#: src/Infrastructure/REST/TeamsRestController.php:559
+#: src/Infrastructure/REST/TeamsRestController.php:607
+#: src/Infrastructure/REST/TeamsRestController.php:611
 msgid "The team could not be archived."
 msgstr "Het team kon niet worden gearchiveerd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:609
+#: src/Infrastructure/REST/TeamsRestController.php:661
 msgid "Team not found in your club."
 msgstr "Team niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/TeamsRestController.php:615
+#: src/Infrastructure/REST/TeamsRestController.php:667
 msgid "The player could not be added to the team."
 msgstr "De speler kon niet aan het team worden toegevoegd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:632
+#: src/Infrastructure/REST/TeamsRestController.php:684
 msgid "The player could not be removed from the team."
 msgstr "De speler kon niet uit het team worden verwijderd."
 
@@ -62054,10 +62059,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Infrastructure/REST/TeamsRestController.php:452
-msgid "Give both from and to as YYYY-MM-DD, with from on or before to."
-msgstr "Geef zowel van als tot op als JJJJ-MM-DD, met van op of vóór tot."
 
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
