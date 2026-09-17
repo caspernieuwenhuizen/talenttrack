@@ -62435,9 +62435,77 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:274
-msgid "Match statistics for this team are coming in the next release."
-msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:70
+msgid "No matches played in this period."
+msgstr "In deze periode zijn er geen wedstrijden gespeeld."
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:134
+msgid "All time — no current season is set for this academy."
+msgstr "Alle tijden — deze academie heeft geen lopend seizoen ingesteld."
+
+#. translators: 1: window start date, 2: window end date.
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:139
+#, php-format
+msgid "From %1$s to %2$s"
+msgstr "Van %1$s tot en met %2$s"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:170
+msgctxt "a team's win/draw/loss tally"
+msgid "Record"
+msgstr "Balans"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:185
+msgid "Goal difference"
+msgstr "Doelsaldo"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:186
+msgid "Clean sheets"
+msgstr "Keren de nul gehouden"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:238
+msgid "Recent form"
+msgstr "Recente vorm"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:267
+msgid "Scorers and assists"
+msgstr "Doelpuntenmakers en assists"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:269
+msgid ""
+"No goals have been attributed to a player yet. Goals are attributed on the "
+"match page."
+msgstr ""
+"Er zijn nog geen doelpunten aan een speler toegewezen. Dat doe je op de "
+"wedstrijdpagina."
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:278
+msgid "Top scorers"
+msgstr "Topscorers"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:279
+msgid "Top assists"
+msgstr "Meeste assists"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:313
+msgid "Appearances and minutes"
+msgstr "Optredens en minuten"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:318
+msgctxt "column: matches appeared in"
+msgid "Apps"
+msgstr "Wedstrijden"
+
+#. translators: %d: how many players are not shown in the slice.
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:347
+#, php-format
+msgid "%d more player — see the full minutes report"
+msgid_plural "%d more players — see the full minutes report"
+msgstr[0] "Nog %d speler — bekijk het volledige minutenrapport"
+msgstr[1] "Nog %d spelers — bekijk het volledige minutenrapport"
+
+#: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:352
+msgid "See the full minutes report"
+msgstr "Bekijk het volledige minutenrapport"
 
 #~ msgid ""
 #~ "These tests have no target and no direction — a higher or lower value is "

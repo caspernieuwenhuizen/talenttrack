@@ -150,27 +150,21 @@ class FrontendMyTeamView extends FrontendViewBase {
 
                     <?php if ( ! empty( $recent_results ) ) : ?>
                         <h3 class="tt-mt-card__title"><?php esc_html_e( 'Recent results', 'talenttrack' ); ?></h3>
-                        <div class="tt-mt-form">
-                            <?php foreach ( $recent_results as $res ) :
-                                $cls    = $res->outcome === 'W' ? 'win' : ( $res->outcome === 'L' ? 'loss' : 'draw' );
-                                $letter = $res->outcome === 'W' ? _x( 'W', 'match result: win', 'talenttrack' )
-                                        : ( $res->outcome === 'L' ? _x( 'L', 'match result: loss', 'talenttrack' )
-                                        : _x( 'D', 'match result: draw', 'talenttrack' ) );
-                                $opp    = trim( (string) ( $res->opponent ?? '' ) );
-                                $tip    = sprintf(
-                                    /* translators: 1: opponent, 2: own score, 3: opponent score */
-                                    __( '%1$s — %2$d–%3$d', 'talenttrack' ),
-                                    $opp !== '' ? $opp : (string) $res->title,
-                                    (int) $res->team_score,
-                                    (int) $res->opp_score
-                                );
-                                ?>
-                                <span class="tt-mt-form__chip tt-mt-form__chip--<?php echo esc_attr( $cls ); ?>" title="<?php echo esc_attr( $tip ); ?>">
-                                    <span class="tt-mt-form__letter"><?php echo esc_html( $letter ); ?></span>
-                                    <span class="tt-mt-form__score"><?php echo esc_html( (int) $res->team_score . '–' . (int) $res->opp_score ); ?></span>
-                                </span>
-                            <?php endforeach; ?>
-                        </div>
+                        <?php
+                        // #3522 — the chips moved into a shared component when
+                        // the team statistics tab needed the same line. Same
+                        // markup, same classes; one place to change them.
+                        \TT\Shared\Frontend\Components\FormChips::render( array_map(
+                            static fn( object $res ): array => [
+                                'outcome'    => (string) ( $res->outcome ?? '' ),
+                                'team_score' => (int) ( $res->team_score ?? 0 ),
+                                'opp_score'  => (int) ( $res->opp_score ?? 0 ),
+                                'opponent'   => (string) ( $res->opponent ?? '' ),
+                                'title'      => (string) ( $res->title ?? '' ),
+                            ],
+                            $recent_results
+                        ) );
+                        ?>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>

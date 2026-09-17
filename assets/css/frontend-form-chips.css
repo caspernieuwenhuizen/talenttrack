@@ -1,0 +1,51 @@
+/*
+ * frontend-form-chips.css (#3522) — a team's recent results as W/D/L chips.
+ *
+ * Lifted out of frontend-my-team.css when the statistics tab needed the same
+ * line. The rules are unchanged, including the `.tt-dashboard` scope both
+ * surfaces render inside; only their home moved, so one sheet owns the chip
+ * and the two surfaces cannot drift apart.
+ *
+ * Mobile-first: the row wraps rather than scrolling, because a season's form
+ * is more chips than fit on a phone in one line and a scoreline pushed off the
+ * right edge is the thing a coach opened it for.
+ */
+
+.tt-dashboard .tt-mt-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+
+.tt-dashboard .tt-mt-form__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    line-height: 1;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-mt-form__letter { font-weight: 700; }
+
+.tt-dashboard .tt-mt-form__chip--win {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-color: var(--tt-success, #2f9e5e);
+}
+
+.tt-dashboard .tt-mt-form__chip--loss {
+    background: var(--tt-danger-subtle, #fde2e2);
+    border-color: var(--tt-danger, #d8453b);
+}
+
+.tt-dashboard .tt-mt-form__chip--draw {
+    background: var(--tt-line-soft, #eef0ec);
+    border-color: var(--tt-line, #e3e6e1);
+}
+
+.tt-dashboard .tt-mt-form__chip--win .tt-mt-form__letter { color: #1c6e3f; }
+.tt-dashboard .tt-mt-form__chip--loss .tt-mt-form__letter { color: #a32820; }

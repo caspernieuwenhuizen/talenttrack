@@ -147,7 +147,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             self::renderTabs( $team, $team_id, $tab );
 
             if ( $tab === 'stats' ) :
-                self::renderStatisticsTab();
+                self::renderStatisticsTab( $team_id );
             else :
 
             // The customize panel belongs to Overview: it toggles Overview's
@@ -262,19 +262,16 @@ final class FrontendTeamDetailView extends FrontendViewBase {
     }
 
     /**
-     * #3521 — the Statistics tab, structurally. Child #3522 fills it from
-     * `TeamMatchStatsQuery`.
+     * #3521 structurally, #3522 in content — the team's match output.
      *
-     * An explicit empty state rather than a blank panel: a tab that opens onto
-     * nothing reads as a broken page, and somebody will report it as one.
+     * The page has already established that this reader may see this team
+     * (`tt_view_teams` + `AllTeamsScope::canReadTeam()`, both at the top of
+     * `render()`), so the tab widens nothing. It composes; every figure comes
+     * from `TeamMatchStatsQuery`.
      */
-    private static function renderStatisticsTab(): void {
+    private static function renderStatisticsTab( int $team_id ): void {
         echo '<div class="tt-player-detail__main">';
-        self::cardOpen( __( 'Statistics', 'talenttrack' ) );
-        echo '<p class="tt-player-empty">'
-            . esc_html__( 'Match statistics for this team are coming in the next release.', 'talenttrack' )
-            . '</p>';
-        self::cardClose();
+        \TT\Modules\Analytics\Frontend\TeamStatisticsTab::render( $team_id );
         echo '</div>';
     }
 
