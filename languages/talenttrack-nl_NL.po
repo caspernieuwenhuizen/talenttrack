@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T22:03:28+00:00\n"
+"POT-Creation-Date: 2026-09-17T22:08:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2089,7 +2089,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendHolidaysView.php:97
 #: src/Shared/Frontend/FrontendMyGoalsView.php:91
 #: src/Shared/Frontend/FrontendPeopleManageView.php:130
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2957
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2885
 #: src/Shared/Frontend/FrontendPlayersManageView.php:262
 #: src/Shared/Frontend/FrontendTeamDetailView.php:266
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
@@ -2959,7 +2959,7 @@ msgstr "Aangepaste widget"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:56
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:179
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2688
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2616
 msgid "Injury"
 msgstr "Blessure"
 
@@ -4169,7 +4169,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendPersonDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:649
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1497
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2956
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2884
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendSpondView.php:217
 #: src/Shared/Frontend/FrontendTeamDetailView.php:626
@@ -5534,7 +5534,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:533
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:167
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:281
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2967
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2895
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:234
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:332
@@ -5692,7 +5692,7 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/FrontendModulesView.php:425
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:147
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2949
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2877
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:337
 #: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
@@ -7228,7 +7228,7 @@ msgid "Alert"
 msgstr "Melding"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2957
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2885
 msgid "Cleared"
 msgstr "Vrijgegeven"
 
@@ -7845,7 +7845,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:389
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:588
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2305
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2233
 msgid "Planned"
 msgstr "Gepland"
 
@@ -8457,7 +8457,7 @@ msgstr "Eindoordeel"
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:172
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:742
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2413
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2341
 msgid "Open file"
 msgstr "Open dossier"
 
@@ -11401,7 +11401,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:67
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:153
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2959
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2887
 msgid "Reason"
 msgstr "Reden"
 
@@ -12032,7 +12032,6 @@ msgstr "Actor"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:487
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:176
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:161
 msgid "Change"
 msgstr "Wijziging"
@@ -14685,7 +14684,7 @@ msgstr "Bericht"
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:246
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:297
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:328
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:728
 #: src/Shared/Frontend/FrontendTrialCaseView.php:705
 #: src/Shared/Frontend/FrontendTrialCaseView.php:723
 msgid "Outcome"
@@ -19797,7 +19796,7 @@ msgstr "Het soort overgang."
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:272
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2670
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2598
 msgid "Injuries"
 msgstr "Blessures"
 
@@ -22083,7 +22082,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:243
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:442
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:726
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:234
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:255
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
@@ -23636,7 +23635,7 @@ msgstr "Je hebt geen toestemming om testresultaten te exporteren."
 
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:176
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:143
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:171
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:141
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:501
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
@@ -25473,8 +25472,8 @@ msgstr "Je hebt geen rechten om blessures te bekijken."
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:76
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:164
 #: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2660
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2673
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2588
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2601
 msgid "Record injury"
 msgstr "Blessure vastleggen"
 
@@ -25490,7 +25489,7 @@ msgstr "Nu uit"
 
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:138
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:220
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2699
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2627
 msgid "Recovered"
 msgstr "Hersteld"
 
@@ -25536,7 +25535,7 @@ msgstr "Dagen uit"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
 #: src/Modules/Workflow/TaskStatus.php:67
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2705
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2633
 msgid "Overdue"
 msgstr "Te laat"
 
@@ -25752,7 +25751,7 @@ msgid "Unsure — flag for medical review"
 msgstr "Onzeker — markeer voor medische review"
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:62
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2942
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2870
 msgid "Notes (optional)"
 msgstr "Notities (optioneel)"
 
@@ -26407,9 +26406,9 @@ msgstr "Voortgang"
 #: src/Shared/Frontend/CoachForms.php:654
 #: src/Shared/Frontend/FrontendGoalsManageView.php:284
 #: src/Shared/Frontend/FrontendGoalsManageView.php:360
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2825
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2829
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2836
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2753
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2757
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2764
 msgid "Due"
 msgstr "Deadline"
 
@@ -26629,7 +26628,7 @@ msgstr "Staf opgeleid"
 #. translators: 1: number of passes, 2: number of attempts
 #. translators: 1: number of capabilities in use, 2: total number of capabilities.
 #: src/Modules/Knowledge/Frontend/LearningReports.php:190
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:448
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:732
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:436
 #: src/Shared/Frontend/FrontendFeaturesView.php:152
 #, php-format
@@ -30401,59 +30400,170 @@ msgstr "Metingen — %s"
 msgid "No tests have been set up yet."
 msgstr "Er zijn nog geen tests ingesteld."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:167
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:111
 msgid ""
-"These tests have no target and no direction — a higher or lower value is not "
-"better. The readings are shown per date, without a verdict."
+"\"No target\" means the test has no better or worse — the reading is "
+"recorded, not judged."
 msgstr ""
-"Deze testen hebben geen streefwaarde en geen richting — een hogere of lagere "
-"waarde is niet beter. De metingen staan per datum, zonder oordeel."
+"\"Geen doel\" betekent dat de test geen beter of slechter kent — de meting "
+"wordt vastgelegd, niet beoordeeld."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:296
-msgid "One result so far — a trend needs at least two."
-msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
+#. translators: %d: number of tests in this category.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:154
+#, php-format
+msgid "%d test"
+msgid_plural "%d tests"
+msgstr[0] "%d test"
+msgstr[1] "%d tests"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:313
-msgid "Show history"
-msgstr "Toon verloop"
+#. translators: %s: the most recent measuring date in this category.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:161
+#, php-format
+msgid "last measured %s"
+msgstr "laatst gemeten %s"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:331
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:360
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
+msgctxt "most recent reading of a test"
+msgid "Latest"
+msgstr "Laatste"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:173
+msgid "Measured · standing"
+msgstr "Gemeten · stand"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:174
+msgctxt "the value a test is measured against"
+msgid "Target"
+msgstr "Doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:175
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:264
+msgctxt "movement of a test over time"
+msgid "Trend"
+msgstr "Verloop"
+
+#. translators: %d: how many tests have exactly one reading.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:189
+#, php-format
+msgid "One reading on %d test — a trend needs at least two."
+msgid_plural "One reading on %d tests — a trend needs at least two."
+msgstr[0] "Eén meting bij %d test — een verloop heeft er minstens twee nodig."
+msgstr[1] "Eén meting bij %d tests — een verloop heeft er minstens twee nodig."
+
+#. translators: %s: comma-separated list of test names.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:201
+#, php-format
+msgid "Never measured: %s."
+msgstr "Nog nooit gemeten: %s."
+
+#. translators: %s: comma-separated list of test names with their frequency.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:208
+#, php-format
+msgid "Overdue: %s."
+msgstr "Over tijd: %s."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:345
+msgctxt "a test that has never been measured"
+msgid "not measured yet"
+msgstr "nog niet gemeten"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:378
+msgctxt "a test reading meets its target"
+msgid "on target"
+msgstr "op doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:383
+msgctxt "a reading a little below a higher-is-better target"
+msgid "just under target"
+msgstr "net onder doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:384
+msgctxt "a reading a little above a lower-is-better target"
+msgid "just over target"
+msgstr "net boven doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:387
+msgctxt "a reading far below a higher-is-better target"
+msgid "well under target"
+msgstr "ver onder doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:388
+msgctxt "a reading far above a lower-is-better target"
+msgid "well over target"
+msgstr "ver boven doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:414
+msgctxt "a test with no better or worse value"
+msgid "no target"
+msgstr "geen doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:458
+msgctxt "a test reading has improved"
+msgid "forward"
+msgstr "vooruit"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:459
+msgctxt "a test reading has worsened"
+msgid "backward"
+msgstr "achteruit"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:499
+msgid "BMI-for-age"
+msgstr "BMI naar leeftijd"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:500
+msgctxt "a value calculated from other measurements"
+msgid "derived"
+msgstr "afgeleid"
+
+#. translators: %s: an ordinal percentile, e.g. "62nd".
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:512
+#, php-format
+msgid "%s percentile"
+msgstr "%s percentiel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:515
+msgctxt "the growth reference does not cover this player"
+msgid "no percentile"
+msgstr "geen percentiel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:615
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:644
 msgid "On target for this age group"
 msgstr "Op niveau voor deze leeftijdsgroep"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:631
 msgid "↓ A lower value is better on this test — the falling line is progress."
 msgstr ""
 "↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:351
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:635
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:193
 msgid "↑ A higher value is better on this test."
 msgstr "↑ Bij deze test is een hogere waarde beter."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:356
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:640
 msgid "recorded value"
 msgstr "gemeten waarde"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:443
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:727
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:409
 msgid "Passed"
 msgstr "Gehaald"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:508
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:792
 msgid "annually"
 msgstr "jaarlijks"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:509
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:793
 msgid "twice a year"
 msgstr "twee keer per jaar"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:510
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:794
 msgid "quarterly"
 msgstr "per kwartaal"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:511
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:795
 msgid "monthly"
 msgstr "maandelijks"
 
@@ -38320,7 +38430,7 @@ msgstr ""
 #. translators: %s: localized date the recap window starts at
 #. translators: %s is a date.
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:61
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2696
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2624
 #, php-format
 msgid "Since %s"
 msgstr "Sinds %s"
@@ -46614,7 +46724,7 @@ msgid "Trial group %s"
 msgstr "Stagegroep %s"
 
 #: src/Modules/Trials/Wizards/NewTrialCaseWizard.php:38
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2539
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2467
 msgid "Open trial case"
 msgstr "Stagedossier openen"
 
@@ -47274,7 +47384,7 @@ msgstr "Leeftijdsprofiel bijgewerkt."
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:1010
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:1046
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:3030
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2958
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1117
 msgid "Save failed: database error."
 msgstr "Opslaan mislukt: databasefout."
@@ -51922,7 +52032,7 @@ msgstr ""
 "bij deze activiteit geregistreerd."
 
 #: src/Shared/Frontend/Components/MediaGallery.php:97
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2629
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2557
 msgid "No photos or video yet"
 msgstr "Nog geen foto's of video"
 
@@ -57884,7 +57994,7 @@ msgstr "op schema"
 #. translators: %d: number of assists the player has been credited with
 #. translators: %d: number of assists the player made in this match
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1177
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2347
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2275
 #, php-format
 msgid "%d assist"
 msgid_plural "%d assists"
@@ -58056,7 +58166,7 @@ msgstr ""
 #. translators: %d: number of recent evaluations
 #. translators: %d: number of recent activities
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2048
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2289
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2217
 #, php-format
 msgid "Recent · %d"
 msgstr "Recent · %d"
@@ -58065,16 +58175,12 @@ msgstr "Recent · %d"
 msgid "You do not have permission to view measurements for this player."
 msgstr "Je hebt geen toestemming om de metingen van deze speler te bekijken."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2201
-msgid "BMI-for-age"
-msgstr "BMI naar leeftijd"
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2248
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2260
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2176
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2188
 msgid "No attended activities yet"
 msgstr "Nog geen bijgewoonde activiteiten"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2249
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2177
 msgid ""
 "Activities are recorded at the team level. Schedule one for the player's "
 "team and the player will appear in the roster."
@@ -58082,11 +58188,11 @@ msgstr ""
 "Activiteiten worden op teamniveau vastgelegd. Plan er een voor het team van "
 "de speler en de speler verschijnt automatisch in de selectie."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2250
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2178
 msgid "Plan a team activity"
 msgstr "Plan een teamactiviteit"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2261
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2189
 msgid ""
 "Activities are recorded at the team level. Assign this player to a team "
 "first; activities planned for that team will then surface here."
@@ -58094,27 +58200,27 @@ msgstr ""
 "Activiteiten worden op teamniveau vastgelegd. Wijs deze speler eerst toe aan "
 "een team; activiteiten van dat team verschijnen daarna hier."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2292
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2220
 msgid "View all"
 msgstr "Bekijk alle"
 
 #. translators: %d: number of goals the player scored in this match
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2336
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2264
 #, php-format
 msgid "%d goal scored"
 msgid_plural "%d goals scored"
 msgstr[0] "%d doelpunt gemaakt"
 msgstr[1] "%d doelpunten gemaakt"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2374
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2302
 msgid "You do not have permission to view PDP files for this player."
 msgstr "Je hebt geen rechten om de POP-dossiers van deze speler te bekijken."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2383
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2311
 msgid "No PDP cycle yet for this player"
 msgstr "Nog geen POP-cyclus voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2384
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2312
 msgid ""
 "A Personal Development Plan documents what the player is focusing on, agreed "
 "with parents and the coach. Open one to start the cycle."
@@ -58122,39 +58228,39 @@ msgstr ""
 "Een Persoonlijk Ontwikkelingsplan documenteert waar de speler op focust, in "
 "afstemming met ouders en de coach. Open er een om de cyclus te starten."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2385
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2313
 msgid "Start PDP cycle"
 msgstr "POP-cyclus starten"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2411
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2339
 msgid "Active cycle"
 msgstr "Actieve cyclus"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2419
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2347
 msgid "PDP progress"
 msgstr "POP-voortgang"
 
 #. translators: %s: date the PDP cycle was created
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2428
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2356
 #, php-format
 msgid "Created %s"
 msgstr "Aangemaakt %s"
 
 #. translators: %d: number of past PDP cycles
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2441
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2369
 #, php-format
 msgid "Past cycles · %d"
 msgstr "Eerdere cycli · %d"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2524
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2452
 msgid "You do not have permission to view trial cases for this player."
 msgstr "Je hebt geen rechten om stagedossiers van deze speler te bekijken."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2533
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2461
 msgid "No trial history for this player"
 msgstr "Nog geen stagegeschiedenis voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2535
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2463
 msgid ""
 "A trial case tracks the prospect from first training through to the academy "
 "decision. Open one when you want to evaluate this player formally."
@@ -58163,7 +58269,7 @@ msgstr ""
 "Open er een wanneer je deze speler formeel wilt beoordelen."
 
 # v3.104.2 — pilot batch new copy
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2536
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2464
 msgid ""
 "This player is not currently on trial, so there is no trial history to show."
 msgstr ""
@@ -58171,12 +58277,12 @@ msgstr ""
 "om te tonen."
 
 #. translators: %d: number of trial cases
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2555
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2483
 #, php-format
 msgid "Trial cases · %d"
 msgstr "Stagedossiers · %d"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2630
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2558
 msgid ""
 "A clip of a moment in training says more about how a player is developing "
 "than a score does. Anything added here sits on their timeline under the day "
@@ -58186,11 +58292,11 @@ msgstr ""
 "van een speler dan een cijfer. Wat je hier toevoegt, staat op de tijdlijn "
 "onder de dag waarop het gemaakt is."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2637
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2565
 msgid "Injuries are not in your scope"
 msgstr "Blessures vallen buiten jouw bereik"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2638
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2566
 msgid ""
 "Injury records are medical data and stay with the coaching staff responsible "
 "for this player. Talk to your academy admin if you should have access."
@@ -58199,11 +58305,11 @@ msgstr ""
 "speler verantwoordelijk is. Overleg met je academiebeheerder als je toegang "
 "hoort te hebben."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2658
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2586
 msgid "No injuries recorded"
 msgstr "Geen blessures vastgelegd"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2659
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2587
 msgid ""
 "Recording an injury puts it on this player's journey, so a coach reading the "
 "file next season can see what they came back from."
@@ -58213,36 +58319,36 @@ msgstr ""
 "teruggekomen."
 
 #. translators: %s is a date.
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2703
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2631
 #, php-format
 msgid "Expected back %s"
 msgstr "Verwacht terug %s"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2708
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2636
 msgid "Return date not set"
 msgstr "Terugkeerdatum niet ingesteld"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2721
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2649
 msgid "Record return"
 msgstr "Terugkeer vastleggen"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2742
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2670
 msgid "Date the player returned to play (yyyy-mm-dd):"
 msgstr "Datum waarop de speler weer meedeed (jjjj-mm-dd):"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2743
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2671
 msgid "Could not save the return date. Try again."
 msgstr "De terugkeerdatum kon niet worden opgeslagen. Probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2744
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2672
 msgid "Enter the date as yyyy-mm-dd."
 msgstr "Voer de datum in als jjjj-mm-dd."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2764
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2692
 msgid "Notes are staff-only"
 msgstr "Notities zijn alleen voor staf"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2765
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2693
 msgid ""
 "A running log of staff observations about this player. You don't have access "
 "— talk to your academy admin if you should."
@@ -58250,11 +58356,11 @@ msgstr ""
 "Een doorlopend logboek van staf-observaties over deze speler. Je hebt geen "
 "toegang — vraag je academy admin als dat anders moet."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2773
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2701
 msgid "Not in scope for this player"
 msgstr "Geen toegang voor deze speler"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2774
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2702
 msgid ""
 "You have notes access in general, but not for this player's team. Talk to "
 "your academy admin if you should."
@@ -58262,11 +58368,11 @@ msgstr ""
 "Je hebt in het algemeen toegang tot notities, maar niet voor het team van "
 "deze speler. Vraag je academy admin als dat anders moet."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2781
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2709
 msgid "Staff notes"
 msgstr "Stafnotities"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2785
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2713
 msgid ""
 "A running log staff use to share observations about this player. Notes are "
 "visible to staff only — never to the player or their parents."
@@ -58274,59 +58380,59 @@ msgstr ""
 "Een doorlopend logboek waarin staf observaties over deze speler delen. "
 "Notities zijn alleen zichtbaar voor staf — nooit voor de speler of de ouders."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2870
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2798
 msgid "— Pick a reason —"
 msgstr "— Kies een reden —"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2871
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2799
 msgid "Injury — knee"
 msgstr "Blessure — knie"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2872
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2800
 msgid "Injury — ankle"
 msgstr "Blessure — enkel"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2873
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2801
 msgid "Asthma"
 msgstr "Astma"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2874
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2802
 msgid "Cardiac condition"
 msgstr "Hartconditie"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2875
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2803
 msgid "Other medical reason"
 msgstr "Andere medische reden"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2876
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2804
 msgid "Temporary fatigue"
 msgstr "Tijdelijke vermoeidheid"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2879
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2807
 msgid "1 — recovery only"
 msgstr "1 — alleen recovery"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2880
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2808
 msgid "2 — low"
 msgstr "2 — laag"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2881
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2809
 msgid "3 — medium"
 msgstr "3 — gemiddeld"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2882
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2810
 msgid "4 — high"
 msgstr "4 — hoog"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2896
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2824
 msgid "PHV — Physical / Health / Vitality"
 msgstr "PHV — Fysiek / health / vitality"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2907
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2835
 msgid "Player has a PHV flag"
 msgstr "Speler heeft een PHV-vlag"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2909
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2837
 msgid ""
 "Automatically excluded from VCT blocks above the configured intensity "
 "ceiling."
@@ -58334,36 +58440,36 @@ msgstr ""
 "Wordt automatisch uitgesloten van VCT-blokken boven het ingestelde "
 "intensiteitsplafond."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2916
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2844
 msgid "Reason (short, for the coach)"
 msgstr "Reden (kort, voor de trainer)"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2924
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2852
 msgid "Visible to staff on the coach view; not visible to other parents."
 msgstr ""
 "Zichtbaar voor staf op de coach-view; niet zichtbaar voor andere ouders."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2930
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2858
 msgid "Intensity ceiling (max intensity band)"
 msgstr "Intensiteitsplafond (max intensity-band)"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2933
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2861
 msgid "— None set —"
 msgstr "— Niet ingesteld —"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2944
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2872
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2963
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2891
 msgid "Intensity ceiling"
 msgstr "Intensiteitsplafond"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2973
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2901
 msgid "Where the PHV flag appears:"
 msgstr "Waar de PHV-vlag verschijnt:"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2974
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2902
 msgid ""
 "Hero pill next to the name · VCT session wizard workload check · coach-view "
 "sideline banner · match prep per-player attention."
@@ -58371,16 +58477,16 @@ msgstr ""
 "Hero-pill naast de naam · belastingscheck in de VCT-sessie-wizard · sideline-"
 "banner op de coach-view · per-speler aandachtspunt in matchprep."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:3002
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2930
 msgid "You do not have permission to edit PHV flags."
 msgstr "Je hebt geen rechten om PHV-vlaggen te wijzigen."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:3006
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2934
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1094
 msgid "Save failed: session expired. Reload and try again."
 msgstr "Opslaan mislukt: sessie verlopen. Herlaad en probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:3029
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2957
 msgid "PHV flag saved."
 msgstr "PHV-vlag opgeslagen."
 
@@ -62329,127 +62435,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:111
-msgid ""
-"\"No target\" means the test has no better or worse — the reading is "
-"recorded, not judged."
-msgstr ""
-"\"Geen doel\" betekent dat de test geen beter of slechter kent — de meting "
-"wordt vastgelegd, niet beoordeeld."
+#~ msgid ""
+#~ "These tests have no target and no direction — a higher or lower value is "
+#~ "not better. The readings are shown per date, without a verdict."
+#~ msgstr ""
+#~ "Deze testen hebben geen streefwaarde en geen richting — een hogere of "
+#~ "lagere waarde is niet beter. De metingen staan per datum, zonder oordeel."
 
-#. translators: %d: number of tests in this category.
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:154
-#, php-format
-msgid "%d test"
-msgid_plural "%d tests"
-msgstr[0] "%d test"
-msgstr[1] "%d tests"
+#~ msgid "One result so far — a trend needs at least two."
+#~ msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
 
-#. translators: %s: the most recent measuring date in this category.
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:161
-#, php-format
-msgid "last measured %s"
-msgstr "laatst gemeten %s"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
-msgctxt "most recent reading of a test"
-msgid "Latest"
-msgstr "Laatste"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:173
-msgid "Measured · standing"
-msgstr "Gemeten · stand"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:174
-msgctxt "the value a test is measured against"
-msgid "Target"
-msgstr "Doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:175
-msgctxt "movement of a test over time"
-msgid "Trend"
-msgstr "Verloop"
-
-#. translators: %d: how many tests have exactly one reading.
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:189
-#, php-format
-msgid "One reading on %d test — a trend needs at least two."
-msgid_plural "One reading on %d tests — a trend needs at least two."
-msgstr[0] "Eén meting bij %d test — een verloop heeft er minstens twee nodig."
-msgstr[1] "Eén meting bij %d tests — een verloop heeft er minstens twee nodig."
-
-#. translators: %s: comma-separated list of test names.
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:201
-#, php-format
-msgid "Never measured: %s."
-msgstr "Nog nooit gemeten: %s."
-
-#. translators: %s: comma-separated list of test names with their frequency.
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:208
-#, php-format
-msgid "Overdue: %s."
-msgstr "Over tijd: %s."
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:345
-msgctxt "a test that has never been measured"
-msgid "not measured yet"
-msgstr "nog niet gemeten"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:378
-msgctxt "a test reading meets its target"
-msgid "on target"
-msgstr "op doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:383
-msgctxt "a reading a little below a higher-is-better target"
-msgid "just under target"
-msgstr "net onder doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:384
-msgctxt "a reading a little above a lower-is-better target"
-msgid "just over target"
-msgstr "net boven doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:387
-msgctxt "a reading far below a higher-is-better target"
-msgid "well under target"
-msgstr "ver onder doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:388
-msgctxt "a reading far above a lower-is-better target"
-msgid "well over target"
-msgstr "ver boven doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:414
-msgctxt "a test with no better or worse value"
-msgid "no target"
-msgstr "geen doel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:458
-msgctxt "a test reading has improved"
-msgid "forward"
-msgstr "vooruit"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:459
-msgctxt "a test reading has worsened"
-msgid "backward"
-msgstr "achteruit"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:498
-msgctxt "a value calculated from other measurements"
-msgid "derived"
-msgstr "afgeleid"
-
-#. translators: %s: an ordinal percentile, e.g. "62nd".
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:510
-#, php-format
-msgid "%s percentile"
-msgstr "%s percentiel"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:513
-msgctxt "the growth reference does not cover this player"
-msgid "no percentile"
-msgstr "geen percentiel"
+#~ msgid "Show history"
+#~ msgstr "Toon verloop"
 
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
