@@ -1,3 +1,58 @@
+# TalentTrack v4.125.0 — The academy's plan now arrives with the daily phone-home (#3486)
+
+The Admin Center answers each phone-home with the academy's plan, signed the same way the request is. TalentTrack now reads that answer and updates its cached plan. A plan change reaches the install on the next daily send, or straight away through **Send now** on the Account tab, without anyone setting it by hand on the server.
+
+The install is strict about what it accepts, and never lowers its own plan because something malformed came back:
+
+- An answer whose signature does not verify is ignored, and logged at most once a day.
+- An answer naming a plan the install does not recognise is ignored.
+- An answer with no plan in it leaves the cached plan in place.
+- An explicit "no plan" is applied, because that is a deliberate revocation.
+
+The CI privacy self-check now covers this response path too.
+
+# TalentTrack v4.125.0 — Updates follow the release ring the Admin Center assigns (#3493)
+
+The Admin Center now assigns each install a release ring (canary or stable) and a highest version it may take. A new release reaches a few academies first instead of every academy at once.
+
+While a ceiling is in force, a newer TalentTrack version is neither shown as an available update nor installed automatically. Versions at or below the ceiling are offered as usual.
+
+Updates are never frozen because the Admin Center is out of reach. With no ring recorded, an unusable answer, or a ring not confirmed for over a week, updates are offered exactly as before. A new **Release ring** row on the Account tab shows the ring and ceiling in force.
+
+# TalentTrack v4.125.0 — Phone-home now reports what an academy records, not just who logged in (#3494)
+
+The daily phone-home now includes five club-wide counts. The Admin Center uses them to see whether an academy is actually using TalentTrack:
+
+- activities in the last 30 days with a recorded attendance register;
+- activities in the last 30 days with minutes recorded;
+- evaluations created in the last 30 days;
+- open development plans;
+- active goals.
+
+They are counts only: never a player, a name or any text. The CI privacy self-check fails the build if anything other than an integer ever appears in this block. A planned roster is not a recorded register, so it does not count.
+
+# TalentTrack v4.125.0 — A suspended subscription says the data is safe, not "upgrade" (#3497)
+
+When an academy's subscription is suspended or has ended, TalentTrack no longer looks as if the academy picked a smaller plan or lost its records.
+
+- A banner at the top of every screen, for everyone who logs in, says first that the data is safe and nothing has been deleted, then explains what is unavailable and whom to contact. It can be hidden for the rest of a browser session, but not for good. It also shows in the WordPress admin.
+- Locked screens say the subscription is suspended (or ended) instead of naming a plan, and show no upgrade button.
+- Records already recorded stay readable.
+
+An ended subscription explains that the data is kept for a retention period. Everything returns to normal on the next daily contact once the subscription is resumed. Installs that are not suspended see no change.
+
+# TalentTrack v4.125.0 — Notices from the operator now appear inside TalentTrack (#3499)
+
+The operator can now send a short notice to academies, such as a planned maintenance window. It appears as a bar at the top of every TalentTrack screen for everyone who logs in, and as a notice in the WordPress admin, so academies that only use the frontend see it too.
+
+- Warnings look different from ordinary notices.
+- Each person can dismiss a notice; a new notice still shows.
+- Urgent notices can be marked as not dismissable.
+- A notice with an end time disappears at that time, even if the install cannot reach the Admin Center.
+- The text is always shown as plain text.
+
+The same notices are available to other front ends through `GET /me/broadcasts` and `POST /me/broadcasts/{id}/dismiss`.
+
 # TalentTrack v4.124.0 — Team monthly report: the numbers behind it, available over the API (#3458)
 
 The first part of the team monthly report — one document per team per month for
