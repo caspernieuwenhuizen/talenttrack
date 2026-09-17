@@ -107,6 +107,23 @@ up — but with no lockfile, regenerating also re-resolves the runtime tree and
 drags the Dompdf major bump along with it, so the two have to be done
 together, with export testing.
 
+### The WordPress version wp-env runs is pinned on purpose
+
+`.wp-env.json` pins `core` to a specific tag. Don't set it back to `null`.
+
+`null` means "whatever WordPress calls latest right now", and wp-env resolves
+that from the WordPress.org API and then clones the matching tag from the
+`WordPress/WordPress` git mirror. Those two move at different times. On the
+evening of 2026-09-17 the API was already serving 7.1.1 while the mirror had
+only reached 7.1, so every wp-env job in the repo died with
+`GitError: fatal: couldn't find remote ref 7.1.1` before running a single test —
+on branches that had not touched CI, and hours after `main` was green (#3525).
+A pin also means a WordPress release can't change what CI tests without a commit
+to point at.
+
+Bump it deliberately, in its own PR, so a WordPress-compatibility break is
+attributable to that bump rather than to whoever pushed next.
+
 ### Local checks before you push
 
 `tools/dev-check.ps1` runs the gating checks locally so a red PR is the exception, not the norm:
