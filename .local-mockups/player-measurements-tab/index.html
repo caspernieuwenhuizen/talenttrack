@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Metingen-tab — richtingen</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens — mirror assets/css/tokens.css. No new colours are invented here:
+   every value below already exists in production. This is a layout proposal,
+   not a restyle.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-primary:        #0b3d2e;
+    --tt-ink:            #0e1a14;
+    --tt-ink-soft:       #6a6d66;
+    --tt-muted:          #6a6d66;
+    --tt-paper:          #ffffff;
+    --tt-bg-soft:        #f4f6f3;
+    --tt-line:           #e3e6e1;
+    --tt-line-soft:      #eef0ec;
+    --tt-success:        #2f9e5e;
+    --tt-warning:        #e8902b;
+    --tt-danger:         #d8453b;
+    --tt-info:           #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle:  #fde2e2;
+    --tt-info-subtle:    #e6f0fa;
+    --tt-success-ink:    #1f6d41;
+    --tt-warning-ink:    #8a5300;
+    --tt-danger-ink:     #a32b22;
+    --tt-info-ink:       #1c5aa0;
+    --tt-radius:         8px;
+    --tt-radius-lg:      14px;
+    --tt-sp-1: 4px; --tt-sp-2: 8px; --tt-sp-3: 12px;
+    --tt-sp-4: 16px; --tt-sp-5: 20px; --tt-sp-6: 24px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: #e9ece9;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome — NOT ported.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #1d211f; color: #eee;
+    font-size: 12px; padding: 10px 12px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar__group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.mockup-bar__label { color: #9fb3a8; text-transform: uppercase; letter-spacing: .06em; font-size: 10px; font-weight: 700; }
+.mockup-bar button {
+    font: inherit; font-size: 12px;
+    background: #33403a; color: #eee;
+    border: 1px solid #4d5c55; border-radius: 6px;
+    padding: 6px 10px; cursor: pointer;
+    min-height: 32px; touch-action: manipulation;
+}
+.mockup-bar button[aria-pressed="true"] { background: #ffe9a8; color: #1d211f; border-color: #ffe9a8; font-weight: 700; }
+
+.mockup-wrap { padding: 20px 16px 80px; }
+.mockup-note {
+    max-width: 68ch; margin: 0 auto 22px;
+    font-size: 13.5px; line-height: 1.65; color: #35403a;
+    background: #fbfcfb; border: 1px solid #d4dbd6; border-left: 4px solid var(--tt-primary);
+    border-radius: var(--tt-radius); padding: 14px 16px;
+}
+.mockup-note h2 { margin: 0 0 6px; font-size: 15px; }
+.mockup-note p  { margin: 0 0 8px; }
+.mockup-note p:last-child { margin-bottom: 0; }
+.mockup-note code { background: #e8ebe9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.mockup-note ul { margin: 6px 0 8px; padding-left: 18px; }
+.mockup-note li { margin-bottom: 4px; }
+
+.stage { display: flex; justify-content: center; }
+.stage__inner {
+    width: 100%; max-width: 1180px;
+    background: var(--tt-bg-soft);
+    border: 1px solid #d4dbd6;
+    border-radius: var(--tt-radius-lg);
+    padding: 18px;
+    overflow: hidden;
+}
+body[data-width="phone"] .stage__inner {
+    max-width: 360px; padding: 12px;
+}
+.stage__chrome {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+    color: #8a938d; font-weight: 700; margin: 0 0 10px;
+}
+.compare { display: grid; gap: 18px; }
+@media (min-width: 1240px) { body[data-variant="all"][data-width="wide"] .compare { grid-template-columns: 1fr 1fr; } }
+body[data-variant="all"][data-width="wide"] .stage__inner { max-width: 1400px; }
+
+/* Visually hidden — the register's action column has no visible header. */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===========================================================================
+   PRODUCTION-CANDIDATE CSS — everything below is the actual proposal.
+   =========================================================================== */
+
+/* --- shared: the category card -------------------------------------------- */
+.tt-meas { display: flex; flex-direction: column; gap: var(--tt-sp-5); }
+
+.tt-meas-cat {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper);
+    overflow: hidden;
+}
+.tt-meas-cat__head {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    gap: var(--tt-sp-2) var(--tt-sp-3);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border-bottom: 1px solid var(--tt-line);
+}
+.tt-meas-cat__title { margin: 0; font-size: 1rem; font-weight: 700; }
+.tt-meas-cat__meta  { font-size: .8125rem; color: var(--tt-muted); }
+.tt-meas-cat__foot {
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    border-top: 1px solid var(--tt-line-soft);
+    font-size: .8125rem; color: var(--tt-muted);
+    background: #fcfdfc;
+}
+
+/* --- shared: the verdict chip. Words first, colour second. ---------------- */
+.tt-meas-verdict {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 9px 2px 7px; border-radius: 999px;
+    font-size: .75rem; font-weight: 700; white-space: nowrap;
+    border: 1px solid transparent;
+}
+.tt-meas-verdict::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor; flex: 0 0 auto;
+}
+.tt-meas-verdict--ok   { color: var(--tt-success-ink); background: var(--tt-success-subtle); border-color: #bfe6cb; }
+.tt-meas-verdict--warn { color: var(--tt-warning-ink); background: var(--tt-warning-subtle); border-color: #f0dcae; }
+.tt-meas-verdict--bad  { color: var(--tt-danger-ink);  background: var(--tt-danger-subtle);  border-color: #f2c6c2; }
+.tt-meas-verdict--none { color: var(--tt-ink-soft);    background: var(--tt-line-soft);      border-color: var(--tt-line); }
+.tt-meas-verdict--none::before { background: #b6bdb6; }
+
+/* --- shared: sparkline ---------------------------------------------------- */
+.tt-meas-spark { display: block; color: #9aa5a1; }
+.tt-meas-spark--ok   { color: var(--tt-success); }
+.tt-meas-spark--warn { color: var(--tt-warning); }
+.tt-meas-spark--neutral { color: #a9b2ac; }
+
+/* ===========================================================================
+   A · REGISTER — one table per category, one idiom for every test.
+   =========================================================================== */
+.tt-meas-reg { width: 100%; border-collapse: collapse; }
+.tt-meas-reg th, .tt-meas-reg td { text-align: left; vertical-align: middle; }
+.tt-meas-reg thead th {
+    padding: var(--tt-sp-2) var(--tt-sp-4);
+    font-size: .6875rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--tt-muted);
+    border-bottom: 1px solid var(--tt-line);
+    white-space: nowrap;
+}
+.tt-meas-reg tbody tr { border-bottom: 1px solid var(--tt-line-soft); }
+.tt-meas-reg tbody tr:last-child { border-bottom: 0; }
+.tt-meas-reg tbody td, .tt-meas-reg tbody th {
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    font-weight: 400; font-size: .9375rem;
+}
+.tt-meas-reg__name { font-weight: 600; }
+.tt-meas-reg__freq { display: block; font-size: .75rem; color: var(--tt-muted); font-weight: 400; }
+.tt-meas-reg__val {
+    font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.0625rem;
+    white-space: nowrap;
+}
+.tt-meas-reg__val small { font-size: .75rem; font-weight: 600; color: var(--tt-muted); margin-left: 2px; }
+.tt-meas-reg__val--none { color: #b6bdb6; font-weight: 400; }
+.tt-meas-reg__date { font-size: .8125rem; color: var(--tt-muted); white-space: nowrap; }
+.tt-meas-reg__target { font-size: .8125rem; color: var(--tt-ink-soft); white-space: nowrap; }
+.tt-meas-reg__trend { display: flex; align-items: center; gap: var(--tt-sp-2); }
+.tt-meas-reg__delta { font-size: .8125rem; font-variant-numeric: tabular-nums; color: var(--tt-ink-soft); white-space: nowrap; }
+.tt-meas-reg__dash { color: #b6bdb6; }
+.tt-meas-reg__cell-right { text-align: right; }
+.tt-meas-reg__derived {
+    background: #fbfcfb;
+}
+.tt-meas-reg__tag {
+    display: inline-block; margin-left: 6px;
+    font-size: .625rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--tt-info-ink); background: var(--tt-info-subtle);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 1px;
+}
+.tt-meas-reg__more {
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    min-height: 32px; padding: 0 2px;
+    font-size: .8125rem; font-weight: 600; color: var(--tt-primary);
+    background: none; border: 0; cursor: pointer; touch-action: manipulation;
+}
+.tt-meas-reg__more[disabled] { color: #b6bdb6; cursor: default; }
+
+/* Phone: each row becomes a three-line block. Every cell gets an explicit
+   placement — leave one out and it claims a row of its own, which is how a
+   7-column table turns into a 5-line card. No sideways scroll either way. */
+@media (max-width: 719px) {
+    .tt-meas-reg thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .tt-meas-reg tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 3px var(--tt-sp-3);
+        padding: var(--tt-sp-3) var(--tt-sp-4);
+        align-items: center;
+    }
+    .tt-meas-reg tbody td, .tt-meas-reg tbody th { padding: 0; }
+    .tt-meas-reg__nameCell { grid-area: 1 / 1; }
+    .tt-meas-reg__valCell  { grid-area: 1 / 2; text-align: right; }
+    .tt-meas-reg__metaCell { grid-area: 2 / 1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+    .tt-meas-reg__target   { grid-area: 2 / 2; text-align: right; }
+    .tt-meas-reg__trend    { grid-area: 3 / 1; min-height: 22px; }
+    .tt-meas-reg tbody tr > td:last-child { grid-area: 3 / 2; text-align: right; }
+    /* A row with nothing to show on line 3 should not reserve it. */
+    .tt-meas-reg tbody tr:not(.has-trend) .tt-meas-reg__trend,
+    .tt-meas-reg tbody tr:not(.has-trend) > td:last-child { display: none; }
+}
+@media (min-width: 720px) {
+    .tt-meas-reg__metaCell { display: table-cell; }
+    /* The name is the longest thing in the row; give it room rather than
+       letting the table wrap "18 minuten" onto three lines. */
+    .tt-meas-reg tbody th[scope="row"] { min-width: 12rem; }
+    .tt-meas-reg__metaCell { white-space: nowrap; }
+    .tt-meas-reg__metaCell .tt-meas-reg__date { margin-right: var(--tt-sp-2); }
+}
+
+/* ===========================================================================
+   B · MEETMOMENTEN — the measuring sessions as the spine.
+   =========================================================================== */
+.tt-meas-switch {
+    display: inline-flex; border: 1px solid var(--tt-line); border-radius: 999px;
+    background: var(--tt-paper); padding: 3px; margin: 0 0 var(--tt-sp-4);
+}
+.tt-meas-switch button {
+    font: inherit; font-size: .8125rem; font-weight: 600;
+    min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px;
+    background: none; color: var(--tt-ink-soft); cursor: pointer; touch-action: manipulation;
+}
+.tt-meas-switch button[aria-pressed="true"] { background: var(--tt-primary); color: #fff; }
+
+.tt-meas-moments { display: flex; flex-direction: column; gap: var(--tt-sp-3); }
+.tt-meas-moment {
+    display: grid; gap: 0 var(--tt-sp-4);
+    grid-template-columns: 1fr;
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper); overflow: hidden;
+}
+@media (min-width: 720px) { .tt-meas-moment { grid-template-columns: 168px 1fr; } }
+.tt-meas-moment__when {
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border-bottom: 1px solid var(--tt-line);
+}
+@media (min-width: 720px) {
+    .tt-meas-moment__when { border-bottom: 0; border-right: 1px solid var(--tt-line); }
+}
+.tt-meas-moment__date { display: block; font-weight: 700; font-size: .9375rem; }
+.tt-meas-moment__ago  { display: block; font-size: .75rem; color: var(--tt-muted); }
+.tt-meas-moment__count { display: block; margin-top: 4px; font-size: .75rem; color: var(--tt-muted); }
+.tt-meas-moment__items { display: flex; flex-wrap: wrap; gap: var(--tt-sp-2); padding: var(--tt-sp-3) var(--tt-sp-4); }
+.tt-meas-chip {
+    display: inline-flex; align-items: baseline; gap: 6px;
+    min-height: 40px; padding: 6px 12px;
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+.tt-meas-chip__name { font-size: .8125rem; color: var(--tt-ink-soft); }
+.tt-meas-chip__val  { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tt-meas-chip__val small { font-size: .75rem; font-weight: 600; color: var(--tt-muted); }
+.tt-meas-chip--ok   { border-color: #bfe6cb; background: #f6fdf8; }
+.tt-meas-chip--warn { border-color: #f0dcae; background: #fffcf4; }
+
+.tt-meas-due {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    border: 1px dashed var(--tt-line); border-radius: var(--tt-radius-lg);
+    background: #fdfdfc; font-size: .875rem; color: var(--tt-ink-soft);
+    margin-top: var(--tt-sp-3);
+}
+.tt-meas-due strong { color: var(--tt-ink); }
+
+/* ===========================================================================
+   C · KAARTEN — one tile per test, value and its meaning together.
+   =========================================================================== */
+.tt-meas-grid {
+    display: grid; gap: var(--tt-sp-3);
+    grid-template-columns: 1fr;
+    padding: var(--tt-sp-3);
+}
+@media (min-width: 560px) { .tt-meas-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 920px) { .tt-meas-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.tt-meas-tile {
+    display: flex; flex-direction: column; gap: var(--tt-sp-2);
+    min-height: 152px; padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+.tt-meas-tile--empty { border-style: dashed; background: #fcfdfc; }
+.tt-meas-tile__head { display: flex; flex-direction: column; gap: 1px; }
+.tt-meas-tile__name { font-size: .875rem; font-weight: 700; line-height: 1.3; }
+.tt-meas-tile__freq { font-size: .6875rem; color: var(--tt-muted); text-transform: uppercase; letter-spacing: .05em; }
+.tt-meas-tile__val  { display: flex; align-items: baseline; gap: 4px; margin-top: auto; }
+.tt-meas-tile__num  { font-size: 1.75rem; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tt-meas-tile__unit { font-size: .8125rem; font-weight: 600; color: var(--tt-muted); }
+.tt-meas-tile__num--none { font-size: 1.25rem; color: #b6bdb6; font-weight: 400; }
+.tt-meas-tile__chip { align-self: flex-start; }
+.tt-meas-tile__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--tt-sp-2); }
+.tt-meas-tile__date { font-size: .75rem; color: var(--tt-muted); }
+.tt-meas-tile__target { font-size: .75rem; color: var(--tt-ink-soft); }
+
+/* ===========================================================================
+   BASELINE — today's shipped markup, reproduced for diffing.
+   =========================================================================== */
+.bl-bmi-h { margin: 0 0 10px; font-size: 1.25rem; font-weight: 700; color: var(--tt-primary); }
+.bl-bmi { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
+    padding: 12px; border: 1px solid var(--tt-line); border-radius: 8px; background: #fff; margin-bottom: 18px; }
+.bl-bmi__n { font-size: 2rem; font-weight: 600; line-height: 1.1; }
+.bl-bmi__u { font-size: .875rem; text-transform: uppercase; letter-spacing: .04em; color: var(--tt-muted); }
+.bl-bmi__p { margin: 0; font-size: .875rem; color: var(--tt-muted); }
+.bl-cat { border: 1px solid rgba(0,0,0,.08); border-radius: .75rem; overflow: hidden; background: #fff; }
+.bl-cat-title { margin: 0; padding: .75rem 1rem; font-size: .95rem; font-weight: 600; background: #f4f6f5; border-bottom: 1px solid rgba(0,0,0,.06); }
+.bl-list { list-style: none; margin: 0; padding: 0; }
+.bl-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "head data" "meta data" "trend trend";
+    align-items: center; gap: .15rem .75rem; min-height: 48px; padding: .6rem 1rem; border-bottom: 1px solid rgba(0,0,0,.05); }
+.bl-row:last-child { border-bottom: 0; }
+.bl-head { grid-area: head; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; }
+.bl-name { font-weight: 600; font-size: .95rem; }
+.bl-freq { font-size: .75rem; color: #6b7280; }
+.bl-meta { grid-area: meta; font-size: .75rem; color: #9ca3af; }
+.bl-data { grid-area: data; display: flex; align-items: center; gap: .6rem; justify-self: end; }
+.bl-val { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 1rem; white-space: nowrap; padding: .1rem .5rem; border-radius: .4rem; }
+.bl-ok { color: #166534; background: rgba(22,101,52,.1); }
+.bl-warn { color: #92400e; background: rgba(146,64,14,.12); }
+.bl-empty { grid-area: trend; margin: .35rem 0 0; font-size: .75rem; font-style: italic; color: #9ca3af; }
+.bl-caption { margin: 0; padding: .6rem 1rem; font-size: .75rem; color: #6b7280; }
+.bl-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.bl-table th, .bl-table td { padding: .5rem 1rem; text-align: right; border-top: 1px solid rgba(0,0,0,.05); }
+.bl-table thead th { font-size: .6875rem; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; }
+.bl-table th[scope="row"], .bl-table thead th:first-child { text-align: left; }
+.bl-flaw { outline: 2px dashed var(--tt-danger); outline-offset: -2px; }
+body[data-flaws="0"] .bl-flaw { outline: 0; }
+.bl-flaw__tag {
+    display: none; position: relative; float: right;
+    font-size: 10px; font-weight: 700; color: #fff; background: var(--tt-danger);
+    border-radius: 3px; padding: 1px 5px; margin-left: 6px;
+}
+body[data-flaws="1"] .bl-flaw__tag { display: inline-block; }
+</style>
+</head>
+<body data-variant="all" data-data="sparse" data-width="wide" data-flaws="1">
+
+<div class="mockup-bar">
+    <div class="mockup-bar__group">
+        <span class="mockup-bar__label">Richting</span>
+        <button type="button" data-variant="baseline">Vandaag</button>
+        <button type="button" data-variant="A">A · Register</button>
+        <button type="button" data-variant="B">B · Meetmomenten</button>
+        <button type="button" data-variant="C">C · Kaarten</button>
+        <button type="button" data-variant="all" aria-pressed="true">Vergelijk</button>
+    </div>
+    <div class="mockup-bar__group">
+        <span class="mockup-bar__label">Data</span>
+        <button type="button" data-data="sparse" aria-pressed="true">Zoals nu (1 meting)</button>
+        <button type="button" data-data="full">Vol seizoen</button>
+    </div>
+    <div class="mockup-bar__group">
+        <span class="mockup-bar__label">Breedte</span>
+        <button type="button" data-width="wide" aria-pressed="true">Desktop</button>
+        <button type="button" data-width="phone">360px</button>
+    </div>
+    <div class="mockup-bar__group">
+        <span class="mockup-bar__label">Baseline</span>
+        <button type="button" data-flaws="1" aria-pressed="true">Markeer knelpunten</button>
+    </div>
+</div>
+
+<div class="mockup-wrap">
+    <div class="mockup-note" id="note"></div>
+    <div class="stage">
+        <div class="stage__inner">
+            <p class="stage__chrome">Speler · Bas Willems · tabblad Metingen</p>
+            <div class="compare" id="stage"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ===========================================================================
+   One dataset, rendered by every variant, so the comparison is honest.
+   Values are the ones from the reported screenshot.
+   =========================================================================== */
+
+const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+
+/* Dutch date order — the shipped screen prints "juni 30, 2026" because the WP
+   `date_format` option is left at the US default on this install. See notes.md. */
+function nlDate(ymd, short) {
+    const [y, m, d] = ymd.split('-').map(Number);
+    return short ? `${d} ${MONTHS[m-1].slice(0,3)} ${y}` : `${d} ${MONTHS[m-1]} ${y}`;
+}
+/* What the shipped screen actually prints: Dutch month names in US order,
+   because `date_format` is still `F j, Y`. Used only by the baseline. */
+function usDate(ymd) {
+    const [y, m, d] = ymd.split('-').map(Number);
+    return `${MONTHS[m-1]} ${d}, ${y}`;
+}
+function nlNum(v, dec) {
+    return v.toLocaleString('nl-NL', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+const TODAY = '2026-09-17';
+function daysAgo(ymd) {
+    return Math.round((Date.parse(TODAY) - Date.parse(ymd)) / 86400000);
+}
+function agoLabel(ymd) {
+    const d = daysAgo(ymd);
+    if (d < 14) return `${d} dagen geleden`;
+    if (d < 70) return `${Math.round(d/7)} weken geleden`;
+    return `${Math.round(d/30)} maanden geleden`;
+}
+
+/* Formatters per test type. `raw` is always a number so trends are computable. */
+const FMT = {
+    metres:  v => ({ n: nlNum(v, 0), u: 'm' }),
+    time:    v => ({ n: `${Math.floor(v/60)}:${String(Math.round(v%60)).padStart(2,'0')}`, u: '' }),
+    count:   v => ({ n: nlNum(v, 0), u: '' }),
+    kg:      v => ({ n: nlNum(v, 1), u: 'kg' }),
+    metre2:  v => ({ n: nlNum(v, 2), u: 'm' }),
+    bmi:     v => ({ n: nlNum(v, 1), u: 'BMI' }),
+};
+
+const TESTS = [
+    {
+        id: 'min18', name: '18 minuten', freq: 'jaarlijks', fmt: 'metres',
+        dir: 'higher', target: 3400, targetLabel: '≥ 3.400 m',
+        sparse: [{ d: '2026-06-30', v: 3700 }],
+        full:   [{ d: '2025-09-22', v: 3280 }, { d: '2026-01-19', v: 3450 }, { d: '2026-06-30', v: 3700 }],
+    },
+    {
+        id: 'r8', name: '8 Ronden (8 x 330m)', freq: '', fmt: 'time',
+        dir: 'lower', target: 705, targetLabel: '≤ 11:45',
+        sparse: [], full: [],
+    },
+    {
+        id: 'r9', name: '9 Ronden (9 x 330m)', freq: '', fmt: 'time',
+        dir: 'lower', target: 765, targetLabel: '≤ 12:45',
+        sparse: [{ d: '2026-09-01', v: 791 }],
+        full:   [{ d: '2026-01-19', v: 838 }, { d: '2026-04-13', v: 812 }, { d: '2026-09-01', v: 791 }],
+    },
+    {
+        id: 'shuttle', name: 'Shuttlerun', freq: 'per kwartaal', fmt: 'count',
+        dir: 'higher', target: 86, targetLabel: '≥ 86',
+        sparse: [{ d: '2026-09-15', v: 91 }],
+        full:   [{ d: '2025-12-08', v: 74 }, { d: '2026-03-16', v: 82 }, { d: '2026-06-15', v: 88 }, { d: '2026-09-15', v: 91 }],
+    },
+    {
+        id: 'gewicht', name: 'Gewicht', freq: 'per kwartaal', fmt: 'kg',
+        dir: 'neutral', target: null, targetLabel: 'geen doel',
+        sparse: [{ d: '2026-06-23', v: 41.8 }, { d: '2026-08-18', v: 42.6 }],
+        full:   [{ d: '2025-10-14', v: 38.9 }, { d: '2026-02-10', v: 40.4 }, { d: '2026-06-23', v: 41.8 }, { d: '2026-08-18', v: 42.6 }],
+    },
+    {
+        id: 'lengte', name: 'Lengte', freq: 'per kwartaal', fmt: 'metre2',
+        dir: 'neutral', target: null, targetLabel: 'geen doel',
+        sparse: [{ d: '2026-06-23', v: 1.54 }, { d: '2026-08-18', v: 1.55 }],
+        full:   [{ d: '2025-10-14', v: 1.49 }, { d: '2026-02-10', v: 1.52 }, { d: '2026-06-23', v: 1.54 }, { d: '2026-08-18', v: 1.55 }],
+    },
+    {
+        id: 'bmi', name: 'BMI naar leeftijd', freq: '', fmt: 'bmi', derived: true,
+        dir: 'neutral', target: null, targetLabel: 'geen percentiel',
+        note: 'Geen percentiel — de groeireferentie (WHO) dekt deze leeftijd en dit geslacht niet.',
+        sparse: [{ d: '2026-08-18', v: 17.7 }],
+        full:   [{ d: '2026-02-10', v: 17.5 }, { d: '2026-06-23', v: 17.6 }, { d: '2026-08-18', v: 17.7 }],
+    },
+];
+
+function series(t)  { return t[document.body.dataset.data] || []; }
+function latest(t)  { const s = series(t); return s.length ? s[s.length - 1] : null; }
+function verdict(t) {
+    const l = latest(t);
+    if (!l) return { key: 'none', label: 'nog niet gemeten' };
+    if (t.dir === 'neutral') return { key: 'none', label: 'geen doel' };
+    const hit = t.dir === 'higher' ? l.v >= t.target : l.v <= t.target;
+    if (hit) return { key: 'ok', label: 'op doel' };
+    const off = Math.abs(l.v - t.target) / t.target;
+    return off > 0.08
+        ? { key: 'bad',  label: 'ver onder doel' }
+        : { key: 'warn', label: t.dir === 'higher' ? 'net onder doel' : 'net boven doel' };
+}
+function delta(t) {
+    const s = series(t);
+    if (s.length < 2) return null;
+    const d = s[s.length - 1].v - s[0].v;
+    const f = FMT[t.fmt];
+    const a = Math.abs(d);
+    const abs = t.fmt === 'time'
+        ? (a < 60 ? `${Math.round(a)} s` : `${Math.floor(a/60)}:${String(Math.round(a%60)).padStart(2,'0')} min`)
+        : f(a).n + (f(a).u ? ' ' + f(a).u : '');
+    const sign = d > 0 ? '+' : '−';
+    /* An improvement is named, never inferred from the slope. */
+    let sense = '';
+    if (t.dir !== 'neutral') {
+        const better = t.dir === 'higher' ? d > 0 : d < 0;
+        sense = better ? ' · vooruit' : ' · terug';
+    }
+    return { text: sign + abs + sense, better: t.dir === 'neutral' ? null : (t.dir === 'higher' ? d > 0 : d < 0) };
+}
+function val(t) {
+    const l = latest(t);
+    if (!l) return null;
+    return FMT[t.fmt](l.v);
+}
+
+function spark(t, cls) {
+    const s = series(t);
+    if (s.length < 2) return '';
+    const vs = s.map(p => p.v);
+    const min = Math.min(...vs), max = Math.max(...vs), span = max - min;
+    const w = 72, h = 22, pad = 3;
+    const step = (w - 2*pad) / (vs.length - 1);
+    const pts = vs.map((v, i) => {
+        const x = pad + i * step;
+        const r = span > 0 ? (v - min) / span : .5;
+        return `${x.toFixed(1)},${(pad + (1-r) * (h - 2*pad)).toFixed(1)}`;
+    }).join(' ');
+    const last = pts.split(' ').pop().split(',');
+    return `<svg class="tt-meas-spark ${cls}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-hidden="true" focusable="false">
+        <polyline fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="${pts}"/>
+        <circle cx="${last[0]}" cy="${last[1]}" r="2.6" fill="currentColor"/></svg>`;
+}
+
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+/* --- category summary line ------------------------------------------------ */
+function catMeta() {
+    const dates = TESTS.flatMap(series).map(p => p.d).sort();
+    const missing = TESTS.filter(t => series(t).length === 0).length;
+    const one = TESTS.filter(t => series(t).length === 1).length;
+    const bits = [`${TESTS.length} tests`];
+    if (dates.length) bits.push(`laatst gemeten ${nlDate(dates[dates.length - 1], true)}`);
+    if (missing) bits.push(`${missing} nog nooit gemeten`);
+    if (one) bits.push(`${one} met één meting`);
+    return bits.join(' · ');
+}
+
+/* ===========================================================================
+   A · REGISTER
+   =========================================================================== */
+function renderA() {
+    const rows = TESTS.map(t => {
+        const v = val(t), vd = verdict(t), d = delta(t), l = latest(t);
+        const sparkCls = vd.key === 'ok' ? 'tt-meas-spark--ok' : vd.key === 'none' ? 'tt-meas-spark--neutral' : 'tt-meas-spark--warn';
+        /* The chip and the Doel column must never both say "geen doel" —
+           a richtingloze test states that once, in the column that owns it. */
+        const showChip = t.dir !== 'neutral' || !l;
+        const cls = [t.derived ? 'tt-meas-reg__derived' : '', series(t).length > 1 ? 'has-trend' : ''].filter(Boolean).join(' ');
+        return `
+        <tr${cls ? ` class="${cls}"` : ''}>
+            <th scope="row" class="tt-meas-reg__nameCell">
+                <span class="tt-meas-reg__name">${esc(t.name)}${t.derived ? '<span class="tt-meas-reg__tag">afgeleid</span>' : ''}</span>
+                ${t.freq ? `<span class="tt-meas-reg__freq">${esc(t.freq)}</span>` : ''}
+            </th>
+            <td class="tt-meas-reg__valCell tt-meas-reg__cell-right">
+                <span class="tt-meas-reg__val${v ? '' : ' tt-meas-reg__val--none'}">${v ? esc(v.n) + (v.u ? `<small>${esc(v.u)}</small>` : '') : '—'}</span>
+            </td>
+            <td class="tt-meas-reg__metaCell">
+                <span class="tt-meas-reg__date">${l ? esc(nlDate(l.d, true)) : ''}</span>
+                ${showChip ? `<span class="tt-meas-verdict tt-meas-verdict--${vd.key}">${esc(vd.label)}</span>` : ''}
+            </td>
+            <td class="tt-meas-reg__target">${esc(t.targetLabel)}</td>
+            <td class="tt-meas-reg__trend">
+                ${spark(t, sparkCls)}
+                <span class="tt-meas-reg__delta">${d ? esc(d.text) : '<span class="tt-meas-reg__dash">—</span>'}</span>
+            </td>
+            <td class="tt-meas-reg__cell-right">
+                <button type="button" class="tt-meas-reg__more"${series(t).length < 2 ? ' disabled' : ''}>Verloop ▸</button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    const one = TESTS.filter(t => series(t).length === 1).map(t => t.name);
+    const none = TESTS.filter(t => series(t).length === 0).map(t => t.name);
+    const foot = [];
+    if (one.length)  foot.push(`Eén meting bij ${one.length === 1 ? one[0] : one.length + ' tests'} — een verloop heeft er minstens twee nodig.`);
+    if (none.length) foot.push(`Nog niet gemeten: ${none.join(', ')}.`);
+    foot.push('“Geen doel” betekent dat deze test geen streefwaarde en geen richting heeft — hoger of lager is niet beter.');
+
+    return `
+    <div class="tt-meas">
+      <section class="tt-meas-cat">
+        <header class="tt-meas-cat__head">
+            <h3 class="tt-meas-cat__title">Fysiek</h3>
+            <span class="tt-meas-cat__meta">${esc(catMeta())}</span>
+        </header>
+        <table class="tt-meas-reg">
+            <thead><tr>
+                <th scope="col">Test</th>
+                <th scope="col" class="tt-meas-reg__cell-right">Laatste</th>
+                <th scope="col">Gemeten · stand</th>
+                <th scope="col">Doel</th>
+                <th scope="col">Verloop</th>
+                <th scope="col"><span class="sr">Actie</span></th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        <footer class="tt-meas-cat__foot">${foot.map(esc).join('<br>')}</footer>
+      </section>
+    </div>`;
+}
+
+/* ===========================================================================
+   B · MEETMOMENTEN
+   =========================================================================== */
+function renderB() {
+    const byDate = {};
+    TESTS.forEach(t => series(t).forEach(p => {
+        (byDate[p.d] = byDate[p.d] || []).push({ t, p });
+    }));
+    const dates = Object.keys(byDate).sort().reverse();
+
+    const moments = dates.map(d => {
+        const items = byDate[d].map(({ t, p }) => {
+            const f = FMT[t.fmt](p.v);
+            const vd = verdict(t);
+            const isLatest = latest(t) && latest(t).d === d;
+            const cls = isLatest && vd.key !== 'none' ? ` tt-meas-chip--${vd.key}` : '';
+            return `<span class="tt-meas-chip${cls}">
+                <span class="tt-meas-chip__name">${esc(t.name)}</span>
+                <span class="tt-meas-chip__val">${esc(f.n)}${f.u ? `<small> ${esc(f.u)}</small>` : ''}</span>
+            </span>`;
+        }).join('');
+        return `
+        <article class="tt-meas-moment">
+            <div class="tt-meas-moment__when">
+                <span class="tt-meas-moment__date">${esc(nlDate(d))}</span>
+                <span class="tt-meas-moment__ago">${esc(agoLabel(d))}</span>
+                <span class="tt-meas-moment__count">${byDate[d].length} test${byDate[d].length === 1 ? '' : 's'}</span>
+            </div>
+            <div class="tt-meas-moment__items">${items}</div>
+        </article>`;
+    }).join('');
+
+    const never = TESTS.filter(t => series(t).length === 0).map(t => t.name);
+    const stale = TESTS.filter(t => {
+        const l = latest(t);
+        return l && t.freq === 'per kwartaal' && daysAgo(l.d) > 120;
+    }).map(t => t.name);
+
+    const due = [];
+    if (never.length) due.push(`<strong>Nog nooit gemeten:</strong> ${never.join(', ')}.`);
+    if (stale.length) due.push(`<strong>Over tijd:</strong> ${stale.join(', ')} — frequentie per kwartaal.`);
+    if (!due.length)  due.push('Alle tests zijn binnen hun eigen frequentie gemeten.');
+
+    return `
+    <div class="tt-meas">
+      <div class="tt-meas-switch">
+        <button type="button" aria-pressed="true">Per moment</button>
+        <button type="button" aria-pressed="false">Per test</button>
+      </div>
+      <section class="tt-meas-cat">
+        <header class="tt-meas-cat__head">
+            <h3 class="tt-meas-cat__title">Fysiek</h3>
+            <span class="tt-meas-cat__meta">${dates.length} meetmoment${dates.length === 1 ? '' : 'en'} · ${esc(catMeta())}</span>
+        </header>
+        <div style="padding: var(--tt-sp-3);">
+            <div class="tt-meas-moments">${moments}</div>
+            <div class="tt-meas-due">${due.join(' ')}</div>
+        </div>
+      </section>
+    </div>`;
+}
+
+/* ===========================================================================
+   C · KAARTEN
+   =========================================================================== */
+function renderC() {
+    const tiles = TESTS.map(t => {
+        const v = val(t), vd = verdict(t), l = latest(t), d = delta(t);
+        const sparkCls = vd.key === 'ok' ? 'tt-meas-spark--ok' : vd.key === 'none' ? 'tt-meas-spark--neutral' : 'tt-meas-spark--warn';
+        const showChip = t.dir !== 'neutral' || !l;
+        return `
+        <article class="tt-meas-tile${v ? '' : ' tt-meas-tile--empty'}">
+            <div class="tt-meas-tile__head">
+                <span class="tt-meas-tile__name">${esc(t.name)}</span>
+                <span class="tt-meas-tile__freq">${esc(t.freq || 'geen vaste frequentie')}</span>
+            </div>
+            <div class="tt-meas-tile__val">
+                ${v
+                    ? `<span class="tt-meas-tile__num">${esc(v.n)}</span><span class="tt-meas-tile__unit">${esc(v.u)}</span>`
+                    : `<span class="tt-meas-tile__num tt-meas-tile__num--none">nog niet gemeten</span>`}
+            </div>
+            ${showChip ? `<span class="tt-meas-verdict tt-meas-verdict--${vd.key} tt-meas-tile__chip">${esc(vd.label)}</span>` : ''}
+            <div class="tt-meas-tile__foot">
+                <span class="tt-meas-tile__date">${l ? esc(nlDate(l.d, true)) : '—'}${d ? ' · ' + esc(d.text) : ''}</span>
+                ${spark(t, sparkCls)}
+            </div>
+            <span class="tt-meas-tile__target">${esc(t.targetLabel)}</span>
+        </article>`;
+    }).join('');
+
+    return `
+    <div class="tt-meas">
+      <section class="tt-meas-cat">
+        <header class="tt-meas-cat__head">
+            <h3 class="tt-meas-cat__title">Fysiek</h3>
+            <span class="tt-meas-cat__meta">${esc(catMeta())}</span>
+        </header>
+        <div class="tt-meas-grid">${tiles}</div>
+        <footer class="tt-meas-cat__foot">“Geen doel” betekent dat deze test geen streefwaarde en geen richting heeft — hoger of lager is niet beter.</footer>
+      </section>
+    </div>`;
+}
+
+/* ===========================================================================
+   BASELINE — today, reproduced from FrontendMeasurementsView + BmiBlock.
+   =========================================================================== */
+function renderBaseline() {
+    const rowTests = TESTS.filter(t => !t.derived && t.dir !== 'neutral');
+    const neutral  = TESTS.filter(t => !t.derived && t.dir === 'neutral');
+    const bmi = latest(TESTS.find(t => t.id === 'bmi'));
+
+    const rows = rowTests.map(t => {
+        const v = val(t), vd = verdict(t), l = latest(t);
+        const cls = vd.key === 'ok' ? 'bl-ok' : vd.key === 'none' ? '' : 'bl-warn';
+        const one = series(t).length === 1;
+        return `
+        <li class="bl-row">
+            <div class="bl-head"><span class="bl-name">${esc(t.name)}</span>${t.freq ? `<span class="bl-freq">${esc(t.freq)}</span>` : ''}</div>
+            ${l ? `<div class="bl-meta">${esc(usDate(l.d))}</div>` : ''}
+            <div class="bl-data"><span class="bl-val ${cls}">${v ? esc(v.n) + (v.u ? ' ' + esc(v.u) : '') : '—'}</span></div>
+            ${one ? `<p class="bl-empty bl-flaw">Voorlopig één meting — een verloop heeft er minstens twee nodig.<span class="bl-flaw__tag">herhaald per rij</span></p>` : ''}
+        </li>`;
+    }).join('');
+
+    const dates = [...new Set(neutral.flatMap(t => series(t).map(p => p.d)))].sort();
+    const head = dates.map(d => `<th scope="col">${esc(usDate(d))}</th>`).join('');
+    const body = neutral.map(t => {
+        const by = {}; series(t).forEach(p => by[p.d] = p.v);
+        const cells = dates.map(d => `<td>${by[d] !== undefined ? esc(FMT[t.fmt](by[d]).n) : '—'}</td>`).join('');
+        const vals = dates.filter(d => by[d] !== undefined).map(d => by[d]);
+        const ch = vals.length > 1 ? (vals[vals.length-1] - vals[0]) : null;
+        const f = FMT[t.fmt];
+        return `<tr><th scope="row">${esc(t.name)} (${esc(f(0).u)})</th>${cells}<td><b>${ch === null ? '—' : (ch > 0 ? '+' : '−') + esc(f(Math.abs(ch)).n)}</b></td></tr>`;
+    }).join('');
+
+    return `
+    <div>
+        <h3 class="bl-bmi-h">BMI naar leeftijd</h3>
+        <div class="bl-bmi bl-flaw">
+            <span class="bl-bmi__n">${bmi ? esc(FMT.bmi(bmi.v).n) : '—'}</span>
+            <span class="bl-bmi__u">BMI</span>
+            <p class="bl-bmi__p">Geen percentiel: de groeireferentie dekt deze leeftijd en dit geslacht niet.<span class="bl-flaw__tag">eigen kaart-idioom · prominentie zonder inhoud</span></p>
+        </div>
+        <section class="bl-cat">
+            <h3 class="bl-cat-title">Fysiek</h3>
+            <ul class="bl-list">${rows}</ul>
+            <p class="bl-caption bl-flaw">Deze testen hebben geen streefwaarde en geen richting — een hogere of lagere waarde is niet beter. De metingen staan per datum, zonder oordeel.<span class="bl-flaw__tag">tweede idioom in dezelfde kaart</span></p>
+            <div class="bl-flaw"><table class="bl-table"><thead><tr><th scope="col">Test</th>${head}<th scope="col">Wijziging</th></tr></thead><tbody>${body}</tbody></table></div>
+        </section>
+    </div>`;
+}
+
+/* ===========================================================================
+   Notes per variant
+   =========================================================================== */
+const NOTES = {
+    baseline: `<h2>Vandaag — wat er misgaat</h2>
+        <p>De rode kaders markeren de knelpunten. Negen, in volgorde van zichtbaarheid:</p>
+        <ul>
+          <li><b>Twee kaartsystemen boven elkaar.</b> Het BMI-blok komt uit <code>frontend-bmi.css</code> (8px radius, kale <code>h3</code>), de categorie uit <code>frontend-measurements.css</code> (12px radius, gevulde kopbalk). Dat is het eerste dat “inconsistent” leest.</li>
+          <li><b>Prominentie omgekeerd evenredig met inhoud.</b> Een 2rem-groot getal, direct gevolgd door de zin dat er geen percentiel is.</li>
+          <li><b>De lege staat herhaalt zich per rij.</b> <code>renderTrend()</code> drukt “Voorlopig één meting…” drie keer af.</li>
+          <li><b>Een rij zonder data is stil.</b> “8 Ronden” toont een streepje, geen datum, geen uitleg — leest als een bug, en splitst de lijst doormidden.</li>
+          <li><b>Kleur zonder legenda of doel.</b> 3700 m groen, 13:11 amber. Nergens staat waaraan gemeten wordt.</li>
+          <li><b>Naam en waarde staan ~1100px uit elkaar</b> op desktop: <code>grid-template-columns: 1fr auto</code> zonder maximum.</li>
+          <li><b>Twee idiomen in één kaart.</b> Rijen boven, een tabel met hoofdletter-koppen onder, met een tweeregelige uitleg ertussen.</li>
+          <li><b>Datumnotatie.</b> “juni 30, 2026” — de WP-optie <code>date_format</code> staat op het Amerikaanse standaardformaat.</li>
+          <li><b>Geen tijdlijn.</b> Elke test toont zijn eigen laatste datum; niets vertelt wanneer deze speler als geheel gemeten is, of wat over tijd is.</li>
+        </ul>`,
+    A: `<h2>A · Register <em>(voorstel)</em></h2>
+        <p>Eén tabel per categorie, één idioom voor elke test. De waarde staat naast de naam in plaats van aan de overkant van het scherm; de kolom <b>Gemeten · stand</b> zegt in woorden wat de kleur bedoelt, zodat kleur nooit alleen de betekenis draagt; <b>Doel</b> maakt zichtbaar waartegen gemeten wordt. Richtingloze tests (gewicht, lengte) krijgen dezelfde rij met “geen doel” — geen aparte tabel meer. BMI is een rij, gemarkeerd als <span class="tt-meas-reg__tag">afgeleid</span>, want dat is precies wat het is: lengte × gewicht.</p>
+        <p>De lege staat staat één keer in de voet, niet per rij. Onder 720px klapt elke rij in twee regels — geen horizontale scroll.</p>`,
+    B: `<h2>B · Meetmomenten</h2>
+        <p>De spine is de meetdag, niet de test — dicht bij het journey-principe uit CLAUDE.md §1. Beantwoordt vragen die vandaag onbeantwoord blijven: <i>wanneer is deze speler voor het laatst doorgemeten, en wat staat er open?</i> De strook onderaan noemt wat nog nooit gemeten is en wat over zijn eigen frequentie heen is.</p>
+        <p>Een coach die één test wil volgen is hier slechter af, dus de schakelaar bovenaan zet dezelfde data terug in richting A. Duurste van de drie om te bouwen.</p>`,
+    C: `<h2>C · Kaarten</h2>
+        <p>Eén tegel per test: waarde, betekenis en doel staan bij elkaar, dus de afstand-tussen-naam-en-getal verdwijnt helemaal. Schaalt van 1 naar 3 kolommen. Werkt goed bij 6 tests; bij 15 wordt het weer een muur van dozen — en dat is precies de klacht van vandaag, dan alleen vierkanter.</p>`,
+    all: `<h2>Metingen-tab — drie richtingen</h2>
+        <p>Dezelfde dataset uit het gemelde scherm, door vier layouts gerenderd. Wissel bovenaan tussen <b>Zoals nu (1 meting)</b> en <b>Vol seizoen</b>: de huidige tab valt in de dunne staat uit elkaar in drie identieke excuusregels, en dat is de helft van de klacht.</p>
+        <p>Dit raakt <code>FrontendMeasurementsView::renderBody()</code>, die <i>zowel</i> de tab als de losse view <code>?tt_view=measurements</code> tekent — één port, twee schermen.</p>
+        <p><b>Aanbeveling: A.</b> Het lost alle negen knelpunten op, houdt het bestaande componentmodel intact en is de kleinste bouw. B is de mooiste maar de duurste; C leest prettig bij weinig tests en verslechtert bij veel.</p>`,
+};
+
+/* --- wiring --------------------------------------------------------------- */
+const RENDER = { baseline: renderBaseline, A: renderA, B: renderB, C: renderC };
+
+function paint() {
+    const v = document.body.dataset.variant;
+    const stage = document.getElementById('stage');
+    document.getElementById('note').innerHTML = NOTES[v];
+    if (v === 'all') {
+        stage.innerHTML = ['baseline', 'A', 'B', 'C'].map(k =>
+            `<div><p class="stage__chrome">${k === 'baseline' ? 'Vandaag' : k}</p>${RENDER[k]()}</div>`).join('');
+    } else {
+        stage.innerHTML = RENDER[v]();
+    }
+}
+
+/* Deep-link: ?v=A&d=full&w=phone&flaws=0 — same idiom as match-prep-pdf. */
+(function () {
+    const q = new URLSearchParams(location.search);
+    const map = { v: 'variant', d: 'data', w: 'width', flaws: 'flaws' };
+    Object.entries(map).forEach(([param, key]) => {
+        const val = q.get(param);
+        if (val === null) return;
+        document.body.dataset[key] = val;
+        document.querySelectorAll(`.mockup-bar button[data-${key}]`).forEach(b =>
+            b.setAttribute('aria-pressed', b.dataset[key] === val));
+    });
+})();
+
+document.querySelectorAll('.mockup-bar button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const key = Object.keys(btn.dataset)[0];
+        if (key === 'flaws') {
+            const on = document.body.dataset.flaws === '1' ? '0' : '1';
+            document.body.dataset.flaws = on;
+            btn.setAttribute('aria-pressed', on === '1');
+            return;
+        }
+        document.body.dataset[key] = btn.dataset[key];
+        document.querySelectorAll(`.mockup-bar button[data-${key}]`).forEach(b =>
+            b.setAttribute('aria-pressed', b === btn));
+        paint();
+    });
+});
+
+paint();
+</script>
+</body>
+</html>
