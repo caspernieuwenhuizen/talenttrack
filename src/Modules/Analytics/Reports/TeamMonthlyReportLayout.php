@@ -46,6 +46,18 @@ final class TeamMonthlyReportLayout {
     /** Degradation rung: attention keeps its two most urgent players. */
     public const TRIM_ATTENTION = 'trim_attention';
 
+    /**
+     * Degradation rung: the results section keeps the matches and drops the
+     * squad lists under them (#3516).
+     *
+     * The first rung the one-pager reaches for, because it is the one that
+     * costs least: the squads are the longest part of the section, they are
+     * already off by default, and the minutes section carries the same
+     * exposure for the month. The record and the scorelines stay — a results
+     * section without results is not worth printing.
+     */
+    public const DROP_MATCH_SQUADS = 'drop_match_squads';
+
     /** Rows a ranked list keeps once elided: top 3, bottom 4. */
     public const ELIDE_KEEP_TOP = 3;
     public const ELIDE_KEEP_BOTTOM = 4;
@@ -73,6 +85,10 @@ final class TeamMonthlyReportLayout {
         'bar_row'         => 3.85,
         'attention_item'  => 17.2,
         'change_row'      => 4.6,
+        'match_record'    => 11.0,
+        'match_row'       => 5.2,
+        'match_squad_row' => 7.4,
+        'match_contrib'   => 9.0,
         'test_round'      => 9.2,
         'roster_head'     => 5.5,
         'roster_row'      => 5.5,
@@ -140,6 +156,13 @@ final class TeamMonthlyReportLayout {
         $degraded = [];
 
         $height = self::singleSheetHeight( $data, $layout, $degraded );
+        // #3516 — the cheapest rung first: the squads under each match are the
+        // longest thing on the sheet and the minutes section already carries
+        // the month's exposure, so they go before anything ranked is elided.
+        if ( $height > $capacity && $layout === self::ONE_PAGER ) {
+            $degraded[] = self::DROP_MATCH_SQUADS;
+            $height     = self::singleSheetHeight( $data, $layout, $degraded );
+        }
         if ( $height > $capacity && $layout === self::ONE_PAGER ) {
             $degraded[] = self::ELIDE_RANKED;
             $height     = self::singleSheetHeight( $data, $layout, $degraded );
@@ -165,7 +188,7 @@ final class TeamMonthlyReportLayout {
      */
     private static function fitPack( array $data ): array {
         $none   = [];
-        $page_1 = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], self::PACK, $none );
+        $page_1 = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'matches', 'status', 'attendance', 'minutes' ], self::PACK, $none );
         $page_2 = self::sum( $data, [ 'roster' ], self::PACK, $none );
         $page_3 = self::sum( $data, [ 'attention', 'changes', 'tests', 'notes', 'quality' ], self::PACK, $none );
 
@@ -195,7 +218,7 @@ final class TeamMonthlyReportLayout {
     private static function singleSheetHeight( array $data, string $layout, array $degraded ): float {
         if ( $layout === self::MATRIX ) {
             $mm = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'roster' ], $layout, $degraded );
-            foreach ( [ 'changes', 'tests', 'notes' ] as $footer_block ) {
+            foreach ( [ 'matches', 'changes', 'tests', 'notes' ] as $footer_block ) {
                 if ( isset( $data[ $footer_block ] ) ) {
                     return $mm + self::MM['matrix_footer'] + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
                 }
@@ -250,6 +273,21 @@ final class TeamMonthlyReportLayout {
             case 'changes':
                 return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'events' ) * self::MM['change_row'];
 
+            case 'matches':
+                // The landscape matrix exists to make a squad comparable in
+                // one read; a list of fixtures is not that, so it rides in the
+                // footer with changes and tests rather than on the sheet.
+                if ( $layout === self::MATRIX ) return 0.0;
+
+                $rows = self::count( $block_data, 'matches' );
+                $mm   = $base + $rows * self::MM['match_row'];
+                if ( ! empty( $block_data['show_record'] ) )  $mm += self::MM['match_record'];
+                if ( ! empty( $block_data['show_scorers'] ) ) $mm += self::MM['match_contrib'];
+                if ( ! empty( $block_data['show_squads'] ) && ! in_array( self::DROP_MATCH_SQUADS, $degraded, true ) ) {
+                    $mm += $rows * self::MM['match_squad_row'];
+                }
+                return $mm;
+
             case 'tests':
                 return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'rounds' ) * self::MM['test_round'];
 
@@ -302,6 +340,14 @@ final class TeamMonthlyReportLayout {
                 $rows = self::listOf( $report['data'][ $block ], 'rows' );
                 $report['data'][ $block ]['rows'] = self::elide( array_values( $rows ), $value_key );
             }
+        }
+        if ( in_array( self::DROP_MATCH_SQUADS, $rungs, true ) && isset( $report['data']['matches'] ) ) {
+            // The flag goes off rather than the squads being stripped from the
+            // rows: the exporter reads the flag, and a renderer that found
+            // `show_squads` true with every squad empty would print a run of
+            // "no minutes recorded" lines that are not true.
+            $report['data']['matches']['show_squads']     = false;
+            $report['data']['matches']['squads_degraded'] = true;
         }
         if ( in_array( self::TRIM_ATTENTION, $rungs, true ) && isset( $report['data']['attention'] ) ) {
             $items = self::listOf( $report['data']['attention'], 'items' );

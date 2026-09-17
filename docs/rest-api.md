@@ -640,9 +640,20 @@ mailing all render this payload and compute nothing themselves.
 
 **Blocks.** `blocks` is comma-separated; empty means every block. The fixed
 vocabulary, in print order: `letterhead` (always included), `coverage`, `kpi`,
-`status`, `attendance`, `minutes`, `attention`, `changes`, `tests`, `roster`,
-`notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
-not asked for is absent from `data` **and is not queried**.
+`matches`, `status`, `attendance`, `minutes`, `attention`, `changes`, `tests`,
+`roster`, `notes`, `quality`. **An unknown key is `400`**, never silently
+dropped. A block not asked for is absent from `data` **and is not queried**.
+
+**The `matches` block (#3516)** reads through `TeamMatchStatsQuery`, the same
+reader `GET /teams/{id}/stats` serves, so the report's record and the statistics
+tab's record cannot disagree. Its options are `show_record` (default on),
+`show_scorers` (default on) and `show_squads` (default **off** — the longest
+part of the report, and it overlaps `minutes`). The match list itself is always
+present: each row carries its own result, so there is no separate results table
+repeating it. Tournaments are excluded from the record and counted in
+`tournaments_excluded`; a match with no score recorded appears in `matches` with
+null scores and a null `outcome`, and is counted in `record.without_a_score`
+rather than as a draw.
 
 **Permission.** A `reports` read at global scope, or at team scope on this team
 — the gate the other team reports use. Checked in the permission callback, so a

@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
@@ -78,6 +79,7 @@ final class TeamMonthlyReportPage {
             switch ( $block ) {
                 case TeamMonthlyReportBlock::COVERAGE:   self::renderCoverage( $block_data ); break;
                 case TeamMonthlyReportBlock::KPI:        self::renderKpis( $block_data ); break;
+                case TeamMonthlyReportBlock::MATCHES:    self::renderMatches( $block_data ); break;
                 case TeamMonthlyReportBlock::STATUS:     self::renderStatus( $block_data ); break;
                 case TeamMonthlyReportBlock::ATTENDANCE: self::renderAttendance( $block_data, $team_id, $window ); break;
                 case TeamMonthlyReportBlock::MINUTES:    self::renderMinutes( $block_data, $team_id, $window ); break;
@@ -150,6 +152,14 @@ final class TeamMonthlyReportPage {
         $tests = self::requestedTestsOptions();
         if ( $tests !== null ) {
             $bags[ TeamMonthlyReportBlock::TESTS ] = $tests;
+        }
+
+        $matches = self::requestedMatchesOptions();
+        if ( $matches !== null ) {
+            $bags[ TeamMonthlyReportBlock::MATCHES ] = $matches;
+        }
+
+        if ( $tests !== null || $matches !== null ) {
             $bags = TeamMonthlyReportComposition::normalise( [
                 'blocks'  => $blocks,
                 'options' => $bags,
@@ -183,6 +193,29 @@ final class TeamMonthlyReportPage {
         $show = isset( $_GET['opt_tests_show'] ) ? sanitize_key( wp_unslash( (string) $_GET['opt_tests_show'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
 
         return [ 'definitions' => $definitions, 'show' => $show ];
+    }
+
+    /**
+     * The results section's options as the panel submitted them, or null when
+     * the panel was not the source (#3516).
+     *
+     * The same marker trick the tests controls use, and for the same reason:
+     * an unticked checkbox sends nothing, so without the marker "the reader
+     * just switched the squads off" is indistinguishable from "no form was
+     * submitted" — and clearing an option would silently restore whatever the
+     * URL said.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function requestedMatchesOptions(): ?array {
+        if ( ! isset( $_GET['opt_matches'] ) ) return null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+
+        $out = [];
+        foreach ( MatchesBlockOptions::keys() as $key ) {
+            $out[ $key ] = isset( $_GET[ 'opt_matches_' . $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        }
+
+        return $out;
     }
 
     /**
@@ -248,6 +281,7 @@ final class TeamMonthlyReportPage {
         // submit the old value alongside the new one (#3515).
         $carried = $options;
         unset( $carried[ TeamMonthlyReportBlock::TESTS ] );
+        unset( $carried[ TeamMonthlyReportBlock::MATCHES ] );
         if ( $carried !== [] ) {
             $hidden['options'] = (string) wp_json_encode( $carried );
         }
@@ -328,6 +362,7 @@ final class TeamMonthlyReportPage {
         echo '</div>';
         echo '</fieldset>';
 
+        self::renderMatchesOptions( $selected, $options );
         self::renderTestsOptions( $team_id, $window, $selected, $options );
 
         self::renderFitMeter( $fit );
@@ -480,6 +515,7 @@ final class TeamMonthlyReportPage {
             'letterhead' => [ 'title' => _x( 'Letterhead', 'team monthly report section', 'talenttrack' ),           'note' => __( 'Team, period, head coach — always included', 'talenttrack' ) ],
             'coverage'   => [ 'title' => _x( 'Data coverage', 'team monthly report section', 'talenttrack' ),        'note' => __( 'What the report could not see', 'talenttrack' ) ],
             'kpi'        => [ 'title' => _x( 'Headline numbers', 'team monthly report section', 'talenttrack' ),     'note' => __( 'Six figures against last period', 'talenttrack' ) ],
+            'matches'    => [ 'title' => _x( 'Results', 'team monthly report section', 'talenttrack' ),              'note' => __( 'Record, scorers and every match', 'talenttrack' ) ],
             'status'     => [ 'title' => _x( 'Squad status', 'team monthly report section', 'talenttrack' ),         'note' => __( 'How many players are on track', 'talenttrack' ) ],
             'attendance' => [ 'title' => _x( 'Attendance', 'team monthly report section', 'talenttrack' ),           'note' => __( 'Per player, lowest first', 'talenttrack' ) ],
             'minutes'    => [ 'title' => _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),        'note' => __( 'Per player, against the target', 'talenttrack' ) ],
@@ -818,6 +854,199 @@ final class TeamMonthlyReportPage {
     }
 
     /** @param array<string,mixed> $t */
+    /**
+     * #3516 — results: the record, who scored, and the matches themselves.
+     *
+     * Composition only. Every number arrives from `TeamMatchStatsQuery` via
+     * the report composer, including the two counts this section has to state
+     * out loud — matches with no result recorded, and tournament days left out
+     * of the record. A record that silently did not add up to the month the
+     * coach remembers is the failure this section is built to avoid.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function renderMatches( array $m ): void {
+        $matches = is_array( $m['matches'] ?? null ) ? $m['matches'] : [];
+
+        self::sectionOpen( _x( 'Results', 'team monthly report section', 'talenttrack' ) );
+
+        if ( $matches === [] ) {
+            echo '<p class="tt-mr-muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</p>';
+            self::sectionClose();
+            return;
+        }
+
+        if ( ! empty( $m['show_record'] ) && is_array( $m['record'] ?? null ) ) {
+            self::renderMatchRecord( $m['record'] );
+        }
+
+        self::renderMatchList( $matches, ! empty( $m['show_squads'] ) );
+
+        $tournaments = (int) ( $m['tournaments_excluded'] ?? 0 );
+        if ( $tournaments > 0 ) {
+            echo '<p class="tt-mr-muted">' . esc_html( sprintf(
+                /* translators: %d: number of tournament days in the period. */
+                _n(
+                    '%d tournament day is not counted here — a single score cannot describe a multi-game day.',
+                    '%d tournament days are not counted here — a single score cannot describe a multi-game day.',
+                    $tournaments,
+                    'talenttrack'
+                ),
+                $tournaments
+            ) ) . '</p>';
+        }
+
+        if ( ! empty( $m['show_scorers'] ) ) {
+            self::renderContributions( $m );
+        }
+
+        self::sectionClose();
+    }
+
+    /**
+     * @param array<string,mixed> $r
+     */
+    private static function renderMatchRecord( array $r ): void {
+        $played = (int) ( $r['played'] ?? 0 );
+
+        echo '<p class="tt-mr-record">';
+        echo esc_html( sprintf(
+            /* translators: 1: matches played, 2: won, 3: drawn, 4: lost. */
+            __( 'Played %1$d — won %2$d, drawn %3$d, lost %4$d', 'talenttrack' ),
+            $played,
+            (int) ( $r['won'] ?? 0 ),
+            (int) ( $r['drawn'] ?? 0 ),
+            (int) ( $r['lost'] ?? 0 )
+        ) );
+        echo ' · ';
+        echo esc_html( sprintf(
+            /* translators: 1: goals for, 2: goals against, 3: signed goal difference. */
+            __( 'Goals %1$d–%2$d (%3$s)', 'talenttrack' ),
+            (int) ( $r['goals_for'] ?? 0 ),
+            (int) ( $r['goals_against'] ?? 0 ),
+            self::signed( (int) ( $r['goal_difference'] ?? 0 ) )
+        ) );
+        echo ' · ';
+        echo esc_html( sprintf(
+            /* translators: %d: matches with the opponent kept scoreless. */
+            _n( '%d clean sheet', '%d clean sheets', (int) ( $r['clean_sheets'] ?? 0 ), 'talenttrack' ),
+            (int) ( $r['clean_sheets'] ?? 0 )
+        ) );
+        echo '</p>';
+
+        $without = (int) ( $r['without_a_score'] ?? 0 );
+        if ( $without > 0 ) {
+            // Said out loud rather than folded into the record: counting these
+            // as nil-nil draws would make every figure above this line wrong.
+            echo '<p class="tt-mr-muted">' . esc_html( sprintf(
+                /* translators: %d: matches played with no result recorded. */
+                _n(
+                    '%d match has no result recorded, so it counts towards none of the above.',
+                    '%d matches have no result recorded, so they count towards none of the above.',
+                    $without,
+                    'talenttrack'
+                ),
+                $without
+            ) ) . '</p>';
+        }
+    }
+
+    /**
+     * The matches themselves, newest first. Each row carries its own result,
+     * which is why there is no separate results table above it.
+     *
+     * @param list<array<string,mixed>> $matches
+     */
+    private static function renderMatchList( array $matches, bool $with_squads ): void {
+        echo '<div class="tt-mr-matches">';
+        foreach ( $matches as $match ) {
+            if ( ! is_array( $match ) ) continue;
+
+            $home  = ( (string) ( $match['home_away'] ?? 'home' ) ) === 'home';
+            $score = $match['team_score'] === null || $match['opp_score'] === null
+                ? __( 'no result recorded', 'talenttrack' )
+                : sprintf( '%d–%d', (int) $match['team_score'], (int) $match['opp_score'] );
+
+            echo '<div class="tt-mr-match">';
+            echo '<p class="tt-mr-match__head">';
+            echo '<strong>' . esc_html( TTDate::date( (string) ( $match['session_date'] ?? '' ) ) ) . '</strong> · ';
+            echo esc_html( sprintf(
+                $home
+                    /* translators: %s: the opposing club. */
+                    ? __( 'home to %s', 'talenttrack' )
+                    /* translators: %s: the opposing club. */
+                    : __( 'away to %s', 'talenttrack' ),
+                (string) ( $match['opponent'] ?? '' ) !== ''
+                    ? (string) $match['opponent']
+                    : __( 'an unnamed opponent', 'talenttrack' )
+            ) );
+            echo ' · <span class="tt-mr-match__score">' . esc_html( $score ) . '</span>';
+            echo '</p>';
+
+            if ( $with_squads ) {
+                $squad = is_array( $match['squad'] ?? null ) ? $match['squad'] : [];
+                if ( $squad === [] ) {
+                    echo '<p class="tt-mr-muted">' . esc_html__( 'No minutes recorded for this match.', 'talenttrack' ) . '</p>';
+                } else {
+                    $bits = [];
+                    foreach ( $squad as $player ) {
+                        if ( ! is_array( $player ) ) continue;
+                        // Name and minutes joined with punctuation rather than
+                        // a translated format: "%1$s %2$d′" is not a sentence,
+                        // and a msgid that generic collides with every other
+                        // name-and-number pair in the catalogue.
+                        $bits[] = (string) ( $player['name'] ?? '' ) . ' ' . (int) ( $player['minutes'] ?? 0 ) . '′';
+                    }
+                    echo '<p class="tt-mr-match__squad">' . esc_html( implode( ' · ', $bits ) ) . '</p>';
+                }
+            }
+
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Scorers and assists, in shirt order — the composer sorts them, because
+     * every other player table in this report reads by number and a coach here
+     * is looking a player up rather than reading a ranking.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function renderContributions( array $m ): void {
+        $scorers = is_array( $m['scorers'] ?? null ) ? $m['scorers'] : [];
+        $assists = is_array( $m['assists'] ?? null ) ? $m['assists'] : [];
+
+        if ( $scorers === [] && $assists === [] ) {
+            // Not "nobody scored" — almost always it means nobody attributed
+            // the goals yet, and saying so is what stops it being reported as
+            // a bug.
+            echo '<p class="tt-mr-muted">'
+                . esc_html__( 'No goals have been attributed to a player yet this period.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        foreach ( [
+            [ $scorers, 'goals', __( 'Scorers: %s', 'talenttrack' ) ],
+            [ $assists, 'assists', __( 'Assists: %s', 'talenttrack' ) ],
+        ] as [ $rows, $key, $template ] ) {
+            if ( $rows === [] ) continue;
+            $bits = [];
+            foreach ( $rows as $row ) {
+                if ( ! is_array( $row ) ) continue;
+                $bits[] = (string) ( $row['name'] ?? '' ) . ' (' . (int) ( $row[ $key ] ?? 0 ) . ')';
+            }
+            /* translators: %s: comma-separated player names with their tallies. */
+            echo '<p class="tt-mr-contrib">' . esc_html( sprintf( $template, implode( ', ', $bits ) ) ) . '</p>';
+        }
+    }
+
+    /** A goal difference reads as a movement, so it always carries its sign. */
+    private static function signed( int $value ): string {
+        return ( $value > 0 ? '+' : '' ) . number_format_i18n( $value );
+    }
+
     private static function renderTests( array $t ): void {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
         $show   = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
@@ -886,6 +1115,47 @@ final class TeamMonthlyReportPage {
      * @param list<string>                                 $selected
      * @param array<string,array<string,mixed>>            $options
      */
+    /**
+     * The results section's own controls (#3516): record, scorers, squads.
+     *
+     * Only rendered when the section is selected — options for a section that
+     * is switched off are controls for something the reader cannot see.
+     *
+     * The per-match squads default off. They are the longest part of the
+     * report and they overlap the minutes section, so a full report would
+     * otherwise print the same numbers twice.
+     *
+     * @param list<string>                     $selected
+     * @param array<string,array<string,mixed>> $options
+     */
+    private static function renderMatchesOptions( array $selected, array $options ): void {
+        if ( ! in_array( TeamMonthlyReportBlock::MATCHES, $selected, true ) ) return;
+
+        $bag = $options[ TeamMonthlyReportBlock::MATCHES ] ?? [];
+
+        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
+        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Results', 'team monthly report panel', 'talenttrack' ) . '</legend>';
+
+        // Marker: tells "submitted with nothing ticked" from "not submitted".
+        echo '<input type="hidden" name="opt_matches" value="1">';
+
+        echo '<div class="tt-mr-opts__row">';
+        echo '<div class="tt-mr-blocks" role="group" aria-label="' . esc_attr__( 'What the results section shows', 'talenttrack' ) . '">';
+        foreach ( MatchesBlockOptions::labels() as $key => $label ) {
+            $id = 'tt-mr-matches-' . $key;
+            echo '<label class="tt-mr-block" for="' . esc_attr( $id ) . '">';
+            echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_matches_' . esc_attr( $key ) . '" value="1"'
+                . checked( MatchesBlockOptions::shows( $bag, $key ), true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The matches themselves always print; the squad per match is the longest part and overlaps Minutes share.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+
+        echo '</fieldset>';
+    }
+
     private static function renderTestsOptions( int $team_id, array $window, array $selected, array $options ): void {
         if ( ! in_array( TeamMonthlyReportBlock::TESTS, $selected, true ) ) return;
 

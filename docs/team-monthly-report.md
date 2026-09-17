@@ -43,6 +43,13 @@ team, period, head coach — is always included.
 Some sections can be told more than whether to appear. When you tick a section
 that has settings, its controls appear under the section list.
 
+**Results** has three, all ticked or unticked on their own: **Record**,
+**Scorers and assists**, and **Squad per match**. The matches themselves always
+print — each line carries its own result, so there is no second table repeating
+them. The squad under each match starts **off**: it is the longest part of the
+report and it says much the same as *Minutes share*, so a full report would
+otherwise print the same numbers twice.
+
 **Tests** has two. **Which tests** lists the tests your squad actually took in
 this period — tick the ones the meeting is about, or leave them all unticked to
 show every test, which is what the report did before. **How much to show**
@@ -60,9 +67,9 @@ section still appears and says so. A section that quietly vanished would read
 as an oversight. A test that has since been deleted is left out.
 
 **Printed size** shows how many pages the chosen type will print and how full
-each page is. On the one-pager, long player lists are shortened to their top and
-bottom first, and the agenda to its two most urgent players, before the page is
-reported as too full. If it still does not fit, drop a section or switch to the
+each page is. On the one-pager, the squad lists under each match go first, then
+long player lists are shortened to their top and bottom, then the agenda to its
+two most urgent players, before the page is reported as too full. If it still does not fit, drop a section or switch to the
 three-page pack.
 
 ## Saving your usual report
@@ -127,6 +134,21 @@ Scheduled reports are part of the Standard plan and above.
   evaluation coverage, squad rating and the number of players needing attention,
   each compared with the period before. Where there is nothing to compare with,
   you see a dash, not a zero.
+- **Results** — the record over the period (played, won, drawn, lost, goals for
+  and against, clean sheets), then every match with its date, opponent,
+  home or away, and score. Scorers and assists come from the goals already
+  recorded against each match.
+
+  Two things it states rather than hides. **A match with no result recorded** is
+  listed as exactly that and counts towards none of the record — a silent 0–0
+  would make every figure above it wrong. **Tournament days are left out of the
+  record**, and the section says how many: a tournament is several games and one
+  scoreline cannot describe it, so leaving it in would make the record disagree
+  with the month you remember.
+
+  If nobody has attributed the goals to players yet, the section says so rather
+  than showing an empty scorers list — a blank list reads as "nobody scored",
+  which is usually untrue.
 - **Squad status** — how many players are on track, to watch, needing action, or
   without a read yet, and how that looked last period.
 - **Attendance** and **Minutes share** — per player, with links to the full

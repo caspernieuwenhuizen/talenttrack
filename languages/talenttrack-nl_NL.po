@@ -62060,6 +62060,169 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php:109
+msgctxt "monthly report matches option"
+msgid "Record"
+msgstr "Balans"
+
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php:110
+msgctxt "monthly report matches option"
+msgid "Scorers and assists"
+msgstr "Doelpuntenmakers en assists"
+
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php:111
+msgctxt "monthly report matches option"
+msgid "Squad per match"
+msgstr "Selectie per wedstrijd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:487
+msgctxt "team monthly report section"
+msgid "Results"
+msgstr "Uitslagen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1141
+msgctxt "team monthly report panel"
+msgid "Results"
+msgstr "Uitslagen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:487
+msgid "Record, scorers and every match"
+msgstr "Balans, doelpuntenmakers en elke wedstrijd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1145
+msgid "What the results section shows"
+msgstr "Wat de sectie Uitslagen toont"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1157
+msgid ""
+"The matches themselves always print; the squad per match is the longest part "
+"and overlaps Minutes share."
+msgstr ""
+"De wedstrijden zelf staan er altijd in; de selectie per wedstrijd is het "
+"langste deel en overlapt Minutenaandeel."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1000
+msgid "No matches played this period."
+msgstr "Deze periode zijn er geen wedstrijden gespeeld."
+
+#. translators: %d: number of tournament days in the period.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1012
+#, php-format
+msgid ""
+"%d tournament day is not counted here — a single score cannot describe a "
+"multi-game day."
+msgid_plural ""
+"%d tournament days are not counted here — a single score cannot describe a "
+"multi-game day."
+msgstr[0] ""
+"%d toernooidag telt hier niet mee — één uitslag kan een dag met meerdere "
+"wedstrijden niet beschrijven."
+msgstr[1] ""
+"%d toernooidagen tellen hier niet mee — één uitslag kan een dag met meerdere "
+"wedstrijden niet beschrijven."
+
+#. translators: 1: matches played, 2: won, 3: drawn, 4: lost.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1036
+#, php-format
+msgid "Played %1$d — won %2$d, drawn %3$d, lost %4$d"
+msgstr "Gespeeld %1$d — gewonnen %2$d, gelijk %3$d, verloren %4$d"
+
+#. translators: 1: goals for, 2: goals against, 3: signed goal difference.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1045
+#, php-format
+msgid "Goals %1$d–%2$d (%3$s)"
+msgstr "Doelpunten %1$d–%2$d (%3$s)"
+
+#. translators: %d: matches with the opponent kept scoreless.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1054
+#, php-format
+msgid "%d clean sheet"
+msgid_plural "%d clean sheets"
+msgstr[0] "%d keer de nul gehouden"
+msgstr[1] "%d keer de nul gehouden"
+
+#. translators: %d: matches played with no result recorded.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1064
+#, php-format
+msgid "%d match has no result recorded, so it counts towards none of the above."
+msgid_plural ""
+"%d matches have no result recorded, so they count towards none of the above."
+msgstr[0] ""
+"Bij %d wedstrijd is geen uitslag vastgelegd; die telt hierboven nergens mee."
+msgstr[1] ""
+"Bij %d wedstrijden is geen uitslag vastgelegd; die tellen hierboven nergens "
+"mee."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1085
+msgid "no result recorded"
+msgstr "geen uitslag vastgelegd"
+
+#. translators: %s: the opposing club.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1093
+#, php-format
+msgid "home to %s"
+msgstr "thuis tegen %s"
+
+#. translators: %s: the opposing club.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1095
+#, php-format
+msgid "away to %s"
+msgstr "uit tegen %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1099
+msgid "an unnamed opponent"
+msgstr "een tegenstander zonder naam"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1108
+msgid "No minutes recorded for this match."
+msgstr "Voor deze wedstrijd zijn geen minuten vastgelegd."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1135
+msgid "No goals have been attributed to a player yet this period."
+msgstr "Deze periode zijn er nog geen doelpunten aan een speler toegewezen."
+
+#. translators: %s: comma-separated player names with their tallies.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1141
+#, php-format
+msgid "Scorers: %s"
+msgstr "Doelpuntenmakers: %s"
+
+#. translators: %s: comma-separated player names with their tallies.
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1142
+#, php-format
+msgid "Assists: %s"
+msgstr "Assists: %s"
+
+#. translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against.
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:344
+#, php-format
+msgid "P%1$d  W%2$d  D%3$d  L%4$d  ·  %5$d–%6$d"
+msgstr "G%1$d  W%2$d  G%3$d  V%4$d  ·  %5$d–%6$d"
+
+#. translators: %d: matches played with no result recorded.
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:357
+#, php-format
+msgid "%d match has no result recorded and counts towards none of the above."
+msgid_plural ""
+"%d matches have no result recorded and count towards none of the above."
+msgstr[0] ""
+"Bij %d wedstrijd is geen uitslag vastgelegd; die telt hierboven nergens mee."
+msgstr[1] ""
+"Bij %d wedstrijden is geen uitslag vastgelegd; die tellen hierboven nergens "
+"mee."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:374
+msgid "no result"
+msgstr "geen uitslag"
+
+#. translators: %d: number of tournament days in the period.
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:398
+#, php-format
+msgid "%d tournament day is not counted in the record."
+msgid_plural "%d tournament days are not counted in the record."
+msgstr[0] "%d toernooidag telt niet mee in de balans."
+msgstr[1] "%d toernooidagen tellen niet mee in de balans."
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

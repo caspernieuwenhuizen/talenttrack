@@ -44,6 +44,14 @@ team, periode, hoofdtrainer — staat er altijd in.
 Van sommige secties kun je meer instellen dan of ze meedoen. Vink je zo'n sectie
 aan, dan verschijnen de instellingen eronder.
 
+**Uitslagen** heeft er drie, elk los aan of uit te zetten: **Balans**,
+**Doelpuntenmakers en assists** en **Selectie per wedstrijd**. De wedstrijden
+zelf staan er altijd in — elke regel draagt zijn eigen uitslag, dus er is geen
+tweede tabel die dat herhaalt. De selectie per wedstrijd staat standaard **uit**:
+dat is het langste deel van het rapport en het zegt ongeveer hetzelfde als
+*Minutenaandeel*, dus anders zou een volledig rapport dezelfde cijfers twee keer
+afdrukken.
+
 **Testen** heeft er twee. **Welke testen** toont de testen die je selectie deze
 periode daadwerkelijk heeft gedaan — vink aan waar het overleg over gaat, of laat
 alles uit om elke test te tonen, zoals het rapport het eerder deed. **Hoeveel
@@ -62,9 +70,10 @@ wegvalt leest als een vergissing. Een test die inmiddels verwijderd is, blijft
 weg.
 
 **Afdrukformaat** laat zien hoeveel pagina's de gekozen soort afdrukt en hoe vol
-elke pagina is. Op de versie van één pagina worden lange spelerslijsten eerst
-ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
-voordat de pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
+elke pagina is. Op de versie van één pagina vervallen eerst de selecties onder
+elke wedstrijd, daarna worden lange spelerslijsten ingekort tot hun top en
+onderkant, en daarna de agenda tot de twee dringendste spelers, voordat de
+pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
 sectie weg of kies het pakket van drie pagina's.
 
 ## Je vaste rapport bewaren
@@ -133,6 +142,22 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
   evaluatiedekking, selectiebeoordeling en het aantal spelers dat aandacht nodig
   heeft, elk vergeleken met de periode ervoor. Is er niets om mee te vergelijken,
   dan zie je een streepje en geen nul.
+- **Uitslagen** — de balans over de periode (gespeeld, gewonnen, gelijk,
+  verloren, doelpunten voor en tegen, de nul gehouden), en daarna elke wedstrijd
+  met datum, tegenstander, thuis of uit, en de uitslag. Doelpuntenmakers en
+  assists komen uit de doelpunten die al bij de wedstrijden zijn vastgelegd.
+
+  Twee dingen zegt de sectie hardop in plaats van ze te verbergen. **Een
+  wedstrijd zonder vastgelegde uitslag** staat er als precies dat en telt
+  nergens in de balans mee — een stille 0–0 zou elk cijfer erboven onjuist
+  maken. **Toernooidagen blijven buiten de balans**, en de sectie vermeldt
+  hoeveel het er waren: een toernooi zijn meerdere wedstrijden en één uitslag
+  kan dat niet beschrijven, dus meetellen zou de balans laten afwijken van de
+  maand die jij je herinnert.
+
+  Zijn de doelpunten nog niet aan spelers toegewezen, dan zegt de sectie dat, in
+  plaats van een lege lijst doelpuntenmakers te tonen — een lege lijst leest als
+  "niemand scoorde", en dat klopt meestal niet.
 - **Status selectie** — hoeveel spelers op koers liggen, in de gaten gehouden
   moeten worden, actie nodig hebben of nog geen beeld hebben, en hoe dat er de
   vorige periode uitzag.

@@ -225,6 +225,7 @@ final class TeamMonthlyReport {
             case TeamMonthlyReportBlock::LETTERHEAD: return $this->letterhead();
             case TeamMonthlyReportBlock::COVERAGE:   return $this->coverage();
             case TeamMonthlyReportBlock::KPI:        return $this->kpi( $previous );
+            case TeamMonthlyReportBlock::MATCHES:    return $this->matchesBlock( $this->optionsFor( TeamMonthlyReportBlock::MATCHES ) );
             case TeamMonthlyReportBlock::STATUS:     return $this->status( $previous );
             case TeamMonthlyReportBlock::ATTENDANCE: return $this->attendanceBlock();
             case TeamMonthlyReportBlock::MINUTES:    return $this->minutesBlock();
@@ -441,6 +442,78 @@ final class TeamMonthlyReport {
     }
 
     /** @return array<string,mixed> */
+    /**
+     * #3516 (epic #3513) — how the month actually went.
+     *
+     * The report said a great deal about development and nothing about
+     * results, so the score got read off somebody's phone in the meeting.
+     *
+     * Every number comes from {@see TeamMatchStatsQuery}, which is the same
+     * reader the team statistics tab uses (#3520). That is deliberate: a
+     * record here that disagreed with the record there would be two answers to
+     * one question, and the goals would stop reconciling with the minutes
+     * report as well.
+     *
+     * The counting rules therefore arrive with it rather than being restated:
+     * tournaments are excluded from the record because one scoreline cannot
+     * describe a multi-game day (#2686), and a match with no score recorded is
+     * listed but counted in no W/D/L bucket.
+     *
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    private function matchesBlock( array $options ): array {
+        $show_record  = MatchesBlockOptions::shows( $options, MatchesBlockOptions::SHOW_RECORD );
+        $show_scorers = MatchesBlockOptions::shows( $options, MatchesBlockOptions::SHOW_SCORERS );
+        $show_squads  = MatchesBlockOptions::shows( $options, MatchesBlockOptions::SHOW_SQUADS );
+
+        $query   = new TeamMatchStatsQuery();
+        $window  = [ 'from' => $this->from, 'to' => $this->to ];
+        $listing = $query->perMatchForTeam( $this->team_id, $window, $show_squads );
+
+        $out = [
+            'show_record'          => $show_record,
+            'show_scorers'         => $show_scorers,
+            'show_squads'          => $show_squads,
+            // Always present, whichever options are on: the per-match rows
+            // carry the result, so there is no second results table repeating
+            // what this one already says.
+            'matches'              => $listing['matches'],
+            'tournaments_excluded' => $listing['tournaments_excluded'],
+        ];
+
+        if ( ! $show_record && ! $show_scorers ) {
+            return $out;
+        }
+
+        $stats = $query->forTeam( $this->team_id, $window );
+
+        if ( $show_record ) {
+            $out['record'] = $stats['record'];
+        }
+        if ( $show_scorers ) {
+            $out['scorers'] = self::inJerseyOrder( $stats['scorers'] );
+            $out['assists'] = self::inJerseyOrder( $stats['assists'] );
+        }
+
+        return $out;
+    }
+
+    /**
+     * A leaderboard re-sorted into shirt order (#3518).
+     *
+     * The query ranks by tally, which is right on a statistics tab where the
+     * ranking *is* the finding. In this report the reader is looking a player
+     * up, and every other player table here reads by number — a scorers table
+     * that did not would be the one place a coach has to search.
+     *
+     * @param list<array<string,mixed>> $rows
+     * @return list<array<string,mixed>>
+     */
+    private static function inJerseyOrder( array $rows ): array {
+        return PlayerOrder::sort( $rows, PlayerOrder::jerseys( $rows ) );
+    }
+
     private function minutesBlock(): array {
         $counts = ( new MinutesQuery() )->matchCountsForTeam( $this->team_id, $this->from, $this->to );
         $source = $this->minutesIn( $this->from, $this->to );

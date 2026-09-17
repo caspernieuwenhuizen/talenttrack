@@ -142,6 +142,128 @@ final class TeamMatchStatsQuery {
         ];
     }
 
+    /**
+     * The fixtures themselves, one row per match, newest first — and
+     * optionally who played in each and for how long.
+     *
+     * #3516 — the monthly report's results section needs the matches listed
+     * rather than totalled, and it must list exactly the fixtures
+     * {@see forTeam()} counted. Two readers with two ideas of what a fixture
+     * is would print a record that does not add up to the list beneath it, so
+     * this shares the same query and the same framing.
+     *
+     * A fixture with no recorded score comes back with null scores and a null
+     * outcome rather than being dropped: "played, nobody typed the result" is
+     * the row a coach most needs to see.
+     *
+     * @param array{from?:string, to?:string} $filters
+     * @return array<string, mixed> `window`, `tournaments_excluded`, and
+     *         `matches` — each with `activity_id`, `session_date`, `opponent`,
+     *         `home_away`, `team_score`, `opp_score`, `outcome`, and `squad`
+     *         when asked for.
+     */
+    public function perMatchForTeam( int $team_id, array $filters = [], bool $with_squads = false ): array {
+        $window = $this->resolveWindow( $filters );
+        if ( $team_id <= 0 ) {
+            return [ 'window' => $window, 'tournaments_excluded' => 0, 'matches' => [] ];
+        }
+
+        $fixtures = $this->fixtures( $team_id, $window['from'], $window['to'] );
+
+        $squads = [];
+        if ( $with_squads && $fixtures !== [] ) {
+            $squads = $this->squadMinutes( array_map(
+                static fn( object $f ): int => (int) ( $f->id ?? 0 ),
+                $fixtures
+            ) );
+        }
+
+        $matches = [];
+        foreach ( array_reverse( $fixtures ) as $fixture ) {
+            $id     = (int) ( $fixture->id ?? 0 );
+            $result = $this->frame( $fixture );
+
+            $row = $result ?? [
+                'activity_id'  => $id,
+                'session_date' => (string) ( $fixture->session_date ?? '' ),
+                'opponent'     => (string) ( $fixture->opponent ?? '' ),
+                'home_away'    => ( (string) ( $fixture->home_away ?? '' ) ) === 'away' ? 'away' : 'home',
+                'team_score'   => null,
+                'opp_score'    => null,
+                'outcome'      => null,
+            ];
+
+            if ( $with_squads ) {
+                $row['squad'] = $squads[ $id ] ?? [];
+            }
+
+            $matches[] = $row;
+        }
+
+        return [
+            'window'               => $window,
+            'tournaments_excluded' => $this->tournamentCount( $team_id, $window['from'], $window['to'] ),
+            'matches'              => $matches,
+        ];
+    }
+
+    /**
+     * Who played in each of these fixtures, and for how long.
+     *
+     * Effective minutes are `COALESCE(minutes_override, minutes_played)` —
+     * the same expression {@see MinutesQuery} reads, so a coach's explicit
+     * override on the match-execution surface is what both report. One query
+     * across the whole window rather than one per match: a season's fixtures
+     * would otherwise be forty round trips to print one table.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, list<array{player_id:int, name:string, jersey_number:?int, minutes:int}>>
+     */
+    private function squadMinutes( array $activity_ids ): array {
+        $ids = array_values( array_filter( $activity_ids, static fn( int $id ): bool => $id > 0 ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $p            = $wpdb->prefix;
+        $club_id      = (int) CurrentClub::id();
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.activity_id, a.player_id,
+                    SUM( COALESCE(a.minutes_override, a.minutes_played) ) AS minutes,
+                    p.first_name, p.last_name, p.jersey_number
+               FROM {$p}tt_attendance a
+          LEFT JOIN {$p}tt_players p ON p.id = a.player_id AND p.club_id = a.club_id
+              WHERE a.club_id = %d
+                AND a.activity_id IN ({$placeholders})
+                AND a.record_type = 'actual'
+                AND a.is_guest = 0
+                AND COALESCE(a.minutes_override, a.minutes_played) > 0
+           GROUP BY a.activity_id, a.player_id, p.first_name, p.last_name, p.jersey_number",
+            $club_id, ...$ids
+        ) );
+
+        $out = [];
+        foreach ( $rows ?? [] as $row ) {
+            $activity_id = (int) ( $row->activity_id ?? 0 );
+            $jersey      = $row->jersey_number ?? null;
+            $out[ $activity_id ][] = [
+                'player_id'     => (int) ( $row->player_id ?? 0 ),
+                'name'          => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
+                'jersey_number' => is_numeric( $jersey ) ? (int) $jersey : null,
+                'minutes'       => (int) ( $row->minutes ?? 0 ),
+            ];
+        }
+
+        // Shirt order, the rule every other player table in the report follows.
+        foreach ( $out as $activity_id => $squad ) {
+            $out[ $activity_id ] = PlayerOrder::sort( $squad, PlayerOrder::jerseys( $squad ) );
+        }
+
+        return $out;
+    }
+
     // ──────────────────────────────────────────────────────────────
     // Window
     // ──────────────────────────────────────────────────────────────

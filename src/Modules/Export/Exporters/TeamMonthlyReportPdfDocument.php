@@ -75,7 +75,7 @@ final class TeamMonthlyReportPdfDocument {
      */
     private static function pack( array $data, array $blocks, string $head ): string {
         $pages = [
-            $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], false ),
+            $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'matches', 'status', 'attendance', 'minutes' ], false ),
             self::sections( $data, $blocks, [ 'roster' ], false ),
             self::sections( $data, $blocks, [ 'attention', 'changes', 'tests', 'notes', 'quality' ], false ),
         ];
@@ -100,7 +100,7 @@ final class TeamMonthlyReportPdfDocument {
         $out = $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality' ], true );
 
         $cells = [];
-        foreach ( [ 'changes', 'tests', 'notes' ] as $block ) {
+        foreach ( [ 'matches', 'changes', 'tests', 'notes' ] as $block ) {
             if ( ! in_array( $block, $blocks, true ) ) continue;
             $cells[] = '<td class="strip">' . self::section( $block, $data[ $block ] ?? [], true ) . '</td>';
         }
@@ -132,6 +132,7 @@ final class TeamMonthlyReportPdfDocument {
             case 'status':     return self::status( $d );
             case 'attendance': return self::bars( _x( 'Attendance', 'team monthly report section', 'talenttrack' ), $d, 'present_pct', null );
             case 'minutes':    return self::bars( _x( 'Minutes share', 'team monthly report section', 'talenttrack' ), $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
+            case 'matches':    return self::matches( $d, $wide );
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
@@ -319,6 +320,136 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /** @param array<string,mixed> $c */
+    /**
+     * #3516 — results on paper: the record, the matches, the scorers.
+     *
+     * The squads under each match are the first thing the one-pager sheds
+     * (`DROP_MATCH_SQUADS`), so this reads the flag the degrader set rather
+     * than deciding for itself — the fit meter and the printed page have to
+     * agree about what is on it.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function matches( array $m, bool $compact ): string {
+        $matches = is_array( $m['matches'] ?? null ) ? $m['matches'] : [];
+        $out     = '<div class="sec"><div class="h">' . esc_html_x( 'Results', 'team monthly report section', 'talenttrack' ) . '</div>';
+
+        if ( $matches === [] ) {
+            return $out . '<div class="muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</div></div>';
+        }
+
+        $record = is_array( $m['record'] ?? null ) ? $m['record'] : [];
+        if ( ! empty( $m['show_record'] ) && $record !== [] ) {
+            $out .= '<div class="kv">' . esc_html( sprintf(
+                /* translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against. */
+                __( 'P%1$d  W%2$d  D%3$d  L%4$d  ·  %5$d–%6$d', 'talenttrack' ),
+                (int) ( $record['played'] ?? 0 ),
+                (int) ( $record['won'] ?? 0 ),
+                (int) ( $record['drawn'] ?? 0 ),
+                (int) ( $record['lost'] ?? 0 ),
+                (int) ( $record['goals_for'] ?? 0 ),
+                (int) ( $record['goals_against'] ?? 0 )
+            ) ) . '</div>';
+
+            $without = (int) ( $record['without_a_score'] ?? 0 );
+            if ( $without > 0 ) {
+                $out .= '<div class="muted">' . esc_html( sprintf(
+                    /* translators: %d: matches played with no result recorded. */
+                    _n(
+                        '%d match has no result recorded and counts towards none of the above.',
+                        '%d matches have no result recorded and count towards none of the above.',
+                        $without,
+                        'talenttrack'
+                    ),
+                    $without
+                ) ) . '</div>';
+            }
+        }
+
+        $limit = $compact ? 8 : count( $matches );
+        $out  .= '<table class="list">';
+        foreach ( array_slice( $matches, 0, $limit ) as $match ) {
+            if ( ! is_array( $match ) ) continue;
+            $score = $match['team_score'] === null || $match['opp_score'] === null
+                ? __( 'no result', 'talenttrack' )
+                : sprintf( '%d–%d', (int) $match['team_score'], (int) $match['opp_score'] );
+
+            $line = self::shortDate( (string) ( $match['session_date'] ?? '' ) ) . '  '
+                . ( ( (string) ( $match['home_away'] ?? 'home' ) ) === 'home' ? 'H' : 'A' ) . '  '
+                . (string) ( $match['opponent'] ?? '' ) . '  ' . $score;
+
+            $out .= '<tr><td>' . esc_html( self::cut( $line, $compact ? 60 : 110 ) ) . '</td></tr>';
+
+            if ( empty( $m['show_squads'] ) ) continue;
+
+            $bits = [];
+            foreach ( is_array( $match['squad'] ?? null ) ? $match['squad'] : [] as $player ) {
+                if ( ! is_array( $player ) ) continue;
+                $bits[] = (string) ( $player['name'] ?? '' ) . ' ' . (int) ( $player['minutes'] ?? 0 ) . '′';
+            }
+            if ( $bits !== [] ) {
+                $out .= '<tr><td class="muted">' . esc_html( self::cut( implode( ' · ', $bits ), $compact ? 70 : 150 ) ) . '</td></tr>';
+            }
+        }
+        $out .= '</table>';
+
+        $tournaments = (int) ( $m['tournaments_excluded'] ?? 0 );
+        if ( $tournaments > 0 ) {
+            $out .= '<div class="muted">' . esc_html( sprintf(
+                /* translators: %d: number of tournament days in the period. */
+                _n(
+                    '%d tournament day is not counted in the record.',
+                    '%d tournament days are not counted in the record.',
+                    $tournaments,
+                    'talenttrack'
+                ),
+                $tournaments
+            ) ) . '</div>';
+        }
+
+        if ( ! empty( $m['show_scorers'] ) ) {
+            $out .= self::contributions( $m, $compact );
+        }
+
+        return $out . '</div>';
+    }
+
+    /**
+     * @param array<string,mixed> $m
+     */
+    private static function contributions( array $m, bool $compact ): string {
+        $lines = [];
+        foreach ( [
+            [ 'scorers', 'goals', __( 'Scorers: %s', 'talenttrack' ) ],
+            [ 'assists', 'assists', __( 'Assists: %s', 'talenttrack' ) ],
+        ] as [ $block_key, $tally_key, $template ] ) {
+            $rows = is_array( $m[ $block_key ] ?? null ) ? $m[ $block_key ] : [];
+            if ( $rows === [] ) continue;
+            $bits = [];
+            foreach ( $rows as $row ) {
+                if ( ! is_array( $row ) ) continue;
+                $bits[] = (string) ( $row['name'] ?? '' ) . ' (' . (int) ( $row[ $tally_key ] ?? 0 ) . ')';
+            }
+            /* translators: %s: comma-separated player names with their tallies. */
+            $lines[] = sprintf( $template, implode( ', ', $bits ) );
+        }
+
+        if ( $lines === [] ) {
+            // Not "nobody scored": on a report handed round a table, an empty
+            // scorers line reads as a fact about the team rather than as the
+            // goals not having been attributed yet.
+            return '<div class="muted">'
+                . esc_html__( 'No goals have been attributed to a player yet this period.', 'talenttrack' )
+                . '</div>';
+        }
+
+        $out = '';
+        foreach ( $lines as $line ) {
+            $out .= '<div class="muted">' . esc_html( self::cut( $line, $compact ? 70 : 150 ) ) . '</div>';
+        }
+        return $out;
+    }
+
     private static function changes( array $c, bool $compact ): string {
         $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
         $out    = '<div class="sec"><div class="h">' . esc_html_x( 'What changed', 'team monthly report section', 'talenttrack' ) . '</div>';

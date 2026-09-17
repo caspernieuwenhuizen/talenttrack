@@ -109,9 +109,10 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
     // ── the registry ───────────────────────────────────────────────────
 
     /**
-     * `tests` is the only block with options (#3515). This is not a rule — it
-     * is a reminder that every other block still renders from the block list
-     * alone, so adding options to one must not change what the rest do.
+     * `tests` (#3515) and `matches` (#3516) are the blocks with options. This
+     * is not a rule — it is a reminder that every other block still renders
+     * from the block list alone, so adding options to one must not change what
+     * the rest do. The order is `ALL`'s, which is print order.
      */
     public function test_only_the_registered_blocks_accept_options(): void {
         $accepting = array_values( array_filter(
@@ -119,7 +120,10 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
             static fn( string $block ): bool => TeamMonthlyReportBlockOptions::accepts( $block )
         ) );
 
-        $this->assertSame( [ TeamMonthlyReportBlock::TESTS ], $accepting );
+        $this->assertSame(
+            [ TeamMonthlyReportBlock::MATCHES, TeamMonthlyReportBlock::TESTS ],
+            $accepting
+        );
     }
 
     /**

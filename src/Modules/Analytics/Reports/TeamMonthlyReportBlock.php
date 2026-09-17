@@ -21,6 +21,7 @@ final class TeamMonthlyReportBlock {
     public const LETTERHEAD = 'letterhead';
     public const COVERAGE   = 'coverage';
     public const KPI        = 'kpi';
+    public const MATCHES    = 'matches';
     public const STATUS     = 'status';
     public const ATTENDANCE = 'attendance';
     public const MINUTES    = 'minutes';
@@ -36,6 +37,10 @@ final class TeamMonthlyReportBlock {
         self::LETTERHEAD,
         self::COVERAGE,
         self::KPI,
+        // #3516 — results sit between the month in numbers and the month per
+        // player: the KPI strip says how much happened, this says how it went,
+        // and everything after it is the per-player evidence for both.
+        self::MATCHES,
         self::STATUS,
         self::ATTENDANCE,
         self::MINUTES,
