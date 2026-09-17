@@ -129,6 +129,16 @@ Your install **never freezes updates because the control plane is out of reach**
 
 The **Release ring** row on the Account tab shows the ring and ceiling in force, so "why am I not offered the newest version" can be answered without server access.
 
+### Broadcasts
+
+The answer can also carry **broadcasts**: short notices from the operator, for example a planned maintenance window. They appear as a bar at the top of every TalentTrack screen for everyone who logs in, and as a notice in the WordPress admin.
+
+- Each answer replaces what your install had, so a broadcast the operator ends disappears on the next daily send.
+- A broadcast with an end time stops showing at that time, even if your install cannot reach the Admin Center.
+- Warnings look different from ordinary notices.
+- Most broadcasts can be dismissed. A dismissal is per person and only hides that one broadcast. A new broadcast shows again. Some broadcasts, such as an urgent notice, cannot be dismissed.
+- The text is shown exactly as written, as plain text.
+
 ## Failure modes
 
 - **Network error / DNS failure / 5xx** — silent. Retried on the next cron tick. Your install is unaffected.

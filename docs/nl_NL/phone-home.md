@@ -130,6 +130,16 @@ Je install **bevriest nooit updates omdat de mothership onbereikbaar is**. Zonde
 
 De rij **Release-ring** op het tabblad Account laat de geldende ring en het plafond zien, zodat "waarom krijg ik de nieuwste versie niet" zonder servertoegang te beantwoorden is.
 
+### Mededelingen
+
+Het antwoord kan ook **mededelingen** bevatten: korte berichten van de operator, bijvoorbeeld over gepland onderhoud. Ze verschijnen als balk bovenaan elk TalentTrack-scherm voor iedereen die inlogt, en als melding in de WordPress-beheeromgeving.
+
+- Elk antwoord vervangt wat je install had, dus een mededeling die de operator beëindigt, verdwijnt bij de volgende dagelijkse verzending.
+- Een mededeling met een eindtijd verdwijnt op dat moment, ook als je install het Admin Center niet kan bereiken.
+- Waarschuwingen zien er anders uit dan gewone mededelingen.
+- De meeste mededelingen kun je wegklikken. Dat geldt per persoon en verbergt alleen die ene mededeling: een nieuwe mededeling verschijnt gewoon weer. Sommige, zoals een dringende melding, kun je niet wegklikken.
+- De tekst wordt precies zo getoond als hij is geschreven, als platte tekst.
+
 ## Foutscenario's
 
 - **Netwerkfout / DNS-fout / 5xx** — stil. Wordt op de volgende cron-tick opnieuw geprobeerd. Je install merkt er niets van.

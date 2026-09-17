@@ -38,5 +38,8 @@ class AdminCenterClientModule implements ModuleInterface {
         VersionChangeHook::init();
         // #3493 — hold update offers to the ring the control plane assigns.
         ReleaseRing::register();
+        // #3499 — operator broadcasts, shown in the product.
+        BroadcastBanner::init();
+        BroadcastsRestController::init();
     }
 }

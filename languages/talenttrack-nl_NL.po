@@ -27744,6 +27744,15 @@ msgstr ""
 msgid "Hide this message for now"
 msgstr "Dit bericht voorlopig verbergen"
 
+#: src/Modules/AdminCenterClient/BroadcastBanner.php
+msgctxt "hide an operator broadcast"
+msgid "Dismiss"
+msgstr "Verbergen"
+
+#: src/Modules/AdminCenterClient/BroadcastsRestController.php
+msgid "There is no broadcast to dismiss with this id."
+msgstr "Er is geen mededeling met dit id om te verbergen."
+
 #. translators: 1: feature name, 2: required plan label
 #. translators: 1: feature name, 2: plan name, e.g. "Pro"
 #: src/Modules/License/LicenseGate.php:168
