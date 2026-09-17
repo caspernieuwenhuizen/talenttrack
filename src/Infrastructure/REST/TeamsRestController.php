@@ -118,6 +118,22 @@ class TeamsRestController {
                 'permission_callback' => $can_view_team,
             ],
         ] );
+        // #3520 (epic #3519) — the team's match output as data: record, form,
+        // scorers, assists, appearances. Same predicate as the minutes-share
+        // routes above, and for the same reason — it takes a team id out of
+        // the path and returns per-player rows from it, so the club-wide cap
+        // alone would hand a head coach every squad in the academy (#3152).
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/stats', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_team_stats' ],
+                'permission_callback' => $can_view_team,
+                'args'                => [
+                    'from' => [ 'type' => 'string' ],
+                    'to'   => [ 'type' => 'string' ],
+                ],
+            ],
+        ] );
         // #3458 (epic #3457) — the team monthly report as data. Gated in the
         // permission callback itself, on the same `reports` read the sibling
         // team reports use, so a refused caller never reaches the composer and
@@ -399,6 +415,42 @@ class TeamsRestController {
             [ 'team_id' => $id, 'player_id' => $player_id, 'from' => $from, 'to' => $to ],
             $row
         ) );
+    }
+
+    /**
+     * #3520 — `GET /teams/{id}/stats`.
+     *
+     * Composition only: the shape comes straight from the domain query, so a
+     * non-WordPress front end and the rendered statistics tab cannot disagree
+     * about a team's record (CLAUDE.md §4).
+     *
+     * `from` / `to` are optional and must both be `Y-m-d` when given. Half a
+     * window, or a malformed one, is a 400 — quietly falling back to the
+     * season would answer a different question than the caller asked.
+     */
+    public static function get_team_stats( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+
+        $from = trim( (string) ( $r['from'] ?? '' ) );
+        $to   = trim( (string) ( $r['to'] ?? '' ) );
+        $ymd  = static fn ( string $d ): bool => (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
+
+        $filters = [];
+        if ( $from !== '' || $to !== '' ) {
+            if ( ! $ymd( $from ) || ! $ymd( $to ) || $from > $to ) {
+                return RestResponse::error(
+                    'bad_window',
+                    __( 'Give both from and to as YYYY-MM-DD, with from on or before to.', 'talenttrack' ),
+                    400
+                );
+            }
+            $filters = [ 'from' => $from, 'to' => $to ];
+        }
+
+        return RestResponse::success(
+            ( new \TT\Modules\Analytics\Reports\TeamMatchStatsQuery() )->forTeam( $id, $filters )
+        );
     }
 
     /**
