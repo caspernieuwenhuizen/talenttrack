@@ -77,7 +77,7 @@ final class TeamMonthlyReportPdfDocument {
         $pages = [
             $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], false ),
             self::sections( $data, $blocks, [ 'roster' ], false ),
-            self::sections( $data, $blocks, [ 'attention', 'changes', 'tests', 'notes', 'quality' ], false ),
+            self::sections( $data, $blocks, [ 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ], false ),
         ];
         $out   = '';
         $first = true;
@@ -90,8 +90,8 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /**
-     * Landscape matrix: the roster is the page; changes, tests and notes share
-     * a footer strip.
+     * Landscape matrix: the roster is the page; matches, changes, tests and
+     * notes share a footer strip.
      *
      * @param array<string,array<string,mixed>> $data
      * @param list<string>                      $blocks
@@ -100,7 +100,7 @@ final class TeamMonthlyReportPdfDocument {
         $out = $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality' ], true );
 
         $cells = [];
-        foreach ( [ 'changes', 'tests', 'notes' ] as $block ) {
+        foreach ( [ 'matches', 'changes', 'tests', 'notes' ] as $block ) {
             if ( ! in_array( $block, $blocks, true ) ) continue;
             $cells[] = '<td class="strip">' . self::section( $block, $data[ $block ] ?? [], true ) . '</td>';
         }
@@ -135,6 +135,7 @@ final class TeamMonthlyReportPdfDocument {
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
+            case 'matches':    return self::matches( $d, $wide );
             case 'roster':     return self::roster( $d, $wide );
             case 'notes':      return $wide ? self::notesCompact() : self::notes();
             case 'quality':    return self::quality( $d );
@@ -333,6 +334,156 @@ final class TeamMonthlyReportPdfDocument {
             $out .= '<tr><td>' . esc_html( self::cut( $line, $compact ? 60 : 110 ) ) . '</td></tr>';
         }
         return $out . '</table></div>';
+    }
+
+    /**
+     * Results and match statistics (#3516).
+     *
+     * On the compact layouts the squad tables are dropped whatever was asked
+     * for — they are the longest thing this section prints and would overflow.
+     * Degrading to less detail is the ladder's job; overflowing is not.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function matches( array $m, bool $compact ): string {
+        $shows    = is_array( $m['shows'] ?? null ) ? $m['shows'] : [];
+        $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
+        $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
+
+        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Matches', 'team monthly report section', 'talenttrack' ) . '</div>';
+
+        if ( $fixtures === [] ) {
+            $out .= '<div class="muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</div>';
+            return $out . self::tournamentNote( $m ) . '</div>';
+        }
+
+        if ( ! empty( $shows['record'] ) ) {
+            $out .= '<div><b>' . esc_html( self::recordLine( $record ) ) . '</b></div>';
+            if ( (int) ( $record['without_score'] ?? 0 ) > 0 ) {
+                $out .= '<div class="muted">' . esc_html( sprintf(
+                    /* translators: %d: number of matches with no score recorded */
+                    _n(
+                        '%d match has no score recorded and is not counted in the record.',
+                        '%d matches have no score recorded and are not counted in the record.',
+                        (int) $record['without_score'],
+                        'talenttrack'
+                    ),
+                    (int) $record['without_score']
+                ) ) . '</div>';
+            }
+        }
+
+        $out .= '<table class="list">';
+        foreach ( $fixtures as $f ) {
+            if ( ! is_array( $f ) ) continue;
+            $out .= '<tr><td>' . esc_html( self::cut( self::fixtureLine( $f ), $compact ? 60 : 110 ) ) . '</td></tr>';
+
+            $squad = is_array( $f['squad'] ?? null ) ? $f['squad'] : [];
+            if ( $compact || empty( $shows['squads'] ) || $squad === [] ) continue;
+
+            $names = [];
+            foreach ( $squad as $player ) {
+                if ( ! is_array( $player ) ) continue;
+                $names[] = (string) ( $player['name'] ?? '' ) . ' ' . (int) ( $player['minutes'] ?? 0 ) . "'";
+            }
+            $out .= '<tr><td class="muted">' . esc_html( implode( ' · ', $names ) ) . '</td></tr>';
+        }
+        $out .= '</table>';
+
+        if ( ! empty( $shows['scorers'] ) ) {
+            $scorers = is_array( $m['scorers'] ?? null ) ? $m['scorers'] : [];
+            $out    .= self::scorerLines( $scorers );
+        }
+
+        return $out . self::tournamentNote( $m ) . '</div>';
+    }
+
+    /**
+     * Tournaments fall outside the record on purpose (#2686). Saying so beats
+     * a record that quietly disagrees with what the coach remembers.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function tournamentNote( array $m ): string {
+        $count = (int) ( $m['tournaments_excluded'] ?? 0 );
+        if ( $count <= 0 ) return '';
+
+        return '<div class="muted">' . esc_html( sprintf(
+            /* translators: %d: number of tournaments in the period */
+            _n(
+                '%d tournament this period is not included — a tournament is a multi-game day.',
+                '%d tournaments this period are not included — a tournament is a multi-game day.',
+                $count,
+                'talenttrack'
+            ),
+            $count
+        ) ) . '</div>';
+    }
+
+    /** @param array<string,mixed> $record */
+    private static function recordLine( array $record ): string {
+        return sprintf(
+            /* translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against, 7: signed goal difference */
+            __( 'Played %1$d · W %2$d D %3$d L %4$d · %5$d–%6$d (%7$s)', 'talenttrack' ),
+            (int) ( $record['played'] ?? 0 ),
+            (int) ( $record['won'] ?? 0 ),
+            (int) ( $record['drawn'] ?? 0 ),
+            (int) ( $record['lost'] ?? 0 ),
+            (int) ( $record['goals_for'] ?? 0 ),
+            (int) ( $record['goals_against'] ?? 0 ),
+            self::signed( (int) ( $record['goal_difference'] ?? 0 ) )
+        );
+    }
+
+    /** @param array<string,mixed> $fixture */
+    private static function fixtureLine( array $fixture ): string {
+        $where = (string) ( $fixture['home_away'] ?? '' );
+        $who   = (string) ( $fixture['opponent'] ?? '' );
+        if ( $who === '' ) $who = __( 'Unknown opponent', 'talenttrack' );
+        if ( $where === 'away' ) {
+            /* translators: %s: opponent name */
+            $who = sprintf( __( 'away to %s', 'talenttrack' ), $who );
+        } elseif ( $where !== '' ) {
+            /* translators: %s: opponent name */
+            $who = sprintf( __( 'home to %s', 'talenttrack' ), $who );
+        }
+
+        $score = $fixture['team_score'] === null || $fixture['opp_score'] === null
+            ? __( 'no score recorded', 'talenttrack' )
+            : (int) $fixture['team_score'] . '–' . (int) $fixture['opp_score'];
+
+        return sprintf(
+            /* translators: 1: date, 2: opponent with home/away, 3: score */
+            _x( '%1$s, %2$s — %3$s', 'one match line in the monthly report', 'talenttrack' ),
+            self::shortDate( (string) ( $fixture['date'] ?? '' ) ),
+            $who,
+            $score
+        );
+    }
+
+    /** @param list<array<string,mixed>>|array<int,mixed> $scorers */
+    private static function scorerLines( array $scorers ): string {
+        if ( $scorers === [] ) {
+            return '<div class="muted">' . esc_html__( 'No goals or assists recorded this period.', 'talenttrack' ) . '</div>';
+        }
+
+        $parts = [];
+        foreach ( $scorers as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $parts[] = sprintf(
+                /* translators: 1: player name, 2: goals, 3: assists */
+                __( '%1$s %2$dG %3$dA', 'talenttrack' ),
+                (string) ( $row['name'] ?? '' ),
+                (int) ( $row['goals'] ?? 0 ),
+                (int) ( $row['assists'] ?? 0 )
+            );
+        }
+
+        return '<div class="muted">' . esc_html( implode( ' · ', $parts ) ) . '</div>';
+    }
+
+    private static function signed( int $n ): string {
+        return $n > 0 ? '+' . $n : (string) $n;
     }
 
     /** @param array<string,mixed> $t */

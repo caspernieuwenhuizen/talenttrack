@@ -369,6 +369,61 @@
 
 .tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
 
+/* Matches (#3516). The record reads as a row of figures, wrapping on a phone. */
+.tt-mr-record {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-mr-record__cell {
+    padding: var(--tt-sp-2);
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--tt-radius);
+    text-align: center;
+}
+
+.tt-mr-record dt {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-record dd {
+    margin: 0;
+    font-size: var(--tt-fs-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-fixture + .tt-mr-fixture {
+    margin-top: var(--tt-sp-2);
+    padding-top: var(--tt-sp-2);
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-mr-fixture__head { margin: 0 0 var(--tt-sp-1); }
+
+.tt-mr-fixture__date {
+    color: var(--tt-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-score {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mr-score.is-w { color: var(--tt-success-ink); }
+.tt-mr-score.is-l { color: var(--tt-danger-ink); }
+
+.tt-mr-scorers td.num,
+.tt-mr-scorers th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
 /* Per-test readings (#3515). Numbers line up so a column can be scanned. */
 .tt-mr-test-readings td.num,
 .tt-mr-test-readings th.num {

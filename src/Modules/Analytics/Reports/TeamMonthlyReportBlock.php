@@ -24,6 +24,7 @@ final class TeamMonthlyReportBlock {
     public const STATUS     = 'status';
     public const ATTENDANCE = 'attendance';
     public const MINUTES    = 'minutes';
+    public const MATCHES    = 'matches';
     public const ATTENTION  = 'attention';
     public const CHANGES    = 'changes';
     public const TESTS      = 'tests';
@@ -39,6 +40,7 @@ final class TeamMonthlyReportBlock {
         self::STATUS,
         self::ATTENDANCE,
         self::MINUTES,
+        self::MATCHES,
         self::ATTENTION,
         self::CHANGES,
         self::TESTS,

@@ -63895,3 +63895,156 @@ msgstr "Hoeveel tonen"
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
 msgid "Readings and change print as a table, which the one-pager shortens to the summary."
 msgstr "Uitslagen en verschil komen als tabel op papier; de versie van één pagina kort die in tot de samenvatting."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "team monthly report section"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "team monthly report panel"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Results, scorers and squads"
+msgstr "Uitslagen, doelpuntenmakers en selecties"
+
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php
+msgctxt "monthly report matches option"
+msgid "Record"
+msgstr "Standen"
+
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php
+msgctxt "monthly report matches option"
+msgid "Scorers and assists"
+msgstr "Doelpunten en assists"
+
+#: src/Modules/Analytics/Reports/MatchesBlockOptions.php
+msgctxt "monthly report matches option"
+msgid "Squad and minutes per match"
+msgstr "Selectie en minuten per wedstrijd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Squads and minutes per match are the longest part, and repeat the minutes section."
+msgstr "Selectie en minuten per wedstrijd is het langste onderdeel en herhaalt de sectie Minutenaandeel."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "No matches played this period."
+msgstr "Deze periode zijn geen wedstrijden gespeeld."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "No goals or assists recorded this period."
+msgstr "Deze periode zijn geen doelpunten of assists vastgelegd."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "No minutes recorded for this match."
+msgstr "Voor deze wedstrijd zijn geen minuten vastgelegd."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "no score recorded"
+msgstr "geen uitslag vastgelegd"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Unknown opponent"
+msgstr "Onbekende tegenstander"
+
+#. translators: %s: opponent name
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "away to %s"
+msgstr "uit tegen %s"
+
+#. translators: %s: opponent name
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "home to %s"
+msgstr "thuis tegen %s"
+
+#. translators: %d: number of matches with no score recorded
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%d match has no score recorded and is not counted in the record."
+msgid_plural "%d matches have no score recorded and are not counted in the record."
+msgstr[0] "Van %d wedstrijd is geen uitslag vastgelegd; die telt niet mee in de stand."
+msgstr[1] "Van %d wedstrijden is geen uitslag vastgelegd; die tellen niet mee in de stand."
+
+#. translators: %d: number of tournaments in the period
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%d tournament this period is not included — a tournament is a multi-game day."
+msgid_plural "%d tournaments this period are not included — a tournament is a multi-game day."
+msgstr[0] "%d toernooi in deze periode telt niet mee — een toernooi is een dag met meerdere wedstrijden."
+msgstr[1] "%d toernooien in deze periode tellen niet mee — een toernooi is een dag met meerdere wedstrijden."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Played"
+msgstr "Gespeeld"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Won"
+msgstr "Gewonnen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Drawn"
+msgstr "Gelijk"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Lost"
+msgstr "Verloren"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Goals for"
+msgstr "Doelpunten voor"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Goals against"
+msgstr "Doelpunten tegen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report match record"
+msgid "Difference"
+msgstr "Saldo"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report matches column"
+msgid "Goals"
+msgstr "Doelpunten"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report matches column"
+msgid "Assists"
+msgstr "Assists"
+
+#. translators: 1: player name, 2: minutes played
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "player and minutes in a match squad"
+msgid "%1$s %2$d′"
+msgstr "%1$s %2$d′"
+
+#. translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against, 7: signed goal difference
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Played %1$d · W %2$d D %3$d L %4$d · %5$d–%6$d (%7$s)"
+msgstr "Gespeeld %1$d · W %2$d G %3$d V %4$d · %5$d–%6$d (%7$s)"
+
+#. translators: 1: date, 2: opponent with home/away, 3: score
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "one match line in the monthly report"
+msgid "%1$s, %2$s — %3$s"
+msgstr "%1$s, %2$s — %3$s"
+
+#. translators: 1: player name, 2: goals, 3: assists
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$s %2$dG %3$dA"
+msgstr "%1$s %2$dD %3$dA"
