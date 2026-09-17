@@ -154,6 +154,40 @@ alphabetically. Two tables are deliberately left alone: **Minutes share** is
 ordered by share played and **Needs a conversation** by urgency — there the
 order is itself the finding.
 
+## Snapshots for the meeting
+
+The report is a view of **current** data. Open it on the 3rd, discuss it on the
+5th, and a register taken in between has moved the numbers under the
+discussion — so what the meeting decided cannot be reproduced afterwards.
+
+**Save snapshot for the meeting**, under the panel, freezes what you are
+looking at. A snapshot keeps the numbers as they were, with its own address, so
+reopening it next season shows what the meeting actually saw rather than what is
+true today. Your team's recent snapshots are listed beside the button.
+
+**Notes live on a snapshot, not on the live report.** Each section gets one
+note — *"three weeks out, back in full training from the 18th"* — and the notes
+stay editable after the snapshot is taken while the numbers do not. That is the
+point: you draft before the meeting and write down what was decided during it.
+Each note records who last wrote it and when. Clearing a note and saving removes
+it. The PDF of a snapshot prints the notes, so the printed copy and the screen
+say the same thing.
+
+### Snapshots cannot be shared by link
+
+**A snapshot is only readable by someone who is signed in and can already see
+that team's reports.** There is no share link, no token and no public address,
+and adding one is not a setting you have missed.
+
+This is deliberately different from match prep and match analysis, which do have
+share links. A monthly report names every player in the squad and carries their
+attendance, their test results and who needs a conversation — it is the densest
+collection of information about children this system produces, and a link that
+works for anyone holding it is the wrong shape for that however short its
+expiry.
+
+For staff who do not log in, download the PDF and hand it over yourself.
+
 ## The match section
 
 The report used to say a great deal about development and nothing about

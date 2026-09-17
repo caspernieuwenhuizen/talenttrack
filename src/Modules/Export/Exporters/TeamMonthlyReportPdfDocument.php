@@ -32,13 +32,29 @@ use TT\Modules\Analytics\Reports\TestsBlockOptions;
 final class TeamMonthlyReportPdfDocument {
 
     /**
+     * The snapshot notes being printed, if any (#3517).
+     *
+     * @var array<string,array{body:string, author:int, updated_at:string}>
+     */
+    private static array $notes = [];
+
+    /**
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      *        already degraded by `TeamMonthlyReportLayout::degrade()`.
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     *        a snapshot's section notes; empty for a live report (#3517).
      */
-    public static function html( array $report, string $layout, string $team_name ): string {
+    public static function html( array $report, string $layout, string $team_name, array $notes = [] ): string {
         $data   = $report['data'];
         $blocks = $report['blocks'];
         $wide   = $layout === TeamMonthlyReportLayout::MATRIX;
+
+        // #3517 — a snapshot's section notes. Static rather than threaded
+        // through six render methods: they are a property of the document
+        // being printed, and every one of those methods would otherwise grow
+        // a parameter it does not use. Reset on every call so one export
+        // cannot leak a note into the next.
+        self::$notes = $notes;
 
         $head  = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
         $empty = (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
@@ -119,9 +135,23 @@ final class TeamMonthlyReportPdfDocument {
         $out = '';
         foreach ( $order as $block ) {
             if ( ! in_array( $block, $selected, true ) ) continue;
-            $out .= self::section( $block, $data[ $block ] ?? [], $wide );
+            $out .= self::section( $block, $data[ $block ] ?? [], $wide ) . self::note( $block );
         }
         return $out;
+    }
+
+    /**
+     * The meeting's note on one section (#3517), printed under it so paper and
+     * screen say the same thing. Empty on a live report, which has no notes.
+     */
+    private static function note( string $block ): string {
+        $note = self::$notes[ $block ] ?? null;
+        if ( ! is_array( $note ) ) return '';
+
+        $body = (string) ( $note['body'] ?? '' );
+        if ( trim( $body ) === '' ) return '';
+
+        return '<div class="note">' . nl2br( esc_html( $body ) ) . '</div>';
     }
 
     /** @param array<string,mixed> $d */
@@ -796,6 +826,10 @@ final class TeamMonthlyReportPdfDocument {
             . '.kpi td{width:16.66%;border:1px solid ' . $line . ';padding:1.5mm 2mm;vertical-align:top}'
             . '.kn{font-size:13pt;font-weight:bold}.kl{font-size:6.5pt;text-transform:uppercase;color:' . $muted . '}.kd{font-size:6.5pt}'
             . '.sec{margin-bottom:3mm}'
+            // #3517 — a snapshot's note, marked off from the figures above it
+            // so a reader can tell what the data said from what the meeting
+            // said about it.
+            . '.note{margin:0 0 3mm;padding:1.5mm 2mm;border-left:2px solid ' . $ink . ';font-size:7.5pt}'
             . '.h{height:5mm;font-size:9.5pt;font-weight:bold;border-bottom:1px solid ' . $line . ';margin-bottom:1mm}'
             . '.band{height:6mm;margin-bottom:1mm}.band td{color:#fff;font-weight:bold;text-align:center;font-size:7.5pt}'
             . '.b-green{background:#1f7a4a}.b-amber{background:#c88a12}.b-red{background:#b3261e}.b-unknown{background:#8a8f96}'

@@ -83,6 +83,11 @@ class AnalyticsModule implements ModuleInterface {
         // #1383 — REST surface for the end-of-season cohort decision board
         // (the PHP renderer + this endpoint share CohortBoardService).
         \TT\Infrastructure\REST\CohortBoardRestController::init();
+        // #3517 — taking a monthly-report snapshot and writing its section
+        // notes. On `template_redirect` so it runs before any output and can
+        // redirect after the post; every handler checks the capability for the
+        // snapshot's own team and refuses a signed-out reader.
+        add_action( 'template_redirect', [ \TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage::class, 'handlePost' ], 5 );
     }
 
     /**

@@ -163,6 +163,43 @@ alfabet. Twee tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
 gespeeld aandeel en **Gesprek nodig** op urgentie — daar is de volgorde zelf de
 uitkomst.
 
+## Momentopnamen voor het overleg
+
+Het rapport toont de **actuele** gegevens. Open je het op de 3e en bespreek je
+het op de 5e, dan heeft een presentielijst van tussendoor de cijfers onder de
+discussie vandaan geschoven — wat het overleg besloot is daarna niet meer te
+reproduceren.
+
+**Momentopname opslaan voor het overleg**, onder het paneel, bevriest wat je
+voor je hebt. Een momentopname houdt de cijfers zoals ze waren en krijgt een
+eigen adres, zodat je volgend seizoen ziet wat het overleg werkelijk zag in
+plaats van wat vandaag waar is. De recente momentopnamen van je team staan naast
+de knop.
+
+**Notities horen bij een momentopname, niet bij het live rapport.** Elke sectie
+krijgt één notitie — *"drie weken eruit, vanaf de 18e weer volledig mee"* — en
+die notities blijven bewerkbaar nadat de momentopname is gemaakt, terwijl de
+cijfers dat niet zijn. Dat is de bedoeling: je schrijft vooraf iets voor en legt
+tijdens het overleg vast wat er besloten is. Bij elke notitie staat wie hem het
+laatst schreef en wanneer. Een notitie leegmaken en opslaan verwijdert hem. De
+PDF van een momentopname drukt de notities mee af, zodat papier en scherm
+hetzelfde zeggen.
+
+### Een momentopname is niet met een link te delen
+
+**Een momentopname is alleen te lezen door iemand die is ingelogd en de
+rapporten van dat team al mag zien.** Er is geen deellink, geen token en geen
+openbaar adres, en dat is geen instelling die je over het hoofd ziet.
+
+Dit wijkt bewust af van wedstrijdvoorbereiding en wedstrijdanalyse, die wél een
+deellink hebben. Een maandrapport noemt elke speler van de selectie bij naam en
+bevat hun aanwezigheid, hun testuitslagen en wie een gesprek nodig heeft — het is
+de dichtstbevolkte verzameling informatie over kinderen die dit systeem maakt, en
+een link die werkt voor iedereen die hem heeft, past daar niet bij, hoe kort hij
+ook geldig is.
+
+Voor stafleden die niet inloggen: download de PDF en geef die zelf door.
+
 ## De sectie Wedstrijden
 
 Het rapport zei veel over ontwikkeling en niets over uitslagen, dus werd de

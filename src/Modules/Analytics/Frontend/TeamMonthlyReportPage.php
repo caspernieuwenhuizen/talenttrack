@@ -61,7 +61,31 @@ final class TeamMonthlyReportPage {
         self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit, $options );
 
         echo '<div class="tt-mr" data-tt-monthly-report>';
-        $head = $data['letterhead'] ?? [];
+        self::renderBlocks( $report, $team, $window );
+        echo '</div>';
+
+        TeamMonthlyReportSnapshotPage::renderTakeAndList( $team_id, $window, $layout, $report['blocks'], $options );
+    }
+
+    /**
+     * The report body: the letterhead, then every selected section in print
+     * order, then the confidentiality line.
+     *
+     * Shared with the snapshot view (#3517), which renders the same blocks from
+     * stored data rather than a live query — that is the whole point of a
+     * snapshot, and two copies of this loop would be two places for the frozen
+     * document to drift from the live one.
+     *
+     * @param array{blocks:list<string>, data:array<string,array<string,mixed>>, from:string, to:string} $report
+     * @param array{from:string,to:string,period:string}                                                $window
+     * @param array<string,array{body:string, author:int, updated_at:string}>                           $notes
+     * @param string                                                                                    $snapshot uuid, '' on the live report
+     */
+    public static function renderBlocks( array $report, ?object $team, array $window, array $notes = [], string $snapshot = '' ): void {
+        $data    = $report['data'];
+        $team_id = (int) ( $team->id ?? 0 );
+        $head    = $data['letterhead'] ?? [];
+
         self::renderLetterhead( $team, $head, $window );
 
         if ( (int) ( $head['activity_count'] ?? 0 ) === 0 ) {
@@ -69,7 +93,6 @@ final class TeamMonthlyReportPage {
                 . esc_html__( 'This team has no completed trainings or matches in this window, so there is nothing to report yet. Pick another period above.', 'talenttrack' )
                 . '</p></div>';
             self::renderConfidential();
-            echo '</div>';
             return;
         }
 
@@ -90,10 +113,21 @@ final class TeamMonthlyReportPage {
                 case TeamMonthlyReportBlock::NOTES:      self::renderNotes(); break;
                 case TeamMonthlyReportBlock::QUALITY:    self::renderQuality( $block_data ); break;
             }
+
+            // Notes exist only on a snapshot. The live report is a view of
+            // current data, and commentary on a moving number has nothing to
+            // attach to (#3517).
+            if ( $snapshot !== '' ) {
+                TeamMonthlyReportSnapshotPage::renderNote( $block, $notes, $snapshot );
+            }
         }
 
         self::renderConfidential();
-        echo '</div>';
+    }
+
+    /** The report's own styles, for a surface that is not the live report. */
+    public static function enqueuePublic(): void {
+        self::enqueue();
     }
 
     /* ---------------------------------------------------------------
@@ -532,10 +566,13 @@ final class TeamMonthlyReportPage {
      * ------------------------------------------------------------- */
 
     /**
+     * Nullable team: a snapshot outlives the team it was taken for, and the
+     * meeting's record must still open after that team is archived away.
+     *
      * @param array<string,mixed>                     $head
      * @param array{from:string,to:string,period:string} $window
      */
-    private static function renderLetterhead( object $team, array $head, array $window ): void {
+    private static function renderLetterhead( ?object $team, array $head, array $window ): void {
         $bits = [
             sprintf(
                 /* translators: 1: window start date, 2: window end date */
