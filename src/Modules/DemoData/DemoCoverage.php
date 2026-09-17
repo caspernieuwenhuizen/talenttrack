@@ -848,6 +848,12 @@ class DemoCoverage {
         'tt_player_strava_connections' => [ 'exempt' => 'Requires real Strava OAuth tokens; a fabricated connection cannot sync and renders as broken.' ],
         'tt_player_activities'         => [ 'exempt' => 'Strava-imported activities, downstream of an exempt OAuth connection. Demo Strava data needs its own issue.' ],
         'tt_scheduled_reports'         => [ 'exempt' => 'A demo row would dispatch real email on the next cron run.' ],
+        // Not exempt like its neighbour above: a snapshot sends nothing, and a
+        // frozen report with notes under two sections demonstrates the feature
+        // better than any description. It is unseeded because `data_json` is a
+        // whole rendered report — composing one needs the demo activities,
+        // attendance and evaluations to exist first (#3539).
+        'tt_team_report_snapshots'     => [ 'planned' => '#3539' ],
         'tt_workflow_triggers'         => [ 'exempt' => 'Workflow trigger configuration, seeded by migrations.' ],
         'tt_workflow_template_config'  => [ 'exempt' => 'Workflow template configuration, seeded by migrations.' ],
         'tt_workflow_event_log'        => [ 'exempt' => 'Log of real workflow-engine events.' ],

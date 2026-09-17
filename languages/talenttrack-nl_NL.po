@@ -64304,3 +64304,54 @@ msgstr "Onbekend veldtype: %s"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Save snapshot for the meeting"
+msgstr "Momentopname opslaan voor het overleg"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Freezes these numbers so the meeting can be reproduced afterwards, and lets you add notes per section."
+msgstr "Bevriest deze cijfers zodat het overleg later te reproduceren is, en laat je per sectie notities toevoegen."
+
+#. translators: 1: who took the snapshot, 2: when
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Frozen by %1$s on %2$s. The numbers do not change; notes can still be edited."
+msgstr "Bevroren door %1$s op %2$s. De cijfers veranderen niet; notities zijn nog te bewerken."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "This snapshot is only readable by signed-in staff who can see this team. It has no shareable link — send the PDF instead."
+msgstr "Deze momentopname is alleen te lezen door ingelogde stafleden die dit team mogen zien. Er is geen deellink — stuur de PDF door."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "a staff member"
+msgstr "een staflid"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Add a note"
+msgstr "Notitie toevoegen"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Edit this note"
+msgstr "Deze notitie bewerken"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Note for this section"
+msgstr "Notitie bij deze sectie"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "Clearing the note and saving removes it."
+msgstr "De notitie leegmaken en opslaan verwijdert hem."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "The snapshot could not be saved."
+msgstr "De momentopname kon niet worden opgeslagen."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgid "You do not have access to this snapshot."
+msgstr "Je hebt geen toegang tot deze momentopname."
+
+#. translators: 1: team name, 2: period start, 3: period end
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php
+msgctxt "default name for a report snapshot"
+msgid "%1$s, %2$s – %3$s"
+msgstr "%1$s, %2$s – %3$s"

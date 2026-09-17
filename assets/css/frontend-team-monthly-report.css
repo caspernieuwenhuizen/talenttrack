@@ -369,6 +369,60 @@
 
 .tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
 
+/* Snapshots (#3517). The bar says plainly that this is frozen, and why it
+   cannot be shared by link. */
+.tt-mr-snapshot-bar {
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-left: 4px solid var(--tt-primary);
+    border-radius: var(--tt-radius);
+}
+
+.tt-mr-snapshot-bar__t { margin: 0 0 var(--tt-sp-1); }
+
+.tt-mr-snapshots {
+    margin: var(--tt-sp-4) 0 0;
+    padding: var(--tt-sp-3);
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-mr-snapshots__take {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    align-items: center;
+}
+
+.tt-mr-snapshots__list {
+    margin: var(--tt-sp-3) 0 0;
+    padding-left: var(--tt-sp-4);
+}
+
+.tt-mr-snapshots__list li + li { margin-top: var(--tt-sp-1); }
+
+/* A section note: what the meeting said, marked off from what the data says. */
+.tt-mr-note {
+    margin: var(--tt-sp-2) 0 var(--tt-sp-3);
+    padding-left: var(--tt-sp-3);
+    border-left: 3px solid var(--tt-primary);
+}
+
+.tt-mr-note__body { margin: 0 0 var(--tt-sp-1); }
+.tt-mr-note__by { margin: 0; font-size: var(--tt-fs-sm); }
+
+.tt-mr-note__edit summary {
+    /* A 48px target, per the mobile rules — this is tapped on a phone in a
+       meeting room. */
+    display: inline-block;
+    min-height: 48px;
+    padding: var(--tt-sp-2) 0;
+    font-size: var(--tt-fs-sm);
+    cursor: pointer;
+}
+
+.tt-mr-note__form textarea { width: 100%; }
+
 /* Matches (#3516). The record reads as a row of figures, wrapping on a phone. */
 .tt-mr-record {
     display: grid;
