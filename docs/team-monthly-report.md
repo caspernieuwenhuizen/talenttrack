@@ -126,6 +126,12 @@ Scheduled reports are part of the Standard plan and above.
 Player names link to their profile, and each figure links to the report it came
 from.
 
+Player tables read in **squad-number order**, so a player sits in the same place
+on every page and in the printed copy. Players without a number come last,
+alphabetically. Two tables are deliberately left alone: **Minutes share** is
+ordered by share played and **Needs a conversation** by urgency — there the
+order is itself the finding.
+
 ## Who can see it
 
 Staff who can read reports for that team. The report names children and

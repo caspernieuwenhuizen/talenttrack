@@ -133,6 +133,12 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 Spelersnamen linken naar hun profiel, en elk cijfer linkt naar het rapport
 waar het vandaan komt.
 
+Spelerstabellen staan op **rugnummer**, zodat een speler op elke pagina en op de
+afdruk op dezelfde plek staat. Spelers zonder rugnummer staan onderaan, op
+alfabet. Twee tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
+gespeeld aandeel en **Gesprek nodig** op urgentie — daar is de volgorde zelf de
+uitkomst.
+
 ## Wie het kan zien
 
 Stafleden die rapporten van dat team mogen inzien. Het rapport noemt kinderen bij
