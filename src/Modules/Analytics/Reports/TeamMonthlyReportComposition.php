@@ -140,7 +140,7 @@ final class TeamMonthlyReportComposition {
 
         $out = [];
         foreach ( $raw as $block => $bag ) {
-            $key = is_scalar( $block ) ? sanitize_key( (string) $block ) : '';
+            $key = sanitize_key( (string) $block );
             if ( ! TeamMonthlyReportBlock::isValid( $key ) ) continue;
             if ( ! in_array( $key, $selected, true ) ) continue;
             if ( ! is_array( $bag ) ) continue;
@@ -174,7 +174,7 @@ final class TeamMonthlyReportComposition {
 
         $unknown = [];
         foreach ( $options as $block => $bag ) {
-            $key = is_scalar( $block ) ? sanitize_key( (string) $block ) : '';
+            $key = sanitize_key( (string) $block );
             if ( ! TeamMonthlyReportBlock::isValid( $key ) ) {
                 $unknown[] = (string) $block;
                 continue;
@@ -196,7 +196,7 @@ final class TeamMonthlyReportComposition {
      * @return array<string,mixed>
      */
     public static function optionsFor( array $composition, string $block ): array {
-        $options = $composition['options'] ?? [];
+        $options = $composition['options'];
         return is_array( $options[ $block ] ?? null ) ? $options[ $block ] : [];
     }
 
@@ -239,8 +239,7 @@ final class TeamMonthlyReportComposition {
         // #3514 — options are part of what a composition *is*. Without them a
         // saved view showing the sprint test would report itself "active"
         // while the reader looks at the jump test.
-        $options = $c['options'] ?? [];
-        $options = is_array( $options ) ? $options : [];
+        $options = $c['options'];
         ksort( $options );
         $encoded = (string) wp_json_encode( $options );
 

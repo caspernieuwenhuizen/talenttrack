@@ -61,15 +61,15 @@ final class TeamMonthlyReportBlockOptions {
         $owner = self::map()[ $block ] ?? null;
 
         if ( $owner === null ) {
-            return array_values( array_map(
+            return array_map(
                 static fn( $key ): string => $block . '.' . (string) $key,
                 array_keys( $raw )
-            ) );
+            );
         }
 
-        return array_values( array_map(
+        return array_map(
             static fn( string $key ): string => $block . '.' . $key,
             $owner::unknownKeys( $raw )
-        ) );
+        );
     }
 }
