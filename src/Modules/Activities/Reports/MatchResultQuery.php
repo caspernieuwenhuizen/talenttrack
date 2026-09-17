@@ -134,10 +134,19 @@ final class MatchResultQuery {
         $execution = $exec->findByActivity( $activity_id );
         if ( ! $execution ) return [];
 
+        // `findByActivity()` declares `?object`, not a shape, so reading the
+        // id off it directly is an undefined-property access at level 8. The
+        // array cast asks for the same value without claiming the property
+        // exists.
+        $execution_id = (int) ( ( (array) $execution )['id'] ?? 0 );
+        if ( $execution_id <= 0 ) return [];
+
         $out = [];
-        foreach ( $exec->listGoalEvents( (int) $execution->id ) as $ev ) {
-            $half      = isset( $ev->half ) && $ev->half !== null ? (int) $ev->half : null;
-            $in_half   = isset( $ev->minute_in_half ) && $ev->minute_in_half !== null ? (int) $ev->minute_in_half : null;
+        foreach ( $exec->listGoalEvents( $execution_id ) as $ev ) {
+            // `isset()` is already false for null, so a further `!== null`
+            // would be dead.
+            $half      = isset( $ev->half ) ? (int) $ev->half : null;
+            $in_half   = isset( $ev->minute_in_half ) ? (int) $ev->minute_in_half : null;
             $player_id = (int) ( $ev->player_id ?? 0 );
             $own       = ! empty( $ev->is_own_goal );
             $for_them  = ( (string) ( $ev->team ?? 'home' ) ) === 'away';
