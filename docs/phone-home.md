@@ -93,6 +93,28 @@ The privacy boundary is locked in the code. The following fields **are not allow
 
 The mothership cannot enforce this — only the install can refuse to send. The CI check guards the `PayloadBuilder` source so a future change cannot leak any of the above fields without flipping a red CI job.
 
+## What comes back
+
+The mothership answers an accepted payload with a small JSON body, signed the same way the request was: `X-TTAC-Signature: sha256=<hex>` over the canonical JSON of the body, with the same secret.
+
+That answer is how your install learns which plan the academy is on:
+
+```json
+{ "ok": true, "entitlement": { "tier": "standard", "issued_at": 1770000000 } }
+```
+
+Your install stores the tier as its cached entitlement, so a plan change reaches it on the next daily send (or straight away through **Send now** on the Account tab).
+
+Your install is strict about what it accepts, and **never downgrades itself because something malformed came back**:
+
+- **No `entitlement` key** — the mothership has no opinion. The cached plan is kept, and ages out on its own 24-hour refresh window plus a 30-day grace period.
+- **A signature that does not verify** — the answer is ignored and the cached plan kept. This is logged at warning level, at most once per 24 hours (`admin_center.response_unverified`).
+- **A tier your install does not recognise** — ignored, and the cached plan kept. It is not treated as "no plan".
+- **`"tier": "free"`** — applied. This is a deliberate answer: the academy is not entitled to a plan, for example because its subscription was suspended.
+- **A non-2xx response** — the body is not read at all.
+
+The CI self-check covers this path too: a forged, tampered or foreign-signed answer, and an unknown tier, must never be applied.
+
 ## Failure modes
 
 - **Network error / DNS failure / 5xx** — silent. Retried on the next cron tick. Your install is unaffected.
@@ -102,7 +124,7 @@ The mothership cannot enforce this — only the install can refuse to send. The 
 ## Out of scope (for now)
 
 - **Reverse-pull from the mothership to your install** — the mothership cannot ask your install for more data. The daily roll-up is the only channel.
-- **Remote actions** — the mothership cannot push updates, override flags, or change configuration on your install. Read-only in v1.
+- **Remote actions** — the mothership cannot push updates, override flags, or change configuration on your install. The one thing it answers with is the academy's plan, described above, and your install decides whether to accept it.
 - **Opt-out** — no kill-switch, no constant, no environment variable.
 
 ## See also

@@ -94,6 +94,28 @@ De privacy-grens is in code vastgelegd. Onderstaande velden **mogen nooit** in d
 
 De mothership kan dit niet afdwingen — alleen de install kan weigeren te versturen. De CI-controle bewaakt de `PayloadBuilder`-source, dus een toekomstige wijziging kan geen van de bovenstaande velden lekken zonder een rode CI-job te activeren.
 
+## Wat er terugkomt
+
+De mothership beantwoordt geaccepteerde gegevens met een kleine JSON-body, op dezelfde manier ondertekend als het verzoek: `X-TTAC-Signature: sha256=<hex>` over de canonieke JSON van de body, met hetzelfde geheim.
+
+Via dat antwoord hoort je install op welk pakket de academie zit:
+
+```json
+{ "ok": true, "entitlement": { "tier": "standard", "issued_at": 1770000000 } }
+```
+
+Je install bewaart het pakket als gecachte entitlement, dus een wijziging van het pakket komt bij de volgende dagelijkse verzending binnen (of direct via **Nu verzenden** op het tabblad Account).
+
+Je install is streng in wat hij accepteert, en **zet zichzelf nooit een pakket lager omdat er iets onbruikbaars terugkwam**:
+
+- **Geen `entitlement`-sleutel** — de mothership heeft geen oordeel. Het gecachte pakket blijft staan en verloopt vanzelf na het verversingsvenster van 24 uur plus een respijtperiode van 30 dagen.
+- **Een handtekening die niet klopt** — het antwoord wordt genegeerd en het gecachte pakket blijft staan. Dit wordt gelogd op warning-niveau, maximaal één keer per 24 uur (`admin_center.response_unverified`).
+- **Een pakket dat je install niet kent** — genegeerd, het gecachte pakket blijft staan. Het wordt niet gelezen als "geen pakket".
+- **`"tier": "free"`** — toegepast. Dit is een bewust antwoord: de academie heeft geen recht op een pakket, bijvoorbeeld omdat het abonnement is opgeschort.
+- **Een antwoord zonder 2xx-status** — de body wordt helemaal niet gelezen.
+
+De CI-zelfcontrole dekt dit pad ook: een vervalst, gewijzigd of voor een andere install ondertekend antwoord, en een onbekend pakket, mogen nooit worden toegepast.
+
 ## Foutscenario's
 
 - **Netwerkfout / DNS-fout / 5xx** — stil. Wordt op de volgende cron-tick opnieuw geprobeerd. Je install merkt er niets van.
@@ -103,7 +125,7 @@ De mothership kan dit niet afdwingen — alleen de install kan weigeren te verst
 ## Buiten scope (voor nu)
 
 - **Reverse-pull van mothership naar je install** — de mothership kan je install niet om extra data vragen. De dagelijkse roll-up is het enige kanaal.
-- **Remote acties** — de mothership kan geen updates pushen, geen flags overschrijven en geen configuratie aanpassen op je install. Read-only in v1.
+- **Remote acties** — de mothership kan geen updates pushen, geen flags overschrijven en geen configuratie aanpassen op je install. Het enige waarmee hij antwoordt is het pakket van de academie, zoals hierboven beschreven, en je install beslist of hij dat accepteert.
 - **Opt-out** — geen kill-switch, geen constante, geen omgevingsvariabele.
 
 ## Zie ook
