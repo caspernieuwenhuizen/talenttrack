@@ -92,7 +92,7 @@ class FrontendMeasurementsView extends FrontendViewBase {
             foreach ( (array) ( $cat['tests'] ?? [] ) as $test ) {
                 $rows[] = self::registerRow( (array) $test );
             }
-            if ( $index === $bmi_cat ) {
+            if ( $bmi !== null && $index === $bmi_cat ) {
                 $rows[] = $bmi;
             }
             if ( $rows === [] ) continue;
@@ -488,16 +488,18 @@ class FrontendMeasurementsView extends FrontendViewBase {
         $series = ( new \TT\Modules\Measurements\Reports\BmiQuery() )->playerSeries( $player_id );
         if ( $series === [] ) return null;
 
-        $latest = $series[ count( $series ) - 1 ];
-        if ( ( $latest['bmi'] ?? null ) === null ) return null;
-
-        $covered = ( $latest['sds'] ?? null ) !== null && ( $latest['percentile'] ?? null ) !== null;
+        // `BmiQuery::playerSeries()` only emits a point once it has a usable
+        // height and weight pair, so `bmi` is a float by the time it is here;
+        // the percentile is the part that can be missing, when the growth
+        // reference does not cover this age and sex.
+        $latest  = $series[ count( $series ) - 1 ];
+        $covered = $latest['sds'] !== null && $latest['percentile'] !== null;
 
         return [
             'name'            => __( 'BMI-for-age', 'talenttrack' ),
             'frequency_label' => _x( 'derived', 'a value calculated from other measurements', 'talenttrack' ),
-            'value'           => number_format_i18n( (float) $latest['bmi'], 1 ),
-            'date'            => (string) ( $latest['date'] ?? '' ),
+            'value'           => number_format_i18n( $latest['bmi'], 1 ),
+            'date'            => $latest['date'],
             'chip_label'      => '',
             'chip_class'      => '',
             // The percentile is the standing this row can be read against, so

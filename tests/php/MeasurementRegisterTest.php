@@ -128,19 +128,18 @@ final class MeasurementRegisterTest extends WP_UnitTestCase {
     // ---------------------------------------------------------------
 
     public function test_a_verdict_is_stated_in_words_beside_the_colour(): void {
-        $this->record( $this->define( 'Yo-Yo', 'higher', 'annual', 'm' ), '2026-06-01', 1200.0 );
+        // A never-measured test always produces a chip, so this asserts
+        // something whatever the target rows on the install look like.
+        $this->define( 'Yo-Yo', 'higher', 'annual', 'm' );
+        $this->record( $this->define( 'Sprint 30m', 'lower', 'quarterly', 's' ), '2026-06-01', 4.5 );
 
         $html = $this->render();
 
-        // Whatever the flag resolves to on an install with no target rows, the
-        // chip class never appears without a word inside it.
-        foreach ( [ 'tt-meas-chip--ok', 'tt-meas-chip--warn', 'tt-meas-chip--bad' ] as $class ) {
-            if ( strpos( $html, $class ) === false ) continue;
-            $this->assertMatchesRegularExpression(
-                '/class="tt-meas-chip ' . preg_quote( $class, '/' ) . '"\>[^<]+\</',
-                $html,
-                'a coloured chip always carries its own words'
-            );
+        preg_match_all( '/class="tt-meas-chip[^"]*">([^<]*)</', $html, $matches );
+
+        $this->assertNotEmpty( $matches[1], 'the register renders at least one verdict chip' );
+        foreach ( $matches[1] as $label ) {
+            $this->assertNotSame( '', trim( $label ), 'a chip never carries colour without words' );
         }
     }
 

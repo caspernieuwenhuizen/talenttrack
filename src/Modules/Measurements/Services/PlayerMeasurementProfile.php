@@ -133,6 +133,12 @@ class PlayerMeasurementProfile {
             );
             $band = self::bandToEntryUnit( $band, $units );
 
+            // Read once and reused below: the latest date and the frequency
+            // are each wanted twice now, and asking the row twice would be a
+            // second place for the two answers to differ.
+            $latest_date = $latest_row ? (string) $latest_row->recorded_date : '';
+            $frequency   = (string) $def->frequency;
+
             $cat = (string) ( $def->category_label ?: $def->category_name ?: '' );
             if ( ! isset( $grouped[ $cat ] ) ) {
                 $grouped[ $cat ] = [ 'category' => $cat, 'tests' => [] ];
@@ -142,10 +148,10 @@ class PlayerMeasurementProfile {
                 'name'          => (string) $def->name,
                 'unit'          => $units->symbol(),
                 'value_type'    => (string) $def->value_type,
-                'frequency'     => (string) $def->frequency,
+                'frequency'     => $frequency,
                 'direction'     => (string) $def->direction,
                 'latest_value'  => $value,
-                'latest_date'   => $latest_row ? (string) $latest_row->recorded_date : '',
+                'latest_date'   => $latest_date,
                 'flag'          => $flag,
                 'level_token'   => $level_token,
                 'band'          => $band,
@@ -160,10 +166,7 @@ class PlayerMeasurementProfile {
                 // is a different sentence and is counted separately — calling
                 // it overdue would bury a trialist's blank profile in a list
                 // meant to chase up stale readings.
-                'overdue'       => self::isOverdue(
-                    $latest_row ? (string) $latest_row->recorded_date : '',
-                    (string) $def->frequency
-                ),
+                'overdue'       => self::isOverdue( $latest_date, $frequency ),
             ];
         }
 
@@ -295,10 +298,9 @@ class PlayerMeasurementProfile {
         $measured = strtotime( $latest_date );
         if ( $measured === false ) return false;
 
-        $due = strtotime( '+' . ( $months + 1 ) . ' months', $measured );
-        if ( $due === false ) return false;
-
-        return $due < time();
+        // Months rather than a day count, so "annual" means the same date next
+        // year whatever the month lengths in between.
+        return strtotime( '+' . ( $months + 1 ) . ' months', $measured ) < time();
     }
 
     private function ageGroupFor( int $player_id ): string {
