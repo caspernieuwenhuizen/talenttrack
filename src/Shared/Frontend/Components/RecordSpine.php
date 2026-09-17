@@ -31,11 +31,15 @@ use TT\Shared\Frontend\ShellPreference;
  *
  * Tabs are for surfaces whose sections are genuinely alternative views of
  * one record, and which one qualifies is a per-surface product call rather
- * than something to impose from a shared component. Team detail's sections
- * are individually toggleable per user (`TeamDetailSections::forUser()`);
- * converting them to tabs would quietly override a feature people already
- * rely on. Player detail keeps its own capability-gated strip, which §5c
- * grandfathers.
+ * than something to impose from a shared component. Player detail keeps its
+ * own capability-gated strip, which §5c grandfathers.
+ *
+ * Team detail (#3521) shows where the line falls. Its **section list** is
+ * individually toggleable per user (`TeamDetailSections::forUser()`) and does
+ * not become the tab list — eight tabs for eight panels would be worse than
+ * the scroll, and would quietly override a preference people already rely on.
+ * It carries exactly two tabs, Overview and Statistics, and the per-user
+ * preference goes on governing what appears *inside* Overview.
  *
  * There are two kinds, and a tab entry picks one by which key it carries:
  *

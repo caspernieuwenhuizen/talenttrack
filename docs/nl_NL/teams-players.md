@@ -171,6 +171,17 @@ De teampagina is opnieuw opgebouwd in de stijl van het [spelersprofiel](teams-pl
 - **In één oogopslag KPI's.** Aankomend (geplande activiteiten in de komende 14 dagen, linkt naar de planner) · Gem. aanwezigheid (laatste 30 dagen) · Gem. selectiebeoordeling (gemiddelde over de evaluaties van de selectie, op de beoordelingsschaal van de academie). De selectiebeoordeling-tegel wordt **alleen getoond aan gebruikers die evaluaties mogen inzien** — een assistent-trainer zonder inzagerechten op evaluaties ziet alleen Aankomend en Aanwezigheid, niet de teamscore. De getallen komen uit `TeamKpisRepository`, niet uit de view.
 - **Kaarten.** Roster, Staf, Teaminfo, Stagespelers (indien aanwezig), Aankomende activiteiten — elk een kaartpaneel. **Elke tabelrij is nu een hele-rij-link** (Roster → speler, Staf → persoon, Aankomende activiteiten → activiteit) — dit lost het oude probleem op dat "de tabel met aankomende activiteiten geen rij-klik had". De interne kolomlink blijft het toetsenbord- / hulptechnologiepad; middenklik en cmd/ctrl-klik openen in een nieuw tabblad.
 
+### Tabbladen Overzicht en Statistieken
+
+De teampagina heeft twee tabbladen, vastgezet onder de naam van het team: **Overzicht** en **Statistieken**.
+
+- **Overzicht** is de pagina zoals hierboven beschreven — alle kaarten, in dezelfde volgorde, en nog steeds bepaald door je persoonlijke keuze bij Aanpassen.
+- **Statistieken** toont wat het team op het veld liet zien: balans, recente vorm, doelpuntenmakers, assists en optredens. Dat komt in de volgende release; tot die tijd staat dat er ook, in plaats van een leeg paneel.
+
+Twee tabbladen, niet één per kaart. De sectielijst blijft waar hij hoort — onder Aanpassen, binnen Overzicht — want acht tabbladen voor acht kaarten leest slechter dan het scrollen dat ze zouden vervangen.
+
+Wisselen van tabblad laadt de pagina opnieuw (`?tt_view=teams&id=N&tab=stats`), en dat is met opzet: zo draait het openen van een selectie niet stilletjes ook de statistiekopvragingen. Een onbekende of ontbrekende `tab` opent Overzicht, zodat een oude bladwijzer nog steeds ergens zinnigs uitkomt, en de "terug naar…"-link waarmee je binnenkwam blijft bij het wisselen behouden.
+
 ### Aanpassen — secties per coach
 
 Een knop **Aanpassen** (alleen zichtbaar voor coaches die het team beheren) opent een paneel met sectie-schakelaars. De keuze is **persoonlijk voor die coach** en geldt voor **alle teams die hij/zij coacht** — het is geen clubbrede instelling en verandert niets aan wat anderen zien. De schakelbare secties zijn: Kerngegevens, In één oogopslag, Roster, Staf, Teaminfo, Stagespelers, Aankomende activiteiten. De hero wordt altijd getoond.

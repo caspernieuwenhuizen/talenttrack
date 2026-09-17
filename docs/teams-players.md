@@ -170,6 +170,17 @@ The team page is rebuilt to mirror the [player profile](teams-players.md#player-
 - **At-a-glance KPIs.** Upcoming (planned activities in the next 14 days, links to the planner) · Avg attendance (last 30 days) · Avg squad rating (mean across the roster's evaluations, shown on the academy's rating scale). The squad-rating tile is **only shown to users who may view evaluations** — an assistant trainer without evaluation-view rights sees just Upcoming and Attendance, not the team score. Numbers come from `TeamKpisRepository`, not the view.
 - **Cards.** Roster, Staff, Team info, Trial roster (when present), Upcoming activities — each a card panel. **Every table row is now a whole-row link** (Roster → player, Staff → person, Upcoming activities → activity) — this fixes the long-standing "the upcoming activity table has no row click". The inner per-column link stays the keyboard / assistive-tech path; middle-click and cmd/ctrl-click open in a new tab.
 
+### Overview and Statistics tabs
+
+The team page carries two tabs, pinned under the team's name: **Overview** and **Statistics**.
+
+- **Overview** is the page as described above — every card, in the same order, and still governed by your personal Customize choice.
+- **Statistics** is the team's match output: record, recent form, scorers, assists and appearances. It fills in the next release; for now it says so rather than opening onto a blank panel.
+
+Two tabs, not one per card. The section list stays where it belongs — under Customize, inside Overview — because eight tabs for eight cards would be harder to read than the scroll they replaced.
+
+Switching tabs reloads the page (`?tt_view=teams&id=N&tab=stats`), which is deliberate: it means opening a roster does not quietly run the statistics queries as well. An unknown or missing `tab` opens Overview, so an old bookmark still lands somewhere sensible, and the "back to…" link you arrived with survives a tab switch.
+
 ### Customize — per-coach sections
 
 A **Customize** button (visible only to coaches who manage the team) opens a panel of section toggles. The choice is **personal to that coach** and applies across **every team they coach** — it is not a club-wide setting and doesn't change what anyone else sees. The toggleable sections are: Key facts, At a glance, Roster, Staff, Team info, Trial roster, Upcoming activities. The hero always shows.

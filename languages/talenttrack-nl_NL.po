@@ -62435,6 +62435,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendTeamDetailView.php:274
+msgid "Match statistics for this team are coming in the next release."
+msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
+
 #~ msgid ""
 #~ "These tests have no target and no direction — a higher or lower value is "
 #~ "not better. The readings are shown per date, without a verdict."
