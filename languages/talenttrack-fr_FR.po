@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-17T04:18:39+00:00\n"
+"POT-Creation-Date: 2026-09-17T15:34:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -25663,10 +25663,14 @@ msgid ""
 "caps do not apply, and there is no plan to show."
 msgstr ""
 
+#: src/Modules/License/Frontend/SubscriptionBanner.php:50
+msgid "Hide this message for now"
+msgstr ""
+
 #. translators: 1: feature name, 2: required plan label
 #. translators: 1: feature name, 2: plan name, e.g. "Pro"
 #: src/Modules/License/LicenseGate.php:168
-#: src/Modules/License/UpgradePanel.php:106
+#: src/Modules/License/UpgradePanel.php:113
 #, php-format
 msgid "%1$s is part of the %2$s plan, which this install is not on."
 msgstr ""
@@ -25679,40 +25683,71 @@ msgstr ""
 msgid "You have reached the limit of 25 players on this plan."
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:140
+#: src/Modules/License/SubscriptionStatus.php:79
+msgid ""
+"This academy’s TalentTrack subscription has ended. Your data is safe and "
+"nothing has been deleted."
+msgstr ""
+
+#: src/Modules/License/SubscriptionStatus.php:80
+msgid ""
+"This academy’s TalentTrack subscription is suspended. Your data is safe and "
+"nothing has been deleted."
+msgstr ""
+
+#: src/Modules/License/SubscriptionStatus.php:88
+msgid ""
+"Existing records stay readable for now. The data is kept for a retention "
+"period, and your club administrator should expect a message about returning "
+"or deleting it."
+msgstr ""
+
+#: src/Modules/License/SubscriptionStatus.php:89
+msgid ""
+"Existing records stay readable, but some features are unavailable until the "
+"subscription is resumed. Contact your club administrator."
+msgstr ""
+
+#. translators: %s: feature name
+#: src/Modules/License/UpgradePanel.php:107
+#, php-format
+msgid "%s is unavailable while this academy’s subscription is interrupted."
+msgstr ""
+
+#: src/Modules/License/UpgradePanel.php:147
 msgid "Link no longer active"
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:143
+#: src/Modules/License/UpgradePanel.php:150
 msgid "This share link has been switched off"
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:146
+#: src/Modules/License/UpgradePanel.php:153
 msgid ""
 "The club that sent you this link is no longer sharing documents outside the "
 "app. Nothing has been deleted and nothing has gone wrong at your end — the "
 "club still has everything it wrote. Ask them for what you need directly."
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:170
+#: src/Modules/License/UpgradePanel.php:181
 msgid ""
 "Nothing has been removed — everything already recorded stays exactly as it "
 "is. You just cannot add past the limit until the plan changes."
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:174
-#: src/Modules/License/UpgradePanel.php:224
+#: src/Modules/License/UpgradePanel.php:185
+#: src/Modules/License/UpgradePanel.php:239
 msgid "See the plan"
 msgstr ""
 
 #. translators: %s: plan name, e.g. "Pro"
-#: src/Modules/License/UpgradePanel.php:198
+#: src/Modules/License/UpgradePanel.php:213
 #, php-format
 msgid "On the %s plan"
 msgstr ""
 
 #. translators: 1: feature name, 2: plan name
-#: src/Modules/License/UpgradePanel.php:208
+#: src/Modules/License/UpgradePanel.php:223
 #, php-format
 msgid ""
 "%1$s is part of the %2$s plan, so it is switched off on this install. The "
@@ -25720,10 +25755,18 @@ msgid ""
 "adds."
 msgstr ""
 
-#: src/Modules/License/UpgradePanel.php:216
+#: src/Modules/License/UpgradePanel.php:231
 msgid ""
 "Anything already recorded here stays readable and exportable. Only new "
 "entries are blocked."
+msgstr ""
+
+#: src/Modules/License/UpgradePanel.php:265
+msgid "Subscription ended"
+msgstr ""
+
+#: src/Modules/License/UpgradePanel.php:266
+msgid "Subscription suspended"
 msgstr ""
 
 #: src/Modules/MatchAnalysis/Alerts/MatchAnalysisMissingAlert.php:72
