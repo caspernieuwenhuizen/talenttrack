@@ -199,6 +199,7 @@ final class TeamMatchStatsQuery {
         $p     = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
 
+        /** @var list<object>|null $rows */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
@@ -216,7 +217,7 @@ final class TeamMatchStatsQuery {
             $team_id, CurrentClub::id(), $from, $to
         ) );
 
-        return is_array( $rows ) ? $rows : [];
+        return $rows ?? [];
     }
 
     /**

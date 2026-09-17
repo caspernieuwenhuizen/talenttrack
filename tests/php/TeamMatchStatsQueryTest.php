@@ -286,6 +286,12 @@ final class TeamMatchStatsQueryTest extends WP_UnitTestCase {
     }
 
     public function test_no_current_season_falls_back_to_all_time_and_says_so(): void {
+        // Installs seed a season, so this case has to be made rather than
+        // assumed — which is the point: the fallback is for the install that
+        // has none, and it must not hand back an empty screen.
+        global $wpdb;
+        $wpdb->query( "UPDATE {$wpdb->prefix}tt_seasons SET is_current = 0" );
+
         $window = ( new TeamMatchStatsQuery() )->forTeam( self::TEAM_ID )['window'];
 
         $this->assertSame( 'all_time', $window['source'], 'an empty screen the coach cannot explain is the wrong answer' );
