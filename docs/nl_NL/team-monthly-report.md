@@ -138,6 +138,7 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
   vorige periode uitzag.
 - **Aanwezigheid** en **Minutenaandeel** — per speler, met links naar de
   volledige rapporten over aanwezigheid en minuten.
+- **Wedstrijden** — uitslagen en wedstrijdstatistieken. Zie hieronder.
 - **Gesprek nodig** — de spelers die het statusmodel signaleert, dringendste
   eerst, met wat de gegevens over ze zeggen. Dit is de agenda van het overleg.
 - **Wat veranderde** — blessures, wijzigingen van positie of team, besluiten in
@@ -161,6 +162,40 @@ afdruk op dezelfde plek staat. Spelers zonder rugnummer staan onderaan, op
 alfabet. Twee tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
 gespeeld aandeel en **Gesprek nodig** op urgentie — daar is de volgorde zelf de
 uitkomst.
+
+## De sectie Wedstrijden
+
+Het rapport zei veel over ontwikkeling en niets over uitslagen, dus werd de
+stand van iemands telefoon gelezen. **Wedstrijden** zet ze in het document, uit
+wat al is vastgelegd.
+
+De sectie heeft drie onderdelen, elk met een eigen vinkje in het paneel:
+
+- **Standen** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen,
+  en het saldo. Standaard aan.
+- **Doelpunten en assists** — per speler over de periode. Standaard aan.
+- **Selectie en minuten per wedstrijd** — wie speelde er en hoe lang.
+  Standaard **uit**: het is het langste onderdeel en herhaalt wat de sectie
+  Minutenaandeel al toont.
+
+Daaronder staat elke wedstrijd met datum, tegenstander, thuis of uit, en de
+uitslag.
+
+Twee dingen doet de sectie bewust niet:
+
+- **Een wedstrijd zonder vastgelegde uitslag staat er wel bij, maar telt niet
+  mee** in gewonnen, gelijk of verloren; de sectie zegt om hoeveel wedstrijden
+  het gaat. Een ontbrekende uitslag als 0–0 behandelen zou de stand stilletjes
+  verkeerd maken, en dat is erger dan een zichtbaar gat. Wil je de stand
+  compleet, vul dan de uitslag bij de wedstrijd in.
+- **Toernooien blijven buiten beschouwing.** Een toernooi is een dag met
+  meerdere wedstrijden, en één uitslagregel kan dat niet beschrijven. Vallen er
+  toernooien in de periode, dan zegt de sectie dat erbij, zodat je je niet
+  afvraagt waarom de stand niet klopt met wat je je herinnert.
+
+Is bij een wedstrijd niet vastgelegd of die thuis of uit was, dan staat de
+tegenstander er zonder die vermelding bij — liever dat dan gokken hoe de
+uitslag om moet staan.
 
 ## Wie het kan zien
 

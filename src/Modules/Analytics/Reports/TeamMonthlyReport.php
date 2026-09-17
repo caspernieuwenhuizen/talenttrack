@@ -12,6 +12,7 @@ use TT\Infrastructure\PlayerStatus\StatusVerdict;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Teams\TeamKpisRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
 use TT\Modules\Analytics\EvalCoverageService;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
@@ -228,6 +229,7 @@ final class TeamMonthlyReport {
             case TeamMonthlyReportBlock::STATUS:     return $this->status( $previous );
             case TeamMonthlyReportBlock::ATTENDANCE: return $this->attendanceBlock();
             case TeamMonthlyReportBlock::MINUTES:    return $this->minutesBlock();
+            case TeamMonthlyReportBlock::MATCHES:    return $this->matches( $this->optionsFor( TeamMonthlyReportBlock::MATCHES ) );
             case TeamMonthlyReportBlock::ATTENTION:  return $this->attention();
             case TeamMonthlyReportBlock::CHANGES:    return $this->changes();
             case TeamMonthlyReportBlock::TESTS:      return $this->tests( $this->optionsFor( TeamMonthlyReportBlock::TESTS ) );
@@ -531,6 +533,123 @@ final class TeamMonthlyReport {
             'events'        => $items,
             'open_injuries' => count( ( new InjuryRepository() )->listForTeams( [ $this->team_id ], [ 'status' => 'open' ] ) ),
         ];
+    }
+
+    /**
+     * Results and match statistics (#3516).
+     *
+     * The report said a great deal about development and nothing about
+     * results, so the score got read off somebody's phone. The data was
+     * already recorded; nothing here writes anything new.
+     *
+     * Three parts, each switchable — see `MatchesBlockOptions`. There is no
+     * separate results list: the per-match rows carry date, opponent,
+     * home/away and score, so a second table would repeat them.
+     *
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    private function matches( array $options = [] ): array {
+        $activities = ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to );
+
+        $out = [
+            // Tournaments are multi-game days (#2686): one score line cannot
+            // describe one, so they are left out of everything below. The
+            // count is carried so the section can *say* so — a record that
+            // quietly disagrees with what the coach remembers is worse than
+            // one that explains itself.
+            'tournaments_excluded' => ( new ActivitiesRepository() )->tournamentCountInWindow( $this->team_id, $this->from, $this->to ),
+            'shows'                => [
+                'record'  => MatchesBlockOptions::shows( $options, MatchesBlockOptions::RECORD ),
+                'scorers' => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SCORERS ),
+                'squads'  => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SQUADS ),
+            ],
+            'record'   => self::matchRecord( $activities ),
+            'fixtures' => [],
+            'scorers'  => [],
+        ];
+
+        $jerseys = PlayerOrder::jerseys( $this->players() );
+        $names   = [];
+        foreach ( $this->players() as $player ) {
+            $names[ (int) ( $player->id ?? 0 ) ] = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
+        }
+
+        if ( $out['shows']['scorers'] ) {
+            $contributions = ( new GoalContributionQuery() )->forTeam( $this->team_id, [ 'from' => $this->from, 'to' => $this->to ] );
+            $rows = [];
+            foreach ( $contributions as $player_id => $c ) {
+                $player_id = (int) $player_id;
+                $goals     = (int) $c['goals'];
+                $assists   = (int) $c['assists'];
+                if ( $goals === 0 && $assists === 0 ) continue;
+
+                $rows[] = [
+                    'player_id' => $player_id,
+                    'name'      => $names[ $player_id ] ?? '',
+                    'goals'     => $goals,
+                    'assists'   => $assists,
+                ];
+            }
+            $out['scorers'] = PlayerOrder::sort( $rows, $jerseys );
+        }
+
+        foreach ( $activities as $a ) {
+            $fixture = $a + [ 'squad' => [] ];
+
+            if ( $out['shows']['squads'] ) {
+                $minutes = MinutesQuery::squadForActivity( $a['activity_id'] );
+                $squad   = [];
+                foreach ( $minutes as $player_id => $played ) {
+                    $squad[] = [
+                        'player_id' => (int) $player_id,
+                        'name'      => $names[ (int) $player_id ] ?? '',
+                        'minutes'   => (int) $played,
+                    ];
+                }
+                $fixture['squad'] = PlayerOrder::sort( $squad, $jerseys );
+            }
+
+            $out['fixtures'][] = $fixture;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Played, won, drawn, lost and goals, over the fixtures given.
+     *
+     * **A match with no score recorded counts as played and nothing else.** It
+     * happens constantly — the match was played, nobody typed the result — and
+     * treating it as a goalless draw would make the record quietly wrong,
+     * which is worse than an obvious gap. It is counted separately so the
+     * section can show the gap.
+     *
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $activities
+     * @return array<string,int>
+     */
+    private static function matchRecord( array $activities ): array {
+        $record = [
+            'played' => 0, 'won' => 0, 'drawn' => 0, 'lost' => 0,
+            'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0,
+            'without_score' => 0,
+        ];
+
+        foreach ( $activities as $a ) {
+            $record['played']++;
+            if ( $a['outcome'] === '' ) {
+                $record['without_score']++;
+                continue;
+            }
+            if ( $a['outcome'] === 'W' ) $record['won']++;
+            if ( $a['outcome'] === 'D' ) $record['drawn']++;
+            if ( $a['outcome'] === 'L' ) $record['lost']++;
+            $record['goals_for']     += (int) $a['team_score'];
+            $record['goals_against'] += (int) $a['opp_score'];
+        }
+        $record['goal_difference'] = $record['goals_for'] - $record['goals_against'];
+
+        return $record;
     }
 
     /**

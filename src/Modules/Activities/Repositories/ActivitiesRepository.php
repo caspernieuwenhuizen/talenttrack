@@ -1641,6 +1641,119 @@ final class ActivitiesRepository {
         return $rows;
     }
 
+    /**
+     * #3516 — the team's fixtures in a date window, for the monthly report's
+     * match section. Result framed from the team's perspective where a score
+     * was recorded; `null` scores where it was not.
+     *
+     * **Tournaments are excluded.** A tournament is a multi-game day (#2686)
+     * and one score line cannot describe one, so counting it would make the
+     * record disagree with what the coach remembers. They are reported
+     * separately by {@see tournamentCountInWindow()} so the section can say
+     * they were left out rather than silently dropping them.
+     *
+     * Unlike {@see recentResultsForTeam()} this keeps matches with no score:
+     * the match happened and nobody typed the result, which the report must
+     * show as a gap rather than as a goalless draw.
+     *
+     * Returns array shapes rather than rows, unlike its older neighbour: the
+     * result is derived (`team_score` and `outcome` do not exist as columns),
+     * and a shape says exactly what a caller may read.
+     *
+     * @return list<array{activity_id:int, date:string, opponent:string, home_away:string,
+     *         team_score:int|null, opp_score:int|null, outcome:string}>
+     */
+    public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
+        if ( $team_id <= 0 ) return [];
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        // Deliberately NOT MATCH_LIKE_SQL: that includes tournaments.
+        $game       = ActivityTypeKey::GAME;
+        $legacy     = ActivityTypeKey::LEGACY_GAME;
+        $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.{$date_col} AS session_date, a.opponent, a.home_away,
+                    a.home_score, a.away_score
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND LOWER(a.activity_type_key) IN ( %s, %s )
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                {$scope}
+           ORDER BY a.{$date_col} ASC, a.id ASC",
+            $team_id, CurrentClub::id(), $game, $legacy, $from, $to
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $home_away = (string) ( $r->home_away ?? '' );
+            $has_score = $r->home_score !== null && $r->away_score !== null;
+
+            // The academy team is 'home' unless the row says 'away'.
+            $is_home    = $home_away !== 'away';
+            $team_score = $has_score ? (int) ( $is_home ? $r->home_score : $r->away_score ) : null;
+            $opp_score  = $has_score ? (int) ( $is_home ? $r->away_score : $r->home_score ) : null;
+
+            // No score recorded means no outcome, which is what keeps the match
+            // out of won/drawn/lost rather than counting as a goalless draw.
+            $outcome = '';
+            if ( $has_score ) {
+                $outcome = $team_score > $opp_score ? 'W' : ( $team_score < $opp_score ? 'L' : 'D' );
+            }
+
+            $out[] = [
+                'activity_id' => (int) $r->id,
+                'date'        => (string) ( $r->session_date ?? '' ),
+                'opponent'    => (string) ( $r->opponent ?? '' ),
+                'home_away'   => $home_away,
+                'team_score'  => $team_score,
+                'opp_score'   => $opp_score,
+                'outcome'     => $outcome,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * #3516 — how many tournaments fall in the window, so the match section can
+     * say they were left out. Zero means the section says nothing about them.
+     */
+    public function tournamentCountInWindow( int $team_id, string $from, string $to ): int {
+        if ( $team_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $scope    = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND LOWER(a.activity_type_key) = %s
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                {$scope}",
+            $team_id, CurrentClub::id(), ActivityTypeKey::TOURNAMENT, $from, $to
+        ) );
+    }
+
     // ──────────────────────────────────────────────────────────────
     // #1712 — REST query-shape methods. The activities REST controller
     // previously inlined ~19 `$wpdb` sites against tt_activities /
