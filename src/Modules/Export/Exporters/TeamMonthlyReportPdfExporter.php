@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Export\Domain\ExportRequest;
@@ -86,12 +87,25 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
             if ( TeamMonthlyReportBlock::isValid( $key ) ) $blocks[] = $key;
         }
 
+        $blocks = array_values( array_unique( $blocks ) );
+
+        // #3514 — per-block options, forgiving for the same reason the block
+        // list above is: this filter set arrives from a hand-editable URL, a
+        // saved view and a schedule's stored copy, and a report that refuses
+        // to print because a test was deleted in March is worse than one that
+        // prints without it.
+        $options = TeamMonthlyReportComposition::normalise( [
+            'blocks'  => $blocks,
+            'options' => $raw['options'] ?? null,
+        ] )['options'];
+
         return [
             'team_id' => $team_id,
             'from'    => $from,
             'to'      => $to,
             'layout'  => $layout,
-            'blocks'  => array_values( array_unique( $blocks ) ),
+            'blocks'  => $blocks,
+            'options' => $options,
         ];
     }
 

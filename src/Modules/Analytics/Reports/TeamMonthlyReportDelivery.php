@@ -41,7 +41,7 @@ final class TeamMonthlyReportDelivery {
      * Everything about a run except the PDF bytes.
      *
      * @param array<string,mixed> $schedule a hydrated `ScheduledReportsRepository` row.
-     * @return array{ok:bool, stop:bool, error:string, composition:array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, team_name:string, owner:int, filename:string, label:string}
+     * @return array{ok:bool, stop:bool, error:string, composition:array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, team_name:string, owner:int, filename:string, label:string}
      */
     public static function plan( array $schedule, string $today ): array {
         $raw         = is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [];
