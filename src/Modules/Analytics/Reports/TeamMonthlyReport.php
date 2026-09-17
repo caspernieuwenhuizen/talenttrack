@@ -370,6 +370,11 @@ final class TeamMonthlyReport {
                 'flagged'     => $r['flagged'],
             ];
         }
+        // #3518 — shirt order. The rows come from the shared attendance
+        // ranking query, which other surfaces order for their own reasons, so
+        // the report sorts its own copy rather than changing that query.
+        $rows = PlayerOrder::sort( $rows, PlayerOrder::jerseys( $this->players() ) );
+
         return [
             'team_avg_pct' => $n > 0 ? round( $sum / $n, 1 ) : null,
             'amber_below'  => self::ATTENDANCE_AMBER_BELOW,
@@ -522,6 +527,7 @@ final class TeamMonthlyReport {
             }
 
             $definition = $trend['definition'];
+            $jerseys    = PlayerOrder::jerseys( $this->players() );
             $out[] = [
                 'definition_id' => $def_id,
                 'name'          => is_array( $definition ) ? (string) ( $definition['name'] ?? '' ) : (string) ( $s->definition_name ?? '' ),
@@ -529,8 +535,10 @@ final class TeamMonthlyReport {
                 'date'          => $date,
                 'tested'        => $tested,
                 'squad'         => $squad,
-                'improved'      => $improved,
-                'declined'      => $declined,
+                // #3518 — these are player lists, so they read in shirt order
+                // like every other player list in the report.
+                'improved'      => PlayerOrder::sort( $improved, $jerseys ),
+                'declined'      => PlayerOrder::sort( $declined, $jerseys ),
             ];
         }
 
@@ -650,7 +658,7 @@ final class TeamMonthlyReport {
                     AND p.club_id = %d
                     AND p.status = 'active'
                     AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
-                  ORDER BY p.last_name ASC, p.first_name ASC",
+                  ORDER BY " . PlayerOrder::sqlOrderBy( 'p' ),
                 $this->team_id, CurrentClub::id()
             ) );
             $out = [];
