@@ -88,7 +88,7 @@ final class PayloadBuilder {
 
             // #3494 — what the club records, not whether anybody logged
             // in. Club-wide counts only: never a player id, a name or text.
-            'value_signals' => self::valueSignals( $wpdb ),
+            'value_signals' => self::valueSignals(),
         ];
     }
 
@@ -111,7 +111,9 @@ final class PayloadBuilder {
      *
      * @return array{attendance_recorded_30d:int, minutes_recorded_30d:int, evaluations_recorded_30d:int, pdps_active:int, goals_active:int}
      */
-    public static function valueSignals( $wpdb ): array {
+    public static function valueSignals(): array {
+        global $wpdb;
+
         $out = [
             'attendance_recorded_30d'  => 0,
             'minutes_recorded_30d'     => 0,
@@ -119,7 +121,6 @@ final class PayloadBuilder {
             'pdps_active'              => 0,
             'goals_active'             => 0,
         ];
-        if ( ! is_object( $wpdb ) ) return $out;
 
         $p     = $wpdb->prefix;
         $since = gmdate( 'Y-m-d', time() - 30 * DAY_IN_SECONDS );
@@ -127,7 +128,7 @@ final class PayloadBuilder {
         // A register is `record_type = 'actual'`: a planned roster is not
         // a register, and counting it would call a club that only plans
         // its trainings a club that records them.
-        if ( self::tableExists( $wpdb, 'tt_attendance' ) && self::tableExists( $wpdb, 'tt_activities' ) ) {
+        if ( self::tableExists( 'tt_attendance' ) && self::tableExists( 'tt_activities' ) ) {
             $out['attendance_recorded_30d'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(DISTINCT act.id)
                    FROM {$p}tt_activities act
@@ -146,14 +147,14 @@ final class PayloadBuilder {
             ) );
         }
 
-        if ( self::tableExists( $wpdb, 'tt_evaluations' ) ) {
+        if ( self::tableExists( 'tt_evaluations' ) ) {
             $out['evaluations_recorded_30d'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND created_at >= %s",
                 $since . ' 00:00:00'
             ) );
         }
 
-        if ( self::tableExists( $wpdb, 'tt_pdp_files' ) ) {
+        if ( self::tableExists( 'tt_pdp_files' ) ) {
             $out['pdps_active'] = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM {$p}tt_pdp_files WHERE archived_at IS NULL AND status NOT IN ('completed','archived')"
             );
@@ -161,7 +162,7 @@ final class PayloadBuilder {
 
         // The stored status, not a derived bucket: the two have disagreed
         // before (#3396). Open is anything not completed or cancelled.
-        if ( self::tableExists( $wpdb, 'tt_goals' ) ) {
+        if ( self::tableExists( 'tt_goals' ) ) {
             $out['goals_active'] = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND ( status IS NULL OR status NOT IN ('completed','cancelled') )"
             );
@@ -170,7 +171,8 @@ final class PayloadBuilder {
         return $out;
     }
 
-    private static function tableExists( $wpdb, string $table ): bool {
+    private static function tableExists( string $table ): bool {
+        global $wpdb;
         return (string) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . $table ) ) === $wpdb->prefix . $table;
     }
 

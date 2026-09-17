@@ -21,7 +21,7 @@ final class ValueSignalsTest extends WP_UnitTestCase {
         $today = gmdate( 'Y-m-d' );
         $old   = gmdate( 'Y-m-d', time() - 60 * DAY_IN_SECONDS );
 
-        $before = PayloadBuilder::valueSignals( $wpdb );
+        $before = PayloadBuilder::valueSignals();
 
         $recorded = $this->activity( $today );
         $wpdb->insert( "{$p}tt_attendance", [ 'club_id' => 1, 'activity_id' => $recorded, 'player_id' => 1, 'status' => 'present', 'record_type' => 'actual', 'minutes_played' => 60 ] );
@@ -45,7 +45,7 @@ final class ValueSignalsTest extends WP_UnitTestCase {
             $wpdb->insert( "{$p}tt_goals", [ 'club_id' => 1, 'player_id' => 1, 'title' => 'Goal', 'status' => $status, 'created_by' => 1 ] );
         }
 
-        $after = PayloadBuilder::valueSignals( $wpdb );
+        $after = PayloadBuilder::valueSignals();
 
         $this->assertSame( 2, $after['attendance_recorded_30d'] - $before['attendance_recorded_30d'], 'Recorded registers in the window count; a plan-only activity and an old one do not.' );
         $this->assertSame( 1, $after['minutes_recorded_30d'] - $before['minutes_recorded_30d'], 'Only an activity with minutes on a recorded register counts.' );
