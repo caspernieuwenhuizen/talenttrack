@@ -580,8 +580,8 @@ final class TeamMonthlyReport {
             $rows = [];
             foreach ( $contributions as $player_id => $c ) {
                 $player_id = (int) $player_id;
-                $goals     = (int) ( $c['goals'] ?? 0 );
-                $assists   = (int) ( $c['assists'] ?? 0 );
+                $goals     = (int) $c['goals'];
+                $assists   = (int) $c['assists'];
                 if ( $goals === 0 && $assists === 0 ) continue;
 
                 $rows[] = [
@@ -595,19 +595,10 @@ final class TeamMonthlyReport {
         }
 
         foreach ( $activities as $a ) {
-            $fixture = [
-                'activity_id' => (int) $a->id,
-                'date'        => (string) ( $a->session_date ?? '' ),
-                'opponent'    => (string) ( $a->opponent ?? '' ),
-                'home_away'   => (string) ( $a->home_away ?? '' ),
-                'team_score'  => $a->team_score,
-                'opp_score'   => $a->opp_score,
-                'outcome'     => (string) ( $a->outcome ?? '' ),
-                'squad'       => [],
-            ];
+            $fixture = $a + [ 'squad' => [] ];
 
             if ( $out['shows']['squads'] ) {
-                $minutes = MinutesQuery::squadForActivity( (int) $a->id );
+                $minutes = MinutesQuery::squadForActivity( $a['activity_id'] );
                 $squad   = [];
                 foreach ( $minutes as $player_id => $played ) {
                     $squad[] = [
@@ -634,7 +625,7 @@ final class TeamMonthlyReport {
      * which is worse than an obvious gap. It is counted separately so the
      * section can show the gap.
      *
-     * @param array<int,object> $activities
+     * @param list<array{outcome:string, team_score:int|null, opp_score:int|null}> $activities
      * @return array<string,int>
      */
     private static function matchRecord( array $activities ): array {
@@ -646,15 +637,15 @@ final class TeamMonthlyReport {
 
         foreach ( $activities as $a ) {
             $record['played']++;
-            if ( (string) ( $a->outcome ?? '' ) === '' ) {
+            if ( $a['outcome'] === '' ) {
                 $record['without_score']++;
                 continue;
             }
-            if ( $a->outcome === 'W' ) $record['won']++;
-            if ( $a->outcome === 'D' ) $record['drawn']++;
-            if ( $a->outcome === 'L' ) $record['lost']++;
-            $record['goals_for']     += (int) $a->team_score;
-            $record['goals_against'] += (int) $a->opp_score;
+            if ( $a['outcome'] === 'W' ) $record['won']++;
+            if ( $a['outcome'] === 'D' ) $record['drawn']++;
+            if ( $a['outcome'] === 'L' ) $record['lost']++;
+            $record['goals_for']     += (int) $a['team_score'];
+            $record['goals_against'] += (int) $a['opp_score'];
         }
         $record['goal_difference'] = $record['goals_for'] - $record['goals_against'];
 

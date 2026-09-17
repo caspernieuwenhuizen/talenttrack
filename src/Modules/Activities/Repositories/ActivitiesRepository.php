@@ -1656,8 +1656,12 @@ final class ActivitiesRepository {
      * the match happened and nobody typed the result, which the report must
      * show as a gap rather than as a goalless draw.
      *
-     * @return array<int, object> rows with id, title, session_date, opponent,
-     *         home_away, team_score, opp_score, outcome ('W'|'D'|'L'|'')
+     * Returns array shapes rather than rows, unlike its older neighbour: the
+     * result is derived (`team_score` and `outcome` do not exist as columns),
+     * and a shape says exactly what a caller may read.
+     *
+     * @return list<array{activity_id:int, date:string, opponent:string, home_away:string,
+     *         team_score:int|null, opp_score:int|null, outcome:string}>
      */
     public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
         if ( $team_id <= 0 ) return [];
@@ -1690,23 +1694,33 @@ final class ActivitiesRepository {
         ) );
         if ( ! is_array( $rows ) ) return [];
 
+        $out = [];
         foreach ( $rows as $r ) {
+            $home_away = (string) ( $r->home_away ?? '' );
             $has_score = $r->home_score !== null && $r->away_score !== null;
-            if ( ! $has_score ) {
-                $r->team_score = null;
-                $r->opp_score  = null;
-                $r->outcome    = '';
-                continue;
-            }
+
             // The academy team is 'home' unless the row says 'away'.
-            $is_home       = ( (string) ( $r->home_away ?? '' ) ) !== 'away';
-            $r->team_score = (int) ( $is_home ? $r->home_score : $r->away_score );
-            $r->opp_score  = (int) ( $is_home ? $r->away_score : $r->home_score );
-            $r->outcome    = $r->team_score > $r->opp_score ? 'W'
-                           : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
+            $is_home    = $home_away !== 'away';
+            $team_score = $has_score ? (int) ( $is_home ? $r->home_score : $r->away_score ) : null;
+            $opp_score  = $has_score ? (int) ( $is_home ? $r->away_score : $r->home_score ) : null;
+
+            $outcome = '';
+            if ( $team_score !== null && $opp_score !== null ) {
+                $outcome = $team_score > $opp_score ? 'W' : ( $team_score < $opp_score ? 'L' : 'D' );
+            }
+
+            $out[] = [
+                'activity_id' => (int) $r->id,
+                'date'        => (string) ( $r->session_date ?? '' ),
+                'opponent'    => (string) ( $r->opponent ?? '' ),
+                'home_away'   => $home_away,
+                'team_score'  => $team_score,
+                'opp_score'   => $opp_score,
+                'outcome'     => $outcome,
+            ];
         }
 
-        return $rows;
+        return $out;
     }
 
     /**
