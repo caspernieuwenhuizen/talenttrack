@@ -565,6 +565,67 @@ value are dropped server-side rather than rendered blank. **Read-only in v1** �
 editing inside a panel means a second save path and a stale-parent problem, on a
 surface whose job is orientation rather than data entry.
 
+## Team match statistics (#3520, epic #3519)
+
+### `GET /teams/{id}/stats?from=&to=`
+
+A team's match output over a window: record, recent form, scorers, assists,
+appearances. Composition only — the payload is the domain query's shape, so the
+statistics tab and a non-WordPress front end cannot disagree about a record.
+
+**Two scopes, deliberately different.** A tournament is a multi-game day
+(#2686), so one scoreline cannot describe it:
+
+- **`record` and `form` are per fixture** and **exclude tournaments**. The
+  tournaments that fall in the window are counted in
+  `record.tournaments_excluded` so the caller can say so out loud instead of
+  the record quietly not matching what the coach remembers.
+- **`scorers`, `assists` and `appearances` are per player** and **include
+  tournaments**. A goal at a tournament is still that player's goal.
+
+**A match with no score recorded** lands in `record.without_a_score` and counts
+toward neither `played` nor W/D/L — a silent 0–0 would make the record wrong.
+Only fixtures whose date has passed are considered, so next week's league game
+is not a missing result.
+
+**Clean sheets** are finished fixtures with the opponent on zero. Team-level and
+unattributed: the plugin records no per-match goalkeeper, so crediting one would
+be a guess printed as a fact.
+
+**Window.** `from` + `to` (`Y-m-d`), both or neither; half a window, a malformed
+date, or `from` after `to` is `400`. Without them the window is the current
+season. An install with no current season falls back to all time and reports
+which rule it used in `window.source` (`season` | `custom` | `all_time`), so
+"12 played" is never ambiguous about *when*.
+
+**Permission.** `tt_view_teams` (or `tt_edit_teams`) **and**
+`AllTeamsScope::canReadTeam()`. The second is not optional: the cap is club-wide
+on `tt_coach`, so the cap alone would hand a head coach every squad in the
+academy — the same leak #3152 closed on the sibling routes.
+
+**Composed, not recomputed.** Goals and assists come from
+`GoalContributionQuery`, appearances and minutes from `MinutesQuery`; only the
+record is new SQL. Goals here therefore reconcile exactly with the minutes
+report's goals rather than approximately.
+
+```json
+{ "team_id": 12,
+  "window": { "from": "2025-08-01", "to": "2026-06-30", "source": "season", "season": "2025/26" },
+  "record": { "played": 18, "won": 11, "drawn": 3, "lost": 4,
+              "goals_for": 44, "goals_against": 25, "goal_difference": 19,
+              "clean_sheets": 6, "without_a_score": 2, "tournaments_excluded": 3 },
+  "form": [ { "activity_id": 904, "session_date": "2026-03-14", "opponent": "Ajax",
+              "home_away": "away", "team_score": 1, "opp_score": 4, "outcome": "L" } ],
+  "scorers":     [ { "player_id": 42, "name": "Sem de Vries", "jersey_number": 9, "goals": 12 } ],
+  "assists":     [ { "player_id": 51, "name": "Noa Jansen", "jersey_number": 10, "assists": 7 } ],
+  "appearances": [ { "player_id": 42, "name": "Sem de Vries", "jersey_number": 9,
+                     "matches": 17, "starts": 15, "subs_in": 2, "minutes": 1105 } ] }
+```
+
+`scorers` and `assists` list **contributors only**, ranked, ties broken by name
+so the table does not reshuffle between two renders of the same window. A player
+who has not scored is absent rather than present as a zero.
+
 ## Team monthly report (#3458, epic #3457)
 
 ### `GET /teams/{id}/monthly-report?from=&to=&period=&blocks=`

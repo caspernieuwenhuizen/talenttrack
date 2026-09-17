@@ -15,6 +15,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
 use TT\Modules\Analytics\EvalCoverageService;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
+use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
 
 /**
@@ -96,6 +97,14 @@ final class TeamMonthlyReport {
     private array $verdicts = [];
 
     /**
+     * Per-block options (#3514), block key => bag. A block that was given
+     * nothing sees `[]` and renders as it always did.
+     *
+     * @var array<string,array<string,mixed>>
+     */
+    private array $options = [];
+
+    /**
      * Compose the report.
      *
      * @param list<string> $blocks Selected block keys; empty means all. Unknown
@@ -105,10 +114,13 @@ final class TeamMonthlyReport {
      *        changed". 0 — an unattended caller such as the scheduled mailing —
      *        gets the conservative set: public and coaching-staff events only,
      *        never medical or safeguarding ones.
+     * @param array<string,array<string,mixed>> $options Per-block options
+     *        (#3514), block key => bag. Unlike `$blocks` these never throw: an
+     *        option a later version dropped must still open a saved report.
      * @return array{team_id:int, from:string, to:string, previous:Window, blocks:list<string>, data:array<string,array<string,mixed>>}
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
-    public function forTeam( int $team_id, string $from, string $to, array $blocks = [], int $viewer_user_id = 0 ): array {
+    public function forTeam( int $team_id, string $from, string $to, array $blocks = [], int $viewer_user_id = 0, array $options = [] ): array {
         $unknown = TeamMonthlyReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
@@ -128,6 +140,7 @@ final class TeamMonthlyReport {
         $this->attendance     = null;
         $this->minutes        = [];
         $this->verdicts       = [];
+        $this->options        = $options;
 
         $selected = TeamMonthlyReportBlock::normalise( $blocks );
         $previous = self::previousWindow( $from, $to );
@@ -217,12 +230,56 @@ final class TeamMonthlyReport {
             case TeamMonthlyReportBlock::MINUTES:    return $this->minutesBlock();
             case TeamMonthlyReportBlock::ATTENTION:  return $this->attention();
             case TeamMonthlyReportBlock::CHANGES:    return $this->changes();
-            case TeamMonthlyReportBlock::TESTS:      return $this->tests();
+            case TeamMonthlyReportBlock::TESTS:      return $this->tests( $this->optionsFor( TeamMonthlyReportBlock::TESTS ) );
             case TeamMonthlyReportBlock::ROSTER:     return $this->roster();
             case TeamMonthlyReportBlock::NOTES:      return [ 'lines' => 6 ];
             case TeamMonthlyReportBlock::QUALITY:    return $this->quality();
         }
         return [];
+    }
+
+    /**
+     * One block's options, normalised by whoever owns them. A block given
+     * nothing sees `[]` and renders as it always did.
+     *
+     * @return array<string,mixed>
+     */
+    private function optionsFor( string $block ): array {
+        return TeamMonthlyReportBlockOptions::normalise( $block, $this->options[ $block ] ?? [] );
+    }
+
+    /**
+     * The tests this team actually has a session for in a window, for the
+     * composition panel's picker (#3515).
+     *
+     * Offering a test the squad did not take is offering an empty section, so
+     * the picker lists only what has readings. Static because the panel asks
+     * before a report has been composed.
+     *
+     * @return list<array{definition_id:int, name:string, date:string}>
+     */
+    public static function testableDefinitions( int $team_id, string $from, string $to ): array {
+        if ( $team_id <= 0 || ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return [];
+
+        $seen = [];
+        $out  = [];
+        foreach ( ( new MeasurementSessionsRepository() )->listForTeam( $team_id ) as $s ) {
+            $def_id  = (int) ( $s->definition_id ?? 0 );
+            $planned = (string) ( $s->planned_date ?? '' );
+            if ( $def_id <= 0 || isset( $seen[ $def_id ] ) ) continue;
+            if ( $planned === '' || $planned < $from || $planned > $to ) continue;
+            $seen[ $def_id ] = true;
+
+            $out[] = [
+                'definition_id' => $def_id,
+                'name'          => (string) ( $s->definition_name ?? '' ),
+                'date'          => $planned,
+            ];
+        }
+
+        usort( $out, static fn( array $a, array $b ): int => strcasecmp( $a['name'], $b['name'] ) );
+
+        return $out;
     }
 
     /* ---------------------------------------------------------------
@@ -480,20 +537,62 @@ final class TeamMonthlyReport {
      * Test rounds the team held in the window, who was tested, and who moved
      * in each direction since their previous reading.
      *
+     * #3515 — the section can be told which tests to show and how much of each.
+     * With no options it reports every test held in the window as a summary,
+     * which is what it did before the options existed.
+     *
+     * @param array<string,mixed> $options
      * @return array<string,mixed>
      */
-    private function tests(): array {
-        $trends = new TestTrendsQuery();
-        $squad  = count( $this->players() );
+    private function tests( array $options = [] ): array {
+        $wanted = TestsBlockOptions::definitionIds( $options );
+        $show   = TestsBlockOptions::show( $options );
 
-        $seen = [];
-        $out  = [];
+        $held = $this->testRoundsInWindow( $wanted, $show );
+
+        if ( $wanted === [] ) {
+            return [ 'rounds' => array_values( $held ), 'show' => $show ];
+        }
+
+        // A named test the squad did not take this window still gets a section,
+        // saying so. The whole point of a saved composition is that next month
+        // is one click, and a section that silently vanished would read as an
+        // oversight rather than as "no readings".
+        $out = [];
+        foreach ( $wanted as $def_id ) {
+            if ( isset( $held[ $def_id ] ) ) {
+                $out[] = $held[ $def_id ];
+                continue;
+            }
+            $empty = $this->emptyTestRound( $def_id );
+            // A definition deleted since the composition was saved resolves to
+            // nothing. Drop it: a report saved in September must open in March.
+            if ( $empty !== null ) $out[] = $empty;
+        }
+
+        return [ 'rounds' => $out, 'show' => $show ];
+    }
+
+    /**
+     * Test rounds actually held in the window, keyed by definition id.
+     *
+     * @param list<int> $wanted Empty means every test held; otherwise only
+     *        these are queried, so picking one test does not cost a trend
+     *        query per test the squad happened to take.
+     * @return array<int,array<string,mixed>>
+     */
+    private function testRoundsInWindow( array $wanted, string $show ): array {
+        $trends  = new TestTrendsQuery();
+        $squad   = count( $this->players() );
+        $jerseys = PlayerOrder::jerseys( $this->players() );
+
+        $out = [];
         foreach ( ( new MeasurementSessionsRepository() )->listForTeam( $this->team_id ) as $s ) {
             $def_id  = (int) ( $s->definition_id ?? 0 );
             $planned = (string) ( $s->planned_date ?? '' );
-            if ( $def_id <= 0 || isset( $seen[ $def_id ] ) ) continue;
+            if ( $def_id <= 0 || isset( $out[ $def_id ] ) ) continue;
             if ( $planned === '' || $planned < $this->from || $planned > $this->to ) continue;
-            $seen[ $def_id ] = true;
+            if ( $wanted !== [] && ! in_array( $def_id, $wanted, true ) ) continue;
 
             $trend = $trends->forDefinition( $def_id, [ 'team_id' => $this->team_id, 'date_to' => $this->to ] );
 
@@ -507,6 +606,7 @@ final class TeamMonthlyReport {
             $tested   = 0;
             $improved = [];
             $declined = [];
+            $readings = [];
             foreach ( $trend['players'] as $p ) {
                 $values = $p['values'] ?? null;
                 if ( ! is_array( $values ) || ! array_key_exists( $date, $values ) ) continue;
@@ -514,21 +614,32 @@ final class TeamMonthlyReport {
 
                 $steps = $p['steps'] ?? null;
                 $step  = is_array( $steps ) ? ( $steps[ $date ] ?? null ) : null;
-                if ( ! is_array( $step ) ) continue;
 
                 $entry = [
                     'player_id' => (int) ( $p['player_id'] ?? 0 ),
                     'name'      => (string) ( $p['name'] ?? '' ),
-                    'delta'     => (float) ( $step['delta'] ?? 0 ),
+                    'delta'     => is_array( $step ) ? (float) ( $step['delta'] ?? 0 ) : 0.0,
                 ];
+
+                if ( TestsBlockOptions::showsPlayers( $show ) ) {
+                    // A player tested for the first time has a reading but no
+                    // step: null reads as "nothing to compare with", which is
+                    // not the same as no change.
+                    $readings[] = $entry + [
+                        'value' => $values[ $date ],
+                        'trend' => is_array( $step ) ? (string) ( $step['trend'] ?? '' ) : '',
+                        'first' => ! is_array( $step ),
+                    ];
+                }
+
+                if ( ! is_array( $step ) ) continue;
                 $trend_key = (string) ( $step['trend'] ?? '' );
                 if ( $trend_key === 'up' )   $improved[] = $entry;
                 if ( $trend_key === 'down' ) $declined[] = $entry;
             }
 
             $definition = $trend['definition'];
-            $jerseys    = PlayerOrder::jerseys( $this->players() );
-            $out[] = [
+            $out[ $def_id ] = [
                 'definition_id' => $def_id,
                 'name'          => is_array( $definition ) ? (string) ( $definition['name'] ?? '' ) : (string) ( $s->definition_name ?? '' ),
                 'unit'          => is_array( $definition ) ? (string) ( $definition['unit'] ?? '' ) : '',
@@ -539,10 +650,35 @@ final class TeamMonthlyReport {
                 // like every other player list in the report.
                 'improved'      => PlayerOrder::sort( $improved, $jerseys ),
                 'declined'      => PlayerOrder::sort( $declined, $jerseys ),
+                'readings'      => PlayerOrder::sort( $readings, $jerseys ),
             ];
         }
 
-        return [ 'rounds' => $out ];
+        return $out;
+    }
+
+    /**
+     * The placeholder for a test that was asked for but not taken this window.
+     * Null when the definition no longer exists.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function emptyTestRound( int $definition_id ): ?array {
+        $definition = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
+        if ( ! $definition ) return null;
+
+        return [
+            'definition_id' => $definition_id,
+            'name'          => (string) ( $definition->name ?? '' ),
+            'unit'          => (string) ( $definition->unit ?? '' ),
+            'date'          => '',
+            'tested'        => 0,
+            'squad'         => count( $this->players() ),
+            'improved'      => [],
+            'declined'      => [],
+            'readings'      => [],
+            'empty'         => true,
+        ];
     }
 
     /**
