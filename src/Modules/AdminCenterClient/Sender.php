@@ -100,9 +100,12 @@ final class Sender {
         // read; anything else behaves exactly as before.
         $outcome = '';
         if ( $code >= 200 && $code < 300 ) {
-            $outcome = ControlPlaneResponse::handle(
+            // A header repeated in the response comes back as a list; a
+            // signature is one value, so anything else fails verification.
+            $signature = wp_remote_retrieve_header( $response, self::SIGNATURE_HEADER );
+            $outcome   = ControlPlaneResponse::handle(
                 (string) wp_remote_retrieve_body( $response ),
-                (string) wp_remote_retrieve_header( $response, self::SIGNATURE_HEADER ),
+                is_string( $signature ) ? $signature : '',
                 $install_id,
                 $site_url
             );
