@@ -41,6 +41,26 @@ rapport past zich direct aan. Het adres in je browser verandert mee, dus als je
 de link kopieert opent een collega precies hetzelfde rapport. Het briefhoofd —
 team, periode, hoofdtrainer — staat er altijd in.
 
+Van sommige secties kun je meer instellen dan of ze meedoen. Vink je zo'n sectie
+aan, dan verschijnen de instellingen eronder.
+
+**Testen** heeft er twee. **Welke testen** toont de testen die je selectie deze
+periode daadwerkelijk heeft gedaan — vink aan waar het overleg over gaat, of laat
+alles uit om elke test te tonen, zoals het rapport het eerder deed. **Hoeveel
+tonen** bepaalt wat er per test op papier komt:
+
+- **Alleen samenvatting** — hoeveel spelers getest zijn en wie vooruit of
+  achteruit ging. De standaard.
+- **Uitslagen** — de meting van elke speler, met eenheid.
+- **Verschil met vorige keer** — hoeveel elke speler veranderde sinds de vorige
+  meting.
+- **Uitslagen en verschil** — beide kolommen.
+
+Sla je het rapport op en heeft een gekozen test volgende maand geen metingen,
+dan verschijnt die sectie alsnog en zegt dat erbij. Een sectie die zomaar
+wegvalt leest als een vergissing. Een test die inmiddels verwijderd is, blijft
+weg.
+
 **Afdrukformaat** laat zien hoeveel pagina's de gekozen soort afdrukt en hoe vol
 elke pagina is. Op de versie van één pagina worden lange spelerslijsten eerst
 ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
@@ -123,7 +143,10 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 - **Wat veranderde** — blessures, wijzigingen van positie of team, besluiten in
   het ontwikkelplan, aanmeldingen en vertrek.
 - **Testen** — gehouden testmomenten, hoeveel spelers meededen en wie vooruit of
-  achteruit ging sinds de vorige meting.
+  achteruit ging sinds de vorige meting. Welke testen, en of je ook de metingen
+  zelf ziet, bepaal je zelf — zie *Kiezen wat erin staat*. De versie van één
+  pagina drukt altijd de samenvatting af, omdat een tabel met metingen er niet
+  op past.
 - **Per speler** — elke meetwaarde van elke speler in één tabel.
 - **Besluiten en acties** — ruimte op de afdruk om te noteren wat het overleg
   afspreekt.

@@ -40,6 +40,25 @@ updates straight away. The address in your browser changes with it, so you can
 copy the link and a colleague opens exactly the same report. The letterhead —
 team, period, head coach — is always included.
 
+Some sections can be told more than whether to appear. When you tick a section
+that has settings, its controls appear under the section list.
+
+**Tests** has two. **Which tests** lists the tests your squad actually took in
+this period — tick the ones the meeting is about, or leave them all unticked to
+show every test, which is what the report did before. **How much to show**
+decides what each test prints:
+
+- **Summary only** — how many were tested, and who improved or declined. The
+  default.
+- **Readings** — each player's result, with its unit.
+- **Change since last time** — how much each player moved since their previous
+  result.
+- **Readings and change** — both columns.
+
+If you save the report and a test you picked has no readings next month, its
+section still appears and says so. A section that quietly vanished would read
+as an oversight. A test that has since been deleted is left out.
+
 **Printed size** shows how many pages the chosen type will print and how full
 each page is. On the one-pager, long player lists are shortened to their top and
 bottom first, and the agenda to its two most urgent players, before the page is
@@ -117,7 +136,9 @@ Scheduled reports are part of the Standard plan and above.
 - **What changed** — injuries, position and team changes, development-plan
   decisions, signings and departures.
 - **Tests** — test rounds held, how many players took part, and who improved or
-  declined since their last result.
+  declined since their last result. Which tests, and whether you also see the
+  readings themselves, is up to you — see *Choosing what goes in it*. The
+  one-pager always prints the summary, because a readings table would not fit.
 - **Player by player** — every measure for every player in one table.
 - **Decisions and actions** — space on the printed copy to write what the
   meeting agrees.

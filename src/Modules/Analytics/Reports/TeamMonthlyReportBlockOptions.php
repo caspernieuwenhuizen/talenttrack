@@ -11,9 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * options, and no knowledge here of what any of those options are. Adding
  * options to a block is a new class plus a line; it never edits shared logic.
  *
- * Empty today. #3515 registers the first entry (`tests`), and until then every
- * block answers "no options", which is exactly how the report behaved before
- * this existed.
+ * `tests` is the first entry (#3515). Every other block answers "no options",
+ * which is exactly how the report behaved before this existed.
  */
 final class TeamMonthlyReportBlockOptions {
 
@@ -23,7 +22,9 @@ final class TeamMonthlyReportBlockOptions {
      * @return array<string, class-string<BlockOptionsInterface>>
      */
     private static function map(): array {
-        return [];
+        return [
+            TeamMonthlyReportBlock::TESTS => TestsBlockOptions::class,
+        ];
     }
 
     /** Can this block be told anything beyond whether to appear? */

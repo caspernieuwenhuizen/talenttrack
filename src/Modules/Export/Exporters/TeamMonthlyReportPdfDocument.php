@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\Analytics\Reports\TestsBlockOptions;
 
 /**
  * TeamMonthlyReportPdfDocument (#3460, epic #3457) — the team monthly report as
@@ -341,9 +342,23 @@ final class TeamMonthlyReportPdfDocument {
         if ( $rounds === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</div></div>';
         }
+        // #3515 — the readings table is the widest thing this section can
+        // print, so the one-pager keeps the summary whatever was asked for.
+        // Degrading to less detail is the ladder's job; overflowing the page
+        // is not an option, and a truncated table is worse than a summary.
+        $show = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
+        if ( $compact ) $show = TestsBlockOptions::SHOW_SUMMARY;
+
         $out .= '<table class="list">';
         foreach ( array_slice( $rounds, 0, $compact ? 3 : count( $rounds ) ) as $s ) {
             if ( ! is_array( $s ) ) continue;
+
+            if ( ! empty( $s['empty'] ) ) {
+                $out .= '<tr><td><b>' . esc_html( self::cut( (string) ( $s['name'] ?? '' ), $compact ? 60 : 110 ) ) . '</b></td></tr>'
+                    . '<tr><td class="muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</td></tr>';
+                continue;
+            }
+
             $head = sprintf(
                 /* translators: 1: test name, 2: date, 3: players tested, 4: squad size */
                 __( '%1$s, %2$s — %3$d of %4$d tested', 'talenttrack' ),
@@ -352,16 +367,83 @@ final class TeamMonthlyReportPdfDocument {
                 (int) ( $s['tested'] ?? 0 ),
                 (int) ( $s['squad'] ?? 0 )
             );
+            $out .= '<tr><td><b>' . esc_html( self::cut( $head, $compact ? 60 : 110 ) ) . '</b></td></tr>';
+
+            if ( TestsBlockOptions::showsPlayers( $show ) ) {
+                $out .= '<tr><td>' . self::testReadings( $s, $show ) . '</td></tr>';
+                continue;
+            }
+
             $moves = sprintf(
                 /* translators: 1: players improved, 2: players declined */
                 __( 'Improved %1$d · declined %2$d', 'talenttrack' ),
                 is_array( $s['improved'] ?? null ) ? count( $s['improved'] ) : 0,
                 is_array( $s['declined'] ?? null ) ? count( $s['declined'] ) : 0
             );
-            $out .= '<tr><td><b>' . esc_html( self::cut( $head, $compact ? 60 : 110 ) ) . '</b></td></tr>'
-                . '<tr><td class="muted">' . esc_html( $moves ) . '</td></tr>';
+            $out .= '<tr><td class="muted">' . esc_html( $moves ) . '</td></tr>';
         }
         return $out . '</table></div>';
+    }
+
+    /**
+     * One test's readings per player, in shirt order (#3515).
+     *
+     * @param array<string,mixed> $round
+     */
+    private static function testReadings( array $round, string $show ): string {
+        $rows = is_array( $round['readings'] ?? null ) ? $round['readings'] : [];
+        if ( $rows === [] ) {
+            return '<span class="muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</span>';
+        }
+
+        $unit   = (string) ( $round['unit'] ?? '' );
+        $values = TestsBlockOptions::showsValues( $show );
+        $trend  = TestsBlockOptions::showsTrend( $show );
+
+        $out = '<table class="tbl"><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        if ( $values ) {
+            $out .= '<th class="r">' . esc_html(
+                $unit !== ''
+                    /* translators: %s: unit of measurement, e.g. "s" or "cm" */
+                    ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
+                    : _x( 'Result', 'monthly report tests column', 'talenttrack' )
+            ) . '</th>';
+        }
+        if ( $trend ) {
+            $out .= '<th class="r">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
+        }
+        $out .= '</tr>';
+
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $out .= '<tr><td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), 28 ) ) . '</td>';
+            if ( $values ) {
+                $value = $row['value'] ?? null;
+                $out  .= '<td class="r">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+            }
+            if ( $trend ) {
+                $out .= '<td class="r">' . esc_html( self::testDelta( $row ) ) . '</td>';
+            }
+            $out .= '</tr>';
+        }
+
+        return $out . '</table>';
+    }
+
+    /**
+     * A reading's change since the player's previous one. A first reading has
+     * nothing to compare with and gets a dash, as everywhere else in this
+     * report.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testDelta( array $row ): string {
+        if ( ! empty( $row['first'] ) ) return '—';
+
+        $delta = (float) ( $row['delta'] ?? 0 );
+        if ( abs( $delta ) < 0.0001 ) return '0';
+
+        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
     }
 
     /**

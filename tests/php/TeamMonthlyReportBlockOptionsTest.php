@@ -15,9 +15,10 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
  * predates options, and all of them must still open the report they always
  * opened.
  *
- * No block registers options yet — #3515 is the first — so the registry is
- * empty here on purpose. That is also what makes these tests meaningful: they
- * pin the carrier, not one block's use of it.
+ * These pin the **carrier**, not one block's use of it: what a composition
+ * does with an option bag, not what any option means. `tests` is the only
+ * block that owns options (#3515), and what its options do is
+ * `TestsBlockOptionsTest`'s job.
  */
 final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
 
@@ -57,29 +58,37 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
     // ── carrying options ───────────────────────────────────────────────
 
     /**
-     * Until a block owns `tests` options (#3515), a bag aimed at it normalises
-     * away — the owner decides what is valid, and there is no owner. The point
-     * here is that an unowned bag is *dropped*, not that it invalidates the
-     * composition around it.
+     * A bag aimed at a block with no owner normalises away — the owner decides
+     * what is valid, and there is none. The point is that an unowned bag is
+     * *dropped*, not that it invalidates the composition around it.
+     *
+     * `roster` stands in for "no owner" because `tests` acquired one in #3515.
      */
     public function test_an_unowned_option_bag_is_dropped_and_the_rest_survives(): void {
         $c = TeamMonthlyReportComposition::normalise( $this->raw( [
-            'options' => [ 'tests' => [ 'definitions' => [ 4, 9 ] ] ],
+            'blocks'  => [ 'kpi', 'roster' ],
+            'options' => [ 'roster' => [ 'definitions' => [ 4, 9 ] ] ],
         ] ) );
 
         $this->assertSame( [], $c['options'] );
-        $this->assertSame( [ 'kpi', 'tests' ], $c['blocks'] );
+        $this->assertSame( [ 'kpi', 'roster' ], $c['blocks'] );
     }
 
+    /**
+     * A URL and a saved view describe the same composition, so the JSON form
+     * and the array form must normalise identically. The value itself belongs
+     * to `TestsBlockOptions` and is covered by its own test.
+     */
     public function test_options_accept_the_json_a_url_carries(): void {
-        $c = TeamMonthlyReportComposition::normalise( $this->raw( [
+        $from_json = TeamMonthlyReportComposition::normalise( $this->raw( [
             'options' => '{"tests":{"definitions":[4]}}',
         ] ) );
+        $from_array = TeamMonthlyReportComposition::normalise( $this->raw( [
+            'options' => [ 'tests' => [ 'definitions' => [ 4 ] ] ],
+        ] ) );
 
-        // Decoded and routed, then dropped for want of an owner — the same
-        // outcome as the array form above, which is the contract: a URL and a
-        // saved view describe the same composition.
-        $this->assertSame( [], $c['options'] );
+        $this->assertSame( $from_array['options'], $from_json['options'] );
+        $this->assertSame( [ 4 ], $from_json['options']['tests']['definitions'] );
     }
 
     public function test_malformed_json_is_dropped_rather_than_fatal(): void {
@@ -99,13 +108,18 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
 
     // ── the registry ───────────────────────────────────────────────────
 
-    public function test_no_block_accepts_options_yet(): void {
-        foreach ( TeamMonthlyReportBlock::ALL as $block ) {
-            $this->assertFalse(
-                TeamMonthlyReportBlockOptions::accepts( $block ),
-                $block . ' should not accept options until a child registers them.'
-            );
-        }
+    /**
+     * `tests` is the only block with options (#3515). This is not a rule — it
+     * is a reminder that every other block still renders from the block list
+     * alone, so adding options to one must not change what the rest do.
+     */
+    public function test_only_the_registered_blocks_accept_options(): void {
+        $accepting = array_values( array_filter(
+            TeamMonthlyReportBlock::ALL,
+            static fn( string $block ): bool => TeamMonthlyReportBlockOptions::accepts( $block )
+        ) );
+
+        $this->assertSame( [ TeamMonthlyReportBlock::TESTS ], $accepting );
     }
 
     /**
@@ -141,9 +155,9 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
         $b = TeamMonthlyReportComposition::normalise( $this->raw() );
         $this->assertTrue( TeamMonthlyReportComposition::same( $a, $b ) );
 
-        // Hand-built rather than normalised: no block owns options yet, so
-        // normalise() would empty the bag and the two would match trivially.
-        $b['options'] = [ 'tests' => [ 'definitions' => [ 4 ] ] ];
+        $b = TeamMonthlyReportComposition::normalise( $this->raw( [
+            'options' => [ 'tests' => [ 'definitions' => [ 4 ] ] ],
+        ] ) );
         $this->assertFalse(
             TeamMonthlyReportComposition::same( $a, $b ),
             'Options are part of what a composition is.'

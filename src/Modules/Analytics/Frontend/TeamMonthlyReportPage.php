@@ -8,6 +8,7 @@ use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
+use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
@@ -52,7 +53,7 @@ final class TeamMonthlyReportPage {
         $blocks  = self::requestedBlocks();
         $options = self::requestedOptions( $blocks );
 
-        $report = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id() );
+        $report = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id(), $options );
         $fit    = TeamMonthlyReportLayout::fit( $report, $layout );
         $data   = $report['data'];
 
@@ -138,12 +139,50 @@ final class TeamMonthlyReportPage {
      */
     private static function requestedOptions( array $blocks ): array {
         $raw = isset( $_GET['options'] ) ? wp_unslash( $_GET['options'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized in normalise().
-        if ( ! is_string( $raw ) || $raw === '' ) return [];
+        $bags = is_string( $raw ) && $raw !== ''
+            ? TeamMonthlyReportComposition::normalise( [ 'blocks' => $blocks, 'options' => $raw ] )['options']
+            : [];
 
-        return TeamMonthlyReportComposition::normalise( [
-            'blocks'  => $blocks,
-            'options' => $raw,
-        ] )['options'];
+        // #3515 — the panel's own controls are ordinary form fields, because a
+        // no-script submit has to work and a GET form cannot post JSON. They
+        // win over the JSON bag: the JSON is what the page arrived with, the
+        // fields are what the reader just asked for.
+        $tests = self::requestedTestsOptions();
+        if ( $tests !== null ) {
+            $bags[ TeamMonthlyReportBlock::TESTS ] = $tests;
+            $bags = TeamMonthlyReportComposition::normalise( [
+                'blocks'  => $blocks,
+                'options' => $bags,
+            ] )['options'];
+        }
+
+        return $bags;
+    }
+
+    /**
+     * The tests section's options as the panel submitted them, or null when
+     * the panel was not the source — a shared link, a saved view, a first
+     * visit.
+     *
+     * The marker field is what tells those apart. Without it, an unticked
+     * "every test" would be indistinguishable from "no form was submitted",
+     * and clearing the selection would silently restore whatever the URL said.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function requestedTestsOptions(): ?array {
+        if ( ! isset( $_GET['opt_tests'] ) ) return null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+
+        $definitions = [];
+        if ( isset( $_GET['opt_tests_def'] ) && is_array( $_GET['opt_tests_def'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            foreach ( wp_unslash( $_GET['opt_tests_def'] ) as $id ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- cast below.
+                if ( is_scalar( $id ) ) $definitions[] = (int) $id;
+            }
+        }
+
+        $show = isset( $_GET['opt_tests_show'] ) ? sanitize_key( wp_unslash( (string) $_GET['opt_tests_show'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+
+        return [ 'definitions' => $definitions, 'show' => $show ];
     }
 
     /**
@@ -204,10 +243,13 @@ final class TeamMonthlyReportPage {
             'team_id' => (string) $team_id,
         ];
         // #3514 — the panel's own submit must not drop options a URL carried.
-        // No block offers option controls yet (#3515 is the first), so they
-        // ride through the form as one hidden field.
-        if ( $options !== [] ) {
-            $hidden['options'] = (string) wp_json_encode( $options );
+        // Blocks whose options the panel offers controls for are left out:
+        // their controls are the source, and carrying the JSON as well would
+        // submit the old value alongside the new one (#3515).
+        $carried = $options;
+        unset( $carried[ TeamMonthlyReportBlock::TESTS ] );
+        if ( $carried !== [] ) {
+            $hidden['options'] = (string) wp_json_encode( $carried );
         }
         if ( $window['period'] !== '' ) {
             $hidden['period'] = $window['period'];
@@ -285,6 +327,8 @@ final class TeamMonthlyReportPage {
         }
         echo '</div>';
         echo '</fieldset>';
+
+        self::renderTestsOptions( $team_id, $window, $selected, $options );
 
         self::renderFitMeter( $fit );
 
@@ -776,6 +820,7 @@ final class TeamMonthlyReportPage {
     /** @param array<string,mixed> $t */
     private static function renderTests( array $t ): void {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
+        $show   = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
 
         self::sectionOpen( _x( 'Tests', 'team monthly report section', 'talenttrack' ) );
         if ( $rounds === [] ) {
@@ -786,6 +831,16 @@ final class TeamMonthlyReportPage {
         foreach ( $rounds as $s ) {
             if ( ! is_array( $s ) ) continue;
             echo '<div class="tt-mr-test">';
+
+            // A test that was asked for but not taken this window says so,
+            // rather than quietly not appearing (#3515).
+            if ( ! empty( $s['empty'] ) ) {
+                echo '<p class="tt-mr-test__name"><strong>' . esc_html( (string) ( $s['name'] ?? '' ) ) . '</strong></p>';
+                echo '<p class="tt-mr-muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</p>';
+                echo '</div>';
+                continue;
+            }
+
             echo '<p class="tt-mr-test__name"><strong>' . esc_html( (string) ( $s['name'] ?? '' ) ) . '</strong> · '
                 . esc_html( TTDate::date( (string) ( $s['date'] ?? '' ) ) ) . ' · '
                 . esc_html( sprintf(
@@ -794,6 +849,13 @@ final class TeamMonthlyReportPage {
                     (int) ( $s['tested'] ?? 0 ),
                     (int) ( $s['squad'] ?? 0 )
                 ) ) . '</p>';
+
+            if ( TestsBlockOptions::showsPlayers( $show ) ) {
+                self::renderTestReadings( $s, $show );
+                echo '</div>';
+                continue;
+            }
+
             foreach ( [
                 'improved' => __( 'Improved: %s', 'talenttrack' ),
                 'declined' => __( 'Declined: %s', 'talenttrack' ),
@@ -809,6 +871,134 @@ final class TeamMonthlyReportPage {
             echo '</div>';
         }
         self::sectionClose();
+    }
+
+    /**
+     * The tests section's own controls: which tests, and how much of each
+     * (#3515).
+     *
+     * Only rendered when the section is selected — options for a section that
+     * is switched off are controls for something the reader cannot see. Only
+     * tests with a session in the window are offered, because offering one
+     * without readings is offering an empty section.
+     *
+     * @param array{from:string, to:string, period:string} $window
+     * @param list<string>                                 $selected
+     * @param array<string,array<string,mixed>>            $options
+     */
+    private static function renderTestsOptions( int $team_id, array $window, array $selected, array $options ): void {
+        if ( ! in_array( TeamMonthlyReportBlock::TESTS, $selected, true ) ) return;
+
+        $available = TeamMonthlyReport::testableDefinitions( $team_id, $window['from'], $window['to'] );
+        if ( $available === [] ) return;
+
+        $bag    = $options[ TeamMonthlyReportBlock::TESTS ] ?? [];
+        $chosen = TestsBlockOptions::definitionIds( $bag );
+        $show   = TestsBlockOptions::show( $bag );
+
+        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
+        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Tests', 'team monthly report panel', 'talenttrack' ) . '</legend>';
+
+        // Marker: tells "submitted with nothing ticked" from "not submitted".
+        echo '<input type="hidden" name="opt_tests" value="1">';
+
+        echo '<div class="tt-mr-opts__row">';
+        echo '<span class="tt-mr-opts__label" id="tt-mr-tests-which">' . esc_html__( 'Which tests', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-mr-blocks" role="group" aria-labelledby="tt-mr-tests-which">';
+        foreach ( $available as $definition ) {
+            $def_id = (int) $definition['definition_id'];
+            $id     = 'tt-mr-test-' . $def_id;
+            echo '<label class="tt-mr-block" for="' . esc_attr( $id ) . '">';
+            echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_tests_def[]" value="' . esc_attr( (string) $def_id ) . '"'
+                . checked( in_array( $def_id, $chosen, true ), true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( (string) $definition['name'] ) . '</span>';
+            echo '<span class="tt-mr-block__n">' . esc_html( TTDate::date( (string) $definition['date'] ) ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Tick none to show every test taken this period.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+
+        $select_id = 'tt-mr-tests-show';
+        echo '<div class="tt-mr-opts__row">';
+        echo '<label class="tt-mr-opts__label" for="' . esc_attr( $select_id ) . '">' . esc_html__( 'How much to show', 'talenttrack' ) . '</label>';
+        echo '<select class="tt-input" id="' . esc_attr( $select_id ) . '" name="opt_tests_show" data-tt-mr-block>';
+        foreach ( TestsBlockOptions::showLabels() as $value => $label ) {
+            echo '<option value="' . esc_attr( $value ) . '"' . selected( $show, $value, false ) . '>' . esc_html( $label ) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Readings and change print as a table, which the one-pager shortens to the summary.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+
+        echo '</fieldset>';
+    }
+
+    /**
+     * One test's readings per player, in shirt order (#3515).
+     *
+     * @param array<string,mixed> $round
+     */
+    private static function renderTestReadings( array $round, string $show ): void {
+        $rows = is_array( $round['readings'] ?? null ) ? $round['readings'] : [];
+        if ( $rows === [] ) {
+            echo '<p class="tt-mr-muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $unit   = (string) ( $round['unit'] ?? '' );
+        $values = TestsBlockOptions::showsValues( $show );
+        $trend  = TestsBlockOptions::showsTrend( $show );
+
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-test-readings">';
+        echo '<thead><tr><th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        if ( $values ) {
+            echo '<th scope="col" class="num">' . esc_html(
+                $unit !== ''
+                    /* translators: %s: unit of measurement, e.g. "s" or "cm" */
+                    ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
+                    : _x( 'Result', 'monthly report tests column', 'talenttrack' )
+            ) . '</th>';
+        }
+        if ( $trend ) {
+            echo '<th scope="col" class="num">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $row['player_id'] ?? 0 ) );
+            echo '<tr>';
+            echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+            if ( $values ) {
+                $value = $row['value'] ?? null;
+                echo '<td class="num">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+            }
+            if ( $trend ) {
+                echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'
+                    . esc_html( self::testDelta( $row ) ) . '</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table></div>';
+    }
+
+    /**
+     * A reading's change since the player's previous one.
+     *
+     * A first reading has nothing to compare with, which is not the same as no
+     * change — it gets a dash, like every other "no comparison" in this report.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testDelta( array $row ): string {
+        if ( ! empty( $row['first'] ) ) return '—';
+
+        $delta = (float) ( $row['delta'] ?? 0 );
+        if ( abs( $delta ) < 0.0001 ) return '0';
+
+        $formatted = number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
+
+        return ( $delta > 0 ? '+' : '−' ) . $formatted;
     }
 
     /** @param array<string,mixed> $r */
