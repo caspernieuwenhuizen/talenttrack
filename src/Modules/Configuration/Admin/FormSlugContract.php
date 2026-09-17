@@ -104,6 +104,11 @@ class FormSlugContract {
             'session_date' => __( 'Activity date', 'talenttrack' ),
             'location'     => __( 'Location', 'talenttrack' ),
             'team_id'      => __( 'Team', 'talenttrack' ),
+            // #3530 — match-only rows. They render on fixtures and hide on
+            // everything else, so a custom field anchored to one only shows
+            // on the activities it makes sense for.
+            'opponent'     => __( 'Opponent', 'talenttrack' ),
+            'home_away'    => __( 'Home / Away', 'talenttrack' ),
             'notes'        => __( 'Notes', 'talenttrack' ),
         ];
     }

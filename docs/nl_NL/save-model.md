@@ -97,6 +97,8 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
 - De potentieelkolom op het [Potentieeloverzicht](potential-overview.md), dat
   in alles behalve de naam een vierde raster is.
 - Korte recordformulieren: speler, team, persoon, activiteit en de rest.
+- De kaart **Uitslag** bij een wedstrijd — zie
+  [Activiteiten](activities.md#de-uitslag-vastleggen).
 - Een evaluatie of doel **aanmaken** — in tegenstelling tot bewerken.
 - Configuratieschermen en keuzelijsten.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
@@ -122,6 +124,14 @@ betekenis hebben.
 en Opslaan is een nuttige adempauze — het moment waarop je controleert of de
 datum klopt voordat je hem vastlegt. Die automatisch opslaan zou die pauze
 weghalen en niets opleveren.
+
+**Waarom de kaart Uitslag.** Twee invoervakjes, en niemand *schrijft* een
+uitslag — er is geen concept van "we wonnen met 3–1" om te beschermen. Wat er
+wél te beschermen valt, is de half ingetikte toestand: een automatische opslag
+die tussen de twee vakjes afgaat, publiceert `3 – ` als echte uitslag naar de
+teambalans, de vormregel van de speler en de maandrapportage, tot de tweede
+toetsaanslag binnen is. Eén vastlegmoment voor het paar is de enige eerlijke
+vorm.
 
 **Waarom aanmaken anders is dan bewerken.** Automatisch opslaan schrijft *naar
 een record*, en tijdens het aanmaken is er nog niets om naartoe te schrijven.
