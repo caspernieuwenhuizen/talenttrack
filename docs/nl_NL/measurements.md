@@ -158,20 +158,91 @@ kan elke waarde wijzigen.
 ## De metingen van een speler bekijken
 
 Spelers en ouders krijgen een tegel **Mijn metingen** die de
-*Metingen*-weergave opent: elke test gegroepeerd per categorie, met de
-laatste waarde, een groen/oranje/rood vlaggetje ten opzichte van de
-streefwaarde voor de leeftijdsgroep, een kleine trendlijn en de
-frequentie. Een ouder ziet de weergave van het kind.
+*Metingen*-weergave opent. Een ouder ziet de weergave van het kind.
 
 Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
 en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
 het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
+### Eén register per categorie
+
+Elke categorie is één tabel, met dezelfde rijvorm voor elke test erin —
+wat voor soort test het ook is:
+
+| Kolom | Wat erin staat |
+| --- | --- |
+| **Test** | De naam, met eronder hoe vaak hij gemeten hoort te worden. |
+| **Laatste** | De meest recente meting met eenheid, of `—` als de test nog nooit gemeten is. |
+| **Gemeten · stand** | Wanneer er gemeten is, en daarna het oordeel **in woorden**. |
+| **Doel** | De waarde waartegen dat oordeel wordt afgemeten. |
+| **Verloop** | De kleine trendlijn, het verschil met teken, en een link **Verloop** die het volledige verloop opent. |
+
+**Het oordeel staat altijd uitgeschreven, nooit alleen in kleur.** Kleur
+alleen valt nergens tegen af te meten, en is onleesbaar voor een
+kleurenblinde coach:
+
+| Stand | Leest als |
+| --- | --- |
+| Binnen het doel | *op doel* |
+| Net erbuiten, bij een test waar hoger beter is | *net onder doel* |
+| Net erbuiten, bij een test waar lager beter is | *net boven doel* |
+| Ver erbuiten, bij een test waar hoger beter is | *ver onder doel* |
+| Ver erbuiten, bij een test waar lager beter is | *ver boven doel* |
+| Nog nooit gemeten | *nog niet gemeten* |
+| Een test zonder goed of fout | geen oordeel — de kolom Doel leest *geen doel* |
+
+De kolom **Doel** is wat het oordeel controleerbaar maakt: hij toont
+dezelfde drempel waartegen het vlaggetje wordt berekend (`≥ 3.400 m`,
+`≤ 12,4 s`). Een **statustest** heeft meerdere niveaudrempels en geen
+enkele cel kan die dragen, dus daar staat `—` en draagt de naam van het
+niveau de stand.
+
+Het **verschil** naast de trendlijn benoemt zijn eigen richting in plaats
+van die aan de helling over te laten: `−47 s · vooruit` bij een test waar
+lager beter is, `+420 m · vooruit` waar hoger beter is. Een test zonder
+goed of fout krijgt het getal en geen woord, want daar is de verandering
+een feit en geen prestatie.
+
+### Wat de voettekst van de kaart vertelt
+
+Drie mededelingen die vroeger op elke rij terugkwamen, staan nu één keer
+onder de tabel:
+
+- **Hoeveel tests één meting hebben** — een verloop heeft er twee nodig,
+  en dat één keer zeggen is genoeg.
+- **Welke tests nog nooit gemeten zijn** — ze staan gewoon in de tabel met
+  `—` en een chip *nog niet gemeten*, in plaats van te verdwijnen of op
+  een weergavefout te lijken.
+- **Welke tests over tijd zijn** ten opzichte van hun eigen frequentie —
+  een jaarlijkse test die veertien maanden geleden voor het laatst gemeten
+  is, staat hier met zijn frequentie bij. Er zit een maand speling in
+  voordat een test te laat heet, zodat een meetronde die twee weken
+  uitloopt niet meteen de hele selectie markeert.
+
+Een test die nog nooit gemeten is, staat als *ontbrekend* en nooit als
+*over tijd*: het lege profiel van een stagespeler is een ander probleem
+dan een verouderde meting, en door elkaar heen maken ze de lijst
+onbruikbaar.
+
+### BMI op het tabblad
+
+**BMI naar leeftijd** staat als gewone rij in de categorie van de metingen
+waaruit hij is afgeleid, gemarkeerd als *afgeleid*, met het percentiel in
+de kolom Doel — of *geen percentiel* waar de groeireferentie de leeftijd
+en het geslacht van de speler niet dekt. Het is geen aparte kaart boven
+het tabblad meer.
+
+Hij blijft verborgen voor de speler en diens gezin, precies zoals
+voorheen: een screeningsgetal over het lichaam van een kind bereikt een
+gezin via een gesprek, niet via een tabblad. Zet je de BMI-rapportage uit
+voor de academie, dan verdwijnt de rij.
+
 ### Het volledige verloop achter een test
 
 De kleine trendlijn beantwoordt in één oogopslag "welke kant gaat dit
 op?". Voor de rest heeft elke test met meer dan één meting een link
-**Toon verloop** die eronder de leesbare versie opent. Wat je daar ziet,
+**Verloop** die over de volle breedte van het register de leesbare versie
+opent. Wat je daar ziet,
 hangt af van het soort test — een verloop betekent alleen iets in de
 termen van de test zelf:
 
@@ -181,7 +252,7 @@ termen van de test zelf:
 | Een getal **zonder goed of fout** (lengte, gewicht, schoenmaat) | De **metingen per datum, in kolommen** — geen grafiek, geen streefzone, geen oordeel. Zie hieronder. |
 | Een **statustest** (niveaus als *Op koers* / *Aandacht*) | Eén blok per meetmoment in de kleur van dat niveau. Geen lijn: niveaus zijn benoemde standen, geen afstanden, dus een lijn ertussen zou een precisie suggereren die de data niet heeft. |
 | **Gehaald / niet gehaald** | Een vinkje of kruisje per datum plus de telling (*3 van 4*). |
-| Elke test met **één meting** | Een zin die dat zegt. Een grafiek om één punt leest als ontbrekende data in plaats van als een beginpunt. |
+| Elke test met **één meting** | Geen verlooplink. De voettekst van de kaart telt één keer hoeveel tests er zo bij staan, in plaats van die zin op elke rij te herhalen. |
 
 Bij een grafiek waar **lager beter is**, gaat een verbeterende lijn omláág.
 Dat staat er onder elke zo'n grafiek in woorden bij — de helling alleen mag
@@ -191,15 +262,18 @@ niet weet welke kant goed is.
 ### Tests zonder goed of fout
 
 Lengte, gewicht en schoenmaat worden gemeten en gevolgd, maar een hogere
-waarde is geen betere waarde. Deze tests staan per categorie bij elkaar als
-**waarden per datum in kolommen**, met achteraan een kolom **Verloop**
-(`+6`) in gewone tekst.
+waarde is geen betere waarde. Ze staan in hetzelfde register als elke
+andere test, met **geen doel** in de kolom Doel en zonder oordeelchip.
 
 Ze krijgen bewust geen grafiek, geen streefzone en geen ranglijst. Een
 stijgende lijn zou vooruitgang suggereren, een gearceerde band een norm, en
 een lijstje "meest verbeterd" dat de langste speler het beste presteert —
-alle drie zijn onwaar. Een gemist meetmoment toont als `—`, nooit als een
-nul, en het verloop rekent over de datums waarop wél een meting staat.
+alle drie zijn onwaar. Het verschil wordt nog steeds getoond, als een
+gewoon getal met teken en zonder richtingwoord erbij.
+
+Wat *geen doel* betekent, staat één keer onderaan het tabblad uitgelegd en
+niet onder elke categorie — dat herhalen per kaart was juist een van de
+dingen die dit scherm onleesbaar maakten.
 
 Het **In één oogopslag**-paneel van de speler bevat ook een signaal
 **Metingen** naast Gem. beoordeling, Aanwezigheid en Doelen: het aantal

@@ -18,68 +18,140 @@
     background: #fff;
 }
 
-.tt-meas-cat-title {
-    margin: 0;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    background: #f4f6f5;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
+/* ── The register (#3526) ──────────────────────────────────────────
+ *
+ * One table per category, one row shape for every test. Mobile-first: the
+ * base rules below lay each row out as a two-line grid at 360px and the
+ * table form only appears from 768px, because five columns cannot be read
+ * on a phone and a horizontally scrolling table is not an answer.
+ *
+ * Colour never carries a verdict alone here. `.tt-meas-chip` states the
+ * standing in words and takes its colour from the `*-ink` tokens (#3447),
+ * which clear 4.5:1 — the `.tt-meas-flag-*` values this replaced did not.
+ */
 
-.tt-meas-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.tt-meas-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-        "head data"
-        "meta data";
-    align-items: center;
-    gap: 0.15rem 0.75rem;
-    min-height: 48px;
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.tt-meas-row:last-child {
-    border-bottom: 0;
-}
-
-.tt-meas-row-head {
-    grid-area: head;
+.tt-meas-cat__head {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--tt-bg-soft, #f4f6f5);
+    border-bottom: 1px solid var(--tt-line-soft, rgba(0, 0, 0, 0.06));
+}
+
+.tt-meas-cat-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.tt-meas-cat__count {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-meas-reg {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Phone: the table stops behaving like one. The header row is removed from
+   the accessibility tree along with the visual grid, because each cell
+   carries its own label from `data-label` instead. */
+.tt-meas-reg thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.tt-meas-reg,
+.tt-meas-reg tbody,
+.tt-meas-reg tr,
+.tt-meas-reg th,
+.tt-meas-reg td {
+    display: block;
+}
+
+.tt-meas-reg__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "test  value"
+        "stand target";
+    align-items: baseline;
+    gap: 0.2rem 0.75rem;
+    padding: 0.6rem 1rem;
+    border-top: 1px solid var(--tt-line-soft, rgba(0, 0, 0, 0.05));
+}
+
+.tt-meas-reg__test    { grid-area: test; text-align: left; font-weight: 400; }
+.tt-meas-reg__value   { grid-area: value; }
+.tt-meas-reg__standing{ grid-area: stand; }
+.tt-meas-reg__target  { grid-area: target; }
+
+/* The trend rides under the row on a phone — its own line, the third. */
+.tt-meas-reg__trend {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
+    min-width: 0;
+}
+
+.tt-meas-reg__trend:empty {
+    display: none;
 }
 
 .tt-meas-name {
+    display: block;
     font-weight: 600;
     font-size: 0.95rem;
 }
 
 .tt-meas-freq {
+    display: block;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--tt-ink-soft, #6a6d66);
 }
 
-.tt-meas-row-meta {
-    grid-area: meta;
-    font-size: 0.75rem;
-    color: #9ca3af;
+.tt-meas-reg__value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    text-align: right;
 }
 
-.tt-meas-row-data {
-    grid-area: data;
+.tt-meas-reg__standing {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.6rem;
-    justify-self: end;
+    gap: 0.4rem;
+}
+
+.tt-meas-reg__date {
+    font-size: 0.78rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-meas-reg__target {
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink-soft, #6a6d66);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.tt-meas-reg__delta {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink-soft, #6a6d66);
 }
 
 .tt-meas-spark {
@@ -87,34 +159,117 @@
     flex: 0 0 auto;
 }
 
-.tt-meas-value {
-    font-variant-numeric: tabular-nums;
+/* ── The verdict chip ─────────────────────────────────────────────── */
+
+.tt-meas-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
     font-weight: 600;
-    font-size: 1rem;
     white-space: nowrap;
-    padding: 0.1rem 0.5rem;
-    border-radius: 0.4rem;
 }
 
-.tt-meas-flag-ok {
-    color: #166534;
-    background: rgba(22, 101, 52, 0.1);
+.tt-meas-chip--ok {
+    color: var(--tt-success-ink, #1f6d41);
+    background: var(--tt-success-subtle, #dff5e1);
 }
 
-.tt-meas-flag-warn {
-    color: #92400e;
-    background: rgba(146, 64, 14, 0.12);
+.tt-meas-chip--warn {
+    color: var(--tt-warning-ink, #8a5300);
+    background: var(--tt-warning-subtle, #fdf3d8);
 }
 
-.tt-meas-flag-bad {
-    color: #991b1b;
-    background: rgba(153, 27, 27, 0.12);
+.tt-meas-chip--bad {
+    color: var(--tt-danger-ink, #a32b22);
+    background: var(--tt-danger-subtle, #fde2e2);
 }
 
-@media (min-width: 480px) {
-    .tt-meas-name {
-        font-size: 1rem;
+.tt-meas-chip--none {
+    color: var(--tt-ink-soft, #6a6d66);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+/* ── The disclosure row ───────────────────────────────────────────── */
+
+.tt-meas-reg__historyrow > td {
+    padding: 0 1rem 0.6rem;
+}
+
+/* ── Category footer and the once-per-surface note ────────────────── */
+
+.tt-meas-cat__foot {
+    padding: 0.6rem 1rem 0.75rem;
+    border-top: 1px solid var(--tt-line-soft, rgba(0, 0, 0, 0.06));
+}
+
+.tt-meas-cat__foot p,
+.tt-meas-note {
+    margin: 0 0 0.25rem;
+    font-size: 0.8rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-meas-cat__foot p:last-child {
+    margin-bottom: 0;
+}
+
+.tt-meas-note {
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .tt-meas-reg {
+        display: table;
     }
+    .tt-meas-reg thead {
+        position: static;
+        width: auto;
+        height: auto;
+        clip: auto;
+        clip-path: none;
+    }
+    .tt-meas-reg tbody { display: table-row-group; }
+    .tt-meas-reg tr    { display: table-row; }
+    .tt-meas-reg th,
+    .tt-meas-reg td    { display: table-cell; }
+
+    .tt-meas-reg thead th {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tt-ink-soft, #6a6d66);
+        text-align: left;
+        border-bottom: 1px solid var(--tt-line-soft, rgba(0, 0, 0, 0.06));
+    }
+
+    .tt-meas-reg__row > th,
+    .tt-meas-reg__row > td {
+        padding: 0.55rem 0.75rem;
+        vertical-align: baseline;
+        border-top: 1px solid var(--tt-line-soft, rgba(0, 0, 0, 0.05));
+    }
+
+    .tt-meas-reg__row {
+        border-top: 0;
+    }
+
+    /* The value and its target read as a pair down the table, so they share
+       one alignment; the name column takes whatever is left. */
+    .tt-meas-reg__value  { text-align: right; width: 1%; }
+    .tt-meas-reg__target { text-align: left; width: 1%; }
+
+    .tt-meas-reg__trend {
+        width: 1%;
+    }
+
+    .tt-meas-reg__historyrow > td {
+        padding: 0 0.75rem 0.6rem;
+    }
+
     .tt-meas-spark {
         width: 96px;
     }

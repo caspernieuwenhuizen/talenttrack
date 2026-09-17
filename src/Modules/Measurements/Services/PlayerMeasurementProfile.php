@@ -48,7 +48,7 @@ class PlayerMeasurementProfile {
      *   where a test is:
      *   [ 'definition_id', 'name', 'unit', 'value_type', 'frequency',
      *     'direction', 'latest_value', 'latest_date', 'flag', 'band',
-     *     'series' ]
+     *     'series', 'overdue' ]
      *
      * `band` (#2536) is the age-group "on target" range as
      * `[ 'min' => ?float, 'max' => ?float ]`, or null when the test has no
@@ -133,6 +133,12 @@ class PlayerMeasurementProfile {
             );
             $band = self::bandToEntryUnit( $band, $units );
 
+            // Read once and reused below: the latest date and the frequency
+            // are each wanted twice now, and asking the row twice would be a
+            // second place for the two answers to differ.
+            $latest_date = $latest_row ? (string) $latest_row->recorded_date : '';
+            $frequency   = (string) $def->frequency;
+
             $cat = (string) ( $def->category_label ?: $def->category_name ?: '' );
             if ( ! isset( $grouped[ $cat ] ) ) {
                 $grouped[ $cat ] = [ 'category' => $cat, 'tests' => [] ];
@@ -142,14 +148,25 @@ class PlayerMeasurementProfile {
                 'name'          => (string) $def->name,
                 'unit'          => $units->symbol(),
                 'value_type'    => (string) $def->value_type,
-                'frequency'     => (string) $def->frequency,
+                'frequency'     => $frequency,
                 'direction'     => (string) $def->direction,
                 'latest_value'  => $value,
-                'latest_date'   => $latest_row ? (string) $latest_row->recorded_date : '',
+                'latest_date'   => $latest_date,
                 'flag'          => $flag,
                 'level_token'   => $level_token,
                 'band'          => $band,
                 'series'        => $series,
+                // #3526 — is this test past its own measuring frequency? A
+                // derivation rather than presentation, so it lives here and
+                // reaches REST as well: a front end that renders the register
+                // must be able to say "over tijd" without recomputing it from
+                // the date and re-deriving what `quarterly` means.
+                //
+                // A test never measured is not overdue. It is *missing*, which
+                // is a different sentence and is counted separately — calling
+                // it overdue would bury a trialist's blank profile in a list
+                // meant to chase up stale readings.
+                'overdue'       => self::isOverdue( $latest_date, $frequency ),
             ];
         }
 
@@ -252,6 +269,38 @@ class PlayerMeasurementProfile {
             'min' => $band['min'] !== null ? $units->fromBase( (float) $band['min'] ) : null,
             'max' => $band['max'] !== null ? $units->fromBase( (float) $band['max'] ) : null,
         ];
+    }
+
+    /**
+     * #3526 — has this test's latest reading outlived the frequency the
+     * operator set for it?
+     *
+     * The window is the frequency's own interval plus a month's grace. Without
+     * the grace an annual test is "over tijd" on the anniversary of the last
+     * measuring day, which would flag half an academy every time a measuring
+     * round slips a fortnight — and a list that is always long is a list
+     * nobody reads.
+     *
+     * A frequency the vocabulary does not name means the operator has not said
+     * how often to measure, so there is nothing to be late for.
+     */
+    private static function isOverdue( string $latest_date, string $frequency ): bool {
+        if ( $latest_date === '' ) return false;
+
+        $months = [
+            'annual'    => 12,
+            'biannual'  => 6,
+            'quarterly' => 3,
+            'monthly'   => 1,
+        ][ $frequency ] ?? 0;
+        if ( $months === 0 ) return false;
+
+        $measured = strtotime( $latest_date );
+        if ( $measured === false ) return false;
+
+        // Months rather than a day count, so "annual" means the same date next
+        // year whatever the month lengths in between.
+        return strtotime( '+' . ( $months + 1 ) . ' months', $measured ) < time();
     }
 
     private function ageGroupFor( int $player_id ): string {
