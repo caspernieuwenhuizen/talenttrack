@@ -149,19 +149,87 @@ admin. An academy admin or head of development can change any value.
 ## Viewing a player's measurements
 
 Players and parents get a **My measurements** tile that opens the
-*Metingen* view: every test grouped by category, each showing its latest
-value, a green/amber/red flag against the player's age-group target, a
-small trend line, and how often it runs. A parent sees their child's view.
+*Metingen* view. A parent sees their child's view.
 
 Staff see the same thing **in context** on the player's profile: open a
 player and switch to the **Measurements** tab (beside Evaluations). The
 tab badge counts how many tests the player has results for.
 
+### One register per category
+
+Each category is a single table, with one row shape for every test in it —
+whatever kind of test it is:
+
+| Column | What it holds |
+| --- | --- |
+| **Test** | The name, with how often it should be measured beneath it. |
+| **Latest** | The most recent reading with its unit, or `—` when the test has never been measured. |
+| **Measured · standing** | When it was measured, then the verdict **in words**. |
+| **Target** | The value the verdict is measured against. |
+| **Trend** | The small trend line, the signed change, and a **Trend** link that opens the full history. |
+
+**The verdict is always written out, never only coloured.** A colour on
+its own cannot be checked against anything, and it is unreadable to a
+colour-blind coach:
+
+| Standing | Reads |
+| --- | --- |
+| Inside the target | *on target* |
+| Just outside, on a higher-is-better test | *just under target* |
+| Just outside, on a lower-is-better test | *just over target* |
+| Well outside, on a higher-is-better test | *well under target* |
+| Well outside, on a lower-is-better test | *well over target* |
+| Never measured | *not measured yet* |
+| A test with no better or worse | no verdict — the Target column reads *no target* |
+
+The **Target** column is what makes the verdict checkable: it shows the
+same threshold the flag is computed against (`≥ 3.400 m`, `≤ 12,4 s`). A
+**status** test has several level thresholds and no single cell can hold
+them, so it shows `—` and the level's own name carries the standing.
+
+The **change** beside the trend line names its own direction rather than
+leaving it to the slope: `−47 s · forward` on a test where lower is
+better, `+420 m · forward` where higher is. A test with no better or worse
+gets the number and no word, because the change there is a fact, not an
+achievement.
+
+### What the card footer tells you
+
+Three statements that used to repeat on every row now appear once, under
+the table:
+
+- **How many tests have a single reading** — a trend needs two, and saying
+  so once is enough.
+- **Which tests have never been measured** — they still appear in the
+  table, reading `—` with a *not measured yet* chip, rather than vanishing
+  or looking like a rendering fault.
+- **Which tests are overdue** against their own frequency — an annual test
+  last measured fourteen months ago is named here, with its frequency. A
+  month's grace is allowed before a test counts as late, so a measuring
+  round that slips a fortnight does not flag the whole squad.
+
+A test that has never been measured is listed as *missing*, never as
+*overdue*: a trialist's blank profile is a different problem from a stale
+reading, and mixing them makes the chase-up list useless.
+
+### BMI on the tab
+
+**BMI-for-age** appears as an ordinary row in the category of the
+measurements it is derived from, tagged *derived*, with the percentile in
+the Target column — or *no percentile* where the growth reference does not
+cover the player's age and sex. It is not a separate card above the tab
+any more.
+
+It stays hidden from the player and their family, exactly as before: a
+screening figure about a child's body reaches a family through a
+conversation, not a tab. Switching off the BMI report for the academy
+removes the row.
+
 ### The full history behind a test
 
 The small trend line answers "which way is this going?" at a glance. For
-the rest, every test with more than one result carries a **Show history**
-link that opens the readable version underneath it. What appears there
+the rest, every test with more than one result carries a **Trend**
+link that opens the readable version across the register. What appears there
 depends on the kind of test, because a trend only means something in the
 terms of the test it belongs to:
 
@@ -171,7 +239,7 @@ terms of the test it belongs to:
 | A number with **no better or worse** (height, weight, shoe size) | The **readings per date, in columns** — no chart, no target, no verdict. See below. |
 | A **status** test (levels such as *On track* / *Watch*) | One block per recorded date in that level's own colour. No line: levels are named states, not distances, so joining them with a slope would invent precision the data does not have. |
 | **Passed / not passed** | A tick or cross per date plus the tally (*3 of 4*). |
-| Any test with **one result** | A sentence saying so. A chart drawn around a single point reads as missing data rather than as a starting position. |
+| Any test with **one result** | No history link. The card footer counts how many tests are in that position, once, rather than repeating the sentence on every row. |
 
 On a chart where **lower is better**, an improving line goes *down*. That
 is stated in words under every such chart — the slope alone is not allowed
@@ -181,15 +249,18 @@ been told which way is good.
 ### Tests with no better or worse
 
 Height, weight and shoe size are measured and tracked, but a higher value
-is not a better one. These tests are grouped together per category and
-shown as **values per date in columns**, with a plain **Change** column at
-the end (`+6`).
+is not a better one. They sit in the same register as every other test,
+reading **no target** in the Target column and carrying no verdict chip.
 
 They get no chart, no target band and no ranking on purpose. A rising line
 would imply progress, a shaded band would imply a norm, and a
 "most improved" list would imply the tallest player is performing best —
-all three are untrue. A missed measuring moment shows as `—`, never as a
-zero, and the change is worked out over the dates that do have a reading.
+all three are untrue. The change is still shown, as a plain signed number
+with no direction word attached.
+
+What *no target* means is explained once at the bottom of the tab, not
+under every category — repeating it per card was one of the things that
+made this screen hard to read in the first place.
 
 The player's **At a glance** panel also carries a **Measurements** signal
 beside Avg rating, Attendance and Goals: the number of tests the player

@@ -61981,6 +61981,128 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:111
+msgid ""
+"\"No target\" means the test has no better or worse — the reading is "
+"recorded, not judged."
+msgstr ""
+"\"Geen doel\" betekent dat de test geen beter of slechter kent — de meting "
+"wordt vastgelegd, niet beoordeeld."
+
+#. translators: %d: number of tests in this category.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:154
+#, php-format
+msgid "%d test"
+msgid_plural "%d tests"
+msgstr[0] "%d test"
+msgstr[1] "%d tests"
+
+#. translators: %s: the most recent measuring date in this category.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:161
+#, php-format
+msgid "last measured %s"
+msgstr "laatst gemeten %s"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
+msgctxt "most recent reading of a test"
+msgid "Latest"
+msgstr "Laatste"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:173
+msgid "Measured · standing"
+msgstr "Gemeten · stand"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:174
+msgctxt "the value a test is measured against"
+msgid "Target"
+msgstr "Doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:175
+msgctxt "movement of a test over time"
+msgid "Trend"
+msgstr "Verloop"
+
+#. translators: %d: how many tests have exactly one reading.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:189
+#, php-format
+msgid "One reading on %d test — a trend needs at least two."
+msgid_plural "One reading on %d tests — a trend needs at least two."
+msgstr[0] "Eén meting bij %d test — een verloop heeft er minstens twee nodig."
+msgstr[1] "Eén meting bij %d tests — een verloop heeft er minstens twee nodig."
+
+#. translators: %s: comma-separated list of test names.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:201
+#, php-format
+msgid "Never measured: %s."
+msgstr "Nog nooit gemeten: %s."
+
+#. translators: %s: comma-separated list of test names with their frequency.
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:208
+#, php-format
+msgid "Overdue: %s."
+msgstr "Over tijd: %s."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:345
+msgctxt "a test that has never been measured"
+msgid "not measured yet"
+msgstr "nog niet gemeten"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:378
+msgctxt "a test reading meets its target"
+msgid "on target"
+msgstr "op doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:383
+msgctxt "a reading a little below a higher-is-better target"
+msgid "just under target"
+msgstr "net onder doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:384
+msgctxt "a reading a little above a lower-is-better target"
+msgid "just over target"
+msgstr "net boven doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:387
+msgctxt "a reading far below a higher-is-better target"
+msgid "well under target"
+msgstr "ver onder doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:388
+msgctxt "a reading far above a lower-is-better target"
+msgid "well over target"
+msgstr "ver boven doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:414
+msgctxt "a test with no better or worse value"
+msgid "no target"
+msgstr "geen doel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:458
+msgctxt "a test reading has improved"
+msgid "forward"
+msgstr "vooruit"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:459
+msgctxt "a test reading has worsened"
+msgid "backward"
+msgstr "achteruit"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:498
+msgctxt "a value calculated from other measurements"
+msgid "derived"
+msgstr "afgeleid"
+
+#. translators: %s: an ordinal percentile, e.g. "62nd".
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:510
+#, php-format
+msgid "%s percentile"
+msgstr "%s percentiel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:513
+msgctxt "the growth reference does not cover this player"
+msgid "no percentile"
+msgstr "geen percentiel"
+
 #~ msgid ""
 #~ "Mark this activity completed? Record attendance first if you have not — "
 #~ "you can reopen it later."

@@ -2123,84 +2123,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
         }
-        // #2895 — BMI-for-age sits at the top of the tab, above the per-test
-        // rows it is derived from. It is the third surface decision 3 called
-        // for, and it renders through the same BmiBlock the report does, so a
-        // coach reading a player's file and a coach reading the roster report
-        // cannot be shown different percentiles for the same child.
-        self::renderBmiBlock( $player_id, $viewer );
-
+        // #3526 — BMI is a row inside the register now, in the category of the
+        // measurements it is derived from, rather than a second card system
+        // stacked above the tab. The `report_player_bmi` toggle and #3393's
+        // family gate travel with it into `FrontendMeasurementsView`, which is
+        // also why `?tt_view=measurements` finally shows it at all.
         \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::renderBody( $player_id );
-    }
-
-    /**
-     * The BMI-for-age block on the Measurements tab.
-     *
-     * Renders nothing at all when the report is switched off for the academy,
-     * or when this player has no usable height/weight pair and no age the
-     * reference covers — an empty framed box on a player's file is noise, and
-     * the roster report is where "who is missing data" belongs.
-     *
-     * #3278 — the figure and its percentile, nothing else. The caveat, the
-     * provenance line and the change-since line moved off this tab and stayed
-     * on `Player · BMI-for-age`; see `BmiBlock::renderStanding()` for why the
-     * split falls there.
-     *
-     * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
-     */
-    private static function renderBmiBlock( int $player_id, array $viewer ): void {
-        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_player_bmi' ) ) {
-            return;
-        }
-
-        // #3393 — not to the player or their family, matching the decision
-        // the `player-bmi` report tile already carries:
-        //
-        //   'hide_for_personas' => [ 'player', 'parent' ] — this is a
-        //   screening figure about a child's body, and a player or parent
-        //   meeting it without context on a dashboard tile is not how it
-        //   should reach them.
-        //
-        // #2895 made that call for the report and this tab rendered the same
-        // `BmiBlock` straight past it, because the gate here asked for
-        // `measurements:read` — which a player holds at `self` scope. The
-        // figure reaches a family through a conversation, not a tab.
-        if ( $viewer['is_family'] ) {
-            return;
-        }
-
-        $query  = new \TT\Modules\Measurements\Reports\BmiQuery();
-        $series = $query->playerSeries( $player_id );
-        if ( $series === [] ) {
-            return;
-        }
-
-        $latest = $series[ count( $series ) - 1 ];
-
-        // Only what the block still renders. The `previous_date` /
-        // `delta_sds` pair fed the change-since line and `date` / `gap_days`
-        // fed the provenance line; both lines are gone, and computing values
-        // nothing renders is how a reader ends up trusting that something on
-        // screen still uses them. `BmiQuery` is unchanged — the roster report
-        // reads all four.
-        $row = [
-            'bmi'        => $latest['bmi'],
-            'sds'        => $latest['sds'],
-            'percentile' => $latest['percentile'],
-            'covered'    => $latest['sds'] !== null,
-        ];
-
-        wp_enqueue_style(
-            'tt-frontend-bmi',
-            TT_PLUGIN_URL . 'assets/css/frontend-bmi.css',
-            [],
-            TT_VERSION
-        );
-
-        echo '<section class="tt-bmi-section">';
-        echo '<h3>' . esc_html__( 'BMI-for-age', 'talenttrack' ) . '</h3>';
-        \TT\Modules\Measurements\Frontend\BmiBlock::renderStanding( $row );
-        echo '</section>';
     }
 
     /**
