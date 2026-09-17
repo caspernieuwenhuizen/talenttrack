@@ -50,12 +50,13 @@ final class TeamMonthlyReportPage {
         $team_id = (int) ( $team->id ?? 0 );
         $layout  = self::requestedLayout();
         $blocks  = self::requestedBlocks();
+        $options = self::requestedOptions( $blocks );
 
         $report = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id() );
         $fit    = TeamMonthlyReportLayout::fit( $report, $layout );
         $data   = $report['data'];
 
-        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit );
+        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit, $options );
 
         echo '<div class="tt-mr" data-tt-monthly-report>';
         $head = $data['letterhead'] ?? [];
@@ -123,6 +124,29 @@ final class TeamMonthlyReportPage {
     }
 
     /**
+     * #3514 — `options={"tests":{...}}`, the per-block option bags.
+     *
+     * JSON because the bags nest and a query string does not. Forgiving like
+     * the rest of the screen: malformed JSON, an unknown block or an option no
+     * block recognises is dropped, and the report renders without it. The PDF
+     * exporter refuses the same input instead — a filter that silently does
+     * nothing produces a document nobody asked for, and that matters more on
+     * something that gets printed and handed round a table.
+     *
+     * @param list<string> $blocks
+     * @return array<string,array<string,mixed>>
+     */
+    private static function requestedOptions( array $blocks ): array {
+        $raw = isset( $_GET['options'] ) ? wp_unslash( $_GET['options'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized in normalise().
+        if ( ! is_string( $raw ) || $raw === '' ) return [];
+
+        return TeamMonthlyReportComposition::normalise( [
+            'blocks'  => $blocks,
+            'options' => $raw,
+        ] )['options'];
+    }
+
+    /**
      * The composition parameters the period bar carries, so changing the
      * window keeps the layout and sections, and so a saved view captures them.
      * Only what is on the URL: an absent layout or section list is the default,
@@ -137,6 +161,12 @@ final class TeamMonthlyReportPage {
         }
         if ( isset( $_GET['blocks'] ) || isset( $_GET['blk'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
             $params['blocks'] = implode( ',', self::requestedBlocks() );
+        }
+        // #3514 — re-encoded from the normalised bags rather than passed
+        // through, so a hand-edited URL cannot be carried into a saved view.
+        if ( isset( $_GET['options'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $options = self::requestedOptions( self::requestedBlocks() );
+            if ( $options !== [] ) $params['options'] = (string) wp_json_encode( $options );
         }
         return $params;
     }
@@ -165,13 +195,20 @@ final class TeamMonthlyReportPage {
      * @param array{from:string,to:string,period:string}                                  $window
      * @param list<string>                                                                $selected
      * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
+     * @param array<string,array<string,mixed>>                                               $options #3514 per-block options
      */
-    private static function renderPanel( int $team_id, array $window, string $layout, array $selected, array $fit ): void {
+    private static function renderPanel( int $team_id, array $window, string $layout, array $selected, array $fit, array $options = [] ): void {
         $hidden = [
             'tt_view' => 'standard-report', /* tt-xview-ok */ // the form re-opens this same view
             'slug'    => self::SLUG,
             'team_id' => (string) $team_id,
         ];
+        // #3514 — the panel's own submit must not drop options a URL carried.
+        // No block offers option controls yet (#3515 is the first), so they
+        // ride through the form as one hidden field.
+        if ( $options !== [] ) {
+            $hidden['options'] = (string) wp_json_encode( $options );
+        }
         if ( $window['period'] !== '' ) {
             $hidden['period'] = $window['period'];
         } else {
@@ -253,8 +290,8 @@ final class TeamMonthlyReportPage {
 
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
-        $schedule_url = self::scheduleUrl( $team_id, $layout, $selected );
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $team_id, $window, $layout, $selected, $options ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        $schedule_url = self::scheduleUrl( $team_id, $layout, $selected, $options );
         if ( $schedule_url !== '' ) {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
         }
@@ -267,6 +304,7 @@ final class TeamMonthlyReportPage {
             'to'      => $window['period'] === '' ? $window['to'] : '',
             'layout'  => $layout,
             'blocks'  => $selected,
+            'options' => $options,
         ] ) );
         echo '</form>';
     }
@@ -275,7 +313,7 @@ final class TeamMonthlyReportPage {
      * Says which saved view the reader is looking at, or that they changed
      * their default — so saving a new view is an informed choice.
      *
-     * @param array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>} $current
+     * @param array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>} $current
      */
     private static function renderPresetStatus( array $current ): void {
         if ( ! SavedViewsRegistry::currentUserCan( TeamMonthlyReportComposition::VIEW_KEY ) ) return;
@@ -302,20 +340,24 @@ final class TeamMonthlyReportPage {
      * analytics authoring, the tier lacks scheduled reports, or the screen is
      * switched off), so the button is not offered to someone it would refuse.
      *
-     * @param list<string> $selected
+     * @param list<string>                      $selected
+     * @param array<string,array<string,mixed>> $options #3514 — the schedule keeps its own copy, options included
      */
-    public static function scheduleUrl( int $team_id, string $layout, array $selected ): string {
+    public static function scheduleUrl( int $team_id, string $layout, array $selected, array $options = [] ): string {
         if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) && ! \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' ) ) return '';
         if ( ! CrossViewLink::allows( 'scheduled-reports' ) ) return '';
 
-        return BackLink::appendTo( add_query_arg( [
+        $args = [
             'tt_view' => 'scheduled-reports', /* tt-xview-ok */ // gated by CrossViewLink::allows() above
             'report'  => 'team_monthly',
             'team_id' => $team_id,
             'layout'  => $layout,
             'blocks'  => implode( ',', $selected ),
-        ], RecordLink::dashboardUrl() ) );
+        ];
+        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
+
+        return BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
     }
 
     /**
@@ -325,14 +367,16 @@ final class TeamMonthlyReportPage {
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $selected
+     * @param array<string,array<string,mixed>>          $options #3514 per-block options
      */
-    public static function pdfUrl( int $team_id, array $window, string $layout, array $selected ): string {
+    public static function pdfUrl( int $team_id, array $window, string $layout, array $selected, array $options = [] ): string {
         $args = [
             'format'  => 'pdf',
             'team_id' => $team_id,
             'layout'  => $layout,
             'blocks'  => implode( ',', $selected ),
         ];
+        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
         if ( $window['period'] !== '' ) {
             $args['period'] = $window['period'];
         } else {

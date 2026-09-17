@@ -21,12 +21,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * malformed window falls back to the default period. A composition saved last
  * season must still open a report, not an error.
  *
- * @phpstan-type Composition array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}
+ * #3514 adds `options`: a map of block key => option bag, for blocks that can
+ * be told *what* to show and not merely whether to appear. The composition
+ * carries it and never reads it — each block owns the shape of its own
+ * options (`TeamMonthlyReportBlockOptions`).
+ *
+ * @phpstan-type Composition array{team_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}
  */
 final class TeamMonthlyReportComposition {
 
     /** The URL / saved-view parameters a composition is carried in. */
-    public const PARAMS = [ 'team_id', 'period', 'from', 'to', 'layout', 'blocks' ];
+    public const PARAMS = [ 'team_id', 'period', 'from', 'to', 'layout', 'blocks', 'options' ];
 
     /** The saved-views surface key (`SavedViewsRegistry`). */
     public const VIEW_KEY = 'report-team-monthly';
@@ -105,7 +110,94 @@ final class TeamMonthlyReportComposition {
             'to'      => $to,
             'layout'  => $layout,
             'blocks'  => $blocks,
+            'options' => self::normaliseOptions( $raw['options'] ?? null, $blocks ),
         ];
+    }
+
+    /**
+     * #3514 — the option bags, keyed by block.
+     *
+     * Accepts the JSON a URL carries as well as a decoded array, because the
+     * same composition arrives from a query string, a saved view's JSON and a
+     * schedule's stored copy.
+     *
+     * Options for a block that is not selected are **dropped**, not kept as
+     * ghosts: a composition should say what it renders and nothing else. An
+     * empty block list means every block, so nothing is dropped then.
+     *
+     * @param mixed $raw
+     * @param list<string> $blocks
+     * @return array<string,array<string,mixed>>
+     */
+    private static function normaliseOptions( $raw, array $blocks ): array {
+        if ( is_string( $raw ) ) {
+            $decoded = json_decode( $raw, true );
+            $raw     = is_array( $decoded ) ? $decoded : [];
+        }
+        if ( ! is_array( $raw ) ) return [];
+
+        $selected = $blocks === [] ? TeamMonthlyReportBlock::ALL : $blocks;
+
+        $out = [];
+        foreach ( $raw as $block => $bag ) {
+            $key = sanitize_key( (string) $block );
+            if ( ! TeamMonthlyReportBlock::isValid( $key ) ) continue;
+            if ( ! in_array( $key, $selected, true ) ) continue;
+            if ( ! is_array( $bag ) ) continue;
+
+            $bag = TeamMonthlyReportBlockOptions::normalise( $key, $bag );
+            if ( $bag !== [] ) $out[ $key ] = $bag;
+        }
+
+        ksort( $out );
+        return $out;
+    }
+
+    /**
+     * #3514 — what a strict caller should refuse: option keys no block
+     * recognises, as `block.key`.
+     *
+     * The screen drops these; REST refuses them. A filter that is silently
+     * ignored renders a document nobody asked for, which is worse on a report
+     * than an error would be.
+     *
+     * @param array<string,mixed> $raw
+     * @return list<string>
+     */
+    public static function unknownOptions( array $raw ): array {
+        $options = $raw['options'] ?? null;
+        if ( is_string( $options ) ) {
+            $decoded = json_decode( $options, true );
+            $options = is_array( $decoded ) ? $decoded : [];
+        }
+        if ( ! is_array( $options ) ) return [];
+
+        $unknown = [];
+        foreach ( $options as $block => $bag ) {
+            $key = sanitize_key( (string) $block );
+            if ( ! TeamMonthlyReportBlock::isValid( $key ) ) {
+                $unknown[] = (string) $block;
+                continue;
+            }
+            if ( ! is_array( $bag ) ) continue;
+
+            foreach ( TeamMonthlyReportBlockOptions::unknownKeys( $key, $bag ) as $bad ) {
+                $unknown[] = $bad;
+            }
+        }
+        return $unknown;
+    }
+
+    /**
+     * The options for one block, ready for the composer. Always an array, so a
+     * block never has to ask whether it was given anything.
+     *
+     * @param Composition $composition
+     * @return array<string,mixed>
+     */
+    public static function optionsFor( array $composition, string $block ): array {
+        $options = $composition['options'];
+        return is_array( $options[ $block ] ?? null ) ? $options[ $block ] : [];
     }
 
     /**
@@ -143,6 +235,14 @@ final class TeamMonthlyReportComposition {
     /** @param Composition $c */
     private static function key( array $c ): string {
         $blocks = TeamMonthlyReportBlock::normalise( $c['blocks'] );
-        return implode( '|', [ $c['team_id'], $c['period'], $c['from'], $c['to'], $c['layout'], implode( ',', $blocks ) ] );
+
+        // #3514 — options are part of what a composition *is*. Without them a
+        // saved view showing the sprint test would report itself "active"
+        // while the reader looks at the jump test.
+        $options = $c['options'];
+        ksort( $options );
+        $encoded = (string) wp_json_encode( $options );
+
+        return implode( '|', [ $c['team_id'], $c['period'], $c['from'], $c['to'], $c['layout'], implode( ',', $blocks ), $encoded ] );
     }
 }
