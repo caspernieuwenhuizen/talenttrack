@@ -1,0 +1,157 @@
+/*
+ * frontend-team-stats.css (#3522, epic #3519) — the team page's Statistics tab.
+ *
+ * Mobile-first from 360px: everything is a single column, the record strip
+ * wraps rather than scrolling sideways, and the two leaderboards stack. They
+ * sit side by side from 768px, which is one of the sanctioned breakpoints.
+ *
+ * Tokens only, no raw hex — the tab has to survive a club theme.
+ */
+
+.tt-ts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4, 16px);
+}
+
+/* ── The window ───────────────────────────────────────────────────── */
+
+.tt-ts-window {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-ts-window__label {
+    margin: 0;
+    font-weight: 600;
+}
+
+.tt-ts-window__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-ts-window__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    flex: 1 1 10rem;
+    min-width: 0;
+    font-size: 0.8rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-ts-window__field .tt-input {
+    /* >=16px keeps iOS from zooming the page when the field takes focus. */
+    font-size: 1rem;
+    min-height: 48px;
+}
+
+.tt-ts-window__form .tt-btn {
+    min-height: 48px;
+}
+
+/* ── Sections ─────────────────────────────────────────────────────── */
+
+.tt-ts-section {
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    padding: var(--tt-sp-3, 12px);
+}
+
+.tt-ts-section__title {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: 0.95rem;
+}
+
+.tt-ts-note,
+.tt-ts-empty {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: 0.85rem;
+}
+
+.tt-ts-empty {
+    margin: 0;
+}
+
+/* ── The record strip ─────────────────────────────────────────────── */
+
+.tt-ts-record {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* Wraps to as many columns as fit rather than scrolling: a figure pushed
+       off the right edge is a figure nobody reads. */
+    grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-ts-record__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--tt-sp-2, 8px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-ts-record__n {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.tt-ts-record__l {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ── Tables ───────────────────────────────────────────────────────── */
+
+.tt-ts-table__n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tt-ts-table th[scope="row"] {
+    font-weight: 500;
+    text-align: left;
+}
+
+.tt-ts-table a {
+    /* A name in a ranked table is a link before it is a label, and it has to
+       be reachable with a thumb. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+}
+
+/* ── The leaderboard pair ─────────────────────────────────────────── */
+
+.tt-ts-pair {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 768px) {
+    .tt-ts-pair {
+        grid-template-columns: 1fr 1fr;
+    }
+    .tt-ts-window {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+}
