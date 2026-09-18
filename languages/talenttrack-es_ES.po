@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-18T04:17:41+00:00\n"
+"POT-Creation-Date: 2026-09-18T05:17:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -102,7 +102,7 @@ msgstr ""
 #: src/Infrastructure/Security/RolesService.php:508
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:234
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:216
 #: src/Modules/Analytics/AnalyticsModule.php:118
 #: src/Modules/Analytics/AnalyticsModule.php:176
@@ -2199,7 +2199,7 @@ msgstr "Entrenamiento"
 
 #: src/Infrastructure/Query/LabelTranslator.php:234
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:287
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:130
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:156
 #: src/Modules/Knowledge/Periodisation.php:225
@@ -2528,7 +2528,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:98
 #: src/Modules/Activities/Admin/ActivitiesPage.php:345
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:449
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:527
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:623
 #: src/Modules/Analytics/AnalyticsModule.php:119
 #: src/Modules/Analytics/AnalyticsModule.php:155
 #: src/Modules/Analytics/AnalyticsModule.php:178
@@ -5362,7 +5362,7 @@ msgstr "Actualizar"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:434
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:370
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:335
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:867
@@ -5598,7 +5598,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:57
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:367
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:65
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:332
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:337
 msgid "No unsaved changes"
 msgstr ""
 
@@ -5696,7 +5696,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:209
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:350
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:446
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1294
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:322
@@ -5785,7 +5785,7 @@ msgid "Attendance for %1$s on %2$s"
 msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:369
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:334
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:339
 #: src/Modules/Activities/Services/EmptyRegisterConfirm.php:50
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:260
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php:267
@@ -5910,15 +5910,15 @@ msgstr ""
 msgid "fill the cells per match, then Save"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:246
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:249
 msgid "Minutes come from the match sheet; your entry is kept as a correction."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:246
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:249
 msgid "live"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:250
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:253
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:256
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:232
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:71
@@ -5928,61 +5928,93 @@ msgstr ""
 msgid "Total"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:284
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:289
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:283
 msgid "Not in squad"
 msgstr ""
 
 #. translators: 1: player name, 2: match date.
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:296
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:301
 #, php-format
 msgid "Minutes for %1$s on %2$s"
 msgstr ""
 
 #. translators: 1: player name, 2: match date.
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:304
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:309
 #, php-format
 msgid "Goals for %1$s on %2$s"
 msgstr ""
 
 #. translators: 1: player name, 2: match date.
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:310
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:315
 #, php-format
 msgid "Assists for %1$s on %2$s"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:351
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:373
+msgctxt "row label: the academy team"
+msgid "Us"
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:377
+msgctxt "abbreviation: the opposing club"
+msgid "Opp."
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:411
+msgid "A tournament is a multi-game day and has no single score."
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:418
+msgid ""
+"This score follows the match sheet. Correct a goal in the post-match review "
+"and it follows."
+msgstr ""
+
+#. translators: %s: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:425
+#, php-format
+msgid "Our goals on %s"
+msgstr ""
+
+#. translators: %s: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:427
+#, php-format
+msgid "Opponent goals on %s"
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:447
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3002
 msgctxt "minutes column, abbreviated"
 msgid "Min"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:358
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:399
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:454
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:495
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:241
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1037
 msgctxt "goals scored in matches"
 msgid "Goals scored"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:359
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:455
 msgctxt "goals column, abbreviated"
 msgid "G"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:363
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:400
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:459
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:496
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:242
 msgctxt "who created a goal"
 msgid "Assists"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:364
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:460
 msgctxt "assists column, abbreviated"
 msgid "A"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:396
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:492
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:447
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:149
@@ -5994,23 +6026,23 @@ msgstr ""
 msgid "Show"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:443
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:539
 msgid "Attributed / score"
 msgstr ""
 
 #. translators: %d: goals attributed to a named scorer.
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:456
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:552
 #, php-format
 msgid "%d attributed"
 msgid_plural "%d attributed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:471
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:567
 msgid "Every goal in this match has a scorer against it."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:472
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:568
 msgid ""
 "Some goals in this match have no scorer against anyone yet. The scoreline is "
 "unchanged."
@@ -6250,6 +6282,18 @@ msgstr ""
 
 #: src/Modules/AdminCenterClient/BroadcastsRestController.php:50
 msgid "There is no broadcast to dismiss with this id."
+msgstr ""
+
+#. translators: 1: the support operator's name, 2: local date and time the access ends.
+#: src/Modules/AdminCenterClient/SupportGrantBanner.php:83
+#, php-format
+msgid "Support access is active: %1$s — no reason was given. Ends %2$s."
+msgstr ""
+
+#. translators: 1: the support operator's name, 2: why they were given access, 3: local date and time it ends.
+#: src/Modules/AdminCenterClient/SupportGrantBanner.php:91
+#, php-format
+msgid "Support access is active: %1$s — %2$s. Ends %3$s."
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
@@ -10939,7 +10983,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:33
 #: src/Modules/Authorization/Impersonation/ImpersonationAdminPost.php:30
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:52
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:83
 msgid "You do not have permission to impersonate users."
 msgstr ""
 
@@ -12674,27 +12718,33 @@ msgstr ""
 msgid "Deleted user #%d"
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:37
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:61
+msgid ""
+"Support access needs a live grant from the Admin Center. Ask the club to "
+"request support, or raise a grant."
+msgstr ""
+
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:68
 msgid "Actor and target user ids are required."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:40
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:71
 msgid "Cannot impersonate yourself."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:46
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:77
 msgid "Actor user not found."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:49
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:80
 msgid "Target user not found."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:55
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:86
 msgid "Cannot impersonate another administrator."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:58
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:89
 msgid "Already impersonating — switch back first."
 msgstr ""
 

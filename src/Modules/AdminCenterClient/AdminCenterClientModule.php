@@ -40,6 +40,9 @@ class AdminCenterClientModule implements ModuleInterface {
         ReleaseRing::register();
         // #3499 — operator broadcasts, shown in the product.
         BroadcastBanner::init();
+        // #3501 — the club's view of live operator access. Not dismissable:
+        // visibility is the safeguard the "no approval step" decision rests on.
+        SupportGrantBanner::init();
         BroadcastsRestController::init();
     }
 }
