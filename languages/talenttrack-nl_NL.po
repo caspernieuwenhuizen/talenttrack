@@ -62514,6 +62514,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/DemoData/DemoCoverage.php:1353
+msgid "Meeting snapshots"
+msgstr "Momentopnamen overleg"
+
+#: src/Modules/DemoData/DemoCoverage.php:1389
+msgid ""
+"One monthly report frozen for a staff meeting, with the notes the meeting "
+"wrote on it."
+msgstr ""
+"Eén maandrapport bevroren voor een stafoverleg, met de notities die het "
+"overleg erop schreef."
+
 #~ msgid ""
 #~ "These tests have no target and no direction — a higher or lower value is "
 #~ "not better. The readings are shown per date, without a verdict."
