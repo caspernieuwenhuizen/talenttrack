@@ -2,7 +2,7 @@
 
 # Player profile — Tournament tab (per-player rollup)
 
-Follow-up to `specs/0093-feat-tournament-planner.md`. The tournament planner ships without a per-player rollup on the player profile; this idea covers that gap.
+Follow-up to `specs/shipped/0093-feat-tournament-planner.md`. The tournament planner ships without a per-player rollup on the player profile; this idea covers that gap.
 
 ## What
 
