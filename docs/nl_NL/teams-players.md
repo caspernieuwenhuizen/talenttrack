@@ -176,11 +176,34 @@ De teampagina is opnieuw opgebouwd in de stijl van het [spelersprofiel](teams-pl
 De teampagina heeft twee tabbladen, vastgezet onder de naam van het team: **Overzicht** en **Statistieken**.
 
 - **Overzicht** is de pagina zoals hierboven beschreven — alle kaarten, in dezelfde volgorde, en nog steeds bepaald door je persoonlijke keuze bij Aanpassen.
-- **Statistieken** toont wat het team op het veld liet zien: balans, recente vorm, doelpuntenmakers, assists en optredens. Dat komt in de volgende release; tot die tijd staat dat er ook, in plaats van een leeg paneel.
+- **Statistieken** toont wat het team op het veld liet zien — zie hieronder.
 
 Twee tabbladen, niet één per kaart. De sectielijst blijft waar hij hoort — onder Aanpassen, binnen Overzicht — want acht tabbladen voor acht kaarten leest slechter dan het scrollen dat ze zouden vervangen.
 
 Wisselen van tabblad laadt de pagina opnieuw (`?tt_view=teams&id=N&tab=stats`), en dat is met opzet: zo draait het openen van een selectie niet stilletjes ook de statistiekopvragingen. Een onbekende of ontbrekende `tab` opent Overzicht, zodat een oude bladwijzer nog steeds ergens zinnigs uitkomt, en de "terug naar…"-link waarmee je binnenkwam blijft bij het wisselen behouden.
+
+### Het tabblad Statistieken
+
+Wat het team op het veld deed, over een periode die standaard het lopende seizoen is en die bovenaan benoemd staat, zodat "12 gespeeld" nooit onduidelijk is over *wanneer*. Versmal hem met de datums Vanaf / T/m.
+
+- **Balans** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen, doelsaldo, keren de nul gehouden.
+- **Recente vorm** — de laatste uitslagen als W/G/V-chips met de standen, dezelfde regel die spelers op hun Mijn team-pagina zien.
+- **Topscorers** en **Meeste assists** — twee ranglijsten, naast elkaar op een tablet en onder elkaar op een telefoon. Elke naam opent het profiel van die speler.
+- **Optredens en minuten** — de bovenkant van de selectie op minuten, met een link naar het volledige minutenrapport voor de rest.
+
+**De ranglijsten tonen alleen wie bijdroeg.** Een speler die niet scoorde staat niet in de lijst met doelpuntenmakers. Een lijst ter lengte van de selectie vol nullen bedelft juist de zes namen waarvoor je het tabblad opende.
+
+**Optredens is een selectie, niet de hele tabel.** De volledige uitsplitsing per speler — basisplaatsen, in- en uitvallen, verdeling per soort, detail per wedstrijd — staat al in het minutenrapport van het team. Twee tabellen die voor altijd moeten overeenkomen is een slechter antwoord dan één tabel en een link.
+
+Drie dingen zegt het tabblad in plaats van ze aan jou over te laten:
+
+- Geen wedstrijden in de periode → dat staat er, in plaats van een scherm vol nullen.
+- Wel gespeeld maar geen uitslag ingevoerd → apart geteld en benoemd, want een stille 0–0 zou de balans onjuist maken.
+- Doelpunten vastgelegd maar nog niet aan spelers toegewezen → dat staat er, in plaats van een lege lijst met doelpuntenmakers. Een lege lijst leest als "niemand scoorde", en dat is het bijna nooit.
+
+Toernooien blijven buiten de balans, met een regel over hoeveel het er waren: een toernooi zijn meerdere wedstrijden en één uitslag kan dat niet beschrijven. Doelpunten die daar vielen tellen wel mee voor de doelpuntenmakers.
+
+De nul houden wordt voor het team geteld en niet aan een keeper toegeschreven — de plugin legt niet vast wie een bepaalde wedstrijd keepte.
 
 ### Aanpassen — secties per coach
 

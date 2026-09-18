@@ -175,11 +175,34 @@ The team page is rebuilt to mirror the [player profile](teams-players.md#player-
 The team page carries two tabs, pinned under the team's name: **Overview** and **Statistics**.
 
 - **Overview** is the page as described above — every card, in the same order, and still governed by your personal Customize choice.
-- **Statistics** is the team's match output: record, recent form, scorers, assists and appearances. It fills in the next release; for now it says so rather than opening onto a blank panel.
+- **Statistics** is the team's match output — see below.
 
 Two tabs, not one per card. The section list stays where it belongs — under Customize, inside Overview — because eight tabs for eight cards would be harder to read than the scroll they replaced.
 
 Switching tabs reloads the page (`?tt_view=teams&id=N&tab=stats`), which is deliberate: it means opening a roster does not quietly run the statistics queries as well. An unknown or missing `tab` opens Overview, so an old bookmark still lands somewhere sensible, and the "back to…" link you arrived with survives a tab switch.
+
+### The Statistics tab
+
+What the team did on the pitch, over a window that defaults to the current season and is named at the top so "12 played" is never ambiguous about *when*. Narrow it with the From / To dates.
+
+- **Record** — played, won, drawn, lost, goals for and against, goal difference, clean sheets.
+- **Recent form** — the last results as W/D/L chips with their scorelines, the same line players see on their My team page.
+- **Top scorers** and **Top assists** — two ranked tables, side by side on a tablet and stacked on a phone. Each name opens that player's profile.
+- **Appearances and minutes** — the top of the squad by minutes, with a link to the full minutes report for the rest.
+
+**The leaderboards list contributors only.** A player who has not scored does not appear in the scorers table. A roster-length list of zeros buries the six names you opened the tab to read.
+
+**Appearances is a slice, not the whole table.** The complete per-player breakdown — starts, subs on and off, per-type split, per-match drill-down — already lives on the team minutes report. Two tables that have to agree forever is a worse answer than one table and a link.
+
+Three things the tab says rather than leaving you to guess:
+
+- No matches in the window → it says so, instead of a screen of zeros.
+- Matches played with no score typed in → counted separately and named, because a silent 0–0 would make the record wrong.
+- Goals recorded but not yet attributed to players → it says that, instead of an empty scorers table. An empty table reads as "nobody scored", which is almost never what it means.
+
+Tournaments are left out of the record, with a line saying how many there were: a tournament is several games and one scoreline cannot describe it. Goals scored at one still count towards the scorers.
+
+Clean sheets are counted for the team, not credited to a goalkeeper — the plugin does not record who kept goal in a given match.
 
 ### Customize — per-coach sections
 

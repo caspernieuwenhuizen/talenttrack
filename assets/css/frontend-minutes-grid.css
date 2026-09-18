@@ -19,6 +19,47 @@
 }
 .tt-agrid-min-in:focus-visible { outline: 2px solid #e8b624; outline-offset: -1px; }
 
+/* ---- scoreline rows (#3531) -------------------------------------
+   Two header rows between the match dates and the Min|G|A sub-header:
+   our goals, then theirs. The footer has always reconciled attributed
+   goals against a score; these are where that score gets entered. */
+.tt-agrid__scorerow > th.tt-agrid__scorelabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-agrid-cell.tt-agrid-score { padding: 3px; text-align: center; }
+
+.tt-agrid-score-in {
+  width: 48px;
+  /* 48px so the box is a thumb target as well as a spreadsheet cell, and
+     16px so iOS does not zoom the page when it takes focus. */
+  min-height: 48px;
+  text-align: center;
+  border: 1px solid var(--tt-line, #e3e6e1);
+  border-radius: 6px;
+  font-size: 16px;
+  background: var(--tt-paper, #fff);
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-agrid-score-in:focus-visible { outline: 2px solid #e8b624; outline-offset: -1px; }
+
+/* A live column's score is a readout: it follows the match sheet's goal
+   log, so correcting it means correcting a goal. Minutes on the same
+   column stay editable as a correction — the asymmetry is deliberate. */
+.tt-agrid-score--live {
+  color: var(--tt-ink-soft, #6a6d66);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* A tournament is a multi-game day, so one scoreline cannot describe it. */
+.tt-agrid-score--na { color: #b3b8b2; }
+
 /* not-in-squad cell — informational, hatched, not editable */
 .tt-agrid-cell--na {
   background: repeating-linear-gradient(45deg, #fafbfa, #fafbfa 5px, #f1f3f1 5px, #f1f3f1 10px);

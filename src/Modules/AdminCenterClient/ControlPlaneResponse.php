@@ -84,6 +84,16 @@ final class ControlPlaneResponse {
             Broadcasts::store( $broadcasts );
         }
 
+        // #3501 — time-boxed operator access. Replaced wholesale for the same
+        // reason broadcasts are, and here it is load-bearing rather than tidy:
+        // replacing is what makes a revoked grant stop working on the next
+        // ping. Merging would leave a withdrawn grant in place until it aged
+        // out on its own.
+        $grants = SupportGrants::fromResponse( $decoded );
+        if ( $grants !== null ) {
+            SupportGrants::store( $grants );
+        }
+
         if ( ! array_key_exists( 'entitlement', $decoded ) ) {
             return self::OUTCOME_NO_ENTITLEMENT;
         }

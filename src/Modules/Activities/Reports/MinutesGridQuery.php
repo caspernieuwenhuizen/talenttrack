@@ -35,7 +35,7 @@ final class MinutesGridQuery {
 
     /**
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, attributed_goals:int }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:bool, opponent:string, is_tournament:bool, attributed_goals:int }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int}>>,
      *   summary: array{ total_activities:int, total_players:int }
@@ -60,7 +60,8 @@ final class MinutesGridQuery {
         //    set the Minutes-audit matrix uses, so the two reconcile.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, home_score, {$date_col} AS session_date, title
+            "SELECT id, game_subtype_key, activity_type_key, home_score, away_score, home_away,
+                    opponent, {$date_col} AS session_date, title
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -87,6 +88,18 @@ final class MinutesGridQuery {
                 // where none was recorded, which is not the same as 0-0 and
                 // must not read as it.
                 'home_score'         => $a->home_score !== null ? (int) $a->home_score : null,
+                // #3531 — the grid now *asks* for the scoreline it was already
+                // reconciling against, so it needs both sides of it and which
+                // way round they go. Framed here rather than in the view, the
+                // way `recentResultsForTeam()` frames it: the academy team is
+                // home unless the row says away.
+                'away_score'         => $a->away_score !== null ? (int) $a->away_score : null,
+                'is_home'            => ( (string) ( $a->home_away ?? '' ) ) !== 'away',
+                'opponent'           => (string) ( $a->opponent ?? '' ),
+                // A tournament is a multi-game day (#2686), so it gets no
+                // score boxes. Carried as a flag rather than re-read from the
+                // type key in the view, which would be the rule stated twice.
+                'is_tournament'      => strtolower( (string) ( $a->activity_type_key ?? '' ) ) === 'tournament',
                 'attributed_goals'   => 0,
             ];
         }

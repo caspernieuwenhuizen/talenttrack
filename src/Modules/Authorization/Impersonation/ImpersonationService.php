@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Enums\ImpersonationEndReason;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\AdminCenterClient\SupportGrants;
+use TT\Modules\AdminCenterClient\SupportOperator;
 
 /**
  * ImpersonationService (#0071 child 5) — admin-to-user impersonation
@@ -32,6 +34,35 @@ final class ImpersonationService {
     /**
      * @return \WP_Error|null  null on success
      */
+    /**
+     * #3501 — does the support-grant rule stand between this actor and a
+     * session? Null when it does not.
+     *
+     * An operator account reaches a club's data only under a live grant. The
+     * capability says who *may* be given access; the grant says they have it
+     * right now, and it expires on this install from `expires_at` even if the
+     * control plane is unreachable.
+     *
+     * The club's own administrators are untouched: they are not operator
+     * accounts and hold the capability in their own right. Gating them would
+     * lock an academy out of its own records the first time the Admin Center
+     * was unreachable.
+     *
+     * Public and separate from `start()` so the decision can be asserted
+     * without driving the cookie-setting half of a real session, which cannot
+     * run under PHPUnit.
+     */
+    public static function supportGrantError( int $actor_id ): ?\WP_Error {
+        if ( ! SupportOperator::isOperator( $actor_id ) ) return null;
+        if ( SupportGrants::current() !== null ) return null;
+
+        return new \WP_Error(
+            'no_support_grant',
+            __( 'Support access needs a live grant from the Admin Center. Ask the club to request support, or raise a grant.', 'talenttrack' ),
+            [ 'status' => 403 ]
+        );
+    }
+
     public static function start( int $actor_id, int $target_id, string $reason = '' ): ?\WP_Error {
         if ( $actor_id <= 0 || $target_id <= 0 ) {
             return new \WP_Error( 'bad_input', __( 'Actor and target user ids are required.', 'talenttrack' ), [ 'status' => 400 ] );
@@ -58,6 +89,12 @@ final class ImpersonationService {
             return new \WP_Error( 'already_impersonating', __( 'Already impersonating — switch back first.', 'talenttrack' ), [ 'status' => 409 ] );
         }
 
+        $blocked = self::supportGrantError( $actor_id );
+        if ( $blocked !== null ) {
+            return $blocked;
+        }
+        $grant = SupportOperator::isOperator( $actor_id ) ? SupportGrants::current() : null;
+
         // Single-club guard. CurrentClub::id() returns 1 in v1; the
         // service is forward-compatible for multi-tenant where target
         // and actor must share a club.
@@ -78,7 +115,14 @@ final class ImpersonationService {
         ImpersonationContext::setCookie( $actor_id );
         wp_set_auth_cookie( $target_id, false, is_ssl() );
 
-        Logger::info( 'impersonation.started', [ 'actor' => $actor_id, 'target' => $target_id ] );
+        // #3501 — "what did support do while they had access" has to be
+        // answerable from the club's own install, so the grant id rides on the
+        // record rather than living only on the control plane.
+        Logger::info( 'impersonation.started', array_filter( [
+            'actor'    => $actor_id,
+            'target'   => $target_id,
+            'grant_id' => $grant['id'] ?? null,
+        ], static fn( $v ): bool => $v !== null ) );
 
         return null;
     }
