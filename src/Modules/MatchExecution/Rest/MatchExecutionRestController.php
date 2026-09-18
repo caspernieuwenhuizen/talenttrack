@@ -206,9 +206,11 @@ class MatchExecutionRestController {
     }
 
     /**
-     * GET /<activity_id>/pitch-lineup — the first-half starting XI laid
-     * out by position for the vertical pitch. Requires a Match Prep
-     * (#838 hard dependency); returns an empty layout when none exists.
+     * GET /<activity_id>/pitch-lineup — the line-up laid out by position
+     * for the vertical pitch: the first-half starting XI with every logged
+     * substitution applied (#3554), plus the ids of everyone on the pitch.
+     * Requires a Match Prep (#838 hard dependency); returns an empty layout
+     * when none exists.
      */
     public static function route_pitch_lineup( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
@@ -220,6 +222,7 @@ class MatchExecutionRestController {
             return RestResponse::success( [
                 'activity_id' => $activity_id,
                 'slots'       => [],
+                'on_pitch'    => [],
             ] );
         }
 
@@ -227,20 +230,31 @@ class MatchExecutionRestController {
         $lineup    = $prep_repo->listLineup( (int) $prep->id );
 
         $slot_to_player = [];
-        $player_ids     = [];
+        $xi_half1       = [];
         foreach ( $lineup as $l ) {
             if ( (int) $l->half !== 1 ) {
                 continue;
             }
             $slot = (int) $l->slot_number;
             $pid  = (int) $l->player_id;
+            if ( $pid > 0 ) $xi_half1[] = $pid;
             if ( $slot >= 1 && $slot <= 11 && $pid > 0 ) {
                 $slot_to_player[ $slot ] = $pid;
-                $player_ids[]            = $pid;
             }
         }
 
-        $player_meta = self::playerMeta( $player_ids );
+        // #3554 — the line-up as it stands now, not as it was at kickoff:
+        // every logged substitution is applied, so a client redrawing the
+        // pitch after a sub shows who is actually on it.
+        $exec_repo = new MatchExecutionRepository();
+        $exec      = $exec_repo->findByActivity( $activity_id );
+        $on_pitch  = $xi_half1;
+        if ( $exec ) {
+            $slot_to_player = PitchLayoutService::applySubstitutions( $slot_to_player, $exec_repo->listSubstitutions( (int) $exec->id ) );
+            $on_pitch       = $exec_repo->onPitchPlayerIds( (int) $exec->id, $xi_half1 );
+        }
+
+        $player_meta = self::playerMeta( array_values( $slot_to_player ) );
 
         $slots = ( new PitchLayoutService() )->positionedXi(
             (int) ( $prep->formation_template_id ?? 0 ),
@@ -253,7 +267,6 @@ class MatchExecutionRestController {
         // non-reversed tap count (server-persisted so counts survive
         // reconnect / reload).
         $tracked_map = [];
-        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
         $counts = $exec ? ( new TrackedEventsRepository() )->countsByPlayer( (int) $exec->id ) : [];
         foreach ( $prep_repo->listTrackedPlayers( (int) $prep->id ) as $pid => $flag ) {
             $tracked_map[ $pid ] = [
@@ -265,6 +278,8 @@ class MatchExecutionRestController {
         return RestResponse::success( [
             'activity_id' => $activity_id,
             'slots'       => $slots,
+            // #3554 — every player on the pitch now, slotted or not.
+            'on_pitch'    => array_values( array_map( 'intval', $on_pitch ) ),
             'tracked'     => $tracked_map,
         ] );
     }

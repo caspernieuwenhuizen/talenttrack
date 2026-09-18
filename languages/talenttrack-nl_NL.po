@@ -29217,6 +29217,14 @@ msgstr "Beschikbare selectie"
 msgid "Starting line-up on the pitch"
 msgstr "Basisopstelling op het veld"
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Line-up on the pitch"
+msgstr "Opstelling op het veld"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Vertical football pitch with the players on it by position"
+msgstr "Verticaal voetbalveld met de spelers die erop staan per positie"
+
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:550
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1708
 msgid "Line-up"

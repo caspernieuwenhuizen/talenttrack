@@ -332,9 +332,20 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'jersey' => $ppl->jersey_number !== null ? (int) $ppl->jersey_number : null,
             ];
         }
+        // #3554 — the pitch, the bench and the page's on-pitch list show the
+        // match as it stands, subs applied, not the kickoff line-up: a
+        // reload mid-match used to put the players who had come off back
+        // on the pitch and offer them again as the ones to take off.
+        $on_pitch_now = $execution
+            ? $exec_repo->onPitchPlayerIds( $execution_id, $starting_xi_half1 )
+            : array_values( array_filter( $starting_xi_half1 ) );
+        $bench_now_ids = array_values( array_diff(
+            array_values( array_unique( array_merge( $available_ids, array_filter( $starting_xi_half1 ) ) ) ),
+            $on_pitch_now
+        ) );
         $pitch_slots = ( new PitchLayoutService() )->positionedXi(
             (int) ( $prep->formation_template_id ?? 0 ),
-            $slot_to_player_h1,
+            PitchLayoutService::applySubstitutions( $slot_to_player_h1, $substitutions ),
             $pitch_meta
         );
         $event_feed = ( new MatchEventFeedService() )->feedForActivity( $activity_id );
@@ -544,15 +555,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 ?>
             </section>
 
-            <?php // #1713 — vertical positional pitch: the first-half
-                  // starting XI laid out by position. Coordinates are the
-                  // shared slot layout (% of pitch), positioned via an
-                  // inline left/top that cannot live in static CSS. ?>
-            <section class="tt-mxp-pitch-section" aria-label="<?php esc_attr_e( 'Starting line-up on the pitch', 'talenttrack' ); ?>">
+            <?php // #1713 — vertical positional pitch, laid out by position.
+                  // Coordinates are the shared slot layout (% of pitch),
+                  // positioned via an inline left/top that cannot live in
+                  // static CSS. #3554 — the players on it now, subs
+                  // applied; the JS redraws it after every substitution. ?>
+            <section class="tt-mxp-pitch-section" aria-label="<?php esc_attr_e( 'Line-up on the pitch', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Line-up', 'talenttrack' ); ?></h2>
                 </div>
-                <div class="tt-mxp-pitch" role="img" aria-label="<?php esc_attr_e( 'Vertical football pitch with the starting eleven by position', 'talenttrack' ); ?>">
+                <div class="tt-mxp-pitch" data-tt-mexec-pitch role="img" aria-label="<?php esc_attr_e( 'Vertical football pitch with the players on it by position', 'talenttrack' ); ?>">
                     <?php foreach ( $pitch_slots as $slot ) :
                         $label  = (string) $slot['label'];
                         $name   = (string) $slot['player_name'];
@@ -580,10 +592,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   // carrying a minute, a type chip (icon + text, not colour
                   // alone) and a running-score chip. Cards are not modelled. ?>
 <?php self::cut( 'log' ); ?>
-            <section class="tt-mxp-log-section" aria-label="<?php esc_attr_e( 'Live progress', 'talenttrack' ); ?>">
+            <section class="tt-mxp-log-section" data-tt-mexec-feed aria-label="<?php esc_attr_e( 'Live progress', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Live progress', 'talenttrack' ); ?></h2>
-                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
+                    <span class="tt-mexec-section-count" data-tt-mexec-feed-count><?php echo esc_html( sprintf(
                         /* translators: %d: number of logged match events */
                         _n( '%d event', '%d events', count( $event_feed ), 'talenttrack' ),
                         count( $event_feed )
@@ -746,16 +758,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Bench', 'talenttrack' ); ?></h2>
                     <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
                         /* translators: %d: number of bench players */
-                        _n( '%d available', '%d available', count( $bench_ids ), 'talenttrack' ),
-                        count( $bench_ids )
+                        _n( '%d available', '%d available', count( $bench_now_ids ), 'talenttrack' ),
+                        count( $bench_now_ids )
                     ) ); ?></span>
                 </div>
                 <p class="tt-mexec-prekick-note" id="tt-mexec-prekick-bench" data-tt-mexec-prekick-note<?php echo $pre_kickoff ? '' : ' hidden'; ?>><?php esc_html_e( 'Available once the match has started.', 'talenttrack' ); ?></p>
-                <?php if ( empty( $bench_ids ) ) : ?>
+                <?php if ( empty( $bench_now_ids ) ) : ?>
                     <p class="tt-mexec-empty"><?php esc_html_e( 'No bench players available.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <ul class="tt-mexec-player-list">
-                        <?php foreach ( $bench_ids as $pid ) :
+                        <?php foreach ( $bench_now_ids as $pid ) :
                             $pl = $players_by_id[ $pid ] ?? null;
                             if ( ! $pl ) continue;
                             $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
@@ -1537,7 +1549,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         <?php
         $bootstrap = [
             'starting_xi_half1' => array_values( array_filter( array_map( 'intval', $starting_xi_half1 ) ) ),
-            'bench'             => array_values( array_filter( array_map( 'intval', $bench_ids ) ) ),
+            // #3554 — who is on the pitch and on the bench now, subs applied.
+            'on_pitch'          => array_values( array_filter( array_map( 'intval', $on_pitch_now ) ) ),
+            'bench'             => array_values( array_filter( array_map( 'intval', $bench_now_ids ) ) ),
+            'half_length_max'   => (int) $prep->half_length_minutes + 10,
+            'away_label'        => $away_label !== '' ? $away_label : $away_abbr,
             'players'           => array_map( function( $pl ) {
                 return [
                     'id'     => (int) $pl->id,
@@ -1626,6 +1642,24 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 // its button must read the same as the server render.
                 'sub_on'            => __( '→ on', 'talenttrack' ),
                 'bring_on'          => __( 'Bring on', 'talenttrack' ),
+                // #3554 — the Live progress feed and the pitch are redrawn
+                // after every goal and substitution; these are the same
+                // strings the server render prints.
+                'feed_goal'          => __( 'Goal scored', 'talenttrack' ),
+                'feed_opponent_goal' => __( 'Opponent goal', 'talenttrack' ),
+                'feed_substitution'  => __( 'Substitution', 'talenttrack' ),
+                /* translators: 1: half number, 2: minute within the half */
+                'feed_minute'        => __( 'H%1$d %2$d\'', 'talenttrack' ),
+                'feed_running_score' => __( 'Running score', 'talenttrack' ),
+                'feed_empty'         => __( 'No goals or substitutions logged yet.', 'talenttrack' ),
+                /* translators: %d: number of logged match events */
+                'feed_count_one'     => _n( '%d event', '%d events', 1, 'talenttrack' ),
+                /* translators: %d: number of logged match events */
+                'feed_count_many'    => _n( '%d event', '%d events', 2, 'talenttrack' ),
+                'correct_minute'     => __( 'Correct minute', 'talenttrack' ),
+                'minute_earlier'     => __( 'One minute earlier', 'talenttrack' ),
+                'minute_later'       => __( 'One minute later', 'talenttrack' ),
+                'sub_minute'         => __( 'Substitution minute', 'talenttrack' ),
                 'half_label_first'  => __( 'First half', 'talenttrack' ),
                 'half_label_second' => __( 'Second half', 'talenttrack' ),
                 'half_label_break'  => __( 'Half time', 'talenttrack' ),
@@ -1800,25 +1834,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
      * formatting, no business logic.
      */
     private static function pitchShortName( string $name ): string {
-        $name = trim( $name );
-        if ( $name === '' ) {
-            return '';
-        }
-        $parts = preg_split( '/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY );
-        if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
-            return $name;
-        }
-        $first = (string) $parts[0];
-        if ( count( $parts ) === 1 ) {
-            return $first;
-        }
-        $last    = (string) $parts[ count( $parts ) - 1 ];
-        $initial = function_exists( 'mb_substr' )
-            ? mb_strtoupper( mb_substr( $last, 0, 1, 'UTF-8' ), 'UTF-8' )
-            : strtoupper( substr( $last, 0, 1 ) );
-        if ( $initial === '' ) {
-            return $first;
-        }
-        return $first . ' ' . $initial . '.';
+        // #3554 — moved to the service so the REST pitch-lineup response
+        // carries the same label the server render prints.
+        return PitchLayoutService::shortName( $name );
     }
 }
