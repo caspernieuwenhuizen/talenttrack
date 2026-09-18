@@ -634,6 +634,10 @@
 .tt-mexec-undo-btn[hidden] { display: none; }
 
 /* ----- #2269 — sideline toast (with optional inline Undo action) ----- */
+/* #3550 — the toast mounts on <body>, outside `.tt-mexec`, where none of
+   the `--tt-mexec-*` tokens are declared. Every token it reads therefore
+   carries its own fallback chain; without one the background computed to
+   transparent and left white text on the page. */
 .tt-mexec-toast {
     position: fixed;
     left: 50%;
@@ -649,7 +653,7 @@
     max-width: calc(100% - 24px);
     padding: 12px 16px;
     border-radius: 8px;
-    background: var(--tt-mexec-ink);
+    background: var(--tt-mexec-ink, var(--tt-ink, #0e1a14));
     color: #fff;
     font-size: 14px;
     font-weight: 600;
@@ -658,7 +662,7 @@
 .tt-mexec-toast-text { flex: 1 1 auto; }
 .tt-mexec-toast-action {
     flex: 0 0 auto;
-    min-height: var(--tt-mexec-tap-min);
+    min-height: var(--tt-mexec-tap-min, 48px);
     padding: 8px 14px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 6px;
