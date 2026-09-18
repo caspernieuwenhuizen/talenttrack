@@ -1298,7 +1298,7 @@
             return;
         }
         var editable = isEditableState();
-        var maxMinute = parseInt(bootstrap.half_length_max, 10) || (HALF_LENGTH + 10);
+        var maxMinute = HALF_LENGTH + 10;
         var html = '';
         events.forEach(function (ev) {
             var type = ev.type === 'goal' ? 'goal' : 'substitution';

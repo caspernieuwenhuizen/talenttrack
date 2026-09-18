@@ -1552,7 +1552,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             // #3554 — who is on the pitch and on the bench now, subs applied.
             'on_pitch'          => array_values( array_filter( array_map( 'intval', $on_pitch_now ) ) ),
             'bench'             => array_values( array_filter( array_map( 'intval', $bench_now_ids ) ) ),
-            'half_length_max'   => (int) $prep->half_length_minutes + 10,
             'away_label'        => $away_label !== '' ? $away_label : $away_abbr,
             'players'           => array_map( function( $pl ) {
                 return [

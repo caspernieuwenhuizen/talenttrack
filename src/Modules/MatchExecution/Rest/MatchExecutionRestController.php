@@ -280,7 +280,7 @@ class MatchExecutionRestController {
             'activity_id' => $activity_id,
             'slots'       => $slots,
             // #3554 — every player on the pitch now, slotted or not.
-            'on_pitch'    => array_values( array_map( 'intval', $on_pitch ) ),
+            'on_pitch'    => $on_pitch,
             'tracked'     => $tracked_map,
         ] );
     }

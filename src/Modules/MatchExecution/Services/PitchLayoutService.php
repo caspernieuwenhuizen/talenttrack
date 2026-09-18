@@ -109,7 +109,7 @@ final class PitchLayoutService {
             return '';
         }
         $parts = preg_split( '/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY );
-        if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
+        if ( ! is_array( $parts ) ) {
             return $name;
         }
         $first = (string) $parts[0];
