@@ -62636,6 +62636,7 @@ msgstr "Onze doelpunten op %s"
 #, php-format
 msgid "Opponent goals on %s"
 msgstr "Doelpunten tegenstander op %s"
+
 #~ msgid "Match statistics for this team are coming in the next release."
 #~ msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
 
