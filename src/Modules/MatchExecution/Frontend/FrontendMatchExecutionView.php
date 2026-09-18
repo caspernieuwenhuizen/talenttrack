@@ -515,8 +515,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <div class="tt-mexec-timer-main">
                     <p class="tt-mexec-timer-half" data-status="" data-tt-mexec-half-label>—</p>
                     <p class="tt-mexec-timer-clock" data-tt-mexec-clock>00:00</p>
+                    <?php // #3548 — the reason a locked Start is locked, on screen.
+                          // A `title` never shows on touch, which is the device
+                          // this surface runs on; the tooltip stays as a bonus. ?>
+                    <p class="tt-mexec-start-lock" id="tt-mexec-start-lock" data-tt-mexec-start-lock<?php echo $start_locked ? '' : ' hidden'; ?>><?php echo esc_html( $start_lock_msg ); ?></p>
                 </div>
-                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
+                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
             </section>
 
             <?php // #1684 — match-summary KPI strip (2026 chrome). Mirrors
@@ -1441,7 +1445,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 <?php self::cut( 'cta' ); ?>
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
-                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
+                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
                     <p class="tt-mexec-footer-sub" data-state="online" data-tt-mexec-status>
                         <span class="tt-mexec-footer-dot"></span>
                         <span data-tt-mexec-status-text><?php esc_html_e( 'Synced', 'talenttrack' ); ?></span>

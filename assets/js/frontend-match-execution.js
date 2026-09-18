@@ -194,6 +194,7 @@
         clock:      root.querySelector('[data-tt-mexec-clock]'),
         timerBtn:   root.querySelector('[data-tt-mexec-timer-toggle]'),
         stateBtn:   root.querySelector('[data-tt-mexec-state-action]'),
+        startLock:  root.querySelector('[data-tt-mexec-start-lock]'),
         status:     root.querySelector('[data-tt-mexec-status]'),
         benchList:  root.querySelector('.tt-mexec-bench .tt-mexec-player-list'),
         onPitchSection: root.querySelector('[data-tt-mexec-onpitch-section]'),
@@ -1046,6 +1047,11 @@
                 els.timerBtn.textContent = i18n.resume || 'Resume';
                 els.timerBtn.setAttribute('data-action', 'resume');
             }
+        }
+        // #3548 — the on-screen reason follows the same rule as the two
+        // disabled buttons, so the note and the lock cannot disagree.
+        if (els.startLock) {
+            els.startLock.hidden = !(state.state === ST.NOT_STARTED && !IS_MATCH_DAY);
         }
     }
     function renderBenchAndOnPitch() {

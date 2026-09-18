@@ -2326,3 +2326,26 @@
     .tt-mexec--sections .tt-mexec-bar { padding-inline: var(--tt-mexec-gap-lg); }
     .tt-mexec--sections .tt-spine .tt-spine__tab { flex: 0 0 auto; padding: 0 16px; }
 }
+
+/* ----- #3548 — a locked control looks locked ----- */
+/* The per-action colours above paint Start green whether or not it is
+   `disabled`, so a Start locked before match day looked exactly like a
+   live one and a tap did nothing. The doubled class outranks every
+   `[data-action]` variant in both layouts; placed last so it also wins
+   the ties. */
+.tt-mexec.tt-mexec .tt-mexec-timer-btn:disabled,
+.tt-mexec.tt-mexec .tt-mexec-footer-cta:disabled {
+    background: var(--tt-mexec-mute);
+    border-color: var(--tt-mexec-line);
+    color: var(--tt-mexec-ink-soft);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.tt-mexec-start-lock {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-start-lock[hidden] { display: none; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-start-lock { color: rgba(255, 255, 255, 0.85); }
