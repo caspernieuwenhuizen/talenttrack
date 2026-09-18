@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-18T04:35:41+00:00\n"
+"POT-Creation-Date: 2026-09-18T05:17:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -6031,6 +6031,18 @@ msgstr ""
 msgid "There is no broadcast to dismiss with this id."
 msgstr ""
 
+#. translators: 1: the support operator's name, 2: local date and time the access ends.
+#: src/Modules/AdminCenterClient/SupportGrantBanner.php:83
+#, php-format
+msgid "Support access is active: %1$s — no reason was given. Ends %2$s."
+msgstr ""
+
+#. translators: 1: the support operator's name, 2: why they were given access, 3: local date and time it ends.
+#: src/Modules/AdminCenterClient/SupportGrantBanner.php:91
+#, php-format
+msgid "Support access is active: %1$s — %2$s. Ends %3$s."
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
 #: src/Modules/Media/Wizard/MediaTargetStep.php:115
 msgid "this player"
@@ -10479,7 +10491,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:33
 #: src/Modules/Authorization/Impersonation/ImpersonationAdminPost.php:30
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:52
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:83
 msgid "You do not have permission to impersonate users."
 msgstr ""
 
@@ -12061,27 +12073,31 @@ msgstr ""
 msgid "Deleted user #%d"
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:37
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:61
+msgid "Support access needs a live grant from the Admin Center. Ask the club to request support, or raise a grant."
+msgstr ""
+
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:68
 msgid "Actor and target user ids are required."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:40
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:71
 msgid "Cannot impersonate yourself."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:46
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:77
 msgid "Actor user not found."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:49
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:80
 msgid "Target user not found."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:55
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:86
 msgid "Cannot impersonate another administrator."
 msgstr ""
 
-#: src/Modules/Authorization/Impersonation/ImpersonationService.php:58
+#: src/Modules/Authorization/Impersonation/ImpersonationService.php:89
 msgid "Already impersonating — switch back first."
 msgstr ""
 
