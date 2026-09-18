@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * ActivityBriefPdfExporter (#0063 use case 8) — printable activity-brief PDF.
@@ -161,7 +162,7 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
         $generated = esc_html( sprintf(
             /* translators: %s = generation date */
             __( 'Generated %s', 'talenttrack' ),
-            date_i18n( get_option( 'date_format' ) ?: 'Y-m-d' )
+            TTDate::date( time() )
         ) );
 
         return '<!doctype html><html><head><meta charset="UTF-8">'

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\TeamStatsService;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMyTeamView — the "My team" tile destination.
@@ -125,7 +126,7 @@ class FrontendMyTeamView extends FrontendViewBase {
             $next_matches   = $acts->upcomingMatchesForTeam( $team_id, 1 );
             $recent_results = $acts->recentResultsForTeam( $team_id, 5 );
             if ( ! empty( $next_matches ) || ! empty( $recent_results ) ) :
-                $date_fmt = (string) get_option( 'date_format', 'j M Y' );
+                $date_fmt = TTDate::dateFormat();
                 ?>
                 <div class="tt-mt-card tt-mt-fixtures-block">
                     <?php if ( ! empty( $next_matches ) ) :

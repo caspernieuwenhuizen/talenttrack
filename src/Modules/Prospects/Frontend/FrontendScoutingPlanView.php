@@ -13,6 +13,7 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendScoutingPlanView (v3.110.119) — scouting visits list +
@@ -212,7 +213,7 @@ class FrontendScoutingPlanView extends FrontendViewBase {
                 $date_iso   = (string) ( $row->visit_date ?? '' );
                 $time_part  = (string) ( $row->visit_time ?? '' );
                 $is_past    = $date_iso !== '' && $date_iso < $today;
-                $date_label = $date_iso !== '' ? mysql2date( get_option( 'date_format' ), $date_iso, true ) : '';
+                $date_label = $date_iso !== '' ? TTDate::date( $date_iso ) : '';
                 if ( $time_part !== '' && $time_part !== '00:00:00' ) {
                     $date_label .= ' · ' . substr( $time_part, 0, 5 );
                 }

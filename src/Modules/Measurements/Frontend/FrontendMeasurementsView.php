@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMeasurementsView (#1856) — the player "Metingen" surface.
@@ -800,6 +801,6 @@ class FrontendMeasurementsView extends FrontendViewBase {
     private static function formatDate( string $date ): string {
         $ts = strtotime( $date );
         if ( ! $ts ) return $date;
-        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 }

@@ -9,6 +9,7 @@ use TT\Modules\Comms\Domain\CommsResult;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Recipient\RecipientResolver;
 use TT\Modules\Comms\Templates\TrialPlayerWelcomeTemplate;
+use TT\Shared\Dates\TTDate;
 
 /**
  * TrialPlayerWelcomeSend (#2605 Gate D) — use case 5's trigger.
@@ -92,7 +93,7 @@ final class TrialPlayerWelcomeSend {
 
         return [
             'player_name' => self::playerName( $player_id ),
-            'start_date'  => $stamp !== false ? date_i18n( (string) get_option( 'date_format' ), $stamp ) : $date,
+            'start_date'  => $stamp !== false ? TTDate::date( $stamp ) : $date,
         ];
     }
 

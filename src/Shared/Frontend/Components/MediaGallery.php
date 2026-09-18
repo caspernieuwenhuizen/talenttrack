@@ -10,6 +10,7 @@ use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
+use TT\Shared\Dates\TTDate;
 
 /**
  * MediaGallery (#2594, epic #2589) — media attached to one record.
@@ -355,7 +356,7 @@ final class MediaGallery {
         if ( $raw === '' ) return '';
 
         $ts = strtotime( $raw );
-        return $ts ? date_i18n( (string) get_option( 'date_format' ), $ts ) : '';
+        return $ts ? TTDate::date( $ts ) : '';
     }
 
     private static function duration( int $seconds ): string {

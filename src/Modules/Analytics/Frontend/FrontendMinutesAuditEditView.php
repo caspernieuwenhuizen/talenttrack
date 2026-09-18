@@ -9,6 +9,7 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMinutesAuditEditView (#2367) — per-match minutes editor.
@@ -148,7 +149,7 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
     private static function renderMatchHead( array $data ): void {
         $activity = $data['activity'];
         $date = $activity['session_date'] !== ''
-            ? date_i18n( get_option( 'date_format' ), strtotime( (string) $activity['session_date'] ) )
+            ? TTDate::date( (string) $activity['session_date'] )
             : '';
         $type = (string) $activity['type_key'];
 

@@ -10,6 +10,7 @@ use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\Recipient\RecipientResolver;
 use TT\Modules\Comms\Templates\TrainingCancelledTemplate;
+use TT\Shared\Dates\TTDate;
 
 /**
  * TrainingCancelledSend (#3081, #2605 Gate D) — use case 1's trigger.
@@ -84,7 +85,7 @@ final class TrainingCancelledSend {
 
         return [
             'activity_title' => (string) ( $activity->title ?? '' ),
-            'date'           => $stamp !== false ? date_i18n( (string) get_option( 'date_format' ), $stamp ) : $date,
+            'date'           => $stamp !== false ? TTDate::date( $stamp ) : $date,
             'team_name'      => (string) ( $activity->team_name ?? '' ),
         ];
     }

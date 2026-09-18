@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * ActivityPickerStep (#0072; #2246 explicit-fork rework) — the activity
@@ -75,7 +76,7 @@ final class ActivityPickerStep implements WizardStepInterface {
             <div role="radiogroup" class="tt-activity-picker">
                 <?php foreach ( $rows as $r ) :
                     $when = (string) ( $r->session_date ?? '' );
-                    $when_pretty = $when !== '' ? date_i18n( get_option( 'date_format', 'Y-m-d' ), strtotime( $when ) ) : '';
+                    $when_pretty = $when !== '' ? TTDate::date( $when ) : '';
                     $checked = (int) ( $state['activity_id'] ?? 0 ) === (int) $r->id;
                     ?>
                     <label class="tt-activity-row" style="display:flex;align-items:center;gap:8px;padding:12px;border:1px solid var(--tt-line);border-radius:6px;margin-bottom:6px;cursor:pointer;min-height:48px;">
