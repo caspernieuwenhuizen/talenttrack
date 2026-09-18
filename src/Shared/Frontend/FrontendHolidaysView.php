@@ -10,6 +10,7 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\ArchiveRowActions;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendHolidaysView (#1480) — academy-wide holiday management at
@@ -266,7 +267,7 @@ final class FrontendHolidaysView extends FrontendViewBase {
 
         self::renderHeader( $name, $actions_html );
 
-        $date_fmt = (string) get_option( 'date_format', 'j M Y' );
+        $date_fmt = TTDate::dateFormat();
         $start_ts = strtotime( $start );
         $end_ts   = strtotime( $end );
         $period   = ( $start_ts !== false && $end_ts !== false )

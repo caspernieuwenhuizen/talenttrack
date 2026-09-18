@@ -4,6 +4,7 @@ namespace TT\Modules\MatchAnalysis\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
+use TT\Shared\Dates\TTDate;
 
 /**
  * MatchAnalysisDocument — the finished analysis, as one document.
@@ -105,7 +106,7 @@ final class MatchAnalysisDocument {
 
         $date = (string) ( $activity->session_date ?? '' );
         if ( $date !== '' ) {
-            echo '<span>' . esc_html( date_i18n( (string) get_option( 'date_format' ), strtotime( $date ) ) ) . '</span>';
+            echo '<span>' . esc_html( TTDate::date( $date ) ) . '</span>';
         }
 
         $played = count( (array) $payload['players'] );
@@ -406,7 +407,7 @@ final class MatchAnalysisDocument {
         echo '<span>' . esc_html( sprintf(
             /* translators: %s: the date the sheet was printed */
             __( 'TalentTrack · printed %s', 'talenttrack' ),
-            date_i18n( (string) get_option( 'date_format' ) )
+            TTDate::date( time() )
         ) ) . '</span>';
         echo '</footer>';
     }

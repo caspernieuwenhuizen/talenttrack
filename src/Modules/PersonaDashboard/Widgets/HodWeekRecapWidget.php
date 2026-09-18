@@ -10,6 +10,7 @@ use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Dates\TTDate;
 
 /**
  * HodWeekRecapWidget (#1374) — "This week at the academy".
@@ -59,7 +60,9 @@ class HodWeekRecapWidget extends AbstractWidget {
         $sub   = sprintf(
             /* translators: %s: localized date the recap window starts at */
             __( 'Since %s', 'talenttrack' ),
-            wp_date( get_option( 'date_format', 'Y-m-d' ), strtotime( $since ) )
+            // The string goes straight in: TTDate parses it, and strtotime()
+            // here could hand it a `false` it has no way to render.
+            TTDate::date( $since )
         );
 
         $lines = [];

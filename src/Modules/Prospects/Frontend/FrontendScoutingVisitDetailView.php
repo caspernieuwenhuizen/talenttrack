@@ -12,6 +12,7 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendScoutingVisitDetailView (v3.110.119) — single scouting
@@ -75,7 +76,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $title = sprintf(
             /* translators: 1: localised visit date, 2: location */
             __( 'Visit on %1$s — %2$s', 'talenttrack' ),
-            mysql2date( get_option( 'date_format' ), (string) $visit->visit_date, true ),
+            TTDate::date( (string) $visit->visit_date ),
             (string) $visit->location
         );
         FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );

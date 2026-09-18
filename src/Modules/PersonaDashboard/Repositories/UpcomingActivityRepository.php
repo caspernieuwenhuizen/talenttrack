@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Dates\TTDate;
 
 /**
  * UpcomingActivityRepository (#0092) — shared query for the next
@@ -96,7 +97,7 @@ final class UpcomingActivityRepository {
         if ( $date === gmdate( 'Y-m-d', strtotime( '-1 day' ) ) ) return __( 'Yesterday', 'talenttrack' );
         $ts = strtotime( $date );
         if ( $ts === false ) return __( 'Up next', 'talenttrack' );
-        $formatted = (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        $formatted = (string) TTDate::date( $ts );
         // #1350 — since #792 the hero can show the latest rateable
         // activity, which is often in the past; "Up next · <past date>"
         // read like the system didn't know what day it is.
@@ -121,7 +122,7 @@ final class UpcomingActivityRepository {
         if ( $date === gmdate( 'Y-m-d', strtotime( '-1 day' ) ) ) return __( 'Yesterday', 'talenttrack' );
         $ts = strtotime( $date );
         if ( $ts === false ) return '';
-        return (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return (string) TTDate::date( $ts );
     }
 
     /**

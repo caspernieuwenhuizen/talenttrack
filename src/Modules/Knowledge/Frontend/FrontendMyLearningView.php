@@ -10,6 +10,7 @@ use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMyLearningView — one coach's own learning record.
@@ -142,7 +143,7 @@ class FrontendMyLearningView extends FrontendViewBase {
         echo '<td>';
         if ( ! empty( $enrolment->due_at ) ) {
             $timestamp = strtotime( (string) $enrolment->due_at );
-            echo esc_html( $timestamp !== false ? date_i18n( get_option( 'date_format' ), $timestamp ) : '' );
+            echo esc_html( $timestamp !== false ? TTDate::date( $timestamp ) : '' );
         } else {
             echo '<span class="tt-knowledge-muted">' . esc_html__( '—', 'talenttrack' ) . '</span>';
         }

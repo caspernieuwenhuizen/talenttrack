@@ -15,6 +15,7 @@ use TT\Modules\Vct\Repositories\VctSessionsRepository;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendVctSessionView (#0095 VCT-10 / #948).
@@ -82,7 +83,7 @@ class FrontendVctSessionView extends FrontendViewBase {
             __( 'VCT training — %1$s · %2$s · %3$s', 'talenttrack' ),
             (string) $session['age_group'],
             LookupTranslator::byTypeAndName( 'vct_md_context', (string) $session['md_context'] ),
-            mysql2date( get_option( 'date_format' ), (string) $session['session_date'], true )
+            TTDate::date( (string) $session['session_date'] )
         );
         FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
 

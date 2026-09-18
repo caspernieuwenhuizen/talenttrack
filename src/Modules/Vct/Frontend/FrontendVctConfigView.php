@@ -18,6 +18,7 @@ use TT\Modules\Vct\Services\VctCycleResolver;
 use TT\Modules\Vct\Validation\VctTeamCycleValidator;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendVctConfigView (#0095 VCT-12 / #952, overhauled in #1546).
@@ -780,7 +781,7 @@ class FrontendVctConfigView extends FrontendViewBase {
 
         echo '<div class="tt-vct-week-head">';
         echo '<span class="tt-vct-week-date">'
-            . esc_html( (string) mysql2date( get_option( 'date_format' ), $monday, true ) )
+            . esc_html( (string) TTDate::date( $monday ) )
             . '</span>';
         echo '<span class="tt-vct-week-state">'
             . ( $neutral
@@ -858,7 +859,7 @@ class FrontendVctConfigView extends FrontendViewBase {
             $who  = $override['set_by'] !== null ? get_userdata( (int) $override['set_by'] ) : null;
             $name = $who ? (string) $who->display_name : '';
             $when = (string) $override['set_at'] !== ''
-                ? mysql2date( get_option( 'date_format' ), (string) $override['set_at'], true )
+                ? TTDate::date( (string) $override['set_at'] )
                 : '';
 
             if ( $name !== '' && $when !== '' ) {

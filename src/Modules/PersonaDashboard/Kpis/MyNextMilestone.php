@@ -7,6 +7,7 @@ use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Shared\Dates\TTDate;
 
 class MyNextMilestone extends AbstractKpiDataSource {
     public function id(): string { return 'my_next_milestone'; }
@@ -21,7 +22,7 @@ class MyNextMilestone extends AbstractKpiDataSource {
 
         // Headline = the due date (when); secondary = the goal title (what).
         $due_ts  = strtotime( (string) ( $goal->due_date ?? '' ) );
-        $current = $due_ts ? date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $due_ts ) : '—';
+        $current = $due_ts ? TTDate::date( $due_ts ) : '—';
 
         $title = (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $goal->title ?? '' ) );
         if ( function_exists( 'mb_strlen' ) && mb_strlen( $title ) > 48 ) {

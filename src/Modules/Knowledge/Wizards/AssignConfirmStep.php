@@ -8,6 +8,7 @@ use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\Frontend\KnowledgeLinks;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * Step 4 — confirm and enrol (#2649).
@@ -75,7 +76,7 @@ final class AssignConfirmStep implements WizardStepInterface {
                 : sprintf(
                     /* translators: %s: the deadline date */
                     __( 'Deadline: %s.', 'talenttrack' ),
-                    date_i18n( get_option( 'date_format' ), (int) strtotime( $due ) )
+                    TTDate::date( (int) strtotime( $due ) )
                 )
         ) . '</li>';
 

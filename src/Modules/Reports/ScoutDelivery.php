@@ -9,6 +9,7 @@ use TT\Modules\Comms\Domain\CommsOutcomeSummary;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
+use TT\Shared\Dates\TTDate;
 
 /**
  * ScoutDelivery — generates a one-time scout link, persists the
@@ -132,7 +133,7 @@ class ScoutDelivery {
                 'club_name'     => $club,
                 'player_name'   => $player_name,
                 'report_url'    => add_query_arg( 'tt_scout_token', $token, home_url( '/' ) ),
-                'expiry_date'   => wp_date( get_option( 'date_format' ) ?: 'Y-m-d', $expires_at->getTimestamp() ),
+                'expiry_date'   => TTDate::date( $expires_at->getTimestamp() ),
                 'cover_message' => $cover_message,
             ],
             [ $recipient ],

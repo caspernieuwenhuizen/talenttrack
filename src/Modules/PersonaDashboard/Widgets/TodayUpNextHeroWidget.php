@@ -9,6 +9,7 @@ use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Shared\Dates\TTDate;
 
 /**
  * TodayUpNextHeroWidget — Coach landing hero.
@@ -140,7 +141,7 @@ class TodayUpNextHeroWidget extends AbstractWidget {
         return sprintf(
             /* translators: %s is a localized date for an upcoming activity */
             __( 'Up next · %s', 'talenttrack' ),
-            (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts )
+            (string) TTDate::date( $ts )
         );
     }
 

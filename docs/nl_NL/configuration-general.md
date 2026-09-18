@@ -35,7 +35,11 @@ Datumnotatie loopt via één helper, `TT\Shared\Dates\TTDate`, zodat de keuze va
 
 Datums die géén geplande activiteit zijn, houden de kale notatie: een geboortedatum van een speler, een ondertekenstempel, een auditregel. Een weekdag is daar ruis.
 
-De datumnotatie wordt in de hele frontend toegepast overal waar een **volledige datum** wordt getoond — spelersprofielen, evaluaties, activiteiten, doelen, PDP-ondertekeningen, rapporten, scoutingbezoeken en de audit-stempels "aangemaakt / bijgewerkt". **Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
+De datumnotatie wordt toegepast overal waar een **volledige datum** wordt getoond — spelersprofielen, evaluaties, activiteiten, doelen, PDP-ondertekeningen, rapporten, scoutingbezoeken, blessures, metingen, de prullenbak en de audit-stempels "aangemaakt / bijgewerkt". Ze geldt ook voor alles wat het scherm verlaat: **gegenereerde pdf's, spreadsheet-exports, stagebrieven en de e-mails die TalentTrack verstuurt**. Een afgedrukt rapport en de pagina waar het vandaan komt tonen de datum op dezelfde manier.
+
+**Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
+
+**Tijden staan los.** De preset bepaalt de datum; de klok volgt de eigen instelling **Tijdnotatie** van WordPress. Een tijdstempel bij een bericht is jouw datumnotatie gevolgd door jouw tijdnotatie.
 
 ## De prompt om de app op mobiel te installeren
 

@@ -7,6 +7,7 @@ use TT\Modules\MatchAnalysis\Frontend\MatchAnalysisAssets;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Shared\Wizards\WizardStepInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * OverallStep — the result, and the coach's read of the match in a few
@@ -49,7 +50,7 @@ final class OverallStep implements WizardStepInterface {
 
         $meta = [];
         $date = (string) ( $activity->session_date ?? '' );
-        if ( $date !== '' ) $meta[] = date_i18n( (string) get_option( 'date_format' ), strtotime( $date ) );
+        if ( $date !== '' ) $meta[] = TTDate::date( $date );
         if ( (string) ( $result['opponent'] ?? '' ) !== '' ) $meta[] = (string) $result['opponent'];
         if ( ! empty( $result['has_score'] ) ) {
             $meta[] = sprintf( '%d – %d', (int) $result['home_score'], (int) $result['away_score'] );

@@ -35,7 +35,11 @@ Date notation resolves through a single helper, `TT\Shared\Dates\TTDate`, so the
 
 Dates that are *not* scheduled events keep the plain notation: a player's date of birth, a sign-off stamp, an audit row. A weekday there is noise.
 
-The date notation applies across the frontend wherever a **full date** is shown — player profiles, evaluations, activities, goals, PDP sign-offs, reports, scouting visits, and the audit "created / updated" stamps. **Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
+The date notation applies wherever a **full date** is shown — player profiles, evaluations, activities, goals, PDP sign-offs, reports, scouting visits, injuries, measurements, the recycle bin, and the audit "created / updated" stamps. It also reaches everything that leaves the screen: **generated PDFs, spreadsheet exports, trial letters and the emails TalentTrack sends**. A printed report and the page it came from show the date the same way.
+
+**Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
+
+**Times are separate.** The preset covers the date; the clock format stays WordPress's own **Time format** setting. A message timestamp is your date notation followed by your time format.
 
 ## The install-on-mobile prompt
 

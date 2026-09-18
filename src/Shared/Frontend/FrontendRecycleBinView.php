@@ -9,6 +9,7 @@ use TT\Infrastructure\Archive\CascadeRegistry;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\RecycleBin\RecycleBinEntities;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendRecycleBinView (#2024, epic #2018) — the centralized recycle bin
@@ -147,7 +148,7 @@ class FrontendRecycleBinView extends FrontendViewBase {
         $when = (string) $row['trashed_at'];
 
         // Who/when binned, localised. Date formatted with the site format.
-        $when_h = $when !== '' ? date_i18n( get_option( 'date_format', 'Y-m-d' ), strtotime( $when ) ) : '';
+        $when_h = $when !== '' ? TTDate::date( $when ) : '';
         if ( $who !== '' && $when_h !== '' ) {
             $meta = sprintf(
                 /* translators: 1: user display name, 2: date. */
