@@ -443,13 +443,14 @@
 /* #2267 — the post-match states are `pending_review` and `finalized`
  * (the legacy `finished` value the server never emits anymore). The
  * mutating controls stay reachable in pending_review via the Edit
- * toggle (#2261 / #2271 full adjust-all), so only the timer chrome +
- * empty pre-kickoff sections key off the real states here. The
- * score/bench/action visibility in post-match states is handled by the
- * #2222 edit-only gate, not a blanket data-state hide. */
-.tt-mexec[data-state="not_started"] .tt-mexec-score-btn { visibility: hidden; }
-.tt-mexec[data-state="not_started"] .tt-mexec-on-pitch  { display: none; }
-.tt-mexec[data-state="not_started"] .tt-mexec-bench     { display: none; }
+ * toggle (#2261 / #2271 full adjust-all), so only the timer chrome keys
+ * off the real states here. The score/bench/action visibility in
+ * post-match states is handled by the #2222 edit-only gate, not a blanket
+ * data-state hide.
+ *
+ * #3549 — nothing is hidden before kickoff any more. The tracked players,
+ * the bench and the scoreboard `+` all show, rendered `disabled` with the
+ * reason beside them, and Start enables them in place. */
 /* Post-match: park the timer chrome. The clock is frozen (JS) and the
  * timer button is inert, so hide the button and mute the half label. */
 .tt-mexec[data-state="finalized"]      .tt-mexec-timer-btn,
@@ -2366,3 +2367,23 @@
 }
 .tt-mexec-start-lock[hidden] { display: none; }
 .tt-mexec--sections .tt-mexec-bar .tt-mexec-start-lock { color: rgba(255, 255, 255, 0.85); }
+
+/* ----- #3549 — every live control on screen before kickoff ----- */
+/* Disabled until Start. Faded rather than hidden, so the coach sees the
+   whole console before the match and knows where everything will be. */
+.tt-mexec.tt-mexec .tt-mexec-action-btn:disabled,
+.tt-mexec.tt-mexec .tt-mexec-score-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.tt-mexec-prekick-note {
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-radius: var(--tt-mexec-radius);
+    background: var(--tt-mexec-mute);
+    color: var(--tt-mexec-ink-soft);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.tt-mexec-prekick-note[hidden] { display: none; }

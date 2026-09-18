@@ -108,7 +108,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
      *
      * @param array<string,string> $s  marker name => html
      */
-    private static function renderSectioned( array $s, bool $is_review, bool $is_editable ): void {
+    private static function renderSectioned( array $s, bool $is_review, bool $has_squad ): void {
         $part = static function ( string $k ) use ( $s ): string {
             return (string) ( $s[ $k ] ?? '' );
         };
@@ -119,18 +119,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
          * Post-match it is Review — the final whistle is what the coach
          * came back for. Live it is Squad, where the substitutions are.
          *
-         * The third case is the one the design did not anticipate: the
-         * squad sections are `tt-mexec-edit-only`, so before match day —
-         * `not_started` with the start still locked — the Squad panel is
-         * empty. Opening on an empty panel reads as a broken screen, and
-         * the line-up is the only thing there is to look at at that point
-         * anyway, so Pitch takes the default instead. Squad is still one
-         * tap away, and becomes the default the moment the match can
-         * actually be run.
+         * #3549 — before kickoff the Squad panel is no longer empty: the
+         * tracked players and the bench show, their controls disabled with
+         * the reason beside them. So it opens on Squad from the start, and
+         * `$has_squad` is false only for a finalized match.
          */
         $default = $is_review
             ? 'tt-mexec-panel-review'
-            : ( $is_editable ? 'tt-mexec-panel-squad' : 'tt-mexec-panel-pitch' );
+            : ( $has_squad ? 'tt-mexec-panel-squad' : 'tt-mexec-panel-pitch' );
 
         // Squad reads "Minutes" post-match: the same panel, but by then it
         // is the squad timeline rather than a bench to pick from.
@@ -394,15 +390,19 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // of render() and again server-side); this adds no new capability.
         $is_editable = MatchExecutionState::isEditable( $state );
 
-        // #2261 — the #2222 read-only-by-default gate must NOT apply to a
-        // live, in-progress match: substituting players is the whole point of
-        // the sideline tool, so the coach can't be made to tap "Edit" first.
-        // Live states (first/half/second half) open with the mutating controls
-        // already revealed (data-edit-mode="on"); the coach can still toggle
-        // "Done editing" to hide them. PENDING_REVIEW keeps the #2222
-        // accidental-edit guard (opens "off", Edit-to-enable); FINALIZED /
-        // non-editable states render fully read-only with no toggle.
-        $initial_edit_mode = MatchExecutionState::isLive( $state ) ? 'on' : 'off';
+        // #2261 / #3549 — the #2222 read-only-by-default gate does not apply
+        // before or during the match: substituting players is the whole
+        // point of the sideline tool. Before kickoff every control is on
+        // screen and disabled, with the reason beside it; Start enables
+        // them in place. There is no Edit toggle until the post-match
+        // review, which keeps the #2222 accidental-edit guard (opens "off",
+        // Edit-to-enable); FINALIZED renders read-only with no toggle.
+        $initial_edit_mode = MatchExecutionState::opensInEditMode( $state ) ? 'on' : 'off';
+        $pre_kickoff       = ( $state === MatchExecutionState::NOT_STARTED );
+        // Before kickoff the live controls render `disabled` and point at
+        // the note that says why (#3549).
+        $prekick_attrs     = $pre_kickoff ? ' disabled aria-describedby="tt-mexec-prekick-tracked"' : '';
+        $prekick_bench     = $pre_kickoff ? ' disabled aria-describedby="tt-mexec-prekick-bench"' : '';
 
         // #2224 Part B — recorded minutes are hand-correctable only once the
         // execution is finalized (no further auto-recompute runs then, so a
@@ -469,10 +469,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                       // (never on FINALIZED). Toggles the container's
                       // data-edit-mode so the CSS reveals/hides the score
                       // steppers, goal/sub buttons, and late-event panels.
-                      // #2261 — for a live match the controls open already
-                      // revealed, so the toggle initialises to the "Done
-                      // editing" / pressed state to stay honest. ?>
-                <?php if ( $is_editable ) : ?>
+                      // #3549 — post-match review only. Before and during
+                      // the match the controls are simply there. ?>
+                <?php if ( MatchExecutionState::hasEditToggle( $state ) ) : ?>
                     <?php $edit_on = ( $initial_edit_mode === 'on' ); ?>
                     <div class="tt-mexec-edit-toggle">
                         <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
@@ -497,14 +496,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $home_abbr ); ?></p>
                         <div class="tt-mexec-score-stepper">
                             <output class="tt-mexec-score-num" data-tt-mexec-home-score aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $home_abbr ) ); ?>"><?php echo (int) $home_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="home" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $home_abbr ) ); ?>">+</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="home" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $home_abbr ) ); ?>"<?php echo $prekick_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — fixed attribute literal ?>>+</button>
                         </div>
                     </div>
                     <div class="tt-mexec-score-col">
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $away_abbr ); ?></p>
                         <div class="tt-mexec-score-stepper">
                             <output class="tt-mexec-score-num" data-tt-mexec-away-score aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $away_abbr ) ); ?>"><?php echo (int) $away_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="away" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $away_abbr ) ); ?>">+</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--goal tt-mexec-step tt-mexec-edit-only" data-tt-mexec-log-goal="away" aria-label="<?php echo esc_attr( sprintf( __( 'Log a goal for %s', 'talenttrack' ), $away_abbr ) ); ?>"<?php echo $prekick_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — fixed attribute literal ?>>+</button>
                         </div>
                     </div>
                 </div>
@@ -702,6 +701,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         count( $specific_goal_ids )
                     ) ); ?></span>
                 </div>
+                <?php // #3549 — before kickoff the controls below are shown but
+                      // disabled; this is the reason, on screen rather than in a
+                      // tooltip. It hides itself the moment the match starts. ?>
+                <p class="tt-mexec-prekick-note" id="tt-mexec-prekick-tracked" data-tt-mexec-prekick-note<?php echo $pre_kickoff ? '' : ' hidden'; ?>><?php esc_html_e( 'Available once the match has started.', 'talenttrack' ); ?></p>
                 <?php if ( empty( $specific_goal_ids ) ) : ?>
                     <p class="tt-mexec-empty"><?php esc_html_e( 'No players flagged with a specific goal in the match prep.', 'talenttrack' ); ?></p>
                 <?php else : ?>
@@ -719,7 +722,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                       // chip below; a "flagged: …" subtitle repeated it. ?>
                                 <span class="tt-mexec-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
                                 <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-tracked-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-tracked-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"<?php echo $prekick_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — fixed attribute literal ?>><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
                                 </div>
                                 <div class="tt-mexec-player-goals">
                                     <?php if ( $goal_label !== '' ) : ?>
@@ -747,6 +750,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         count( $bench_ids )
                     ) ); ?></span>
                 </div>
+                <p class="tt-mexec-prekick-note" id="tt-mexec-prekick-bench" data-tt-mexec-prekick-note<?php echo $pre_kickoff ? '' : ' hidden'; ?>><?php esc_html_e( 'Available once the match has started.', 'talenttrack' ); ?></p>
                 <?php if ( empty( $bench_ids ) ) : ?>
                     <p class="tt-mexec-empty"><?php esc_html_e( 'No bench players available.', 'talenttrack' ); ?></p>
                 <?php else : ?>
@@ -766,7 +770,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     </div>
                                 <?php endif; ?>
                                 <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"<?php echo $prekick_bench; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — fixed attribute literal ?>><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
                                 </div>
                             </li>
                         <?php endforeach; ?>
@@ -1462,7 +1466,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   // to say "I did not see who scored", the only remaining
                   // affordance was a score control that recorded no event.
                   ?>
-            <?php if ( $is_editable ) :
+            <?php // #3549 — rendered before kickoff as well: Start enables the
+                  // scoreboard `+` in place, with no reload to bring the sheet in.
+                  if ( $is_editable || $pre_kickoff ) :
                 $goal_minute_max = (int) $prep->half_length_minutes + 10;
                 ?>
                 <dialog class="tt-mexec-goal-sheet" data-tt-mexec-goal-sheet aria-labelledby="tt-mexec-goal-sheet-title">
@@ -1524,7 +1530,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </dialog>
             <?php endif; ?>
 <?php if ( $tt_sections ) : ?>
-<?php self::renderSectioned( self::splitOnCuts( (string) ob_get_clean() ), $tt_review, $is_editable ); ?>
+<?php self::renderSectioned( self::splitOnCuts( (string) ob_get_clean() ), $tt_review, $is_editable || $pre_kickoff ); ?>
 <?php endif; ?>
         </div>
 

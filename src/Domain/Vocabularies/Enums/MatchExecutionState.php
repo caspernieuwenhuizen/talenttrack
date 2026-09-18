@@ -113,6 +113,27 @@ final class MatchExecutionState {
     }
 
     /**
+     * #3549 — whether the live screen opens with its controls on screen
+     * (`data-edit-mode="on"`). Before kickoff and during play they are:
+     * the coach sees every control from the start, disabled until the
+     * match is started, and never has to switch an edit mode on mid-game.
+     * The post-match review keeps the #2222 accidental-edit guard; a
+     * FINALIZED match is read-only.
+     */
+    public static function opensInEditMode( string $value ): bool {
+        return $value === self::NOT_STARTED || self::isLive( $value );
+    }
+
+    /**
+     * #3549 — the Edit / Done editing toggle exists only in the post-match
+     * review, where it guards corrections against a stray tap. Before and
+     * during the match the controls are simply there.
+     */
+    public static function hasEditToggle( string $value ): bool {
+        return $value === self::PENDING_REVIEW;
+    }
+
+    /**
      * #1520 — post-live states (the match has been played). The detail
      * page surfaces these as "View match" on any day; the LIVE states as
      * "Resume match"; NOT_STARTED only as "Start match", and only on

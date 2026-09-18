@@ -29335,6 +29335,10 @@ msgstr[1] "%d beschikbaar"
 msgid "No bench players available."
 msgstr "Geen wisselspelers beschikbaar."
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Available once the match has started."
+msgstr "Beschikbaar zodra de wedstrijd is gestart."
+
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:768
 msgid "Bring on"
 msgstr "Erin brengen"

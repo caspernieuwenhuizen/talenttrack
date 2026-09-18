@@ -429,6 +429,9 @@
 
         btn.addEventListener('pointerdown', function () {
             longPressed = false;
+            // #3549 — shown but inert before kickoff; some browsers still
+            // deliver pointer events to a disabled button.
+            if (btn.disabled || liveControlsLocked()) return;
             pressTimer = setTimeout(function () {
                 longPressed = true;
                 var pending = (state.recent_tracked && state.recent_tracked[pid]) || [];
@@ -450,6 +453,7 @@
         btn.addEventListener('pointerup', function () {
             clearTimeout(pressTimer);
             if (longPressed) return;
+            if (btn.disabled || liveControlsLocked()) return;
             var uuid = uuidv4();
             state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
             renderChip();
@@ -481,7 +485,7 @@
     var pendingGoal = null;
 
     function openGoalSheet(team) {
-        if (!goalSheet || state.state === ST.FINALIZED) return;
+        if (!goalSheet || state.state === ST.FINALIZED || liveControlsLocked()) return;
         pendingGoal = {
             team: team,
             half: state.half,
@@ -870,7 +874,7 @@
 
     function openSubSheet(pid_on) {
         var pl_on = state.players_by_id[pid_on];
-        if (!pl_on) return;
+        if (!pl_on || liveControlsLocked()) return;
         pendingSubOn = pid_on;
         if (subBannerEl) {
             subBannerEl.textContent = (i18n.sub_label_format || 'Tap a player to swap in %s')
@@ -1072,6 +1076,26 @@
         if (els.startLock) {
             els.startLock.hidden = !(state.state === ST.NOT_STARTED && !IS_MATCH_DAY);
         }
+        syncLiveControls();
+    }
+
+    // #3549 — before kickoff every live control is on screen and disabled,
+    // with a note saying why. Start enables them in place: no reload and
+    // no Edit toggle stands between the coach and the first goal or sub.
+    // Function declarations only: renderStateButton() runs at boot, above
+    // this point in the file, before any `var` down here is assigned.
+    function liveControlsLocked() {
+        return state.state === ST.NOT_STARTED;
+    }
+    function syncLiveControls() {
+        var locked = liveControlsLocked();
+        root.querySelectorAll('[data-tt-mexec-log-goal], [data-tt-mexec-tracked-inc], [data-tt-mexec-sub-on]').forEach(function (b) {
+            b.disabled = locked;
+            if (!locked) b.removeAttribute('aria-describedby');
+        });
+        root.querySelectorAll('[data-tt-mexec-prekick-note]').forEach(function (n) {
+            n.hidden = !locked;
+        });
     }
     function renderBenchAndOnPitch() {
         if (els.benchList) {
@@ -1102,7 +1126,7 @@
                     '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
                     '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + pill + story + '</span>' +
                     '<div class="tt-mexec-player-actions">' +
-                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="' + escapeHtml(i18n.bring_on || 'Bring on') + '">' +
+                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="' + escapeHtml(i18n.bring_on || 'Bring on') + '"' + (liveControlsLocked() ? ' disabled' : '') + '>' +
                             escapeHtml(i18n.sub_on || '→ on') +
                         '</button>' +
                     '</div>';
