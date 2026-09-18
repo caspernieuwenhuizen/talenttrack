@@ -60,7 +60,9 @@ class HodWeekRecapWidget extends AbstractWidget {
         $sub   = sprintf(
             /* translators: %s: localized date the recap window starts at */
             __( 'Since %s', 'talenttrack' ),
-            TTDate::date( strtotime( $since ) )
+            // The string goes straight in: TTDate parses it, and strtotime()
+            // here could hand it a `false` it has no way to render.
+            TTDate::date( $since )
         );
 
         $lines = [];
