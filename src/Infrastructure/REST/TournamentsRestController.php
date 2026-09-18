@@ -1443,7 +1443,20 @@ class TournamentsRestController {
         $duration = isset( $r['duration_min'] ) ? max( 1, absint( $r['duration_min'] ) ) : 20;
         $windows  = self::normaliseWindowsJson( $r['substitution_windows'] ?? null, $duration );
         $scheduled = sanitize_text_field( (string) ( $r['scheduled_at'] ?? '' ) );
-        return [
+
+        // #3532 — the fixture's result. Merged in only when the request
+        // mentions it, unlike every field below: those are a full replace, and
+        // a caller that predates the scores must not wipe them by not knowing
+        // they exist. An explicit null or '' clears the column, because a coach
+        // deleting the digits is saying "no result recorded", not "0-0".
+        $scores = [];
+        foreach ( [ 'our_score', 'their_score' ] as $col ) {
+            if ( ! array_key_exists( $col, $r ) ) continue;
+            $raw = $r[ $col ];
+            $scores[ $col ] = ( $raw === null || $raw === '' ) ? null : min( 99, absint( $raw ) );
+        }
+
+        return $scores + [
             'label'                => isset( $r['label'] ) ? sanitize_text_field( (string) $r['label'] ) : null,
             'opponent_name'        => isset( $r['opponent_name'] ) ? sanitize_text_field( (string) $r['opponent_name'] ) : null,
             'opponent_level'       => isset( $r['opponent_level'] ) ? sanitize_text_field( (string) $r['opponent_level'] ) : null,
@@ -1780,6 +1793,12 @@ class TournamentsRestController {
             'completed_at'         => $row['completed_at'],
             'activity_id'          => $row['activity_id'] !== null ? (int) $row['activity_id'] : null,
             'notes'                => (string) ( $row['notes'] ?? '' ),
+            // #3532 — null, not 0, where no result was recorded. A consumer
+            // has to be able to tell "0-0" from "we never typed it in", which
+            // is the difference between a goalless draw and an unplayed or
+            // unrecorded fixture.
+            'our_score'            => isset( $row['our_score'] ) ? (int) $row['our_score'] : null,
+            'their_score'          => isset( $row['their_score'] ) ? (int) $row['their_score'] : null,
         ];
     }
 }

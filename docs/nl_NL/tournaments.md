@@ -96,6 +96,29 @@ De auto-balancer weegt **niet** automatisch op niveau tegenstander. Dat is de be
 
 Je kunt **Afsluiten** zonder eerst expliciet aftrap te geven — het systeem doet de aftrap automatisch.
 
+## De uitslag van elke wedstrijd vastleggen
+
+Elke wedstrijd in het programma heeft twee vakjes: **Wij** en **Zij**. Typ de
+doelpunten in; ze worden opgeslagen zodra je het vakje verlaat.
+
+**Een toernooi heeft geen enkele uitslag.** Een toernooidag zijn meerdere
+wedstrijden, en één uitslag kan dat niet beschrijven — daarom krijgt een
+toernooi niet de Uitslag-kaart die een competitiewedstrijd heeft, en geen
+uitslagvakjes in het minutenraster. De uitslag hoort bij de wedstrijd, dus daar
+leg je hem vast.
+
+**Een vakje leeg laten legt geen uitslag vast**, geen 0–0. Een wedstrijd die je
+nog niet gespeeld hebt, of waar niemand een uitslag van invulde, leest als
+gespeeld-zonder-uitslag en niet als doelpuntloos gelijkspel.
+
+Er is bewust **geen dagtotaal**. De balans van het team laat toernooien
+helemaal buiten beschouwing, dus een doelpunten voor/tegen over de dag zou
+nergens gelezen worden. Verandert dat, dan is het zo toegevoegd.
+
+**Doelpunten tellen nog steeds voor de speler.** Een doelpunt op een toernooi
+kwam altijd al via de kolom `G` van het minutenraster in het dossier van de
+maker terecht, en dat blijft zo — die helft hing nooit van deze vakjes af.
+
 ## Wie kan dit zien
 
 In v1 zijn de Toernooien-tegel, de planner en elk REST-endpoint alleen toegankelijk voor de **Academy Admin**. Coach, Head of Development, Scout, Speler en Ouder zien de functie niet.

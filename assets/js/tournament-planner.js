@@ -45,6 +45,57 @@
     }
 
     /**
+     * #3532 — the fixture's result, saved on blur.
+     *
+     * A tournament day has no single scoreline (#2686), so the result lives
+     * per fixture and these two boxes are the only place it can be entered.
+     *
+     * Saved per box rather than behind a page-wide Save because the rest of
+     * this card already works that way — the planner's assignments PATCH as
+     * you drag — and a second commit model on one screen would be worse than
+     * either. A cleared box sends null: "no result recorded", not 0-0, which
+     * is what keeps a fixture nobody has played out of the day's results.
+     */
+    function bindScores() {
+        document.querySelectorAll( '[data-tt-tour-score]' ).forEach( function ( input ) {
+            var root = input.closest( '[data-tt-tournament-planner="1"]' );
+            if ( ! root ) {
+                return;
+            }
+
+            input.addEventListener( 'blur', function () {
+                var tournamentId = parseInt( root.getAttribute( 'data-tournament-id' ), 10 );
+                var matchId = parseInt( root.getAttribute( 'data-match-id' ), 10 );
+                if ( ! tournamentId || ! matchId ) {
+                    return;
+                }
+
+                var raw = String( input.value ).replace( /[^0-9]/g, '' );
+                input.value = raw === '' ? '' : String( Math.min( 99, parseInt( raw, 10 ) ) );
+
+                var body = {};
+                body[ input.getAttribute( 'data-tt-tour-score' ) ] = input.value === ''
+                    ? null
+                    : parseInt( input.value, 10 );
+
+                input.classList.remove( 'is-error' );
+                api( 'PATCH', 'tournaments/' + tournamentId + '/matches/' + matchId, body )
+                    .then( function ( res ) {
+                        if ( ! res.ok ) {
+                            // The typed value stays in the box. Clearing it
+                            // would throw away the work the save just failed
+                            // to store.
+                            input.classList.add( 'is-error' );
+                        }
+                    } )
+                    ['catch']( function () {
+                        input.classList.add( 'is-error' );
+                    } );
+            } );
+        } );
+    }
+
+    /**
      * Find every planner root on the page and hydrate. Each root
      * carries data-tournament-id + data-match-id; the JS fetches the
      * planner bundle and renders the grid.
@@ -506,9 +557,14 @@
             } );
     }
 
-    if ( document.readyState === 'loading' ) {
-        document.addEventListener( 'DOMContentLoaded', hydrate );
-    } else {
+    function boot() {
         hydrate();
+        bindScores();
+    }
+
+    if ( document.readyState === 'loading' ) {
+        document.addEventListener( 'DOMContentLoaded', boot );
+    } else {
+        boot();
     }
 } )();
