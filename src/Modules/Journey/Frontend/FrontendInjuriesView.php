@@ -13,6 +13,7 @@ use TT\Shared\Frontend\Components\EmptyStateCard;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendInjuriesView (#2609) — who is out right now, across the teams
@@ -214,12 +215,12 @@ final class FrontendInjuriesView extends FrontendViewBase {
             echo '<td>' . esc_html( (string) ( $row->team_name ?? '—' ) ) . '</td>';
             echo '<td>' . esc_html( self::lookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' ) ) . '</td>';
             echo '<td>' . esc_html( self::lookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' ) ) . '</td>';
-            echo '<td>' . esc_html( $started !== '' ? date_i18n( get_option( 'date_format' ), strtotime( $started ) ) : '—' ) . '</td>';
+            echo '<td>' . esc_html( $started !== '' ? TTDate::date( $started ) : '—' ) . '</td>';
             echo '<td>';
             if ( $actual !== '' ) {
                 echo '<span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span>';
             } elseif ( $expected !== '' ) {
-                echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $expected ) ) );
+                echo esc_html( TTDate::date( $expected ) );
                 if ( $overdue ) {
                     echo ' <span class="tt-chip tt-chip--warn">' . esc_html__( 'Overdue', 'talenttrack' ) . '</span>';
                 }

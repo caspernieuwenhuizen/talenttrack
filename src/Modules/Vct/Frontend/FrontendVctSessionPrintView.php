@@ -9,6 +9,7 @@ use TT\Modules\Vct\Repositories\VctCoachingPointsRepository;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
 use TT\Modules\Vct\Repositories\VctSessionBlocksRepository;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendVctSessionPrintView (#0095 VCT-10 / #948).
@@ -48,7 +49,7 @@ class FrontendVctSessionPrintView {
                         __( 'VCT training — %1$s · %2$s · %3$s', 'talenttrack' ),
                         (string) $session['age_group'],
                         LookupTranslator::byTypeAndName( 'vct_md_context', (string) $session['md_context'] ),
-                        mysql2date( get_option( 'date_format' ), (string) $session['session_date'], true )
+                        TTDate::date( (string) $session['session_date'] )
                     ) );
                 ?></h1>
                 <p style="margin: 4px 0 0; font-size: 13px; color: #555;">

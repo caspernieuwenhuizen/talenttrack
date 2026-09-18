@@ -257,6 +257,16 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
      * changes every value downstream and the same (seed, preset) stops
      * reproducing.
      */
+    /**
+     * #3242 appended `player_status` rather than inserting it, so that every
+     * generator before it kept drawing the same values from the seeded stream.
+     *
+     * This asserted it held the *highest* run_order, which pinned "player_status
+     * is the newest wave" rather than "player_status appended" — a property that
+     * stops being true the next time anything appends, as #3539 did. It now
+     * checks what the decision was actually about: it runs after the wave that
+     * was last before it, and no two waves share an order.
+     */
     public function test_the_new_category_appends_to_the_run_order(): void {
         $orders = [];
         foreach ( DemoCoverage::CATEGORIES as $key => $meta ) {
@@ -265,10 +275,17 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
         }
 
         $this->assertArrayHasKey( 'player_status', $orders );
-        $this->assertSame(
-            max( $orders ),
+        $this->assertArrayHasKey( 'match_analyses', $orders );
+        $this->assertGreaterThan(
+            $orders['match_analyses'],
             $orders['player_status'],
             'A new wave appends; inserting would change every generator that follows it.'
+        );
+
+        $this->assertSame(
+            count( $orders ),
+            count( array_unique( $orders ) ),
+            'Two waves sharing a run_order makes the build order ambiguous, and with it the seed.'
         );
     }
 }

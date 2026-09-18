@@ -7,6 +7,7 @@ use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgePerson;
 use TT\Modules\Knowledge\LearningStatisticsService;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
+use TT\Shared\Dates\TTDate;
 
 /**
  * LearningReports (#2650, epic #2641) — the three tables behind the learning
@@ -305,7 +306,7 @@ final class LearningReports {
 
         $ts = strtotime( $timestamp );
 
-        return $ts === false ? __( 'Never', 'talenttrack' ) : date_i18n( get_option( 'date_format' ), $ts );
+        return $ts === false ? __( 'Never', 'talenttrack' ) : TTDate::date( $ts );
     }
 
     private static function renderEmpty( string $message ): void {

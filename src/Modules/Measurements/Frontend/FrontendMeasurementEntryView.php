@@ -15,6 +15,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMeasurementEntryView (#1856) — bulk result entry for a team.
@@ -390,7 +391,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
     private static function formatDate( string $date ): string {
         $ts = strtotime( $date );
         if ( ! $ts ) return $date;
-        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 
     /**

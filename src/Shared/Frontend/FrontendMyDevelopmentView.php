@@ -16,6 +16,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\SubjectVoice;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMyDevelopmentView — the player + parent "development home"
@@ -454,6 +455,6 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         if ( $ymd === null || $ymd === '' ) return '';
         $ts = strtotime( $ymd . ' UTC' );
         if ( $ts === false ) return $ymd;
-        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 }

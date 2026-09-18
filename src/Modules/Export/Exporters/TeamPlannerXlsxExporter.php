@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * TeamPlannerXlsxExporter (#1269) — week-by-week styled grid xlsx
@@ -427,7 +428,7 @@ final class TeamPlannerXlsxExporter implements ExporterInterface {
 
     private static function niceDate( string $ymd ): string {
         $ts = strtotime( $ymd );
-        return $ts !== false ? (string) date_i18n( get_option( 'date_format', 'Y-m-d' ), $ts ) : $ymd;
+        return $ts !== false ? (string) TTDate::date( $ts ) : $ymd;
     }
 
     private static function niceDayLabel( string $ymd ): string {

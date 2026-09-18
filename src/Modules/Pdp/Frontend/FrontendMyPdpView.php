@@ -11,6 +11,7 @@ use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMyPdpView — the player's timeline-first development view (#1990).
@@ -561,7 +562,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         if ( $ymd === null || $ymd === '' ) return '';
         $ts = strtotime( $ymd . ' UTC' );
         if ( $ts === false ) return $ymd;
-        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 
     private static function templateLabel( string $key ): string {

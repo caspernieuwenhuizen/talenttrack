@@ -8,6 +8,7 @@ use TT\Modules\Reports\AudienceType;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialLetterTemplatesRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
+use TT\Shared\Dates\TTDate;
 
 /**
  * Renders a trial letter from a custom or default template.
@@ -119,7 +120,7 @@ final class LetterTemplateEngine {
             'current_season'            => $current_season,
             'next_season'               => $next_season,
             'track_name'                => $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '',
-            'today'                     => date_i18n( get_option( 'date_format' ) ?: 'Y-m-d', $now ),
+            'today'                     => TTDate::date( $now ),
             'strengths_summary'         => (string) ( $case->strengths_summary ?? '' ),
             'growth_areas'              => (string) ( $case->growth_areas ?? '' ),
             'response_deadline'         => self::responseDeadlineFor( $case ),
@@ -134,7 +135,7 @@ final class LetterTemplateEngine {
     private static function formatDate( string $sql_date ): string {
         if ( $sql_date === '' ) return '';
         $ts = strtotime( $sql_date );
-        return $ts ? date_i18n( get_option( 'date_format' ) ?: 'Y-m-d', $ts ) : $sql_date;
+        return $ts ? TTDate::date( $ts ) : $sql_date;
     }
 
     private static function responseDeadlineFor( object $case ): string {
@@ -146,7 +147,7 @@ final class LetterTemplateEngine {
             $ts = strtotime( (string) $case->decision_made_at );
             if ( $ts ) $start = $ts;
         }
-        return date_i18n( get_option( 'date_format' ) ?: 'Y-m-d', $start + $days * 86400 );
+        return TTDate::date( $start + $days * 86400 );
     }
 
     public static function acceptanceSlipEnabled(): bool {

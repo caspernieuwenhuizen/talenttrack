@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Stats\Admin\PlayerCardView;
+use TT\Shared\Dates\TTDate;
 
 /**
  * PlayerReportRenderer — the configurable replacement for the original
@@ -55,7 +56,7 @@ class PlayerReportRenderer {
         $club_name   = self::resolveClubName();
         $club_logo   = self::resolveClubLogoUrl();
         $player_name = QueryHelpers::player_display_name( $player );
-        $report_date = date_i18n( get_option( 'date_format' ) ?: 'Y-m-d' );
+        $report_date = TTDate::date( time() );
         $period      = self::formatFilterPeriod( $config->filters );
 
         $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );

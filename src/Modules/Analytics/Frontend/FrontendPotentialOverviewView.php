@@ -13,6 +13,7 @@ use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendPotentialOverviewView (#3412) — a squad's potential, in one
@@ -323,7 +324,7 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
         }
 
         $when   = (string) $row['set_at'];
-        $format = (string) get_option( 'date_format' );
+        $format = TTDate::dateFormat();
         $date   = $when !== '' ? (string) mysql2date( $format, $when ) : '';
         $who    = (string) $row['set_by_name'];
 

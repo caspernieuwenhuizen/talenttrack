@@ -9,6 +9,7 @@ use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendJourneyView — chronological journey for one player.
@@ -360,7 +361,7 @@ class FrontendJourneyView {
     private static function formatDate( string $datetime ): string {
         $ts = strtotime( $datetime );
         if ( ! $ts ) return $datetime;
-        return date_i18n( get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 
     private static function buildModeUrl( string $mode ): string {

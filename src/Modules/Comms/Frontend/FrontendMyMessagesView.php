@@ -7,6 +7,7 @@ use TT\Modules\Comms\Repositories\CommsInboxRepository;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendMyMessagesView (#2606, Gate C) — `?tt_view=my-messages`.
@@ -184,6 +185,10 @@ final class FrontendMyMessagesView extends FrontendViewBase {
     private static function humanDate( string $mysql ): string {
         $stamp = $mysql !== '' ? strtotime( $mysql ) : false;
         if ( $stamp === false ) return $mysql;
-        return date_i18n( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), $stamp );
+        // The date half follows the academy's preset (#3528); the time half
+        // still reads WordPress' `time_format`, which the preset does not
+        // cover. Deliberately not `TTDate::dateTime()` — that composes its own
+        // `, H:i` and would drop the operator's chosen time format.
+        return date_i18n( TTDate::dateFormat() . ' ' . (string) get_option( 'time_format' ), $stamp );
     }
 }

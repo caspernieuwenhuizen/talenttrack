@@ -21,6 +21,7 @@ use TT\Modules\DemoData\Generators\PipelineGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
 use TT\Modules\DemoData\Generators\PlayerReportGenerator;
+use TT\Modules\DemoData\Generators\TeamReportSnapshotGenerator;
 use TT\Modules\DemoData\Generators\PlayerStatusGenerator;
 use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
@@ -853,7 +854,14 @@ class DemoCoverage {
         // better than any description. It is unseeded because `data_json` is a
         // whole rendered report — composing one needs the demo activities,
         // attendance and evaluations to exist first (#3539).
-        'tt_team_report_snapshots'     => [ 'planned' => '#3539' ],
+        'tt_team_report_snapshots' => [
+            'entity_type' => 'team_report_snapshot',
+            'category'    => 'report_snapshots',
+            'written_by'  => TeamReportSnapshotGenerator::class,
+            // The payload is a composed report, so it is empty without the
+            // activities, attendance and evaluations it summarises.
+            'depends_on'  => [ 'team', 'activity', 'attendance', 'evaluation' ],
+        ],
         'tt_workflow_triggers'         => [ 'exempt' => 'Workflow trigger configuration, seeded by migrations.' ],
         'tt_workflow_template_config'  => [ 'exempt' => 'Workflow template configuration, seeded by migrations.' ],
         'tt_workflow_event_log'        => [ 'exempt' => 'Log of real workflow-engine events.' ],
@@ -1091,6 +1099,16 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 250,
             'cascade'   => [ 'player_potential', 'player_behaviour_rating' ],
+        ],
+        // #3539 — appended at 260 rather than inserted, for the same reason
+        // `player_status` was appended at 250: every generator before it must
+        // keep drawing the same values from the seeded stream, so the same
+        // (seed, preset) keeps reproducing the same academy. Last in the run
+        // because it composes a report out of everything the others wrote.
+        'report_snapshots' => [
+            'tier'      => 'dependent',
+            'run_order' => 260,
+            'cascade'   => [ 'team_report_snapshot' ],
         ],
         'knowledge' => [
             'tier'      => 'dependent',
@@ -1332,6 +1350,7 @@ class DemoCoverage {
             'injuries'    => __( 'Injuries', 'talenttrack' ),
             'player_profile' => __( 'Player profile', 'talenttrack' ),
             'reports'     => __( 'Player reports', 'talenttrack' ),
+            'report_snapshots' => __( 'Meeting snapshots', 'talenttrack' ),
             'measurements' => __( 'Measurements', 'talenttrack' ),
             'pdp'         => __( 'PDP cycle', 'talenttrack' ),
             'activity_content' => __( 'Training content', 'talenttrack' ),
@@ -1367,6 +1386,7 @@ class DemoCoverage {
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
             'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
+            'report_snapshots' => __( 'One monthly report frozen for a staff meeting, with the notes the meeting wrote on it.', 'talenttrack' ),
             'measurements' => __( 'The testing battery, its per-age-group target bands, team testing sessions and one result per player.', 'talenttrack' ),
             'pdp'         => __( 'The season, one development dossier per player, its conversation cycle, calendar links and verdicts.', 'talenttrack' ),
             'activity_content' => __( 'Exercises and methodology principles on each training, per-team exercise overrides, and the season\'s holiday windows.', 'talenttrack' ),

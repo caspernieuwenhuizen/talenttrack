@@ -9,6 +9,7 @@ use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Shared\Dates\TTDate;
 
 /**
  * SystemHealthStripWidget — Admin hero.
@@ -120,7 +121,7 @@ class SystemHealthStripWidget extends AbstractWidget {
         }
         $age_hours = (int) round( ( time() - $ts ) / 3600 );
         $state = $age_hours <= 36 ? 'ok' : ( $age_hours <= 168 ? 'warn' : 'warn' );
-        $value = (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        $value = (string) TTDate::date( $ts );
         return [
             'label' => __( 'Last backup', 'talenttrack' ),
             'value' => $value,

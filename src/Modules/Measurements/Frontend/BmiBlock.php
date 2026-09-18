@@ -4,6 +4,7 @@ namespace TT\Modules\Measurements\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Measurements\Reports\BmiQuery;
+use TT\Shared\Dates\TTDate;
 
 /**
  * BmiBlock (#2895) — the one renderer every BMI-for-age surface uses.
@@ -178,6 +179,6 @@ final class BmiBlock {
     private static function formatDate( string $ymd ): string {
         $ts = strtotime( $ymd );
         if ( $ts === false ) return $ymd;
-        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        return TTDate::date( $ts );
     }
 }

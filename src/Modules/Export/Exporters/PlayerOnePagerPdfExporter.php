@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * PlayerOnePagerPdfExporter (#0063 use case 13) — single-player A5 PDF.
@@ -166,7 +167,7 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         $generated_html = esc_html( sprintf(
             /* translators: %s = generation date (Y-m-d) */
             __( 'Generated %s', 'talenttrack' ),
-            date_i18n( get_option( 'date_format' ) ?: 'Y-m-d' )
+            TTDate::date( time() )
         ) );
 
         return '<!doctype html><html><head><meta charset="UTF-8">'

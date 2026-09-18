@@ -17,6 +17,7 @@ use TT\Modules\Players\Services\ProfileCardsConfig;
 use TT\Shared\Frontend\Components\EmptyStateCard;
 use TT\Shared\Frontend\Components\MediaGallery;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Dates\TTDate;
 
 /**
  * FrontendPlayerDetailView — primary working surface for one player at
@@ -136,7 +137,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // judgement is current enough to be worth revising.
         $current_potential_meta = '';
         if ( $current_band !== '' && $set_at !== '' ) {
-            $when = mysql2date( get_option( 'date_format' ), $set_at, true );
+            $when = TTDate::date( $set_at );
             $current_potential_meta = $set_by_name !== ''
                 /* translators: 1: localised date, 2: name of the person who set it */
                 ? sprintf( __( 'Set on %1$s by %2$s', 'talenttrack' ), $when, $set_by_name )
@@ -2621,14 +2622,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                 <?php
                                 if ( $started !== '' ) {
                                     /* translators: %s is a date. */
-                                    echo esc_html( sprintf( __( 'Since %s', 'talenttrack' ), date_i18n( get_option( 'date_format' ), strtotime( $started ) ) ) );
+                                    echo esc_html( sprintf( __( 'Since %s', 'talenttrack' ), TTDate::date( $started ) ) );
                                 }
                                 if ( $actual !== '' ) {
                                     echo ' · <span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span> ';
-                                    echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $actual ) ) );
+                                    echo esc_html( TTDate::date( $actual ) );
                                 } elseif ( $expected !== '' ) {
                                     /* translators: %s is a date. */
-                                    echo ' · ' . esc_html( sprintf( __( 'Expected back %s', 'talenttrack' ), date_i18n( get_option( 'date_format' ), strtotime( $expected ) ) ) );
+                                    echo ' · ' . esc_html( sprintf( __( 'Expected back %s', 'talenttrack' ), TTDate::date( $expected ) ) );
                                     if ( $overdue ) {
                                         echo ' <span class="tt-chip tt-chip--warn">' . esc_html__( 'Overdue', 'talenttrack' ) . '</span>';
                                     }
