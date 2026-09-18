@@ -23,6 +23,8 @@ The open issues. Query: `gh issue list --repo caspernieuwenhuizen/talenttrack --
 | 3549 | Match execution: show tracked players and bench before kickoff; Start must reveal the live controls | ready-for-dev |
 | 3550 | Match execution: confirmation toasts are unreadable (colour token undefined outside the container) | ready-for-dev |
 | 3551 | Rebuild this file | in progress |
+| 3557 | Tournaments: recording a fixture score erases the fixture's opponent, kickoff time and substitution windows | ready-for-dev, **data loss since v4.126.0** |
+| 3558 | Epic: Tournaments tab on the player file. Children #3559 hygiene · #3560 access (migration) · #3561 domain + REST · #3562 tab | shaped, children held |
 
 ## Next: candidates to shape
 
@@ -30,16 +32,15 @@ Unblocked, player-facing, and the data already exists. Ordered by how directly t
 
 | Order | Candidate | Source | Why now |
 | - | - | - | - |
-| 1 | **Tournaments tab on the player profile.** Per-player totals (minutes, starts, full matches, minutes against stronger opponents), per-tournament drill-down, upcoming tournament minutes. | `ideas/0094` | Tournament fixtures gained a result in v4.126.0; the per-player rollup is the missing half. Three shaping questions are already written in the idea file. |
-| 2 | **Match analysis per tournament fixture.** | #2704 | Deferred because "it needs per-fixture records first". Those records shipped with #3532. |
-| 3 | **From match analysis to evaluations.** "Create match evaluations for the players I flagged." | #2704 | "The obvious next step … file separately." It closes the loop from what the coach saw to what the player's record keeps. |
-| 4 | **Reporting on tracked development actions.** | #2292 | The live match sheet records tracked actions; "integration point wired at finalize; dedicated surface later". Nothing reads them yet. |
-| 5 | **"Next step" lines carried month to month in the team report.** | #3457 | "Held … needs its own shaping". Makes the monthly report a thread over time rather than a snapshot. |
-| 6 | **Media attached to evaluations and PDPs.** | #2589 | "Evaluation/PDP links are v2". Evidence next to the judgement it supports. |
-| 7 | **Team statistics for players and parents.** | #3519 | Staff-only by decision; showing a ranked table of named children is "a separate product decision". Decide it before building. |
-| 8 | **Historical data import after onboarding** (evaluations, attendance, journey). | #2954 | The REST `/imports` endpoint exists; there is no upload surface outside Setup. A new club's players start with empty journeys. |
-| 9 | **Writing `formation`.** Read in eight places, written by nothing. | #3529 | "Belongs on the line-up / prep surface". Small, and it removes the last fixture fact with no form. |
-| 10 | **Quick multi-player rating vs deep single-player rating: unify, or state that the split is intentional.** | #2247 | Raised in the evaluation review and never answered. It is a decision, not a build. |
+| 1 | **Match analysis per tournament fixture.** | #2704 | Deferred because "it needs per-fixture records first". Those records shipped with #3532. |
+| 2 | **From match analysis to evaluations.** "Create match evaluations for the players I flagged." | #2704 | "The obvious next step … file separately." It closes the loop from what the coach saw to what the player's record keeps. |
+| 3 | **Reporting on tracked development actions.** | #2292 | The live match sheet records tracked actions; "integration point wired at finalize; dedicated surface later". Nothing reads them yet. |
+| 4 | **"Next step" lines carried month to month in the team report.** | #3457 | "Held … needs its own shaping". Makes the monthly report a thread over time rather than a snapshot. |
+| 5 | **Media attached to evaluations and PDPs.** | #2589 | "Evaluation/PDP links are v2". Evidence next to the judgement it supports. |
+| 6 | **Team statistics for players and parents.** | #3519 | Staff-only by decision; showing a ranked table of named children is "a separate product decision". Decide it before building. |
+| 7 | **Historical data import after onboarding** (evaluations, attendance, journey). | #2954 | The REST `/imports` endpoint exists; there is no upload surface outside Setup. A new club's players start with empty journeys. |
+| 8 | **Writing `formation`.** Read in eight places, written by nothing. | #3529 | "Belongs on the line-up / prep surface". Small, and it removes the last fixture fact with no form. |
+| 9 | **Quick multi-player rating vs deep single-player rating: unify, or state that the split is intentional.** | #2247 | Raised in the evaluation review and never answered. It is a decision, not a build. |
 
 ## Hygiene: small, unblocked, never filed
 
@@ -56,6 +57,9 @@ Correctness, privacy and compliance items that epic audits found in passing. Mos
 | Blueprint sibling-team picker checks raw `tt_edit_settings`, so a Head of Development gets an empty list. | #2009 | `FrontendTeamBlueprintsView.php:1256` |
 | `tt_team_manager` is mapped by the persona resolver but never installed as a role, so a test using it passes for the wrong reason. | #2589 | `PersonaResolver`, `RoleResolver` vs `RolesService` |
 | List rows still carry inline actions (spec 0091): development tracks (delete), ideas board (status select), scheduled reports (pause/resume/archive), custom-CSS snapshot rows (delete). The four exemptions in the spec also have no documented rationale. | `specs/0091` | Re-audited 2026-09-18 |
+| Kicking off a tournament fixture creates a type-`match` activity with no `tournament_id`, alongside the optional hand-made `tournament` wrapper. A day can hold both, and the fixtures get the match surfaces #2686 removed from tournaments. | #3558 | `TournamentsRestController` ~780-823 |
+| "Player · Minutes played" report sums raw `minutes_played` and ignores `minutes_override`, so it can disagree with `MinutesQuery`. | #3558 | `FrontendStandardReportsView.php:559` |
+| `docs/activities.md` still sends coaches to match prep for tournaments, which #2686 removed. | #3558 | `docs/activities.md:245` + Dutch twin |
 | Standard reports still reload the page on a filter change. "Its own change, not a flag." | #3335 | 8 sub-reports, 32 early returns |
 | The served JS bundle has never been measured against the 50KB gzip budget. | #2453 | `spotlight.js` and the shell bundle |
 | Tile components still carry inline `<style>` blocks. | #1695 | Extract into an enqueued sheet (#1389 rule) |
