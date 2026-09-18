@@ -4,13 +4,27 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.126.0
+Stable tag: 4.126.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.126.1 — Match execution: a locked Start button now looks locked and says why (#3548) Before match day, Start and Start match rendered in the same green as a live button while doing nothing on tap, and the reason sat in a hover tooltip that never shows on a phone. Both now render greyed out, and "Available on match day (…)" is written under the clock. =
+
+= 4.126.1 — Match execution: every control is on screen before kickoff, and Start switches them on in place (#3549) Before kickoff the screen used to hide the tracked players and the bench, and after Start the + action, → in and goal buttons stayed hidden until the page was reloaded. Now the whole console shows from the start — the tracked players with their goals, the bench, the scoreboard + — greyed out with "Available once the match has started." beside them, and tapping Start enables them immediately. The Edit / Done editing toggle is gone before and during the match, so goals, actions and subs are always available while it runs; it stays in the post-match review, where it guards corrections against a stray tap. =
+
+= 4.126.1 — Match execution: confirmation toasts are readable again (#3550) The toast after a substitution or goal — the one carrying the Undo — rendered as pale text on a see-through box, because it is mounted outside the match-execution container where its colour tokens live, and it squeezed into half the screen with one word per line. It now renders dark with white text on any background and sizes to its content, full-width on a phone. =
+
+= 4.126.1 — Match execution: the match clock survives a reload (#3553) The clock lived only in the browser tab, so a phone that locked or a tab the browser discarded came back at 00:00, paused — and every substitution, goal and tracked action logged after that was recorded at the wrong minute (often 0'). The server now keeps the clock: it records when a half starts, when it is paused and for how long, and the screen boots from that on every load, running or paused exactly as it was. At half time the timer button now reads Start (it starts the second half) instead of Resume. The coach dashboard's live-minute label uses the same clock, so it now allows for pauses too. Adds migration 0269 (`clock_paused_at` on the match execution table). =
+
+= 4.126.1 — Match execution: the pitch and Live progress follow the match without a reload (#3554) After a substitution the pitch still showed the player who came off, and Live progress stayed at "0 events" after a sub or goal — both only caught up on a reload, which a coach on the touchline cannot make. Now the player coming on takes the outgoing player's position on the pitch straight away, and every goal and substitution appears in Live progress with its minute and the running score; undoing one or correcting a sub's minute redraws both in place. A reload mid-match also shows the current line-up: players who had come off are no longer put back on the pitch or offered again as the ones to take off. The `pitch-lineup` REST answer now returns the line-up with every logged substitution applied, plus an `on_pitch` list and a `short_name` per slot. =
+
+= 4.126.1 — Match execution: the bench stays translated after a substitution (#3555) The bench list is redrawn after every sub, and the redraw hard-coded the English "→ on" / "Bring on", so a Dutch screen switched to English mid-match. It now uses the same translated labels as the first render. The connection line under the state button also says "Synced" again, instead of "Back online — syncing…" after every successful tap. =
+
+= 4.126.1 — Match execution: three readability fixes (#3556) Tracked-player rows show the player's goal once (in the counter chip) instead of twice. The assist step of the goal sheet lists the players on the pitch first, with the bench and the rest of the squad behind the same collapsible as the scorer step. That collapsible now shows a chevron and a count — "Bench and rest of squad (7)" — so it reads as something to open. =
 
 = 4.126.0 — Support access is time-boxed, and the club can see it (#3501) Helping a club used to mean asking a coach to describe what they see, or reaching for a developer override that nothing time-boxed and the club could not inspect.  TalentTrack support now reaches an install only under a **support grant**: one named operator, one named reason, one end time. While a grant is live, every signed-in person at the club sees an orange banner — in the app and in wp-admin — naming all three. **It cannot be dismissed.** That visibility is the whole safeguard: a grant a club cannot see is indistinguishable from a back door, and this product holds children's records.  Three things hold whatever happens:  - **Every grant ends on its own**, enforced on the club's own install, so it   closes on time even if the site cannot reach us for a week. - **Withdrawing a grant takes effect on the next check-in** — the install   replaces the grants it holds rather than adding to them, so a revoked grant   is simply gone. - **Starting a session records which grant it ran under**, so "who had access,   and what did they do" is answerable from the club's own logs.  A club's own administrators are untouched. The grant adds a requirement for support accounts only, and can never stand between an academy and its own records. =
 
