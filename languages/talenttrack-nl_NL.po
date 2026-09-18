@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-18T05:27:34+00:00\n"
+"POT-Creation-Date: 2026-09-18T05:37:47+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5545,7 +5545,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:818
 #: src/Shared/Frontend/FrontendTeamsManageView.php:326
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:93
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:546
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:586
 #: src/Shared/Frontend/FrontendTrialCaseView.php:641
 #: src/Shared/Frontend/FrontendTrialCaseView.php:677
 #: src/Shared/Frontend/FrontendTrialsManageView.php:461
@@ -6004,7 +6004,7 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:621
 #: src/Shared/Frontend/Components/EvidencePanel.php:257
 #: src/Shared/Frontend/FrontendStandardReportsView.php:782
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:474
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:514
 msgid "Minutes"
 msgstr "Minuten"
 
@@ -11074,7 +11074,7 @@ msgstr "WP-rollen"
 #: src/Modules/Authorization/Admin/DebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:188
 #: src/Modules/Authorization/Admin/DebugPage.php:225
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:539
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:579
 msgid "(none)"
 msgstr "(geen)"
 
@@ -11199,7 +11199,7 @@ msgstr "Entiteit"
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:919
 #: src/Shared/Frontend/FrontendConfigurationView.php:1655
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:478
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:518
 msgid "Default"
 msgstr "Standaard"
 
@@ -12959,7 +12959,7 @@ msgstr "Selecteer persoon"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:433
 #: src/Shared/Frontend/FrontendHolidaysView.php:191
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:527
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:567
 #: src/Shared/Frontend/FrontendTrialsManageView.php:444
 msgid "Start date"
 msgstr "Startdatum"
@@ -12974,7 +12974,7 @@ msgstr "Startdatum"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
 #: src/Shared/Frontend/FrontendHolidaysView.php:195
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:533
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:573
 #: src/Shared/Frontend/FrontendTrialsManageView.php:445
 msgid "End date"
 msgstr "Einddatum"
@@ -17731,7 +17731,7 @@ msgid "Inserts after"
 msgstr "Voegt in na"
 
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:112
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:476
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:516
 msgid "Sort"
 msgstr "Volgorde"
 
@@ -23843,7 +23843,7 @@ msgstr "Reservebank"
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:63
 #: src/Modules/Tournaments/Wizard/SquadStep.php:29
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:322
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:441
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:481
 msgid "Squad"
 msgstr "Selectie"
 
@@ -24246,7 +24246,7 @@ msgstr "vs %s"
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:360
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:101
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:396
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:436
 #, php-format
 msgid "%d min"
 msgstr "%d min"
@@ -30837,7 +30837,7 @@ msgstr "Die test kon niet worden gevonden."
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:279
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:26
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:210
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:519
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:559
 msgid "— choose —"
 msgstr "— kies —"
 
@@ -31828,7 +31828,7 @@ msgstr "Beschrijving (EN)"
 #: src/Shared/Frontend/FrontendConfigurationView.php:958
 #: src/Shared/Frontend/FrontendConfigurationView.php:1146
 #: src/Shared/Frontend/FrontendConfigurationView.php:1292
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:593
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:120
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
@@ -32563,7 +32563,7 @@ msgstr "Terug naar bibliotheek"
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:121
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:91
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:55
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:537
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:577
 msgid "Default formation"
 msgstr "Standaardformatie"
 
@@ -32732,7 +32732,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:286
 #: src/Shared/Frontend/DashboardShortcode.php:2391
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:326
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:486
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:526
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
 msgstr "Bezig met laden…"
@@ -44630,7 +44630,7 @@ msgstr ""
 "— alle andere wedstrijden zijn tegen tegenstanders."
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:40
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:513
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
 msgid "Tournament name"
 msgstr "Toernooinaam"
 
@@ -44640,7 +44640,7 @@ msgstr "Verschijnt op de plannerpagina en in elke wedstrijdtitel."
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:46
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:47
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:517
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:557
 msgid "Anchor team"
 msgstr "Anker-team"
 
@@ -44757,13 +44757,13 @@ msgid "By position"
 msgstr "Per positie"
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:86
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:393
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:433
 #, php-format
 msgid "subs at %s"
 msgstr "wissels op %s"
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:88
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:394
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:434
 msgid "no subs"
 msgstr "geen wissels"
 
@@ -44803,7 +44803,7 @@ msgid "+%d more"
 msgstr "+%d meer"
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:258
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:452
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:492
 msgid "(no positions set)"
 msgstr "(geen posities ingesteld)"
 
@@ -61117,49 +61117,71 @@ msgstr "Wedstrijdprogramma"
 msgid "No matches yet."
 msgstr "Nog geen wedstrijden."
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:406
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:404
+msgctxt "tournament fixture: our goals"
+msgid "Ours"
+msgstr "Wij"
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:411
+#, php-format
+msgid "Our goals, %s"
+msgstr "Onze doelpunten, %s"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:416
+msgctxt "tournament fixture: opponent goals"
+msgid "Theirs"
+msgstr "Zij"
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:423
+#, php-format
+msgid "Opponent goals, %s"
+msgstr "Doelpunten tegenstander, %s"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:446
 msgid "Open planner"
 msgstr "Open planner grid"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:415
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:420
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:455
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:460
 msgid "Auto-balance"
 msgstr "Auto-balanceren"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:426
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:466
 msgid "Kick off"
 msgstr "Aftrap"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:429
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:469
 msgid "Complete match"
 msgstr "Wedstrijd afsluiten"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:443
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:483
 msgid "No players in the squad yet."
 msgstr "Nog geen spelers in de selectie."
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:454
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:494
 #, php-format
 msgid "%d min target"
 msgstr "%d min doel"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:472
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:512
 msgid "Minutes ticker"
 msgstr "Speeltijd-ticker"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:479
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:519
 msgid "Fewest minutes"
 msgstr "Minste minuten"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:480
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:520
 msgid "Fewest starts"
 msgstr "Minste basisplaatsen"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:481
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:521
 msgid "No full matches"
 msgstr "Geen volledige wedstrijd"
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:593
 msgid "Create tournament"
 msgstr "Maak toernooi aan"
 
@@ -62668,28 +62690,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:404
-msgctxt "tournament fixture: our goals"
-msgid "Ours"
-msgstr "Wij"
-
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:417
-msgctxt "tournament fixture: opponent goals"
-msgid "Theirs"
-msgstr "Zij"
-
-#. translators: %s: the fixture's headline, e.g. "vs Ajax".
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:411
-#, php-format
-msgid "Our goals, %s"
-msgstr "Onze doelpunten, %s"
-
-#. translators: %s: the fixture's headline, e.g. "vs Ajax".
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:424
-#, php-format
-msgid "Opponent goals, %s"
-msgstr "Doelpunten tegenstander, %s"
 
 #~ msgid "Match statistics for this team are coming in the next release."
 #~ msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."

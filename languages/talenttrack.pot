@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-18T05:27:34+00:00\n"
+"POT-Creation-Date: 2026-09-18T05:37:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -5061,7 +5061,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:818
 #: src/Shared/Frontend/FrontendTeamsManageView.php:326
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:93
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:546
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:586
 #: src/Shared/Frontend/FrontendTrialCaseView.php:641
 #: src/Shared/Frontend/FrontendTrialCaseView.php:677
 #: src/Shared/Frontend/FrontendTrialsManageView.php:461
@@ -5480,7 +5480,7 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:621
 #: src/Shared/Frontend/Components/EvidencePanel.php:257
 #: src/Shared/Frontend/FrontendStandardReportsView.php:782
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:474
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:514
 msgid "Minutes"
 msgstr ""
 
@@ -10057,7 +10057,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/DebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:188
 #: src/Modules/Authorization/Admin/DebugPage.php:225
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:539
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:579
 msgid "(none)"
 msgstr ""
 
@@ -10145,7 +10145,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:919
 #: src/Shared/Frontend/FrontendConfigurationView.php:1655
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:478
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:518
 msgid "Default"
 msgstr ""
 
@@ -11658,7 +11658,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:433
 #: src/Shared/Frontend/FrontendHolidaysView.php:191
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:527
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:567
 #: src/Shared/Frontend/FrontendTrialsManageView.php:444
 msgid "Start date"
 msgstr ""
@@ -11673,7 +11673,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
 #: src/Shared/Frontend/FrontendHolidaysView.php:195
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:533
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:573
 #: src/Shared/Frontend/FrontendTrialsManageView.php:445
 msgid "End date"
 msgstr ""
@@ -15510,7 +15510,7 @@ msgid "Inserts after"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:112
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:476
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:516
 msgid "Sort"
 msgstr ""
 
@@ -20760,7 +20760,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:63
 #: src/Modules/Tournaments/Wizard/SquadStep.php:29
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:322
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:441
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:481
 msgid "Squad"
 msgstr ""
 
@@ -21157,7 +21157,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:360
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:101
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:396
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:436
 #, php-format
 msgid "%d min"
 msgstr ""
@@ -26945,7 +26945,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:279
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:26
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:210
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:519
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:559
 msgid "— choose —"
 msgstr ""
 
@@ -27818,7 +27818,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:958
 #: src/Shared/Frontend/FrontendConfigurationView.php:1146
 #: src/Shared/Frontend/FrontendConfigurationView.php:1292
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:593
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:120
 msgid "Save changes"
 msgstr ""
@@ -28528,7 +28528,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:121
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:91
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:55
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:537
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:577
 msgid "Default formation"
 msgstr ""
 
@@ -28688,7 +28688,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:286
 #: src/Shared/Frontend/DashboardShortcode.php:2391
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:326
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:486
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:526
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
 msgstr ""
@@ -39073,7 +39073,7 @@ msgid "The headline information about the tournament. Anchor team is the club te
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:40
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:513
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
 msgid "Tournament name"
 msgstr ""
 
@@ -39083,7 +39083,7 @@ msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:46
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:47
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:517
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:557
 msgid "Anchor team"
 msgstr ""
 
@@ -39181,13 +39181,13 @@ msgid "By position"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:86
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:393
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:433
 #, php-format
 msgid "subs at %s"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:88
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:394
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:434
 msgid "no subs"
 msgstr ""
 
@@ -39219,7 +39219,7 @@ msgid "+%d more"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:258
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:452
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:492
 msgid "(no positions set)"
 msgstr ""
 
@@ -52810,49 +52810,71 @@ msgstr ""
 msgid "No matches yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:406
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:404
+msgctxt "tournament fixture: our goals"
+msgid "Ours"
+msgstr ""
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:411
+#, php-format
+msgid "Our goals, %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:416
+msgctxt "tournament fixture: opponent goals"
+msgid "Theirs"
+msgstr ""
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:423
+#, php-format
+msgid "Opponent goals, %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:446
 msgid "Open planner"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:415
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:420
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:455
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:460
 msgid "Auto-balance"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:426
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:466
 msgid "Kick off"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:429
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:469
 msgid "Complete match"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:443
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:483
 msgid "No players in the squad yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:454
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:494
 #, php-format
 msgid "%d min target"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:472
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:512
 msgid "Minutes ticker"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:479
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:519
 msgid "Fewest minutes"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:480
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:520
 msgid "Fewest starts"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:481
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:521
 msgid "No full matches"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:553
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:593
 msgid "Create tournament"
 msgstr ""
 
