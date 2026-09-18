@@ -50,15 +50,14 @@ Which tabs you get depends on where the match is:
 | **Log** | Goals, the event feed, and late events | Always |
 | **Review** | Post-match status, Finalize, and recorded minutes | After the final whistle |
 
-The tab that opens is the one with the work in it: **Squad** during the
-match, **Review** once it has ended, and **Pitch** before match day, when
-there is nothing on the bench to do yet. **Review match** on the state
-button opens the Review tab rather than scrolling.
+The tab that opens is the one with the work in it: **Squad** before and
+during the match, and **Review** once it has ended. **Review match** on the
+state button opens the Review tab rather than scrolling.
 
 If you reload — a phone that went to sleep on the touchline, say — you come
-back to the tab you were on. The exception is a match that ended while you
-were away: that opens on Review, because the final whistle is the thing you
-came back for.
+back to the tab you were on, with the clock where it was (see *The match
+clock*). The exception is a match that ended while you were away: that
+opens on Review, because the final whistle is the thing you came back for.
 
 The tabs also work from a keyboard: Tab moves into the strip, then the left
 and right arrow keys move between tabs and switch the panel as they go.
@@ -79,13 +78,37 @@ Saturday while everyone else stays on the scroll. Switching back changes
 nothing about your data — the layouts are two ways of drawing the same
 screen.
 
-## Editing is opt-in
+## Before kickoff, during play, after the whistle
 
-During play the mutating controls are already revealed — substituting a
-player is the whole point of the sideline tool, so you never have to tap
-Edit first. In the **post-match review window** the screen opens read-only
-to guard against accidental taps: the score, goals, and substitutions are
-shown but not editable until you tap **Edit** in the header.
+**Before kickoff** the whole screen is already there: the tracked players
+with their goals, the bench, and the **+** buttons on the scoreboard. Their
+buttons are greyed out, with *Available once the match has started* above
+the tracked players and the bench, so you can look the console over before
+the game without logging anything by accident.
+
+A match can only be started on its match day. Before then **Start** and
+**Start match** are greyed out too, and the reason — *Available on match
+day* with the date — is written under the clock.
+
+**Tapping Start switches everything on in place.** There is no page to
+reload and no Edit button to find: from the first whistle to the last,
+goals, actions and substitutions are always one tap away.
+
+In the **post-match review window** the screen opens read-only to guard
+against accidental taps: the score, goals, and substitutions are shown but
+not editable until you tap **Edit** in the header.
+
+## The match clock
+
+The clock is kept on the server, not only on your phone. Lock the phone,
+switch apps, or lose the page and open it again, and the clock comes back
+where the match is — running if it was running, paused where you paused
+it. Every substitution, goal and tracked action takes its minute from that
+clock, so a reload no longer puts the next one at minute 0.
+
+Pausing and resuming are recorded as well: the time the clock stood still
+does not count towards the half. At half time the timer button reads
+**Start** and starts the second half.
 
 ## Ending and finalizing take two taps
 
@@ -133,7 +156,7 @@ the same permission that gates the rest of the match-execution screen.
 
 Any player you flagged in the match plan — with a specific goal or an
 attention note — appears in the **Tracked players** section with a live
-counter. Tap **+ action** each time that player does the thing you're
+counter, labelled with that goal. Tap **+ action** each time that player does the thing you're
 watching for (a run in behind, a duel won, a shot on target — whatever the
 note says); long-press to remove the last one you counted.
 
@@ -150,8 +173,9 @@ it opens the **goal sheet**, which is how every goal gets recorded.
 
 For one of our goals the sheet asks **who scored**, offering the players
 currently on the pitch first, with the bench and the rest of the squad
-behind a toggle. Pick the scorer and it asks **who assisted**; pick an
-assist, or tap **No assist**. If you don't care about assists, **Save goal**
+behind a toggle that shows how many players it holds. Pick the scorer and
+it asks **who assisted**, split the same way — the players on the pitch
+first, the rest behind the toggle; pick an assist, or tap **No assist**. If you don't care about assists, **Save goal**
 is available as soon as you've named the scorer, so a goal is two taps.
 
 The minute is filled in from the match clock and the half from where you
@@ -228,7 +252,8 @@ any point up to finalize. A just-logged substitution also offers a quick
 ## Correcting a substitution's minute
 
 Coaches often log a substitution a little late — the swap happened at 55'
-but you tapped it in at 58'. With **Edit** on, every substitution in the
+but you tapped it in at 58'. During the match — and in the post-match review
+with **Edit** on — every substitution in the
 **Live progress** feed shows a **Correct minute** stepper (− / + and a
 number field). Changing it saves the corrected minute and re-runs the
 minutes calculation, so **both** players' recorded minutes move to match:
@@ -301,9 +326,12 @@ run on the server, so they hold for any client.
 ## Line-up — the vertical pitch
 
 At the top of the screen, below the score and timer, a vertical pitch
-shows the **first-half starting eleven laid out by position**. Each player
-sits on the spot their match-prep line-up slot maps to, using the bound
-formation's shape (4-3-3, 4-2-3-1, 4-4-2, and the other supported shapes).
+shows **the players on the pitch now, laid out by position**. Before
+kickoff that is the first-half starting eleven; each substitution puts the
+player coming on in the position of the player going off, straight away.
+Each player sits on the spot their match-prep line-up slot maps to, using
+the bound formation's shape (4-3-3, 4-2-3-1, 4-4-2, and the other
+supported shapes).
 
 - A filled spot shows the player's shirt number (or position label when no
  number is set) and a short name. The short name is the player's **first
@@ -332,8 +360,11 @@ the match's goals and substitutions in chronological order. Each row shows:
 
 The feed is built from the same goal and substitution events the live
 surface already records as you tap them during the match (and from any late
-goal or substitution added during the post-match review window). Red and
-yellow cards are not tracked, so they do not appear in the feed.
+goal or substitution added during the post-match review window). It updates
+as you log: a goal or substitution appears the moment it is saved, and
+undoing one or correcting its minute redraws the feed and the pitch in
+place. Red and yellow cards are not tracked, so they do not appear in the
+feed.
 
 ## Correcting recorded minutes
 
@@ -366,7 +397,12 @@ future web app:
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/event-feed`
  — the merged, time-ordered goal + substitution feed with running score.
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/pitch-lineup`
- — the first-half starting eleven with position coordinates.
+ — the line-up with position coordinates, every logged substitution
+ applied, plus `on_pitch` (everyone on the pitch now).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/pause` and
+ `.../resume` — pause and resume the clock; the server records both, and
+ `start-half`, `pause` and `resume` answer with the clock (half, seconds
+ into it, running or not).
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — undo a logged substitution (soft-delete; the minutes recompute).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/finish`

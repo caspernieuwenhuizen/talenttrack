@@ -170,8 +170,10 @@
         state: bootstrap.state || 'not_started',
         home_score: parseInt(bootstrap.home_score, 10) || 0,
         away_score: parseInt(bootstrap.away_score, 10) || 0,
-        // On-pitch starts as starting XI of half 1. Subs mutate it.
-        on_pitch: (bootstrap.starting_xi_half1 || []).slice(),
+        // Who is on the pitch now (#3554 — subs applied server-side, so a
+        // reload mid-match does not put the players who came off back on).
+        // Subs mutate it; refreshLive() reconciles it with the server.
+        on_pitch: (bootstrap.on_pitch || bootstrap.starting_xi_half1 || []).slice(),
         bench: (bootstrap.bench || []).slice(),
         players_by_id: indexBy(bootstrap.players || [], 'id'),
         // Timer
@@ -183,7 +185,12 @@
         // Goal counts: pid => int
         goal_counts: {},
         // Pending offline queue
-        queue_key: 'tt_match_exec_queue_' + ACTIVITY_ID
+        queue_key: 'tt_match_exec_queue_' + ACTIVITY_ID,
+        // #3554 — writes on their way to the server, and the latest feed /
+        // pitch refresh; refreshLive() only adopts the server's roster when
+        // nothing of ours is still in flight.
+        inflight: 0,
+        refresh_seq: 0
     };
 
     // --- Element refs ---
@@ -194,6 +201,7 @@
         clock:      root.querySelector('[data-tt-mexec-clock]'),
         timerBtn:   root.querySelector('[data-tt-mexec-timer-toggle]'),
         stateBtn:   root.querySelector('[data-tt-mexec-state-action]'),
+        startLock:  root.querySelector('[data-tt-mexec-start-lock]'),
         status:     root.querySelector('[data-tt-mexec-status]'),
         benchList:  root.querySelector('.tt-mexec-bench .tt-mexec-player-list'),
         onPitchSection: root.querySelector('[data-tt-mexec-onpitch-section]'),
@@ -207,6 +215,7 @@
     // 00:00 (no persisted elapsed on a fresh load) and stopTimer() is a
     // no-op guard so a stray running flag can't leak a live clock.
     if (isPostMatch(state.state)) stopTimer();
+    bootClock();
     renderStateButton();
     renderHalfLabel();
     renderClock();
@@ -246,7 +255,17 @@
                 state.elapsed_ms_before_pause = 0;
                 api('start-half', { half: 2 });
                 renderStateButton(); renderHalfLabel();
+            } else {
+                // #3553 — a paused half resuming. The server measures the
+                // pause from its own stamp; before this nothing was sent and
+                // the server never learned the clock had stopped. How long
+                // the pause lasted here trims the network's delay off it
+                // (unknown after a reload mid-pause, so then omitted).
+                var body = { half: state.half };
+                if (state.paused_wall_ms) body.pause_seconds = Math.round((Date.now() - state.paused_wall_ms) / 1000);
+                api('resume', body);
             }
+            state.paused_wall_ms = 0;
             state.running = true;
             state.clock_start_ms = Date.now();
             state.timer_interval = setInterval(renderClock, 1000);
@@ -257,7 +276,10 @@
             // Pause: snapshot elapsed; tell server we paused.
             state.elapsed_ms_before_pause += Date.now() - state.clock_start_ms;
             stopTimer();
-            api('pause', { half: state.half });
+            // #3553 — the clock as shown at the tap, so the server stamps the
+            // pause at this match moment rather than when the request lands.
+            api('pause', { half: state.half, elapsed_seconds: Math.floor(state.elapsed_ms_before_pause / 1000) });
+            state.paused_wall_ms = Date.now();
             renderStateButton(); renderHalfLabel();
         }
     });
@@ -380,6 +402,22 @@
         }
     });
 
+    // #3553 — boot the clock from the server's answer (half, seconds into
+    // it net of pauses, running or not). The page used to start every load
+    // at 00:00, paused, so a phone that locked mid-half came back with a
+    // clock that logged the next sub at minute 0.
+    function bootClock() {
+        var clk = bootstrap.clock;
+        if (!clk || isPostMatch(state.state) || state.state === ST.NOT_STARTED) return;
+        state.half = parseInt(clk.half, 10) === 2 ? 2 : 1;
+        state.elapsed_ms_before_pause = Math.max(0, parseInt(clk.elapsed_seconds, 10) || 0) * 1000;
+        if (clk.running && (state.state === ST.FIRST_HALF || state.state === ST.SECOND_HALF)) {
+            state.running = true;
+            state.clock_start_ms = Date.now();
+            state.timer_interval = setInterval(renderClock, 1000);
+        }
+    }
+
     // #2267 — single chokepoint for parking the timer. Clears the tick
     // interval and drops the running flag so no code path can leave a
     // live clock behind on a state transition.
@@ -428,6 +466,9 @@
 
         btn.addEventListener('pointerdown', function () {
             longPressed = false;
+            // #3549 — shown but inert before kickoff; some browsers still
+            // deliver pointer events to a disabled button.
+            if (btn.disabled || liveControlsLocked()) return;
             pressTimer = setTimeout(function () {
                 longPressed = true;
                 var pending = (state.recent_tracked && state.recent_tracked[pid]) || [];
@@ -449,6 +490,7 @@
         btn.addEventListener('pointerup', function () {
             clearTimeout(pressTimer);
             if (longPressed) return;
+            if (btn.disabled || liveControlsLocked()) return;
             var uuid = uuidv4();
             state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
             renderChip();
@@ -480,7 +522,7 @@
     var pendingGoal = null;
 
     function openGoalSheet(team) {
-        if (!goalSheet || state.state === ST.FINALIZED) return;
+        if (!goalSheet || state.state === ST.FINALIZED || liveControlsLocked()) return;
         pendingGoal = {
             team: team,
             half: state.half,
@@ -532,6 +574,14 @@
         ids.forEach(function (pid) { container.appendChild(goalChip(pid, onPick)); });
     }
 
+    // #3556 — "(7)" beside a collapsed group, so it reads as something to
+    // open rather than as a heading with nothing under it.
+    function setMoreCount(details, n) {
+        if (!details) return;
+        var el = details.querySelector('[data-tt-mexec-goal-more-count]');
+        if (el) el.textContent = '(' + n + ')';
+    }
+
     // Everyone in the squad who is not currently on the pitch. Derived live
     // rather than server-rendered: a substitution moves players between the
     // two groups, and a sheet opened after one must not show the pitch as it
@@ -571,9 +621,11 @@
         // the system. The one exception is one of ours putting it in their own
         // net, which is worth attributing, so that path opens our picker.
         var showPicker = isOurs || pendingGoal.is_own_goal;
+        var restIds = showPicker ? offPitchIds() : [];
         fillChips(onPitchBox, showPicker ? state.on_pitch.slice() : [], pickScorer);
-        fillChips(benchBox, showPicker ? offPitchIds() : [], pickScorer);
-        if (moreBox) moreBox.hidden = !showPicker;
+        fillChips(benchBox, restIds, pickScorer);
+        setMoreCount(moreBox, restIds.length);
+        if (moreBox) moreBox.hidden = !showPicker || restIds.length === 0;
         if (unknownBtn) unknownBtn.hidden = !isOurs;
         if (ownBtn) {
             ownBtn.textContent = isOurs
@@ -627,13 +679,22 @@
         }
 
         // The scorer cannot assist themselves, so they are simply not offered.
-        var ids = state.on_pitch.concat(offPitchIds()).filter(function (pid) {
-            return pid !== pendingGoal.player_id;
-        });
-        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist]'), ids, function (pid) {
+        // #3556 — on-pitch first, the rest behind the same collapsible as the
+        // scorer step: an assist nearly always comes from the pitch.
+        var notScorer = function (pid) { return pid !== pendingGoal.player_id; };
+        var pickAssist = function (pid) {
             pendingGoal.assist_player_id = pid;
             saveGoal();
-        });
+        };
+        var restIds = offPitchIds().filter(notScorer);
+        var assistMore = goalSheet.querySelector('[data-tt-mexec-goal-assist-more]');
+        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist]'), state.on_pitch.filter(notScorer), pickAssist);
+        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist-bench]'), restIds, pickAssist);
+        setMoreCount(assistMore, restIds.length);
+        if (assistMore) {
+            assistMore.hidden = restIds.length === 0;
+            assistMore.open = false;
+        }
 
         var saveBtn = goalSheet.querySelector('[data-tt-mexec-goal-save]');
         if (saveBtn) saveBtn.disabled = false;
@@ -686,6 +747,10 @@
             player_id: goal.player_id,
             assist_player_id: goal.assist_player_id,
             is_own_goal: goal.is_own_goal
+        }).then(function () {
+            // #3554 — the goal appears in Live progress, with its minute
+            // and the running score, without a reload.
+            refreshLive();
         }).catch(function () {
             // A queued offline write resolves rather than rejecting, so this
             // only fires on an outright refusal. Roll the scoreline back —
@@ -797,49 +862,70 @@
     // feed. Keyed by the server event id (data-event-uuid), so undo works
     // after a reload — no reliance on the live long-press UUID memory.
     // Goals hit DELETE goal-event/<uuid>; subs hit DELETE substitution/<uuid>.
-    root.querySelectorAll('[data-tt-mexec-undo]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var uuid = btn.getAttribute('data-event-uuid');
-            var kind = btn.getAttribute('data-tt-mexec-undo');
-            if (!uuid) return;
-            if (!window.confirm(i18n.undo_confirm || 'Undo this event?')) return;
-            btn.disabled = true;
-            var path = (kind === 'goal' ? 'goal-event/' : 'substitution/') + uuid;
-            apiDelete(path).then(function () {
-                window.location.reload();
-            }).catch(function () {
-                btn.disabled = false;
-            });
+    //
+    // #3554 — delegated from the root, because the feed is redrawn after
+    // every event; and during the match the feed is refreshed in place
+    // rather than the page reloaded. Post-match the reload stays: the
+    // timeline and recorded minutes it recomputes are server-rendered.
+    root.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('[data-tt-mexec-undo]') : null;
+        if (!btn || !root.contains(btn)) return;
+        var uuid = btn.getAttribute('data-event-uuid');
+        var kind = btn.getAttribute('data-tt-mexec-undo');
+        if (!uuid) return;
+        if (!window.confirm(i18n.undo_confirm || 'Undo this event?')) return;
+        btn.disabled = true;
+        var path = (kind === 'goal' ? 'goal-event/' : 'substitution/') + uuid;
+        apiDelete(path).then(afterMatchWrite).catch(function () {
+            btn.disabled = false;
         });
     });
 
-    // #2273 — correct a logged substitution's minute post-match. The coach
-    // often logs a sub late; because minutes derive from the sub time, PATCH
-    // the corrected minute and reload so the recomputed minutes show. Reload
-    // keeps the derived timeline / minutes in sync with the server truth.
-    root.querySelectorAll('[data-tt-mexec-sub-minute]').forEach(function (box) {
+    // #2273 — correct a logged substitution's minute. The coach often logs
+    // a sub late; because minutes derive from the sub time, PATCH the
+    // corrected minute, then refresh (live) or reload (post-match) so the
+    // recomputed figures show. Delegated for the same reason as Undo.
+    function commitSubMinute(box, v) {
         var uuid  = box.getAttribute('data-event-uuid');
         var half  = parseInt(box.getAttribute('data-half'), 10) || 1;
         var input = box.querySelector('[data-tt-mexec-sub-minute-input]');
         if (!uuid || !input) return;
         var max = parseInt(input.getAttribute('max'), 10) || (HALF_LENGTH + 10);
-        function commit(v) {
-            v = Math.max(0, Math.min(max, isNaN(v) ? 0 : v));
-            if (v === (parseInt(input.getAttribute('value'), 10) || 0)) { input.value = v; return; }
-            input.value = v;
-            input.disabled = true;
-            apiPatch('substitution/' + uuid, { half: half, minute: v }).then(function () {
-                window.location.reload();
-            }).catch(function () {
-                input.disabled = false;
-            });
-        }
-        var dec = box.querySelector('[data-tt-mexec-sub-minute-dec]');
-        var inc = box.querySelector('[data-tt-mexec-sub-minute-inc]');
-        if (dec) dec.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) - 1); });
-        if (inc) inc.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) + 1); });
-        input.addEventListener('change', function () { commit(parseInt(input.value, 10)); });
+        v = Math.max(0, Math.min(max, isNaN(v) ? 0 : v));
+        if (v === (parseInt(input.getAttribute('value'), 10) || 0)) { input.value = v; return; }
+        input.value = v;
+        input.disabled = true;
+        apiPatch('substitution/' + uuid, { half: half, minute: v }).then(afterMatchWrite).catch(function () {
+            input.disabled = false;
+        });
+    }
+    root.addEventListener('click', function (e) {
+        var step = e.target.closest ? e.target.closest('[data-tt-mexec-sub-minute-dec], [data-tt-mexec-sub-minute-inc]') : null;
+        if (!step || !root.contains(step)) return;
+        var box = step.closest('[data-tt-mexec-sub-minute]');
+        var input = box && box.querySelector('[data-tt-mexec-sub-minute-input]');
+        if (!input) return;
+        var delta = step.hasAttribute('data-tt-mexec-sub-minute-dec') ? -1 : 1;
+        commitSubMinute(box, (parseInt(input.value, 10) || 0) + delta);
     });
+    root.addEventListener('change', function (e) {
+        var input = e.target;
+        if (!input || !input.hasAttribute || !input.hasAttribute('data-tt-mexec-sub-minute-input')) return;
+        var box = input.closest('[data-tt-mexec-sub-minute]');
+        if (box) commitSubMinute(box, parseInt(input.value, 10));
+    });
+
+    // #3554 — after a write that changes the match record: during the match
+    // redraw the feed and the pitch in place (the coach cannot and should
+    // not reload on a touchline); after it, reload, because the squad
+    // timeline and recorded minutes are server-rendered.
+    function afterMatchWrite() {
+        if (isPostMatch(state.state)) {
+            window.location.reload();
+            return;
+        }
+        refreshLive();
+    }
 
     // #956 — inline sub-target reveal (replaces the v4.1.7 modal sheet).
     // Populates the .tt-mexec-sub-target section below the bench with
@@ -850,7 +936,7 @@
 
     function openSubSheet(pid_on) {
         var pl_on = state.players_by_id[pid_on];
-        if (!pl_on) return;
+        if (!pl_on || liveControlsLocked()) return;
         pendingSubOn = pid_on;
         if (subBannerEl) {
             subBannerEl.textContent = (i18n.sub_label_format || 'Tap a player to swap in %s')
@@ -915,6 +1001,10 @@
             minute: minute,
             player_off: pid_off,
             player_on: pid_on
+        }).then(function () { refreshLive(); }).catch(function () {
+            // Refused outright (not queued): the server's roster is the
+            // truth, so redraw from it rather than keep a swap it rejected.
+            refreshLive();
         });
         // #2269 — offer an inline Undo on the just-logged sub (matching the
         // goal long-press UX). Reverts the on-pitch swap locally and soft-
@@ -936,7 +1026,7 @@
                     delete state.recently_off[pid_off];
                 }
                 renderBenchAndOnPitch();
-                apiDelete('substitution/' + uuid);
+                apiDelete('substitution/' + uuid).then(function () { refreshLive(); }, function () { refreshLive(); });
             }
         );
     }
@@ -1039,6 +1129,11 @@
                 // #1473 — keep the timer Start disabled until match day.
                 els.timerBtn.disabled = !IS_MATCH_DAY;
                 if (!IS_MATCH_DAY && START_LOCK_MSG) els.timerBtn.title = START_LOCK_MSG;
+            } else if (state.state === ST.HALF_TIME) {
+                // #3553 — at half time the button starts the second half;
+                // "Resume" suggested the first half would carry on.
+                els.timerBtn.textContent = i18n.start || 'Start';
+                els.timerBtn.setAttribute('data-action', 'start');
             } else if (state.running) {
                 els.timerBtn.textContent = i18n.pause || 'Pause';
                 els.timerBtn.setAttribute('data-action', 'pause');
@@ -1047,6 +1142,31 @@
                 els.timerBtn.setAttribute('data-action', 'resume');
             }
         }
+        // #3548 — the on-screen reason follows the same rule as the two
+        // disabled buttons, so the note and the lock cannot disagree.
+        if (els.startLock) {
+            els.startLock.hidden = !(state.state === ST.NOT_STARTED && !IS_MATCH_DAY);
+        }
+        syncLiveControls();
+    }
+
+    // #3549 — before kickoff every live control is on screen and disabled,
+    // with a note saying why. Start enables them in place: no reload and
+    // no Edit toggle stands between the coach and the first goal or sub.
+    // Function declarations only: renderStateButton() runs at boot, above
+    // this point in the file, before any `var` down here is assigned.
+    function liveControlsLocked() {
+        return state.state === ST.NOT_STARTED;
+    }
+    function syncLiveControls() {
+        var locked = liveControlsLocked();
+        root.querySelectorAll('[data-tt-mexec-log-goal], [data-tt-mexec-tracked-inc], [data-tt-mexec-sub-on]').forEach(function (b) {
+            b.disabled = locked;
+            if (!locked) b.removeAttribute('aria-describedby');
+        });
+        root.querySelectorAll('[data-tt-mexec-prekick-note]').forEach(function (n) {
+            n.hidden = !locked;
+        });
     }
     function renderBenchAndOnPitch() {
         if (els.benchList) {
@@ -1077,8 +1197,8 @@
                     '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
                     '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + pill + story + '</span>' +
                     '<div class="tt-mexec-player-actions">' +
-                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="Bring on">' +
-                            escapeHtml('→ on') +
+                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="' + escapeHtml(i18n.bring_on || 'Bring on') + '"' + (liveControlsLocked() ? ' disabled' : '') + '>' +
+                            escapeHtml(i18n.sub_on || '→ on') +
                         '</button>' +
                     '</div>';
                 li.querySelector('[data-tt-mexec-sub-on]').addEventListener('click', function () {
@@ -1113,6 +1233,146 @@
         });
     }
 
+    // --- #3554 — the feed and the pitch follow the match in place ---
+    // Both regions were rendered once, server-side, and never touched again,
+    // so after a sub the pitch still showed the player who came off and the
+    // feed still said nothing had happened — until a reload the coach on the
+    // touchline cannot make. After every write that changes the record, the
+    // two read endpoints are fetched and both regions redrawn with the same
+    // markup the server prints.
+    function refreshLive() {
+        var base = cfg.rest_url || '';
+        if (!base) return Promise.resolve();
+        var seq = ++state.refresh_seq;
+        return Promise.all([
+            doFetch(base + 'event-feed', 'GET', null),
+            doFetch(base + 'pitch-lineup', 'GET', null)
+        ]).then(function (res) {
+            // A newer refresh is on its way; its answer wins.
+            if (seq !== state.refresh_seq) return;
+            var feed  = unwrap(res[0]).events || [];
+            var lineup = unwrap(res[1]);
+            renderFeed(feed);
+            renderPitch(lineup.slots || []);
+            // Only adopt the server's roster when nothing of ours is still
+            // on its way there — otherwise an in-flight sub would be undone
+            // on screen by an answer that predates it.
+            if (state.inflight === 0 && queueLength() === 0 && pendingSubOn == null && Array.isArray(lineup.on_pitch)) {
+                reconcileRoster(lineup.on_pitch);
+                var last = feed.length ? feed[feed.length - 1] : null;
+                state.home_score = last ? (parseInt(last.running_home, 10) || 0) : 0;
+                state.away_score = last ? (parseInt(last.running_away, 10) || 0) : 0;
+                renderScore();
+            }
+        }).catch(function () { /* offline — the next successful write refreshes */ });
+    }
+    function unwrap(r) {
+        return (r && r.data) ? r.data : (r || {});
+    }
+    function reconcileRoster(onPitch) {
+        state.on_pitch = onPitch.map(function (x) { return parseInt(x, 10); }).filter(function (x) { return x > 0; });
+        state.bench = Object.keys(state.players_by_id).map(function (k) { return parseInt(k, 10); })
+            .filter(function (pid) { return pid > 0 && state.on_pitch.indexOf(pid) === -1; });
+        renderBenchAndOnPitch();
+    }
+    function isEditableState() {
+        return state.state === ST.FIRST_HALF || state.state === ST.HALF_TIME ||
+            state.state === ST.SECOND_HALF || state.state === ST.PENDING_REVIEW;
+    }
+    function renderFeed(events) {
+        var section = root.querySelector('[data-tt-mexec-feed]');
+        if (!section) return;
+        var countEl = section.querySelector('[data-tt-mexec-feed-count]');
+        if (countEl) {
+            countEl.textContent = (events.length === 1 ? (i18n.feed_count_one || '%d event') : (i18n.feed_count_many || '%d events'))
+                .replace('%d', String(events.length));
+        }
+        Array.prototype.forEach.call(section.querySelectorAll('.tt-mxp-log, .tt-mexec-empty'), function (n) {
+            n.parentNode.removeChild(n);
+        });
+        if (!events.length) {
+            var p = document.createElement('p');
+            p.className = 'tt-mexec-empty';
+            p.textContent = i18n.feed_empty || 'No goals or substitutions logged yet.';
+            section.appendChild(p);
+            return;
+        }
+        var editable = isEditableState();
+        var maxMinute = HALF_LENGTH + 10;
+        var html = '';
+        events.forEach(function (ev) {
+            var type = ev.type === 'goal' ? 'goal' : 'substitution';
+            var isGoal = type === 'goal';
+            var isAway = isGoal && ev.team === 'away';
+            var uuid = String(ev.event_uuid || '');
+            var minuteLabel = (i18n.feed_minute || "H%1$d %2$d'")
+                .replace('%1$d', String(parseInt(ev.half, 10) || 1))
+                .replace('%2$d', String(parseInt(ev.minute, 10) || 0));
+            var typeLabel = isGoal
+                ? (isAway ? (i18n.feed_opponent_goal || 'Opponent goal') : (i18n.feed_goal || 'Goal scored'))
+                : (i18n.feed_substitution || 'Substitution');
+            html += '<li class="tt-mxp-log-row tt-mxp-log-row--' + type + '">' +
+                '<span class="tt-mxp-log-minute">' + escapeHtml(minuteLabel) + '</span>' +
+                '<span class="tt-mxp-log-chip tt-mxp-log-chip--' + type + (isAway ? ' tt-mxp-log-chip--goal-away' : '') + '">' +
+                    '<span class="tt-mxp-log-icon" aria-hidden="true">' + (isGoal ? '⚽' : '⇄') + '</span>' +
+                    '<span class="tt-mxp-log-type">' + escapeHtml(typeLabel) + '</span>' +
+                '</span>';
+            if (isGoal) {
+                var detail = isAway ? (bootstrap.away_label || '') : String(ev.player_name || '');
+                html += '<span class="tt-mxp-log-detail">' + escapeHtml(detail) + '</span>' +
+                    '<span class="tt-mxp-log-score" aria-label="' + escapeHtml(i18n.feed_running_score || 'Running score') + '">' +
+                        escapeHtml((parseInt(ev.running_home, 10) || 0) + '–' + (parseInt(ev.running_away, 10) || 0)) +
+                    '</span>';
+            } else {
+                html += '<span class="tt-mxp-log-swap">' +
+                    '<span class="tt-mxp-log-swap-line tt-mxp-log-swap-line--on"><span class="tt-mxp-log-swap-dir" aria-hidden="true">▲</span><span class="tt-mxp-log-swap-who">' + escapeHtml(ev.player_on_name || '') + '</span></span>' +
+                    '<span class="tt-mxp-log-swap-line tt-mxp-log-swap-line--off"><span class="tt-mxp-log-swap-dir" aria-hidden="true">▼</span><span class="tt-mxp-log-swap-who">' + escapeHtml(ev.player_off_name || '') + '</span></span>' +
+                '</span>';
+            }
+            if (editable && uuid !== '') {
+                html += '<button type="button" class="tt-mexec-undo-btn tt-mexec-edit-only" data-tt-mexec-undo="' + type + '" data-event-uuid="' + escapeHtml(uuid) + '">' +
+                    escapeHtml(i18n.undo || 'Undo') + '</button>';
+            }
+            if (!isGoal && editable && uuid !== '') {
+                var m = parseInt(ev.minute, 10) || 0;
+                html += '<div class="tt-mxp-log-editminute tt-mexec-edit-only" data-tt-mexec-sub-minute data-event-uuid="' + escapeHtml(uuid) + '" data-half="' + (parseInt(ev.half, 10) || 1) + '">' +
+                    '<span class="tt-mxp-log-editminute-label">' + escapeHtml(i18n.correct_minute || 'Correct minute') + '</span>' +
+                    '<button type="button" class="tt-mxp-min-btn" data-tt-mexec-sub-minute-dec aria-label="' + escapeHtml(i18n.minute_earlier || 'One minute earlier') + '">−</button>' +
+                    '<input type="number" inputmode="numeric" min="0" max="' + maxMinute + '" class="tt-mxp-min-input" data-tt-mexec-sub-minute-input value="' + m + '" aria-label="' + escapeHtml(i18n.sub_minute || 'Substitution minute') + '">' +
+                    '<button type="button" class="tt-mxp-min-btn" data-tt-mexec-sub-minute-inc aria-label="' + escapeHtml(i18n.minute_later || 'One minute later') + '">+</button>' +
+                '</div>';
+            }
+            html += '</li>';
+        });
+        var ol = document.createElement('ol');
+        ol.className = 'tt-mxp-log';
+        ol.innerHTML = html;
+        section.appendChild(ol);
+    }
+    function renderPitch(slots) {
+        var pitch = root.querySelector('[data-tt-mexec-pitch]');
+        if (!pitch || !slots.length) return;
+        pitch.textContent = '';
+        slots.forEach(function (s) {
+            var filled = (parseInt(s.player_id, 10) || 0) > 0 && String(s.player_name || '') !== '';
+            var el = document.createElement('div');
+            el.className = 'tt-mxp-slot' + (filled ? '' : ' tt-mxp-slot-empty');
+            // Position is data, not style: the same inline left/top the
+            // server render prints from the formation's slot geometry.
+            el.style.left = (parseFloat(s.x) || 0) + '%';
+            el.style.top = (parseFloat(s.y) || 0) + '%';
+            var badge = document.createElement('span');
+            badge.className = 'tt-mxp-slot-badge';
+            badge.textContent = s.jersey != null ? String(parseInt(s.jersey, 10)) : String(s.label || '');
+            var nm = document.createElement('span');
+            nm.className = 'tt-mxp-slot-name';
+            nm.textContent = filled ? String(s.short_name || s.player_name) : String(s.label || '');
+            el.appendChild(badge);
+            el.appendChild(nm);
+            pitch.appendChild(el);
+        });
+    }
+
     // --- Network with offline queue ---
     // #2270 — a rejected request is one of two kinds: a *network* failure
     // (offline / DNS / timeout) which is queued for replay, or an *HTTP*
@@ -1143,6 +1403,15 @@
         });
     }
     function doFetch(url, method, body) {
+        var isWrite = method !== 'GET';
+        if (isWrite) state.inflight++;
+        var settle = function () { if (isWrite) state.inflight = Math.max(0, state.inflight - 1); };
+        return rawFetch(url, method, body).then(
+            function (v) { settle(); return v; },
+            function (e) { settle(); throw e; }
+        );
+    }
+    function rawFetch(url, method, body) {
         return fetch(url, {
             method: method,
             credentials: 'same-origin',
@@ -1190,12 +1459,23 @@
             try { localStorage.setItem(state.queue_key, JSON.stringify(q)); } catch (e) {}
         });
     }
+    function queueLength() {
+        try {
+            var q = JSON.parse(localStorage.getItem(state.queue_key) || '[]');
+            return Array.isArray(q) ? q.length : 0;
+        } catch (e) { return 0; }
+    }
     function updateConnectionStatus(ok, pending) {
         if (!els.status) return;
         var textEl = els.status.querySelector('[data-tt-mexec-status-text]') || els.status;
         if (ok) {
             els.status.setAttribute('data-state', 'online');
-            textEl.textContent = i18n.connection_back || 'Synced';
+            // #3555 — "Back online — syncing…" is only true while queued
+            // offline writes are still being replayed. Every other
+            // successful request means the screen is simply in sync.
+            textEl.textContent = queueLength() > 0
+                ? (i18n.connection_back || 'Back online — syncing…')
+                : (i18n.synced || 'Synced');
         } else {
             els.status.setAttribute('data-state', 'offline');
             var n = pending != null ? pending : 1;

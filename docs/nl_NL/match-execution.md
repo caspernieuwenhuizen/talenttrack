@@ -52,16 +52,16 @@ Welke tabs je krijgt, hangt af van waar de wedstrijd staat:
 | **Verloop** | Doelpunten, het verloop en late gebeurtenissen | Altijd |
 | **Controle** | Status na de wedstrijd, afronden en geregistreerde minuten | Na het laatste fluitsignaal |
 
-De tab die opengaat, is die met het werk erin: **Selectie** tijdens de
-wedstrijd, **Controle** zodra hij is afgelopen, en **Opstelling** vóór
-wedstrijddag, wanneer er nog niets met de reservebank te doen valt.
-**Wedstrijd controleren** op de statusknop opent de tab Controle in plaats
-van te scrollen.
+De tab die opengaat, is die met het werk erin: **Selectie** vóór en
+tijdens de wedstrijd, en **Controle** zodra hij is afgelopen. **Wedstrijd
+controleren** op de statusknop opent de tab Controle in plaats van te
+scrollen.
 
 Als je de pagina opnieuw laadt — bijvoorbeeld omdat je telefoon langs de
-lijn in slaap viel — kom je terug op de tab waar je was. De uitzondering is
-een wedstrijd die intussen is afgelopen: die opent op Controle, want het
-laatste fluitsignaal is waarvoor je terugkwam.
+lijn in slaap viel — kom je terug op de tab waar je was, met de klok waar
+hij stond (zie *De wedstrijdklok*). De uitzondering is een wedstrijd die
+intussen is afgelopen: die opent op Controle, want het laatste fluitsignaal
+is waarvoor je terugkwam.
 
 De tabs werken ook met een toetsenbord: met Tab kom je in de rij, daarna
 verspringen de pijltjestoetsen links en rechts tussen de tabs en wisselen
@@ -84,14 +84,38 @@ uitproberen terwijl de rest op de scroll blijft. Terugschakelen verandert
 niets aan je gegevens — het zijn twee manieren om hetzelfde scherm te
 tekenen.
 
-## Bewerken is een bewuste keuze
+## Vóór de aftrap, tijdens het spel, na het laatste fluitsignaal
 
-Tijdens het spel zijn de bewerkingsknoppen al zichtbaar — een speler
-wisselen is de kern van het scherm langs de lijn, dus je hoeft niet eerst
-op Bewerken te tikken. In de **nabesprekingsperiode** opent het scherm
-alleen-lezen om per ongeluk tikken te voorkomen: de stand, doelpunten en
-wissels worden getoond maar zijn niet bewerkbaar totdat je op **Bewerken**
-tikt in de kop.
+**Vóór de aftrap** staat het hele scherm er al: de gevolgde spelers met hun
+doel, de reservebank en de **+**-knoppen op het scorebord. Hun knoppen zijn
+grijs, met *Beschikbaar zodra de wedstrijd is gestart* boven de gevolgde
+spelers en de reservebank, zodat je het scherm vóór de wedstrijd kunt
+doorlopen zonder per ongeluk iets vast te leggen.
+
+Een wedstrijd kan alleen op de wedstrijddag worden gestart. Daarvóór zijn
+**Start** en **Wedstrijd starten** ook grijs, en de reden — *Beschikbaar op
+wedstrijddag* met de datum — staat onder de klok.
+
+**Op Start tikken zet alles direct aan.** Er is geen pagina om opnieuw te
+laden en geen Bewerken-knop om te zoeken: van het eerste tot het laatste
+fluitsignaal zijn doelpunten, acties en wissels altijd één tik weg.
+
+In de **nabesprekingsperiode** opent het scherm alleen-lezen om per ongeluk
+tikken te voorkomen: de stand, doelpunten en wissels worden getoond maar
+zijn niet bewerkbaar totdat je op **Bewerken** tikt in de kop.
+
+## De wedstrijdklok
+
+De klok wordt op de server bijgehouden, niet alleen op je telefoon. Zet je
+telefoon op slot, wissel van app of raak de pagina kwijt en open hem
+opnieuw, en de klok komt terug waar de wedstrijd is — lopend als hij liep,
+gepauzeerd waar je hem pauzeerde. Elke wissel, elk doelpunt en elke
+gevolgde actie neemt zijn minuut van die klok, dus opnieuw laden zet de
+volgende niet meer op minuut 0.
+
+Pauzeren en hervatten worden ook vastgelegd: de tijd dat de klok stilstond,
+telt niet mee voor de helft. In de rust staat er **Start** op de klokknop,
+en die start de tweede helft.
 
 ## Beëindigen en definitief maken kosten twee tikken
 
@@ -145,7 +169,7 @@ afschermen.
 
 Elke speler die je in het wedstrijdplan hebt gemarkeerd — met een
 specifiek doel of een aandachtspunt — verschijnt in het onderdeel
-**Gevolgde spelers** met een live-teller. Tik op **+ actie** telkens
+**Gevolgde spelers** met een live-teller, gelabeld met dat doel. Tik op **+ actie** telkens
 wanneer die speler doet waar je op let (een loopactie in de diepte, een
 gewonnen duel, een schot op doel — wat de notitie ook zegt); houd
 ingedrukt om de laatst getelde actie te verwijderen.
@@ -164,8 +188,10 @@ vastlegt.
 
 Bij een doelpunt van ons vraagt het formulier **wie scoorde**, met de
 spelers die op dat moment in het veld staan bovenaan en de bank en de rest
-van de selectie achter een schakelaar. Kies de maker en het vraagt **wie de
-assist gaf**; kies een speler, of tik op **Geen assist**. Geef je niet om
+van de selectie achter een schakelaar die laat zien hoeveel spelers erachter
+zitten. Kies de maker en het vraagt **wie de assist gaf**, op dezelfde
+manier verdeeld — eerst de spelers in het veld, de rest achter de
+schakelaar; kies een speler, of tik op **Geen assist**. Geef je niet om
 assists, dan is **Doelpunt opslaan** al beschikbaar zodra je de maker hebt
 gekozen — een doelpunt kost dan twee tikken.
 
@@ -251,7 +277,8 @@ wissel biedt ook een snelle **Ongedaan maken** in de bevestigingsmelding.
 ## De minuut van een wissel corrigeren
 
 Coaches leggen een wissel vaak net te laat vast — het wisselmoment was 55'
-maar je tikte het pas op 58' in. Met **Bewerken** aan toont elke wissel in
+maar je tikte het pas op 58' in. Tijdens de wedstrijd — en in de
+nabespreking met **Bewerken** aan — toont elke wissel in
 het **Live verloop** een stapper **Minuut corrigeren** (− / + en een
 invoerveld). De gecorrigeerde minuut wordt opgeslagen en de
 minutenberekening loopt opnieuw, zodat de vastgelegde minuten van **beide**
@@ -333,8 +360,10 @@ controles draaien op de server, dus ze gelden voor elke client.
 ## Opstelling — het verticale veld
 
 Bovenaan het scherm, onder de stand en de speelklok, toont een verticaal
-veld de **basiself van de eerste helft per positie**. Elke speler staat op
-de plek waar zijn opstellingsslot uit de wedstrijdvoorbereiding naar
+veld **de spelers die nu in het veld staan, per positie**. Vóór de aftrap
+is dat de basiself van de eerste helft; elke wissel zet de speler die erin
+komt meteen op de positie van de speler die eruit gaat. Elke speler staat
+op de plek waar zijn opstellingsslot uit de wedstrijdvoorbereiding naar
 verwijst, op basis van de gekozen formatie (4-3-3, 4-2-3-1, 4-4-2 en de
 andere ondersteunde formaties).
 
@@ -367,8 +396,10 @@ wedstrijd in chronologische volgorde. Elke regel toont:
 Het log wordt opgebouwd uit dezelfde doelpunt- en wisselgebeurtenissen die
 het live scherm al vastlegt terwijl je ze tijdens de wedstrijd aantikt (en
 uit late doelpunten of wissels die je tijdens de nabesprekingsperiode
-toevoegt). Rode en gele kaarten worden niet bijgehouden en verschijnen dus
-niet in het verloop.
+toevoegt). Het werkt bij terwijl je vastlegt: een doelpunt of wissel
+verschijnt zodra hij is opgeslagen, en er een ongedaan maken of de minuut
+corrigeren tekent het verloop en het veld ter plekke opnieuw. Rode en gele
+kaarten worden niet bijgehouden en verschijnen dus niet in het verloop.
 
 ## Geregistreerde minuten corrigeren
 
@@ -405,7 +436,12 @@ toekomstige webapp:
  — het samengevoegde, chronologische doelpunt- en wisselverloop met
  tussenstand.
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/pitch-lineup`
- — de basiself van de eerste helft met positiecoördinaten.
+ — de opstelling met positiecoördinaten, met elke vastgelegde wissel
+ verwerkt, plus `on_pitch` (iedereen die nu in het veld staat).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/pause` en
+ `.../resume` — de klok pauzeren en hervatten; de server legt beide vast,
+ en `start-half`, `pause` en `resume` antwoorden met de klok (helft,
+ seconden daarin, lopend of niet).
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
  herberekenen).

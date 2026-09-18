@@ -443,13 +443,14 @@
 /* #2267 — the post-match states are `pending_review` and `finalized`
  * (the legacy `finished` value the server never emits anymore). The
  * mutating controls stay reachable in pending_review via the Edit
- * toggle (#2261 / #2271 full adjust-all), so only the timer chrome +
- * empty pre-kickoff sections key off the real states here. The
- * score/bench/action visibility in post-match states is handled by the
- * #2222 edit-only gate, not a blanket data-state hide. */
-.tt-mexec[data-state="not_started"] .tt-mexec-score-btn { visibility: hidden; }
-.tt-mexec[data-state="not_started"] .tt-mexec-on-pitch  { display: none; }
-.tt-mexec[data-state="not_started"] .tt-mexec-bench     { display: none; }
+ * toggle (#2261 / #2271 full adjust-all), so only the timer chrome keys
+ * off the real states here. The score/bench/action visibility in
+ * post-match states is handled by the #2222 edit-only gate, not a blanket
+ * data-state hide.
+ *
+ * #3549 — nothing is hidden before kickoff any more. The tracked players,
+ * the bench and the scoreboard `+` all show, rendered `disabled` with the
+ * reason beside them, and Start enables them in place. */
 /* Post-match: park the timer chrome. The clock is frozen (JS) and the
  * timer button is inert, so hide the button and mute the half label. */
 .tt-mexec[data-state="finalized"]      .tt-mexec-timer-btn,
@@ -634,6 +635,10 @@
 .tt-mexec-undo-btn[hidden] { display: none; }
 
 /* ----- #2269 — sideline toast (with optional inline Undo action) ----- */
+/* #3550 — the toast mounts on <body>, outside `.tt-mexec`, where none of
+   the `--tt-mexec-*` tokens are declared. Every token it reads therefore
+   carries its own fallback chain; without one the background computed to
+   transparent and left white text on the page. */
 .tt-mexec-toast {
     position: fixed;
     left: 50%;
@@ -646,10 +651,15 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    max-width: calc(100% - 24px);
+    /* #3550 — `left: 50%` leaves a fixed box only the right half of the
+       viewport to shrink into, so the text wrapped a word per line and the
+       Undo spilled out. Size to the content, up to the gutter. */
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
     padding: 12px 16px;
     border-radius: 8px;
-    background: var(--tt-mexec-ink);
+    background: var(--tt-mexec-ink, var(--tt-ink, #0e1a14));
     color: #fff;
     font-size: 14px;
     font-weight: 600;
@@ -658,7 +668,8 @@
 .tt-mexec-toast-text { flex: 1 1 auto; }
 .tt-mexec-toast-action {
     flex: 0 0 auto;
-    min-height: var(--tt-mexec-tap-min);
+    white-space: nowrap;
+    min-height: var(--tt-mexec-tap-min, 48px);
     padding: 8px 14px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 6px;
@@ -1945,6 +1956,23 @@
     touch-action: manipulation;
 }
 .tt-mexec-goal-more[open] .tt-mexec-goal-more-summary { margin-bottom: 8px; }
+/* #3556 — `display: flex` on a <summary> drops the browser's disclosure
+   triangle, which left the line reading as a heading with nothing under
+   it. An explicit chevron (turning when open) plus the count restore the
+   "tap to open" read. */
+.tt-mexec-goal-more-summary { list-style: none; gap: 6px; }
+.tt-mexec-goal-more-summary::-webkit-details-marker { display: none; }
+.tt-mexec-goal-more-summary::before {
+    content: '\25B8';
+    display: inline-block;
+    transition: transform 0.15s ease;
+}
+.tt-mexec-goal-more[open] > .tt-mexec-goal-more-summary::before { transform: rotate(90deg); }
+.tt-mexec-goal-more-count { font-weight: 600; }
+.tt-mexec-goal-more[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+    .tt-mexec-goal-more-summary::before { transition: none; }
+}
 
 .tt-mexec-goal-escapes {
     display: flex;
@@ -2322,3 +2350,46 @@
     .tt-mexec--sections .tt-mexec-bar { padding-inline: var(--tt-mexec-gap-lg); }
     .tt-mexec--sections .tt-spine .tt-spine__tab { flex: 0 0 auto; padding: 0 16px; }
 }
+
+/* ----- #3548 — a locked control looks locked ----- */
+/* The per-action colours above paint Start green whether or not it is
+   `disabled`, so a Start locked before match day looked exactly like a
+   live one and a tap did nothing. The doubled class outranks every
+   `[data-action]` variant in both layouts; placed last so it also wins
+   the ties. */
+.tt-mexec.tt-mexec .tt-mexec-timer-btn:disabled,
+.tt-mexec.tt-mexec .tt-mexec-footer-cta:disabled {
+    background: var(--tt-mexec-mute);
+    border-color: var(--tt-mexec-line);
+    color: var(--tt-mexec-ink-soft);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.tt-mexec-start-lock {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-start-lock[hidden] { display: none; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-start-lock { color: rgba(255, 255, 255, 0.85); }
+
+/* ----- #3549 — every live control on screen before kickoff ----- */
+/* Disabled until Start. Faded rather than hidden, so the coach sees the
+   whole console before the match and knows where everything will be. */
+.tt-mexec.tt-mexec .tt-mexec-action-btn:disabled,
+.tt-mexec.tt-mexec .tt-mexec-score-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.tt-mexec-prekick-note {
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-radius: var(--tt-mexec-radius);
+    background: var(--tt-mexec-mute);
+    color: var(--tt-mexec-ink-soft);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.tt-mexec-prekick-note[hidden] { display: none; }

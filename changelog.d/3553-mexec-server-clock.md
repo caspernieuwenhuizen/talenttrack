@@ -1,0 +1,3 @@
+# Match execution: the match clock survives a reload (#3553)
+
+The clock lived only in the browser tab, so a phone that locked or a tab the browser discarded came back at 00:00, paused — and every substitution, goal and tracked action logged after that was recorded at the wrong minute (often 0'). The server now keeps the clock: it records when a half starts, when it is paused and for how long, and the screen boots from that on every load, running or paused exactly as it was. At half time the timer button now reads Start (it starts the second half) instead of Resume. The coach dashboard's live-minute label uses the same clock, so it now allows for pauses too. Adds migration 0269 (`clock_paused_at` on the match execution table).

@@ -178,6 +178,8 @@ class MatchExecutionRepository {
             'first_half_started_at', 'first_half_ended_at',
             'second_half_started_at', 'second_half_ended_at',
             'first_half_pause_seconds', 'second_half_pause_seconds',
+            // #3553 — when the running clock was paused; NULL while it runs.
+            'clock_paused_at',
             'home_score', 'away_score',
         ];
         $clean = [];

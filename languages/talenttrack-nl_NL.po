@@ -29217,6 +29217,14 @@ msgstr "Beschikbare selectie"
 msgid "Starting line-up on the pitch"
 msgstr "Basisopstelling op het veld"
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Line-up on the pitch"
+msgstr "Opstelling op het veld"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Vertical football pitch with the players on it by position"
+msgstr "Verticaal voetbalveld met de spelers die erop staan per positie"
+
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:550
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1708
 msgid "Line-up"
@@ -29334,6 +29342,10 @@ msgstr[1] "%d beschikbaar"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:750
 msgid "No bench players available."
 msgstr "Geen wisselspelers beschikbaar."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Available once the match has started."
+msgstr "Beschikbaar zodra de wedstrijd is gestart."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:768
 msgid "Bring on"

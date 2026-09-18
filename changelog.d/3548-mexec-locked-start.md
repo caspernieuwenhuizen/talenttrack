@@ -1,0 +1,3 @@
+# Match execution: a locked Start button now looks locked and says why (#3548)
+
+Before match day, Start and Start match rendered in the same green as a live button while doing nothing on tap, and the reason sat in a hover tooltip that never shows on a phone. Both now render greyed out, and "Available on match day (…)" is written under the clock.
