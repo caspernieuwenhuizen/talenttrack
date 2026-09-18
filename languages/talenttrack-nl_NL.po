@@ -62657,6 +62657,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/DemoData/DemoCoverage.php:1353
+msgid "Meeting snapshots"
+msgstr "Momentopnamen overleg"
+
+#: src/Modules/DemoData/DemoCoverage.php:1389
+msgid ""
+"One monthly report frozen for a staff meeting, with the notes the meeting "
+"wrote on it."
+msgstr ""
+"Eén maandrapport bevroren voor een stafoverleg, met de notities die het "
+"overleg erop schreef."
+
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:404
 msgctxt "tournament fixture: our goals"
 msgid "Ours"
@@ -62678,17 +62690,6 @@ msgstr "Onze doelpunten, %s"
 #, php-format
 msgid "Opponent goals, %s"
 msgstr "Doelpunten tegenstander, %s"
-#: src/Modules/DemoData/DemoCoverage.php:1353
-msgid "Meeting snapshots"
-msgstr "Momentopnamen overleg"
-
-#: src/Modules/DemoData/DemoCoverage.php:1389
-msgid ""
-"One monthly report frozen for a staff meeting, with the notes the meeting "
-"wrote on it."
-msgstr ""
-"Eén maandrapport bevroren voor een stafoverleg, met de notities die het "
-"overleg erop schreef."
 
 #~ msgid "Match statistics for this team are coming in the next release."
 #~ msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
