@@ -26,6 +26,40 @@ De capability `tt_impersonate_users` is standaard toegekend aan:
 
 **Geen enkele andere persona heeft deze capability.** Specifiek: Head of Development krijgt **geen** impersonatie-rechten — zelfs na de versmalling van HoD tot een ontwikkelingsgerichte persona, want impersonatie onthult alles over een gebruiker, inclusief content die expliciet voor HoD verborgen is door de matrix (configuratie-data waar ze geen edit-rechten meer op hebben, etc.). Wil een club impersonatie aan een niet-admin-rol delegeren, dan kan dat via de matrix (de cap is matrix-gebrugd), maar standaard is het alleen-admin.
 
+## Supporttoegang, en wat je daarvan ziet
+
+De supportmedewerkers van TalentTrack zijn niet jouw staf, en zij komen onder
+andere voorwaarden bij jouw gegevens.
+
+Een **supportmachtiging** is toestemming voor beperkte tijd, voor één met naam
+genoemde medewerker en één met naam genoemd probleem. Zolang een machtiging
+loopt, ziet iedereen bij jouw club die ingelogd is een oranje balk — in de app
+én in wp-admin — met de naam van de medewerker, de reden, en het lokale tijdstip
+waarop de toegang afloopt. **Die balk is niet weg te klikken.** Dat is precies
+de bedoeling: een machtiging die je niet ziet is niet te onderscheiden van een
+achterdeur, en dit product bevat gegevens van kinderen.
+
+Drie dingen gelden hoe dan ook:
+
+- **Elke machtiging loopt vanzelf af.** Het eindtijdstip wordt op je eigen
+  installatie afgedwongen, dus een machtiging sluit op tijd, ook als je site
+  ons een week lang niet kan bereiken.
+- **Intrekken werkt bij de eerstvolgende controle.** Je installatie vervangt de
+  machtigingen die ze heeft door wat de laatste controle meldt, dus een
+  ingetrokken machtiging is simpelweg weg.
+- **Wat support deed staat op je eigen installatie.** Bij het starten van een
+  sessie wordt vastgelegd onder welke machtiging dat gebeurde, zodat "wie had
+  toegang, en wat deed die" te beantwoorden is uit je eigen logboek en niet
+  alleen uit het onze.
+
+Je eigen beheerders merken hier niets van. Een machtiging stelt alleen een
+extra eis aan supportaccounts; ze kan nooit tussen jouw club en je eigen
+gegevens in gaan staan.
+
+Supporttoegang vraagt **geen goedkeuring vooraf** van jou. Dat was een bewuste
+keuze, en die is alleen verdedigbaar dankzij de drie eigenschappen hierboven —
+en vooral doordat je het altijd ziet gebeuren.
+
 ## Hoe het werkt
 
 Twee fasen met expliciete terugkeer:
