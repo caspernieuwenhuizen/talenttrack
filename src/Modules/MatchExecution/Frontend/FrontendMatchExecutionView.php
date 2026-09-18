@@ -1605,6 +1605,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'undo'              => __( 'Undo', 'talenttrack' ),
                 'queue_pending'     => __( 'Offline — actions queued', 'talenttrack' ),
                 'connection_back'   => __( 'Back online — syncing…', 'talenttrack' ),
+                'synced'            => __( 'Synced', 'talenttrack' ),
+                // #3555 — the bench re-renders after every substitution;
+                // its button must read the same as the server render.
+                'sub_on'            => __( '→ on', 'talenttrack' ),
+                'bring_on'          => __( 'Bring on', 'talenttrack' ),
                 'half_label_first'  => __( 'First half', 'talenttrack' ),
                 'half_label_second' => __( 'Second half', 'talenttrack' ),
                 'half_label_break'  => __( 'Half time', 'talenttrack' ),

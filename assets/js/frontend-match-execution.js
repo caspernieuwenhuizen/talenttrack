@@ -1083,8 +1083,8 @@
                     '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
                     '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + pill + story + '</span>' +
                     '<div class="tt-mexec-player-actions">' +
-                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="Bring on">' +
-                            escapeHtml('→ on') +
+                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="' + escapeHtml(i18n.bring_on || 'Bring on') + '">' +
+                            escapeHtml(i18n.sub_on || '→ on') +
                         '</button>' +
                     '</div>';
                 li.querySelector('[data-tt-mexec-sub-on]').addEventListener('click', function () {
@@ -1196,12 +1196,23 @@
             try { localStorage.setItem(state.queue_key, JSON.stringify(q)); } catch (e) {}
         });
     }
+    function queueLength() {
+        try {
+            var q = JSON.parse(localStorage.getItem(state.queue_key) || '[]');
+            return Array.isArray(q) ? q.length : 0;
+        } catch (e) { return 0; }
+    }
     function updateConnectionStatus(ok, pending) {
         if (!els.status) return;
         var textEl = els.status.querySelector('[data-tt-mexec-status-text]') || els.status;
         if (ok) {
             els.status.setAttribute('data-state', 'online');
-            textEl.textContent = i18n.connection_back || 'Synced';
+            // #3555 — "Back online — syncing…" is only true while queued
+            // offline writes are still being replayed. Every other
+            // successful request means the screen is simply in sync.
+            textEl.textContent = queueLength() > 0
+                ? (i18n.connection_back || 'Back online — syncing…')
+                : (i18n.synced || 'Synced');
         } else {
             els.status.setAttribute('data-state', 'offline');
             var n = pending != null ? pending : 1;
