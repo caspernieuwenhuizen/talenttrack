@@ -62668,6 +62668,7 @@ msgid ""
 msgstr ""
 "Eén maandrapport bevroren voor een stafoverleg, met de notities die het "
 "overleg erop schreef."
+
 #~ msgid "Match statistics for this team are coming in the next release."
 #~ msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
 
