@@ -208,6 +208,7 @@
     // 00:00 (no persisted elapsed on a fresh load) and stopTimer() is a
     // no-op guard so a stray running flag can't leak a live clock.
     if (isPostMatch(state.state)) stopTimer();
+    bootClock();
     renderStateButton();
     renderHalfLabel();
     renderClock();
@@ -247,6 +248,11 @@
                 state.elapsed_ms_before_pause = 0;
                 api('start-half', { half: 2 });
                 renderStateButton(); renderHalfLabel();
+            } else {
+                // #3553 — a paused half resuming. The server measures the
+                // pause from its own stamp; before this nothing was sent and
+                // the server never learned the clock had stopped.
+                api('resume', { half: state.half });
             }
             state.running = true;
             state.clock_start_ms = Date.now();
@@ -380,6 +386,22 @@
             reopenForCorrections();
         }
     });
+
+    // #3553 — boot the clock from the server's answer (half, seconds into
+    // it net of pauses, running or not). The page used to start every load
+    // at 00:00, paused, so a phone that locked mid-half came back with a
+    // clock that logged the next sub at minute 0.
+    function bootClock() {
+        var clk = bootstrap.clock;
+        if (!clk || isPostMatch(state.state) || state.state === ST.NOT_STARTED) return;
+        state.half = parseInt(clk.half, 10) === 2 ? 2 : 1;
+        state.elapsed_ms_before_pause = Math.max(0, parseInt(clk.elapsed_seconds, 10) || 0) * 1000;
+        if (clk.running && (state.state === ST.FIRST_HALF || state.state === ST.SECOND_HALF)) {
+            state.running = true;
+            state.clock_start_ms = Date.now();
+            state.timer_interval = setInterval(renderClock, 1000);
+        }
+    }
 
     // #2267 — single chokepoint for parking the timer. Clears the tick
     // interval and drops the running flag so no code path can leave a
@@ -1063,6 +1085,11 @@
                 // #1473 — keep the timer Start disabled until match day.
                 els.timerBtn.disabled = !IS_MATCH_DAY;
                 if (!IS_MATCH_DAY && START_LOCK_MSG) els.timerBtn.title = START_LOCK_MSG;
+            } else if (state.state === ST.HALF_TIME) {
+                // #3553 — at half time the button starts the second half;
+                // "Resume" suggested the first half would carry on.
+                els.timerBtn.textContent = i18n.start || 'Start';
+                els.timerBtn.setAttribute('data-action', 'start');
             } else if (state.running) {
                 els.timerBtn.textContent = i18n.pause || 'Pause';
                 els.timerBtn.setAttribute('data-action', 'pause');

@@ -340,26 +340,19 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
      */
     private static function liveMinuteLabel( object $row ): string {
         $state = (string) ( $row->state ?? '' );
-        $pause_first  = (int) ( $row->first_half_pause_seconds ?? 0 );
-        $pause_second = (int) ( $row->second_half_pause_seconds ?? 0 );
-        $now_ts = current_time( 'timestamp', true ); // UTC
-
-        if ( $state === MatchExecutionState::FIRST_HALF ) {
-            $start = strtotime( (string) ( $row->first_half_started_at ?? '' ) . ' UTC' );
-            if ( $start === false ) return '';
-            $elapsed = max( 0, $now_ts - $start - $pause_first );
-            return self::formatMinute( 1, (int) floor( $elapsed / 60 ) );
-        }
-        if ( $state === MatchExecutionState::SECOND_HALF ) {
-            $start = strtotime( (string) ( $row->second_half_started_at ?? '' ) . ' UTC' );
-            if ( $start === false ) return '';
-            $elapsed = max( 0, $now_ts - $start - $pause_second );
-            return self::formatMinute( 2, (int) floor( $elapsed / 60 ) );
-        }
         if ( $state === MatchExecutionState::HALF_TIME ) {
             return __( 'HT', 'talenttrack' );
         }
-        return '';
+        if ( $state !== MatchExecutionState::FIRST_HALF && $state !== MatchExecutionState::SECOND_HALF ) {
+            return '';
+        }
+        // #3553 — the same clock the live screen boots from, so the hero
+        // and the sideline agree, pauses included.
+        if ( \TT\Modules\MatchExecution\Domain\MatchClock::toUnix( $row->{$state . '_started_at'} ?? null ) === null ) {
+            return '';
+        }
+        $clock = \TT\Modules\MatchExecution\Domain\MatchClock::forExecution( $row );
+        return self::formatMinute( $clock['half'], intdiv( $clock['elapsed_seconds'], 60 ) );
     }
 
     private static function formatMinute( int $half, int $minute ): string {

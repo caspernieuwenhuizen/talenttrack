@@ -1553,6 +1553,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             // #1473 — match-day gate for the Start CTA / timer.
             'is_match_day'   => $is_match_day,
             'start_lock_msg' => $start_lock_msg,
+            // #3553 — the clock as the server has it, so a reload resumes
+            // the match where it is instead of at 00:00, paused.
+            'clock'          => $execution ? \TT\Modules\MatchExecution\Domain\MatchClock::forExecution( $execution ) : null,
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>

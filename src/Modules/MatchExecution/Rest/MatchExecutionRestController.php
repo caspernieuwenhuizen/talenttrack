@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Domain\MatchClock;
 use TT\Modules\MatchExecution\Domain\MatchRegisterGap;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchExecution\Repositories\TrackedEventsRepository;
@@ -22,7 +23,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   POST   /<activity_id>/start-half     {half}
  *   POST   /<activity_id>/end-half       {half}
  *   POST   /<activity_id>/pause          {half}
- *   POST   /<activity_id>/resume         {half, pause_seconds}
+ *   POST   /<activity_id>/resume         {half}  (#3553 — pause length measured server-side)
  *   POST   /<activity_id>/substitution   {event_uuid, half, minute, player_off, player_on}
  *   POST   /<activity_id>/goal-event     {event_uuid, player_id, half, minute,
  *                                        team, assist_player_id, is_own_goal}
@@ -454,10 +455,12 @@ class MatchExecutionRestController {
         $col  = $half === 1 ? 'first_half_started_at' : 'second_half_started_at';
         $next_state = $half === 1 ? MatchExecutionState::FIRST_HALF : MatchExecutionState::SECOND_HALF;
         $repo->update( $exec_id, [
-            'state' => $next_state,
-            $col    => current_time( 'mysql', true ),
+            'state'           => $next_state,
+            $col              => current_time( 'mysql', true ),
+            // #3553 — a half starts with its clock running.
+            'clock_paused_at' => null,
         ] );
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $next_state ] );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $next_state, 'clock' => self::clockFor( $r ) ] );
     }
 
     public static function route_end_half( \WP_REST_Request $r ): \WP_REST_Response {
@@ -465,6 +468,10 @@ class MatchExecutionRestController {
         if ( $err ) return $err;
         $half = (int) $r->get_json_params()['half'] ?? 1;
         if ( $half !== 1 && $half !== 2 ) return RestResponse::error( 'bad_half', __( 'Half must be 1 or 2.', 'talenttrack' ), 400 );
+
+        // #3553 — a half ended while paused: the paused stretch counts as
+        // paused, so half time shows the clock where it actually stopped.
+        self::closePause( $exec_id, absint( $r['activity_id'] ) );
 
         $repo = new MatchExecutionRepository();
         $col  = $half === 1 ? 'first_half_ended_at' : 'second_half_ended_at';
@@ -478,30 +485,70 @@ class MatchExecutionRestController {
         return RestResponse::success( [ 'execution_id' => $exec_id ] );
     }
 
+    /**
+     * #3553 — the server keeps the clock. `pause` stamps `clock_paused_at`;
+     * `resume` folds the gap into the running half's pause total and clears
+     * it. A reload then comes back to the same clock, running or paused.
+     * Idempotent: pausing a paused clock keeps the first stamp, resuming a
+     * running one is a no-op, so an offline-queue replay cannot double-count.
+     */
     public static function route_pause( \WP_REST_Request $r ): \WP_REST_Response {
-        // Pause/resume accounting is computed client-side and posted on
-        // resume; the pause endpoint just records the intent.
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'paused_at' => current_time( 'mysql', true ) ] );
+
+        $repo = new MatchExecutionRepository();
+        $exec = $repo->findByActivity( absint( $r['activity_id'] ) );
+        if ( $exec
+            && in_array( (string) $exec->state, [ MatchExecutionState::FIRST_HALF, MatchExecutionState::SECOND_HALF ], true )
+            && MatchClock::toUnix( $exec->clock_paused_at ?? null ) === null
+        ) {
+            $repo->update( $exec_id, [ 'clock_paused_at' => current_time( 'mysql', true ) ] );
+        }
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'clock' => self::clockFor( $r ) ] );
     }
 
+    /**
+     * #3553 — the pause length is measured here, from `clock_paused_at`. A
+     * client-supplied `pause_seconds` (the previous contract) is accepted
+     * and ignored, so requests queued offline by an older page still land.
+     */
     public static function route_resume( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        $body = $r->get_json_params();
-        $half = (int) ( $body['half'] ?? 1 );
-        $pause_seconds = max( 0, (int) ( $body['pause_seconds'] ?? 0 ) );
-        $col = $half === 1 ? 'first_half_pause_seconds' : 'second_half_pause_seconds';
+        self::closePause( $exec_id, absint( $r['activity_id'] ) );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'clock' => self::clockFor( $r ) ] );
+    }
+
+    /**
+     * Fold an open pause into the current half's pause total and clear it.
+     * No-op when the clock is not paused.
+     */
+    private static function closePause( int $exec_id, int $activity_id ): void {
+        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        if ( ! $exec ) return;
+        $paused_at = MatchClock::toUnix( $exec->clock_paused_at ?? null );
+        if ( $paused_at === null ) return;
+
+        $gap = max( 0, time() - $paused_at );
+        $col = (string) $exec->state === MatchExecutionState::SECOND_HALF ? 'second_half_pause_seconds' : 'first_half_pause_seconds';
 
         global $wpdb;
         $wpdb->query( $wpdb->prepare(
             "UPDATE {$wpdb->prefix}tt_match_execution
-                SET {$col} = {$col} + %d
+                SET {$col} = {$col} + %d, clock_paused_at = NULL
               WHERE id = %d AND club_id = %d",
-            $pause_seconds, $exec_id, CurrentClub::id()
+            $gap, $exec_id, CurrentClub::id()
         ) );
-        return RestResponse::success( [ 'execution_id' => $exec_id ] );
+    }
+
+    /**
+     * The clock as it stands after a write, for the response.
+     *
+     * @return array{half:int, elapsed_seconds:int, running:bool}|null
+     */
+    private static function clockFor( \WP_REST_Request $r ): ?array {
+        $exec = ( new MatchExecutionRepository() )->findByActivity( absint( $r['activity_id'] ) );
+        return $exec ? MatchClock::forExecution( $exec ) : null;
     }
 
     // #2857 — `POST /score` is gone. It wrote a scoreline directly onto the
