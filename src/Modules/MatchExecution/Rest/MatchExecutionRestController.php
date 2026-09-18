@@ -250,8 +250,9 @@ class MatchExecutionRestController {
         $exec      = $exec_repo->findByActivity( $activity_id );
         $on_pitch  = $xi_half1;
         if ( $exec ) {
-            $slot_to_player = PitchLayoutService::applySubstitutions( $slot_to_player, $exec_repo->listSubstitutions( (int) $exec->id ) );
-            $on_pitch       = $exec_repo->onPitchPlayerIds( (int) $exec->id, $xi_half1 );
+            $exec_id        = (int) ( $exec->id ?? 0 );
+            $slot_to_player = PitchLayoutService::applySubstitutions( $slot_to_player, $exec_repo->listSubstitutions( $exec_id ) );
+            $on_pitch       = $exec_repo->onPitchPlayerIds( $exec_id, $xi_half1 );
         }
 
         $player_meta = self::playerMeta( array_values( $slot_to_player ) );
@@ -522,14 +523,14 @@ class MatchExecutionRestController {
         $repo = new MatchExecutionRepository();
         $exec = $repo->findByActivity( absint( $r['activity_id'] ) );
         if ( $exec
-            && in_array( (string) $exec->state, [ MatchExecutionState::FIRST_HALF, MatchExecutionState::SECOND_HALF ], true )
+            && in_array( (string) ( $exec->state ?? '' ), [ MatchExecutionState::FIRST_HALF, MatchExecutionState::SECOND_HALF ], true )
             && MatchClock::toUnix( $exec->clock_paused_at ?? null ) === null
         ) {
             $now      = time();
             $paused   = $now;
             $body     = (array) $r->get_json_params();
             $reported = isset( $body['elapsed_seconds'] ) && is_numeric( $body['elapsed_seconds'] ) ? (int) $body['elapsed_seconds'] : null;
-            $prefix   = (string) $exec->state === MatchExecutionState::SECOND_HALF ? 'second_half' : 'first_half';
+            $prefix   = (string) ( $exec->state ?? '' ) === MatchExecutionState::SECOND_HALF ? 'second_half' : 'first_half';
             $started  = MatchClock::toUnix( $exec->{$prefix . '_started_at'} ?? null );
             if ( $reported !== null && $reported >= 0 && $started !== null ) {
                 $paused = min( $now, $started + (int) ( $exec->{$prefix . '_pause_seconds'} ?? 0 ) + $reported );
@@ -571,7 +572,7 @@ class MatchExecutionRestController {
         if ( $reported_seconds !== null ) {
             $gap = min( $gap, $reported_seconds );
         }
-        $col = (string) $exec->state === MatchExecutionState::SECOND_HALF ? 'second_half_pause_seconds' : 'first_half_pause_seconds';
+        $col = (string) ( $exec->state ?? '' ) === MatchExecutionState::SECOND_HALF ? 'second_half_pause_seconds' : 'first_half_pause_seconds';
 
         global $wpdb;
         $wpdb->query( $wpdb->prepare(

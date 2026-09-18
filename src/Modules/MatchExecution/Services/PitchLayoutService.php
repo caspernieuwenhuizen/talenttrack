@@ -92,7 +92,7 @@ final class PitchLayoutService {
             $on   = (int) ( $sub->player_on_id ?? 0 );
             $slot = array_search( $off, $slot_to_player, true );
             if ( $off > 0 && $on > 0 && $slot !== false ) {
-                $slot_to_player[ $slot ] = $on;
+                $slot_to_player[ (int) $slot ] = $on;
             }
         }
         return $slot_to_player;
