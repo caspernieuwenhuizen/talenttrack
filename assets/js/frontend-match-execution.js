@@ -258,9 +258,14 @@
             } else {
                 // #3553 — a paused half resuming. The server measures the
                 // pause from its own stamp; before this nothing was sent and
-                // the server never learned the clock had stopped.
-                api('resume', { half: state.half });
+                // the server never learned the clock had stopped. How long
+                // the pause lasted here trims the network's delay off it
+                // (unknown after a reload mid-pause, so then omitted).
+                var body = { half: state.half };
+                if (state.paused_wall_ms) body.pause_seconds = Math.round((Date.now() - state.paused_wall_ms) / 1000);
+                api('resume', body);
             }
+            state.paused_wall_ms = 0;
             state.running = true;
             state.clock_start_ms = Date.now();
             state.timer_interval = setInterval(renderClock, 1000);
@@ -271,7 +276,10 @@
             // Pause: snapshot elapsed; tell server we paused.
             state.elapsed_ms_before_pause += Date.now() - state.clock_start_ms;
             stopTimer();
-            api('pause', { half: state.half });
+            // #3553 — the clock as shown at the tap, so the server stamps the
+            // pause at this match moment rather than when the request lands.
+            api('pause', { half: state.half, elapsed_seconds: Math.floor(state.elapsed_ms_before_pause / 1000) });
+            state.paused_wall_ms = Date.now();
             renderStateButton(); renderHalfLabel();
         }
     });

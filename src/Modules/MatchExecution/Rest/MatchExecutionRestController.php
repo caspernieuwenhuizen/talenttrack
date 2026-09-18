@@ -506,6 +506,14 @@ class MatchExecutionRestController {
      * it. A reload then comes back to the same clock, running or paused.
      * Idempotent: pausing a paused clock keeps the first stamp, resuming a
      * running one is a no-op, so an offline-queue replay cannot double-count.
+     *
+     * The client sends the clock it showed at the tap (`elapsed_seconds`),
+     * and the pause is stamped at that match moment rather than at the
+     * moment the request arrived — otherwise a slow network, or a pause
+     * queued offline and replayed minutes later, would leave the clock
+     * running on the server while it stood still on the touchline. It is a
+     * position inside the half, not a wall-clock time, so the phone's clock
+     * being off does not matter; it is clamped to "now" and to the half.
      */
     public static function route_pause( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
@@ -517,34 +525,52 @@ class MatchExecutionRestController {
             && in_array( (string) $exec->state, [ MatchExecutionState::FIRST_HALF, MatchExecutionState::SECOND_HALF ], true )
             && MatchClock::toUnix( $exec->clock_paused_at ?? null ) === null
         ) {
-            $repo->update( $exec_id, [ 'clock_paused_at' => current_time( 'mysql', true ) ] );
+            $now      = time();
+            $paused   = $now;
+            $body     = (array) $r->get_json_params();
+            $reported = isset( $body['elapsed_seconds'] ) && is_numeric( $body['elapsed_seconds'] ) ? (int) $body['elapsed_seconds'] : null;
+            $prefix   = (string) $exec->state === MatchExecutionState::SECOND_HALF ? 'second_half' : 'first_half';
+            $started  = MatchClock::toUnix( $exec->{$prefix . '_started_at'} ?? null );
+            if ( $reported !== null && $reported >= 0 && $started !== null ) {
+                $paused = min( $now, $started + (int) ( $exec->{$prefix . '_pause_seconds'} ?? 0 ) + $reported );
+                $paused = max( $started, $paused );
+            }
+            $repo->update( $exec_id, [ 'clock_paused_at' => gmdate( 'Y-m-d H:i:s', $paused ) ] );
         }
         return RestResponse::success( [ 'execution_id' => $exec_id, 'clock' => self::clockFor( $r ) ] );
     }
 
     /**
-     * #3553 — the pause length is measured here, from `clock_paused_at`. A
-     * client-supplied `pause_seconds` (the previous contract) is accepted
-     * and ignored, so requests queued offline by an older page still land.
+     * #3553 — the pause length is measured here, from `clock_paused_at` up
+     * to now. The client may send `pause_seconds`, how long the pause lasted
+     * on its own screen; it can only shorten the measured gap, never lengthen
+     * it, which takes the network's delay (or an offline queue's) out of the
+     * figure without letting a client stretch a pause the server never saw.
      */
     public static function route_resume( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        self::closePause( $exec_id, absint( $r['activity_id'] ) );
+        $body     = (array) $r->get_json_params();
+        $reported = isset( $body['pause_seconds'] ) && is_numeric( $body['pause_seconds'] ) ? max( 0, (int) $body['pause_seconds'] ) : null;
+        self::closePause( $exec_id, absint( $r['activity_id'] ), $reported );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'clock' => self::clockFor( $r ) ] );
     }
 
     /**
      * Fold an open pause into the current half's pause total and clear it.
-     * No-op when the clock is not paused.
+     * No-op when the clock is not paused. `$reported_seconds`, when given,
+     * caps the gap (see route_resume).
      */
-    private static function closePause( int $exec_id, int $activity_id ): void {
+    private static function closePause( int $exec_id, int $activity_id, ?int $reported_seconds = null ): void {
         $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
         if ( ! $exec ) return;
         $paused_at = MatchClock::toUnix( $exec->clock_paused_at ?? null );
         if ( $paused_at === null ) return;
 
         $gap = max( 0, time() - $paused_at );
+        if ( $reported_seconds !== null ) {
+            $gap = min( $gap, $reported_seconds );
+        }
         $col = (string) $exec->state === MatchExecutionState::SECOND_HALF ? 'second_half_pause_seconds' : 'first_half_pause_seconds';
 
         global $wpdb;

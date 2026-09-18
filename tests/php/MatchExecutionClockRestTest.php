@@ -14,9 +14,10 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  * #3553 — the server keeps the match clock, so a reload resumes the match
  * where it is instead of at 00:00, paused.
  *
- *   - `pause` stamps `clock_paused_at`; `resume` folds the gap into the
- *     half's pause total, clears the stamp, and ignores a client-supplied
- *     `pause_seconds` (the previous contract);
+ *   - `pause` stamps `clock_paused_at` at the clock the coach saw
+ *     (`elapsed_seconds`, clamped to now); `resume` folds the gap into the
+ *     half's pause total and clears the stamp, and a client `pause_seconds`
+ *     can shorten that gap (network delay) but never lengthen it;
  *   - pausing twice keeps the first stamp, resuming a running clock is a
  *     no-op — an offline replay cannot double-count;
  *   - `MatchClock` answers half / elapsed / running for every state.
@@ -85,7 +86,7 @@ final class MatchExecutionClockRestTest extends WP_UnitTestCase {
         $this->assertNotEmpty( $this->row()->clock_paused_at );
 
         // Pretend the pause began 60 seconds ago, then resume with a
-        // client-supplied figure that must be ignored.
+        // client figure that would lengthen it — it may not.
         $this->setUtc( 'clock_paused_at', 60 );
         $res = $this->post( 'resume', [ 'half' => 1, 'pause_seconds' => 999 ] );
         $this->assertSame( 200, $res->get_status() );
@@ -94,6 +95,32 @@ final class MatchExecutionClockRestTest extends WP_UnitTestCase {
         $this->assertNull( $row->clock_paused_at );
         $this->assertGreaterThanOrEqual( 59, (int) $row->first_half_pause_seconds );
         $this->assertLessThanOrEqual( 65, (int) $row->first_half_pause_seconds );
+    }
+
+    public function test_the_clients_pause_length_trims_network_delay(): void {
+        $this->post( 'start-half', [ 'half' => 1 ] );
+        $this->post( 'pause', [ 'half' => 1 ] );
+        // The server saw 60 s; the coach's screen was paused for 20 s and
+        // the resume took the rest to arrive.
+        $this->setUtc( 'clock_paused_at', 60 );
+        $this->post( 'resume', [ 'half' => 1, 'pause_seconds' => 20 ] );
+        $this->assertSame( 20, (int) $this->row()->first_half_pause_seconds );
+    }
+
+    public function test_pause_is_stamped_at_the_clock_the_coach_saw(): void {
+        $this->post( 'start-half', [ 'half' => 1 ] );
+        $this->setUtc( 'first_half_started_at', 600 );
+        // Paused at 05:00 on the touchline; the request lands at 10:00.
+        $this->post( 'pause', [ 'half' => 1, 'elapsed_seconds' => 300 ] );
+
+        $clock = MatchClock::forExecution( $this->row() );
+        $this->assertFalse( $clock['running'] );
+        $this->assertEqualsWithDelta( 300, $clock['elapsed_seconds'], 2 );
+
+        // A reported position beyond "now" is clamped rather than trusted.
+        $this->post( 'resume', [ 'half' => 1 ] );
+        $this->post( 'pause', [ 'half' => 1, 'elapsed_seconds' => 99999 ] );
+        $this->assertLessThanOrEqual( time(), (int) MatchClock::toUnix( $this->row()->clock_paused_at ) );
     }
 
     public function test_pause_and_resume_are_idempotent(): void {
