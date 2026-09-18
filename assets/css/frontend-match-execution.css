@@ -651,7 +651,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    max-width: calc(100% - 24px);
+    /* #3550 — `left: 50%` leaves a fixed box only the right half of the
+       viewport to shrink into, so the text wrapped a word per line and the
+       Undo spilled out. Size to the content, up to the gutter. */
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
     padding: 12px 16px;
     border-radius: 8px;
     background: var(--tt-mexec-ink, var(--tt-ink, #0e1a14));
@@ -663,6 +668,7 @@
 .tt-mexec-toast-text { flex: 1 1 auto; }
 .tt-mexec-toast-action {
     flex: 0 0 auto;
+    white-space: nowrap;
     min-height: var(--tt-mexec-tap-min, 48px);
     padding: 8px 14px;
     border: 1px solid rgba(255, 255, 255, 0.5);
