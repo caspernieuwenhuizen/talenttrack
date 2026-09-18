@@ -105,11 +105,16 @@ class TeamDetailTabsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-player-detail__rail', $this->render() );
     }
 
-    public function test_the_statistics_tab_renders_an_empty_state_not_a_blank_page(): void {
+    /**
+     * #3521 asserted the placeholder here. #3522 replaced it with the real
+     * content, so what this now pins is the property that outlives both: the
+     * tab renders *something* of its own and never Overview's content.
+     */
+    public function test_the_statistics_tab_renders_its_own_content_not_a_blank_page(): void {
         $html = $this->render( 'stats' );
 
         $this->assertStringContainsString( 'Statistics', $html );
-        $this->assertStringContainsString( 'coming in the next release', $html );
+        $this->assertStringContainsString( 'tt-ts', $html, 'the statistics tab renders its own body' );
         $this->assertStringNotContainsString( 'tt-player-detail__rail', $html, 'Overview content belongs to Overview' );
     }
 

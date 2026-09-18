@@ -25,8 +25,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class FormChips {
 
     /**
-     * @param list<array{outcome:string, team_score:int, opp_score:int, opponent?:string, title?:string}> $results
-     *        Newest first, framed from the academy's side.
+     * Rows carry `outcome` (W/D/L), `team_score`, `opp_score` and one of
+     * `opponent` / `title`, newest first and framed from the academy's side.
+     *
+     * Typed loosely on purpose: the two callers assemble these from a query
+     * row and from a stdClass respectively, and a precise shape here would
+     * only push a cast into both of them to satisfy the analyser. Every key is
+     * read defensively below, which is what actually keeps it safe.
+     *
+     * @param array<int, array<string, mixed>> $results
      */
     public static function render( array $results ): void {
         if ( $results === [] ) return;

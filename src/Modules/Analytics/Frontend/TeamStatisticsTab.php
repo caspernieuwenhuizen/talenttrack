@@ -180,8 +180,8 @@ final class TeamStatisticsTab {
             [ _x( 'Won', 'monthly report match record', 'talenttrack' ), (int) ( $record['won'] ?? 0 ) ],
             [ _x( 'Drawn', 'monthly report match record', 'talenttrack' ), (int) ( $record['drawn'] ?? 0 ) ],
             [ _x( 'Lost', 'monthly report match record', 'talenttrack' ), (int) ( $record['lost'] ?? 0 ) ],
-            [ __( 'Goals for', 'talenttrack' ), (int) ( $record['goals_for'] ?? 0 ) ],
-            [ __( 'Goals against', 'talenttrack' ), (int) ( $record['goals_against'] ?? 0 ) ],
+            [ _x( 'Goals for', 'monthly report match record', 'talenttrack' ), (int) ( $record['goals_for'] ?? 0 ) ],
+            [ _x( 'Goals against', 'monthly report match record', 'talenttrack' ), (int) ( $record['goals_against'] ?? 0 ) ],
             [ __( 'Goal difference', 'talenttrack' ), self::signed( (int) ( $record['goal_difference'] ?? 0 ) ) ],
             [ __( 'Clean sheets', 'talenttrack' ), (int) ( $record['clean_sheets'] ?? 0 ) ],
         ] as [ $label, $value ] ) {
@@ -230,7 +230,7 @@ final class TeamStatisticsTab {
     }
 
     /**
-     * @param list<array<string,mixed>> $form
+     * @param array<int, array<string,mixed>> $form
      */
     private static function renderForm( array $form ): void {
         if ( $form === [] ) return;
@@ -251,8 +251,8 @@ final class TeamStatisticsTab {
     /**
      * Scorers and assists, side by side from tablet up.
      *
-     * @param list<array<string,mixed>> $scorers
-     * @param list<array<string,mixed>> $assists
+     * @param array<int, array<string,mixed>> $scorers
+     * @param array<int, array<string,mixed>> $assists
      */
     private static function renderContributions( array $scorers, array $assists, int $played ): void {
         if ( $scorers === [] && $assists === [] ) {
@@ -280,7 +280,7 @@ final class TeamStatisticsTab {
     }
 
     /**
-     * @param list<array<string,mixed>> $rows
+     * @param array<int, array<string,mixed>> $rows
      */
     private static function renderLeaderboard( string $title, array $rows, string $key, string $column ): void {
         if ( $rows === [] ) return;
@@ -306,8 +306,8 @@ final class TeamStatisticsTab {
     /**
      * A slice of appearances, and the way to the whole table.
      *
-     * @param list<array<string,mixed>> $rows
-     * @param array<string,mixed>       $window
+     * @param array<int, array<string,mixed>> $rows
+     * @param array<string,mixed>             $window
      */
     private static function renderAppearances( array $rows, int $team_id, array $window ): void {
         if ( $rows === [] ) return;
