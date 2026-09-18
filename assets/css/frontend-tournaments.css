@@ -91,6 +91,39 @@
     color: var(--tt-ink);
     line-height: 1.25;
 }
+/* #3532 — the fixture's result. A tournament day has no single scoreline, so
+   each fixture carries its own pair of boxes. Mobile-first: they sit side by
+   side from 360px because two short number fields fit, and the row wraps
+   rather than scrolling. */
+.tt-dashboard .tt-tour-match__score {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tt-sp-3, 12px);
+  margin: var(--tt-sp-2, 8px) 0;
+}
+
+.tt-dashboard .tt-tour-score {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-tour-score__lab {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-dashboard .tt-tour-score__in {
+  width: 4.5rem;
+  /* 48px target, 16px text so iOS does not zoom on focus. */
+  min-height: 48px;
+  font-size: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .tt-dashboard .tt-tour-match__meta {
     font-size: 0.8rem;
     color: var(--tt-muted);

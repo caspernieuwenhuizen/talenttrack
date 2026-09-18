@@ -386,6 +386,44 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             }
                             ?>
                         </div>
+                        <?php
+                        // #3532 — the fixture's result. A tournament day has no
+                        // single scoreline (#2686), so the result lives per
+                        // fixture rather than on the activity; these two cells
+                        // are the only place it can be recorded.
+                        //
+                        // Empty is not 0-0: clearing a box records "no result",
+                        // and the fixture reads as played-without-a-result.
+                        $our_score   = isset( $m->our_score ) && $m->our_score !== null ? (int) $m->our_score : null;
+                        $their_score = isset( $m->their_score ) && $m->their_score !== null ? (int) $m->their_score : null;
+                        ?>
+                        <div class="tt-tour-match__score">
+                            <label class="tt-tour-score">
+                                <span class="tt-tour-score__lab"><?php echo esc_html_x( 'Ours', 'tournament fixture: our goals', 'talenttrack' ); ?></span>
+                                <input type="number" class="tt-input tt-tour-score__in" inputmode="numeric" min="0" max="99" step="1"
+                                    name="our_score"
+                                    value="<?php echo esc_attr( $our_score === null ? '' : (string) $our_score ); ?>"
+                                    data-tt-tour-score="our_score"
+                                    aria-label="<?php echo esc_attr( sprintf(
+                                        /* translators: %s: the fixture's headline, e.g. "vs Ajax". */
+                                        __( 'Our goals, %s', 'talenttrack' ),
+                                        $headline
+                                    ) ); ?>">
+                            </label>
+                            <label class="tt-tour-score">
+                                <span class="tt-tour-score__lab"><?php echo esc_html_x( 'Theirs', 'tournament fixture: opponent goals', 'talenttrack' ); ?></span>
+                                <input type="number" class="tt-input tt-tour-score__in" inputmode="numeric" min="0" max="99" step="1"
+                                    name="their_score"
+                                    value="<?php echo esc_attr( $their_score === null ? '' : (string) $their_score ); ?>"
+                                    data-tt-tour-score="their_score"
+                                    aria-label="<?php echo esc_attr( sprintf(
+                                        /* translators: %s: the fixture's headline, e.g. "vs Ajax". */
+                                        __( 'Opponent goals, %s', 'talenttrack' ),
+                                        $headline
+                                    ) ); ?>">
+                            </label>
+                        </div>
+
                         <div class="tt-tour-match__meta">
                             <?php
                             $windows = json_decode( (string) $m->substitution_windows, true ) ?: [];

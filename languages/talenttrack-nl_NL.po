@@ -62601,6 +62601,28 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:404
+msgctxt "tournament fixture: our goals"
+msgid "Ours"
+msgstr "Wij"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:417
+msgctxt "tournament fixture: opponent goals"
+msgid "Theirs"
+msgstr "Zij"
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:411
+#, php-format
+msgid "Our goals, %s"
+msgstr "Onze doelpunten, %s"
+
+#. translators: %s: the fixture's headline, e.g. "vs Ajax".
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:424
+#, php-format
+msgid "Opponent goals, %s"
+msgstr "Doelpunten tegenstander, %s"
+
 #~ msgid "Match statistics for this team are coming in the next release."
 #~ msgstr "Wedstrijdstatistieken voor dit team komen in de volgende release."
 

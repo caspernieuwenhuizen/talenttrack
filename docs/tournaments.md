@@ -100,6 +100,28 @@ You can **Complete** a match without explicit Kick off — the system will auto-
 
 By default a completed match's lineup is locked. The system blocks PATCHes to its assignments unless you pass `force=1`. If you spot a mistake after marking complete, an admin can re-open the match through the REST API; there is no screen for it.
 
+## Recording the result of each fixture
+
+Every fixture in the match programme carries two boxes: **Ours** and
+**Theirs**. Type the goals in and they save as you move off the box.
+
+**A tournament has no single scoreline.** A tournament day is several matches,
+and one score cannot describe it — which is why a tournament does not get the
+Result card a league match has, and gets no score boxes in the minutes grid.
+The result belongs to the fixture, so that is where it is recorded.
+
+**Leaving a box empty records no result**, not 0–0. A fixture you have not
+played yet, or one nobody typed a score into, reads as played-without-a-result
+rather than as a goalless draw.
+
+There is deliberately **no day total**. The team's record leaves tournaments
+out entirely, so a goals-for/against figure across the day would have nothing
+reading it. If that changes, it is cheap to add.
+
+**Goals still count for the player.** A goal scored at a tournament has always
+reached the scorer's record through the minutes grid's `G` column, and still
+does — that half never depended on these boxes.
+
 ## What v1 doesn't do
 
 - **Cross-team squad picks from the wizard** — you can pick from the anchor team's roster only in v1. Add players from another team via the REST API for now.
