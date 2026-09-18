@@ -140,31 +140,34 @@ final class SupportGrantsTest extends WP_UnitTestCase {
 
     public function test_an_operator_cannot_impersonate_without_a_live_grant(): void {
         $operator = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $target   = self::factory()->user->create( [ 'role' => 'subscriber' ] );
         SupportOperator::setOperator( $operator, true );
 
-        $error = ImpersonationService::start( $operator, $target );
+        $error = ImpersonationService::supportGrantError( $operator );
 
         $this->assertInstanceOf( \WP_Error::class, $error );
         $this->assertSame( 'no_support_grant', $error->get_error_code() );
     }
 
-    public function test_an_operator_with_a_live_grant_may_impersonate(): void {
+    /**
+     * Asserted through the gate rather than a full `start()`: a successful
+     * session sets an auth cookie, which PHPUnit cannot do. The gate is the
+     * decision this issue adds; the rest of `start()` is #1000's and already
+     * covered.
+     */
+    public function test_an_operator_with_a_live_grant_is_not_blocked(): void {
         $operator = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $target   = self::factory()->user->create( [ 'role' => 'subscriber' ] );
         SupportOperator::setOperator( $operator, true );
         SupportGrants::store( [ $this->grant( $this->future() ) ] );
 
-        $this->assertNull( ImpersonationService::start( $operator, $target ) );
+        $this->assertNull( ImpersonationService::supportGrantError( $operator ) );
     }
 
     public function test_an_expired_grant_refuses_the_operator(): void {
         $operator = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $target   = self::factory()->user->create( [ 'role' => 'subscriber' ] );
         SupportOperator::setOperator( $operator, true );
         SupportGrants::store( [ $this->grant( $this->past() ) ] );
 
-        $error = ImpersonationService::start( $operator, $target );
+        $error = ImpersonationService::supportGrantError( $operator );
 
         $this->assertInstanceOf( \WP_Error::class, $error );
         $this->assertSame( 'no_support_grant', $error->get_error_code() );
@@ -176,11 +179,15 @@ final class SupportGrantsTest extends WP_UnitTestCase {
      * own records the first time the control plane was unreachable.
      */
     public function test_the_clubs_own_administrator_is_never_gated(): void {
-        $admin  = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $target = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 
         $this->assertFalse( SupportOperator::isOperator( $admin ) );
-        $this->assertNull( ImpersonationService::start( $admin, $target ) );
+        $this->assertNull( ImpersonationService::supportGrantError( $admin ) );
+
+        // And still not gated with no grant held at all, which is the state
+        // every install is in until support is asked for.
+        SupportGrants::forget();
+        $this->assertNull( ImpersonationService::supportGrantError( $admin ) );
     }
 
     // ---------------------------------------------------------------
