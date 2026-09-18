@@ -106,14 +106,15 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
         $report = $composer->forTeam( $team_id, $from, $to, [], $author );
 
         $composition = [
-            'blocks'  => $report['blocks'] ?? [],
+            'blocks'  => $report['blocks'],
             'options' => [],
             'layout'  => 'B',
         ];
 
+        $month = strtotime( $from );
         $title = sprintf(
             self::TITLE_BY_LANGUAGE[ $language ],
-            gmdate( 'F Y', strtotime( $from ) ?: time() )
+            gmdate( 'F Y', $month !== false ? $month : time() )
         );
 
         $uuid = $repo->create( $team_id, $composition, $report, $title, $author );
@@ -122,7 +123,7 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
         foreach ( self::NOTES_BY_LANGUAGE[ $language ] as $section => $body ) {
             // Only sections this snapshot actually carries — a note under a
             // block the composition left out would never be rendered.
-            if ( ! in_array( $section, (array) ( $report['blocks'] ?? [] ), true ) ) continue;
+            if ( ! in_array( $section, $report['blocks'], true ) ) continue;
             $repo->putNote( $uuid, $section, $body, $author );
         }
 
@@ -148,11 +149,8 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
      * @return array{0:string, 1:string}
      */
     private static function lastFullMonth(): array {
-        $first_of_this = strtotime( gmdate( 'Y-m-01' ) );
-        if ( $first_of_this === false ) $first_of_this = time();
-
-        $in_last = strtotime( '-1 day', $first_of_this );
-        if ( $in_last === false ) $in_last = $first_of_this;
+        // A day inside the previous month: the first of this one, minus a day.
+        $in_last = (int) gmmktime( 0, 0, 0, (int) gmdate( 'n' ), 0, (int) gmdate( 'Y' ) );
 
         return [ gmdate( 'Y-m-01', $in_last ), gmdate( 'Y-m-t', $in_last ) ];
     }
