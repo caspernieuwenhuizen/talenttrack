@@ -1949,6 +1949,23 @@
     touch-action: manipulation;
 }
 .tt-mexec-goal-more[open] .tt-mexec-goal-more-summary { margin-bottom: 8px; }
+/* #3556 — `display: flex` on a <summary> drops the browser's disclosure
+   triangle, which left the line reading as a heading with nothing under
+   it. An explicit chevron (turning when open) plus the count restore the
+   "tap to open" read. */
+.tt-mexec-goal-more-summary { list-style: none; gap: 6px; }
+.tt-mexec-goal-more-summary::-webkit-details-marker { display: none; }
+.tt-mexec-goal-more-summary::before {
+    content: '\25B8';
+    display: inline-block;
+    transition: transform 0.15s ease;
+}
+.tt-mexec-goal-more[open] > .tt-mexec-goal-more-summary::before { transform: rotate(90deg); }
+.tt-mexec-goal-more-count { font-weight: 600; }
+.tt-mexec-goal-more[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+    .tt-mexec-goal-more-summary::before { transition: none; }
+}
 
 .tt-mexec-goal-escapes {
     display: flex;

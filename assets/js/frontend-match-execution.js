@@ -533,6 +533,14 @@
         ids.forEach(function (pid) { container.appendChild(goalChip(pid, onPick)); });
     }
 
+    // #3556 — "(7)" beside a collapsed group, so it reads as something to
+    // open rather than as a heading with nothing under it.
+    function setMoreCount(details, n) {
+        if (!details) return;
+        var el = details.querySelector('[data-tt-mexec-goal-more-count]');
+        if (el) el.textContent = '(' + n + ')';
+    }
+
     // Everyone in the squad who is not currently on the pitch. Derived live
     // rather than server-rendered: a substitution moves players between the
     // two groups, and a sheet opened after one must not show the pitch as it
@@ -572,9 +580,11 @@
         // the system. The one exception is one of ours putting it in their own
         // net, which is worth attributing, so that path opens our picker.
         var showPicker = isOurs || pendingGoal.is_own_goal;
+        var restIds = showPicker ? offPitchIds() : [];
         fillChips(onPitchBox, showPicker ? state.on_pitch.slice() : [], pickScorer);
-        fillChips(benchBox, showPicker ? offPitchIds() : [], pickScorer);
-        if (moreBox) moreBox.hidden = !showPicker;
+        fillChips(benchBox, restIds, pickScorer);
+        setMoreCount(moreBox, restIds.length);
+        if (moreBox) moreBox.hidden = !showPicker || restIds.length === 0;
         if (unknownBtn) unknownBtn.hidden = !isOurs;
         if (ownBtn) {
             ownBtn.textContent = isOurs
@@ -628,13 +638,22 @@
         }
 
         // The scorer cannot assist themselves, so they are simply not offered.
-        var ids = state.on_pitch.concat(offPitchIds()).filter(function (pid) {
-            return pid !== pendingGoal.player_id;
-        });
-        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist]'), ids, function (pid) {
+        // #3556 — on-pitch first, the rest behind the same collapsible as the
+        // scorer step: an assist nearly always comes from the pitch.
+        var notScorer = function (pid) { return pid !== pendingGoal.player_id; };
+        var pickAssist = function (pid) {
             pendingGoal.assist_player_id = pid;
             saveGoal();
-        });
+        };
+        var restIds = offPitchIds().filter(notScorer);
+        var assistMore = goalSheet.querySelector('[data-tt-mexec-goal-assist-more]');
+        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist]'), state.on_pitch.filter(notScorer), pickAssist);
+        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist-bench]'), restIds, pickAssist);
+        setMoreCount(assistMore, restIds.length);
+        if (assistMore) {
+            assistMore.hidden = restIds.length === 0;
+            assistMore.open = false;
+        }
 
         var saveBtn = goalSheet.querySelector('[data-tt-mexec-goal-save]');
         if (saveBtn) saveBtn.disabled = false;

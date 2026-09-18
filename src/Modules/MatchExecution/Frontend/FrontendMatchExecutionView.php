@@ -715,12 +715,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             ?>
                             <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-tracked-row data-player-id="<?php echo (int) $pid; ?>" data-action-label="<?php echo esc_attr( $goal_label ); ?>">
                                 <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
-                                <span class="tt-mexec-player-name">
-                                    <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
-                                    <?php if ( $goal_label !== '' ) : ?>
-                                        <small><?php echo esc_html( sprintf( __( 'flagged: %s', 'talenttrack' ), $goal_label ) ); ?></small>
-                                    <?php endif; ?>
-                                </span>
+                                <?php // #3556 — the goal is shown once, in the counter
+                                      // chip below; a "flagged: …" subtitle repeated it. ?>
+                                <span class="tt-mexec-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
                                 <div class="tt-mexec-player-actions tt-mexec-edit-only">
                                     <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-tracked-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
                                 </div>
@@ -1491,8 +1488,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
                         <div class="tt-mexec-goal-sheet-step" data-tt-mexec-goal-step="scorer">
                             <div class="tt-mexec-goal-chips" data-tt-mexec-goal-onpitch></div>
+                            <?php // #3556 — the count tells the coach the collapsed
+                                  // group has people in it; a bare summary line read
+                                  // as a heading with nothing under it. ?>
                             <details class="tt-mexec-goal-more" data-tt-mexec-goal-more>
-                                <summary class="tt-mexec-goal-more-summary"><?php esc_html_e( 'Bench and rest of squad', 'talenttrack' ); ?></summary>
+                                <summary class="tt-mexec-goal-more-summary"><?php esc_html_e( 'Bench and rest of squad', 'talenttrack' ); ?> <span class="tt-mexec-goal-more-count" data-tt-mexec-goal-more-count></span></summary>
                                 <div class="tt-mexec-goal-chips" data-tt-mexec-goal-bench></div>
                             </details>
                             <div class="tt-mexec-goal-escapes">
@@ -1503,7 +1503,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
                         <div class="tt-mexec-goal-sheet-step" data-tt-mexec-goal-step="assist" hidden>
                             <p class="tt-mexec-goal-sheet-sub" data-tt-mexec-goal-assist-sub></p>
+                            <?php // #3556 — an assist almost always comes from the
+                                  // pitch, so the assist step splits the same way the
+                                  // scorer step does. ?>
                             <div class="tt-mexec-goal-chips" data-tt-mexec-goal-assist></div>
+                            <details class="tt-mexec-goal-more" data-tt-mexec-goal-assist-more>
+                                <summary class="tt-mexec-goal-more-summary"><?php esc_html_e( 'Bench and rest of squad', 'talenttrack' ); ?> <span class="tt-mexec-goal-more-count" data-tt-mexec-goal-more-count></span></summary>
+                                <div class="tt-mexec-goal-chips" data-tt-mexec-goal-assist-bench></div>
+                            </details>
                             <button type="button" class="tt-mexec-goal-escape" data-tt-mexec-goal-no-assist><?php esc_html_e( 'No assist', 'talenttrack' ); ?></button>
                         </div>
 
