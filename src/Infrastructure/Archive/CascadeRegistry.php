@@ -246,6 +246,15 @@ final class CascadeRegistry {
                 [ 'tt_vct_microcycles', 'team_id' ],
                 [ 'tt_vct_team_cycles', 'team_id' ],
                 [ 'tt_vct_cycle_weeks', 'team_id' ],
+                // #3517 — a frozen monthly report is entirely this team's
+                // data: it holds the squad's names, attendance and test
+                // readings. Purging a team is a deliberate "remove this
+                // squad's data", so it goes with the team rather than being
+                // set_zero'd. A team_id of 0 would also make the snapshot
+                // permanently unreadable — TeamReportAccess::canRead()
+                // refuses team 0 — leaving a row nobody can open and nobody
+                // can purge.
+                [ 'tt_team_report_snapshots', 'team_id' ],
             ],
             // #2571 — the team's scope rows. Polymorphic: `scope_id` is a
             // team id only when `scope_type = 'team'`, so it can't go in

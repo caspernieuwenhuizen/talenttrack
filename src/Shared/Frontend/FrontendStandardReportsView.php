@@ -819,7 +819,24 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * other reports seed.
      */
     private static function renderTeamMonthly(): void {
-        $title   = __( 'Team · Monthly report', 'talenttrack' );
+        $title = __( 'Team · Monthly report', 'talenttrack' );
+
+        // #3517 — a frozen report for a staff meeting. Its own branch because
+        // it answers to the snapshot's team, not the URL's: checking the
+        // requested team_id would let a reader who may see team A open a
+        // snapshot of team B by naming A in the query string. The page refuses
+        // a reader who may not see it, and a signed-out reader is user 0,
+        // which the capability check refuses outright. There is no token that
+        // makes a snapshot readable.
+        $snapshot = \TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage::requested();
+        if ( $snapshot !== '' ) {
+            self::renderHeader( $title );
+            if ( ! \TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage::render( $snapshot ) ) {
+                self::renderEmpty();
+            }
+            return;
+        }
+
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
         if ( $team === null ) {
