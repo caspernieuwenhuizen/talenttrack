@@ -34,6 +34,10 @@
 
 	var dirty = new Set();
 	var dirtyStats = new Set();
+	// #3531 — score edits, keyed by activity. A match has two boxes and the
+	// endpoint takes both in one call, so the unit of change is the column
+	// rather than the cell.
+	var dirtyScores = new Set();
 	var statusEl = grid.querySelector( '[data-agrid-status]' );
 	var saveBtn = grid.querySelector( '[data-agrid-save]' );
 
@@ -86,7 +90,7 @@
 	}
 
 	function refresh() {
-		var n = dirty.size + dirtyStats.size;
+		var n = dirty.size + dirtyStats.size + dirtyScores.size;
 		if ( statusEl ) {
 			statusEl.classList.remove( 'is-dirty', 'is-error', 'is-saved' );
 			if ( n > 0 ) {
@@ -137,6 +141,51 @@
 			recomputeTotal( inp.closest( 'tr' ) );
 		} );
 	} );
+
+	// #3531 — the scoreline. A live column renders as text with no input, so
+	// there is nothing here to bind and nothing that can be posted for it.
+	grid.querySelectorAll( 'input.tt-agrid-score-in' ).forEach( function ( inp ) {
+		inp.addEventListener( 'input', function () {
+			var td = inp.closest( 'td' );
+			if ( td ) {
+				td.classList.add( 'is-dirty' );
+			}
+			dirtyScores.add( inp.getAttribute( 'data-activity' ) );
+			refresh();
+		} );
+		inp.addEventListener( 'blur', function () {
+			// Empty stays empty. It persists NULL, which is "no result
+			// recorded" — not 0–0, which would make the team record wrong.
+			var raw = String( inp.value ).replace( /[^0-9]/g, '' );
+			if ( raw === '' ) {
+				inp.value = '';
+				return;
+			}
+			inp.value = String( Math.max( 0, Math.min( 99, parseInt( raw, 10 ) ) ) );
+		} );
+	} );
+
+	/**
+	 * One payload per changed match, carrying both boxes.
+	 *
+	 * Both, even when only one was touched: the endpoint patches the columns
+	 * it is given, and sending only the edited half of a scoreline would leave
+	 * the other half describing a different match.
+	 */
+	function collectScorePayloads() {
+		var out = [];
+		dirtyScores.forEach( function ( aid ) {
+			var body = {};
+			grid.querySelectorAll(
+				'input.tt-agrid-score-in[data-activity="' + aid + '"]'
+			).forEach( function ( inp ) {
+				var raw = String( inp.value ).replace( /[^0-9]/g, '' );
+				body[ inp.getAttribute( 'data-field' ) ] = raw === '' ? null : parseInt( raw, 10 );
+			} );
+			out.push( { activity_id: parseInt( aid, 10 ), body: body } );
+		} );
+		return out;
+	}
 
 	// ---- column switches ---------------------------------------------
 
@@ -269,7 +318,7 @@
 	}
 
 	function save() {
-		if ( dirty.size === 0 && dirtyStats.size === 0 ) {
+		if ( dirty.size === 0 && dirtyStats.size === 0 && dirtyScores.size === 0 ) {
 			return;
 		}
 		if ( saveBtn ) {
@@ -296,6 +345,19 @@
 			} );
 		}
 
+		// #3531 — one PUT per changed column, through the same endpoint the
+		// match page's Result card writes. Two views of one column, not two
+		// stores (#2857).
+		if ( dirtyScores.size > 0 && CFG.restStats ) {
+			collectScorePayloads().forEach( function ( payload ) {
+				writes.push( postJson(
+					CFG.restStats + payload.activity_id + '/result',
+					'PUT',
+					payload.body
+				) );
+			} );
+		}
+
 		// All or nothing for the message: a partial failure has to read as a
 		// failure, because a coach told "saved" over a half-written screen
 		// will close the tab.
@@ -307,8 +369,12 @@
 				dirtyStats.forEach( function ( td ) {
 					td.classList.remove( 'is-dirty' );
 				} );
+				grid.querySelectorAll( 'td.tt-agrid-score.is-dirty' ).forEach( function ( td ) {
+					td.classList.remove( 'is-dirty' );
+				} );
 				dirty.clear();
 				dirtyStats.clear();
+				dirtyScores.clear();
 				if ( statusEl ) {
 					statusEl.classList.add( 'is-saved' );
 					statusEl.textContent = I18N.saved || '';

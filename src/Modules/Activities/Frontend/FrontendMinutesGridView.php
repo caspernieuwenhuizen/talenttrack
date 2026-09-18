@@ -231,7 +231,10 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         // this surface being the alternative to the wizard.
         echo '<thead>';
         echo '<tr>';
-        echo '<th class="tt-agrid__player" scope="col" rowspan="2">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        // #3531 — no `rowspan` any more: the two score rows below carry their
+        // own labels in the frozen column, so a spanning header would push
+        // every row after it one cell to the left.
+        echo '<th class="tt-agrid__player" scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         foreach ( $activities as $a ) {
             $date  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
             $label = (string) $a['title'] !== '' ? (string) $a['title'] : __( 'Match', 'talenttrack' );
@@ -249,6 +252,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         }
         echo '<th class="tt-agrid__rate" scope="colgroup" colspan="3">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
         echo '</tr>';
+
+        self::renderScoreRows( $activities );
 
         echo '<tr class="tt-agrid__subhead">';
         foreach ( $activities as $a ) {
@@ -337,6 +342,97 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '</div>';
 
         echo '</div>'; // .tt-agrid-card
+    }
+
+    /**
+     * #3531 — two header rows carrying the scoreline: ours, then theirs.
+     *
+     * The footer has always compared attributed goals against a score
+     * (`renderReconciliationFoot()`), and degraded to a bare "N attributed"
+     * whenever there was none — which is every match not run on the live
+     * sheet. It was asking a question the screen gave nobody a way to answer.
+     * These two rows are that answer, on the surface a club already uses to
+     * catch up on a month of post-match admin.
+     *
+     * Three rules the cells encode:
+     *
+     *   - **A live column is a readout, not an input.** Its score follows the
+     *     match sheet's goal log, so correcting it means correcting a goal.
+     *     The asymmetry with minutes — which stay editable on a live column as
+     *     a correction — is deliberate, and the legend says so.
+     *   - **A tournament column gets no boxes** (#2686): one scoreline cannot
+     *     describe a multi-game day.
+     *   - **Empty is not 0–0.** An empty box persists NULL, so the match is
+     *     counted as played-without-a-score rather than as a goalless draw
+     *     (#3519).
+     *
+     * @param list<array<string,mixed>> $activities
+     */
+    private static function renderScoreRows( array $activities ): void {
+        $ours = \TT\Shared\Club\ClubIdentity::shortCode();
+        if ( $ours === '' ) $ours = _x( 'Us', 'row label: the academy team', 'talenttrack' );
+
+        $rows = [
+            'home_score' => [ 'label' => $ours, 'class' => 'is-ours' ],
+            'away_score' => [ 'label' => _x( 'Opp.', 'abbreviation: the opposing club', 'talenttrack' ), 'class' => 'is-theirs' ],
+        ];
+
+        foreach ( $rows as $field => $row ) {
+            echo '<tr class="tt-agrid__scorerow ' . esc_attr( $row['class'] ) . '">';
+            echo '<th class="tt-agrid__player tt-agrid__scorelabel" scope="row">' . esc_html( $row['label'] ) . '</th>';
+
+            foreach ( $activities as $a ) {
+                self::renderScoreCell( $a, $field );
+            }
+
+            echo '<td class="tt-agrid__rate tt-agrid-cell--sep" colspan="3"></td>';
+            echo '</tr>';
+        }
+    }
+
+    /**
+     * @param array<string,mixed> $a
+     */
+    private static function renderScoreCell( array $a, string $field ): void {
+        $aid   = (int) $a['activity_id'];
+        $when  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
+        $live  = ! empty( $a['owned_by_execution'] );
+
+        // Stored home/away, read from the academy's side. `is_home` decides
+        // which stored column is ours, so the box a coach types into is always
+        // "our goals" whichever end of the fixture we were at.
+        $is_home = ! empty( $a['is_home'] );
+        $ours    = $is_home ? 'home_score' : 'away_score';
+        $column  = ( $field === 'home_score' ) ? $ours : ( $ours === 'home_score' ? 'away_score' : 'home_score' );
+        $value   = $a[ $column ] ?? null;
+
+        if ( ! empty( $a['is_tournament'] ) ) {
+            echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--na" colspan="3" aria-label="'
+                . esc_attr__( 'A tournament is a multi-game day and has no single score.', 'talenttrack' )
+                . '">&mdash;</td>';
+            return;
+        }
+
+        if ( $live ) {
+            echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--live" colspan="3" title="'
+                . esc_attr__( 'This score follows the match sheet. Correct a goal in the post-match review and it follows.', 'talenttrack' )
+                . '">' . ( $value === null ? '&mdash;' : esc_html( (string) (int) $value ) ) . '</td>';
+            return;
+        }
+
+        $label = $field === 'home_score'
+            /* translators: %s: match date. */
+            ? sprintf( __( 'Our goals on %s', 'talenttrack' ), $when )
+            /* translators: %s: match date. */
+            : sprintf( __( 'Opponent goals on %s', 'talenttrack' ), $when );
+
+        echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score" colspan="3">';
+        echo '<input class="tt-agrid-score-in" type="number" inputmode="numeric" min="0" max="99" step="1"'
+            . ' value="' . esc_attr( $value === null ? '' : (string) (int) $value ) . '"'
+            . ' data-activity="' . esc_attr( (string) $aid ) . '"'
+            . ' data-field="' . esc_attr( $column ) . '"'
+            . ' aria-label="' . esc_attr( $label ) . '">';
+        echo '</td>';
     }
 
     /**

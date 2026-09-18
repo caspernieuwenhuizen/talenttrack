@@ -60,17 +60,42 @@ You can now type them straight in. What you record counts exactly the same as
 a goal logged live: it reaches the player's record and every report built on
 it.
 
-Two things are deliberately *not* recorded when you type a goal in afterwards:
+One thing is deliberately *not* recorded when you type a goal in afterwards:
 
 - **No minute.** A goal logged live knows it was scored in the 34th minute; a
  goal you remember on Sunday does not, and the grid does not invent one. Such
  a goal appears in the player's totals but not on the match timeline with a
  clock against it.
-- **No change to the score.** The match score stays exactly as it was
- recorded. The score is what happened; who scored is what we know about it,
- and typing a name should never quietly rewrite the result. You record the
- score itself on the match's own page — see
- [Recording the result](activities.md#recording-the-result).
+
+**Typing a name still never rewrites the score.** The score is what happened;
+who scored is what we know about it. The two are entered separately — the
+score in its own row above the grid, described next.
+
+## Recording the score
+
+Above the player rows, each match column carries two boxes: **your goals** and
+**the opponent's**. Fill them in the same pass as the minutes and press the
+same Save.
+
+This is the number the **Attributed / score** row at the bottom has always
+compared against. Until now the grid asked the question and gave you nowhere to
+answer it, so every match not run on the live sheet showed a bare count.
+
+Three things behave the way the rest of the product does:
+
+- **Empty is not 0–0.** Clearing a box records *no result*, not a goalless
+ draw. A match with no result counts as played and is left out of the
+ won/drawn/lost record, which is what keeps the team's record honest.
+- **A match run on the live sheet shows its score as text, not a box.** That
+ score follows the match sheet's goal log, so changing it means correcting a
+ goal in the post-match review. Minutes on the same column *do* stay editable
+ — a minute correction survives a recount, a score correction would not.
+- **A tournament has no score boxes.** A tournament day is several matches and
+ one scoreline cannot describe it, so those columns show a dash.
+
+The same score appears on the match's own page and is written through the same
+place — see [Recording the result](activities.md#recording-the-result). Two
+ways in, one number.
 
 **An assist attaches to a goal.** Recording one does not add a goal to your
 team's total — it names who set up a goal that is already there. If there is

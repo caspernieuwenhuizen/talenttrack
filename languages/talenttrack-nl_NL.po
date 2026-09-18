@@ -62514,6 +62514,42 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:390
+msgctxt "row label: the academy team"
+msgid "Us"
+msgstr "Wij"
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:394
+msgctxt "abbreviation: the opposing club"
+msgid "Opp."
+msgstr "Tegenst."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:429
+msgid "A tournament is a multi-game day and has no single score."
+msgstr ""
+"Een toernooi is een dag met meerdere wedstrijden en heeft geen enkele "
+"uitslag."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:436
+msgid ""
+"This score follows the match sheet. Correct a goal in the post-match review "
+"and it follows."
+msgstr ""
+"Deze uitslag volgt het wedstrijdblad. Corrigeer een doelpunt in de "
+"nabespreking en de uitslag volgt."
+
+#. translators: %s: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:443
+#, php-format
+msgid "Our goals on %s"
+msgstr "Onze doelpunten op %s"
+
+#. translators: %s: match date.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:445
+#, php-format
+msgid "Opponent goals on %s"
+msgstr "Doelpunten tegenstander op %s"
+
 #~ msgid ""
 #~ "These tests have no target and no direction — a higher or lower value is "
 #~ "not better. The readings are shown per date, without a verdict."

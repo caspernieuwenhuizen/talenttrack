@@ -64,18 +64,48 @@ Je kunt ze nu gewoon intypen. Wat je vastlegt telt precies zo mee als een live
 gelogd doelpunt: het bereikt het spelersdossier en elk rapport dat daarop
 gebouwd is.
 
-Twee dingen worden bewust **niet** vastgelegd als je een doelpunt achteraf
-intypt:
+Eén ding wordt bewust **niet** vastgelegd als je een doelpunt achteraf intypt:
 
 - **Geen minuut.** Een live gelogd doelpunt weet dat het in de 34e minuut
  viel; een doelpunt dat je je op zondag herinnert niet, en het raster
  verzint er geen. Zo'n doelpunt verschijnt in de totalen van de speler, maar
  niet met een klok erbij op de wedstrijdtijdlijn.
-- **Geen wijziging aan de uitslag.** De uitslag blijft precies zoals hij is
- vastgelegd. De uitslag is wat er gebeurd is; wie er scoorde is wat we
- daarvan weten, en een naam intypen hoort dat resultaat niet stilletjes te
- herschrijven. De uitslag zelf leg je vast op de eigen pagina van de
- wedstrijd — zie [De uitslag vastleggen](activities.md#de-uitslag-vastleggen).
+
+**Een naam intypen herschrijft nog steeds nooit de uitslag.** De uitslag is wat
+er gebeurd is; wie er scoorde is wat we daarvan weten. Je legt ze los van
+elkaar vast — de uitslag in een eigen rij boven het raster, hieronder
+beschreven.
+
+## De uitslag vastleggen
+
+Boven de spelersrijen heeft elke wedstrijdkolom twee vakjes: **jullie
+doelpunten** en die van **de tegenstander**. Vul ze in dezelfde ronde als de
+minuten en druk op dezelfde knop Opslaan.
+
+Dit is het getal waar de rij **Toegekend / uitslag** onderaan altijd al tegen
+afzette. Tot nu toe stelde het raster die vraag zonder je ergens een antwoord
+te laten geven, dus elke wedstrijd die niet live was bijgehouden toonde alleen
+een kaal aantal.
+
+Drie dingen gedragen zich zoals elders in het product:
+
+- **Leeg is geen 0–0.** Een vakje leegmaken legt *geen uitslag* vast, geen
+ doelpuntloos gelijkspel. Een wedstrijd zonder uitslag telt als gespeeld en
+ blijft buiten de balans van gewonnen/gelijk/verloren, en juist dat houdt de
+ balans van het team eerlijk.
+- **Een wedstrijd die live is bijgehouden toont zijn uitslag als tekst, niet
+ als vakje.** Die uitslag volgt het doelpuntenlogboek van het wedstrijdblad,
+ dus wijzigen betekent een doelpunt corrigeren in de nabespreking. De minuten
+ in diezelfde kolom blijven **wel** bewerkbaar — een minuutcorrectie overleeft
+ een hertelling, een uitslagcorrectie niet.
+- **Een toernooi heeft geen uitslagvakjes.** Een toernooidag zijn meerdere
+ wedstrijden en één uitslag kan dat niet beschrijven, dus die kolommen tonen
+ een streepje.
+
+Dezelfde uitslag staat op de eigen pagina van de wedstrijd en wordt via
+dezelfde weg weggeschreven — zie
+[De uitslag vastleggen](activities.md#de-uitslag-vastleggen). Twee ingangen,
+één getal.
 
 **Een assist hangt aan een doelpunt.** Er een vastleggen telt geen extra
 doelpunt bij het team — het benoemt wie een doelpunt voorbereidde dat er al
