@@ -394,8 +394,10 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                         //
                         // Empty is not 0-0: clearing a box records "no result",
                         // and the fixture reads as played-without-a-result.
-                        $our_score   = isset( $m->our_score ) && $m->our_score !== null ? (int) $m->our_score : null;
-                        $their_score = isset( $m->their_score ) && $m->their_score !== null ? (int) $m->their_score : null;
+                        // `isset()` already excludes null, which is how a
+                        // fixture with no result recorded reads.
+                        $our_score   = isset( $m->our_score ) ? (int) $m->our_score : null;
+                        $their_score = isset( $m->their_score ) ? (int) $m->their_score : null;
                         ?>
                         <div class="tt-tour-match__score">
                             <label class="tt-tour-score">

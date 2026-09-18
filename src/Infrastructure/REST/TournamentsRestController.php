@@ -1797,8 +1797,8 @@ class TournamentsRestController {
             // has to be able to tell "0-0" from "we never typed it in", which
             // is the difference between a goalless draw and an unplayed or
             // unrecorded fixture.
-            'our_score'            => isset( $row['our_score'] ) && $row['our_score'] !== null ? (int) $row['our_score'] : null,
-            'their_score'          => isset( $row['their_score'] ) && $row['their_score'] !== null ? (int) $row['their_score'] : null,
+            'our_score'            => isset( $row['our_score'] ) ? (int) $row['our_score'] : null,
+            'their_score'          => isset( $row['their_score'] ) ? (int) $row['their_score'] : null,
         ];
     }
 }
