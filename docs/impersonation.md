@@ -25,6 +25,38 @@ The capability `tt_impersonate_users` is granted by default to:
 
 **No other persona ever holds this capability.** Specifically: Head of Development does NOT get impersonation rights — even after the #0071 narrowing of HoD to a development-focused persona, impersonation reveals everything about a user including content explicitly hidden from HoD by the matrix (configuration data they no longer have edit rights on, etc.). If a future club wants to grant impersonation to a non-admin role, they can do it via the matrix (the cap is matrix-bridged), but the default is admin-only.
 
+## Support access, and what you can see about it
+
+TalentTrack's own support staff are not your staff, and they reach your data on
+different terms.
+
+A **support grant** is time-boxed permission for one named operator to help
+with one named problem. While a grant is live, every signed-in person at your
+club sees an orange banner — on the app and in wp-admin — naming the operator,
+the reason, and the local time the access ends. **It cannot be dismissed.**
+That visibility is the whole point: a grant you cannot see is indistinguishable
+from a back door, and this product holds children's records.
+
+Three things hold whatever happens:
+
+- **Every grant ends on its own.** The end time is enforced on your own
+  install, so a grant closes on time even if your site cannot reach us for a
+  week.
+- **Withdrawing a grant takes effect on the next check-in.** Your install
+  replaces the grants it holds with whatever the latest check-in reports, so a
+  revoked grant is simply gone.
+- **What support did is on your own install.** Starting a session records the
+  grant it ran under, so "who had access, and what did they do" is answerable
+  from your own logs and not only from ours.
+
+Your own administrators are never affected by any of this. A grant adds a
+requirement for support accounts only; it can never stand between your club
+and your own records.
+
+Support access needs **no approval step from you**. That was a deliberate
+decision, and it is only defensible because of the three properties above —
+particularly that you can always see it happening.
+
 ## How it works
 
 Two stages with explicit return:

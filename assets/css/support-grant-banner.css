@@ -1,0 +1,28 @@
+/*
+ * support-grant-banner.css (#3501) — the club's view of live support access.
+ *
+ * Deliberately louder than the broadcast banner and with no dismiss control:
+ * visibility is the whole safeguard behind "a grant needs no approval step".
+ * Mobile-first; it is one paragraph, so it only ever needs to wrap.
+ */
+
+.tt-support-grant {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tt-sp-2, 8px);
+  margin: 0 0 var(--tt-sp-3, 12px);
+  padding: var(--tt-sp-3, 12px);
+  border-radius: var(--tt-radius, 8px);
+  border: 1px solid var(--tt-warning, #e8902b);
+  border-left-width: 4px;
+  background: var(--tt-warning-subtle, #fdf3d8);
+  color: var(--tt-warning-ink, #8a5300);
+}
+
+.tt-support-grant__body {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  /* Long reasons wrap rather than stretching the banner off a phone. */
+  overflow-wrap: anywhere;
+}
