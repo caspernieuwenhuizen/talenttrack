@@ -3750,6 +3750,10 @@ msgstr "Ongeldige speler."
 msgid "This section has been kept private."
 msgstr "Dit onderdeel is privé gehouden."
 
+#: src/Modules/Pdp/Rest/PdpFamilyRestController.php:51
+msgid "The player whose development plan to read."
+msgstr "De speler van wie het ontwikkelplan wordt opgehaald."
+
 #: src/Infrastructure/REST/GoalsRestController.php:467
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."

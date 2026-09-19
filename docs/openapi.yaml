@@ -322,6 +322,14 @@ paths:
     get: { tags: [status], summary: Potential history, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
     post: { tags: [status], summary: Record potential band, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '201': { description: Created } } }
 
+  /players/{id}/pdp:
+    get:
+      tags: [pdp]
+      summary: The development plan as the player and their family read it (#3645)
+      description: 'Gated on `canViewPlayer` plus the `pdp` parent-visibility section. Conversation notes and agreed actions stay null until the coach signs the talk off, and the coach preparation is never returned. Staff read the full file at `/pdp-files/{id}`.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK }, '403': { description: Not visible to this reader }, '404': { description: Player not found } }
+
   /players/import:
     post:
       tags: [players]
