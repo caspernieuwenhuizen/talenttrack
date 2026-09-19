@@ -268,12 +268,22 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
      * The kit manager set is written positively. "Everything except
      * injuries" is a definition by subtraction, and the next sensitive
      * entity added to the persona would land on this seat silently.
+     *
+     * #3643 added the three `*_panel` entries. They are visibility
+     * entities, not data: each one decides whether the screen in front
+     * of a data entity already on this list is offered, which is the
+     * drift that left a kit manager reading the schedule over REST and
+     * refused on the Activities screen. They carry read and nothing
+     * else, and the exhaustive assertion stays exhaustive.
      */
     public function test_the_kit_manager_set_is_a_positive_list_with_nothing_medical(): void {
         $entities = FunctionalRoleGrants::entitiesFor( 'kit_manager' );
         sort( $entities );
 
-        $this->assertSame( [ 'activities', 'people', 'players', 'team' ], $entities );
+        $this->assertSame(
+            [ 'activities', 'activities_panel', 'coach_player_list_panel', 'people', 'players', 'team', 'team_roster_panel' ],
+            $entities
+        );
 
         foreach ( [ 'player_injuries', 'measurements', 'safeguarding_notes', 'evaluations', 'player_potential' ] as $forbidden ) {
             $this->assertNotContains( $forbidden, $entities );
