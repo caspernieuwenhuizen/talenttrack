@@ -70,8 +70,9 @@ final class AlertDiagnostics {
      * Per-definition health, keyed by alert key.
      *
      * @return array<string,array{
-     *     label:string, module:string, ms:int, open:int, resolved:int,
-     *     dismissed:int, delivered:int, dismiss_rate:?float, noisy:bool
+     *     label:string, module:string, ms:int, open:int, open_recipients:int,
+     *     resolved:int, dismissed:int, delivered:int, dismiss_rate:?float,
+     *     noisy:bool
      * }>
      */
     public function perDefinition(): array {
@@ -80,7 +81,7 @@ final class AlertDiagnostics {
 
         $out = [];
         foreach ( AlertRegistry::all() as $key => $definition ) {
-            $count = $counts[ $key ] ?? [ 'open' => 0, 'resolved' => 0, 'dismissed' => 0 ];
+            $count = $counts[ $key ] ?? [ 'open' => 0, 'open_recipients' => 0, 'resolved' => 0, 'dismissed' => 0 ];
 
             // Dismiss rate is computed over what a person actually saw and
             // acted on — dismissed plus resolved — not over every row ever
@@ -95,6 +96,14 @@ final class AlertDiagnostics {
                 'module'       => $definition->module(),
                 'ms'           => (int) ( $timings[ $key ]['ms'] ?? 0 ),
                 'open'         => $count['open'],
+                // #3665 — how many people are carrying those open rows.
+                // An admin reading `open: 1` for a certificate alert they
+                // cannot find in their own list needs to know the count is
+                // install-wide and the row belongs to its holder. The
+                // number of recipients says that; naming them would
+                // expose a colleague's personal alert, so it stays a
+                // count.
+                'open_recipients' => $count['open_recipients'],
                 'resolved'     => $count['resolved'],
                 'dismissed'    => $count['dismissed'],
                 'delivered'    => $delivered,
@@ -123,7 +132,7 @@ final class AlertDiagnostics {
     }
 
     /**
-     * @return array<string,array{open:int,resolved:int,dismissed:int}>
+     * @return array<string,array{open:int,open_recipients:int,resolved:int,dismissed:int}>
      */
     private function countsByAlertKey(): array {
         global $wpdb;
@@ -132,6 +141,7 @@ final class AlertDiagnostics {
         $rows = $wpdb->get_results(
             "SELECT alert_key,
                     SUM( CASE WHEN resolved_at IS NULL AND dismissed_at IS NULL THEN 1 ELSE 0 END ) AS open_count,
+                    COUNT( DISTINCT CASE WHEN resolved_at IS NULL AND dismissed_at IS NULL THEN recipient_user_id END ) AS open_recipient_count,
                     SUM( CASE WHEN resolved_at IS NOT NULL THEN 1 ELSE 0 END ) AS resolved_count,
                     SUM( CASE WHEN dismissed_at IS NOT NULL THEN 1 ELSE 0 END ) AS dismissed_count
                FROM {$table}
@@ -141,10 +151,12 @@ final class AlertDiagnostics {
 
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (string) $row->alert_key ] = [
-                'open'      => (int) $row->open_count,
-                'resolved'  => (int) $row->resolved_count,
-                'dismissed' => (int) $row->dismissed_count,
+            $values = (array) $row;
+            $out[ (string) ( $values['alert_key'] ?? '' ) ] = [
+                'open'            => (int) ( $values['open_count'] ?? 0 ),
+                'open_recipients' => (int) ( $values['open_recipient_count'] ?? 0 ),
+                'resolved'        => (int) ( $values['resolved_count'] ?? 0 ),
+                'dismissed'       => (int) ( $values['dismissed_count'] ?? 0 ),
             ];
         }
         return $out;

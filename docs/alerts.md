@@ -234,6 +234,10 @@ Everything open, in one place, at **Alerts** (`?tt_view=alerts`). Filter by:
 
 Clicking a chip brings you here already narrowed to that one record; "Show all alerts" widens it back out.
 
+The list shows 100 alerts at a time. When there are more, **Previous** and **Next** appear underneath with "Page 2 of 4", and the count above the list is the total, not how many fitted on the page. Changing a filter starts again at page one, since the page you were on describes a list you are no longer looking at.
+
+A link can also narrow the list to **one kind of alert** rather than a whole area — `?tt_view=alerts&alert_key=people.no_guardian_contact`. The list then says which kind it is showing and offers "Show all alerts". A key that does not exist shows nothing rather than everything, so an old bookmark cannot quietly widen back out to the full list without saying so.
+
 ## The overview for Heads of Development and admins
 
 This is the overview earlier releases promised. If you oversee more than one team, the top of the alerts list shows a per-team summary: *"4 teams have records that need attention"*, then a line per team with a count. Each team name opens that team.
@@ -246,7 +250,7 @@ The summary only ever counts teams you already oversee. It counts each affected 
 
 - Rendering chips on a list costs **one** database query for the whole page, regardless of how many rows carry a chip. Anything that surfaces alerts on a list must read them in one batch; a per-row read is a bug, not a slow version of the same thing.
 - The per-team summary is a grouped read over the alerts that already exist. It creates nothing, which is what lets the "no alert per team for Heads of Development" rule hold.
-- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, and `GET /alerts/rollup` for the per-team summary.
+- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, and `GET /alerts/rollup` for the per-team summary. The list pages with `per_page` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`.
 - Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.
 
@@ -288,6 +292,8 @@ The **Alert policy** screen opens with an **Engine health** panel.
 
 It answers the one question the rest of the system cannot: a background job that has stopped produces exactly the same screens as an academy with nothing wrong — empty ones. If the panel says alerts have not been checked recently, WordPress scheduled tasks are not running on your site, and every alert screen is frozen at whenever they last did.
 
-The table below it shows, for each alert, how many are open, how many were cleared, and what share of them people simply dismissed.
+The table below it shows, for each alert, how many are open, **how many people those open ones are spread over**, how many were cleared, and what share of them people simply dismissed.
+
+**These counts cover the whole academy, not your own list.** Each alert appears only in the list of the person it was sent to, so an alert showing as open here need not be one of yours — a coaching certificate that is about to expire goes to the person whose certificate it is. The Recipients column is what tells the two situations apart: five open alerts across five people is a different problem from five sitting with one person. Names are never shown: some of these alerts are personal, and knowing *how many* is enough to decide whether an alert is doing its job.
 
 That last figure is the useful one. **An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts**, and the useful ones go with it. Anything above about 60% (over enough occurrences to mean something) is flagged for review. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation. A safeguarding alert being dismissed often is a training problem, not a definition to delete.

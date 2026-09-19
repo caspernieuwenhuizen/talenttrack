@@ -7376,6 +7376,16 @@ msgstr "Controletijd"
 msgid "Mostly dismissed — worth reviewing"
 msgstr "Meestal weggeklikt — het bekijken waard"
 
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:243
+msgid ""
+"These counts cover everyone in the academy. Each alert appears only in the "
+"list of the person it was sent to, so an open alert here need not be one of "
+"yours."
+msgstr ""
+"Deze aantallen gaan over iedereen in de academie. Elke melding verschijnt "
+"alleen in de lijst van de persoon aan wie hij gestuurd is, dus een melding "
+"die hier openstaat hoeft niet van jou te zijn."
+
 #. translators: %d: milliseconds the check took
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:233
 #, php-format
@@ -7639,6 +7649,16 @@ msgstr "Status"
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:253
 msgid "Showing alerts for one record only."
 msgstr "Je ziet alleen meldingen over één record."
+
+#. translators: %s: the name of one kind of alert, e.g. "Coaching certificate expiring"
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:268
+#, php-format
+msgid "Showing one kind of alert: %s."
+msgstr "Je ziet één soort melding: %s."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:178
+msgid "Alert pages"
+msgstr "Paginering meldingen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:255
 msgid "Show all alerts"

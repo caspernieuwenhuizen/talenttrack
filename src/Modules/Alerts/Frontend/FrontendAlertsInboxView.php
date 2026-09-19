@@ -84,21 +84,32 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         self::renderRollup( $user_id );
         self::renderFilters( $filters );
 
-        $rows = $repo->listForUser( $user_id, [
+        $args = [
             'state'        => $filters['state'],
-            'alert_keys'   => $filters['module'] !== '' ? array_keys( AlertRegistry::forModule( $filters['module'] ) ) : [],
+            'alert_keys'   => self::alertKeysFor( $filters ),
             'severity'     => $filters['severity'],
             'subject_type' => $filters['subject_type'],
             'subject_id'   => $filters['subject_id'],
             'player_id'    => $filters['player_id'],
-            'limit'        => self::PAGE_SIZE,
+        ];
+
+        // #3665 — the total, not `count( $rows )`. Past the page size the
+        // two are different numbers, and the one worth showing is how many
+        // alerts there are, not how many fitted on this page.
+        $total = $repo->countForUser( $user_id, $args );
+        $pages = (int) max( 1, (int) ceil( $total / self::PAGE_SIZE ) );
+        $page  = min( max( 1, $filters['page'] ), $pages );
+
+        $rows = $repo->listForUser( $user_id, $args + [
+            'limit'  => self::PAGE_SIZE,
+            'offset' => ( $page - 1 ) * self::PAGE_SIZE,
         ] );
 
         // #3339 — the region the filters govern (epic #3335). The empty
         // state is inside it: filtering down to nothing has to replace the
         // list with "nothing needs your attention", not leave the previous
         // rows sitting there.
-        printf( '<div data-tt-filter-region data-tt-filter-count="%d">', count( $rows ) );
+        printf( '<div data-tt-filter-region data-tt-filter-count="%d">', $total );
 
         if ( empty( $rows ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'Nothing needs your attention right now.', 'talenttrack' ) . '</p>';
@@ -111,13 +122,102 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
             self::renderRow( $row );
         }
         echo '</ul>';
+        self::renderPager( $filters, $page, $pages );
         echo '</div>';
+    }
+
+    /**
+     * The key filter behind the module select and an `alert_key` deep link.
+     *
+     * A module that registers nothing, or a key outside the chosen module,
+     * has to narrow the list to nothing. Returning `[]` would mean "no key
+     * filter" in the repository and show everything, which is the opposite
+     * answer to the one asked.
+     *
+     * @param array<string,mixed> $filters
+     * @return list<string>
+     */
+    private static function alertKeysFor( array $filters ): array {
+        $key    = (string) $filters['alert_key'];
+        $module = (string) $filters['module'];
+
+        if ( $key !== '' ) return [ $key ];
+        if ( $module === '' ) return [];
+
+        return array_keys( AlertRegistry::forModule( $module ) );
+    }
+
+    /**
+     * Previous / next below the list (#3665).
+     *
+     * Inside `data-tt-filter-region` so a filter change replaces it along
+     * with the rows, and every link carries the current filters minus the
+     * page: narrowing the list has to start again at page 1, or a coach
+     * who filters while on page 4 lands on an empty list that reads as
+     * "no alerts" when it means "no page 4".
+     *
+     * @param array<string,mixed> $filters
+     */
+    private static function renderPager( array $filters, int $page, int $pages ): void {
+        if ( $pages <= 1 ) return;
+
+        $base = RecordLink::dashboardUrl();
+        $qs   = self::pageQueryArgs( $filters );
+
+        echo '<nav class="tt-alert-pager" aria-label="' . esc_attr__( 'Alert pages', 'talenttrack' ) . '">';
+
+        if ( $page > 1 ) {
+            printf(
+                '<a class="tt-btn tt-btn-secondary tt-alert-pager__link" href="%s" rel="prev">%s</a>',
+                esc_url( add_query_arg( $qs + [ 'alerts_page' => $page - 1 ], $base ) ), /* tt-xview-ok */
+                esc_html__( 'Previous', 'talenttrack' )
+            );
+        }
+
+        printf(
+            '<span class="tt-alert-pager__status">%s</span>',
+            esc_html( sprintf(
+                /* translators: 1: current page number, 2: total number of pages */
+                __( 'Page %1$d of %2$d', 'talenttrack' ),
+                $page,
+                $pages
+            ) )
+        );
+
+        if ( $page < $pages ) {
+            printf(
+                '<a class="tt-btn tt-btn-secondary tt-alert-pager__link" href="%s" rel="next">%s</a>',
+                esc_url( add_query_arg( $qs + [ 'alerts_page' => $page + 1 ], $base ) ), /* tt-xview-ok */
+                esc_html__( 'Next', 'talenttrack' )
+            );
+        }
+
+        echo '</nav>';
+    }
+
+    /**
+     * The current filter state as query args, for a pager link.
+     *
+     * @param array<string,mixed> $filters
+     * @return array<string,string>
+     */
+    private static function pageQueryArgs( array $filters ): array {
+        $out = [ 'tt_view' => 'alerts', 'state' => (string) $filters['state'] ];
+
+        foreach ( [ 'module', 'severity', 'alert_key', 'subject_type' ] as $key ) {
+            if ( (string) $filters[ $key ] !== '' ) $out[ $key ] = (string) $filters[ $key ];
+        }
+        foreach ( [ 'subject_id', 'player_id' ] as $key ) {
+            if ( (int) $filters[ $key ] > 0 ) $out[ $key ] = (string) (int) $filters[ $key ];
+        }
+
+        return $out;
     }
 
     /**
      * Normalised filter state from the query string.
      *
-     * @return array{module:string,severity:string,state:string,subject_type:string,subject_id:int,player_id:int}
+     * @return array{module:string,severity:string,state:string,alert_key:string,page:int,subject_type:string,subject_id:int,player_id:int}
      */
     private static function filtersFromQuery(): array {
         $state = isset( $_GET['state'] ) ? sanitize_key( (string) $_GET['state'] ) : 'open';
@@ -129,10 +229,27 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         $module = isset( $_GET['module'] ) ? sanitize_key( (string) $_GET['module'] ) : '';
         if ( $module !== '' && empty( AlertRegistry::forModule( $module ) ) ) $module = '';
 
+        // #3665 — an alert key carries a dot, so `sanitize_key` is wrong
+        // here. It is validated against the registry instead: an unknown
+        // key drops to "no key filter" rather than reaching SQL.
+        $alert_key = isset( $_GET['alert_key'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['alert_key'] ) ) : '';
+        if ( $alert_key !== '' && AlertRegistry::find( $alert_key ) === null ) $alert_key = '';
+        if ( $alert_key !== '' && $module !== ''
+            && ! array_key_exists( $alert_key, AlertRegistry::forModule( $module ) ) ) {
+            $alert_key = '';
+        }
+
+        // `alerts_page`, not `page` or `paged`: both are WordPress query
+        // vars, and reusing one here hands the request to the wrong
+        // template before this view ever runs.
+        $page = isset( $_GET['alerts_page'] ) ? absint( (string) $_GET['alerts_page'] ) : 1;
+
         return [
             'module'       => $module,
             'severity'     => $severity,
             'state'        => $state,
+            'alert_key'    => $alert_key,
+            'page'         => max( 1, $page ),
             'subject_type' => isset( $_GET['subject_type'] ) ? sanitize_key( (string) $_GET['subject_type'] ) : '',
             'subject_id'   => isset( $_GET['subject_id'] ) ? absint( (string) $_GET['subject_id'] ) : 0,
             'player_id'    => isset( $_GET['player_id'] ) ? absint( (string) $_GET['player_id'] ) : 0,
@@ -164,10 +281,16 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         // the current filter state in its own URL. Preserving the subject
         // filter matters most: a chip deep-link lands here scoped to one
         // record, and switching to "Resolved" must stay on that record.
+        //
+        // #3665 — `alerts_page` is deliberately NOT carried here. Changing
+        // the state changes how many rows there are, so the page number
+        // from the previous state means nothing; starting again at page 1
+        // is the only answer that cannot land on an empty list.
         $state_base = array_filter( [
             'tt_view'      => 'alerts',
             'module'       => $filters['module'],
             'severity'     => $filters['severity'],
+            'alert_key'    => $filters['alert_key'],
             'subject_type' => $filters['subject_type'],
             'subject_id'   => $filters['subject_id'] > 0 ? $filters['subject_id'] : '',
             'player_id'    => $filters['player_id'] > 0 ? $filters['player_id'] : '',
@@ -224,6 +347,7 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         ];
 
         $hidden = [ 'tt_view' => 'alerts', 'state' => $filters['state'] ];
+        if ( $filters['alert_key'] !== '' )    $hidden['alert_key']    = $filters['alert_key'];
         if ( $filters['subject_type'] !== '' ) $hidden['subject_type'] = $filters['subject_type'];
         if ( $filters['subject_id'] > 0 )      $hidden['subject_id']   = (string) $filters['subject_id'];
         if ( $filters['player_id'] > 0 )       $hidden['player_id']    = (string) $filters['player_id'];
@@ -251,6 +375,23 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
             printf(
                 '<p class="tt-alert-scope">%s <a href="%s">%s</a></p>',
                 esc_html__( 'Showing alerts for one record only.', 'talenttrack' ),
+                esc_url( add_query_arg( [ 'tt_view' => 'alerts' ], $base ) ), /* tt-xview-ok */
+                esc_html__( 'Show all alerts', 'talenttrack' )
+            );
+        }
+
+        // #3665 — the same courtesy for an `alert_key` deep link. Without
+        // it a list narrowed to one definition is indistinguishable from
+        // an academy with one kind of problem.
+        if ( $filters['alert_key'] !== '' ) {
+            $definition = AlertRegistry::find( (string) $filters['alert_key'] );
+            printf(
+                '<p class="tt-alert-scope">%s <a href="%s">%s</a></p>',
+                esc_html( sprintf(
+                    /* translators: %s: the name of one kind of alert, e.g. "Coaching certificate expiring" */
+                    __( 'Showing one kind of alert: %s.', 'talenttrack' ),
+                    $definition !== null ? $definition->label() : (string) $filters['alert_key']
+                ) ),
                 esc_url( add_query_arg( [ 'tt_view' => 'alerts' ], $base ) ), /* tt-xview-ok */
                 esc_html__( 'Show all alerts', 'talenttrack' )
             );

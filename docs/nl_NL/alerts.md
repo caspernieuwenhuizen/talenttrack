@@ -235,6 +235,10 @@ Alles wat open staat, op één plek, onder **Meldingen** (`?tt_view=alerts`). Fi
 
 Klik je op een label bij een record, dan land je hier meteen toegespitst op dat ene record; met "Alle meldingen tonen" zet je dat weer open.
 
+De lijst toont 100 meldingen tegelijk. Zijn het er meer, dan verschijnen eronder **Vorige** en **Volgende** met "Pagina 2 van 4", en het aantal boven de lijst is het totaal, niet wat er op deze pagina paste. Verander je een filter, dan begin je weer bij pagina één: het paginanummer hoorde bij een lijst waar je niet meer naar kijkt.
+
+Een link kan de lijst ook toespitsen op **één soort melding** in plaats van op een heel onderdeel — `?tt_view=alerts&alert_key=people.no_guardian_contact`. De lijst zegt dan welke soort hij toont en biedt "Alle meldingen tonen". Een sleutel die niet bestaat levert niets op in plaats van alles, zodat een oude bladwijzer de lijst niet stilletjes weer helemaal openzet.
+
 ## Het overzicht voor Hoofd Opleiding en beheerders
 
 Dit is het overzicht dat eerdere releases aankondigden. Ben je verantwoordelijk voor meer dan één team, dan staat bovenaan de meldingenlijst een samenvatting per team: *"4 teams hebben records die aandacht vragen"*, met daaronder een regel per team met een aantal. Elke teamnaam opent dat team.
@@ -247,7 +251,7 @@ De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk bet
 
 - Labels tonen op een lijst kost **één** databasequery voor de hele pagina, hoeveel regels er ook een label dragen. Elke plek die meldingen op een lijst toont moet ze in één keer ophalen; per regel ophalen is een fout, geen langzamere variant van hetzelfde.
 - De samenvatting per team is een gegroepeerde leesactie over de meldingen die er al zijn. Er wordt niets aangemaakt, en juist dat maakt de regel "geen eigen melding per team voor het Hoofd Opleiding" houdbaar.
-- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, en `GET /alerts/rollup` voor de samenvatting per team.
+- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, en `GET /alerts/rollup` voor de samenvatting per team. De lijst pagineert met `per_page` en `page`, en elk antwoord draagt `X-WP-Total` en `X-WP-TotalPages`.
 - Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
 
@@ -289,6 +293,8 @@ Het scherm **Meldingsbeleid** begint met een blok **Status van het systeem**.
 
 Dat beantwoordt de vraag die de rest van het systeem niet kan beantwoorden: een achtergrondtaak die gestopt is, levert precies dezelfde schermen op als een academie waar niets aan de hand is — lege. Staat er dat meldingen niet recent zijn gecontroleerd, dan draaien de geplande taken van WordPress niet en is alles wat je ziet bevroren op het laatste moment dat ze wél draaiden.
 
-De tabel eronder toont per melding hoeveel er openstaan, hoeveel er zijn opgelost, en welk deel mensen simpelweg hebben weggeklikt.
+De tabel eronder toont per melding hoeveel er openstaan, **over hoeveel mensen die openstaande verdeeld zijn**, hoeveel er zijn opgelost, en welk deel mensen simpelweg hebben weggeklikt.
+
+**Die aantallen gaan over de hele academie, niet over jouw eigen lijst.** Elke melding verschijnt alleen bij de persoon aan wie hij gestuurd is, dus een melding die hier openstaat hoeft niet van jou te zijn — een trainerslicentie die verloopt gaat naar degene van wie die licentie is. De kolom Ontvangers laat het verschil zien: vijf openstaande meldingen bij vijf mensen is iets anders dan vijf bij één persoon. Namen worden nooit getoond: sommige van deze meldingen zijn persoonlijk, en *hoeveel* is genoeg om te beoordelen of een melding zijn werk doet.
 
 Dat laatste getal is het nuttigste. **Een melding die de meeste mensen wegklikken informeert niemand — hij leert mensen meldingen weg te klikken**, en de nuttige gaan mee. Boven ongeveer 60% (bij genoeg gevallen om iets te betekenen) wordt hij gemarkeerd. Er wordt niets automatisch uitgezet: of een melding zijn plek verdient is een afweging over jullie academie, geen rekensom. Een melding over veiligheid die vaak wordt weggeklikt is een trainingsprobleem, geen melding om te verwijderen.

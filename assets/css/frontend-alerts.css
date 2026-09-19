@@ -208,3 +208,44 @@
 .tt-bell__count {
   font-variant-numeric: tabular-nums;
 }
+
+/* #3665 — the inbox pager. Wraps at 360px rather than scrolling
+   sideways: three items in a row at that width would push Next off the
+   edge, and the control that is unreachable is the one that matters. The
+   status line is ordered between the two links on every width, so
+   "Previous / Page 2 of 4 / Next" reads in the order it is tapped. */
+.tt-alert-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tt-sp-2, 8px);
+  margin: var(--tt-sp-3, 12px) 0 0;
+}
+
+.tt-alert-pager__link {
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.tt-alert-pager__status {
+  font-size: var(--tt-fs-sm, 0.85rem);
+  color: var(--tt-muted, #6a6d66);
+  font-variant-numeric: tabular-nums;
+  /* Between the links whichever of them happens to be rendered: on page 1
+     there is no Previous, and without this the count would lead. */
+  order: 1;
+}
+
+.tt-alert-pager__link[rel="prev"] { order: 0; }
+.tt-alert-pager__link[rel="next"] { order: 2; }
+
+@media (min-width: 480px) {
+  .tt-alert-pager {
+    justify-content: flex-start;
+  }
+}

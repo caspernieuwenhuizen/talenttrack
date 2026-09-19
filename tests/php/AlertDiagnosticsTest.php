@@ -120,6 +120,74 @@ final class AlertDiagnosticsTest extends WP_UnitTestCase {
         $this->assertSame( 1, $row['dismissed'] );
     }
 
+    /**
+     * #3665 — the counts are the academy's, not the reader's.
+     *
+     * An admin read `open: 1` for a certificate alert, went looking for it
+     * in their own list, and found nothing: the row was addressed to the
+     * certificate's holder. The recipient count is what makes that legible
+     * without naming anyone — five open rows spread over two people is a
+     * different situation from one person drowning in five.
+     */
+    public function test_open_recipients_counts_people_not_rows(): void {
+        $other = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->insertOpen( $this->user, 3 );
+        $this->insertOpen( $other, 2 );
+
+        $row = ( new AlertDiagnostics() )->perDefinition()[ self::KEY ];
+
+        $this->assertSame( 5, $row['open'] );
+        $this->assertSame( 2, $row['open_recipients'] );
+    }
+
+    /**
+     * A resolved or dismissed row is nobody's open alert, so its recipient
+     * must not be counted — otherwise the number would only ever grow and
+     * would stop meaning "people who still have something to do".
+     */
+    public function test_open_recipients_ignores_cleared_rows(): void {
+        $other = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->insertOpen( $this->user, 2 );
+        $this->insertOpen( $other, 1 );
+
+        global $wpdb;
+        $t = $wpdb->prefix . 'tt_alert_occurrences';
+        $wpdb->query( $wpdb->prepare( "UPDATE {$t} SET resolved_at = NOW() WHERE recipient_user_id = %d", $other ) );
+
+        $row = ( new AlertDiagnostics() )->perDefinition()[ self::KEY ];
+
+        $this->assertSame( 2, $row['open'] );
+        $this->assertSame( 1, $row['open_recipients'] );
+    }
+
+    /**
+     * Counts, never names. Some of these alerts are personal — a staff
+     * member's own certificate — and the settings screen is not the place
+     * a colleague learns whose it is.
+     */
+    public function test_the_rest_route_exposes_the_count_without_naming_anyone(): void {
+        $other = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $this->insertOpen( $this->user, 1 );
+        $this->insertOpen( $other, 1 );
+
+        do_action( 'rest_api_init' );
+        $response = rest_get_server()->dispatch(
+            new WP_REST_Request( 'GET', '/talenttrack/v1/alerts/diagnostics' )
+        );
+        $data = $response->get_data();
+        $body = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : $data;
+
+        $keys = array_column( $body['definitions'], 'alert_key' );
+        $row  = $body['definitions'][ (int) array_search( self::KEY, $keys, true ) ];
+
+        $this->assertSame( 2, $row['open_recipients'] );
+        $this->assertSame(
+            [ 'alert_key', 'label', 'module', 'ms', 'open', 'open_recipients', 'resolved', 'dismissed', 'delivered', 'dismiss_rate', 'noisy' ],
+            array_keys( $row ),
+            'the route carries counts only — no recipient ids, no names'
+        );
+    }
+
     // ── the dismiss rate ───────────────────────────────────────────────
 
     /**
@@ -209,6 +277,34 @@ final class AlertDiagnosticsTest extends WP_UnitTestCase {
     }
 
     // ── helpers ────────────────────────────────────────────────────────
+
+    /**
+     * Open rows for one recipient, written straight to the table (#3665).
+     *
+     * The stub evaluator always addresses the current user, and the point
+     * of these cases is two recipients, so the row is what gets seeded
+     * rather than the sweep that would produce it.
+     */
+    private function insertOpen( int $recipient, int $count ): void {
+        global $wpdb;
+        $now = current_time( 'mysql' );
+
+        for ( $i = 0; $i < $count; $i++ ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_alert_occurrences', [
+                'uuid'              => wp_generate_uuid4(),
+                'club_id'           => 1,
+                'alert_key'         => self::KEY,
+                'recipient_user_id' => $recipient,
+                'subject_type'      => 'activity',
+                'subject_id'        => $i + 1,
+                'dedupe_key'        => self::KEY . '|' . $recipient . '|' . ( $i + 1 ),
+                'severity'          => Severity::ATTENTION,
+                'payload_json'      => wp_json_encode( [ 'title' => 'Diagnostic stub alert' ] ),
+                'first_seen_at'     => $now,
+                'last_seen_at'      => $now,
+            ] );
+        }
+    }
 
     /** @param list<int> $subjectIds */
     private function seed( array $subjectIds ): void {

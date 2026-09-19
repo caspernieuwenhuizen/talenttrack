@@ -4111,12 +4111,6 @@ parameters:
 			path: src/Modules/Alerts/Repositories/AlertPreferencesRepository.php
 
 		-
-			message: '#^Parameter \#1 \$array \(list\<array\{alert_key\: string, label\: string, module\: string, ms\: int, open\: int, resolved\: int, dismissed\: int, delivered\: int, \.\.\.\}\>\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: src/Modules/Alerts/Rest/AlertsRestController.php
-
-		-
 			message: '#^Parameter \#3 \$forcedSurfaces of method TT\\Modules\\Alerts\\Policy\\ClubAlertPolicy\:\:set\(\) expects list\<string\>, array\<string\> given\.$#'
 			identifier: argument.type
 			count: 1
