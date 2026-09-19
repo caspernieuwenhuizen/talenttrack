@@ -246,6 +246,30 @@ class AuthorizationService {
     }
 
     /**
+     * Is this user STAFF for the player — global `players.view`, or
+     * team-scoped `players.view` on the player's team? (#3715)
+     *
+     * Deliberately narrower than {@see self::canViewPlayer()}, which also
+     * says yes to the player themselves and to a linked parent. The
+     * surfaces that ask this question are the ones a family must not see:
+     * co-guardian contacts, who scouted a child, the academy's own
+     * judgement of how far that child will go.
+     *
+     * It lives here rather than in a view because two views now ask it, and
+     * a second copy of an access rule is how two answers drift apart.
+     */
+    public static function isStaffForPlayer( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+
+        if ( self::userHasPermission( $user_id, 'players.view' ) ) return true;
+
+        $team_id = self::getPlayerTeamId( $player_id );
+
+        return $team_id !== null
+            && self::userHasPermission( $user_id, 'players.view', 'team', $team_id );
+    }
+
+    /**
      * #1867 — a player can hide individual development sections from a
      * linked parent. This gate layers on top of canViewPlayer: it only
      * ever restricts a **linked parent**. The player themselves and staff

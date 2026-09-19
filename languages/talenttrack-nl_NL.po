@@ -59460,6 +59460,10 @@ msgstr ""
 msgid "Capture behaviour & potential"
 msgstr "Gedrag & potentieel vastleggen"
 
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:80
+msgid "Behaviour & potential history"
+msgstr "Gedrag & potentieel — geschiedenis"
+
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:93
 msgid "Behaviour and potential ratings are not being recorded here."
 msgstr "Gedrags- en potentieelbeoordelingen worden hier niet vastgelegd."
@@ -59520,6 +59524,10 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:239
 msgid "Save behaviour rating"
 msgstr "Sla gedrag-beoordeling op"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:372
+msgid "Recorded potential"
+msgstr "Vastgelegd potentieel"
 
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:247
 msgid "Recent ratings"
