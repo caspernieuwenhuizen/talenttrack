@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportException;
-use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 
 /**
  * MatchDayTeamSheetPdfExporter (#0063 use case 4) — pitch-side match-day
@@ -358,15 +358,14 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // Slot-to-position-label map from the formation template.
-        $shape = '';
-        if ( $formation_template_id > 0 ) {
-            $shape = (string) $wpdb->get_var( $wpdb->prepare(
-                "SELECT formation_shape FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
-                $formation_template_id
-            ) );
-        }
-        $slot_position = self::buildSlotPositionMap( $shape );
+        // #3574 — slot → position label from the layout every line-up
+        // surface resolves, so the team sheet names the same positions the
+        // prep screen and the live sheet draw (an 8v8 team is 3-3-1, not
+        // 4-3-3). The team comes from the activity.
+        $slot_position = FormationLayoutResolver::labelsFor(
+            $formation_template_id,
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
+        );
 
         // Half-1 lineup → slot_number per player_id.
         $starting_slot = [];
@@ -510,26 +509,5 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             }
         }
         return [ $starting, $bench, $squad ];
-    }
-
-    /**
-     * Slot_number → position label map (e.g. 1 => 'GK', 9 => 'ST')
-     * derived from the formation shape's default layout. Returns an
-     * empty map when shape is unknown — callers fall back to blank
-     * position labels.
-     *
-     * @return array<int,string>
-     */
-    private static function buildSlotPositionMap( string $shape ): array {
-        if ( $shape === '' ) return [];
-        $layouts = FrontendMatchPrepView::defaultSlotLayouts();
-        if ( ! isset( $layouts[ $shape ] ) ) return [];
-        $map = [];
-        foreach ( $layouts[ $shape ] as $entry ) {
-            if ( isset( $entry['num'], $entry['label'] ) ) {
-                $map[ (int) $entry['num'] ] = (string) $entry['label'];
-            }
-        }
-        return $map;
     }
 }

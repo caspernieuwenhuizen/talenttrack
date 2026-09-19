@@ -52,6 +52,16 @@ Filter by status, or search by player name, with the controls above the list.
  player or to a staff/parent record — so unlinking a coach who once played
  doesn't strip their coach access.
 
+## A player's parents
+
+A parent is linked to a player by connecting the parent's login to that player on the **Parent accounts** view. That link is the only record of who a player's parents are. It decides what a parent can see, and it's what the Players list shows in its parent column: the primary parent, plus a count when there are more ("Anna de Vries +1").
+
+An account that is a player, or a staff member, can't also be linked as a parent. An account that only has a *parent* record under People can.
+
+A guardian without a login goes in the player's guardian contact fields (name, email and phone) instead. Messages to a family fall back to those fields.
+
+The wp-admin player form used to have its own parent picker, which pointed at a People record rather than a login. It is gone. When you update, each link it made to a person *with* a login is carried over to the Parent accounts link automatically. A link to a person without a login can't be carried over. Each one is listed in the **Error log**, so you can re-enter that guardian in the player's contact fields.
+
 ## Why one account, one player
 
 A login is connected to **at most one** player. The system enforces this so

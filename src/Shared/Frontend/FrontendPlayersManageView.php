@@ -821,7 +821,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
      * People with role_type='parent' that have a linked WP user, minus
      * any already linked to this player. The REST `update_player`
      * handler reads `link_parent_user_id` from the payload and feeds it
-     * to `PlayerParentsRepository::link()`.
+     * to `ParentAccountService::linkToPlayer()` (#3572).
      *
      * @return list<array{user_id:int, label:string}>
      */
@@ -834,14 +834,17 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 ->parentsForPlayer( $player_id );
         }
 
-        $rows = $wpdb->get_results(
+        // #3572 — scoped to this club. It listed every club's parents.
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pe.id, pe.first_name, pe.last_name, pe.email, pe.wp_user_id
                FROM {$p}tt_people pe
               WHERE pe.role_type = 'parent'
+                AND pe.club_id = %d
                 AND pe.archived_at IS NULL
                 AND pe.wp_user_id IS NOT NULL AND pe.wp_user_id > 0
-              ORDER BY pe.last_name ASC, pe.first_name ASC"
-        );
+              ORDER BY pe.last_name ASC, pe.first_name ASC",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
             $uid = (int) $r->wp_user_id;
