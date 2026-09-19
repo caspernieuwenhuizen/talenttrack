@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Wizards\Evaluation\EvaluationInserter;
 
 /**
  * EvaluationsRestController — /wp-json/talenttrack/v1/evaluations
@@ -521,6 +523,17 @@ class EvaluationsRestController {
             }
         }
 
+        // #3582 — the training or match this evaluation came from. Same
+        // derivation as the wizard (`EvaluationInserter`): with no type
+        // given, the activity decides it.
+        if ( $header['activity_id'] !== null ) {
+            $refusal = self::activityRefusal( (int) $header['activity_id'] );
+            if ( $refusal !== null ) return $refusal;
+            if ( (int) $header['eval_type_id'] <= 0 ) {
+                $header['eval_type_id'] = EvaluationInserter::evalTypeIdForActivity( (int) $header['activity_id'] );
+            }
+        }
+
         do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
 
         $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
@@ -595,7 +608,19 @@ class EvaluationsRestController {
                 return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
             }
         }
-        // A body that carries only ratings has nothing to write here, and
+        // #3582 — a link is checked before anything is written; `null`
+        // (sent as 0) unlinks and needs no check.
+        if ( ! empty( $header['activity_id'] ) ) {
+            $refusal = self::activityRefusal( (int) $header['activity_id'] );
+            if ( $refusal !== null ) return $refusal;
+        }
+        // #3582 — stamped here rather than left to the column's
+        // ON UPDATE clause, which the local install showed does not
+        // reliably fire. A ratings-only save is still an edit.
+        if ( $header || isset( $r['ratings'] ) ) {
+            $header['updated_at'] = current_time( 'mysql' );
+        }
+        // A body that carries nothing at all has nothing to write here, and
         // an empty `$wpdb->update()` is an error rather than a no-op.
         if ( $header ) {
             $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
@@ -750,6 +775,9 @@ class EvaluationsRestController {
             'player_id'      => absint( $r['player_id'] ?? 0 ),
             'coach_id'       => get_current_user_id(),
             'eval_type_id'   => absint( $r['eval_type_id'] ?? 0 ),
+            // #3582 — the training or match it was made at. NULL, not 0,
+            // for "none": the column is a nullable link.
+            'activity_id'    => absint( $r['activity_id'] ?? 0 ) > 0 ? absint( $r['activity_id'] ) : null,
             'eval_date'      => sanitize_text_field( (string) ( $r['eval_date'] ?? current_time( 'Y-m-d' ) ) ),
             'notes'          => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
             // #1386 — optional coach feedback shown to the player/parent.
@@ -800,8 +828,40 @@ class EvaluationsRestController {
         foreach ( $area as $key ) {
             if ( array_key_exists( $key, $params ) ) $patch[ $key ] = sanitize_textarea_field( (string) $r[ $key ] );
         }
+        // #3582 — sent as 0 or null, the link is removed.
+        if ( array_key_exists( 'activity_id', $params ) ) {
+            $activity_id           = absint( $r['activity_id'] );
+            $patch['activity_id'] = $activity_id > 0 ? $activity_id : null;
+        }
 
         return $patch;
+    }
+
+    /**
+     * #3582 — why this evaluation may not be tied to that activity, or
+     * null when it may.
+     *
+     * The activity has to exist in this club, and a caller without
+     * `tt_edit_settings` may only link an activity of a team they coach —
+     * the same boundary `coach_owns_player` draws around the player.
+     */
+    private static function activityRefusal( int $activity_id ): ?\WP_REST_Response {
+        $repo = new ActivitiesRepository();
+        $ok   = $repo->activityExists( $activity_id );
+
+        if ( $ok && ! current_user_can( 'tt_edit_settings' ) ) {
+            $team_ids = [];
+            foreach ( QueryHelpers::get_teams_for_coach( get_current_user_id() ) as $team ) {
+                $team_ids[] = (int) ( ( (array) $team )['id'] ?? 0 );
+            }
+            $ok = in_array( $repo->activityTeamId( $activity_id ), $team_ids, true );
+        }
+
+        return $ok ? null : RestResponse::error(
+            'bad_activity',
+            __( 'That activity does not exist, or it is not one of your teams.', 'talenttrack' ),
+            400
+        );
     }
 
     /**

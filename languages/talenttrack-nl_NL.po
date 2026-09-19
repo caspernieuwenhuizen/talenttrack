@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T07:39:58+00:00\n"
+"POT-Creation-Date: 2026-09-19T07:54:37+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1341,8 +1341,8 @@ msgstr ""
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
 #: src/Shared/Frontend/FrontendOverviewView.php:258
-#: src/Shared/Frontend/FrontendPlayersManageView.php:639
-#: src/Shared/Frontend/FrontendPlayersManageView.php:757
+#: src/Shared/Frontend/FrontendPlayersManageView.php:648
+#: src/Shared/Frontend/FrontendPlayersManageView.php:766
 msgid "Additional information"
 msgstr "Aanvullende informatie"
 
@@ -3443,55 +3443,59 @@ msgstr "De categorie kon niet worden verwijderd."
 msgid "Expected a list of windows."
 msgstr "Een lijst met periodes verwacht."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:99
+#: src/Infrastructure/REST/EvaluationsRestController.php:112
 msgid "You can only request your own evaluations."
 msgstr "Je kunt alleen je eigen evaluaties opvragen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:495
-#: src/Infrastructure/REST/EvaluationsRestController.php:706
-#: src/Infrastructure/REST/EvaluationsRestController.php:719
-#: src/Infrastructure/REST/EvaluationsRestController.php:726
+#: src/Infrastructure/REST/EvaluationsRestController.php:508
+#: src/Infrastructure/REST/EvaluationsRestController.php:742
+#: src/Infrastructure/REST/EvaluationsRestController.php:755
+#: src/Infrastructure/REST/EvaluationsRestController.php:762
 msgid "Evaluation not found."
 msgstr "Evaluatie niet gevonden."
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:505
+#: src/Infrastructure/REST/EvaluationsRestController.php:518
 msgid "Player and date are required."
 msgstr "Speler en datum zijn verplicht."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:509
-#: src/Infrastructure/REST/EvaluationsRestController.php:584
+#: src/Infrastructure/REST/EvaluationsRestController.php:522
+#: src/Infrastructure/REST/EvaluationsRestController.php:608
 msgid "You can only evaluate players in your team."
 msgstr "U kunt alleen spelers in uw eigen team evalueren."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:520
+#: src/Infrastructure/REST/EvaluationsRestController.php:544
 msgid "The evaluation could not be created."
 msgstr "De evaluatie kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:534
+#: src/Infrastructure/REST/EvaluationsRestController.php:558
 msgid "The evaluation was saved but some ratings failed."
 msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen zijn mislukt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:552
-#: src/Infrastructure/REST/EvaluationsRestController.php:672
-#: src/Infrastructure/REST/EvaluationsRestController.php:704
-#: src/Infrastructure/REST/EvaluationsRestController.php:713
+#: src/Infrastructure/REST/EvaluationsRestController.php:576
+#: src/Infrastructure/REST/EvaluationsRestController.php:708
+#: src/Infrastructure/REST/EvaluationsRestController.php:740
+#: src/Infrastructure/REST/EvaluationsRestController.php:749
 msgid "Invalid evaluation id."
 msgstr "Ongeldig evaluatie-id."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:595
+#: src/Infrastructure/REST/EvaluationsRestController.php:631
 msgid "The evaluation could not be updated."
 msgstr "De evaluatie kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:638
+#: src/Infrastructure/REST/EvaluationsRestController.php:674
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden "
 "opgeslagen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:694
+#: src/Infrastructure/REST/EvaluationsRestController.php:730
 msgid "The evaluation could not be archived."
 msgstr "De evaluatie kon niet worden gearchiveerd."
+
+#: src/Infrastructure/REST/EvaluationsRestController.php:862
+msgid "That activity does not exist, or it is not one of your teams."
+msgstr "Die activiteit bestaat niet, of hoort niet bij een van uw teams."
 
 #: src/Infrastructure/REST/ExerciseScenesRestController.php:81
 msgid "That scene no longer exists."
@@ -4275,7 +4279,7 @@ msgstr "Geboortedatum"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:631
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
 #: src/Shared/Frontend/FrontendPlayersManageView.php:75
-#: src/Shared/Frontend/FrontendPlayersManageView.php:666
+#: src/Shared/Frontend/FrontendPlayersManageView.php:675
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:53
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1209
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1413
@@ -4533,7 +4537,7 @@ msgstr "De speler kon niet worden aangemaakt."
 msgid "The player could not be updated."
 msgstr "De speler kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/PlayersRestController.php:626
+#: src/Infrastructure/REST/PlayersRestController.php:629
 msgid "The player could not be deleted."
 msgstr "De speler kon niet worden verwijderd."
 
@@ -18260,21 +18264,21 @@ msgstr "Foto-URL"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:67
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:47
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:106
-#: src/Shared/Frontend/FrontendPlayersManageView.php:576
+#: src/Shared/Frontend/FrontendPlayersManageView.php:585
 msgid "Guardian name"
 msgstr "Naam ouder/voogd"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:68
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:48
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:107
-#: src/Shared/Frontend/FrontendPlayersManageView.php:580
+#: src/Shared/Frontend/FrontendPlayersManageView.php:589
 msgid "Guardian email"
 msgstr "E-mail ouder/voogd"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:69
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:49
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:108
-#: src/Shared/Frontend/FrontendPlayersManageView.php:584
+#: src/Shared/Frontend/FrontendPlayersManageView.php:593
 msgid "Guardian phone"
 msgstr "Telefoon ouder/voogd"
 
@@ -23380,7 +23384,7 @@ msgstr "Dupliceren"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1689
 #: src/Shared/Frontend/FrontendConfigurationView.php:2939
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:128
-#: src/Shared/Frontend/FrontendPlayersManageView.php:473
+#: src/Shared/Frontend/FrontendPlayersManageView.php:480
 #: src/Shared/Frontend/FrontendTeamsManageView.php:442
 msgid "Remove"
 msgstr "Verwijderen"
@@ -24361,7 +24365,7 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 #: src/Shared/Frontend/FrontendOverviewView.php:76
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1342
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1348
-#: src/Shared/Frontend/FrontendPlayersManageView.php:675
+#: src/Shared/Frontend/FrontendPlayersManageView.php:684
 #: src/Shared/Frontend/FrontendReportDetailView.php:69
 #: src/Shared/Frontend/FrontendReportWizardView.php:344
 msgid "Print"
@@ -31618,7 +31622,7 @@ msgstr "Videolink"
 
 #: src/Modules/Media/MediaKind.php:83
 #: src/Modules/Players/Admin/PlayersPage.php:443
-#: src/Shared/Frontend/FrontendPlayersManageView.php:465
+#: src/Shared/Frontend/FrontendPlayersManageView.php:472
 msgid "Photo"
 msgstr "Foto"
 
@@ -39790,7 +39794,7 @@ msgstr "Aangesloten op"
 
 #: src/Modules/Players/Admin/PlayersPage.php:459
 #: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:51
-#: src/Shared/Frontend/FrontendPlayersManageView.php:535
+#: src/Shared/Frontend/FrontendPlayersManageView.php:544
 msgid "Connect a parent account"
 msgstr "Koppel een ouderaccount"
 
@@ -52953,7 +52957,7 @@ msgstr "Pagina niet gevonden"
 
 #: src/Shared/Frontend/DashboardShortcode.php:932
 #: src/Shared/Frontend/FrontendMySettingsView.php:552
-#: src/Shared/Frontend/FrontendPlayersManageView.php:674
+#: src/Shared/Frontend/FrontendPlayersManageView.php:683
 msgid "Journey"
 msgstr "Reis"
 
@@ -57041,7 +57045,7 @@ msgid "That activity is no longer available."
 msgstr "Deze activiteit is niet meer beschikbaar."
 
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:297
-#: src/Shared/Frontend/FrontendPlayersManageView.php:728
+#: src/Shared/Frontend/FrontendPlayersManageView.php:737
 msgid "Team:"
 msgstr "Team:"
 
@@ -58882,15 +58886,15 @@ msgstr ""
 msgid "In academy since"
 msgstr "In academie sinds"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:472
+#: src/Shared/Frontend/FrontendPlayersManageView.php:479
 msgid "Choose photo…"
 msgstr "Kies foto…"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:487
+#: src/Shared/Frontend/FrontendPlayersManageView.php:496
 msgid "Consent on record for photos and video"
 msgstr "Toestemming vastgelegd voor foto's en video's"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:490
+#: src/Shared/Frontend/FrontendPlayersManageView.php:499
 msgid ""
 "Records what the parent or guardian agreed to on paper. It does not restrict "
 "who can add photos — it is here so the academy can answer who it may "
@@ -58901,20 +58905,20 @@ msgstr ""
 "beantwoorden wie ze mag fotograferen."
 
 #. translators: 1: date the consent was recorded, 2: name of the staff member who recorded it.
-#: src/Shared/Frontend/FrontendPlayersManageView.php:500
+#: src/Shared/Frontend/FrontendPlayersManageView.php:509
 #, php-format
 msgid "Recorded %1$s by %2$s"
 msgstr "Vastgelegd op %1$s door %2$s"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:502
+#: src/Shared/Frontend/FrontendPlayersManageView.php:511
 msgid "an unknown user"
 msgstr "een onbekende gebruiker"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:512
+#: src/Shared/Frontend/FrontendPlayersManageView.php:521
 msgid "Parent / guardian"
 msgstr "Ouder / verzorger"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:519
+#: src/Shared/Frontend/FrontendPlayersManageView.php:528
 msgid ""
 "Link a parent account on save (dropdown below) or fill in name + contact "
 "below; a coach can convert them to a real account later."
@@ -58923,11 +58927,11 @@ msgstr ""
 "naam + contactgegevens in; een coach kan deze later omzetten naar een echt "
 "account."
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:541
+#: src/Shared/Frontend/FrontendPlayersManageView.php:550
 msgid "Type a parent's name…"
 msgstr "Typ de naam van een ouder…"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:552
+#: src/Shared/Frontend/FrontendPlayersManageView.php:561
 msgid ""
 "Only people whose role is set to \"parent\" appear here. Manage parent role "
 "assignments on the People page."
@@ -58935,31 +58939,31 @@ msgstr ""
 "Alleen mensen met rol \"ouder\" verschijnen hier. Beheer de rol via de "
 "Personen-pagina."
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:599
+#: src/Shared/Frontend/FrontendPlayersManageView.php:608
 msgid "Update player"
 msgstr "Speler bijwerken"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:599
+#: src/Shared/Frontend/FrontendPlayersManageView.php:608
 msgid "Save player"
 msgstr "Speler opslaan"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:673
+#: src/Shared/Frontend/FrontendPlayersManageView.php:682
 msgid "Edit player"
 msgstr "Speler bewerken"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:677
+#: src/Shared/Frontend/FrontendPlayersManageView.php:686
 msgid "Generate report…"
 msgstr "Rapport genereren…"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:731
+#: src/Shared/Frontend/FrontendPlayersManageView.php:740
 msgid "Pos:"
 msgstr "Pos:"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:734
+#: src/Shared/Frontend/FrontendPlayersManageView.php:743
 msgid "Foot:"
 msgstr "Voet:"
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:793
+#: src/Shared/Frontend/FrontendPlayersManageView.php:802
 msgid ""
 "No parent accounts linked yet. Either link an existing user from the People "
 "page, or fill in the contact details below."
@@ -58968,7 +58972,7 @@ msgstr ""
 "Personen-pagina of vul de contactgegevens hieronder in."
 
 #. translators: %s is a comma-separated list of "Name (email)" entries.
-#: src/Shared/Frontend/FrontendPlayersManageView.php:806
+#: src/Shared/Frontend/FrontendPlayersManageView.php:815
 #, php-format
 msgid ""
 "Linked parent accounts: %s. Manage from People → user → Edit. The contact "
