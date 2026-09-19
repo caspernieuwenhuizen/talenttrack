@@ -269,24 +269,26 @@ final class TrialDecisionContractTest extends WP_UnitTestCase {
     }
 
     /**
-     * The message, whichever layer refused. Core answers an absent required
-     * field and a value outside the enum itself, before the callback runs,
-     * so those come back in core's shape rather than the TalentTrack
-     * envelope.
+     * The human-readable refusal. A route that declares `required` args has
+     * core refuse the request before the callback, and `CoreParamErrors`
+     * (#3689) re-wraps that in the house envelope — so both layers answer in
+     * the same shape and this reads one field.
      *
      * @param array<string,mixed> $data
      */
     private function messageOf( array $data ): string {
-        if ( isset( $data['errors'][0]['message'] ) ) return (string) $data['errors'][0]['message'];
+        $errors = (array) ( $data['errors'] ?? [] );
+        if ( $errors !== [] ) return (string) ( ( (array) $errors[0] )['message'] ?? '' );
         return (string) ( $data['message'] ?? '' );
     }
 
+    /** One column of the case row, straight from the table. */
     private function column( string $name ): string {
         global $wpdb;
-        // A column name literal from this test, never caller input.
-        return (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT `{$name}` FROM {$wpdb->prefix}tt_trial_cases WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $this->case
-        ) );
+        $row = $wpdb->get_row(
+            $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_trial_cases WHERE id = %d", $this->case ),
+            ARRAY_A
+        );
+        return (string) ( is_array( $row ) ? ( $row[ $name ] ?? '' ) : '' );
     }
 }

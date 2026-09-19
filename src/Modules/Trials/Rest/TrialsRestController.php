@@ -476,7 +476,7 @@ class TrialsRestController {
         // Counted in characters, not bytes: the message promises characters,
         // and a Dutch motivation carrying a few accents used to clear a
         // byte-counted floor several characters early.
-        $length   = function_exists( 'mb_strlen' ) ? mb_strlen( $notes ) : strlen( $notes );
+        $length   = mb_strlen( $notes );
         if ( $length < self::DECISION_NOTES_MIN ) {
             return RestResponse::error(
                 'bad_request',
