@@ -299,6 +299,17 @@
     flex: 0 0 auto;
 }
 
+/* #3598 — both rules above beat the public.css tap-target floor on
+   specificity, so the All / None shortcuts and the column rows stayed at
+   32px on a phone. The label is the target for the checkbox, not the box
+   itself; the desktop density is kept for a fine pointer. */
+@media (pointer: coarse) {
+    .tt-dashboard .tt-export-card__columns-action,
+    .tt-dashboard .tt-export-card__columns-item {
+        min-height: 48px;
+    }
+}
+
 /* #1542 — exporters as collapsed accordion blocks grouped by domain.
    Each card is a native <details>; the summary is the collapsed header
    (title + format badges), the body holds the filters + Export button. */

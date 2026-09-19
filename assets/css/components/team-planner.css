@@ -509,6 +509,16 @@
     min-height: 44px;
 }
 
+/* #3598 — 40px and 44px predate the 48px floor in CLAUDE.md §2; neither
+   control is a `.tt-btn`, so the coarse-pointer floor in public.css never
+   reached them. Desktop density is unchanged. */
+@media (pointer: coarse) {
+    .tt-planner-team-dd-action,
+    .tt-planner-apply {
+        min-height: 48px;
+    }
+}
+
 /* #1703 — condensed cross-team calendar. One row per selected team
    per week block. Mobile-first (CLAUDE.md §2): at small viewports the
    7-day grid would overflow 360px, so the base layout stacks — each

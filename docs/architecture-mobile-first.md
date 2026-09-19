@@ -20,6 +20,17 @@ Why mobile-first instead of desktop-first:
 2. **`min-width` queries layer additively.** A desktop reading the stylesheet sees base + 480 + 768 + 1024 rules in source order, each adding capability the smaller viewport doesn't need (more columns, denser padding). Removing a breakpoint never breaks a smaller viewport.
 3. **`max-width` queries break compositionally.** Two `max-width` rules can both fire on a 360px viewport and override each other based on source order, which is the kind of bug nobody wants to debug at 11pm.
 
+## The tap-target floor
+
+`assets/css/public.css` carries a single `@media (pointer: coarse)` block that enforces the 48 px minimum from `CLAUDE.md` § 2. It loads on every dashboard surface, so a component sheet does not restate the floor — it inherits it. Because it is keyed on the pointer and not on the viewport, a tablet gets the touch sizing and a desktop mouse keeps its density, with no breakpoint involved.
+
+What the block sizes: `.tt-btn` / `.tt-btn-sm`, pager links, list-row actions, `.tt-record-link`, `summary`, checkboxes and radios (24 px box, 48 px band from the label), and — since #3598 — every `select`, `.tt-input` and text / search / email / tel / number / date / time / url / password input.
+
+Two rules when you add a control:
+
+- **A checkbox or radio gets a `<label>`, and the label is the target.** The box stays 24 px; the label carries the 48 px row. A bare `<input>` in a `<div>` has no accessible name either, which is the same bug seen twice.
+- **Don't beat the floor on specificity.** `.tt-dashboard .tt-thing { min-height: 32px }` (0,2,0) outranks `.tt-btn { min-height: 48px }` (0,1,0) and silently reintroduces a small target. If a surface genuinely needs a denser control on desktop, keep the dense rule as the base and lift it back to 48 px inside the sheet's own `@media (pointer: coarse)` block — `frontend-exports.css` and `components/team-planner.css` are the worked examples.
+
 ## The pilot — `frontend-activities-manage.css`
 
 [`assets/css/frontend-activities-manage.css`](../assets/css/frontend-activities-manage.css) is the first sheet authored under the new rule. It owns the responsive layout for the Activities surface:

@@ -1193,6 +1193,28 @@ input[type="checkbox"], input[type="radio"] {
         min-height: 48px;
         padding-block: 12px;
     }
+
+    /* #3598 — the floor never sized a form control. `.tt-input` and the
+       bare `select` came out at 44.4px (10px padding + 16px x 1.4 line
+       height + 2px border), which reads as "nearly right" on a filter bar
+       and is under the CLAUDE.md §2 minimum on every phone and tablet.
+       Sized here rather than per sheet because the same two selectors
+       cover filter bars, measurement entry and the BMI screens alike. */
+    .tt-dashboard select,
+    .tt-dashboard .tt-input,
+    .tt-dashboard input:is(
+        [type="text"],
+        [type="search"],
+        [type="email"],
+        [type="tel"],
+        [type="number"],
+        [type="date"],
+        [type="time"],
+        [type="url"],
+        [type="password"]
+    ) {
+        min-height: 48px;
+    }
 }
 
 /* #0056 — Safe-area insets on fixed surfaces (iOS notch / home bar). */
