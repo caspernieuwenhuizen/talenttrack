@@ -186,13 +186,17 @@ final class CommsZeroRecipientSubjectTest extends WP_UnitTestCase {
     }
 
     public function test_the_alerts_endpoint_lists_a_player_whose_only_invitation_was_never_sent(): void {
-        [ $team, $coach ] = $this->teamWithHeadCoach();
-        $player           = $this->insertPlayer( 'active', $team );
+        [ $team ] = $this->teamWithHeadCoach();
+        $player   = $this->insertPlayer( 'active', $team );
         $this->insertParentInvitation( $player, 'expired', null );
 
+        // The evaluator only stores occurrences for recipients holding the
+        // alert's cap (`tt_edit_players`). An administrator holds it and is
+        // one of the parent-account managers the alert addresses.
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
         ( new AlertEvaluator() )->run( new NoGuardianContactAlert(), new AlertContext( $this->club ) );
 
-        wp_set_current_user( $coach );
+        wp_set_current_user( $admin );
         $request = new WP_REST_Request( 'GET', '/talenttrack/v1/alerts' );
         $request->set_param( 'state', 'open' );
         $request->set_param( 'player_id', $player );
