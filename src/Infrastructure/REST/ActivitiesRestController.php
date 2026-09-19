@@ -903,6 +903,26 @@ class ActivitiesRestController {
             }
         }
 
+        // #3687 — the activity-type filter. The rendered list has taken
+        // `?activity_type_key=` since the Type select was added to its
+        // filter bar, and REST had no equivalent: every form of the filter
+        // was dropped, and the request answered 200 with a page of mostly
+        // trainings — which a caller asking for this weekend's fixtures
+        // reads as "there are no matches". An unknown key is now refused
+        // rather than dropped, so a caller whose filter did nothing finds
+        // out, and the 400 carries the keys that would have worked. The
+        // clause goes into the same WHERE as the coach scope and the
+        // player / parent force-scope, so it can only narrow what a caller
+        // sees.
+        $types = self::activityTypeFilterValues( $filter );
+        $type_error = self::refuseUnknownActivityTypes( $types );
+        if ( $type_error !== null ) return $type_error;
+        if ( $types === [] ) {
+            unset( $filter['activity_type_key'] );
+        } else {
+            $filter['activity_type_key'] = $types;
+        }
+
         // #2150 — fail-closed scoping for the player / parent
         // "my-activities" surface. A caller without the staff activities
         // capability reaches this handler only through the player-or-
@@ -1004,15 +1024,19 @@ class ActivitiesRestController {
      * planned". The folded id goes through the same player / parent check as
      * the nested one, so another player's id still returns the empty set.
      *
+     * #3687 — `activity_type_key` is folded too, so the plain name the
+     * rendered list's Type select already uses works over REST as well.
+     *
      * @param array<string,mixed> $filter
      * @return array<string,mixed>
      */
     private static function foldListAliases( \WP_REST_Request $r, array $filter ): array {
         $aliases = [
-            'team_id'   => [ 'team_id' ],
-            'player_id' => [ 'player_id' ],
-            'date_from' => [ 'date_from', 'from' ],
-            'date_to'   => [ 'date_to', 'to' ],
+            'team_id'           => [ 'team_id' ],
+            'player_id'         => [ 'player_id' ],
+            'activity_type_key' => [ 'activity_type_key' ],
+            'date_from'         => [ 'date_from', 'from' ],
+            'date_to'           => [ 'date_to', 'to' ],
         ];
         foreach ( $aliases as $key => $names ) {
             if ( isset( $filter[ $key ] ) && $filter[ $key ] !== '' ) continue;
@@ -1044,11 +1068,12 @@ class ActivitiesRestController {
             // JSON-aware client, a CSV only as a string.
             'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
             'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'One player id. Same as filter[player_id]. Players and parents are scoped to their own record or their child; another player\'s id never widens what they see.' ],
+            'activity_type_key' => [ 'type' => 'string', 'description' => 'One activity type key, or several separated by commas. Same as filter[activity_type_key]. An unknown key is refused with 400 bad_activity_type, which names the keys that would have worked.' ],
             'date_from' => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_from].' ],
             'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
             'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
             'to'        => [ 'type' => 'string', 'description' => 'Alias of date_to.' ],
-            'filter'    => [ 'description' => 'Nested filters: team_id, date_from, date_to, player_id, archived. A nested value wins over the plain parameter of the same name.' ],
+            'filter'    => [ 'description' => 'Nested filters: team_id, date_from, date_to, player_id, activity_type_key, archived. A nested value wins over the plain parameter of the same name.' ],
             'search'    => [ 'type' => 'string', 'description' => 'Free-text search on the title.' ],
             'orderby'   => [ 'type' => 'string', 'description' => 'Column to sort by.' ],
             'order'     => [ 'type' => 'string', 'description' => 'asc or desc.' ],
@@ -1718,13 +1743,71 @@ class ActivitiesRestController {
     private static function validateActivityType( \WP_REST_Request $r ): ?\WP_REST_Response {
         $type = sanitize_text_field( (string) ( $r['activity_type_key'] ?? '' ) );
         if ( $type === '' ) return null;
-        $valid = QueryHelpers::get_lookup_names( 'activity_type' );
+        $valid = self::allowedActivityTypes();
         if ( in_array( $type, $valid, true ) ) return null;
         return RestResponse::error(
             'bad_activity_type',
             __( 'Unknown activity type. Pick one from the configured list.', 'talenttrack' ),
             400,
-            [ 'allowed' => array_values( $valid ) ]
+            [ 'param' => 'activity_type_key', 'allowed' => $valid ]
+        );
+    }
+
+    /**
+     * #3687 — the activity type keys a request may name, from the same
+     * operator-editable lookup the type dropdown is built from.
+     *
+     * The fallback matters on an install whose `activity_type` lookup was
+     * emptied: the stored rows still carry the canonical keys, and
+     * refusing every value there would turn a missing seed into "no
+     * activity has a type".
+     *
+     * @return list<string>
+     */
+    private static function allowedActivityTypes(): array {
+        $names = [];
+        foreach ( QueryHelpers::get_lookup_names( 'activity_type' ) as $name ) {
+            $key = sanitize_text_field( (string) $name );
+            if ( $key !== '' && ! in_array( $key, $names, true ) ) $names[] = $key;
+        }
+        return $names === [] ? ActivityTypeKey::ALL : $names;
+    }
+
+    /**
+     * #3687 — the type keys a list request asked for, from the CSV the
+     * filter carries. Order and duplicates are the caller's, and neither
+     * changes the answer, so the list is de-duplicated here.
+     *
+     * @param array<string,mixed> $filter
+     * @return list<string>
+     */
+    private static function activityTypeFilterValues( array $filter ): array {
+        $raw = $filter['activity_type_key'] ?? '';
+        if ( ! is_scalar( $raw ) ) return [];
+        $out = [];
+        foreach ( explode( ',', (string) $raw ) as $piece ) {
+            $key = sanitize_text_field( trim( $piece ) );
+            if ( $key !== '' && ! in_array( $key, $out, true ) ) $out[] = $key;
+        }
+        return $out;
+    }
+
+    /**
+     * #3687 — a 400 naming the type keys a list request got wrong, or null
+     * when every value is one the install knows.
+     *
+     * @param list<string> $types
+     */
+    private static function refuseUnknownActivityTypes( array $types ): ?\WP_REST_Response {
+        if ( $types === [] ) return null;
+        $allowed = self::allowedActivityTypes();
+        $unknown = array_values( array_diff( $types, $allowed ) );
+        if ( $unknown === [] ) return null;
+        return RestResponse::error(
+            'bad_activity_type',
+            __( 'Unknown activity type. Pick one from the configured list.', 'talenttrack' ),
+            400,
+            [ 'param' => 'activity_type_key', 'unknown' => $unknown, 'allowed' => $allowed ]
         );
     }
 
