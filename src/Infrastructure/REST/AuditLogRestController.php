@@ -33,7 +33,13 @@ final class AuditLogRestController extends BaseController {
                     'entity_type' => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
                     'entity_id'   => [ 'sanitize_callback' => 'absint',       'required' => false ],
                     'user_id'     => [ 'sanitize_callback' => 'absint',       'required' => false ],
-                    'action'      => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    // #3712 — NOT sanitize_key: it strips the dot, and every
+                    // audit action is "{entity}.{verb}", so `team.purged`
+                    // arrived as `teampurged` and the filter could never
+                    // match a single row. The screen's own filter has always
+                    // used sanitize_text_field; the value is bound through
+                    // $wpdb->prepare either way.
+                    'action'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'date_from'   => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'date_to'     => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'page'        => [ 'sanitize_callback' => 'absint', 'default' => 1 ],
@@ -52,17 +58,25 @@ final class AuditLogRestController extends BaseController {
         $per_page = max( 1, min( 200, (int) $req->get_param( 'per_page' ) ) );
         $offset   = ( $page - 1 ) * $per_page;
 
-        $count_sql = "SELECT COUNT(*) FROM {$table}{$where}";
+        $count_sql = "SELECT COUNT(*) FROM {$table} a{$where}";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $args ) );
 
-        $list_sql = "SELECT id, user_id, action, entity_type, entity_id, payload, ip_address, created_at
-                       FROM {$table}{$where}
-                       ORDER BY created_at DESC, id DESC
+        // #3712 — resolve the actor to a name in the same query the
+        // server-rendered screen uses (`AuditService::recent()`), so an API
+        // consumer is not left holding a bare WP user id it has no route to
+        // look up. LEFT JOIN, so a deleted account still yields its row.
+        $list_sql = "SELECT a.id, a.user_id, a.action, a.entity_type, a.entity_id,
+                            a.payload, a.ip_address, a.created_at,
+                            u.display_name AS user_name
+                       FROM {$table} a
+                       LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID
+                       {$where}
+                       ORDER BY a.created_at DESC, a.id DESC
                        LIMIT %d OFFSET %d";
         $list_args = array_merge( $args, [ $per_page, $offset ] );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, $list_args ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, $list_args ), ARRAY_A );
 
         $payload = array_map( [ self::class, 'serialize' ], is_array( $rows ) ? $rows : [] );
         $response = RestResponse::success( $payload );
@@ -76,50 +90,62 @@ final class AuditLogRestController extends BaseController {
      */
     private static function buildWhere( WP_REST_Request $req ): array {
         // #0052 PR-B follow-up — every audit query is club-scoped.
-        $clauses = [ 'club_id = %d' ];
+        // #3712 — every column is qualified with the `a.` alias the list
+        // query gives the audit table, so the join to `wp_users` cannot turn
+        // a filter into an ambiguous-column error.
+        $clauses = [ 'a.club_id = %d' ];
         $args    = [ CurrentClub::id() ];
 
         if ( $req->has_param( 'entity_type' ) && (string) $req->get_param( 'entity_type' ) !== '' ) {
-            $clauses[] = 'entity_type = %s';
+            $clauses[] = 'a.entity_type = %s';
             $args[]    = (string) $req->get_param( 'entity_type' );
         }
         if ( $req->has_param( 'entity_id' ) && (int) $req->get_param( 'entity_id' ) > 0 ) {
-            $clauses[] = 'entity_id = %d';
+            $clauses[] = 'a.entity_id = %d';
             $args[]    = (int) $req->get_param( 'entity_id' );
         }
         if ( $req->has_param( 'user_id' ) && (int) $req->get_param( 'user_id' ) > 0 ) {
-            $clauses[] = 'user_id = %d';
+            $clauses[] = 'a.user_id = %d';
             $args[]    = (int) $req->get_param( 'user_id' );
         }
         if ( $req->has_param( 'action' ) && (string) $req->get_param( 'action' ) !== '' ) {
-            $clauses[] = 'action = %s';
+            $clauses[] = 'a.action = %s';
             $args[]    = (string) $req->get_param( 'action' );
         }
         if ( $req->has_param( 'date_from' ) && (string) $req->get_param( 'date_from' ) !== '' ) {
-            $clauses[] = 'created_at >= %s';
+            $clauses[] = 'a.created_at >= %s';
             $args[]    = (string) $req->get_param( 'date_from' );
         }
         if ( $req->has_param( 'date_to' ) && (string) $req->get_param( 'date_to' ) !== '' ) {
-            $clauses[] = 'created_at <= %s';
+            $clauses[] = 'a.created_at <= %s';
             $args[]    = (string) $req->get_param( 'date_to' );
         }
 
         return [ ' WHERE ' . implode( ' AND ', $clauses ), $args ];
     }
 
-    /** @return array<string,mixed> */
-    private static function serialize( object $row ): array {
-        $payload = (string) ( $row->payload ?? '' );
+    /**
+     * @param  array<array-key,mixed> $row
+     * @return array<string,mixed>
+     */
+    private static function serialize( array $row ): array {
+        $payload = (string) ( $row['payload'] ?? '' );
         $decoded = $payload !== '' ? json_decode( $payload, true ) : null;
+        // #3712 — `user_name` is null, never a placeholder, for the two cases
+        // that have no account behind them: a system-written entry (user_id 0)
+        // and a since-deleted user. The consumer decides how to render that;
+        // the screen prints "#<id>" and "(system)".
+        $name = trim( (string) ( $row['user_name'] ?? '' ) );
         return [
-            'id'          => (int) $row->id,
-            'user_id'     => (int) $row->user_id,
-            'action'      => (string) $row->action,
-            'entity_type' => (string) $row->entity_type,
-            'entity_id'   => (int) $row->entity_id,
+            'id'          => (int) ( $row['id'] ?? 0 ),
+            'user_id'     => (int) ( $row['user_id'] ?? 0 ),
+            'user_name'   => $name !== '' ? $name : null,
+            'action'      => (string) ( $row['action'] ?? '' ),
+            'entity_type' => (string) ( $row['entity_type'] ?? '' ),
+            'entity_id'   => (int) ( $row['entity_id'] ?? 0 ),
             'payload'     => is_array( $decoded ) ? $decoded : $payload,
-            'ip_address'  => (string) $row->ip_address,
-            'created_at'  => (string) $row->created_at,
+            'ip_address'  => (string) ( $row['ip_address'] ?? '' ),
+            'created_at'  => (string) ( $row['created_at'] ?? '' ),
         ];
     }
 }
