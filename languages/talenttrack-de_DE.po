@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:52:43+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:54:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2921,9 +2921,9 @@ msgstr ""
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1369
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:193
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:487
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:510
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:194
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:476
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:499
 msgid "Invalid activity id."
 msgstr ""
 
@@ -3014,8 +3014,8 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:599
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:390
-#: src/Modules/Trials/Rest/TrialsRestController.php:398
+#: src/Modules/Trials/Rest/TrialsRestController.php:377
+#: src/Modules/Trials/Rest/TrialsRestController.php:385
 msgid "No fields to update."
 msgstr ""
 
@@ -3093,10 +3093,23 @@ msgstr ""
 
 #. translators: %s is the field name
 #. translators: %s is the required field name.
-#: src/Infrastructure/REST/BaseController.php:75
+#: src/Infrastructure/REST/BaseController.php:77
 #: src/Modules/Vct/Rest/VctExercisesRestController.php:198
 #, php-format
 msgid "Field \"%s\" is required."
+msgstr ""
+
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/BaseController.php:139
+#, php-format
+msgid "This request does not accept: %s."
+msgstr ""
+
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/BaseController.php:161
+#: src/Infrastructure/REST/CoreParamErrors.php:60
+#, php-format
+msgid "These fields are required: %s."
 msgstr ""
 
 #: src/Infrastructure/REST/CohortBoardRestController.php:47
@@ -3128,6 +3141,12 @@ msgstr ""
 
 #: src/Infrastructure/REST/ConfigRestController.php:252
 msgid "Expected an object under `config`."
+msgstr ""
+
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/CoreParamErrors.php:78
+#, php-format
+msgid "These fields have a value this request cannot use: %s."
 msgstr ""
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:69
@@ -28268,43 +28287,37 @@ msgstr ""
 msgid "No team sheet found for this activity."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:185
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:186
 msgid "No match preparation has been started for this match yet."
 msgstr ""
 
-#. translators: %s: comma-separated field names
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:209
-#, php-format
-msgid "Match preparation does not accept: %s."
-msgstr ""
-
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:220
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:495
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:519
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:484
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:508
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
 msgid "Match prep could not be created."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:410
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:455
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:399
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:444
 msgid "Invalid match prep id."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:420
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:458
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:409
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:447
 msgid "Unknown role key."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:423
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:412
 msgid "A player must be selected."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:429
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:418
 msgid "Could not save the role assignment."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:490
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:513
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:479
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:502
 msgid "Match preparation sharing is switched off."
 msgstr ""
 
@@ -43669,100 +43682,94 @@ msgstr ""
 msgid "Continue in trial group"
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:307
-#: src/Modules/Trials/Rest/TrialsRestController.php:328
-#: src/Modules/Trials/Rest/TrialsRestController.php:358
-#: src/Modules/Trials/Rest/TrialsRestController.php:411
-#: src/Modules/Trials/Rest/TrialsRestController.php:593
-#: src/Modules/Trials/Rest/TrialsRestController.php:623
+#: src/Modules/Trials/Rest/TrialsRestController.php:294
+#: src/Modules/Trials/Rest/TrialsRestController.php:315
+#: src/Modules/Trials/Rest/TrialsRestController.php:345
+#: src/Modules/Trials/Rest/TrialsRestController.php:398
+#: src/Modules/Trials/Rest/TrialsRestController.php:598
+#: src/Modules/Trials/Rest/TrialsRestController.php:628
 msgid "Trial case not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:309
+#: src/Modules/Trials/Rest/TrialsRestController.php:296
 msgid "No access to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:322
+#: src/Modules/Trials/Rest/TrialsRestController.php:309
 msgid "Invalid trial case id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:339
+#: src/Modules/Trials/Rest/TrialsRestController.php:326
 msgid "Invalid trial track id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:341
-#: src/Modules/Trials/Rest/TrialsRestController.php:350
+#: src/Modules/Trials/Rest/TrialsRestController.php:328
+#: src/Modules/Trials/Rest/TrialsRestController.php:337
 msgid "Trial track not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:343
+#: src/Modules/Trials/Rest/TrialsRestController.php:330
 msgid "Built-in trial tracks cannot be deleted."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:371
+#: src/Modules/Trials/Rest/TrialsRestController.php:358
 msgid "Unknown trial case status."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:407
+#: src/Modules/Trials/Rest/TrialsRestController.php:394
 msgid "New end date and justification are required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:413
+#: src/Modules/Trials/Rest/TrialsRestController.php:400
 msgid "New end date must be after the current end date."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:430
+#: src/Modules/Trials/Rest/TrialsRestController.php:417
 msgid "Justification must be at least 30 characters."
 msgstr ""
 
+#: src/Modules/Trials/Rest/TrialsRestController.php:431
 #: src/Modules/Trials/Rest/TrialsRestController.php:444
-#: src/Modules/Trials/Rest/TrialsRestController.php:457
 msgid "Could not record decision."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:470
+#: src/Modules/Trials/Rest/TrialsRestController.php:457
 msgid "Invalid user id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:480
+#: src/Modules/Trials/Rest/TrialsRestController.php:468
 msgid "Not assigned to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:495
+#: src/Modules/Trials/Rest/TrialsRestController.php:483
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
 "They are the record of what the decision was based on."
 msgstr ""
 
-#. translators: %s: comma-separated field names
-#: src/Modules/Trials/Rest/TrialsRestController.php:507
-#, php-format
-msgid "A trial input does not accept: %s."
-msgstr ""
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:512
+#: src/Modules/Trials/Rest/TrialsRestController.php:497
 msgid "Send a rating, notes, or submit."
 msgstr ""
 
 #. translators: 1: rating min, 2: rating max
-#: src/Modules/Trials/Rest/TrialsRestController.php:530
+#: src/Modules/Trials/Rest/TrialsRestController.php:515
 #, php-format
 msgid "The overall rating must be a number from %1$s to %2$s."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:552
+#: src/Modules/Trials/Rest/TrialsRestController.php:537
 msgid "Add a rating or notes before submitting."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:632
+#: src/Modules/Trials/Rest/TrialsRestController.php:637
 msgid "A valid trial-letter audience is required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:654
+#: src/Modules/Trials/Rest/TrialsRestController.php:659
 msgid "The letter could not be generated."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:690
+#: src/Modules/Trials/Rest/TrialsRestController.php:695
 msgid "No reminders were due."
 msgstr ""
 
