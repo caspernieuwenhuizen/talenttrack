@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:51:42+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:52:43+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2363,11 +2363,11 @@ msgstr "Mentor"
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:81
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:228
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:236
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:70
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:112
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:129
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:229
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:233
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:72
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:114
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:131
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:231
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:235
 #: src/Modules/Training/TrainingModule.php:119
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:241
 msgid "Training"
@@ -2529,7 +2529,7 @@ msgstr "Centrumspits"
 
 #: src/Infrastructure/Query/LabelTranslator.php:394
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:572
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:542
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:597
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:330
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:244
 msgid "Warm-up"
@@ -2552,7 +2552,7 @@ msgstr "Conditie"
 #: src/Infrastructure/Query/LabelTranslator.php:398
 #: src/Infrastructure/Query/LabelTranslator.php:440
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:575
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:546
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:601
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:334
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:247
 msgid "Finishing"
@@ -2560,7 +2560,7 @@ msgstr "Afronden"
 
 #: src/Infrastructure/Query/LabelTranslator.php:399
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:576
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:547
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:335
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:248
 msgid "Cool-down"
@@ -4982,7 +4982,7 @@ msgstr "Template"
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:617
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:172
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:171
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:173
 msgid "Plan"
 msgstr "Plan"
 
@@ -5863,7 +5863,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1381
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:582
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:641
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:296
 #: src/Shared/Frontend/Components/SaveState.php:91
@@ -6033,7 +6033,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:201
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:646
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:591
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:650
 #: src/Shared/Frontend/Components/EvidencePanel.php:257
 #: src/Shared/Frontend/FrontendStandardReportsView.php:782
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:514
@@ -8051,7 +8051,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:54
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:53
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:46
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:58
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:60
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:51
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:40
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:67
@@ -9208,7 +9208,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:251
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:269
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:574
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:545
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:600
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:333
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:246
 msgid "Game"
@@ -9702,7 +9702,7 @@ msgstr "Volgende uitvoer"
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:45
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1664
 #: src/Modules/Methodology/Frontend/MethodologyView.php:884
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:573
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:632
 msgid "Pause"
 msgstr "Pauzeren"
 
@@ -10621,7 +10621,7 @@ msgid "Clearing the note and saving removes it."
 msgstr "De notitie leegmaken en opslaan verwijdert hem."
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php:268
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:354
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:409
 msgid "Save note"
 msgstr "Notitie opslaan"
 
@@ -23096,7 +23096,7 @@ msgstr "Elke categorie"
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:552
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:227
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:111
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:113
 msgid "Not found"
 msgstr "Niet gevonden"
 
@@ -23426,7 +23426,7 @@ msgstr "Tijd in de scène"
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:238
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:44
 #: src/Modules/Methodology/Frontend/MethodologyView.php:883
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:572
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:631
 msgid "Play"
 msgstr "Afspelen"
 
@@ -23618,7 +23618,7 @@ msgstr ""
 
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:46
 #: src/Modules/Methodology/Frontend/MethodologyView.php:885
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:574
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:633
 msgid "Restart"
 msgstr "Opnieuw"
 
@@ -45591,7 +45591,7 @@ msgid "This plan has no blocks yet."
 msgstr "Dit plan heeft nog geen blokken."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:510
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:581
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:640
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:93
 msgid "Untitled block"
 msgstr "Blok zonder titel"
@@ -45618,21 +45618,21 @@ msgstr ""
 "geweest is."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:573
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:543
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:598
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:331
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:245
 msgid "Rondo"
 msgstr "Rondo"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:577
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:548
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:603
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:336
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:249
 msgid "Team talk"
 msgstr "Nabespreking"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:579
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:544
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:599
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:332
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:251
 msgid "Main"
@@ -45642,27 +45642,27 @@ msgstr "Hoofdvorm"
 msgid "Abandoned"
 msgstr "Afgebroken"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:60
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:62
 msgid "You do not have permission to run training plans."
 msgstr "Je hebt geen rechten om trainingsplannen uit te voeren."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:115
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:117
 msgid "That training run no longer exists."
 msgstr "Die uitvoering bestaat niet meer."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:128
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:130
 msgid "Attach a plan"
 msgstr "Plan koppelen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:132
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:134
 msgid "Attach a plan to this training"
 msgstr "Koppel een plan aan deze training"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:136
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:138
 msgid "That training no longer exists."
 msgstr "Die training bestaat niet meer."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:150
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:152
 msgid ""
 "The plan is copied onto this training as it is right now. Editing the plan "
 "afterwards will not change what this training recorded."
@@ -45670,7 +45670,7 @@ msgstr ""
 "Het plan wordt op deze training gekopieerd zoals het nu is. Pas je het plan "
 "later aan, dan verandert er niets aan wat deze training heeft vastgelegd."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:155
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:157
 msgid ""
 "This team has no training plans yet. Make one first, then come back here to "
 "attach it."
@@ -45679,45 +45679,25 @@ msgstr ""
 "terug om het te koppelen."
 
 #. translators: 1: plan title, 2: total duration in minutes.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:179
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:181
 #, php-format
 msgid "%1$s — %2$d min"
 msgstr "%1$s — %2$d min"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:189
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:191
 msgid "Attach plan"
 msgstr "Plan koppelen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:252
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:254
 msgid "How far through the training you are"
 msgstr "Hoe ver je in de training bent"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:301
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:306
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:340
 msgid "Notes on players"
 msgstr "Notities over spelers"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
-msgid "Take attendance to add notes on players."
-msgstr "Registreer eerst de aanwezigheid om notities over spelers toe te voegen."
-
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
-msgid "Take attendance"
-msgstr "Aanwezigheid registreren"
-
-#. translators: 1: block name, 2: planned minutes. One row of the block list before the training starts.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
-#, php-format
-msgid "%1$s · %2$d min"
-msgstr "%1$s · %2$d min"
-
-#. translators: 1: block name, 2: planned minutes. Label of one timeline segment.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
-#, php-format
-msgid "%1$s, %2$d min"
-msgstr "%1$s, %2$d min"
-
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:299
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:303
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:308
 msgid ""
 "Optional, and you do not have to score anyone. A note on its own is a "
 "complete observation — tap a number again to clear it."
@@ -45725,96 +45705,117 @@ msgstr ""
 "Optioneel, en je hoeft niemand een cijfer te geven. Een notitie alleen is "
 "een volledige waarneming — tik nogmaals op een cijfer om het te wissen."
 
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:342
+msgid "Take attendance to add notes on players."
+msgstr ""
+"Registreer eerst de aanwezigheid om notities over spelers toe te voegen."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:348
+msgid "Take attendance"
+msgstr "Aanwezigheid registreren"
+
 #. translators: %s is the player's name.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:332
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:387
 #, php-format
 msgid "Score for %s"
 msgstr "Cijfer voor %s"
 
 #. translators: %s is the player's name.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:347
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:402
 #, php-format
 msgid "Note about %s"
 msgstr "Notitie over %s"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:351
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:406
 msgid "What you saw"
 msgstr "Wat je zag"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:555
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:610
 msgid "Ready to start"
 msgstr "Klaar om te beginnen"
 
 #. translators: 1: number of blocks, 2: total minutes.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:556
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:611
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:66
 #, php-format
 msgid "%1$d blocks · %2$d minutes"
 msgstr "%1$d blokken · %2$d minuten"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:557
+#. translators: 1: block name, 2: planned minutes. One row of the block list before the training starts.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:613
+#, php-format
+msgid "%1$s · %2$d min"
+msgstr "%1$s · %2$d min"
+
+#. translators: 1: block name, 2: planned minutes. Label of one timeline segment.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:615
+#, php-format
+msgid "%1$s, %2$d min"
+msgstr "%1$s, %2$d min"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:616
 msgid "Start the training"
 msgstr "Start de training"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:558
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:617
 #, php-format
 msgid "Block %1$d of %2$d · %3$s"
 msgstr "Blok %1$d van %2$d · %3$s"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:559
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:618
 #, php-format
 msgid "of %s"
 msgstr "van %s"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:560
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:619
 msgid "Organisation"
 msgstr "Organisatie"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:561
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:620
 msgid "Coaching points"
 msgstr "Coachpunten"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:567
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:626
 msgid "Saved on this phone. It will sync when you have signal."
 msgstr ""
 "Opgeslagen op deze telefoon. Het wordt gesynchroniseerd zodra je bereik hebt."
 
 #. translators: %d is always 1 here.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:569
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:628
 msgid "1 change is waiting for signal."
 msgstr "1 wijziging wacht op bereik."
 
 #. translators: %d is a number of unsaved changes, always 2 or more.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:571
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:630
 #, php-format
 msgid "%d changes are waiting for signal."
 msgstr "%d wijzigingen wachten op bereik."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:575
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:634
 msgid "Diagram for this drill"
 msgstr "Diagram bij deze oefening"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:576
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:635
 msgid "Previous block"
 msgstr "Vorig blok"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:577
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:636
 msgid "Next block"
 msgstr "Volgend blok"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:578
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:637
 msgid "Finish this block"
 msgstr "Blok afronden"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:579
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:638
 msgid "Skip this block"
 msgstr "Blok overslaan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:580
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:639
 msgid "Finish the training"
 msgstr "Training afronden"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:583
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:642
 msgid ""
 "That did not save — you are offline or the connection dropped. Note the time "
 "and try again; nothing is recorded until it saves."
@@ -45823,14 +45824,14 @@ msgstr ""
 "de tijd en probeer het opnieuw; er wordt niets vastgelegd tot het is "
 "opgeslagen."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:584
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:593
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:643
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:652
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:179
 #: src/Modules/Workflow/TaskStatus.php:68
 msgid "Skipped"
 msgstr "Overgeslagen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:588
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:647
 #, php-format
 msgid ""
 "You are %1$s over. Finish now and this block is recorded as %2$d minutes."
@@ -45838,21 +45839,21 @@ msgstr ""
 "Je loopt %1$s uit. Rond je nu af, dan wordt dit blok vastgelegd als %2$d "
 "minuten."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:589
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:648
 #, php-format
 msgid "%d minutes trained"
 msgstr "%d minuten getraind"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:590
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:649
 #, php-format
 msgid "planned %d"
 msgstr "gepland %d"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:592
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:651
 msgid "Blocks run"
 msgstr "Blokken gedaan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:594
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:653
 msgid ""
 "Recorded against this training. The plan itself is unchanged, so the next "
 "team to use it starts from the same place you did."
@@ -45860,45 +45861,45 @@ msgstr ""
 "Vastgelegd bij deze training. Het plan zelf blijft ongewijzigd, dus het "
 "volgende team dat het gebruikt begint waar jij begon."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:595
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:654
 msgid "Skipped blocks are recorded here, not removed from the plan."
 msgstr ""
 "Overgeslagen blokken worden hier vastgelegd, niet uit het plan gehaald."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:596
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:655
 msgid "Back to the plan"
 msgstr "Terug naar het plan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:597
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:656
 msgid ""
 "Finish the training? Any blocks you have not run are recorded as skipped."
 msgstr ""
 "Training afronden? Blokken die je niet hebt gedaan worden vastgelegd als "
 "overgeslagen."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:598
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:657
 msgid "Noted."
 msgstr "Genoteerd."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:599
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:658
 msgid "Add a score or a note first."
 msgstr "Voeg eerst een cijfer of een notitie toe."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:600
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:659
 msgid "That note did not save. Try again."
 msgstr "Die notitie is niet opgeslagen. Probeer het opnieuw."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:601
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:660
 msgid "Attaching…"
 msgstr "Koppelen…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:661
 msgid "The plan could not be attached. Check your connection and try again."
 msgstr ""
 "Het plan kon niet worden gekoppeld. Controleer je verbinding en probeer het "
 "opnieuw."
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:603
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:662
 msgid "This training already had a plan attached — opening it."
 msgstr "Aan deze training was al een plan gekoppeld — we openen het."
 
