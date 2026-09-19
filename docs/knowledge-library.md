@@ -495,6 +495,15 @@ GET    /talenttrack/v1/people/{id}/learning                 one person's record
 Marking a lesson read enrols the reader on first touch — a separate enrol step
 before you can open lesson one is a step nobody would understand.
 
+Enrolling somebody who is already on the course answers `200` with
+`already_enrolled: true`, not `201 Created`. The existing enrolment comes back
+untouched — progress and deadline included — because re-assigning a course must
+never reset a half-finished one. If the request carried a deadline that is not
+the stored one, `due_at_ignored: true` and a message say so: the API must not
+report a change it did not make. Moving an existing deadline is a separate
+decision, and the assign-course wizard has always said the same thing on
+screen.
+
 A verdict is a `PATCH` on the submission rather than an `/approve` verb: the
 outcome is a field on a record, and modelling it as an action would need a
 second endpoint the day "unapprove" is wanted.

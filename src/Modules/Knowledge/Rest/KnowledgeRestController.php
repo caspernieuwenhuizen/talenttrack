@@ -506,6 +506,27 @@ final class KnowledgeRestController {
         return null;
     }
 
+    /**
+     * Enrol somebody, or say plainly that they were already on the course.
+     *
+     * `EnrolmentRepository::enrol()` is idempotent on purpose: re-assigning
+     * a course must not reset a half-finished one, so an existing row is
+     * returned untouched, deadline included. That is the right write; what
+     * was wrong (#3707) was the answer. A second `POST` came back `201
+     * Created` carrying the *old* deadline, so an admin moving a missed
+     * deadline was told it had worked while nothing had changed.
+     *
+     * A new enrolment still answers `201`. An existing one answers `200`
+     * with `already_enrolled: true`, and — when the request carried a
+     * deadline that is not the stored one — `due_at_ignored: true` plus a
+     * message saying so. The assign-course wizard has always reported this
+     * honestly ("12 people are already on this course and will be left as
+     * they are"); the API now matches it.
+     *
+     * Not `409`: nothing conflicts and nothing failed. The caller asked for
+     * this person to be on this course, and they are. Changing an existing
+     * deadline is a different decision, tracked in #3708.
+     */
     public static function enrol( WP_REST_Request $r ) {
         $slug = (string) $r['slug'];
 
@@ -526,17 +547,56 @@ final class KnowledgeRestController {
             );
         }
 
-        $repo = new EnrolmentRepository();
-        $id   = $repo->enrol( $person_id, $slug, [
+        $repo     = new EnrolmentRepository();
+        $existing = $repo->findFor( $person_id, $slug );
+
+        // Read as an array rather than `$existing->due_at`: the row is an
+        // untyped `stdClass`, and one more property read on it costs a
+        // PHPStan baseline entry for nothing.
+        $existing_row = $existing === null ? [] : (array) $existing;
+        $stored       = isset( $existing_row['due_at'] ) && is_string( $existing_row['due_at'] )
+            ? $existing_row['due_at']
+            : '';
+
+        $requested_due = $r->get_param( 'due_at' );
+        $requested_due = is_string( $requested_due ) ? $requested_due : null;
+
+        $id = $repo->enrol( $person_id, $slug, [
             'assigned_by' => self::isSelf( $person_id ) ? 0 : self::currentPersonId(),
-            'due_at'      => $r->get_param( 'due_at' ),
+            'due_at'      => $requested_due,
         ] );
 
         if ( $id <= 0 ) {
             return RestResponse::error( 'enrolment_failed', __( 'Could not enrol on that course.', 'talenttrack' ), 400 );
         }
 
-        return RestResponse::success( self::shapeEnrolment( $repo->find( $id ) ), 201 );
+        $shaped = self::shapeEnrolment( $repo->find( $id ) );
+
+        if ( $shaped === null ) {
+            return RestResponse::error( 'enrolment_failed', __( 'Could not enrol on that course.', 'talenttrack' ), 400 );
+        }
+
+        if ( $existing === null ) {
+            return RestResponse::success( $shaped + [
+                'already_enrolled' => false,
+                'due_at_ignored'   => false,
+            ], 201 );
+        }
+
+        $ignored = $requested_due !== null
+            && $requested_due !== ''
+            && (string) EnrolmentRepository::normaliseDate( $requested_due ) !== $stored;
+
+        $payload = $shaped + [
+            'already_enrolled' => true,
+            'due_at_ignored'   => $ignored,
+        ];
+
+        if ( $ignored ) {
+            $payload['message'] = __( 'Already enrolled, so the new deadline was not applied. The existing enrolment is unchanged.', 'talenttrack' );
+        }
+
+        return RestResponse::success( $payload, 200 );
     }
 
     /**
