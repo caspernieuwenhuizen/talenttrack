@@ -301,6 +301,20 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             'created_by'              => $author,
         ] );
 
+        // #3579 — the result lives on the activity, not the execution. The
+        // team record, the form line and the match result card all read
+        // `tt_activities.home_score` / `away_score`, which the live product
+        // copies across when a match is finished (`route_finish()`). Without
+        // this every demo team showed 0 played and three matches "without a
+        // score" beside a scorers list. `home_score` is our goals, per
+        // `MatchResultQuery`. Past fixtures are already `completed` from
+        // ActivityGenerator, so only the scoreline is written here.
+        $wpdb->update(
+            "{$wpdb->prefix}tt_activities",
+            [ 'home_score' => $home_goals, 'away_score' => $away_goals ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+
         // #3094 — one match in four has its output filled in afterwards
         // rather than logged live. The goals are the same goals and the
         // scoreline is the same scoreline; what they lack is a minute,
