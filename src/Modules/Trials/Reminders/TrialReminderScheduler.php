@@ -136,7 +136,7 @@ final class TrialReminderScheduler {
                 'player_name' => $name,
                 'end_date'    => $end_date,
                 'case_url'    => $case_url,
-                'club_name'   => get_bloginfo( 'name' ) ?: __( 'The club', 'talenttrack' ),
+                'club_name'   => \TT\Shared\Club\ClubIdentity::name(),
             ],
             [ $recipient ],
             [

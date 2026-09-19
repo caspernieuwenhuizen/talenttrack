@@ -89,6 +89,8 @@ Recording a decision generates the letter automatically. The **Letter** tab show
 - **Decline (final)** — respectful and definitive.
 - **Decline (with encouragement)** — names what stood out and where to keep working, with an explicit invitation to re-apply.
 
+Every letter is headed with the academy's name, and `{club_name}` resolves to it anywhere you use it in a template. That name comes from **Configuration → Academy name**; set it before the first letter goes out, because an academy that has left the field empty gets the WordPress site title on the letterhead instead. Changing the name does not rewrite letters that have already been generated — regenerate a letter if you need the new name on it.
+
 The shipped Dutch letters use a warm, informal "je/jullie" club voice. If the wording isn't quite right for your club, **Letter templates** (under the Trials tile group) lets you customise each letter per language. The editor opens with a short guidance note, lists each letter under a plain-language name ("Offer of a place", "No place — with encouragement", …), and shows a side panel of every variable you can substitute (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus a live preview with sample data. Unknown variables are left as literal `{foo}` so missing pieces are visible in the preview.
 
 ### 6. Have the conversation with the parents
@@ -101,7 +103,7 @@ Tracks are templates that decide the default trial duration. Three ship with the
 
 ## Acceptance slip (optional)
 
-For admit decisions, the club can include an acceptance slip on page 2 of the letter. **Letter templates → Acceptance slip** turns it on, sets the response deadline (in days from the letter date), and the return address. After the slip comes back signed, mark it received from the Decision tab.
+For admit decisions, the club can include an acceptance slip on page 2 of the letter. **Letter templates → Acceptance slip** turns it on, sets the response deadline (in days from the letter date), and the return address. The address you save there is what the slip asks families to return the page to, and `{club_address}` in a template resolves to it; leave it empty and the slip falls back to "the club office". After the slip comes back signed, mark it received from the Decision tab.
 
 ## Closing a trial case
 

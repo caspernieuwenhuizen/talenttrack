@@ -21,11 +21,38 @@ use TT\Infrastructure\Query\QueryHelpers;
  * 3-letter derivation from `tt_config['academy_name']` (strips
  * common Dutch club prefixes `vv `, `sv `, `rkvv `, `fc ` etc.)
  * when the operator has not set an explicit code.
+ *
+ * Also the home of the club's full name (#3662): the trial letters
+ * were reading a `club_name` config key nothing ever writes, so every
+ * letterhead carried the WordPress site title instead of the academy
+ * the family is actually joining.
  */
 final class ClubIdentity {
 
     /** @var string|null */
     private static $cached = null;
+
+    /**
+     * The club's full name, as it should appear on anything a family
+     * reads: trial letters, reminder mails, report headers.
+     *
+     * `tt_config['academy_name']` is where the setup wizard and the
+     * Configuration view both store it. The WordPress site title is a
+     * fallback for an install whose operator never filled the field in
+     * — it names the software installation, not the academy, so it is
+     * the last resort rather than the source.
+     */
+    public static function name(): string {
+        $configured = trim( (string) QueryHelpers::get_config( 'academy_name', '' ) );
+        if ( $configured !== '' ) {
+            return $configured;
+        }
+        $site = trim( (string) get_bloginfo( 'name' ) );
+        if ( $site !== '' ) {
+            return $site;
+        }
+        return __( 'The club', 'talenttrack' );
+    }
 
     /**
      * Three-letter uppercase short code for the club. Used as the

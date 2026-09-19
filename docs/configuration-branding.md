@@ -104,7 +104,7 @@ Entries that open in wp-admin carry an external-link marker so the context switc
 
 ### General
 
-- **Academy name** — used throughout the plugin and in printable reports
+- **Academy name** — used throughout the plugin, in printable reports, and on the letterhead of every trial letter. Leave it empty and those surfaces fall back to the WordPress site title, which names the installation rather than the academy
 - **Logo URL** — shown in the frontend dashboard header and print output
 - **Primary color** — tile accents, chart lines, headline figures
 - **Rating scale max** — default is 5; you can change to 10 if your coaches prefer a 1–10 scale

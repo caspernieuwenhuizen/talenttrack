@@ -198,7 +198,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
             'player_last_name'  => __( 'Player', 'talenttrack' ),
             'player_full_name'  => __( 'Sample Player', 'talenttrack' ),
             'player_age'        => '14',
-            'club_name'         => get_bloginfo( 'name' ) ?: 'Demo FC',
+            'club_name'         => \TT\Shared\Club\ClubIdentity::name(),
             'head_of_development_name' => __( 'A. Coach', 'talenttrack' ),
             'track_name'        => __( 'Standard', 'talenttrack' ),
             'current_season'    => '2025/2026',
