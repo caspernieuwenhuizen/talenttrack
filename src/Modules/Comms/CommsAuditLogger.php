@@ -107,4 +107,84 @@ final class CommsAuditLogger {
             ] );
         }
     }
+
+    /**
+     * Update the existing row for a message held by quiet hours (#3646).
+     *
+     * One message, one row: the send that happens after the window ends
+     * overwrites the `quiet_hours` status with the final outcome and moves
+     * `attempt` from 1 to 2, rather than leaving a held row beside a sent
+     * one for the reader to reconcile.
+     *
+     * `$attempted = false` is for an outcome reached without trying to
+     * send — the queue row expired. Only status and error code change then,
+     * and `attempt` stays where it was.
+     *
+     * Reachability is only overwritten when the new result established it;
+     * a result that stopped before looking at the recipient keeps the fact
+     * the first attempt recorded.
+     */
+    public function recordAttempt(
+        string $uuid,
+        string $renderedSubject,
+        string $renderedBody,
+        CommsResult $result,
+        bool $attempted = true
+    ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        try {
+            // NULLIF turns the empty string back into the NULL `record()`
+            // writes for "no error code" and "no subject".
+            $error_code = $result->errorCode ?? '';
+
+            if ( $attempted ) {
+                $updated = $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$p}tt_comms_log
+                        SET status = %s, error_code = NULLIF(%s, ''), channel = %s,
+                            payload_hash = %s, subject = NULLIF(%s, ''), attempt = attempt + 1
+                      WHERE uuid = %s",
+                    $result->status,
+                    $error_code,
+                    $result->channelUsed,
+                    hash( 'sha256', $renderedBody ),
+                    substr( $renderedSubject, 0, 255 ),
+                    $uuid
+                ) );
+            } else {
+                $updated = $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$p}tt_comms_log SET status = %s, error_code = NULLIF(%s, '') WHERE uuid = %s",
+                    $result->status,
+                    $error_code,
+                    $uuid
+                ) );
+            }
+
+            if ( $result->reachable !== null && CommsLogSchema::hasReachable() ) {
+                $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$p}tt_comms_log SET reachable = %d WHERE uuid = %s",
+                    $result->reachable ? 1 : 0,
+                    $uuid
+                ) );
+            }
+
+            // Both statements above always change the row they match (the
+            // status leaves `quiet_hours`, or `attempt` moves), so zero
+            // affected rows means the row is not there.
+            if ( $updated === false || $updated === 0 ) {
+                Logger::error( 'Comms audit update matched no row', [
+                    'uuid'     => $uuid,
+                    'status'   => $result->status,
+                    'db_error' => (string) $wpdb->last_error,
+                ] );
+            }
+        } catch ( \Throwable $e ) {
+            Logger::error( 'Comms audit row could not be updated', [
+                'uuid'      => $uuid,
+                'status'    => $result->status,
+                'exception' => $e->getMessage(),
+            ] );
+        }
+    }
 }

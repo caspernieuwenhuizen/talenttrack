@@ -68,6 +68,15 @@ final class CommsStatusLabels {
         if ( $error_code === 'no_address' || $status === 'no_recipients' ) {
             return __( 'Nobody on the player record had an address this channel could reach.', 'talenttrack' );
         }
+        // #3646 — a message quiet hours caught that never went out. Not an
+        // address problem, so the generic failure hint below would send the
+        // reader to check the wrong thing.
+        if ( $error_code === 'deferral_expired' ) {
+            return __( 'It was held for quiet hours but not sent within 24 hours. The hourly background task may not be running.', 'talenttrack' );
+        }
+        if ( $error_code === 'deferral_with_attachment' || $error_code === 'deferral_not_queued' ) {
+            return __( 'It fell inside the quiet-hours window and could not be held for later. Send it again after the window ends.', 'talenttrack' );
+        }
         switch ( $status ) {
             case 'opted_out':
                 return __( 'The recipient asked not to receive this kind of message.', 'talenttrack' );
@@ -144,6 +153,9 @@ final class CommsStatusLabels {
             case 'no_user_id':           return __( 'Recipient has no account', 'talenttrack' );
             case 'inbox_table_missing':  return __( 'In-app inbox unavailable', 'talenttrack' );
             case 'dispatch_exception':   return _x( 'Error while sending', 'message send outcome', 'talenttrack' );
+            case 'deferral_expired':     return __( 'Not sent after quiet hours', 'talenttrack' );
+            case 'deferral_with_attachment': return __( 'Has an attachment, so not held until morning', 'talenttrack' );
+            case 'deferral_not_queued':  return __( 'Could not be held until morning', 'talenttrack' );
         }
         return '';
     }

@@ -9,6 +9,7 @@ use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
+use TT\Modules\Comms\Queue\DeferredSendQueue;
 use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
 use TT\Modules\Comms\RateLimit\RateLimiter;
 use TT\Modules\Comms\Recipient\RecipientReachability;
@@ -23,9 +24,16 @@ use TT\Modules\Comms\Template\TemplateSwitch;
  *   1. Opt-out check (`OptOutPolicy::isOptedOut`). On opt-out → log
  *      `STATUS_OPTED_OUT` and skip.
  *   2. Quiet-hours check (`QuietHoursPolicy::shouldDefer`). On defer
- *      → log `STATUS_QUIET_HOURS` and skip. (Future: re-enqueue for
- *      morning send via Action Scheduler — lands when the async layer
- *      ships, see #0063 spec Q2.)
+ *      → log `STATUS_QUIET_HOURS` and hold the request for this one
+ *      recipient in `Queue\DeferredSendQueue` (#3646). The first
+ *      workflow heartbeat after the window ends runs
+ *      `Queue\DeferredSendSweep`, which calls `deliverDeferred()`: the
+ *      template switch, opt-out and the rest of this chain run again at
+ *      that moment, and the outcome overwrites the same log row with
+ *      `attempt` 2. A held message that has not gone within 24 hours is
+ *      marked failed (`deferral_expired`). A request the queue cannot
+ *      hold — one with a file attached — is logged as failed at once
+ *      rather than as a hold nothing will ever send.
  *   3. Rate-limit check (`RateLimiter::wouldExceed`). On exceed →
  *      log `STATUS_RATE_LIMITED` and skip. Counter increments only on
  *      sends that proceed.
@@ -68,17 +76,20 @@ final class CommsService {
     private QuietHoursPolicy $quietHours;
     private RateLimiter $rateLimiter;
     private CommsAuditLogger $auditLogger;
+    private DeferredSendQueue $deferredQueue;
 
     public function __construct(
         ?OptOutPolicy $optOut = null,
         ?QuietHoursPolicy $quietHours = null,
         ?RateLimiter $rateLimiter = null,
-        ?CommsAuditLogger $auditLogger = null
+        ?CommsAuditLogger $auditLogger = null,
+        ?DeferredSendQueue $deferredQueue = null
     ) {
-        $this->optOut      = $optOut      ?? new OptOutPolicy();
-        $this->quietHours  = $quietHours  ?? new QuietHoursPolicy();
-        $this->rateLimiter = $rateLimiter ?? new RateLimiter();
-        $this->auditLogger = $auditLogger ?? new CommsAuditLogger();
+        $this->optOut        = $optOut        ?? new OptOutPolicy();
+        $this->quietHours    = $quietHours    ?? new QuietHoursPolicy();
+        $this->rateLimiter   = $rateLimiter   ?? new RateLimiter();
+        $this->auditLogger   = $auditLogger   ?? new CommsAuditLogger();
+        $this->deferredQueue = $deferredQueue ?? new DeferredSendQueue();
     }
 
     /**
@@ -276,8 +287,47 @@ final class CommsService {
         return new CommsResult( '', CommsResult::STATUS_QUEUED, $channelKey, $recipient, null, null, $reachable );
     }
 
-    private function sendOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {
-        $uuid = wp_generate_uuid4();
+    /**
+     * Send a message quiet hours held, against the log row it already has
+     * (#3646). Called by `Queue\DeferredSendSweep` once the window has
+     * ended; `$request` carries the one recipient the row was written for.
+     *
+     * Runs the template switch check `send()` does and then the rest of
+     * `sendOne()`'s chain, because a night is long enough for a family to
+     * opt out or a club to switch the template off, and neither should be
+     * overridden by a decision taken the evening before. Quiet hours are
+     * not checked again: the sweep has just established the window is
+     * over. Nothing here writes a second log row: every outcome updates
+     * `$logUuid`, moving its `attempt` to 2.
+     */
+    public function deliverDeferred( CommsRequest $request, Recipient $recipient, string $logUuid ): CommsResult {
+        $template = TemplateRegistry::get( $request->templateKey );
+        if ( $template === null ) {
+            Logger::error( 'Comms held message referenced an unregistered template', [
+                'template_key' => $request->templateKey,
+                'uuid'         => $logUuid,
+            ] );
+            $result = new CommsResult( $logUuid, CommsResult::STATUS_FAILED, '', $recipient, 'unknown_template' );
+            $this->auditLogger->recordAttempt( $logUuid, '', '', $result );
+            return $result;
+        }
+
+        if ( ! TemplateSwitch::isEnabled( $request->templateKey ) ) {
+            $result = new CommsResult( $logUuid, CommsResult::STATUS_TEMPLATE_DISABLED, '', $recipient, 'template_disabled' );
+            $this->auditLogger->recordAttempt( $logUuid, '', '', $result );
+            return $result;
+        }
+
+        return $this->sendOne( $request, $recipient, $template, $logUuid );
+    }
+
+    /**
+     * @param string|null $heldUuid The log row of a message quiet hours
+     *                              held, when this is its deferred send;
+     *                              null for a first attempt.
+     */
+    private function sendOne( CommsRequest $request, Recipient $recipient, $template, ?string $heldUuid = null ): CommsResult {
+        $uuid = $heldUuid ?? wp_generate_uuid4();
 
         // #3383 — the second fact every row below carries. Contact details
         // only: no channel resolution, no send work, so the ordering under
@@ -289,13 +339,17 @@ final class CommsService {
         // 1. Opt-out
         if ( $this->optOut->isOptedOut( $recipient->userId, $request->messageType ) ) {
             $result = new CommsResult( $uuid, CommsResult::STATUS_OPTED_OUT, '', $recipient, null, null, $reachable );
-            $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
+            $this->audit( $request, $recipient, $uuid, '', '', $result, $heldUuid !== null );
             return $result;
         }
 
-        // 2. Quiet hours
-        if ( $this->quietHours->shouldDefer( $request ) ) {
-            $result = new CommsResult( $uuid, CommsResult::STATUS_QUIET_HOURS, '', $recipient, null, null, $reachable );
+        // 2. Quiet hours. A held message is only sent once the sweep has
+        // seen the window close, so its second pass skips this.
+        if ( $heldUuid === null && $this->quietHours->shouldDefer( $request ) ) {
+            $refusal = $this->deferredQueue->enqueue( $request, $recipient, $uuid );
+            $result  = $refusal === null
+                ? new CommsResult( $uuid, CommsResult::STATUS_QUIET_HOURS, '', $recipient, null, null, $reachable )
+                : new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, $refusal, null, $reachable );
             $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
             return $result;
         }
@@ -303,7 +357,7 @@ final class CommsService {
         // 3. Rate limit
         if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
             $result = new CommsResult( $uuid, CommsResult::STATUS_RATE_LIMITED, '', $recipient, null, null, $reachable );
-            $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
+            $this->audit( $request, $recipient, $uuid, '', '', $result, $heldUuid !== null );
             return $result;
         }
 
@@ -311,14 +365,14 @@ final class CommsService {
         $channelKey = $this->resolveChannel( $request, $recipient, $template->supportedChannels() );
         if ( $channelKey === null ) {
             $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available', null, $reachable );
-            $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
+            $this->audit( $request, $recipient, $uuid, '', '', $result, $heldUuid !== null );
             return $result;
         }
 
         $adapter = ChannelAdapterRegistry::get( $channelKey );
         if ( $adapter === null ) {
             $result = new CommsResult( $uuid, CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing', null, $reachable );
-            $this->auditLogger->record( $request, $recipient, $uuid, '', '', $result );
+            $this->audit( $request, $recipient, $uuid, '', '', $result, $heldUuid !== null );
             return $result;
         }
 
@@ -336,8 +390,28 @@ final class CommsService {
         if ( $result->isSuccess() ) {
             $this->rateLimiter->record( $request->senderUserId );
         }
-        $this->auditLogger->record( $request, $recipient, $uuid, $subject, $body, $result );
+        $this->audit( $request, $recipient, $uuid, $subject, $body, $result, $heldUuid !== null );
         return $result;
+    }
+
+    /**
+     * A first attempt writes a row; a held message's send updates the one
+     * it already has.
+     */
+    private function audit(
+        CommsRequest $request,
+        Recipient $recipient,
+        string $uuid,
+        string $subject,
+        string $body,
+        CommsResult $result,
+        bool $held
+    ): void {
+        if ( $held ) {
+            $this->auditLogger->recordAttempt( $uuid, $subject, $body, $result );
+            return;
+        }
+        $this->auditLogger->record( $request, $recipient, $uuid, $subject, $body, $result );
     }
 
     /**
