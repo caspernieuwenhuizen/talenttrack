@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:41:17+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:45:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -2823,20 +2823,20 @@ msgctxt "PDP file identity"
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:389
-#: src/Infrastructure/REST/ActivitiesRestController.php:535
-#: src/Infrastructure/REST/ActivitiesRestController.php:651
+#: src/Infrastructure/REST/ActivitiesRestController.php:384
+#: src/Infrastructure/REST/ActivitiesRestController.php:530
+#: src/Infrastructure/REST/ActivitiesRestController.php:646
 msgid "No changes supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:395
-#: src/Infrastructure/REST/ActivitiesRestController.php:1343
-#: src/Infrastructure/REST/ActivitiesRestController.php:1536
-#: src/Infrastructure/REST/ActivitiesRestController.php:1553
-#: src/Infrastructure/REST/ActivitiesRestController.php:1583
-#: src/Infrastructure/REST/ActivitiesRestController.php:2073
-#: src/Infrastructure/REST/ActivitiesRestController.php:2256
-#: src/Infrastructure/REST/ActivitiesRestController.php:2294
+#: src/Infrastructure/REST/ActivitiesRestController.php:390
+#: src/Infrastructure/REST/ActivitiesRestController.php:1288
+#: src/Infrastructure/REST/ActivitiesRestController.php:1481
+#: src/Infrastructure/REST/ActivitiesRestController.php:1498
+#: src/Infrastructure/REST/ActivitiesRestController.php:1528
+#: src/Infrastructure/REST/ActivitiesRestController.php:2018
+#: src/Infrastructure/REST/ActivitiesRestController.php:2201
+#: src/Infrastructure/REST/ActivitiesRestController.php:2239
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -2845,45 +2845,45 @@ msgstr ""
 msgid "Activity not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:401
+#: src/Infrastructure/REST/ActivitiesRestController.php:396
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #: src/Modules/Authorization/ActivityTeamScope.php:95
 msgid "You do not coach this activity's team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:510
-#: src/Infrastructure/REST/ActivitiesRestController.php:628
+#: src/Infrastructure/REST/ActivitiesRestController.php:505
+#: src/Infrastructure/REST/ActivitiesRestController.php:623
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:144
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:126
 msgid "That team is not in your scope."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:722
-#: src/Infrastructure/REST/ActivitiesRestController.php:754
-#: src/Infrastructure/REST/ActivitiesRestController.php:800
+#: src/Infrastructure/REST/ActivitiesRestController.php:717
+#: src/Infrastructure/REST/ActivitiesRestController.php:749
+#: src/Infrastructure/REST/ActivitiesRestController.php:795
 msgid "Unknown match."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:759
+#: src/Infrastructure/REST/ActivitiesRestController.php:754
 msgid ""
 "This score follows the match sheet's goal log. Correct a goal in the post-"
 "match review and the score follows."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:767
-#: src/Infrastructure/REST/ActivitiesRestController.php:805
+#: src/Infrastructure/REST/ActivitiesRestController.php:762
+#: src/Infrastructure/REST/ActivitiesRestController.php:800
 msgid "Not your team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:781
+#: src/Infrastructure/REST/ActivitiesRestController.php:776
 msgid "No score supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:794
+#: src/Infrastructure/REST/ActivitiesRestController.php:789
 msgid "No contributions supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:874
+#: src/Infrastructure/REST/ActivitiesRestController.php:869
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
 #: src/Infrastructure/REST/GoalsRestController.php:183
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -2892,31 +2892,31 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:895
+#: src/Infrastructure/REST/ActivitiesRestController.php:890
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1258
+#: src/Infrastructure/REST/ActivitiesRestController.php:1203
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1273
+#: src/Infrastructure/REST/ActivitiesRestController.php:1218
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1301
+#: src/Infrastructure/REST/ActivitiesRestController.php:1246
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1332
-#: src/Infrastructure/REST/ActivitiesRestController.php:1530
-#: src/Infrastructure/REST/ActivitiesRestController.php:1548
-#: src/Infrastructure/REST/ActivitiesRestController.php:1573
-#: src/Infrastructure/REST/ActivitiesRestController.php:2069
-#: src/Infrastructure/REST/ActivitiesRestController.php:2183
-#: src/Infrastructure/REST/ActivitiesRestController.php:2234
-#: src/Infrastructure/REST/ActivitiesRestController.php:2252
-#: src/Infrastructure/REST/ActivitiesRestController.php:2291
+#: src/Infrastructure/REST/ActivitiesRestController.php:1277
+#: src/Infrastructure/REST/ActivitiesRestController.php:1475
+#: src/Infrastructure/REST/ActivitiesRestController.php:1493
+#: src/Infrastructure/REST/ActivitiesRestController.php:1518
+#: src/Infrastructure/REST/ActivitiesRestController.php:2014
+#: src/Infrastructure/REST/ActivitiesRestController.php:2128
+#: src/Infrastructure/REST/ActivitiesRestController.php:2179
+#: src/Infrastructure/REST/ActivitiesRestController.php:2197
+#: src/Infrastructure/REST/ActivitiesRestController.php:2236
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -2927,78 +2927,78 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1363
+#: src/Infrastructure/REST/ActivitiesRestController.php:1308
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1413
+#: src/Infrastructure/REST/ActivitiesRestController.php:1358
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1764
+#: src/Infrastructure/REST/ActivitiesRestController.php:1709
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2095
+#: src/Infrastructure/REST/ActivitiesRestController.php:2040
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2099
+#: src/Infrastructure/REST/ActivitiesRestController.php:2044
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2102
+#: src/Infrastructure/REST/ActivitiesRestController.php:2047
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2165
+#: src/Infrastructure/REST/ActivitiesRestController.php:2110
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2166
+#: src/Infrastructure/REST/ActivitiesRestController.php:2111
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2204
+#: src/Infrastructure/REST/ActivitiesRestController.php:2149
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2205
+#: src/Infrastructure/REST/ActivitiesRestController.php:2150
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2211
+#: src/Infrastructure/REST/ActivitiesRestController.php:2156
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2237
+#: src/Infrastructure/REST/ActivitiesRestController.php:2182
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2314
-#: src/Infrastructure/REST/ActivitiesRestController.php:2386
+#: src/Infrastructure/REST/ActivitiesRestController.php:2259
+#: src/Infrastructure/REST/ActivitiesRestController.php:2331
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2317
+#: src/Infrastructure/REST/ActivitiesRestController.php:2262
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2352
+#: src/Infrastructure/REST/ActivitiesRestController.php:2297
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2373
+#: src/Infrastructure/REST/ActivitiesRestController.php:2318
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2389
+#: src/Infrastructure/REST/ActivitiesRestController.php:2334
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -3835,9 +3835,9 @@ msgstr ""
 msgid "Type at least two characters of the name or email address."
 msgstr ""
 
-#: src/Infrastructure/REST/PeekRestController.php:99
-#: src/Infrastructure/REST/PeekRestController.php:131
-#: src/Infrastructure/REST/PeekRestController.php:161
+#: src/Infrastructure/REST/PeekRestController.php:123
+#: src/Infrastructure/REST/PeekRestController.php:155
+#: src/Infrastructure/REST/PeekRestController.php:185
 #: src/Infrastructure/REST/RestResponse.php:83
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
@@ -3846,7 +3846,7 @@ msgstr ""
 msgid "Not found."
 msgstr ""
 
-#: src/Infrastructure/REST/PeekRestController.php:112
+#: src/Infrastructure/REST/PeekRestController.php:136
 #: src/Modules/Activities/Admin/ActivitiesPage.php:96
 #: src/Modules/Activities/Admin/ActivitiesPage.php:300
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
@@ -3964,7 +3964,7 @@ msgstr ""
 msgid "Status"
 msgstr "Estado"
 
-#: src/Infrastructure/REST/PeekRestController.php:116
+#: src/Infrastructure/REST/PeekRestController.php:140
 #: src/Modules/Configuration/Admin/FormSlugContract.php:63
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:43
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
@@ -3979,7 +3979,7 @@ msgstr "Estado"
 msgid "Jersey number"
 msgstr ""
 
-#: src/Infrastructure/REST/PeekRestController.php:120
+#: src/Infrastructure/REST/PeekRestController.php:144
 #: src/Modules/Configuration/Admin/FormSlugContract.php:53
 #: src/Modules/DataBrowser/SemanticRegistry.php:48
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:145
@@ -4006,7 +4006,7 @@ msgstr ""
 msgid "Date of birth"
 msgstr ""
 
-#: src/Infrastructure/REST/PeekRestController.php:146
+#: src/Infrastructure/REST/PeekRestController.php:170
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:181
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:212
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:171
@@ -4063,7 +4063,7 @@ msgstr ""
 msgid "Players"
 msgstr "Jugadores"
 
-#: src/Infrastructure/REST/PeekRestController.php:150
+#: src/Infrastructure/REST/PeekRestController.php:174
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
@@ -4075,7 +4075,7 @@ msgstr "Jugadores"
 msgid "Season"
 msgstr ""
 
-#: src/Infrastructure/REST/PeekRestController.php:174
+#: src/Infrastructure/REST/PeekRestController.php:198
 #: src/Modules/Activities/Admin/ActivitiesPage.php:93
 #: src/Modules/Activities/Admin/ActivitiesPage.php:341
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:255
@@ -4142,7 +4142,7 @@ msgstr ""
 msgid "Date"
 msgstr "Fecha"
 
-#: src/Infrastructure/REST/PeekRestController.php:178
+#: src/Infrastructure/REST/PeekRestController.php:202
 #: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Activities/Admin/ActivitiesPage.php:290
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:472
