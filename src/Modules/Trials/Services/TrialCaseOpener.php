@@ -33,6 +33,9 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
  */
 class TrialCaseOpener {
 
+    /** #3577 — the player already has an open or extended trial case. */
+    public const ERROR_ALREADY_OPEN = 'trial_case_already_open';
+
     /**
      * Create a trial-status player through the canonical player create.
      *
@@ -133,7 +136,8 @@ class TrialCaseOpener {
             return new \WP_Error( 'foreign_player', __( 'Player not found in your club.', 'talenttrack' ) );
         }
 
-        $case_id = ( new TrialCasesRepository() )->create( [
+        $cases   = new TrialCasesRepository();
+        $case_id = $cases->create( [
             'player_id'  => $player_id,
             'track_id'   => $track_id,
             'start_date' => $start,
@@ -143,6 +147,20 @@ class TrialCaseOpener {
         ] );
 
         if ( $case_id <= 0 ) {
+            // #3577 — one open trial per player; the repository refused.
+            $open_case = $cases->blockingCaseId();
+            if ( $open_case > 0 ) {
+                return new \WP_Error(
+                    self::ERROR_ALREADY_OPEN,
+                    sprintf(
+                        /* translators: 1: player name, 2: the open trial case's number */
+                        __( '%1$s already has an open trial case (#%2$d). Extend or decide that case instead of opening a second one.', 'talenttrack' ),
+                        QueryHelpers::player_display_name( $player_row ),
+                        $open_case
+                    ),
+                    [ 'status' => 409, 'existing_case_id' => $open_case ]
+                );
+            }
             return new \WP_Error( 'create_failed', __( 'Could not create the case. Please try again.', 'talenttrack' ) );
         }
 

@@ -41,6 +41,8 @@ Er wordt niets weggeschreven totdat je de laatste stap afrondt. Halverwege stopp
 
 De status van de speler wordt automatisch op **Stage** gezet zodra het dossier wordt geopend.
 
+Een speler heeft **één open stage tegelijk**. Heeft de speler al een dossier dat open of verlengd is, dan wordt een nieuw dossier geweigerd, en noemt de melding het open dossier, met een link ernaartoe. Wil je een stage langer laten duren, verleng dan het open dossier. Zodra dat besloten of gearchiveerd is, kan er een nieuw dossier worden geopend.
+
 Staan de begeleide flows bij jullie academie uit, dan opent *Dossier toevoegen* het oudere formulier op één pagina. Dat vraagt om hetzelfde en werkt identiek — dezelfde controles, dezelfde regels op de tijdlijn.
 
 Bij het openen van het dossier wordt **Stage gestart** op de tijdlijn van de speler geschreven, zodat de stage vanaf dag één in zijn verloop zichtbaar is. Heb je de speler direct op dit formulier aangemaakt — voornaam, achternaam en geboortedatum — dan komt daar ook **Bij de academie gekomen** bij, net als wanneer je hem via het spelersscherm toevoegt. Bij een stagespeler ís de stage waar hij vandaan komt, en dat hoort op de tijdlijn te staan zonder dat iemand er een notitie voor hoeft te maken.
