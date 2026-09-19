@@ -130,7 +130,11 @@ Scheduled reports are part of the Standard plan and above.
 - **Squad status** — how many players are on track, to watch, needing action, or
   without a read yet, and how that looked last period.
 - **Attendance** and **Minutes share** — per player, with links to the full
-  attendance and minutes reports.
+  attendance and minutes reports. Minutes share lists the **whole squad**: a
+  player who was available but never got on the pitch shows 0 minutes and
+  counts toward the median, because they are the player this table is meant
+  to flag. Its target line is the academy's minutes-share target, the same one
+  the Minutes share report uses.
 - **Matches** — results and match statistics. See below.
 - **Needs a conversation** — the players the status model flags, most urgent
   first, with what the data says about them. This is the meeting's agenda.
