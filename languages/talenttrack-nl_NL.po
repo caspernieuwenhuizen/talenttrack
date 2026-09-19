@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:17:35+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:18:34+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5195,7 +5195,7 @@ msgstr "Alle types"
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:232
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:365
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:506
 #: src/Modules/Analytics/AnalyticsModule.php:152
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:235
@@ -7220,8 +7220,8 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 
 #: src/Modules/Alerts/Frontend/AlertBanner.php:119
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:177
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:341
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:300
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:482
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -7355,28 +7355,40 @@ msgid "Last checked %s ago."
 msgstr "Laatst gecontroleerd %s geleden."
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:328
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:469
 msgid "Alert"
 msgstr "Melding"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:184
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
+msgid "Recipients"
+msgstr "Ontvangers"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2888
 msgid "Cleared"
 msgstr "Vrijgegeven"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:214
 msgid "Dismissed"
 msgstr "Weggeklikt"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:215
 msgid "Check time"
 msgstr "Controletijd"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:226
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:228
 msgid "Mostly dismissed — worth reviewing"
 msgstr "Meestal weggeklikt — het bekijken waard"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:243
+#. translators: %d: milliseconds the check took
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:236
+#, php-format
+msgid "%d ms"
+msgstr "%d ms"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:247
 msgid ""
 "These counts cover everyone in the academy. Each alert appears only in the "
 "list of the person it was sent to, so an open alert here need not be one of "
@@ -7386,13 +7398,7 @@ msgstr ""
 "alleen in de lijst van de persoon aan wie hij gestuurd is, dus een melding "
 "die hier openstaat hoeft niet van jou te zijn."
 
-#. translators: %d: milliseconds the check took
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:233
-#, php-format
-msgid "%d ms"
-msgstr "%d ms"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:241
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
 msgid ""
 "An alert most people dismiss is not informing anyone — it is teaching them "
 "to dismiss alerts, and the useful ones go with it. Nothing is switched off "
@@ -7404,13 +7410,13 @@ msgstr ""
 "automatisch uitgezet: of een melding zijn plek verdient is een afweging over "
 "jullie academie, geen rekensom."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:259
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:184
 msgid "Security check failed. Reload the page and try again."
 msgstr ""
 "Beveiligingscontrole mislukt. Herlaad de pagina en probeer het opnieuw."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:283
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:292
 msgid "Alert policy saved."
 msgstr "Meldingsbeleid opgeslagen."
 
@@ -7468,7 +7474,7 @@ msgstr "Berichten"
 
 #. translators: %s = player name
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:366
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:507
 #: src/Modules/Analytics/AnalyticsModule.php:173
 #: src/Modules/Analytics/AnalyticsModule.php:276
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
@@ -7522,7 +7528,7 @@ msgid "Evaluations"
 msgstr "Evaluaties"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:367
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:508
 #: src/Modules/Analytics/AnalyticsModule.php:192
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Authorization/Admin/RolesPage.php:493
@@ -7568,7 +7574,7 @@ msgid "Development plans"
 msgstr "Ontwikkelplannen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:238
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:368
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:509
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
@@ -7593,7 +7599,7 @@ msgid "People"
 msgstr "Personen"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:239
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:370
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:511
 #: src/Shared/CoreSurfaceRegistration.php:654
 msgid "Tasks"
 msgstr "Taken"
@@ -7606,38 +7612,67 @@ msgstr "Je moet ingelogd zijn om je meldingen te zien."
 msgid "Alerts are not available on this site yet."
 msgstr "Meldingen zijn op deze site nog niet beschikbaar."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:104
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:115
 msgid "Nothing needs your attention right now."
 msgstr "Er vraagt op dit moment niets om je aandacht."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:178
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:167
+msgid "Alert pages"
+msgstr "Paginering meldingen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:173
+#: src/Shared/Frontend/Components/MediaGallery.php:321
+msgid "Previous"
+msgstr "Vorige"
+
+#. translators: 1: current page number, 2: total number of pages
+#. translators: 1: current page, 2: total pages
+#. translators: 1: current page number, 2: total page count
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:181
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:170
+#: src/Shared/Frontend/Components/FrontendListTable.php:178
+#: src/Shared/Frontend/FrontendAuditLogView.php:628
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
+#, php-format
+msgid "Page %1$d of %2$d"
+msgstr "Pagina %1$d van %2$d"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:191
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:178
+#: src/Shared/Frontend/Components/MediaGallery.php:323
+#: src/Shared/Frontend/FrontendWizardView.php:336
+msgid "Next"
+msgstr "Volgende"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:301
 msgid "Unread"
 msgstr "Ongelezen"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:179
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:335
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:302
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:476
 msgid "Resolved"
 msgstr "Opgelost"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:195
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
 msgid "Area"
 msgstr "Onderdeel"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:199
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:322
 msgid "All areas"
 msgstr "Alle onderdelen"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:204
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:327
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:181
 #: src/Modules/Journey/Wizards/InjuryDetailsStep.php:43
 msgid "Severity"
 msgstr "Ernst"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:208
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:331
 msgid "Any severity"
 msgstr "Elke urgentie"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:214
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:337
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:210
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:398
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:94
@@ -7646,33 +7681,30 @@ msgstr "Elke urgentie"
 msgid "State"
 msgstr "Status"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:253
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:377
 msgid "Showing alerts for one record only."
 msgstr "Je ziet alleen meldingen over één record."
 
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:379
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:396
+msgid "Show all alerts"
+msgstr "Alle meldingen tonen"
+
 #. translators: %s: the name of one kind of alert, e.g. "Coaching certificate expiring"
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:268
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:392
 #, php-format
 msgid "Showing one kind of alert: %s."
 msgstr "Je ziet één soort melding: %s."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:178
-msgid "Alert pages"
-msgstr "Paginering meldingen"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:255
-msgid "Show all alerts"
-msgstr "Alle meldingen tonen"
-
 #. translators: %d: number of teams with open alerts
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:280
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:421
 #, php-format
 msgid "%d team has records that need attention"
 msgid_plural "%d teams have records that need attention"
 msgstr[0] "%d team heeft records die aandacht vragen"
 msgstr[1] "%d teams hebben records die aandacht vragen"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:308
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:449
 msgid ""
 "These are the conditions your teams' coaches have been told about. You are "
 "not sent one alert per team."
@@ -7680,7 +7712,7 @@ msgstr ""
 "Dit zijn de situaties waarvan de trainers van je teams bericht hebben "
 "gekregen. Je krijgt niet per team een eigen melding."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:369
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:510
 #: src/Modules/DemoData/DemoCoverage.php:1356
 #: src/Shared/Frontend/DashboardShortcode.php:934
 #: src/Shared/Frontend/FrontendMySettingsView.php:553
@@ -7722,28 +7754,28 @@ msgstr ""
 "\"%s\" gaat over de veiligheid van een kind en kan niet voor de club worden "
 "uitgezet."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:181
-#: src/Modules/Alerts/Rest/AlertsRestController.php:199
-#: src/Modules/Alerts/Rest/AlertsRestController.php:206
-#: src/Modules/Alerts/Rest/AlertsRestController.php:210
-#: src/Modules/Alerts/Rest/AlertsRestController.php:406
-#: src/Modules/Alerts/Rest/AlertsRestController.php:410
-#: src/Modules/Alerts/Rest/AlertsRestController.php:417
-#: src/Modules/Alerts/Rest/AlertsRestController.php:425
+#: src/Modules/Alerts/Rest/AlertsRestController.php:193
+#: src/Modules/Alerts/Rest/AlertsRestController.php:211
+#: src/Modules/Alerts/Rest/AlertsRestController.php:218
+#: src/Modules/Alerts/Rest/AlertsRestController.php:222
+#: src/Modules/Alerts/Rest/AlertsRestController.php:468
+#: src/Modules/Alerts/Rest/AlertsRestController.php:472
+#: src/Modules/Alerts/Rest/AlertsRestController.php:479
+#: src/Modules/Alerts/Rest/AlertsRestController.php:487
 msgid "Alert not found."
 msgstr "Melding niet gevonden."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:187
+#: src/Modules/Alerts/Rest/AlertsRestController.php:199
 msgid "Choose how long to snooze this alert: a day, a week, or a month."
 msgstr ""
 "Kies hoe lang je deze melding wilt uitstellen: een dag, een week of een "
 "maand."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:245
+#: src/Modules/Alerts/Rest/AlertsRestController.php:257
 msgid "Expected a preferences object."
 msgstr "Er werd een voorkeurenobject verwacht."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:318
+#: src/Modules/Alerts/Rest/AlertsRestController.php:334
 msgid "Expected a policy object."
 msgstr "Er werd een beleidsobject verwacht."
 
@@ -9666,11 +9698,6 @@ msgstr ""
 #, php-format
 msgid "Monthly report %s"
 msgstr "Maandrapport %s"
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:184
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
-msgid "Recipients"
-msgstr "Ontvangers"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:185
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:232
@@ -15107,17 +15134,6 @@ msgstr "Kanaal"
 msgid "Newer"
 msgstr "Nieuwer"
 
-#. translators: 1: current page, 2: total pages
-#. translators: 1: current page number, 2: total page count
-#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
-#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:170
-#: src/Shared/Frontend/Components/FrontendListTable.php:178
-#: src/Shared/Frontend/FrontendAuditLogView.php:628
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
-#, php-format
-msgid "Page %1$d of %2$d"
-msgstr "Pagina %1$d van %2$d"
-
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:367
 #: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:174
 #: src/Shared/Frontend/FrontendAuditLogView.php:632
@@ -19649,12 +19665,6 @@ msgstr "Kies een grafiektype"
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:177
 msgid "Name and save"
 msgstr "Geef een naam en sla op"
-
-#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:178
-#: src/Shared/Frontend/Components/MediaGallery.php:323
-#: src/Shared/Frontend/FrontendWizardView.php:336
-msgid "Next"
-msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:179
 #: src/Shared/Frontend/Components/BackLabelResolver.php:85
@@ -52670,10 +52680,6 @@ msgstr[1] "%d spelers getagd"
 #: src/Shared/Frontend/Components/MediaGallery.php:318
 msgid "Media viewer"
 msgstr "Mediaweergave"
-
-#: src/Shared/Frontend/Components/MediaGallery.php:321
-msgid "Previous"
-msgstr "Vorige"
 
 #: src/Shared/Frontend/Components/MediaGallery.php:331
 msgid "Add photos or video"

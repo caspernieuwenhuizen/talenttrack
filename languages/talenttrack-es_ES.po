@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:17:35+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:18:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -4924,7 +4924,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:232
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:365
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:506
 #: src/Modules/Analytics/AnalyticsModule.php:152
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:235
@@ -6814,8 +6814,8 @@ msgstr[1] ""
 
 #: src/Modules/Alerts/Frontend/AlertBanner.php:119
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:177
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:341
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:300
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:482
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -6935,34 +6935,47 @@ msgid "Last checked %s ago."
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:328
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:469
 msgid "Alert"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:184
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
+msgid "Recipients"
+msgstr "Destinatarios"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2888
 msgid "Cleared"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:214
 msgid "Dismissed"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:215
 msgid "Check time"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:226
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:228
 msgid "Mostly dismissed — worth reviewing"
 msgstr ""
 
 #. translators: %d: milliseconds the check took
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:233
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:236
 #, php-format
 msgid "%d ms"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:241
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:247
+msgid ""
+"These counts cover everyone in the academy. Each alert appears only in the "
+"list of the person it was sent to, so an open alert here need not be one of "
+"yours."
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
 msgid ""
 "An alert most people dismiss is not informing anyone — it is teaching them "
 "to dismiss alerts, and the useful ones go with it. Nothing is switched off "
@@ -6970,12 +6983,12 @@ msgid ""
 "academy, not a calculation."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:259
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:184
 msgid "Security check failed. Reload the page and try again."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:283
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:292
 msgid "Alert policy saved."
 msgstr ""
 
@@ -7028,7 +7041,7 @@ msgstr ""
 
 #. translators: %s = player name
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:235
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:366
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:507
 #: src/Modules/Analytics/AnalyticsModule.php:173
 #: src/Modules/Analytics/AnalyticsModule.php:276
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
@@ -7082,7 +7095,7 @@ msgid "Evaluations"
 msgstr "Evaluaciones"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:236
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:367
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:508
 #: src/Modules/Analytics/AnalyticsModule.php:192
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Authorization/Admin/RolesPage.php:493
@@ -7128,7 +7141,7 @@ msgid "Development plans"
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:238
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:368
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:509
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
@@ -7153,7 +7166,7 @@ msgid "People"
 msgstr "Personas"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:239
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:370
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:511
 #: src/Shared/CoreSurfaceRegistration.php:654
 msgid "Tasks"
 msgstr ""
@@ -7166,38 +7179,67 @@ msgstr ""
 msgid "Alerts are not available on this site yet."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:104
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:115
 msgid "Nothing needs your attention right now."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:178
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:167
+msgid "Alert pages"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:173
+#: src/Shared/Frontend/Components/MediaGallery.php:321
+msgid "Previous"
+msgstr ""
+
+#. translators: 1: current page number, 2: total number of pages
+#. translators: 1: current page, 2: total pages
+#. translators: 1: current page number, 2: total page count
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:181
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
+#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:170
+#: src/Shared/Frontend/Components/FrontendListTable.php:178
+#: src/Shared/Frontend/FrontendAuditLogView.php:628
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
+#, php-format
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:191
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:178
+#: src/Shared/Frontend/Components/MediaGallery.php:323
+#: src/Shared/Frontend/FrontendWizardView.php:336
+msgid "Next"
+msgstr "Siguiente"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:301
 msgid "Unread"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:179
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:335
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:302
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:476
 msgid "Resolved"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:195
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:318
 msgid "Area"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:199
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:322
 msgid "All areas"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:204
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:327
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:181
 #: src/Modules/Journey/Wizards/InjuryDetailsStep.php:43
 msgid "Severity"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:208
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:331
 msgid "Any severity"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:214
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:337
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:210
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:398
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:94
@@ -7206,29 +7248,36 @@ msgstr ""
 msgid "State"
 msgstr "Estado"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:253
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:377
 msgid "Showing alerts for one record only."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:255
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:379
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:396
 msgid "Show all alerts"
 msgstr ""
 
+#. translators: %s: the name of one kind of alert, e.g. "Coaching certificate expiring"
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:392
+#, php-format
+msgid "Showing one kind of alert: %s."
+msgstr ""
+
 #. translators: %d: number of teams with open alerts
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:280
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:421
 #, php-format
 msgid "%d team has records that need attention"
 msgid_plural "%d teams have records that need attention"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:308
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:449
 msgid ""
 "These are the conditions your teams' coaches have been told about. You are "
 "not sent one alert per team."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:369
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:510
 #: src/Modules/DemoData/DemoCoverage.php:1356
 #: src/Shared/Frontend/DashboardShortcode.php:934
 #: src/Shared/Frontend/FrontendMySettingsView.php:553
@@ -7268,26 +7317,26 @@ msgid ""
 "\"%s\" protects a child's safety and cannot be switched off for the club."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:181
-#: src/Modules/Alerts/Rest/AlertsRestController.php:199
-#: src/Modules/Alerts/Rest/AlertsRestController.php:206
-#: src/Modules/Alerts/Rest/AlertsRestController.php:210
-#: src/Modules/Alerts/Rest/AlertsRestController.php:406
-#: src/Modules/Alerts/Rest/AlertsRestController.php:410
-#: src/Modules/Alerts/Rest/AlertsRestController.php:417
-#: src/Modules/Alerts/Rest/AlertsRestController.php:425
+#: src/Modules/Alerts/Rest/AlertsRestController.php:193
+#: src/Modules/Alerts/Rest/AlertsRestController.php:211
+#: src/Modules/Alerts/Rest/AlertsRestController.php:218
+#: src/Modules/Alerts/Rest/AlertsRestController.php:222
+#: src/Modules/Alerts/Rest/AlertsRestController.php:468
+#: src/Modules/Alerts/Rest/AlertsRestController.php:472
+#: src/Modules/Alerts/Rest/AlertsRestController.php:479
+#: src/Modules/Alerts/Rest/AlertsRestController.php:487
 msgid "Alert not found."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:187
+#: src/Modules/Alerts/Rest/AlertsRestController.php:199
 msgid "Choose how long to snooze this alert: a day, a week, or a month."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:245
+#: src/Modules/Alerts/Rest/AlertsRestController.php:257
 msgid "Expected a preferences object."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:318
+#: src/Modules/Alerts/Rest/AlertsRestController.php:334
 msgid "Expected a policy object."
 msgstr ""
 
@@ -9131,11 +9180,6 @@ msgstr ""
 #, php-format
 msgid "Monthly report %s"
 msgstr ""
-
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:184
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
-msgid "Recipients"
-msgstr "Destinatarios"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:185
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:232
@@ -14165,17 +14209,6 @@ msgstr ""
 msgid "Newer"
 msgstr ""
 
-#. translators: 1: current page, 2: total pages
-#. translators: 1: current page number, 2: total page count
-#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
-#: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:170
-#: src/Shared/Frontend/Components/FrontendListTable.php:178
-#: src/Shared/Frontend/FrontendAuditLogView.php:628
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
-#, php-format
-msgid "Page %1$d of %2$d"
-msgstr ""
-
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:367
 #: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:174
 #: src/Shared/Frontend/FrontendAuditLogView.php:632
@@ -18168,12 +18201,6 @@ msgstr ""
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:177
 msgid "Name and save"
 msgstr ""
-
-#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:178
-#: src/Shared/Frontend/Components/MediaGallery.php:323
-#: src/Shared/Frontend/FrontendWizardView.php:336
-msgid "Next"
-msgstr "Siguiente"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:179
 #: src/Shared/Frontend/Components/BackLabelResolver.php:85
@@ -48755,10 +48782,6 @@ msgstr[1] ""
 
 #: src/Shared/Frontend/Components/MediaGallery.php:318
 msgid "Media viewer"
-msgstr ""
-
-#: src/Shared/Frontend/Components/MediaGallery.php:321
-msgid "Previous"
 msgstr ""
 
 #: src/Shared/Frontend/Components/MediaGallery.php:331
