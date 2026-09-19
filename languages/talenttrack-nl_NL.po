@@ -46984,6 +46984,10 @@ msgstr "Doorgaan in stagegroep"
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "Unknown trial case status."
+msgstr "Onbekende status voor een stagedossier."
+
 #: src/Modules/Trials/Rest/TrialsRestController.php:280
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
