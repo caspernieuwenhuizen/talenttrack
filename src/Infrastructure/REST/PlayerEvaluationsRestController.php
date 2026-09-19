@@ -77,11 +77,18 @@ final class PlayerEvaluationsRestController extends BaseController {
 
         $items = [];
         foreach ( $reader->listForPlayer( $player_id, $scope ) as $row ) {
-            $eid     = (int) ( $row->id ?? 0 );
+            $eid  = (int) ( $row->id ?? 0 );
+            $type = (string) ( $row->type_name ?? '' );
+            // #806 — `type` stays the canonical lookup value for consumers
+            // that group on it; `type_localised` is what a front end prints.
+            $type_localised = (string) ( $row->type_name_localised ?? '' );
+            if ( $type_localised === '' ) $type_localised = $type;
+
             $items[] = [
                 'id'              => $eid,
                 'eval_date'       => (string) ( $row->eval_date ?? '' ),
-                'type'            => (string) ( $row->type_name ?? '' ),
+                'type'            => $type,
+                'type_localised'  => $type_localised,
                 'coach'           => (string) ( $row->coach_name ?? '' ),
                 'opponent'        => (string) ( $row->opponent ?? '' ),
                 'game_result'     => (string) ( $row->game_result ?? '' ),

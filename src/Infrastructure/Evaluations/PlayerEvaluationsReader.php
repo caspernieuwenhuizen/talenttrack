@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Evaluations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
@@ -63,6 +64,12 @@ final class PlayerEvaluationsReader {
     /**
      * Evaluations inside the scope, newest first, player-facing fields only.
      *
+     * Rows carry both `type_name` (the canonical `tt_lookups` value, kept for
+     * consumers that group on the key) and `type_name_localised` (#806 — the
+     * user-facing string in the active locale). Localising here rather than in
+     * the view is what keeps the rendered page and `GET /players/{id}/evaluations`
+     * saying the same word.
+     *
      * @return list<object>
      */
     public function listForPlayer( int $player_id, string $scope = self::SCOPE_CURRENT ): array {
@@ -82,7 +89,8 @@ final class PlayerEvaluationsReader {
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where is built from literals only.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.id, e.eval_date, e.opponent, e.game_result, e.player_feedback,
-                    lt.name AS type_name, u.display_name AS coach_name
+                    lt.id AS lookup_id, lt.name AS type_name, lt.lookup_type AS lookup_type,
+                    u.display_name AS coach_name
                FROM {$p}tt_evaluations e
                LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
                LEFT JOIN {$wpdb->users} u ON e.coach_id = u.ID
@@ -90,7 +98,36 @@ final class PlayerEvaluationsReader {
               ORDER BY e.eval_date DESC, e.id DESC",
             ...$params
         ) );
-        return is_array( $rows ) ? array_values( $rows ) : [];
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $fields = (array) $row;
+            $fields['type_name_localised'] = $this->localisedType( $fields );
+            // The join columns are plumbing for the line above, not part of
+            // the player-facing shape.
+            unset( $fields['lookup_id'], $fields['lookup_type'] );
+            $out[] = (object) $fields;
+        }
+        return $out;
+    }
+
+    /**
+     * The evaluation type in the active locale, or '' when the row has no
+     * type lookup at all. Mirrors `EvaluationsRepository::recentForCoach()`
+     * so the coach list and the player list translate identically.
+     *
+     * @param array<string, mixed> $fields One row of the query above.
+     */
+    private function localisedType( array $fields ): string {
+        $lookup_id = (int) ( $fields['lookup_id'] ?? 0 );
+        if ( $lookup_id <= 0 ) return '';
+
+        return LookupTranslator::name( (object) [
+            'id'          => $lookup_id,
+            'name'        => (string) ( $fields['type_name'] ?? '' ),
+            'lookup_type' => (string) ( $fields['lookup_type'] ?? '' ),
+        ] );
     }
 
     /** How many evaluations fall outside the scope — what "earlier seasons" would add. */

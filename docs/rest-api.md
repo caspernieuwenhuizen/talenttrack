@@ -776,11 +776,19 @@ season set, `current` behaves as `all` rather than returning nothing.
 ```json
 { "scope": "current", "season": "2026/2027", "from": "2026-08-01", "to": "2027-06-30",
   "earlier_count": 181,
-  "items": [ { "id": 912, "eval_date": "2026-09-11", "type": "Training", "coach": "…",
+  "items": [ { "id": 912, "eval_date": "2026-09-11", "type": "Training",
+               "type_localised": "Training", "coach": "…",
                "opponent": "", "game_result": "", "player_feedback": "…",
                "main_ratings": [ { "label": "Technical", "rating": 7.1 } ],
                "has_detail": true } ] }
 ```
+
+**`type` vs `type_localised` (#3681).** `type` is the canonical
+`tt_lookups` value — stable, the thing to group or filter on, unchanged since
+v1. `type_localised` is the same label resolved for the requesting user's
+locale (`Wedstrijd` on a Dutch install) and is what a front end prints. It
+falls back to `type` when the evaluation has no type lookup behind it, so it
+is never empty where `type` is not.
 
 ### `GET /players/{id}/evaluations/{evaluation_id}/detail`
 

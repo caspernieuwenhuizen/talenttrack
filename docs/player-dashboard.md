@@ -57,7 +57,7 @@ The team podium leads — top 3 players by rolling rating, gold/silver/bronze. B
 Throughout these pages, a parent is addressed as the parent: headings read "Bas's goals" and "How Bas is doing" rather than "My goals" and "How you're doing", and the parent's navigation drops the "My" from the labels that are about their child.
 
 ### My evaluations
-Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings — compact by default, expand a row to see the full subcategory breakdown.
+Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings — compact by default, expand a row to see the full subcategory breakdown. The type is shown in your own language, using whatever label your academy gave it. A match evaluation also names the opponent, with the score in brackets when one was recorded and nothing in brackets when it wasn't.
 
 ### My activities
 Two halves: what is coming up, and what you turned up to.
