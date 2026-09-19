@@ -40,6 +40,32 @@ final class DemoCalendar {
     /** Weeks generated ahead of today, so a demo install has a next fixture (#3030). */
     public const HORIZON_WEEKS = 4;
 
+    /**
+     * The week grid, as days after Monday (ISO 1): trainings on Tuesday and
+     * Thursday, and the fixture on Saturday, which is youth match day.
+     *
+     * These used to be offsets from the window start, and the window start
+     * is "now minus N weeks", so the weekday was whatever day the generator
+     * happened to run on. A Monday run put every match on a Thursday and
+     * none on a Saturday (#3660).
+     */
+    private const TRAINING_DAYS = [ 1, 3 ];
+
+    private const GAME_DAY = 5;
+
+    /**
+     * Wall-clock times per kind of slot, `H:i:s` as the TIME columns store
+     * them. A training is an evening session; a game has a morning kick-off
+     * and a time players report before it. Fixed rather than rolled, so the
+     * same seed produces the same academy (#3676).
+     *
+     * @var array<string, array{start:string, end:string, presence:?string}>
+     */
+    public const SLOT_TIMES = [
+        'training' => [ 'start' => '18:30:00', 'end' => '20:00:00', 'presence' => null ],
+        'game'     => [ 'start' => '10:00:00', 'end' => '11:30:00', 'presence' => '09:15:00' ],
+    ];
+
     private int $weeks;
 
     private int $now;
@@ -178,31 +204,55 @@ final class DemoCalendar {
      * a "match evaluation" was never about a match — nothing else could see
      * which days were fixtures (#3401).
      *
-     * @return list<array{date:string, ts:int, week:int, slot:int, is_game:bool, is_future:bool, subtype:?string}>
+     * Weeks run from the first Monday on or after the window start, so a
+     * training is always on a Tuesday or Thursday and a fixture always on a
+     * Saturday, whichever day the generator runs. On or after rather than
+     * before: no slot lands ahead of the window `DemoRoster` opens the
+     * squad's history at. `ts` is the slot's start time, so `is_future`
+     * means "has not kicked off yet".
+     *
+     * @return list<array{date:string, ts:int, week:int, slot:int, is_game:bool, is_future:bool, subtype:?string, start_time:string, end_time:string, time_of_presence:?string}>
      */
     public function activitySlots(): array {
-        $start = $this->windowStart();
-        $total = $this->weeks + self::HORIZON_WEEKS;
+        $monday = $this->firstMondayOnOrAfter( $this->windowStart() );
+        $total  = $this->weeks + self::HORIZON_WEEKS;
+        $sub    = [ 'League', 'League', 'Cup', 'Friendly' ];
 
         $out = [];
         for ( $w = 0; $w < $total; $w++ ) {
             for ( $s = 0; $s < 2; $s++ ) {
-                $ts      = $start + ( ( $w * 7 ) + ( $s === 0 ? 1 : 3 ) ) * DAY_IN_SECONDS;
                 $is_game = ( $s === 1 && ( $w % 3 ) === 2 );
-                $sub     = [ 'League', 'League', 'Cup', 'Friendly' ];
+                $day     = $is_game ? self::GAME_DAY : self::TRAINING_DAYS[ $s ];
+                $times   = self::SLOT_TIMES[ $is_game ? 'game' : 'training' ];
+                $date_ts = $monday + ( ( $w * 7 ) + $day ) * DAY_IN_SECONDS;
+                $ts      = $date_ts + self::secondsOfDay( $times['start'] );
 
                 $out[] = [
-                    'date'      => gmdate( 'Y-m-d', $ts ),
-                    'ts'        => $ts,
-                    'week'      => $w,
-                    'slot'      => $s,
-                    'is_game'   => $is_game,
-                    'is_future' => $ts >= $this->now,
-                    'subtype'   => $is_game ? $sub[ $w % count( $sub ) ] : null,
+                    'date'             => gmdate( 'Y-m-d', $date_ts ),
+                    'ts'               => $ts,
+                    'week'             => $w,
+                    'slot'             => $s,
+                    'is_game'          => $is_game,
+                    'is_future'        => $ts >= $this->now,
+                    'subtype'          => $is_game ? $sub[ $w % count( $sub ) ] : null,
+                    'start_time'       => $times['start'],
+                    'end_time'         => $times['end'],
+                    'time_of_presence' => $times['presence'],
                 ];
             }
         }
         return $out;
+    }
+
+    /** Midnight UTC of the first Monday on or after the day `$ts` falls on. */
+    private function firstMondayOnOrAfter( int $ts ): int {
+        $midnight = intdiv( $ts, DAY_IN_SECONDS ) * DAY_IN_SECONDS;
+        $weekday  = (int) gmdate( 'N', $midnight );
+        return $midnight + ( ( 8 - $weekday ) % 7 ) * DAY_IN_SECONDS;
+    }
+
+    private static function secondsOfDay( string $time ): int {
+        return (int) substr( $time, 0, 2 ) * HOUR_IN_SECONDS + (int) substr( $time, 3, 2 ) * MINUTE_IN_SECONDS;
     }
 
     /**
