@@ -83,6 +83,19 @@ final class TrialLetterPrintTest extends WP_UnitTestCase {
         return $row;
     }
 
+    /**
+     * What the print document actually shows, without its `head`.
+     *
+     * The stylesheet is inlined in the head (a standalone document has no
+     * `wp_head` to enqueue into), and its comments name the classes it
+     * dresses — so asserting "this page has no case-tab markup" against the
+     * whole document would be asserting against CSS comments.
+     */
+    private function bodyOf( string $html ): string {
+        $parts = explode( '</head>', $html, 2 );
+        return $parts[1] ?? $html;
+    }
+
     private function generateLetter(): void {
         $id = ( new TrialLetterService() )->generate(
             $this->case(),
@@ -117,13 +130,14 @@ final class TrialLetterPrintTest extends WP_UnitTestCase {
         $this->generateLetter();
 
         $html = TrialLetterPrintRouter::renderHtml( $this->case_id );
+        $body = $this->bodyOf( $html );
 
-        $this->assertStringContainsString( 'class="tt-letter"', $html );
-        $this->assertStringNotContainsString( 'tt-trial-letter-preview', $html );
-        $this->assertStringNotContainsString( 'wpadminbar', $html );
-        $this->assertStringNotContainsString( 'tt-spine', $html );
-        $this->assertStringNotContainsString( 'tt-player-tab-panel', $html );
-        $this->assertStringNotContainsString( 'Letter history', $html );
+        $this->assertStringContainsString( 'class="tt-letter"', $body );
+        $this->assertStringNotContainsString( 'tt-trial-letter-preview', $body );
+        $this->assertStringNotContainsString( 'wpadminbar', $body );
+        $this->assertStringNotContainsString( 'tt-spine', $body );
+        $this->assertStringNotContainsString( 'tt-player-tab-panel', $body );
+        $this->assertStringNotContainsString( 'Letter history', $body );
     }
 
     public function test_a_legacy_letter_prints_without_its_stylesheet_text(): void {

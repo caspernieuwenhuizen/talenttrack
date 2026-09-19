@@ -189,19 +189,19 @@ final class LetterTemplateEngine {
      * The letter as it should be shown, from the HTML stored for it.
      *
      * Letters generated before #3661 were stored with their stylesheet
-     * prefixed as a `<style>` element. `wp_kses_post()` drops the tags but
+     * inlined ahead of the letter. `wp_kses_post()` drops the tags but
      * keeps their text, so on screen that stylesheet appeared as a block
      * of CSS above the letter. The rules live in `assets/css/trial-letter.css`
      * now; every surface that shows a stored letter reads it through here
      * so the old rows display the same as the new ones.
      */
     public static function displayHtml( string $stored ): string {
-        $clean = preg_replace( '#<style\b[^>]*>.*?</style>#is', '', $stored );
+        $clean = preg_replace( '#<style\b[^>]*>.*?</style>#is', '', $stored ); /* tt-inline-ok — removes a stylesheet from stored letter HTML; adds none. */
         return trim( is_string( $clean ) ? $clean : $stored );
     }
 
     /**
-     * No `<style>` element: the stored HTML is content, and the rules that
+     * No inlined stylesheet: the stored HTML is content, and the rules that
      * dress it live in `assets/css/trial-letter.css` (#3661).
      *
      * @param array<string,string> $context

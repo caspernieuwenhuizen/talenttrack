@@ -759,7 +759,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             $print_url = \TT\Modules\Trials\Print\TrialLetterPrintRouter::urlFor( (int) $case->id );
             echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Print view', 'talenttrack' ) . '</a></p>';
             // Read through the engine: letters stored before #3661 carry
-            // their stylesheet as a `<style>` prefix, which kses turns into
+            // their stylesheet inlined ahead of them, which kses turns into
             // a block of CSS text above the letter.
             echo '<div class="tt-trial-letter-preview">'
                 . wp_kses_post( LetterTemplateEngine::displayHtml( (string) $letter->rendered_html ) )

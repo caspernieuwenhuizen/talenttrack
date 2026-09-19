@@ -138,7 +138,7 @@ abstract class FrontendViewBase {
             TT_VERSION
         );
         // #3661 — the letter's own rules. They used to travel inside the
-        // letter's stored HTML as a `<style>` element, which kses rendered
+        // letter's stored HTML, inlined ahead of it, which kses rendered
         // as CSS text on the page. Same sheet for the Letter tab, the
         // template editor's preview and the print document.
         wp_enqueue_style(
