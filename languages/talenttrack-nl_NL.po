@@ -62720,6 +62720,16 @@ msgstr "Onbekend veldtype: %s"
 msgid "You're not assigned to a team yet. Ask your academy admin to add you to one."
 msgstr "Je bent nog niet aan een team gekoppeld. Vraag je academiebeheerder om je aan een team toe te voegen."
 
+#. translators: 1: player name, 2: the open trial case's number
+#: src/Modules/Trials/Services/TrialCaseOpener.php
+#, php-format
+msgid "%1$s already has an open trial case (#%2$d). Extend or decide that case instead of opening a second one."
+msgstr "%1$s heeft al een open stagedossier (#%2$d). Verleng dat dossier of neem een besluit in plaats van een tweede te openen."
+
+#: src/Shared/Frontend/FrontendTrialsManageView.php
+msgid "Open that trial case"
+msgstr "Open dat stagedossier"
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 

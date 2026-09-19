@@ -81,6 +81,17 @@ class TrialCasesRepository {
     private \wpdb $wpdb;
     private string $table;
 
+    /** #3577 — the open case that refused the last `create()`, or 0. */
+    private int $blocking_case_id = 0;
+
+    /**
+     * #3577 — when the last `create()` returned 0 because the player
+     * already has an open or extended case, that case's id. 0 otherwise.
+     */
+    public function blockingCaseId(): int {
+        return $this->blocking_case_id;
+    }
+
     public function __construct() {
         global $wpdb;
         $this->wpdb  = $wpdb;
@@ -199,6 +210,19 @@ class TrialCasesRepository {
      * @param array<string,mixed> $data
      */
     public function create( array $data ): int {
+        // #3577 — one open trial per player. A second open case split the
+        // decision, the staff inputs and the journey entry across two
+        // records; tracks are duration templates, not parallel programmes,
+        // and a longer trial is an extension of the one that is open. Here
+        // rather than in a caller, so every caller — REST, the manage form,
+        // the wizard, the demo generator — is held to it.
+        $this->blocking_case_id = 0;
+        $open = $this->findOpenForPlayer( (int) ( $data['player_id'] ?? 0 ) );
+        if ( $open !== null ) {
+            $this->blocking_case_id = (int) ( ( (array) $open )['id'] ?? 0 );
+            return 0;
+        }
+
         $insert = [
             'club_id'     => CurrentClub::id(),
             'player_id'   => (int) ( $data['player_id'] ?? 0 ),

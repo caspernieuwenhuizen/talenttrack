@@ -14,6 +14,7 @@ use TT\Modules\Trials\Repositories\TrialStaffInputsRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Reminders\TrialReminderScheduler;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
+use TT\Modules\Trials\Services\TrialCaseOpener;
 
 /**
  * REST surface for #0017 — trial cases.
@@ -203,14 +204,50 @@ class TrialsRestController {
             'decision' => sanitize_key( (string) $r->get_param( 'decision' ) ),
             'include_archived' => (bool) $r->get_param( 'include_archived' ),
         ];
-        $rows = ( new TrialCasesRepository() )->search( $filters );
-        return RestResponse::success( [ 'cases' => array_map( [ __CLASS__, 'format' ], $rows ) ] );
+        $rows  = ( new TrialCasesRepository() )->search( $filters );
+        $names = self::playerNames( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) );
+        return RestResponse::success( [
+            'cases' => array_map( static fn( $row ): array => self::format( $row, $names ), $rows ),
+        ] );
+    }
+
+    /**
+     * Display names for a set of players, in one club-scoped query.
+     *
+     * @param list<int> $player_ids
+     * @return array<int,string>
+     */
+    private static function playerNames( array $player_ids ): array {
+        $ids = array_values( array_unique( array_filter( $player_ids, static fn( int $id ): bool => $id > 0 ) ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        // Every id is an int by construction, so the list is safe to inline.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results(
+            "SELECT id, first_name, last_name FROM {$p}tt_players
+              WHERE id IN (" . implode( ',', $ids ) . ')
+                AND club_id = ' . (int) \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            ARRAY_A
+        );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) ( $row['id'] ?? 0 ) ] = trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) );
+        }
+        return $out;
     }
 
     public static function create_case( \WP_REST_Request $r ): \WP_REST_Response {
         $payload = (array) $r->get_json_params();
-        $repo = new TrialCasesRepository();
-        $id = $repo->create( [
+
+        // #3577 — through `TrialCaseOpener`, the path the manage form and the
+        // wizard use. This route called the repository directly, so it
+        // skipped the cross-club player check and never set the player's
+        // status to Trial; it also now meets the one-open-case rule with a
+        // 409 naming the case that is open.
+        $result = ( new TrialCaseOpener() )->open( [
             'player_id'  => absint( $payload['player_id'] ?? 0 ),
             'track_id'   => absint( $payload['track_id'] ?? 0 ),
             'start_date' => sanitize_text_field( (string) ( $payload['start_date'] ?? gmdate( 'Y-m-d' ) ) ),
@@ -218,10 +255,17 @@ class TrialsRestController {
             'notes'      => sanitize_textarea_field( (string) ( $payload['notes'] ?? '' ) ),
             'created_by' => get_current_user_id(),
         ] );
-        if ( $id <= 0 ) {
-            return RestResponse::error( 'bad_request', __( 'Could not create trial case.', 'talenttrack' ), 400 );
+        if ( $result instanceof \WP_Error ) {
+            $data    = (array) $result->get_error_data();
+            $details = isset( $data['existing_case_id'] ) ? [ 'existing_case_id' => (int) $data['existing_case_id'] ] : [];
+            return RestResponse::error(
+                (string) $result->get_error_code(),
+                $result->get_error_message(),
+                (int) ( $data['status'] ?? 400 ),
+                $details
+            );
         }
-        $case = $repo->find( $id );
+        $case = ( new TrialCasesRepository() )->find( (int) $result );
         // #3130 — `tt_trial_started` moved into `TrialCasesRepository::create()`.
         // Four callers reached that method and only three fired the hook, so
         // the journey entry depended on which screen opened the trial.
@@ -516,11 +560,18 @@ class TrialsRestController {
     /**
      * @return array<string,mixed>
      */
-    private static function format( ?object $row ): array {
+    /**
+     * @param array<int,string> $names player id => display name (#3577).
+     */
+    private static function format( ?object $row, array $names = [] ): array {
         if ( ! $row ) return [];
+        $player_id = (int) ( ( (array) $row )['player_id'] ?? 0 );
+        if ( $names === [] ) $names = self::playerNames( [ $player_id ] );
         return [
             'id'              => (int) $row->id,
             'player_id'       => (int) $row->player_id,
+            // #3577 — who is on trial, without a lookup per row.
+            'player_name'     => $names[ $player_id ] ?? '',
             'track_id'        => (int) $row->track_id,
             'start_date'      => (string) $row->start_date,
             'end_date'        => (string) $row->end_date,
