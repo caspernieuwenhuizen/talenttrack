@@ -30,8 +30,9 @@ final class MatchPrepState {
         $prep = $repo->findByActivity( $activity_id );
         if ( ! $prep ) return null;
 
-        $prep_id     = (int) $prep->id;
-        $template_id = (int) ( $prep->formation_template_id ?? 0 );
+        $prep        = (array) $prep;
+        $prep_id     = (int) ( $prep['id'] ?? 0 );
+        $template_id = (int) ( $prep['formation_template_id'] ?? 0 );
         $team_id     = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id );
 
         $state = [
@@ -39,10 +40,10 @@ final class MatchPrepState {
             'activity_id'           => $activity_id,
             'formation_template_id' => $template_id > 0 ? $template_id : null,
             'formation_shape'       => FormationLayoutResolver::shapeFor( $template_id, $team_id ),
-            'half_length_minutes'   => (int) ( $prep->half_length_minutes ?? 0 ),
+            'half_length_minutes'   => (int) ( $prep['half_length_minutes'] ?? 0 ),
         ];
         foreach ( self::GOAL_FIELDS as $field ) {
-            $state[ $field ] = (string) ( $prep->{$field} ?? '' );
+            $state[ $field ] = (string) ( $prep[ $field ] ?? '' );
         }
 
         $lineup = self::lineupByHalf( $repo->listLineup( $prep_id ) );
@@ -62,9 +63,10 @@ final class MatchPrepState {
     public static function availabilityByPlayer( array $rows ): array {
         $out = [];
         foreach ( $rows as $row ) {
-            $out[ (int) $row->player_id ] = [
-                'status' => (string) ( $row->status ?? 'Present' ),
-                'reason' => (string) ( $row->reason ?? '' ),
+            $row = (array) $row;
+            $out[ (int) ( $row['player_id'] ?? 0 ) ] = [
+                'status' => (string) ( $row['status'] ?? 'Present' ),
+                'reason' => (string) ( $row['reason'] ?? '' ),
             ];
         }
         return $out;
@@ -77,9 +79,10 @@ final class MatchPrepState {
     public static function lineupByHalf( array $rows ): array {
         $out = [ 1 => [], 2 => [] ];
         foreach ( $rows as $row ) {
-            $half = (int) $row->half;
+            $row  = (array) $row;
+            $half = (int) ( $row['half'] ?? 0 );
             if ( $half !== 1 && $half !== 2 ) continue;
-            $out[ $half ][ (int) $row->slot_number ] = (int) $row->player_id;
+            $out[ $half ][ (int) ( $row['slot_number'] ?? 0 ) ] = (int) ( $row['player_id'] ?? 0 );
         }
         return $out;
     }
@@ -91,10 +94,11 @@ final class MatchPrepState {
     public static function playerGoalsByPlayer( array $rows ): array {
         $out = [];
         foreach ( $rows as $row ) {
-            $out[ (int) $row->player_id ] = [
-                'attention_text'    => (string) ( $row->attention_text ?? '' ),
-                'is_specific_goal'  => ! empty( $row->is_specific_goal ),
-                'analyst_appointed' => ! empty( $row->analyst_appointed ),
+            $row = (array) $row;
+            $out[ (int) ( $row['player_id'] ?? 0 ) ] = [
+                'attention_text'    => (string) ( $row['attention_text'] ?? '' ),
+                'is_specific_goal'  => ! empty( $row['is_specific_goal'] ),
+                'analyst_appointed' => ! empty( $row['analyst_appointed'] ),
             ];
         }
         return $out;
@@ -107,7 +111,8 @@ final class MatchPrepState {
     public static function rolesByKey( array $rows ): array {
         $out = [];
         foreach ( $rows as $row ) {
-            $out[ (string) $row->role_key ] = (int) $row->player_id;
+            $row = (array) $row;
+            $out[ (string) ( $row['role_key'] ?? '' ) ] = (int) ( $row['player_id'] ?? 0 );
         }
         return $out;
     }
