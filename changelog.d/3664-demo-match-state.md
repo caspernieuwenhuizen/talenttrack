@@ -1,0 +1,3 @@
+# Demo matches show as finalized and name their opponent (#3664)
+
+Every generated past match on a demo install listed as "Not started" beside its final score, and never appeared under the "Finalized" or "Pending review" filters, because the demo generator stored it in a state the product retired. Generated matches are now finalized, the way a coach leaves a match after reviewing it. Every generated fixture also has an opponent and alternates home and away, with the opponent's ground as the location of an away game, so the match executions list, team results and a player's match history no longer show "—" where the opponent goes.

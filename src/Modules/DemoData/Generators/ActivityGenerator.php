@@ -9,6 +9,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoCalendar;
 use TT\Modules\DemoData\DemoRoster;
+use TT\Modules\DemoData\SeedLoader;
 
 /**
  * ActivityGenerator — fills tt_activities + tt_attendance.
@@ -42,17 +43,19 @@ class ActivityGenerator implements DependentGeneratorInterface {
         [ 100, 'Late'   ],
     ];
 
-    /** @var array<string, array{title_template:string, game_title_template:string, default_location:string}> */
+    /** @var array<string, array{title_template:string, game_title_template:string, default_location:string, away_location_template:string}> */
     private const SESSION_STRINGS_BY_LANGUAGE = [
         'en_US' => [
-            'title_template'      => 'Training %d.%d',
-            'game_title_template' => 'Match %d.%d',
-            'default_location'    => 'Home pitch',
+            'title_template'         => 'Training %d.%d',
+            'game_title_template'    => 'Match %d.%d',
+            'default_location'       => 'Home pitch',
+            'away_location_template' => 'Away at %s',
         ],
         'nl_NL' => [
-            'title_template'      => 'Training %d.%d',
-            'game_title_template' => 'Wedstrijd %d.%d',
-            'default_location'    => 'Thuisveld',
+            'title_template'         => 'Training %d.%d',
+            'game_title_template'    => 'Wedstrijd %d.%d',
+            'default_location'       => 'Thuisveld',
+            'away_location_template' => 'Uit bij %s',
         ],
     ];
 
@@ -137,10 +140,17 @@ class ActivityGenerator implements DependentGeneratorInterface {
         // the fixture rule, so the two cannot drift apart.
         $slots = $this->calendar->activitySlots();
 
+        // #3664 — a fixture is played against somebody. Every generated game
+        // used to carry no opponent and no venue, so the match executions
+        // list, the team's results and the player's match history all read
+        // "—" where the opponent goes.
+        $opponents = array_values( SeedLoader::opponents() );
+
         $total = 0;
         foreach ( $this->teams as $team ) {
             $team_id  = (int) $team->id;
             $coach_id = (int) $team->head_coach_user_id;
+            $game_no  = 0;
 
             foreach ( $slots as $slot ) {
                 $when   = (string) $slot['date'];
@@ -155,6 +165,25 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     (int) $slot['slot'] + 1
                 );
 
+                // #3664 — the opponent is an `mt_rand` draw, so a seeded run
+                // gives the same fixtures again (#2461). Venues alternate
+                // home and away the way a league schedule does, and the
+                // location says where the away game was. `home_score` stays
+                // our goals whatever the venue (#3530).
+                $opponent  = null;
+                $home_away = null;
+                $location  = $strings['default_location'];
+                if ( $is_game ) {
+                    $home_away = $game_no % 2 === 0 ? 'home' : 'away';
+                    $game_no++;
+                    if ( $opponents ) {
+                        $opponent = $opponents[ mt_rand( 0, count( $opponents ) - 1 ) ];
+                        if ( $home_away === 'away' ) {
+                            $location = sprintf( $strings['away_location_template'], $opponent );
+                        }
+                    }
+                }
+
                 $wpdb->insert( "{$wpdb->prefix}tt_activities", [
                     'club_id'             => CurrentClub::id(),
                     'title'               => $title,
@@ -167,7 +196,9 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     'end_time'            => $slot['end_time'],
                     'time_of_presence'    => $slot['time_of_presence'],
                     'kickoff_time'        => $is_game ? $slot['start_time'] : null,
-                    'location'            => $strings['default_location'],
+                    'location'            => $location,
+                    'opponent'            => $opponent,
+                    'home_away'           => $home_away,
                     'team_id'             => $team_id,
                     'coach_id'            => $coach_id,
                     'notes'               => '',

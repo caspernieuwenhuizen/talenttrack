@@ -84,6 +84,11 @@ the Thursday training gives way to a **match on Saturday**, kicking off at 10:00
 with players reporting at 09:15. So a Saturday in a match week always has a
 fixture to hang minutes, the register and match evaluations on.
 
+Every fixture has an **opponent** and alternates between **home and away**; an
+away game gives the opponent's ground as its location. A match that has been
+played shows as **Finalized** on the match executions list, the way a match
+reads once the coach has reviewed it and locked it after the final whistle.
+
 They do carry a **planned squad**, though, and so does every past activity.
 Attendance is two different things — the squad a coach planned and the register
 they took afterwards — and a generated academy used to contain only the second.

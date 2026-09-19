@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
@@ -400,8 +401,11 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         $home_goals = $this->drawGoals();
         $away_goals = $this->drawGoals();
 
+        // #3664 — a played past match is a reviewed one. The `'finished'`
+        // literal is the state #1033 retired: no list, filter or pill
+        // recognises it, so every generated match read "Not started".
         $exec_repo->update( $execution_id, [
-            'state'                   => 'finished',
+            'state'                   => MatchExecutionState::FINALIZED,
             'first_half_started_at'   => gmdate( 'Y-m-d H:i:s', $kickoff ),
             'first_half_ended_at'     => gmdate( 'Y-m-d H:i:s', $kickoff + $half_seconds ),
             'second_half_started_at'  => gmdate( 'Y-m-d H:i:s', $kickoff + $half_seconds + ( 15 * MINUTE_IN_SECONDS ) ),
