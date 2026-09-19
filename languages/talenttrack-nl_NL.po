@@ -53604,9 +53604,18 @@ msgstr "Aftrap %s"
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1261
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1286
+msgid "Presence time"
+msgstr "Aanwezigheidstijd"
+
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 msgid "Kick-off"
 msgstr "Aftrap"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1272
+msgid "End time"
+msgstr "Eindtijd"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1303
 msgid "Cycle week"
