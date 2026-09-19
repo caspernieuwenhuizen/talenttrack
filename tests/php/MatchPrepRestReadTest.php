@@ -143,6 +143,31 @@ final class MatchPrepRestReadTest extends WP_UnitTestCase {
         $this->assertSame( 404, $this->send( 'GET', $this->mine )[1], 'a refused PUT starts no prep' );
     }
 
+    /**
+     * #3690 — the refusal says what to send instead, and the list is the
+     * route's own declaration, so the two cannot disagree.
+     */
+    public function test_an_unknown_field_refusal_lists_the_accepted_fields(): void {
+        [ $data, $status ] = $this->send( 'PUT', $this->mine, [ 'planned_minutes' => [ [ 'player_id' => $this->players[0], 'minutes' => 25 ] ] ] );
+
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'unknown_field', $data['errors'][0]['code'] ?? null );
+        $this->assertSame( [ 'planned_minutes' ], (array) ( $data['errors'][0]['details']['fields'] ?? [] ) );
+
+        $declared = [];
+        foreach ( rest_get_server()->get_routes()['/talenttrack/v1/match-prep/(?P<activity_id>\d+)'] ?? [] as $handler ) {
+            if ( ! empty( $handler['methods']['PUT'] ) ) $declared = array_keys( $handler['args'] );
+        }
+        $expected = array_merge(
+            [ 'formation_template_id', 'half_length_minutes', 'lineup', 'availability', 'player_goals' ],
+            \TT\Modules\MatchPrep\Services\MatchPrepState::GOAL_FIELDS
+        );
+        $allowed = (array) ( $data['errors'][0]['details']['allowed'] ?? [] );
+        $this->assertEqualsCanonicalizing( $expected, $allowed );
+        $this->assertEqualsCanonicalizing( $declared, $allowed, 'allowed is the route declaration' );
+        $this->assertSame( 404, $this->send( 'GET', $this->mine )[1], 'a refused PUT starts no prep' );
+    }
+
     public function test_a_coach_of_another_team_cannot_read_the_prep(): void {
         $this->assertSame( 403, $this->send( 'GET', $this->theirs )[1] );
     }

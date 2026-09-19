@@ -197,8 +197,10 @@ class MatchPrepRestController {
         if ( ! is_array( $body ) ) $body = $r->get_body_params();
 
         // #3587 — refuse before anything is written, so a typo'd field can
-        // not look like a save.
-        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $body ) ), array_keys( self::putArgs() ) ) );
+        // not look like a save. The refusal lists what the route does take,
+        // from the same declaration the check compares against.
+        $allowed = array_keys( self::putArgs() );
+        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $body ) ), $allowed ) );
         if ( $unknown !== [] ) {
             return RestResponse::error(
                 'unknown_field',
@@ -208,7 +210,7 @@ class MatchPrepRestController {
                     implode( ', ', $unknown )
                 ),
                 400,
-                [ 'fields' => $unknown ]
+                [ 'fields' => $unknown, 'allowed' => $allowed ]
             );
         }
 
