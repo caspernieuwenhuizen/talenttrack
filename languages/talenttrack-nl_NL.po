@@ -62723,6 +62723,16 @@ msgstr "Geef aan welk account je wilt koppelen: wp_user_id is verplicht."
 msgid "Type at least two characters of the name or email address."
 msgstr "Typ minstens twee tekens van de naam of het e-mailadres."
 
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php
+msgid "No match preparation has been started for this match yet."
+msgstr "Er is voor deze wedstrijd nog geen wedstrijdvoorbereiding gestart."
+
+#. translators: %s: comma-separated field names
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php
+#, php-format
+msgid "Match preparation does not accept: %s."
+msgstr "De wedstrijdvoorbereiding accepteert niet: %s."
+
 #~ msgid "Type a parent name to search…"
 #~ msgstr "Typ een oudernaam om te zoeken…"
 
