@@ -1199,9 +1199,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     /**
-     * #1618 — facts strip. Training/other: Date · Time · Type · Status.
-     * Match day: Opponent · Home/Away · Kick-off · Formation. Each cell
-     * renders only when it has a value (no empty placeholders).
+     * #1618 — facts strip. Training/other: Date · Time · Presence time ·
+     * Type · Status. Match day: Opponent · Home/Away · Presence time ·
+     * Kick-off · End time · Formation. Each cell renders only when it has
+     * a value (no empty placeholders).
      */
     private static function renderDetailFacts(
         object $session,
@@ -1215,6 +1216,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // A fixture is the activity whose date a coach most wants stated, so
         // both branches now lead with it, off one resolved value.
         $date_fact = \TT\Shared\Dates\TTDate::dateWithDay( (string) $session->session_date );
+
+        // #3678 — the two times the strip used to lose. `time_of_presence`
+        // is captured on the edit form (and seeded by the Spond sync) and
+        // was never read back by any surface here; `end_time` rode along
+        // inside `$window` and got sliced off by the five-character cut the
+        // Kick-off cell applies. Both are stored as `HH:MM:SS`.
+        $presence = substr( (string) ( $session->time_of_presence ?? '' ), 0, 5 );
+        $end_hhmm = substr( (string) ( $session->end_time ?? '' ), 0, 5 );
 
         $cells = [];
         if ( $is_match ) {
@@ -1245,15 +1254,36 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 ];
             }
 
+            // #3678 — the three times of a match day, in the order they
+            // happen. Presence leads: it is the one a parent plans around,
+            // and until now it was stored, echoed back by the edit form,
+            // and then invisible on the page everybody else reads.
+            if ( $presence !== '' ) $cells[] = [ __( 'Presence time', 'talenttrack' ), $presence ];
+
             $kick = (string) ( $session->kickoff_time ?? '' );
             if ( $kick === '' && $window !== '' ) $kick = $window;
             if ( $kick !== '' ) $cells[] = [ __( 'Kick-off', 'talenttrack' ), substr( $kick, 0, 5 ) ];
+
+            // #3678 — the end time had been riding along inside `$window`
+            // ("18:45–19:45") and was then sliced off by the five-character
+            // cut above, so a saved end time simply vanished. Its own cell,
+            // rather than a wider Kick-off, because "Kick-off" names one
+            // moment and should keep naming one.
+            if ( $end_hhmm !== '' ) $cells[] = [ __( 'End time', 'talenttrack' ), $end_hhmm ];
 
             $formation = (string) ( $session->formation ?? '' );
             if ( $formation !== '' ) $cells[] = [ __( 'Formation', 'talenttrack' ), $formation ];
         } else {
             if ( $date_fact !== '' ) $cells[] = [ __( 'Date', 'talenttrack' ), $date_fact ];
             if ( $window !== '' ) $cells[] = [ __( 'Time', 'talenttrack' ), $window ];
+            // #3678 — this branch is not only trainings. `$is_match` is
+            // `game` / `match` alone, while the edit form offers the
+            // presence row for `friendly` and `tournament` as well, and
+            // the Spond sync seeds it for all four. So a meet-up time can
+            // be stored on a row that renders here, and a stored value
+            // nobody can read is worse than one never captured. It shows
+            // wherever it exists; a row without one is unchanged.
+            if ( $presence !== '' ) $cells[] = [ __( 'Presence time', 'talenttrack' ), $presence ];
             $type_label = (string) ( \TT\Infrastructure\Query\LabelTranslator::activityType( $type_key ) ?? '' );
             if ( $type_label !== '' ) $cells[] = [ __( 'Type', 'talenttrack' ), $type_label ];
             $status_label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_status', $status_key );

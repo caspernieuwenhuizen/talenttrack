@@ -508,6 +508,15 @@ Een les als gelezen markeren schrijft de lezer bij de eerste aanraking in — ee
 aparte inschrijfstap voordat je les één kunt openen is een stap die niemand zou
 begrijpen.
 
+Iemand inschrijven die al op de cursus zit levert `200` met
+`already_enrolled: true` op, geen `201 Created`. De bestaande inschrijving komt
+onaangeroerd terug — voortgang en deadline inbegrepen — want een cursus opnieuw
+toewijzen mag een half afgeronde nooit terugzetten. Droeg het verzoek een
+deadline die niet de opgeslagen is, dan zeggen `due_at_ignored: true` en een
+bericht dat ook: de API mag geen wijziging melden die ze niet heeft
+doorgevoerd. Een bestaande deadline verzetten is een aparte beslissing, en de
+toewijswizard zegt op het scherm al hetzelfde.
+
 Een oordeel is een `PATCH` op de inzending en geen `/approve`-werkwoord: de
 uitkomst is een veld op een record, en het als actie modelleren zou een tweede
 endpoint vragen zodra iemand een goedkeuring wil intrekken.

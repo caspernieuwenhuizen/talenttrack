@@ -31,6 +31,7 @@ use TT\Modules\Trials\Services\TrialCaseOpener;
  *   POST /trial-cases/{id}/decision   record decision + status transition
  *   GET  /trial-cases/{id}/staff      list assigned staff
  *   POST /trial-cases/{id}/staff      assign staff
+ *   GET  /trial-cases/{id}/inputs     staff inputs visible to the caller
  *   POST /trial-cases/{id}/inputs     upsert own input + optional submit
  *   POST /trial-cases/{id}/inputs/release  manager-only release
  *   GET  /trial-cases/{id}/letters    letters generated for the case
@@ -133,12 +134,26 @@ class TrialsRestController {
             ],
         ] );
 
+        // #3673 — the panel's input was writable over REST and readable
+        // only by rendering the Staff inputs tab, so the head of
+        // development could record a decision through the API without
+        // being able to read what the panel had said about the child. The
+        // GET reads through the same repository method the tab does, so
+        // the visibility rule is stated once and both surfaces answer it
+        // the same way.
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/inputs', [
-            'methods'             => 'POST',
-            'callback'            => [ __CLASS__, 'upsert_input' ],
-            'permission_callback' => [ __CLASS__, 'can_submit_input' ],
-            // #3606 / #3612 — what the route takes, for route discovery.
-            'args'                => self::inputArgs(),
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_inputs' ],
+                'permission_callback' => [ __CLASS__, 'can_read_inputs' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'upsert_input' ],
+                'permission_callback' => [ __CLASS__, 'can_submit_input' ],
+                // #3606 / #3612 — what the route takes, for route discovery.
+                'args'                => self::inputArgs(),
+            ],
         ] );
 
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/inputs/release', [
@@ -213,6 +228,18 @@ class TrialsRestController {
     public static function can_submit_input(): bool {
         if ( ! self::licenseAllowsTrials() ) return false;
         return current_user_can( 'tt_submit_trial_input' ) || current_user_can( 'tt_manage_trials' );
+    }
+
+    /**
+     * Who may ask to read a case's staff inputs (#3673).
+     *
+     * The union of the two reasons to be here: reading the synthesis, and
+     * having written an input of your own. It is the coarse gate only —
+     * `list_inputs()` still requires assignment for a non-manager, and the
+     * repository decides which rows come back.
+     */
+    public static function can_read_inputs(): bool {
+        return self::can_view() || self::can_submit_input();
     }
 
     private static function licenseAllowsTrials(): bool {
@@ -533,6 +560,83 @@ class TrialsRestController {
         return RestResponse::success( [ 'assigned' => true ] );
     }
 
+    /**
+     * #3673 — what the panel has said about this trialist.
+     *
+     * The deciding manager reads every input on the case, submitted or
+     * not, plus the two numbers the Staff inputs tab prints: how many of
+     * the assigned panel have handed in, and when the inputs were
+     * released. An assigned panel member reads their own input, and the
+     * others once released — the rule lives in
+     * `TrialStaffInputsRepository::listVisibleForUser()`, which the tab
+     * calls too, so it is not re-derived here.
+     *
+     * A draft that is not the reader's own comes back without its
+     * content, including for the manager. The row is there so the
+     * manager can see who has started; a provisional judgement about a
+     * child is its author's until they hand it in.
+     */
+    public static function list_inputs( \WP_REST_Request $r ): \WP_REST_Response {
+        $id   = absint( $r['id'] );
+        $case = ( new TrialCasesRepository() )->find( $id );
+        if ( ! $case ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+
+        $viewer     = get_current_user_id();
+        $is_manager = TrialCaseAccessPolicy::isManager( $viewer );
+        $staff      = new TrialCaseStaffRepository();
+        if ( ! $is_manager && ! $staff->isAssigned( $id, $viewer ) ) {
+            return RestResponse::error( 'forbidden', __( 'Not assigned to this case.', 'talenttrack' ), 403 );
+        }
+
+        $inputs = new TrialStaffInputsRepository();
+        $rows   = $inputs->listVisibleForUser( $id, $viewer, $is_manager );
+
+        $authors = [];
+        foreach ( $rows as $row ) {
+            $authors[] = (int) ( ( (array) $row )['user_id'] ?? 0 );
+        }
+        $names = self::staffNames( $authors );
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $author = (int) ( ( (array) $row )['user_id'] ?? 0 );
+            $one    = self::formatInput( $row, $names, $author !== $viewer );
+            if ( $one !== null ) $out[] = $one;
+        }
+
+        $payload = [ 'inputs' => $out ];
+
+        if ( $is_manager ) {
+            $released = (string) ( ( (array) $case )['inputs_released_at'] ?? '' );
+            $payload['assigned_count']     = count( $staff->listForCase( $id ) );
+            $payload['submitted_count']    = count( $inputs->listForCase( $id, true ) );
+            $payload['inputs_released_at'] = $released !== '' ? $released : null;
+        }
+
+        return RestResponse::success( $payload );
+    }
+
+    /**
+     * Display names for a set of accounts, in one query (#3673).
+     *
+     * @param array<int,int> $user_ids
+     * @return array<int,string>
+     */
+    private static function staffNames( array $user_ids ): array {
+        $ids = array_values( array_unique( array_filter(
+            array_map( 'intval', $user_ids ),
+            static fn( int $id ): bool => $id > 0
+        ) ) );
+        if ( $ids === [] ) return [];
+
+        $out = [];
+        foreach ( get_users( [ 'include' => $ids, 'fields' => [ 'ID', 'display_name' ] ] ) as $user ) {
+            $u = (array) $user;
+            $out[ (int) ( $u['ID'] ?? 0 ) ] = (string) ( $u['display_name'] ?? '' );
+        }
+        return $out;
+    }
+
     public static function upsert_input( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
         $payload = $r->get_json_params();
@@ -642,18 +746,41 @@ class TrialsRestController {
         ];
     }
 
-    /** @return array<string,mixed>|null */
-    private static function formatInput( ?object $row ): ?array {
+    /**
+     * One staff input, as the API states it.
+     *
+     * @param array<int,string>|null $names   Author display names, resolved
+     *                                       by the caller for a whole list.
+     *                                       Null resolves this row's own.
+     * @param bool                   $withhold True for somebody else's row:
+     *                                       an unsubmitted draft then comes
+     *                                       back without its content
+     *                                       (#3673). A submitted input is
+     *                                       returned in full — reaching this
+     *                                       method at all means the
+     *                                       repository already allowed it.
+     * @return array<string,mixed>|null
+     */
+    private static function formatInput( ?object $row, ?array $names = null, bool $withhold = false ): ?array {
         if ( ! $row ) return null;
-        $r = (array) $row;
+        $r         = (array) $row;
+        $user_id   = (int) ( $r['user_id'] ?? 0 );
+        $submitted = isset( $r['submitted_at'] ) ? (string) $r['submitted_at'] : '';
+        $released  = isset( $r['released_at'] ) ? (string) $r['released_at'] : '';
+        $hidden    = $withhold && $submitted === '';
+        if ( $names === null ) $names = self::staffNames( [ $user_id ] );
+
         return [
-            'id'              => (int) ( $r['id'] ?? 0 ),
-            'case_id'         => (int) ( $r['case_id'] ?? 0 ),
-            'user_id'         => (int) ( $r['user_id'] ?? 0 ),
-            'overall_rating'  => isset( $r['overall_rating'] ) ? (float) $r['overall_rating'] : null,
-            'free_text_notes' => (string) ( $r['free_text_notes'] ?? '' ),
-            'submitted_at'    => isset( $r['submitted_at'] ) ? (string) $r['submitted_at'] : null,
-            'updated_at'      => isset( $r['updated_at'] ) ? (string) $r['updated_at'] : null,
+            'id'               => (int) ( $r['id'] ?? 0 ),
+            'case_id'          => (int) ( $r['case_id'] ?? 0 ),
+            'user_id'          => $user_id,
+            'author_name'      => (string) ( $names[ $user_id ] ?? '' ),
+            'overall_rating'   => ( $hidden || ! isset( $r['overall_rating'] ) ) ? null : (float) $r['overall_rating'],
+            'free_text_notes'  => $hidden ? '' : (string) ( $r['free_text_notes'] ?? '' ),
+            'submitted_at'     => $submitted !== '' ? $submitted : null,
+            'released_at'      => $released !== '' ? $released : null,
+            'updated_at'       => isset( $r['updated_at'] ) ? (string) $r['updated_at'] : null,
+            'content_withheld' => $hidden,
         ];
     }
 

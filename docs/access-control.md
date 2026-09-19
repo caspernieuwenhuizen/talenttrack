@@ -222,8 +222,10 @@ Five functional roles carry a small grant set that applies **on the team the rol
 | **Physio** | Read and record injuries; read measurements; open the squad's player list |
 | **Head coach** | Read measurements |
 | **Assistant coach** | Read measurements |
-| **Kit manager** | Read the squad, the people around it and the activity calendar, and open the team, player and activity screens |
-| **Manager** | Read the squad, the people around it and the activity calendar, and open the team, player and activity screens; record attendance; read player availability (the status traffic light) |
+| **Kit manager** | Read the squad, the people around it, the activity calendar and the academy holiday calendar, and open the team, player and activity screens |
+| **Manager** | Read the squad, the people around it, the activity calendar and the academy holiday calendar, and open the team, player and activity screens; record attendance; read player availability (the status traffic light) |
+
+The academy holiday calendar comes with the schedule, because without it a gap between two trainings reads as missing data rather than as a planned break. It is read only for both roles: maintaining the calendar stays with whoever keeps it, and neither role is offered the Holidays screen.
 
 A Manager reads the schedule but does not create or edit activities; that stays with the coaches. A Manager gets no injury access. A team manager who also does first aid is given **Physio** as a second functional role on the same team, and the injury log follows that role.
 

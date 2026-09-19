@@ -47,9 +47,25 @@ final class HolidaysRestController {
                 'permission_callback' => self::can( 'tt_view_holidays' ),
             ],
             [
-                'methods'             => 'PUT|PATCH',
+                // `register_rest_route()` splits this string on COMMAS.
+                // 'PUT|PATCH' registered one method literally named
+                // "PUT|PATCH", so the PUT that `frontend-holidays.js`
+                // sends matched no handler and saving an edited holiday
+                // answered 404 (#3686, found while testing the read grant).
+                'methods'             => 'PUT, PATCH',
                 'callback'            => [ self::class, 'update_holiday' ],
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
+                // Partial update: every field is optional, and the
+                // callback only writes the ones the body carries. The
+                // value checks live in `validate()` so the create and
+                // the update path answer identically.
+                'args'                => [
+                    'name'       => [ 'type' => 'string', 'required' => false, 'description' => 'Holiday name.' ],
+                    'start_date' => [ 'type' => 'string', 'required' => false, 'description' => 'First day, Y-m-d.' ],
+                    'end_date'   => [ 'type' => 'string', 'required' => false, 'description' => 'Last day, Y-m-d.' ],
+                    'note'       => [ 'type' => 'string', 'required' => false, 'description' => 'Free-text note.' ],
+                    'color'      => [ 'type' => 'string', 'required' => false, 'description' => 'Hex colour for the planner banner.' ],
+                ],
             ],
             [
                 'methods'             => 'DELETE',
