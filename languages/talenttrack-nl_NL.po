@@ -61768,13 +61768,11 @@ msgstr "Er is nog geen voor jou zichtbare input ingediend."
 msgid "Your input"
 msgstr "Jouw input"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:655
-msgid "You submitted on:"
-msgstr "Je hebt ingediend op:"
-
-#: src/Shared/Frontend/FrontendTrialCaseView.php:656
-msgid "To edit after submit, ask the head of development."
-msgstr "Voor wijzigingen na het indienen: vraag het hoofd opleiding."
+#. translators: %s: date and time the input was submitted.
+#: src/Shared/Frontend/FrontendTrialCaseView.php:675
+msgid "Submitted on %s. You can still edit this until the trial is decided."
+msgstr ""
+"Ingediend op %s. Je kunt dit nog aanpassen totdat de stage is beslist."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:680
 msgid "Submit input"

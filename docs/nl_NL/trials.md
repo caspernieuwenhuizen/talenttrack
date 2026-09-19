@@ -65,6 +65,8 @@ Het systeem stuurt vriendelijke herinneringen aan stafleden die nog niet hebben 
 
 **Bij de beslissing, niet bij het indienen.** Zolang de zaak **Open** of **Verlengd** is, kan een toegewezen trainer zijn eigen input blijven corrigeren — ook nadat hij hem heeft ingediend. Je eigen formulering een uur later teruglezen en een zin bijschaven is normale praktijk en hoort geen manager nodig te hebben.
 
+Op het tabblad **Staf-input** houdt een al ingediende input zijn formulier. Erboven staat wanneer je hem hebt ingediend en dat je hem nog kunt aanpassen totdat de stage is beslist, en het formulier heeft één knop **Wijzigingen opslaan** in plaats van **Concept opslaan** / **Input indienen**. Opslaan maakt de indiening niet ongedaan: het tijdstip van indienen blijft staan, de teller "N van M toegewezen stafleden hebben ingediend" van het hoofd opleiding verschuift niet, en de knop **Ingediende input vrijgeven aan toegewezen staf** evenmin.
+
 Zodra de zaak **Besloten** of **Gearchiveerd** is, liggen de inputs vast. Niets kan ze nog wijzigen, op geen enkel scherm en niet via de API, en een poging daartoe wordt geweigerd met een melding die zegt waarom in plaats van stilletjes niets te doen.
 
 Die grens ligt daar omdat staf-input het bewijs is achter een beslissing over een kind — of de academie hem wilde, en waarom. Het is ook het deel van het stagedossier dat een seizoen later het vaakst wordt teruggelezen, als de speler terugkomt of de familie ernaar vraagt. Een dossier dat achteraf herschreven kan worden, zonder dat de eerdere versie bewaard blijft, kan geen van beide doelen dienen.
