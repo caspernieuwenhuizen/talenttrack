@@ -31,18 +31,29 @@ class PlayerJourneyRestController extends BaseController {
 
     public static function register(): void {
         // Timeline + transitions per player.
+        //
+        // #3653 — the route-level gate was `tt_view_players`, a staff
+        // capability, so a player asking for their own journey got 403
+        // while `My journey` rendered it. The handlers below already
+        // decide per player: canViewPlayer() for access, the #1867
+        // section preference for a parent, and
+        // PlayerEventsRepository::visibilitiesForUser() for which
+        // entries come back — the same three rules FrontendJourneyView
+        // applies. So the route only has to require a logged-in caller,
+        // the way rating-trend already does; the cap gate was refusing
+        // the request before the per-player rules ever ran.
         register_rest_route( self::NS, '/players/(?P<id>\d+)/timeline', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_timeline' ],
-                'permission_callback' => self::permCan( 'tt_view_players' ),
+                'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
             ],
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/transitions', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_transitions' ],
-                'permission_callback' => self::permCan( 'tt_view_players' ),
+                'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
             ],
         ] );
 
