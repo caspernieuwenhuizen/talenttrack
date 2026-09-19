@@ -110,6 +110,32 @@ Pausing and resuming are recorded as well: the time the clock stood still
 does not count towards the half. At half time the timer button reads
 **Start** and starts the second half.
 
+Under the clock a line says who started the match and when the half
+began, in the club's time: *Started by Marco at 10:02*. In the second
+half it gives the second half's start instead.
+
+### A half left running
+
+Sometimes a match gets started and then left alone: somebody taps
+**Start** on match day, the phone goes back in a pocket, and the half
+keeps counting for hours. Once a half runs longer than its length plus
+10 minutes, the screen says so: *This half has run longer than 40
+minutes. It looks like it was left running.* Two actions sit under the
+warning:
+
+- **End half at scheduled length** ends the half at exactly its planned
+  length, for example 30:00. It needs a second tap, like **End match**.
+  In the second half it also ends the match, which then goes to review.
+- **Record the match afterwards** opens the place to enter the match
+  after the fact: the minutes + statistics grid when your club uses it,
+  otherwise the match's per-match minutes editor.
+
+The normal controls stay available. However a half is ended, it is
+never stored as longer than its length plus 10 minutes, the same
+stoppage time an event minute may carry. A half left running for ten
+hours ends at 40:00, not 593:55, and the goals, substitutions and
+tracked actions you log afterwards are accepted at their real minutes.
+
 ## Ending and finalizing take two taps
 
 **End match** and **Finalize** ask for a second tap before they commit.
@@ -401,8 +427,19 @@ future web app:
  applied, plus `on_pitch` (everyone on the pitch now).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/pause` and
  `.../resume` — pause and resume the clock; the server records both, and
- `start-half`, `pause` and `resume` answer with the clock (half, seconds
- into it, running or not).
+ `start-half`, `pause`, `resume` and `end-half` answer with the clock
+ (half, seconds into it, running or not, plus the fields below).
+- `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/clock`
+ — the clock as the server has it: `half`, `elapsed_seconds`, `running`,
+ `overrun` (true when a live half has passed its length + 10 minutes),
+ `limit_seconds`, `started_at` (the running half's start, UTC ISO 8601)
+ and `started_by` (`{user_id, name}` of whoever started the match, or
+ null). `clock` is null before the match has been started.
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/end-half`
+ — `{half, at}`. `at` is `now` (the default) or `scheduled`. `now` ends
+ the half at the moment of the request, but never later than the half
+ length + 10 minutes. `scheduled` ends it at exactly the half length.
+ `finish` applies the same limit to the end of the second half.
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — undo a logged substitution (soft-delete; the minutes recompute).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/finish`
