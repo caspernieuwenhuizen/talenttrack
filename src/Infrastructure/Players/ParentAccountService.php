@@ -85,9 +85,18 @@ final class ParentAccountService {
      * row of type `parent` is a guardian's record, not a staff seat, and
      * does not exclude (#3572) — the same rule `linkToPlayer()` applies.
      *
+     * #3571 — `$search` (matched against display name and email) and
+     * `$limit` narrow it for the REST lookup; both default to "everything",
+     * which is what the Parent accounts and Player accounts views ask for.
+     *
+     * The user query is site-wide, because WordPress users are. The
+     * `tt_parent_account_eligible_args` filter receives the club id, so a
+     * multi-tenant install can scope the candidates to one club without
+     * touching this method.
+     *
      * @return array<int,object> WP_User-lite rows (ID, display_name, user_email).
      */
-    public function eligibleUsers(): array {
+    public function eligibleUsers( string $search = '', int $limit = 0 ): array {
         global $wpdb;
         $club = CurrentClub::id();
 
@@ -101,12 +110,24 @@ final class ParentAccountService {
             $club, $club
         ) );
 
-        return get_users( [
+        $args = [
             'fields'  => [ 'ID', 'display_name', 'user_email' ],
             'orderby' => 'display_name',
             'order'   => 'ASC',
             'exclude' => array_map( 'intval', $bound ),
-        ] );
+        ];
+        if ( $search !== '' ) {
+            $args['search']         = '*' . $search . '*';
+            $args['search_columns'] = [ 'display_name', 'user_email' ];
+        }
+        if ( $limit > 0 ) {
+            $args['number'] = $limit;
+        }
+
+        /** @var array<string,mixed> $args */
+        $args = apply_filters( 'tt_parent_account_eligible_args', $args, $club );
+
+        return get_users( $args );
     }
 
     /**

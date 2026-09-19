@@ -175,7 +175,16 @@ class FrontendTrialsManageView extends FrontendViewBase {
         ] );
 
         if ( $case_id instanceof \WP_Error ) {
-            echo '<div class="tt-notice tt-notice-error">' . esc_html( $case_id->get_error_message() ) . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( $case_id->get_error_message() );
+            // #3577 — a refusal because a trial is already open links to it.
+            $open_case = (int) ( ( (array) $case_id->get_error_data() )['existing_case_id'] ?? 0 );
+            if ( $case_id->get_error_code() === TrialCaseOpener::ERROR_ALREADY_OPEN && $open_case > 0 ) {
+                echo ' ' . \TT\Shared\Frontend\Components\RecordLink::inline(
+                    __( 'Open that trial case', 'talenttrack' ),
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', $open_case )
+                );
+            }
+            echo '</div>';
             return;
         }
 
