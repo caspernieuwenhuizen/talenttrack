@@ -9,6 +9,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoMode;
 use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
 
@@ -190,7 +191,14 @@ final class DemoActivityScheduleTest extends WP_UnitTestCase {
             'per_page' => 100,
             'filter'   => [ 'team_id' => $this->team_id, 'date_from' => '2026-08-01', 'date_to' => '2026-10-31' ],
         ] );
-        $res = rest_do_request( $req );
+        // The rows are demo-tagged and the list is demo-scoped: with demo
+        // mode off, tagged rows are exactly what it hides.
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            $res = rest_do_request( $req );
+        } finally {
+            DemoMode::clearOverride();
+        }
         $this->assertSame( 200, $res->get_status() );
 
         $rows  = $res->get_data()['data']['rows'] ?? [];
