@@ -62758,6 +62758,20 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php
+msgid "Player with no guardian contact"
+msgstr "Speler zonder contact thuis"
+
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php
+msgid "Nobody at home can be reached about this player: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added."
+msgstr "Niemand thuis is te bereiken over deze speler: er is geen ouderaccount gekoppeld en er is geen e-mailadres of telefoonnummer van een verzorger. Berichten over deze speler bereiken niemand tot er een is toegevoegd."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php
+#, php-format
+msgid "Nobody at home can be reached about %s."
+msgstr "Niemand thuis is te bereiken over %s."
+
 #~ msgid "Could not create trial case."
 #~ msgstr "Stagedossier kon niet worden aangemaakt."
 
