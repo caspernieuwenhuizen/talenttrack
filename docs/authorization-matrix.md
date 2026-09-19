@@ -467,6 +467,17 @@ A first pass proposed global read on **all 138 entities**, reasoning from the ro
 
 Migration `0249_authorization_seed_topup_observer_and_staff` backfills both personas on existing installs — idempotent `INSERT IGNORE`, walking only these two personas, and refusing to write a non-`read` activity for the observer even if the seed file later gains one. No other persona's answer moves.
 
+## Matrix entity `analytics` — reading it, and setting the evaluation windows
+
+`analytics` has two activities that matter:
+
+- **Read** opens the analytics surfaces, evaluation coverage included.
+- **Change** is what it takes to set the **evaluation windows**, the date ranges that coverage and the "window closing" alerts measure against. That applies on the coverage screen and over the API.
+
+By default **Head of development** and **Academy admin** hold read and change, globally. A persona you give read only, for example an observer who should see coverage, sees the windows listed but has no form to change them, and the API refuses the write.
+
+Existing installs get the change right for those two personas with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`). It adds that one tuple with `INSERT IGNORE` and leaves every row an admin has edited alone.
+
 ## The functional-role axis (#3257, #3433)
 
 The matrix keys on `(persona, entity, activity, scope_kind)`. A physio and a kit manager hold the same `tt_staff` WordPress role, so they resolve to the same persona — `staff` — and **no cell on this grid can tell them apart**. That is not a gap in the seed; it is the shape of the key. #3232's `player_injuries [rc, team]` grant therefore reached every Staff account, including ones issued for entirely non-clinical reasons.

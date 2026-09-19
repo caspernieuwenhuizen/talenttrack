@@ -685,8 +685,9 @@ return array_merge(
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
         'usage_stats_details'           => [ 'r',   'global', $mod_stats ],
-        // #0083 Child 5 — central analytics surface (R global).
-        'analytics'                     => [ 'r',   'global', $mod_analytics ],
+        // #0083 Child 5 — central analytics surface. #3610 — change as well:
+        // setting the evaluation windows is an analytics write.
+        'analytics'                     => [ 'rc',  'global', $mod_analytics ],
         // #0078 Phase 5 — custom widget builder (RC global; HoD can author).
         'custom_widgets'                => [ 'rc',  'global', $mod_custom_widgets ],
         // #0090 Phase 1 — data-row translations (RC global; HoD can edit).
@@ -850,8 +851,9 @@ return array_merge(
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
         'usage_stats_details'           => [ 'r',   'global', $mod_stats ],
-        // #0083 Child 5 — central analytics surface (R global).
-        'analytics'                     => [ 'r',   'global', $mod_analytics ],
+        // #0083 Child 5 — central analytics surface. #3610 — change as well:
+        // setting the evaluation windows is an analytics write.
+        'analytics'                     => [ 'rc',  'global', $mod_analytics ],
         // #0078 Phase 5 — custom widget builder (RCD global; admin can author + delete).
         'custom_widgets'                => [ 'rcd', 'global', $mod_custom_widgets ],
         // #0090 Phase 1 — data-row translations (RCD global; admin can edit + delete).

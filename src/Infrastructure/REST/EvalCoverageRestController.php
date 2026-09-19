@@ -43,7 +43,10 @@ final class EvalCoverageRestController extends BaseController {
             [
                 'methods'             => 'PUT',
                 'callback'            => [ self::class, 'saveWindows' ],
-                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                // #3610 — a write takes the write cap. On the read cap, any
+                // read-only grant of analytics could move the windows every
+                // coach's coverage is measured against.
+                'permission_callback' => self::permCan( 'tt_edit_analytics' ),
             ],
         ] );
     }
