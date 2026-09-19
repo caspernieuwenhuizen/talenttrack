@@ -39,7 +39,7 @@ The **PDP** tile opens on a single **player-centric list** for the current seaso
 - The **⋯** button at the end of the filter row (for operators who can unarchive or delete) switches the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
 - Clicking a covered row opens the player's PDP file; clicking a missing row jumps into the create flow.
 
-The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `filter[team_id]`, `search`, `only_missing`, `archived`), so a future front end gets the same answer.
+The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `team_id` or `filter[team_id]`, `search`, `only_missing`, `archived`), so a future front end gets the same answer.
 
 ## The flow
 
