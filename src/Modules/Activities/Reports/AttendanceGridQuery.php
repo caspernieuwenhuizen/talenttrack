@@ -35,7 +35,8 @@ final class AttendanceGridQuery {
      * The view uses it to flag the column and to name the affected sessions
      * in the confirmation before anything is written.
      *
-     * @param string $type_filter 'all' | 'training' | 'match'
+     * @param string      $type_filter 'all' | 'training' | 'match'
+     * @param string|null $today       Y-m-d; site time when null.
      * @return array{
      *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, is_match:bool, status_key:string, completes:bool }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
@@ -43,7 +44,7 @@ final class AttendanceGridQuery {
      *   summary: array{ total_activities:int, total_players:int }
      * }
      */
-    public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all' ): array {
+    public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all', ?string $today = null ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
@@ -72,22 +73,40 @@ final class AttendanceGridQuery {
 
         // 1. Activities for the team in the window (columns), oldest first so
         //    the register reads left-to-right in time like an Excel sheet.
+        //
+        //    #3586 — an activity after today is a column only when it already
+        //    carries a recorded mark (a pre-recorded absence), so that mark
+        //    can be seen and cleared; an upcoming activity with nothing on it
+        //    has no register to enter yet. Those are shown whenever the window
+        //    reaches today, even past its end, because the default window
+        //    ends today and would otherwise hide every one of them. "Today"
+        //    is site time, the clock the completion rule uses.
+        $today = $today ?? current_time( 'Y-m-d' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, activity_type_key, {$date_col} AS session_date, title,
-                    activity_status_key,
-                    ({$date_col} <= CURDATE()) AS is_past
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id = %d
-                AND {$date_col} BETWEEN %s AND %s
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND plan_state <> 'cancelled'
-                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
+            "SELECT s.id, s.activity_type_key, s.{$date_col} AS session_date, s.title,
+                    s.activity_status_key,
+                    (s.{$date_col} <= %s) AS is_past
+               FROM {$p}tt_activities s
+              WHERE s.club_id = %d
+                AND s.team_id = %d
+                AND (
+                      ( s.{$date_col} BETWEEN %s AND %s AND s.{$date_col} <= %s )
+                   OR ( %s >= %s AND s.{$date_col} > %s AND s.{$date_col} >= %s
+                        AND EXISTS ( SELECT 1 FROM {$p}tt_attendance a
+                                      WHERE a.activity_id = s.id AND a.club_id = s.club_id
+                                        AND a.is_guest = 0 AND a.record_type = 'actual'
+                                        AND a.status <> '' ) )
+                )
+                AND s.archived_at IS NULL
+                AND s.trashed_at IS NULL
+                AND s.plan_state <> 'cancelled'
+                AND ( s.activity_status_key IS NULL OR s.activity_status_key <> 'cancelled' )
                 {$where_type}
-              ORDER BY {$date_col} ASC, id ASC",
-            $club_id, $team_id, $from, $to
+              ORDER BY s.{$date_col} ASC, s.id ASC",
+            $today, $club_id, $team_id,
+            $from, $to, $today,
+            $to, $today, $today, $from
         ) );
 
         $activities = [];

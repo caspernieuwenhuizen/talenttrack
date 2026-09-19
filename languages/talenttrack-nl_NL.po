@@ -62715,6 +62715,16 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Services/AttendanceDateRule.php
+msgid "Present and late can only be recorded on or after the day of the activity. An absence can be recorded in advance."
+msgstr "Aanwezig en laat kun je pas vastleggen op of na de dag van de activiteit. Een afwezigheid kun je vooraf vastleggen."
+
+#. translators: %d is the number of cells that were not saved.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+#, php-format
+msgid "%d change(s) not saved."
+msgstr "%d wijziging(en) niet opgeslagen."
+
 #~ msgid "Type a parent name to search…"
 #~ msgstr "Typ een oudernaam om te zoeken…"
 
