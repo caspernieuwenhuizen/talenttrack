@@ -386,6 +386,10 @@ een schaal onder de naam en een veld voor een notitie.
 - De schaal is die van je eigen academie — het bereik en de stapgrootte die je
  voor evaluaties hebt ingesteld.
 - Een cijfer buiten dat bereik wordt geweigerd, niet naar binnen afgerond.
+- Alleen spelers die bij deze training als aanwezig of te laat staan, kunnen
+ een waarneming krijgen, gastspelers meegerekend. Wie niet in de
+ presentielijst staat, verschijnt niet in de lijst, en een waarneming via
+ de API wordt dan ook geweigerd. Zet de speler eerst op aanwezig.
 
 Elke waarneming verschijnt meteen op de **Reis** van de speler, met de datum
 van de training en niet van het moment waarop je het intypte.

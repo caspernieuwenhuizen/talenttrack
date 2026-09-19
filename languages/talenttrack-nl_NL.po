@@ -5009,6 +5009,14 @@ msgstr "Dat is geen status voor een trainingsuitvoering."
 msgid "An observation is about a player, so it needs one."
 msgstr "Een waarneming gaat over een speler, dus die is verplicht."
 
+#: src/Infrastructure/REST/TrainingRunsRestController.php:260
+msgid ""
+"This player isn't marked present at this training, so an observation can't "
+"be recorded for them."
+msgstr ""
+"Deze speler staat bij deze training niet als aanwezig, dus er kan geen "
+"waarneming voor worden vastgelegd."
+
 #: src/Infrastructure/REST/TrainingRunsRestController.php:277
 msgid ""
 "An observation needs a rating, a note, or both. A rating outside the "

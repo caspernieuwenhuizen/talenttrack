@@ -50,14 +50,29 @@ final class TrainingOfflineQueueTest extends WP_UnitTestCase {
         return $id;
     }
 
-    private function makePlayer(): int {
+    /**
+     * A player marked present at the run's training. #3694 refuses an
+     * observation on anyone else, so the replay tests need one who was
+     * there.
+     */
+    private function makePlayer( int $run_id ): int {
         global $wpdb;
 
         $wpdb->insert( $wpdb->prefix . 'tt_players', [
             'club_id' => 1, 'team_id' => 7, 'first_name' => 'Sem', 'last_name' => 'Bakker',
         ] );
+        $player_id = (int) $wpdb->insert_id;
 
-        return (int) $wpdb->insert_id;
+        $run = ( new TrainingPlanRunsRepository() )->findById( $run_id );
+        $wpdb->insert( $wpdb->prefix . 'tt_attendance', [
+            'club_id'     => 1,
+            'activity_id' => (int) ( $run->activity_id ?? 0 ),
+            'player_id'   => $player_id,
+            'status'      => 'present',
+            'record_type' => 'actual',
+        ] );
+
+        return $player_id;
     }
 
     private function makeRun(): int {
@@ -100,7 +115,7 @@ final class TrainingOfflineQueueTest extends WP_UnitTestCase {
     public function test_replaying_an_observation_does_not_record_it_twice(): void {
         $this->coach();
         $run_id = $this->makeRun();
-        $player = $this->makePlayer();
+        $player = $this->makePlayer( $run_id );
 
         $body = [
             'player_id'   => $player,
@@ -133,7 +148,7 @@ final class TrainingOfflineQueueTest extends WP_UnitTestCase {
     public function test_a_genuinely_different_observation_still_lands(): void {
         $this->coach();
         $run_id = $this->makeRun();
-        $player = $this->makePlayer();
+        $player = $this->makePlayer( $run_id );
 
         $before = $this->countObservations();
 
@@ -158,7 +173,7 @@ final class TrainingOfflineQueueTest extends WP_UnitTestCase {
 
         $this->coach();
         $run_id = $this->makeRun();
-        $player = $this->makePlayer();
+        $player = $this->makePlayer( $run_id );
 
         foreach ( [ "' OR 1=1 --", 'not-a-uuid', '', str_repeat( 'a', 200 ) ] as $junk ) {
             [ $status ] = $this->post( $run_id, [
