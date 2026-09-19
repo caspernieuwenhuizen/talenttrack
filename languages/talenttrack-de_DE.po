@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:31:36+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:32:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -280,7 +280,7 @@ msgstr "Trainer"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:310
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:365
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:119
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:123
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:2344
@@ -27131,8 +27131,8 @@ msgid "Plan this match first before you can run it."
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:390
-#: src/Shared/Club/ClubIdentity.php:78 src/Shared/Club/ClubIdentity.php:86
-#: src/Shared/Club/ClubIdentity.php:92
+#: src/Shared/Club/ClubIdentity.php:105 src/Shared/Club/ClubIdentity.php:113
+#: src/Shared/Club/ClubIdentity.php:119
 msgid "OPP"
 msgstr ""
 
@@ -38614,7 +38614,7 @@ msgid "Coach:"
 msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:496
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:183
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:187
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:294
 msgid "Date:"
 msgstr ""
@@ -43644,66 +43644,61 @@ msgstr ""
 msgid "Acceptance-slip return deadline"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:99
-#: src/Modules/Trials/Reminders/TrialReminderScheduler.php:139
-msgid "The club"
-msgstr ""
-
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:164
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:168
 #, php-format
 msgid "Acceptatie van het aanbod voor %s"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:165
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:169
 #, php-format
 msgid "Acceptance of trial offer for %s"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:167
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:171
 #, php-format
 msgid "Ik bevestig de acceptatie van het aanbod voor het seizoen %s."
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:168
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:172
 #, php-format
 msgid "I confirm acceptance of the trial offer for the %s season."
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:170
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:174
 #, php-format
 msgid "Lever deze pagina aan bij %s vóór %s."
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:170
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:174
 msgid "het secretariaat"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:171
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:175
 #, php-format
 msgid "Please return this page to %s by %s."
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:171
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:175
 msgid "the club office"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:181
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:185
 msgid "Naam ouder/verzorger:"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:181
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:185
 msgid "Parent/guardian name:"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:186
 msgid "Handtekening:"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:186
 msgid "Signature:"
 msgstr ""
 
-#: src/Modules/Trials/Letters/LetterTemplateEngine.php:183
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:187
 msgid "Datum:"
 msgstr ""
 
@@ -47394,7 +47389,11 @@ msgstr ""
 msgid "Got it, dismiss"
 msgstr ""
 
-#: src/Shared/Club/ClubIdentity.php:49
+#: src/Shared/Club/ClubIdentity.php:54
+msgid "The club"
+msgstr ""
+
+#: src/Shared/Club/ClubIdentity.php:76
 msgid "HOM"
 msgstr ""
 
