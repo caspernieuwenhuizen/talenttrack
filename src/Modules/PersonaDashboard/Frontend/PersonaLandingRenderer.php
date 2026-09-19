@@ -89,6 +89,7 @@ final class PersonaLandingRenderer {
             self::renderTeamTabs( $user_id );
         }
         self::renderSystemNotices( $persona );
+        self::renderUnassignedStaffNotice( $user_id, $persona );
         GridRenderer::render( $template, $ctx );
         self::renderAboutFooter( $base_url );
         echo '</div>';
@@ -157,6 +158,26 @@ final class PersonaLandingRenderer {
             . '<a class="tt-pd-sysnotice-link" href="' . esc_url( admin_url( 'admin.php?page=' . \TT\Modules\Spond\Admin\SpondOverviewPage::SLUG ) ) . '">'
             . esc_html__( 'Check Spond status', 'talenttrack' )
             . '</a>'
+            . '</div>';
+    }
+
+    /**
+     * #3567 — a staff account that is on no team reads nothing (#3177),
+     * and a dashboard of empty tiles does not say why. This does.
+     *
+     * "On no team" means both: no functional role on any squad, and no
+     * team scope reaching one. An older staff account with a team scope
+     * but no functional role does see its team, and is not told otherwise.
+     */
+    private static function renderUnassignedStaffNotice( int $user_id, string $persona ): void {
+        if ( $persona !== 'staff' ) return;
+        if ( \TT\Modules\Authorization\FunctionalRoleGrants::holdsAnyFunctionalRole( $user_id ) ) return;
+        if ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) !== [] ) return;
+
+        echo '<div class="tt-pd-sysnotice" role="status">'
+            . '<span class="tt-pd-sysnotice-text">'
+            . esc_html__( "You're not assigned to a team yet. Ask your academy admin to add you to one.", 'talenttrack' )
+            . '</span>'
             . '</div>';
     }
 

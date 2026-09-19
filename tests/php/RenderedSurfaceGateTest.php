@@ -246,7 +246,9 @@ final class RenderedSurfaceGateTest extends WP_UnitTestCase {
     public function test_the_capability_check_precedes_the_plan_check(): void {
         $pairs = [
             'src/Modules/Analytics/Frontend/FrontendExploreView.php'        => "current_user_can( 'tt_view_analytics' )",
-            'src/Modules/Activities/Frontend/FrontendAttendanceGridView.php' => "current_user_can( 'tt_edit_activities' )",
+            // #3567 — the attendance grid asks the attendance question, which
+            // also admits a team manager; it is still asked before the plan.
+            'src/Modules/Activities/Frontend/FrontendAttendanceGridView.php' => 'AuthorizationService::canRecordAttendance(',
             'src/Modules/Activities/Frontend/FrontendMinutesGridView.php'    => "current_user_can( 'tt_edit_activities' )",
             'src/Modules/Activities/Frontend/FrontendRatingsGridView.php'    => "current_user_can( 'tt_edit_activities' )",
         ];
