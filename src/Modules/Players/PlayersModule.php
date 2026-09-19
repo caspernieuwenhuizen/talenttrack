@@ -19,5 +19,7 @@ class PlayersModule implements ModuleInterface {
         PlayerAccountRestController::init();
         // #1815 — link/unlink a parent WP account on a player.
         ParentAccountRestController::init();
+        // #3568 — GET /me: the logged-in account's own player / children.
+        \TT\Infrastructure\REST\MeRestController::init();
     }
 }
