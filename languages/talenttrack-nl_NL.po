@@ -62708,6 +62708,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/EvaluationsRestController.php
+msgid "That activity does not exist, or it is not one of your teams."
+msgstr "Die activiteit bestaat niet, of hoort niet bij een van uw teams."
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 
