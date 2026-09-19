@@ -545,6 +545,26 @@
 .tt-dashboard .tt-list-table-status.is-loading::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 2px solid var(--tt-muted); border-top-color: transparent; border-radius: 50%; animation: tt-spin 0.7s linear infinite; vertical-align: -1px; }
 .tt-dashboard .tt-list-table-status.is-error { color: var(--tt-danger); }
 
+/* #3669 — the body placeholder before the first fetch lands, and the row
+   a failed fetch leaves behind. Deliberately not `.tt-list-table-empty`:
+   other sheets style that class as the empty-state card. */
+.tt-dashboard div.tt-list-table-loading,
+.tt-dashboard div.tt-list-table-error { grid-column: 1 / -1; }
+.tt-dashboard div.tt-list-table-loading,
+.tt-dashboard tr.tt-list-table-loading > td {
+    text-align: center;
+    color: var(--tt-muted);
+    padding: var(--tt-sp-4);
+}
+.tt-dashboard .tt-list-table-noscript { display: block; margin-top: var(--tt-sp-2); }
+.tt-dashboard div.tt-list-table-error,
+.tt-dashboard tr.tt-list-table-error > td {
+    text-align: center;
+    color: var(--tt-danger);
+    padding: var(--tt-sp-4);
+}
+.tt-dashboard .tt-list-table-error .tt-btn { margin-left: var(--tt-sp-2); touch-action: manipulation; }
+
 .tt-dashboard .tt-list-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .tt-dashboard .tt-list-table-table {
     width: 100%;
@@ -684,8 +704,12 @@
     }
     .tt-dashboard .tt-list-table-table td[data-label=""]::before { content: none; }
     .tt-dashboard .tt-list-table-actions { justify-content: flex-end; }
-    .tt-dashboard .tt-list-table-empty td { display: block; text-align: center; }
-    .tt-dashboard .tt-list-table-empty td::before { content: none; }
+    .tt-dashboard .tt-list-table-empty td,
+    .tt-dashboard .tt-list-table-loading td,
+    .tt-dashboard .tt-list-table-error td { display: block; text-align: center; }
+    .tt-dashboard .tt-list-table-empty td::before,
+    .tt-dashboard .tt-list-table-loading td::before,
+    .tt-dashboard .tt-list-table-error td::before { content: none; }
 }
 
 /*  Attendance (session create/edit form) 
