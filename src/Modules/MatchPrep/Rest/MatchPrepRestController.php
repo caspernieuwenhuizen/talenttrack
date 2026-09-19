@@ -219,9 +219,12 @@ class MatchPrepRestController {
             // #1727 — blank / non-positive falls back to the
             // per-age-category default (global fallback 35) instead of a
             // hardcoded 35.
+            // #3682 — and before that map, to the match length the
+            // activity itself carries, so clearing the box lands on the
+            // length the coach already set on the match.
             $patch['half_length_minutes'] = $hl > 0
                 ? min( 120, $hl )
-                : ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )->halfMinutesForActivity( $activity_id );
+                : ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )->halfMinutesForActivityDefault( $activity_id );
         }
         foreach ( MatchPrepState::GOAL_FIELDS as $col ) {
             if ( array_key_exists( $col, $body ) ) {

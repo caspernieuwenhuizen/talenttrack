@@ -34,14 +34,20 @@ final class MatchPrepState {
         $prep_id     = (int) ( $prep['id'] ?? 0 );
         $template_id = (int) ( $prep['formation_template_id'] ?? 0 );
         $team_id     = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id );
+        $half_length = (int) ( $prep['half_length_minutes'] ?? 0 );
 
         $state = [
             'prep_id'               => $prep_id,
             'activity_id'           => $activity_id,
             'formation_template_id' => $template_id > 0 ? $template_id : null,
             'formation_shape'       => FormationLayoutResolver::shapeFor( $template_id, $team_id ),
-            'half_length_minutes'   => (int) ( $prep['half_length_minutes'] ?? 0 ),
+            'half_length_minutes'   => $half_length,
         ];
+        // #3682 — what the activity says the match lasts, and whether the
+        // prep disagrees with it. A readout, not a sync.
+        foreach ( self::halfLengthAgainstActivity( $activity_id, $half_length ) as $key => $value ) {
+            $state[ $key ] = $value;
+        }
         foreach ( self::GOAL_FIELDS as $field ) {
             $state[ $field ] = (string) ( $prep[ $field ] ?? '' );
         }
@@ -54,6 +60,34 @@ final class MatchPrepState {
         $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
 
         return $state;
+    }
+
+    /**
+     * #3682 — the match length the activity carries, alongside whether
+     * the prep's half length disagrees with it.
+     *
+     * A match stores its length twice: `tt_activities.match_length_minutes`
+     * (#1726) and `tt_match_prep.half_length_minutes`. A new prep is seeded
+     * from the first, but they never sync afterwards — match execution, the
+     * minutes queries and the match analysis all read the prep, and silently
+     * rewriting it under a coach who had already planned around 2 x 35 would
+     * move a player's recorded minutes without asking. So the disagreement is
+     * reported instead, and the coach decides.
+     *
+     * Computed here rather than in the prep screen so `GET` / `PUT
+     * match-prep/{id}` answer with it too and a non-WordPress client can draw
+     * the same warning (CLAUDE.md section 4).
+     *
+     * @return array{activity_match_length_minutes:int|null,half_length_mismatch:bool}
+     */
+    public static function halfLengthAgainstActivity( int $activity_id, int $half_length_minutes ): array {
+        $length = ( new MatchLengthResolver() )->activityMatchLength( $activity_id );
+
+        return [
+            'activity_match_length_minutes' => $length > 0 ? $length : null,
+            'half_length_mismatch'          => $length > 0
+                && MatchLengthResolver::halfOf( $length ) !== $half_length_minutes,
+        ];
     }
 
     /**

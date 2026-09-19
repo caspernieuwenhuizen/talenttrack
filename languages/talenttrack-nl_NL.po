@@ -30452,6 +30452,16 @@ msgstr "Reden (optioneel)…"
 msgid "Pick player for role"
 msgstr "Kies speler voor rol"
 
+#. translators: 1: full match length in minutes from the activity, 2: half length in minutes from the match prep.
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:253
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:838
+msgid ""
+"The activity says this match lasts %1$s minutes; the preparation uses 2 × "
+"%2$s."
+msgstr ""
+"De activiteit zegt dat deze wedstrijd %1$s minuten duurt; de voorbereiding "
+"gebruikt 2 × %2$s."
+
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:858
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:237
 msgid "Preparing PDF…"
