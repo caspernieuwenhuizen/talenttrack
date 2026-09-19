@@ -394,7 +394,7 @@ Same body shape. The handler **only wipes `is_guest = 0` rows** before re-insert
 }
 ```
 
-The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each expected row's `status`, `plan_status`, and `notes`. Gated on `tt_edit_activities`.
+The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each planned row's `player_id`, `is_guest`, `name`, `plan_status` (`expected` / `not_coming` / `maybe`) and `notes`, alongside `activity_id` and `count`. The stored `attendance_status` encoding above is **not** part of the response, so a planned row can never be read as a recorded mark — an activity nobody has registered yet returns no attendance statuses at all. Recorded attendance lives on the activity read payload's `register` instead. Gated on `tt_edit_activities`.
 
 ### `register` on the activity read payload (#3447)
 

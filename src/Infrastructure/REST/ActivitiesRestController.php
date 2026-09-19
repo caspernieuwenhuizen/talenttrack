@@ -2290,6 +2290,9 @@ class ActivitiesRestController {
      * (`record_type='expected'`). Read-only; mirrors what the activity
      * detail page and the match-prep availability step consume. Empty
      * `roster` when no plan was captured.
+     *
+     * Each row carries `player_id`, `is_guest`, `name`, `plan_status`
+     * (`expected` / `not_coming` / `maybe`) and `notes`.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2306,9 +2309,11 @@ class ActivitiesRestController {
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
                 'is_guest'    => (int) ( $row->is_guest ?? 0 ) === 1,
                 'name'        => (string) ( $row->name ?? '' ),
-                // #2248 — the raw attendance_status stored on the expected
-                // row plus its plan meaning (expected / not_coming / maybe).
-                'status'      => $status,
+                // #3652 — `plan_status` is the plan's own meaning. The stored
+                // `attendance_status` is an encoding of it (plannedStatusMap:
+                // expected → Present), never a recorded mark, so it is not
+                // exposed: a caller reading it as one saw a squad nobody had
+                // registered come back as fully present.
                 'plan_status' => self::plannedStatusToKey( $status ),
                 'notes'       => (string) ( $row->notes ?? '' ),
             ];
