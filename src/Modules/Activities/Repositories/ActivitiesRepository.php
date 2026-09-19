@@ -1798,6 +1798,48 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #3688 — the activities a player sees: their team's, plus any they
+     * are on the register of (a guest appearance included). Aliased on
+     * `s` for `tt_activities`; takes the player id three times.
+     *
+     * One clause for the list (`searchForRest`, player-scoped) and the
+     * single-record check (`isVisibleToPlayer`), so the two cannot drift.
+     */
+    private static function playerVisibilityClause(): string {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        // Both register kinds on purpose: a player picked for another
+        // team's squad (expected) must see that activity before anyone
+        // takes the register, and still see it after (actual).
+        /* both-kinds-ok */
+        return "(
+                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
+                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
+            )";
+    }
+
+    /**
+     * #3688 — is this activity one the player sees in their activities
+     * list? The per-record form of the player-scoped `searchForRest()`
+     * filter. Archived activities count: whether it was your team's
+     * training does not change when it is archived.
+     */
+    public function isVisibleToPlayer( int $activity_id, int $player_id ): bool {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $clause = self::playerVisibilityClause();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $hit = $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$p}tt_activities s
+              WHERE s.id = %d AND s.club_id = %d AND {$clause}
+              LIMIT 1",
+            $activity_id, CurrentClub::id(), $player_id, $player_id, $player_id
+        ) );
+        return $hit !== null;
+    }
+
+    /**
      * #1712 — the REST activities list (GET /activities), with the
      * on-the-fly attendance-completeness computed columns + HAVING
      * filter the controller's `list_sessions` inlined before the sweep.
@@ -1878,10 +1920,7 @@ final class ActivitiesRepository {
 
         if ( ! empty( $filter['player_id'] ) ) {
             $pid = absint( $filter['player_id'] );
-            $where[]  = "(
-                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
-                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
-            )";
+            $where[]  = self::playerVisibilityClause();
             $params[] = $pid;
             $params[] = $pid;
             $params[] = $pid;
