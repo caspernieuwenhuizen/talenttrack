@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:34:58+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:37:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -48080,31 +48080,31 @@ msgstr ""
 msgid "Compare users"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:64
+#: src/Shared/Dates/TTDate.php:65
 msgid "System default (WordPress setting)"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:65
+#: src/Shared/Dates/TTDate.php:66
 msgid "Day-Month-Year — 31-12-2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:66
+#: src/Shared/Dates/TTDate.php:67
 msgid "Day/Month/Year — 31/12/2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:67
+#: src/Shared/Dates/TTDate.php:68
 msgid "Day.Month.Year — 31.12.2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:68
+#: src/Shared/Dates/TTDate.php:69
 msgid "Month/Day/Year — 12/31/2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:69
+#: src/Shared/Dates/TTDate.php:70
 msgid "ISO — 2026-12-31"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:70
+#: src/Shared/Dates/TTDate.php:71
 msgid "Long — 31 December 2026"
 msgstr ""
 
