@@ -8,8 +8,9 @@ use TT\Modules\Alerts\Contracts\AlertInterface;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
 use TT\Modules\Alerts\Domain\Severity;
-use TT\Modules\Knowledge\Frontend\KnowledgeLinks;
+use TT\Modules\Knowledge\Frontend\FrontendSubmissionReviewView;
 use TT\Modules\Knowledge\Repositories\SubmissionRepository;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * SubmissionsAwaitingReviewAlert (#2648, epic #2641) — coursework is sitting
@@ -126,7 +127,7 @@ final class SubmissionsAwaitingReviewAlert implements AlertInterface {
                 $this->severityFor( (string) ( $row->submitted_at ?? '' ) ),
                 [
                     'title' => $this->titleFor( $row ),
-                    'url'   => KnowledgeLinks::submissionReview(),
+                    'url'   => $this->reviewUrl(),
                 ]
             );
         }
@@ -264,6 +265,17 @@ final class SubmissionsAwaitingReviewAlert implements AlertInterface {
         }
 
         return $out;
+    }
+
+    /**
+     * Built on the dashboard page, never on the current request.
+     *
+     * The sweep runs under wp-cron, where there is no global post, so
+     * `KnowledgeLinks` (which appends to `get_permalink()`) falls back to
+     * REQUEST_URI and hands every reviewer a link to `wp-cron.php`.
+     */
+    private function reviewUrl(): string {
+        return add_query_arg( [ 'tt_view' => FrontendSubmissionReviewView::SLUG ], RecordLink::dashboardUrl() );
     }
 
     private function severityFor( string $submitted_at ): string {
