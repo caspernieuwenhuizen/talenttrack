@@ -62715,6 +62715,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/ParentAccountRestController.php
+msgid "Say which account to link: wp_user_id is required."
+msgstr "Geef aan welk account je wilt koppelen: wp_user_id is verplicht."
+
+#: src/Infrastructure/REST/ParentAccountRestController.php
+msgid "Type at least two characters of the name or email address."
+msgstr "Typ minstens twee tekens van de naam of het e-mailadres."
+
 #~ msgid "Type a parent name to search…"
 #~ msgstr "Typ een oudernaam om te zoeken…"
 
