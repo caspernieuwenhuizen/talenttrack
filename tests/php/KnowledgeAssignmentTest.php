@@ -262,15 +262,41 @@ final class KnowledgeAssignmentTest extends WP_UnitTestCase {
         $this->assertSame( 0, ReviewerResolver::forSubmitter( $this->author_person ) );
     }
 
-    public function test_an_unrouted_submission_is_visible_to_every_capability_holder(): void {
+    /**
+     * #3596 — unrouted work goes to capability holders, and only to them.
+     * A mentor of somebody else used to see it (and its handed-in text) in
+     * a queue whose decision form then always refused them.
+     */
+    public function test_an_unrouted_submission_is_visible_to_capability_holders_only(): void {
         ( new SubmissionService() )->submit( $this->enrolment, self::COURSE, $this->lesson, 'Antwoord.' );
 
-        // A mentor of somebody else, with no management capability, still
-        // sees the unrouted queue — that is what stops unrouted work being
-        // invisible to everyone.
-        $pending = ( new SubmissionRepository() )->listPending( $this->other_person );
+        $this->assertCount( 0, ( new SubmissionRepository() )->listPending( $this->other_person ), 'a mentor of somebody else' );
+        $this->assertCount( 1, ( new SubmissionRepository() )->listPending( 0 ), 'the capability holders\' queue' );
+    }
 
-        $this->assertCount( 1, $pending );
+    public function test_the_rest_queue_lists_only_what_the_viewer_can_decide(): void {
+        global $wp_rest_server;
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+
+        // `other` mentors somebody, so they reach the queue at all.
+        [ , $mentee ] = $this->makePerson( 'Mentee', 'Coach', 'tt_coach' );
+        $this->makeMentorship( $this->other_person, $mentee );
+
+        // Unrouted: the author has no mentor.
+        ( new SubmissionService() )->submit( $this->enrolment, self::COURSE, $this->lesson, 'Zonder mentor.' );
+
+        $count = static function ( int $user ): int {
+            wp_set_current_user( $user );
+            $response = rest_do_request( new \WP_REST_Request( 'GET', '/talenttrack/v1/submissions' ) );
+            $data     = (array) $response->get_data();
+            return count( (array) ( $data['data']['submissions'] ?? [] ) );
+        };
+
+        $this->assertSame( 0, $count( $this->other_user ), 'a mentor of somebody else sees nothing they cannot decide' );
+        $this->assertSame( 1, $count( self::factory()->user->create( [ 'role' => 'administrator' ] ) ), 'a capability holder sees it' );
+
+        $wp_rest_server = null;
     }
 
     public function test_routed_work_stays_out_of_another_mentors_queue(): void {

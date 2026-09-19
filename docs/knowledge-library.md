@@ -543,6 +543,11 @@ Mentorship first, capability second:
 2. otherwise nobody — the submission stays unrouted and is visible to
  **every** holder of `tt_manage_knowledge`
 
+A mentor's queue holds exactly the work routed to them, which is exactly
+what they can decide. It never shows unrouted work or another mentor's. A
+coach's coursework is reflection on their own team and players, and should
+reach only the people responsible for reviewing it.
+
 Unrouted is a state, not a failure. Picking an arbitrary capability holder at
 submit time would look tidier in the column and would quietly make one person
 responsible for a queue nobody told them about.

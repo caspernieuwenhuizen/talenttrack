@@ -557,6 +557,12 @@ Eerst mentorschap, dan rechten:
 2. anders niemand — de inzending blijft ongerouteerd en is zichtbaar voor
  **iedere** houder van `tt_manage_knowledge`
 
+De wachtrij van een mentor bevat precies het werk dat naar die mentor is
+gerouteerd, en dat is precies waarover die kan beslissen. Ongerouteerd werk
+of het werk van een andere mentor staat er nooit in. Het opdrachtwerk van een
+trainer is een reflectie op het eigen team en de eigen spelers, en hoort
+alleen terecht te komen bij de mensen die het moeten beoordelen.
+
 Ongerouteerd is een toestand, geen fout. Bij het inleveren willekeurig een
 rechthebbende aanwijzen ziet er in de kolom netter uit en maakt stilzwijgend
 iemand verantwoordelijk voor een wachtrij waarover niemand hem heeft
