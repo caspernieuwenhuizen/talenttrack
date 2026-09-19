@@ -28,11 +28,14 @@ class ScoutingVisitsRestController {
     }
 
     public static function register(): void {
+        // #3600 — the routes declare their fields, so a client can find
+        // them: a misnamed `age_groups` used to vanish behind a 200.
         register_rest_route( self::NS, '/scouting-visits', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::visitArgs( true ),
             ],
         ] );
 
@@ -41,6 +44,7 @@ class ScoutingVisitsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'update' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::visitArgs( false ),
             ],
             [
                 'methods'             => 'DELETE',
@@ -48,6 +52,57 @@ class ScoutingVisitsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+    }
+
+    /**
+     * The fields a visit write accepts. On create, `visit_date` and
+     * `location` are required; on update every field is optional and only
+     * the ones sent are changed.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function visitArgs( bool $create ): array {
+        return [
+            'visit_date' => [
+                'type'        => 'string',
+                'required'    => $create,
+                'description' => 'Date of the visit, YYYY-MM-DD.',
+            ],
+            'location' => [
+                'type'        => 'string',
+                'required'    => $create,
+                'description' => 'Where the visit is: club, ground or tournament.',
+            ],
+            'visit_time' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Start time, HH:MM. Blank clears it.',
+            ],
+            'event_description' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'What is being watched, e.g. a district tournament.',
+            ],
+            'age_groups_csv' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Age groups to watch, comma-separated, e.g. "u13,u14".',
+            ],
+            'notes' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Free-text notes.',
+            ],
+            'status' => [
+                'type'        => 'string',
+                'enum'        => [
+                    ScoutingVisitsRepository::STATUS_PLANNED,
+                    ScoutingVisitsRepository::STATUS_COMPLETED,
+                    ScoutingVisitsRepository::STATUS_CANCELLED,
+                ],
+                'description' => 'planned (default), completed or cancelled.',
+            ],
+            'scout_user_id' => [
+                'type'        => 'integer',
+                'description' => 'The scout the visit belongs to. Defaults to the caller.',
+            ],
+        ];
     }
 
     public static function can_edit(): bool {
