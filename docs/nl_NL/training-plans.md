@@ -272,6 +272,9 @@ Dit is het scherm dat je op het veld vasthoudt, en het is daarom anders
 gebouwd dan de rest van TalentTrack: donker, één blok tegelijk, grote knoppen
 onderin waar je duim al is.
 
+- Voordat je begint, laat het scherm het hele plan zien: een gekleurde balk
+ naar verhouding van de minuten, en daaronder elk blok met naam en duur, op
+ volgorde.
 - **Start de training** als je begint. Het eerste blok opent met een klok.
 - De klok loopt **op**, tegen de geplande duur van het blok. Er gaat niets
  vanzelf verder — jij bepaalt wanneer een blok klaar is.
@@ -390,6 +393,11 @@ een schaal onder de naam en een veld voor een notitie.
  een waarneming krijgen, gastspelers meegerekend. Wie niet in de
  presentielijst staat, verschijnt niet in de lijst, en een waarneming via
  de API wordt dan ook geweigerd. Zet de speler eerst op aanwezig.
+- Zolang er nog niemand in de presentielijst staat, zegt **Notities over
+ spelers** dat ook en biedt het **Aanwezigheid registreren** aan. Dat opent de
+ presentielijst voor de datum van deze training (of de training zelf, als je
+ academie de presentielijst niet gebruikt). Ga daarna terug naar de training
+ en de spelers die je op aanwezig hebt gezet, staan in de lijst.
 
 Elke waarneming verschijnt meteen op de **Reis** van de speler, met de datum
 van de training en niet van het moment waarop je het intypte.

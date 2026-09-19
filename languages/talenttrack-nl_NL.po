@@ -45696,6 +45696,27 @@ msgstr "Hoe ver je in de training bent"
 msgid "Notes on players"
 msgstr "Notities over spelers"
 
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
+msgid "Take attendance to add notes on players."
+msgstr "Registreer eerst de aanwezigheid om notities over spelers toe te voegen."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
+msgid "Take attendance"
+msgstr "Aanwezigheid registreren"
+
+#. translators: 1: block name, 2: planned minutes. One row of the block list before the training starts.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
+#, php-format
+msgid "%1$s · %2$d min"
+msgstr "%1$s · %2$d min"
+
+#. translators: 1: block name, 2: planned minutes. Label of one timeline segment.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php
+#, php-format
+msgid "%1$s, %2$d min"
+msgstr "%1$s, %2$d min"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:299
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:303
 msgid ""
 "Optional, and you do not have to score anyone. A note on its own is a "

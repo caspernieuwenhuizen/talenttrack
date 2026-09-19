@@ -230,6 +230,7 @@
             el.card.appendChild(node('h2', 'tt-run__name',
                 fmt2(i18n.readySummary, state.blocks.length, minutes)));
             el.card.appendChild(timeline(state.blocks));
+            el.card.appendChild(blockList(state.blocks));
 
             el.controls.textContent = '';
             el.controls.appendChild(bigButton(i18n.start, 'tt-run__go', function () {
@@ -465,19 +466,47 @@
 
     // ---- helpers ----------------------------------------------------------
 
+    /**
+     * The strip of segments, one per block, sized by planned minutes.
+     *
+     * A segment is often too narrow for anything but its minutes, so the
+     * block's name rides on its label (#3671). The label alone is only
+     * reachable by hover or a screen reader, which is why blockList()
+     * spells the names out underneath.
+     */
     function timeline(blocks) {
         var strip = document.createElement('div');
         strip.className = 'tt-run__timeline';
         blocks.forEach(function (block) {
             var minutes = block.planned_minutes || 0;
             if (!minutes) return;
+            var label = fmt2(i18n.segLabel, block.name || i18n.unnamed, minutes);
             var seg = document.createElement('span');
             seg.className = 'tt-run__seg tt-run__seg--' + (block.block_type || 'main');
             seg.style.flex = String(minutes);
             seg.textContent = String(minutes);
+            seg.setAttribute('role', 'img');
+            seg.setAttribute('aria-label', label);
+            seg.title = label;
             strip.appendChild(seg);
         });
         return strip;
+    }
+
+    /**
+     * The blocks by name, in order, under the strip. Readable on a phone
+     * without hovering anything, which the segment labels are not.
+     */
+    function blockList(blocks) {
+        var list = document.createElement('ol');
+        list.className = 'tt-run__blocks';
+        blocks.forEach(function (block) {
+            var item = document.createElement('li');
+            item.className = 'tt-run__blocks-item tt-run__blocks-item--' + (block.block_type || 'main');
+            item.textContent = fmt2(i18n.blockLine, block.name || i18n.unnamed, block.planned_minutes || 0);
+            list.appendChild(item);
+        });
+        return list;
     }
 
     function points(text) {
