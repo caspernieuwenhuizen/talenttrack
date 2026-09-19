@@ -100,6 +100,8 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
 - De kaart **Uitslag** bij een wedstrijd — zie
   [Activiteiten](activities.md#de-uitslag-vastleggen).
 - Een evaluatie of doel **aanmaken** — in tegenstelling tot bewerken.
+- De kaart **Aflevering** op het tabblad [Brief](trials.md) van een
+  stagedossier, waar het hoofd opleiding vastlegt dat het gezin de brief heeft.
 - Configuratieschermen en keuzelijsten.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.
@@ -119,6 +121,12 @@ die van daarvoor — nooit een halve mengeling van de twee. En Annuleren beteken
 annuleren. Een half afgemaakte vastlegging is erger dan een verloren
 vastlegging wanneer wat je vastlegt een reeks oordelen is die alleen samen
 betekenis hebben.
+
+**Waarom de kaart Aflevering.** Eén keuzerondje en een vastlegging — er wordt
+niets geschreven. Wat automatisch opslaan hier zou doen, is de manier
+vastleggen waar de cursor toevallig op stond in plaats van de manier die het
+hoofd opleiding bedoelde, in een uitspraak over een gezin waar een collega
+op afgaat.
 
 **Waarom de korte recordformulieren.** De velden zijn een kleine, bekende set,
 en Opslaan is een nuttige adempauze — het moment waarop je controleert of de

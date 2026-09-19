@@ -175,7 +175,20 @@
 .tt-dashboard .tt-trial-decision-form button,
 .tt-dashboard .tt-trial-release-form button,
 .tt-dashboard .tt-trial-accept-form button,
-.tt-dashboard .tt-trial-regenerate button { min-height: 48px; touch-action: manipulation; }
+.tt-dashboard .tt-trial-regenerate button,
+.tt-dashboard .tt-trial-delivery-form button,
+.tt-dashboard .tt-trial-delivery-form .tt-form-cancel { min-height: 48px; touch-action: manipulation; }
+
+/* #3683 — the delivery record sits under the letter. */
+.tt-dashboard .tt-trial-delivery__state {
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-delivery-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+}
 
 .tt-dashboard .tt-decision-radios {
     margin: 0;

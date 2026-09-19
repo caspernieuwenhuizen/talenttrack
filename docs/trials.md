@@ -93,6 +93,16 @@ Recording a decision generates the letter automatically. The **Letter** tab show
 
 Every letter is headed with the academy's name, and `{club_name}` resolves to it anywhere you use it in a template. That name comes from **Configuration → Academy name**; set it before the first letter goes out, because an academy that has left the field empty gets the WordPress site title on the letterhead instead. Changing the name does not rewrite letters that have already been generated — regenerate a letter if you need the new name on it.
 
+### Record that the family has it
+
+Generating a letter does **not** send it. TalentTrack writes the letter and keeps it; getting it to the family is still a human step — you print and post it, attach it to an email, or hand it over at the end of the meeting.
+
+So that the next person to open the case can tell a family still waiting from one already told, the **Letter** tab has a **Delivery** card under the letter. It reads *Not recorded as delivered yet* until someone picks how the family got it — **Printed and posted**, **Emailed** or **Handed over in person** — and presses **Record delivery**. After that it reads *Delivered on 3 October 2026 by Anne de Vries (Emailed)*, and offers **Clear delivery record** if the wrong letter was ticked.
+
+The letter history table carries a **Delivered** column, so a case that has been reopened and re-decided shows at a glance which of its letters actually reached the family. Letters generated before this existed read as *Not recorded* — there was nothing to backfill from, and a guess would be worse than a blank.
+
+Nothing about this sends mail, sets a reminder, or chases anyone. It is a record.
+
 The shipped Dutch letters use a warm, informal "je/jullie" club voice. If the wording isn't quite right for your club, **Letter templates** (under the Trials tile group) lets you customise each letter per language. The editor opens with a short guidance note, lists each letter under a plain-language name ("Offer of a place", "No place — with encouragement", …), and shows a side panel of every variable you can substitute (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus a live preview with sample data. Unknown variables are left as literal `{foo}` so missing pieces are visible in the preview.
 
 ### 6. Have the conversation with the parents

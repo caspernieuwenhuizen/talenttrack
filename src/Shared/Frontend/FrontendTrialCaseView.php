@@ -776,7 +776,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
     private static function renderLetterTab( object $case ): void {
         $svc = new TrialLetterService();
-        $letter = $svc->findActiveForCase( (int) $case->id );
+        $case_id = (int) $case->id;
+        $letter = $svc->findActiveForCase( $case_id );
 
         self::cardOpen( __( 'Letter', 'talenttrack' ) );
 
@@ -784,8 +785,11 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<p class="tt-player-empty">' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
         } else {
             // #3661 — the standalone print document, not this page again.
-            $print_url = \TT\Modules\Trials\Print\TrialLetterPrintRouter::urlFor( (int) $case->id );
+            $print_url = \TT\Modules\Trials\Print\TrialLetterPrintRouter::urlFor( $case_id );
             echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Print view', 'talenttrack' ) . '</a></p>';
+            // #3683 — said once, next to the button that makes people
+            // think otherwise. Generating has never sent anything.
+            echo '<p class="tt-trial-card__intro">' . esc_html__( 'Generating a letter does not send it. Print or email it, then record the delivery below.', 'talenttrack' ) . '</p>';
             // Read through the engine: letters stored before #3661 carry
             // their stylesheet inlined ahead of them, which kses turns into
             // a block of CSS text above the letter.
@@ -796,20 +800,102 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         self::cardClose();
 
+        if ( $letter ) {
+            self::renderDeliveryCard( $case_id, $letter );
+        }
+
         // History
-        $history = $svc->listForCase( (int) $case->id );
+        $history = $svc->listForCase( $case_id );
         if ( $history ) {
             self::cardOpen( __( 'Letter history', 'talenttrack' ) );
             echo '<div class="tt-table-wrap">';
-            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html( _x( 'Delivered', 'trial letter', 'talenttrack' ) ) . '</th></tr></thead><tbody>';
             foreach ( $history as $row ) {
                 $status = $row->revoked_at ? __( 'Revoked', 'talenttrack' ) : __( 'Active', 'talenttrack' );
-                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td></tr>';
+                // `delivered_at` is written in UTC, like `revoked_at` beside
+                // it, so it converts before it is formatted.
+                $row_delivered = (string) ( $row->delivered_at ?? '' );
+                $delivered = $row_delivered !== ''
+                    ? \TT\Shared\Dates\TTDate::date( get_date_from_gmt( $row_delivered ) )
+                    : __( 'Not recorded', 'talenttrack' );
+                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td><td>' . esc_html( $delivered ) . '</td></tr>';
             }
             echo '</tbody></table>';
             echo '</div>';
             self::cardClose();
         }
+    }
+
+    /**
+     * #3683 — "does this family have the letter?"
+     *
+     * Model B (CLAUDE.md §6): an explicit Save with a real Cancel. There
+     * is nothing being composed here — one radio and a commit — and a
+     * debounce firing between "printed" and the method the HoD actually
+     * meant would record a delivery nobody chose.
+     *
+     * Cancel returns to this tab rather than honouring `tt_back`: this is
+     * a micro-form inside a record, not a create or edit screen, and
+     * abandoning it should leave you looking at the letter you were
+     * looking at.
+     */
+    private static function renderDeliveryCard( int $case_id, object $letter ): void {
+        $letter_id    = (int) ( $letter->id ?? 0 );
+        $delivered_at = (string) ( $letter->delivered_at ?? '' );
+        $method       = (string) ( $letter->delivery_method ?? '' );
+        $delivered_by = (int) ( $letter->delivered_by ?? 0 );
+
+        $tab_url = add_query_arg(
+            [ 'tt_view' => 'trial-case', 'id' => $case_id, 'tab' => self::TAB_LETTER ],
+            RecordLink::dashboardUrl()
+        );
+
+        self::cardOpen( _x( 'Delivery', 'trial letter', 'talenttrack' ) );
+
+        if ( $delivered_at !== '' ) {
+            $user = $delivered_by > 0 ? get_userdata( $delivered_by ) : null;
+            $who  = $user ? (string) $user->display_name : __( 'someone no longer on the staff list', 'talenttrack' );
+            echo '<p class="tt-trial-delivery__state">' . esc_html( sprintf(
+                /* translators: 1: date, 2: staff member name, 3: delivery method */
+                __( 'Delivered on %1$s by %2$s (%3$s).', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::date( get_date_from_gmt( $delivered_at ) ),
+                $who,
+                TrialLetterService::methodLabel( $method )
+            ) ) . '</p>';
+
+            echo '<form method="post" class="tt-trial-delivery-form">';
+            wp_nonce_field( 'tt_trial_delivery_' . $case_id, 'tt_trial_delivery_nonce' );
+            echo '<input type="hidden" name="tt_trial_action" value="clear_delivery">';
+            echo '<input type="hidden" name="letter_id" value="' . esc_attr( (string) $letter_id ) . '">';
+            echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+                'label'      => __( 'Clear delivery record', 'talenttrack' ),
+                'variant'    => 'secondary',
+                'cancel_url' => $tab_url,
+                'ignore_back' => true,
+            ] );
+            echo '</form>';
+        } else {
+            echo '<p class="tt-trial-delivery__state">' . esc_html__( 'Not recorded as delivered yet.', 'talenttrack' ) . '</p>';
+
+            echo '<form method="post" class="tt-trial-delivery-form">';
+            wp_nonce_field( 'tt_trial_delivery_' . $case_id, 'tt_trial_delivery_nonce' );
+            echo '<input type="hidden" name="tt_trial_action" value="record_delivery">';
+            echo '<input type="hidden" name="letter_id" value="' . esc_attr( (string) $letter_id ) . '">';
+            echo '<fieldset class="tt-decision-radios"><legend>' . esc_html__( 'How did the family get it?', 'talenttrack' ) . '</legend>';
+            foreach ( TrialLetterService::DELIVERY_METHODS as $key ) {
+                echo '<label><input type="radio" name="delivery_method" value="' . esc_attr( $key ) . '" required> '
+                    . esc_html( TrialLetterService::methodLabel( $key ) ) . '</label>';
+            }
+            echo '</fieldset>';
+            echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+                'label'       => __( 'Record delivery', 'talenttrack' ),
+                'cancel_url'  => $tab_url,
+                'ignore_back' => true,
+            ] );
+            echo '</form>';
+        }
+
+        self::cardClose();
     }
 
     /* ===== Parent meeting tab — preview link to fullscreen ===== */
@@ -917,6 +1003,26 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 $svc      = new TrialLetterService();
                 // #3223 — same as above: superseding is the service's job.
                 $svc->generate( $case, $audience, $user_id, $case->strengths_summary, $case->growth_areas );
+                return;
+
+            case 'record_delivery':
+                if ( ! TrialCaseAccessPolicy::isManager( $user_id ) ) return;
+                if ( ! self::nonceOk( 'tt_trial_delivery_' . $case_id, 'tt_trial_delivery_nonce' ) ) return;
+                $letter_id = isset( $_POST['letter_id'] ) ? absint( $_POST['letter_id'] ) : 0;
+                $method    = isset( $_POST['delivery_method'] ) ? sanitize_key( (string) wp_unslash( $_POST['delivery_method'] ) ) : '';
+                if ( $letter_id <= 0 ) return;
+                // Ownership + the allowed-method check both live in the
+                // service, so the form and the REST route refuse the same
+                // things for the same reasons (CLAUDE.md §4).
+                ( new TrialLetterService() )->recordDelivery( $letter_id, $case_id, $method, $user_id );
+                return;
+
+            case 'clear_delivery':
+                if ( ! TrialCaseAccessPolicy::isManager( $user_id ) ) return;
+                if ( ! self::nonceOk( 'tt_trial_delivery_' . $case_id, 'tt_trial_delivery_nonce' ) ) return;
+                $letter_id = isset( $_POST['letter_id'] ) ? absint( $_POST['letter_id'] ) : 0;
+                if ( $letter_id <= 0 ) return;
+                ( new TrialLetterService() )->clearDelivery( $letter_id, $case_id );
                 return;
 
             case 'accept_received':
