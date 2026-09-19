@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:18:34+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:21:01+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3015,13 +3015,13 @@ msgid "No changes supplied."
 msgstr "Geen wijzigingen ontvangen."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:399
-#: src/Infrastructure/REST/ActivitiesRestController.php:1304
-#: src/Infrastructure/REST/ActivitiesRestController.php:1497
-#: src/Infrastructure/REST/ActivitiesRestController.php:1514
-#: src/Infrastructure/REST/ActivitiesRestController.php:1544
-#: src/Infrastructure/REST/ActivitiesRestController.php:2034
-#: src/Infrastructure/REST/ActivitiesRestController.php:2217
-#: src/Infrastructure/REST/ActivitiesRestController.php:2255
+#: src/Infrastructure/REST/ActivitiesRestController.php:1329
+#: src/Infrastructure/REST/ActivitiesRestController.php:1522
+#: src/Infrastructure/REST/ActivitiesRestController.php:1539
+#: src/Infrastructure/REST/ActivitiesRestController.php:1569
+#: src/Infrastructure/REST/ActivitiesRestController.php:2117
+#: src/Infrastructure/REST/ActivitiesRestController.php:2300
+#: src/Infrastructure/REST/ActivitiesRestController.php:2338
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -3083,31 +3083,31 @@ msgstr "Onbekende sorteerkolom."
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr "Datums moeten worden geschreven als JJJJ-MM-DD."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1219
+#: src/Infrastructure/REST/ActivitiesRestController.php:1244
 msgid "Title and date are required."
 msgstr "Titel en datum zijn verplicht."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1234
+#: src/Infrastructure/REST/ActivitiesRestController.php:1259
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden opgeslagen. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1262
+#: src/Infrastructure/REST/ActivitiesRestController.php:1287
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is opgeslagen, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1293
-#: src/Infrastructure/REST/ActivitiesRestController.php:1491
-#: src/Infrastructure/REST/ActivitiesRestController.php:1509
+#: src/Infrastructure/REST/ActivitiesRestController.php:1318
+#: src/Infrastructure/REST/ActivitiesRestController.php:1516
 #: src/Infrastructure/REST/ActivitiesRestController.php:1534
-#: src/Infrastructure/REST/ActivitiesRestController.php:2030
-#: src/Infrastructure/REST/ActivitiesRestController.php:2144
-#: src/Infrastructure/REST/ActivitiesRestController.php:2195
-#: src/Infrastructure/REST/ActivitiesRestController.php:2213
-#: src/Infrastructure/REST/ActivitiesRestController.php:2252
+#: src/Infrastructure/REST/ActivitiesRestController.php:1559
+#: src/Infrastructure/REST/ActivitiesRestController.php:2113
+#: src/Infrastructure/REST/ActivitiesRestController.php:2227
+#: src/Infrastructure/REST/ActivitiesRestController.php:2278
+#: src/Infrastructure/REST/ActivitiesRestController.php:2296
+#: src/Infrastructure/REST/ActivitiesRestController.php:2335
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -3118,45 +3118,46 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1324
+#: src/Infrastructure/REST/ActivitiesRestController.php:1349
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden bijgewerkt. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1374
+#: src/Infrastructure/REST/ActivitiesRestController.php:1399
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is bijgewerkt, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1725
+#: src/Infrastructure/REST/ActivitiesRestController.php:1750
+#: src/Infrastructure/REST/ActivitiesRestController.php:1808
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2056
+#: src/Infrastructure/REST/ActivitiesRestController.php:2139
 msgid "A guest is either linked OR anonymous, not both."
 msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2060
+#: src/Infrastructure/REST/ActivitiesRestController.php:2143
 msgid "Pick a player or enter a guest name."
 msgstr "Kies een speler of vul een gastnaam in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2063
+#: src/Infrastructure/REST/ActivitiesRestController.php:2146
 msgid "Linked player does not exist."
 msgstr "Gekoppelde speler bestaat niet."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2126
+#: src/Infrastructure/REST/ActivitiesRestController.php:2209
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2127
+#: src/Infrastructure/REST/ActivitiesRestController.php:2210
 msgid "The guest could not be added."
 msgstr "De gast kon niet worden toegevoegd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2165
+#: src/Infrastructure/REST/ActivitiesRestController.php:2248
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
@@ -3164,28 +3165,28 @@ msgstr ""
 "Hier zijn alleen Annuleren en Heropenen toegestaan. Een activiteit voltooien "
 "verloopt via de evaluatieflow."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2166
+#: src/Infrastructure/REST/ActivitiesRestController.php:2249
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr "Alleen Afronden, Annuleren en Heropenen zijn hier toegestaan."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2172
+#: src/Infrastructure/REST/ActivitiesRestController.php:2255
 msgid "Could not update the activity status."
 msgstr "Kon de activiteitsstatus niet bijwerken."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2198
+#: src/Infrastructure/REST/ActivitiesRestController.php:2281
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2275
-#: src/Infrastructure/REST/ActivitiesRestController.php:2347
+#: src/Infrastructure/REST/ActivitiesRestController.php:2358
+#: src/Infrastructure/REST/ActivitiesRestController.php:2430
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2278
+#: src/Infrastructure/REST/ActivitiesRestController.php:2361
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2313
+#: src/Infrastructure/REST/ActivitiesRestController.php:2396
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
@@ -3193,11 +3194,11 @@ msgstr ""
 "De minuten voor deze wedstrijd worden beheerd op het "
 "wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2334
+#: src/Infrastructure/REST/ActivitiesRestController.php:2417
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2350
+#: src/Infrastructure/REST/ActivitiesRestController.php:2433
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
