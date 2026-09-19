@@ -253,7 +253,7 @@ class CoachForms {
                     <option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $cur_type_id, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
                 <?php endforeach; ?>
             </select></div>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( $cur_eval_date ); ?>" required /></div>
+            <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( $cur_eval_date ); ?>" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div id="tt-fe-match-fields" style="display:<?php echo $match_open ? 'block' : 'none'; ?>;">
                 <div class="tt-form-row"><label><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" name="opponent" value="<?php echo esc_attr( $cur_opponent ); ?>" /></div>
                 <div class="tt-form-row">

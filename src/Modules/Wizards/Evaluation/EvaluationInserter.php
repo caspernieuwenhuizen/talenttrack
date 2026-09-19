@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Evaluation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Evaluations\EvaluationDateRule;
 
 /**
  * EvaluationInserter (#0072 follow-up) — single-row insert helper.
@@ -41,6 +42,12 @@ final class EvaluationInserter {
         $coach_id = (int) ( $row['coach_id'] ?? get_current_user_id() );
         $aid      = (int) ( $row['activity_id'] ?? 0 );
         $eval_date = (string) ( $row['eval_date'] ?? current_time( 'Y-m-d' ) );
+
+        // #3583 — a real date, not in the future, not before its activity.
+        $date_refusal = EvaluationDateRule::check( $eval_date, EvaluationDateRule::activityDate( $aid ) );
+        if ( $date_refusal !== null ) {
+            return $date_refusal;
+        }
 
         // v3.110.105 — `eval_type_id` is now a first-class field on
         // the payload. When the caller passes one we honour it.
@@ -138,6 +145,17 @@ final class EvaluationInserter {
         }
         if ( $activity_id <= 0 ) {
             return new \WP_Error( 'no_activity', __( 'No activity id supplied.', 'talenttrack' ) );
+        }
+
+        // #3583 — a session that has not happened yet cannot be rated, and
+        // the grid would otherwise write straight onto an existing row.
+        $activity_date = EvaluationDateRule::activityDate( $activity_id );
+        if ( EvaluationDateRule::isDate( $activity_date ) && $activity_date > current_time( 'Y-m-d' ) ) {
+            return new \WP_Error(
+                EvaluationDateRule::FUTURE,
+                __( 'This activity has not happened yet, so it cannot be evaluated.', 'talenttrack' ),
+                [ 'status' => 400 ]
+            );
         }
 
         global $wpdb;

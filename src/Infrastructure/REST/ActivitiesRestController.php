@@ -458,6 +458,15 @@ class ActivitiesRestController {
         $failed = 0;
         foreach ( $byPlayer as $pid => $ratings ) {
             $res = \TT\Modules\Wizards\Evaluation\EvaluationInserter::upsertForActivity( $pid, $activity_id, $ratings );
+            // #3583 — a session that has not happened yet is refused per
+            // cell with its reason, like an off-scale value, rather than
+            // counted as an unexplained failure.
+            if ( is_wp_error( $res ) && $res->get_error_code() === \TT\Modules\Evaluations\EvaluationDateRule::FUTURE ) {
+                foreach ( array_keys( $ratings ) as $cid ) {
+                    $rejected[] = [ 'player_id' => (int) $pid, 'category_id' => (int) $cid, 'reason' => \TT\Modules\Evaluations\EvaluationDateRule::FUTURE ];
+                }
+                continue;
+            }
             if ( is_wp_error( $res ) ) { $failed++; continue; }
             $saved += count( $ratings );
         }

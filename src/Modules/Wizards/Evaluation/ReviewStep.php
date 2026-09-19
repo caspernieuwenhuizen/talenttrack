@@ -346,6 +346,13 @@ final class ReviewStep implements WizardStepInterface {
             return new \WP_Error( 'no_player', __( 'No player selected.', 'talenttrack' ) );
         }
 
+        // #3583 — this path writes the row itself, so it asks the date rule
+        // itself: a real date, not in the future.
+        $date_refusal = \TT\Modules\Evaluations\EvaluationDateRule::check( $date );
+        if ( $date_refusal !== null ) {
+            return $date_refusal;
+        }
+
         // v3.110.194 (#812) — block empty evaluations and out-of-range
         // ratings before the DB insert. Range comes from `rating_min` /
         // `rating_max` config (defaults 5 / 10). `tt_eval_ratings.rating`

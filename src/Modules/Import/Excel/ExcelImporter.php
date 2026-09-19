@@ -110,6 +110,10 @@ final class ExcelImporter {
         // Cross-sheet FK validation.
         $this->validateForeignKeys( $rows, $blockers );
 
+        // #3583 — an evaluation dated in the future is a row error, not a
+        // reason to refuse the whole workbook.
+        $this->dropFutureEvaluations( $rows, $warnings );
+
         if ( ! empty( $blockers ) ) {
             return [
                 'ok'                  => false,
@@ -616,6 +620,38 @@ final class ExcelImporter {
         }
 
         return $counts;
+    }
+
+    /**
+     * #3583 — drop evaluation rows dated after today, and say which.
+     *
+     * The date rule every other evaluation write path asks. A workbook with
+     * one mistyped year should still import the rest, so this is a warning
+     * naming the row rather than a blocker. Its rating rows then find no
+     * evaluation to attach to and are skipped with it.
+     *
+     * @param array<string,list<array<string,mixed>>> $rows
+     * @param list<string> $warnings
+     */
+    private function dropFutureEvaluations( array &$rows, array &$warnings ): void {
+        if ( empty( $rows['evaluations'] ) ) return;
+
+        $kept = [];
+        foreach ( $rows['evaluations'] as $i => $r ) {
+            $date = $this->formatDate( $r['eval_date'] ?? null );
+            $refusal = $date !== null ? \TT\Modules\Evaluations\EvaluationDateRule::check( $date ) : null;
+            if ( $refusal !== null && $refusal->get_error_code() === \TT\Modules\Evaluations\EvaluationDateRule::FUTURE ) {
+                $warnings[] = sprintf(
+                    /* translators: 1: row number on the Evaluations sheet, 2: the date on that row */
+                    __( 'Evaluations sheet, row %1$d: the date %2$s is in the future, so this evaluation was not imported.', 'talenttrack' ),
+                    $i + 2,
+                    $date
+                );
+                continue;
+            }
+            $kept[] = $r;
+        }
+        $rows['evaluations'] = $kept;
     }
 
     private function formatDate( $val ): ?string {

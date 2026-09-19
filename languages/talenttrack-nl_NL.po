@@ -62779,6 +62779,29 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Evaluations/EvaluationDateRule.php
+msgid "The evaluation date must be a real date, written as YYYY-MM-DD."
+msgstr "De evaluatiedatum moet een bestaande datum zijn, geschreven als JJJJ-MM-DD."
+
+#: src/Modules/Evaluations/EvaluationDateRule.php
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php
+msgid "This activity has not happened yet, so it cannot be evaluated."
+msgstr "Deze activiteit heeft nog niet plaatsgevonden, dus die kan nog niet worden geëvalueerd."
+
+#: src/Modules/Evaluations/EvaluationDateRule.php
+msgid "An evaluation cannot be dated in the future."
+msgstr "Een evaluatie kan niet in de toekomst worden gedateerd."
+
+#: src/Modules/Evaluations/EvaluationDateRule.php
+msgid "An evaluation cannot be dated before the activity it is about."
+msgstr "Een evaluatie kan niet worden gedateerd vóór de activiteit waar ze over gaat."
+
+#. translators: 1: row number on the Evaluations sheet, 2: the date on that row
+#: src/Modules/Import/Excel/ExcelImporter.php
+#, php-format
+msgid "Evaluations sheet, row %1$d: the date %2$s is in the future, so this evaluation was not imported."
+msgstr "Tabblad Evaluaties, rij %1$d: de datum %2$s ligt in de toekomst, dus deze evaluatie is niet geïmporteerd."
+
 #~ msgid "Could not create trial case."
 #~ msgstr "Stagedossier kon niet worden aangemaakt."
 
