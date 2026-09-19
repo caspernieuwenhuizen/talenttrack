@@ -731,8 +731,9 @@ class PlayersRestController {
             'date_joined'         => sanitize_text_field( (string) ( $r['date_joined'] ?? '' ) ),
             'photo_url'           => esc_url_raw( (string) ( $r['photo_url'] ?? '' ) ),
             // #2744 — a record of what the family agreed to, not a gate.
-            // An unchecked box sends nothing, so absence means "no", which
-            // is the honest reading for a consent record.
+            // On create an absent key means "no", which is the honest
+            // reading for a consent record. On update an absent key leaves
+            // it alone (#3569); the form sends a hidden 0 to withdraw.
             'media_consent'       => ! empty( $r['media_consent'] ) ? 1 : 0,
             'guardian_name'       => sanitize_text_field( (string) ( $r['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $r['guardian_email'] ?? '' ) ),
