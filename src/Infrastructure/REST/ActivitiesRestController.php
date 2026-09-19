@@ -998,7 +998,9 @@ class ActivitiesRestController {
     private static function listArgs(): array {
         $date = 'A date as YYYY-MM-DD; anything else is refused with 400 bad_date.';
         return [
-            'team_id'   => [ 'type' => 'string', 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
+            // Integer or string: a single id may arrive as a number from a
+            // JSON-aware client, a CSV only as a string.
+            'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
             'date_from' => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_from].' ],
             'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
             'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
