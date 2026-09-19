@@ -4,6 +4,7 @@ namespace TT\Modules\Trials\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Reports\AudienceType;
@@ -53,6 +54,13 @@ class TrialsRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_cases' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => [
+                    'player_id'        => [ 'type' => 'integer', 'description' => 'Only this player\'s trial cases.' ],
+                    'status'           => [ 'type' => 'string', 'description' => 'open, extended, decided or archived.' ],
+                    'track_id'         => [ 'type' => 'integer', 'description' => 'Only cases on this trial track.' ],
+                    'decision'         => [ 'type' => 'string', 'description' => 'Only cases with this decision.' ],
+                    'include_archived' => [ 'type' => 'boolean', 'description' => 'Include archived cases.' ],
+                ],
             ],
             [
                 'methods'             => 'POST',
@@ -220,6 +228,11 @@ class TrialsRestController {
             'decision' => sanitize_key( (string) $r->get_param( 'decision' ) ),
             'include_archived' => (bool) $r->get_param( 'include_archived' ),
         ];
+        // #3602 — one player's trials. The repository took a player list all
+        // along; the route never passed it, so `player_id` returned everyone.
+        $player_id = absint( (int) $r->get_param( 'player_id' ) );
+        if ( $player_id > 0 ) $filters['player_ids'] = [ $player_id ];
+
         $rows  = ( new TrialCasesRepository() )->search( $filters );
         $names = self::playerNames( array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) ) );
         return RestResponse::success( [
@@ -339,11 +352,49 @@ class TrialsRestController {
     }
 
     public static function update_case( \WP_REST_Request $r ): \WP_REST_Response {
-        $id = absint( $r['id'] );
+        $id      = absint( $r['id'] );
+        $repo    = new TrialCasesRepository();
+        $case    = $repo->find( $id );
+        if ( ! $case ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+
         $payload = (array) $r->get_json_params();
-        $patch = array_intersect_key( $payload, array_flip( [ 'track_id','start_date','end_date','status','notes' ] ) );
-        $ok = ( new TrialCasesRepository() )->update( $id, $patch );
-        return $ok ? RestResponse::success( [ 'updated' => true ] )
+        $patch   = array_intersect_key( $payload, array_flip( [ 'track_id','start_date','end_date','status','notes' ] ) );
+
+        // #3602 — a status is one of the four, and archiving is the
+        // repository's archive(), not a flipped string. Setting `status`
+        // alone left `archived_at` null, and every list keys archive state
+        // on that column, so an "archived" case stayed among the live ones.
+        $archive = false;
+        if ( array_key_exists( 'status', $patch ) ) {
+            $status = sanitize_key( (string) $patch['status'] );
+            if ( ! TrialCaseStatus::isValid( $status ) ) {
+                return RestResponse::error( 'bad_status', __( 'Unknown trial case status.', 'talenttrack' ), 400, [
+                    'allowed' => TrialCaseStatus::ALL,
+                ] );
+            }
+            if ( $status === TrialCaseStatus::ARCHIVED ) {
+                $archive = true;
+                unset( $patch['status'] );
+            } else {
+                $patch['status'] = $status;
+                // Moving an archived case back to a live status restores it,
+                // or it would be live by status and archived by column.
+                if ( ! empty( ( (array) $case )['archived_at'] ) ) {
+                    $patch['archived_at'] = null;
+                    $patch['archived_by'] = null;
+                }
+            }
+        }
+
+        if ( ! $archive && $patch === [] ) {
+            return RestResponse::error( 'bad_request', __( 'No fields to update.', 'talenttrack' ), 400 );
+        }
+
+        $ok = true;
+        if ( $patch !== [] ) $ok = $repo->update( $id, $patch );
+        if ( $archive )      $ok = $repo->archive( $id, get_current_user_id() ) || $ok;
+
+        return $ok ? RestResponse::success( [ 'updated' => true, 'case' => self::format( $repo->find( $id ) ) ] )
                    : RestResponse::error( 'bad_request', __( 'No fields to update.', 'talenttrack' ), 400 );
     }
 
