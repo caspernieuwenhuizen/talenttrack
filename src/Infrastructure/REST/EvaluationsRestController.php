@@ -71,12 +71,23 @@ class EvaluationsRestController {
                 'permission_callback' => function () {
                     $uid = get_current_user_id();
                     if ( $uid <= 0 ) return false;
-                    return \TT\Modules\Authorization\MatrixGate::can(
+                    // #3578 — a self-scoped check needs the user as its
+                    // target; without one MatrixGate refuses, and this
+                    // route answered 403 to every account.
+                    if ( \TT\Modules\Authorization\MatrixGate::can(
                         $uid,
                         'my_evaluations',
                         'read',
-                        \TT\Modules\Authorization\MatrixGate::SCOPE_SELF
-                    );
+                        \TT\Modules\Authorization\MatrixGate::SCOPE_SELF,
+                        $uid
+                    ) ) {
+                        return true;
+                    }
+                    // The #1942 audit path. The HoD holds no `my_evaluations`
+                    // row, so without this the `coach_id` override below
+                    // could never be reached by the people it was built for.
+                    // Which coach they may ask about is still decided there.
+                    return \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsEvaluations( $uid );
                 },
             ],
         ]);
