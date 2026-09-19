@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:45:28+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:49:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2095,7 +2095,7 @@ msgstr "Autre"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:531
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2034
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:395
 #: src/Modules/People/Admin/PeoplePage.php:213
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:202
@@ -9194,7 +9194,7 @@ msgid "Resume"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:319
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:571
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:650
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:275
 #: src/Shared/Admin/BulkActionsHelper.php:173
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:217
@@ -9224,7 +9224,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:126
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:528
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:822
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:581
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:660
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:184
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:202
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:264
@@ -13114,7 +13114,7 @@ msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:319
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1560
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:552
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:631
 #: src/Shared/Admin/BulkActionsHelper.php:168
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:155
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:157
@@ -22228,10 +22228,10 @@ msgstr ""
 
 #: src/Modules/Export/Exporters/PdpPdfExporter.php:69
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:49
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:682
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:706
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:784
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:817
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:761
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:785
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:863
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:896
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:55
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:84
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:101
@@ -22241,7 +22241,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PdpPdfExporter.php:80
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:173
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:52
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:686
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:765
 msgid "You do not have access to this PDP file."
 msgstr ""
 
@@ -24884,7 +24884,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:331
 #: src/Modules/Knowledge/Frontend/LearningReports.php:370
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:284
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:426
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:436
 msgid "Not started"
 msgstr ""
 
@@ -34363,11 +34363,11 @@ msgid " · planned %s"
 msgstr ""
 
 #: src/Modules/Pdp/PdpHardDeleteAdminPost.php:53
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:677
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:701
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:747
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:778
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:809
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:756
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:780
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:826
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:857
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:888
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:51
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:80
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:97
@@ -34636,94 +34636,94 @@ msgid "The conversation could not be updated."
 msgstr ""
 
 #. translators: 1: conducted conversations, 2: total conversations
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:396
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:406
 #, php-format
 msgctxt "PDP conversation progress"
 msgid "%1$d/%2$d"
 msgstr ""
 
 #. translators: %s = progress like "1/3"
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:404
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:414
 #, php-format
 msgid "PDP ✓ %s"
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:407
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:417
 msgid "PDP ✓"
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:429
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:439
 msgid "Add PDP"
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:500
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:579
 msgid "Parent confirmation"
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:501
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:580
 msgid "Player confirmation"
 msgstr ""
 
 #. translators: %s = parent / player
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:594
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:673
 #, php-format
 msgid "%s received"
 msgstr ""
 
 #. translators: %s = parent / player
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:595
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:674
 #, php-format
 msgid "%s not yet received"
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:611
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:690
 #: src/Modules/Wizards/Goal/DetailsStep.php:48
 msgid "Player is required."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:619
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:698
 msgid "No current season is set. Configure a season before creating PDP files."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:628
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:707
 msgid "You can only create PDP files for players on your own teams."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:645
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:724
 msgid ""
 "A PDP file already exists for this player and season, or the database "
 "refused the write."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:710
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:789
 msgid "You do not have permission to edit this PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:719
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:798
 msgid "Owner update failed."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:727
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:806
 msgid "Invalid status. Use open, completed, or archived."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:752
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:831
 msgid "PDP file not found or already archived."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:756
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:835
 msgid "You do not have permission to archive this PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:760
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:839
 msgid "Could not archive the PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:788
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:867
 msgid "Could not restore the PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:823
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:902
 msgid ""
 "Could not permanently delete the PDP file. The transaction was rolled back; "
 "nothing changed."
