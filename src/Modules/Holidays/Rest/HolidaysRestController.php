@@ -47,7 +47,12 @@ final class HolidaysRestController {
                 'permission_callback' => self::can( 'tt_view_holidays' ),
             ],
             [
-                'methods'             => 'PUT|PATCH',
+                // `register_rest_route()` splits this string on COMMAS.
+                // 'PUT|PATCH' registered one method literally named
+                // "PUT|PATCH", so the PUT that `frontend-holidays.js`
+                // sends matched no handler and saving an edited holiday
+                // answered 404 (#3686, found while testing the read grant).
+                'methods'             => 'PUT, PATCH',
                 'callback'            => [ self::class, 'update_holiday' ],
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
             ],

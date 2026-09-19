@@ -173,6 +173,23 @@ final class ManagerFunctionalRoleTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->send( 'POST', '/talenttrack/v1/holidays/' . $holiday . '/restore' )->get_status(), 'restore' );
     }
 
+    /**
+     * Found while writing the 403 above. `register_rest_route()` splits
+     * `methods` on commas, so `'PUT|PATCH'` registered one method
+     * literally named "PUT|PATCH": the PUT `frontend-holidays.js` sends
+     * matched no handler and saving an edited holiday answered 404 for
+     * everyone, including the people who own the calendar.
+     */
+    public function test_the_holiday_edit_route_answers_a_put(): void {
+        $holiday = $this->holiday();
+
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $res = $this->sendJson( 'PUT', '/talenttrack/v1/holidays/' . $holiday, [ 'name' => 'Autumn break, moved' ] );
+
+        $this->assertSame( 200, $res->get_status() );
+    }
+
     public function test_the_holidays_management_tile_is_not_granted(): void {
         $this->assertFalse(
             MatrixGate::canAnyScope( $this->manager, 'holidays_panel', MatrixGate::READ ),
@@ -305,6 +322,19 @@ final class ManagerFunctionalRoleTest extends WP_UnitTestCase {
     private function send( string $method, string $route, array $body = [] ): \WP_REST_Response {
         $req = new WP_REST_Request( $method, $route );
         if ( $body !== [] ) $req->set_body_params( $body );
+        return rest_do_request( $req );
+    }
+
+    /**
+     * The holidays controller reads `get_json_params()`, so a request
+     * that is meant to reach the callback has to carry a JSON body.
+     *
+     * @param array<string,mixed> $body
+     */
+    private function sendJson( string $method, string $route, array $body ): \WP_REST_Response {
+        $req = new WP_REST_Request( $method, $route );
+        $req->set_header( 'content-type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( $body ) );
         return rest_do_request( $req );
     }
 
