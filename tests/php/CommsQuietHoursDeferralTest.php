@@ -86,21 +86,21 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     public function test_the_window_edges_in_local_time(): void {
         $request = $this->request( $this->recipient() );
 
-        $this->at( '2026-09-21 06:59' );
+        $this->atLocal( '2026-09-21 06:59' );
         $this->assertTrue( $this->quiet->shouldDefer( $request ), '06:59 is inside the window' );
 
-        $this->at( '2026-09-21 07:00' );
+        $this->atLocal( '2026-09-21 07:00' );
         $this->assertFalse( $this->quiet->shouldDefer( $request ), '07:00 is the first minute after it' );
 
-        $this->at( '2026-09-21 20:59' );
+        $this->atLocal( '2026-09-21 20:59' );
         $this->assertFalse( $this->quiet->shouldDefer( $request ), '20:59 is the last minute before it' );
 
-        $this->at( '2026-09-21 21:00' );
+        $this->atLocal( '2026-09-21 21:00' );
         $this->assertTrue( $this->quiet->shouldDefer( $request ), '21:00 opens it' );
     }
 
     public function test_a_daytime_send_is_not_held(): void {
-        $this->at( '2026-09-21 08:10' );
+        $this->atLocal( '2026-09-21 08:10' );
 
         $results = $this->service()->send( $this->request( $this->recipient() ) );
 
@@ -112,7 +112,7 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     // -- the round trip ----------------------------------------------------
 
     public function test_a_send_at_22_00_is_held_with_one_log_row_and_one_queue_row(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
 
         $results = $this->service()->send( $this->request( $this->recipient() ) );
 
@@ -126,16 +126,16 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     }
 
     public function test_the_sweep_waits_for_07_00_then_sends_against_the_same_row(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
         $results = $this->service()->send( $this->request( $this->recipient() ) );
         $uuid    = $results[0]->uuid;
 
-        $this->at( '2026-09-22 06:59' );
+        $this->atLocal( '2026-09-22 06:59' );
         $this->sweep()->runForCurrentClub();
         $this->assertSame( 1, $this->queued(), 'Still quiet hours: the message waits.' );
         $this->assertSame( 0, $this->adapter->sendCalls );
 
-        $this->at( '2026-09-22 07:00' );
+        $this->atLocal( '2026-09-22 07:00' );
         $counts = $this->sweep()->runForCurrentClub();
 
         $this->assertSame( 1, $counts['sent'] );
@@ -151,9 +151,9 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     }
 
     public function test_the_message_log_route_shows_the_final_status_and_second_attempt(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
         $this->service()->send( $this->request( $this->recipient() ) );
-        $this->at( '2026-09-22 07:05' );
+        $this->atLocal( '2026-09-22 07:05' );
         $this->sweep()->runForCurrentClub();
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
@@ -173,12 +173,12 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
 
     public function test_an_opt_out_overnight_is_honoured(): void {
         $user = self::factory()->user->create();
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
         $this->service()->send( $this->request( $this->recipient( $user ) ) );
 
         ( new OptOutPolicy() )->setOptedOut( $user, self::TYPE, true );
 
-        $this->at( '2026-09-22 07:10' );
+        $this->atLocal( '2026-09-22 07:10' );
         $this->sweep()->runForCurrentClub();
 
         $this->assertSame( 0, $this->adapter->sendCalls );
@@ -187,12 +187,12 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     }
 
     public function test_a_template_switched_off_overnight_is_honoured(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
         $this->service()->send( $this->request( $this->recipient() ) );
 
         TemplateSwitch::setDisabled( [ DeferralSpyTemplate::KEY ] );
 
-        $this->at( '2026-09-22 07:10' );
+        $this->atLocal( '2026-09-22 07:10' );
         $this->sweep()->runForCurrentClub();
 
         $this->assertSame( 0, $this->adapter->sendCalls );
@@ -203,12 +203,12 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     }
 
     public function test_a_held_message_past_its_expiry_is_marked_failed_not_sent(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
         $this->service()->send( $this->request( $this->recipient() ) );
 
         // A day and a minute later: the heartbeat stopped. Still inside
         // the window, so without the expiry the row would simply wait.
-        $this->at( '2026-09-22 22:01' );
+        $this->atLocal( '2026-09-22 22:01' );
         $counts = $this->sweep()->runForCurrentClub();
 
         $this->assertSame( 1, $counts['expired'] );
@@ -224,7 +224,7 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     // -- files are never held ---------------------------------------------
 
     public function test_a_scheduled_report_at_22_00_is_sent_immediately(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
 
         $request = new CommsRequest(
             DeferralSpyTemplate::KEY, MessageType::SCHEDULED_REPORT, 1, 0, [ $this->recipient() ],
@@ -238,7 +238,7 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
     }
 
     public function test_a_held_request_with_an_attachment_is_refused_and_logged_as_failed(): void {
-        $this->at( '2026-09-21 22:00' );
+        $this->atLocal( '2026-09-21 22:00' );
 
         $request = new CommsRequest(
             DeferralSpyTemplate::KEY, self::TYPE, 1, 0, [ $this->recipient() ],
@@ -258,7 +258,7 @@ final class CommsQuietHoursDeferralTest extends WP_UnitTestCase {
 
     // -- fixtures ----------------------------------------------------------
 
-    private function at( string $local ): void {
+    private function atLocal( string $local ): void {
         $this->now = ( new \DateTimeImmutable( $local, new \DateTimeZone( 'Europe/Amsterdam' ) ) )->getTimestamp();
     }
 
