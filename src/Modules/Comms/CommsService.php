@@ -85,24 +85,14 @@ final class CommsService {
      * @return CommsResult[]   one per recipient
      */
     public function send( CommsRequest $request ): array {
-        // A send that resolved to nobody is the commonest invisible
-        // failure in the wild — a team with no linked parents looks
-        // exactly like a successful send. Record it.
-        if ( $request->recipients === [] ) {
-            $result = new CommsResult(
-                wp_generate_uuid4(),
-                CommsResult::STATUS_NO_RECIPIENTS,
-                '',
-                Recipient::none(),
-                'no_recipients'
-            );
-            $this->auditLogger->record( $request, $result->recipient, $result->uuid, '', '', $result );
-            Logger::warning( 'Comms send resolved to zero recipients', [
-                'template_key' => $request->templateKey,
-                'message_type' => $request->messageType,
-                'club_id'      => $request->clubId,
-            ] );
-            return [ $result ];
+        // #3576 — the demo generator is writing a fictional academy in this
+        // request. Its records fire the same hooks a real club's do (on
+        // purpose: the journey needs them), and nothing it creates is a
+        // message anybody should get or an admin should be warned about.
+        // Per request, not site-wide, so real sends by other users during
+        // a long run are untouched.
+        if ( \TT\Modules\DemoData\DemoGenerationContext::isActive() ) {
+            return [];
         }
 
         $template = TemplateRegistry::get( $request->templateKey );
@@ -136,8 +126,12 @@ final class CommsService {
         // audited per recipient: the switch suppresses the message, never
         // the evidence that one was meant to go out.
         if ( ! TemplateSwitch::isEnabled( $request->templateKey ) ) {
-            $results = [];
-            foreach ( $request->recipients as $recipient ) {
+            // With nobody to send to there is no recipient to audit
+            // against, so one row stands for the suppressed send — about
+            // its subject — rather than none at all.
+            $recipients = $request->recipients !== [] ? $request->recipients : [ Recipient::none( $request->subjectPlayerId ) ];
+            $results    = [];
+            foreach ( $recipients as $recipient ) {
                 $result = new CommsResult(
                     wp_generate_uuid4(),
                     CommsResult::STATUS_TEMPLATE_DISABLED,
@@ -149,6 +143,35 @@ final class CommsService {
                 $results[] = $result;
             }
             return $results;
+        }
+
+        // A send that resolved to nobody is the commonest invisible
+        // failure in the wild — a team with no linked parents looks
+        // exactly like a successful send. Record it. Checked after the
+        // template switch (#3576): a club that switched a template off has
+        // decided it should not go, and is not warned that it could not.
+        //
+        // #3576 — the record names what the message was about. The warning
+        // used to carry only the template key, so fifty of them in the
+        // error log said nothing about which families never heard.
+        if ( $request->recipients === [] ) {
+            $result = new CommsResult(
+                wp_generate_uuid4(),
+                CommsResult::STATUS_NO_RECIPIENTS,
+                '',
+                Recipient::none( $request->subjectPlayerId ),
+                'no_recipients'
+            );
+            $this->auditLogger->record( $request, $result->recipient, $result->uuid, '', '', $result );
+            Logger::warning( 'Comms send resolved to zero recipients', [
+                'template_key' => $request->templateKey,
+                'message_type' => $request->messageType,
+                'club_id'      => $request->clubId,
+                'player_id'    => $request->subjectPlayerId,
+                'subject_type' => $request->subjectType,
+                'subject_id'   => $request->subjectId,
+            ] );
+            return [ $result ];
         }
 
         $results = [];

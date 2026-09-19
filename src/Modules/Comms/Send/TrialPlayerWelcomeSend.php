@@ -73,8 +73,12 @@ final class TrialPlayerWelcomeSend {
             self::payload( $case, $player_id ),
             ( new RecipientResolver() )->forPlayer( $player_id ),
             [
-                'message_type'   => MessageType::TRIAL_PLAYER_WELCOME,
-                'sender_user_id' => 0,
+                'message_type'      => MessageType::TRIAL_PLAYER_WELCOME,
+                'sender_user_id'    => 0,
+                // #3576 — so a welcome that reached nobody says whose.
+                'subject_player_id' => $player_id,
+                'subject_type'      => 'trial_case',
+                'subject_id'        => $case_id,
             ]
         );
     }
