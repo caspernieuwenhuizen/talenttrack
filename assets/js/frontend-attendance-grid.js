@@ -85,6 +85,8 @@
 	}
 
 	function markDirty( td ) {
+		td.classList.remove( 'is-rejected' );
+		td.removeAttribute( 'aria-invalid' );
 		td.classList.add( 'is-dirty' );
 		dirty.add( td );
 		refresh();
@@ -245,10 +247,36 @@
 				if ( ! res.ok || ! res.body || res.body.success !== true ) {
 					throw new Error( 'save_failed' );
 				}
-				dirty.forEach( function ( td ) {
-					td.classList.remove( 'is-dirty' );
+				// #3586 — refused cells (present / late on an activity that
+				// has not happened) stay dirty and flagged, so a refusal is
+				// never shown as a save.
+				var refused = {};
+				var rejected = ( res.body.data && res.body.data.rejected ) || [];
+				rejected.forEach( function ( c ) {
+					refused[ c.activity_id + ':' + c.player_id ] = true;
 				} );
-				dirty.clear();
+				dirty.forEach( function ( td ) {
+					var key = td.getAttribute( 'data-activity' ) + ':' + td.getAttribute( 'data-player' );
+					if ( refused[ key ] ) {
+						td.classList.add( 'is-rejected' );
+						td.setAttribute( 'aria-invalid', 'true' );
+						return;
+					}
+					td.classList.remove( 'is-dirty', 'is-rejected' );
+					td.removeAttribute( 'aria-invalid' );
+					dirty.delete( td );
+				} );
+				if ( rejected.length ) {
+					if ( statusEl ) {
+						statusEl.classList.add( 'is-error' );
+						statusEl.textContent = ( I18N.rejected || '' ).replace( '%d', String( rejected.length ) ) +
+							( res.body.data.message ? ' ' + res.body.data.message : '' );
+					}
+					if ( saveBtn ) {
+						saveBtn.disabled = false;
+					}
+					return;
+				}
 				if ( statusEl ) {
 					statusEl.classList.add( 'is-saved' );
 					// #2521 — recording a register completes a past-dated

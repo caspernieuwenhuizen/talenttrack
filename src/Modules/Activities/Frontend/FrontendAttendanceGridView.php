@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Reports\AttendanceGridQuery;
+use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -59,6 +60,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                 'unsaved'   => __( '%d unsaved change(s)', 'talenttrack' ),
                 /* translators: %d is the number of activities marked completed. */
                 'completed' => __( 'All changes saved · %d activity/activities marked completed', 'talenttrack' ),
+                /* translators: %d is the number of cells that were not saved. */
+                'rejected'  => __( '%d change(s) not saved.', 'talenttrack' ),
                 // #2521 — the confirmation shown before a save that will
                 // change an activity's status. Nothing is written until the
                 // coach has read which sessions are affected and why.
@@ -151,9 +154,12 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         $period = ReportFilters::sanitizePeriod( isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '' );
         $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
         $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
-        $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
+        // #3586 — "today" is site time, the clock the completion rule and the
+        // future-attendance rule use, not the UTC date of the report default.
+        $today  = AttendanceDateRule::today();
+        $window = $period !== '' ? ReportFilters::periodWindow( $period, $today ) : null;
         $from = $has_manual_from ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : ( $window['from'] ?? $defaults['from'] );
-        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $defaults['to'] );
+        $to   = $has_manual_to   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : ( $window['to'] ?? $today );
 
         $type_options = self::typeOptions();
         $type_filter  = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : 'all';

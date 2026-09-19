@@ -46,6 +46,24 @@ phone the guided wizard is the easier path.
 The grid records the same attendance the reports and the wizard use, so the
 Attendance and Minutes reports stay in step with what you enter here.
 
+## Activities that haven't happened yet
+
+**Present** and **Late** can only be recorded on or after the day of the
+activity. A player can't have been at a training that hasn't taken place, so
+the grid refuses those cells on a future activity. It saves everything else,
+outlines the refused cells in red, and the save bar says how many weren't
+saved and why.
+
+You *can* record an **absence** in advance: **Absent**, **Excused** or
+**Injured** for a player you already know won't be there next week. The grid
+shows upcoming activities only when they already carry such a mark, so it can
+be seen and cleared. An upcoming session with nothing recorded on it doesn't
+appear yet. To plan who is coming, use the planned squad on the activity
+itself.
+
+The same rule applies when attendance is recorded on the activity's own form.
+"Today" is the academy's own date, not the server's.
+
 ## When the guided wizard is switched off
 
 An academy that prefers spreadsheets can switch the guided attendance and

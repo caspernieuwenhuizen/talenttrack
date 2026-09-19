@@ -150,6 +150,12 @@ table.tt-agrid {
 /* a cell edited but not yet saved */
 .tt-agrid-cell.is-dirty { box-shadow: inset 0 0 0 2px #e8b624; }
 
+/* a cell the server refused (present / late on an activity that has not
+   happened yet). Stays dirty so it can be corrected; the thicker ring and
+   aria-invalid mean colour is not the only cue. */
+.tt-agrid-cell.is-rejected,
+.tt-agrid-cell.is-dirty.is-rejected { box-shadow: inset 0 0 0 3px var(--tt-danger, #d8453b); }
+
 /* rate tail column */
 .tt-agrid td.tt-agrid__rate,
 .tt-agrid th.tt-agrid__rate {
