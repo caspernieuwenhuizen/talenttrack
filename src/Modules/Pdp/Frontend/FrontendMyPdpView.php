@@ -3,13 +3,7 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Goals\GoalsRepository;
-use TT\Modules\Pdp\Repositories\GoalLinksRepository;
-use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
-use TT\Modules\Pdp\Repositories\PdpFilesRepository;
-use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
-use TT\Modules\Pdp\Repositories\SeasonsRepository;
-use TT\Modules\Pdp\Services\PdpCycleState;
+use TT\Modules\Pdp\Services\PdpFamilyReader;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Dates\TTDate;
 
@@ -31,8 +25,16 @@ use TT\Shared\Dates\TTDate;
  *
  * Business logic (which talk is "next planned", whether its window is
  * open, the cycle state) lives in PdpCycleState — this view only
- * composes (CLAUDE.md §4). REST parity: timeline/conversation data is
- * reachable via /pdp-conversations, goals via /goals.
+ * composes (CLAUDE.md §4).
+ *
+ * #3645 — what the page shows is assembled by
+ * `\TT\Modules\Pdp\Services\PdpFamilyReader`, which also answers
+ * `GET /players/{id}/pdp`. The screen and the family API therefore read
+ * the same projection: which conversation is next, which notes have been
+ * signed off and are safe to show, which goals were discussed. Before
+ * this the view built all of that itself and the API had no family route
+ * at all, so a parent could acknowledge a talk over REST that they had no
+ * way of reading.
  */
 class FrontendMyPdpView extends FrontendViewBase {
 
@@ -82,15 +84,15 @@ class FrontendMyPdpView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
-        $current = ( new SeasonsRepository() )->current();
-        if ( ! $current ) {
+        $plan   = ( new PdpFamilyReader() )->forPlayer( (int) $player->id );
+        $season = $plan['season'];
+
+        if ( $season === null ) {
             echo '<p class="tt-notice">' . esc_html__( 'No current season is set.', 'talenttrack' ) . '</p>';
             return;
         }
 
-        $files = new PdpFilesRepository();
-        $file  = $files->findByPlayerSeason( (int) $player->id, (int) $current->id );
-        if ( ! $file ) {
+        if ( $plan['file'] === null ) {
             $msg = $is_self
                 ? __( 'No PDP file has been opened for you this season yet.', 'talenttrack' )
                 : __( 'No PDP file has been opened for this player this season yet.', 'talenttrack' );
@@ -98,17 +100,21 @@ class FrontendMyPdpView extends FrontendViewBase {
             return;
         }
 
-        $convs   = ( new PdpConversationsRepository() )->listForFile( (int) $file->id );
-        $verdict = ( new PdpVerdictsRepository() )->findForFile( (int) $file->id );
-
         // The single next-planned conversation: the only talk that may
         // carry an editable self-reflection. Derived in the domain layer.
-        $next_planned = PdpCycleState::nextPlanned( $convs );
+        $next_planned = null;
+        foreach ( $plan['conversations'] as $conv ) {
+            if ( (int) $conv['id'] === $plan['next_conversation_id'] && $plan['next_conversation_id'] > 0 ) {
+                $next_planned = $conv;
+                break;
+            }
+        }
 
-        self::renderSeasonTimeline( $current, $convs, $next_planned, (int) $player->id, $is_self, $is_parent );
-        self::renderActiveGoals( $player, $voice );
+        self::renderSeasonTimeline( $season['name'], $plan['conversations'], $is_self, $is_parent );
+        self::renderActiveGoals( $player, $voice, $plan['goals'] );
         self::renderSelfReflection( $next_planned, $is_self, $voice );
 
+        $verdict = $plan['verdict'];
         if ( $verdict !== null ) {
             self::renderVerdictCard( $verdict );
         }
@@ -121,14 +127,12 @@ class FrontendMyPdpView extends FrontendViewBase {
      * expands that conversation's detail panel inline below the rail
      * (no long scroll). Keyboard-operable; Escape closes via my-pdp.js.
      *
-     * @param array<int, object> $convs
+     * @param list<array<string,mixed>> $convs
      */
-    private static function renderSeasonTimeline( object $season, array $convs, ?object $next_planned, int $player_id, bool $is_self, bool $is_parent ): void {
-        $next_id = $next_planned !== null ? (int) ( $next_planned->id ?? 0 ) : 0;
-
+    private static function renderSeasonTimeline( string $season_name, array $convs, bool $is_self, bool $is_parent ): void {
         $done = 0;
         foreach ( $convs as $c ) {
-            if ( self::isCompleted( $c ) ) $done++;
+            if ( $c['state'] === 'done' ) $done++;
         }
         $total = max( 1, count( $convs ) );
         $fill  = (int) round( ( $done / $total ) * 100 );
@@ -138,7 +142,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         echo '<h2 class="tt-pdp-season__name">' . esc_html( sprintf(
             /* translators: %s = season name */
             __( 'Season %s', 'talenttrack' ),
-            (string) $season->name
+            $season_name
         ) ) . '</h2>';
         echo '<span class="tt-pdp-season__meta">' . esc_html( sprintf(
             /* translators: %d = number of development conversations in the season */
@@ -160,9 +164,9 @@ class FrontendMyPdpView extends FrontendViewBase {
         echo '<span class="tt-pdp-fill" style="width:' . (int) $fill . '%"></span>'; /* tt-inline-ok */
 
         foreach ( $convs as $c ) {
-            $cid   = (int) ( $c->id ?? 0 );
-            $state = self::markerState( $c, $next_id );
-            $label = self::templateLabel( (string) $c->template_key );
+            $cid   = (int) $c['id'];
+            $state = (string) $c['state'];
+            $label = (string) $c['template_label'];
             $date  = self::markerDate( $c, $state );
             $panel = 'tt-pdp-panel-' . $cid;
 
@@ -187,7 +191,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         // (unchanged from before).
         echo '<div class="tt-pdp-panels">';
         foreach ( $convs as $c ) {
-            self::renderConversationPanel( $c, $player_id, $is_self, $is_parent );
+            self::renderConversationPanel( $c, $is_self, $is_parent );
         }
         echo '</div>';
 
@@ -199,48 +203,50 @@ class FrontendMyPdpView extends FrontendViewBase {
      * tapped. Read content + the acknowledgement flow (preserved as-is).
      * The editable self-reflection lives in its own dedicated section,
      * not here.
+     *
+     * @param array<string,mixed> $conv one entry from PdpFamilyReader.
      */
-    private static function renderConversationPanel( object $conv, int $player_id, bool $is_self, bool $is_parent ): void {
-        $cid    = (int) ( $conv->id ?? 0 );
-        $signed = ! empty( $conv->coach_signoff_at );
+    private static function renderConversationPanel( array $conv, bool $is_self, bool $is_parent ): void {
+        $cid    = (int) $conv['id'];
+        $signed = $conv['coach_signoff_at'] !== null;
         $title  = sprintf(
             /* translators: %1$d sequence, %2$s template */
             __( 'Conversation %1$d (%2$s)', 'talenttrack' ),
-            (int) $conv->sequence,
-            self::templateLabel( (string) $conv->template_key )
+            (int) $conv['sequence'],
+            (string) $conv['template_label']
         );
 
         echo '<div id="tt-pdp-panel-' . (int) $cid . '" class="tt-pdp-panel" hidden>';
         echo '<h3 class="tt-pdp-panel__title">' . esc_html( $title ) . '</h3>';
 
         $meta = [];
-        if ( ! empty( $conv->scheduled_at ) ) {
+        if ( $conv['scheduled_at'] !== null ) {
             $meta[] = sprintf(
                 /* translators: %s = date */
                 __( 'Scheduled %s', 'talenttrack' ),
-                substr( (string) $conv->scheduled_at, 0, 16 )
+                substr( (string) $conv['scheduled_at'], 0, 16 )
             );
         }
-        if ( ! empty( $conv->conducted_at ) ) {
+        if ( $conv['conducted_at'] !== null ) {
             $meta[] = sprintf(
                 /* translators: %s = date */
                 __( 'Conducted %s', 'talenttrack' ),
-                substr( (string) $conv->conducted_at, 0, 16 )
+                substr( (string) $conv['conducted_at'], 0, 16 )
             );
         }
         if ( ! empty( $meta ) ) {
             echo '<p class="tt-pdp-panel__meta">' . esc_html( implode( ' · ', $meta ) ) . '</p>';
         }
 
-        if ( $signed ) {
-            if ( ! empty( $conv->notes ) ) {
-                echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Notes', 'talenttrack' ) . '</strong><div>'
-                    . wp_kses_post( (string) $conv->notes ) . '</div></div>';
-            }
-            if ( ! empty( $conv->agreed_actions ) ) {
-                echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Agreed actions', 'talenttrack' ) . '</strong><div>'
-                    . wp_kses_post( (string) $conv->agreed_actions ) . '</div></div>';
-            }
+        // The reader has already withheld both until the coach signs the
+        // talk off, so there is nothing left for the view to decide.
+        if ( $conv['notes'] !== null ) {
+            echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Notes', 'talenttrack' ) . '</strong><div>'
+                . wp_kses_post( (string) $conv['notes'] ) . '</div></div>';
+        }
+        if ( $conv['agreed_actions'] !== null ) {
+            echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Agreed actions', 'talenttrack' ) . '</strong><div>'
+                . wp_kses_post( (string) $conv['agreed_actions'] ) . '</div></div>';
         }
 
         // #3306 (epic #3301) — the coach's `agenda` used to appear here on
@@ -251,36 +257,28 @@ class FrontendMyPdpView extends FrontendViewBase {
         // notes and the agreed actions above.
 
         // Goals discussed in this talk (the self-review reflects on these).
-        $gl_ids = ( new GoalLinksRepository() )->goalsForConversation( $cid );
-        if ( ! empty( $gl_ids ) ) {
-            $goals_repo = new GoalsRepository();
-            $titles     = [];
-            foreach ( $gl_ids as $gid ) {
-                $g = $goals_repo->findForPlayer( (int) $gid, $player_id );
-                if ( $g ) $titles[] = (string) ( $g->title ?? '' );
+        $titles = is_array( $conv['goals_discussed'] ) ? $conv['goals_discussed'] : [];
+        if ( ! empty( $titles ) ) {
+            echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Goals discussed', 'talenttrack' ) . '</strong><ul class="tt-pop-goal-discussed">';
+            foreach ( $titles as $t ) {
+                echo '<li>' . esc_html( (string) $t ) . '</li>';
             }
-            if ( ! empty( $titles ) ) {
-                echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Goals discussed', 'talenttrack' ) . '</strong><ul class="tt-pop-goal-discussed">';
-                foreach ( $titles as $t ) {
-                    echo '<li>' . esc_html( $t ) . '</li>';
-                }
-                echo '</ul></div>';
-            }
+            echo '</ul></div>';
         }
 
         // A previously-saved reflection is shown read-only here; the
         // editable input for the next-planned talk lives in its own
         // section below the goals.
-        if ( ! empty( $conv->player_reflection ) ) {
+        if ( $conv['player_reflection'] !== null ) {
             echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Self-reflection', 'talenttrack' ) . '</strong><div>'
-                . wp_kses_post( (string) $conv->player_reflection ) . '</div></div>';
+                . wp_kses_post( (string) $conv['player_reflection'] ) . '</div></div>';
         }
 
         // Acknowledgement flow — preserved exactly as-is (out of scope of
         // the redesign): once the coach has signed off.
         if ( $signed ) {
             $rest_path = 'pdp-conversations/' . $cid;
-            if ( $is_self && empty( $conv->player_ack_at ) ) {
+            if ( $is_self && $conv['player_ack_at'] === null ) {
                 ?>
                 <form class="tt-ajax-form tt-pdp-ack" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
                     <input type="hidden" name="player_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
@@ -288,10 +286,10 @@ class FrontendMyPdpView extends FrontendViewBase {
                     <div class="tt-form-msg"></div>
                 </form>
                 <?php
-            } elseif ( ! empty( $conv->player_ack_at ) ) {
+            } elseif ( $conv['player_ack_at'] !== null ) {
                 echo '<p class="tt-pdp-acked"><em>' . esc_html__( 'You acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
             }
-            if ( $is_parent && empty( $conv->parent_ack_at ) ) {
+            if ( $is_parent && $conv['parent_ack_at'] === null ) {
                 ?>
                 <form class="tt-ajax-form tt-pdp-ack" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload">
                     <input type="hidden" name="parent_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
@@ -299,7 +297,7 @@ class FrontendMyPdpView extends FrontendViewBase {
                     <div class="tt-form-msg"></div>
                 </form>
                 <?php
-            } elseif ( ! empty( $conv->parent_ack_at ) ) {
+            } elseif ( $conv['parent_ack_at'] !== null ) {
                 echo '<p class="tt-pdp-acked"><em>' . esc_html__( 'A parent acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
             }
         }
@@ -312,10 +310,10 @@ class FrontendMyPdpView extends FrontendViewBase {
      * non-archived, not-completed goals (not the full archive). Status
      * label is goal-specific via `status_localised` ("In ontwikkeling"),
      * not a generic "Pending".
+     *
+     * @param list<array<string,mixed>> $goals from PdpFamilyReader.
      */
-    private static function renderActiveGoals( object $player, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
-        $goals = ( new GoalsRepository() )->topActiveForPlayer( (int) $player->id, 3 );
-
+    private static function renderActiveGoals( object $player, \TT\Shared\Frontend\Components\SubjectVoice $voice, array $goals ): void {
         echo '<section class="tt-card">';
         echo '<p class="tt-eyebrow">' . esc_html( $voice->pick(
             __( 'Your active goals', 'talenttrack' ),
@@ -345,12 +343,12 @@ class FrontendMyPdpView extends FrontendViewBase {
 
         echo '<div class="tt-goal-grid">';
         foreach ( $goals as $g ) {
-            $status = (string) ( $g->status_localised ?? '' );
+            $status = (string) $g['status_localised'];
             // #3397 — through TTDate, like every other surface showing this
             // date. The raw column value read as 2026-05-14 here and as
             // 14 mei 2026 one click away on My goals.
-            $due = ! empty( $g->due_date )
-                ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date )
+            $due = $g['due_date'] !== null
+                ? \TT\Shared\Dates\TTDate::date( (string) $g['due_date'] )
                 : '';
             // #3397 — the card opens the goal. This is the surface that says
             // "what you are working on now", sitting directly under the
@@ -358,7 +356,7 @@ class FrontendMyPdpView extends FrontendViewBase {
             // goal could not be opened.
             $goal_url = \TT\Shared\Frontend\Components\RecordLink::meDetailUrl(
                 'my-goals',
-                (int) ( $g->id ?? 0 ),
+                (int) $g['id'],
                 $parent_id
             );
             if ( $goal_url !== '' ) {
@@ -369,9 +367,8 @@ class FrontendMyPdpView extends FrontendViewBase {
             echo '<div class="tt-goal__top">';
             // #3397 — the same translation layer My goals renders the title
             // through, so the two surfaces agree in a non-English locale.
-            echo '<span class="tt-goal__title">' . esc_html(
-                (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $g->title ?? '' ) )
-            ) . '</span>';
+            // The reader applies it, so every consumer gets it.
+            echo '<span class="tt-goal__title">' . esc_html( (string) $g['title'] ) . '</span>';
             if ( $status !== '' ) {
                 echo '<span class="tt-goal__status">' . esc_html( $status ) . '</span>';
             }
@@ -395,15 +392,17 @@ class FrontendMyPdpView extends FrontendViewBase {
      * Input on the left, any saved reflection on the right at ≥768px;
      * stacked on mobile (`.tt-reflect-split`). Parents see the saved
      * reflection read-only, no input.
+     *
+     * @param array<string,mixed>|null $conv the next-planned talk, or null.
      */
-    private static function renderSelfReflection( ?object $conv, bool $is_self, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
+    private static function renderSelfReflection( ?array $conv, bool $is_self, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
         if ( $conv === null ) return;
 
-        $cid    = (int) ( $conv->id ?? 0 );
-        $label  = self::templateLabel( (string) $conv->template_key );
-        $date   = self::formatTalkDate( substr( (string) ( $conv->scheduled_at ?? '' ), 0, 10 ) );
-        $saved  = (string) ( $conv->player_reflection ?? '' );
-        $open   = PdpCycleState::reflectionWindowOpen( $conv );
+        $cid    = (int) $conv['id'];
+        $label  = (string) $conv['template_label'];
+        $date   = self::formatTalkDate( substr( (string) ( $conv['scheduled_at'] ?? '' ), 0, 10 ) );
+        $saved  = (string) ( $conv['player_reflection'] ?? '' );
+        $open   = (bool) $conv['reflection_window_open'];
 
         echo '<section class="tt-card tt-reflect">';
         echo '<p class="tt-eyebrow">' . esc_html( $voice->pick(
@@ -488,11 +487,11 @@ class FrontendMyPdpView extends FrontendViewBase {
         // RIGHT: previously-saved reflection (stacked below on mobile).
         if ( $saved !== '' ) {
             echo '<div class="tt-saved">';
-            if ( ! empty( $conv->updated_at ) ) {
+            if ( $conv['updated_at'] !== null ) {
                 echo '<div class="tt-saved__when">' . esc_html( sprintf(
                     /* translators: %s = last-saved timestamp */
                     __( 'Last saved · %s', 'talenttrack' ),
-                    substr( (string) $conv->updated_at, 0, 16 )
+                    substr( (string) $conv['updated_at'], 0, 16 )
                 ) ) . '</div>';
             }
             echo '<div class="tt-saved__body">' . wp_kses_post( $saved ) . '</div>';
@@ -505,47 +504,44 @@ class FrontendMyPdpView extends FrontendViewBase {
         echo '</section>';
     }
 
-    private static function renderVerdictCard( object $verdict ): void {
+    /** @param array<string,mixed> $verdict from PdpFamilyReader. */
+    private static function renderVerdictCard( array $verdict ): void {
         echo '<section class="tt-card tt-pop-goal tt-pop-goal--done">';
         echo '<h2 class="tt-pdp-verdict__h">' . esc_html__( 'End-of-season verdict', 'talenttrack' ) . '</h2>';
         echo '<p class="tt-pdp-verdict__row"><strong>' . esc_html__( 'Decision:', 'talenttrack' ) . '</strong> '
-            . esc_html( (string) ( $verdict->decision_localised ?? '' ) ) . '</p>';
-        if ( ! empty( $verdict->summary ) ) {
-            echo '<div class="tt-pdp-verdict__summary">' . wp_kses_post( (string) $verdict->summary ) . '</div>';
+            . esc_html( (string) $verdict['decision_localised'] ) . '</p>';
+        if ( ! empty( $verdict['summary'] ) ) {
+            echo '<div class="tt-pdp-verdict__summary">' . wp_kses_post( (string) $verdict['summary'] ) . '</div>';
         }
-        if ( ! empty( $verdict->signed_off_at ) ) {
+        if ( $verdict['signed_off_at'] !== null ) {
             echo '<p class="tt-pdp-verdict__signoff"><em>' . esc_html( sprintf(
                 /* translators: %s = signoff timestamp */
                 __( 'Signed off on %s', 'talenttrack' ),
-                (string) $verdict->signed_off_at
+                (string) $verdict['signed_off_at']
             ) ) . '</em></p>';
         }
         echo '</section>';
     }
 
-    /** True when a conversation counts as completed on the timeline. */
-    private static function isCompleted( object $conv ): bool {
-        return ! empty( $conv->conducted_at ) || ! empty( $conv->coach_signoff_at );
-    }
-
-    /** Marker state: done (completed) / next (the next-planned) / future. */
-    private static function markerState( object $conv, int $next_id ): string {
-        if ( self::isCompleted( $conv ) ) return 'done';
-        if ( (int) ( $conv->id ?? 0 ) === $next_id && $next_id > 0 ) return 'next';
-        return 'future';
-    }
-
-    /** The glyph inside a marker dot: ✓ for done, sequence otherwise. */
-    private static function markerGlyph( object $conv, string $state ): string {
+    /**
+     * The glyph inside a marker dot: ✓ for done, sequence otherwise.
+     *
+     * @param array<string,mixed> $conv
+     */
+    private static function markerGlyph( array $conv, string $state ): string {
         if ( $state === 'done' ) return '&#10003;';
-        return (string) (int) ( $conv->sequence ?? 0 );
+        return (string) (int) $conv['sequence'];
     }
 
-    /** Date shown under a marker — conducted date for done, else scheduled. */
-    private static function markerDate( object $conv, string $state ): string {
-        $raw = $state === 'done' && ! empty( $conv->conducted_at )
-            ? substr( (string) $conv->conducted_at, 0, 10 )
-            : substr( (string) ( $conv->scheduled_at ?? '' ), 0, 10 );
+    /**
+     * Date shown under a marker — conducted date for done, else scheduled.
+     *
+     * @param array<string,mixed> $conv
+     */
+    private static function markerDate( array $conv, string $state ): string {
+        $raw = $state === 'done' && $conv['conducted_at'] !== null
+            ? substr( (string) $conv['conducted_at'], 0, 10 )
+            : substr( (string) ( $conv['scheduled_at'] ?? '' ), 0, 10 );
         return self::formatTalkDate( $raw );
     }
 
@@ -563,17 +559,6 @@ class FrontendMyPdpView extends FrontendViewBase {
         $ts = strtotime( $ymd . ' UTC' );
         if ( $ts === false ) return $ymd;
         return TTDate::date( $ts );
-    }
-
-    private static function templateLabel( string $key ): string {
-        switch ( $key ) {
-            case 'start': return __( 'Start of season', 'talenttrack' );
-            case 'mid':   return __( 'Mid season', 'talenttrack' );
-            case 'mid_a': return __( 'Mid-season A', 'talenttrack' );
-            case 'mid_b': return __( 'Mid-season B', 'talenttrack' );
-            case 'end':   return __( 'End of season', 'talenttrack' );
-        }
-        return $key;
     }
 
 }
