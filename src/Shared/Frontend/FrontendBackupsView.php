@@ -275,7 +275,9 @@ class FrontendBackupsView extends FrontendViewBase {
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ( $list as $row ) :
+                    <?php
+                    $can_partial = FrontendAccessControl::canReachWpAdmin( 'tt_view_settings' );
+                    foreach ( $list as $row ) :
                         $id   = (string) ( $row['id'] ?? '' );
                         if ( $id === '' ) continue;
                         $size = (int) ( $row['size'] ?? 0 );
@@ -296,9 +298,11 @@ class FrontendBackupsView extends FrontendViewBase {
                                 <button type="button" class="tt-btn tt-btn-secondary tt-btn--sm" data-tt-backups-restore data-id="<?php echo esc_attr( $id ); ?>">
                                     <?php esc_html_e( 'Restore', 'talenttrack' ); ?>
                                 </button>
+                                <?php if ( $can_partial ) : // #3595 — partial restore lives in wp-admin ?>
                                 <a class="tt-btn tt-btn-secondary tt-btn--sm" href="<?php echo esc_url( $part ); ?>">
                                     <?php esc_html_e( 'Partial restore', 'talenttrack' ); ?>
                                 </a>
+                                <?php endif; ?>
                                 <button type="button" class="tt-btn tt-btn-danger tt-btn--sm" data-tt-backups-delete data-id="<?php echo esc_attr( $id ); ?>">
                                     <?php esc_html_e( 'Delete', 'talenttrack' ); ?>
                                 </button>

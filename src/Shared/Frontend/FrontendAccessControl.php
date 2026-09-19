@@ -70,6 +70,20 @@ class FrontendAccessControl {
     }
 
     /**
+     * #3595 — whether the current user would actually land on a wp-admin
+     * page, rather than be sent back by `restrictWpAdmin()` below or refused
+     * by the page's own capability. A frontend view links into wp-admin only
+     * when this holds; the check sits beside the rule it mirrors so the two
+     * cannot drift.
+     *
+     * @param string $page_cap the capability the target admin page registers
+     */
+    public static function canReachWpAdmin( string $page_cap = '' ): bool {
+        if ( ! is_user_logged_in() || ! current_user_can( 'administrator' ) ) return false;
+        return $page_cap === '' || current_user_can( $page_cap );
+    }
+
+    /**
      * Redirect non-administrator users away from wp-admin.
      *
      * Runs on admin_init priority 1 so it fires before any plugin's

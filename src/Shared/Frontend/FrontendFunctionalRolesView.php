@@ -131,8 +131,14 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         self::renderHeader( __( 'Functional roles', 'talenttrack' ) );
         echo '<p class="tt-meta" style="margin:0 0 var(--tt-sp-3, 12px); color: var(--tt-muted, #5b6e75);">';
         echo esc_html__( 'Per-team staff assignments — head coach, assistant, manager, physio. A user can hold many at once. Different from academy-wide ', 'talenttrack' );
-        $auth_url = admin_url( 'admin.php?page=tt-roles' );
-        echo '<a href="' . esc_url( $auth_url ) . '">' . esc_html__( 'Roles & rights', 'talenttrack' ) . '</a>.';
+        // #3595 — a link only for someone wp-admin lets in; otherwise the
+        // name alone.
+        if ( FrontendAccessControl::canReachWpAdmin( 'tt_view_settings' ) ) {
+            $auth_url = admin_url( 'admin.php?page=tt-roles' );
+            echo '<a href="' . esc_url( $auth_url ) . '">' . esc_html__( 'Roles & rights', 'talenttrack' ) . '</a>.';
+        } else {
+            echo esc_html__( 'Roles & rights', 'talenttrack' ) . '.';
+        }
         echo '</p>';
         self::renderTabs( $tab, $can_manage_types, $can_view_assign );
 
