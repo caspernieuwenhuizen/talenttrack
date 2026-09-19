@@ -1226,13 +1226,18 @@ class ActivitiesRestController {
         $type_error = self::validateActivityType( $r );
         if ( $type_error !== null ) return $type_error;
 
-        $data = self::extract( $r );
+        // #1712 — shared write path with the wp-admin page (ActivitiesPage).
+        // update() is club-scoped and stamps the updated_by audit column.
+        $repo   = self::repo();
+        $stored = $repo->findByIdIncludingArchived( $activity_id );
+        if ( $stored === null ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        $data = self::extract( self::overlayOnStored( $r, (array) $stored ) );
         // Preserve original coach on update.
         unset( $data['coach_id'] );
 
-        // #1712 — shared write path with the wp-admin page (ActivitiesPage).
-        // update() is club-scoped and stamps the updated_by audit column.
-        $repo = self::repo();
         if ( ! $repo->update( $activity_id, $data ) ) {
             $err = $repo->lastError();
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
@@ -1461,6 +1466,42 @@ class ActivitiesRestController {
 
     public static function can_hard_delete(): bool {
         return current_user_can( 'tt_edit_settings' );
+    }
+
+    /**
+     * Request keys `extract()` reads, which an update takes from the stored
+     * row when the caller leaves them out. `plan_state` is not here: its
+     * absence already means "derive or leave" inside `extract()`.
+     */
+    private const UPDATE_OVERLAY_KEYS = [
+        'title', 'session_date', 'start_time', 'end_time', 'time_of_presence', 'team_id',
+        'location', 'notes', 'activity_type_key', 'activity_status_key', 'game_subtype_key',
+        'other_label', 'tournament_id', 'match_length_minutes', 'opponent', 'home_away',
+    ];
+
+    /**
+     * #3570 — the effective input for an update: what the caller sent,
+     * over what is stored.
+     *
+     * `extract()` builds a whole row and defaults every missing key, which
+     * is right on create and destructive on update: a PUT carrying only
+     * `home_away` used to wipe the title, team and date and turn the match
+     * into a training. Feeding it the stored values for the absent keys
+     * keeps one derivation path, so the type-dependent columns
+     * (`kickoff_time`, the fixture fields) are still computed from the
+     * effective type rather than patched separately. A key that is sent is
+     * honoured whatever its value; an explicit empty still clears.
+     *
+     * @param array<string,mixed> $stored
+     */
+    private static function overlayOnStored( \WP_REST_Request $r, array $stored ): \WP_REST_Request {
+        $sent      = $r->get_params();
+        $effective = clone $r;
+        foreach ( self::UPDATE_OVERLAY_KEYS as $key ) {
+            if ( array_key_exists( $key, $sent ) ) continue;
+            $effective->set_param( $key, $stored[ $key ] ?? null );
+        }
+        return $effective;
     }
 
     /**
