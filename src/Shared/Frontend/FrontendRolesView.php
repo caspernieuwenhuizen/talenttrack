@@ -45,11 +45,13 @@ class FrontendRolesView extends FrontendViewBase {
         <p class="tt-admin-lead">
             <?php esc_html_e( 'Reference for the eight TalentTrack roles. Editing individual capabilities is done in wp-admin where the existing grant/revoke UI lives.', 'talenttrack' ); ?>
         </p>
+        <?php if ( FrontendAccessControl::canReachWpAdmin( 'tt_view_settings' ) ) : // #3595 ?>
         <p class="tt-admin-actions">
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $roles_admin_url ); ?>">
                 <?php esc_html_e( 'Edit capabilities in wp-admin', 'talenttrack' ); ?>
             </a>
         </p>
+        <?php endif; ?>
 
         <?php self::renderAdvancedToolsSection(); ?>
 

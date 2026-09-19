@@ -49,9 +49,11 @@ class FrontendMigrationsView extends FrontendViewBase {
                     <strong><?php echo esc_html( sprintf( _n( '%d pending migration.', '%d pending migrations.', count( $pending ), 'talenttrack' ), count( $pending ) ) ); ?></strong>
                     <?php esc_html_e( 'Migrations are run from wp-admin to add a deliberate friction point on irreversible operations.', 'talenttrack' ); ?>
                 </span>
+                <?php if ( FrontendAccessControl::canReachWpAdmin( 'tt_view_migrations' ) ) : // #3595 ?>
                 <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $admin_url ); ?>">
                     <?php esc_html_e( 'Run in wp-admin', 'talenttrack' ); ?>
                 </a>
+                <?php endif; ?>
             </div>
             <?php
         endif;

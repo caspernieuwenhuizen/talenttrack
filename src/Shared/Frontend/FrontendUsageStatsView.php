@@ -127,9 +127,14 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     printf( esc_html__( 'Last %d days', 'talenttrack' ), (int) $opt );
                 ?></a>
             <?php endforeach; ?>
+            <?php
+            // #3595 — only for someone wp-admin lets in; for anyone else
+            // the button was a redirect back to the dashboard.
+            if ( FrontendAccessControl::canReachWpAdmin( 'tt_view_settings' ) ) : ?>
             <a class="tt-btn tt-btn-secondary tt-usage-periods__admin" href="<?php echo esc_url( $admin_url ); ?>">
                 <?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?>
             </a>
+            <?php endif; ?>
         </div>
 
         <div class="tt-usage-kpis">
