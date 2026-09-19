@@ -142,6 +142,13 @@ exist stays visible rather than vanishing — a doc that silently disappears
 on someone else's install is the harder bug to find. The docs lint is what
 catches the typo before it ships.
 
+**Switching off Documentation itself takes the doors with it.** Every link
+into Help & Docs from elsewhere in the product goes quiet: the Help button
+a screen carries, and the "Install instructions" link on the install banner
+players and parents see after logging in. The banner keeps its "Enable
+notifications" and "Not now" buttons — only the link to a reader that is no
+longer there is dropped.
+
 ## Always-on modules
 
 Three modules cannot be disabled. Their toggle renders inert with a tooltip:
