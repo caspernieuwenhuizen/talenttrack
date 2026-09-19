@@ -62728,6 +62728,7 @@ msgstr "Niemand thuis is te bereiken over deze speler: er is geen ouderaccount g
 #, php-format
 msgid "Nobody at home can be reached about %s."
 msgstr "Niemand thuis is te bereiken over %s."
+
 #~ msgid "Type a parent name to search…"
 #~ msgstr "Typ een oudernaam om te zoeken…"
 
