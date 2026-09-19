@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T09:20:11+00:00\n"
+"POT-Creation-Date: 2026-09-19T09:36:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -100,7 +100,7 @@ msgstr ""
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
 #: src/Infrastructure/Security/RolesService.php:508
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:283
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:289
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:216
 #: src/Modules/Analytics/AnalyticsModule.php:118
@@ -578,8 +578,8 @@ msgid ""
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:312
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:112
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:225
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:115
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:231
 #: src/Modules/License/FeatureMap.php:414
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:556
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:707
@@ -1946,7 +1946,7 @@ msgstr ""
 
 #. translators: %s: player name
 #: src/Infrastructure/Query/LabelTranslator.php:74
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:246
 #: src/Modules/Analytics/AnalyticsModule.php:136
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:839
@@ -1957,7 +1957,7 @@ msgid "Present"
 msgstr "Anwesend"
 
 #: src/Infrastructure/Query/LabelTranslator.php:75
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:248
 #: src/Modules/Analytics/AnalyticsModule.php:137
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:151
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:223
@@ -1967,21 +1967,21 @@ msgid "Absent"
 msgstr "Abwesend"
 
 #: src/Infrastructure/Query/LabelTranslator.php:76
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:247
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:222
 msgid "Late"
 msgstr "Verspätet"
 
 #: src/Infrastructure/Query/LabelTranslator.php:77
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:244
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:250
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:225
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:841
 msgid "Injured"
 msgstr "Verletzt"
 
 #: src/Infrastructure/Query/LabelTranslator.php:78
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:243
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:249
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:224
 #: src/Shared/Frontend/Components/EvidencePanel.php:243
@@ -2175,7 +2175,7 @@ msgid "Mentor"
 msgstr "Mentor"
 
 #: src/Infrastructure/Query/LabelTranslator.php:233
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:289
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:295
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:62
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:78
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:70
@@ -2193,7 +2193,7 @@ msgid "Training"
 msgstr "Training"
 
 #: src/Infrastructure/Query/LabelTranslator.php:234
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:289
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:295
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:131
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:157
@@ -2522,7 +2522,7 @@ msgstr ""
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:44
 #: src/Modules/Activities/Admin/ActivitiesPage.php:98
 #: src/Modules/Activities/Admin/ActivitiesPage.php:345
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:451
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:457
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:623
 #: src/Modules/Analytics/AnalyticsModule.php:119
 #: src/Modules/Analytics/AnalyticsModule.php:155
@@ -2823,20 +2823,20 @@ msgctxt "PDP file identity"
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:388
-#: src/Infrastructure/REST/ActivitiesRestController.php:523
-#: src/Infrastructure/REST/ActivitiesRestController.php:624
+#: src/Infrastructure/REST/ActivitiesRestController.php:389
+#: src/Infrastructure/REST/ActivitiesRestController.php:526
+#: src/Infrastructure/REST/ActivitiesRestController.php:642
 msgid "No changes supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:394
-#: src/Infrastructure/REST/ActivitiesRestController.php:1313
-#: src/Infrastructure/REST/ActivitiesRestController.php:1493
-#: src/Infrastructure/REST/ActivitiesRestController.php:1510
-#: src/Infrastructure/REST/ActivitiesRestController.php:1540
-#: src/Infrastructure/REST/ActivitiesRestController.php:2007
-#: src/Infrastructure/REST/ActivitiesRestController.php:2190
-#: src/Infrastructure/REST/ActivitiesRestController.php:2228
+#: src/Infrastructure/REST/ActivitiesRestController.php:395
+#: src/Infrastructure/REST/ActivitiesRestController.php:1334
+#: src/Infrastructure/REST/ActivitiesRestController.php:1527
+#: src/Infrastructure/REST/ActivitiesRestController.php:1544
+#: src/Infrastructure/REST/ActivitiesRestController.php:1574
+#: src/Infrastructure/REST/ActivitiesRestController.php:2064
+#: src/Infrastructure/REST/ActivitiesRestController.php:2247
+#: src/Infrastructure/REST/ActivitiesRestController.php:2285
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -2845,45 +2845,45 @@ msgstr ""
 msgid "Activity not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:400
+#: src/Infrastructure/REST/ActivitiesRestController.php:401
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #: src/Modules/Authorization/ActivityTeamScope.php:95
 msgid "You do not coach this activity's team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:500
-#: src/Infrastructure/REST/ActivitiesRestController.php:601
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:141
+#: src/Infrastructure/REST/ActivitiesRestController.php:501
+#: src/Infrastructure/REST/ActivitiesRestController.php:619
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:144
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:126
 msgid "That team is not in your scope."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:695
-#: src/Infrastructure/REST/ActivitiesRestController.php:727
-#: src/Infrastructure/REST/ActivitiesRestController.php:773
+#: src/Infrastructure/REST/ActivitiesRestController.php:713
+#: src/Infrastructure/REST/ActivitiesRestController.php:745
+#: src/Infrastructure/REST/ActivitiesRestController.php:791
 msgid "Unknown match."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:732
+#: src/Infrastructure/REST/ActivitiesRestController.php:750
 msgid ""
 "This score follows the match sheet's goal log. Correct a goal in the post-"
 "match review and the score follows."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:740
-#: src/Infrastructure/REST/ActivitiesRestController.php:778
+#: src/Infrastructure/REST/ActivitiesRestController.php:758
+#: src/Infrastructure/REST/ActivitiesRestController.php:796
 msgid "Not your team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:754
+#: src/Infrastructure/REST/ActivitiesRestController.php:772
 msgid "No score supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:767
+#: src/Infrastructure/REST/ActivitiesRestController.php:785
 msgid "No contributions supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:847
+#: src/Infrastructure/REST/ActivitiesRestController.php:865
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
 #: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -2892,31 +2892,31 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:868
+#: src/Infrastructure/REST/ActivitiesRestController.php:886
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1231
+#: src/Infrastructure/REST/ActivitiesRestController.php:1249
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1243
+#: src/Infrastructure/REST/ActivitiesRestController.php:1264
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1271
+#: src/Infrastructure/REST/ActivitiesRestController.php:1292
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1302
-#: src/Infrastructure/REST/ActivitiesRestController.php:1487
-#: src/Infrastructure/REST/ActivitiesRestController.php:1505
-#: src/Infrastructure/REST/ActivitiesRestController.php:1530
-#: src/Infrastructure/REST/ActivitiesRestController.php:2003
-#: src/Infrastructure/REST/ActivitiesRestController.php:2117
-#: src/Infrastructure/REST/ActivitiesRestController.php:2168
-#: src/Infrastructure/REST/ActivitiesRestController.php:2186
+#: src/Infrastructure/REST/ActivitiesRestController.php:1323
+#: src/Infrastructure/REST/ActivitiesRestController.php:1521
+#: src/Infrastructure/REST/ActivitiesRestController.php:1539
+#: src/Infrastructure/REST/ActivitiesRestController.php:1564
+#: src/Infrastructure/REST/ActivitiesRestController.php:2060
+#: src/Infrastructure/REST/ActivitiesRestController.php:2174
 #: src/Infrastructure/REST/ActivitiesRestController.php:2225
+#: src/Infrastructure/REST/ActivitiesRestController.php:2243
+#: src/Infrastructure/REST/ActivitiesRestController.php:2282
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:199
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:218
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1281
@@ -2926,78 +2926,78 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1325
+#: src/Infrastructure/REST/ActivitiesRestController.php:1354
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1375
+#: src/Infrastructure/REST/ActivitiesRestController.php:1404
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1721
+#: src/Infrastructure/REST/ActivitiesRestController.php:1755
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2029
+#: src/Infrastructure/REST/ActivitiesRestController.php:2086
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2033
+#: src/Infrastructure/REST/ActivitiesRestController.php:2090
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2036
+#: src/Infrastructure/REST/ActivitiesRestController.php:2093
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2099
+#: src/Infrastructure/REST/ActivitiesRestController.php:2156
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2100
+#: src/Infrastructure/REST/ActivitiesRestController.php:2157
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2138
+#: src/Infrastructure/REST/ActivitiesRestController.php:2195
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2139
+#: src/Infrastructure/REST/ActivitiesRestController.php:2196
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2145
+#: src/Infrastructure/REST/ActivitiesRestController.php:2202
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2171
+#: src/Infrastructure/REST/ActivitiesRestController.php:2228
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2248
 #: src/Infrastructure/REST/ActivitiesRestController.php:2305
+#: src/Infrastructure/REST/ActivitiesRestController.php:2377
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2251
+#: src/Infrastructure/REST/ActivitiesRestController.php:2308
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2271
+#: src/Infrastructure/REST/ActivitiesRestController.php:2343
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2292
+#: src/Infrastructure/REST/ActivitiesRestController.php:2364
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2308
+#: src/Infrastructure/REST/ActivitiesRestController.php:2380
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -4143,7 +4143,7 @@ msgstr "Datum"
 #: src/Infrastructure/REST/PeekRestController.php:178
 #: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Activities/Admin/ActivitiesPage.php:290
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:466
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:472
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:379
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:454
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:375
@@ -4890,7 +4890,7 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:68
 #: src/Modules/Activities/Admin/ActivitiesPage.php:222
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:226
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:232
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:365
@@ -5301,8 +5301,8 @@ msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:379
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:208
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:274
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:214
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:280
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
 #: src/Modules/Analytics/AnalyticsModule.php:115
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:147
@@ -5373,7 +5373,7 @@ msgid "Update"
 msgstr "Aktualisieren"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:434
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:372
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:378
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
@@ -5557,7 +5557,7 @@ msgstr "Nicht autorisiert"
 msgid "Unknown database error."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:54
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:55
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:62
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:53
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:73
@@ -5593,7 +5593,7 @@ msgstr ""
 msgid "Saving…"
 msgstr "Speichern…"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:55
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:56
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:63
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:54
 #: src/Shared/Frontend/Components/SaveState.php:92
@@ -5601,21 +5601,21 @@ msgstr "Speichern…"
 msgid "All changes saved"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:56
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:57
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:64
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:55
 msgid "Could not save — try again"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:57
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:369
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:58
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:375
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:65
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:337
 msgid "No unsaved changes"
 msgstr ""
 
 #. translators: %d is the number of unsaved cell changes.
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:59
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:60
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:67
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:58
 #, php-format
@@ -5623,16 +5623,22 @@ msgid "%d unsaved change(s)"
 msgstr ""
 
 #. translators: %d is the number of activities marked completed.
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:61
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:62
 #, php-format
 msgid "All changes saved · %d activity/activities marked completed"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:65
+#. translators: %d is the number of cells that were not saved.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:64
+#, php-format
+msgid "%d change(s) not saved."
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:68
 msgid "These activities will be marked completed"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:66
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:69
 msgid ""
 "You recorded attendance on activities that are still planned. Saving marks "
 "them completed, because the attendance reports only count activities that "
@@ -5640,74 +5646,74 @@ msgid ""
 "reports."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:67
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:70
 msgid ""
 "You can reopen an activity afterwards if you marked it by mistake. "
 "Activities dated in the future and cancelled activities are never changed."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:68
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:71
 msgid "Save and mark completed"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:69
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:72
 msgid "Back to the grid"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:70
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:73
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:68
 msgid "You have unsaved changes. Leave without saving?"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:75
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:78
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:70
 msgid "You have unsaved changes. Change the filter and lose them?"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:87
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:90
 msgid "You do not have permission to record attendance."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:93
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:96
 msgid "The attendance grid has been switched off for your academy."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:106
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:109
 msgid ""
 "Attendance itself is not affected: you can still mark a squad present from "
 "the activity, one activity at a time. The grid is the faster desktop way to "
 "do a whole week at once."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:113
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:116
 msgid ""
 "Record attendance for a whole period at once. Rows are players, columns are "
 "activities; pick a status per cell and Save. This is the desktop alternative "
 "to the step-by-step wizard."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:129
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:132
 msgid ""
 "You don't coach any teams yet, so there is no attendance to record. Ask an "
 "administrator to assign you to a team."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:135
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:138
 msgid "No teams yet — add one to record attendance."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:178
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:184
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:157
 msgid "No active players on this team yet. Add players to the roster first."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:183
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:189
 msgid ""
 "No activities for this team in the selected window. Widen the date range or "
 "change the type filter."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:211
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:217
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:446
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:208
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1294
@@ -5722,14 +5728,14 @@ msgstr ""
 msgid "Minutes"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:217
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:223
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:202
 msgctxt "segmented control label: which of the two data-entry grids"
 msgid "Grid"
 msgstr ""
 
 #. translators: state label for a PDP meeting that's further out in the cycle and not yet actionable
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:245
 #: src/Modules/Authorization/Admin/RolesPage.php:254
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:148
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:913
@@ -5744,45 +5750,45 @@ msgstr ""
 msgid "—"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:245
 msgctxt "attendance status abbreviation: not set"
 msgid "·"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:246
 msgctxt "attendance status abbreviation: present"
 msgid "P"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:247
 msgctxt "attendance status abbreviation: late"
 msgid "L"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:248
 msgctxt "attendance status abbreviation: absent"
 msgid "A"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:243
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:249
 msgctxt "attendance status abbreviation: excused"
 msgid "E"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:244
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:250
 msgctxt "attendance status abbreviation: injured"
 msgid "I"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:275
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
 msgid "pick a status per cell, then Save"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:305
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:311
 msgid "all present"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:308
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:314
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:236
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:221
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:57
@@ -5791,12 +5797,12 @@ msgid "Present %"
 msgstr ""
 
 #. translators: 1: player name, 2: activity date.
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:337
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:343
 #, php-format
 msgid "Attendance for %1$s on %2$s"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:371
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:377
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:339
 #: src/Modules/Activities/Services/EmptyRegisterConfirm.php:50
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:261
@@ -5862,16 +5868,16 @@ msgstr ""
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:394
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:469
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:400
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:475
 msgid "Training + matches"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:395
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:401
 msgid "Training only"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:396
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:402
 msgid "Matches only"
 msgstr ""
 
@@ -6266,6 +6272,12 @@ msgstr ""
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:28
 #: src/Modules/Wizards/Evaluation/RateConfirmStep.php:88
 msgid "Rate players"
+msgstr ""
+
+#: src/Modules/Activities/Services/AttendanceDateRule.php:57
+msgid ""
+"Present and late can only be recorded on or after the day of the activity. "
+"An absence can be recorded in advance."
 msgstr ""
 
 #: src/Modules/Activities/Services/EmptyRegisterConfirm.php:34
