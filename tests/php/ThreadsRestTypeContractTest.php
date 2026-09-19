@@ -61,14 +61,17 @@ final class ThreadsRestTypeContractTest extends WP_UnitTestCase {
         $response = $this->dispatch( 'GET', '/talenttrack/v1/threads/team/52' );
 
         $this->assertSame( 400, $response->get_status() );
-        $data = (array) $response->get_data();
-        $this->assertSame( 'rest_invalid_param', $data['code'] ?? null );
+        $error = $this->firstError( $response );
+        $this->assertSame( 'invalid_field', $error['code'] ?? null );
 
-        $message = (string) ( $data['data']['params']['type'] ?? '' );
+        $details = (array) ( $error['details'] ?? [] );
+        $this->assertSame( [ 'type' ], array_values( (array) ( $details['fields'] ?? [] ) ) );
+
+        $reason = (string) ( ( (array) ( $details['reasons'] ?? [] ) )['type'] ?? '' );
+        $this->assertStringContainsString( 'team', $reason );
         foreach ( [ 'goal', 'player', 'blueprint' ] as $known ) {
-            $this->assertStringContainsString( $known, $message );
+            $this->assertStringContainsString( $known, $reason );
         }
-        $this->assertSame( 'unknown_thread_type', $data['data']['details']['type']['code'] ?? null );
     }
 
     public function test_a_player_thread_still_lists_its_messages(): void {
@@ -88,8 +91,9 @@ final class ThreadsRestTypeContractTest extends WP_UnitTestCase {
         $response = $this->dispatch( 'POST', '/talenttrack/v1/threads/player/' . $player_id . '/messages' );
 
         $this->assertSame( 400, $response->get_status() );
-        $data = (array) $response->get_data();
-        $this->assertSame( 'rest_missing_callback_param', $data['code'] ?? null );
+        $error = $this->firstError( $response );
+        $this->assertSame( 'missing_fields', $error['code'] ?? null );
+        $this->assertContains( 'body', (array) ( ( (array) ( $error['details'] ?? [] ) )['fields'] ?? [] ) );
     }
 
     public function test_an_unknown_visibility_is_refused(): void {
@@ -102,6 +106,7 @@ final class ThreadsRestTypeContractTest extends WP_UnitTestCase {
         );
 
         $this->assertSame( 400, $response->get_status() );
+        $this->assertSame( 'invalid_field', $this->firstError( $response )['code'] ?? null );
     }
 
     public function test_posting_with_a_body_still_posts(): void {
@@ -129,6 +134,19 @@ final class ThreadsRestTypeContractTest extends WP_UnitTestCase {
         ] );
         $this->assertNotFalse( $ok, 'player insert must succeed' );
         return (int) $wpdb->insert_id;
+    }
+
+    /**
+     * The first entry of the house error envelope (CoreParamErrors turns
+     * core's argument errors into it on the talenttrack/v1 namespace).
+     *
+     * @return array<string,mixed>
+     */
+    private function firstError( WP_REST_Response $response ): array {
+        $data   = (array) $response->get_data();
+        $errors = (array) ( $data['errors'] ?? [] );
+        $this->assertNotEmpty( $errors, 'expected an error envelope' );
+        return (array) $errors[0];
     }
 
     /**

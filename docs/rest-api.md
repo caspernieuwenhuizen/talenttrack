@@ -832,14 +832,14 @@ Conversations anchored on one record. A thread is addressed by `{type}/{id}`: th
 
 Players and parents never see `player` threads: those are staff notes about the player. Teams, activities and trial cases have no threads.
 
-Every route declares its arguments, so `OPTIONS` on a thread route lists `type` with its `enum` and a description. An unknown type is refused before the permission check:
+Every route declares its arguments, so `OPTIONS` on a thread route lists `type` with its `enum` and a description. An unknown type is refused before the permission check, in the standard error envelope, with the valid types in `details.reasons.type`:
 
 ```json
-{ "code": "rest_invalid_param",
-  "message": "Invalid parameter(s): type",
-  "data": { "status": 400,
-            "params": { "type": "Unknown thread type \"team\". Valid types: goal, player, blueprint." },
-            "details": { "type": { "code": "unknown_thread_type", "data": { "status": 400, "valid_types": ["goal", "player", "blueprint"] } } } } }
+{ "success": false, "data": null,
+  "errors": [ { "code": "invalid_field",
+                "message": "These fields have a value this request cannot use: type.",
+                "details": { "fields": ["type"],
+                             "reasons": { "type": "Unknown thread type \"team\". Valid types: goal, player, blueprint." } } } ] }
 ```
 
 A known type the caller may not read or post on is **403**. A record that doesn't exist (or is in another club) is also **403**, not 404: the adapter can't grant access to a record it can't find.
@@ -850,7 +850,7 @@ The thread's messages, oldest first, and marks the thread read for the caller: `
 
 ### `POST /threads/{type}/{id}/messages`
 
-Posts a message: `{ "body": "…", "visibility": "public" }`. `body` is required (a missing one is `400 rest_missing_callback_param`; an empty or whitespace-only one is `400 tt_thread_empty`) and keeps basic HTML. `visibility` is `public` (the default) or `private_to_coach`; anything else is `400 rest_invalid_param`. A caller who can't see private messages posts public whatever they send. Returns the message, **201**.
+Posts a message: `{ "body": "…", "visibility": "public" }`. `body` is required (a missing one is `400 missing_fields`; an empty or whitespace-only one is `400 tt_thread_empty`) and keeps basic HTML. `visibility` is `public` (the default) or `private_to_coach`; anything else is `400 invalid_field`. A caller who can't see private messages posts public whatever they send. Returns the message, **201**.
 
 ### `PUT /threads/{type}/{id}/messages/{msg_id}`
 
