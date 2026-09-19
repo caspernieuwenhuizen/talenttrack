@@ -169,6 +169,30 @@
     color: var(--tt-muted);
 }
 
+/* ---- #3666 — playing time ----------------------------------------- */
+.tt-dashboard .tt-devhome-minutes {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+.tt-dashboard .tt-devhome-minutes__val {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-devhome-minutes__unit {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-devhome-minutes__meta {
+    margin: 0.4rem 0 0.6rem;
+    font-size: 0.82rem;
+    color: var(--tt-muted);
+}
+
 /* ---- #1903 — one-time welcome card -------------------------------- */
 .tt-dashboard .tt-devhome-welcome {
     display: flex;

@@ -551,6 +551,8 @@ class FrontendMySettingsView extends FrontendViewBase {
             'goals'        => __( 'Goals', 'talenttrack' ),
             'journey'      => __( 'Journey', 'talenttrack' ),
             'measurements' => __( 'Measurements', 'talenttrack' ),
+            // #3666 — how many minutes you played, and in which matches.
+            'minutes'      => __( 'Playing time', 'talenttrack' ),
             'pdp'          => __( 'Development plan (PDP)', 'talenttrack' ),
             // #2500 — minutes trained per principle, and which ones have
             // never been trained.
