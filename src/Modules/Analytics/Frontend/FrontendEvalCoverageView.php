@@ -94,7 +94,8 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
         if ( ! isset( $_POST['tt_ec_windows_nonce'] ) ) return '';
         $nonce = sanitize_text_field( wp_unslash( (string) $_POST['tt_ec_windows_nonce'] ) );
         if ( ! wp_verify_nonce( $nonce, 'tt_ec_save_windows' ) ) return '';
-        if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
+        // #3610 — the write cap, not the read cap the view opens on.
+        if ( ! current_user_can( 'tt_edit_analytics' ) ) return '';
 
         $names  = isset( $_POST['win_name'] )  && is_array( $_POST['win_name'] )  ? wp_unslash( $_POST['win_name'] )  : [];
         $starts = isset( $_POST['win_start'] ) && is_array( $_POST['win_start'] ) ? wp_unslash( $_POST['win_start'] ) : [];
@@ -122,6 +123,13 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
      * @param list<EvalWindow> $windows
      */
     private static function renderWindowsEditor( array $windows ): void {
+        // #3610 — someone who can read the coverage but not change the
+        // windows sees them, without a form to submit.
+        if ( ! current_user_can( 'tt_edit_analytics' ) ) {
+            self::renderWindowsReadOnly( $windows );
+            return;
+        }
+
         // One spare blank row so the HoD can always add a new window.
         $editable = $windows;
         $editable[] = [ 'name' => '', 'start' => '', 'end' => '' ];
@@ -152,6 +160,23 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
         echo '</div>';
         echo '</form>';
+        echo '</section>';
+    }
+
+    /** @param list<EvalWindow> $windows */
+    private static function renderWindowsReadOnly( array $windows ): void {
+        echo '<section class="tt-ec-editor tt-ec-card" aria-labelledby="tt-ec-editor-title">';
+        echo '<h2 id="tt-ec-editor-title" class="tt-ec-card__title">' . esc_html__( 'Evaluation windows', 'talenttrack' ) . '</h2>';
+        if ( $windows === [] ) {
+            echo '<p class="tt-ec-help">' . esc_html__( 'No evaluation windows have been set.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<ul class="tt-ec-window-list">';
+            foreach ( $windows as $w ) {
+                echo '<li><strong>' . esc_html( (string) $w['name'] ) . '</strong> '
+                    . esc_html( (string) $w['start'] ) . ' – ' . esc_html( (string) $w['end'] ) . '</li>';
+            }
+            echo '</ul>';
+        }
         echo '</section>';
     }
 

@@ -369,6 +369,9 @@ final class LegacyCapMapper {
         // read globally; coaches reach analytics through per-entity tabs
         // (Child 4) on the players + teams + activities they have access to.
         'tt_view_analytics'              => [ 'analytics',             'read' ],
+        // #3610 — the write side, for the evaluation windows. They were
+        // gated on the read cap, so any read grant of analytics was a write.
+        'tt_edit_analytics'              => [ 'analytics',             'change' ],
 
         // #0081 — Onboarding pipeline (children 2b + 4: late-stage
         // decision caps). Both bridge to `prospects.create_delete`

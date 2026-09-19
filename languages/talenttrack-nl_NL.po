@@ -8625,6 +8625,10 @@ msgstr "Evaluatieperiodes opgeslagen."
 msgid "Evaluation windows"
 msgstr "Evaluatieperiodes"
 
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "No evaluation windows have been set."
+msgstr "Er zijn nog geen evaluatieperiodes ingesteld."
+
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:133
 msgid ""
 "Define the periods each player should be evaluated in this season. Leave a "

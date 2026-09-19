@@ -460,6 +460,17 @@ Een eerste voorstel was globale leestoegang op **alle 138 entiteiten**, geredene
 
 Migratie `0249_authorization_seed_topup_observer_and_staff` vult beide persona's aan op bestaande installaties — idempotente `INSERT IGNORE`, alleen deze twee persona's, en weigert voor de waarnemer een andere activiteit dan `read` weg te schrijven, ook als de seed er later een zou krijgen. Voor geen enkele andere persona verandert het antwoord.
 
+## Matrix-entiteit `analytics` — lezen, en de evaluatieperiodes instellen
+
+Bij `analytics` tellen twee activiteiten:
+
+- **Lezen** opent de analyse-onderdelen, evaluatiedekking inbegrepen.
+- **Wijzigen** is nodig om de **evaluatieperiodes** in te stellen: de periodes waartegen de dekking en de meldingen "periode sluit" meten. Dat geldt op het dekkingsscherm en via de API.
+
+Standaard hebben **Hoofd opleiding** en **Academiebeheerder** lezen en wijzigen, globaal. Een persona die je alleen lezen geeft, bijvoorbeeld een waarnemer die de dekking mag zien, ziet de periodes in een lijst maar krijgt geen formulier om ze te wijzigen, en de API weigert de wijziging.
+
+Bestaande installaties krijgen het wijzigrecht voor die twee persona's met de update die het invoerde (migratie `0272_authorization_seed_topup_analytics_change`). Die voegt alleen die ene regel toe met `INSERT IGNORE` en laat elke rij die een beheerder heeft aangepast ongemoeid.
+
 ## De functionele-rol-as (#3257, #3433)
 
 De matrix sleutelt op `(persona, entiteit, activiteit, scope_kind)`. Een fysio en een materiaalman houden dezelfde WordPress-rol `tt_staff`, komen dus uit op dezelfde persona — `staff` — en **geen enkele cel in dit raster kan die twee uit elkaar houden**. Dat is geen gat in de seed; dat is de vorm van de sleutel. De grant `player_injuries [rc, team]` uit #3232 bereikte daardoor elk Staf-account, ook accounts die om volstrekt niet-medische redenen waren uitgedeeld.
