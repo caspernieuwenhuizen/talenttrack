@@ -49,9 +49,13 @@ final class TrialLetterDeliveryRestTest extends WP_UnitTestCase {
         ] );
         $player = (int) $wpdb->insert_id;
 
+        // `tt_trial_tracks.slug` is UNIQUE, so two cases in one fixture need
+        // two slugs — omitting it inserts '' twice and the second row is
+        // silently refused.
         $wpdb->insert( "{$this->p}tt_trial_tracks", [
             'club_id' => $this->club,
-            'name'    => 'Standard',
+            'slug'    => strtolower( $first . '-' . $last ),
+            'name'    => 'Standard ' . $first,
         ] );
         $track = (int) $wpdb->insert_id;
 

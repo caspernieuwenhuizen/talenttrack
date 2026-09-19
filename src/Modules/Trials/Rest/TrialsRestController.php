@@ -870,7 +870,7 @@ class TrialsRestController {
             'method' => [
                 'type'        => 'string',
                 'required'    => true,
-                'enum'        => array_values( TrialLetterService::DELIVERY_METHODS ),
+                'enum'        => TrialLetterService::DELIVERY_METHODS,
                 'description' => 'How the letter reached the family: printed, emailed or handed_over.',
             ],
         ];
@@ -911,15 +911,14 @@ class TrialsRestController {
             );
         }
 
-        if ( ! $svc->recordDelivery( $letter_id, $id, $method, get_current_user_id() ) ) {
+        $row = $svc->recordDelivery( $letter_id, $id, $method, get_current_user_id() );
+        if ( $row === null ) {
             return RestResponse::error( 'delivery_failed', __( 'The delivery could not be recorded.', 'talenttrack' ), 500 );
         }
 
-        $row = $svc->findInCase( $letter_id, $id );
-
         return RestResponse::success( [
             'case_id' => $id,
-            'letter'  => $row ? self::letterRow( $row ) : null,
+            'letter'  => self::letterRow( $row ),
         ] );
     }
 
@@ -937,15 +936,14 @@ class TrialsRestController {
             return RestResponse::error( 'letter_not_found', __( 'That letter is not on this trial case.', 'talenttrack' ), 404 );
         }
 
-        if ( ! $svc->clearDelivery( $letter_id, $id ) ) {
+        $row = $svc->clearDelivery( $letter_id, $id );
+        if ( $row === null ) {
             return RestResponse::error( 'delivery_failed', __( 'The delivery record could not be cleared.', 'talenttrack' ), 500 );
         }
 
-        $row = $svc->findInCase( $letter_id, $id );
-
         return RestResponse::success( [
             'case_id' => $id,
-            'letter'  => $row ? self::letterRow( $row ) : null,
+            'letter'  => self::letterRow( $row ),
         ] );
     }
 

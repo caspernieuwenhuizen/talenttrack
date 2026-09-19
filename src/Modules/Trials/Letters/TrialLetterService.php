@@ -184,41 +184,48 @@ final class TrialLetterService {
      * Refuses a method outside {@see self::DELIVERY_METHODS} and a letter
      * that is not on this case, so a caller cannot stamp a delivery onto
      * another family's letter by id.
+     *
+     * Returns the updated row, or null when it refused — the caller wants
+     * the stored record back, and handing it over here saves a second
+     * read that would otherwise have to re-prove the same ownership.
      */
-    public function recordDelivery( int $letter_id, int $case_id, string $method, int $user_id ): bool {
-        if ( ! self::isDeliveryMethod( $method ) ) return false;
-        if ( ! $this->findInCase( $letter_id, $case_id ) ) return false;
+    public function recordDelivery( int $letter_id, int $case_id, string $method, int $user_id ): ?object {
+        if ( ! self::isDeliveryMethod( $method ) ) return null;
+        if ( ! $this->findInCase( $letter_id, $case_id ) ) return null;
 
-        global $wpdb;
-        $ok = $wpdb->update(
-            $wpdb->prefix . 'tt_player_reports',
-            [
-                'delivered_at'    => current_time( 'mysql', true ),
-                'delivered_by'    => $user_id,
-                'delivery_method' => $method,
-            ],
-            [ 'id' => $letter_id, 'club_id' => CurrentClub::id() ]
-        );
-
-        return $ok !== false;
+        return $this->writeDelivery( $letter_id, $case_id, [
+            'delivered_at'    => current_time( 'mysql', true ),
+            'delivered_by'    => $user_id,
+            'delivery_method' => $method,
+        ] );
     }
 
     /** Undo a delivery record — the HoD ticked the wrong letter. */
-    public function clearDelivery( int $letter_id, int $case_id ): bool {
-        if ( ! $this->findInCase( $letter_id, $case_id ) ) return false;
+    public function clearDelivery( int $letter_id, int $case_id ): ?object {
+        if ( ! $this->findInCase( $letter_id, $case_id ) ) return null;
 
+        return $this->writeDelivery( $letter_id, $case_id, [
+            'delivered_at'    => null,
+            'delivered_by'    => null,
+            'delivery_method' => null,
+        ] );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function writeDelivery( int $letter_id, int $case_id, array $data ): ?object {
         global $wpdb;
+
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_player_reports',
-            [
-                'delivered_at'    => null,
-                'delivered_by'    => null,
-                'delivery_method' => null,
-            ],
+            $data,
             [ 'id' => $letter_id, 'club_id' => CurrentClub::id() ]
         );
 
-        return $ok !== false;
+        if ( $ok === false ) return null;
+
+        return $this->findInCase( $letter_id, $case_id );
     }
 
     /**
