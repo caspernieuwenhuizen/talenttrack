@@ -16,8 +16,9 @@ use TT\Infrastructure\Config\ConfigService;
  * sites.
  *
  * Backwards-compatible by default: the `system` preset resolves to the
- * WordPress Settings → date format, so an install that never touches the
- * setting renders exactly as before. Surfaces are migrated onto this
+ * WordPress Settings → date format — read for the site language when the
+ * option is still core's untouched English default, see
+ * {@see systemFormat()}. Surfaces are migrated onto this
  * helper incrementally (the broad `wp_date()` retrofit is a follow-up
  * slice of #1481); until a surface adopts it, nothing changes.
  *
@@ -91,8 +92,34 @@ class TTDate {
     public static function dateFormat(): string {
         $fmt = self::presets()[ self::preset() ] ?? null;
         if ( $fmt !== null ) return $fmt;
+        return self::systemFormat();
+    }
+
+    /**
+     * What the `system` preset resolves to — the WordPress date-format
+     * option, with one correction (#3680).
+     *
+     * WordPress writes that option **once**, when the site is installed,
+     * in the install language. An academy installed in English and later
+     * switched to Dutch keeps `F j, Y`, so `wp_date()` fills in Dutch
+     * month and day names in US word order — "di oktober 6, 2026". The
+     * operator never chose that; they just never touched the setting.
+     *
+     * So the untouched English default is read as "whatever WordPress
+     * uses for this language" and passed through core's own translation
+     * of it, which is `j F Y` in nl_NL and `F j, Y` unchanged in English.
+     * Any other stored value is a deliberate choice and is used as
+     * stored — an operator who set `d/m/Y` keeps `d/m/Y`.
+     *
+     * `translate()` with the `default` domain rather than `__()`: the
+     * string belongs to core, and `wp i18n make-pot --slug=talenttrack`
+     * must not pull it into `talenttrack.pot` as a plugin msgid.
+     */
+    private static function systemFormat(): string {
         $opt = get_option( 'date_format' );
-        return ( is_string( $opt ) && $opt !== '' ) ? $opt : 'Y-m-d';
+        if ( ! is_string( $opt ) || $opt === '' ) return 'Y-m-d';
+        if ( $opt === 'F j, Y' ) return (string) translate( 'F j, Y', 'default' );
+        return $opt;
     }
 
     /**
@@ -230,10 +257,9 @@ class TTDate {
         $ts = time();
         $out = [];
         foreach ( self::presets() as $slug => $fmt ) {
-            if ( $fmt === null ) {
-                $opt = get_option( 'date_format' );
-                $fmt = ( is_string( $opt ) && $opt !== '' ) ? $opt : 'Y-m-d';
-            }
+            // systemFormat() rather than a second copy of the fallback —
+            // the preview and the rendered dates have to agree (#3680).
+            if ( $fmt === null ) $fmt = self::systemFormat();
             $out[ $slug ] = wp_date( $fmt, $ts );
         }
         return $out;
