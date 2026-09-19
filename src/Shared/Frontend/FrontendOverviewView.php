@@ -72,10 +72,11 @@ class FrontendOverviewView extends FrontendViewBase {
                     // styles position:absolute top:8px right:8px in
                     // public.css (or inline-styled here so no CSS file
                     // change is required for the polish ship).
-                    $print_url   = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) );
+                    $print_pid   = (int) $player->id;
+                    $print_url   = add_query_arg( [ 'tt_print' => $print_pid ], remove_query_arg( [ 'tt_view' ] ) );
                     $print_label = __( 'Print', 'talenttrack' );
                     // #3594 — only a link the viewer can follow.
-                    $can_print = \TT\Modules\Stats\PrintRouter::canPrint( get_current_user_id(), (int) $player->id );
+                    $can_print = \TT\Modules\Stats\PrintRouter::canPrint( get_current_user_id(), $print_pid );
                     ?>
                     <?php if ( $can_print ) : ?>
                     <a class="tt-print-icon-btn"
