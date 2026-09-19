@@ -29917,6 +29917,55 @@ msgstr "Afronden mislukt:"
 msgid "Could not save:"
 msgstr "Opslaan mislukt:"
 
+#. translators: %d: half length plus 10 minutes of stoppage
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "This half has run longer than %d minutes. It looks like it was left running."
+msgstr "Deze helft loopt al langer dan %d minuten. Het lijkt erop dat de klok is blijven lopen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "End half at scheduled length"
+msgstr "Helft beëindigen op speeltijd"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Record the match afterwards"
+msgstr "Wedstrijd achteraf vastleggen"
+
+#. translators: 1: who started the match, 2: time of day
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Started by %1$s at %2$s"
+msgstr "Gestart door %1$s om %2$s"
+
+#. translators: 1: who started the match, 2: time of day the second half began
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Started by %1$s · second half from %2$s"
+msgstr "Gestart door %1$s · tweede helft vanaf %2$s"
+
+#. translators: %s: time of day
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Started at %s"
+msgstr "Gestart om %s"
+
+#. translators: %s: time of day
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Second half started at %s"
+msgstr "Tweede helft gestart om %s"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Tap again to end the half"
+msgstr "Tik nogmaals om de helft te beëindigen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not end the half:"
+msgstr "Helft beëindigen mislukt:"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "The half being ended: 1 or 2."
+msgstr "De helft die eindigt: 1 of 2."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "When the half ended. \"now\" (the default) is the moment of the request, never later than the half length plus 10 minutes. \"scheduled\" ends it at exactly the half length."
+msgstr "Wanneer de helft eindigde. \"now\" (standaard) is het moment van het verzoek, nooit later dan de speeltijd plus 10 minuten. \"scheduled\" beëindigt haar op precies de speeltijd."
+
 #: src/Modules/MatchExecution/MatchExecutionLayout.php:156
 msgid "Classic — one long page"
 msgstr "Klassiek — één lange pagina"
