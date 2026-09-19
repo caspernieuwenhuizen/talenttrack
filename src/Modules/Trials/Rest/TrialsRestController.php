@@ -205,7 +205,7 @@ class TrialsRestController {
             'include_archived' => (bool) $r->get_param( 'include_archived' ),
         ];
         $rows  = ( new TrialCasesRepository() )->search( $filters );
-        $names = self::playerNames( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) );
+        $names = self::playerNames( array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) ) );
         return RestResponse::success( [
             'cases' => array_map( static fn( $row ): array => self::format( $row, $names ), $rows ),
         ] );
@@ -558,10 +558,8 @@ class TrialsRestController {
     }
 
     /**
-     * @return array<string,mixed>
-     */
-    /**
      * @param array<int,string> $names player id => display name (#3577).
+     * @return array<string,mixed>
      */
     private static function format( ?object $row, array $names = [] ): array {
         if ( ! $row ) return [];
