@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:23:11+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:24:45+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1271,31 +1271,26 @@ msgstr ""
 "GitHub-token en de uitgaande verbinding van de site en probeer het opnieuw."
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:40
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:570
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2027
 msgid "Start of season"
 msgstr "Begin seizoen"
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:41
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:571
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2028
 msgid "Mid season"
 msgstr "Mid-seizoen"
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:42
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:572
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2029
 msgid "Mid-season A"
 msgstr "Mid-seizoen A"
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:43
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:573
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2030
 msgid "Mid-season B"
 msgstr "Mid-seizoen B"
 
 #: src/Domain/Vocabularies/Enums/PdpConversationTemplate.php:44
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:574
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2031
 msgid "End of season"
 msgstr "Einde seizoen"
@@ -1759,6 +1754,7 @@ msgstr "Een speler en een WordPress-gebruiker zijn allebei vereist."
 #: src/Modules/Export/Exporters/ScoutingReportPdfExporter.php:94
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:237
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:819
+#: src/Modules/Pdp/Rest/PdpFamilyRestController.php:78
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:102
 #: src/Modules/Reports/PlayerReportRenderer.php:41
 #: src/Modules/Stats/Admin/PlayerCardView.php:87
@@ -2680,7 +2676,7 @@ msgstr "Gepubliceerd"
 #: src/Modules/Knowledge/Frontend/LearningReports.php:68
 #: src/Modules/Knowledge/Frontend/LearningReports.php:333
 #: src/Modules/Knowledge/Frontend/LearningReports.php:366
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:554
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:550
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1712
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2019
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
@@ -3747,12 +3743,9 @@ msgstr "Ongeldige speler."
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:167
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:206
 #: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php:46
+#: src/Modules/Pdp/Rest/PdpFamilyRestController.php:89
 msgid "This section has been kept private."
 msgstr "Dit onderdeel is privé gehouden."
-
-#: src/Modules/Pdp/Rest/PdpFamilyRestController.php:51
-msgid "The player whose development plan to read."
-msgstr "De speler van wie het ontwikkelplan wordt opgehaald."
 
 #: src/Infrastructure/REST/GoalsRestController.php:467
 msgid "Player and title are required."
@@ -5559,7 +5552,7 @@ msgstr "— Alle —"
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:98
 #: src/Modules/Methodology/Frontend/MethodologyView.php:787
 #: src/Modules/Methodology/VocabularyCatalog.php:113
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:237
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:244
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:724
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
@@ -5709,7 +5702,7 @@ msgstr "Bijwerken"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1349
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:440
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:481
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:480
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:131
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:163
@@ -8029,7 +8022,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:158
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:665
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:555
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:551
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:393
@@ -10716,7 +10709,7 @@ msgstr "In deze periode zijn er geen wedstrijden gespeeld."
 #. translators: %s: the season's name, e.g. "2025/26".
 #. translators: %s = season name
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:129
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:140
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:144
 #, php-format
 msgid "Season %s"
 msgstr "Seizoen %s"
@@ -36174,114 +36167,114 @@ msgstr ""
 msgid "Could not set current season."
 msgstr "Kon het huidige seizoen niet instellen."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:75
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:77
 msgid "My development plan"
 msgstr "Mijn ontwikkelplan"
 
 #. translators: %s = the player's name, to a parent or a coach.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:78
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:80
 #, php-format
 msgid "%s's development plan"
 msgstr "Ontwikkelplan van %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:87
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:91
 msgid "No current season is set."
 msgstr "Er is geen huidig seizoen ingesteld."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:95
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:97
 msgid "No PDP file has been opened for you this season yet."
 msgstr "Er is nog geen POP-dossier voor je geopend dit seizoen."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:96
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:98
 msgid "No PDP file has been opened for this player this season yet."
 msgstr "Er is dit seizoen nog geen ontwikkelplan geopend voor deze speler."
 
 #. translators: %d = number of development conversations in the season
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:145
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:149
 #, php-format
 msgid "%d development conversation"
 msgid_plural "%d development conversations"
 msgstr[0] "%d ontwikkelgesprek"
 msgstr[1] "%d ontwikkelgesprekken"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:151
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:155
 msgid "No development conversations have been planned yet."
 msgstr "Er zijn nog geen ontwikkelgesprekken gepland."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:156
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:160
 msgid "Season timeline with development conversations"
 msgstr "Seizoenstijdlijn met ontwikkelgesprekken"
 
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:208
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:214
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1050
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr "Gesprek %1$d (%2$s)"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:220
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:226
 #, php-format
 msgid "Scheduled %s"
 msgstr "Gepland %s"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:227
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
 #, php-format
 msgid "Conducted %s"
 msgstr "Gevoerd %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:241
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:248
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1243
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:234
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:263
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:262
 msgid "Goals discussed"
 msgstr "Besproken doelen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:275
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:273
 msgid "Self-reflection"
 msgstr "Zelfreflectie"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:287
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:285
 msgid "I acknowledge this conversation"
 msgstr "Ik bevestig dit gesprek"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:292
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:290
 msgid "You acknowledged this conversation."
 msgstr "Je hebt dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:298
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:296
 msgid "Acknowledge as parent / guardian"
 msgstr "Bevestigen als ouder / verzorger"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:303
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:301
 msgid "A parent acknowledged this conversation."
 msgstr "Een ouder heeft dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:321
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:319
 msgid "Your active goals"
 msgstr "Jouw actieve doelen"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:323
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:321
 #, php-format
 msgid "%s's active goals"
 msgstr "Actieve doelen van %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:326
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:324
 msgid "What you are working on now"
 msgstr "Waar je nu aan werkt"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:328
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:326
 #, php-format
 msgid "What %s is working on now"
 msgstr "Waar %s nu aan werkt"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:333
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:331
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:266
 msgid "No active goals yet. Your coach will set some during your next talk."
 msgstr ""
@@ -36289,7 +36282,7 @@ msgstr ""
 "gesprek."
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:335
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:333
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:268
 #, php-format
 msgid ""
@@ -36300,38 +36293,38 @@ msgstr ""
 "ontwikkelgesprek met %s."
 
 #. translators: %s = goal due date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:382
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:379
 #, php-format
 msgid "Target date: %s"
 msgstr "Streefdatum: %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:410
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:409
 msgid "Preparing for your talk"
 msgstr "Voorbereiding op je gesprek"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:412
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
 #, php-format
 msgid "Preparing for %s's talk"
 msgstr "Voorbereiding op het gesprek van %s"
 
 #. translators: %1$s = conversation template label, %2$s = talk date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:417
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:416
 #, php-format
 msgid "Self-reflection · %1$s (%2$s)"
 msgstr "Zelfreflectie · %1$s (%2$s)"
 
 #. translators: %s = conversation template label
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:422
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:421
 #, php-format
 msgid "Self-reflection · %s"
 msgstr "Zelfreflectie · %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:432
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:431
 msgid "No self-reflection has been added for this talk yet."
 msgstr "Voor dit gesprek is nog geen zelfreflectie toegevoegd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:438
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:437
 msgid ""
 "Write your own reflection before the talk. Only the next planned talk can "
 "take a reflection — the other talks cannot. It is optional, never required."
@@ -36340,7 +36333,7 @@ msgstr ""
 "geplande gesprek kan een reflectie krijgen — de andere gesprekken niet. Het "
 "is optioneel, nooit verplicht."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:441
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:440
 msgid ""
 "The reflection window opens 2 weeks before the talk. Check back closer to "
 "the planned date."
@@ -36348,17 +36341,17 @@ msgstr ""
 "Het reflectievenster opent 2 weken vóór het gesprek. Kom dichter bij de "
 "geplande datum terug."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:475
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:474
 msgid "Add or update your self-reflection"
 msgstr "Voeg je zelfreflectie toe of werk hem bij"
 
 #. translators: %s = last-saved timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:494
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:493
 #, php-format
 msgid "Last saved · %s"
 msgstr "Laatst opgeslagen · %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:501
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:500
 msgid "No reflection saved yet."
 msgstr "Nog geen reflectie opgeslagen."
 
@@ -36382,7 +36375,7 @@ msgstr "Beslissing:"
 msgid "Signed off on %s"
 msgstr "Ondertekend op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:557
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:553
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2628
 msgid "Later"
 msgstr "Later"
@@ -37438,6 +37431,10 @@ msgstr ""
 #: src/Modules/Pdp/Rest/PdpConversationsRestController.php:175
 msgid "The conversation could not be updated."
 msgstr "Het gesprek kon niet worden bijgewerkt."
+
+#: src/Modules/Pdp/Rest/PdpFamilyRestController.php:52
+msgid "The player whose development plan to read."
+msgstr "De speler van wie het ontwikkelplan wordt opgehaald."
 
 #. translators: 1: conducted conversations, 2: total conversations
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:392
