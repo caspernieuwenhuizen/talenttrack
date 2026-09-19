@@ -638,8 +638,28 @@ each returned a summary for any id in the club.
   "facts": [ { "label": "Status", "value": "Signed" } ] }
 ```
 
+The facts each peek returns, in order:
+
+| Peek | Facts |
+| --- | --- |
+| Player | Status, Jersey number, Date of birth |
+| Team | Players, Season |
+| Activity | Date, Time, Presence time, Location, Type (#3679) |
+
+The activity's Time is the window `18:30–20:00`, or the start alone when
+there is no end time — an open-ended trial morning reads as `18:30`, not as a
+dangling dash. `ActivityTimeWindow::format()` is the one formatter for it, so
+the peek and the detail hero cannot disagree. The three "when and where" facts
+were added in #3679: the summary carried only a date and a type, so a parent
+peeking Tuesday's training could not tell what time to be there or which pitch,
+and read the team's WhatsApp instead. They ship after #3688 made the peek a
+per-record check, because a location on a club-wide capability would say where
+any team trains.
+
 One envelope for all three so the panel renders one way. Facts with an empty
-value are dropped server-side rather than rendered blank. **Read-only in v1** —
+value are dropped server-side rather than rendered blank — an activity with no
+times and no location still peeks cleanly, as a date and a type.
+**Read-only in v1** —
 editing inside a panel means a second save path and a stale-parent problem, on a
 surface whose job is orientation rather than data entry.
 
