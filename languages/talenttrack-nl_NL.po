@@ -36325,6 +36325,11 @@ msgstr ""
 msgid "Target date: %s"
 msgstr "Streefdatum: %s"
 
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:565
+msgctxt "pdp talk state"
+msgid "Overdue"
+msgstr "Te laat"
+
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:409
 msgid "Preparing for your talk"
 msgstr "Voorbereiding op je gesprek"

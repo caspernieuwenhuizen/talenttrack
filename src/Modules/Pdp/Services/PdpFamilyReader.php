@@ -160,13 +160,22 @@ final class PdpFamilyReader {
     }
 
     /**
-     * Marker state on the season rail: a completed talk, the single next
-     * planned one, or one still ahead of it.
+     * Marker state on the season rail: a completed talk, one whose planned
+     * date has passed without it being held, the single next planned one,
+     * or one still ahead of it.
+     *
+     * #3692 — `overdue` is checked before `next` and `future`, so a talk
+     * left behind reads as overdue whether or not it happens to be the next
+     * one in the cycle. Before this every unheld talk read "Planned",
+     * however long the date had passed, which told the family nothing about
+     * whether the talk had been held, moved or forgotten.
      *
      * @param array<string,mixed> $row a conversation row as an array.
+     * @param int|null $now_ts Unix timestamp for "now" (UTC), for tests.
      */
-    public static function stateOf( array $row, int $next_id ): string {
+    public static function stateOf( array $row, int $next_id, ?int $now_ts = null ): string {
         if ( ! empty( $row['conducted_at'] ) || ! empty( $row['coach_signoff_at'] ) ) return 'done';
+        if ( PdpCycleState::isOverdue( (object) $row, $now_ts ) ) return 'overdue';
         if ( $next_id > 0 && (int) ( $row['id'] ?? 0 ) === $next_id ) return 'next';
         return 'future';
     }
