@@ -59,11 +59,14 @@ De teams worden **gespreid over je leeftijdsladder** in plaats van vanaf de jong
 aan het begin, twee rondes halverwege en een eindevaluatie — een paar dagen
 vóór het POP-gesprek dat ze bespreekt, zodat het onderbouwingspaneel bij elk
 gegenereerd gesprek de ronde erachter heeft staan. **Wedstrijdevaluaties**
-worden geschreven bij de wedstrijden die de run genereert, in hun eigen ritme
-per wedstrijd, voor ruwweg een derde van de wedstrijden waarvoor een speler
-beschikbaar was. Een venster van drie jaar levert een speler daarmee zo'n
-twaalf ronde-evaluaties op in plaats van driehonderd — het verschil tussen een
-lijst die een trainer overziet en een lijst waar hij doorheen scrolt.
+worden geschreven bij de wedstrijden die de run genereert, voor ruwweg een
+derde van de wedstrijden die een speler **gespeeld** heeft — met de
+tegenstander van die wedstrijd, de uitslag en de minuten die de speler
+daadwerkelijk op het veld stond. Een speler die op de bank bleef of niet
+inzetbaar was, krijgt geen verslag van die zaterdag: er valt niets te
+verslaan. Een venster van drie jaar levert een speler daarmee zo'n twaalf
+ronde-evaluaties op in plaats van driehonderd — het verschil tussen een lijst
+die een trainer overziet en een lijst waar hij doorheen scrolt.
 
 Beoordelingen worden geschreven **op de schaal die de installatie gebruikt** en
 landen op waarden die die schaal kan uitdrukken — geen 6,4 bij een stap van 1.

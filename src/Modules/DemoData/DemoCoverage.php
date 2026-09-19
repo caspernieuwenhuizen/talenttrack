@@ -125,6 +125,11 @@ class DemoCoverage {
         ],
 
         // ===== Evaluations =====
+        //
+        // `written_by` names the generator the `evaluations` category runs.
+        // Since #3658 `MatchDayGenerator` writes the match evaluations too,
+        // off the side it has just fielded — tagged `evaluation` /
+        // `eval_rating` all the same, so both wipe cascades still reach them.
 
         'tt_evaluations' => [
             'entity_type' => 'evaluation',
@@ -1392,7 +1397,7 @@ class DemoCoverage {
             'measurements' => __( 'The testing battery, its per-age-group target bands, team testing sessions and one result per player.', 'talenttrack' ),
             'pdp'         => __( 'The season, one development dossier per player, its conversation cycle, calendar links and verdicts.', 'talenttrack' ),
             'activity_content' => __( 'Exercises and methodology principles on each training, per-team exercise overrides, and the season\'s holiday windows.', 'talenttrack' ),
-            'match_day'   => __( 'Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played.', 'talenttrack' ),
+            'match_day'   => __( 'Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals, substitutions and match evaluations for the ones already played.', 'talenttrack' ),
             'test_trainings' => __( 'Open sessions for invited players, one past and one upcoming per age group.', 'talenttrack' ),
             'team_development' => __( 'A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window.', 'talenttrack' ),
             'knowledge'   => __( 'Staff enrolled on the shipped courses, with a mixed spread: some finished, some mid-course, one overdue and one assignment awaiting review. The courses themselves ship with the plugin and are never generated.', 'talenttrack' ),

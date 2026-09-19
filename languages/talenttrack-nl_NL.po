@@ -21386,11 +21386,12 @@ msgstr ""
 #: src/Modules/DemoData/DemoCoverage.php:1395
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
-"intent — plus results, goals and substitutions for the ones already played."
+"intent — plus results, goals, substitutions and match evaluations for the "
+"ones already played."
 msgstr ""
 "Wedstrijdvoorbereiding voor elke wedstrijd — beschikbaarheid, opstelling, "
-"rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels "
-"voor de gespeelde wedstrijden."
+"rollen, aandachtspunten per speler — plus uitslagen, doelpunten, wissels en "
+"wedstrijdevaluaties voor de gespeelde wedstrijden."
 
 #: src/Modules/DemoData/DemoCoverage.php:1396
 msgid ""

@@ -4,9 +4,15 @@ namespace TT\Modules\DemoData;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * SeedLoader — loads Dutch name / age-group / opponent / result lists
- * from src/Modules/DemoData/seeds/*.txt. Kept deliberately simple: one
+ * SeedLoader — loads Dutch name / age-group / opponent lists from
+ * src/Modules/DemoData/seeds/*.txt. Kept deliberately simple: one
  * entry per non-empty line, comments (lines starting with #) ignored.
+ *
+ * #3658 retired the result list: it was loaded from `game_results.txt`
+ * while the seed file was called `match_results.txt`, so every demo match
+ * evaluation carried an empty result. A match result is not a list to draw
+ * from anyway — it is the score the match was generated with, which
+ * `MatchDayGenerator` writes.
  *
  * Files are plain text so translators or the user can tweak them
  * without touching PHP.
@@ -52,7 +58,4 @@ class SeedLoader {
 
     /** @return string[] */
     public static function opponents(): array { return self::load( 'opponents.txt' ); }
-
-    /** @return string[] */
-    public static function matchResults(): array { return self::load( 'game_results.txt' ); }
 }
