@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-18T20:18:18+00:00\n"
+"POT-Creation-Date: 2026-09-19T07:27:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -24068,24 +24068,24 @@ msgid ""
 "track or update the expected return date."
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:75
 msgid "Assignment waiting for review"
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:78
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:79
 msgid ""
 "A coach has handed in a practical assignment and is waiting on your "
 "decision. Their course cannot finish until you make one."
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:294
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:125
 #: src/Modules/Knowledge/SubmissionQueue.php:67
 msgid "A coach"
 msgstr ""
 
 #. translators: %s: the coach who handed the assignment in
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:286
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:298
 #, php-format
 msgid "%s is waiting on your review of their assignment."
 msgstr ""

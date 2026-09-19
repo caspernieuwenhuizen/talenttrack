@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-18T20:18:18+00:00\n"
+"POT-Creation-Date: 2026-09-19T07:27:49+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -26018,11 +26018,11 @@ msgstr ""
 "Een speler in jouw team is bijna terug van blessure. Bevestig dat ze op "
 "schema liggen of werk de verwachte terugkeer bij."
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:75
 msgid "Assignment waiting for review"
 msgstr "Opdracht wacht op beoordeling"
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:78
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:79
 msgid ""
 "A coach has handed in a practical assignment and is waiting on your "
 "decision. Their course cannot finish until you make one."
@@ -26030,14 +26030,14 @@ msgstr ""
 "Een trainer heeft een praktijkopdracht ingeleverd en wacht op jouw oordeel. "
 "De cursus kan pas worden afgerond als je er een geeft."
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:294
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:125
 #: src/Modules/Knowledge/SubmissionQueue.php:67
 msgid "A coach"
 msgstr "Een trainer"
 
 #. translators: %s: the coach who handed the assignment in
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:286
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:298
 #, php-format
 msgid "%s is waiting on your review of their assignment."
 msgstr "%s wacht op jouw beoordeling van de opdracht."
