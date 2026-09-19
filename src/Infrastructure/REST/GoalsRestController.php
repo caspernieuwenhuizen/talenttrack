@@ -383,8 +383,21 @@ class GoalsRestController {
             return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
         }
 
-        $meta  = self::playerMeta( $player_id );
-        $staff = self::can_view();
+        $meta = self::playerMeta( $player_id );
+
+        // Who is asking decides which detail URL the rows carry. Not
+        // `can_view()`: a guardian passes that through the matrix bridge —
+        // it is the collection's team scoping, not the capability, that
+        // holds them out — so the capability cannot tell a guardian from a
+        // coach. The links are the same question `parentCanViewSection()`
+        // asks: is this the player, or someone linked to them.
+        $uid      = get_current_user_id();
+        $subject  = $meta['wp_user_id'] > 0 && $meta['wp_user_id'] === $uid;
+        $guardian = ! $subject && in_array(
+            $uid,
+            ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id ),
+            true
+        );
 
         $rows = [];
         foreach ( ( new GoalsRepository() )->listForPlayer( $player_id ) as $row ) {
@@ -394,16 +407,16 @@ class GoalsRestController {
             // object the repository declares as a plain `object`.
             $out = self::format_row( (object) ( (array) $row + $meta['join'] ) );
 
-            if ( ! $staff ) {
+            if ( $subject || $guardian ) {
                 // #3397 — `?tt_view=goals&id=N` answers a player "Not
                 // authorized"; their copy of the goal lives behind
-                // `my-goals`, and a parent reading their child's carries
+                // `my-goals`, and a guardian reading their child's carries
                 // the player id. Built from the dashboard URL rather than
                 // through `RecordLink::meDetailUrl()`, whose base is the
                 // current request: right inside a rendered view, wrong in
                 // a REST controller, where the request is the API path.
                 $args = [ 'tt_view' => 'my-goals', 'id' => (int) $out['id'] ];
-                if ( $meta['wp_user_id'] <= 0 || $meta['wp_user_id'] !== get_current_user_id() ) {
+                if ( $guardian ) {
                     $args['player_id'] = $player_id;
                 }
                 $url = (string) add_query_arg( $args, \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
