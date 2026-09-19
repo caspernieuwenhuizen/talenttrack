@@ -112,10 +112,19 @@ geplande selectie zetten nog steeds iedereen standaard op Aanwezig.
 ## Formatie
 
 In het dropdown **Formatie** staat elke regel uit
-`tt_formation_templates`. De standaard is **4-2-3-1** — de meest
-gebruikte vorm van de pilot. Een andere formatie kiezen hervormt de
-posities op de velden; toewijzingen die op een doorlopende positie
-blijven gaan mee, de rest valt terug op de bank.
+`tt_formation_templates`. Zolang je er geen kiest, volgt het veld de
+spelvorm van het team: een team dat 8 tegen 8 speelt staat in **3-3-1**,
+een team dat 6 tegen 6 speelt in **3-2-1**, en een team dat 11 tegen 11
+speelt in **4-3-3**. Een andere formatie kiezen hervormt de posities op de
+velden; toewijzingen die op een doorlopende positie blijven gaan mee, de
+rest valt terug op de bank.
+
+Kleine-veldformaties tekenen hun eigen posities: **3-3-1** en **3-2-2**
+hebben er acht, met de keeper op positie 1, en **3-2-1** en **2-3-1** hebben
+er zes, zonder keeper, omdat 6 tegen 6 zonder keeper wordt gespeeld. Het
+voorbereidingsscherm, de afgedrukte voorbereiding, het wedstrijdformulier en
+het live wedstrijdscherm tekenen voor dezelfde wedstrijd altijd dezelfde
+vorm.
 
 De beschrijvende naam staat in je eigen taal (de cijfers van de vorm
 blijven in elke taal gelijk) — bijv. **Neutraal 4-3-3**, **Balbezit

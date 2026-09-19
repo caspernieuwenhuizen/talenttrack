@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 
 /**
  * MatchPrepPrintableRenderer (#1059) — shared body renderer for the
@@ -137,15 +138,12 @@ final class MatchPrepPrintableRenderer {
         }
         $half_length = (int) ( $prep->half_length_minutes ?? 35 );
 
-        // Resolve the slot layout the same way the on-screen view does.
-        // #2099 — the bound template's own geometry (slots_json) wins, so a
-        // 3-4-3 diamond prints as a diamond. Otherwise the activity's
-        // `formation` shape string (e.g. "4-3-3") selects a shape default.
-        $formation_shape = (string) ( $activity->formation ?? '' );
-        if ( $formation_shape === '' ) $formation_shape = '4-3-3';
-        $slot_layouts = FrontendMatchPrepView::defaultSlotLayouts();
-        $slots        = FrontendMatchPrepView::templateSlotLayout( (int) ( $prep->formation_template_id ?? 0 ) )
-            ?? ( $slot_layouts[ $formation_shape ] ?? $slot_layouts['4-3-3'] );
+        // #3574 — the same layout the prep screen and the live sheet draw:
+        // the template's own geometry (#2099), its shape, the team's football
+        // form, then 4-3-3. The print used to key off the activity's own
+        // `formation` string instead, so an 8v8 prep printed on eleven slots.
+        $formation_template_id = (int) ( $prep->formation_template_id ?? 0 );
+        $slots                 = FormationLayoutResolver::layoutFor( $formation_template_id, (int) ( $activity->team_id ?? 0 ) );
 
         ob_start();
         ?>

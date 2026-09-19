@@ -54,7 +54,7 @@
         activityId:     parseInt(bootstrap.activity_id, 10) || 0,
         prepId:         parseInt(bootstrap.prep_id, 10) || 0,
         halfLength:     parseInt(bootstrap.half_length, 10) || 35,
-        formationShape: String(bootstrap.formation_shape || '4-2-3-1'),
+        formationShape: String(bootstrap.formation_shape || '4-3-3'),
         formationTemplateId: parseInt(bootstrap.formation_template_id, 10) || 0,
         slotLayouts:    bootstrap.slot_layouts || {},
         templateLayouts: bootstrap.template_layouts || {},
@@ -402,7 +402,7 @@
         }
         var layouts = state.slotLayouts || {};
         if (layouts[state.formationShape]) return layouts[state.formationShape];
-        if (layouts['4-2-3-1']) return layouts['4-2-3-1'];
+        if (layouts['4-3-3']) return layouts['4-3-3'];
         var keys = Object.keys(layouts);
         return keys.length ? layouts[keys[0]] : [];
     }
