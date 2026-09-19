@@ -220,9 +220,13 @@ class FrontendMyTasksView extends FrontendViewBase {
         ?>
         <li class="<?php echo esc_attr( $row_class ); ?>">
             <?php if ( ! $completed ) : ?>
-                <div class="tt-mtasks-checkbox">
+                <label class="tt-mtasks-checkbox">
                     <input type="checkbox" name="task_ids[]" value="<?php echo (int) $task_id; ?>" />
-                </div>
+                    <span class="tt-screen-reader-text"><?php
+                        /* translators: %s: task title, usually the player name. */
+                        echo esc_html( sprintf( __( 'Select task: %s', 'talenttrack' ), $title ) );
+                    ?></span>
+                </label>
             <?php endif; ?>
             <div class="tt-mtasks-meta">
                 <p class="tt-mtasks-title"><?php echo esc_html( $title ); ?></p>
@@ -291,7 +295,7 @@ class FrontendMyTasksView extends FrontendViewBase {
                     <option value="7" <?php selected( ( $filters['due_within_days'] ?? '' ), 7 ); ?>><?php esc_html_e( '7 days', 'talenttrack' ); ?></option>
                 </select>
             </label>
-            <label>
+            <label class="tt-mtasks-check-label">
                 <input type="checkbox" name="show_snoozed" value="1" <?php checked( ! empty( $filters['include_snoozed'] ) ); ?> />
                 <?php esc_html_e( 'Show snoozed', 'talenttrack' ); ?>
             </label>

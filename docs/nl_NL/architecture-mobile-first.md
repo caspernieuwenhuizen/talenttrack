@@ -20,6 +20,17 @@ Waarom mobile-first in plaats van desktop-first:
 2. **`min-width`-queries stapelen optellend.** Een desktop leest base + 480 + 768 + 1024 in bronvolgorde; elke regel voegt iets toe wat de kleinere viewport niet nodig heeft (meer kolommen, dichtere padding). Een breakpoint verwijderen breekt de kleinere viewport nooit.
 3. **`max-width`-queries breken bij compositie.** Twee `max-width`-regels kunnen allebei op een 360px-viewport vuren en elkaar overschrijven afhankelijk van bronvolgorde — precies het soort bug dat je om 23:00 niet wilt debuggen.
 
+## De ondergrens voor tapdoelen
+
+`assets/css/public.css` bevat één `@media (pointer: coarse)`-blok dat het minimum van 48 px uit `CLAUDE.md` § 2 afdwingt. Die stylesheet laadt op elk dashboardscherm, dus een componentstylesheet herhaalt de ondergrens niet — hij erft hem. Omdat het blok op de pointer stuurt en niet op de viewport, krijgt een tablet de tapmaten en houdt een desktop met muis zijn dichtheid, zonder breakpoint.
+
+Wat het blok maatvoert: `.tt-btn` / `.tt-btn-sm`, pagineerlinks, rij-acties, `.tt-record-link`, `summary`, checkboxes en radio's (24 px vakje, 48 px rij vanuit het label) en — sinds #3598 — elke `select`, elke `.tt-input` en elk text-, search-, email-, tel-, number-, date-, time-, url- en password-invoerveld.
+
+Twee regels als je een besturingselement toevoegt:
+
+- **Een checkbox of radio krijgt een `<label>`, en het label is het tapdoel.** Het vakje blijft 24 px; het label draagt de rij van 48 px. Een kale `<input>` in een `<div>` heeft bovendien geen toegankelijke naam — dezelfde fout, twee keer.
+- **Versla de ondergrens niet op specificiteit.** `.tt-dashboard .tt-thing { min-height: 32px }` (0,2,0) wint van `.tt-btn { min-height: 48px }` (0,1,0) en zet stilletjes een klein tapdoel terug. Heeft een scherm op desktop echt een compacter element nodig, houd die regel dan als basis en til hem terug naar 48 px in het eigen `@media (pointer: coarse)`-blok van die stylesheet — `frontend-exports.css` en `components/team-planner.css` zijn de uitgewerkte voorbeelden.
+
 ## De pilot — `frontend-activities-manage.css`
 
 [`assets/css/frontend-activities-manage.css`](../../assets/css/frontend-activities-manage.css) is de eerste stylesheet die volgens de nieuwe regel is geschreven. Hij bezit de responsive layout van het Activiteiten-scherm:

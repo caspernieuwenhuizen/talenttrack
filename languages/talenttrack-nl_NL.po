@@ -50288,6 +50288,12 @@ msgstr "7 dagen"
 msgid "Show snoozed"
 msgstr "Toon gesnoozede"
 
+#. translators: %s: task title, usually the player name.
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:225
+#, php-format
+msgid "Select task: %s"
+msgstr "Taak selecteren: %s"
+
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:344
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:65
 msgid "Security check failed. Please refresh and try again."

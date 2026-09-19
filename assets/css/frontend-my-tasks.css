@@ -128,14 +128,42 @@
     border-left-color: var(--tt-success, #2f9e5e);
     background: var(--tt-bg-soft, #f4f6f3);
 }
+/* #3598 — the row selector is a `<label>`, so the whole 48px square
+   toggles the box and the visually-hidden span gives the checkbox a name.
+   Before, the target was the 22px box alone and a screen reader read the
+   row as an unnamed checkbox. */
 .tt-dashboard .tt-mtasks-checkbox {
     order: 1;
     flex: 0 0 auto;
     align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
 }
 .tt-dashboard .tt-mtasks-checkbox input {
     width: 22px;
     height: 22px;
+}
+/* #3598 — "Show snoozed" is a checkbox in the filter card, where the
+   shared label rule stacks its parts in a column. Row direction keeps the
+   box beside its text, and the label carries the tap target. */
+.tt-dashboard .tt-mtasks-filters label.tt-mtasks-check-label {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+@media (pointer: coarse) {
+    .tt-dashboard .tt-mtasks-checkbox {
+        min-width: 48px;
+        min-height: 48px;
+    }
+    .tt-dashboard .tt-mtasks-filters label.tt-mtasks-check-label {
+        min-height: 48px;
+    }
 }
 .tt-dashboard .tt-mtasks-meta {
     order: 2;
