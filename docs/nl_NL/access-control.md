@@ -218,8 +218,10 @@ Vijf functionele rollen dragen een kleine set rechten die geldt **op het team wa
 | **Fysio** | Blessures lezen en vastleggen; metingen lezen; de spelerslijst van de selectie openen |
 | **Hoofdcoach** | Metingen lezen |
 | **Assistent-coach** | Metingen lezen |
-| **Materiaalman** | De selectie, de mensen eromheen en de activiteitenkalender lezen, en de team-, speler- en activiteitenschermen openen |
-| **Manager** | De selectie, de mensen eromheen en de activiteitenkalender lezen, en de team-, speler- en activiteitenschermen openen; aanwezigheid vastleggen; de beschikbaarheid van spelers lezen (het statusstoplicht) |
+| **Materiaalman** | De selectie, de mensen eromheen, de activiteitenkalender en de vakantiekalender van de academie lezen, en de team-, speler- en activiteitenschermen openen |
+| **Manager** | De selectie, de mensen eromheen, de activiteitenkalender en de vakantiekalender van de academie lezen, en de team-, speler- en activiteitenschermen openen; aanwezigheid vastleggen; de beschikbaarheid van spelers lezen (het statusstoplicht) |
+
+De vakantiekalender van de academie hoort bij het schema, want zonder die kalender leest een gat tussen twee trainingen als ontbrekende data in plaats van als een geplande onderbreking. Voor allebei de rollen is het alleen lezen: het bijhouden van de kalender blijft bij degene die dat doet, en geen van beide rollen krijgt het scherm Vakanties aangeboden.
 
 Een Manager leest het schema maar maakt of wijzigt geen activiteiten; dat blijft bij de trainers. Een Manager krijgt geen toegang tot blessures. Een teammanager die ook EHBO doet, krijgt **Fysio** als tweede functionele rol op hetzelfde team, en het blessurelogboek volgt die rol.
 

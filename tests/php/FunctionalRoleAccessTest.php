@@ -280,8 +280,10 @@ final class FunctionalRoleAccessTest extends WP_UnitTestCase {
         $entities = FunctionalRoleGrants::entitiesFor( 'kit_manager' );
         sort( $entities );
 
+        // #3686 added `holidays`: the academy calendar, read only, which
+        // is what explains a gap in the schedule a kit manager packs for.
         $this->assertSame(
-            [ 'activities', 'activities_panel', 'coach_player_list_panel', 'people', 'players', 'team', 'team_roster_panel' ],
+            [ 'activities', 'activities_panel', 'coach_player_list_panel', 'holidays', 'people', 'players', 'team', 'team_roster_panel' ],
             $entities
         );
 

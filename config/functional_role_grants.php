@@ -51,6 +51,9 @@ $mod_journey       = class_exists( '\TT\Modules\Journey\JourneyModule' )
 $mod_measurements  = class_exists( '\TT\Modules\Measurements\MeasurementsModule' )
     ? \TT\Modules\Measurements\MeasurementsModule::class
     : $mod_authorization;
+$mod_holidays      = class_exists( '\TT\Modules\Holidays\HolidaysModule' )
+    ? \TT\Modules\Holidays\HolidaysModule::class
+    : $mod_authorization;
 
 return [
 
@@ -163,11 +166,17 @@ return [
         // entity carries no data of its own — it decides whether the
         // surface is offered — so this grants no reading the role did
         // not already have.
+        //
+        // #3686 adds `holidays [r]`: the academy calendar is what
+        // explains a gap in the schedule, and both coach personas
+        // already read it. Read only, and no `holidays_panel` — the
+        // tile that edits the calendar stays with whoever keeps it.
         'kit_manager' => [
             'team'                    => [ 'r', $mod_teams ],
             'players'                 => [ 'r', $mod_players ],
             'people'                  => [ 'r', $mod_people ],
             'activities'              => [ 'r', $mod_activities ],
+            'holidays'                => [ 'r', $mod_holidays ],
             'team_roster_panel'       => [ 'r', $mod_teams ],
             'coach_player_list_panel' => [ 'r', $mod_players ],
             'activities_panel'        => [ 'r', $mod_activities ],
@@ -205,6 +214,14 @@ return [
         // show: the data entities above still scope every row to the
         // teams this role is held on, and none of them carries `c` or
         // `d`, so the screens render read-only.
+        //
+        // #3686 adds `holidays [r]`. Reading the schedule without the
+        // academy calendar cannot tell a planned break from trainings
+        // nobody entered, which is the difference a manager plans kit,
+        // transport and parent messages around. Both coach personas
+        // already read the same list, it is academy-wide and carries
+        // nothing about a player. Read only, and no `holidays_panel`:
+        // maintaining the calendar is not a logistics seat's job.
         'manager' => [
             'team'                    => [ 'r',  $mod_teams ],
             'players'                 => [ 'r',  $mod_players ],
@@ -212,6 +229,7 @@ return [
             'activities'              => [ 'r',  $mod_activities ],
             'attendance'              => [ 'rc', $mod_activities ],
             'player_status'           => [ 'r',  $mod_players ],
+            'holidays'                => [ 'r',  $mod_holidays ],
             'team_roster_panel'       => [ 'r',  $mod_teams ],
             'coach_player_list_panel' => [ 'r',  $mod_players ],
             'activities_panel'        => [ 'r',  $mod_activities ],
