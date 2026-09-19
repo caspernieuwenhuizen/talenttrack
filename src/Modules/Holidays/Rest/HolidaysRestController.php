@@ -55,6 +55,17 @@ final class HolidaysRestController {
                 'methods'             => 'PUT, PATCH',
                 'callback'            => [ self::class, 'update_holiday' ],
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
+                // Partial update: every field is optional, and the
+                // callback only writes the ones the body carries. The
+                // value checks live in `validate()` so the create and
+                // the update path answer identically.
+                'args'                => [
+                    'name'       => [ 'type' => 'string', 'required' => false, 'description' => 'Holiday name.' ],
+                    'start_date' => [ 'type' => 'string', 'required' => false, 'description' => 'First day, Y-m-d.' ],
+                    'end_date'   => [ 'type' => 'string', 'required' => false, 'description' => 'Last day, Y-m-d.' ],
+                    'note'       => [ 'type' => 'string', 'required' => false, 'description' => 'Free-text note.' ],
+                    'color'      => [ 'type' => 'string', 'required' => false, 'description' => 'Hex colour for the planner banner.' ],
+                ],
             ],
             [
                 'methods'             => 'DELETE',
