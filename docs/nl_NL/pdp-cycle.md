@@ -30,11 +30,11 @@ Dat is geen weergaveregel die een toekomstig scherm kan vergeten. De controle zi
 De **POP**-tegel opent op één **spelergerichte lijst** voor het huidige seizoen in plaats van een kale lijst met dossiers. Het vertrekpunt is de speler (CLAUDE.md §1): elke speler die je traint wordt één keer getoond, met een duidelijke indicator of het POP **voor dit seizoen** al bestaat.
 
 - Bestrijk je **meer dan één team** (of heb je globale scope), dan kies je eerst een team — *"Selecteer een team om de spelers te zien."* — zodat je afgebakend begint in plaats van alle spelers tegelijk te zien. Een coach met één team gaat direct naar de eigen selectie.
-- Bovenaan staat een samenvattingsregel, bijvoorbeeld: *"14 van de 18 spelers hebben een POP voor het huidige seizoen (2025/26)."*
+- Bovenaan staat een samenvattingsregel, bijvoorbeeld: *"14 van de 18 spelers hebben een POP voor het huidige seizoen (2025/26)."* De regel telt dezelfde spelers als de lijst eronder: een hoofd opleiding, of iemand anders die het POP van elke speler mag lezen, telt het hele team; een coach telt alleen de eigen spelers.
 - Elke rij toont de **speler** (gekoppeld aan het spelerrecord), het **team** en een **POP dit seizoen**-status:
  - **Aangemaakt** — een groene *POP ✓*-pil, waar mogelijk met gespreksvoortgang (bijv. *POP ✓ 1/3*), die direct naar het dossier linkt.
  - **Niet gestart** — een grijze *Niet gestart*-pil plus een knop **POP aanmaken** die de aanmaakflow opent, voor­ingevuld voor die speler en dat team.
-- **Filters** — teamkeuze + zoeken op speler, op dezelfde manier afgebakend als de rest van de app: coaches zien alleen spelers van hun eigen teams; beheerders zien iedereen.
+- **Filters** — teamkeuze + zoeken op speler, op dezelfde manier afgebakend als de rest van de app: coaches zien alleen spelers van hun eigen teams; beheerders en het hoofd opleiding zien iedereen.
 - **Alleen spelers zonder POP** — een schakelaar met één klik om iedereen te verbergen die al een dossier heeft, zodat je de gaten kunt wegwerken.
 - Met de **⋯**-knop aan het eind van de filterrij (voor wie mag herstellen of verwijderen) schakel je de lijst naar de spelers van wie het POP voor het seizoen **gearchiveerd** is, met per rij **Herstellen** / permanent verwijderen. Dit vervangt het oude aparte tabblad Dossiers — gearchiveerde bestanden staan nu in dezelfde lijst.
 - Klik op een gedekte rij om het POP-dossier van de speler te openen; klik op een ontbrekende rij om naar de aanmaakflow te springen.

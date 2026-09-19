@@ -30,11 +30,11 @@ That is not a display rule that a future screen might forget. The gate lives in 
 The **PDP** tile opens on a single **player-centric list** for the current season instead of a bare list of files. It starts from the player (CLAUDE.md §1): every player you coach is shown once, with a clear indicator of whether their PDP **for this season** exists yet.
 
 - If you span **more than one team** (or have global scope), you first pick a team — *"Select a team to see its players."* — so you start scoped rather than facing every player at once. A coach with a single team skips straight to their roster.
-- A summary line at the top reads, for example, *"14 of 18 players have a PDP for the current season (2025/26)."*
+- A summary line at the top reads, for example, *"14 of 18 players have a PDP for the current season (2025/26)."* It counts the same players as the list underneath: a head of development or anyone else who reads every player's PDP counts the whole team, and a coach counts only their own players.
 - Each row shows the **player** (linked to their record), their **team**, and a **PDP this season** status:
  - **Created** — a green *PDP ✓* pill, with conversation progress where available (e.g. *PDP ✓ 1/3*), linking straight to the file.
  - **Not started** — a grey *Not started* pill plus a **Create PDP** button that opens the create flow pre-filled for that player and team.
-- **Filters** — team dropdown + player search, scoped the same way as the rest of the app: coaches see only their own teams' players; admins see everyone.
+- **Filters** — team dropdown + player search, scoped the same way as the rest of the app: coaches see only their own teams' players; admins and the head of development see everyone.
 - **Only players without a PDP** — a one-click toggle to hide everyone who already has a file, so you can work straight through the gaps.
 - The **⋯** button at the end of the filter row (for operators who can unarchive or delete) switches the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
 - Clicking a covered row opens the player's PDP file; clicking a missing row jumps into the create flow.

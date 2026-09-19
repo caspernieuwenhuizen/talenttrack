@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PdpStatus;
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Pdp\PdpAccess;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
@@ -481,10 +482,11 @@ class FrontendPdpManageView extends FrontendViewBase {
         $only_missing = false;
         if ( $archived_view === 'active' ) {
             // Coverage summary line ("M of N players have a PDP this season"),
-            // scoped the same way the REST endpoint scopes.
-            $summary_filters = [ 'team_id' => $selected_team ];
-            if ( ! $is_admin ) {
-                $summary_filters['player_ids'] = self::coachScopedPlayerIds( $user_id );
+            // scoped by the same helper the REST endpoint uses (#3685).
+            $summary_filters  = [ 'team_id' => $selected_team ];
+            $scope_player_ids = PdpAccess::coverageScopePlayerIds( $user_id );
+            if ( $scope_player_ids !== null ) {
+                $summary_filters['player_ids'] = $scope_player_ids;
             }
             $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( (int) $current->id, $summary_filters );
             echo '<p class="tt-pdp-coverage-summary">' . esc_html( sprintf(
@@ -582,22 +584,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Show players', 'talenttrack' ) . '</button>';
         echo '</form>';
         echo '</div>';
-    }
-
-    /**
-     * #1617 — flat list of player ids on the coach's own teams, used to
-     * scope the coverage summary the same way the REST endpoint scopes.
-     *
-     * @return int[]
-     */
-    private static function coachScopedPlayerIds( int $user_id ): array {
-        $ids = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
-                $ids[ (int) $pl->id ] = (int) $pl->id;
-            }
-        }
-        return array_values( $ids );
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {

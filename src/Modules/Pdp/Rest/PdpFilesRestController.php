@@ -287,9 +287,11 @@ class PdpFilesRestController {
 
         $coverage_filters = [];
         // Coach scope — global readers see every player; coaches are
-        // narrowed to their own rosters via player ids.
-        if ( ! self::hasGlobalPdpAccess( 'read' ) ) {
-            $coverage_filters['player_ids'] = self::coachScopedPlayerIds( get_current_user_id() );
+        // narrowed to their own rosters via player ids. #3685 — the same
+        // helper scopes the manage view's summary line, so the two agree.
+        $scope_player_ids = \TT\Modules\Pdp\PdpAccess::coverageScopePlayerIds( get_current_user_id() );
+        if ( $scope_player_ids !== null ) {
+            $coverage_filters['player_ids'] = $scope_player_ids;
         }
         if ( ! empty( $filter['team_id'] ) ) {
             $coverage_filters['team_id'] = absint( $filter['team_id'] );
@@ -327,22 +329,6 @@ class PdpFilesRestController {
             'season_id' => $season_id,
             'summary'   => $summary,
         ] );
-    }
-
-    /**
-     * #1617 — flat list of player ids on the coach's own teams. Mirrors
-     * the roster scoping the manage view uses for its filter options.
-     *
-     * @return int[]
-     */
-    private static function coachScopedPlayerIds( int $user_id ): array {
-        $ids = [];
-        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
-                $ids[ (int) $pl->id ] = (int) $pl->id;
-            }
-        }
-        return array_values( $ids );
     }
 
     /**
@@ -945,53 +931,19 @@ class PdpFilesRestController {
     }
 
     /**
-     * #0080 Wave C3 — replacement for the legacy "is admin?" proxy
-     * (`current_user_can('tt_edit_settings')`) used to bypass the
-     * coach-ownership ladder. Four sources, in order:
-     *   1. Matrix grant: `pdp_file/<activity>/global` — the precise
-     *      semantic ("user has unrestricted PDP access").
-     *   2. WordPress site admin (`manage_options`) — portable fallback
-     *      for installs whose matrix is dormant or partially seeded.
-     *   3. Legacy umbrella `tt_edit_settings` — preserved for
-     *      back-compat with v3.0 callers; the CapabilityAliases
-     *      roll-up still grants this when the user holds every
-     *      settings sub-cap.
-     *   4. v3.110.112 — global-reader personas. The HoD and academy
-     *      admin personas are designed to have academy-wide scope on
-     *      every player-development surface (PDP files, evaluations,
-     *      goals, etc.). On installs whose MatrixGate matrix is
-     *      dormant (no rows seeded), step 1 returns false and the HoD
-     *      drops through to coach-scoping — returning zero files
-     *      because the HoD isn't a coach. This step explicitly
-     *      recognises the persona instead of relying on the matrix.
-     *      Pilot symptom: "POP verdicts pending" KPI link landed on
-     *      an empty list for the HoD.
+     * Does the current user hold unrestricted (global-scope) PDP access?
+     * The ladder (matrix grant, site admin, `tt_edit_settings`, HoD /
+     * academy-admin persona fallback) lives in
+     * PdpAccess::hasGlobalPdpAccess() so the REST routes and the manage
+     * view answer the same way (#3685).
      *
      * @param string $activity 'read' | 'change'
      */
     private static function hasGlobalPdpAccess( string $activity ): bool {
-        $uid = get_current_user_id();
-        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
-            $matrix_activity = $activity === 'read' ? MatrixGate::READ : MatrixGate::CHANGE;
-            if ( MatrixGate::can( $uid, 'pdp_file', $matrix_activity, MatrixGate::SCOPE_GLOBAL ) ) {
-                return true;
-            }
-        }
-        if ( current_user_can( 'manage_options' ) ) return true;
-        if ( current_user_can( 'tt_edit_settings' ) ) return true;
-
-        // Persona-based fallback. `read` is granted to all global readers;
-        // `change` is restricted to HoD + academy_admin (Club Admin) —
-        // mirrors the FunctionalRoles seed which gives those personas
-        // PDP edit reach.
-        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
-            $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $uid );
-            $global_readers = [ 'head_of_development', 'academy_admin' ];
-            foreach ( $personas as $p ) {
-                if ( in_array( $p, $global_readers, true ) ) return true;
-            }
-        }
-        return false;
+        return \TT\Modules\Pdp\PdpAccess::hasGlobalPdpAccess(
+            get_current_user_id(),
+            $activity === 'read' ? MatrixGate::READ : MatrixGate::CHANGE
+        );
     }
 
     /** @return array<string,mixed> */

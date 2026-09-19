@@ -114,6 +114,34 @@ final class PdpAccess {
     }
 
     /**
+     * The players whose PDP coverage the user may count, or null when the
+     * user reads every player's file.
+     *
+     * One scope for both consumers of the coverage numbers: the
+     * `pdp-files/coverage` REST route (table + `summary` block) and the
+     * server-rendered "M of N players have a PDP" line above the table.
+     * The line used to narrow everyone without `tt_edit_settings` to the
+     * teams they coach, so a Head of Development, who reads every file but
+     * coaches no team, saw "0 of 0" above a full roster (#3685).
+     *
+     * @return list<int>|null null = no player restriction.
+     */
+    public static function coverageScopePlayerIds( int $user_id ): ?array {
+        if ( self::hasGlobalPdpAccess( $user_id, MatrixGate::READ ) ) return null;
+
+        $ids = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $team_id <= 0 ) continue;
+            foreach ( QueryHelpers::get_players( $team_id ) as $player ) {
+                $player_id = (int) ( ( (array) $player )['id'] ?? 0 );
+                if ( $player_id > 0 ) $ids[ $player_id ] = $player_id;
+            }
+        }
+        return array_values( $ids );
+    }
+
+    /**
      * Is the user a global PDP-verdict authority (head of academy)?
      *
      * Replaces the `tt_head_dev` role-name string compare (#0052 PR-B
