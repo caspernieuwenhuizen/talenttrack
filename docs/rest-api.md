@@ -42,7 +42,7 @@ PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcem
 
 | Resource         | Routes                                                                                        | Source                                                  |
 | ---              | ---                                                                                           | ---                                                     |
-| Sessions         | `GET/POST /sessions`, `PUT/DELETE /sessions/{id}` (DELETE soft-archives, #1555; `PUT` is partial: a key the body leaves out keeps its stored value, a key sent empty clears it, and the match-only columns still follow the effective type), `POST /sessions/{id}/restore`, `DELETE /sessions/{id}/permanent` (gated on `tt_edit_settings`) | `src/Infrastructure/REST/ActivitiesRestController.php`    |
+| Sessions         | `GET/POST /sessions`; the list takes `filter[team_id]` (one id or a CSV), `filter[date_from]` and `filter[date_to]`, or the same as plain `team_id`, `date_from` / `from` and `date_to` / `to`, with the nested form winning when both are sent. A date that is not `YYYY-MM-DD` is refused with `400 bad_date`. `PUT/DELETE /sessions/{id}` (DELETE soft-archives, #1555; `PUT` is partial: a key the body leaves out keeps its stored value, a key sent empty clears it, and the match-only columns still follow the effective type), `POST /sessions/{id}/restore`, `DELETE /sessions/{id}/permanent` (gated on `tt_edit_settings`) | `src/Infrastructure/REST/ActivitiesRestController.php`    |
 | Attendance (#0026) | `POST /sessions/{id}/guests`, `PATCH /attendance/{id}`, `DELETE /attendance/{id}`            | same controller                                         |
 | Entry grids (#2382, #2386, #2414 — epic #2381) | `POST /attendance/bulk` (attendance grid), `POST /minutes/bulk` (minutes), `PUT /activities/{id}/contributions` (#3094 — goals + assists, body `{ players: [ { player_id, goals, assists } ] }`. Counts in, goal events out: the reconciliation lives in `MatchExecutionRepository::setContributions()` so the grid and a future front end write the same rows. A count up inserts manual events carrying no `execution_id`, `half` or `minute_in_half` — a coach filling this in afterwards does not know the minute and one is never invented. A count down sets `reversed_at` rather than deleting, typed rows before live ones. An assist attaches to an existing goal with a free `assist_player_id`, and only creates a scorerless goal when none is free, because an assist is a column on a goal and inserting a row per assist would inflate the score. `tt_activities.home_score` is never written), `POST /activities/{id}/ratings/bulk` (ratings grid — body `{ changes: [ { player_id, category_id, rating } ] }`; a null/blank `rating` means *not rated* and is skipped rather than written as a zero, so an untouched cell never clears an existing score). Each gates on `tt_edit_activities` **plus** its own feature toggle (`attendance_grid` / `minutes_grid` / `ratings_grid`), and enforces the caller's team scope per activity. The ratings write goes through `EvaluationInserter::upsertForActivity()` — the same writer the evaluation wizard uses — so re-saving updates the player's existing evaluation for that activity instead of appending a second one, and grid and wizard cannot diverge. Values outside the configured `rating_min`..`rating_max` / `rating_step` scale are refused server-side, not only by the input attributes. `GET/PUT /me/preferences/minutes-grid` (#3094) carries which statistic columns the caller wants shown — a per-user display preference in user meta, gated on being logged in because it reads and writes nothing but the caller's own row. | `ActivitiesRestController.php` |
 | Players          | `GET/POST /players`, `PUT/DELETE /players/{id}`, `POST /players/import`. `PUT` is partial: only the keys present in the body are written, and a key sent with an empty value clears that field. | `PlayersRestController.php`                             |
@@ -725,6 +725,24 @@ team or global staff — **and** the child's section preference (#1867), under
 which a player may keep their evaluations from a parent. Why not
 `GET /evaluations/{id}`: that route needs `tt_view_evaluations`, which players
 and parents do not hold (#1482), and returns the full staff record.
+
+## The logged-in account's own players (#3568)
+
+### `GET /me`
+
+The player records the logged-in account is linked to: the player it *is*, and the children it is a guardian of. A non-WordPress client calls this first, because every per-player route needs an id.
+
+```json
+{ "player": { "id": 577, "name": "Bas Willems", "team_id": 52, "status": "active" },
+  "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active" } ],
+  "reason": null }
+```
+
+- `player` comes from the account's own link (`tt_players.wp_user_id`), in this club, active and not archived; otherwise `null`.
+- `children` are the account's active, non-archived children through the guardian link, most recently linked first.
+- An account linked to nothing gets **200**, not 403, with `player: null`, `children: []` and `reason: "no_linked_player"`, so the client can say the account isn't linked yet.
+
+**Permission:** logged in. The route returns only the caller's own links. The collection routes (`GET /players`, `GET /evaluations`, …) stay staff surfaces; `me` is the self-scoped entry point, mirroring the `my_*` matrix entities rather than widening a collection.
 
 ## Operator broadcasts (#3499)
 
