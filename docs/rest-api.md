@@ -864,14 +864,34 @@ The player records the logged-in account is linked to: the player it *is*, and t
 ```json
 { "player": { "id": 577, "name": "Bas Willems", "team_id": 52, "status": "active" },
   "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active" } ],
+  "phone": "+31612345678",
   "reason": null }
 ```
 
 - `player` comes from the account's own link (`tt_players.wp_user_id`), in this club, active and not archived; otherwise `null`.
 - `children` are the account's active, non-archived children through the guardian link, most recently linked first.
+- `phone` (#3684) is the caller's **own** account phone, E.164, or `""` when none is on file. It is only ever the caller's; no route hands one account another's number, and the staff collections do not carry it.
 - An account linked to nothing gets **200**, not 403, with `player: null`, `children: []` and `reason: "no_linked_player"`, so the client can say the account isn't linked yet.
 
 **Permission:** logged in. The route returns only the caller's own links. The collection routes (`GET /players`, `GET /evaluations`, …) stay staff surfaces; `me` is the self-scoped entry point, mirroring the `my_*` matrix entities rather than widening a collection.
+
+### `PATCH /me` (#3684)
+
+Update the caller's own contact details. Today the body takes one field:
+
+```json
+{ "phone": "+31 6 12345678" }
+```
+
+Responds with the same payload `GET /me` returns, so a client reads the stored value straight back.
+
+- The number is normalized to E.164 (spaces, dashes, dots and parentheses stripped, a leading `+` kept) and stored on the account through `PhoneMeta`. `ContactSync::pushToPerson()` then copies it onto the caller's linked `tt_people` row when they have one. Nothing is written to `tt_players.guardian_phone`, and no admin approval stands in between.
+- `"phone": null` or `""` **clears** the number.
+- A value that does not normalize to a usable number is **400 `invalid_phone`** and the stored number is left untouched — never cleared. That is the case a Dutch mobile typed as `06 12345678` hits: the shape check rejects a leading zero, and reading "invalid" as "clear" would erase a working number because somebody left off their country code.
+- A body carrying no `phone` key at all is **400 `nothing_to_update`** rather than a silent 200.
+- Any other body field is **400 `unknown_field`**, per the body contract above.
+
+**Permission:** logged in, and nothing else. The route takes **no user id in any form** — it writes to `get_current_user_id()` and reads the result back from there — so there is no parameter that could point it at another account.
 
 ## Parent accounts (#1815, #3571)
 

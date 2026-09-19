@@ -18086,6 +18086,23 @@ msgstr "URL"
 msgid "Phone"
 msgstr "Telefoon"
 
+#: src/Shared/Frontend/FrontendMySettingsView.php:128
+msgid "Phone number"
+msgstr "Telefoonnummer"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:130
+msgid "Start with your country code, for example +31 6 12345678. Your academy uses this to reach you about training, matches and injuries. Leave it empty to remove the number."
+msgstr "Begin met je landcode, bijvoorbeeld +31 6 12345678. De academie gebruikt dit om je te bereiken over trainingen, wedstrijden en blessures. Laat het leeg om het nummer te verwijderen."
+
+#: src/Infrastructure/REST/MeRestController.php:120
+#: src/Shared/Frontend/FrontendMySettingsView.php:692
+msgid "Enter your phone number with its country code, for example +31 6 12345678."
+msgstr "Vul je telefoonnummer in met landcode, bijvoorbeeld +31 6 12345678."
+
+#: src/Infrastructure/REST/MeRestController.php:107
+msgid "Send a phone number to update."
+msgstr "Stuur een telefoonnummer om bij te werken."
+
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:517
 msgid "(at end)"
 msgstr "(aan einde)"

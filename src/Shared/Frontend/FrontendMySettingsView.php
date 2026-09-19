@@ -15,6 +15,7 @@ use TT\Modules\MatchExecution\MatchExecutionLayout;
  *   - Display name
  *   - First / last name
  *   - Email
+ *   - Phone number (#3684 — the account phone, `PhoneMeta`)
  *   - Password (change-only — confirm-current required)
  *
  * Out of scope: application passwords, color schemes, admin colour
@@ -115,6 +116,18 @@ class FrontendMySettingsView extends FrontendViewBase {
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-ms-email"><?php esc_html_e( 'Email', 'talenttrack' ); ?></label>
                     <input type="email" inputmode="email" id="tt-ms-email" name="user_email" class="tt-input" autocomplete="email" required value="<?php echo esc_attr( (string) $user->user_email ); ?>" />
+                </div>
+
+                <?php
+                // #3684 — the account phone is the store for a guardian's
+                // number. Read it after handlePost() so a save shows back what
+                // was just stored, and a refused one shows what still stands.
+                $phone = \TT\Infrastructure\Identity\PhoneMeta::get( $user_id );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-ms-phone"><?php esc_html_e( 'Phone number', 'talenttrack' ); ?></label>
+                    <input type="tel" inputmode="tel" id="tt-ms-phone" name="tt_phone" class="tt-input" autocomplete="tel" value="<?php echo esc_attr( $phone ); ?>" />
+                    <p class="tt-field-hint"><?php esc_html_e( 'Start with your country code, for example +31 6 12345678. Your academy uses this to reach you about training, matches and injuries. Leave it empty to remove the number.', 'talenttrack' ); ?></p>
                 </div>
 
                 <div class="tt-form-actions">
@@ -656,6 +669,31 @@ class FrontendMySettingsView extends FrontendViewBase {
                 $out['errors'][] = __( 'Please enter a valid email address.', 'talenttrack' );
                 return $out;
             }
+
+            // #3684 — the phone number, decided before anything is written so
+            // an unusable one refuses the whole save rather than half of it.
+            // A blank box means "remove my number"; input that normalizes to
+            // nothing is an error and never a clear, because
+            // `PhoneMeta::isValid()` rejects a leading zero and a Dutch mobile
+            // typed as `06 12345678` would otherwise wipe a working number.
+            $phone_input = trim( sanitize_text_field( wp_unslash( (string) ( $_POST['tt_phone'] ?? '' ) ) ) );
+            $phone_write = '';
+            if ( $phone_input !== '' ) {
+                $phone_write = \TT\Infrastructure\Identity\PhoneMeta::normalize( $phone_input );
+                if ( $phone_write === '' ) {
+                    $out['errors'][] = __( 'Enter your phone number with its country code, for example +31 6 12345678.', 'talenttrack' );
+                    return $out;
+                }
+            }
+            // Before wp_update_user(), so the `profile_update` hook that runs
+            // ContactSync::pushToPerson() copies the new number onto the
+            // linked person row in the same request.
+            if ( $phone_write === '' ) {
+                \TT\Infrastructure\Identity\PhoneMeta::clear( $user_id );
+            } else {
+                \TT\Infrastructure\Identity\PhoneMeta::set( $user_id, $phone_write );
+            }
+
             $res = wp_update_user( $payload );
             if ( is_wp_error( $res ) ) {
                 $out['errors'][] = (string) $res->get_error_message();
