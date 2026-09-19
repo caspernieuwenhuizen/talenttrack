@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\AttendanceDateRule;
 
 /**
  * AttendanceGridQuery (#2382) — the players × activities matrix that backs
@@ -26,6 +27,61 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * SaaS migration, CLAUDE.md §4).
  */
 final class AttendanceGridQuery {
+
+    /**
+     * #3656 — is this one activity a column in the grid?
+     *
+     * The same rule `matrix()` applies in SQL, asked about a single
+     * activity: one dated today or earlier always is; a later one only
+     * once it carries a recorded mark (a pre-recorded absence), which is
+     * the only thing there is to see or clear on it.
+     *
+     * `ActivityGridLink` gates the deep-links into this grid on it, so the
+     * affordance and the column it promises can't answer differently — a
+     * coach opening next Monday's training used to land on "No activities
+     * for this team in the chosen period".
+     *
+     * @param string      $session_date Y-m-d (a datetime is accepted).
+     * @param string|null $today        Y-m-d; site time when null.
+     */
+    public static function isColumn( int $activity_id, string $session_date, ?string $today = null ): bool {
+        if ( $activity_id <= 0 ) return false;
+        $date = substr( trim( $session_date ), 0, 10 );
+        if ( $date === '' ) return false;
+        if ( ! AttendanceDateRule::isUpcoming( $date, $today ) ) return true;
+        return self::hasRecordedMark( $activity_id );
+    }
+
+    /**
+     * Does this activity carry a recorded register — a non-guest,
+     * `record_type='actual'`, non-empty mark?
+     */
+    public static function hasRecordedMark( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (bool) $wpdb->get_var( $wpdb->prepare(
+            'SELECT ' . self::recordedMarkExistsSql( '%d', '%d' ),
+            $activity_id,
+            (int) CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * The "carries a recorded mark" existence test, as SQL. `matrix()`'s
+     * column query and `hasRecordedMark()` both build from this one
+     * fragment, which is what keeps the grid and its entry links in step.
+     *
+     * Both arguments are SQL expressions the two callers choose — a column
+     * reference or a `prepare()` placeholder — never caller input.
+     */
+    private static function recordedMarkExistsSql( string $activity_expr, string $club_expr ): string {
+        global $wpdb;
+        return "EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_attendance a
+                          WHERE a.activity_id = {$activity_expr} AND a.club_id = {$club_expr}
+                            AND a.is_guest = 0 AND a.record_type = 'actual'
+                            AND a.status <> '' )";
+    }
 
     /**
      * Build the grid for a team over a window.
@@ -81,7 +137,12 @@ final class AttendanceGridQuery {
         //    reaches today, even past its end, because the default window
         //    ends today and would otherwise hide every one of them. "Today"
         //    is site time, the clock the completion rule uses.
-        $today = $today ?? current_time( 'Y-m-d' );
+        //
+        //    #3656 — the existence test is `recordedMarkExistsSql()`, the
+        //    same fragment `isColumn()` asks per activity, so the columns
+        //    and the links into them cannot drift apart.
+        $today       = $today ?? AttendanceDateRule::today();
+        $mark_exists = self::recordedMarkExistsSql( 's.id', 's.club_id' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT s.id, s.activity_type_key, s.{$date_col} AS session_date, s.title,
@@ -93,10 +154,7 @@ final class AttendanceGridQuery {
                 AND (
                       ( s.{$date_col} BETWEEN %s AND %s AND s.{$date_col} <= %s )
                    OR ( %s >= %s AND s.{$date_col} > %s AND s.{$date_col} >= %s
-                        AND EXISTS ( SELECT 1 FROM {$p}tt_attendance a
-                                      WHERE a.activity_id = s.id AND a.club_id = s.club_id
-                                        AND a.is_guest = 0 AND a.record_type = 'actual'
-                                        AND a.status <> '' ) )
+                        AND {$mark_exists} )
                 )
                 AND s.archived_at IS NULL
                 AND s.trashed_at IS NULL

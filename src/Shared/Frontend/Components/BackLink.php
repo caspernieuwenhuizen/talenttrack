@@ -43,6 +43,41 @@ final class BackLink {
     }
 
     /**
+     * The current request's `tt_back`, ready to merge into an
+     * `add_query_arg()` argument list — or `[]` when the request carries
+     * none, or one that `resolve()` would reject anyway.
+     *
+     * #3656 — filter pills and "Clear" links used to copy the raw value
+     * straight into `add_query_arg()`, which does NOT encode its values
+     * (`build_query()` passes `$urlencode = false`). A back target with a
+     * query string of its own — `…/?tt_view=activities&team_id=52` — then
+     * spilled its `&team_id=52` into the pill's own query string and the
+     * back pill pointed at a mangled URL. Encode it the way `appendTo()`
+     * does.
+     *
+     * A hidden form field takes `currentValue()` instead: the browser
+     * encodes form fields on submit, and pre-encoding would double it.
+     *
+     * @return array<string,string>
+     */
+    public static function carryArgs(): array {
+        $raw = self::currentValue();
+        return $raw === '' ? [] : [ self::PARAM => urlencode( $raw ) ];
+    }
+
+    /**
+     * The current request's `tt_back` as a plain, validated URL, or ''
+     * when there is none. For hidden form fields (see `carryArgs()`).
+     */
+    public static function currentValue(): string {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        if ( empty( $_GET[ self::PARAM ] ) ) return '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $raw = sanitize_text_field( wp_unslash( (string) $_GET[ self::PARAM ] ) );
+        return self::sanitize( $raw ) ?? '';
+    }
+
+    /**
      * Render the "← Back to <X>" pill for the current request. Returns
      * empty string when no valid `tt_back` is present.
      */

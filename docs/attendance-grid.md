@@ -17,9 +17,10 @@ It works the way a coach's Excel register does: one row per player, one column
 per activity, a status in every cell.
 
 Open it from **Activities → Attendance grid**, or with the **Attendance grid**
-button on any activity's own page (which opens the grid on that activity). You
-need permission to edit activities. It's built for a desktop or laptop; on a
-phone the guided wizard is the easier path.
+button on an activity's own page (which opens the grid on that activity). That
+button appears on an activity that has a register to enter — see *Activities
+that haven't happened yet* below. You need permission to edit activities. It's
+built for a desktop or laptop; on a phone the guided wizard is the easier path.
 
 ## What you see
 
@@ -63,6 +64,14 @@ itself.
 
 The same rule applies when attendance is recorded on the activity's own form.
 "Today" is the academy's own date, not the server's.
+
+Because there is nothing to enter yet, the buttons that open the grid on a
+single activity follow the same rule. On next week's training, as long as
+nothing is recorded on it, you won't see **Attendance grid** on the activity's
+page or in its list card, and **Record attendance** doesn't appear when you
+mark it completed. They come back the moment the activity carries a
+pre-recorded absence, and on the day itself. To plan who is coming before
+then, use the planned squad on the activity.
 
 ## When the guided wizard is switched off
 
