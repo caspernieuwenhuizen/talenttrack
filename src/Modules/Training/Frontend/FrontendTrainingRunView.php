@@ -3,6 +3,8 @@ namespace TT\Modules\Training\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Exercises\ExerciseScenesRepository;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
@@ -294,7 +296,10 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         // was not there, and offering the row invites it.
         $run_id  = (int) $run->id;
         $players = ( new TrainingPlanRunsRepository() )->squadForRun( $run_id );
-        if ( $players === [] ) return;
+        if ( $players === [] ) {
+            self::renderObservationSheetEmpty( (int) ( $run->activity_id ?? 0 ) );
+            return;
+        }
 
         echo '<section class="tt-obs" data-tt-obs="' . esc_attr( (string) $run_id ) . '">';
 
@@ -312,6 +317,56 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         echo '<p class="tt-obs__msg" data-tt-obs-msg role="status" aria-live="polite"></p>';
 
         echo '</section>';
+    }
+
+    /**
+     * The sheet before anyone is on the register (#3671).
+     *
+     * Attendance comes first, and that rule stays: the squad is whoever
+     * the register says was there. But at the start of a training nobody
+     * has been marked yet, and a sheet that is simply absent reads as a
+     * feature that does not exist. So the heading stays, with one line
+     * saying what unlocks it and a way to get there.
+     *
+     * The link is the attendance grid narrowed to this training's date
+     * when the coach can use it, and the activity itself otherwise, which
+     * is where attendance is taken on an install without the grid. A
+     * viewer who cannot edit attendance at all gets the explanation
+     * without a button that would only refuse them.
+     */
+    private static function renderObservationSheetEmpty( int $activity_id ): void {
+        echo '<section class="tt-obs tt-obs--empty">';
+
+        echo '<h2 class="tt-obs__title">' . esc_html__( 'Notes on players', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-obs__hint tt-small">'
+            . esc_html__( 'Take attendance to add notes on players.', 'talenttrack' )
+            . '</p>';
+
+        $url = self::attendanceUrl( $activity_id );
+        if ( $url !== '' ) {
+            echo '<a class="tt-btn tt-btn-secondary tt-obs__attend" href="' . esc_url( $url ) . '">'
+                . esc_html__( 'Take attendance', 'talenttrack' ) . '</a>';
+        }
+
+        echo '</section>';
+    }
+
+    /**
+     * Where this viewer takes attendance for the run's training, or ''
+     * when they cannot.
+     */
+    private static function attendanceUrl( int $activity_id ): string {
+        if ( $activity_id <= 0 ) return '';
+
+        $user_id = get_current_user_id();
+        if ( ActivityGridLink::canUseAttendance( $activity_id, $user_id ) ) {
+            $url = ActivityGridLink::attendanceUrl( $activity_id );
+            if ( $url !== '' ) return $url;
+        }
+
+        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' ) ) return '';
+
+        return RecordLink::detailUrlForWithBack( 'activities', $activity_id );
     }
 
     /**
@@ -554,6 +609,10 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         return [
             'ready'        => __( 'Ready to start', 'talenttrack' ),
             'readySummary' => __( '%1$d blocks · %2$d minutes', 'talenttrack' ),
+            /* translators: 1: block name, 2: planned minutes. One row of the block list before the training starts. */
+            'blockLine'    => __( '%1$s · %2$d min', 'talenttrack' ),
+            /* translators: 1: block name, 2: planned minutes. Label of one timeline segment. */
+            'segLabel'     => __( '%1$s, %2$d min', 'talenttrack' ),
             'start'        => __( 'Start the training', 'talenttrack' ),
             'blockOf'      => __( 'Block %1$d of %2$d · %3$s', 'talenttrack' ),
             'of'           => __( 'of %s', 'talenttrack' ),
