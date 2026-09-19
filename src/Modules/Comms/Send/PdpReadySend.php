@@ -74,8 +74,12 @@ final class PdpReadySend {
             ],
             ( new RecipientResolver() )->forPlayer( $player_id ),
             [
-                'message_type'   => MessageType::PDP_READY,
-                'sender_user_id' => 0,
+                'message_type'      => MessageType::PDP_READY,
+                'sender_user_id'    => 0,
+                // #3576 — so a plan that reached nobody says whose.
+                'subject_player_id' => $player_id,
+                'subject_type'      => 'pdp_file',
+                'subject_id'        => $pdp_file_id,
             ]
         );
     }

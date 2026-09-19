@@ -16,6 +16,7 @@ use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
 use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
+use TT\Modules\Alerts\Definitions\NoGuardianContactAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
@@ -129,6 +130,9 @@ final class AlertsModule implements ModuleInterface {
         // #2636 instalment 3 — People.
         $alerts[] = new PlayerTurns18Alert();
         $alerts[] = new ParentNeverActivatedAlert();
+        // #3576 — the player nobody at home can be reached about. The
+        // other half of the parent story: never invited, never recorded.
+        $alerts[] = new NoGuardianContactAlert();
         $alerts[] = new StaffCertificateExpiringAlert();
 
         // #2636 instalment 4 — Measurements.

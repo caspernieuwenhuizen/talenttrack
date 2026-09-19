@@ -42,6 +42,10 @@ use TT\Modules\Comms\Domain\Recipient;
  *     - `attachments` (string[]) — absolute paths to files already
  *       written by the caller; adapters that cannot carry a file
  *       ignore them.
+ *     - `subject_player_id` (int), `subject_type` (string),
+ *       `subject_id` (int) — what the message is about (#3576). A
+ *       per-player sender sets them so a send that resolved to nobody
+ *       says which player and which record it was for.
  *
  * Returns are non-blocking — failures audit-log without throwing so
  * the caller's UX flow (e.g. activity-cancelled save) never depends
@@ -171,7 +175,11 @@ final class CommsDispatcher {
             (bool) ( $options['urgent'] ?? false ),
             isset( $options['attached_export_id'] ) ? (int) $options['attached_export_id'] : null,
             isset( $options['locale_override'] ) ? (string) $options['locale_override'] : null,
-            isset( $options['attachments'] ) ? array_values( array_map( 'strval', (array) $options['attachments'] ) ) : []
+            isset( $options['attachments'] ) ? array_values( array_map( 'strval', (array) $options['attachments'] ) ) : [],
+            // #3576 — what the message is about, for the no-recipients record.
+            isset( $options['subject_player_id'] ) && (int) $options['subject_player_id'] > 0 ? (int) $options['subject_player_id'] : null,
+            (string) ( $options['subject_type'] ?? '' ),
+            (int) ( $options['subject_id'] ?? 0 )
         );
     }
 }

@@ -137,7 +137,12 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
   moeten worden, actie nodig hebben of nog geen beeld hebben, en hoe dat er de
   vorige periode uitzag.
 - **Aanwezigheid** en **Minutenaandeel** — per speler, met links naar de
-  volledige rapporten over aanwezigheid en minuten.
+  volledige rapporten over aanwezigheid en minuten. Minutenaandeel toont de
+  **hele selectie**: een speler die beschikbaar was maar niet in het veld kwam,
+  staat erop met 0 minuten en telt mee in de mediaan, want juist die speler
+  hoort deze tabel zichtbaar te maken. De doellijn is het doel voor
+  minutenaandeel van de academie, hetzelfde doel dat het rapport
+  Minutenaandeel gebruikt.
 - **Wedstrijden** — uitslagen en wedstrijdstatistieken. Zie hieronder.
 - **Gesprek nodig** — de spelers die het statusmodel signaleert, dringendste
   eerst, met wat de gegevens over ze zeggen. Dit is de agenda van het overleg.

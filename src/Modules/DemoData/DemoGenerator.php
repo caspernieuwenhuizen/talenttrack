@@ -90,6 +90,17 @@ class DemoGenerator {
      * @param array<string,mixed> $opts see `run()`
      */
     public static function begin( array $opts ): DemoRunState {
+        // #3576 — nothing the generator writes sends a message.
+        DemoGenerationContext::begin();
+        try {
+            return self::beginRun( $opts );
+        } finally {
+            DemoGenerationContext::end();
+        }
+    }
+
+    /** @param array<string,mixed> $opts see `run()` */
+    private static function beginRun( array $opts ): DemoRunState {
         $source      = isset( $opts['source'] ) ? (string) $opts['source'] : 'procedural';
         $excel_path  = isset( $opts['excel_path'] ) ? (string) $opts['excel_path'] : '';
         $preset      = $opts['preset'] ?? 'small';
@@ -277,6 +288,8 @@ class DemoGenerator {
 
         self::seedStep( $seed, $step );
 
+        // #3576 — nothing the generator writes sends a message.
+        DemoGenerationContext::begin();
         try {
             switch ( $step ) {
                 case DemoRunPlan::STEP_TEAMS:
@@ -305,6 +318,8 @@ class DemoGenerator {
             $state->fail( $e->getMessage() );
             $state->persist();
             return;
+        } finally {
+            DemoGenerationContext::end();
         }
 
         $state->markDone( $step );
