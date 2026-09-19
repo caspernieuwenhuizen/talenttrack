@@ -270,7 +270,9 @@ class EvalRatingsRepository {
                         'source'    => 'direct',
                         'sub_count' => 0,
                     ];
-                } elseif ( isset( $sub_roll[ $eid ][ $mid ] ) && $sub_roll[ $eid ][ $mid ][1] > 0 ) {
+                } elseif ( isset( $sub_roll[ $eid ][ $mid ] ) ) {
+                    // The bucket is only ever created alongside its first
+                    // rating, so the count is at least one by construction.
                     $row[ $mid ] = [
                         'label'     => $label,
                         'value'     => round( $sub_roll[ $eid ][ $mid ][0] / $sub_roll[ $eid ][ $mid ][1], 2 ),
