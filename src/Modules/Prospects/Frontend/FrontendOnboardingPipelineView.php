@@ -7,6 +7,10 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Modules\Prospects\ProspectScope;
+use TT\Modules\Prospects\Repositories\ProspectsRepository;
+use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
+use TT\Modules\Prospects\ScoutingVisitsAccess;
+use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -135,6 +139,10 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             <?php if ( $ctx !== '' ) : ?>
                 <p class="tt-pipeline-focus-ctx"><?php echo esc_html( $ctx ); ?></p>
             <?php endif; ?>
+            <?php
+            // #3677 — the scouting record behind the prospect.
+            echo self::renderFocusScouting( $focus_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source.
+            ?>
             <?php if ( $has_action || $can_edit ) : ?>
                 <p class="tt-pipeline-focus-actions">
                     <?php if ( $has_action ) : ?>
@@ -146,6 +154,103 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 </p>
             <?php endif; ?>
         </section>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #3677 — the scouting record behind a focused prospect: the notes the
+     * scout wrote when they logged the find, and the visit they were found
+     * at. Both already sit on `tt_prospects` and both already come back over
+     * `GET prospects/{id}`; the panel just never read them, so a scout about
+     * to propose a trial had to leave the board to answer "where did this
+     * player come from".
+     *
+     * Read-only on purpose (see the shaping comment on #3677): no observation
+     * log, no stage buttons. The stage keeps following the workflow tasks.
+     *
+     * The caller only reaches this for a prospect already on the viewer's
+     * board, so the prospect row is inside their `ProspectScope`. The visit
+     * is a separate surface with its own gate and gets its own check.
+     */
+    private static function renderFocusScouting( int $prospect_id ): string {
+        $prospect = ( new ProspectsRepository() )->find( $prospect_id );
+        if ( $prospect === null ) return '';
+        $row = (array) $prospect;
+
+        $notes      = trim( (string) ( $row['scouting_notes'] ?? '' ) );
+        $visit_html = self::renderFocusVisit( (int) ( $row['scouting_visit_id'] ?? 0 ) );
+        if ( $notes === '' && $visit_html === '' ) return '';
+
+        ob_start(); ?>
+        <div class="tt-pipeline-focus-scouting">
+            <?php if ( $notes !== '' ) : ?>
+                <div class="tt-pipeline-focus-notes">
+                    <h2 class="tt-pipeline-focus-label"><?php esc_html_e( 'Scouting notes', 'talenttrack' ); ?></h2>
+                    <p class="tt-pipeline-focus-notes-body"><?php echo nl2br( esc_html( $notes ) ); ?></p>
+                </div>
+            <?php endif; ?>
+            <?php echo $visit_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source. ?>
+        </div>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #3677 — the "Found at" block: date, event and scout of the visit the
+     * prospect was linked to by #3600, linking through to the visit itself.
+     *
+     * Renders nothing unless the viewer holds the scouting-visit surface
+     * (#2007's `scouting_visits_panel`) AND may read this particular row. A
+     * head coach reads their age group's funnel on purpose but must not reach
+     * a scout's visit planner, and a scout reaches only their own visits —
+     * linking past either check would hand them a refusal page instead of a
+     * visit. An archived or deleted visit shows nothing.
+     */
+    private static function renderFocusVisit( int $visit_id ): string {
+        if ( $visit_id <= 0 ) return '';
+
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        if ( ! ScoutingVisitsAccess::allows( $user_id, $is_admin ) ) return '';
+
+        $visit = ( new ScoutingVisitsRepository() )->findLinkable( $visit_id );
+        if ( $visit === null ) return '';
+        $row = (array) $visit;
+
+        $scout_id = (int) ( $row['scout_user_id'] ?? 0 );
+        $is_owner = $scout_id > 0 && $scout_id === $user_id;
+        if ( ! $is_owner && ! $is_admin && ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) {
+            return '';
+        }
+
+        $date  = TTDate::date( (string) ( $row['visit_date'] ?? '' ) );
+        $event = trim( (string) ( $row['event_description'] ?? '' ) );
+        if ( $event === '' ) $event = trim( (string) ( $row['location'] ?? '' ) );
+
+        $scout      = $scout_id > 0 ? get_userdata( $scout_id ) : false;
+        $scout_name = $scout ? (string) $scout->display_name : '';
+
+        $link_parts = array_values( array_filter( [ $date, $event ], static fn( string $p ): bool => $p !== '' ) );
+        if ( $link_parts === [] ) return '';
+
+        $url = RecordLink::detailUrlForWithBack( 'scouting-visit', $visit_id );
+
+        ob_start(); ?>
+        <div class="tt-pipeline-focus-visit">
+            <h2 class="tt-pipeline-focus-label"><?php echo esc_html( _x( 'Found at', 'the scouting visit a prospect was discovered at', 'talenttrack' ) ); ?></h2>
+            <a class="tt-pipeline-focus-visit-link" href="<?php echo esc_url( $url ); ?>">
+                <?php foreach ( $link_parts as $part ) : ?>
+                    <span><?php echo esc_html( $part ); ?></span>
+                <?php endforeach; ?>
+            </a>
+            <?php if ( $scout_name !== '' ) : ?>
+                <p class="tt-pipeline-focus-visit-by"><?php
+                    /* translators: %s: name of the scout who made the visit. */
+                    echo esc_html( sprintf( __( 'Scout: %s', 'talenttrack' ), $scout_name ) );
+                ?></p>
+            <?php endif; ?>
+        </div>
         <?php
         return (string) ob_get_clean();
     }

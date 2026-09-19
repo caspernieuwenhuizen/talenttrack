@@ -49693,6 +49693,17 @@ msgstr "bijv. oefenwedstrijd tegen Sparta O13, 2 mei"
 msgid "Scouting notes"
 msgstr "Scoutingnotities"
 
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:241
+msgctxt "the scouting visit a prospect was discovered at"
+msgid "Found at"
+msgstr "Gevonden bij"
+
+#. translators: %s: name of the scout who made the visit.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:250
+#, php-format
+msgid "Scout: %s"
+msgstr "Scout: %s"
+
 #: src/Modules/Wizards/Prospect/IdentityStep.php:48
 #: src/Modules/Workflow/Forms/LogProspectForm.php:147
 msgid "I have checked the existing prospects list — this is a new entry"

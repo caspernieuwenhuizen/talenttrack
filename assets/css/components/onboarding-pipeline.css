@@ -263,3 +263,59 @@ a.tt-pipeline-card:focus-visible {
     gap: 0.5rem;
 }
 @media (max-width: 480px) { .tt-dashboard .tt-pipeline-focus-stage { display: none; } }
+
+/* #3677 — the scouting record on the focus panel: the notes the scout wrote
+   and the visit the prospect was found at. Mobile-first: the two blocks stack
+   at 360px and sit side by side from 768px, where there is room for both
+   without either column getting narrower than a readable measure. */
+.tt-dashboard .tt-pipeline-focus-scouting {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0.75rem 0 0;
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-pipeline-focus-label {
+    margin: 0 0 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pipeline-focus-notes-body {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--tt-ink, #1a1d21);
+    overflow-wrap: anywhere;
+}
+/* The visit is the one link in this block, so it carries the 48px target
+   rather than a bare inline anchor a thumb has to hunt for. */
+.tt-dashboard .tt-pipeline-focus-visit-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-height: 48px;
+    justify-content: center;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-pipeline-focus-visit-link span:first-child { font-weight: 700; }
+.tt-dashboard .tt-pipeline-focus-visit-link:hover,
+.tt-dashboard .tt-pipeline-focus-visit-link:focus-visible { text-decoration: underline; }
+.tt-dashboard .tt-pipeline-focus-visit-by {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pipeline-focus-scouting {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 1.25rem;
+    }
+}

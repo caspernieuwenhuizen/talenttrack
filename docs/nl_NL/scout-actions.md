@@ -51,6 +51,16 @@ De [instroompijplijn](onboarding-pipeline.md) is het kanbanbeeld van de
 trechter: wie waar staat, en wat er wacht. Hij is op jou gefilterd, dus je ziet
 je eigen instroom en niet die van de hele academie.
 
+Klik je op een kaart, dan opent het prospectpaneel boven het bord. Naast de
+naam, de fase en de volgende actie toont het de scoutingnotities die je bij het
+vastleggen van de vondst hebt geschreven, en — als de prospect aan een
+scoutingbezoek is gekoppeld — een regel **Gevonden bij** met de datum, het
+evenement en de scout van dat bezoek, die doorlinkt naar het bezoek zelf. Zo is
+"waar komt deze speler vandaan" te beantwoorden zonder het bord te verlaten.
+Beide zijn hier alleen-lezen; de notities leg je vast bij de vondst. Een collega
+die wel de trechter leest maar niet de scoutingplanner, zoals een hoofdtrainer
+die zijn eigen leeftijdsgroep volgt, ziet de notities en geen bezoekregel.
+
 ### Bekijk je portefeuille
 
 Het **Prospectoverzicht** (`?tt_view=prospects-overview`) toont jouw prospects
