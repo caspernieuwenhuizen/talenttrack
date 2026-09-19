@@ -4,20 +4,31 @@ namespace TT\Modules\Prospects\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
+use TT\Modules\Prospects\ScoutingVisitsAccess;
 
 /**
  * ScoutingVisitsRestController — /wp-json/talenttrack/v1/scouting-visits
  *
- * Create + update + archive endpoints backing the scout's
- * scouting-plan list view. Read access is via PHP-rendered views
- * (FrontendScoutingPlanView / FrontendScoutingVisitDetailView).
+ * List + read + create + update + archive endpoints for the scout's
+ * visit planner. The PHP views (FrontendScoutingPlanView /
+ * FrontendScoutingVisitDetailView) render the same data; #3604 added the
+ * two read routes so a client that writes a visit can read back what was
+ * actually stored, and so the surface is reachable without WordPress.
  *
- * Cap model: write requires `tt_edit_prospects` (which every scout
- * holds). A scout may only edit / archive their own visits;
- * `tt_manage_prospects` (HoD + admin) can edit any.
+ * Cap model: read requires one of the prospects caps AND the
+ * `scouting_visits_panel` entity (ScoutingVisitsAccess); write requires
+ * `tt_edit_prospects` (which every scout holds). A scout only reads,
+ * edits and archives their own visits; `tt_manage_prospects` (HoD +
+ * admin) reaches any. That rule lives in ScoutingVisitsAccess, which the
+ * views call too.
+ *
+ * Every response goes through `serialize()`, so a create, an update and a
+ * read describe a visit with the same field names.
  */
 class ScoutingVisitsRestController {
 
@@ -32,6 +43,12 @@ class ScoutingVisitsRestController {
         // them: a misnamed `age_groups` used to vanish behind a 200.
         register_rest_route( self::NS, '/scouting-visits', [
             [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'index' ],
+                'permission_callback' => [ __CLASS__, 'can_read' ],
+                'args'                => self::listArgs(),
+            ],
+            [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
@@ -40,6 +57,11 @@ class ScoutingVisitsRestController {
         ] );
 
         register_rest_route( self::NS, '/scouting-visits/(?P<id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'show' ],
+                'permission_callback' => [ __CLASS__, 'can_read' ],
+            ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'update' ],
@@ -105,6 +127,44 @@ class ScoutingVisitsRestController {
         ];
     }
 
+    /**
+     * The filters `GET /scouting-visits` takes. Each one is a column the
+     * repository already searches on; nothing here widens what a caller
+     * may see — `scout_user_id` is overruled for a scout who may only
+     * read their own.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function listArgs(): array {
+        return [
+            'scout_user_id' => [
+                'type'        => 'integer',
+                'description' => 'Only this scout\'s visits. Ignored for a caller who may only read their own.',
+            ],
+            'status' => [
+                'type'        => 'string',
+                'enum'        => [
+                    ScoutingVisitsRepository::STATUS_PLANNED,
+                    ScoutingVisitsRepository::STATUS_COMPLETED,
+                    ScoutingVisitsRepository::STATUS_CANCELLED,
+                ],
+                'description' => 'planned, completed or cancelled.',
+            ],
+            'date_from' => [
+                'type'        => 'string',
+                'description' => 'Earliest visit date, YYYY-MM-DD.',
+            ],
+            'date_to' => [
+                'type'        => 'string',
+                'description' => 'Latest visit date, YYYY-MM-DD.',
+            ],
+            'include_archived' => [
+                'type'        => 'boolean',
+                'description' => 'Include archived visits. Default false.',
+            ],
+        ];
+    }
+
     public static function can_edit(): bool {
         $uid = get_current_user_id();
         return AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' )
@@ -112,7 +172,95 @@ class ScoutingVisitsRestController {
             || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_settings' );
     }
 
+    /**
+     * Read permission — the same pair the detail view checks (#2007): a
+     * prospects capability decides whether the caller may read prospect
+     * data at all, the panel entity decides whether the scout's visit
+     * surfaces are theirs. A head coach holds the first on purpose and
+     * must not hold the second.
+     */
+    public static function can_read(): bool {
+        $uid = get_current_user_id();
+        if ( ! ScoutingVisitsAccess::allows( $uid, self::isScopeAdmin() ) ) return false;
+
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_prospects' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_prospects' );
+    }
+
+    public static function index( \WP_REST_Request $r ): \WP_REST_Response {
+        $uid     = get_current_user_id();
+        $filters = [];
+
+        $forced = ScoutingVisitsAccess::forcedScoutFilter( $uid, self::isScopeAdmin() );
+        if ( $forced !== null ) {
+            $filters['scout_user_id'] = $forced;
+        } elseif ( isset( $r['scout_user_id'] ) && (int) $r['scout_user_id'] > 0 ) {
+            $filters['scout_user_id'] = (int) $r['scout_user_id'];
+        }
+
+        if ( isset( $r['status'] ) && (string) $r['status'] !== '' ) {
+            $filters['status'] = self::normaliseStatus( (string) $r['status'] );
+        }
+        foreach ( [ 'date_from' => 'from', 'date_to' => 'to' ] as $param => $key ) {
+            if ( ! isset( $r[ $param ] ) || (string) $r[ $param ] === '' ) continue;
+            $date = sanitize_text_field( (string) $r[ $param ] );
+            if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
+                return RestResponse::error( 'bad_date',
+                    __( 'Dates must be written as YYYY-MM-DD.', 'talenttrack' ), 400,
+                    [ 'field' => $param ] );
+            }
+            $filters[ $key ] = $date;
+        }
+        if ( ! empty( $r['include_archived'] ) ) {
+            $filters['include_archived'] = true;
+        }
+
+        $repo = new ScoutingVisitsRepository();
+        $rows = $repo->search( $filters );
+        // One count query for the whole page, not one per row.
+        $counts = $repo->prospectCountsForVisits(
+            array_values( array_map( static fn( $row ) => (int) ( ( (array) $row )['id'] ?? 0 ), $rows ) )
+        );
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $id    = (int) ( ( (array) $row )['id'] ?? 0 );
+            $out[] = self::serialize( $row, (int) ( $counts[ $id ] ?? 0 ) );
+        }
+
+        return RestResponse::success( [ 'rows' => $out, 'total' => count( $out ) ] );
+    }
+
+    public static function show( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid scouting visit id.', 'talenttrack' ), 400 );
+        }
+
+        $repo = new ScoutingVisitsRepository();
+        $row  = $repo->find( $id );
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Scouting visit not found.', 'talenttrack' ), 404 );
+        }
+        if ( ! ScoutingVisitsAccess::canReadVisit( get_current_user_id(), $row, self::isScopeAdmin() ) ) {
+            return RestResponse::error( 'forbidden',
+                __( 'You can only view your own scouting visits.', 'talenttrack' ), 403 );
+        }
+
+        $visit = self::serialize( $row, $repo->prospectCount( $id ) );
+        $visit['prospects'] = self::serialiseProspects( $repo->prospectsForVisit( $id ) );
+
+        return RestResponse::success( [ 'visit' => $visit ] );
+    }
+
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3689 contract: a key this route does not take is named back to
+        // the caller rather than dropped behind a 200. `club` and
+        // `age_groups` were the two that kept vanishing.
+        $bad = BaseController::checkBody( $r, self::visitArgs( true ) );
+        if ( $bad ) return $bad;
+
         $visit_date = sanitize_text_field( (string) ( $r['visit_date'] ?? '' ) );
         $location   = sanitize_text_field( (string) ( $r['location'] ?? '' ) );
 
@@ -148,17 +296,25 @@ class ScoutingVisitsRestController {
             'status'            => self::normaliseStatus( (string) ( $r['status'] ?? '' ) ),
         ];
 
-        $id = ( new ScoutingVisitsRepository() )->create( $payload );
+        $repo = new ScoutingVisitsRepository();
+        $id   = $repo->create( $payload );
         if ( $id <= 0 ) {
             Logger::error( 'scouting_visit.create.failed', [ 'payload' => $payload ] );
             return RestResponse::error( 'db_error',
                 __( 'The scouting visit could not be saved.', 'talenttrack' ), 500 );
         }
 
-        return RestResponse::success( [ 'id' => $id ] );
+        // The stored row, not an echo of the request: a caller can see what
+        // the sanitisers made of what it sent. It still carries `id`.
+        $stored = $repo->find( $id );
+
+        return RestResponse::success( $stored ? self::serialize( $stored, 0 ) : [ 'id' => $id ] );
     }
 
     public static function update( \WP_REST_Request $r ): \WP_REST_Response {
+        $bad = BaseController::checkBody( $r, self::visitArgs( false ) );
+        if ( $bad ) return $bad;
+
         $id = (int) $r['id'];
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid scouting visit id.', 'talenttrack' ), 400 );
@@ -208,11 +364,21 @@ class ScoutingVisitsRestController {
         }
 
         if ( ! $patch ) {
-            return RestResponse::success( [ 'id' => $id, 'changed' => false ] );
+            return RestResponse::success( [
+                'id'      => $id,
+                'changed' => false,
+                'visit'   => self::serialize( $row, $repo->prospectCount( $id ) ),
+            ] );
         }
 
-        $ok = $repo->update( $id, $patch );
-        return RestResponse::success( [ 'id' => $id, 'changed' => $ok ] );
+        $ok      = $repo->update( $id, $patch );
+        $stored  = $repo->find( $id ) ?? $row;
+
+        return RestResponse::success( [
+            'id'      => $id,
+            'changed' => $ok,
+            'visit'   => self::serialize( $stored, $repo->prospectCount( $id ) ),
+        ] );
     }
 
     public static function archive( \WP_REST_Request $r ): \WP_REST_Response {
@@ -232,13 +398,86 @@ class ScoutingVisitsRestController {
         return RestResponse::success( [ 'id' => $id, 'archived' => true ] );
     }
 
-    private static function canEditRow( object $row ): bool {
-        $uid = get_current_user_id();
-        if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_prospects' )
-            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_settings' ) ) {
-            return true;
+    /**
+     * One shape for a visit, whatever route answers. `visit_time` is
+     * HH:MM — the seconds the column stores are not something a caller
+     * ever sent or needs.
+     *
+     * @return array<string,mixed>
+     */
+    private static function serialize( object $row, int $prospect_count ): array {
+        $visit = (array) $row;
+        $time  = (string) ( $visit['visit_time'] ?? '' );
+        $scout = get_userdata( (int) ( $visit['scout_user_id'] ?? 0 ) );
+
+        return [
+            'id'                => (int) ( $visit['id'] ?? 0 ),
+            'uuid'              => (string) ( $visit['uuid'] ?? '' ),
+            'visit_date'        => (string) ( $visit['visit_date'] ?? '' ),
+            'visit_time'        => ( $time !== '' && $time !== '00:00:00' ) ? substr( $time, 0, 5 ) : null,
+            'location'          => (string) ( $visit['location'] ?? '' ),
+            'event_description' => self::nullableString( $visit['event_description'] ?? null ),
+            'age_groups_csv'    => self::nullableString( $visit['age_groups_csv'] ?? null ),
+            'notes'             => self::nullableString( $visit['notes'] ?? null ),
+            'status'            => (string) ( $visit['status'] ?? ScoutingVisitsRepository::STATUS_PLANNED ),
+            'scout_user_id'     => (int) ( $visit['scout_user_id'] ?? 0 ),
+            'scout_name'        => $scout ? (string) $scout->display_name : '',
+            'archived_at'       => self::nullableString( $visit['archived_at'] ?? null ),
+            'prospect_count'    => $prospect_count,
+        ];
+    }
+
+    /**
+     * The prospects logged from a visit, as the detail view lists them.
+     *
+     * Birth YEAR only, never the date of birth: these are children, and
+     * "who did we watch" does not need the day they were born.
+     *
+     * @param object[] $rows
+     * @return list<array<string,mixed>>
+     */
+    private static function serialiseProspects( array $rows ): array {
+        $out = [];
+        foreach ( $rows as $row ) {
+            $p          = (array) $row;
+            $dob        = (string) ( $p['date_of_birth'] ?? '' );
+            $birth_year = preg_match( '/^(\d{4})/', $dob, $m ) ? (int) $m[1] : null;
+            $outcome    = ProspectOutcome::forRow( $p );
+
+            $out[] = [
+                'id'            => (int) ( $p['id'] ?? 0 ),
+                'name'          => trim( (string) ( $p['first_name'] ?? '' ) . ' ' . (string) ( $p['last_name'] ?? '' ) ),
+                'birth_year'    => $birth_year,
+                'club'          => self::nullableString( $p['current_club'] ?? null ),
+                'position'      => self::nullableString( $p['position'] ?? null ),
+                'logged_at'     => self::nullableString( $p['discovered_at'] ?? null ),
+                'outcome'       => $outcome,
+                'outcome_label' => ProspectOutcome::label( $outcome ),
+            ];
         }
-        return (int) ( $row->scout_user_id ?? 0 ) === $uid;
+
+        return $out;
+    }
+
+    /** @param mixed $value */
+    private static function nullableString( $value ): ?string {
+        return ( $value === null || $value === '' ) ? null : (string) $value;
+    }
+
+    /**
+     * The bypass this controller has always applied: an operator who can
+     * edit settings reaches every visit. Passed to ScoutingVisitsAccess as
+     * the caller's administrator determination.
+     */
+    private static function isScopeAdmin(): bool {
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_settings' );
+    }
+
+    private static function canEditRow( object $row ): bool {
+        // Reading and editing a visit are the same question — it is the
+        // scout's own planning record — so both go through the one rule in
+        // ScoutingVisitsAccess (#3604) rather than a copy per route.
+        return ScoutingVisitsAccess::canReadVisit( get_current_user_id(), $row, self::isScopeAdmin() );
     }
 
     private static function normaliseTime( $raw ): ?string {

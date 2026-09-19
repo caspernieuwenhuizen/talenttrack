@@ -184,9 +184,12 @@ class FrontendScoutingPlanView extends FrontendViewBase {
 
     private static function renderList( int $user_id, bool $is_admin ): void {
         $filters = [];
-        $is_scope_admin = $is_admin || AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' );
-        if ( ! $is_scope_admin ) {
-            $filters['scout_user_id'] = $user_id;
+        // #3604 — who a listing is narrowed to is one rule, in
+        // ScoutingVisitsAccess, shared with GET /scouting-visits.
+        $forced_scout   = \TT\Modules\Prospects\ScoutingVisitsAccess::forcedScoutFilter( $user_id, $is_admin );
+        $is_scope_admin = $forced_scout === null;
+        if ( $forced_scout !== null ) {
+            $filters['scout_user_id'] = $forced_scout;
         }
         $rows = ( new ScoutingVisitsRepository() )->search( $filters );
 

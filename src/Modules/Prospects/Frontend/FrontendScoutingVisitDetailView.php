@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Frontend\Components\BackLink;
@@ -63,10 +64,11 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             return;
         }
 
-        // Scope: a scout sees only their own; everyone else with cap sees all.
-        $is_owner = (int) $visit->scout_user_id === $user_id;
-        $is_scope_admin = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) || $is_admin;
-        if ( ! $is_owner && ! $is_scope_admin ) {
+        // Scope: a scout sees only their own; everyone else with cap sees
+        // all. The rule lives in ScoutingVisitsAccess (#3604) so this view,
+        // the list and the REST read routes give one answer.
+        $may_read = ScoutingVisitsAccess::canReadVisit( $user_id, $visit, $is_admin );
+        if ( ! $may_read ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Scouting visit', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You can only view your own scouting visits.', 'talenttrack' ) . '</p>';
@@ -83,7 +85,9 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
-        if ( $is_owner || $is_scope_admin ) {
+        // Editing and archiving a visit ask the same question as reading it
+        // (owner, or the head of development) — one rule, one answer.
+        if ( $may_read ) {
             $edit_url = add_query_arg(
                 [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => (int) $visit->id ],
                 $base_url
@@ -113,7 +117,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         // its own capability + row-ownership check; this button is gated
         // the same way the Edit action above is (owner or scope admin),
         // and the JS layer fires the REST call with a nonce + confirm.
-        if ( $is_owner || $is_scope_admin ) {
+        if ( $may_read ) {
             $page_actions[] = [
                 'label'      => __( 'Archive visit', 'talenttrack' ),
                 'variant'    => 'danger',
@@ -251,7 +255,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                     <?php foreach ( $rows as $p ) :
                         $name = trim( (string) $p->first_name . ' ' . (string) $p->last_name );
                         $birth_year = '';
-                        $dob = (string) ( $p->dob ?? '' );
+                        $dob = (string) ( $p->date_of_birth ?? '' );
                         if ( $dob !== '' && preg_match( '/^(\d{4})/', $dob, $m ) ) {
                             $birth_year = $m[1];
                         }
@@ -260,11 +264,8 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             remove_query_arg( [ 'action', 'id', 'tt_back' ] )
                         );
                         $kanban_url = BackLink::appendTo( $kanban_url );
-                        $status = '';
-                        if ( ! empty( $p->archived_at ) )                  $status = __( 'Archived', 'talenttrack' );
-                        elseif ( ! empty( $p->promoted_to_player_id ) )    $status = __( 'Joined', 'talenttrack' );
-                        elseif ( ! empty( $p->promoted_to_trial_case_id ) ) $status = __( 'In trial', 'talenttrack' );
-                        else                                               $status = __( 'Active', 'talenttrack' );
+                        // #3604 — the same derivation the REST read uses.
+                        $status = ProspectOutcome::label( ProspectOutcome::forRow( (array) $p ) );
                         ?>
                         <tr>
                             <td data-sort="<?php echo esc_attr( $p->last_name . ' ' . $p->first_name ); ?>">
