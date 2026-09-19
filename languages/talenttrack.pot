@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T22:08:09+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:17:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1770,7 +1770,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:349
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
-#: src/Shared/Frontend/FrontendTrialCaseView.php:775
+#: src/Shared/Frontend/FrontendTrialCaseView.php:778
 #: src/Shared/Frontend/FrontendTrialsManageView.php:321
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
@@ -3798,7 +3798,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:949
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 #: src/Shared/Frontend/FrontendTrialsManageView.php:396
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -20736,7 +20736,7 @@ msgid "Snapshot range to"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 msgid "Generated at"
 msgstr ""
 
@@ -21366,6 +21366,7 @@ msgstr ""
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:204
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:426
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:146
 #: src/Shared/Frontend/FrontendOverviewView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1343
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1349
@@ -21386,6 +21387,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:756
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
 #: src/Modules/Training/Print/TrainingPlanPrintRouter.php:95
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:149
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FilterBar.php:165
 #: src/Shared/Frontend/Components/FilterBar.php:809
@@ -22470,7 +22472,7 @@ msgstr ""
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:71
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:775
+#: src/Shared/Frontend/FrontendTrialCaseView.php:778
 msgid "Revoked"
 msgstr ""
 
@@ -36125,7 +36127,7 @@ msgid "Recipient"
 msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 msgid "Audience"
 msgstr ""
 
@@ -38157,7 +38159,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:839
 #: src/Shared/Frontend/FrontendTeamDetailView.php:469
 #: src/Shared/Frontend/FrontendTrialCaseView.php:339
-#: src/Shared/Frontend/FrontendViewBase.php:439
+#: src/Shared/Frontend/FrontendViewBase.php:449
 msgid "More actions"
 msgstr ""
 
@@ -41071,6 +41073,32 @@ msgstr ""
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:183
 msgid "Datum:"
+msgstr ""
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
+msgid "Log in to print this letter."
+msgstr ""
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:68
+msgid "You do not have access to print this letter."
+msgstr ""
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:81
+msgid "Trial cases are part of a plan this install is not on."
+msgstr ""
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:90
+msgid "No letter has been generated for this case yet."
+msgstr ""
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:168
+msgid "Trial letter"
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:171
+#, php-format
+msgid "Letter — %s"
 msgstr ""
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:53
@@ -53382,23 +53410,23 @@ msgstr ""
 msgid "No letter generated yet. Record a decision on the Decision tab to produce one."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:762
+#: src/Shared/Frontend/FrontendTrialCaseView.php:760
 msgid "Print view"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:771
+#: src/Shared/Frontend/FrontendTrialCaseView.php:774
 msgid "Letter history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:788
+#: src/Shared/Frontend/FrontendTrialCaseView.php:791
 msgid "Parent meeting mode"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:789
+#: src/Shared/Frontend/FrontendTrialCaseView.php:792
 msgid "A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:790
+#: src/Shared/Frontend/FrontendTrialCaseView.php:793
 msgid "Open meeting"
 msgstr ""
 
@@ -53507,67 +53535,67 @@ msgstr ""
 msgid "Parent-meeting mode is only available after a decision has been recorded."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:84
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:85
 msgid "We are offering a place"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:85
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:86
 msgid "Welcome to the squad. Pre-season starts in early August; the age-group coach will share the schedule."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:89
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:90
 msgid "Not this season — but we encourage trying again"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:90
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:91
 msgid "A \"no\" today is not a \"no\" forever. We will share what stood out and where to keep working."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:94
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:95
 msgid "We are not offering a place this season"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:95
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:96
 msgid "Thank you for the energy and commitment shown during the trial period."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:107
-#, php-format
-msgid "Age %d"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:108
 #, php-format
-msgid "Track: %s"
+msgid "Age %d"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:109
 #, php-format
+msgid "Track: %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:110
+#, php-format
 msgid "%s — %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:119
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:120
 msgid "What stood out positively"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:122
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:123
 msgid "Areas to keep working on"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:128
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:129
 msgid "Open letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:129
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:130
 #, php-format
 msgid "Letter regarding %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:130
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:131
 msgid "Email letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:132
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:133
 msgid "Enter fullscreen"
 msgstr ""
 

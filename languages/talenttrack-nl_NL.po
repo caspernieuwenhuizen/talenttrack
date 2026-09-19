@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:08:09+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:17:35+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2091,7 +2091,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:349
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
-#: src/Shared/Frontend/FrontendTrialCaseView.php:775
+#: src/Shared/Frontend/FrontendTrialCaseView.php:778
 #: src/Shared/Frontend/FrontendTrialsManageView.php:321
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
@@ -4213,7 +4213,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendTeamDetailView.php:949
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 #: src/Shared/Frontend/FrontendTrialsManageView.php:396
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -23836,7 +23836,7 @@ msgid "Snapshot range to"
 msgstr "Momentopname-bereik tot"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 msgid "Generated at"
 msgstr "Gegenereerd op"
 
@@ -24471,32 +24471,6 @@ msgstr "Log in om deze intake te printen."
 msgid "You do not have access to print this intake."
 msgstr "Je hebt geen toegang om deze intake te printen."
 
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
-msgid "Log in to print this letter."
-msgstr "Log in om deze brief te printen."
-
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:68
-msgid "You do not have access to print this letter."
-msgstr "Je hebt geen toegang om deze brief te printen."
-
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:89
-msgid "No letter has been generated for this case yet."
-msgstr "Voor dit dossier is nog geen brief gegenereerd."
-
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:80
-msgid "Trial cases are part of a plan this install is not on."
-msgstr "Stagedossiers horen bij een pakket dat deze installatie niet heeft."
-
-#. translators: %s: player name
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:151
-#, php-format
-msgid "Letter — %s"
-msgstr "Brief — %s"
-
-#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:152
-msgid "Trial letter"
-msgstr "Stagebrief"
-
 #. translators: 1: team name, 2: season e.g. 2026/27
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:171
 #, php-format
@@ -24516,6 +24490,7 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:204
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:426
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:146
 #: src/Shared/Frontend/FrontendOverviewView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1343
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1349
@@ -24536,6 +24511,7 @@ msgstr "Printen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:756
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
 #: src/Modules/Training/Print/TrainingPlanPrintRouter.php:95
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:149
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FilterBar.php:165
 #: src/Shared/Frontend/Components/FilterBar.php:809
@@ -25834,7 +25810,7 @@ msgstr "Verlopen"
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:71
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:775
+#: src/Shared/Frontend/FrontendTrialCaseView.php:778
 msgid "Revoked"
 msgstr "Ingetrokken"
 
@@ -41413,7 +41389,7 @@ msgid "Recipient"
 msgstr "Ontvanger"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Shared/Frontend/FrontendTrialCaseView.php:773
+#: src/Shared/Frontend/FrontendTrialCaseView.php:776
 msgid "Audience"
 msgstr "Doelgroep"
 
@@ -43682,7 +43658,7 @@ msgstr "Chemie verbergen"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:839
 #: src/Shared/Frontend/FrontendTeamDetailView.php:469
 #: src/Shared/Frontend/FrontendTrialCaseView.php:339
-#: src/Shared/Frontend/FrontendViewBase.php:439
+#: src/Shared/Frontend/FrontendViewBase.php:449
 msgid "More actions"
 msgstr "Meer acties"
 
@@ -47127,6 +47103,32 @@ msgstr "Handtekening:"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:183
 msgid "Datum:"
 msgstr "Datum:"
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
+msgid "Log in to print this letter."
+msgstr "Log in om deze brief te printen."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:68
+msgid "You do not have access to print this letter."
+msgstr "Je hebt geen toegang om deze brief te printen."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:81
+msgid "Trial cases are part of a plan this install is not on."
+msgstr "Stagedossiers horen bij een pakket dat deze installatie niet heeft."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:90
+msgid "No letter has been generated for this case yet."
+msgstr "Voor dit dossier is nog geen brief gegenereerd."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:168
+msgid "Trial letter"
+msgstr "Stagebrief"
+
+#. translators: %s: player name
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:171
+#, php-format
+msgid "Letter — %s"
+msgstr "Brief — %s"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:53
 msgid "Extended"
@@ -61786,19 +61788,19 @@ msgstr ""
 "Nog geen brief gegenereerd. Leg een beslissing vast op het tabblad "
 "Beslissing om er een te maken."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:762
+#: src/Shared/Frontend/FrontendTrialCaseView.php:760
 msgid "Print view"
 msgstr "Afdrukweergave openen"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:771
+#: src/Shared/Frontend/FrontendTrialCaseView.php:774
 msgid "Letter history"
 msgstr "Briefgeschiedenis"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:788
+#: src/Shared/Frontend/FrontendTrialCaseView.php:791
 msgid "Parent meeting mode"
 msgstr "Oudergesprek-modus"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:789
+#: src/Shared/Frontend/FrontendTrialCaseView.php:792
 msgid ""
 "A sanitized fullscreen view for the conversation with the parents. No "
 "internal data is shown — only the decision, the player photo and basics, and "
@@ -61808,7 +61810,7 @@ msgstr ""
 "wordt geen interne data getoond — alleen de beslissing, de foto en "
 "basisgegevens van de speler, en de brief."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:790
+#: src/Shared/Frontend/FrontendTrialCaseView.php:793
 msgid "Open meeting"
 msgstr "Gespreksweergave openen"
 
@@ -61937,11 +61939,11 @@ msgstr ""
 "De oudergespreksmodus is pas beschikbaar nadat er een beslissing is "
 "vastgelegd."
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:84
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:85
 msgid "We are offering a place"
 msgstr "We bieden een plek aan"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:85
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:86
 msgid ""
 "Welcome to the squad. Pre-season starts in early August; the age-group coach "
 "will share the schedule."
@@ -61949,11 +61951,11 @@ msgstr ""
 "Welkom bij de selectie. De voorbereiding start begin augustus; de "
 "leeftijdsgroep-trainer deelt het programma."
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:89
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:90
 msgid "Not this season — but we encourage trying again"
 msgstr "Dit seizoen niet — maar we moedigen aan het opnieuw te proberen"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:90
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:91
 msgid ""
 "A \"no\" today is not a \"no\" forever. We will share what stood out and "
 "where to keep working."
@@ -61961,51 +61963,51 @@ msgstr ""
 "Een \"nee\" vandaag is geen \"nee\" voor altijd. We delen wat positief "
 "opviel en waar nog aan gewerkt mag worden."
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:94
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:95
 msgid "We are not offering a place this season"
 msgstr "We bieden dit seizoen geen plek aan"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:95
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:96
 msgid "Thank you for the energy and commitment shown during the trial period."
 msgstr "Bedankt voor de inzet en het plezier tijdens de stageperiode."
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:107
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:108
 #, php-format
 msgid "Age %d"
 msgstr "Leeftijd %d"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:108
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:109
 #, php-format
 msgid "Track: %s"
 msgstr "Traject: %s"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:109
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:110
 #, php-format
 msgid "%s — %s"
 msgstr "%s — %s"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:119
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:120
 msgid "What stood out positively"
 msgstr "Wat positief opviel"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:122
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:123
 msgid "Areas to keep working on"
 msgstr "Punten om aan te blijven werken"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:128
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:129
 msgid "Open letter"
 msgstr "Brief openen"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:129
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:130
 #, php-format
 msgid "Letter regarding %s"
 msgstr "Brief over %s"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:130
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:131
 msgid "Email letter"
 msgstr "Brief e-mailen"
 
-#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:132
+#: src/Shared/Frontend/FrontendTrialParentMeetingView.php:133
 msgid "Enter fullscreen"
 msgstr "Volledig scherm"
 
