@@ -83,6 +83,13 @@ beoordelingen en geen wedstrijduitvoering. Wedstrijdvoorbereiding wordt er wel
 voor geschreven — precies zoals het scherm van een trainer er midden in de week
 uitziet.
 
+Elk team houdt hetzelfde **weekritme**, op welke dag je ook genereert:
+trainingen op **dinsdag en donderdag** van 18:30 tot 20:00, en elke derde week
+maakt de donderdagtraining plaats voor een **wedstrijd op zaterdag**, met de
+aftrap om 10:00 en verzamelen om 09:15. Een zaterdag in een wedstrijdweek heeft
+dus altijd een wedstrijd om minuten, de presentielijst en
+wedstrijdbeoordelingen aan op te hangen.
+
 Een **geplande selectie** hebben ze wél, en elke activiteit uit het verleden
 ook. Aanwezigheid bestaat namelijk uit twee dingen — de selectie die de trainer
 vooraf opgaf en de presentielijst die hij achteraf afvinkte — en een

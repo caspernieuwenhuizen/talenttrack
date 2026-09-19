@@ -164,6 +164,12 @@
     var START_LOCK_MSG = bootstrap.start_lock_msg || '';
     var ACTIVITY_ID = parseInt(cfg.activity_id, 10) || 0;
     var HALF_LENGTH = parseInt(bootstrap.half_length, 10) || 35;
+    // #3667 — the longest a half may run before the screen calls it left
+    // running. The server owns the rule (MatchClock::limitSeconds); this
+    // only reads it. The fallback mirrors it for a bootstrap without one.
+    var LIMIT_SECONDS = parseInt(bootstrap.limit_seconds, 10)
+        || parseInt(bootstrap.clock && bootstrap.clock.limit_seconds, 10)
+        || (HALF_LENGTH + 10) * 60;
 
     // --- Local state ---
     var state = {
@@ -202,6 +208,9 @@
         timerBtn:   root.querySelector('[data-tt-mexec-timer-toggle]'),
         stateBtn:   root.querySelector('[data-tt-mexec-state-action]'),
         startLock:  root.querySelector('[data-tt-mexec-start-lock]'),
+        startedBy:  root.querySelector('[data-tt-mexec-started-by]'),
+        overrun:    root.querySelector('[data-tt-mexec-overrun]'),
+        endScheduled: root.querySelector('[data-tt-mexec-end-scheduled]'),
         status:     root.querySelector('[data-tt-mexec-status]'),
         benchList:  root.querySelector('.tt-mexec-bench .tt-mexec-player-list'),
         onPitchSection: root.querySelector('[data-tt-mexec-onpitch-section]'),
@@ -248,12 +257,12 @@
                 // #1473 — block the start before match day.
                 if (!IS_MATCH_DAY) return;
                 state.state = ST.FIRST_HALF; state.half = 1;
-                api('start-half', { half: 1 });
+                api('start-half', { half: 1 }).then(renderStartedBy, function () {});
                 renderStateButton(); renderHalfLabel();
             } else if (state.state === ST.HALF_TIME) {
                 state.state = ST.SECOND_HALF; state.half = 2;
                 state.elapsed_ms_before_pause = 0;
-                api('start-half', { half: 2 });
+                api('start-half', { half: 2 }).then(renderStartedBy, function () {});
                 renderStateButton(); renderHalfLabel();
             } else {
                 // #3553 — a paused half resuming. The server measures the
@@ -351,8 +360,10 @@
         } else if (state.state === ST.FIRST_HALF) {
             api('end-half', { half: 1 });
             state.state = ST.HALF_TIME;
-            stopTimer();
-            renderStateButton(); renderHalfLabel();
+            // #3667 — freeze the clock where the half ended (it used to drop
+            // the running stretch), capped where the server caps it.
+            freezeClock(LIMIT_SECONDS);
+            renderStateButton(); renderHalfLabel(); renderClock();
         } else if (state.state === ST.HALF_TIME) {
             // Footer CTA shortcut for "Start second half" — same effect
             // as the timer Start button.
@@ -416,6 +427,70 @@
             state.clock_start_ms = Date.now();
             state.timer_interval = setInterval(renderClock, 1000);
         }
+    }
+
+    // #3667 — stop the clock and keep what it showed, folding in the
+    // stretch since the last start, never past `capSeconds`.
+    function freezeClock(capSeconds) {
+        if (state.running) state.elapsed_ms_before_pause += Date.now() - state.clock_start_ms;
+        stopTimer();
+        if (capSeconds > 0) {
+            state.elapsed_ms_before_pause = Math.min(state.elapsed_ms_before_pause, capSeconds * 1000);
+        }
+    }
+
+    // #3667 — "Started by {name} at {time}" after a kick-off or a second
+    // half started on this screen, from the clock the server returned.
+    function renderStartedBy(r) {
+        var clk = r && r.data && r.data.clock;
+        if (!els.startedBy || !clk || !clk.started_at) return;
+        var at = new Date(clk.started_at);
+        if (isNaN(at.getTime())) return;
+        var time = at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        var by = (clk.started_by && clk.started_by.name) || '';
+        var second = parseInt(clk.half, 10) === 2;
+        var text = by
+            ? (second ? (i18n.started_by_second || 'Started by %1$s · second half from %2$s') : (i18n.started_by_format || 'Started by %1$s at %2$s'))
+                .replace('%1$s', by).replace('%2$s', time)
+            : (second ? (i18n.started_at_second || 'Second half started at %s') : (i18n.started_at_format || 'Started at %s'))
+                .replace('%s', time);
+        els.startedBy.textContent = text;
+        els.startedBy.hidden = false;
+    }
+
+    // #3667 — the "left running" notice follows the clock: shown while a
+    // half is live and past the limit, hidden otherwise.
+    function syncOverrun(seconds) {
+        if (!els.overrun) return;
+        var live = state.state === ST.FIRST_HALF || state.state === ST.SECOND_HALF;
+        els.overrun.hidden = !(live && seconds > LIMIT_SECONDS);
+    }
+
+    // #3667 — end the running half at exactly its length. Two taps, like
+    // ending the match: it rewrites where the half stopped.
+    if (els.endScheduled) {
+        els.endScheduled.addEventListener('click', function () {
+            if (state.state !== ST.FIRST_HALF && state.state !== ST.SECOND_HALF) return;
+            if (!armOrCommit(els.endScheduled, i18n.end_scheduled_arm || 'Tap again to end the half')) return;
+            var fail = function (err) {
+                window.alert((i18n.end_scheduled_error || 'Could not end the half:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+            };
+            freezeClock(0);
+            state.elapsed_ms_before_pause = HALF_LENGTH * 60 * 1000;
+            if (state.state === ST.FIRST_HALF) {
+                state.state = ST.HALF_TIME;
+                renderStateButton(); renderHalfLabel(); renderClock();
+                api('end-half', { half: 1, at: 'scheduled' }).catch(fail);
+                return;
+            }
+            // Second half: end it, then finish the match the way "End
+            // match" does, in order so finish keeps the scheduled end.
+            state.state = ST.PENDING_REVIEW;
+            renderStateButton(); renderHalfLabel(); renderClock();
+            api('end-half', { half: 2, at: 'scheduled' })
+                .then(function () { return api('finish', {}); })
+                .then(function () { window.location.reload(); }, fail);
+        });
     }
 
     // #2267 — single chokepoint for parking the timer. Clears the tick
@@ -1068,6 +1143,7 @@
         var mm = Math.floor(seconds / 60);
         var ss = seconds % 60;
         els.clock.textContent = pad2(mm) + ':' + pad2(ss);
+        syncOverrun(seconds);
     }
     function renderStateButton() {
         if (!els.stateBtn) return;

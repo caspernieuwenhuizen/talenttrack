@@ -21,7 +21,8 @@ use TT\Infrastructure\Query\QueryHelpers;
  *
  * Endpoints (all under `/talenttrack/v1/match-execution/`):
  *   POST   /<activity_id>/start-half     {half}
- *   POST   /<activity_id>/end-half       {half}
+ *   POST   /<activity_id>/end-half       {half, at?: now|scheduled}  (#3667 — clamped to half length + 10)
+ *   GET    /<activity_id>/clock          (#3667 — clock + overrun + started_by)
  *   POST   /<activity_id>/pause          {half}
  *   POST   /<activity_id>/resume         {half}  (#3553 — pause length measured server-side)
  *   POST   /<activity_id>/substitution   {event_uuid, half, minute, player_off, player_on}
@@ -46,8 +47,8 @@ class MatchExecutionRestController {
 
     /**
      * #3105 — `match_execution` is a Pro feature. Every route is wrapped;
-     * `enforceWriteRest()` decides from the verb, so the two read routes
-     * (`event-feed`, `pitch-lineup`) pass through and every tap that logs
+     * `enforceWriteRest()` decides from the verb, so the read routes
+     * (`event-feed`, `pitch-lineup`, `clock`) pass through and every tap that logs
      * something answers 402. An out-of-plan club can still read back the
      * matches it ran (#3017's third decision); it cannot run another.
      *
@@ -78,13 +79,15 @@ class MatchExecutionRestController {
         foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
             /** @var callable $handler — resolved from the action name above. */
             $handler = [ __CLASS__, 'route_' . str_replace( '-', '_', $action ) ];
-            register_rest_route( self::NS, $base . '/' . $action, [
-                [
-                    'methods'             => 'POST',
-                    'callback'            => self::gate( $handler ),
-                    'permission_callback' => [ __CLASS__, 'can_edit' ],
-                ],
-            ] );
+            $route   = [
+                'methods'             => 'POST',
+                'callback'            => self::gate( $handler ),
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ];
+            if ( $action === 'end-half' ) {
+                $route['args'] = self::endHalfArgs();
+            }
+            register_rest_route( self::NS, $base . '/' . $action, [ $route ] );
         }
 
         // #2275 — PATCH corrects a logged goal's half + minute (ours or the
@@ -124,6 +127,16 @@ class MatchExecutionRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => self::gate( [ __CLASS__, 'route_event_feed' ] ),
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
+        // #3667 — the clock as the server has it, with the overrun flag and
+        // who started the match: what the live screen boots from.
+        register_rest_route( self::NS, $base . '/clock', [
+            [
+                'methods'             => 'GET',
+                'callback'            => self::gate( [ __CLASS__, 'route_clock' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -202,6 +215,22 @@ class MatchExecutionRestController {
         return RestResponse::success( [
             'activity_id' => $activity_id,
             'events'      => $feed,
+        ] );
+    }
+
+    /**
+     * GET /<activity_id>/clock — the match clock (#3553) plus the #3667
+     * readout: `overrun`, `limit_seconds`, `started_at`, `started_by`.
+     * `clock` is null until the match has an execution row.
+     */
+    public static function route_clock( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        return RestResponse::success( [
+            'activity_id' => $activity_id,
+            'clock'       => self::clockFor( $r ),
         ] );
     }
 
@@ -480,26 +509,66 @@ class MatchExecutionRestController {
         return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $next_state, 'clock' => self::clockFor( $r ) ] );
     }
 
+    /**
+     * #3667 — the body of `end-half`. `at: scheduled` ends the half at
+     * exactly its length: the recovery for a half somebody started and
+     * left running.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function endHalfArgs(): array {
+        return [
+            'half' => [
+                'description' => __( 'The half being ended: 1 or 2.', 'talenttrack' ),
+                'type'        => 'integer',
+                'enum'        => [ 1, 2 ],
+            ],
+            'at'   => [
+                'description' => __( 'When the half ended. "now" (the default) is the moment of the request, never later than the half length plus 10 minutes. "scheduled" ends it at exactly the half length.', 'talenttrack' ),
+                'type'        => 'string',
+                'enum'        => [ 'now', 'scheduled' ],
+                'default'     => 'now',
+            ],
+        ];
+    }
+
     public static function route_end_half( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
         $half = (int) $r->get_json_params()['half'] ?? 1;
         if ( $half !== 1 && $half !== 2 ) return RestResponse::error( 'bad_half', __( 'Half must be 1 or 2.', 'talenttrack' ), 400 );
+        $activity_id = absint( $r['activity_id'] );
 
         // #3553 — a half ended while paused: the paused stretch counts as
         // paused, so half time shows the clock where it actually stopped.
-        self::closePause( $exec_id, absint( $r['activity_id'] ) );
+        self::closePause( $exec_id, $activity_id );
 
         $repo = new MatchExecutionRepository();
         $col  = $half === 1 ? 'first_half_ended_at' : 'second_half_ended_at';
         // #1033 — ending the second half lands in PENDING_REVIEW (was
         // FINISHED). The coach reviews goals / subs / score post-match
         // and then Finalize locks it.
+        // #3667 — never later than the half length + stoppage, so a half
+        // left running for hours does not freeze the clock at 593:55.
         $repo->update( $exec_id, [
             'state' => $half === 1 ? MatchExecutionState::HALF_TIME : MatchExecutionState::PENDING_REVIEW,
-            $col    => current_time( 'mysql', true ),
+            $col    => self::endedAtFor( $activity_id, $half, (string) $r['at'] === 'scheduled' ),
         ] );
-        return RestResponse::success( [ 'execution_id' => $exec_id ] );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'clock' => self::clockFor( $r ) ] );
+    }
+
+    /**
+     * #3667 — the UTC datetime to stamp as a half's end, clamped to the
+     * half length + stoppage (or the half length exactly, `$scheduled`).
+     * Falls back to now when the half never started. Call it after
+     * `closePause()`, so an open pause is already folded into the total.
+     */
+    private static function endedAtFor( int $activity_id, int $half, bool $scheduled ): string {
+        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        if ( ! $exec ) return current_time( 'mysql', true );
+        [ $half_length ] = self::prepContext( $activity_id );
+        $ended = MatchClock::endOfHalf( $exec, $half, $half_length, $scheduled );
+        return $ended === null ? current_time( 'mysql', true ) : gmdate( 'Y-m-d H:i:s', $ended );
     }
 
     /**
@@ -585,13 +654,18 @@ class MatchExecutionRestController {
     }
 
     /**
-     * The clock as it stands after a write, for the response.
+     * The clock as it stands after a write, for the response. #3667 adds
+     * whether the half has overrun, the limit, when the running half began
+     * and who started the match.
      *
-     * @return array{half:int, elapsed_seconds:int, running:bool}|null
+     * @return array<string, mixed>|null
      */
     private static function clockFor( \WP_REST_Request $r ): ?array {
-        $exec = ( new MatchExecutionRepository() )->findByActivity( absint( $r['activity_id'] ) );
-        return $exec ? MatchClock::forExecution( $exec ) : null;
+        $activity_id = absint( $r['activity_id'] );
+        $exec        = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        if ( ! $exec ) return null;
+        [ $half_length ] = self::prepContext( $activity_id );
+        return MatchClock::readout( $exec, $half_length );
     }
 
     // #2857 — `POST /score` is gone. It wrote a scoreline directly onto the
@@ -951,12 +1025,26 @@ class MatchExecutionRestController {
 
         $activity_id = (int) $exec->activity_id;
 
+        // #3667 — the live screen sends `end-half` and `finish` together,
+        // in either order. When the second half already has an end (the
+        // end-half landed first, possibly at the scheduled length), keep
+        // it; otherwise stamp now, clamped to the half length + stoppage
+        // like every other end of a half.
+        $was_live = (string) $exec->state === MatchExecutionState::SECOND_HALF;
+        $ended_at = MatchClock::toUnix( $exec->second_half_ended_at ?? null ) !== null && ! $was_live
+            ? (string) $exec->second_half_ended_at
+            : null;
+        if ( $ended_at === null ) {
+            self::closePause( $exec_id, $activity_id );
+            $ended_at = self::endedAtFor( $activity_id, 2, false );
+        }
+
         // #1033 — End-match now lands in PENDING_REVIEW (was FINISHED).
         // Goals / subs / score remain editable post-match; the coach
         // taps Finalize (route_finalize below) when ready to lock.
         $repo->update( $exec_id, [
             'state'                => MatchExecutionState::PENDING_REVIEW,
-            'second_half_ended_at' => current_time( 'mysql', true ),
+            'second_half_ended_at' => $ended_at,
         ] );
 
         // 2. Flip the activity to completed.
