@@ -116,6 +116,14 @@
     font-size: var(--tt-fs-sm);
     margin: 0 0 var(--tt-sp-3);
 }
+/* #3649 — the line above an already-submitted own input. It states when
+ * the input was handed in and that it stays editable until the decision,
+ * so it reads as context for the form below rather than as a warning. */
+.tt-dashboard .tt-trial-input-submitted {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: 0;
+}
 
 /* ---- In-page forms -------------------------------------------------- */
 .tt-dashboard .tt-trial-assign-form,

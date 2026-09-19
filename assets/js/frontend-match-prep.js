@@ -193,6 +193,12 @@
         apply: function (payload) {
             mountFullPayload(payload);
             renderAll();
+        },
+        // #3682 — the PUT answers with the GET payload, which carries
+        // `half_length_mismatch`. The server owns the rule (a non-WordPress
+        // client reads the same flag), so this only paints it.
+        onSaved: function (resp) {
+            renderLengthNotice(resp && resp.data);
         }
     });
 
@@ -349,6 +355,39 @@
         renderRoles();
         renderFoot();
         saver.render();
+    }
+
+    /**
+     * #3682 — the activity's match length against the prep's half length.
+     *
+     * The two are deliberately not synced: every minutes surface reads the
+     * prep, so rewriting it under a coach who had already planned around
+     * 2 x 35 would move a player's recorded minutes without asking. The
+     * server decides whether they disagree and answers with the flag on
+     * every save; this repaints the caption from it.
+     */
+    function renderLengthNotice(data) {
+        var el = $('[data-tt-mp-length-notice]');
+        if (!el || !data) return;
+
+        var activityLength = parseInt(data.activity_match_length_minutes, 10);
+        if (isNaN(activityLength) || activityLength <= 0) {
+            el.hidden = true;
+            return;
+        }
+        el.setAttribute('data-activity-length', String(activityLength));
+
+        if (!data.half_length_mismatch) {
+            el.hidden = true;
+            return;
+        }
+
+        var half = parseInt(data.half_length_minutes, 10) || state.halfLength;
+        el.textContent = format(
+            i18n('half_length_mismatch', 'The activity says this match lasts %1$s minutes; the preparation uses 2 × %2$s.'),
+            [String(activityLength), String(half)]
+        );
+        el.hidden = false;
     }
 
     function renderRoster() {

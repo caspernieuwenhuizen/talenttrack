@@ -228,8 +228,12 @@ final class FunctionalRolePanelGrantsTest extends WP_UnitTestCase {
      * `canRecordAttendance()`.
      */
     public function test_the_register_link_follows_the_attendance_question(): void {
-        $activity = $this->activity( $this->team );
-        ActivityGridLink::primeAnchor( $activity, $this->team, gmdate( 'Y-m-d' ) );
+        // Yesterday, so #3656's column rule holds: an upcoming activity
+        // with nothing recorded on it is not a column and offers no link
+        // to anybody, which would hide what this test is about.
+        $date     = $this->yesterday();
+        $activity = $this->activity( $this->team, $date );
+        ActivityGridLink::primeAnchor( $activity, $this->team, $date );
 
         if ( ! ActivityGridLink::attendanceEnabled() ) {
             $this->markTestSkipped( 'the attendance grid feature is off on this install' );
@@ -253,8 +257,9 @@ final class FunctionalRolePanelGrantsTest extends WP_UnitTestCase {
      * are a team roster, so a club-wide activity offers nothing.
      */
     public function test_a_club_wide_activity_offers_no_register_link(): void {
-        $activity = $this->activity( $this->team );
-        ActivityGridLink::primeAnchor( $activity, 0, gmdate( 'Y-m-d' ) );
+        $date     = $this->yesterday();
+        $activity = $this->activity( $this->team, $date );
+        ActivityGridLink::primeAnchor( $activity, 0, $date );
 
         $this->assertFalse( ActivityGridLink::canUseAttendance( $activity, $this->manager ) );
     }
@@ -340,13 +345,17 @@ final class FunctionalRolePanelGrantsTest extends WP_UnitTestCase {
         FunctionalRoleGrants::clearCache();
     }
 
-    private function activity( int $team_id ): int {
+    private function yesterday(): string {
+        return gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' -1 day' ) ?: time() );
+    }
+
+    private function activity( int $team_id, string $session_date ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id'             => 1,
             'team_id'             => $team_id,
             'title'               => 'Training',
-            'session_date'        => gmdate( 'Y-m-d' ),
+            'session_date'        => $session_date,
             'activity_type_key'   => 'training',
             'activity_status_key' => 'planned',
             'plan_state'          => 'scheduled',

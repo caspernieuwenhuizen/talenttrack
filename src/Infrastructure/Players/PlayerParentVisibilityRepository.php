@@ -28,8 +28,18 @@ class PlayerParentVisibilityRepository {
      * A section absent from this list is always visible — `isVisible()`
      * returns true for an unknown key — so adding it here is what makes
      * the control real rather than decorative.
+     *
+     * #3666 — `minutes` joins on the same reasoning. How much a young
+     * player gets on the pitch is the most comparable number the academy
+     * holds about them, and the one most likely to be argued about at
+     * home. Giving them the same control they have over their
+     * evaluations is the point of the list.
+     *
+     * No migration is needed to add a key: a player with no row for a
+     * section is treated as sharing it (`preferencesForPlayer()`), so
+     * every existing parent keeps today's access.
      */
-    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'pdp', 'training' ];
+    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'minutes', 'pdp', 'training' ];
 
     private function table(): string {
         global $wpdb;

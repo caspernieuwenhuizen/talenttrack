@@ -8,6 +8,7 @@ use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
@@ -29,6 +30,7 @@ use TT\Shared\Dates\TTDate;
  *                   gracefully to the next-talk date or nothing.
  *   Your focus    — top active goals preview → My goals.
  *   How you're doing — headline rating + momentum → My evaluations.
+ *   Playing time  — minutes played and the matches they came from (#3666).
  *   Coming up     — next activities → My activities.
  *   Your journey  — last milestone → My journey.
  *
@@ -91,6 +93,14 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             self::renderForm( $player, $is_self, $voice );
         } else {
             self::renderPrivateBlock( self::formHeading( $voice ) );
+        }
+        // #3666 — playing time. It sits under the form block because it is
+        // the other half of the same question ("how am I doing?"), and
+        // above Coming up because it is about matches already played.
+        if ( self::sectionVisible( $player, $is_self, 'minutes' ) ) {
+            self::renderPlayingTime( $player, $is_self, $voice );
+        } else {
+            self::renderPrivateBlock( self::playingTimeHeading( $voice ) );
         }
         self::renderComingUp( $player, $is_self );
         if ( self::sectionVisible( $player, $is_self, 'journey' ) ) {
@@ -249,6 +259,14 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         );
     }
 
+    private static function playingTimeHeading( SubjectVoice $voice ): string {
+        return $voice->pick(
+            __( 'Your playing time', 'talenttrack' ),
+            /* translators: %s = the player's first name. */
+            sprintf( __( "%s's playing time", 'talenttrack' ), $voice->firstName() )
+        );
+    }
+
     private static function journeyHeading( SubjectVoice $voice ): string {
         return $voice->pick(
             __( 'Your journey', 'talenttrack' ),
@@ -343,6 +361,72 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         self::sectionClose();
     }
 
+    /**
+     * #3666 — playing time. Total minutes over the shared default window,
+     * the matches they came from, and the three most recent of those.
+     *
+     * Absolute minutes only: no share of the team's available minutes and
+     * no team-mate's figures. A young player reading their own playing
+     * time should not be handed a league table of the changing room.
+     *
+     * The figures come from the same `MinutesQuery` the coach's report and
+     * the REST route read, so the screen and the API cannot disagree (§4).
+     */
+    private static function renderPlayingTime( object $player, bool $is_self, SubjectVoice $voice ): void {
+        $player_id = (int) ( $player->id ?? 0 );
+        $team_id   = (int) ( $player->team_id ?? 0 );
+        $window    = MinutesQuery::defaultWindow();
+        $playing   = $team_id > 0 && $player_id > 0
+            ? ( new MinutesQuery() )->playingTimeForPlayer( $team_id, $player_id, $window['from'], $window['to'] )
+            : [ 'total_minutes' => 0, 'matches' => [] ];
+
+        $total   = (int) $playing['total_minutes'];
+        $matches = $playing['matches'];
+
+        self::sectionOpenPlain( self::playingTimeHeading( $voice ) );
+        if ( $total <= 0 ) {
+            echo '<p class="tt-devhome-empty">' . esc_html( $voice->pick(
+                __( 'No minutes recorded yet. They appear here once your coach records a match you played in.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( 'No minutes recorded yet. They appear here once a coach records a match %s played in.', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</p>';
+            self::sectionClose();
+            return;
+        }
+
+        echo '<div class="tt-devhome-minutes">';
+        echo '<span class="tt-devhome-minutes__val">' . esc_html( number_format_i18n( $total ) ) . '</span>';
+        echo '<span class="tt-devhome-minutes__unit">' . esc_html__( 'minutes played', 'talenttrack' ) . '</span>';
+        echo '</div>';
+
+        $count = count( $matches );
+        echo '<p class="tt-devhome-minutes__meta">' . esc_html( sprintf(
+            /* translators: %s = number of matches played in the last twelve months. */
+            _n( 'In %s match over the past 12 months.', 'In %s matches over the past 12 months.', $count, 'talenttrack' ),
+            number_format_i18n( $count )
+        ) ) . '</p>';
+
+        // Most recent first — the breakdown comes back oldest-first.
+        $recent = array_reverse( array_slice( $matches, -3 ) );
+        echo '<ul class="tt-devhome-list">';
+        foreach ( $recent as $m ) {
+            $date  = self::formatDate( substr( (string) $m['session_date'], 0, 10 ) );
+            $title = (string) $m['title'];
+            if ( $title === '' ) $title = $date;
+            echo '<li class="tt-devhome-row">';
+            echo self::rowTitleLink( 'my-activities', (int) $m['activity_id'], $title, $player, $is_self ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — rowTitleLink escapes label + URL.
+            echo '<span class="tt-devhome-row__meta">' . esc_html( sprintf(
+                /* translators: 1: match date, 2: minutes played in that match. */
+                __( '%1$s · %2$s min', 'talenttrack' ),
+                $date,
+                number_format_i18n( (int) $m['minutes'] )
+            ) ) . '</span>';
+            echo '</li>';
+        }
+        echo '</ul>';
+        self::sectionClose();
+    }
+
     /** Coming up — next activities → My activities. */
     private static function renderComingUp( object $player, bool $is_self ): void {
         $team_id = (int) ( $player->team_id ?? 0 );
@@ -399,6 +483,14 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         echo '<div class="tt-devhome-card__head">';
         echo '<h2 class="tt-devhome-card__title">' . esc_html( $heading ) . '</h2>';
         echo '<a class="tt-devhome-card__more" href="' . esc_url( $link_url ) . '">' . esc_html( $link_label ) . '</a>';
+        echo '</div>';
+    }
+
+    /** A card head with no "see all" link — for a block with no deep view. */
+    private static function sectionOpenPlain( string $heading ): void {
+        echo '<section class="tt-devhome-card">';
+        echo '<div class="tt-devhome-card__head">';
+        echo '<h2 class="tt-devhome-card__title">' . esc_html( $heading ) . '</h2>';
         echo '</div>';
     }
 

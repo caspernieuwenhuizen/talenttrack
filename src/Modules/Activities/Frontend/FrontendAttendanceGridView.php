@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Reports\AttendanceGridQuery;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Analytics\Reports\ReportFilters;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -419,9 +420,13 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         $select_types = $type_options;
         unset( $select_types['all'] );
 
+        // #3656 — `carryArgs()` encodes the back target; `add_query_arg()`
+        // does not, so a back URL with a query string of its own used to
+        // spill its own parameters into the pill's.
+        $carry     = BackLink::carryArgs();
         $pill_base = [ 'tt_view' => 'attendance-grid', 'team_id' => $team_id ];
-        if ( $type_filter !== 'all' )      $pill_base['type']    = $type_filter;
-        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+        if ( $type_filter !== 'all' ) $pill_base['type'] = $type_filter;
+        $pill_base = array_merge( $pill_base, $carry );
 
         $period_options = [];
         foreach ( $period_labels as $key => $label ) {
@@ -435,12 +440,17 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             ];
         }
 
-        $hidden = [ 'tt_view' => 'attendance-grid' ];
-        if ( $period !== '' )              $hidden['period']  = $period;
-        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+        // A hidden field takes the plain value — the browser encodes it on
+        // submit, so `carryArgs()`' encoding would be applied twice.
+        $back_value = BackLink::currentValue();
+        $hidden     = [ 'tt_view' => 'attendance-grid' ];
+        if ( $period !== '' )     $hidden['period']  = $period;
+        if ( $back_value !== '' ) $hidden['tt_back'] = $back_value;
 
-        $reset_args = [ 'tt_view' => 'attendance-grid', 'team_id' => $team_id ];
-        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+        $reset_args = array_merge(
+            [ 'tt_view' => 'attendance-grid', 'team_id' => $team_id ],
+            $carry
+        );
 
         FilterBar::render( [
             'hidden'       => $hidden,

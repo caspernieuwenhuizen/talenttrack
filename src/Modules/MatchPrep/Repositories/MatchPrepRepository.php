@@ -132,13 +132,20 @@ class MatchPrepRepository {
      * (`$half_length <= 0`), the default is resolved from the
      * per-age-category setting (`MatchLengthResolver`), falling back to
      * 35 minutes per half. Pass a positive value to override.
+     *
+     * #3682 — that resolution now starts from the activity's own
+     * `match_length_minutes`. None of the five callers passes a half
+     * length (the REST controller, the availability wizard step and the
+     * demo generator all rely on the default), so doing it here is what
+     * covers them all. An existing prep is left alone: the two values
+     * don't sync, the prep flags a disagreement instead.
      */
     public function ensureForActivity( int $activity_id, int $half_length = 0 ): int {
         $existing = $this->findByActivity( $activity_id );
         if ( $existing ) return (int) $existing->id;
 
         if ( $half_length <= 0 ) {
-            $half_length = ( new MatchLengthResolver() )->halfMinutesForActivity( $activity_id );
+            $half_length = ( new MatchLengthResolver() )->halfMinutesForActivityDefault( $activity_id );
         }
 
         $this->wpdb->insert( $this->t_prep, [

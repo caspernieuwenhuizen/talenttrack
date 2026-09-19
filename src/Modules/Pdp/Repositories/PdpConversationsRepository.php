@@ -14,6 +14,15 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class PdpConversationsRepository {
 
+    /**
+     * #3670 — the wall-clock time an automatically chosen development
+     * talk is scheduled at. Early evening, after training, which is
+     * when clubs actually hold them; it is the same default the trial
+     * invitation uses (`TestTrainingsRestController.php:88`). A coach
+     * who moves the talk overwrites it; nothing else reads it.
+     */
+    private const DEFAULT_TALK_TIME = '18:00:00';
+
     private \wpdb $wpdb;
     private string $table;
 
@@ -114,6 +123,10 @@ class PdpConversationsRepository {
      * Distributes scheduled_at evenly between the season's start +
      * end. cycle_size is one of 2 / 3 / 4. Returns the count inserted
      * (0 if any guard fails).
+     *
+     * Whichever branch runs, the talk lands on a whole day at
+     * DEFAULT_TALK_TIME — a starting point the coach moves, not a
+     * booking (#3670).
      */
     public function createCycle( int $file_id, int $cycle_size, string $season_start, string $season_end, int $season_id = 0 ): int {
         if ( $file_id <= 0 ) return 0;
@@ -141,21 +154,58 @@ class PdpConversationsRepository {
      * at the mid-point of the Nth slice — first conversation early-season,
      * last conversation late-season, never on the very first or last day.
      *
+     * #3670 — the spacing is measured in whole days and every talk is
+     * placed at DEFAULT_TALK_TIME. Dividing the season in seconds made the
+     * time of day a remainder of the season's length, so a coach opening a
+     * file found talks planned at 07:59:59 or 04:47:56 — times nobody
+     * chose, which read as placeholder data on the one date the player,
+     * the parent and the coach all look at.
+     *
      * @return list<string> `Y-m-d H:i:s`, ordered; empty when the season's
-     *                     dates do not make a range.
+     *                     dates do not make a range, or are too short to
+     *                     give each conversation its own day.
      */
     public static function evenlySpacedDates( string $season_start, string $season_end, int $cycle_size ): array {
-        $start_ts = strtotime( $season_start . ' 00:00:00' );
-        $end_ts   = strtotime( $season_end   . ' 23:59:59' );
-        if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts || $cycle_size < 1 ) return [];
+        $start = self::dayOrNull( $season_start );
+        $end   = self::dayOrNull( $season_end );
+        if ( $start === null || $end === null || $end <= $start || $cycle_size < 1 ) return [];
 
-        $step = (int) floor( ( $end_ts - $start_ts ) / ( $cycle_size + 1 ) );
+        $span_days = (int) $start->diff( $end )->days;
+        $step      = intdiv( $span_days, $cycle_size + 1 );
+        if ( $step < 1 ) return [];
 
         $out = [];
         for ( $i = 1; $i <= $cycle_size; $i++ ) {
-            $out[] = gmdate( 'Y-m-d H:i:s', $start_ts + $step * $i );
+            $out[] = self::talkAt( $start, $step * $i );
         }
         return $out;
+    }
+
+    /**
+     * `$base` plus whole days, written as a stored `scheduled_at` at the
+     * default talk time.
+     */
+    private static function talkAt( \DateTimeImmutable $base, int $offset_days ): string {
+        if ( $offset_days > 0 ) {
+            $base = $base->add( new \DateInterval( 'P' . $offset_days . 'D' ) );
+        }
+        return $base->format( 'Y-m-d' ) . ' ' . self::DEFAULT_TALK_TIME;
+    }
+
+    /**
+     * Parse a bare `Y-m-d` into midnight UTC, for date arithmetic only.
+     * UTC on purpose: whole-day offsets must not gain or lose an hour to
+     * a DST boundary halfway through a season.
+     */
+    private static function dayOrNull( string $date ): ?\DateTimeImmutable {
+        $day = substr( trim( $date ), 0, 10 );
+        if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $day, $m ) ) return null;
+        if ( ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) return null;
+        try {
+            return new \DateTimeImmutable( $day . ' 00:00:00', new \DateTimeZone( 'UTC' ) );
+        } catch ( \Exception $e ) {
+            return null;
+        }
     }
 
     /**
@@ -256,6 +306,11 @@ class PdpConversationsRepository {
      * lands roughly in the middle of the window); planning windows
      * are copied verbatim from the block's start/end dates.
      *
+     * #3670 — the midpoint is a whole day at DEFAULT_TALK_TIME. Averaging
+     * `start 00:00:00` with `end 23:59:59` put every configured talk at
+     * 11:59:59 or 23:59:59, which is as machine-made as the even-divide
+     * times were.
+     *
      * @param list<array{sequence:int,start_date:string,end_date:string}> $blocks
      */
     private function createCycleFromBlocks( int $file_id, int $cycle_size, array $blocks ): int {
@@ -266,8 +321,15 @@ class PdpConversationsRepository {
         foreach ( $blocks as $i => $b ) {
             $win_start = (string) $b['start_date'];
             $win_end   = (string) $b['end_date'];
-            $mid_ts = (int) ( ( strtotime( $win_start . ' 00:00:00' ) + strtotime( $win_end . ' 23:59:59' ) ) / 2 );
-            $when   = gmdate( 'Y-m-d H:i:s', $mid_ts );
+
+            $block_start = self::dayOrNull( $win_start );
+            $block_end   = self::dayOrNull( $win_end );
+            if ( $block_start === null ) continue;
+
+            $block_days = ( $block_end !== null && $block_end > $block_start )
+                ? (int) $block_start->diff( $block_end )->days
+                : 0;
+            $when = self::talkAt( $block_start, intdiv( $block_days, 2 ) );
 
             $seq = (int) $b['sequence'];
             $ok = $this->wpdb->insert( $this->table, [

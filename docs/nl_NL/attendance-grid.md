@@ -17,9 +17,12 @@ stap-voor-stap aanwezigheidswizard op de desktop. Het werkt zoals het
 Excel-overzicht van een trainer: één rij per speler, één kolom per activiteit,
 in elke cel een status.
 
-Open het via **Activiteiten → Aanwezigheidsraster** (je hebt rechten nodig om
-activiteiten te bewerken). Het is gemaakt voor een desktop of laptop; op een
-telefoon is de begeleide wizard handiger.
+Open het via **Activiteiten → Aanwezigheidsraster**, of met de knop
+**Aanwezigheidsraster** op de pagina van een activiteit (die het raster op die
+activiteit opent). Die knop verschijnt bij een activiteit waarvoor er iets
+vast te leggen valt — zie *Activiteiten die nog niet geweest zijn* hieronder.
+Je hebt rechten nodig om activiteiten te bewerken. Het is gemaakt voor een
+desktop of laptop; op een telefoon is de begeleide wizard handiger.
 
 ## Wat je ziet
 
@@ -68,6 +71,14 @@ selectie op de activiteit zelf.
 Dezelfde regel geldt als je aanwezigheid vastlegt op het formulier van de
 activiteit zelf. "Vandaag" is de datum van de academie, niet die van de
 server.
+
+Omdat er dan nog niets vast te leggen valt, volgen de knoppen die het raster
+op één activiteit openen dezelfde regel. Zolang er niets op de training van
+volgende week staat, zie je **Aanwezigheidsraster** niet op de pagina van de
+activiteit of op de kaart in de lijst, en verschijnt **Aanwezigheid
+registreren** niet als je die activiteit afrondt. Ze komen terug zodra er een
+afwezigheid vooraf op staat, en op de dag zelf. Wie er komt plan je tot die
+tijd in de geplande selectie op de activiteit.
 
 ## Als de begeleide wizard uit staat
 

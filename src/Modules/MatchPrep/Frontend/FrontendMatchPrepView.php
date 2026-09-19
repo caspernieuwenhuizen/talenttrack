@@ -243,6 +243,16 @@ class FrontendMatchPrepView extends FrontendViewBase {
 
         $half_length = (int) ( $prep->half_length_minutes ?? 35 );
 
+        // #3682 — the activity carries its own match length (#1726) and
+        // nothing syncs the two. A new prep is seeded from it; an existing
+        // one says so when they have drifted apart, because the prep is what
+        // every minutes surface reads.
+        $length_check    = MatchPrepState::halfLengthAgainstActivity( $activity_id, $half_length );
+        $activity_length = (int) $length_check['activity_match_length_minutes'];
+        $length_mismatch = $length_check['half_length_mismatch'];
+        /* translators: 1: full match length in minutes from the activity, 2: half length in minutes from the match prep. */
+        $length_notice_tpl = __( 'The activity says this match lasts %1$s minutes; the preparation uses 2 × %2$s.', 'talenttrack' );
+
         // #1695 — at-a-glance summary on real data for the 2026 KPI strip.
         $summary = self::summaryCounts( $availability_by_pid, $lineup_by_half[1], count( $roster_list ) );
         ?>
@@ -323,6 +333,19 @@ class FrontendMatchPrepView extends FrontendViewBase {
                            data-tt-mp-halflen>
                     <span class="tt-mp-unit"><?php esc_html_e( 'min', 'talenttrack' ); ?></span>
                 </div>
+                <?php
+                // #3682 — the notice informs, it never blocks: the coach may
+                // well have a reason the prep and the fixture disagree. The
+                // JS shows and hides it from `half_length_mismatch` in the
+                // PUT response rather than recomputing the rule client-side.
+                ?>
+                <p class="tt-mp-length-notice"
+                   data-tt-mp-length-notice
+                   data-activity-length="<?php echo (int) $activity_length; ?>"
+                   role="status"
+                   <?php echo $length_mismatch ? '' : 'hidden'; ?>>
+                    <?php echo esc_html( sprintf( $length_notice_tpl, (string) $activity_length, (string) $half_length ) ); ?>
+                </p>
                 <button type="button" class="tt-btn tt-btn-secondary" data-tt-mp-open-availability>
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
@@ -834,6 +857,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),
+                /* translators: 1: full match length in minutes from the activity, 2: half length in minutes from the match prep. */
+                'half_length_mismatch' => __( 'The activity says this match lasts %1$s minutes; the preparation uses 2 × %2$s.', 'talenttrack' ),
             ],
         ] );
 

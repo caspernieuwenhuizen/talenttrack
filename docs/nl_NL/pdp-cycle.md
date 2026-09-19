@@ -47,6 +47,8 @@ De dekkingsdata is ook beschikbaar via REST op `GET /wp-json/talenttrack/v1/pdp-
 
 Klik op de **POP**-tegel op *POP aanmaken* in de rij van een speler (of op *Nieuw POP-dossier openen*), kies een speler en klik op *Nieuw POP-dossier openen*. Het dossier wordt aangemaakt met één gesprek per cyclus (2, 3 of 4 — instelbaar per club, te overschrijven per team). Elk `scheduled_at` wordt evenredig over de start- en einddatum van het seizoen verdeeld.
 
+Die eerste data zijn een startpunt, geen afspraak: elk gesprek komt op een hele dag om **18:00** te staan, en de trainer verzet het naar de dag en tijd waarop het gesprek echt plaatsvindt. Heeft de academie cyclusblokken voor het seizoen ingesteld, dan komt het gesprek op de middelste dag van zijn blok te staan, op dezelfde tijd, met het blok als planningsvenster.
+
 Voor elk gesprek wordt automatisch een native agenda-item bijgehouden.
 
 ### 2. Voer de gesprekken
