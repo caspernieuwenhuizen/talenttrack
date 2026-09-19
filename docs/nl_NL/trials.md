@@ -118,6 +118,9 @@ Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / 
 - Verandert de status van de speler, volgens de tabel hieronder.
 - Schrijft de bijbehorende regel op de tijdlijn van de speler — *Stage afgerond*, plus *Vastgelegd* bij aannemen of *Afscheid genomen* bij een definitieve afwijzing.
 - Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
+- Bewaart de motivatie zelf, daarna leesbaar voor iedereen die de staf-input van het dossier mag lezen — de Hoofd Opleiding en de toegewezen trainers. De motivatie gaat **niet** naar het gezin: de brief en het oudergesprek bevatten er niets van.
+
+De ondergrens van 30 tekens wordt in tekens geteld, zodat een korte motivatie met accenten of andere niet-Latijnse letters op dezelfde manier wordt gemeten als een motivatie zonder.
 
 | Beslissing | De speler wordt | Gearchiveerd? |
 | --- | --- | --- |

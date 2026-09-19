@@ -220,7 +220,6 @@ return [
     'src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php | /teams/(?P<id>\\d+)/style | PUT',
     'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases | POST',
     'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases/(?P<id>\\d+) | PUT',
-    'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases/(?P<id>\\d+)/decision | POST',
     'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases/(?P<id>\\d+)/extend | POST',
     'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases/(?P<id>\\d+)/inputs/release | POST',
     'src/Modules/Trials/Rest/TrialsRestController.php | /trial-cases/(?P<id>\\d+)/letters | POST',
