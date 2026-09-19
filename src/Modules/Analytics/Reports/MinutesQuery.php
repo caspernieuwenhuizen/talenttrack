@@ -599,9 +599,8 @@ final class MinutesQuery {
      * @return array{from:string,to:string}
      */
     public static function defaultWindow(): array {
-        $from = strtotime( '-12 months' );
         return [
-            'from' => gmdate( 'Y-m-d', $from === false ? time() : $from ),
+            'from' => gmdate( 'Y-m-d', strtotime( '-12 months' ) ),
             'to'   => gmdate( 'Y-m-d' ),
         ];
     }
