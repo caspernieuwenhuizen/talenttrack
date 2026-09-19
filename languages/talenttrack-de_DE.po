@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T07:47:39+00:00\n"
+"POT-Creation-Date: 2026-09-19T07:54:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -3235,52 +3235,56 @@ msgstr ""
 msgid "Expected a list of windows."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:110
+#: src/Infrastructure/REST/EvaluationsRestController.php:112
 msgid "You can only request your own evaluations."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:506
-#: src/Infrastructure/REST/EvaluationsRestController.php:717
-#: src/Infrastructure/REST/EvaluationsRestController.php:730
-#: src/Infrastructure/REST/EvaluationsRestController.php:737
+#: src/Infrastructure/REST/EvaluationsRestController.php:508
+#: src/Infrastructure/REST/EvaluationsRestController.php:742
+#: src/Infrastructure/REST/EvaluationsRestController.php:755
+#: src/Infrastructure/REST/EvaluationsRestController.php:762
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:516
+#: src/Infrastructure/REST/EvaluationsRestController.php:518
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:520
-#: src/Infrastructure/REST/EvaluationsRestController.php:595
+#: src/Infrastructure/REST/EvaluationsRestController.php:522
+#: src/Infrastructure/REST/EvaluationsRestController.php:608
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:531
+#: src/Infrastructure/REST/EvaluationsRestController.php:544
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:545
+#: src/Infrastructure/REST/EvaluationsRestController.php:558
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:563
-#: src/Infrastructure/REST/EvaluationsRestController.php:683
-#: src/Infrastructure/REST/EvaluationsRestController.php:715
-#: src/Infrastructure/REST/EvaluationsRestController.php:724
+#: src/Infrastructure/REST/EvaluationsRestController.php:576
+#: src/Infrastructure/REST/EvaluationsRestController.php:708
+#: src/Infrastructure/REST/EvaluationsRestController.php:740
+#: src/Infrastructure/REST/EvaluationsRestController.php:749
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:606
+#: src/Infrastructure/REST/EvaluationsRestController.php:631
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:649
+#: src/Infrastructure/REST/EvaluationsRestController.php:674
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:705
+#: src/Infrastructure/REST/EvaluationsRestController.php:730
 msgid "The evaluation could not be archived."
+msgstr ""
+
+#: src/Infrastructure/REST/EvaluationsRestController.php:862
+msgid "That activity does not exist, or it is not one of your teams."
 msgstr ""
 
 #: src/Infrastructure/REST/ExerciseScenesRestController.php:81

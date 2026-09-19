@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T07:47:39+00:00\n"
+"POT-Creation-Date: 2026-09-19T07:54:37+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3443,55 +3443,59 @@ msgstr "De categorie kon niet worden verwijderd."
 msgid "Expected a list of windows."
 msgstr "Een lijst met periodes verwacht."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:110
+#: src/Infrastructure/REST/EvaluationsRestController.php:112
 msgid "You can only request your own evaluations."
 msgstr "Je kunt alleen je eigen evaluaties opvragen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:506
-#: src/Infrastructure/REST/EvaluationsRestController.php:717
-#: src/Infrastructure/REST/EvaluationsRestController.php:730
-#: src/Infrastructure/REST/EvaluationsRestController.php:737
+#: src/Infrastructure/REST/EvaluationsRestController.php:508
+#: src/Infrastructure/REST/EvaluationsRestController.php:742
+#: src/Infrastructure/REST/EvaluationsRestController.php:755
+#: src/Infrastructure/REST/EvaluationsRestController.php:762
 msgid "Evaluation not found."
 msgstr "Evaluatie niet gevonden."
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:516
+#: src/Infrastructure/REST/EvaluationsRestController.php:518
 msgid "Player and date are required."
 msgstr "Speler en datum zijn verplicht."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:520
-#: src/Infrastructure/REST/EvaluationsRestController.php:595
+#: src/Infrastructure/REST/EvaluationsRestController.php:522
+#: src/Infrastructure/REST/EvaluationsRestController.php:608
 msgid "You can only evaluate players in your team."
 msgstr "U kunt alleen spelers in uw eigen team evalueren."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:531
+#: src/Infrastructure/REST/EvaluationsRestController.php:544
 msgid "The evaluation could not be created."
 msgstr "De evaluatie kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:545
+#: src/Infrastructure/REST/EvaluationsRestController.php:558
 msgid "The evaluation was saved but some ratings failed."
 msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen zijn mislukt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:563
-#: src/Infrastructure/REST/EvaluationsRestController.php:683
-#: src/Infrastructure/REST/EvaluationsRestController.php:715
-#: src/Infrastructure/REST/EvaluationsRestController.php:724
+#: src/Infrastructure/REST/EvaluationsRestController.php:576
+#: src/Infrastructure/REST/EvaluationsRestController.php:708
+#: src/Infrastructure/REST/EvaluationsRestController.php:740
+#: src/Infrastructure/REST/EvaluationsRestController.php:749
 msgid "Invalid evaluation id."
 msgstr "Ongeldig evaluatie-id."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:606
+#: src/Infrastructure/REST/EvaluationsRestController.php:631
 msgid "The evaluation could not be updated."
 msgstr "De evaluatie kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:649
+#: src/Infrastructure/REST/EvaluationsRestController.php:674
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden "
 "opgeslagen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:705
+#: src/Infrastructure/REST/EvaluationsRestController.php:730
 msgid "The evaluation could not be archived."
 msgstr "De evaluatie kon niet worden gearchiveerd."
+
+#: src/Infrastructure/REST/EvaluationsRestController.php:862
+msgid "That activity does not exist, or it is not one of your teams."
+msgstr "Die activiteit bestaat niet, of hoort niet bij een van uw teams."
 
 #: src/Infrastructure/REST/ExerciseScenesRestController.php:81
 msgid "That scene no longer exists."
@@ -62707,10 +62711,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Infrastructure/REST/EvaluationsRestController.php
-msgid "That activity does not exist, or it is not one of your teams."
-msgstr "Die activiteit bestaat niet, of hoort niet bij een van uw teams."
 
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
