@@ -785,6 +785,50 @@ Gated on `is_user_logged_in()`: broadcasts are shown to every persona.
 
 Hides one broadcast for the caller only (user meta, keyed on id). A later broadcast has a new id and is not affected. Returns `{ dismissed: id }`, or **404** `not_dismissable` when no active broadcast has that id or it is marked `dismissable: false`.
 
+## Threads (#0028, #3674)
+
+Conversations anchored on one record. A thread is addressed by `{type}/{id}`: the kind of record and its id. There are three types:
+
+| `type` | The thread belongs to | Read | Post |
+| --- | --- | --- | --- |
+| `goal` | a player's goal (`tt_goals.id`) | admins and heads of development, a coach who owns the player, the goal's author, the player, the player's linked parents | same as read |
+| `player` | a player record (`tt_players.id`): staff notes on the player | `tt_view_player_notes`, scoped: a team-scoped coach reads only players on their teams; global-read holders read every player | `tt_edit_player_notes`, same scope |
+| `blueprint` | a team blueprint | `team_chemistry` read authority | `team_chemistry` change authority |
+
+Players and parents never see `player` threads: those are staff notes about the player. Teams, activities and trial cases have no threads.
+
+Every route declares its arguments, so `OPTIONS` on a thread route lists `type` with its `enum` and a description. An unknown type is refused before the permission check:
+
+```json
+{ "code": "rest_invalid_param",
+  "message": "Invalid parameter(s): type",
+  "data": { "status": 400,
+            "params": { "type": "Unknown thread type \"team\". Valid types: goal, player, blueprint." },
+            "details": { "type": { "code": "unknown_thread_type", "data": { "status": 400, "valid_types": ["goal", "player", "blueprint"] } } } } }
+```
+
+A known type the caller may not read or post on is **403**. A record that doesn't exist (or is in another club) is also **403**, not 404: the adapter can't grant access to a record it can't find.
+
+### `GET /threads/{type}/{id}`
+
+The thread's messages, oldest first, and marks the thread read for the caller: `{ messages: [ { id, thread_type, thread_id, author_user_id, author_name, body, visibility, is_system, created_at, edited_at, deleted_at } ], unread_since, edit_window_seconds, current_user_id }`. `?since=<message id>` returns only newer messages (the polling call). `private_to_coach` messages are left out for a caller who can't see them.
+
+### `POST /threads/{type}/{id}/messages`
+
+Posts a message: `{ "body": "…", "visibility": "public" }`. `body` is required (a missing one is `400 rest_missing_callback_param`; an empty or whitespace-only one is `400 tt_thread_empty`) and keeps basic HTML. `visibility` is `public` (the default) or `private_to_coach`; anything else is `400 rest_invalid_param`. A caller who can't see private messages posts public whatever they send. Returns the message, **201**.
+
+### `PUT /threads/{type}/{id}/messages/{msg_id}`
+
+Edits a message's `body` (required) and optionally its `visibility`. Only the author, within `edit_window_seconds` (5 minutes) of posting, and never a system message; otherwise **403** `tt_thread_edit_denied`.
+
+### `DELETE /threads/{type}/{id}/messages/{msg_id}`
+
+Soft-deletes a message: the body is blanked and `deleted_at` stamped. The author, or an admin (global `thread_messages` change authority); anyone else gets **403** `tt_thread_delete_denied`. Returns `{ deleted: true }`.
+
+### `POST /threads/{type}/{id}/read`
+
+Marks the thread read for the caller without listing it. `POST /threads/{type}/{id}` does the same. Returns `{ ok: true }`.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.
