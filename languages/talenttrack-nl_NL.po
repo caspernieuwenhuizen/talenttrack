@@ -44679,6 +44679,12 @@ msgstr "Notities — %s"
 msgid "Message body required."
 msgstr "Berichttekst vereist."
 
+#. translators: 1: the thread type the caller sent, 2: comma-separated list of valid thread types
+#: src/Modules/Threads/Rest/ThreadsRestController.php:111
+#, php-format
+msgid "Unknown thread type \"%1$s\". Valid types: %2$s."
+msgstr "Onbekend gesprekstype \"%1$s\". Geldige types: %2$s."
+
 #: src/Modules/Threads/Rest/ThreadsRestController.php:159
 msgid "Could not post message."
 msgstr "Bericht kon niet worden geplaatst."

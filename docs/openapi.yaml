@@ -563,14 +563,14 @@ paths:
       tags: [threads]
       summary: List messages and mark thread as read (#0028)
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
       responses: { '200': { description: OK } }
     post:
       tags: [threads]
       summary: Mark thread as read (alternative to GET side-effect)
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
       responses: { '200': { description: OK } }
 
@@ -579,7 +579,7 @@ paths:
       tags: [threads]
       summary: Post message to thread
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
       responses: { '201': { description: Created } }
 
@@ -588,7 +588,7 @@ paths:
       tags: [threads]
       summary: Edit message (5-minute window, author-only)
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
         - { in: path, name: msg_id, required: true, schema: { type: integer } }
       responses: { '200': { description: OK }, '403': { description: Edit window expired } }
@@ -596,7 +596,7 @@ paths:
       tags: [threads]
       summary: Soft-delete message
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
         - { in: path, name: msg_id, required: true, schema: { type: integer } }
       responses: { '200': { description: OK } }
@@ -606,7 +606,7 @@ paths:
       tags: [threads]
       summary: Explicit read marker
       parameters:
-        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: type, required: true, description: The record the thread belongs to. An unknown type is a 400 that names the valid ones., schema: { type: string, enum: [goal, player, blueprint] } }
         - { in: path, name: id, required: true, schema: { type: integer } }
       responses: { '200': { description: OK } }
 

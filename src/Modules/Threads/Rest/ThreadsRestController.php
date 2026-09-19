@@ -28,14 +28,43 @@ final class ThreadsRestController {
     }
 
     public static function register(): void {
+        // Runs on rest_api_init, after every module's boot() has
+        // registered its adapter, so the enum covers each known type.
+        $types = ThreadTypeRegistry::known();
         $args = [
             'type' => [
+                'type'              => 'string',
+                'enum'              => $types,
+                'description'       => 'The record the thread belongs to. One of: ' . implode( ', ', $types ) . '.',
                 'sanitize_callback' => 'sanitize_key',
-                'validate_callback' => static fn( $v ): bool => is_string( $v ) && $v !== '' && ThreadTypeRegistry::get( $v ) !== null,
+                'validate_callback' => [ self::class, 'validateType' ],
             ],
             'id' => [
+                'type'              => 'integer',
+                'description'       => 'The id of the record the thread belongs to (the goal, player or blueprint id).',
                 'sanitize_callback' => 'absint',
                 'validate_callback' => static fn( $v ): bool => is_numeric( $v ) && (int) $v > 0,
+            ],
+        ];
+        $msg_id_arg = [
+            'msg_id' => [
+                'type'              => 'integer',
+                'description'       => 'The message id.',
+                'sanitize_callback' => 'absint',
+            ],
+        ];
+        $body_arg = [
+            'body' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'The message text. Basic HTML is kept; an empty message is refused.',
+            ],
+        ];
+        $visibility_arg = [
+            'visibility' => [
+                'type'        => 'string',
+                'enum'        => ThreadVisibility::all(),
+                'description' => 'Who sees the message. "public" (the default) reaches everyone who can read the thread; "private_to_coach" only coaches and admins. A caller who cannot see private messages posts public.',
             ],
         ];
 
@@ -59,7 +88,7 @@ final class ThreadsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'post' ],
                 'permission_callback' => [ self::class, 'guardPost' ],
-                'args'                => $args,
+                'args'                => $args + $body_arg + $visibility_arg,
             ],
         ] );
 
@@ -68,13 +97,13 @@ final class ThreadsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ self::class, 'edit' ],
                 'permission_callback' => [ self::class, 'guardPost' ],
-                'args'                => $args + [ 'msg_id' => [ 'sanitize_callback' => 'absint' ] ],
+                'args'                => $args + $msg_id_arg + $body_arg + $visibility_arg,
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ self::class, 'delete' ],
                 'permission_callback' => [ self::class, 'guardRead' ],
-                'args'                => $args + [ 'msg_id' => [ 'sanitize_callback' => 'absint' ] ],
+                'args'                => $args + $msg_id_arg,
             ],
         ] );
 
@@ -86,6 +115,32 @@ final class ThreadsRestController {
                 'args'                => $args,
             ],
         ] );
+    }
+
+    /**
+     * #3674 — an unknown type names the valid ones. Returning plain
+     * `false` left the caller with WordPress's bare "Invalid parameter"
+     * and no way to tell which types exist. Reads the live registry, so
+     * it stays right even for a type registered after the routes.
+     *
+     * @param mixed $value
+     * @return true|WP_Error
+     */
+    public static function validateType( $value ) {
+        if ( is_string( $value ) && $value !== '' && ThreadTypeRegistry::get( $value ) !== null ) {
+            return true;
+        }
+        $given = is_scalar( $value ) ? sanitize_key( (string) $value ) : '';
+        return new WP_Error(
+            'unknown_thread_type',
+            sprintf(
+                /* translators: 1: the thread type the caller sent, 2: comma-separated list of valid thread types */
+                __( 'Unknown thread type "%1$s". Valid types: %2$s.', 'talenttrack' ),
+                $given,
+                implode( ', ', ThreadTypeRegistry::known() )
+            ),
+            [ 'status' => 400, 'valid_types' => ThreadTypeRegistry::known() ]
+        );
     }
 
     public static function guardRead( WP_REST_Request $req ): bool {
