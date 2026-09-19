@@ -53632,7 +53632,6 @@ msgstr "Aftrap %s"
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1265
 msgid "Kick-off"
 msgstr "Aftrap"
