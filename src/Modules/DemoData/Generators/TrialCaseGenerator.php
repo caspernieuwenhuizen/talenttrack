@@ -183,7 +183,7 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 }
 
                 if ( mt_rand( 1, 100 ) <= 80 ) {
-                    $total += $this->recordStaffInput( $case_id, $user_id, $copy, $end_ts );
+                    $total += $this->recordStaffInput( $case_id, $user_id, $copy, $start_ts, $end_ts );
                 }
             }
 
@@ -279,7 +279,7 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
     }
 
     /** @param array<string,string> $copy */
-    private function recordStaffInput( int $case_id, int $user_id, array $copy, int $end_ts ): int {
+    private function recordStaffInput( int $case_id, int $user_id, array $copy, int $start_ts, int $end_ts ): int {
         global $wpdb;
 
         $ratings = [];
@@ -292,7 +292,7 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
             'club_id'               => CurrentClub::id(),
             'case_id'               => $case_id,
             'user_id'               => $user_id,
-            'submitted_at'          => gmdate( 'Y-m-d H:i:s', $end_ts ),
+            'submitted_at'          => gmdate( 'Y-m-d H:i:s', self::submissionTs( $start_ts, $end_ts ) ),
             'category_ratings_json' => (string) wp_json_encode( $ratings ),
             'overall_rating'        => $overall,
             'free_text_notes'       => $copy['input'],
@@ -302,6 +302,27 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
 
         $this->registry->tag( 'trial_case_staff_input', $id );
         return 1;
+    }
+
+    /**
+     * #3648 — when a panel member handed their assessment in.
+     *
+     * A closed case ended in the past, so its end date is a fair submission
+     * time. An **open** case ends in the future, and stamping that date said
+     * a coach had submitted next week: the case read as already assessed, the
+     * author's own screen showed a submission time that had not happened yet,
+     * and the trial-input reminder never fired because it skips inputs that
+     * carry a `submitted_at`. An open case's assessment was written in the
+     * last few days instead, and never before the trial began.
+     */
+    private static function submissionTs( int $start_ts, int $end_ts ): int {
+        $now = time();
+        $at  = $end_ts <= $now
+            ? $end_ts
+            : $now - ( mt_rand( 1, 72 ) * HOUR_IN_SECONDS );
+
+        if ( $at < $start_ts ) $at = $start_ts;
+        return $at > $now ? $now : $at;
     }
 
     /**
