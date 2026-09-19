@@ -755,12 +755,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $letter ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
         } else {
-            $print_url = add_query_arg(
-                [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'letter', 'print' => 1 ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
+            // #3661 — the standalone print document, not this page again.
+            $print_url = \TT\Modules\Trials\Print\TrialLetterPrintRouter::urlFor( (int) $case->id );
             echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Print view', 'talenttrack' ) . '</a></p>';
-            echo '<div class="tt-trial-letter-preview">' . wp_kses_post( (string) $letter->rendered_html ) . '</div>';
+            // Read through the engine: letters stored before #3661 carry
+            // their stylesheet inlined ahead of them, which kses turns into
+            // a block of CSS text above the letter.
+            echo '<div class="tt-trial-letter-preview">'
+                . wp_kses_post( LetterTemplateEngine::displayHtml( (string) $letter->rendered_html ) )
+                . '</div>';
         }
 
         self::cardClose();

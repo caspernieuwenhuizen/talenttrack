@@ -24471,6 +24471,32 @@ msgstr "Log in om deze intake te printen."
 msgid "You do not have access to print this intake."
 msgstr "Je hebt geen toegang om deze intake te printen."
 
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
+msgid "Log in to print this letter."
+msgstr "Log in om deze brief te printen."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:68
+msgid "You do not have access to print this letter."
+msgstr "Je hebt geen toegang om deze brief te printen."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:89
+msgid "No letter has been generated for this case yet."
+msgstr "Voor dit dossier is nog geen brief gegenereerd."
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:80
+msgid "Trial cases are part of a plan this install is not on."
+msgstr "Stagedossiers horen bij een pakket dat deze installatie niet heeft."
+
+#. translators: %s: player name
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:151
+#, php-format
+msgid "Letter — %s"
+msgstr "Brief — %s"
+
+#: src/Modules/Trials/Print/TrialLetterPrintRouter.php:152
+msgid "Trial letter"
+msgstr "Stagebrief"
+
 #. translators: 1: team name, 2: season e.g. 2026/27
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:171
 #, php-format

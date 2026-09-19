@@ -1,0 +1,135 @@
+/*
+ * trial-letter.css — the trial outcome letter (#3661).
+ *
+ * One sheet, three places the letter appears:
+ *   - the Letter tab on a trial case (inside `.tt-trial-letter-preview`);
+ *   - the letter-template editor's live preview;
+ *   - the standalone print document from TrialLetterPrintRouter, which has
+ *     no wp_head and so reads this file and inlines it.
+ *
+ * The letter used to carry these rules inside its own stored HTML as a
+ * `<style>` element, which kses stripped to bare text on screen. The stored
+ * HTML is content only now; this sheet dresses it.
+ *
+ * Mobile-first per CLAUDE.md §2: the base is the phone, where the letter
+ * sits inside a card and needs little padding of its own. Tokens only.
+ */
+
+.tt-root .tt-letter {
+    max-width: 45rem;
+    margin: 0 auto;
+    padding: var(--tt-sp-2, 8px);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--tt-ink);
+}
+.tt-root .tt-letter h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin: 0 0 0.25rem;
+}
+.tt-root .tt-letter h2 {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    margin: 1.5rem 0 0.5rem;
+}
+.tt-root .tt-letter .tt-letter-club {
+    font-size: 0.95rem;
+    color: var(--tt-ink-soft);
+    margin-bottom: 1.25rem;
+}
+.tt-root .tt-letter p {
+    margin: 0 0 0.75rem;
+}
+.tt-root .tt-letter-page {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--tt-line);
+    break-before: page;
+    page-break-before: always;
+}
+.tt-root .tt-letter-line {
+    margin: 1.25rem 0 0.25rem;
+    font-size: 0.95rem;
+    color: var(--tt-ink);
+}
+.tt-root .tt-letter-instructions {
+    margin-top: 1.5rem;
+    font-style: italic;
+    color: var(--tt-ink-soft);
+}
+.tt-root .tt-letter-signature {
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .tt-root .tt-letter {
+        padding: 2rem;
+    }
+}
+
+/* ---- Standalone print document ---------------------------------------- */
+
+.tt-root.tt-letter-print {
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-root .tt-letter-print__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    max-width: 45rem;
+    margin: 0 auto var(--tt-sp-4, 16px);
+}
+.tt-root .tt-letter-print__toolbar button,
+.tt-root .tt-letter-print__toolbar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    min-width: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    font: inherit;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-root .tt-letter-print__toolbar button {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-paper);
+}
+.tt-root .tt-letter-print__toolbar button:active,
+.tt-root .tt-letter-print__toolbar a:active {
+    opacity: 0.8;
+}
+.tt-root .tt-letter-print__toolbar button:focus-visible,
+.tt-root .tt-letter-print__toolbar a:focus-visible {
+    outline: 3px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+@media print {
+    .tt-root.tt-letter-print {
+        padding: 0;
+    }
+    .tt-root .tt-letter-print__toolbar {
+        display: none;
+    }
+    .tt-root .tt-letter {
+        max-width: none;
+        padding: 0;
+    }
+    .tt-root .tt-letter-page {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+    }
+}

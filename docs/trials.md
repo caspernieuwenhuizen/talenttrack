@@ -83,7 +83,7 @@ The decision form requires a justification note (≥ 30 characters) for the inte
 
 ### 5. Generate the letter
 
-Recording a decision generates the letter automatically. The **Letter** tab shows it inline and offers a print-ready view. Three templates ship with the plugin:
+Recording a decision generates the letter automatically. The **Letter** tab shows it inline and offers a print-ready view. **Print view** opens the letter on its own — no navigation, no tabs, no letter history, just the letter and a Print button — so what comes out of the printer is what you hand to the family. Only the head of development and club admin can open it; anyone else following the link gets a refusal. Three templates ship with the plugin:
 
 - **Admittance** — warm welcome, next steps, optional acceptance slip on page 2 if the club has that turned on.
 - **Decline (final)** — respectful and definitive.
