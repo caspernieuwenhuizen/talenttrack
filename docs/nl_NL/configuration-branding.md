@@ -104,7 +104,7 @@ Onderdelen die in wp-admin openen hebben een externe-link-markering zodat de con
 
 ### Algemeen
 
-- **Naam academie** — gebruikt door de hele plugin heen en in printbare rapporten
+- **Naam academie** — gebruikt door de hele plugin heen, in printbare rapporten en op het briefhoofd van elke stagebrief. Laat je het leeg, dan vallen die schermen terug op de sitetitel van WordPress, en die benoemt de installatie in plaats van de academie
 - **Logo-URL** — getoond in de header van het frontend-dashboard en de printuitvoer
 - **Primaire kleur** — tegelaccenten, grafieklijnen, kerncijfers
 - **Maximum beoordelingsschaal** — standaard 5; je kunt overschakelen naar 10 als je coaches liever een 1–10-schaal gebruiken

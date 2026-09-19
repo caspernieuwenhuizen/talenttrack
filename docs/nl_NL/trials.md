@@ -89,6 +89,8 @@ Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het t
 - **Afwijzen (definitief)** — respectvol en duidelijk.
 - **Afwijzen (met aanmoediging)** — benoemt wat positief opviel en waar nog aan gewerkt mag worden, met een expliciete uitnodiging voor een nieuwe stage.
 
+Boven elke brief staat de naam van de academie, en `{club_name}` levert diezelfde naam op waar je hem ook in een sjabloon gebruikt. Die naam komt uit **Configuratie → Naam academie**; vul hem in vóór de eerste brief de deur uit gaat, want laat je het veld leeg, dan komt de sitetitel van WordPress op het briefhoofd te staan. Een naamswijziging verandert niets aan al gegenereerde brieven — genereer een brief opnieuw als de nieuwe naam erop moet staan.
+
 De meegeleverde Nederlandse brieven gebruiken een warme, informele clubtoon ("je/jullie"). Past de tekst niet helemaal bij jullie club? Met **Briefsjablonen** (onder de groep Stagedossiers) pas je elke brief per taal aan. De editor opent met een korte uitleg, toont elke brief onder een begrijpelijke naam ("Aanbod van een plek", "Geen plek — met aanmoediging", …) en biedt een zijpaneel met alle beschikbare variabelen (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus een live voorbeeld met voorbeeldgegevens. Onbekende variabelen blijven letterlijk `{foo}` staan zodat ontbrekende stukken zichtbaar zijn in de voorbeeldweergave.
 
 ### 6. Het gesprek met de ouders
@@ -101,7 +103,7 @@ Trajecten zijn sjablonen die de standaard stageduur bepalen. Drie worden meegele
 
 ## Acceptatiestrook (optioneel)
 
-Bij een aanbod kan de club een acceptatiestrook op pagina 2 van de brief meesturen. Onder **Briefsjablonen → Acceptatiestrook** zet je hem aan, kies je de antwoordtermijn (aantal dagen vanaf de briefdatum) en het retouradres. Komt de strook getekend retour, markeer dat dan op het tabblad **Beslissing**.
+Bij een aanbod kan de club een acceptatiestrook op pagina 2 van de brief meesturen. Onder **Briefsjablonen → Acceptatiestrook** zet je hem aan, kies je de antwoordtermijn (aantal dagen vanaf de briefdatum) en het retouradres. Het adres dat je daar opslaat is het adres waar de strook om vraagt, en `{club_address}` in een sjabloon levert datzelfde adres op; laat je het leeg, dan valt de strook terug op "het secretariaat". Komt de strook getekend retour, markeer dat dan op het tabblad **Beslissing**.
 
 ## Een stagedossier afsluiten
 

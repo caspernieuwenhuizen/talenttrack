@@ -8,6 +8,7 @@ use TT\Modules\Reports\AudienceType;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialLetterTemplatesRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
+use TT\Shared\Club\ClubIdentity;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -96,8 +97,11 @@ final class LetterTemplateEngine {
             if ( $u ) $hod_name = (string) $u->display_name;
         }
 
-        $club_name = (string) QueryHelpers::get_config( 'club_name', get_bloginfo( 'name' ) ?: __( 'The club', 'talenttrack' ) );
-        $club_addr = (string) QueryHelpers::get_config( 'club_address', '' );
+        $club_name = ClubIdentity::name();
+        // The return address the letter-template editor saves (#3662): the
+        // engine used to read a `club_address` key nothing writes, so the
+        // acceptance slip always fell back to "the club office".
+        $club_addr = trim( (string) QueryHelpers::get_config( 'tt_trial_acceptance_club_address', '' ) );
 
         $now           = time();
         $current_year  = (int) date_i18n( 'Y', $now );
