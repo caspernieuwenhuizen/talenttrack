@@ -90,6 +90,12 @@ aftrap om 10:00 en verzamelen om 09:15. Een zaterdag in een wedstrijdweek heeft
 dus altijd een wedstrijd om minuten, de presentielijst en
 wedstrijdbeoordelingen aan op te hangen.
 
+Elke wedstrijd heeft een **tegenstander** en wordt afwisselend **thuis en uit**
+gespeeld; bij een uitwedstrijd staat de club van de tegenstander als locatie.
+Een gespeelde wedstrijd staat op **Afgerond** in de lijst met
+wedstrijduitvoeringen, zoals een wedstrijd die de trainer na afloop heeft
+nagekeken en vastgezet.
+
 Een **geplande selectie** hebben ze wél, en elke activiteit uit het verleden
 ook. Aanwezigheid bestaat namelijk uit twee dingen — de selectie die de trainer
 vooraf opgaf en de presentielijst die hij achteraf afvinkte — en een
