@@ -22,6 +22,15 @@ Als je kind in een U8-, U9- of U10-team speelt, behandelt TalentTrack jou — de
 1. Accepteer de uitnodigingsmail — daarmee maak je je ouderaccount aan.
 2. Installeer TalentTrack op je telefoon ([iPhone](install-on-iphone.md) · [Android](install-on-android.md)).
 3. Zet notificaties aan ([Notificaties instellen](notifications-setup.md)).
+4. Vul je telefoonnummer in bij **Mijn instellingen** — zie hieronder.
+
+## Je telefoonnummer
+
+De academie heeft een nummer nodig waarop ze je kan bellen als een wedstrijd vervalt, een training verschuift of je kind een blessure oploopt. Je vult het zelf in: open **Mijn instellingen** via je naam rechtsboven en typ het bij **Telefoonnummer**.
+
+Begin met de landcode — `+31 6 12345678`, dus niet `06 12345678`. Een nummer zonder landcode wordt geweigerd en het nummer dat je eerder had opgeslagen blijft precies staan, zodat een half afgemaakte wijziging nooit een werkend nummer wist. Laat het veld leeg en sla op om het nummer te verwijderen.
+
+Niemand hoeft de wijziging goed te keuren; hij geldt zodra je opslaat. De coaches van je kind en de academiemedewerkers zien het nummer op het dossier van je kind. Andere ouders en andere spelers zien het nooit.
 
 Daarna zie je "Mijn kind" op het dashboard. Tik om het profiel van je kind te openen.
 

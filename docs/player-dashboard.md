@@ -85,9 +85,16 @@ Click your name in the top-right corner of the dashboard to open the user menu. 
 
 - First name + last name + display name (how your name shows up to coaches and teammates)
 - Email
+- Phone number
 - Change password (with current-password confirmation)
 
 Application passwords, admin colour palettes and other WordPress-internal toggles stay in wp-admin where they belong; ignore them unless you're managing your own developer integrations.
+
+### Your phone number
+
+Type the number the academy should use to reach you, starting with the country code — `+31 6 12345678`, not `06 12345678`. A number without its country code is refused and whatever you had saved before stays as it was, so a half-typed entry can never quietly erase a working one. Leave the box empty and save to remove the number altogether.
+
+You own this number: nobody has to approve it, and it takes effect as soon as you save. It is the number the academy's messages go to, and it appears on your child's file for coaches and academy staff — not for other parents, and not for other players.
 
 ### What your parent can see
 
