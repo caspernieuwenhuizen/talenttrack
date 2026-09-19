@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:21:35+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:22:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -4449,7 +4449,7 @@ msgstr ""
 msgid "You do not coach this match’s team."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:365
+#: src/Infrastructure/REST/ReportsRestController.php:387
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
 msgid "You do not have access to this team’s players."
 msgstr ""
@@ -9024,7 +9024,7 @@ msgstr "Jamais"
 #. translators: %s is the coach's display name
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:335
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:303
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:220
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:227
 #, php-format
 msgid "by %s"
 msgstr ""
@@ -22160,7 +22160,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:237
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:237
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:249
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr ""
@@ -22576,12 +22576,14 @@ msgid "Present %s"
 msgstr ""
 
 #. translators: %s: opponent name
+#. translators: %s is the opponent name
 #. translators: %s is the opponent name.
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:610
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:163
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:144
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:80
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:39
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:256
 #: src/Shared/Frontend/FrontendMyTeamView.php:141
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:375
 #, php-format
@@ -30660,7 +30662,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:252
 #: src/Shared/Frontend/DashboardShortcode.php:286
 #: src/Shared/Frontend/DashboardShortcode.php:2391
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:326
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:345
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:526
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -53396,45 +53398,45 @@ msgstr ""
 msgid "No overall rating yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:260
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:279
 msgid "Feedback from your coach"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:267
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:286
 msgid "Show detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:268
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:287
 msgid "Hide detail"
 msgstr ""
 
 #. translators: %s: season name, e.g. 2026/2027
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:294
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:313
 #, php-format
 msgid "Season %s."
 msgstr ""
 
 #. translators: %d: number of evaluations from earlier seasons
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:300
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:319
 #, php-format
 msgid "Show %d evaluation from earlier seasons"
 msgid_plural "Show %d evaluations from earlier seasons"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:305
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:324
 msgid "All seasons."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:307
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:326
 msgid "Show this season only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:327
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:346
 msgid "The detail could not be loaded. Try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:328
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:347
 msgid "No category breakdown for this evaluation."
 msgstr ""
 
