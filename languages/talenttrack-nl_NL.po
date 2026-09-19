@@ -62756,6 +62756,7 @@ msgstr "Een evaluatie kan niet worden gedateerd vóór de activiteit waar ze ove
 #, php-format
 msgid "Evaluations sheet, row %1$d: the date %2$s is in the future, so this evaluation was not imported."
 msgstr "Tabblad Evaluaties, rij %1$d: de datum %2$s ligt in de toekomst, dus deze evaluatie is niet geïmporteerd."
+
 #~ msgid "Could not create trial case."
 #~ msgstr "Stagedossier kon niet worden aangemaakt."
 
