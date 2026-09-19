@@ -744,6 +744,26 @@ The player records the logged-in account is linked to: the player it *is*, and t
 
 **Permission:** logged in. The route returns only the caller's own links. The collection routes (`GET /players`, `GET /evaluations`, …) stay staff surfaces; `me` is the self-scoped entry point, mirroring the `my_*` matrix entities rather than widening a collection.
 
+## Parent accounts (#1815, #3571)
+
+Linking a parent's login to a player — the `tt_player_parents` link that decides what a parent can see. Every route is gated on `tt_manage_parent_accounts`.
+
+### `GET /parent-accounts/eligible?search=<term>`
+
+Accounts that could be linked as a parent: any account that is not a player or a staff person in this club (an account with only a *parent* People record qualifies). `search` is required, at least two characters, matched against the display name and the email address; at most 20 results. Returns `{ accounts: [ { id, display_name, email } ] }`. A missing or one-character `search` is `400 bad_search`.
+
+### `GET /players/{id}/parents`
+
+The parent accounts linked to a player, primary first: `{ player_id, parents: [ { wp_user_id, display_name, email, is_primary } ] }`. `404` for a player outside this club.
+
+### `POST /players/{id}/parents`
+
+Link an account: `{ "wp_user_id": 46 }`, or create one and link it: `{ "create": true, "first_name", "last_name", "email" }` (a set-your-password email goes out; `temp_password` only when there is no usable email). The route declares these args. A missing `wp_user_id` is `422 bad_request` with `details.field = "wp_user_id"`. Returns `{ player_id, wp_user_id, status, message }`, where `status` is `linked`, `created`, or `already_linked` when the link was already there.
+
+### `DELETE /players/{id}/parents/{parent_id}`
+
+Unlink. The parent role is removed from the account only when it guards no other player in this club.
+
 ## Operator broadcasts (#3499)
 
 Notices the operator's Admin Center sends to this install (maintenance windows, service announcements), for the logged-in user. They arrive on the phone-home response; these routes only read and dismiss them.
