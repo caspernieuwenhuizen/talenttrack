@@ -349,7 +349,7 @@ class PlayerComparisonPage {
                                 $pid = (int) $pl->id;
                                 $h = $headlines[ $pid ] ?? [];
                                 $val = $h[ $key ] ?? null;
-                                $display = $val === null ? '—' : ( is_numeric( $val ) ? (string) $val : esc_html( (string) $val ) );
+                                $display = $val === null ? '—' : esc_html( (string) $val );
                                 ?>
                                 <td style="font-variant-numeric:tabular-nums; font-weight:600;"><?php echo $display; ?></td>
                             <?php endforeach; ?>
