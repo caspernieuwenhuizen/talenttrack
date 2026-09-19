@@ -217,12 +217,18 @@ final class TrialDecisionContractTest extends WP_UnitTestCase {
         $this->assertSame( $this->user, (int) ( $case['decision_made_by'] ?? 0 ) );
     }
 
+    /**
+     * "Not decided yet" is null, not an empty string and not a zero user id.
+     * A consumer has to be able to tell an undecided case from one decided
+     * by a user who has since been deleted.
+     */
     public function test_an_undecided_case_reads_null_rather_than_blank(): void {
         $case = $this->readCase();
-        $this->assertNull( $case['decision'] ?? 'unset' );
-        $this->assertNull( $case['decision_notes'] ?? 'unset' );
-        $this->assertNull( $case['decision_made_at'] ?? 'unset' );
-        $this->assertNull( $case['decision_made_by'] ?? 'unset' );
+
+        foreach ( [ 'decision', 'decision_notes', 'decision_made_at', 'decision_made_by' ] as $field ) {
+            $this->assertArrayHasKey( $field, $case, "{$field} is not in the payload at all" );
+            $this->assertNull( $case[ $field ], "{$field} is not null on an undecided case" );
+        }
     }
 
     public function test_the_list_leaves_the_motivation_out(): void {
