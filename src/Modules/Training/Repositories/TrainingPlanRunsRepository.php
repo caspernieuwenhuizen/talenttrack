@@ -3,6 +3,7 @@ namespace TT\Modules\Training\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -79,6 +80,66 @@ final class TrainingPlanRunsRepository {
             CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * Who was on the pitch for this run: the players with a present or
+     * late register row on the run's activity, guests included.
+     *
+     * This is the rule for who a coach may write an observation about.
+     * The sideline sheet lists these players and the REST write refuses
+     * anyone else, so both read it from here rather than each keeping a
+     * copy. A note on a player who was not there is false evidence on a
+     * child's development record.
+     *
+     * @return list<array{id:int, name:string}>
+     */
+    public function squadForRun( int $run_id ): array {
+        if ( $run_id <= 0 ) return [];
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT p.id, p.first_name, p.last_name
+               FROM {$this->table()} r
+               JOIN {$wpdb->prefix}tt_attendance att
+                 ON att.activity_id = r.activity_id
+                AND att.club_id = r.club_id
+               JOIN {$wpdb->prefix}tt_players p
+                 ON p.id = COALESCE( att.guest_player_id, att.player_id )
+                AND p.club_id = r.club_id
+              WHERE r.id = %d
+                AND r.club_id = %d
+                AND att.record_type = 'actual'
+                AND att.status IN ( %s, %s )
+           ORDER BY p.last_name ASC, p.first_name ASC",
+            $run_id,
+            CurrentClub::id(),
+            AttendanceStatus::PRESENT,
+            AttendanceStatus::LATE
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $out[] = [
+                'id'   => (int) $row->id,
+                'name' => trim( (string) $row->first_name . ' ' . (string) $row->last_name ),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Whether a player may have an observation recorded on this run.
+     */
+    public function isInSquad( int $run_id, int $player_id ): bool {
+        if ( $player_id <= 0 ) return false;
+
+        foreach ( $this->squadForRun( $run_id ) as $player ) {
+            if ( $player['id'] === $player_id ) return true;
+        }
+
+        return false;
     }
 
     /**

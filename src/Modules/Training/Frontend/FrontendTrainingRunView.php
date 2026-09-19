@@ -289,10 +289,14 @@ final class FrontendTrainingRunView extends FrontendViewBase {
      * and nothing else, and that is a complete observation.
      */
     private static function renderObservationSheet( object $run ): void {
-        $players = self::squadFor( $run );
+        // Present and late only, and the REST write enforces the same
+        // list: a coach does not write an observation about a player who
+        // was not there, and offering the row invites it.
+        $run_id  = (int) $run->id;
+        $players = ( new TrainingPlanRunsRepository() )->squadForRun( $run_id );
         if ( $players === [] ) return;
 
-        echo '<section class="tt-obs" data-tt-obs="' . esc_attr( (string) $run->id ) . '">';
+        echo '<section class="tt-obs" data-tt-obs="' . esc_attr( (string) $run_id ) . '">';
 
         echo '<h2 class="tt-obs__title">' . esc_html__( 'Notes on players', 'talenttrack' ) . '</h2>';
         echo '<p class="tt-obs__hint tt-small">'
@@ -374,40 +378,6 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         while ( $value <= $max + 0.0001 && count( $out ) < 20 ) {
             $out[] = round( $value, 1 );
             $value += $step;
-        }
-
-        return $out;
-    }
-
-    /**
-     * Who is on the pitch, for the observation sheet.
-     *
-     * Present and late only — a coach does not write an observation
-     * about a player who was not there, and offering the row invites it.
-     *
-     * @return list<array{id:int, name:string}>
-     */
-    private static function squadFor( object $run ): array {
-        global $wpdb;
-
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT p.id, p.first_name, p.last_name
-               FROM {$wpdb->prefix}tt_attendance att
-               JOIN {$wpdb->prefix}tt_players p
-                 ON p.id = COALESCE( att.guest_player_id, att.player_id )
-              WHERE att.activity_id = %d
-                AND att.record_type = 'actual'
-                AND att.status IN ( 'present', 'late' )
-           ORDER BY p.last_name ASC, p.first_name ASC",
-            (int) $run->activity_id
-        ) );
-
-        $out = [];
-        foreach ( (array) $rows as $row ) {
-            $out[] = [
-                'id'   => (int) $row->id,
-                'name' => trim( (string) $row->first_name . ' ' . (string) $row->last_name ),
-            ];
         }
 
         return $out;

@@ -229,7 +229,7 @@ final class TrainingRunsRestController {
     }
 
     /**
-     * Record one observation about one player.
+     * Record one observation about one player who took part in the run.
      *
      * A rating-free note is valid and is the common case on a wet
      * Tuesday; an observation carrying neither a rating nor a note is
@@ -259,6 +259,19 @@ final class TrainingRunsRestController {
         // decided by asking, not by trusting the client's opinion.
         $client_uuid = (string) ( $r->get_param( 'client_uuid' ) ?? '' );
         $replayed    = $client_uuid !== '' && $repo->findByUuid( $client_uuid ) !== null;
+
+        // #3694 — only a player who was on the pitch can be observed: a
+        // present or late register row on the run's activity, the same
+        // list the sideline sheet offers. Checked after the replay test,
+        // so an observation accepted earlier still replays as 200 even if
+        // the register has changed since; the replay writes nothing.
+        if ( ! $replayed && ! $runs->isInSquad( $id, $player_id ) ) {
+            return RestResponse::error(
+                'player_not_in_squad',
+                __( "This player isn't marked present at this training, so an observation can't be recorded for them.", 'talenttrack' ),
+                400
+            );
+        }
 
         $observation_id = $repo->create( [
             'run_id'             => $id,
