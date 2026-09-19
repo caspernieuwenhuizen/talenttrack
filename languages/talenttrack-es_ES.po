@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T10:10:49+00:00\n"
+"POT-Creation-Date: 2026-09-19T10:17:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1578,9 +1578,9 @@ msgstr ""
 #: src/Infrastructure/Players/PlayerAccountService.php:74
 #: src/Infrastructure/Players/PlayerAccountService.php:141
 #: src/Infrastructure/REST/ParentAccountRestController.php:132
-#: src/Infrastructure/REST/PlayersRestController.php:128
-#: src/Infrastructure/REST/PlayersRestController.php:140
-#: src/Infrastructure/REST/PlayersRestController.php:153
+#: src/Infrastructure/REST/PlayersRestController.php:129
+#: src/Infrastructure/REST/PlayersRestController.php:141
+#: src/Infrastructure/REST/PlayersRestController.php:154
 #: src/Modules/Export/Exporters/PlayerEvaluationPdfExporter.php:86
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:64
 #: src/Modules/Export/Exporters/ScoutingReportPdfExporter.php:94
@@ -2887,7 +2887,7 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
 #: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
-#: src/Infrastructure/REST/PlayersRestController.php:199
+#: src/Infrastructure/REST/PlayersRestController.php:200
 #: src/Infrastructure/REST/TeamsRestController.php:206
 msgid "Unknown orderby column."
 msgstr ""
@@ -3330,27 +3330,27 @@ msgid "The exercise could not be made club-wide."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:361
-#: src/Infrastructure/REST/PlayersRestController.php:378
+#: src/Infrastructure/REST/PlayersRestController.php:379
 msgid "No CSV file uploaded."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:366
-#: src/Infrastructure/REST/PlayersRestController.php:382
+#: src/Infrastructure/REST/PlayersRestController.php:383
 msgid "The upload failed."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:369
-#: src/Infrastructure/REST/PlayersRestController.php:385
+#: src/Infrastructure/REST/PlayersRestController.php:386
 msgid "CSV files larger than 5MB are not accepted."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:372
-#: src/Infrastructure/REST/PlayersRestController.php:388
+#: src/Infrastructure/REST/PlayersRestController.php:389
 msgid "Uploaded file could not be read."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:375
-#: src/Infrastructure/REST/PlayersRestController.php:392
+#: src/Infrastructure/REST/PlayersRestController.php:393
 msgid "Only .csv files are accepted."
 msgstr ""
 
@@ -4289,24 +4289,28 @@ msgstr ""
 msgid "No fields to update or update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:136
-#: src/Infrastructure/REST/PlayersRestController.php:149
+#: src/Infrastructure/REST/PlayersRestController.php:137
+#: src/Infrastructure/REST/PlayersRestController.php:150
 #: src/Modules/Vct/Rest/VctPhvFlagsRestController.php:51
 msgid "Invalid player id."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:530
+#: src/Infrastructure/REST/PlayersRestController.php:533
 #: src/Modules/Trials/Services/TrialCaseOpener.php:75
 #: src/Modules/Wizards/Player/ReviewStep.php:142
 msgid "The player could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:580
+#: src/Infrastructure/REST/PlayersRestController.php:585
 msgid "The player could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:639
+#: src/Infrastructure/REST/PlayersRestController.php:644
 msgid "The player could not be deleted."
+msgstr ""
+
+#: src/Infrastructure/REST/PlayersRestController.php:739
+msgid "Dates must be a real date in the form YYYY-MM-DD."
 msgstr ""
 
 #. translators: 1: rating min, 2: rating max
@@ -37892,64 +37896,68 @@ msgstr ""
 
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:226
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:233
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:285
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:289
 msgid "Prospect not found."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:279
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:280
 msgid "Invalid prospect id."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:304
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:308
 msgid "That does not look like an email address."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:327
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:331
 msgid "Consent date must be YYYY-MM-DD."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:389
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:347
+msgid "That scouting visit does not exist."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:411
 msgid "You must be logged in to log a prospect."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:401
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:423
 msgid ""
 "Could not start the prospect-logging chain. Check the workflow templates are "
 "enabled."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:66
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:121
 msgid "Visit date is required."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:70
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:126
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:125
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:181
 msgid "Visit date must be YYYY-MM-DD."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:74
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:129
 msgid "Location is required."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:100
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:155
 msgid "The scouting visit could not be saved."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:109
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:166
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:164
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:221
 msgid "Invalid scouting visit id."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:115
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:171
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:170
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:226
 msgid "Scouting visit not found."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:118
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:173
 msgid "You can only edit your own scouting visits."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:174
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:229
 msgid "You can only archive your own scouting visits."
 msgstr ""
 
@@ -45870,7 +45878,7 @@ msgid ""
 "a test training."
 msgstr ""
 
-#: src/Modules/Wizards/Prospect/ReviewStep.php:104
+#: src/Modules/Wizards/Prospect/ReviewStep.php:106
 msgid "Could not create the prospect record."
 msgstr ""
 
