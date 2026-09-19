@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend\Components;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\AuthorNameResolver;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadMessagesRepository;
 use TT\Modules\Threads\ThreadReadsRepository;
@@ -50,10 +51,19 @@ final class FrontendThreadView {
         ];
 
         echo '<section class="tt-thread" data-tt-thread role="region" aria-label="' . esc_attr__( 'Conversation', 'talenttrack' ) . '">';
+        // #3672 — resolve every author once, before the loop, through the
+        // linked player or person rather than the account's display_name.
+        $author_ids = [];
+        foreach ( $messages as $msg ) {
+            $row = (array) $msg;
+            $author_ids[] = (int) ( $row['author_user_id'] ?? 0 );
+        }
+        $names = AuthorNameResolver::namesFor( $author_ids );
+
         echo '<ol class="tt-thread-list" data-tt-thread-list aria-live="polite">';
         $last_id = 0;
         foreach ( $messages as $msg ) {
-            echo self::renderMessage( $msg, $user_id, $last_read );
+            echo self::renderMessage( $msg, $user_id, $last_read, $names );
             if ( (int) $msg->id > $last_id ) $last_id = (int) $msg->id;
         }
         if ( empty( $messages ) ) {
@@ -87,7 +97,8 @@ final class FrontendThreadView {
         echo '<script>(function(){var a=document.querySelectorAll("[data-tt-thread]");var s=a[a.length-1];if(s)s.dataset.lastId=' . (int) $last_id . ';})();</script>';
     }
 
-    private static function renderMessage( object $msg, int $viewer_id, ?string $last_read ): string {
+    /** @param array<int,string> $names Author names keyed by wp_user_id (#3672). */
+    private static function renderMessage( object $msg, int $viewer_id, ?string $last_read, array $names = [] ): string {
         $is_self    = (int) $msg->author_user_id === $viewer_id;
         $is_system  = (int) $msg->is_system === 1;
         $is_private = (string) $msg->visibility === ThreadVisibility::PRIVATE_COACH;
@@ -99,11 +110,8 @@ final class FrontendThreadView {
         if ( $is_private ) $cls .= ' is-private';
         if ( $is_unread ) $cls .= ' is-unread';
 
-        $author = '';
-        if ( ! $is_system && (int) $msg->author_user_id > 0 ) {
-            $u = get_user_by( 'id', (int) $msg->author_user_id );
-            if ( $u instanceof \WP_User ) $author = (string) $u->display_name;
-        }
+        $author_id = (int) $msg->author_user_id;
+        $author    = ( ! $is_system && $author_id > 0 ) ? (string) ( $names[ $author_id ] ?? '' ) : '';
 
         $when = strtotime( (string) $msg->created_at . ' UTC' );
         $when_label = $when !== false

@@ -20,7 +20,8 @@ Open een doel (*Mijn doelen*, *Doelen* op het coachoppervlak, of admin-zijdig `?
 
 - **Je eigen berichten** verschijnen rechts in een gekleurde bubbel.
 - **Berichten van anderen** staan links met de auteursnaam, tijd en (waar relevant) een kleine "Alleen trainers"-label.
-- **Systeemberichten** (doel aangemaakt, status gewijzigd) staan gecentreerd en cursief zodat duidelijk is dat ze van het systeem komen, niet van een persoon.
+- **De auteursnaam is de naam die de academie voert** — het spelersdossier bij een speler, het personendossier bij een trainer of ouder — en niet hoe het inlogaccount toevallig heet. Een speler koppelen aan een bestaand account, of een speler later hernoemen, zet zijn berichten niet langer onder andermans naam. Accounts die TalentTrack niet kent, vallen terug op hun accountnaam.
+- **Systeemberichten** (doel aangemaakt, status gewijzigd) staan gecentreerd en cursief zodat duidelijk is dat ze van het systeem komen, niet van een persoon. Ze tellen niet mee in het aantal berichten op een doelkaart, zodat een doel waar nog niemand op geschreven heeft je uitnodigt het gesprek te beginnen.
 - Een markering "Nieuwe berichten" blijft staan op berichten die zijn geplaatst sinds je laatste bezoek.
 
 Het tekstvak staat onderaan: schrijven, versturen, je bericht verschijnt onderaan de thread.

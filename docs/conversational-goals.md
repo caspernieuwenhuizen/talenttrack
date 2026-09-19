@@ -20,7 +20,8 @@ Open any goal (*My goals*, *Goals* on the coach surface, or admin-side `?tt_view
 
 - **Your own messages** appear right-aligned in a coloured bubble.
 - **Other people's messages** appear left-aligned with the author name, time, and (when relevant) a small "Coaches only" pill.
-- **System messages** (goal created, status changed) appear centered and italicized so it's clear they came from the system, not a person.
+- **The author name is the academy's name for that person** — the player record for a player, the people record for a coach or parent — not whatever their login account happens to be called. Linking a player to an existing account, or renaming a player afterwards, no longer leaves their messages under somebody else's name. Accounts TalentTrack doesn't know fall back to their account name.
+- **System messages** (goal created, status changed) appear centered and italicized so it's clear they came from the system, not a person. They don't count towards the message count on a goal card, so a goal nobody has written on yet still invites you to start the conversation.
 - A "New messages" highlight stays on messages posted since you last visited so you can scan to them.
 
 The compose box sits at the bottom: write, send, your message appears at the end of the thread.
