@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T10:17:20+00:00\n"
+"POT-Creation-Date: 2026-09-19T10:30:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -3013,7 +3013,7 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:549
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:331
+#: src/Modules/Trials/Rest/TrialsRestController.php:347
 msgid "No fields to update."
 msgstr ""
 
@@ -3106,8 +3106,8 @@ msgstr ""
 #: src/Infrastructure/REST/MeasurementsRestController.php:264
 #: src/Infrastructure/REST/MeasurementsRestController.php:404
 #: src/Infrastructure/REST/MinutesRestController.php:71
-#: src/Infrastructure/REST/TeamsRestController.php:375
-#: src/Infrastructure/REST/TeamsRestController.php:400
+#: src/Infrastructure/REST/TeamsRestController.php:392
+#: src/Infrastructure/REST/TeamsRestController.php:417
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php:74
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:163
@@ -4421,9 +4421,9 @@ msgstr ""
 #: src/Infrastructure/REST/SpondRestController.php:641
 #: src/Infrastructure/REST/SpondRestController.php:676
 #: src/Infrastructure/REST/SpondRestController.php:703
-#: src/Infrastructure/REST/TeamsRestController.php:357
-#: src/Infrastructure/REST/TeamsRestController.php:626
-#: src/Infrastructure/REST/TeamsRestController.php:639
+#: src/Infrastructure/REST/TeamsRestController.php:358
+#: src/Infrastructure/REST/TeamsRestController.php:643
+#: src/Infrastructure/REST/TeamsRestController.php:656
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfExporter.php:136
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:150
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:856
@@ -4508,63 +4508,63 @@ msgstr ""
 msgid "Expected an object under `sections`."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:372
-#: src/Infrastructure/REST/TeamsRestController.php:433
-#: src/Infrastructure/REST/TeamsRestController.php:466
-#: src/Infrastructure/REST/TeamsRestController.php:572
-#: src/Infrastructure/REST/TeamsRestController.php:593
-#: src/Infrastructure/REST/TeamsRestController.php:624
-#: src/Infrastructure/REST/TeamsRestController.php:633
+#: src/Infrastructure/REST/TeamsRestController.php:389
+#: src/Infrastructure/REST/TeamsRestController.php:450
+#: src/Infrastructure/REST/TeamsRestController.php:483
+#: src/Infrastructure/REST/TeamsRestController.php:589
+#: src/Infrastructure/REST/TeamsRestController.php:610
+#: src/Infrastructure/REST/TeamsRestController.php:641
+#: src/Infrastructure/REST/TeamsRestController.php:650
 msgid "Invalid team id."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:396
-#: src/Infrastructure/REST/TeamsRestController.php:648
-#: src/Infrastructure/REST/TeamsRestController.php:677
+#: src/Infrastructure/REST/TeamsRestController.php:413
+#: src/Infrastructure/REST/TeamsRestController.php:665
+#: src/Infrastructure/REST/TeamsRestController.php:694
 msgid "Invalid team or player id."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:409
+#: src/Infrastructure/REST/TeamsRestController.php:426
 msgid "That player has no recorded minutes for this team in this window."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:444
+#: src/Infrastructure/REST/TeamsRestController.php:461
 msgid "Give both from and to as YYYY-MM-DD, with from on or before to."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:477
+#: src/Infrastructure/REST/TeamsRestController.php:494
 msgid "Unknown period."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:554
-#: src/Infrastructure/REST/TeamsRestController.php:575
+#: src/Infrastructure/REST/TeamsRestController.php:571
+#: src/Infrastructure/REST/TeamsRestController.php:592
 #: src/Modules/Wizards/Team/BasicsStep.php:45
 #: src/Modules/Wizards/Team/ReviewStep.php:56
 msgid "Team name is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:561
+#: src/Infrastructure/REST/TeamsRestController.php:578
 msgid "The team could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:581
+#: src/Infrastructure/REST/TeamsRestController.php:598
 msgid "The team could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:607
-#: src/Infrastructure/REST/TeamsRestController.php:611
+#: src/Infrastructure/REST/TeamsRestController.php:624
+#: src/Infrastructure/REST/TeamsRestController.php:628
 msgid "The team could not be archived."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:661
+#: src/Infrastructure/REST/TeamsRestController.php:678
 msgid "Team not found in your club."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:667
+#: src/Infrastructure/REST/TeamsRestController.php:684
 msgid "The player could not be added to the team."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:684
+#: src/Infrastructure/REST/TeamsRestController.php:701
 msgid "The player could not be removed from the team."
 msgstr ""
 
@@ -43548,75 +43548,95 @@ msgstr ""
 msgid "Continue in trial group"
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:278
-#: src/Modules/Trials/Rest/TrialsRestController.php:299
-#: src/Modules/Trials/Rest/TrialsRestController.php:344
-#: src/Modules/Trials/Rest/TrialsRestController.php:454
-#: src/Modules/Trials/Rest/TrialsRestController.php:484
+#: src/Modules/Trials/Rest/TrialsRestController.php:294
+#: src/Modules/Trials/Rest/TrialsRestController.php:315
+#: src/Modules/Trials/Rest/TrialsRestController.php:360
+#: src/Modules/Trials/Rest/TrialsRestController.php:542
+#: src/Modules/Trials/Rest/TrialsRestController.php:572
 msgid "Trial case not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:280
+#: src/Modules/Trials/Rest/TrialsRestController.php:296
 msgid "No access to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:293
+#: src/Modules/Trials/Rest/TrialsRestController.php:309
 msgid "Invalid trial case id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:310
+#: src/Modules/Trials/Rest/TrialsRestController.php:326
 msgid "Invalid trial track id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:312
-#: src/Modules/Trials/Rest/TrialsRestController.php:321
+#: src/Modules/Trials/Rest/TrialsRestController.php:328
+#: src/Modules/Trials/Rest/TrialsRestController.php:337
 msgid "Trial track not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:314
+#: src/Modules/Trials/Rest/TrialsRestController.php:330
 msgid "Built-in trial tracks cannot be deleted."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:340
+#: src/Modules/Trials/Rest/TrialsRestController.php:356
 msgid "New end date and justification are required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:346
+#: src/Modules/Trials/Rest/TrialsRestController.php:362
 msgid "New end date must be after the current end date."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:363
+#: src/Modules/Trials/Rest/TrialsRestController.php:379
 msgid "Justification must be at least 30 characters."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:377
-#: src/Modules/Trials/Rest/TrialsRestController.php:390
+#: src/Modules/Trials/Rest/TrialsRestController.php:393
+#: src/Modules/Trials/Rest/TrialsRestController.php:406
 msgid "Could not record decision."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:403
+#: src/Modules/Trials/Rest/TrialsRestController.php:419
 msgid "Invalid user id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:413
+#: src/Modules/Trials/Rest/TrialsRestController.php:429
 msgid "Not assigned to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:428
+#: src/Modules/Trials/Rest/TrialsRestController.php:444
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
 "They are the record of what the decision was based on."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:493
+#. translators: %s: comma-separated field names
+#: src/Modules/Trials/Rest/TrialsRestController.php:456
+#, php-format
+msgid "A trial input does not accept: %s."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:461
+msgid "Send a rating, notes, or submit."
+msgstr ""
+
+#. translators: 1: rating min, 2: rating max
+#: src/Modules/Trials/Rest/TrialsRestController.php:479
+#, php-format
+msgid "The overall rating must be a number from %1$s to %2$s."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:501
+msgid "Add a rating or notes before submitting."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:581
 msgid "A valid trial-letter audience is required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:515
+#: src/Modules/Trials/Rest/TrialsRestController.php:603
 msgid "The letter could not be generated."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:551
+#: src/Modules/Trials/Rest/TrialsRestController.php:639
 msgid "No reminders were due."
 msgstr ""
 
