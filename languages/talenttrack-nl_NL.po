@@ -62712,6 +62712,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+msgid "You're not assigned to a team yet. Ask your academy admin to add you to one."
+msgstr "Je bent nog niet aan een team gekoppeld. Vraag je academiebeheerder om je aan een team toe te voegen."
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 

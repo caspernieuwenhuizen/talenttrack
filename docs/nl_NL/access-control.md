@@ -198,19 +198,20 @@ Het migratiepad is dus: ga naar **Personen → Functionele rollen**, geef elke s
 
 **Staf krijgt het spelersbeheer niet.** Het recht achter "spelers beheren" draagt namelijk ook de seizoensovergang, het aanmaken van inloggegevens voor spelers, het bewerken van maatwerkvelddefinities en het verwijderen van spelersdossiers — een academiebreed beheerdersoppervlak, geen elftaloppervlak. Heeft een fysio een nieuwe speler nodig, dan vraagt die dat aan een trainer of beheerder.
 
-Een stafmedewerker zonder elftal ziet niets. Dat is bewust: het koppelen aan hun teams is de handeling die de toegang geeft, en die is zichtbaar in de staflijst van het team.
+Een stafmedewerker zonder elftal ziet niets. Dat is bewust: het koppelen aan hun teams is de handeling die de toegang geeft, en die is zichtbaar in de staflijst van het team. Hun dashboard zegt het ook: "Je bent nog niet aan een team gekoppeld. Vraag je academiebeheerder om je aan een team toe te voegen."
 
 ## Functionele rollen
 
-Functionele rollen zijn clubrollen uit de praktijk (Hoofdcoach, Assistent-coach, Fysio) die automatisch WordPress-rollen kunnen toekennen. Stel koppelingen in via **Toegangsbeheer → Functionele rollen**.
+Functionele rollen zijn de taken die mensen bij een elftal doen: Hoofdcoach, Assistent-coach, Fysio, Materiaalman, Manager. Een functionele rol toekennen verandert nooit iemands WordPress-rol. Het doet twee dingen, allebei alleen op dat team:
 
-Voorbeeld: je functionele rol "Hoofdcoach" kan gebruikers automatisch de WordPress-rol `tt_coach` toekennen. Dan krijgen ze evaluatierechten automatisch zodra je een persoon aan een team toevoegt als "Hoofdcoach".
+- Onder **Toegangsbeheer → Functionele rollen** is elke functionele rol gekoppeld aan een of meer autorisatierollen. De rechten daarvan gelden voor de persoon op het team waarop die de rol heeft.
+- Vijf functionele rollen hebben daarnaast een eigen set rechten. Zie de tabel hieronder.
 
 Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt_user_role_scopes` (scope_type=`team`, scope_id=het team) zodat de matrix-team-scopecontrole voor die persoon op dat team waar wordt. Bij het verwijderen van de laatste toewijzing voor een (persoon, team)-paar wordt ook de scope-rij verwijderd. Personen met meerdere rollen op hetzelfde team houden één scope-rij totdat de laatste rol wordt ingetrokken. De backfill-migratie `0062_fr_assignment_scope_backfill.php` heeft installaties van vóór deze koppeling rechtgetrokken.
 
 ### Een functionele rol kan ook zelf toegang geven
 
-De meeste functionele rollen koppelen alleen aan een WordPress-rol, zoals hierboven. Vier ervan gaan verder en dragen een kleine set rechten die geldt **op het team waarop de rol gehouden wordt, en nergens anders**:
+Vijf functionele rollen dragen een kleine set rechten die geldt **op het team waarop de rol gehouden wordt, en nergens anders**:
 
 | Functionele rol | Wat die op dat team geeft |
 | --- | --- |
@@ -218,6 +219,9 @@ De meeste functionele rollen koppelen alleen aan een WordPress-rol, zoals hierbo
 | **Hoofdcoach** | Metingen lezen |
 | **Assistent-coach** | Metingen lezen |
 | **Materiaalman** | De selectie, de mensen eromheen en de activiteitenkalender lezen |
+| **Manager** | De selectie, de mensen eromheen en de activiteitenkalender lezen; aanwezigheid vastleggen; de beschikbaarheid van spelers lezen (het statusstoplicht) |
+
+Een Manager leest het schema maar maakt of wijzigt geen activiteiten; dat blijft bij de trainers. Een Manager krijgt geen toegang tot blessures. Een teammanager die ook EHBO doet, krijgt **Fysio** als tweede functionele rol op hetzelfde team, en het blessurelogboek volgt die rol.
 
 De lijst voor de materiaalman staat er bewust helemaal uitgeschreven. "Alles wat de rol Staf heeft, behalve blessures" zou een definitie door aftrekken zijn, en het volgende gevoelige onderdeel dat aan Staf wordt toegevoegd zou dan op de stoel van de materiaalman belanden zonder dat iemand dat besloten heeft. Dat is geen theorie: de metingen bleven na de blessures nog één release op de Staf-stoel staan, en precies zo lang las een materiaalman de groeicurve van elke speler.
 

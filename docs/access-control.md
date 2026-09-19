@@ -202,19 +202,20 @@ So the migration path is: go to **People → Functional roles**, give each Staff
 
 **Staff do not get the player-management surface.** The capability behind "manage players" also carries season rollover, creating login accounts for players, editing custom-field definitions, and deleting player records — an academy-wide administrative surface rather than a squad one. A physio who needs a player added should ask a coach or an administrator.
 
-A staff member attached to no squad sees nothing. That is deliberate: attaching them to their teams is the act that grants the access, and it is visible in the team's staff list.
+A staff member attached to no squad sees nothing. That is deliberate: attaching them to their teams is the act that grants the access, and it is visible in the team's staff list. Their dashboard says so: "You're not assigned to a team yet. Ask your academy admin to add you to one."
 
 ## Functional roles
 
-Functional roles are club-real roles (Head coach, Assistant coach, Physio) that can auto-grant WordPress roles. Set up mappings in **Access Control → Functional Roles**.
+Functional roles are the jobs people do on a squad: Head coach, Assistant coach, Physio, Kit manager, Manager. Assigning one never changes anybody's WordPress role. It does two things, both on that team only:
 
-Example: your "Head coach" functional role could automatically grant users the `tt_coach` WordPress role. Then when you assign a person to a team with "Head coach", they get evaluation rights automatically.
+- Under **Access Control → Functional Roles**, each functional role is mapped to one or more authorization roles. Their permissions apply to the person on the team they hold the role on.
+- Five functional roles also carry a grant set of their own. See the table below.
 
 Assigning a person via Functional Roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring.
 
 ### A functional role can also grant access of its own
 
-Most functional roles only map to a WordPress role, as above. Four of them go further and carry a small grant set that applies **on the team the role is held on, and nowhere else**:
+Five functional roles carry a small grant set that applies **on the team the role is held on, and nowhere else**:
 
 | Functional role | What it grants on that team |
 | --- | --- |
@@ -222,6 +223,9 @@ Most functional roles only map to a WordPress role, as above. Four of them go fu
 | **Head coach** | Read measurements |
 | **Assistant coach** | Read measurements |
 | **Kit manager** | Read the squad, the people around it and the activity calendar |
+| **Manager** | Read the squad, the people around it and the activity calendar; record attendance; read player availability (the status traffic light) |
+
+A Manager reads the schedule but does not create or edit activities; that stays with the coaches. A Manager gets no injury access. A team manager who also does first aid is given **Physio** as a second functional role on the same team, and the injury log follows that role.
 
 The kit-manager list is written out in full on purpose. "Everything the Staff role has, except injuries" would be a definition by subtraction, and the next sensitive thing added to Staff would land on the kit manager's seat without anyone deciding it should. That is not a hypothetical: measurements stayed on the Staff seat for one release after injuries left it, and a kit manager read every player's growth curve for exactly that long.
 

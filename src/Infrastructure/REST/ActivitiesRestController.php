@@ -340,12 +340,16 @@ class ActivitiesRestController {
     }
 
     /**
-     * #2382 — the attendance-grid gate: the `tt_edit_activities` write cap
-     * (matrix-aware) AND the `attendance_grid` feature toggle. Same gate the
+     * #2382 — the attendance-grid gate: may record attendance (matrix-aware,
+     * #3567) AND the `attendance_grid` feature toggle. Same gate the
      * view enforces so they never drift (§7).
      */
     public static function can_edit_grid(): bool {
-        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) return false;
+        // #3567 — the grid records attendance, so it asks the attendance
+        // question, which also admits a team manager (see
+        // `canRecordAttendance()`). Which teams they may write is still
+        // decided per row by `gridAllowedTeamIds()`.
+        if ( ! AuthorizationService::canRecordAttendance( get_current_user_id() ) ) return false;
         if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) return false;
         return true;
     }

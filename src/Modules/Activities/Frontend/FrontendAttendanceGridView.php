@@ -20,8 +20,8 @@ use TT\Shared\Frontend\FrontendViewBase;
  *
  * URL: `?tt_view=attendance-grid&team_id=N&from=YYYY-MM-DD&to=YYYY-MM-DD&type=all|training|match`
  *
- * Write-capable, so it gates on `tt_edit_activities` — the SAME capability
- * the bulk-write endpoint (`POST /attendance/bulk`) enforces, so the
+ * Write-capable, so it gates on `AuthorizationService::canRecordAttendance()`
+ * — the SAME check the bulk-write endpoint (`POST /attendance/bulk`) enforces, so the
  * affordance and the endpoint can't drift (CLAUDE.md §7). Rejected even via
  * a direct link when the `attendance_grid` feature is switched off.
  *
@@ -80,7 +80,9 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
-        if ( ! current_user_can( 'tt_edit_activities' ) ) {
+        // #3567 — the same question `POST /attendance/bulk` asks, so a team
+        // manager who may take the register can also open the grid.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canRecordAttendance( $user_id ) ) {
             self::crumbs();
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to record attendance.', 'talenttrack' ) . '</p>';
             return;
