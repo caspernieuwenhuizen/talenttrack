@@ -726,6 +726,24 @@ which a player may keep their evaluations from a parent. Why not
 `GET /evaluations/{id}`: that route needs `tt_view_evaluations`, which players
 and parents do not hold (#1482), and returns the full staff record.
 
+## The logged-in account's own players (#3568)
+
+### `GET /me`
+
+The player records the logged-in account is linked to: the player it *is*, and the children it is a guardian of. A non-WordPress client calls this first, because every per-player route needs an id.
+
+```json
+{ "player": { "id": 577, "name": "Bas Willems", "team_id": 52, "status": "active" },
+  "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active" } ],
+  "reason": null }
+```
+
+- `player` comes from the account's own link (`tt_players.wp_user_id`), in this club, active and not archived; otherwise `null`.
+- `children` are the account's active, non-archived children through the guardian link, most recently linked first.
+- An account linked to nothing gets **200**, not 403, with `player: null`, `children: []` and `reason: "no_linked_player"`, so the client can say the account isn't linked yet.
+
+**Permission:** logged in. The route returns only the caller's own links. The collection routes (`GET /players`, `GET /evaluations`, …) stay staff surfaces; `me` is the self-scoped entry point, mirroring the `my_*` matrix entities rather than widening a collection.
+
 ## Operator broadcasts (#3499)
 
 Notices the operator's Admin Center sends to this install (maintenance windows, service announcements), for the logged-in user. They arrive on the phone-home response; these routes only read and dismiss them.
