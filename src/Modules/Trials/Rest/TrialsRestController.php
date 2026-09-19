@@ -4,6 +4,7 @@ namespace TT\Modules\Trials\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Trials\Letters\TrialLetterService;
@@ -116,6 +117,21 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'upsert_input' ],
             'permission_callback' => [ __CLASS__, 'can_submit_input' ],
+            // #3606 / #3612 — what the route takes, for route discovery.
+            'args'                => [
+                'overall_rating'  => [
+                    'type'        => [ 'number', 'string', 'null' ],
+                    'description' => 'Overall rating on the academy\'s rating scale. Null or blank clears it.',
+                ],
+                'free_text_notes' => [
+                    'type'        => 'string',
+                    'description' => 'The assessment in words.',
+                ],
+                'submit'          => [
+                    'type'        => 'boolean',
+                    'description' => 'Submit the input. Refused while it has neither a rating nor notes.',
+                ],
+            ],
         ] );
 
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/inputs/release', [
@@ -429,15 +445,87 @@ class TrialsRestController {
                 409
             );
         }
-        $inputs = new TrialStaffInputsRepository();
-        $inputs->upsertDraft( $id, get_current_user_id(), [
-            'overall_rating'  => isset( $payload['overall_rating'] ) ? (float) $payload['overall_rating'] : null,
-            'free_text_notes' => sanitize_textarea_field( (string) ( $payload['free_text_notes'] ?? '' ) ),
-        ] );
-        if ( ! empty( $payload['submit'] ) ) {
-            $inputs->submit( $id, get_current_user_id() );
+        // #3606 / #3612 — the same strict contract as match prep (#3587). A
+        // key the route does not take is refused by name, and a body with
+        // none of the ones it does take is refused too: both used to save an
+        // empty draft (over the one already there) and answer `saved: true`.
+        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $payload ) ), self::INPUT_FIELDS ) );
+        if ( $unknown !== [] ) {
+            return RestResponse::error( 'unknown_field', sprintf(
+                /* translators: %s: comma-separated field names */
+                __( 'A trial input does not accept: %s.', 'talenttrack' ),
+                implode( ', ', $unknown )
+            ), 400, [ 'fields' => $unknown, 'allowed' => self::INPUT_FIELDS ] );
         }
-        return RestResponse::success( [ 'saved' => true ] );
+        if ( array_intersect( array_keys( $payload ), self::INPUT_FIELDS ) === [] ) {
+            return RestResponse::error( 'no_input_fields', __( 'Send a rating, notes, or submit.', 'talenttrack' ), 400, [
+                'allowed' => self::INPUT_FIELDS,
+            ] );
+        }
+
+        // Only what was sent is written, so a rating-only save leaves the
+        // notes alone and a bare submit submits what is already there.
+        $data = [];
+        if ( array_key_exists( 'overall_rating', $payload ) ) {
+            $raw = $payload['overall_rating'];
+            if ( $raw === null || $raw === '' ) {
+                $data['overall_rating'] = null;
+            } else {
+                $min = (float) QueryHelpers::get_config( 'rating_min', '5' );
+                $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+                if ( ! is_numeric( $raw ) || (float) $raw < $min || (float) $raw > $max ) {
+                    return RestResponse::error( 'bad_rating', sprintf(
+                        /* translators: 1: rating min, 2: rating max */
+                        __( 'The overall rating must be a number from %1$s to %2$s.', 'talenttrack' ),
+                        (string) $min,
+                        (string) $max
+                    ), 400 );
+                }
+                $data['overall_rating'] = (float) $raw;
+            }
+        }
+        if ( array_key_exists( 'free_text_notes', $payload ) ) {
+            $data['free_text_notes'] = sanitize_textarea_field( (string) $payload['free_text_notes'] );
+        }
+
+        $user_id = get_current_user_id();
+        $inputs  = new TrialStaffInputsRepository();
+        if ( $data !== [] ) $inputs->upsertDraft( $id, $user_id, $data );
+
+        $submitted = false;
+        if ( ! empty( $payload['submit'] ) ) {
+            // An empty assessment must never become the record a decision
+            // was based on (#3238).
+            $row = (array) ( $inputs->findForCaseUser( $id, $user_id ) ?? [] );
+            if ( ( $row['overall_rating'] ?? null ) === null && trim( (string) ( $row['free_text_notes'] ?? '' ) ) === '' ) {
+                return RestResponse::error( 'empty_input', __( 'Add a rating or notes before submitting.', 'talenttrack' ), 400 );
+            }
+            $submitted = $inputs->submit( $id, $user_id );
+        }
+
+        return RestResponse::success( [
+            'saved'     => true,
+            'submitted' => $submitted,
+            'input'     => self::formatInput( $inputs->findForCaseUser( $id, $user_id ) ),
+        ] );
+    }
+
+    /** @var list<string> the fields `POST trial-cases/{id}/inputs` takes */
+    private const INPUT_FIELDS = [ 'overall_rating', 'free_text_notes', 'submit' ];
+
+    /** @return array<string,mixed>|null */
+    private static function formatInput( ?object $row ): ?array {
+        if ( ! $row ) return null;
+        $r = (array) $row;
+        return [
+            'id'              => (int) ( $r['id'] ?? 0 ),
+            'case_id'         => (int) ( $r['case_id'] ?? 0 ),
+            'user_id'         => (int) ( $r['user_id'] ?? 0 ),
+            'overall_rating'  => isset( $r['overall_rating'] ) ? (float) $r['overall_rating'] : null,
+            'free_text_notes' => (string) ( $r['free_text_notes'] ?? '' ),
+            'submitted_at'    => isset( $r['submitted_at'] ) ? (string) $r['submitted_at'] : null,
+            'updated_at'      => isset( $r['updated_at'] ) ? (string) $r['updated_at'] : null,
+        ];
     }
 
     /**
