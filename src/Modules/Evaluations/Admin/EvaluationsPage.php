@@ -444,7 +444,7 @@ class EvaluationsPage {
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $types as $t ) : ?><option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $eval->eval_type_id ?? 0, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'eval_type_id' ); ?>
-                    <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</th><td><input type="date" name="eval_date" value="<?php echo esc_attr( $eval->eval_date ?? current_time( 'Y-m-d' ) ); ?>" required /></td></tr>
+                    <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</th><td><input type="date" name="eval_date" value="<?php echo esc_attr( $eval->eval_date ?? current_time( 'Y-m-d' ) ); ?>" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'eval_date' ); ?>
                 </table>
 
@@ -935,6 +935,22 @@ class EvaluationsPage {
             'home_away'    => isset( $_POST['home_away'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['home_away'] ) ) : '',
             'minutes_played' => ! empty( $_POST['minutes_played'] ) ? absint( $_POST['minutes_played'] ) : null,
         ];
+
+        // #3583 — the same date rule every other evaluation write path asks:
+        // a real date, not in the future. Refused back to the form, which
+        // keeps what was typed.
+        $date_refusal = \TT\Modules\Evaluations\EvaluationDateRule::check( (string) $header['eval_date'] );
+        if ( $date_refusal !== null ) {
+            self::saveFormState( [
+                'db_error'                => $date_refusal->get_error_message(),
+                'submitted_custom_fields' => isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) ? wp_unslash( $_POST['custom_fields'] ) : [],
+            ] );
+            wp_safe_redirect( add_query_arg(
+                [ 'page' => 'tt-evaluations', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
+                admin_url( 'admin.php' )
+            ) );
+            exit;
+        }
 
         if ( $id ) {
             $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id ] );

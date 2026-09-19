@@ -126,7 +126,11 @@ final class HybridDeepRateStep implements WizardStepInterface {
             ]
         );
 
-        $date_val    = (string) ( $state['eval_date'] ?? gmdate( 'Y-m-d' ) );
+        // #3583 — today in the site's timezone. `gmdate()` was UTC, which
+        // west of UTC in the evening is already tomorrow, and the date rule
+        // would then refuse the wizard's own default.
+        $today       = current_time( 'Y-m-d' );
+        $date_val    = (string) ( $state['eval_date'] ?? $today );
         $type_val    = (int)    ( $state['eval_type_id'] ?? 0 );
         $reason_val  = (string) ( $state['eval_reason'] ?? '' );
 
@@ -149,7 +153,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
         <div class="tt-rate-context">
             <div class="tt-field tt-rate-context-row">
                 <label class="tt-field-label" for="tt_hdr_eval_date"><?php esc_html_e( 'Date', 'talenttrack' ); ?></label>
-                <input type="date" id="tt_hdr_eval_date" class="tt-input" name="eval_date" value="<?php echo esc_attr( $date_val ); ?>" />
+                <input type="date" id="tt_hdr_eval_date" class="tt-input" name="eval_date" value="<?php echo esc_attr( $date_val ); ?>" max="<?php echo esc_attr( $today ); ?>" />
             </div>
             <div class="tt-field tt-rate-context-row">
                 <label class="tt-field-label" for="tt_hdr_eval_type"><?php esc_html_e( 'Type', 'talenttrack' ); ?></label>
@@ -239,6 +243,11 @@ final class HybridDeepRateStep implements WizardStepInterface {
 
     public function validate( array $post, array $state ) {
         $date    = isset( $post['eval_date'] ) ? sanitize_text_field( wp_unslash( (string) $post['eval_date'] ) ) : '';
+        if ( $date === '' ) $date = current_time( 'Y-m-d' );
+        // #3583 — said here, on the step with the date field, rather than
+        // only when the last step tries to write.
+        $date_refusal = \TT\Modules\Evaluations\EvaluationDateRule::check( $date );
+        if ( $date_refusal !== null ) return $date_refusal;
         // v3.110.67 — `eval_type_id` (FK into tt_lookups, lookup_type='eval_type')
         // replaces the legacy `eval_setting` slug. See render() docblock.
         $type_id = isset( $post['eval_type_id'] ) ? absint( $post['eval_type_id'] ) : 0;

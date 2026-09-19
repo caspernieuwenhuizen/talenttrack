@@ -7,6 +7,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Evaluations\EvaluationDateRule;
 use TT\Modules\Wizards\Evaluation\EvaluationInserter;
 
 /**
@@ -534,6 +535,18 @@ class EvaluationsRestController {
             }
         }
 
+        // #3583 — an evaluation about an activity is dated by it unless the
+        // caller says otherwise; then the date has to be a real one, not in
+        // the future, and not before that activity.
+        $activity_date = EvaluationDateRule::activityDate( (int) ( $header['activity_id'] ?? 0 ) );
+        if ( ! isset( $r['eval_date'] ) && EvaluationDateRule::isDate( $activity_date ) ) {
+            $header['eval_date'] = $activity_date;
+        }
+        $date_refusal = EvaluationDateRule::check( (string) $header['eval_date'], $activity_date );
+        if ( $date_refusal !== null ) {
+            return RestResponse::error( (string) $date_refusal->get_error_code(), $date_refusal->get_error_message(), 400 );
+        }
+
         do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
 
         $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
@@ -613,6 +626,23 @@ class EvaluationsRestController {
         if ( ! empty( $header['activity_id'] ) ) {
             $refusal = self::activityRefusal( (int) $header['activity_id'] );
             if ( $refusal !== null ) return $refusal;
+        }
+        // #3583 — when the date or the link changes, the date the row will
+        // carry is checked against the activity it will be about: the sent
+        // values over the stored ones.
+        if ( array_key_exists( 'eval_date', $header ) || array_key_exists( 'activity_id', $header ) ) {
+            $stored = (array) $wpdb->get_row( $wpdb->prepare(
+                "SELECT eval_date, activity_id FROM {$p}tt_evaluations WHERE id = %d AND club_id = %d",
+                $id,
+                CurrentClub::id()
+            ), ARRAY_A );
+            $eval_date   = array_key_exists( 'eval_date', $header ) ? (string) $header['eval_date'] : (string) ( $stored['eval_date'] ?? '' );
+            $activity_id = array_key_exists( 'activity_id', $header ) ? (int) $header['activity_id'] : (int) ( $stored['activity_id'] ?? 0 );
+
+            $date_refusal = EvaluationDateRule::check( $eval_date, EvaluationDateRule::activityDate( $activity_id ) );
+            if ( $date_refusal !== null ) {
+                return RestResponse::error( (string) $date_refusal->get_error_code(), $date_refusal->get_error_message(), 400 );
+            }
         }
         // #3582 — stamped here rather than left to the column's
         // ON UPDATE clause, which the local install showed does not
