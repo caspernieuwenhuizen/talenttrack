@@ -1917,14 +1917,22 @@ final class ActivitiesRepository {
         // numerator + denominator share a player set (current active
         // roster) so the list-view % equals the detail-page form's
         // present/total ratio — see the v3.110.95 note in git history.
+        //
+        // #3585 — `record_type = 'actual'` in both, for the reason the
+        // `your_attendance_status` subquery below spells out: the planned
+        // squad is `expected` rows, and counting them listed an unplayed
+        // match as "16 recorded, 16 present" with an empty register — and
+        // put it in the `complete` bucket of `filter[attendance]`.
         $select_cols = "s.*, t.name AS team_name,
             (SELECT COUNT(*) FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
               WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND a.record_type = 'actual'
                 AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
             (SELECT COUNT(*) FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl_b ON pl_b.id = a.player_id AND pl_b.club_id = a.club_id
               WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND a.record_type = 'actual'
                 AND pl_b.team_id = s.team_id AND pl_b.status = 'active'
                 AND a.status = 'Present') AS present_count,
             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
@@ -1981,6 +1989,7 @@ final class ActivitiesRepository {
                     (SELECT COUNT(*) FROM {$p}tt_attendance a
                        INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
                       WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                        AND a.record_type = 'actual'
                         AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
                     (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size
                 FROM {$p}tt_activities s

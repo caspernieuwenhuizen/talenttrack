@@ -49,6 +49,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_freemius_plan_slug`               | Override Freemius's reported plan slug                                   | `string $slug`                                      |
 | `tt_register_alerts`                  | The alert definitions the engine runs; append your own                   | `array $alerts`                                     |
 | `tt_alert_invalidation_map`           | Domain event => extractor naming what that event touched, so a fixed alert clears on save instead of on the hourly sweep | `array<string,callable> $map` |
+| `tt_parent_account_eligible_args`     | The `get_users()` arguments for accounts that may be linked as a parent. WordPress users are site-wide, so a multi-tenant install scopes the candidates to one club here | `array $args`, `int $club_id` |
 
 ### `tt_alert_invalidation_map`
 
