@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T10:40:39+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:32:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2921,8 +2921,8 @@ msgstr ""
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:218
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1281
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:193
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:485
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:508
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:487
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:510
 msgid "Invalid activity id."
 msgstr ""
 
@@ -28180,38 +28180,38 @@ msgid "No match preparation has been started for this match yet."
 msgstr ""
 
 #. translators: %s: comma-separated field names
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:207
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:209
 #, php-format
 msgid "Match preparation does not accept: %s."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:218
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:493
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:517
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:220
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:495
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:519
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
 msgid "Match prep could not be created."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:408
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:453
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:410
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:455
 msgid "Invalid match prep id."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:418
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:456
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:420
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:458
 msgid "Unknown role key."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:421
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:423
 msgid "A player must be selected."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:427
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:429
 msgid "Could not save the role assignment."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:488
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:511
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:490
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:513
 msgid "Match preparation sharing is switched off."
 msgstr ""
 
