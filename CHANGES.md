@@ -1,3 +1,405 @@
+# TalentTrack v4.126.2 — Assignment-review alerts open the review queue again (#3564)
+
+The "Assignment waiting for review" alert linked to `wp-cron.php` instead of
+the review queue. The alert sweep runs under wp-cron, where there is no
+current page, so the link was built on the cron request's own URL. It is now
+built on the dashboard page, like every other alert. Existing alerts pick up
+the corrected link on the next sweep; nothing needs migrating.
+
+# TalentTrack v4.126.2 — Demo data: one trial case per trialled player, not two (#3565)
+
+Every procedural demo run wrote the scouting pipeline twice. Each trialled
+player got two overlapping trial cases created seconds apart, the first two
+roster players each had two open cases, and scouting visits and prospects
+were doubled. The trial cases now have a generator of their own, so the
+`trials` and `pipeline` steps each write only their own rows, once. A test
+now fails if one generator class is ever mapped to two demo categories again.
+Existing demo data keeps its duplicates until the demo is wiped and
+regenerated.
+
+# TalentTrack v4.126.2 — A team Manager sees the schedule, takes the register and reads player availability (#3567)
+
+The Manager functional role granted nothing, so a Staff account assigned as
+Manager of a team got "not authorised" on the team's activities, attendance
+and player-status board. A Kit manager on the same team could read the
+schedule. On the team where they hold the role, Manager now reads the squad,
+the people around it and the activity calendar, records attendance (including
+through the attendance grid) and reads the status traffic light. It still
+doesn't create or edit activities. It gets no injury access: a manager who
+also does first aid is given Physio as a second role on the team. A Staff
+account that isn't on any team yet now sees a dashboard notice saying so,
+instead of empty tiles.
+
+# TalentTrack v4.126.2 — REST: `GET /me` tells a player or parent which player records are theirs (#3568)
+
+A logged-in player had no way over the REST API to find their own player
+record. The list routes are staff surfaces, and `GET /me` didn't exist. A
+parent couldn't find their children either. `GET /me` now returns the
+player the account is linked to and the account's active children, each
+with an id, name, team and status. An account linked to nothing gets a 200
+with `reason: "no_linked_player"` instead of an error, so an app can tell the
+user their account isn't linked yet. It only ever returns the caller's own
+links.
+
+# TalentTrack v4.126.2 — Updating one field on a player no longer blanks the rest (#3569)
+
+`PUT players/{id}` rebuilt the whole player row from the request. A call that
+sent only a guardian name also cleared the player's name, date of birth,
+positions, jersey number, date joined and nationality, unlinked their own
+account, reset their status to active and withdrew media consent. The update
+now writes only the fields it is sent. A field sent with an empty value is
+still cleared, and the player edit form still clears consent and positions
+when you untick them. This also fixes the edit form itself. It never sent a
+player's status, account link or nationality, so every save through it
+reset the status to active, unlinked the account and cleared the
+nationality. It no longer does.
+
+# TalentTrack v4.126.2 — Updating one field on an activity no longer wipes its title, team and date (#3570)
+
+`PUT activities/{id}` rebuilt the whole activity from the request. A coach
+who sent only the match fields they meant to change got a 200 and an
+activity with no title, team, date, times or location. Its type fell back
+to training and its status to planned, so the match dropped off the team's
+schedule. The update now keeps the stored value for every field the request
+leaves out. A field sent empty is still cleared, and switching a match to
+another type still clears its match-only fields. A PUT on an activity that
+does not exist now returns 404.
+
+# TalentTrack v4.126.2 — REST: find, link and read back a player's parent accounts (#3571)
+
+Linking a parent over the REST API needed a WordPress user id that no route
+could look up, and nothing showed which parents were already linked. Three
+changes:
+
+- **`GET parent-accounts/eligible?search=`** finds accounts that may be linked as a parent, by name or email. It needs at least two characters and returns at most 20 accounts.
+- **`GET players/{id}/parents`** lists a player's linked parent accounts, primary first.
+- **`POST players/{id}/parents`** now declares its parameters. A missing `wp_user_id` names the field. Re-linking an existing parent answers `already_linked` with a message, instead of the unexplained `noop`.
+
+All three need the parent-accounts management permission.
+
+# TalentTrack v4.126.2 — One parent model: the players list shows parents linked on Parent accounts (#3572)
+
+TalentTrack recorded a player's parent in two places. Parent accounts
+(the link that decides what a parent can see) was one. The other was a
+people record picked on the wp-admin player form, and that second one was
+what the players list showed. So a parent linked the supported way showed
+as "no parent", and admins concluded the link had failed.
+
+The Parent accounts link is now the only parent model:
+
+- The players list shows the primary parent plus a count ("Anna de Vries +1"), linking to Parent accounts.
+- Both ways of linking a parent now accept the same accounts. An account that only has a parent record under People can be linked, and staff and player accounts cannot.
+- The wp-admin parent picker is gone. An update migration carries its links over when the person has a login, and lists the rest in the Error log so the guardian can be re-entered in the player's contact fields.
+- The parent dropdown on the player form now lists only this academy's parents.
+
+The old column stays one release, unused, before it is dropped.
+
+# TalentTrack v4.126.2 — Demo data: behaviour ratings use the academy's own rating scale (#3573)
+
+The demo generator wrote behaviour ratings on a fixed 1–5 scale. On an
+install with a 5–9 scale, every rated demo player therefore sat under the
+behaviour floor of 7, was capped at amber, and could never show green. Behaviour
+ratings are now drawn from the configured scale and snapped to its steps. Most
+players sit at or above the midpoint and a minority fall below it, so the
+squad shows a real mix of colours. Existing demo data keeps the old values
+until the demo is wiped and regenerated.
+
+# TalentTrack v4.126.2 — 8-a-side and 6-a-side teams line up on their own shape (#3574)
+
+An 8v8 team's match line-up was drawn on an eleven-a-side 4-3-3 pitch: eight
+players in the first eight slots and three attacking slots left empty. The
+prep screen, the printed prep, the team sheet and the live match sheet each
+resolved the formation their own way, and none of them knew the small-sided
+shapes. They now resolve it one way:
+
+1. The formation you picked, drawn on its own slots.
+2. Otherwise, the team's football form: 3-3-1 for 8v8, 3-2-1 for 6v6, 4-3-3 for 11v11.
+
+The four small-sided formations (3-3-1 and 3-2-2 with eight slots and a keeper; 3-2-1 and 2-3-1 with six, no keeper) now draw correctly everywhere.
+
+The demo generator also binds each match to a formation for the team's form,
+puts a goalkeeper in goal where the squad has one, and uses the age group's
+configured half length instead of a fixed 35 minutes.
+
+# TalentTrack v4.126.2 — Messages that reach nobody now say whose they were, and a new alert names the player (#3576)
+
+When a trial welcome, a published plan or a cancelled-training message
+resolved to nobody, the error log recorded a warning that named only the
+template. An admin couldn't tell which family was never told. Generating demo
+data wrote dozens of these in a couple of seconds. Three changes:
+
+- **The warning names its subject.** It now carries the player and the record the message was about (the trial case, the plan, the training), and so does the communication log row.
+- **A template the club switched off is no longer reported** as having reached nobody.
+- **Demo generation writes no warnings.** While the demo generator runs, nothing it creates sends a message, so the error log stays readable. Sends by other users during a run are unaffected.
+
+New alert, **Player with no guardian contact**: an active player, or one on an
+open trial, with no parent account and no guardian email or phone. It goes to
+the team's head coach and whoever manages parent accounts, and clears once
+somebody at home can be reached. A player whose parent has an outstanding
+invitation is left to the existing "Parent invited but never activated" alert.
+Most demo players have no guardian by design, so expect a number of these on
+a demo install.
+
+# TalentTrack v4.126.2 — One open trial per player (#3577)
+
+Nothing stopped a second trial case being opened for a player whose first
+was still open. The decision, the staff inputs and the journey entry could
+end up split across two records. A player now has one open trial at a time.
+A new case for a player with an open or extended case is refused, from the
+form, the guided flow and the REST API alike, and the message names the open
+case, with a link from the form. A longer trial is an extension of the open
+case. Once it's decided or archived, a new case can be opened.
+
+Opening a case over the REST API now behaves like the form: it refuses a
+player from another club, sets the player's status to Trial, and returns 409
+`trial_case_already_open` with the open case's id. The trial case list and
+detail responses now include the player's name.
+
+# TalentTrack v4.126.2 — The recent-evaluations feed opens for coaches and the Head of Development again (#3578)
+
+`GET evaluations/recent` is a coach's own feed of the evaluations they wrote
+recently, and the way the Head of Development checks a coach's output. It
+returned 403 to every account. The access check asked for a self-scoped grant
+without saying whose self, so it always refused. Head and assistant coaches
+now get their own feed. Anyone with club-wide read on evaluations, such as
+the Head of Development, can pass `coach_id` to review a coach. A coach still
+cannot read another coach's feed.
+
+# TalentTrack v4.126.2 — Demo data: played matches carry their score, so team records count them (#3579)
+
+The demo generator wrote each match's score onto the live match record but
+never onto the activity itself. The team record, the form line and the
+match result card read the score from the activity, so every demo team
+showed 0 played, an empty form line and its matches listed as "without a
+score", next to a full list of goalscorers. The generator now writes the
+scoreline onto the activity, as finishing a live match does. Upcoming
+fixtures stay without a score. Existing demo data keeps the gap until the demo
+is wiped and regenerated.
+
+# TalentTrack v4.126.2 — Evaluations saved through the API keep the training or match they came from (#3582)
+
+`POST /evaluations` and `PUT /evaluations/{id}` accepted an `activity_id`,
+answered 200 and stored nothing, so only the evaluation wizard could tie an
+evaluation to its session. Both routes now store the link. On create, the
+evaluation type is taken from the activity when none is given, as the wizard
+does. An update sets the link, keeps it when the key is absent, and clears
+it when `activity_id` is 0. An activity that doesn't exist, or that belongs
+to a team the coach doesn't coach, is refused with `400 bad_activity` and
+nothing is written. An update now also advances `updated_at`.
+
+# TalentTrack v4.126.2 — Evaluations can no longer be dated in the future (#3583)
+
+An evaluation could be saved with a date after the day it was written, and
+until it was corrected it counted in the player's rating trend and in
+evaluation coverage as if the session had happened. The date wasn't checked
+for format either. Every way of saving an evaluation now applies the same
+rule:
+
+- the date must be a real date;
+- it can't be in the future (site time);
+- an evaluation about a training or match can't be dated before that session;
+- a session that hasn't happened yet can't be rated at all.
+
+This covers the evaluation form, the guided flow, the ratings grid, the wp-admin
+form, the Excel import and the REST API. A future-dated row in an Excel import
+is skipped with a warning instead of stopping the import. The date pickers no
+longer offer future dates. The guided flow's default date is today in the
+site's timezone; before, it could already be tomorrow in the evening for
+academies west of UTC.
+
+# TalentTrack v4.126.2 — The activities list honours plain team and date filters (#3584)
+
+`GET activities` only read filters nested as `filter[team_id]`,
+`filter[date_from]` and `filter[date_to]`. A request with plain `team_id`,
+`from` / `to` or `date_from` / `date_to` (the names the attendance and minutes
+grids use) got a 200 with every team and every date. The list now accepts
+both forms, and the nested form wins when both are sent. A date that isn't
+written as YYYY-MM-DD is refused with a 400 instead of being ignored. The route
+now declares its parameters, so the REST route index lists them. A coach still
+sees only their own teams, whichever form they use.
+
+# TalentTrack v4.126.2 — Activities list: a planned squad no longer counts as recorded attendance (#3585)
+
+The activities list counted the planned squad as if it were the register. A
+match nobody had registered yet showed "16 recorded, 16 present", and the
+attendance filter put it under complete. The counts and the filter now look
+only at attendance that was actually recorded.
+
+# TalentTrack v4.126.2 — Attendance: present and late can't be recorded on an activity that hasn't happened (#3586)
+
+The attendance grid accepted a full "present" register on a training three days
+ahead and reported a clean save. The grid then hid those marks, because its
+window ended today.
+
+- **Present and late are refused on a future activity.** The grid saves the other cells, outlines the refused ones and says why. The activity form and `PATCH attendance/{id}` refuse them too.
+- **Absences can still be recorded in advance.**
+- **Upcoming activities with a mark show in the grid.** An upcoming activity appears as a column once it carries such a mark, so the mark can be seen and cleared.
+- **"Today" is the academy's own date.** The grid's today is now site time, not the server's UTC date.
+- **A pre-recorded absence no longer completes the activity.** Saving one on the activity form no longer marks the future activity as held.
+
+# TalentTrack v4.126.2 — REST: match preparation can be read back, and unknown fields are refused (#3587)
+
+The match-prep endpoint dropped any field it didn't recognise and still
+answered with a success. There was also no way to read a saved prep back.
+Now:
+
+- **`GET match-prep/{activity_id}`** returns the saved prep: squad (`availability`), line-up per half, formation, goals, per-player goals and roles.
+- **`PUT` declares its fields and answers with the saved prep.**
+- **`PUT` refuses unknown fields.** A field it doesn't accept is refused with `unknown_field`, naming the field, before anything is saved.
+
+The prep screen and the API now read a prep through the same code.
+
+# TalentTrack v4.126.2 — Demo data: playing time is shared out instead of following the player id (#3588)
+
+The demo generator started the same lowest-id players in nearly every match.
+As a result, every minutes report on the demo academy showed minutes falling
+as the id rose. Starters now rotate the way a coach shares out playing time.
+Each player carries their starts so far plus a standing place in the pecking
+order, and the substitutes who come on first are those who have played least.
+The demo now shows a realistic spread, with a few genuinely under-played
+players. Minutes per match still add up to the squad size times the match
+length.
+
+# TalentTrack v4.126.2 — Monthly team report: the minutes block lists the whole squad and uses the academy's target (#3589)
+
+The minutes block of the monthly team report only listed players who got on
+the pitch. A squad player who was available but never played was missing,
+although that is the player the block is there to flag, and the median share
+was worked out without them. The block also drew its own hardcoded 50% target
+line, while the Minutes share report used the academy's configured target.
+
+Now:
+
+- **The whole squad is listed.** A player with no minutes shows 0 minutes and counts toward the median, both in the block and in the headline figure.
+- **The target line is the academy's minutes-share target**, the same one the Minutes share report uses.
+- **The "Player by player" table** shows 0 minutes for such a player instead of a blank.
+
+# TalentTrack v4.126.2 — Players: a missing date of birth or join date is empty, not 0000-00-00 (#3590)
+
+A player created or saved without a date of birth or join date stored the
+database's zero date, `0000-00-00`. The API then returned it as if it were a
+real date, which also gave age and age-group calculations a bogus date. Now:
+
+- **A blank date is stored as empty.** This covers the API and the player CSV import.
+- **Zero dates on existing records are cleared** by a one-off data repair.
+- **A date that isn't a real calendar date is refused.**
+- **An unlinked player's `wp_user_id` is `null` over the API**, not `0`.
+
+# TalentTrack v4.126.2 — Demo data: open trial cases belong to real trialists (#3592)
+
+The demo academy opened its current trial cases on the first two players of
+the squad: established players with a shirt number, a join date two years
+back and a regular's minutes. The trial case, the player profile and the
+minutes reports contradicted each other.
+
+A demo trialist is now created the way the product creates one: a prospect
+the scout found, promoted to a new player on trial. That player joins on the
+day the trial started, has no shirt number and no history from before the
+trial, and shows in the pipeline's Trial group. Historical, decided trials
+stay on squad players, ending before they joined.
+
+# TalentTrack v4.126.2 — Printing the player report works for a parent, and a refusal is no longer a server error (#3594)
+
+A parent who pressed the print icon on their own child's profile got an error
+page. The printable report only knew administrators, the player's coaches and
+the player themselves. It now follows the same rule as the rest of the
+product:
+
+- **A parent can print their own child's report**, unless the child has hidden their evaluations from parents.
+- **The print icon only shows** when the viewer can open the report.
+- **Someone who isn't allowed gets a proper "no access" response** instead of a server error, and a logged-out visitor is asked to log in.
+
+# TalentTrack v4.126.2 — "Open in wp-admin" links only show for people wp-admin lets in (#3595)
+
+The Application KPIs screen showed an **Open in wp-admin** button to everyone
+who could open it. Only administrators are allowed into wp-admin, so for a
+Head of Development the button just bounced back to the dashboard. That
+button now only shows for someone who can reach the page. The same applies
+to the other frontend links into wp-admin: **Run in wp-admin** on
+Migrations, **Edit capabilities in wp-admin** on Roles & rights, **Partial
+restore** on Backups, and the Roles & rights link on Functional roles.
+
+# TalentTrack v4.126.2 — Coursework review: a mentor only sees their own mentees' work (#3596)
+
+Any mentor could read every coursework submission that had no reviewer,
+including the name, course and handed-in text from coaches who weren't their
+mentee. Their queue then offered a decision form that always failed. A
+mentor's review queue now holds exactly their own mentees' work. Work with
+no reviewer goes, as documented, only to the people who manage the knowledge
+library.
+
+# TalentTrack v4.126.2 — Saved views menu: the action rows match the rest of the menu (#3597)
+
+In the saved-views menu on lists such as Activities, "Save current filters"
+and "Rename, replace or delete this view" kept the browser's default grey,
+bordered button look among the flat menu rows. They now render as full-width
+menu rows, with the same hover and keyboard-focus treatment as the saved
+views above them.
+
+# TalentTrack v4.126.2 — Scouting: a prospect is linked to the visit they were found at (#3600)
+
+A scouting visit is meant to list the prospects found there, but nothing
+outside the demo ever stored that link, so every real visit showed nobody.
+Now:
+
+- **"Log scouting find" on a visit links the new prospect to that visit**, and fills in the event from it.
+- **The API can set or clear a prospect's visit.** A visit that doesn't exist is refused.
+- **The scouting-visit routes list their fields**, so a misnamed field is no longer silently dropped.
+- **A scout can no longer edit a prospect they can't open.** That applies to the prospect's contact details and consent too.
+
+# TalentTrack v4.126.2 — Teams: a single team shows its squad size and upcoming activities (#3601)
+
+Opening one team over the API returned no squad size and zero upcoming
+activities, while the teams list showed the real numbers for the same team.
+The team card built from it showed an empty squad. The single-team response
+now carries the same player count and next-fourteen-days activity count as
+the list, card included.
+
+# TalentTrack v4.126.2 — Trials: archiving a case over the API archives it, and the list filters by player (#3602)
+
+Setting a trial case to "archived" over the API only changed its status
+label. The case stayed in the active list and never reached the archived
+view. The API also accepted any made-up status, and filtering the case list
+by player returned every player's cases. Now:
+
+- **Archiving really archives the case**, and moving it back to a live status restores it.
+- **An unknown status is refused.**
+- **`player_id` returns just that player's trial cases.**
+
+# TalentTrack v4.126.2 — Trial inputs: a save keeps what it wasn't sent, and an empty assessment can't be submitted (#3606, #3612)
+
+Saving a trial assessment over the API rewrote the whole input:
+
+- a rating-only save erased the notes;
+- submitting on its own erased both and submitted an empty assessment;
+- every save, including from the trial case screen, cleared the category ratings.
+
+Fields the route didn't recognise were dropped behind a "saved" answer. Now:
+
+- **Only the fields sent are saved.**
+- **Unrecognised fields are refused by name.**
+- **A rating off the academy's scale is refused.**
+- **An assessment with neither a rating nor notes can't be submitted.**
+- **The response shows what was stored.**
+
+# TalentTrack v4.126.2 — REST: the goals list honours a plain player_id (#3607)
+
+`GET goals?player_id=…` ignored the filter without any warning and returned
+every goal the caller could see. A client would show that as one player's
+goals. The goals list now takes its filters as plain parameters (`player_id`,
+`team_id`, `status`, …) as well as in the `filter[...]` form, and the nested
+form wins if both are sent. A child's choice to hide their goals from a
+parent applies either way. The route also lists its parameters.
+
+# TalentTrack v4.126.2 — Evaluation windows can only be changed by those allowed to change analytics (#3610)
+
+Anyone who could read the analytics surfaces could also change the evaluation
+windows, the periods that coverage and the "window closing" alerts measure
+against. Changing them now takes the analytics change right. Head of
+Development and Academy Admin have it by default, and an update gives it to
+them on existing installs. Someone with read access only sees the windows
+listed, without a form to change them.
+
 # TalentTrack v4.126.1 — Match execution: a locked Start button now looks locked and says why (#3548)
 
 Before match day, Start and Start match rendered in the same green as a live button while doing nothing on tap, and the reason sat in a hover tooltip that never shows on a phone. Both now render greyed out, and "Available on match day (…)" is written under the clock.
