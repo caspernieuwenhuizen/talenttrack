@@ -151,7 +151,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // on the activities create/delete cap, so an assistant coach with
             // edit-only no longer sees them; a head coach (RCD) does.
             $can_delete_acts = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_delete_activities' );
-            if ( $session && ( $can_edit_acts || $can_delete_acts ) ) {
+            // #3643 — taking the register is not editing the activity. A
+            // team manager holds `attendance [rc]` and neither activity
+            // cap (#3567), so the header-actions block skipped them
+            // entirely and the grid they are allowed to open had no way
+            // in from the activity it belongs to.
+            $can_take_register = AuthorizationService::canRecordAttendance( $current_uid );
+            if ( $session && ( $can_edit_acts || $can_delete_acts || $can_take_register ) ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 // #2183 — an archived activity is read-only until restored:
                 // the mutating header actions (Edit / match prep / live match /
@@ -166,6 +172,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $status_now   = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
                 $is_planned   = ( $status_now === ActivityStatusKey::PLANNED );
                 $is_completed = ( $status_now === ActivityStatusKey::COMPLETED );
+                // #3643 — read before the edit-only block, because the grid
+                // shortcuts below now render for a register-taker who never
+                // enters it.
+                $type_key     = strtolower( (string) ( $session->activity_type_key ?? '' ) );
                 if ( ! $is_archived && $can_edit_acts ) {
                 if ( $is_planned ) {
                     $edit_url = add_query_arg(
@@ -183,7 +193,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // Only on match-type activities; jumps to the wizard if
                 // no prep row exists, or directly to the form when it
                 // does (FrontendMatchPrepView handles the redirect).
-                $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
                 if ( self::offersFixtureSurfaces( $type_key ) && $can_edit_acts ) {
                     // #1479 — carry the back-target so match prep can
                     // render the "← Back to <activity>" pill (CLAUDE.md §5).
@@ -534,14 +543,23 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     }
                 }
 
+                } // end ! $is_archived && $can_edit_acts (active-only edit actions)
+
                 // #2386 (epic #2381) — jump into the desktop grids for this
                 // team, pre-filtered to this activity's date (one column), so a
                 // coach can record/correct here in the bulk surface. tt_back is
                 // carried so the grid's Cancel/back returns to this activity
                 // (§5/§6). Each is hidden when its grid feature is off, and
-                // gated by the enclosing tt_edit_activities check (§7 — same
-                // gates the grid views + endpoints enforce). Minutes grid only
-                // on minutes-bearing (match) types.
+                // each carries its own gate (§7 — same gates the grid views +
+                // endpoints enforce). Minutes grid only on minutes-bearing
+                // (match) types.
+                // #3643 — this section left the edit-only block above. Its
+                // three gates were never the enclosing cap: `canUseMinutes()`
+                // and `canUseRatings()` ask `tt_edit_activities` themselves,
+                // so nothing widens for them, while `canUseAttendance()` asks
+                // the attendance question and now reaches the team manager
+                // who may take the register but not edit the activity.
+                if ( ! $is_archived ) {
                 // #2401 — URL building + the gate moved into ActivityGridLink
                 // so this page, the list card and the completion resolver
                 // can't drift apart on either (CLAUDE.md §4).
@@ -584,7 +602,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'overflow'  => true,
                     ];
                 }
-                } // end ! $is_archived && $can_edit_acts (active-only edit actions)
+                } // end ! $is_archived (grid shortcuts, each self-gated)
                 // #2183 — an already-archived activity offers Restore, not a
                 // second Archive. Branch on the archive stamp: active rows keep
                 // the DELETE Archive action; archived rows POST to the restore

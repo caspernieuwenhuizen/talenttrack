@@ -97,6 +97,24 @@
 .tt-mp-toolbar input[type=number] { width: 4.5rem; }
 .tt-mp-toolbar .tt-mp-unit { font-size: 0.75rem; color: var(--tt-mp-ink-soft); }
 .tt-mp-toolbar .tt-mp-spacer { flex: 1 1 auto; }
+/*
+ * #3682 — the activity's match length and the prep's half length have
+ * drifted apart. Takes its own row in the wrapping toolbar so the fields
+ * beside the half-length box don't shift when it appears, and reads as a
+ * caption under the field it is about rather than as an alert bar.
+ */
+.tt-mp-toolbar .tt-mp-length-notice {
+    flex: 1 0 100%;
+    margin: 0;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--tt-warning-ink, var(--tt-mp-warn));
+    background: var(--tt-warning-subtle, var(--tt-mp-mute));
+    border-left: 3px solid var(--tt-mp-warn);
+    border-radius: 0 4px 4px 0;
+}
+.tt-mp-toolbar .tt-mp-length-notice[hidden] { display: none; }
 .tt-mp-toolbar .tt-btn {
     min-height: 2.75rem;
     min-width: 2.75rem;

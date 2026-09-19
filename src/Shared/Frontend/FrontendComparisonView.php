@@ -421,11 +421,15 @@ class FrontendComparisonView extends FrontendViewBase {
             <!-- Headline numbers -->
             <div class="tt-fcompare-section"><?php esc_html_e( 'Headline numbers', 'talenttrack' ); ?></div>
             <?php
+            // #3659 — the keys have to be the ones PlayerStatsService
+            // actually returns. `recent` and `count` were never in
+            // `getHeadlineNumbers()`, so those two rows read null and
+            // printed "—" on every comparison ever run.
             $metrics = [
-                [ __( 'Most recent', 'talenttrack' ), 'recent' ],
+                [ __( 'Most recent', 'talenttrack' ), 'latest' ],
                 [ __( 'Rolling (last 5)', 'talenttrack' ), 'rolling' ],
                 [ __( 'All-time', 'talenttrack' ), 'alltime' ],
-                [ __( 'Evaluations', 'talenttrack' ), 'count' ],
+                [ __( 'Evaluations', 'talenttrack' ), 'eval_count' ],
             ];
             foreach ( $metrics as [ $label, $key ] ) :
                 ?>
@@ -433,7 +437,7 @@ class FrontendComparisonView extends FrontendViewBase {
                 <?php foreach ( $players as $pl ) :
                     $pid = (int) $pl->id;
                     $val = $headlines[ $pid ][ $key ] ?? null;
-                    $display = $val === null ? '—' : ( is_numeric( $val ) ? (string) $val : (string) $val );
+                    $display = $val === null ? '—' : (string) $val;
                     ?>
                     <div class="tt-fcompare-cell tt-fcompare-num"><?php echo esc_html( (string) $display ); ?></div>
                 <?php endforeach; ?>
@@ -576,19 +580,49 @@ class FrontendComparisonView extends FrontendViewBase {
     }
 
     /**
+     * #3659 — the categories with something to show, label keyed by
+     * main-category id.
+     *
+     * `PlayerStatsService::getMainCategoryBreakdown()` returns one array
+     * row per main category keyed by its id, carrying `label` and
+     * `alltime`. This used to read `$row->main_label` / `$row->avg` on
+     * those arrays, which is null on every row, so the union stayed
+     * empty and the empty state rendered even for a player with dozens
+     * of rated evaluations.
+     *
+     * A category nobody in the comparison has been rated on is left out
+     * — listing it would be a row of dashes. When that leaves nothing,
+     * the caller renders the empty state, which is then the truth:
+     * no evaluation in the window carries a rating.
+     *
+     * @param array<int,array<int,array<string,mixed>>> $mains player id => main id => row
+     * @return array<int,string> main id => untranslated label
+     */
+    private static function breakdownLabels( array $mains ): array {
+        $labels = [];
+        foreach ( $mains as $rows ) {
+            foreach ( $rows as $main_id => $row ) {
+                if ( ( $row['alltime'] ?? null ) === null ) continue;
+                $key = (int) ( $row['main_id'] ?? $main_id );
+                $label = (string) ( $row['label'] ?? '' );
+                if ( $label === '' || isset( $labels[ $key ] ) ) continue;
+                $labels[ $key ] = $label;
+            }
+        }
+        return $labels;
+    }
+
+    /**
      * v3.94.1 — main-category breakdown rendered as grid rows so it
      * shares the same vertical column alignment as the rest of the
      * compare grid. Caller must already be inside `.tt-fcompare-grid`.
+     *
+     * @param array<int,array<int,array<string,mixed>>> $mains
      */
     private static function renderMainBreakdownGrid( array $players, array $mains ): void {
-        $all_cats = [];
-        foreach ( $mains as $pid => $data ) {
-            foreach ( $data as $row ) {
-                $key = (string) ( $row->main_label ?? $row->label ?? '' );
-                if ( $key !== '' ) $all_cats[ $key ] = $key;
-            }
-        }
-        if ( empty( $all_cats ) ) {
+        $labels = self::breakdownLabels( $mains );
+
+        if ( empty( $labels ) ) {
             echo '<div class="tt-fcompare-cell tt-fcompare-label">&nbsp;</div>';
             $n = count( $players );
             for ( $i = 0; $i < $n; $i++ ) {
@@ -596,81 +630,17 @@ class FrontendComparisonView extends FrontendViewBase {
             }
             return;
         }
-        foreach ( array_keys( $all_cats ) as $cat_label ) {
-            echo '<div class="tt-fcompare-cell tt-fcompare-label">' . esc_html( EvalCategoriesRepository::displayLabel( (string) $cat_label ) ) . '</div>';
+
+        foreach ( $labels as $main_id => $label ) {
+            // The id resolves a club's own translation of the category
+            // (tt_translations), the way the evaluation surfaces read it.
+            echo '<div class="tt-fcompare-cell tt-fcompare-label">' . esc_html( EvalCategoriesRepository::displayLabel( $label, $main_id ) ) . '</div>';
             foreach ( $players as $pl ) {
-                $pid = (int) $pl->id;
-                $val = '—';
-                foreach ( ( $mains[ $pid ] ?? [] ) as $row ) {
-                    $key = (string) ( $row->main_label ?? $row->label ?? '' );
-                    if ( $key === $cat_label ) {
-                        $avg = $row->avg ?? $row->average ?? null;
-                        if ( $avg !== null ) $val = number_format( (float) $avg, 2 );
-                        break;
-                    }
-                }
+                $row = $mains[ (int) $pl->id ][ $main_id ] ?? null;
+                $avg = is_array( $row ) ? ( $row['alltime'] ?? null ) : null;
+                $val = $avg === null ? '—' : number_format( (float) $avg, 2 );
                 echo '<div class="tt-fcompare-cell tt-fcompare-num">' . esc_html( $val ) . '</div>';
             }
         }
-    }
-
-    /**
-     * Main-category breakdown table. Collect all unique main-category
-     * labels across the 4 players, then render one row per category
-     * with per-player averages.
-     *
-     * @deprecated v3.94.1 — `renderMainBreakdownGrid` replaces this for
-     *             the comparison view; kept in case any other caller
-     *             still uses it.
-     */
-    private static function renderMainBreakdown( array $players, array $mains ): void {
-        // Collect unique main category labels across all players
-        $all_cats = [];
-        foreach ( $mains as $pid => $data ) {
-            foreach ( $data as $row ) {
-                $key = (string) ( $row->main_label ?? $row->label ?? '' );
-                if ( $key !== '' ) $all_cats[ $key ] = $key;
-            }
-        }
-
-        if ( empty( $all_cats ) ) {
-            echo '<p><em>' . esc_html__( 'No category data yet for these filters.', 'talenttrack' ) . '</em></p>';
-            return;
-        }
-        ?>
-        <div class="tt-table-wrap">
-            <table class="tt-table" style="width:100%; background:#fff;">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Category', 'talenttrack' ); ?></th>
-                        <?php foreach ( $players as $pl ) : ?>
-                            <th><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ( array_keys( $all_cats ) as $cat_label ) : ?>
-                        <tr>
-                            <td style="font-weight:600;"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat_label ) ); ?></td>
-                            <?php foreach ( $players as $pl ) :
-                                $pid = (int) $pl->id;
-                                $val = '—';
-                                foreach ( ( $mains[ $pid ] ?? [] ) as $row ) {
-                                    $key = (string) ( $row->main_label ?? $row->label ?? '' );
-                                    if ( $key === $cat_label ) {
-                                        $avg = $row->avg ?? $row->average ?? null;
-                                        if ( $avg !== null ) $val = number_format( (float) $avg, 2 );
-                                        break;
-                                    }
-                                }
-                                ?>
-                                <td style="font-variant-numeric:tabular-nums;"><?php echo esc_html( $val ); ?></td>
-                            <?php endforeach; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
     }
 }

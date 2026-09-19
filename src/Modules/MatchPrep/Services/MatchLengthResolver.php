@@ -82,6 +82,58 @@ class MatchLengthResolver {
     }
 
     /**
+     * #3682 — the half length a *new* match prep starts from.
+     *
+     * Step 1 of the precedence order above says "the explicit per-match
+     * value already stored on the activity", and the activity has one:
+     * `match_length_minutes`, set on the activity form / REST (#1726).
+     * Every caller of `halfMinutesForActivity()` that creates a prep was
+     * skipping it, so a coach who set an U11 match to 60 minutes still
+     * got a prep planned at 2 x 35. Their playing-time reports then read
+     * from the prep, so the 10-minute disagreement landed in a player's
+     * minutes.
+     *
+     * This is the one entry point that applies the activity's own length
+     * before falling through to the age-group map and the 35 fallback.
+     */
+    public function halfMinutesForActivityDefault( int $activity_id ): int {
+        return $this->halfMinutesForActivity(
+            $activity_id,
+            self::halfOf( $this->activityMatchLength( $activity_id ) )
+        );
+    }
+
+    /**
+     * The per-match full length stored on the activity itself, in
+     * minutes. 0 when the activity has none, or is unknown / in another
+     * club. Club-scoped.
+     */
+    public function activityMatchLength( int $activity_id ): int {
+        if ( $activity_id <= 0 ) {
+            return 0;
+        }
+        /** @var string|null $stored */
+        $stored = $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT match_length_minutes
+               FROM {$this->t_activities}
+              WHERE id = %d AND club_id = %d
+              LIMIT 1",
+            $activity_id, CurrentClub::id()
+        ) );
+        $minutes = (int) $stored;
+        return $minutes > 0 ? $minutes : 0;
+    }
+
+    /**
+     * A full match length as minutes per half, rounded up so an odd
+     * length (25 minutes for the youngest ages) never silently loses a
+     * minute. 0 in, 0 out — "no length set".
+     */
+    public static function halfOf( int $match_length_minutes ): int {
+        return $match_length_minutes > 0 ? (int) ceil( $match_length_minutes / 2 ) : 0;
+    }
+
+    /**
      * Default half length for a given age category, or the global
      * fallback when that category has no configured value.
      */

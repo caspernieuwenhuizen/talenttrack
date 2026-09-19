@@ -78,9 +78,17 @@ return [
         // the same reason they read the injuries: it is the job. Read
         // only — see the `head_coach` note below for why no functional
         // role carries the write half.
+        //
+        // #3643 adds `coach_player_list_panel [r]`, the tile-visibility
+        // entity behind the Players screen. Injuries and measurements
+        // both hang off a player, and the squad list is how a physio
+        // finds the player. Reading their figures over REST while the
+        // screen that lists them says "not authorized" is the drift this
+        // grant closes; it adds no data the role could not already read.
         'physio' => [
-            'player_injuries' => [ 'rc', $mod_journey ],
-            'measurements'    => [ 'r',  $mod_measurements ],
+            'player_injuries'         => [ 'rc', $mod_journey ],
+            'measurements'            => [ 'r',  $mod_measurements ],
+            'coach_player_list_panel' => [ 'r',  $mod_players ],
         ],
 
         // ─── HEAD COACH / ASSISTANT COACH ───────────────────────────
@@ -149,16 +157,29 @@ return [
         // file says what the job is, rather than leaving it implied by
         // the absence of anything.
         //
+        // #3643 adds the three tile-visibility entities that stand in
+        // front of the screens those four data entities already reach.
+        // The dashboard gates a tile on `*_panel`, REST gates the data
+        // on `team` / `players` / `activities`, and until this row the
+        // kit manager held the second set and not the first: the API
+        // answered and every screen said "not authorized". A panel
+        // entity carries no data of its own — it decides whether the
+        // surface is offered — so this grants no reading the role did
+        // not already have.
+        //
         // #3686 adds `holidays [r]`: the academy calendar is what
         // explains a gap in the schedule, and both coach personas
         // already read it. Read only, and no `holidays_panel` — the
         // tile that edits the calendar stays with whoever keeps it.
         'kit_manager' => [
-            'team'       => [ 'r', $mod_teams ],
-            'players'    => [ 'r', $mod_players ],
-            'people'     => [ 'r', $mod_people ],
-            'activities' => [ 'r', $mod_activities ],
-            'holidays'   => [ 'r', $mod_holidays ],
+            'team'                    => [ 'r', $mod_teams ],
+            'players'                 => [ 'r', $mod_players ],
+            'people'                  => [ 'r', $mod_people ],
+            'activities'              => [ 'r', $mod_activities ],
+            'holidays'                => [ 'r', $mod_holidays ],
+            'team_roster_panel'       => [ 'r', $mod_teams ],
+            'coach_player_list_panel' => [ 'r', $mod_players ],
+            'activities_panel'        => [ 'r', $mod_activities ],
         ],
 
         // ─── MANAGER ────────────────────────────────────────────────
@@ -183,6 +204,17 @@ return [
         // evaluations, media and behaviour ratings, far past a logistics
         // seat.
         //
+        // #3643 adds the three tile-visibility entities. #3567 gave this
+        // role its data grants and stopped there, so a team manager read
+        // their squad and their schedule over REST and met "not
+        // authorized" on Teams, Players and Activities — the three
+        // screens the job is done on. The panel entities are what the
+        // dashboard asks about (`TileRegistry::tileVisibleFor()`), and
+        // they decide whether a surface is offered, not what it may
+        // show: the data entities above still scope every row to the
+        // teams this role is held on, and none of them carries `c` or
+        // `d`, so the screens render read-only.
+        //
         // #3686 adds `holidays [r]`. Reading the schedule without the
         // academy calendar cannot tell a planned break from trainings
         // nobody entered, which is the difference a manager plans kit,
@@ -191,13 +223,16 @@ return [
         // nothing about a player. Read only, and no `holidays_panel`:
         // maintaining the calendar is not a logistics seat's job.
         'manager' => [
-            'team'          => [ 'r',  $mod_teams ],
-            'players'       => [ 'r',  $mod_players ],
-            'people'        => [ 'r',  $mod_people ],
-            'activities'    => [ 'r',  $mod_activities ],
-            'attendance'    => [ 'rc', $mod_activities ],
-            'player_status' => [ 'r',  $mod_players ],
-            'holidays'      => [ 'r',  $mod_holidays ],
+            'team'                    => [ 'r',  $mod_teams ],
+            'players'                 => [ 'r',  $mod_players ],
+            'people'                  => [ 'r',  $mod_people ],
+            'activities'              => [ 'r',  $mod_activities ],
+            'attendance'              => [ 'rc', $mod_activities ],
+            'player_status'           => [ 'r',  $mod_players ],
+            'holidays'                => [ 'r',  $mod_holidays ],
+            'team_roster_panel'       => [ 'r',  $mod_teams ],
+            'coach_player_list_panel' => [ 'r',  $mod_players ],
+            'activities_panel'        => [ 'r',  $mod_activities ],
         ],
     ],
 

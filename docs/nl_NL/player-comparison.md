@@ -43,8 +43,8 @@ op **Vergelijken**, zodat je eerst een viertal samenstelt en het daarna in
 
 - De vier spelerskaarten naast elkaar.
 - Een feiten-tabel — team, leeftijdscategorie, posities, voet, rugnummer, lengte — één kolom per speler.
-- Kerncijfers — meest recent, rollend gemiddelde, all-time, en het aantal evaluaties.
-- Een uitsplitsing per hoofdcategorie.
+- Kerncijfers — de meest recente overall-score, het rollend gemiddelde over de laatste vijf evaluaties, het all-time gemiddelde, en het aantal evaluaties binnen het huidige filter. Dat aantal laat zien waar die twee gemiddelden op rusten.
+- Een uitsplitsing per hoofdcategorie — het gemiddelde per hoofdcategorie van elke speler, over dezelfde periode. Een categorie waarop niemand in de vergelijking beoordeeld is, blijft weg in plaats van als een rij streepjes te verschijnen; heeft geen van de gekozen spelers een beoordeling in die periode, dan meldt de uitsplitsing dat.
 
 ## Bij gemengde leeftijdscategorieën
 

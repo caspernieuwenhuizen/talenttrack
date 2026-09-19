@@ -43,6 +43,34 @@ spreadsheet:
  for this player." **Roles & set pieces** carries six rows — Captain,
  Corner left / right, Free kick left / right (cross), Penalty.
 
+## Half length — where the number comes from
+
+The **Half length** box decides every minute figure on this screen, and
+it is also what the live match screen, the minutes reports and the match
+analysis read afterwards. So it is worth knowing where its starting
+value comes from.
+
+When a preparation is created, the half length is taken from the first
+of these that has an answer:
+
+1. the **match length** set on the activity itself (on the activity's
+ edit form), halved — a 60-minute match starts at 2 × 30. An odd
+ length rounds up, so 25 minutes becomes 2 × 13;
+2. the half length configured for the team's age category, under
+ *Configuration → Match minutes*;
+3. 35 minutes.
+
+After that the two numbers stay independent. Changing the match length
+on the activity does **not** rewrite a preparation that already exists,
+because the preparation is what a player's recorded minutes are
+calculated from and moving those without asking would quietly rewrite
+their playing time.
+
+Instead, when the two disagree the preparation says so, in a short note
+under the Half length box: *"The activity says this match lasts 60
+minutes; the preparation uses 2 × 35."* Nothing is blocked — you may
+well have a reason. Type the half you want and the note goes away.
+
 ## Principles — what this match is working on
 
 Above the goal boxes sits a read-only **Principles** panel: the methodology

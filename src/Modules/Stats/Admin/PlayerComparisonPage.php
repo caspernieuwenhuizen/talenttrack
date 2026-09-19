@@ -333,11 +333,14 @@ class PlayerComparisonPage {
                 </thead>
                 <tbody>
                     <?php
+                    // #3659 — `recent` and `count` are not keys
+                    // `PlayerStatsService::getHeadlineNumbers()` returns, so
+                    // those two rows printed "—" on every comparison.
                     $metrics = [
-                        [ __( 'Most recent', 'talenttrack' ), 'recent' ],
+                        [ __( 'Most recent', 'talenttrack' ), 'latest' ],
                         [ __( 'Rolling (last 5)', 'talenttrack' ), 'rolling' ],
                         [ __( 'All-time', 'talenttrack' ), 'alltime' ],
-                        [ __( 'Evaluations', 'talenttrack' ), 'count' ],
+                        [ __( 'Evaluations', 'talenttrack' ), 'eval_count' ],
                     ];
                     foreach ( $metrics as [ $label, $key ] ) : ?>
                         <tr>
@@ -346,7 +349,7 @@ class PlayerComparisonPage {
                                 $pid = (int) $pl->id;
                                 $h = $headlines[ $pid ] ?? [];
                                 $val = $h[ $key ] ?? null;
-                                $display = $val === null ? '—' : ( is_numeric( $val ) ? (string) $val : esc_html( (string) $val ) );
+                                $display = $val === null ? '—' : esc_html( (string) $val );
                                 ?>
                                 <td style="font-variant-numeric:tabular-nums; font-weight:600;"><?php echo $display; ?></td>
                             <?php endforeach; ?>
@@ -387,14 +390,19 @@ class PlayerComparisonPage {
         // Collect union of category keys across all players (each player's
         // breakdown may reference different categories if they've been rated
         // on different subsets).
+        // #3659 — `getMainCategoryBreakdown()` keys its rows by main-category
+        // id and carries `label` + `alltime`; there is no `category_key` on
+        // them, so this union was always empty and the table always rendered
+        // its empty state. A category nobody has been rated on stays out —
+        // it would only add a row of dashes.
         $all_keys = [];
         foreach ( $mains as $rows ) {
-            foreach ( (array) $rows as $row ) {
-                $key = (string) ( $row['category_key'] ?? $row['key'] ?? '' );
-                if ( $key === '' ) continue;
-                if ( ! isset( $all_keys[ $key ] ) ) {
-                    $all_keys[ $key ] = (string) ( $row['label'] ?? $key );
-                }
+            foreach ( (array) $rows as $main_id => $row ) {
+                if ( ! is_array( $row ) || ( $row['alltime'] ?? null ) === null ) continue;
+                $key = (int) ( $row['main_id'] ?? $main_id );
+                $label = (string) ( $row['label'] ?? '' );
+                if ( $label === '' || isset( $all_keys[ $key ] ) ) continue;
+                $all_keys[ $key ] = $label;
             }
         }
 
@@ -414,18 +422,14 @@ class PlayerComparisonPage {
             </thead>
             <tbody>
                 <?php foreach ( $all_keys as $key => $label ) :
-                    $translated_label = EvalCategoriesRepository::displayLabel( $label );
+                    $translated_label = EvalCategoriesRepository::displayLabel( (string) $label, (int) $key );
                     ?>
                     <tr>
                         <td style="font-weight:600;"><?php echo esc_html( $translated_label ); ?></td>
                         <?php foreach ( $players as $pl ) :
                             $pid = (int) $pl->id;
-                            $row_for_player = null;
-                            foreach ( (array) ( $mains[ $pid ] ?? [] ) as $r ) {
-                                $rk = (string) ( $r['category_key'] ?? $r['key'] ?? '' );
-                                if ( $rk === $key ) { $row_for_player = $r; break; }
-                            }
-                            $val = $row_for_player['alltime'] ?? ( $row_for_player['value'] ?? null );
+                            $row_for_player = ( (array) ( $mains[ $pid ] ?? [] ) )[ $key ] ?? null;
+                            $val = is_array( $row_for_player ) ? ( $row_for_player['alltime'] ?? null ) : null;
                             ?>
                             <td style="font-variant-numeric:tabular-nums;"><?php echo $val === null ? '—' : esc_html( (string) $val ); ?></td>
                         <?php endforeach; ?>

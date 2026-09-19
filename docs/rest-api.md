@@ -91,7 +91,7 @@ PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcem
 
 | Exercise scenes (#2501, epic #2493) | `GET/POST /exercises/{id}/scenes` (the exercise's animated diagrams; the first one created becomes its primary automatically, because a scene nobody flagged would otherwise leave every read surface still showing nothing), `GET/PUT/DELETE /exercise-scenes/{id}`, `POST /exercise-scenes/{id}/primary` (move the flag — the write clears the others in the same statement pair, so two can never both be primary). **Every write returns the stored, normalised scene rather than an acknowledgement.** The repository clamps coordinates to the 0–100 pitch space, sorts and dedupes keyframes, restricts actor and link kinds to the known vocabularies, and drops a link whose endpoint is not an actor in the scene; returning the result means an editor adopts the server's version instead of keeping a hopeful copy that disagrees on the next reload, and a coordinate that was clamped is visible in the same request. Re-saving a scene exactly as returned is a no-op, which is what makes the editor's save-fetch-save cycle stable. The single-scene routes take `{id}` and **not** `{scene}`: the body field carrying the payload is called `scene`, and a URL placeholder sharing a name with a body field is silently overwritten by it. Gates on `tt_manage_exercises` for writes and `tt_view_activities` for reads — a scene is a field of an exercise (D6), not a record with an audience of its own. | `ExerciseScenesRestController.php` |
 
-| Match preparation (#3587) | `GET /match-prep/{activity_id}` returns the saved prep: `prep_id`, `activity_id`, `formation_template_id`, `formation_shape`, `half_length_minutes`, the five `goals_*` texts, `availability` (player id → `{status, reason}`), `lineup` (`"1"` / `"2"` → slot number → player id), `player_goals` (player id → `{attention_text, is_specific_goal, analyst_appointed}`) and `roles` (role key → player id). It answers 404 `match_prep_not_found` when no prep has been started, and never creates one. `PUT /match-prep/{activity_id}` takes any subset of those writable fields, declared in the route's `args`. Each block sent replaces that block and an absent one is left alone. **The squad is `availability`:** status `Present` puts a player in it, any other status leaves them out and clears their roles. `lineup` places players per half, and a squad player without a half-1 slot is on the bench. A key outside the accepted set is refused with `400 unknown_field` naming it in `details.fields` and listing every key the route takes in `details.allowed`, before anything is written. The response is the GET payload. Roles have their own routes: `PUT /match-prep/{prep_id}/role` `{role_key, player_id}` and `DELETE /match-prep/{prep_id}/role/{role_key}`. Everything gates on `tt_edit_activities` plus the activity's team scope, the same as the prep screen. | `src/Modules/MatchPrep/Rest/MatchPrepRestController.php` |
+| Match preparation (#3587) | `GET /match-prep/{activity_id}` returns the saved prep: `prep_id`, `activity_id`, `formation_template_id`, `formation_shape`, `half_length_minutes`, the five `goals_*` texts, `availability` (player id → `{status, reason}`), `lineup` (`"1"` / `"2"` → slot number → player id), `player_goals` (player id → `{attention_text, is_specific_goal, analyst_appointed}`) and `roles` (role key → player id). It answers 404 `match_prep_not_found` when no prep has been started, and never creates one. **#3682 — the two match lengths, reconciled by reporting rather than by syncing.** A match carries its length twice: `tt_activities.match_length_minutes` (#1726) and the prep's `half_length_minutes`, which is what match execution, the minutes queries and the match analysis all read. A **newly created** prep now takes its half from the activity's length (`ceil(len / 2)`, so an odd 25-minute match becomes a 13-minute half) before falling through to the age-category map and the 35 fallback — the same precedence `MatchLengthResolver::halfMinutesForActivityDefault()` applies for the blank-`half_length_minutes` case on PUT. After creation the two never sync: rewriting an existing prep because the fixture changed would move a player's recorded minutes without anyone asking. The payload says so instead, on both GET and PUT: `activity_match_length_minutes` (int, or `null` when the activity has no length set — "nobody said" is not "zero minutes") and `half_length_mismatch` (bool, true when the activity has a length and its half differs from the prep's). A PUT that changes the half length answers with the recomputed flag, which is what the prep screen's inline notice is painted from — the rule lives on the server so a non-WordPress client gets the same warning. `PUT /match-prep/{activity_id}` takes any subset of those writable fields, declared in the route's `args`. Each block sent replaces that block and an absent one is left alone. **The squad is `availability`:** status `Present` puts a player in it, any other status leaves them out and clears their roles. `lineup` places players per half, and a squad player without a half-1 slot is on the bench. A key outside the accepted set is refused with `400 unknown_field` naming it in `details.fields` and listing every key the route takes in `details.allowed`, before anything is written. The response is the GET payload. Roles have their own routes: `PUT /match-prep/{prep_id}/role` `{role_key, player_id}` and `DELETE /match-prep/{prep_id}/role/{role_key}`. Everything gates on `tt_edit_activities` plus the activity's team scope, the same as the prep screen. | `src/Modules/MatchPrep/Rest/MatchPrepRestController.php` |
 | Match analysis (#2705, epic #2704) | `GET /activities/{id}/analysis` (the whole document plus everything it pre-fills from: the match-prep goal per section, the roster of who played with their minutes, and each player's match-plan attention note. Returns a well-formed empty analysis rather than a 404 when nothing has been written, and never creates the record — reading a match must not write one), `PUT /activities/{id}/analysis` (the whole document; accepts any subset of `summary`, `status`, `sections`, `players`, so a client that only knows about sections cannot wipe the player items by omission — this is what the on-screen form posts), `PUT /activities/{id}/analysis/sections/{section_key}` (`section_key` is a `MatchAnalysisEnums` section — the four methodology team functions plus `set_pieces` / `general`; anything else is a 400 rather than a silently-stored row. Since #3091 `notes` is a list of `{body, valence}` where `valence` is `plus`, `minus` or empty; a flat list of strings and a single newline-joined blob are both still accepted and read as unmarked notes, and an unrecognised valence is stored as neutral rather than as itself), `PUT/DELETE /activities/{id}/analysis/players/{player_id}` (one player item; an item with neither a marker nor a note is deleted rather than stored, because "not mentioned" is the resting state of every player on the roster. `notes` carries up to two `{body, valence}` entries (#3091) and the server truncates a longer list rather than trusting it; the older single `note` key is still accepted), `POST /activities/{id}/analysis/share` (#2749 — mints the share seed and returns the link. Idempotent: asking twice returns the same URL rather than quietly invalidating the one already sent. Sharing is an explicit act, which is why rendering the surface no longer does it as a side effect), `POST /activities/{id}/analysis/share/rotate` (replaces the seed, shutting every previously issued URL, and returns the new link), `GET /activities/{id}/analysis/share-views` (#3096 — `{unique, opens, last_seen_at}` for the staff share link: how many browsers opened it and when the last one did. Reads through the same `ShareViewQuery` the rendered share block calls, so the page and the API cannot disagree. Zeroes rather than a 404 for an analysis nobody has opened — "not read yet" is an answer. Gated on `tt_view_activities`, the cap that gates the analysis itself). Writes gate on `tt_edit_activities` and reads on `tt_view_activities` — the caps match prep and match execution already use. Every write refuses an activity that is not a match. The read payload also carries `goals` (#2860) — the fixture's non-reversed goal events in chronological order across both halves, each with an absolute `minute`, `half`, `team`, `is_own_goal`, `scorer`, `assist` and `has_scorer`. Read-only: goals are written on the match-execution resource, so there is no matching write here. Player-item writes keep the player's `match_observed` journey entry in step: written on first save, rewritten in place on edit, removed when the item is cleared. | `MatchAnalysisRestController.php` |
 | Goal contributions (#2859, epic #2855) | `GET /players/{id}/goal-contributions` (optional `from` / `to` as `Y-m-d`; a partial range is ignored rather than half-applied, and no range means the player's whole record). Returns `{ player_id, from, to, goals, assists, own_goals, contributions, matches[] }`, each match carrying `activity_id`, `session_date`, `goals`, `assists`. Reads the same `GoalContributionQuery` the player profile's *Goals scored* tile and the Team · Minutes report's columns read, so a non-WordPress front end gets the rendered pages' numbers rather than its own arithmetic over the raw goal log. The counting rules live there and are the substance of the endpoint: a goal with no scorer recorded (`player_id = 0`) counts toward the **score** but toward **no player**; an **own goal** is recorded against the player but never added to their goal tally; a **reversed** goal counts for nobody; assists are credited from `assist_player_id` independently of who scored. Gated on `tt_view_players` via `AuthorizationService::userCanOrMatrix`. | `GoalContributionsRestController.php` |
 | Match execution — goals (#2856, epic #2855) | `POST /match-execution/{activity_id}/goal-event` `{event_uuid, team, half, minute, player_id, assist_player_id, is_own_goal}`, `PATCH /match-execution/{activity_id}/goal-event/{event_uuid}`, `DELETE /match-execution/{activity_id}/goal-event/{event_uuid}`. `team` is `home` (ours) or `away` (theirs). Attribution is optional on both: `player_id` **0** means “no scorer recorded”, which is what the live goal sheet writes when the coach could not see the final touch — refusing the goal instead only pushed them onto a score control that recorded no event at all. `assist_player_id` is one of our players or omitted, and may not equal `player_id`. `is_own_goal` marks a goal put in by the side it counts against. A named `player_id` / `assist_player_id` must belong to the match squad (the prep's availability rows plus its lineup), otherwise `player_not_in_squad`. The **PATCH is partial in two independent halves**: a payload carrying only `half` + `minute` leaves the attribution untouched, and one carrying only attribution keys leaves the timing untouched — so correcting a minute cannot silently drop a scorer. Sending `assist_player_id: 0` clears the assist. Every write is refused once the match is finalized (re-open first). Gated on `tt_edit_activities`. | `MatchExecutionRestController.php` |
@@ -493,6 +493,44 @@ Both gate on a `reports` read: global scope sees any team, a team-scoped grant
 only its own, and anything else is a 403 rather than an empty list — an empty
 list would read as "this team played nothing".
 
+### `GET /players/{id}/minutes` (#3666)
+
+A player's own playing time, as the player and their family read it. The two
+routes above are staff surfaces — one wants `tt_view_reports` plus a coached
+team, the other is the squad's share table — so until this route a player
+asking how much they had played was refused their own record.
+
+```json
+{
+  "team_id": 12, "player_id": 41,
+  "from": "2025-09-20", "to": "2026-09-20",
+  "total_minutes": 115,
+  "matches": [
+    { "activity_id": 880, "session_date": "2026-03-07", "title": "Ajax away", "type_key": "league", "minutes": 45, "record_type": "actual" },
+    { "activity_id": 884, "session_date": "2026-03-14", "title": "PSV home",  "type_key": "league", "minutes": 70, "record_type": "actual" }
+  ]
+}
+```
+
+There is **no team parameter**: the subject is the player, and the figures are
+for their current team. `from` / `to` (`YYYY-MM-DD`) narrow the window and both
+default to the rolling twelve months, anything unparseable falling back to that
+default rather than 400'ing — the same window helper the staff route uses, so
+the two cannot drift. Both routes read
+`MinutesQuery::playingTimeForPlayer()`, so a player's total and their coach's
+reconcile to the minute.
+
+**Absolute minutes only.** No share of the available minutes, no target, and no
+row for anybody else — a young player reading their own playing time is not
+handed a league table of the changing room. A player with no current team gets
+`total_minutes: 0` and an empty `matches`, not an error.
+
+Gated per player rather than by capability: `canViewPlayer()` (own record,
+linked guardian, team or global staff) **and** the #1867 preference, under
+which a player may keep `minutes` from a parent. A hidden section answers
+`403 section_private`; anyone else without access gets `403 forbidden`. The
+team routes are unchanged and stay staff-only.
+
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json
@@ -826,14 +864,34 @@ The player records the logged-in account is linked to: the player it *is*, and t
 ```json
 { "player": { "id": 577, "name": "Bas Willems", "team_id": 52, "status": "active" },
   "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active" } ],
+  "phone": "+31612345678",
   "reason": null }
 ```
 
 - `player` comes from the account's own link (`tt_players.wp_user_id`), in this club, active and not archived; otherwise `null`.
 - `children` are the account's active, non-archived children through the guardian link, most recently linked first.
+- `phone` (#3684) is the caller's **own** account phone, E.164, or `""` when none is on file. It is only ever the caller's; no route hands one account another's number, and the staff collections do not carry it.
 - An account linked to nothing gets **200**, not 403, with `player: null`, `children: []` and `reason: "no_linked_player"`, so the client can say the account isn't linked yet.
 
 **Permission:** logged in. The route returns only the caller's own links. The collection routes (`GET /players`, `GET /evaluations`, …) stay staff surfaces; `me` is the self-scoped entry point, mirroring the `my_*` matrix entities rather than widening a collection.
+
+### `PATCH /me` (#3684)
+
+Update the caller's own contact details. Today the body takes one field:
+
+```json
+{ "phone": "+31 6 12345678" }
+```
+
+Responds with the same payload `GET /me` returns, so a client reads the stored value straight back.
+
+- The number is normalized to E.164 (spaces, dashes, dots and parentheses stripped, a leading `+` kept) and stored on the account through `PhoneMeta`. `ContactSync::pushToPerson()` then copies it onto the caller's linked `tt_people` row when they have one. Nothing is written to `tt_players.guardian_phone`, and no admin approval stands in between.
+- `"phone": null` or `""` **clears** the number.
+- A value that does not normalize to a usable number is **400 `invalid_phone`** and the stored number is left untouched — never cleared. That is the case a Dutch mobile typed as `06 12345678` hits: the shape check rejects a leading zero, and reading "invalid" as "clear" would erase a working number because somebody left off their country code.
+- A body carrying no `phone` key at all is **400 `nothing_to_update`** rather than a silent 200.
+- Any other body field is **400 `unknown_field`**, per the body contract above.
+
+**Permission:** logged in, and nothing else. The route takes **no user id in any form** — it writes to `get_current_user_id()` and reads the result back from there — so there is no parameter that could point it at another account.
 
 ## Parent accounts (#1815, #3571)
 
