@@ -7,6 +7,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Alerts\AlertEvaluator;
 use TT\Modules\Alerts\Definitions\NoGuardianContactAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
@@ -152,21 +153,60 @@ final class CommsZeroRecipientSubjectTest extends WP_UnitTestCase {
     }
 
     public function test_a_player_whose_parent_was_invited_is_left_to_the_invitation_alert(): void {
-        global $wpdb;
+        [ $team ] = $this->teamWithHeadCoach();
+
+        $pending = $this->insertPlayer( 'active', $team );
+        $this->insertParentInvitation( $pending, 'pending', gmdate( 'Y-m-d H:i:s', strtotime( '-2 days' ) ) );
+
+        $expired = $this->insertPlayer( 'active', $team );
+        $this->insertParentInvitation( $expired, 'expired', gmdate( 'Y-m-d H:i:s', strtotime( '-30 days' ) ) );
+
+        $alerted = $this->alertedPlayers();
+        $this->assertNotContains( $pending, $alerted, 'a sent, pending invitation is the invitation alert\'s' );
+        $this->assertNotContains( $expired, $alerted, 'a sent, expired invitation is the invitation alert\'s' );
+    }
+
+    /**
+     * #3657 — an invitation that was created but never mailed did not ask
+     * the family anything. Once it expired, none of the three related
+     * alerts reported the player.
+     */
+    public function test_a_parent_invitation_that_was_never_sent_does_not_hide_the_player(): void {
+        [ $team ] = $this->teamWithHeadCoach();
+
+        $held_expired = $this->insertPlayer( 'active', $team );
+        $this->insertParentInvitation( $held_expired, 'expired', null );
+
+        $held_pending = $this->insertPlayer( 'active', $team );
+        $this->insertParentInvitation( $held_pending, 'pending', null );
+
+        $alerted = $this->alertedPlayers();
+        $this->assertContains( $held_expired, $alerted, 'an expired invitation nobody sent hides nothing' );
+        $this->assertContains( $held_pending, $alerted, 'a held invitation nobody sent hides nothing' );
+    }
+
+    public function test_the_alerts_endpoint_lists_a_player_whose_only_invitation_was_never_sent(): void {
         [ $team ] = $this->teamWithHeadCoach();
         $player   = $this->insertPlayer( 'active', $team );
+        $this->insertParentInvitation( $player, 'expired', null );
 
-        $wpdb->insert( "{$this->p}tt_invitations", [
-            'club_id'          => $this->club,
-            'kind'             => 'parent',
-            'target_player_id' => $player,
-            'status'           => 'pending',
-            'token'            => wp_generate_password( 32, false ),
-            'created_by'       => 1,
-            'expires_at'       => gmdate( 'Y-m-d H:i:s', strtotime( '+14 days' ) ),
-        ] );
+        // The evaluator only stores occurrences for recipients holding the
+        // alert's cap (`tt_edit_players`). An administrator holds it and is
+        // one of the parent-account managers the alert addresses.
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        ( new AlertEvaluator() )->run( new NoGuardianContactAlert(), new AlertContext( $this->club ) );
 
-        $this->assertNotContains( $player, $this->alertedPlayers() );
+        wp_set_current_user( $admin );
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/alerts' );
+        $request->set_param( 'state', 'open' );
+        $request->set_param( 'player_id', $player );
+        $response = rest_do_request( $request );
+        $this->assertSame( 200, $response->get_status() );
+
+        $body = $response->get_data();
+        $rows = is_array( $body ) && is_array( $body['data'] ?? null ) ? $body['data'] : [];
+        $keys = array_map( static fn( $row ): string => (string) ( $row['alert_key'] ?? '' ), $rows );
+        $this->assertContains( 'people.no_guardian_contact', $keys, 'the open alerts list names the player nobody at home was asked about' );
     }
 
     // ── fixtures ──────────────────────────────────────────────────────
@@ -181,6 +221,21 @@ final class CommsZeroRecipientSubjectTest extends WP_UnitTestCase {
             'status'     => $status,
         ] );
         return (int) $wpdb->insert_id;
+    }
+
+    private function insertParentInvitation( int $player_id, string $status, ?string $sent_at ): void {
+        global $wpdb;
+        $row = [
+            'club_id'          => $this->club,
+            'kind'             => 'parent',
+            'target_player_id' => $player_id,
+            'status'           => $status,
+            'token'            => wp_generate_password( 32, false ),
+            'created_by'       => 1,
+            'expires_at'       => gmdate( 'Y-m-d H:i:s', strtotime( $status === 'expired' ? '-1 day' : '+14 days' ) ),
+        ];
+        if ( $sent_at !== null ) $row['sent_at'] = $sent_at;
+        $wpdb->insert( "{$this->p}tt_invitations", $row );
     }
 
     private function insertCase( int $player_id ): int {

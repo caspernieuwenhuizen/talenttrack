@@ -31,10 +31,16 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * ## Boundary with `people.parent_never_activated`
  *
- * A player whose parent has a pending or expired invitation is skipped:
- * the family has been asked, and that alert already says the invitation
- * was never used. One player should not carry two alerts about the same
- * missing parent.
+ * A player whose parent has a pending or expired invitation that was
+ * actually sent is skipped: the family has been asked, and that alert
+ * says the invitation was never used. One player should not carry two
+ * alerts about the same missing parent.
+ *
+ * An invitation that was created but never mailed does not count. The
+ * family was never asked, `people.parent_never_activated` only looks at
+ * sent invitations, and `onboarding.invitation_never_sent` stops looking
+ * once a held invitation expires. Skipping the player on it would leave
+ * them in none of the three.
  *
  * ## Audience
  *
@@ -139,6 +145,7 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
                            AND i.accepted_at IS NULL
                            AND i.revoked_at IS NULL
                            AND i.status IN ( 'pending', 'expired' )
+                           AND i.sent_at IS NOT NULL
                    )"
             . $context->applyScope( self::SUBJECT_TYPE, 'p.id' ) . "
                  ORDER BY p.id ASC";
