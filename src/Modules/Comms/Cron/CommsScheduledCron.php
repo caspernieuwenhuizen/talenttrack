@@ -189,8 +189,12 @@ final class CommsScheduledCron {
                 ],
                 $recipients,
                 [
-                    'message_type' => MessageType::GOAL_NUDGE,
-                    'club_id'      => (int) $row->club_id,
+                    'message_type'      => MessageType::GOAL_NUDGE,
+                    'club_id'           => (int) $row->club_id,
+                    // #3576 — what the nudge is about, on the audit row.
+                    'subject_player_id' => (int) $row->player_id,
+                    'subject_type'      => 'goal',
+                    'subject_id'        => (int) $row->id,
                 ]
             );
         }

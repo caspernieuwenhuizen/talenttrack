@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
+use TT\Modules\MatchPrep\Services\MatchPrepState;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Util\PlayerShortName;
@@ -181,33 +182,24 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // sub-surface even when availability flips during the session.
         $short_names = PlayerShortName::resolve( $roster_list );
 
-        $availability_by_pid = [];
+        // #3587 — the same maps `GET match-prep/{id}` returns, so the screen
+        // and the API read a prep identically.
+        $availability_by_pid = MatchPrepState::availabilityByPlayer( $availability );
         $available_ids       = [];
-        foreach ( $availability as $a ) {
-            $pid = (int) $a->player_id;
-            $availability_by_pid[ $pid ] = [
-                'status' => (string) ( $a->status ?? 'Present' ),
-                'reason' => (string) ( $a->reason ?? '' ),
-            ];
-            if ( strcasecmp( (string) $a->status, 'Present' ) === 0 ) {
+        foreach ( $availability_by_pid as $pid => $a ) {
+            if ( strcasecmp( $a['status'], 'Present' ) === 0 ) {
                 $available_ids[] = $pid;
             }
         }
 
-        $lineup_by_half = [ 1 => [], 2 => [] ];
-        foreach ( $lineup_rows as $l ) {
-            $lineup_by_half[ (int) $l->half ][ (int) $l->slot_number ] = (int) $l->player_id;
-        }
+        $lineup_by_half = MatchPrepState::lineupByHalf( $lineup_rows );
 
         $pgoals_by_pid = [];
         foreach ( $player_goals as $g ) {
             $pgoals_by_pid[ (int) $g->player_id ] = $g;
         }
 
-        $roles_by_key = [];
-        foreach ( $roles as $r ) {
-            $roles_by_key[ (string) $r->role_key ] = (int) $r->player_id;
-        }
+        $roles_by_key = MatchPrepState::rolesByKey( $roles );
 
         $formations  = self::listFormationTemplates();
         // #3574 — the same shape the print, the team sheet and the live

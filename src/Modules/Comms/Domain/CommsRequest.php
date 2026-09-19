@@ -30,6 +30,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * path and delete it as soon as the send returns, which never involves
  * the Export module at all. Adapters that cannot carry a file ignore it.
  *
+ * `subjectPlayerId` / `subjectType` / `subjectId` (#3576) say what the
+ * message is *about* — the player, and the record that prompted it (a
+ * trial case, a PDP file). Not template tokens, so not in `payload`. They
+ * are what a send that resolved to nobody reports, so an admin reading the
+ * error log can tell which family never heard.
+ *
  * Immutable.
  */
 final class CommsRequest {
@@ -50,6 +56,9 @@ final class CommsRequest {
         public bool $urgent = false,
         public ?int $attachedExportId = null,
         public ?string $localeOverride = null,
-        public array $attachmentPaths = []
+        public array $attachmentPaths = [],
+        public ?int $subjectPlayerId = null,
+        public string $subjectType = '',
+        public int $subjectId = 0
     ) {}
 }

@@ -70,6 +70,10 @@ final class TrainingCancelledSend {
                 // already bypasses quiet hours for this type, and the
                 // flag makes the intent explicit at the call site.
                 'urgent' => true,
+                // #3576 — a squad send, so the subject is the training,
+                // not one player.
+                'subject_type' => 'activity',
+                'subject_id'   => $activity_id,
             ]
         );
     }
