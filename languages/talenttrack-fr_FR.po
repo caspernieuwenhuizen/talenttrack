@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:46:52+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:48:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1906,7 +1906,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:349
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
-#: src/Shared/Frontend/FrontendTrialCaseView.php:778
+#: src/Shared/Frontend/FrontendTrialCaseView.php:806
 #: src/Shared/Frontend/FrontendTrialsManageView.php:321
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
@@ -3979,7 +3979,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:949
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
-#: src/Shared/Frontend/FrontendTrialCaseView.php:776
+#: src/Shared/Frontend/FrontendTrialCaseView.php:804
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 #: src/Shared/Frontend/FrontendTrialsManageView.php:396
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -5316,7 +5316,7 @@ msgstr "— Tous —"
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:93
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:586
 #: src/Shared/Frontend/FrontendTrialCaseView.php:641
-#: src/Shared/Frontend/FrontendTrialCaseView.php:677
+#: src/Shared/Frontend/FrontendTrialCaseView.php:698
 #: src/Shared/Frontend/FrontendTrialsManageView.php:470
 msgid "Notes"
 msgstr "Notes"
@@ -14183,8 +14183,8 @@ msgstr ""
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:297
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:328
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:729
-#: src/Shared/Frontend/FrontendTrialCaseView.php:705
-#: src/Shared/Frontend/FrontendTrialCaseView.php:723
+#: src/Shared/Frontend/FrontendTrialCaseView.php:733
+#: src/Shared/Frontend/FrontendTrialCaseView.php:751
 msgid "Outcome"
 msgstr ""
 
@@ -22049,7 +22049,7 @@ msgid "Snapshot range to"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
-#: src/Shared/Frontend/FrontendTrialCaseView.php:776
+#: src/Shared/Frontend/FrontendTrialCaseView.php:804
 msgid "Generated at"
 msgstr ""
 
@@ -23897,7 +23897,7 @@ msgstr ""
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:71
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:778
+#: src/Shared/Frontend/FrontendTrialCaseView.php:806
 msgid "Revoked"
 msgstr ""
 
@@ -24884,7 +24884,7 @@ msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:216
 #: src/Shared/Frontend/FrontendTrialCaseView.php:316
-#: src/Shared/Frontend/FrontendTrialCaseView.php:694
+#: src/Shared/Frontend/FrontendTrialCaseView.php:722
 msgid "Record decision"
 msgstr ""
 
@@ -29749,6 +29749,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:1146
 #: src/Shared/Frontend/FrontendConfigurationView.php:1292
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:593
+#: src/Shared/Frontend/FrontendTrialCaseView.php:704
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:120
 msgid "Save changes"
 msgstr ""
@@ -35181,7 +35182,7 @@ msgid "Reset to default"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:121
-#: src/Shared/Frontend/FrontendTrialCaseView.php:679
+#: src/Shared/Frontend/FrontendTrialCaseView.php:706
 msgid "Save draft"
 msgstr ""
 
@@ -38426,7 +38427,7 @@ msgid "Recipient"
 msgstr "Destinataire"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Shared/Frontend/FrontendTrialCaseView.php:776
+#: src/Shared/Frontend/FrontendTrialCaseView.php:804
 msgid "Audience"
 msgstr ""
 
@@ -46453,7 +46454,7 @@ msgstr ""
 #. translators: 1: min rating, 2: max rating
 #. translators: 1: rating min, 2: rating max
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:44
-#: src/Shared/Frontend/FrontendTrialCaseView.php:672
+#: src/Shared/Frontend/FrontendTrialCaseView.php:693
 #, php-format
 msgid "Overall rating (%1$s–%2$s)"
 msgstr ""
@@ -56979,7 +56980,7 @@ msgid "Staff inputs"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:234
-#: src/Shared/Frontend/FrontendTrialCaseView.php:753
+#: src/Shared/Frontend/FrontendTrialCaseView.php:781
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:86
 msgid "Letter"
 msgstr ""
@@ -57040,7 +57041,7 @@ msgid "New end"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:447
-#: src/Shared/Frontend/FrontendTrialCaseView.php:726
+#: src/Shared/Frontend/FrontendTrialCaseView.php:754
 msgid "Justification"
 msgstr ""
 
@@ -57109,90 +57110,88 @@ msgstr ""
 msgid "No submitted inputs visible to you yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:653
+#: src/Shared/Frontend/FrontendTrialCaseView.php:673
 msgid "Your input"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:655
-msgid "You submitted on:"
+#. translators: %s: date and time the input was submitted.
+#: src/Shared/Frontend/FrontendTrialCaseView.php:677
+#, php-format
+msgid "Submitted on %s. You can still edit this until the trial is decided."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:656
-msgid "To edit after submit, ask the head of development."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendTrialCaseView.php:680
+#: src/Shared/Frontend/FrontendTrialCaseView.php:707
 msgid "Submit input"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:695
+#: src/Shared/Frontend/FrontendTrialCaseView.php:723
 msgid ""
 "Recording a decision sets the player status and generates the parent letter. "
 "Decisions are final for the season."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:711
+#: src/Shared/Frontend/FrontendTrialCaseView.php:739
 msgid "Justification (internal record, ≥ 30 characters)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:712
+#: src/Shared/Frontend/FrontendTrialCaseView.php:740
 msgid "Strengths (used in the encouragement letter)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:713
+#: src/Shared/Frontend/FrontendTrialCaseView.php:741
 msgid "Growth areas (used in the encouragement letter)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:715
+#: src/Shared/Frontend/FrontendTrialCaseView.php:743
 msgid "Record decision and generate letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:721
+#: src/Shared/Frontend/FrontendTrialCaseView.php:749
 msgid "Decision recorded"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:724
+#: src/Shared/Frontend/FrontendTrialCaseView.php:752
 msgid "Recorded at"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:732
+#: src/Shared/Frontend/FrontendTrialCaseView.php:760
 msgid "Acceptance slip received on:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:736
+#: src/Shared/Frontend/FrontendTrialCaseView.php:764
 msgid "Mark received"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:742
+#: src/Shared/Frontend/FrontendTrialCaseView.php:770
 msgid "Regenerate letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:756
+#: src/Shared/Frontend/FrontendTrialCaseView.php:784
 msgid ""
 "No letter generated yet. Record a decision on the Decision tab to produce "
 "one."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:760
+#: src/Shared/Frontend/FrontendTrialCaseView.php:788
 msgid "Print view"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:774
+#: src/Shared/Frontend/FrontendTrialCaseView.php:802
 msgid "Letter history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:791
+#: src/Shared/Frontend/FrontendTrialCaseView.php:819
 msgid "Parent meeting mode"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:792
+#: src/Shared/Frontend/FrontendTrialCaseView.php:820
 msgid ""
 "A sanitized fullscreen view for the conversation with the parents. No "
 "internal data is shown — only the decision, the player photo and basics, and "
 "the letter."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:793
+#: src/Shared/Frontend/FrontendTrialCaseView.php:821
 msgid "Open meeting"
 msgstr ""
 
