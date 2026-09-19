@@ -294,6 +294,25 @@
 	text-decoration: none;
 	white-space: nowrap;
 }
+/* #3597 — the saved-views actions ("Save current filters", "Rename,
+   replace or delete this view") are <button>s in a menu of <a> rows. The
+   rule above never reset what a button brings from the user agent, so they
+   rendered as grey bordered system buttons, shrunk to their text. Layout
+   and reset only; hover, --on and focus come from the shared rules, which
+   out-rank this one. */
+.tt-dashboard button.tt-perdrop__opt {
+	width: 100%;
+	margin: 0;
+	background: none;
+	border: 0;
+	font: inherit;
+	font-size: 0.875rem;
+	text-align: left;
+	cursor: pointer;
+	touch-action: manipulation;
+	-webkit-appearance: none;
+	appearance: none;
+}
 .tt-dashboard .tt-perdrop__opt:hover {
 	background: var(--tt-bg-soft, #f4f6f3);
 }
