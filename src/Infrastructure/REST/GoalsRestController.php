@@ -81,6 +81,25 @@ class GoalsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #3653 — a player's own goals, player-facing.
+        //
+        // `GET /goals` is a staff collection and stays one: #3568 decided
+        // collections are not widened, and its coach-team scoping is what
+        // keeps it safe. That left a player 403 on their own goals and a
+        // parent 200-with-no-rows on their child's, while `My goals`
+        // rendered them. This is the per-player read, gated the way
+        // `players/{id}/evaluations` is (#3478): canViewPlayer() for
+        // access, the #1867 section preference for a parent.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/goals', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_for_player' ],
+                'permission_callback' => [ __CLASS__, 'can_view_player' ],
+                'args'                => [
+                    'id' => [ 'type' => 'integer', 'required' => true, 'description' => 'The player whose goals to read.' ],
+                ],
+            ],
+        ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)', [
             [
                 'methods'             => 'PUT',
@@ -135,6 +154,21 @@ class GoalsRestController {
 
     public static function can_edit(): bool {
         return current_user_can( 'tt_edit_goals' );
+    }
+
+    /**
+     * #3653 — per-player read gate for `GET players/{id}/goals`: own
+     * record, linked guardian, team or global staff. The child's section
+     * preference is checked in the handler rather than here, so a parent
+     * whose child hid their goals gets `section_private` and not a bare
+     * `rest_forbidden` they cannot interpret.
+     */
+    public static function can_view_player( \WP_REST_Request $r ): bool {
+        $uid       = get_current_user_id();
+        $player_id = (int) $r['id'];
+        if ( $uid <= 0 || $player_id <= 0 ) return false;
+
+        return \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */
@@ -329,6 +363,112 @@ class GoalsRestController {
             'page'     => $page,
             'per_page' => $per_page,
         ] );
+    }
+
+    /**
+     * GET /players/{id}/goals — one player's goals, player-facing (#3653).
+     *
+     * The rows `My goals` renders, in the shape `GET /goals` returns, so a
+     * non-WordPress front end draws the same board. Unpaginated on purpose:
+     * `GoalsRepository::listForPlayer()` is one player's active goals,
+     * newest first — the same query and the same archive filter the screen
+     * runs, so the API and the screen cannot disagree.
+     */
+    public static function list_for_player( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+
+        // #1867 — a parent only reads goals when the child shares them.
+        // A no-op for the player themselves and for staff.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( get_current_user_id(), $player_id, 'goals' ) ) {
+            return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
+        }
+
+        $meta = self::playerMeta( $player_id );
+
+        // Who is asking decides which detail URL the rows carry. Not
+        // `can_view()`: a guardian passes that through the matrix bridge —
+        // it is the collection's team scoping, not the capability, that
+        // holds them out — so the capability cannot tell a guardian from a
+        // coach. The links are the same question `parentCanViewSection()`
+        // asks: is this the player, or someone linked to them.
+        $uid      = get_current_user_id();
+        $subject  = $meta['wp_user_id'] > 0 && $meta['wp_user_id'] === $uid;
+        $guardian = ! $subject && in_array(
+            $uid,
+            ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id ),
+            true
+        );
+
+        $rows = [];
+        foreach ( ( new GoalsRepository() )->listForPlayer( $player_id ) as $row ) {
+            // The repository selects `g.*` only; the list route's player and
+            // team columns come from its join. Merging through arrays keeps
+            // the row shape identical without writing properties onto a row
+            // object the repository declares as a plain `object`.
+            $out = self::format_row( (object) ( (array) $row + $meta['join'] ) );
+
+            if ( $subject || $guardian ) {
+                // #3397 — `?tt_view=goals&id=N` answers a player "Not
+                // authorized"; their copy of the goal lives behind
+                // `my-goals`, and a guardian reading their child's carries
+                // the player id. Built from the dashboard URL rather than
+                // through `RecordLink::meDetailUrl()`, whose base is the
+                // current request: right inside a rendered view, wrong in
+                // a REST controller, where the request is the API path.
+                $args = [ 'tt_view' => 'my-goals', 'id' => (int) $out['id'] ];
+                if ( $guardian ) {
+                    $args['player_id'] = $player_id;
+                }
+                $url = (string) add_query_arg( $args, \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+
+                $out['detail_url']       = $url;
+                $out['title_link_html']  = \TT\Shared\Frontend\Components\RecordLink::inline( (string) $out['title'], $url );
+                // The player cell links to the staff player file, which a
+                // player or parent holds no grant over. No link at all
+                // beats one that answers "Not authorized".
+                $out['player_link_html'] = '';
+            }
+
+            $rows[] = $out;
+        }
+
+        return RestResponse::success( [
+            'player_id' => $player_id,
+            'rows'      => $rows,
+            'total'     => count( $rows ),
+        ] );
+    }
+
+    /**
+     * The player + team columns `format_row()` reads, for a route whose rows
+     * come from `GoalsRepository` rather than the list query's join, plus the
+     * player's linked account so the caller can be told apart from a parent.
+     *
+     * @return array{join:array{first_name:string,last_name:string,team_id:int,team_name:string},wp_user_id:int}
+     */
+    private static function playerMeta( int $player_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT pl.first_name, pl.last_name, pl.team_id, pl.wp_user_id, t.name AS team_name
+               FROM {$p}tt_players pl
+               LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+              WHERE pl.id = %d AND pl.club_id = %d",
+            $player_id,
+            CurrentClub::id()
+        ), ARRAY_A );
+
+        $data = is_array( $row ) ? $row : [];
+        return [
+            'join' => [
+                'first_name' => (string) ( $data['first_name'] ?? '' ),
+                'last_name'  => (string) ( $data['last_name'] ?? '' ),
+                'team_id'    => (int) ( $data['team_id'] ?? 0 ),
+                'team_name'  => (string) ( $data['team_name'] ?? '' ),
+            ],
+            'wp_user_id' => (int) ( $data['wp_user_id'] ?? 0 ),
+        ];
     }
 
     /**

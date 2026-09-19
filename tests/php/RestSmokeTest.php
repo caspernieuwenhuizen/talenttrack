@@ -86,6 +86,11 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'DELETE /players/1'             => [ 'DELETE', '/talenttrack/v1/players/1' ],
             'POST /players/import'          => [ 'POST',   '/talenttrack/v1/players/import' ],
             'GET /players/1/timeline'       => [ 'GET',    '/talenttrack/v1/players/1/timeline' ],
+            'GET /players/1/transitions'    => [ 'GET',    '/talenttrack/v1/players/1/transitions' ],
+            // #3653 — the player-facing goals read. Gated per player rather
+            // than by a staff capability, so the anonymous denial is worth
+            // holding on to explicitly.
+            'GET /players/1/goals'          => [ 'GET',    '/talenttrack/v1/players/1/goals' ],
 
             // Player injuries — minors' medical records, the most sensitive class.
             'GET /players/1/injuries'       => [ 'GET',    '/talenttrack/v1/players/1/injuries' ],

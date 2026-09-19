@@ -303,7 +303,15 @@ paths:
     get:
       tags: [journey]
       summary: Player journey timeline (chronological events)
-      description: 'Cap required: `tt_view_players` plus event-visibility caps for medical / safeguarding rows.'
+      description: 'Per-player gate (#3653): `canViewPlayer()` — own record, linked guardian, team or global staff — plus the child''s section preference, plus event-visibility caps for coaching-staff / medical / safeguarding rows.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+
+  /players/{id}/transitions:
+    get:
+      tags: [journey]
+      summary: Player journey milestones (transitions view)
+      description: 'Same gate as the timeline (#3653).'
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK } }
 
@@ -426,6 +434,14 @@ paths:
 
   /eval-categories:
     get: { tags: [evaluations], summary: List eval categories, responses: { '200': { description: OK } } }
+
+  /players/{id}/goals:
+    get:
+      tags: [goals]
+      summary: One player's goals, player-facing (#3653)
+      description: 'Per-player gate: `canViewPlayer()` plus the child''s section preference (403 `section_private`). The staff collection `GET /goals` is unchanged.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
 
   /goals:
     get: { tags: [goals], summary: List goals, responses: { '200': { description: OK } } }
