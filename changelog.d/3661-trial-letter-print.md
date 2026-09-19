@@ -1,3 +1,0 @@
-# The trial letter prints as a letter again (#3661)
-
-The Letter tab on a trial case showed the letter's stylesheet as a block of CSS text above an unstyled letter, and "Print view" opened the case page all over again — WordPress toolbar, dashboard header, case tabs and letter history included — so there was no way to print a clean admittance letter for a family. The letter's styling now lives in a stylesheet instead of inside the letter itself, which also cleans up letters generated before this release, and Print view opens a standalone document with only the letter, the optional acceptance slip and a Print button. The same link on the Parent meeting screen opens that document too. Only staff who may open the case and manage trials can reach the print URL.

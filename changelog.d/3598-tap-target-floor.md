@@ -1,3 +1,0 @@
-# Filter selects, checkboxes and small buttons now meet the 48 px tap target (#3598)
-
-On a phone or tablet, dropdowns and text fields across the dashboard sat just under the 48 px minimum, and a handful of controls — the All / None shortcuts and column rows on Exports, Select all / Clear all / Apply in the team planner, and the row selector on My tasks — were smaller still. Every form control now reaches 48 px under a touch pointer, and the My tasks row selector became a full-height label, so tapping anywhere beside the box ticks it. It also has a name now, so a screen reader announces which task it selects. Desktop with a mouse keeps its current density.

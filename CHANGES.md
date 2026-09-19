@@ -1,3 +1,108 @@
+# TalentTrack v4.126.4 — Filter selects, checkboxes and small buttons now meet the 48 px tap target (#3598)
+
+On a phone or tablet, dropdowns and text fields across the dashboard sat just under the 48 px minimum, and a handful of controls — the All / None shortcuts and column rows on Exports, Select all / Clear all / Apply in the team planner, and the row selector on My tasks — were smaller still. Every form control now reaches 48 px under a touch pointer, and the My tasks row selector became a full-height label, so tapping anywhere beside the box ticks it. It also has a name now, so a screen reader announces which task it selects. Desktop with a mouse keeps its current density.
+
+# TalentTrack v4.126.4 — Scouting visits can be read back, and a visit lists its prospects again (#3604)
+
+A scouting visit can now be read over the API: `GET /scouting-visits` lists a
+scout's visits (filtered by scout, status, date range or archived state) and
+`GET /scouting-visits/{id}` returns one with the prospects logged from it. Every
+route — create, update and the two reads — answers with the same visit fields, so
+a client can see what was actually stored instead of a bare id, and a field a
+visit does not take is now refused by name instead of disappearing behind a
+success. The prospects on a visit carry a birth year, never a date of birth.
+
+Fixed along the way: the "Prospects logged from this visit" list on a visit page
+asked the database for two columns that do not exist, so it said nobody had been
+logged even when prospects were linked to the visit.
+
+# TalentTrack v4.126.4 — The activities list accepts a plain player id (#3642)
+
+Asking the activities list for one player with the plain `player_id` parameter returned an empty list without an error, so a parent asking for their child's schedule was told there was nothing planned. The list now reads `player_id` the same way as `filter[player_id]`, which already worked. The access rules have not changed: players and parents still only see their own activities or their child's, and another player's id still returns an empty list.
+
+# TalentTrack v4.126.4 — Families can read the development plan over the API, not only acknowledge it (#3645)
+
+A parent could already sign off a development talk through the API, but had no route on which to read the plan the talk belonged to — the PDP file routes are staff surfaces and answered "no access". So over the API a guardian could acknowledge something they could not see, and anything that is not the My PDP screen — a future app, an integration — had nothing to show them.
+
+`GET /players/{id}/pdp` now answers with the plan exactly as My PDP shows it: the season, the conversations with their dates and state, the acknowledgement columns, the goals discussed, the active goals and the end-of-season verdict. A talk's notes and agreed actions stay empty until the coach signs it off, and the coach's private preparation is never included. A player reads their own plan, a guardian reads their child's, and a child who has hidden their plan from a parent has hidden it here too. The staff file routes are unchanged.
+
+The My PDP screen itself now renders from that same reader, so what a family sees on the page and what they get from the API can no longer drift apart.
+
+# TalentTrack v4.126.4 — A player can read their own goals and journey over the API (#3653)
+
+The API refused data the player's own screens were already showing. `My goals`
+and `My journey` rendered fine, but `GET players/{id}/timeline` and
+`GET players/{id}/transitions` carried `tt_view_players` — a staff capability —
+on the route, so a player asking for their own journey was turned away before
+the per-player rules ever ran. Those handlers have always checked access per
+player, the child's sharing preference and the per-entry visibility, so the
+routes now ask only for a logged-in caller and let the handlers decide, exactly
+as the rating-trend route already did.
+
+Goals needed a route rather than a looser gate. `GET goals` is a staff
+collection: a player holds no goals capability and got a 403, while a guardian
+passed the check and got an empty list, because the collection narrows every
+non-global reader to the teams they coach. That narrowing is what keeps the
+collection safe, so it is untouched. Alongside it there is now
+`GET players/{id}/goals`, the player-facing read — one player's board, the same
+rows and the same order `My goals` renders — gated per player the way
+`players/{id}/evaluations` is: own record, linked guardian, team or global
+staff, and a `section_private` refusal when a player has kept their goals from
+a guardian. Its links point at the player's own `my-goals` screen rather than
+the staff list a player cannot open.
+
+Nothing changes on a screen; this is the API catching up with what the screens
+already do, so a front end outside WordPress can draw them.
+
+# TalentTrack v4.126.4 — No-guardian-contact alert no longer skips players whose parent invitation was never sent (#3657)
+
+The "Player with no guardian contact" alert used to leave a player out as soon as a parent invitation existed for them, even one that was created and never mailed. When such an invitation expired, none of the invitation alerts reported the player either, so a family nobody had asked stayed invisible. Only an invitation that was actually sent now hands the player over to "Parent invited but never activated".
+
+# TalentTrack v4.126.4 — Demo match evaluations are about matches the player played (#3658)
+
+On a demo academy a player could collect four "Match" evaluations for August while every minutes surface said they had played nothing. The write-ups were rolled per calendar date, long before any side was picked, with a random opponent and 45-90 random minutes — so the demo told two contradicting stories about the same Saturday. They now come off the match itself: only players who were on the pitch are written up, with the minutes they played, the fixture's opponent and venue, and the result the match actually ended in.
+
+# TalentTrack v4.126.4 — The trial letter prints as a letter again (#3661)
+
+The Letter tab on a trial case showed the letter's stylesheet as a block of CSS text above an unstyled letter, and "Print view" opened the case page all over again — WordPress toolbar, dashboard header, case tabs and letter history included — so there was no way to print a clean admittance letter for a family. The letter's styling now lives in a stylesheet instead of inside the letter itself, which also cleans up letters generated before this release, and Print view opens a standalone document with only the letter, the optional acceptance slip and a Print button. The same link on the Parent meeting screen opens that document too. Only staff who may open the case and manage trials can reach the print URL.
+
+# TalentTrack v4.126.4 — Trial letters now carry the academy's name (#3662)
+
+Every generated trial letter — admittance, decline, decline with encouragement — was headed with the WordPress site title instead of the academy name set under Configuration, because the letter engine looked for a config key nothing writes. The heading, the `{club_name}` placeholder, the letter-template preview and the trial reminder mail now all use the academy name, falling back to the site title only when that field is empty. Letters already generated keep their text; regenerate a letter to pick up the corrected name. The acceptance slip's `{club_address}` was missing the same way and now reads the return address saved under Letter templates.
+
+# TalentTrack v4.126.4 — Demo matches show as finalized and name their opponent (#3664)
+
+Every generated past match on a demo install listed as "Not started" beside its final score, and never appeared under the "Finalized" or "Pending review" filters, because the demo generator stored it in a state the product retired. Generated matches are now finalized, the way a coach leaves a match after reviewing it. Every generated fixture also has an opponent and alternates home and away, with the opponent's ground as the location of an away game, so the match executions list, team results and a player's match history no longer show "—" where the opponent goes.
+
+# TalentTrack v4.126.4 — Alerts list pages, filters by alert type, and says who counts are for (#3665)
+
+The alerts list no longer stops at 100. Previous and Next appear below the list when there are more, the count above it is now the total rather than however many fitted on the page, and changing a filter starts again at page one. A link can narrow the list to one kind of alert rather than a whole area, and the list says which kind it is showing. On the API, `GET /alerts` takes `alert_key` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`; an unknown key answers an empty list rather than falling through to everything.
+
+Engine health gains a Recipients column and says plainly that its counts cover the whole academy. An administrator who saw one open certificate alert and could not find it in their own list now sees why: the alert went to the person whose certificate it is. Names are never shown — some of these alerts are personal, and the number of recipients is enough to judge whether an alert is doing its job.
+
+# TalentTrack v4.126.4 — Threads API names its thread types and explains a wrong one (#3674)
+
+The threads endpoints now declare their arguments, so an API client can see that a thread belongs to a goal, a player or a blueprint, and that a message needs a `body` and takes a `public` or `private_to_coach` visibility. Asking for a thread type that doesn't exist, such as `team` or `activity`, still answers 400, but the error now lists the valid types instead of a bare "invalid parameter". The thread routes are documented in the REST API reference.
+
+# TalentTrack v4.126.4 — Prospect panel on the onboarding pipeline shows the scouting notes and the visit (#3677)
+
+Clicking a card on the onboarding pipeline used to open a panel with nothing but
+the prospect's name, stage and next action — a scout about to propose a trial had
+to leave the board to find out where the player came from. The panel now shows
+the scouting notes written when the find was logged, and a **Found at** line with
+the date, event and scout of the linked scouting visit, which opens the visit
+itself. Both are read-only, and the visit line renders only for someone who may
+reach the scouting planner and that particular visit, so a head coach watching
+their own age group's funnel sees the notes and no visit line.
+
+# TalentTrack v4.126.4 — PDP coverage line counts the whole team for the head of development (#3685)
+
+On the PDP screen, the line "M of N players have a PDP for the current season" read "0 of 0" for a head of development, while the list underneath showed the whole team. The line now counts the same players as the list: anyone who reads every player's PDP counts the whole team, and a coach still counts only their own players.
+
+# TalentTrack v4.126.4 — The activities list can be narrowed to one activity type (#3687)
+
+The activities list could not be asked for matches on their own: the type filter the on-screen list has always had was missing from the API behind it, and a request that named a type was answered with the whole schedule instead. Asking "which matches are this weekend" meant fetching every training as well and sorting them out afterwards. The list now takes an activity type — one, or several separated by commas, so games and tournaments can be asked for together — and a type it does not recognise is refused with a message naming the ones it does, instead of quietly returning everything. Who may see which activities is unchanged: the filter only ever narrows a list, never widens it.
+
 # TalentTrack v4.126.3 — Messages held for quiet hours are now sent in the morning (#3646)
 
 A non-urgent message sent between 21:00 and 07:00 was logged as "Held until

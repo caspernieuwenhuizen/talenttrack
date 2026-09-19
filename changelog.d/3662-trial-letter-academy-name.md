@@ -1,3 +1,0 @@
-# Trial letters now carry the academy's name (#3662)
-
-Every generated trial letter — admittance, decline, decline with encouragement — was headed with the WordPress site title instead of the academy name set under Configuration, because the letter engine looked for a config key nothing writes. The heading, the `{club_name}` placeholder, the letter-template preview and the trial reminder mail now all use the academy name, falling back to the site title only when that field is empty. Letters already generated keep their text; regenerate a letter to pick up the corrected name. The acceptance slip's `{club_address}` was missing the same way and now reads the return address saved under Letter templates.
