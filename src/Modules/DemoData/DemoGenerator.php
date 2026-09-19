@@ -722,7 +722,8 @@ class DemoGenerator {
 
         // Same shape problem as loadTeams(): `archetype` is not a column,
         // it is written to tt_demo_tags.extra_json by PlayerGenerator and read
-        // back off the player object by EvaluationGenerator. Recover it for
+        // back off the player object by the generators that write evaluations
+        // (EvaluationGenerator, MatchDayGenerator). Recover it for
         // players a previous batch generated; anything else keeps the neutral
         // default rather than a flat line for the whole squad (#2503).
         $archetypes = [];

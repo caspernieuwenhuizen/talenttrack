@@ -58,11 +58,13 @@ recorded. **Round evaluations** are written four times a season — a
 start-of-season baseline, two mid-season rounds and an end-of-season review —
 a few days ahead of the PDP conversation that reviews them, so the evidence
 panel on every generated conversation has the round behind it. **Match
-evaluations** are written against the fixtures the run generates, on their own
-per-match cadence, for roughly a third of the matches a player was available
-for. A three-year window therefore gives a player around a dozen round
-evaluations rather than three hundred, which is the difference between a list
-a coach scans and one they scroll.
+evaluations** are written against the matches the run generates, for roughly a
+third of the matches a player **played** — carrying that match's opponent, the
+result and the minutes the player was actually on the pitch for. A player who
+was benched or unavailable has no write-up for that Saturday, because there is
+nothing to write up. A three-year window therefore gives a player around a
+dozen round evaluations rather than three hundred, which is the difference
+between a list a coach scans and one they scroll.
 
 Ratings are written **on the scale the install is configured for** and land on
 values that scale can express — no 6.4 on a step of 1. An archetype that

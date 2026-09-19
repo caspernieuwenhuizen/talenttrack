@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoEvaluationWriter;
 use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
@@ -31,6 +33,12 @@ use TT\Modules\Teams\FootballFormResolver;
  *    and the team's outfield total lands on squad size x match length.
  *    Minutes reporting reads these rows; incoherent ones make every minutes
  *    report look broken.
+ *  - **A match evaluation is about a match the player played** (#3658).
+ *    The write-ups used to come from `EvaluationGenerator`, which runs long
+ *    before any side is picked and so rolled them per calendar date, with a
+ *    random opponent and 45-90 random minutes, for benched players too. They
+ *    are written here instead, off the fixture and the minutes this
+ *    generator has just recorded.
  */
 class MatchDayGenerator implements DependentGeneratorInterface {
 
@@ -58,21 +66,35 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         'turnover'       => 'Turnover',
     ];
 
-    /** @var array<string, array{general:string, attack:string, defend:string, attention:string}> */
+    /**
+     * #3658 — the letter a result is written with, in the language the
+     * demo's content is written in. Dutch reports a match as W / G / V.
+     *
+     * @var array<string, array{general:string, attack:string, defend:string, attention:string, win:string, draw:string, loss:string}>
+     */
     private const COPY_BY_LANGUAGE = [
         'en_US' => [
             'general'   => 'Play out from the back, stay compact when we lose it.',
             'attack'    => 'Switch the play early and attack the far post.',
             'defend'    => 'Press as a unit; first defender sets the angle.',
             'attention' => 'Look for the forward pass before playing back.',
+            'win'       => 'W',
+            'draw'      => 'D',
+            'loss'      => 'L',
         ],
         'nl_NL' => [
             'general'   => 'Van achteruit opbouwen, compact blijven bij balverlies.',
             'attack'    => 'Snel het spel verleggen en de tweede paal aanvallen.',
             'defend'    => 'Als team druk zetten; de eerste verdediger bepaalt de hoek.',
             'attention' => 'Zoek eerst de voorwaartse pass voordat je terugspeelt.',
+            'win'       => 'W',
+            'draw'      => 'G',
+            'loss'      => 'V',
         ],
     ];
+
+    /** Share of the matches a player played that they are written up for. */
+    private const MATCH_EVAL_PROB = 35; // out of 100
 
     private DemoBatchRegistry $registry;
 
@@ -88,6 +110,17 @@ class MatchDayGenerator implements DependentGeneratorInterface {
     private string $language;
 
     private ?DemoRoster $roster;
+
+    private DemoCalendar $calendar;
+
+    /** #3658 — the evaluation-plus-ratings write shared with EvaluationGenerator. */
+    private ?DemoEvaluationWriter $eval_writer = null;
+
+    /** @var array<int,string>|null player id => archetype, for the rating curve (#3658) */
+    private ?array $archetypes = null;
+
+    /** @var array<int,int>|null team id => head coach user id (#3658) */
+    private ?array $team_coach = null;
 
     /** @var array<int,int> player id => starts so far in this batch (#3588) */
     private array $starts = [];
@@ -106,7 +139,8 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $ctx->teams,
             $ctx->users,
             $ctx->contentLanguage,
-            $ctx->roster()
+            $ctx->roster(),
+            $ctx->calendar()
         );
     }
 
@@ -121,7 +155,8 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         array $teams,
         array $users,
         string $language = '',
-        ?DemoRoster $roster = null
+        ?DemoRoster $roster = null,
+        ?DemoCalendar $calendar = null
     ) {
         $this->registry = $registry;
         $this->players  = $players;
@@ -129,6 +164,10 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         $this->users    = $users;
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
         $this->roster   = $roster;
+        // The calendar only sets where a match sits in the window, which is
+        // what the archetype rating curve reads. A caller that assembled
+        // this generator by hand gets a one-season window.
+        $this->calendar = $calendar ?? new DemoCalendar( 52 );
     }
 
     /**
@@ -187,6 +226,14 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $activity_id = (int) $fixture->id;
             $team_id     = (int) $fixture->team_id;
             $match_date  = (string) $fixture->session_date;
+
+            // #3658 — the fixture's own details, so the write-up of this
+            // match names the side it was played against.
+            $fixture_meta = [
+                'opponent'    => (string) ( $fixture->opponent ?? '' ),
+                'home_away'   => (string) ( $fixture->home_away ?? '' ),
+                'competition' => (string) ( $fixture->game_subtype_key ?? '' ),
+            ];
 
             // #3402 — who was available for a match is who was in that squad
             // on the day. Falling back to the current roster would put a
@@ -310,7 +357,9 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             // Future fixtures stop at prep.
             if ( strtotime( $match_date ) > time() ) continue;
 
-            $total += $this->generateExecution( $exec_repo, $activity_id, $prep_id, $match_date, $starting, $bench, $author );
+            $total += $this->generateExecution(
+                $exec_repo, $activity_id, $prep_id, $match_date, $starting, $bench, $author, $team_id, $fixture_meta
+            );
         }
 
         return $total;
@@ -373,10 +422,12 @@ class MatchDayGenerator implements DependentGeneratorInterface {
     }
 
     /**
-     * Score, goal events, substitutions and a light tracked-event stream.
+     * Score, goal events, substitutions, a light tracked-event stream, and
+     * the match write-ups for the players who were on the pitch.
      *
      * @param int[] $starting
      * @param int[] $bench
+     * @param array{opponent:string, home_away:string, competition:string} $fixture_meta
      */
     private function generateExecution(
         MatchExecutionRepository $exec_repo,
@@ -385,7 +436,9 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         string $match_date,
         array $starting,
         array $bench,
-        int $author
+        int $author,
+        int $team_id = 0,
+        array $fixture_meta = [ 'opponent' => '', 'home_away' => '', 'competition' => '' ]
     ): int {
         global $wpdb;
 
@@ -517,7 +570,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         $this->tagRowsFor( 'match_substitution', 'tt_match_execution_substitutions', 'execution_id', $execution_id );
         $total += $subs;
 
-        $this->writeMinutes( $activity_id, $starting, $off_at, $on_at );
+        $minutes = $this->writeMinutes( $activity_id, $starting, $off_at, $on_at );
 
         // A light tracked-event stream — enough to populate the feed without
         // pretending a youth match was fully scouted.
@@ -543,7 +596,132 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             }
         }
 
+        // #3658 — last, so the write-up can quote the minutes and the
+        // scoreline this match actually produced.
+        $total += $this->writeMatchEvaluations(
+            $activity_id,
+            $team_id,
+            $match_date,
+            $minutes,
+            $this->resultLabel( $home_goals, $away_goals ),
+            $fixture_meta
+        );
+
         return $total;
+    }
+
+    /**
+     * One match evaluation for some of the players who were on the pitch.
+     *
+     * The rule that makes this worth moving off the calendar (#3658): a
+     * player is only written up for a match they played, with the minutes
+     * they played, against the side the fixture was against. A benched
+     * player has no row here, which is what "did not feature" looks like.
+     *
+     * Skipped quietly when the install has no match evaluation type or no
+     * evaluation categories — a match evaluation is a garnish on a match,
+     * not a reason to fail the run.
+     *
+     * @param array<int,int> $minutes player id => minutes played in this match
+     * @param array{opponent:string, home_away:string, competition:string} $fixture_meta
+     * @return int rows written
+     */
+    private function writeMatchEvaluations(
+        int $activity_id,
+        int $team_id,
+        string $match_date,
+        array $minutes,
+        string $game_result,
+        array $fixture_meta
+    ): int {
+        if ( $activity_id <= 0 || ! $minutes ) return 0;
+
+        $writer   = $this->evaluationWriter();
+        $match_id = (int) ( $writer->evalTypes()['match'] ?? 0 );
+        if ( $match_id <= 0 || ! $writer->categories() ) return 0;
+
+        $coach_id = (int) ( $this->teamCoaches()[ $team_id ] ?? 0 );
+        if ( $coach_id <= 0 ) return 0;
+
+        $written = 0;
+        foreach ( $minutes as $player_id => $played ) {
+            if ( $player_id <= 0 || $played <= 0 ) continue;
+            if ( mt_rand( 1, 100 ) > self::MATCH_EVAL_PROB ) continue;
+
+            $eval_id = $writer->write( [
+                'club_id'        => CurrentClub::id(),
+                'player_id'      => $player_id,
+                'coach_id'       => $coach_id,
+                'eval_type_id'   => $match_id,
+                'eval_date'      => $match_date,
+                'notes'          => '',
+                'activity_id'    => $activity_id,
+                'opponent'       => $fixture_meta['opponent'],
+                'competition'    => $fixture_meta['competition'],
+                'game_result'    => $game_result,
+                'home_away'      => $fixture_meta['home_away'],
+                'minutes_played' => $played,
+            ], $player_id, $this->archetypeFor( $player_id ), [
+                'match'       => 1,
+                'team_id'     => $team_id,
+                'activity_id' => $activity_id,
+            ] );
+
+            if ( $eval_id > 0 ) $written++;
+        }
+
+        return $written;
+    }
+
+    /**
+     * The result as an evaluation records it — a letter plus the scoreline,
+     * our goals first. `home_score` is our goals whatever the venue (#3530).
+     */
+    private function resultLabel( int $home_goals, int $away_goals ): string {
+        $copy = self::COPY_BY_LANGUAGE[ self::resolveLanguage( $this->language ) ];
+        if ( $home_goals > $away_goals ) $letter = $copy['win'];
+        elseif ( $home_goals < $away_goals ) $letter = $copy['loss'];
+        else $letter = $copy['draw'];
+
+        return sprintf( '%s %d-%d', $letter, $home_goals, $away_goals );
+    }
+
+    private function evaluationWriter(): DemoEvaluationWriter {
+        if ( $this->eval_writer === null ) {
+            $this->eval_writer = new DemoEvaluationWriter( $this->registry, $this->calendar );
+        }
+        return $this->eval_writer;
+    }
+
+    /** @return array<int,int> team id => head coach user id */
+    private function teamCoaches(): array {
+        if ( $this->team_coach !== null ) return $this->team_coach;
+
+        $map = [];
+        foreach ( $this->teams as $team ) {
+            $id = (int) ( $team->id ?? 0 );
+            if ( $id > 0 ) $map[ $id ] = (int) ( $team->head_coach_user_id ?? 0 );
+        }
+
+        $this->team_coach = $map;
+        return $map;
+    }
+
+    /**
+     * The archetype `PlayerGenerator` gave this player, which is what the
+     * rating curve is drawn from. Neutral when the caller assembled the
+     * player rows itself and left it off.
+     */
+    private function archetypeFor( int $player_id ): string {
+        if ( $this->archetypes === null ) {
+            $map = [];
+            foreach ( $this->players as $player ) {
+                $id = (int) ( $player->id ?? 0 );
+                if ( $id > 0 ) $map[ $id ] = (string) ( $player->archetype ?? 'steady_solid' );
+            }
+            $this->archetypes = $map;
+        }
+        return $this->archetypes[ $player_id ] ?? 'steady_solid';
     }
 
     /**
@@ -643,8 +821,11 @@ class MatchDayGenerator implements DependentGeneratorInterface {
      * @param int[]           $starting Starting XI player ids.
      * @param array<int,int>  $off_at   player id => absolute minute taken off.
      * @param array<int,int>  $on_at    player id => absolute minute brought on.
+     * @return array<int,int> player id => minutes played, for everyone who
+     *                        was on the pitch. The match write-ups (#3658)
+     *                        are drawn from exactly this set.
      */
-    private function writeMinutes( int $activity_id, array $starting, array $off_at, array $on_at ): void {
+    private function writeMinutes( int $activity_id, array $starting, array $off_at, array $on_at ): array {
         $full = $this->half_length * 2;
 
         $minutes = [];
@@ -661,7 +842,8 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         // Minutes are the record of what happened, so they go on the
         // recorded row — the one `ActivityGenerator` wrote. #3451 moved the
         // scope from a key in the WHERE map to the writer's method names.
-        $writer = new \TT\Modules\Activities\Repositories\AttendanceWriter();
+        $writer  = new \TT\Modules\Activities\Repositories\AttendanceWriter();
+        $written = [];
         foreach ( $minutes as $player_id => $played ) {
             if ( $played <= 0 ) continue;
 
@@ -669,7 +851,10 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             if ( $row_id <= 0 ) continue;
 
             $writer->updateRow( $row_id, [ 'minutes_played' => $played ] );
+            $written[ (int) $player_id ] = (int) $played;
         }
+
+        return $written;
     }
 
     /**
@@ -753,7 +938,8 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, team_id, session_date FROM {$wpdb->prefix}tt_activities
+            "SELECT id, team_id, session_date, opponent, home_away, game_subtype_key
+               FROM {$wpdb->prefix}tt_activities
               WHERE id IN ({$placeholders}) AND club_id = %d AND activity_type_key = 'game'
               ORDER BY session_date",
             ...array_merge( $ids, [ CurrentClub::id() ] )
