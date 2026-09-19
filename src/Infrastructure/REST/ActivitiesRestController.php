@@ -990,12 +990,18 @@ class ActivitiesRestController {
      * caller sees: the coach-scope restriction and the player / parent
      * force-scope are applied after it.
      *
+     * #3642 — `player_id` is folded too. A parent asking for their child
+     * with the plain name got 200 and an empty list, which reads as "nothing
+     * planned". The folded id goes through the same player / parent check as
+     * the nested one, so another player's id still returns the empty set.
+     *
      * @param array<string,mixed> $filter
      * @return array<string,mixed>
      */
     private static function foldListAliases( \WP_REST_Request $r, array $filter ): array {
         $aliases = [
             'team_id'   => [ 'team_id' ],
+            'player_id' => [ 'player_id' ],
             'date_from' => [ 'date_from', 'from' ],
             'date_to'   => [ 'date_to', 'to' ],
         ];
@@ -1028,6 +1034,7 @@ class ActivitiesRestController {
             // Integer or string: a single id may arrive as a number from a
             // JSON-aware client, a CSV only as a string.
             'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'One player id. Same as filter[player_id]. Players and parents are scoped to their own record or their child; another player\'s id returns an empty list.' ],
             'date_from' => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_from].' ],
             'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
             'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
