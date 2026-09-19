@@ -219,13 +219,17 @@ Five functional roles carry a small grant set that applies **on the team the rol
 
 | Functional role | What it grants on that team |
 | --- | --- |
-| **Physio** | Read and record injuries; read measurements |
+| **Physio** | Read and record injuries; read measurements; open the squad's player list |
 | **Head coach** | Read measurements |
 | **Assistant coach** | Read measurements |
-| **Kit manager** | Read the squad, the people around it and the activity calendar |
-| **Manager** | Read the squad, the people around it and the activity calendar; record attendance; read player availability (the status traffic light) |
+| **Kit manager** | Read the squad, the people around it and the activity calendar, and open the team, player and activity screens |
+| **Manager** | Read the squad, the people around it and the activity calendar, and open the team, player and activity screens; record attendance; read player availability (the status traffic light) |
 
 A Manager reads the schedule but does not create or edit activities; that stays with the coaches. A Manager gets no injury access. A team manager who also does first aid is given **Physio** as a second functional role on the same team, and the injury log follows that role.
+
+A Manager takes the register in the **attendance grid**, reached from the activity itself — the activity's own Edit, Archive and Complete actions stay with the coaches. The grid is a desktop surface; on a phone the usual desktop-only prompt offers the activity list instead. Coaches reach the same link. A Kit manager does not: reading the schedule and taking the register are two different jobs.
+
+"Open the screen" is genuinely a separate grant from "read the data". The dashboard decides whether a surface is offered from a tile-visibility entity (see the next section), and REST decides what a surface may show from the data entity. Holding the second without the first is what made a team manager read their whole squad over the API and meet *"You do not have access to this surface"* on Teams, Players and Activities. Granting the panel entity adds no row the role could not already read; it stops the two halves disagreeing.
 
 The kit-manager list is written out in full on purpose. "Everything the Staff role has, except injuries" would be a definition by subtraction, and the next sensitive thing added to Staff would land on the kit manager's seat without anyone deciding it should. That is not a hypothetical: measurements stayed on the Staff seat for one release after injuries left it, and a kit manager read every player's growth curve for exactly that long.
 

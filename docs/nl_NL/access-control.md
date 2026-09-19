@@ -215,13 +215,17 @@ Vijf functionele rollen dragen een kleine set rechten die geldt **op het team wa
 
 | Functionele rol | Wat die op dat team geeft |
 | --- | --- |
-| **Fysio** | Blessures lezen en vastleggen; metingen lezen |
+| **Fysio** | Blessures lezen en vastleggen; metingen lezen; de spelerslijst van de selectie openen |
 | **Hoofdcoach** | Metingen lezen |
 | **Assistent-coach** | Metingen lezen |
-| **Materiaalman** | De selectie, de mensen eromheen en de activiteitenkalender lezen |
-| **Manager** | De selectie, de mensen eromheen en de activiteitenkalender lezen; aanwezigheid vastleggen; de beschikbaarheid van spelers lezen (het statusstoplicht) |
+| **Materiaalman** | De selectie, de mensen eromheen en de activiteitenkalender lezen, en de team-, speler- en activiteitenschermen openen |
+| **Manager** | De selectie, de mensen eromheen en de activiteitenkalender lezen, en de team-, speler- en activiteitenschermen openen; aanwezigheid vastleggen; de beschikbaarheid van spelers lezen (het statusstoplicht) |
 
 Een Manager leest het schema maar maakt of wijzigt geen activiteiten; dat blijft bij de trainers. Een Manager krijgt geen toegang tot blessures. Een teammanager die ook EHBO doet, krijgt **Fysio** als tweede functionele rol op hetzelfde team, en het blessurelogboek volgt die rol.
+
+Een Manager legt de aanwezigheid vast in het **aanwezigheidsraster**, bereikbaar vanaf de activiteit zelf — de acties Bewerken, Archiveren en Afronden van de activiteit blijven bij de trainers. Het raster is een desktopsurface; op een telefoon verschijnt de gebruikelijke desktop-melding met de activiteitenlijst als alternatief. Trainers zien dezelfde link. Een materiaalman niet: het schema lezen en de aanwezigheid vastleggen zijn twee verschillende taken.
+
+"Het scherm openen" is echt een ander recht dan "de data lezen". Het dashboard bepaalt via een tegelzichtbaarheidsentiteit (zie de volgende paragraaf) of een surface wordt aangeboden, en REST bepaalt via de data-entiteit wat die surface mag tonen. Het tweede hebben zonder het eerste is precies waardoor een teammanager zijn hele selectie via de API las en op Teams, Spelers en Activiteiten *"Je hebt geen toegang tot dit onderdeel"* kreeg. De paneelentiteit toevoegen geeft geen enkele regel extra te lezen; het zorgt dat de twee helften hetzelfde antwoord geven.
 
 De lijst voor de materiaalman staat er bewust helemaal uitgeschreven. "Alles wat de rol Staf heeft, behalve blessures" zou een definitie door aftrekken zijn, en het volgende gevoelige onderdeel dat aan Staf wordt toegevoegd zou dan op de stoel van de materiaalman belanden zonder dat iemand dat besloten heeft. Dat is geen theorie: de metingen bleven na de blessures nog één release op de Staf-stoel staan, en precies zo lang las een materiaalman de groeicurve van elke speler.
 

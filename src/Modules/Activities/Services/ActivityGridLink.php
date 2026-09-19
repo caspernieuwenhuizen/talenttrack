@@ -23,11 +23,13 @@ use TT\Shared\Frontend\Components\RecordLink;
  * on the wizard-off path — so the decision lives here rather than being
  * rebuilt per render surface (CLAUDE.md §4).
  *
- * The gate mirrors what the grid views and their bulk endpoints already
- * enforce (`tt_edit_activities` + the feature toggle), plus one
- * activity-level precondition: the grid's rows ARE a team roster, so a
- * club-wide activity with no team has nothing to show and must not offer
- * the link (§7 — hide the affordance, never dead-click it).
+ * Each gate mirrors what its grid view and bulk endpoint already enforce
+ * — the attendance grid asks `canRecordAttendance()`, the minutes and
+ * ratings grids ask `tt_edit_activities`, and all three ask their own
+ * feature toggle — plus one activity-level precondition: the grid's rows
+ * ARE a team roster, so a club-wide activity with no team has nothing to
+ * show and must not offer the link (§7 — hide the affordance, never
+ * dead-click it).
  *
  * #3656 adds the attendance grid's column rule to that same test, for the
  * same reason: an upcoming activity with nothing recorded on it is not a
@@ -79,6 +81,11 @@ final class ActivityGridLink {
      * `ActivitiesRestController::can_edit_grid()` and adds the
      * has-a-team precondition.
      *
+     * #3643 — "mirrors `can_edit_grid()`" is now true. The endpoint and
+     * the grid view both ask `canRecordAttendance()`, which admits a team
+     * manager (#3567); this helper asked `tt_edit_activities`, so the one
+     * grid a manager may open had no link from the activity it belongs to.
+     *
      * #3656 — and the has-a-column precondition. Since #3586 the grid only
      * carries an upcoming activity once something has been recorded on it,
      * so a link narrowed to next Monday's training opened on "No activities
@@ -87,7 +94,17 @@ final class ActivityGridLink {
      */
     public static function canUseAttendance( int $activity_id, int $user_id ): bool {
         if ( ! self::attendanceEnabled() ) return false;
-        if ( ! self::hasTeamAndCap( $activity_id, $user_id ) ) return false;
+        if ( ! self::hasTeam( $activity_id ) || $user_id <= 0 ) return false;
+
+        // #3643 — the register is not an activity edit, and this is the
+        // one of the three links where that matters. `can_edit_grid()`
+        // and the grid view both ask `canRecordAttendance()`, which
+        // admits a team manager (#3567); this helper asked
+        // `tt_edit_activities` instead, so the affordance hid from
+        // exactly the person the grid was opened up for. The docblock
+        // above has claimed the mirror since #2401 — now it holds.
+        if ( ! AuthorizationService::canRecordAttendance( $user_id ) ) return false;
+
         return self::isAttendanceColumn( $activity_id );
     }
 
@@ -148,9 +165,17 @@ final class ActivityGridLink {
     }
 
     private static function hasTeamAndCap( int $activity_id, int $user_id ): bool {
-        if ( $activity_id <= 0 || $user_id <= 0 ) return false;
-        if ( self::anchor( $activity_id )['team'] <= 0 ) return false;
+        if ( ! self::hasTeam( $activity_id ) || $user_id <= 0 ) return false;
         return AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' );
+    }
+
+    /**
+     * The grid's rows ARE a team roster, so a club-wide activity with no
+     * team has nothing to show and must never offer the link.
+     */
+    private static function hasTeam( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        return self::anchor( $activity_id )['team'] > 0;
     }
 
     private static function gridUrl( string $view_slug, int $activity_id, bool $with_back ): string {
