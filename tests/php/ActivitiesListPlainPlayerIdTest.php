@@ -113,18 +113,20 @@ final class ActivitiesListPlainPlayerIdTest extends WP_UnitTestCase {
         $this->assertSame( $nested, $plain );
     }
 
-    public function test_a_parent_asking_for_another_player_gets_nothing(): void {
-        $this->assertSame(
-            [],
-            $this->listIds( $this->parent, [ 'player_id' => $this->playerB ] ),
+    public function test_a_parent_asking_for_another_player_sees_nothing_of_theirs(): void {
+        $this->assertDoesNotSee(
+            $this->parent,
+            [ 'player_id' => $this->playerB ],
+            $this->activityB,
             'The plain name must not widen what a parent sees.'
         );
     }
 
     public function test_a_player_asking_for_another_player_does_not_see_their_team(): void {
-        $this->assertNotContains(
-            $this->activityB,
-            $this->listIds( $this->playerUser, [ 'player_id' => $this->playerB ] )
+        $this->assertDoesNotSee(
+            $this->playerUser,
+            [ 'player_id' => $this->playerB ],
+            $this->activityB
         );
     }
 
@@ -135,12 +137,10 @@ final class ActivitiesListPlainPlayerIdTest extends WP_UnitTestCase {
         ] );
         $this->assertContains( $this->activityA, $ids );
 
-        $this->assertSame(
-            [],
-            $this->listIds( $this->parent, [
-                'player_id' => $this->playerA,
-                'filter'    => [ 'player_id' => $this->playerB ],
-            ] ),
+        $this->assertDoesNotSee(
+            $this->parent,
+            [ 'player_id' => $this->playerA, 'filter' => [ 'player_id' => $this->playerB ] ],
+            $this->activityB,
             'A plain child id must not rescue a nested id the parent may not read.'
         );
     }
@@ -167,6 +167,31 @@ final class ActivitiesListPlainPlayerIdTest extends WP_UnitTestCase {
             if ( ! empty( $handler['methods']['GET'] ) ) $args = $handler['args'] ?? [];
         }
         $this->assertArrayHasKey( 'player_id', $args );
+    }
+
+    /**
+     * A caller asking for a player they may not read learns nothing about
+     * them: the request is refused, or it answers without that player's
+     * activities. Which of the two depends on whether the caller also holds
+     * the staff activities capability, and neither is a leak.
+     *
+     * @param array<string,mixed> $query
+     */
+    private function assertDoesNotSee( int $user_id, array $query, int $activity_id, string $message = '' ): void {
+        wp_set_current_user( $user_id );
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/activities' );
+        $req->set_query_params( $query + [ 'per_page' => 100 ] );
+        $res = rest_do_request( $req );
+
+        if ( $res->get_status() !== 200 ) {
+            $this->assertSame( 403, $res->get_status(), $message );
+            return;
+        }
+        $ids = [];
+        foreach ( (array) ( $res->get_data()['data']['rows'] ?? [] ) as $row ) {
+            $ids[] = (int) ( (array) $row )['id'];
+        }
+        $this->assertNotContains( $activity_id, $ids, $message );
     }
 
     private function activity( int $team_id, string $title ): int {
