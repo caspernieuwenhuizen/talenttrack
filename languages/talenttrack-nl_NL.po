@@ -62743,6 +62743,7 @@ msgstr "Aanwezig en laat kun je pas vastleggen op of na de dag van de activiteit
 #, php-format
 msgid "%d change(s) not saved."
 msgstr "%d wijziging(en) niet opgeslagen."
+
 #~ msgid "Could not create trial case."
 #~ msgstr "Stagedossier kon niet worden aangemaakt."
 
