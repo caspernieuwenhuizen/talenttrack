@@ -70,6 +70,8 @@ final class TrialInputContractTest extends WP_UnitTestCase {
         $this->assertSame( 400, $status );
         $this->assertSame( 'unknown_field', $data['errors'][0]['code'] ?? null );
         $this->assertEqualsCanonicalizing( [ 'notes', 'recommendation' ], (array) ( $data['errors'][0]['details']['fields'] ?? [] ) );
+        // #3689 — the refusal says what the route does take.
+        $this->assertEqualsCanonicalizing( [ 'overall_rating', 'free_text_notes', 'submit' ], (array) ( $data['errors'][0]['details']['allowed'] ?? [] ) );
         $this->assertNull( $this->stored() );
     }
 

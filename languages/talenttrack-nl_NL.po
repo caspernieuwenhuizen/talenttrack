@@ -30422,6 +30422,25 @@ msgstr "Er is voor deze wedstrijd nog geen wedstrijdvoorbereiding gestart."
 msgid "Match preparation does not accept: %s."
 msgstr "De wedstrijdvoorbereiding accepteert niet: %s."
 
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/BaseController.php:131
+#, php-format
+msgid "This request does not accept: %s."
+msgstr "Dit verzoek accepteert niet: %s."
+
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/BaseController.php:151
+#: src/Infrastructure/REST/CoreParamErrors.php:56
+#, php-format
+msgid "These fields are required: %s."
+msgstr "Deze velden zijn verplicht: %s."
+
+#. translators: %s: comma-separated field names
+#: src/Infrastructure/REST/CoreParamErrors.php:75
+#, php-format
+msgid "These fields have a value this request cannot use: %s."
+msgstr "Deze velden hebben een waarde die dit verzoek niet kan gebruiken: %s."
+
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:218
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:493
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:517

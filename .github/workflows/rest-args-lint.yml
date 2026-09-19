@@ -1,0 +1,49 @@
+name: REST args lint
+
+# #3689 — every write route (POST, PUT, PATCH) declares its `args`. A route
+# with no declaration can not refuse a key it was not built for, so a typo'd
+# field answers 200 and writes nothing, and route discovery shows a client
+# nothing to send.
+#
+# Hundreds of routes predate the rule, so this is a ratchet: they are listed
+# in `tools/rest-args-baseline.php` and pass. A new write route without args
+# fails, and so does a baseline line that no longer violates — delete it in
+# the same PR, the PHPStan-baseline rule, so the count only goes down.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-rest-args.php'
+      - 'tools/lib/rest-args.php'
+      - 'tools/rest-args-baseline.php'
+      - '.github/workflows/rest-args-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tools/check-rest-args.php'
+      - 'tools/lib/rest-args.php'
+      - 'tools/rest-args-baseline.php'
+      - '.github/workflows/rest-args-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every write route declares its args
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check REST args
+        run: php tools/check-rest-args.php

@@ -4,6 +4,7 @@ namespace TT\Modules\MatchPrep\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
@@ -193,26 +194,14 @@ class MatchPrepRestController {
             return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
+        // #3587 / #3689 — refuse before anything is written, so a typo'd
+        // field can not look like a save. The refusal lists what the route
+        // does take, from the same declaration the check compares against.
+        $refused = BaseController::checkBody( $r, self::putArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body = $r->get_json_params();
         if ( ! is_array( $body ) ) $body = $r->get_body_params();
-
-        // #3587 — refuse before anything is written, so a typo'd field can
-        // not look like a save. The refusal lists what the route does take,
-        // from the same declaration the check compares against.
-        $allowed = array_keys( self::putArgs() );
-        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $body ) ), $allowed ) );
-        if ( $unknown !== [] ) {
-            return RestResponse::error(
-                'unknown_field',
-                sprintf(
-                    /* translators: %s: comma-separated field names */
-                    __( 'Match preparation does not accept: %s.', 'talenttrack' ),
-                    implode( ', ', $unknown )
-                ),
-                400,
-                [ 'fields' => $unknown, 'allowed' => $allowed ]
-            );
-        }
 
         $repo = new MatchPrepRepository();
         $prep_id = $repo->ensureForActivity( $activity_id );
