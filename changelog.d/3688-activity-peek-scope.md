@@ -1,0 +1,3 @@
+# The activity peek only shows activities you may open (#3688)
+
+The peek panel for an activity returned the title, team, date and type of any activity in the club to anyone who could see activities at all, so a coach could look up another team's trainings and a player or parent could look up any team's schedule. It now follows the same rule as the activities list: staff with club-wide access see every activity, other coaches see their own teams' activities, and players and parents see only the activities of their own (or their child's) team, plus any the player joined as a guest. Any other activity is refused.

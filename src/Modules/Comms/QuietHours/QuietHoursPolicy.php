@@ -25,13 +25,33 @@ use TT\Modules\Comms\Domain\MessageType;
  * Defaults match the spec.
  *
  * The dispatcher consults this before invoking the channel adapter.
- * Quiet-hours skip is logged with `status = 'quiet_hours'` so the
- * operator can see what got deferred.
+ * A held message is logged with `status = 'quiet_hours'` and queued in
+ * `tt_comms_deferred`; `Queue\DeferredSendSweep` asks this policy again
+ * on every heartbeat and sends it once the window has ended (#3646).
+ *
+ * The clock is injectable so the window edges can be tested at a fixed
+ * instant. The sweep reads the same clock for queue expiry, so a test
+ * that moves one moves both.
  */
 final class QuietHoursPolicy {
 
     private const DEFAULT_START = '21:00';
     private const DEFAULT_END   = '07:00';
+
+    /** @var callable():int */
+    private $clock;
+
+    /**
+     * @param (callable():int)|null $clock Unix timestamp source; `time()` when omitted.
+     */
+    public function __construct( ?callable $clock = null ) {
+        $this->clock = $clock ?? static fn (): int => time();
+    }
+
+    /** The policy's current instant, as a Unix timestamp. */
+    public function now(): int {
+        return ( $this->clock )();
+    }
 
     public function shouldDefer( CommsRequest $request ): bool {
         if ( MessageType::isOperational( $request->messageType ) ) return false;
@@ -39,7 +59,7 @@ final class QuietHoursPolicy {
         if ( MessageType::bypassesQuietHours( $request->messageType ) ) return false;
 
         $tz   = wp_timezone();
-        $now  = new \DateTimeImmutable( 'now', $tz );
+        $now  = ( new \DateTimeImmutable( '@' . $this->now() ) )->setTimezone( $tz );
         $hh   = (int) $now->format( 'H' );
         $mm   = (int) $now->format( 'i' );
         $minutes = $hh * 60 + $mm;

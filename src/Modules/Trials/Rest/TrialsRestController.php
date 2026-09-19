@@ -126,20 +126,7 @@ class TrialsRestController {
             'callback'            => [ __CLASS__, 'upsert_input' ],
             'permission_callback' => [ __CLASS__, 'can_submit_input' ],
             // #3606 / #3612 — what the route takes, for route discovery.
-            'args'                => [
-                'overall_rating'  => [
-                    'type'        => [ 'number', 'string', 'null' ],
-                    'description' => 'Overall rating on the academy\'s rating scale. Null or blank clears it.',
-                ],
-                'free_text_notes' => [
-                    'type'        => 'string',
-                    'description' => 'The assessment in words.',
-                ],
-                'submit'          => [
-                    'type'        => 'boolean',
-                    'description' => 'Submit the input. Refused while it has neither a rating nor notes.',
-                ],
-            ],
+            'args'                => self::inputArgs(),
         ] );
 
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/inputs/release', [
@@ -475,7 +462,8 @@ class TrialsRestController {
 
     public static function upsert_input( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
-        $payload = (array) $r->get_json_params();
+        $payload = $r->get_json_params();
+        if ( ! $payload ) $payload = $r->get_body_params();
         if ( ! TrialCaseAccessPolicy::isInputAuthor( get_current_user_id(), $id ) ) {
             return RestResponse::error( 'forbidden', __( 'Not assigned to this case.', 'talenttrack' ), 403 );
         }
@@ -500,17 +488,14 @@ class TrialsRestController {
         // key the route does not take is refused by name, and a body with
         // none of the ones it does take is refused too: both used to save an
         // empty draft (over the one already there) and answer `saved: true`.
-        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $payload ) ), self::INPUT_FIELDS ) );
-        if ( $unknown !== [] ) {
-            return RestResponse::error( 'unknown_field', sprintf(
-                /* translators: %s: comma-separated field names */
-                __( 'A trial input does not accept: %s.', 'talenttrack' ),
-                implode( ', ', $unknown )
-            ), 400, [ 'fields' => $unknown, 'allowed' => self::INPUT_FIELDS ] );
-        }
-        if ( array_intersect( array_keys( $payload ), self::INPUT_FIELDS ) === [] ) {
+        // The unknown-key half is the shared body contract (#3689); the
+        // nothing-to-save half is this route's own rule.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::inputArgs() );
+        if ( $refused !== null ) return $refused;
+        $accepted = array_keys( self::inputArgs() );
+        if ( array_intersect( array_keys( $payload ), $accepted ) === [] ) {
             return RestResponse::error( 'no_input_fields', __( 'Send a rating, notes, or submit.', 'talenttrack' ), 400, [
-                'allowed' => self::INPUT_FIELDS,
+                'allowed' => $accepted,
             ] );
         }
 
@@ -561,8 +546,28 @@ class TrialsRestController {
         ] );
     }
 
-    /** @var list<string> the fields `POST trial-cases/{id}/inputs` takes */
-    private const INPUT_FIELDS = [ 'overall_rating', 'free_text_notes', 'submit' ];
+    /**
+     * The fields `POST trial-cases/{id}/inputs` takes: the route declares
+     * them and the body check compares against them, so the two agree.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function inputArgs(): array {
+        return [
+            'overall_rating'  => [
+                'type'        => [ 'number', 'string', 'null' ],
+                'description' => 'Overall rating on the academy\'s rating scale. Null or blank clears it.',
+            ],
+            'free_text_notes' => [
+                'type'        => 'string',
+                'description' => 'The assessment in words.',
+            ],
+            'submit'          => [
+                'type'        => 'boolean',
+                'description' => 'Submit the input. Refused while it has neither a rating nor notes.',
+            ],
+        ];
+    }
 
     /** @return array<string,mixed>|null */
     private static function formatInput( ?object $row ): ?array {

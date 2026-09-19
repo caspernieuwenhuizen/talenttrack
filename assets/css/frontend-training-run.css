@@ -183,6 +183,39 @@
 .tt-run__seg--cooldown  { background: #8fa3ad; }
 .tt-run__seg--talk      { background: #b9bdb6; }
 
+/* The blocks by name under the strip (#3671). A segment is too narrow to
+   carry a name at 360px, and its label needs hover or a screen reader, so
+   the names are spelled out here. The left rule repeats the segment's
+   colour so the list and the strip read as one thing. */
+.tt-run__blocks {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: 0 0 0 1.5rem;
+    display: grid;
+    gap: 4px;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    color: var(--run-ink);
+}
+
+.tt-run__blocks-item {
+    padding-left: var(--tt-sp-2, 8px);
+    border-left: 4px solid var(--run-line);
+    overflow-wrap: anywhere;
+}
+
+.tt-run__blocks-item::marker {
+    color: var(--run-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-run__blocks-item--warmup    { border-left-color: #7fb3d5; }
+.tt-run__blocks-item--rondo     { border-left-color: #9b8ec4; }
+.tt-run__blocks-item--main      { border-left-color: #2f9e5e; }
+.tt-run__blocks-item--game      { border-left-color: #e8b624; }
+.tt-run__blocks-item--finishing { border-left-color: #e07a5f; }
+.tt-run__blocks-item--cooldown  { border-left-color: #8fa3ad; }
+.tt-run__blocks-item--talk      { border-left-color: #b9bdb6; }
+
 /* ---- completed ---- */
 
 .tt-run__kpis {
@@ -449,6 +482,27 @@
     min-height: 48px;
     width: 100%;
     touch-action: manipulation;
+}
+
+/* Before anyone is on the register (#3671): the heading, one line, and
+   the way to the register. */
+.tt-obs .tt-obs__attend {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    width: 100%;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-obs .tt-obs__attend:focus-visible {
+    outline: 3px solid var(--run-go, #e8b624);
+    outline-offset: 2px;
+}
+
+@media (min-width: 480px) {
+    .tt-obs .tt-obs__attend { width: auto; }
 }
 
 .tt-obs__msg {

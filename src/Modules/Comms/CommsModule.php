@@ -14,6 +14,7 @@ use TT\Modules\Comms\Channel\Adapters\WhatsappLinkChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Cron\CommsScheduledCron;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
+use TT\Modules\Comms\Queue\DeferredSendSweep;
 use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
 use TT\Modules\Comms\Send\MethodologyDeliveredSend;
@@ -112,6 +113,11 @@ class CommsModule implements ModuleInterface {
         // 18 per spec Q6 lean) by clearing `address_blob` + `subject`
         // while keeping the row for safeguarding evidence.
         CommsRetentionCron::init();
+
+        // #3646 — messages quiet hours held are sent from the workflow
+        // heartbeat once the window ends. Registered unconditionally: a
+        // hold is a promise the log has already made to the operator.
+        DeferredSendSweep::init();
 
         // #2605 — the module's REST surface. Comms recorded every send
         // from the start and exposed none of it, which left the audit

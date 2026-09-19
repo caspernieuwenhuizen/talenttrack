@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Activities\ActivityAccess;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Authorization\AllTeamsScope;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -69,9 +71,31 @@ final class PeekRestController extends BaseController {
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/summary', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'activity' ],
-            'permission_callback' => self::permCan( 'tt_view_activities' ),
+            // #3688 — `tt_view_activities` is club-wide, so on its own it
+            // let a coach peek every team's trainings, and through the
+            // matrix it reached players and parents too. Ask the same
+            // per-record rule `GET /activities` applies to its rows.
+            'permission_callback' => [ __CLASS__, 'canPeekActivity' ],
             'args'                => [ 'id' => [ 'type' => 'integer', 'required' => true ] ],
         ] );
+    }
+
+    /**
+     * A known activity the caller may not read is a 403. An id with no
+     * activity behind it is the handler's 404, but only for a caller who
+     * may read activities at all; anyone else learns nothing either way.
+     * Archived rows are looked up too, so "archived and not yours" is still
+     * a refusal rather than a hint.
+     */
+    public static function canPeekActivity( WP_REST_Request $request ): bool {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) return false;
+
+        $row = ( new ActivitiesRepository() )->findByIdIncludingArchived( (int) $request['id'] );
+        if ( ! $row ) {
+            return ActivityAccess::mayReadAny( $user_id );
+        }
+        return ActivityAccess::canRead( $user_id, $row );
     }
 
     /**

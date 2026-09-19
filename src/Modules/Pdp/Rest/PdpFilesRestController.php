@@ -34,6 +34,7 @@ class PdpFilesRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => self::listArgs(),
             ],
             [
                 'methods'             => 'POST',
@@ -50,6 +51,7 @@ class PdpFilesRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'coverage' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => self::coverageArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)', [
@@ -126,7 +128,8 @@ class PdpFilesRestController {
      *
      * v3.110.110 — rewritten to the FrontendListTable contract (matches
      * GoalsRestController / EvaluationsRestController). Accepts
-     * `filter[team_id]`, `filter[player_id]`, `filter[status]`,
+     * `filter[team_id]`, `filter[player_id]`, `filter[status]` (or the
+     * same names as plain params, see listArgs()),
      * `search`, `orderby`, `order`, `page`, `per_page`. Returns the
      * standard `{rows, total, page, per_page}` envelope. Rows are
      * pre-formatted with HTML link cells (player / team click-through)
@@ -185,6 +188,10 @@ class PdpFilesRestController {
         if ( ! $include_archived ) {
             $where[] = 'f.archived_at IS NULL';
         }
+        // #3668 — a plain `?team_id=` used to be ignored and the list came
+        // back with every team's files. The coach-scope clause above is
+        // already in $where, so an alias can only narrow the result.
+        $filter = self::foldFilterAliases( $r, $filter, self::LIST_FILTER_ALIASES );
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = absint( $filter['team_id'] );
@@ -252,7 +259,7 @@ class PdpFilesRestController {
      * link when present, conversation progress, and a "Create PDP"
      * deep-link (pre-filled with player + team) when absent.
      *
-     * Accepts `season_id`, `filter[team_id]`, `search`,
+     * Accepts `season_id`, `filter[team_id]` (or plain `team_id`), `search`,
      * `filter[only_missing]` (or `only_missing`). Returns the standard
      * FrontendListTable envelope plus a `summary` block for the
      * "M of N players have a PDP" line. Pagination is applied in PHP
@@ -274,6 +281,9 @@ class PdpFilesRestController {
         }
 
         $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+        // #3668 — same gap as the list: a plain `?team_id=` returned every
+        // team's players. The coach roster restriction below still applies.
+        $filter = self::foldFilterAliases( $r, $filter, self::COVERAGE_FILTER_ALIASES );
 
         $coverage_filters = [];
         // Coach scope — global readers see every player; coaches are
@@ -445,6 +455,75 @@ class PdpFilesRestController {
             'coverage_html'    => $coverage_html,
             'actions_html'     => $action_html,
             'detail_url'       => $row_url,
+        ];
+    }
+
+    /** @var list<string> list filters that are also taken as plain params (#3668) */
+    private const LIST_FILTER_ALIASES = [ 'team_id', 'player_id', 'status' ];
+
+    /** @var list<string> coverage filters that are also taken as plain params (#3668) */
+    private const COVERAGE_FILTER_ALIASES = [ 'team_id' ];
+
+    /**
+     * #3668 — fold the plain filter names into `filter[...]`, the form the
+     * list and coverage handlers read. The nested value wins when both are
+     * sent. Same approach as #3584 (activities) and #3607 (goals).
+     *
+     * @param array<mixed>  $filter
+     * @param list<string>  $keys
+     * @return array<mixed>
+     */
+    private static function foldFilterAliases( \WP_REST_Request $r, array $filter, array $keys ): array {
+        foreach ( $keys as $key ) {
+            if ( isset( $filter[ $key ] ) && $filter[ $key ] !== '' ) continue;
+            $value = $r->get_param( $key );
+            if ( is_scalar( $value ) && (string) $value !== '' ) {
+                $filter[ $key ] = sanitize_text_field( (string) $value );
+            }
+        }
+        return $filter;
+    }
+
+    /**
+     * #3668 — the list's parameters, so route discovery shows them. Values
+     * the handler already clamps (`per_page`, `order`, `orderby`) are
+     * described rather than enforced, so a caller that relied on the clamp
+     * is not now refused. The descriptions are API documentation for
+     * integrators, not UI copy, so they are not translated.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function listArgs(): array {
+        return [
+            'season_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'Season id. Defaults to the current season.' ],
+            'team_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only files of players on this team. Same as filter[team_id].' ],
+            'player_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only this player\'s file. Same as filter[player_id].' ],
+            'status'           => [ 'type' => 'string', 'description' => 'Only files with this status (open, completed or archived). Same as filter[status].' ],
+            'filter'           => [ 'description' => 'Nested filters: team_id, player_id, status, include_archived. A nested value wins over the plain parameter of the same name.' ],
+            'include_archived' => [ 'description' => '1 to include archived files. Honoured only for holders of tt_unarchive_pdp or tt_delete_pdp.' ],
+            'search'           => [ 'type' => 'string', 'description' => 'Matches the player\'s first or last name.' ],
+            'orderby'          => [ 'type' => 'string', 'description' => 'One of player_name, team_name, status, cycle_size, updated_at; anything else sorts on updated_at.' ],
+            'order'            => [ 'type' => 'string', 'description' => 'asc or desc.' ],
+            'page'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'One of 10, 25, 50 or 100; any other value is treated as 25. The response echoes the value used.' ],
+        ];
+    }
+
+    /**
+     * #3668 — the coverage route's parameters.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function coverageArgs(): array {
+        return [
+            'season_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Season id. Defaults to the current season.' ],
+            'team_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only players on this team. Same as filter[team_id].' ],
+            'only_missing' => [ 'description' => '1 to list only players without a PDP file. Same as filter[only_missing].' ],
+            'archived'     => [ 'type' => 'string', 'description' => 'active (default) or archived. The archived view needs tt_unarchive_pdp or tt_delete_pdp. Same as filter[archived].' ],
+            'filter'       => [ 'description' => 'Nested filters: team_id, only_missing, archived. A nested value wins over the plain parameter of the same name.' ],
+            'search'       => [ 'type' => 'string', 'description' => 'Matches the player\'s first or last name.' ],
+            'page'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'One of 10, 25, 50 or 100; any other value is treated as 25. The response echoes the value used.' ],
         ];
     }
 

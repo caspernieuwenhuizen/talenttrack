@@ -265,6 +265,8 @@ This is the screen you hold on the pitch, so it is built differently from the
 rest of TalentTrack: dark, one block at a time, big controls at the bottom
 where your thumb already is.
 
+- Before you start, the screen shows the whole plan: a coloured strip sized by
+ minutes, and underneath it every block by name and length, in order.
 - **Start the training** when you begin. The first block opens with a timer.
 - The timer counts **up**, against the block's planned length. Nothing moves
  on by itself — you decide when a block is done.
@@ -379,6 +381,11 @@ under their name and a box for a note.
  guest players included. Someone missing from the register is not on the
  list, and an observation sent for them through the API is refused too.
  Mark them present first.
+- Until anyone is on the register, **Notes on players** says so and offers
+ **Take attendance**. That opens the attendance register for this training's
+ date (or the training itself, if your academy does not use the register).
+ Come back to the training afterwards and the players you marked present are
+ listed.
 
 Each observation appears on the player's **Journey** timeline straight away,
 dated to the training rather than to when you typed it up.
