@@ -119,8 +119,9 @@ Not every academy works this way, and neither has to be used. There are **three*
 | Does it count toward the traffic light? | **Player-status methodology** → the *enabled* box on that input | Drops the input from the calculation. The remaining inputs are re-weighted so the status is not dragged down by a missing one. |
 | Do we get reminded about it? | **Alert policy** → *Potential not revisited* → *force off* | Silences the reminder for the whole club. |
 
-Two things worth knowing before you flip anything:
+Three things worth knowing before you flip anything:
 
+- **The screen becomes a history.** When nothing may be captured — the academy switched both halves off, or you personally hold neither capability — the **Behaviour & potential** screen drops the forms and shows what is on record instead: the recent behaviour ratings, the current band, and the trajectory behind it. It says in one line that nothing is being recorded here, and then shows what was. This is where the profile's two **history** links land, so a coach who may read a player's file but not record against it follows them to the record rather than to an empty page. A viewer who may not read the player's file at all still gets the line and nothing else.
 - **Existing records are always kept.** Switching capture off does not delete or hide anything: the band on a profile, the potential trajectory and every behaviour rating stay readable exactly as they were, and reappear in the forms if you switch it back on. Off means *stop asking us for this*, not *hide what we already decided*.
 - **Switching off capture also silences the potential reminder**, so you do not have to find the alert screen as well. It does **not** remove the input from the traffic light — that is a separate decision, because an academy might stop recording new bands while still wanting the last one to count.
 

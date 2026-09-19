@@ -1700,13 +1700,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * is not staff and gets `false`.
      */
     private static function viewerIsStaffForPlayer( int $player_id ): bool {
-        $uid = get_current_user_id();
-        if ( \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view' ) ) {
-            return true;
-        }
-        $team_id = (int) ( QueryHelpers::get_player( $player_id )->team_id ?? 0 );
-        return $team_id > 0
-            && \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view', 'team', $team_id );
+        // #3715 — the rule moved to AuthorizationService so the capture
+        // screen this view links to can ask the same question and get the
+        // same answer. Kept as a wrapper because every call site here reads
+        // "is the viewer staff for this player", not "…for this user id".
+        return \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer(
+            get_current_user_id(),
+            $player_id
+        );
     }
 
     private static function renderParentsCard( int $player_id ): void {

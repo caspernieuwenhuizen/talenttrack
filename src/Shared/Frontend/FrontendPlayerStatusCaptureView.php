@@ -43,25 +43,6 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
 
-        // v3.92.1 — breadcrumb chain. When player is loaded, chain
-        // through Players → [player name]; otherwise just Dashboard.
-        if ( $player ) {
-            $player_name = QueryHelpers::player_display_name( $player );
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                __( 'Capture behaviour & potential', 'talenttrack' ),
-                [
-                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ),
-                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', $player_name, [ 'id' => $player_id ] ),
-                ]
-            );
-        } else {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Capture behaviour & potential', 'talenttrack' ) );
-        }
-
-        if ( ! $player ) {
-            self::renderHeader( __( 'Player not found', 'talenttrack' ) );
-            return;
-        }
         // #2574 / #3243 — both halves are feature-gated now, so the view is
         // reachable while EITHER is available and refuses only when neither
         // is. Without this it would render a heading and nothing else for an
@@ -74,11 +55,55 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // is unaffected at every age — how a child trains is a fair thing to
         // record at seven.
         $old_enough   = \TT\Modules\Players\PlayerStatusModule::potentialAppliesAtBirthdate(
-            isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
+            $player !== null && isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
         );
         $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() && $old_enough;
-        if ( ! $behaviour_ok && ! $potential_ok ) {
-            self::renderHeader( __( 'Capture behaviour & potential', 'talenttrack' ) );
+
+        // #3715 — nothing may be captured here, by this user, for this
+        // player. That withdraws the forms; it must not withdraw the
+        // record. `PlayerStatusModule` states the rule both capture checks
+        // are documented against: switching capture off means "stop asking
+        // us for this", not "hide what we already decided". This screen is
+        // where the profile's "history" links land, so returning early on
+        // the capture question sent a head coach who may read a player's
+        // file — and can read the same data over REST — to a page with one
+        // sentence on it.
+        $history_only = $player !== null && ! $behaviour_ok && ! $potential_ok;
+        // Only asked on the branch that needs it — the capture screen
+        // proper has already been gated by the route.
+        $may_read     = $history_only && \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer(
+            get_current_user_id(),
+            $player_id
+        );
+        $page_title   = ( $history_only && $may_read )
+            ? __( 'Behaviour & potential history', 'talenttrack' )
+            : __( 'Capture behaviour & potential', 'talenttrack' );
+
+        // v3.92.1 — breadcrumb chain. When player is loaded, chain
+        // through Players → [player name]; otherwise just Dashboard.
+        if ( $player ) {
+            $player_name = QueryHelpers::player_display_name( $player );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                $page_title,
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ),
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', $player_name, [ 'id' => $player_id ] ),
+                ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $page_title );
+        }
+
+        if ( ! $player ) {
+            self::renderHeader( __( 'Player not found', 'talenttrack' ) );
+            return;
+        }
+        if ( $history_only ) {
+            if ( $may_read ) {
+                self::enqueueAssets();
+                self::enqueueViewCss();
+            }
+            self::renderHeader( $page_title );
             // Deliberately one message for two different causes. Telling a
             // coach which of "your academy does not do this" and "you may
             // not do this" applies would leak the club's configuration to
@@ -91,6 +116,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 echo '<p class="tt-notice">' . esc_html( self::tooYoungForPotential() ) . '</p>';
             } else {
                 echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
+            }
+            // A viewer without read access on this player gets the notice
+            // and nothing else, exactly as before.
+            if ( $may_read ) {
+                self::renderHistoryOnly( $player_id );
             }
             return;
         }
@@ -242,41 +272,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     </div>
                 </form>
 
-                <?php if ( ! empty( $recent_behaviour ) ) : ?>
-                    <div class="tt-psc-recent">
-                    <h4 class="tt-psc-recent__head"><?php esc_html_e( 'Recent ratings', 'talenttrack' ); ?></h4>
-                    <ul class="tt-psc-recent__list">
-                        <?php foreach ( $recent_behaviour as $b ) :
-                            // v3.74.2 — show rated_at (the meaningful "this
-                            // happened on" date) instead of created_at;
-                            // for legacy rows where rated_at is null,
-                            // fall back. Also surface the related
-                            // activity link.
-                            $when = (string) ( $b->rated_at ?? $b->created_at ?? '' );
-                            $related_activity_id = (int) ( $b->related_activity_id ?? 0 );
-                            ?>
-                            <li class="tt-psc-recent__item">
-                                <span class="tt-psc-score"><?php echo esc_html( number_format_i18n( (float) $b->rating, 1 ) ); ?></span>
-                                <span class="tt-psc-recent__meta"><?php echo esc_html( $when ); ?></span>
-                                <?php if ( $related_activity_id > 0 ) : ?>
-                                    <span class="tt-psc-recent__meta">
-                                        <?php
-                                        $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', $related_activity_id );
-                                        echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                            __( 'View activity', 'talenttrack' ),
-                                            $act_url
-                                        );
-                                        ?>
-                                    </span>
-                                <?php endif; ?>
-                                <?php if ( ! empty( $b->notes ) ) : ?>
-                                    <div class="tt-psc-recent__notes"><?php echo esc_html( (string) $b->notes ); ?></div>
-                                <?php endif; ?>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                    </div>
-                <?php endif; ?>
+                <?php self::renderRecentBehaviour( $recent_behaviour ); ?>
             </section>
             <?php
         endif;
@@ -340,21 +336,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     </div>
                 </form>
 
-                <?php if ( $latest_potential ) : ?>
-                    <p class="tt-psc-current">
-                        <?php
-                        // v3.74.2 — show set_at (the meaningful "this is
-                        // when we judged it" date) instead of created_at.
-                        $when_set = (string) ( $latest_potential->set_at ?? $latest_potential->created_at ?? '' );
-                        printf(
-                            /* translators: 1: band 2: timestamp */
-                            esc_html__( 'Current: %1$s (recorded on %2$s).', 'talenttrack' ),
-                            esc_html( $bands[ (string) $latest_potential->potential_band ] ?? (string) $latest_potential->potential_band ),
-                            esc_html( $when_set )
-                        );
-                        ?>
-                    </p>
-                <?php endif; ?>
+                <?php self::renderCurrentPotential( $latest_potential ); ?>
 
                 <?php self::renderPotentialHistory( $player_id ); ?>
             </section>
@@ -362,6 +344,125 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         echo '</div>';
+    }
+
+    /**
+     * #3715 — the read half of this screen, for a staff viewer who may read
+     * this player's file but may not record against it.
+     *
+     * The same two cards, without the forms and without the cadence line:
+     * the cadence tells whoever owns the judgement when it is due a look,
+     * which is not this reader's business and would read as a reproach for
+     * work they are not allowed to do. What is left is the record — the
+     * ratings, the current band, and the trajectory behind it — which is
+     * exactly what the profile's "history" links promise.
+     *
+     * Composition only: both lists come from the repositories and services
+     * the REST routes read, so this screen and `GET players/{id}/potential`
+     * cannot disagree about what happened (CLAUDE.md §4).
+     */
+    private static function renderHistoryOnly( int $player_id ): void {
+        $recent = ( new PlayerBehaviourRatingsRepository() )->listForPlayer( $player_id, 5 );
+        $latest = ( new PlayerPotentialRepository() )->latestFor( $player_id );
+
+        // Nothing has been recorded either side: the notice above is the
+        // whole story, and two empty cards would only look broken.
+        if ( empty( $recent ) && $latest === null ) return;
+
+        echo '<div class="tt-psc-grid">';
+
+        if ( ! empty( $recent ) ) {
+            echo '<section class="tt-psc-card">';
+            echo '<h3 class="tt-psc-card__head">' . esc_html__( 'Behaviour ratings', 'talenttrack' ) . '</h3>';
+            self::renderRecentBehaviour( $recent );
+            echo '</section>';
+        }
+
+        if ( $latest !== null ) {
+            echo '<section class="tt-psc-card">';
+            echo '<h3 class="tt-psc-card__head">' . esc_html__( 'Recorded potential', 'talenttrack' ) . '</h3>';
+            self::renderCurrentPotential( $latest );
+            self::renderPotentialHistory( $player_id );
+            echo '</section>';
+        }
+
+        echo '</div>';
+    }
+
+    /**
+     * The most recent behaviour ratings, newest first.
+     *
+     * Extracted from the capture card in #3715 so the read-only screen
+     * shows the same list rather than a second rendering of it.
+     *
+     * @param list<object> $recent Rows from PlayerBehaviourRatingsRepository.
+     */
+    private static function renderRecentBehaviour( array $recent ): void {
+        if ( empty( $recent ) ) return;
+        ?>
+        <div class="tt-psc-recent">
+        <h4 class="tt-psc-recent__head"><?php esc_html_e( 'Recent ratings', 'talenttrack' ); ?></h4>
+        <ul class="tt-psc-recent__list">
+            <?php foreach ( $recent as $b ) :
+                // v3.74.2 — show rated_at (the meaningful "this happened
+                // on" date) instead of created_at; for legacy rows where
+                // rated_at is null, fall back. Also surface the related
+                // activity link.
+                $when = (string) ( $b->rated_at ?? $b->created_at ?? '' );
+                $related_activity_id = (int) ( $b->related_activity_id ?? 0 );
+                ?>
+                <li class="tt-psc-recent__item">
+                    <span class="tt-psc-score"><?php echo esc_html( number_format_i18n( (float) $b->rating, 1 ) ); ?></span>
+                    <span class="tt-psc-recent__meta"><?php echo esc_html( $when ); ?></span>
+                    <?php if ( $related_activity_id > 0 ) : ?>
+                        <span class="tt-psc-recent__meta">
+                            <?php
+                            $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', $related_activity_id );
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                __( 'View activity', 'talenttrack' ),
+                                $act_url
+                            );
+                            ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $b->notes ) ) : ?>
+                        <div class="tt-psc-recent__notes"><?php echo esc_html( (string) $b->notes ); ?></div>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        </div>
+        <?php
+    }
+
+    /**
+     * "Current: <band> (recorded on <date>)."
+     *
+     * Extracted in #3715 so the read-only screen states the current band
+     * from the same place the capture card does. It matters more there:
+     * `renderPotentialHistory()` stays silent for a single entry, so
+     * without this line a player whose band has been set exactly once
+     * would have nothing to show for it.
+     *
+     * @param object|null $latest The player's most recent potential row.
+     */
+    private static function renderCurrentPotential( ?object $latest ): void {
+        if ( $latest === null ) return;
+
+        $bands = PotentialTrajectory::labels();
+        // v3.74.2 — show set_at (the meaningful "this is when we judged
+        // it" date) instead of created_at.
+        $when_set = (string) ( $latest->set_at ?? $latest->created_at ?? '' );
+        $band     = (string) $latest->potential_band;
+
+        echo '<p class="tt-psc-current">';
+        printf(
+            /* translators: 1: band 2: timestamp */
+            esc_html__( 'Current: %1$s (recorded on %2$s).', 'talenttrack' ),
+            esc_html( (string) ( $bands[ $band ] ?? $band ) ),
+            esc_html( $when_set )
+        );
+        echo '</p>';
     }
 
     /**

@@ -119,8 +119,9 @@ Niet elke academie werkt zo, en je hoeft geen van beide te gebruiken. Er zijn **
 | Telt het mee in het stoplicht? | **Methodiek spelersstatus** → het vinkje *ingeschakeld* bij die input | Haalt de input uit de berekening. De overige inputs worden opnieuw gewogen, zodat de status niet omlaag wordt getrokken door iets wat ontbreekt. |
 | Krijgen we er een herinnering over? | **Meldingenbeleid** → *Potentieel niet herzien* → *geforceerd uit* | Zet de herinnering voor de hele club uit. |
 
-Twee dingen om te weten voordat je iets omzet:
+Drie dingen om te weten voordat je iets omzet:
 
+- **Het scherm wordt een geschiedenis.** Zodra er niets meer kan worden vastgelegd — de academie heeft beide helften uitgezet, of jij hebt zelf geen van beide rechten — laat het scherm **Gedrag & potentieel** de formulieren weg en toont het wat er is vastgelegd: de recente gedragsbeoordelingen, de huidige band en het verloop daarachter. Het zegt in één regel dat hier niets wordt vastgelegd, en laat daarna zien wat er wél is vastgelegd. Hier komen de twee links **geschiedenis** op het spelersprofiel uit, zodat een trainer die het dossier van een speler mag lezen maar er niets in mag vastleggen bij het dossier uitkomt in plaats van op een lege pagina. Wie het dossier helemaal niet mag lezen, krijgt alleen die ene regel.
 - **Wat al is vastgelegd blijft altijd bewaard.** Invoer uitzetten verwijdert of verbergt niets: de band op een profiel, het verloop van het potentieel en elke gedragsbeoordeling blijven gewoon leesbaar zoals ze waren, en verschijnen weer in de formulieren zodra je het terugzet. Uit betekent *vraag ons hier niet meer om*, niet *verberg wat we al hebben bepaald*.
 - **Invoer uitzetten zet ook de herinnering over potentieel stil**, dus je hoeft het meldingenscherm er niet bij te zoeken. Het haalt de input **niet** uit het stoplicht — dat is een aparte keuze, want een academie kan willen stoppen met nieuwe bands vastleggen terwijl de laatste nog wel meetelt.
 
