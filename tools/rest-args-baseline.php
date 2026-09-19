@@ -160,7 +160,7 @@ return [
     'src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php | /activities/(?P<activity_id>\\d+)/analysis/sections/(?P<section_key>[a-z_]+) | PUT',
     'src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php | /activities/(?P<activity_id>\\d+)/analysis/share | POST',
     'src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php | /activities/(?P<activity_id>\\d+)/analysis/share/rotate | POST',
-    'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php | $base . \'/\' . $action | POST',
+    'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php | $base . \'/\' . $action | ?',
     'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php | $base . \'/goal-event/(?P<event_uuid>[a-f0-9-]+)\' | PATCH',
     'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php | $base . \'/minutes\' | PATCH',
     'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php | $base . \'/substitution/(?P<event_uuid>[a-f0-9-]+)\' | PATCH',
