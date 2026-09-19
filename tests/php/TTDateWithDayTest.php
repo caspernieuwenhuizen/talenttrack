@@ -26,6 +26,9 @@ final class TTDateWithDayTest extends WP_UnitTestCase {
     private string $prev_preset = '';
     private string $prev_option = '';
 
+    /** @var callable|null */
+    private $translator = null;
+
     public function set_up(): void {
         parent::set_up();
         $this->prev_preset = ( new ConfigService() )->get( TTDate::FORMAT_KEY, 'system' );
@@ -33,6 +36,7 @@ final class TTDateWithDayTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        $this->dropTranslator();
         $this->setPreset( $this->prev_preset );
         update_option( 'date_format', $this->prev_option );
         parent::tear_down();
@@ -147,5 +151,92 @@ final class TTDateWithDayTest extends WP_UnitTestCase {
         $this->assertSame( '', TTDate::dateWithDay( '' ) );
         $this->assertSame( '', TTDate::dateWithDay( 'not a date' ) );
         $this->assertSame( '', TTDate::dateWithDay( null ) );
+    }
+
+    // ---- the system preset follows the site language (#3680) --------
+
+    /**
+     * Stand in for a Dutch install: core's own translation of its install
+     * default, which is `j F Y` in nl_NL. Only that one string is touched,
+     * so month and weekday names keep the test locale's values.
+     */
+    private function translateCoreDefaultToDutch(): void {
+        $this->translator = static function ( $translation, $text, $domain ) {
+            return ( $domain === 'default' && $text === 'F j, Y' ) ? 'j F Y' : $translation;
+        };
+        add_filter( 'gettext', $this->translator, 10, 3 );
+    }
+
+    private function dropTranslator(): void {
+        if ( $this->translator !== null ) {
+            remove_filter( 'gettext', $this->translator, 10 );
+            $this->translator = null;
+        }
+    }
+
+    /**
+     * WordPress writes `date_format` once, at install, in the install
+     * language — so an academy installed in English and switched to Dutch
+     * kept `F j, Y` and read "oktober 6, 2026". The untouched default now
+     * resolves through core's translation of it.
+     */
+    public function test_the_untouched_english_default_follows_the_site_language(): void {
+        $this->setPreset( 'system' );
+        update_option( 'date_format', 'F j, Y' );
+        $this->translateCoreDefaultToDutch();
+
+        try {
+            $this->assertSame( 'j F Y', TTDate::dateFormat() );
+            $this->assertSame( wp_date( 'j F Y', $this->ts() ), TTDate::date( self::ISO ) );
+            $this->assertSame( 'D j F Y', TTDate::dateWithDayFormat() );
+            $this->assertSame(
+                wp_date( TTDate::dateFormat(), time() ),
+                TTDate::presetSamples()['system'],
+                'the settings preview must agree with the rendered dates'
+            );
+        } finally {
+            $this->dropTranslator();
+        }
+    }
+
+    /** An English install has nothing to translate, so nothing moves. */
+    public function test_an_english_install_renders_exactly_as_before(): void {
+        $this->setPreset( 'system' );
+        update_option( 'date_format', 'F j, Y' );
+
+        $this->assertSame( 'F j, Y', TTDate::dateFormat() );
+        $this->assertSame( wp_date( 'F j, Y', $this->ts() ), TTDate::date( self::ISO ) );
+        $this->assertSame(
+            wp_date( TTDate::dateFormat(), time() ),
+            TTDate::presetSamples()['system']
+        );
+    }
+
+    /**
+     * Any other stored format is a deliberate choice by the operator and
+     * is used as stored, Dutch site or not.
+     */
+    public function test_a_deliberate_format_is_kept(): void {
+        $this->setPreset( 'system' );
+        update_option( 'date_format', 'd/m/Y' );
+        $this->translateCoreDefaultToDutch();
+
+        try {
+            $this->assertSame( 'd/m/Y', TTDate::dateFormat() );
+            $this->assertSame(
+                wp_date( TTDate::dateFormat(), time() ),
+                TTDate::presetSamples()['system']
+            );
+        } finally {
+            $this->dropTranslator();
+        }
+    }
+
+    /** An empty option still falls back to ISO, as before. */
+    public function test_an_empty_option_still_falls_back_to_iso(): void {
+        $this->setPreset( 'system' );
+        update_option( 'date_format', '' );
+
+        $this->assertSame( 'Y-m-d', TTDate::dateFormat() );
     }
 }
