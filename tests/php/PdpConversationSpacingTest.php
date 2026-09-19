@@ -218,6 +218,11 @@ final class PdpConversationSpacingTest extends WP_UnitTestCase {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // Carry-over reads from "the most recent season that is not this
+        // one", so any season the install seeded would win the comparison
+        // and carry nothing over. Leave only the two this test owns.
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$p}tt_seasons WHERE id <> %d", $this->season ) );
+
         $wpdb->insert( "{$p}tt_seasons", [
             'name'       => '2025/26',
             'start_date' => '2025-08-01',
@@ -225,7 +230,8 @@ final class PdpConversationSpacingTest extends WP_UnitTestCase {
             'is_current' => 0,
         ] );
         $previous_season = (int) $wpdb->insert_id;
-        $this->seedFile( $previous_season, 2 );
+        $this->assertGreaterThan( 0, $previous_season );
+        $this->assertGreaterThan( 0, $this->seedFile( $previous_season, 2 ) );
 
         SeasonCarryover::run( $this->season );
 
