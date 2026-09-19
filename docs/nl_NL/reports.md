@@ -470,11 +470,15 @@ Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scr
 
 Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total }`.
-- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold`.
-- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold` en de periode: `{ players, threshold, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold, from, to }`.
 
 De optionele `activity_type_key` op elk aanwezigheids-endpoint beperkt tot één activiteittype, gelijk aan het Type-filter in de rapport-UI.
+
+**De periode, en wat er gebeurt als je die weglaat.** Stuur `from` en `to` als `JJJJ-MM-DD` en ze worden gebruikt zoals verstuurd, en ongewijzigd teruggegeven. Laat je er één weg — of stuur je iets wat geen datum is — dan valt die kant terug op **de start van het huidige seizoen tot en met vandaag**, dezelfde periode waarmee de drie aanwezigheidsschermen openen, zodat een integratie en het scherm dezelfde spelers tonen. Op een installatie zonder ingesteld huidig seizoen is de terugval een voortschrijdende periode van 90 dagen.
+
+Alle drie de antwoorden bevatten de `from` en `to` waarover ze daadwerkelijk gelezen hebben, of je ze nu meestuurde of niet. Label je periode op basis van die twee velden en niet op basis van wat je verstuurde: een lege `players`-lijst zegt pas iets als je weet welke weken hij beslaat.
 
 ## Dimensieverkenner — rijlimiet en filtervalidatie
 
