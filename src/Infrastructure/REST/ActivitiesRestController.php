@@ -307,8 +307,17 @@ class ActivitiesRestController {
         // already a row the player attended. Allow the request when the
         // `filter[player_id]` matches the current user's linked player
         // (or the parent's child).
+        //
+        // #3642 — the plain `?player_id=` is read here too. The list folds
+        // it into the filter, so a caller who sends only the plain name has
+        // to get past this gate the same way, or they are refused for a
+        // child they are entitled to read.
         $filter = $r ? (array) ( $r->get_param( 'filter' ) ?? [] ) : ( is_array( $_GET['filter'] ?? null ) ? $_GET['filter'] : [] );
         $filter_pid = isset( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
+        if ( $filter_pid <= 0 ) {
+            $plain      = $r ? $r->get_param( 'player_id' ) : ( $_GET['player_id'] ?? null );
+            $filter_pid = is_scalar( $plain ) ? absint( $plain ) : 0;
+        }
         if ( $filter_pid <= 0 ) return false;
 
         // #3688 — is this caller the player or their parent? The same
@@ -990,12 +999,18 @@ class ActivitiesRestController {
      * caller sees: the coach-scope restriction and the player / parent
      * force-scope are applied after it.
      *
+     * #3642 — `player_id` is folded too. A parent asking for their child
+     * with the plain name got 200 and an empty list, which reads as "nothing
+     * planned". The folded id goes through the same player / parent check as
+     * the nested one, so another player's id still returns the empty set.
+     *
      * @param array<string,mixed> $filter
      * @return array<string,mixed>
      */
     private static function foldListAliases( \WP_REST_Request $r, array $filter ): array {
         $aliases = [
             'team_id'   => [ 'team_id' ],
+            'player_id' => [ 'player_id' ],
             'date_from' => [ 'date_from', 'from' ],
             'date_to'   => [ 'date_to', 'to' ],
         ];
@@ -1028,6 +1043,7 @@ class ActivitiesRestController {
             // Integer or string: a single id may arrive as a number from a
             // JSON-aware client, a CSV only as a string.
             'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'One player id. Same as filter[player_id]. Players and parents are scoped to their own record or their child; another player\'s id never widens what they see.' ],
             'date_from' => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_from].' ],
             'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
             'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
