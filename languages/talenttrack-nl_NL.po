@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T10:30:09+00:00\n"
+"POT-Creation-Date: 2026-09-19T10:40:39+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -121,7 +121,7 @@ msgstr "Team Manager"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:56
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:143
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:306
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:246
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:271
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:231
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:175
@@ -2718,7 +2718,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:214
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:439
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:170
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:337
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:444
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:440
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:177
@@ -3072,7 +3072,7 @@ msgstr "Geen bijdragen meegegeven."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:874
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
-#: src/Infrastructure/REST/GoalsRestController.php:144
+#: src/Infrastructure/REST/GoalsRestController.php:183
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:200
 #: src/Infrastructure/REST/TeamsRestController.php:206
@@ -3210,9 +3210,10 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:144
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
-#: src/Infrastructure/REST/GoalsRestController.php:549
+#: src/Infrastructure/REST/GoalsRestController.php:599
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:347
+#: src/Modules/Trials/Rest/TrialsRestController.php:390
+#: src/Modules/Trials/Rest/TrialsRestController.php:398
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
@@ -3438,7 +3439,7 @@ msgstr ""
 msgid "The category could not be deleted."
 msgstr "De categorie kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/EvalCoverageRestController.php:85
+#: src/Infrastructure/REST/EvalCoverageRestController.php:88
 msgid "Expected a list of windows."
 msgstr "Een lijst met periodes verwacht."
 
@@ -3720,62 +3721,62 @@ msgstr "De toewijzing kon niet worden verwijderd."
 msgid "Invalid player."
 msgstr "Ongeldige speler."
 
-#: src/Infrastructure/REST/GoalsRestController.php:197
+#: src/Infrastructure/REST/GoalsRestController.php:247
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:167
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:206
 #: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php:46
 msgid "This section has been kept private."
 msgstr "Dit onderdeel is privé gehouden."
 
-#: src/Infrastructure/REST/GoalsRestController.php:417
+#: src/Infrastructure/REST/GoalsRestController.php:467
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:441
+#: src/Infrastructure/REST/GoalsRestController.php:491
 #: src/Modules/Trials/Services/TrialCaseOpener.php:136
 #: src/Modules/Trials/Wizards/TrialPlayerStep.php:94
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/GoalsRestController.php:445
+#: src/Infrastructure/REST/GoalsRestController.php:495
 msgid "You can only set goals for players in your team."
 msgstr "Je kunt alleen doelen instellen voor spelers in je team."
 
-#: src/Infrastructure/REST/GoalsRestController.php:458
+#: src/Infrastructure/REST/GoalsRestController.php:508
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:512
-#: src/Infrastructure/REST/GoalsRestController.php:602
-#: src/Infrastructure/REST/GoalsRestController.php:654
-#: src/Infrastructure/REST/GoalsRestController.php:668
-#: src/Infrastructure/REST/GoalsRestController.php:681
+#: src/Infrastructure/REST/GoalsRestController.php:562
+#: src/Infrastructure/REST/GoalsRestController.php:652
+#: src/Infrastructure/REST/GoalsRestController.php:704
+#: src/Infrastructure/REST/GoalsRestController.php:718
+#: src/Infrastructure/REST/GoalsRestController.php:731
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:559
+#: src/Infrastructure/REST/GoalsRestController.php:609
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:606
+#: src/Infrastructure/REST/GoalsRestController.php:656
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:623
+#: src/Infrastructure/REST/GoalsRestController.php:673
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:634
+#: src/Infrastructure/REST/GoalsRestController.php:684
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:659
-#: src/Infrastructure/REST/GoalsRestController.php:672
-#: src/Infrastructure/REST/GoalsRestController.php:689
-#: src/Infrastructure/REST/GoalsRestController.php:697
+#: src/Infrastructure/REST/GoalsRestController.php:709
+#: src/Infrastructure/REST/GoalsRestController.php:722
+#: src/Infrastructure/REST/GoalsRestController.php:739
+#: src/Infrastructure/REST/GoalsRestController.php:747
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:751
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:765
 msgid "Goal not found."
@@ -4245,7 +4246,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:181
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:212
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:171
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:196
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:215
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:170
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:359
@@ -5659,7 +5660,7 @@ msgstr "Bijwerken"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:434
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:378
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:160
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:867
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
@@ -8616,20 +8617,17 @@ msgstr "Evaluatieperiode-dekking"
 msgid "Add at least one evaluation window above to see coverage."
 msgstr "Voeg hierboven minstens één evaluatieperiode toe om dekking te zien."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:114
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:115
 msgid "Evaluation windows saved."
 msgstr "Evaluatieperiodes opgeslagen."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:132
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:138
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:140
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:146
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:169
 msgid "Evaluation windows"
 msgstr "Evaluatieperiodes"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
-msgid "No evaluation windows have been set."
-msgstr "Er zijn nog geen evaluatieperiodes ingesteld."
-
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:133
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:141
 msgid ""
 "Define the periods each player should be evaluated in this season. Leave a "
 "row blank to remove it."
@@ -8637,7 +8635,7 @@ msgstr ""
 "Bepaal de periodes waarin elke speler dit seizoen geëvalueerd hoort te "
 "worden. Maak een rij leeg om die te verwijderen."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:141
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:149
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:207
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:262
@@ -8702,11 +8700,11 @@ msgstr ""
 msgid "Name"
 msgstr "Naam"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:142
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:150
 msgid "e.g. Autumn review"
 msgstr "bijv. Najaarsbeoordeling"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:143
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:151
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:179
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:534
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1627
@@ -8718,7 +8716,7 @@ msgstr "bijv. Najaarsbeoordeling"
 msgid "Start"
 msgstr "Start"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:145
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:153
 #: src/Modules/Pdp/Admin/SeasonsPage.php:66
 #: src/Shared/Frontend/FrontendHolidaysView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:259
@@ -8726,11 +8724,15 @@ msgstr "Start"
 msgid "End"
 msgstr "Einde"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:172
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
+msgid "No evaluation windows have been set."
+msgstr "Er zijn nog geen evaluatieperiodes ingesteld."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:197
 msgid "Windows"
 msgstr "Periodes"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:173
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:198
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:366
 #: src/Modules/Knowledge/Frontend/LearningReports.php:180
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:563
@@ -8739,66 +8741,66 @@ msgstr "Periodes"
 msgid "Coverage"
 msgstr "Dekking"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:174
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:199
 msgid "Gaps"
 msgstr "Gaten"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:186
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:211
 msgid "Every player is covered in every window."
 msgstr "Elke speler is gedekt in elke periode."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:190
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:215
 msgid "Gaps by coach"
 msgstr "Gaten per coach"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:193
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:218
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:746
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1545
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
 #. translators: %d is the number of evaluation gaps.
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:199
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:224
 #, php-format
 msgid "%d gap"
 msgid_plural "%d gaps"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:219
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:244
 msgid "Open evaluations by coach"
 msgstr "Evaluaties openen per coach"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:242
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:267
 msgid "Coverage matrix"
 msgstr "Dekkingsmatrix"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:255
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:280
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:665
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:251
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1210
 msgid "Evaluated"
 msgstr "Geëvalueerd"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:256
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:281
 msgid "Not evaluated"
 msgstr "Niet geëvalueerd"
 
 #. translators: %s is the evaluating coach's name.
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:275
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:300
 #, php-format
 msgid "Evaluated by %s"
 msgstr "Geëvalueerd door %s"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:284
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:309
 msgid "No evaluation in this window"
 msgstr "Geen evaluatie in deze periode"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:308
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:333
 msgid "Attendance-recording compliance"
 msgstr "Naleving aanwezigheidsregistratie"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:309
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:334
 msgid ""
 "Share of completed activities in each window that have any attendance "
 "recorded."
@@ -8806,16 +8808,16 @@ msgstr ""
 "Aandeel afgeronde activiteiten per periode waarvoor enige aanwezigheid is "
 "geregistreerd."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:338
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:363
 msgid "No teams to report."
 msgstr "Geen teams om te tonen."
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:366
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:391
 msgid "No activity"
 msgstr "Geen activiteit"
 
 #. translators: 1: activities with attendance, 2: completed activities.
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:374
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:399
 #, php-format
 msgid "%1$d of %2$d activities"
 msgstr "%1$d van %2$d activiteiten"
@@ -46988,66 +46990,66 @@ msgstr "Aangeboden plek afgewezen"
 msgid "Continue in trial group"
 msgstr "Doorgaan in stagegroep"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:294
-#: src/Modules/Trials/Rest/TrialsRestController.php:315
-#: src/Modules/Trials/Rest/TrialsRestController.php:360
-#: src/Modules/Trials/Rest/TrialsRestController.php:542
-#: src/Modules/Trials/Rest/TrialsRestController.php:572
+#: src/Modules/Trials/Rest/TrialsRestController.php:307
+#: src/Modules/Trials/Rest/TrialsRestController.php:328
+#: src/Modules/Trials/Rest/TrialsRestController.php:358
+#: src/Modules/Trials/Rest/TrialsRestController.php:411
+#: src/Modules/Trials/Rest/TrialsRestController.php:593
+#: src/Modules/Trials/Rest/TrialsRestController.php:623
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "Unknown trial case status."
-msgstr "Onbekende status voor een stagedossier."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:280
-#: src/Modules/Trials/Rest/TrialsRestController.php:296
+#: src/Modules/Trials/Rest/TrialsRestController.php:309
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:309
+#: src/Modules/Trials/Rest/TrialsRestController.php:322
 msgid "Invalid trial case id."
 msgstr "Ongeldig proefdossier-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:326
+#: src/Modules/Trials/Rest/TrialsRestController.php:339
 msgid "Invalid trial track id."
 msgstr "Ongeldig proeftraject-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:328
-#: src/Modules/Trials/Rest/TrialsRestController.php:337
+#: src/Modules/Trials/Rest/TrialsRestController.php:341
+#: src/Modules/Trials/Rest/TrialsRestController.php:350
 msgid "Trial track not found."
 msgstr "Proeftraject niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:330
+#: src/Modules/Trials/Rest/TrialsRestController.php:343
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:356
+#: src/Modules/Trials/Rest/TrialsRestController.php:371
+msgid "Unknown trial case status."
+msgstr "Onbekende status voor een stagedossier."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:407
 msgid "New end date and justification are required."
 msgstr "Nieuwe einddatum en motivering zijn verplicht."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:362
+#: src/Modules/Trials/Rest/TrialsRestController.php:413
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:379
+#: src/Modules/Trials/Rest/TrialsRestController.php:430
 msgid "Justification must be at least 30 characters."
 msgstr "Motivering moet minstens 30 tekens bevatten."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:393
-#: src/Modules/Trials/Rest/TrialsRestController.php:406
+#: src/Modules/Trials/Rest/TrialsRestController.php:444
+#: src/Modules/Trials/Rest/TrialsRestController.php:457
 msgid "Could not record decision."
 msgstr "Besluit kon niet worden geregistreerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:419
+#: src/Modules/Trials/Rest/TrialsRestController.php:470
 msgid "Invalid user id."
 msgstr "Ongeldig gebruiker-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:429
+#: src/Modules/Trials/Rest/TrialsRestController.php:480
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:444
+#: src/Modules/Trials/Rest/TrialsRestController.php:495
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
 "They are the record of what the decision was based on."
@@ -47056,34 +47058,34 @@ msgstr ""
 "is de vastlegging waarop de beslissing is gebaseerd."
 
 #. translators: %s: comma-separated field names
-#: src/Modules/Trials/Rest/TrialsRestController.php:456
+#: src/Modules/Trials/Rest/TrialsRestController.php:507
 #, php-format
 msgid "A trial input does not accept: %s."
 msgstr "Een stagebeoordeling accepteert niet: %s."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:461
+#: src/Modules/Trials/Rest/TrialsRestController.php:512
 msgid "Send a rating, notes, or submit."
 msgstr "Stuur een beoordeling, notities of een indiening."
 
 #. translators: 1: rating min, 2: rating max
-#: src/Modules/Trials/Rest/TrialsRestController.php:479
+#: src/Modules/Trials/Rest/TrialsRestController.php:530
 #, php-format
 msgid "The overall rating must be a number from %1$s to %2$s."
 msgstr "De totaalbeoordeling moet een getal van %1$s tot %2$s zijn."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:501
+#: src/Modules/Trials/Rest/TrialsRestController.php:552
 msgid "Add a rating or notes before submitting."
 msgstr "Voeg een beoordeling of notities toe voordat je indient."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:581
+#: src/Modules/Trials/Rest/TrialsRestController.php:632
 msgid "A valid trial-letter audience is required."
 msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:603
+#: src/Modules/Trials/Rest/TrialsRestController.php:654
 msgid "The letter could not be generated."
 msgstr "De brief kon niet worden gegenereerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:639
+#: src/Modules/Trials/Rest/TrialsRestController.php:690
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 
