@@ -49,10 +49,10 @@ final class ActivityAccess {
      */
     public static function coachedTeamIds( int $user_id ): array {
         if ( $user_id <= 0 ) return [];
-        return array_values( array_map(
+        return array_map(
             'intval',
             array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
-        ) );
+        );
     }
 
     /**
