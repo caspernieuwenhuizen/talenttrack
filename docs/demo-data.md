@@ -122,9 +122,18 @@ duplicated, and is never removed by a wipe.
 Each season carries its **own PDP cycle** — a dossier per player, four
 conversations, and the coach's preparation for each of them. Seasons that have
 finished are **closed with a verdict**; the current one stays open at whatever
-stage the window puts it. A window covering only one season closes a minority
-of its dossiers instead, so a completed one is still on screen next to the open
-ones. Prior seasons are **not archived** — archived rows drop out of most
+stage the window puts it.
+
+A dossier is only ever closed once **every conversation in its cycle has been
+held**. For a finished season that is all of them, so all of its dossiers
+close. In a window covering only the current season, a minority of the
+dossiers whose cycle has already run its course close — and early in a season,
+where every conversation is still in the diary, none do. An open dossier with
+four conversations to come is what that season honestly looks like; a
+completed one with a signed-off verdict over talks nobody has had would say
+the player's year was finished before it started.
+
+Prior seasons are **not archived** — archived rows drop out of most
 lists, and hiding most of what was generated is the opposite of why it was
 generated.
 

@@ -186,8 +186,10 @@ class PdpGenerator implements DependentGeneratorInterface {
             // #3402 — a finished season with an open conversation cycle is
             // not a state a real academy is in. Prior seasons close with a
             // verdict; the current one stays open at whatever stage the
-            // window puts it. A window covering only one season keeps the
-            // old sample so a completed dossier is still on screen.
+            // window puts it. A window covering only one season still reaches
+            // `closeFiles()`, but since #3650 only a dossier whose whole
+            // cycle has been held closes there — on a season that has just
+            // started that is usually none of them, which is the truth.
             $total += $is_current && count( $seasons ) > 1
                 ? 0
                 : $this->closeFiles( $files, $hoa, $copy, $season_files, $end, $is_current, (int) $index );
@@ -312,8 +314,9 @@ class PdpGenerator implements DependentGeneratorInterface {
      * A season that has finished closes all of them — an academy does not
      * carry an open cycle into the next year (#3402). The current season
      * only reaches here when it is the only season the window covers, and
-     * then a minority close, so a completed dossier is still on screen next
-     * to the open ones.
+     * then a minority of the dossiers whose cycle has actually been held
+     * close (#3650). Early in a season that is usually none of them: a
+     * dossier is closed by its last conversation, not by a dice roll.
      *
      * Signed-off verdicts raise their journey event through the repository.
      *
@@ -334,6 +337,14 @@ class PdpGenerator implements DependentGeneratorInterface {
         $total = 0;
         foreach ( $season_files as $file_id => $player_id ) {
             if ( $is_current && mt_rand( 1, 100 ) > 30 ) continue;
+
+            // #3650 — never close a dossier over conversations nobody has
+            // held. A prior season is entirely in the past, so `fillCycle()`
+            // has conducted every talk on it and this passes. The current
+            // season's cycle usually runs months into the future, and a
+            // signed-off verdict on it told a head of development the
+            // player's year was finished in the week it started.
+            if ( $is_current && $this->hasOpenConversation( (int) $file_id ) ) continue;
 
             $file = $files->find( (int) $file_id );
             if ( ! $file ) continue;
@@ -359,6 +370,26 @@ class PdpGenerator implements DependentGeneratorInterface {
             $files->setStatus( (int) $file_id, 'completed' );
         }
         return $total;
+    }
+
+    /**
+     * #3650 — does this dossier still have a conversation nobody has held?
+     *
+     * Club-scoped like every other read in this generator, and asked per
+     * file rather than once for the season: `closeFiles()` walks a handful
+     * of dossiers, and a count keyed on the file is the cheapest form of
+     * the question.
+     */
+    private function hasOpenConversation( int $file_id ): bool {
+        global $wpdb;
+
+        $open = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_pdp_conversations
+              WHERE pdp_file_id = %d AND club_id = %d AND conducted_at IS NULL",
+            $file_id, CurrentClub::id()
+        ) );
+
+        return (int) $open > 0;
     }
 
     /**
