@@ -1724,7 +1724,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             if ( ! $user ) continue;
             $name  = $user->display_name !== '' ? (string) $user->display_name : (string) $user->user_email;
             $email = (string) $user->user_email;
-            $phone = trim( (string) get_user_meta( (int) $user->ID, 'phone', true ) );
+            // #3684 — resolve through ContactResolver (person row, then the
+            // `tt_phone` account meta PhoneMeta owns). The old read was the
+            // bare `phone` user meta key, which nothing in the product ever
+            // writes, so a guardian's number never reached this card.
+            $phone = trim( (string) \TT\Infrastructure\Identity\ContactResolver::phoneForUser( (int) $user->ID ) );
             $bits  = [];
             if ( ! empty( $link->is_primary ) ) {
                 $bits[] = '<em>' . esc_html__( 'primary', 'talenttrack' ) . '</em>';

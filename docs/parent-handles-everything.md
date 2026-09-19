@@ -22,6 +22,15 @@ If your child plays in a U8, U9, or U10 squad, TalentTrack treats you — the pa
 1. Accept the invitation email — that creates your parent account.
 2. Install TalentTrack on your phone ([iPhone](install-on-iphone.md) · [Android](install-on-android.md)).
 3. Turn on notifications ([Notifications setup](notifications-setup.md)).
+4. Add your phone number under **My settings** — see below.
+
+## Your phone number
+
+The academy needs a number it can ring when a match is cancelled, a training moves, or your child picks up a knock. You fill it in yourself: open **My settings** from your name in the top-right corner and type it into **Phone number**.
+
+Start with the country code — `+31 6 12345678`, not `06 12345678`. A number without its country code is refused, and the number you had saved before stays exactly as it was, so a half-finished edit can never wipe a working one. Leave the box empty and save to remove the number.
+
+Nobody has to approve the change; it takes effect the moment you save. Your child's coaches and the academy staff see it on your child's file. Other parents and other players never do.
 
 After that you'll see "My child" in the dashboard. Tap to open your child's profile.
 

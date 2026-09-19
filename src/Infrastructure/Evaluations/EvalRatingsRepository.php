@@ -181,6 +181,119 @@ class EvalRatingsRepository {
     }
 
     /**
+     * Batch counterpart to effectiveMainRatingsFor() — the same answer for
+     * many evaluations in a fixed number of queries.
+     *
+     * effectiveMainRatingsFor() costs one category lookup plus one or two
+     * rating queries per main category, per evaluation. Called in a loop
+     * over a player's evaluation history that is O(evaluations × mains)
+     * roundtrips, which is what made the podium (twelve cards × a few
+     * hundred evaluations each) time out (#3702).
+     *
+     * Three queries here, whatever the input size: the active main
+     * categories, the full category list for the child → parent map, and
+     * every rating row for the given evaluations. The direct-beats-rollup
+     * rule is then applied in PHP, matching effectiveMainRating() exactly:
+     * a direct main rating wins as-is; otherwise the mean of that main's
+     * sub-category ratings, rounded to two decimals; otherwise 'none'.
+     *
+     * The sub-category rollup deliberately includes ratings on *inactive*
+     * sub-categories, because effectiveMainRating()'s AVG does not filter
+     * on is_active either. Retiring a sub-category must not silently
+     * restate a player's historical ratings.
+     *
+     * @param int[]      $eval_ids
+     * @param int[]|null $main_ids  Optional limit — if null, all actives.
+     * @return array<int, array<int, array{label:string, value:?float, source:string, sub_count:int}>>
+     *         Keyed by evaluation_id, then by main_category_id. Every
+     *         requested evaluation is present, including ones with no
+     *         ratings at all (every main then reads 'none').
+     */
+    public function effectiveMainRatingsForEvaluations( array $eval_ids, ?array $main_ids = null ): array {
+        global $wpdb;
+
+        $clean = array_values( array_unique( array_filter( array_map( 'intval', $eval_ids ), static fn( $v ) => $v > 0 ) ) );
+        if ( empty( $clean ) ) return [];
+
+        $cats_repo = new EvalCategoriesRepository();
+
+        // Main categories, in display order — the skeleton every row gets.
+        $labels = []; // main_id => label
+        foreach ( $cats_repo->getMainCategories( true ) as $m ) {
+            $mid = (int) $m->id;
+            if ( $main_ids !== null && ! in_array( $mid, $main_ids, true ) ) continue;
+            $labels[ $mid ] = (string) $m->label;
+        }
+        if ( empty( $labels ) ) {
+            return array_fill_keys( $clean, [] );
+        }
+
+        // child_id => parent_id, active and inactive alike (see docblock).
+        $parent_of = [];
+        foreach ( $cats_repo->getAll( false ) as $c ) {
+            $parent = $c->parent_id;
+            if ( $parent === null ) continue;
+            $parent_of[ (int) $c->id ] = (int) $parent;
+        }
+
+        $placeholders = implode( ',', array_fill( 0, count( $clean ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT evaluation_id, category_id, rating FROM {$this->table()} WHERE evaluation_id IN ($placeholders) AND club_id = %d",
+            ...array_merge( $clean, [ CurrentClub::id() ] )
+        ) );
+
+        $direct   = []; // eval_id => main_id => rating
+        $sub_roll = []; // eval_id => main_id => [sum, count]
+        foreach ( (array) $rows as $r ) {
+            $eid = (int) $r->evaluation_id;
+            $cid = (int) $r->category_id;
+            $val = (float) $r->rating;
+            if ( isset( $labels[ $cid ] ) ) {
+                $direct[ $eid ][ $cid ] = $val;
+                continue;
+            }
+            $pid = $parent_of[ $cid ] ?? 0;
+            if ( ! isset( $labels[ $pid ] ) ) continue;
+            if ( ! isset( $sub_roll[ $eid ][ $pid ] ) ) $sub_roll[ $eid ][ $pid ] = [ 0.0, 0 ];
+            $sub_roll[ $eid ][ $pid ][0] += $val;
+            $sub_roll[ $eid ][ $pid ][1]++;
+        }
+
+        $out = [];
+        foreach ( $clean as $eid ) {
+            $row = [];
+            foreach ( $labels as $mid => $label ) {
+                if ( isset( $direct[ $eid ][ $mid ] ) ) {
+                    $row[ $mid ] = [
+                        'label'     => $label,
+                        'value'     => $direct[ $eid ][ $mid ],
+                        'source'    => 'direct',
+                        'sub_count' => 0,
+                    ];
+                } elseif ( isset( $sub_roll[ $eid ][ $mid ] ) ) {
+                    // The bucket is only ever created alongside its first
+                    // rating, so the count is at least one by construction.
+                    $row[ $mid ] = [
+                        'label'     => $label,
+                        'value'     => round( $sub_roll[ $eid ][ $mid ][0] / $sub_roll[ $eid ][ $mid ][1], 2 ),
+                        'source'    => 'computed',
+                        'sub_count' => (int) $sub_roll[ $eid ][ $mid ][1],
+                    ];
+                } else {
+                    $row[ $mid ] = [
+                        'label'     => $label,
+                        'value'     => null,
+                        'source'    => 'none',
+                        'sub_count' => 0,
+                    ];
+                }
+            }
+            $out[ $eid ] = $row;
+        }
+        return $out;
+    }
+
+    /**
      * Write helper used by the save handler. Writes or overwrites (on
      * re-save the caller first wipes the old rows and rewrites).
      */

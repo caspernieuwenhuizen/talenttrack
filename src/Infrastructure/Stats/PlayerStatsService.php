@@ -34,6 +34,20 @@ class PlayerStatsService {
     private EvalRatingsRepository $ratings_repo;
     private EvalCategoriesRepository $cats_repo;
 
+    /**
+     * Per-instance read memo for getEvaluationsForPlayer(). A rate card, a
+     * podium card or a player report asks this service two or three
+     * questions about the same player in a row, and each one re-ran the
+     * identical evaluation query (#3702). The service is compute-on-read
+     * and every caller builds a fresh instance for one render pass, so the
+     * memo lives exactly as long as that pass. Keyed by player + filters,
+     * because the comparison and overview views reuse one instance across
+     * several players.
+     *
+     * @var array<string, object[]>
+     */
+    private array $evals_memo = [];
+
     public function __construct() {
         $this->ratings_repo = new EvalRatingsRepository();
         $this->cats_repo    = new EvalCategoriesRepository();
@@ -61,6 +75,11 @@ class PlayerStatsService {
         $date_to   = $filters['date_to']   ?? '';
         $type_id   = (int) ( $filters['eval_type_id'] ?? 0 );
 
+        $memo_key = $player_id . '|' . (string) $date_from . '|' . (string) $date_to . '|' . $type_id;
+        if ( isset( $this->evals_memo[ $memo_key ] ) ) {
+            return $this->evals_memo[ $memo_key ];
+        }
+
         if ( $date_from !== '' ) { $clauses[] = 'eval_date >= %s'; $args[] = $date_from; }
         if ( $date_to   !== '' ) { $clauses[] = 'eval_date <= %s'; $args[] = $date_to;   }
         if ( $type_id   > 0    ) { $clauses[] = 'eval_type_id = %d'; $args[] = $type_id; }
@@ -74,7 +93,8 @@ class PlayerStatsService {
              ORDER BY eval_date ASC, id ASC",
             ...$args
         ) );
-        return is_array( $rows ) ? $rows : [];
+        $this->evals_memo[ $memo_key ] = is_array( $rows ) ? $rows : [];
+        return $this->evals_memo[ $memo_key ];
     }
 
     // Headline numbers
@@ -190,13 +210,27 @@ class PlayerStatsService {
         $series = []; // main_id => [ [date, value], ... ]
         foreach ( $mains as $m ) $series[ (int) $m->id ] = [];
 
+        // #3702 — one batched lookup for the whole history. This loop used
+        // to call effectiveMainRatingsFor() per evaluation, which is one
+        // category query plus one or two rating queries per main category,
+        // per evaluation. A player with 200 evaluations cost well over a
+        // thousand roundtrips, and the podium renders twelve of these cards.
+        $eval_ids   = [];
+        $eval_dates = []; // eval_id => eval_date
         foreach ( $evals as $ev ) {
-            $effective = $this->ratings_repo->effectiveMainRatingsFor( (int) $ev->id );
+            $eid                = (int) $ev->id;
+            $eval_ids[]         = $eid;
+            $eval_dates[ $eid ] = (string) $ev->eval_date;
+        }
+        $effective_by_eval = $this->ratings_repo->effectiveMainRatingsForEvaluations( $eval_ids );
+
+        foreach ( $eval_ids as $eid ) {
+            $effective = $effective_by_eval[ $eid ] ?? [];
             foreach ( $mains as $m ) {
                 $mid = (int) $m->id;
                 $v   = $effective[ $mid ]['value'] ?? null;
                 if ( $v !== null ) {
-                    $series[ $mid ][] = [ (string) $ev->eval_date, (float) $v ];
+                    $series[ $mid ][] = [ $eval_dates[ $eid ], (float) $v ];
                 }
             }
         }
@@ -356,9 +390,13 @@ class PlayerStatsService {
             ];
         }
 
-        // Fill points evaluation by evaluation.
-        foreach ( $evals as $i => $ev ) {
-            $effective = $this->ratings_repo->effectiveMainRatingsFor( (int) $ev->id );
+        // Fill points evaluation by evaluation, from one batched lookup
+        // rather than a query set per evaluation (#3702).
+        $eval_ids = array_map( fn( $e ) => (int) $e->id, $evals );
+        $effective_by_eval = $this->ratings_repo->effectiveMainRatingsForEvaluations( $eval_ids );
+
+        foreach ( $eval_ids as $i => $eid ) {
+            $effective = $effective_by_eval[ $eid ] ?? [];
             foreach ( $series as $k => $s ) {
                 $mid = $s['main_id'];
                 $val = $effective[ $mid ]['value'] ?? null;
@@ -412,16 +450,26 @@ class PlayerStatsService {
 
         // Take last N (filter already limited by date/type).
         $slice = array_slice( $evals, - max( 1, $count ) );
-        $datasets = [];
+
+        // One batched lookup for the slice, not one per evaluation (#3702).
+        $eval_ids   = [];
+        $eval_dates = [];
         foreach ( $slice as $ev ) {
-            $effective = $this->ratings_repo->effectiveMainRatingsFor( (int) $ev->id );
+            $eval_ids[]   = (int) $ev->id;
+            $eval_dates[] = (string) $ev->eval_date;
+        }
+        $effective_by_eval = $this->ratings_repo->effectiveMainRatingsForEvaluations( $eval_ids );
+
+        $datasets = [];
+        foreach ( $eval_ids as $i => $eid ) {
+            $effective = $effective_by_eval[ $eid ] ?? [];
             $values = [];
             foreach ( $mains as $m ) {
                 $mid = (int) $m->id;
                 $values[] = $effective[ $mid ]['value'] ?? 0;
             }
             $datasets[] = [
-                'label'  => (string) $ev->eval_date,
+                'label'  => $eval_dates[ $i ],
                 'values' => $values,
             ];
         }

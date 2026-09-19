@@ -85,9 +85,16 @@ Klik rechtsboven op je naam om het gebruikersmenu te openen. Het eerste item, **
 
 - Voornaam + achternaam + weergavenaam (hoe je naam aan coaches en teamgenoten getoond wordt)
 - E-mailadres
+- Telefoonnummer
 - Wachtwoord wijzigen (met bevestiging van het huidige wachtwoord)
 
 Application passwords, kleurschema's en andere WordPress-interne knoppen blijven in wp-admin staan; negeer die tenzij je je eigen developer-integratie beheert.
+
+### Je telefoonnummer
+
+Vul het nummer in waarop de academie je moet kunnen bereiken, met landcode — `+31 6 12345678`, dus niet `06 12345678`. Een nummer zonder landcode wordt geweigerd en het nummer dat je eerder had opgeslagen blijft gewoon staan, zodat een half ingetypte invoer nooit stilletjes een werkend nummer wist. Laat het veld leeg en sla op om het nummer helemaal te verwijderen.
+
+Dit nummer is van jou: niemand hoeft het goed te keuren en het geldt zodra je opslaat. Het is het nummer waar de berichten van de academie naartoe gaan, en het staat op het dossier van je kind voor coaches en academiemedewerkers — niet voor andere ouders en niet voor andere spelers.
 
 ### Wat je ouder kan zien
 
