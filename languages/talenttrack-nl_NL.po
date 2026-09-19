@@ -62747,6 +62747,7 @@ msgstr "Niemand thuis is te bereiken over deze speler: er is geen ouderaccount g
 #, php-format
 msgid "Nobody at home can be reached about %s."
 msgstr "Niemand thuis is te bereiken over %s."
+
 #~ msgid "Could not create trial case."
 #~ msgstr "Stagedossier kon niet worden aangemaakt."
 
