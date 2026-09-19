@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:32:21+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:34:58+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3016,8 +3016,8 @@ msgstr "Geen wijzigingen ontvangen."
 #: src/Infrastructure/REST/ActivitiesRestController.php:1539
 #: src/Infrastructure/REST/ActivitiesRestController.php:1569
 #: src/Infrastructure/REST/ActivitiesRestController.php:2117
-#: src/Infrastructure/REST/ActivitiesRestController.php:2300
-#: src/Infrastructure/REST/ActivitiesRestController.php:2338
+#: src/Infrastructure/REST/ActivitiesRestController.php:2303
+#: src/Infrastructure/REST/ActivitiesRestController.php:2343
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -3068,7 +3068,7 @@ msgstr "Geen bijdragen meegegeven."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:878
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
-#: src/Infrastructure/REST/GoalsRestController.php:183
+#: src/Infrastructure/REST/GoalsRestController.php:217
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:200
 #: src/Infrastructure/REST/TeamsRestController.php:206
@@ -3103,8 +3103,8 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:2113
 #: src/Infrastructure/REST/ActivitiesRestController.php:2227
 #: src/Infrastructure/REST/ActivitiesRestController.php:2278
-#: src/Infrastructure/REST/ActivitiesRestController.php:2296
-#: src/Infrastructure/REST/ActivitiesRestController.php:2335
+#: src/Infrastructure/REST/ActivitiesRestController.php:2299
+#: src/Infrastructure/REST/ActivitiesRestController.php:2340
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -3174,16 +3174,16 @@ msgstr "Kon de activiteitsstatus niet bijwerken."
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2358
-#: src/Infrastructure/REST/ActivitiesRestController.php:2430
+#: src/Infrastructure/REST/ActivitiesRestController.php:2363
+#: src/Infrastructure/REST/ActivitiesRestController.php:2435
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2361
+#: src/Infrastructure/REST/ActivitiesRestController.php:2366
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2396
+#: src/Infrastructure/REST/ActivitiesRestController.php:2401
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
@@ -3191,11 +3191,11 @@ msgstr ""
 "De minuten voor deze wedstrijd worden beheerd op het "
 "wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2417
+#: src/Infrastructure/REST/ActivitiesRestController.php:2422
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2433
+#: src/Infrastructure/REST/ActivitiesRestController.php:2438
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
@@ -3209,7 +3209,7 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:144
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
-#: src/Infrastructure/REST/GoalsRestController.php:599
+#: src/Infrastructure/REST/GoalsRestController.php:739
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:377
 #: src/Modules/Trials/Rest/TrialsRestController.php:385
@@ -3739,63 +3739,64 @@ msgstr "De toewijzing kon niet worden verwijderd."
 msgid "Invalid player."
 msgstr "Ongeldige speler."
 
-#: src/Infrastructure/REST/GoalsRestController.php:247
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:167
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:206
+#: src/Infrastructure/REST/GoalsRestController.php:281
+#: src/Infrastructure/REST/GoalsRestController.php:383
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:178
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:217
 #: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php:46
 #: src/Modules/Pdp/Rest/PdpFamilyRestController.php:89
 msgid "This section has been kept private."
 msgstr "Dit onderdeel is privé gehouden."
 
-#: src/Infrastructure/REST/GoalsRestController.php:467
+#: src/Infrastructure/REST/GoalsRestController.php:607
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:491
+#: src/Infrastructure/REST/GoalsRestController.php:631
 #: src/Modules/Trials/Services/TrialCaseOpener.php:136
 #: src/Modules/Trials/Wizards/TrialPlayerStep.php:94
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/GoalsRestController.php:495
+#: src/Infrastructure/REST/GoalsRestController.php:635
 msgid "You can only set goals for players in your team."
 msgstr "Je kunt alleen doelen instellen voor spelers in je team."
 
-#: src/Infrastructure/REST/GoalsRestController.php:508
+#: src/Infrastructure/REST/GoalsRestController.php:648
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:562
-#: src/Infrastructure/REST/GoalsRestController.php:652
-#: src/Infrastructure/REST/GoalsRestController.php:704
-#: src/Infrastructure/REST/GoalsRestController.php:718
-#: src/Infrastructure/REST/GoalsRestController.php:731
+#: src/Infrastructure/REST/GoalsRestController.php:702
+#: src/Infrastructure/REST/GoalsRestController.php:792
+#: src/Infrastructure/REST/GoalsRestController.php:844
+#: src/Infrastructure/REST/GoalsRestController.php:858
+#: src/Infrastructure/REST/GoalsRestController.php:871
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:609
+#: src/Infrastructure/REST/GoalsRestController.php:749
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:656
+#: src/Infrastructure/REST/GoalsRestController.php:796
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:673
+#: src/Infrastructure/REST/GoalsRestController.php:813
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:684
+#: src/Infrastructure/REST/GoalsRestController.php:824
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:709
-#: src/Infrastructure/REST/GoalsRestController.php:722
-#: src/Infrastructure/REST/GoalsRestController.php:739
-#: src/Infrastructure/REST/GoalsRestController.php:747
+#: src/Infrastructure/REST/GoalsRestController.php:849
+#: src/Infrastructure/REST/GoalsRestController.php:862
+#: src/Infrastructure/REST/GoalsRestController.php:879
+#: src/Infrastructure/REST/GoalsRestController.php:887
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:825
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:839
 msgid "Goal not found."
@@ -3906,10 +3907,10 @@ msgid "This report has been switched off for your academy."
 msgstr "Dit rapport is uitgeschakeld voor je academie."
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:194
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:163
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:202
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:218
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:344
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:174
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:213
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:229
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:355
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:49
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:111
 #: src/Modules/Players/Admin/PlayersPage.php:66
@@ -4490,61 +4491,61 @@ msgstr "Selecteer ten minste één persoon."
 msgid "Preview supports at most 100 ids per call."
 msgstr "Voorvertoning ondersteunt maximaal 100 ids per aanroep."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:149
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:160
 msgid "Invalid injury id."
 msgstr "Ongeldig blessure-id."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:155
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:385
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:427
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:441
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:166
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:396
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:438
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:452
 msgid "Injury not found."
 msgstr "Blessure niet gevonden."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:230
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:241
 msgid "You cannot add events for this player."
 msgstr "Je kunt geen gebeurtenissen toevoegen voor deze speler."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:241
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:252
 msgid "A summary is required."
 msgstr "Een samenvatting is verplicht."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:261
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:272
 msgid "Could not record the event."
 msgstr "Kon de gebeurtenis niet vastleggen."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:272
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:283
 msgid "Event not found."
 msgstr "Gebeurtenis niet gevonden."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:276
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:287
 msgid "You cannot retract events for this player."
 msgstr "Je kunt geen gebeurtenissen intrekken voor deze speler."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:300
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:311
 msgid "Could not record the corrected event."
 msgstr "Kon de gecorrigeerde gebeurtenis niet vastleggen."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:329
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:340
 msgid "event_type, from and to are required."
 msgstr "event_type, from en to zijn verplicht."
 
 # ===== #1348 — injury endpoint scope guards =====
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:356
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:367
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:82
 msgid "You cannot record injuries for this player."
 msgstr "Je kunt geen blessures registreren voor deze speler."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:372
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:383
 msgid "Could not record injury."
 msgstr "Kon blessure niet vastleggen."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:389
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:431
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:400
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:442
 msgid "You cannot edit injuries for this player."
 msgstr "Je kunt geen blessures bewerken voor deze speler."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php:419
+#: src/Infrastructure/REST/PlayerJourneyRestController.php:430
 msgid "No fields to update or update failed."
 msgstr "Geen velden om bij te werken of bijwerken mislukt."
 
