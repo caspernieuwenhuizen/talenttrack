@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:14:02+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:18:36+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4104,9 +4104,9 @@ msgstr "Geef aan welk account je wilt koppelen: wp_user_id is verplicht."
 msgid "Type at least two characters of the name or email address."
 msgstr "Typ minstens twee tekens van de naam of het e-mailadres."
 
-#: src/Infrastructure/REST/PeekRestController.php:123
-#: src/Infrastructure/REST/PeekRestController.php:155
-#: src/Infrastructure/REST/PeekRestController.php:185
+#: src/Infrastructure/REST/PeekRestController.php:128
+#: src/Infrastructure/REST/PeekRestController.php:160
+#: src/Infrastructure/REST/PeekRestController.php:190
 #: src/Infrastructure/REST/RestResponse.php:83
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
@@ -4115,7 +4115,7 @@ msgstr "Typ minstens twee tekens van de naam of het e-mailadres."
 msgid "Not found."
 msgstr "Niet gevonden."
 
-#: src/Infrastructure/REST/PeekRestController.php:136
+#: src/Infrastructure/REST/PeekRestController.php:141
 #: src/Modules/Activities/Admin/ActivitiesPage.php:96
 #: src/Modules/Activities/Admin/ActivitiesPage.php:300
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
@@ -4233,7 +4233,7 @@ msgstr "Niet gevonden."
 msgid "Status"
 msgstr "Status"
 
-#: src/Infrastructure/REST/PeekRestController.php:140
+#: src/Infrastructure/REST/PeekRestController.php:145
 #: src/Modules/Configuration/Admin/FormSlugContract.php:63
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:43
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
@@ -4248,7 +4248,7 @@ msgstr "Status"
 msgid "Jersey number"
 msgstr "Rugnummer"
 
-#: src/Infrastructure/REST/PeekRestController.php:144
+#: src/Infrastructure/REST/PeekRestController.php:149
 #: src/Modules/Configuration/Admin/FormSlugContract.php:53
 #: src/Modules/DataBrowser/SemanticRegistry.php:48
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:145
@@ -4275,7 +4275,7 @@ msgstr "Rugnummer"
 msgid "Date of birth"
 msgstr "Geboortedatum"
 
-#: src/Infrastructure/REST/PeekRestController.php:170
+#: src/Infrastructure/REST/PeekRestController.php:175
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:181
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:212
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:171
@@ -4332,7 +4332,7 @@ msgstr "Geboortedatum"
 msgid "Players"
 msgstr "Spelers"
 
-#: src/Infrastructure/REST/PeekRestController.php:174
+#: src/Infrastructure/REST/PeekRestController.php:179
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
@@ -4344,7 +4344,7 @@ msgstr "Spelers"
 msgid "Season"
 msgstr "Seizoen"
 
-#: src/Infrastructure/REST/PeekRestController.php:198
+#: src/Infrastructure/REST/PeekRestController.php:212
 #: src/Modules/Activities/Admin/ActivitiesPage.php:93
 #: src/Modules/Activities/Admin/ActivitiesPage.php:341
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:255
@@ -4411,7 +4411,43 @@ msgstr "Seizoen"
 msgid "Date"
 msgstr "Datum"
 
-#: src/Infrastructure/REST/PeekRestController.php:202
+#: src/Infrastructure/REST/PeekRestController.php:216
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:399
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:263
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
+#: src/Modules/Wizards/Activity/ReviewStep.php:77
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1256
+msgid "Time"
+msgstr "Tijd"
+
+#: src/Infrastructure/REST/PeekRestController.php:220
+msgid "Presence time"
+msgstr "Aanwezigheidstijd"
+
+#: src/Infrastructure/REST/PeekRestController.php:224
+#: src/Modules/Activities/Admin/ActivitiesPage.php:343
+#: src/Modules/Configuration/Admin/FormSlugContract.php:105
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
+#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:254
+#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
+#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:116
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:403
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:264
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
+#: src/Modules/Wizards/Activity/DetailsStep.php:77
+#: src/Modules/Wizards/Activity/ReviewStep.php:79
+#: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
+#: src/Shared/Frontend/CoachForms.php:574
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3681
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:128
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:191
+#: src/Shared/Frontend/FrontendTestTrainingsView.php:77
+msgid "Location"
+msgstr "Locatie"
+
+#: src/Infrastructure/REST/PeekRestController.php:228
 #: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Activities/Admin/ActivitiesPage.php:290
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:482
@@ -5520,28 +5556,6 @@ msgid ""
 msgstr ""
 "Verplicht als Type \"Anders\" is. Vrije tekst — bijv. team-buildingdag, "
 "clubvergadering."
-
-#: src/Modules/Activities/Admin/ActivitiesPage.php:343
-#: src/Modules/Configuration/Admin/FormSlugContract.php:105
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
-#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:254
-#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
-#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:116
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:403
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:264
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
-#: src/Modules/Wizards/Activity/DetailsStep.php:77
-#: src/Modules/Wizards/Activity/ReviewStep.php:79
-#: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
-#: src/Shared/Frontend/CoachForms.php:574
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3681
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:128
-#: src/Shared/Frontend/FrontendSpondMonitorView.php:191
-#: src/Shared/Frontend/FrontendTestTrainingsView.php:77
-msgid "Location"
-msgstr "Locatie"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:345
 msgid "— All —"
@@ -24370,14 +24384,6 @@ msgstr "Geen activiteiten gepland in deze periode."
 #: src/Shared/Frontend/FrontendAuditLogView.php:359
 msgid "Day"
 msgstr "Dag"
-
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:399
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:263
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
-#: src/Modules/Wizards/Activity/ReviewStep.php:77
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1256
-msgid "Time"
-msgstr "Tijd"
 
 #. translators: %s: date range, e.g. "23 Jun 2026 – 29 Jun 2026"
 #. translators: %s: ISO week number
@@ -53929,11 +53935,6 @@ msgstr "Filter verwijderen: %s"
 msgid "Presence time (optional)"
 msgstr "Aanwezigheidstijd (optioneel)"
 
-#: src/Infrastructure/REST/PeekRestController.php:200
-msgid "Presence time"
-msgstr "Aanwezigheidstijd"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3711
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3729
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
