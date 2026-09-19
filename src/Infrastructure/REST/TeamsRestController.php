@@ -285,7 +285,7 @@ class TeamsRestController {
                                AND p.archived_at IS NULL
                                AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
                             ) AS hc_person_ids,
-                            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id) AS player_count
+                            " . self::playerCountSql( $p ) . " AS player_count
                      FROM {$p}tt_teams t
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
@@ -349,13 +349,30 @@ class TeamsRestController {
                        AND p.archived_at IS NULL
                        AND p.club_id = t.club_id
                        AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
-                    ) AS hc_person_ids
+                    ) AS hc_person_ids,
+                    " . self::playerCountSql( $p ) . " AS player_count
              FROM {$p}tt_teams t
              WHERE t.id = %d AND t.club_id = %d",
             $id, CurrentClub::id()
         ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
-        return RestResponse::success( self::fmtRow( $row ) );
+
+        // #3601 — the same counts the list carries. The detail selected no
+        // player count and passed no upcoming count, so the one route a
+        // client opens a team through showed an empty squad with nothing
+        // coming up, card included.
+        $upcoming = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->upcomingCountsByTeam( [ $id ], 14 );
+        return RestResponse::success( self::fmtRow( $row, (int) ( $upcoming[ $id ] ?? 0 ) ) );
+    }
+
+    /**
+     * #3601 — the squad-size subselect, shared by the list and the detail
+     * so the two cannot count differently again. Expects the team aliased
+     * `t`.
+     */
+    private static function playerCountSql( string $p ): string {
+        return "(SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id)";
     }
 
     /**

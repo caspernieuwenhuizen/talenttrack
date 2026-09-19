@@ -40,17 +40,27 @@ class TrialStaffInputsRepository {
     }
 
     /**
+     * Save a draft input. Only the keys present in `$data` are written
+     * (#3606, #3612): a rating-only save used to erase the notes, a bare
+     * submit erased both, and every save nulled the category ratings, which
+     * neither the form nor the API ever sends. A key present with null
+     * clears that column; `updated_at` is always stamped.
+     *
      * @param array<string,mixed> $data
      */
     public function upsertDraft( int $case_id, int $user_id, array $data ): int {
         $existing = $this->findForCaseUser( $case_id, $user_id );
 
-        $payload = [
-            'category_ratings_json' => isset( $data['category_ratings'] ) ? wp_json_encode( $data['category_ratings'] ) : null,
-            'overall_rating'        => isset( $data['overall_rating'] ) ? (float) $data['overall_rating'] : null,
-            'free_text_notes'       => $data['free_text_notes'] ?? null,
-            'updated_at'            => current_time( 'mysql', true ),
-        ];
+        $payload = [ 'updated_at' => current_time( 'mysql', true ) ];
+        if ( array_key_exists( 'category_ratings', $data ) ) {
+            $payload['category_ratings_json'] = $data['category_ratings'] === null ? null : wp_json_encode( $data['category_ratings'] );
+        }
+        if ( array_key_exists( 'overall_rating', $data ) ) {
+            $payload['overall_rating'] = $data['overall_rating'] === null ? null : (float) $data['overall_rating'];
+        }
+        if ( array_key_exists( 'free_text_notes', $data ) ) {
+            $payload['free_text_notes'] = $data['free_text_notes'];
+        }
 
         if ( $existing ) {
             $this->wpdb->update( $this->table, $payload, [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ] );

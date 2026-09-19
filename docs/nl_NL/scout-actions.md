@@ -100,6 +100,12 @@ je gaat en leg je vast wat elk bezoek opleverde. Door ze in het systeem te
 plannen ziet de academie de dekking — welke leeftijdsgroepen en welke regio's
 echt worden bekeken — in plaats van dat het in jouw hoofd zit.
 
+Zie je iemand, open dan het bezoek en gebruik **Leg scoutingbevinding vast**. De
+prospect die je vastlegt wordt aan dat bezoek gekoppeld, en het bezoek toont
+hem daarna. Het evenement wordt vanuit het bezoek ingevuld, zodat je het niet
+twee keer typt. Die koppeling is waar de speler vandaan kwam, en blijft op
+zijn dossier staan.
+
 ## Wat nog niet kan
 
 Eén ding dat een scout redelijkerwijs verwacht, is nog niet gebouwd:

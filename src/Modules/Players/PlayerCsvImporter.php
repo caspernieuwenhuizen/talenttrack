@@ -364,7 +364,8 @@ class PlayerCsvImporter {
         return [
             'first_name'          => sanitize_text_field( (string) ( $row['first_name'] ?? '' ) ),
             'last_name'           => sanitize_text_field( (string) ( $row['last_name'] ?? '' ) ),
-            'date_of_birth'       => sanitize_text_field( (string) ( $row['date_of_birth'] ?? '' ) ),
+            // #3590 — an empty cell is NULL, not the zero date.
+            'date_of_birth'       => \TT\Infrastructure\Players\PlayerDates::fromInput( $row['date_of_birth'] ?? null ),
             'nationality'         => sanitize_text_field( (string) ( $row['nationality'] ?? '' ) ),
             'height_cm'           => ! empty( $row['height_cm'] ) ? absint( $row['height_cm'] ) : null,
             'weight_kg'           => ! empty( $row['weight_kg'] ) ? absint( $row['weight_kg'] ) : null,
@@ -372,7 +373,7 @@ class PlayerCsvImporter {
             'preferred_positions' => wp_json_encode( $positions ),
             'jersey_number'       => ! empty( $row['jersey_number'] ) ? absint( $row['jersey_number'] ) : null,
             'team_id'             => $team_id,
-            'date_joined'         => sanitize_text_field( (string) ( $row['date_joined'] ?? '' ) ),
+            'date_joined'         => \TT\Infrastructure\Players\PlayerDates::fromInput( $row['date_joined'] ?? null ),
             'photo_url'           => esc_url_raw( (string) ( $row['photo_url'] ?? '' ) ),
             'guardian_name'       => sanitize_text_field( (string) ( $row['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $row['guardian_email'] ?? '' ) ),

@@ -209,6 +209,9 @@ class ProspectsRepository {
             'current_club'                  => $data['current_club'] ?? null,
             'preferred_position_lookup_id'  => isset( $data['preferred_position_lookup_id'] ) ? (int) $data['preferred_position_lookup_id'] : null,
             'scouting_notes'                => $data['scouting_notes'] ?? null,
+            // #3600 — the visit the prospect was found at. Only the demo
+            // generator ever wrote it, so every real visit listed nobody.
+            'scouting_visit_id'             => isset( $data['scouting_visit_id'] ) && (int) $data['scouting_visit_id'] > 0 ? (int) $data['scouting_visit_id'] : null,
             'parent_name'                   => $data['parent_name']  ?? null,
             'parent_email'                  => $data['parent_email'] ?? null,
             'parent_phone'                  => $data['parent_phone'] ?? null,
@@ -226,7 +229,7 @@ class ProspectsRepository {
         $allowed = [
             'first_name', 'last_name', 'date_of_birth', 'age_group_lookup_id',
             'discovered_at_event', 'current_club', 'preferred_position_lookup_id',
-            'scouting_notes',
+            'scouting_notes', 'scouting_visit_id',
             'parent_name', 'parent_email', 'parent_phone', 'consent_given_at',
             'promoted_to_player_id', 'promoted_to_trial_case_id',
             'archived_at', 'archived_by', 'archive_reason',
