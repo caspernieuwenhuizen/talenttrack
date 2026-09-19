@@ -1,0 +1,5 @@
+# Alerts list pages, filters by alert type, and says who counts are for (#3665)
+
+The alerts list no longer stops at 100. Previous and Next appear below the list when there are more, the count above it is now the total rather than however many fitted on the page, and changing a filter starts again at page one. A link can narrow the list to one kind of alert rather than a whole area, and the list says which kind it is showing. On the API, `GET /alerts` takes `alert_key` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`; an unknown key answers an empty list rather than falling through to everything.
+
+Engine health gains a Recipients column and says plainly that its counts cover the whole academy. An administrator who saw one open certificate alert and could not find it in their own list now sees why: the alert went to the person whose certificate it is. Names are never shown — some of these alerts are personal, and the number of recipients is enough to judge whether an alert is doing its job.

@@ -208,6 +208,8 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
         echo '<thead><tr>'
             . '<th>' . esc_html__( 'Alert', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Open', 'talenttrack' ) . '</th>'
+            // #3665 — how many people those open rows are spread over.
+            . '<th>' . esc_html__( 'Recipients', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Cleared', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Dismissed', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Check time', 'talenttrack' ) . '</th>'
@@ -219,13 +221,14 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
                 : '—';
 
             printf(
-                '<tr%1$s><td>%2$s%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td><td>%7$s</td></tr>',
+                '<tr%1$s><td>%2$s%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td><td>%7$s</td><td>%8$s</td></tr>',
                 $row['noisy'] ? ' class="tt-alert-diagnostics-noisy"' : '',
                 esc_html( $row['label'] ),
                 $row['noisy']
                     ? '<span class="tt-alert-diagnostics-flag">' . esc_html__( 'Mostly dismissed — worth reviewing', 'talenttrack' ) . '</span>'
                     : '',
                 esc_html( (string) $row['open'] ),
+                esc_html( (string) $row['open_recipients'] ),
                 esc_html( (string) $row['resolved'] ),
                 esc_html( $dismissed ),
                 esc_html( sprintf(
@@ -237,6 +240,12 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
         }
 
         echo '</tbody></table></div>';
+        // #3665 — an admin who saw "1 open" for a certificate alert went
+        // looking for it in their own list and could not find it. The
+        // count is the academy's, not theirs.
+        echo '<p class="tt-field-hint">'
+            . esc_html__( 'These counts cover everyone in the academy. Each alert appears only in the list of the person it was sent to, so an open alert here need not be one of yours.', 'talenttrack' )
+            . '</p>';
         echo '<p class="tt-field-hint">'
             . esc_html__( 'An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts, and the useful ones go with it. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation.', 'talenttrack' )
             . '</p>';

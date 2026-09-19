@@ -397,7 +397,7 @@ final class AlertOccurrencesRepository {
      * so the API and the rendered page can never disagree about what "open"
      * means (CLAUDE.md §4).
      *
-     * @param array<string,mixed> $args state|alert_keys|severity|subject_type|subject_id|player_id|limit
+     * @param array<string,mixed> $args state|alert_keys|severity|subject_type|subject_id|player_id|limit|offset
      * @return list<object>
      */
     public function listForUser( int $userId, array $args = [] ): array {
@@ -405,9 +405,56 @@ final class AlertOccurrencesRepository {
         if ( $userId <= 0 ) return [];
         if ( ! $this->tableExists() ) return [];
 
+        $table  = $this->table();
+        $limit  = max( 1, min( 200, (int) ( $args['limit'] ?? 50 ) ) );
+        $offset = max( 0, (int) ( $args['offset'] ?? 0 ) );
+
+        [ $where, $params ] = $this->whereForUser( $userId, $args );
+
+        $sql = "SELECT * FROM {$table} WHERE " . implode( ' AND ', $where )
+             . " ORDER BY FIELD(severity,'urgent','attention','info'), first_seen_at ASC, id ASC
+                LIMIT %d OFFSET %d";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * How many occurrences `listForUser()` would return without its page
+     * window (#3665).
+     *
+     * It shares `whereForUser()` with the list, which is the point: a total
+     * built from a second, hand-copied WHERE is a total that drifts the
+     * first time a filter is added to one and not the other, and a pager
+     * that promises a page 4 the list cannot fill is worse than no pager.
+     *
+     * @param array<string,mixed> $args the same shape `listForUser()` takes, minus limit/offset
+     */
+    public function countForUser( int $userId, array $args = [] ): int {
+        global $wpdb;
+        if ( $userId <= 0 ) return 0;
+        if ( ! $this->tableExists() ) return 0;
+
         $table = $this->table();
-        $now   = current_time( 'mysql' );
-        $limit = max( 1, min( 200, (int) ( $args['limit'] ?? 50 ) ) );
+        [ $where, $params ] = $this->whereForUser( $userId, $args );
+
+        $sql = "SELECT COUNT(*) FROM {$table} WHERE " . implode( ' AND ', $where );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
+    }
+
+    /**
+     * The inbox WHERE, shared by the list and its count.
+     *
+     * @param array<string,mixed> $args
+     * @return array{0:list<string>,1:list<mixed>}
+     */
+    private function whereForUser( int $userId, array $args ): array {
+        $now = current_time( 'mysql' );
 
         $where  = [ QueryHelpers::clubScopeWhere(), 'recipient_user_id = %d' ];
         $params = [ $userId ];
@@ -462,14 +509,7 @@ final class AlertOccurrencesRepository {
             $params[] = $player_id;
         }
 
-        $sql = "SELECT * FROM {$table} WHERE " . implode( ' AND ', $where )
-             . " ORDER BY FIELD(severity,'urgent','attention','info'), first_seen_at ASC, id ASC
-                LIMIT %d";
-        $params[] = $limit;
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
-        return is_array( $rows ) ? $rows : [];
+        return [ $where, $params ];
     }
 
     /**

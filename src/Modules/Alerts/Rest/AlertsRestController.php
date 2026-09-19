@@ -55,6 +55,12 @@ final class AlertsRestController extends BaseController {
                 'args'                => [
                     'module'   => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
                     'severity' => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    // #3665 — one definition rather than a whole module.
+                    // `sanitize_text_field`, not `sanitize_key`: an alert
+                    // key carries a dot (`people.no_guardian_contact`) and
+                    // `sanitize_key` would strip it, turning every lookup
+                    // into an unknown key.
+                    'alert_key' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     // #2633 — the same filters the inline chips and the
                     // player surface use. Declared here so a non-WordPress
                     // front end can render the identical chip from the API
@@ -65,6 +71,12 @@ final class AlertsRestController extends BaseController {
                     'subject_id'   => [ 'sanitize_callback' => 'absint', 'required' => false ],
                     'player_id'    => [ 'sanitize_callback' => 'absint', 'required' => false ],
                     'per_page' => [ 'sanitize_callback' => 'absint', 'default' => 50 ],
+                    // #3665 — a recipient with more open alerts than one
+                    // page could not reach the rest of them. `X-WP-Total`
+                    // and `X-WP-TotalPages` come back on every response,
+                    // the way the audit log already does it, so the body
+                    // stays a plain array and v1 does not change shape.
+                    'page' => [ 'sanitize_callback' => 'absint', 'default' => 1 ],
                 ],
             ],
         ] );
@@ -283,13 +295,17 @@ final class AlertsRestController extends BaseController {
         return RestResponse::success( [
             'last_sweep_at' => $last !== null ? gmdate( 'c', $last ) : null,
             'stale'         => $diag->sweepLooksStale(),
-            'definitions'   => array_values( array_map(
+            // `array_map` over two arrays already renumbers, so there is no
+            // `array_values()` here — PHPStan flagged it as a no-op, and
+            // the shape of that finding moved the moment a field was added
+            // to the row.
+            'definitions'   => array_map(
                 static function ( array $row, string $key ): array {
                     return array_merge( [ 'alert_key' => $key ], $row );
                 },
                 $rows = $diag->perDefinition(),
                 array_keys( $rows )
-            ) ),
+            ),
         ] );
     }
 
@@ -343,9 +359,12 @@ final class AlertsRestController extends BaseController {
     }
 
     public static function listMine( WP_REST_Request $req ): \WP_REST_Response {
-        $user_id = get_current_user_id();
-        $repo    = new AlertOccurrencesRepository();
-        if ( ! $repo->tableExists() ) return RestResponse::success( [] );
+        $user_id  = get_current_user_id();
+        $repo     = new AlertOccurrencesRepository();
+        $per_page = max( 1, min( 200, (int) $req->get_param( 'per_page' ) ) );
+        $page     = max( 1, (int) $req->get_param( 'page' ) );
+
+        if ( ! $repo->tableExists() ) return self::emptyList( $per_page );
 
         // #2633 — filtering moved into the repository. It used to fetch a
         // page and then drop rows in PHP, which silently under-returned:
@@ -353,32 +372,75 @@ final class AlertsRestController extends BaseController {
         // and then filtered that down. Pushing the predicate into SQL also
         // means this route and the rendered inbox ask the same question of
         // the same method, so they cannot disagree about what "open" means.
-        $module = (string) $req->get_param( 'module' );
+        //
+        // #3665 — the key filter is resolved BEFORE the query rather than
+        // after it. `alert_keys => []` means "no key filter" downstream, so
+        // an unmatched module or key that fell through to the repository
+        // would quietly widen the result set to everything instead of
+        // narrowing it to nothing.
+        $keys = self::resolveAlertKeys(
+            (string) $req->get_param( 'module' ),
+            (string) $req->get_param( 'alert_key' )
+        );
+        if ( $keys === null ) return self::emptyList( $per_page );
 
-        $rows = $repo->listForUser( $user_id, [
+        $args = [
             'state'        => (string) $req->get_param( 'state' ),
-            'alert_keys'   => $module !== '' ? array_keys( AlertRegistry::forModule( $module ) ) : [],
+            'alert_keys'   => $keys,
             'severity'     => (string) $req->get_param( 'severity' ),
             'subject_type' => (string) $req->get_param( 'subject_type' ),
             'subject_id'   => (int) $req->get_param( 'subject_id' ),
             'player_id'    => (int) $req->get_param( 'player_id' ),
-            'limit'        => (int) $req->get_param( 'per_page' ),
-        ] );
+        ];
 
-        // A module with no registered definitions must return nothing, not
-        // everything. `alert_keys => []` means "no key filter" in the
-        // repository, so the empty case is caught here rather than quietly
-        // widening the result set.
-        if ( $module !== '' && empty( AlertRegistry::forModule( $module ) ) ) {
-            return RestResponse::success( [] );
-        }
+        $total = $repo->countForUser( $user_id, $args );
+        $rows  = $repo->listForUser( $user_id, $args + [
+            'limit'  => $per_page,
+            'offset' => ( $page - 1 ) * $per_page,
+        ] );
 
         $out = [];
         foreach ( $rows as $row ) {
             $out[] = self::serialize( $row );
         }
 
-        return RestResponse::success( $out );
+        return self::withPageHeaders( RestResponse::success( $out ), $total, $per_page );
+    }
+
+    /**
+     * The alert keys a `module` / `alert_key` pair narrows the list to.
+     *
+     * An empty array means "no key filter"; `null` means "this combination
+     * can never match", which the caller turns into an empty list rather
+     * than an error. That mirrors how an unknown module already behaved
+     * and keeps a stale bookmark from reading as a server fault.
+     *
+     * @return list<string>|null
+     */
+    private static function resolveAlertKeys( string $module, string $alert_key ): ?array {
+        $in_module = $module !== '' ? AlertRegistry::forModule( $module ) : [];
+        if ( $module !== '' && empty( $in_module ) ) return null;
+
+        if ( $alert_key === '' ) {
+            return array_keys( $in_module );
+        }
+
+        if ( AlertRegistry::find( $alert_key ) === null ) return null;
+        // Both filters set and disagreeing is not an error either — it is
+        // simply a question with no rows behind it.
+        if ( $module !== '' && ! isset( $in_module[ $alert_key ] ) ) return null;
+
+        return [ $alert_key ];
+    }
+
+    private static function emptyList( int $per_page ): \WP_REST_Response {
+        return self::withPageHeaders( RestResponse::success( [] ), 0, $per_page );
+    }
+
+    private static function withPageHeaders( \WP_REST_Response $response, int $total, int $per_page ): \WP_REST_Response {
+        $response->header( 'X-WP-Total', (string) $total );
+        $response->header( 'X-WP-TotalPages', (string) ( $per_page > 0 ? (int) ceil( $total / $per_page ) : 0 ) );
+        return $response;
     }
 
     /**
