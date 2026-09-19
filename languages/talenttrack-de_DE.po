@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:48:46+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:51:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -1945,7 +1945,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:246
 #: src/Modules/Analytics/AnalyticsModule.php:136
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:831
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:854
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:162
 #: src/Shared/Frontend/Components/EvidencePanel.php:232
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1048
@@ -1972,7 +1972,7 @@ msgstr "Verspätet"
 #: src/Infrastructure/Query/LabelTranslator.php:77
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:250
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:225
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:833
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:856
 msgid "Injured"
 msgstr "Verletzt"
 
@@ -2427,14 +2427,14 @@ msgid "Counter-attack"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:439
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:540
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:563
 msgid "Defending"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:441
 #: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:178
 #: src/Modules/MatchAnalysis/Wizards/SetPiecesStep.php:19
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:591
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:614
 #: src/Modules/Methodology/VocabularyCatalog.php:228
 #: src/Modules/Training/Wizard/WizardContext.php:74
 msgid "Set pieces"
@@ -2919,8 +2919,8 @@ msgstr ""
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1369
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:194
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:476
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:499
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:479
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:502
 msgid "Invalid activity id."
 msgstr ""
 
@@ -8480,7 +8480,7 @@ msgid "Below threshold — review with the team."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:182
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:362
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:385
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:198
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:226
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:228
@@ -10553,7 +10553,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:444
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:459
 #: src/Modules/Goals/Admin/GoalsPage.php:175
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:292
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:302
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:518
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1539
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
@@ -15973,7 +15973,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:440
 #: src/Modules/Development/IdeaStatus.php:102
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:727
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:750
 #: src/Modules/Onboarding/OnboardingState.php:70
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:934
 msgid "Done"
@@ -16049,7 +16049,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:179
 #: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:295
 #: src/Modules/MatchAnalysis/Frontend/SectionRatingControl.php:92
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:826
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:849
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:946
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
@@ -20764,7 +20764,7 @@ msgstr "Ergebnis"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:381
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:914
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:939
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1089
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachForms.php:269
@@ -20776,7 +20776,7 @@ msgstr "Heim"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:914
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:939
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1090
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachForms.php:269
@@ -21055,7 +21055,7 @@ msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:71
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:152
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:524
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:547
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:258
 #: src/Modules/Methodology/VocabularyCatalog.php:122
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:268
@@ -22147,9 +22147,9 @@ msgid "Kickoff"
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:255
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:277
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:290
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:921
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:287
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:300
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:946
 #: src/Modules/Methodology/Admin/PositionEditPage.php:72
 #: src/Modules/Methodology/Admin/VisionEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:61
@@ -22579,7 +22579,7 @@ msgstr ""
 #. translators: %d is a number of minutes.
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:691
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:220
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:926
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:951
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:624
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:360
@@ -22704,7 +22704,7 @@ msgstr "Drucken"
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:181
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:259
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:101
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:745
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:203
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:93
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:192
@@ -24600,8 +24600,8 @@ msgid "Locked"
 msgstr "Gesperrt"
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:199
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:262
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:931
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:272
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:956
 #: src/Shared/Frontend/FrontendStandardReportsView.php:783
 msgid "Available"
 msgstr ""
@@ -27500,7 +27500,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1421
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1471
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1533
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:923
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:948
 msgid "Half"
 msgstr ""
 
@@ -28014,30 +28014,39 @@ msgstr ""
 msgid "Match preparation — %1$s · %2$s"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:259
+#. translators: 1: full match length in minutes from the activity, 2: half length in minutes from the match prep.
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:254
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:861
+#, php-format
+msgid ""
+"The activity says this match lasts %1$s minutes; the preparation uses 2 × "
+"%2$s."
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:269
 msgid "Match prep summary"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:266
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:276
 msgid "Unavailable"
 msgstr ""
 
 #. translators: 1st-half starters assigned out of 11.
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:272
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:282
 msgid "1st-half starters"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:288
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:298
 msgid "Match prep toolbar"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:316
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:326
 msgid "Half length"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:412
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:413
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:334
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:435
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:177
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:178
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:129
@@ -28046,170 +28055,170 @@ msgstr ""
 msgid "min"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:721
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:350
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:744
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:29
 msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:384
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:407
 msgid "Print team sheet"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:406
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:407
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:429
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:430
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:173
 msgid "Selection · minutes"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:414
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:463
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:486
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:179
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:199
 msgid "tot"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:420
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:634
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:443
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:657
 msgid "No availability captured yet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:421
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:444
 msgid "Open availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:478
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:501
 msgid "First half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:493
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:494
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:516
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:517
 msgid "Copy 1st half lineup to 2nd half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:500
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:523
 msgid "Second half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:534
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:557
 msgid "Match goals"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:538
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:561
 #: src/Shared/Configuration/ConfigurationSurfaces.php:152
 #: src/Shared/Frontend/FrontendConfigurationView.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:76
 msgid "General"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:539
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:562
 msgid "Attacking"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:541
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:564
 msgid "Set pieces (attack)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:542
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:565
 msgid "Set pieces (defend)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:562
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:585
 #, php-format
 msgid "Goal %d…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:579
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:598
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:653
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:602
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:621
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:676
 msgid "…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:620
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:643
 msgid "Player focus"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:626
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:660
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:649
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:683
 msgid "Specific goal"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:627
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:666
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:650
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:689
 msgid "Video analyst appointed"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:648
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:671
 msgid "Attention text"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:679
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:702
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:214
 msgid "Roles & set pieces"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:697
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:835
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:720
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:858
 msgid "— Pick player —"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:702
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:703
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:725
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
 msgid "Clear role"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:749
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:126
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:345
 msgid "Mark all present"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:824
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:847
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:542
 msgid "Search player…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:825
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:848
 msgid "No available players found."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:827
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:850
 msgid "on pitch"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:828
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:851
 #, php-format
 msgid "Slot %1$s — %2$s half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:829
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:852
 msgid "1st"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:830
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:853
 msgid "2nd"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:832
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:855
 msgid "Absent (excused)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:834
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:857
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:114
 msgid "Reason (optional)…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:836
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:859
 msgid "Pick player for role"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:858
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:883
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:237
 msgid "Preparing PDF…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:859
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:884
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:238
 msgid "Could not generate the PDF. Use Print instead."
 msgstr ""
@@ -28326,32 +28335,32 @@ msgid "No match preparation has been started for this match yet."
 msgstr ""
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:209
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:484
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:508
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:487
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:511
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
 msgid "Match prep could not be created."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:399
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:444
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:402
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:447
 msgid "Invalid match prep id."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:409
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:447
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:412
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:450
 msgid "Unknown role key."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:412
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:415
 msgid "A player must be selected."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:418
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:421
 msgid "Could not save the role assignment."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:479
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:502
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:482
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:505
 msgid "Match preparation sharing is switched off."
 msgstr ""
 
