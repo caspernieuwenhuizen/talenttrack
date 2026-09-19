@@ -45,6 +45,36 @@ volgen:
  standaardsituaties** bevat zes rijen — Aanvoerder, Hoekschop links /
  rechts, Vrije trap links / rechts (voorzet), Strafschop.
 
+## Helftduur — waar het getal vandaan komt
+
+Het vak **Helftduur** bepaalt ieder minutengetal op dit scherm, en het
+is ook wat het live-wedstrijdscherm, de minutenrapportages en de
+wedstrijdanalyse er later uit lezen. Het is dus goed om te weten waar de
+startwaarde vandaan komt.
+
+Bij het aanmaken van een voorbereiding wordt de helftduur overgenomen
+van het eerste dat een antwoord geeft:
+
+1. de **wedstrijdduur** die op de activiteit zelf staat (op het
+ bewerkformulier van de activiteit), gedeeld door twee — een wedstrijd
+ van 60 minuten begint op 2 × 30. Een oneven duur rondt naar boven af,
+ dus 25 minuten wordt 2 × 13;
+2. de helftduur die voor de leeftijdscategorie van het team is
+ ingesteld, onder *Configuratie → Wedstrijdminuten*;
+3. 35 minuten.
+
+Daarna blijven de twee getallen los van elkaar. Pas je de wedstrijdduur
+op de activiteit aan, dan wordt een bestaande voorbereiding **niet**
+overschreven: de voorbereiding is waaruit de geregistreerde minuten van
+een speler worden berekend, en die ongevraagd verzetten zou stilletjes
+hun speeltijd herschrijven.
+
+In plaats daarvan meldt de voorbereiding het wanneer de twee van elkaar
+verschillen, in een korte regel onder het vak Helftduur: *"De activiteit
+zegt dat deze wedstrijd 60 minuten duurt; de voorbereiding gebruikt
+2 × 35."* Er wordt niets geblokkeerd — je hebt er waarschijnlijk een
+reden voor. Typ de helft die je wilt en de melding verdwijnt.
+
 ## Principes — waar deze wedstrijd over gaat
 
 Boven de doelenvakken staat een alleen-lezen paneel **Principes**: de
