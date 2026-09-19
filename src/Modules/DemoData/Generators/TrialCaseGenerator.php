@@ -3,8 +3,11 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\SeedLoader;
+use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
@@ -19,10 +22,11 @@ use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
  *    Without these a demo academy's players appear fully signed, from nowhere,
  *    and the journey the architecture is built around has no beginning.
  *  - **open** cases on current trialists, so the surface a scout works on
- *    every week has something on it.
+ *    every week has something on it. A trialist is a new player at status
+ *    `trial`, not a roster player (#3592).
  *
- * Trial start dates are placed before the player's own roster join date, so
- * the timeline reads in order.
+ * A historical trial ends before the player's roster join date, and a
+ * trialist joins on the day the trial starts, so the timeline reads in order.
  *
  * Its own class, not a method on `PipelineGenerator`: each dependent
  * category runs its writer once, so one class serving both `trials` and
@@ -108,15 +112,12 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
         $hjo   = (int) ( $this->users['hjo'] ?? $this->users['admin'] ?? 0 );
         $panel = $this->panelUserIds();
 
-        $total = 0;
+        // Historical cases: every third roster player, closed before they
+        // joined, so the journey reads trial → signing → the squad.
+        $plan = [];
         foreach ( $this->players as $index => $p ) {
             $player_id = (int) ( $p->id ?? 0 );
-            if ( $player_id <= 0 ) continue;
-
-            // Every third player carries a historical trial; the first two
-            // players in the roster keep an open case.
-            $is_open = $index < 2;
-            if ( ! $is_open && ( $index % 3 ) !== 0 ) continue;
+            if ( $player_id <= 0 || ( $index % 3 ) !== 0 ) continue;
 
             // The trial has to finish before the player joined the roster,
             // or the journey reads out of order.
@@ -125,14 +126,25 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 : time();
 
             $duration = mt_rand( 21, 56 );
-            if ( $is_open ) {
-                $start_ts = time() - ( mt_rand( 5, 20 ) * DAY_IN_SECONDS );
-                $end_ts   = $start_ts + ( $duration * DAY_IN_SECONDS );
-            } else {
-                $end_ts   = $joined_ts - ( mt_rand( 1, 10 ) * DAY_IN_SECONDS );
-                $start_ts = $end_ts - ( $duration * DAY_IN_SECONDS );
-            }
+            $end_ts   = $joined_ts - ( mt_rand( 1, 10 ) * DAY_IN_SECONDS );
+            $plan[]   = [ $player_id, $end_ts - ( $duration * DAY_IN_SECONDS ), $end_ts, false, 0 ];
+        }
 
+        // #3592 — open cases go to players who are actually on trial. They
+        // used to be the first two roster players, established squad members
+        // with a shirt number and a season of minutes, so the trial case,
+        // the profile and the minutes reports contradicted each other. A
+        // trialist is created the way production creates one: a new player
+        // at status `trial`, joined on the day the trial started, found as a
+        // prospect first. Created here, after the activity and match
+        // generators have run, so they carry no history from before it.
+        foreach ( $this->openTrialists( 2 ) as $trialist ) {
+            $duration = mt_rand( 21, 56 );
+            $plan[]   = [ $trialist['player_id'], $trialist['start_ts'], $trialist['start_ts'] + ( $duration * DAY_IN_SECONDS ), true, $trialist['prospect_id'] ];
+        }
+
+        $total = 0;
+        foreach ( $plan as [ $player_id, $start_ts, $end_ts, $is_open, $prospect_id ] ) {
             $case_id = $cases->create( [
                 'player_id'  => $player_id,
                 'track_id'   => $track_id,
@@ -145,6 +157,15 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
 
             $this->registry->tag( 'trial_case', $case_id, [ 'player_id' => $player_id, 'open' => $is_open ? 1 : 0 ] );
             $total++;
+
+            // The prospect the trialist was found as moves to the pipeline's
+            // Trial group, as a promotion does in production.
+            if ( $prospect_id > 0 ) {
+                ( new ProspectsRepository() )->update( $prospect_id, [
+                    'promoted_to_player_id'     => $player_id,
+                    'promoted_to_trial_case_id' => $case_id,
+                ] );
+            }
 
             // #3130 — `TrialCasesRepository::create()` now fires
             // `tt_trial_started` itself, so the journey gets its
@@ -190,6 +211,71 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * #3592 — current trialists, one per team up to `$count`: each a prospect
+     * the scout found, promoted to a new player at status `trial` on the day
+     * the trial started, with a date of birth that fits the team's age group
+     * and no shirt number yet.
+     *
+     * @return list<array{player_id:int, prospect_id:int, start_ts:int}>
+     */
+    private function openTrialists( int $count ): array {
+        global $wpdb;
+
+        $first = SeedLoader::firstNames();
+        $last  = SeedLoader::lastNames();
+        if ( ! $first || ! $last ) return [];
+
+        $scout = (int) ( $this->users['scout'] ?? $this->users['hjo'] ?? $this->users['admin'] ?? 0 );
+        $out   = [];
+        foreach ( $this->teams as $team ) {
+            if ( count( $out ) >= $count ) break;
+            $team_id = (int) ( $team->id ?? 0 );
+            if ( $team_id <= 0 ) continue;
+
+            // "U11" / "JO11" plays its season at 10 going on 11.
+            $band = preg_match( '/(\d+)/', (string) ( $team->age_group ?? '' ), $m ) ? (int) $m[1] : 12;
+            $age  = max( 6, $band - 1 );
+            $dob  = gmdate( 'Y-m-d', strtotime( '-' . $age . ' years -' . mt_rand( 0, 300 ) . ' days' ) ?: time() );
+
+            $start_ts = time() - ( mt_rand( 5, 20 ) * DAY_IN_SECONDS );
+            $fn       = (string) $first[ mt_rand( 0, count( $first ) - 1 ) ];
+            $ln       = (string) $last[ mt_rand( 0, count( $last ) - 1 ) ];
+
+            $prospect_id = ( new ProspectsRepository() )->create( [
+                'first_name'            => $fn,
+                'last_name'             => $ln,
+                'date_of_birth'         => $dob,
+                'discovered_at'         => gmdate( 'Y-m-d', $start_ts - ( mt_rand( 14, 60 ) * DAY_IN_SECONDS ) ),
+                'discovered_by_user_id' => $scout,
+            ] );
+            if ( $prospect_id > 0 ) $this->registry->tag( 'prospect', $prospect_id, [ 'trialist' => 1 ] );
+
+            $wpdb->insert( "{$wpdb->prefix}tt_players", [
+                'club_id'             => CurrentClub::id(),
+                'first_name'          => $fn,
+                'last_name'           => $ln,
+                'date_of_birth'       => $dob,
+                'sex'                 => \TT\Domain\Vocabularies\Lookups\PlayerSex::MALE,
+                'nationality'         => 'NL',
+                'preferred_positions' => (string) wp_json_encode( [] ),
+                'jersey_number'       => null,
+                'team_id'             => $team_id,
+                'date_joined'         => gmdate( 'Y-m-d', $start_ts ),
+                'wp_user_id'          => null,
+                'status'              => PlayerStatus::TRIAL,
+            ] );
+            $player_id = (int) $wpdb->insert_id;
+            if ( $player_id <= 0 ) continue;
+
+            do_action( 'tt_player_created', $player_id, [ 'team_id' => $team_id, 'status' => PlayerStatus::TRIAL ] );
+            $this->registry->tag( 'player', $player_id, [ 'team_id' => $team_id, 'trialist' => 1 ] );
+
+            $out[] = [ 'player_id' => $player_id, 'prospect_id' => max( 0, $prospect_id ), 'start_ts' => $start_ts ];
+        }
+        return $out;
     }
 
     /** @param array<string,string> $copy */
