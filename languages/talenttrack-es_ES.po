@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:55:59+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:01:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -7064,7 +7064,7 @@ msgstr ""
 #: src/Modules/Reports/Admin/ReportsPage.php:199
 #: src/Modules/Reports/Admin/ReportsPage.php:313
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:340
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:343
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:531
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118
@@ -7072,7 +7072,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2074
 #: src/Shared/Frontend/Components/EvidencePanel.php:148
 #: src/Shared/Frontend/DashboardShortcode.php:930
-#: src/Shared/Frontend/FrontendComparisonView.php:428
+#: src/Shared/Frontend/FrontendComparisonView.php:432
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
 #: src/Shared/Frontend/FrontendEvaluationsView.php:124
@@ -18615,12 +18615,11 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:140
 #: src/Modules/Methodology/VocabularyCatalog.php:281
 #: src/Modules/Reports/PlayerReportRenderer.php:241
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:409
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:417
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:350
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:164
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:212
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:321
-#: src/Shared/Frontend/FrontendComparisonView.php:645
 #: src/Shared/Frontend/FrontendEvaluationsView.php:493
 msgid "Category"
 msgstr "Categoría"
@@ -38518,10 +38517,10 @@ msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:199
 #: src/Modules/Reports/PlayerReportRenderer.php:243
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:337
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:340
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:304
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:352
-#: src/Shared/Frontend/FrontendComparisonView.php:425
+#: src/Shared/Frontend/FrontendComparisonView.php:429
 msgid "Most recent"
 msgstr ""
 
@@ -38556,9 +38555,9 @@ msgstr[0] "Gebaseerd op %d evaluatie"
 msgstr[1] "Gebaseerd op %d evaluaties"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:242
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:339
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:342
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:351
-#: src/Shared/Frontend/FrontendComparisonView.php:427
+#: src/Shared/Frontend/FrontendComparisonView.php:431
 #: src/Shared/Frontend/FrontendOverviewView.php:148
 #: src/Shared/Frontend/FrontendOverviewView.php:237
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1420
@@ -39473,25 +39472,25 @@ msgstr ""
 msgid "Headline numbers"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:338
-#: src/Shared/Frontend/FrontendComparisonView.php:426
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:341
+#: src/Shared/Frontend/FrontendComparisonView.php:430
 msgid "Rolling (last 5)"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:359
-#: src/Shared/Frontend/FrontendComparisonView.php:443
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:362
+#: src/Shared/Frontend/FrontendComparisonView.php:447
 msgid "Main category averages"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:363
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:366
 msgid "Radar overlay"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:371
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:374
 msgid "Trend overlay"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:402
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:410
 msgid "No rated evaluations in the current filter window."
 msgstr ""
 
@@ -50270,16 +50269,15 @@ msgstr ""
 msgid "Importing…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:448
+#: src/Shared/Frontend/FrontendComparisonView.php:452
 msgid "Radar profile"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:453
+#: src/Shared/Frontend/FrontendComparisonView.php:457
 msgid "Rating trend"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:595
-#: src/Shared/Frontend/FrontendComparisonView.php:637
+#: src/Shared/Frontend/FrontendComparisonView.php:629
 msgid "No category data yet for these filters."
 msgstr ""
 
