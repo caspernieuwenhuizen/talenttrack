@@ -3,6 +3,7 @@ namespace TT\Modules\Threads\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\AuthorNameResolver;
 use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadMessagesRepository;
@@ -173,8 +174,24 @@ final class ThreadsRestController {
         $unread_since = $reads->lastReadAt( $user, $type, $id );
         $reads->markRead( $user, $type, $id );
 
+        // #3672 — one name lookup for the whole thread, not one per
+        // message. Resolved through the linked player or person, so a
+        // player whose account carries somebody else's display_name
+        // still appears under their own name.
+        $author_ids = [];
+        foreach ( $messages as $message ) {
+            $row = (array) $message;
+            $author_ids[] = (int) ( $row['author_user_id'] ?? 0 );
+        }
+        $names = AuthorNameResolver::namesFor( $author_ids );
+
+        $serialized = [];
+        foreach ( $messages as $message ) {
+            $serialized[] = self::serialize( $message, $names );
+        }
+
         $payload = [
-            'messages'     => array_map( [ self::class, 'serialize' ], $messages ),
+            'messages'     => $serialized,
             'unread_since' => $unread_since,
             'edit_window_seconds' => ThreadMessagesRepository::EDIT_WINDOW_SECONDS,
             'current_user_id' => $user,
@@ -291,14 +308,19 @@ final class ThreadsRestController {
         return ThreadAccess::hasGlobalAccess( $user_id, $activity );
     }
 
-    /** @return array<string,mixed> */
-    private static function serialize( object $msg ): array {
+    /**
+     * @param  array<int,string>|null $names Resolved author names, keyed by
+     *                                       wp_user_id. Null resolves this one
+     *                                       message's author on the spot — the
+     *                                       single-message POST/PUT paths.
+     * @return array<string,mixed>
+     */
+    private static function serialize( object $msg, ?array $names = null ): array {
         $author = (int) $msg->author_user_id;
-        $name = '';
-        if ( $author > 0 ) {
-            $u = get_user_by( 'id', $author );
-            if ( $u instanceof \WP_User ) $name = (string) $u->display_name;
+        if ( $names === null ) {
+            $names = AuthorNameResolver::namesFor( [ $author ] );
         }
+        $name = $author > 0 ? (string) ( $names[ $author ] ?? '' ) : '';
         return [
             'id'              => (int) $msg->id,
             'thread_type'     => (string) $msg->thread_type,

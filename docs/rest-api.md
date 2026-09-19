@@ -958,7 +958,7 @@ A known type the caller may not read or post on is **403**. A record that doesn'
 
 ### `GET /threads/{type}/{id}`
 
-The thread's messages, oldest first, and marks the thread read for the caller: `{ messages: [ { id, thread_type, thread_id, author_user_id, author_name, body, visibility, is_system, created_at, edited_at, deleted_at } ], unread_since, edit_window_seconds, current_user_id }`. `?since=<message id>` returns only newer messages (the polling call). `private_to_coach` messages are left out for a caller who can't see them.
+The thread's messages, oldest first, and marks the thread read for the caller: `{ messages: [ { id, thread_type, thread_id, author_user_id, author_name, body, visibility, is_system, created_at, edited_at, deleted_at } ], unread_since, edit_window_seconds, current_user_id }`. `author_name` is the linked player's or person's name — the WP account's `display_name` is only the fallback for an account TalentTrack holds no record for, and `''` when even that is empty. `?since=<message id>` returns only newer messages (the polling call). `private_to_coach` messages are left out for a caller who can't see them.
 
 ### `POST /threads/{type}/{id}/messages`
 
