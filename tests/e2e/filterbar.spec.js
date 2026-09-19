@@ -379,3 +379,50 @@ test.describe( 'FilterBar list filtering (Players)', () => {
         await expect( sheet ).toBeHidden( { timeout: 10000 } );
     } );
 } );
+
+/**
+ * #3597 — the saved-views menu's action rows are <button>s among <a> rows,
+ * and rendered with the browser's default button look (grey fill, border,
+ * centred, shrunk to their text) until the menu's row rule reset them.
+ */
+test.describe( 'Saved views menu (Activities)', () => {
+
+    for ( const width of [ 360, 1280 ] ) {
+        test( `"Save current filters" is a menu row, not a default button, at ${ width }px`, async ( { page } ) => {
+            await page.setViewportSize( { width, height: 800 } );
+            await page.goto( '/?tt_view=activities', { waitUntil: 'load' } );
+
+            const drop = page.locator( '.tt-savedviews__drop' ).first();
+            if ( await drop.count() === 0 ) {
+                test.skip( true, 'No saved-views menu on this install.' );
+                return;
+            }
+            await drop.locator( 'summary' ).first().click();
+
+            const save = drop.locator( '[data-tt-view-save-toggle]' ).first();
+            await expect( save ).toBeVisible( { timeout: 10000 } );
+
+            const look = await save.evaluate( ( el ) => {
+                const cs   = window.getComputedStyle( el );
+                const menu = el.closest( '.tt-savedviews__menu' );
+                const box  = el.getBoundingClientRect();
+                const row  = el.parentElement ? el.parentElement.getBoundingClientRect() : box;
+                return {
+                    border:     cs.borderTopWidth,
+                    background: cs.backgroundColor,
+                    align:      cs.textAlign,
+                    height:     box.height,
+                    fills:      Math.abs( box.width - row.width ) <= 1,
+                    inMenu:     !! menu,
+                };
+            } );
+
+            expect( look.inMenu ).toBeTruthy();
+            expect( look.border ).toBe( '0px' );
+            expect( look.background ).toBe( 'rgba(0, 0, 0, 0)' );
+            expect( [ 'left', 'start' ] ).toContain( look.align );
+            expect( look.height ).toBeGreaterThanOrEqual( 47.5 );
+            expect( look.fills ).toBeTruthy();
+        } );
+    }
+} );
