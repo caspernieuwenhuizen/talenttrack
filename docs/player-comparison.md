@@ -43,8 +43,8 @@ it recompute after every pick.
 
 - The four player cards side by side.
 - A facts table — team, age group, positions, foot, jersey, height — one column per player.
-- Headline numbers — most recent, rolling average, all-time, and the evaluation count.
-- A main-category breakdown.
+- Headline numbers — the most recent overall rating, the rolling average over the last five evaluations, the all-time average, and the number of evaluations in the current filter window. The count tells you how much the two averages rest on.
+- A main-category breakdown — each player's average per main category over the same window. A category nobody in the comparison has been rated on is left out rather than shown as a row of dashes; when none of the picked players has a rating in the window, the breakdown says so instead.
 
 ## A note on mixed age groups
 
