@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:21:01+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:23:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -178,7 +178,7 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:250
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:316
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:325
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:223
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:328
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
 #: src/Modules/Stats/Admin/PlayerCardView.php:303
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:69
@@ -1886,8 +1886,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Players/Admin/PlayersPage.php:295
+#: src/Modules/Prospects/Domain/ProspectOutcome.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:267
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:205
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:70
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:153
@@ -2099,8 +2099,8 @@ msgstr "Andere"
 #: src/Modules/People/Admin/PeoplePage.php:213
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:202
+#: src/Modules/Prospects/Domain/ProspectOutcome.php:39
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:264
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:208
 #: src/Modules/Teams/Admin/TeamsPage.php:124
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:187
@@ -2500,8 +2500,8 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2019
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:299
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:391
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:302
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:394
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:585
@@ -2749,7 +2749,7 @@ msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:52
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:234
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:314
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:419
 msgid "Test training"
 msgstr ""
 
@@ -2893,6 +2893,7 @@ msgid "Unknown orderby column."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:899
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:210
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr ""
 
@@ -3931,7 +3932,7 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:251
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:84
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:388
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:391
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:207
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:247
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:90
@@ -5239,7 +5240,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:403
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:264
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:365
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
 #: src/Modules/Wizards/Activity/DetailsStep.php:77
 #: src/Modules/Wizards/Activity/ReviewStep.php:79
@@ -5279,7 +5280,7 @@ msgstr "— Alle —"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:724
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:396
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:399
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:216
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:122
 #: src/Modules/Teams/Admin/TeamsPage.php:171
@@ -7445,7 +7446,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:231
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:170
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:312
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:417
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:49
@@ -7570,8 +7571,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:157
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:160
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:304
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:392
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:307
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
 #: src/Modules/Workflow/TaskStatus.php:69
 #: src/Shared/Frontend/Components/MediaUploader.php:179
@@ -7584,8 +7585,8 @@ msgstr "Abgebrochen"
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:555
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:295
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:390
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:393
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:588
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2236
@@ -7667,12 +7668,12 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:41
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:46
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:47
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:51
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:48
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:43
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:92
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:45
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:70
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:46
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:71
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:43
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:46
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:43
@@ -29737,7 +29738,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
 #: src/Modules/Pdp/Admin/SeasonsPage.php:163
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:144
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:410
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:413
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:323
 #: src/Shared/Frontend/CoachForms.php:127
 #: src/Shared/Frontend/FrontendConfigurationView.php:530
@@ -35461,9 +35462,9 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:244
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:51
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:80
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:48
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:59
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:60
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:52
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:63
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:64
 #: src/Shared/CoreSurfaceRegistration.php:1051
 msgid "Onboarding pipeline"
 msgstr ""
@@ -35830,8 +35831,8 @@ msgid "never"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:89
+#: src/Modules/Prospects/Domain/ProspectOutcome.php:41
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:66
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:266
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:206
 #: src/Modules/Wizards/Prospect/IdentityStep.php:120
 msgid "In trial"
@@ -35839,9 +35840,9 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:237
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:317
+#: src/Modules/Prospects/Domain/ProspectOutcome.php:40
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:422
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:67
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:265
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:207
 #: src/Modules/Wizards/Prospect/IdentityStep.php:121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:970
@@ -36424,19 +36425,19 @@ msgstr[1] ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:134
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:313
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:418
 msgid "Invited"
 msgstr ""
 
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:235
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:315
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:420
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:236
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:316
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:421
 msgid "Team offer"
 msgstr ""
 
@@ -36567,7 +36568,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:80
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:410
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:413
 msgid "Plan visit"
 msgstr ""
 
@@ -37231,7 +37232,7 @@ msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:165
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:125
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:142
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:143
 #: src/Modules/Spond/SpondScriptData.php:42
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:458
@@ -37712,16 +37713,16 @@ msgid "Discovery"
 msgstr ""
 
 # Standalone view
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:49
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:53
 msgid "You do not have access to the onboarding pipeline."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:70
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:74
 msgid "Add prospect"
 msgstr ""
 
 #. translators: %s: prospect name
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:125
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:129
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
@@ -37729,65 +37730,82 @@ msgstr ""
 msgid "Prospect: %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:129
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:133
 msgid "(unnamed prospect)"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:133
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:137
 msgid "Back to pipeline"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:141
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:149
 msgid "Open next action"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:144
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:152
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:92
 msgid "Edit contact"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:227
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:189
+#: src/Modules/Wizards/Prospect/DiscoveryStep.php:30
+#: src/Modules/Workflow/Forms/LogProspectForm.php:95
+msgid "Scouting notes"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:241
+msgctxt "the scouting visit a prospect was discovered at"
+msgid "Found at"
+msgstr ""
+
+#. translators: %s: name of the scout who made the visit.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:250
+#, php-format
+msgid "Scout: %s"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:332
 msgid "Action needed"
 msgstr ""
 
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:351
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:456
 #, php-format
 msgid "born %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:400
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:505
 msgid "Awaiting HoD to send the invite"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:403
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:508
 #, php-format
 msgid "Discovered: %s"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:404
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:509
 msgid "Drafted, not yet handed to HoD"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:407
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:512
 msgid "Invitation sent, awaiting parent"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:409
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:514
 msgid "Awaiting outcome"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:411
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:516
 msgid "In trial group"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:413
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:518
 msgid "Team offer pending"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:415
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:520
 msgid "Promoted to academy"
 msgstr ""
 
@@ -37857,13 +37875,13 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:103
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:127
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:146
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:57
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:58
 #: src/Shared/CoreSurfaceRegistration.php:1082
 msgid "Scouting visits"
 msgstr ""
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:94
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:47
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:48
 msgid "You do not have access to scouting visits."
 msgstr ""
 
@@ -37875,8 +37893,8 @@ msgstr ""
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:116
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:117
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:60
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:61
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:62
 msgid "Scouting visit not found"
 msgstr ""
 
@@ -37895,93 +37913,94 @@ msgstr ""
 msgid "Scouting visit archived."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:195
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:198
 msgid "You have not planned any scouting visits yet."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:196
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:199
 msgid "No scouting visits planned."
 msgstr ""
 
 #. translators: %d: number of prospects logged from a scouting visit
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:232
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:235
 #, php-format
 msgid "%d prospect"
 msgid_plural "%d prospects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:291
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:294
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:399
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:429
 msgid "Visits"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:355
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:358
 msgid "Visit date"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:360
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:363
 msgid "Time (optional)"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:366
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:369
 msgid "e.g. SC Heerenveen — sportpark Skoatterwâld"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:369
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:372
 msgid "Event description"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:370
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:373
 msgid "e.g. U13 regional tournament"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:374
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:202
 msgid "Age groups expected"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:398
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:401
 msgid "Players to watch, contacts, logistics…"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:46
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:71
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:47
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:72
 msgid "Scouting visit"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:62
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:63
 msgid "This scouting visit does not exist or you do not have access."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:72
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:73
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:248
 msgid "You can only view your own scouting visits."
 msgstr ""
 
 #. translators: 1: localised visit date, 2: location
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:78
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:79
 #, php-format
 msgid "Visit on %1$s — %2$s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:92
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:95
 msgid "Edit visit"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:104
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:106
 msgid "Log scouting find"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:118
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:119
 msgid "Archive visit"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:140
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:141
 msgid "Archive this scouting visit? It will be removed from the list."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:141
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:142
 msgid "Could not archive the visit. Please try again."
 msgstr ""
 
@@ -38069,38 +38088,40 @@ msgid ""
 "enabled."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:121
-msgid "Visit date is required."
-msgstr ""
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:125
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:181
-msgid "Visit date must be YYYY-MM-DD."
-msgstr ""
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:129
-msgid "Location is required."
-msgstr ""
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:155
-msgid "The scouting visit could not be saved."
-msgstr ""
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:164
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:221
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:238
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:320
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:387
 msgid "Invalid scouting visit id."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:170
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:226
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:244
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:326
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:392
 msgid "Scouting visit not found."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:173
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:269
+msgid "Visit date is required."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:273
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:337
+msgid "Visit date must be YYYY-MM-DD."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:277
+msgid "Location is required."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:304
+msgid "The scouting visit could not be saved."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:329
 msgid "You can only edit your own scouting visits."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:229
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:395
 msgid "You can only archive your own scouting visits."
 msgstr ""
 
@@ -45996,11 +46017,6 @@ msgstr ""
 
 #: src/Modules/Wizards/Prospect/DiscoveryStep.php:27
 msgid "e.g. Friendly vs. Sparta U13, 2 May"
-msgstr ""
-
-#: src/Modules/Wizards/Prospect/DiscoveryStep.php:30
-#: src/Modules/Workflow/Forms/LogProspectForm.php:95
-msgid "Scouting notes"
 msgstr ""
 
 #: src/Modules/Wizards/Prospect/IdentityStep.php:48
