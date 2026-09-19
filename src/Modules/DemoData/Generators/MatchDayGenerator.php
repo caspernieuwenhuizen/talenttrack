@@ -9,6 +9,8 @@ use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
+use TT\Modules\Teams\FootballFormResolver;
 
 /**
  * MatchDayGenerator — turns a generated fixture into a match.
@@ -31,7 +33,18 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  */
 class MatchDayGenerator implements DependentGeneratorInterface {
 
-    private const HALF_LENGTH = 35;      // youth football, per half
+    /** Used only when a prep comes back without a half length. */
+    private const HALF_LENGTH = 35;
+
+    /**
+     * #3574 — the half length of the fixture being generated, as
+     * `MatchLengthResolver` set it on the prep. Every minute drawn for that
+     * match comes from it.
+     */
+    private int $half_length = self::HALF_LENGTH;
+
+    /** @var array<int,int> team id => the seeded formation template for its football form (0 = none). */
+    private array $template_by_team = [];
 
     /** Roles the prep screen assigns. */
     private const ROLES = [ 'captain', 'penalties', 'corners', 'free_kicks' ];
@@ -154,6 +167,14 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $age_by_team[ (int) $t->id ] = isset( $t->age_group ) ? (string) $t->age_group : '';
         }
 
+        // #3574 — who can go in goal, from the positions the roster carries.
+        $keepers = [];
+        foreach ( $this->players as $p ) {
+            if ( strpos( (string) ( $p->preferred_positions ?? '' ), '"GK"' ) !== false ) {
+                $keepers[ (int) ( $p->id ?? 0 ) ] = true;
+            }
+        }
+
         $total = 0;
         foreach ( $fixtures as $fixture ) {
             $activity_id = (int) $fixture->id;
@@ -167,16 +188,26 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $squad_size  = self::squadSizeFor( $age_by_team[ $team_id ] ?? '' );
             if ( count( $roster ) < $squad_size ) continue;
 
-            $prep_id = $prep_repo->ensureForActivity( $activity_id, self::HALF_LENGTH );
+            // #3574 — 0 lets `MatchLengthResolver` set the half from the
+            // fixture and the age group, the way a coach's prep gets it,
+            // rather than every demo match being 2 x 35.
+            $prep_id = $prep_repo->ensureForActivity( $activity_id, 0 );
             if ( $prep_id <= 0 ) continue;
             $this->registry->tag( 'match_prep', $prep_id, [ 'activity_id' => $activity_id ] );
             $total++;
 
+            $prep_row          = (array) ( $prep_repo->find( $prep_id ) ?? [] );
+            $this->half_length = max( 1, (int) ( $prep_row['half_length_minutes'] ?? self::HALF_LENGTH ) );
+
+            // #3574 — the team's own shape: an 8v8 squad lines up 3-3-1, not
+            // on eleven slots with three left empty.
+            $template_id = $this->templateForTeam( $team_id );
             $prep_repo->updatePrep( $prep_id, [
-                'goals_general' => $copy['general'],
-                'goals_attack'  => $copy['attack'],
-                'goals_defend'  => $copy['defend'],
-                'created_by'    => $author,
+                'goals_general'         => $copy['general'],
+                'goals_attack'          => $copy['attack'],
+                'goals_defend'          => $copy['defend'],
+                'created_by'            => $author,
+                'formation_template_id' => $template_id > 0 ? $template_id : null,
             ] );
 
             // Availability first — the injured list decides who can be picked.
@@ -215,13 +246,41 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
             if ( count( $available ) < $squad_size ) continue;
 
-            // Starting XI + bench, drawn only from available players.
-            $starting = array_slice( $available, 0, $squad_size );
-            $bench    = array_slice( $available, $squad_size );
+            // Starting XI + bench, drawn only from available players, on the
+            // slots of the shape the prep is bound to (#3574). Where the
+            // shape has a goal, a keeper goes in it when the squad has one —
+            // it used to be whoever had the lowest id.
+            $layout  = FormationLayoutResolver::layoutFor( $template_id, $team_id );
+            $gk_slot = 0;
+            $nums    = [];
+            foreach ( $layout as $layout_slot ) {
+                $nums[] = (int) $layout_slot['num'];
+                if ( $layout_slot['label'] === 'GK' ) $gk_slot = (int) $layout_slot['num'];
+            }
+            sort( $nums );
 
-            $slots = [];
-            foreach ( $starting as $i => $player_id ) {
-                $slots[ $i + 1 ] = $player_id;
+            $starting = array_slice( $available, 0, $squad_size );
+            if ( $gk_slot > 0 ) {
+                foreach ( $available as $candidate ) {
+                    if ( ! isset( $keepers[ $candidate ] ) ) continue;
+                    $outfield = array_values( array_diff( $available, [ $candidate ] ) );
+                    $starting = array_merge( [ $candidate ], array_slice( $outfield, 0, $squad_size - 1 ) );
+                    break;
+                }
+            }
+            $bench = array_values( array_diff( $available, $starting ) );
+
+            $slots   = [];
+            $outside = $starting;
+            $free    = $nums;
+            if ( $gk_slot > 0 && $starting ) {
+                $slots[ $gk_slot ] = (int) $starting[0];
+                $outside = array_slice( $starting, 1 );
+                $free    = array_values( array_diff( $nums, [ $gk_slot ] ) );
+            }
+            foreach ( array_values( $outside ) as $i => $player_id ) {
+                if ( ! isset( $free[ $i ] ) ) break;
+                $slots[ $free[ $i ] ] = (int) $player_id;
             }
             $prep_repo->replaceLineupForHalf( $prep_id, 1, $slots );
             $prep_repo->replaceLineupForHalf( $prep_id, 2, $slots );
@@ -282,7 +341,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         $total = 1;
 
         $kickoff = strtotime( $match_date . ' 10:30:00' ) ?: time();
-        $half_seconds = self::HALF_LENGTH * MINUTE_IN_SECONDS;
+        $half_seconds = $this->half_length * MINUTE_IN_SECONDS;
 
         // Realistic youth scorelines: mostly 0–4 a side.
         $home_goals = $this->drawGoals();
@@ -345,14 +404,14 @@ class MatchDayGenerator implements DependentGeneratorInterface {
                 self::uuid(),
                 $scorer,
                 mt_rand( 1, 2 ),
-                mt_rand( 1, self::HALF_LENGTH ),
+                mt_rand( 1, $this->half_length ),
                 'home',
                 $assist,
                 false
             );
         }
         for ( $i = 0; $i < $away_goals; $i++ ) {
-            $exec_repo->logGoalEvent( $execution_id, self::uuid(), 0, mt_rand( 1, 2 ), mt_rand( 1, self::HALF_LENGTH ), 'away' );
+            $exec_repo->logGoalEvent( $execution_id, self::uuid(), 0, mt_rand( 1, 2 ), mt_rand( 1, $this->half_length ), 'away' );
         }
 
         // The other three matches in four logged their goals live above; this
@@ -382,7 +441,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         for ( $i = 0; $i < $subs; $i++ ) {
             $player_off = (int) $off_pool[ $i ];
             $player_on  = (int) $bench[ $i ];
-            $minute_in_half = mt_rand( 5, self::HALF_LENGTH - 2 );
+            $minute_in_half = mt_rand( 5, max( 6, $this->half_length - 2 ) );
             $exec_repo->logSubstitution(
                 $execution_id,
                 self::uuid(),
@@ -394,7 +453,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
             // Second half, so the absolute minute is one full half plus the
             // minute within it.
-            $absolute = self::HALF_LENGTH + $minute_in_half;
+            $absolute = $this->half_length + $minute_in_half;
             $off_at[ $player_off ] = $absolute;
             $on_at[ $player_on ]   = $absolute;
         }
@@ -416,7 +475,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
                 'execution_id'   => $execution_id,
                 'player_id'      => $player_id,
                 'half'           => mt_rand( 1, 2 ),
-                'minute_in_half' => mt_rand( 1, self::HALF_LENGTH ),
+                'minute_in_half' => mt_rand( 1, $this->half_length ),
                 'action_key'     => $key,
                 'action_label'   => (string) $actions[ $key ],
             ] );
@@ -437,6 +496,28 @@ class MatchDayGenerator implements DependentGeneratorInterface {
      * the ladder. The demo data now agrees with what the academy configured,
      * which is the point of demo data.
      */
+    /**
+     * #3574 — the first seeded formation template for the team's football
+     * form (an 8v8 team's is "Small-sided 3-3-1"), or 0 when the install has
+     * none for that form. Resolved once per team.
+     */
+    private function templateForTeam( int $team_id ): int {
+        if ( $team_id <= 0 ) return 0;
+        if ( isset( $this->template_by_team[ $team_id ] ) ) return $this->template_by_team[ $team_id ];
+
+        global $wpdb;
+        $p  = $wpdb->prefix;
+        $id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_formation_templates
+              WHERE football_form = %s AND is_seeded = 1 AND archived_at IS NULL
+              ORDER BY id ASC LIMIT 1",
+            FootballFormResolver::forTeam( $team_id )
+        ) );
+
+        $this->template_by_team[ $team_id ] = $id;
+        return $id;
+    }
+
     private static function squadSizeFor( string $age_group ): int {
         return \TT\Modules\Teams\FootballFormResolver::squadSizeForAgeGroup( $age_group );
     }
@@ -507,7 +588,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
      * @param array<int,int>  $on_at    player id => absolute minute brought on.
      */
     private function writeMinutes( int $activity_id, array $starting, array $off_at, array $on_at ): void {
-        $full = self::HALF_LENGTH * 2;
+        $full = $this->half_length * 2;
 
         $minutes = [];
         foreach ( $starting as $player_id ) {
