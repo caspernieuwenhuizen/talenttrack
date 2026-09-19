@@ -136,10 +136,19 @@ verwijderd.
 Elk seizoen draagt zijn **eigen POP-cyclus** — een dossier per speler, vier
 gesprekken, en de voorbereiding van de trainer op elk daarvan. Afgeronde
 seizoenen worden **afgesloten met een eindoordeel**; het huidige seizoen blijft
-open, op het punt waar het venster het achterlaat. Bij een venster dat maar één
-seizoen beslaat, wordt in plaats daarvan een minderheid van de dossiers
-afgesloten, zodat er naast de open dossiers toch een afgerond dossier in beeld
-staat. Eerdere seizoenen worden **niet gearchiveerd** — gearchiveerde rijen
+open, op het punt waar het venster het achterlaat.
+
+Een dossier wordt pas afgesloten als **alle gesprekken in de cyclus gevoerd
+zijn**. Bij een afgerond seizoen zijn dat ze allemaal, dus sluiten alle
+dossiers. Bij een venster dat alleen het huidige seizoen beslaat, sluit een
+minderheid van de dossiers waarvan de cyclus al gelopen heeft — en vroeg in
+een seizoen, als alle gesprekken nog in de agenda staan, sluit er geen enkel.
+Een open dossier met vier gesprekken die nog moeten komen is hoe dat seizoen
+er eerlijk uitziet; een afgerond dossier met een ondertekend eindoordeel over
+gesprekken die niemand gevoerd heeft, zou zeggen dat het jaar van de speler
+klaar was voordat het begon.
+
+Eerdere seizoenen worden **niet gearchiveerd** — gearchiveerde rijen
 vallen uit de meeste lijsten, en het grootste deel verbergen van wat er is
 gegenereerd is precies het tegenovergestelde van waarom het is gegenereerd.
 
