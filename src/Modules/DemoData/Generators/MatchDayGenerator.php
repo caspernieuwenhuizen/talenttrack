@@ -88,6 +88,12 @@ class MatchDayGenerator implements DependentGeneratorInterface {
 
     private ?DemoRoster $roster;
 
+    /** @var array<int,int> player id => starts so far in this batch (#3588) */
+    private array $starts = [];
+
+    /** @var array<int,float> player id => standing handicap in starts (#3588) */
+    private array $pecking_order = [];
+
     public static function category(): string {
         return 'match_day';
     }
@@ -259,16 +265,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             }
             sort( $nums );
 
-            $starting = array_slice( $available, 0, $squad_size );
-            if ( $gk_slot > 0 ) {
-                foreach ( $available as $candidate ) {
-                    if ( ! isset( $keepers[ $candidate ] ) ) continue;
-                    $outfield = array_values( array_diff( $available, [ $candidate ] ) );
-                    $starting = array_merge( [ $candidate ], array_slice( $outfield, 0, $squad_size - 1 ) );
-                    break;
-                }
-            }
-            $bench = array_values( array_diff( $available, $starting ) );
+            [ $starting, $bench ] = $this->pickStarting( $available, $squad_size, $gk_slot > 0 ? $keepers : [] );
 
             $slots   = [];
             $outside = $starting;
@@ -316,6 +313,62 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         }
 
         return $total;
+    }
+
+    /**
+     * #3588 — the starting side and the bench for one fixture, rotated the
+     * way a coach shares out playing time.
+     *
+     * The side used to be the first `squad_size` available players in roster
+     * order, which is id order, so the same lowest ids started nearly every
+     * match and every minutes report showed minutes falling with the id.
+     *
+     * Each player now carries the number of starts they have had in this
+     * batch plus a standing "place in the coach's pecking order", drawn once
+     * per player (up to three starts' worth). The least-ranked players start;
+     * the bench is ranked the same way, so the substitutes who come on first
+     * are the ones who have played least. The result is a spread with a few
+     * genuinely under-played players rather than a flat line or an id curve.
+     *
+     * The keeper slot, when the shape has one, goes to the best-placed
+     * available keeper by the same ranking. Every draw is `mt_rand`, so a seeded run stays
+     * reproducible (#2461).
+     *
+     * @param list<int>        $available
+     * @param array<int,bool>  $keepers player id => can keep goal; empty when the shape has no goal
+     * @return array{0:list<int>,1:list<int>} [starting, bench]
+     */
+    private function pickStarting( array $available, int $squad_size, array $keepers ): array {
+        $rank = [];
+        foreach ( $available as $player_id ) {
+            if ( ! isset( $this->pecking_order[ $player_id ] ) ) {
+                $this->pecking_order[ $player_id ] = mt_rand( 0, 300 ) / 100.0;
+            }
+            $rank[ $player_id ] = ( $this->starts[ $player_id ] ?? 0 )
+                + $this->pecking_order[ $player_id ]
+                + mt_rand( 0, 99 ) / 1000.0;
+        }
+        asort( $rank );
+        $ordered = array_map( 'intval', array_keys( $rank ) );
+
+        $starting = [];
+        foreach ( $ordered as $player_id ) {
+            if ( isset( $keepers[ $player_id ] ) ) {
+                $starting[] = $player_id;
+                break;
+            }
+        }
+        foreach ( $ordered as $player_id ) {
+            if ( count( $starting ) >= $squad_size ) break;
+            if ( in_array( $player_id, $starting, true ) ) continue;
+            $starting[] = $player_id;
+        }
+        $bench = array_values( array_diff( $ordered, $starting ) );
+
+        foreach ( $starting as $player_id ) {
+            $this->starts[ $player_id ] = ( $this->starts[ $player_id ] ?? 0 ) + 1;
+        }
+        return [ $starting, $bench ];
     }
 
     /**
