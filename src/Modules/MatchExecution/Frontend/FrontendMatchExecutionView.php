@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Domain\MatchClock;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchExecution\Services\MatchEventFeedService;
 use TT\Modules\MatchExecution\Services\PitchLayoutService;
@@ -445,6 +446,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 $session_date !== '' ? (string) wp_date( 'j M', (int) strtotime( $session_date ) ) : ''
             );
         }
+
+        // #3667 — the clock as the server judges it: who started the match,
+        // when the running half began, and whether it has been left running
+        // past its length + stoppage. The rule lives in MatchClock.
+        $clock_half_length = (int) $prep->half_length_minutes;
+        $clock_readout     = $execution ? MatchClock::readout( $execution, $clock_half_length ) : null;
+        $clock_limit       = MatchClock::limitSeconds( $clock_half_length );
+        $started_line      = self::startedLine( $clock_readout, $state );
+        $clock_overrun     = $clock_readout !== null && $clock_readout['overrun'];
+        $record_after_url  = self::recordAfterwardsUrl( $activity_id, $user_id );
         ?>
 <?php
         // #2935 — the sectioned layout is a container change and nothing
@@ -530,8 +541,29 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                           // A `title` never shows on touch, which is the device
                           // this surface runs on; the tooltip stays as a bonus. ?>
                     <p class="tt-mexec-start-lock" id="tt-mexec-start-lock" data-tt-mexec-start-lock<?php echo $start_locked ? '' : ' hidden'; ?>><?php echo esc_html( $start_lock_msg ); ?></p>
+                    <?php // #3667 — who started the match and when the running half began. ?>
+                    <p class="tt-mexec-started-by" data-tt-mexec-started-by<?php echo $started_line === '' ? ' hidden' : ''; ?>><?php echo esc_html( $started_line ); ?></p>
                 </div>
                 <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
+                <?php // #3667 — a half left running past its length + stoppage.
+                      // The live controls stay; any end of a half is clamped
+                      // server-side anyway. The JS shows this same notice when
+                      // the ticking clock passes the limit mid-session. ?>
+                <div class="tt-mexec-overrun" role="status" data-tt-mexec-overrun<?php echo $clock_overrun ? '' : ' hidden'; ?>>
+                    <p class="tt-mexec-overrun-text"><?php
+                        echo esc_html( sprintf(
+                            /* translators: %d: half length plus 10 minutes of stoppage */
+                            __( 'This half has run longer than %d minutes. It looks like it was left running.', 'talenttrack' ),
+                            (int) ( $clock_limit / 60 )
+                        ) );
+                    ?></p>
+                    <div class="tt-mexec-overrun-actions">
+                        <button type="button" class="tt-btn tt-btn-primary tt-mexec-overrun-btn" data-tt-mexec-end-scheduled><?php esc_html_e( 'End half at scheduled length', 'talenttrack' ); ?></button>
+                        <?php if ( $record_after_url !== '' ) : ?>
+                            <a class="tt-btn tt-btn-secondary tt-mexec-overrun-btn" href="<?php echo esc_url( $record_after_url ); ?>"><?php esc_html_e( 'Record the match afterwards', 'talenttrack' ); ?></a>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </section>
 
             <?php // #1684 — match-summary KPI strip (2026 chrome). Mirrors
@@ -1561,7 +1593,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     'jersey' => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
                 ];
             }, array_values( $players_by_id ) ),
-            'half_length'   => (int) $prep->half_length_minutes,
+            'half_length'   => $clock_half_length,
+            // #3667 — the longest a half may run before the screen calls it
+            // left running. The JS reads this rather than recomputing it.
+            'limit_seconds' => $clock_limit,
             'state'         => $state,
             'home_score'    => $home_score,
             'away_score'    => $away_score,
@@ -1571,7 +1606,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             'start_lock_msg' => $start_lock_msg,
             // #3553 — the clock as the server has it, so a reload resumes
             // the match where it is instead of at 00:00, paused.
-            'clock'          => $execution ? \TT\Modules\MatchExecution\Domain\MatchClock::forExecution( $execution ) : null,
+            // #3667 — with the overrun flag, limit, half start and starter.
+            'clock'          => $clock_readout,
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>
@@ -1711,8 +1747,62 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'finalize_arm'      => __( 'Tap again to finalize', 'talenttrack' ),
                 'finalize_error'    => __( 'Could not finalize:', 'talenttrack' ),
                 'late_save_error'   => __( 'Could not save:', 'talenttrack' ),
+                // #3667 — the started-by line after a live kick-off, and the
+                // armed label of "End half at scheduled length".
+                /* translators: 1: who started the match, 2: time of day */
+                'started_by_format' => __( 'Started by %1$s at %2$s', 'talenttrack' ),
+                /* translators: 1: who started the match, 2: time of day the second half began */
+                'started_by_second' => __( 'Started by %1$s · second half from %2$s', 'talenttrack' ),
+                /* translators: %s: time of day */
+                'started_at_format' => __( 'Started at %s', 'talenttrack' ),
+                /* translators: %s: time of day */
+                'started_at_second' => __( 'Second half started at %s', 'talenttrack' ),
+                'end_scheduled_arm' => __( 'Tap again to end the half', 'talenttrack' ),
+                'end_scheduled_error' => __( 'Could not end the half:', 'talenttrack' ),
             ],
         ] );
+    }
+
+    /**
+     * #3667 — "Started by {name} at {time}", in site time. The second half
+     * names its own start, since that is the half the clock is counting.
+     * Empty before kick-off.
+     *
+     * @param array<string, mixed>|null $readout MatchClock::readout()
+     */
+    private static function startedLine( ?array $readout, string $state ): string {
+        if ( $readout === null || $state === MatchExecutionState::NOT_STARTED ) return '';
+        $started = is_string( $readout['started_at'] ?? null ) ? strtotime( (string) $readout['started_at'] ) : false;
+        if ( $started === false ) return '';
+
+        $time    = (string) wp_date( (string) get_option( 'time_format', 'H:i' ), $started );
+        $by      = is_array( $readout['started_by'] ?? null ) ? (string) ( $readout['started_by']['name'] ?? '' ) : '';
+        $second  = $state === MatchExecutionState::SECOND_HALF;
+
+        if ( $by === '' ) {
+            /* translators: %s: time of day */
+            return sprintf( $second ? __( 'Second half started at %s', 'talenttrack' ) : __( 'Started at %s', 'talenttrack' ), $time );
+        }
+        return $second
+            /* translators: 1: who started the match, 2: time of day the second half began */
+            ? sprintf( __( 'Started by %1$s · second half from %2$s', 'talenttrack' ), $by, $time )
+            /* translators: 1: who started the match, 2: time of day */
+            : sprintf( __( 'Started by %1$s at %2$s', 'talenttrack' ), $by, $time );
+    }
+
+    /**
+     * #3667 — where a half left running gets recorded after the fact
+     * (#3094): the minutes + statistics grid when that feature is on and
+     * reachable, otherwise the match's per-match minutes editor, which is
+     * gated on the same `tt_edit_activities` + team scope as this view.
+     */
+    private static function recordAfterwardsUrl( int $activity_id, int $user_id ): string {
+        if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( $activity_id, $user_id ) ) {
+            return \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id );
+        }
+        return \TT\Shared\Frontend\Components\BackLink::appendTo(
+            add_query_arg( [ 'tt_view' => 'minutes-audit', 'match_id' => $activity_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) /* tt-xview-ok — per-match minutes editor, gated on tt_edit_activities + team scope like this view */
+        );
     }
 
     private static function loadActivity( int $activity_id ): ?object {

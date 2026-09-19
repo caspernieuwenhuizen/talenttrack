@@ -16,7 +16,7 @@ A **PDP file** is a per-season development plan for a single player. It pulls to
 ## Who sees what
 
 - **Coaches** — full edit on PDP files for players on their own teams. Tile: **Performance → PDP**.
-- **Head of academy** — global edit on every file plus exclusive write access to the end-of-season verdict.
+- **Head of academy** — global edit on every file plus exclusive write access to the end-of-season verdict. That covers the file's conversations too, for players on any team: moving a planned date, writing the notes, signing off, and printing the file.
 - **Players** — read-only of their own file, presented as a season timeline, plus an editable self-reflection for the single next-planned conversation. Tile: **Me → My PDP**.
 - **Parents / guardians** — read-only of their child's file (after sign-off) plus a per-conversation acknowledgement button.
 - **Read-only observer** — read-only across all files; no edit, no acknowledgement.

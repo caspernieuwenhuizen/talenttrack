@@ -375,6 +375,10 @@ under their name and a box for a note.
 - The scale is your academy's own — whatever range and step you have
  configured for evaluations.
 - A score outside that range is refused rather than rounded into it.
+- Only players marked present or late at this training can be observed,
+ guest players included. Someone missing from the register is not on the
+ list, and an observation sent for them through the API is refused too.
+ Mark them present first.
 
 Each observation appears on the player's **Journey** timeline straight away,
 dated to the training rather than to when you typed it up.

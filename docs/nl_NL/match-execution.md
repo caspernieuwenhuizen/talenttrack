@@ -117,6 +117,34 @@ Pauzeren en hervatten worden ook vastgelegd: de tijd dat de klok stilstond,
 telt niet mee voor de helft. In de rust staat er **Start** op de klokknop,
 en die start de tweede helft.
 
+Onder de klok staat wie de wedstrijd startte en wanneer de helft begon, in
+de tijd van de club: *Gestart door Marco om 10:02*. In de tweede helft
+staat daar de start van de tweede helft.
+
+### Een helft die is blijven lopen
+
+Soms wordt een wedstrijd gestart en daarna vergeten: iemand tikt op
+wedstrijddag op **Start**, de telefoon gaat terug in de zak en de helft
+telt urenlang door. Zodra een helft langer loopt dan haar speeltijd plus
+10 minuten, zegt het scherm dat: *Deze helft loopt al langer dan 40
+minuten. Het lijkt erop dat de klok is blijven lopen.* Onder die melding
+staan twee acties:
+
+- **Helft beëindigen op speeltijd** beëindigt de helft op precies de
+  geplande speeltijd, bijvoorbeeld 30:00. Dat kost een tweede tik, net als
+  **Wedstrijd beëindigen**. In de tweede helft beëindigt het ook de
+  wedstrijd, die daarna naar de controle gaat.
+- **Wedstrijd achteraf vastleggen** opent de plek om de wedstrijd achteraf
+  in te voeren: het raster minuten + statistieken als je club dat gebruikt,
+  anders de minuteneditor van deze wedstrijd.
+
+De gewone knoppen blijven beschikbaar. Hoe een helft ook wordt beëindigd,
+ze wordt nooit langer opgeslagen dan haar speeltijd plus 10 minuten,
+dezelfde blessuretijd die de minuut van een gebeurtenis mag hebben. Een
+helft die tien uur is blijven lopen eindigt op 40:00 en niet op 593:55, en
+de doelpunten, wissels en gevolgde acties die je daarna vastlegt worden
+op hun echte minuut geaccepteerd.
+
 ## Beëindigen en definitief maken kosten twee tikken
 
 **Wedstrijd beëindigen** en **Definitief maken** vragen om een tweede tik voordat ze doorgaan.
@@ -440,8 +468,20 @@ toekomstige webapp:
  verwerkt, plus `on_pitch` (iedereen die nu in het veld staat).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/pause` en
  `.../resume` — de klok pauzeren en hervatten; de server legt beide vast,
- en `start-half`, `pause` en `resume` antwoorden met de klok (helft,
- seconden daarin, lopend of niet).
+ en `start-half`, `pause`, `resume` en `end-half` antwoorden met de klok
+ (helft, seconden daarin, lopend of niet, plus de velden hieronder).
+- `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/clock`
+ — de klok zoals de server die kent: `half`, `elapsed_seconds`, `running`,
+ `overrun` (waar als een lopende helft voorbij haar speeltijd + 10 minuten
+ is), `limit_seconds`, `started_at` (de start van de lopende helft, UTC
+ ISO 8601) en `started_by` (`{user_id, name}` van wie de wedstrijd
+ startte, of null). `clock` is null zolang de wedstrijd niet is gestart.
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/end-half`
+ — `{half, at}`. `at` is `now` (standaard) of `scheduled`. `now`
+ beëindigt de helft op het moment van het verzoek, maar nooit later dan
+ de speeltijd + 10 minuten. `scheduled` beëindigt haar op precies de
+ speeltijd. `finish` past dezelfde grens toe op het einde van de tweede
+ helft.
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
  — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
  herberekenen).

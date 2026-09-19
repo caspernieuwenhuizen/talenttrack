@@ -8,9 +8,11 @@
  * per-page changes all re-fetch via REST and reflect the new state
  * in the URL querystring.
  *
- * No-JS users get the initial server-rendered page with a working
- * filter form (full reload on submit). The JS upgrade is purely
- * additive — it cancels the form's default submit and takes over.
+ * The server renders the shell with a loading row in the body; rows
+ * only ever arrive through this hydrator. A zero-row success shows
+ * the empty state, a failed fetch shows an error row with Retry
+ * (#3669). The filter form still submits as a full reload without
+ * JS; the hydrator cancels that submit and takes over.
  */
 (function(){
     'use strict';
@@ -259,6 +261,41 @@
         tbody.innerHTML = rows.map(function(r) { return renderRow(config, r); }).join('');
     }
 
+    /**
+     * #3669 — a failed fetch replaces the body with an error row and a
+     * Retry button. Leaving the previous body in place would show the
+     * server's loading row forever, or rows from a previous query under
+     * a new filter, and either reads as a real answer when it is not.
+     */
+    function renderError(root, config) {
+        var tbody = root.querySelector('[data-tt-list-body="1"]');
+        if (!tbody) return;
+        var inner = '<span class="tt-list-table-error-text">' + escapeHtml(config.i18n.error) + '</span> '
+                  + '<button type="button" class="tt-btn tt-btn-secondary" data-tt-list-retry="1">'
+                  + escapeHtml(config.i18n.retry) + '</button>';
+        if (config.layout === 'cards') {
+            tbody.innerHTML = '<div class="tt-list-table-error" data-tt-list-error="1">' + inner + '</div>';
+        } else {
+            var span = Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0);
+            tbody.innerHTML = '<tr class="tt-list-table-error" data-tt-list-error="1"><td colspan="' + span + '">' + inner + '</td></tr>';
+        }
+        var summary = root.querySelector('[data-tt-list-summary="1"]');
+        if (summary) summary.textContent = '';
+        var pager = root.querySelector('[data-tt-list-pager="1"]');
+        if (pager) pager.innerHTML = '';
+    }
+
+    function bindRetry(root) {
+        var tbody = root.querySelector('[data-tt-list-body="1"]');
+        if (!tbody) return;
+        tbody.addEventListener('click', function(e) {
+            var btn = e.target.closest && e.target.closest('[data-tt-list-retry]');
+            if (!btn || !tbody.contains(btn)) return;
+            btn.disabled = true;
+            refresh(root);
+        });
+    }
+
     function refresh(root) {
         var config = root._ttListConfig;
         var state  = root._ttListState;
@@ -288,6 +325,7 @@
         return fetchPage(config.rest_path, requestState).then(function(res) {
             if (!res.ok || !res.json || !res.json.success) {
                 setStatus(root, 'error', config.i18n.error);
+                renderError(root, config);
                 return;
             }
             setStatus(root, '', '');
@@ -296,6 +334,7 @@
             updateSortHeaders(root, state);
         }).catch(function() {
             setStatus(root, 'error', config.i18n.error);
+            renderError(root, config);
         }).finally(function() {
             if (loading) loading.stop(root);
         });
@@ -642,6 +681,7 @@
         }
 
         bindRowActions(root);
+        bindRetry(root);
         bindInlineSelects(root);
         bindRowLinks(root);
 

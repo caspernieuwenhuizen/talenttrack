@@ -387,7 +387,8 @@
  * you sure".
  */
 .tt-mexec-footer-cta[data-armed="true"],
-.tt-mexec-finalize-btn[data-armed="true"] {
+.tt-mexec-finalize-btn[data-armed="true"],
+.tt-mexec-overrun-btn[data-armed="true"] {
     position: relative;
     overflow: hidden;
     background: var(--tt-mexec-warn);
@@ -395,7 +396,8 @@
 }
 
 .tt-mexec-footer-cta[data-armed="true"]::after,
-.tt-mexec-finalize-btn[data-armed="true"]::after {
+.tt-mexec-finalize-btn[data-armed="true"]::after,
+.tt-mexec-overrun-btn[data-armed="true"]::after {
     content: "";
     position: absolute;
     left: 0;
@@ -416,7 +418,8 @@
     /* Hold the bar full rather than draining it. The 3s timeout still
        applies — the guard is unchanged, only the animation is. */
     .tt-mexec-footer-cta[data-armed="true"]::after,
-    .tt-mexec-finalize-btn[data-armed="true"]::after {
+    .tt-mexec-finalize-btn[data-armed="true"]::after,
+    .tt-mexec-overrun-btn[data-armed="true"]::after {
         animation: none;
         transform: scaleX(1);
     }
@@ -2373,6 +2376,55 @@
 }
 .tt-mexec-start-lock[hidden] { display: none; }
 .tt-mexec--sections .tt-mexec-bar .tt-mexec-start-lock { color: rgba(255, 255, 255, 0.85); }
+
+/* ----- #3667 — who started the match, and a half left running ----- */
+.tt-mexec-started-by {
+    margin: 4px 0 0;
+    font-size: 0.8125rem;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-started-by[hidden] { display: none; }
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-started-by { color: rgba(255, 255, 255, 0.85); }
+
+/* Spans the timer's grid (classic) and the bar's grid (sections) as a row
+   of its own, so neither layout's areas have to know about it. */
+.tt-mexec-overrun {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    margin: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--tt-warning, var(--tt-mexec-warn));
+    border-radius: var(--tt-mexec-radius);
+    background: var(--tt-warning-subtle, var(--tt-mexec-mute));
+    color: var(--tt-warning-ink, var(--tt-mexec-ink));
+    text-align: start;
+}
+.tt-mexec-overrun[hidden] { display: none; }
+.tt-mexec-overrun-text {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.tt-mexec-overrun-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tt-mexec-overrun-btn {
+    min-height: var(--tt-mexec-tap-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    text-align: center;
+}
+.tt-mexec-overrun-btn:focus-visible {
+    outline: 2px solid var(--tt-mexec-accent);
+    outline-offset: 2px;
+}
+@media (min-width: 480px) {
+    .tt-mexec-overrun-actions { flex-direction: row; flex-wrap: wrap; }
+}
 
 /* ----- #3549 — every live control on screen before kickoff ----- */
 /* Disabled until Start. Faded rather than hidden, so the coach sees the

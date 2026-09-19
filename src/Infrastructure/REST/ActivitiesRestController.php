@@ -10,6 +10,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Activities\Services\AttendanceDateRule;
@@ -294,8 +295,7 @@ class ActivitiesRestController {
         // TileRegistry::userMayAccess.
         $uid = get_current_user_id();
         if ( $uid <= 0 ) return false;
-        if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
-             || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' ) ) {
+        if ( ActivityAccess::isStaffReader( $uid ) ) {
             return true;
         }
 
@@ -311,14 +311,9 @@ class ActivitiesRestController {
         $filter_pid = isset( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
         if ( $filter_pid <= 0 ) return false;
 
-        // #1712 — identity lookups moved to ActivitiesRepository; the
-        // permission decision (is this caller the player or their parent?)
-        // stays here.
-        $repo = self::repo();
-        if ( $repo->linkedPlayerIdForUser( $uid ) === $filter_pid ) return true;
-        if ( $repo->userIsParentOfPlayer( $uid, $filter_pid ) ) return true;
-
-        return false;
+        // #3688 — is this caller the player or their parent? The same
+        // predicate the activity peek and the list's player scope use.
+        return ActivityAccess::canReadAsPlayerOrParent( $uid, $filter_pid );
     }
 
     public static function can_edit(): bool {
@@ -909,12 +904,15 @@ class ActivitiesRestController {
         // requested child id is honoured only after the parent link is
         // verified. If neither resolves, the request is force-scoped to a
         // sentinel that returns the empty set — never the unscoped list.
+        //
+        // #3688 — each branch below asks `ActivityAccess`, whose
+        // `canRead()` is the single-record form of this rule (the peek
+        // uses it), so the list and the peek give the same answer.
         $uid        = get_current_user_id();
-        $caller_is_staff = AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
-            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' );
+        $caller_is_staff = ActivityAccess::isStaffReader( $uid );
 
         if ( ! $caller_is_staff ) {
-            $scoped_pid = self::resolvePlayerScopeForCaller( $uid, (int) ( $filter['player_id'] ?? 0 ) );
+            $scoped_pid = ActivityAccess::playerScopeFor( $uid, (int) ( $filter['player_id'] ?? 0 ) );
             if ( $scoped_pid <= 0 ) {
                 // No linked player (or unverified child) → empty set, not
                 // the unscoped list. Fail closed.
@@ -935,7 +933,7 @@ class ActivitiesRestController {
         // logged-in player calling `?tt_view=my-activities` got an empty
         // list because they have zero head-coach teams.
         $is_player_scoped = ! empty( $filter['player_id'] )
-            && self::callerCanReadAsPlayerOrParent( (int) $filter['player_id'] );
+            && ActivityAccess::canReadAsPlayerOrParent( $uid, (int) $filter['player_id'] );
 
         // v3.91.2 — bypass the coach-scope restriction for personas with
         // matrix `activities:r[global]` (scout, head_of_development,
@@ -944,16 +942,14 @@ class ActivitiesRestController {
         // see?) stays here; the resolved restriction is handed to the
         // repository, where the SQL lives. null = unrestricted.
         $restrict_team_ids = null;
-        if ( ! $is_player_scoped
-             && ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'activities' ) ) {
-            $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
-            if ( ! $coach_teams ) {
+        if ( ! $is_player_scoped && ! ActivityAccess::hasGlobalRead( $uid ) ) {
+            $restrict_team_ids = ActivityAccess::coachedTeamIds( $uid );
+            if ( ! $restrict_team_ids ) {
                 // No accessible teams → empty list (don't expose sessions).
                 return RestResponse::success( [
                     'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
                 ] );
             }
-            $restrict_team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
         }
 
         $result = self::repo()->searchForRest( [
@@ -1049,57 +1045,6 @@ class ActivitiesRestController {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
         return $n;
-    }
-
-    /**
-     * v3.110.51 — true when the calling user has a legitimate read
-     * relationship to the requested player_id: either the player IS
-     * the calling user, or the calling user is a registered parent
-     * of that player. Used by `list_sessions` to detect player-scoped
-     * my-activities calls (player or parent) and bypass the coach-team
-     * scope filter for them.
-     *
-     * Mirrors the logic in `can_view()` — the permission gate already
-     * validates this, so we re-derive the boolean here without
-     * re-running the permission checks.
-     */
-    private static function callerCanReadAsPlayerOrParent( int $player_id ): bool {
-        if ( $player_id <= 0 ) return false;
-        $uid = get_current_user_id();
-        if ( $uid <= 0 ) return false;
-        // #1712 — identity lookups moved to ActivitiesRepository.
-        $repo = self::repo();
-        if ( $repo->linkedPlayerIdForUser( $uid ) === $player_id ) return true;
-        return $repo->userIsParentOfPlayer( $uid, $player_id );
-    }
-
-    /**
-     * #2150 — resolve the player id a non-staff caller may be scoped to
-     * for the "my-activities" list, derived from the session rather than
-     * trusted from the query param.
-     *
-     * Returns:
-     *   - the caller's own linked player id, when they have one (their
-     *     own journey — the query param is ignored for self-scope);
-     *   - the requested child id, only when the caller is a verified
-     *     parent of that player;
-     *   - 0 when nothing resolves — the caller (e.g. a WP user with no
-     *     linked `tt_players` row) must see an empty list, never a leak.
-     */
-    private static function resolvePlayerScopeForCaller( int $uid, int $requested_pid ): int {
-        if ( $uid <= 0 ) return 0;
-        $repo = self::repo();
-
-        $own = $repo->linkedPlayerIdForUser( $uid );
-        if ( $own > 0 ) return $own;
-
-        // Parent viewing a specific child: honour the requested id only
-        // after the parent → child link is verified server-side.
-        if ( $requested_pid > 0 && $repo->userIsParentOfPlayer( $uid, $requested_pid ) ) {
-            return $requested_pid;
-        }
-
-        return 0;
     }
 
     /** Shape one row for the JSON response. */
