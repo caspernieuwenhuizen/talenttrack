@@ -1,3 +1,0 @@
-# Lists no longer say "nothing recorded yet" before they have loaded (#3669)
-
-Every list in the dashboard (activities, goals, players, PDP, exercises and a parent's view of their child) used to show its empty message, such as "No activities recorded for you yet", from the moment the page opened, and kept showing it when loading failed. A player with a full season behind them could be told they had done nothing. Lists now show "Loading…" until the rows arrive. The empty message appears only when loading worked and there really is nothing. A failed load shows an error with a Retry button instead.

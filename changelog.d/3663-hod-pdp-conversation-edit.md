@@ -1,3 +1,0 @@
-# Head of Development can update and print any player's PDP conversations (#3663)
-
-The Head of Development could open any player's PDP file and conversation form, but saving a conversation for a player outside their own teams was refused, so a talk whose date had passed could only be rescheduled by the owning coach. Saving now follows the same rule as the PDP file itself: the head of development and academy admins can move the planned date, write the notes and sign off for any player, while coaches still only reach players on their own teams. Printing the PDP file uses the same rule, so a Head of Development who can open a file can also print it.

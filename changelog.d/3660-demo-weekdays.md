@@ -1,3 +1,0 @@
-# Demo academies train on Tuesday and Thursday and play on Saturday, with times (#3660, #3676)
-
-The demo generator used to place every training and match relative to the day it was run, so a run on a Monday put every match on a Thursday and no fixture ever fell on a Saturday. Generated trainings now fall on Tuesday and Thursday from 18:30 to 20:00, and every third week the Thursday training gives way to a Saturday match that kicks off at 10:00, with players reporting at 09:15. Every generated activity now carries its start and end time, so the week planner, the activity detail and the parent views have a time to show.

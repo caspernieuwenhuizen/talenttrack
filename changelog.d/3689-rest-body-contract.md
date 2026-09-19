@@ -1,3 +1,0 @@
-# One body contract for REST write routes (#3689)
-
-Write routes in the REST API now refuse a request body they cannot use in one consistent way. A key a route does not take is refused with `unknown_field` and a list of the keys it does take; a required field that is missing or empty is refused with `missing_fields`, naming every missing field in one answer; and a value of the wrong type is refused with `invalid_field`. Match preparation and trial staff inputs share the one check, and the missing and invalid refusals that WordPress raised in its own format now come back in the same TalentTrack error envelope. A new CI gate stops a new write route shipping without a declaration of the fields it accepts, and the routes that predate the rule can only go down in number.
