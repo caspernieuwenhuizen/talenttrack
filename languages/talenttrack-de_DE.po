@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T08:43:49+00:00\n"
+"POT-Creation-Date: 2026-09-19T08:58:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -80,8 +80,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:385
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:306
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:361
-#: src/Modules/Players/Admin/PlayersPage.php:174
-#: src/Modules/Players/Admin/PlayersPage.php:463
+#: src/Modules/Players/Admin/PlayersPage.php:181
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:2341
 #: src/Shared/Frontend/FrontendConfigurationView.php:2975
@@ -330,7 +329,7 @@ msgstr "Mitarbeiter"
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:107
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:105
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:117
-#: src/Modules/Players/Admin/PlayersPage.php:231
+#: src/Modules/Players/Admin/PlayersPage.php:240
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:181
 #: src/Modules/Teams/Admin/TeamsPage.php:131
 #: src/Shared/Frontend/CoachForms.php:667
@@ -1277,9 +1276,9 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:110
 #: src/Modules/Pdp/Admin/SeasonsPage.php:88
 #: src/Modules/People/Admin/PeoplePage.php:251
-#: src/Modules/Players/Admin/PlayersPage.php:231
-#: src/Modules/Players/Admin/PlayersPage.php:343
-#: src/Modules/Players/Admin/PlayersPage.php:502
+#: src/Modules/Players/Admin/PlayersPage.php:240
+#: src/Modules/Players/Admin/PlayersPage.php:352
+#: src/Modules/Players/Admin/PlayersPage.php:510
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:90
 #: src/Modules/Teams/Admin/TeamsPage.php:131
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:43
@@ -1516,7 +1515,7 @@ msgstr "Unterzeichnet"
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:371
 #: src/Infrastructure/Query/LabelTranslator.php:65
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:209
-#: src/Modules/Players/Admin/PlayersPage.php:289
+#: src/Modules/Players/Admin/PlayersPage.php:298
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:525
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:231
 msgid "Released"
@@ -1569,18 +1568,13 @@ msgstr ""
 msgid "historical record stays; target reference cleared"
 msgstr ""
 
-#: src/Infrastructure/People/PersonDeletionCascade.php:166
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:250
-msgid "(unnamed player)"
-msgstr ""
-
-#: src/Infrastructure/Players/ParentAccountService.php:119
+#: src/Infrastructure/Players/ParentAccountService.php:122
 #: src/Infrastructure/Players/PlayerAccountService.php:66
 msgid "A player and a WordPress user are both required."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:127
-#: src/Infrastructure/Players/ParentAccountService.php:219
+#: src/Infrastructure/Players/ParentAccountService.php:130
+#: src/Infrastructure/Players/ParentAccountService.php:229
 #: src/Infrastructure/Players/PlayerAccountService.php:74
 #: src/Infrastructure/Players/PlayerAccountService.php:141
 #: src/Infrastructure/REST/PlayersRestController.php:128
@@ -1600,40 +1594,40 @@ msgstr ""
 msgid "Player not found."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:130
+#: src/Infrastructure/Players/ParentAccountService.php:133
 #: src/Infrastructure/Players/PlayerAccountService.php:77
 msgid "That WordPress user no longer exists."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:140
+#: src/Infrastructure/Players/ParentAccountService.php:143
 msgid "That account is a player account and can't also be a parent."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:147
+#: src/Infrastructure/Players/ParentAccountService.php:157
 msgid "That account is a staff account and can't also be a parent."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:152
+#: src/Infrastructure/Players/ParentAccountService.php:162
 msgid "That parent is already linked to this player."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:160
+#: src/Infrastructure/Players/ParentAccountService.php:170
 msgid "Parent linked."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:171
+#: src/Infrastructure/Players/ParentAccountService.php:181
 msgid "A player and a parent are both required."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:175
+#: src/Infrastructure/Players/ParentAccountService.php:185
 msgid "That parent was not linked to this player."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:185
+#: src/Infrastructure/Players/ParentAccountService.php:195
 msgid "Parent unlinked."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:206
+#: src/Infrastructure/Players/ParentAccountService.php:216
 #: src/Infrastructure/Players/PlayerAccountService.php:128
 #: src/Infrastructure/Players/PlayerAccountService.php:214
 #: src/Infrastructure/REST/PlayerStatusRestController.php:115
@@ -1641,23 +1635,23 @@ msgstr ""
 msgid "A player is required."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:209
+#: src/Infrastructure/Players/ParentAccountService.php:219
 #: src/Infrastructure/Players/PlayerAccountService.php:131
 msgid "A valid email address is required."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:212
+#: src/Infrastructure/Players/ParentAccountService.php:222
 #: src/Infrastructure/Players/PlayerAccountService.php:134
 msgid ""
 "An account with that email already exists. Link it instead of creating a new "
 "one."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:262
+#: src/Infrastructure/Players/ParentAccountService.php:272
 msgid "Parent account created and linked with a temporary password."
 msgstr ""
 
-#: src/Infrastructure/Players/ParentAccountService.php:263
+#: src/Infrastructure/Players/ParentAccountService.php:273
 msgid "Parent account created and linked. A set-password email has been sent."
 msgstr ""
 
@@ -1890,7 +1884,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:91
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
-#: src/Modules/Players/Admin/PlayersPage.php:286
+#: src/Modules/Players/Admin/PlayersPage.php:295
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:267
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:205
@@ -1932,13 +1926,13 @@ msgstr "Aktiv"
 #: src/Modules/People/Admin/PeoplePage.php:166
 #: src/Modules/People/Admin/PeoplePage.php:247
 #: src/Modules/People/Admin/PeoplePage.php:366
-#: src/Modules/Players/Admin/PlayersPage.php:287
+#: src/Modules/Players/Admin/PlayersPage.php:296
 msgid "Inactive"
 msgstr "Inaktiv"
 
 #: src/Infrastructure/Query/LabelTranslator.php:64
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:208
-#: src/Modules/Players/Admin/PlayersPage.php:288
+#: src/Modules/Players/Admin/PlayersPage.php:297
 #: src/Modules/Tournaments/Wizard/SquadStep.php:125
 #: src/Modules/Trials/Wizards/TrialDetailsStep.php:21
 #: src/Shared/Frontend/FrontendTeamDetailView.php:878
@@ -2103,7 +2097,7 @@ msgstr "Andere"
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:385
 #: src/Modules/People/Admin/PeoplePage.php:213
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
-#: src/Modules/Players/Admin/PlayersPage.php:195
+#: src/Modules/Players/Admin/PlayersPage.php:202
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:264
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:208
@@ -2603,9 +2597,9 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1061
-#: src/Modules/Players/Admin/PlayersPage.php:173
-#: src/Modules/Players/Admin/PlayersPage.php:438
-#: src/Modules/Players/Admin/PlayersPage.php:506
+#: src/Modules/Players/Admin/PlayersPage.php:180
+#: src/Modules/Players/Admin/PlayersPage.php:447
+#: src/Modules/Players/Admin/PlayersPage.php:514
 #: src/Modules/Reports/Admin/ReportsPage.php:195
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:285
@@ -3335,27 +3329,27 @@ msgid "The exercise could not be made club-wide."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:361
-#: src/Infrastructure/REST/PlayersRestController.php:368
+#: src/Infrastructure/REST/PlayersRestController.php:378
 msgid "No CSV file uploaded."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:366
-#: src/Infrastructure/REST/PlayersRestController.php:372
+#: src/Infrastructure/REST/PlayersRestController.php:382
 msgid "The upload failed."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:369
-#: src/Infrastructure/REST/PlayersRestController.php:375
+#: src/Infrastructure/REST/PlayersRestController.php:385
 msgid "CSV files larger than 5MB are not accepted."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:372
-#: src/Infrastructure/REST/PlayersRestController.php:378
+#: src/Infrastructure/REST/PlayersRestController.php:388
 msgid "Uploaded file could not be read."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:375
-#: src/Infrastructure/REST/PlayersRestController.php:382
+#: src/Infrastructure/REST/PlayersRestController.php:392
 msgid "Only .csv files are accepted."
 msgstr ""
 
@@ -3837,7 +3831,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
 #: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:777
-#: src/Modules/Players/Admin/PlayersPage.php:493
+#: src/Modules/Players/Admin/PlayersPage.php:501
 msgid "Not found."
 msgstr ""
 
@@ -3899,8 +3893,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:125
-#: src/Modules/Players/Admin/PlayersPage.php:477
-#: src/Modules/Players/Admin/PlayersPage.php:511
+#: src/Modules/Players/Admin/PlayersPage.php:485
+#: src/Modules/Players/Admin/PlayersPage.php:519
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:236
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:251
@@ -4029,7 +4023,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
 #: src/Modules/Players/Admin/PlayersPage.php:65
-#: src/Modules/Players/Admin/PlayersPage.php:124
+#: src/Modules/Players/Admin/PlayersPage.php:131
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:316
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
 #: src/Modules/Stats/Admin/UsageStatsPage.php:145
@@ -4292,17 +4286,17 @@ msgstr ""
 msgid "Invalid player id."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:512
+#: src/Infrastructure/REST/PlayersRestController.php:530
 #: src/Modules/Trials/Services/TrialCaseOpener.php:72
 #: src/Modules/Wizards/Player/ReviewStep.php:142
 msgid "The player could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:562
+#: src/Infrastructure/REST/PlayersRestController.php:580
 msgid "The player could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:629
+#: src/Infrastructure/REST/PlayersRestController.php:639
 msgid "The player could not be deleted."
 msgstr ""
 
@@ -4943,7 +4937,7 @@ msgstr "Aktivitäten"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/People/Admin/PeoplePage.php:152
-#: src/Modules/Players/Admin/PlayersPage.php:124
+#: src/Modules/Players/Admin/PlayersPage.php:131
 #: src/Modules/Teams/Admin/TeamsPage.php:56
 msgid "Add New"
 msgstr "Hinzufügen"
@@ -4963,7 +4957,7 @@ msgstr "Hinzufügen"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:1003
 #: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:532
-#: src/Modules/Players/Admin/PlayersPage.php:125
+#: src/Modules/Players/Admin/PlayersPage.php:132
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1382
 #: src/Modules/Teams/Admin/TeamsPage.php:57
@@ -5086,7 +5080,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:509
 #: src/Modules/People/Admin/PeoplePage.php:189
 #: src/Modules/People/Admin/TeamStaffPanel.php:55
-#: src/Modules/Players/Admin/PlayersPage.php:176
+#: src/Modules/Players/Admin/PlayersPage.php:183
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:92
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:124
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:277
@@ -5521,9 +5515,9 @@ msgstr "Speichern"
 #: src/Modules/People/Admin/PeoplePage.php:473
 #: src/Modules/People/Admin/PeoplePage.php:489
 #: src/Modules/People/PeopleModule.php:68
-#: src/Modules/Players/Admin/PlayersPage.php:533
-#: src/Modules/Players/Admin/PlayersPage.php:537
-#: src/Modules/Players/Admin/PlayersPage.php:744
+#: src/Modules/Players/Admin/PlayersPage.php:541
+#: src/Modules/Players/Admin/PlayersPage.php:545
+#: src/Modules/Players/Admin/PlayersPage.php:747
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:291
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:307
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:324
@@ -5550,7 +5544,7 @@ msgstr "Nicht autorisiert"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:542
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:954
 #: src/Modules/Goals/Admin/GoalsPage.php:289
-#: src/Modules/Players/Admin/PlayersPage.php:652
+#: src/Modules/Players/Admin/PlayersPage.php:655
 msgid "Unknown database error."
 msgstr ""
 
@@ -8170,7 +8164,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:183
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
-#: src/Modules/Players/Admin/PlayersPage.php:173
+#: src/Modules/Players/Admin/PlayersPage.php:180
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:107
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:242
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:148
@@ -8382,7 +8376,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:63
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:74
 #: src/Modules/People/Admin/PeoplePage.php:354
-#: src/Modules/Players/Admin/PlayersPage.php:475
+#: src/Modules/Players/Admin/PlayersPage.php:483
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
 #: src/Shared/Frontend/FrontendGoalsManageView.php:605
 #: src/Shared/Frontend/FrontendPeopleManageView.php:198
@@ -10442,7 +10436,7 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:518
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1553
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
-#: src/Modules/Players/Admin/PlayersPage.php:429
+#: src/Modules/Players/Admin/PlayersPage.php:438
 #: src/Modules/Teams/Admin/TeamsPage.php:161
 #: src/Shared/Frontend/CoachForms.php:251
 #: src/Shared/Frontend/CoachForms.php:262
@@ -15471,7 +15465,7 @@ msgstr "Positionen"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:55
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:251
-#: src/Modules/Players/Admin/PlayersPage.php:429
+#: src/Modules/Players/Admin/PlayersPage.php:438
 msgid "Preferred Foot"
 msgstr "Bevorzugter Fuß"
 
@@ -15992,7 +15986,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:808
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:287
 #: src/Modules/Goals/Admin/GoalsPage.php:113
-#: src/Modules/Players/Admin/PlayersPage.php:231
+#: src/Modules/Players/Admin/PlayersPage.php:240
 #: src/Modules/Teams/Admin/TeamsPage.php:131
 msgid "Delete?"
 msgstr ""
@@ -16150,7 +16144,7 @@ msgstr "Logo"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:885
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:760
-#: src/Modules/Players/Admin/PlayersPage.php:443
+#: src/Modules/Players/Admin/PlayersPage.php:452
 msgid "Upload"
 msgstr "Hochladen"
 
@@ -16337,7 +16331,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1012
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
-#: src/Modules/Players/Admin/PlayersPage.php:487
+#: src/Modules/Players/Admin/PlayersPage.php:495
 #: src/Shared/Frontend/FrontendConfigurationView.php:3081
 #: src/Shared/Frontend/FrontendPlayersManageView.php:327
 msgid "Use"
@@ -16816,25 +16810,25 @@ msgid "Last name"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:57
-#: src/Modules/Players/Admin/PlayersPage.php:413
+#: src/Modules/Players/Admin/PlayersPage.php:422
 #: src/Shared/Frontend/FrontendPlayersManageView.php:388
 msgid "Sex (for growth references)"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:58
-#: src/Modules/Players/Admin/PlayersPage.php:423
-#: src/Modules/Players/Admin/PlayersPage.php:510
+#: src/Modules/Players/Admin/PlayersPage.php:432
+#: src/Modules/Players/Admin/PlayersPage.php:518
 msgid "Nationality"
 msgstr "Nationalität"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:59
-#: src/Modules/Players/Admin/PlayersPage.php:425
+#: src/Modules/Players/Admin/PlayersPage.php:434
 #: src/Shared/Frontend/FrontendPlayersManageView.php:434
 msgid "Height (cm)"
 msgstr "Größe (cm)"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:60
-#: src/Modules/Players/Admin/PlayersPage.php:427
+#: src/Modules/Players/Admin/PlayersPage.php:436
 #: src/Shared/Frontend/FrontendPlayersManageView.php:438
 msgid "Weight (kg)"
 msgstr "Gewicht (kg)"
@@ -21318,7 +21312,6 @@ msgid "Select all shown"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:820
-#: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:100
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:129
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:87
 msgid "Clear selection"
@@ -29314,7 +29307,7 @@ msgid "Video link"
 msgstr ""
 
 #: src/Modules/Media/MediaKind.php:83
-#: src/Modules/Players/Admin/PlayersPage.php:443
+#: src/Modules/Players/Admin/PlayersPage.php:452
 #: src/Shared/Frontend/FrontendPlayersManageView.php:472
 msgid "Photo"
 msgstr "Foto"
@@ -36143,7 +36136,7 @@ msgid "Top movers · this month"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:77
-#: src/Modules/Players/Admin/PlayersPage.php:517
+#: src/Modules/Players/Admin/PlayersPage.php:525
 msgid "No evaluations yet."
 msgstr ""
 
@@ -36757,33 +36750,33 @@ msgid ""
 "Default for an exact match."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:132
+#: src/Modules/Players/Admin/PlayersPage.php:139
 msgid "All Teams"
 msgstr "Alle Teams"
 
-#: src/Modules/Players/Admin/PlayersPage.php:155
+#: src/Modules/Players/Admin/PlayersPage.php:162
 msgid "← Apply demo filter"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:156
+#: src/Modules/Players/Admin/PlayersPage.php:163
 msgid "Show all players (bypass demo filter) →"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:158
+#: src/Modules/Players/Admin/PlayersPage.php:165
 msgid ""
 "Showing every row in the database. Some rows may not be visible in the "
 "standard list because they have no demo tag."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:159
+#: src/Modules/Players/Admin/PlayersPage.php:166
 msgid ""
 "Demo mode is active — the list below is filtered. Click to show every row, "
 "including untagged ones (useful when cleaning up wizard-created players from "
 "before the v3.85.1 fix)."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:175
-#: src/Modules/Players/Admin/PlayersPage.php:507
+#: src/Modules/Players/Admin/PlayersPage.php:182
+#: src/Modules/Players/Admin/PlayersPage.php:515
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:292
 #: src/Shared/Frontend/FrontendComparisonView.php:408
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:647
@@ -36791,8 +36784,8 @@ msgstr ""
 msgid "Position(s)"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:175
-#: src/Modules/Players/Admin/PlayersPage.php:508
+#: src/Modules/Players/Admin/PlayersPage.php:182
+#: src/Modules/Players/Admin/PlayersPage.php:516
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:296
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:63
 #: src/Shared/Frontend/FrontendComparisonView.php:409
@@ -36803,118 +36796,126 @@ msgstr ""
 msgid "Foot"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:176
-#: src/Modules/Players/Admin/PlayersPage.php:509
+#: src/Modules/Players/Admin/PlayersPage.php:183
+#: src/Modules/Players/Admin/PlayersPage.php:517
 #: src/Shared/Frontend/DashboardShortcode.php:316
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:956
 msgid "DOB"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:178
+#: src/Modules/Players/Admin/PlayersPage.php:185
 msgid "No players."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:309
+#: src/Modules/Players/Admin/PlayersPage.php:318
 #: src/Shared/Admin/BackNavigator.php:113
 msgid "Edit Player"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:309
-#: src/Modules/Players/Admin/PlayersPage.php:484
+#: src/Modules/Players/Admin/PlayersPage.php:318
+#: src/Modules/Players/Admin/PlayersPage.php:492
 msgid "Add Player"
 msgstr "Spieler hinzufügen"
 
-#: src/Modules/Players/Admin/PlayersPage.php:344
+#: src/Modules/Players/Admin/PlayersPage.php:353
 msgid "Rate card"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:364
+#: src/Modules/Players/Admin/PlayersPage.php:373
 msgid "Please fix the errors below:"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:375
+#: src/Modules/Players/Admin/PlayersPage.php:384
 msgid "The database rejected the save. Please contact your administrator."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:385
+#: src/Modules/Players/Admin/PlayersPage.php:394
 msgid ""
 "Player is U8-U10. Invitation flows will route through the linked parent — "
 "the player record does not need its own email or phone."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:387
+#: src/Modules/Players/Admin/PlayersPage.php:396
 msgid ""
 "Player is U11-U12. PWA push on the player's phone is the primary contact "
 "channel; parent email is the fallback."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:389
+#: src/Modules/Players/Admin/PlayersPage.php:398
 msgid "Player is U12+. Email + PWA push are both available contact channels."
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:394
+#: src/Modules/Players/Admin/PlayersPage.php:403
 msgid "Contact strategy:"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:407
+#: src/Modules/Players/Admin/PlayersPage.php:416
 msgid "First Name"
 msgstr "Vorname"
 
-#: src/Modules/Players/Admin/PlayersPage.php:409
+#: src/Modules/Players/Admin/PlayersPage.php:418
 msgid "Last Name"
 msgstr "Nachname"
 
-#: src/Modules/Players/Admin/PlayersPage.php:411
+#: src/Modules/Players/Admin/PlayersPage.php:420
 msgid "Date of Birth"
 msgstr "Geburtsdatum"
 
-#: src/Modules/Players/Admin/PlayersPage.php:432
+#: src/Modules/Players/Admin/PlayersPage.php:441
 msgid "Preferred Position(s)"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:436
+#: src/Modules/Players/Admin/PlayersPage.php:445
 msgid "Jersey Number"
 msgstr "Trikotnummer"
 
-#: src/Modules/Players/Admin/PlayersPage.php:438
+#: src/Modules/Players/Admin/PlayersPage.php:447
 msgid "— No Team —"
 msgstr "— Kein Team —"
 
-#: src/Modules/Players/Admin/PlayersPage.php:441
+#: src/Modules/Players/Admin/PlayersPage.php:450
 msgid "Date Joined"
 msgstr "Eintrittsdatum"
 
-#: src/Modules/Players/Admin/PlayersPage.php:459
-#: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:51
-#: src/Shared/Frontend/FrontendPlayersManageView.php:544
-msgid "Connect a parent account"
-msgstr ""
-
-#: src/Modules/Players/Admin/PlayersPage.php:469
-msgid "Guardian Name"
-msgstr ""
-
 #: src/Modules/Players/Admin/PlayersPage.php:471
-msgid "Guardian Email"
+#: src/Modules/Players/Frontend/FrontendAccountsHubView.php:72
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:36
+msgid "Parent accounts"
 msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:473
+msgid "None linked"
+msgstr ""
+
+#: src/Modules/Players/Admin/PlayersPage.php:474
+msgid "Link or unlink parent accounts"
+msgstr ""
+
+#: src/Modules/Players/Admin/PlayersPage.php:477
+msgid "Guardian Name"
+msgstr ""
+
+#: src/Modules/Players/Admin/PlayersPage.php:479
+msgid "Guardian Email"
+msgstr ""
+
+#: src/Modules/Players/Admin/PlayersPage.php:481
 msgid "Guardian Phone"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:475
+#: src/Modules/Players/Admin/PlayersPage.php:483
 msgid "Linked WP User"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:484
+#: src/Modules/Players/Admin/PlayersPage.php:492
 msgid "Update Player"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:487
+#: src/Modules/Players/Admin/PlayersPage.php:495
 msgid "Select Photo"
 msgstr ""
 
-#: src/Modules/Players/Admin/PlayersPage.php:516
+#: src/Modules/Players/Admin/PlayersPage.php:524
 msgid "Development Radar"
 msgstr ""
 
@@ -36936,11 +36937,6 @@ msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:66
 msgid "Link or unlink a WordPress login to each player record."
-msgstr ""
-
-#: src/Modules/Players/Frontend/FrontendAccountsHubView.php:72
-#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:36
-msgid "Parent accounts"
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:73
@@ -37101,6 +37097,10 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:215
 #, php-format
 msgid "Showing the first %d players — narrow the search to see the rest."
+msgstr ""
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:250
+msgid "(unnamed player)"
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:263
@@ -48644,18 +48644,6 @@ msgstr ""
 msgid "Viewing"
 msgstr ""
 
-#: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:53
-msgid "Type a parent name to search…"
-msgstr ""
-
-#: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:117
-msgid "Parent doesn't exist yet?"
-msgstr ""
-
-#: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:119
-msgid "Create a parent account"
-msgstr ""
-
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:211
 msgid "Filter by team"
 msgstr ""
@@ -54501,6 +54489,10 @@ msgstr ""
 msgid ""
 "Link a parent account on save (dropdown below) or fill in name + contact "
 "below; a coach can convert them to a real account later."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:544
+msgid "Connect a parent account"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayersManageView.php:550
