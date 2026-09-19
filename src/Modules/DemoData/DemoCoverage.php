@@ -31,6 +31,7 @@ use TT\Modules\DemoData\Generators\TrainingObservationGenerator;
 use TT\Modules\DemoData\Generators\TrainingPlanGenerator;
 use TT\Modules\DemoData\Generators\TrainingRunGenerator;
 use TT\Modules\DemoData\Generators\TournamentGenerator;
+use TT\Modules\DemoData\Generators\TrialCaseGenerator;
 
 /**
  * DemoCoverage — the single source of truth for what demo generation covers.
@@ -162,30 +163,30 @@ class DemoCoverage {
 
         // ===== Trials =====
 
-        // Written by PipelineGenerator procedurally, and by the Excel
+        // Written by TrialCaseGenerator procedurally, and by the Excel
         // importer when a workbook carries a trial_cases sheet.
         'tt_trial_cases' => [
             'entity_type' => 'trial_case',
             'category'    => 'trials',
-            'written_by'  => PipelineGenerator::class,
+            'written_by'  => TrialCaseGenerator::class,
             'depends_on'  => [ 'player' ],
         ],
         'tt_trial_case_staff' => [
             'entity_type' => 'trial_case_staff',
             'category'    => 'trials',
-            'written_by'  => PipelineGenerator::class,
+            'written_by'  => TrialCaseGenerator::class,
             'depends_on'  => [ 'trial_case' ],
         ],
         'tt_trial_case_staff_inputs' => [
             'entity_type' => 'trial_case_staff_input',
             'category'    => 'trials',
-            'written_by'  => PipelineGenerator::class,
+            'written_by'  => TrialCaseGenerator::class,
             'depends_on'  => [ 'trial_case' ],
         ],
         'tt_trial_extensions' => [
             'entity_type' => 'trial_extension',
             'category'    => 'trials',
-            'written_by'  => PipelineGenerator::class,
+            'written_by'  => TrialCaseGenerator::class,
             'depends_on'  => [ 'trial_case' ],
         ],
 
