@@ -1,0 +1,3 @@
+# The Reports launcher no longer offers a report you cannot open (#3647)
+
+Five tiles on the Reports launcher — team attendance statistics, player attendance statistics, the attendance leaderboard, minutes played per team and the minutes audit — lead to reports that need statistics access, while the launcher itself only asks for reports access. A role with the first and not the second, such as a read-only board observer, was shown the tiles and met "You do not have permission to view this report" on opening one. The tiles now carry the capability their destination reads, so they are simply not offered to a viewer who cannot open them, and the Attendance heading no longer stands over an empty section. Nothing changes for a coach or head of development, who hold both.

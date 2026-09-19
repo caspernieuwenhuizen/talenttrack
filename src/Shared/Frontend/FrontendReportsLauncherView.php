@@ -134,22 +134,32 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             // minutes reports. Labels/descriptions reuse the existing
             // FrontendAnalyticsView msgids. The views self-gate on
             // tt_view_analytics + team scope.
+            // #3647 — and so must the tile. `tt_view_reports` alone opens
+            // this launcher, but these five destinations read
+            // `tt_view_analytics`; without the tile's own cap a board
+            // observer was offered an attendance tile that answered "not
+            // authorized". Whether a given role holds tt_view_analytics is
+            // decided in the capability matrix, not here — carrying the cap
+            // makes the tile follow that decision automatically.
             [
                 'slug'  => 'attendance-report-team',
                 'label' => __( 'Team attendance statistics', 'talenttrack' ),
                 'desc'  => __( 'Present / late / absent / excused / injured percentages per team over a configurable date range.', 'talenttrack' ),
+                'cap'   => 'tt_view_analytics',
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-team' ], $base_url ),
             ],
             [
                 'slug'  => 'attendance-report-player',
                 'label' => __( 'Player attendance statistics', 'talenttrack' ),
                 'desc'  => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
+                'cap'   => 'tt_view_analytics',
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base_url ),
             ],
             [
                 'slug'  => 'attendance-leaderboard',
                 'label' => __( 'Attendance leaderboard', 'talenttrack' ),
                 'desc'  => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
+                'cap'   => 'tt_view_analytics',
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base_url ),
             ],
             // #1637 — minutes-played-per-team moved here from the Analytics
@@ -158,6 +168,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'slug'  => 'minutes-report-team',
                 'label' => __( 'Minutes played per team', 'talenttrack' ),
                 'desc'  => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
+                'cap'   => 'tt_view_analytics',
                 'url'   => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base_url ),
             ],
             // #2368 — read-only auditability matrix (games × players) that
@@ -167,6 +178,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'slug'  => 'minutes-audit',
                 'label' => __( 'Minutes audit', 'talenttrack' ),
                 'desc'  => __( 'Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps.', 'talenttrack' ),
+                'cap'   => 'tt_view_analytics',
                 'url'   => add_query_arg( [ 'tt_view' => 'minutes-audit' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + scope (§7) */
             ],
             [
