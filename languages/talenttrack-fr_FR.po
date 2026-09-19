@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:53:36+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:56:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -52371,25 +52371,25 @@ msgstr ""
 msgid "End date must be after the start date."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:58
+#: src/Shared/Frontend/FrontendInstallBanner.php:65
 msgid "Get TalentTrack on your phone"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:61
+#: src/Shared/Frontend/FrontendInstallBanner.php:68
 msgid ""
 "Install the app to see new tasks, evaluations, and goal updates the moment "
 "they happen."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:65
+#: src/Shared/Frontend/FrontendInstallBanner.php:72
 msgid "Enable notifications"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:68
+#: src/Shared/Frontend/FrontendInstallBanner.php:76
 msgid "Install instructions"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:71
+#: src/Shared/Frontend/FrontendInstallBanner.php:80
 msgid "Not now"
 msgstr ""
 

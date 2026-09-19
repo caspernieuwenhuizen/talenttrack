@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:53:36+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:56:51+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -56619,26 +56619,26 @@ msgstr ""
 msgid "End date must be after the start date."
 msgstr "De einddatum moet na de startdatum liggen."
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:58
+#: src/Shared/Frontend/FrontendInstallBanner.php:65
 msgid "Get TalentTrack on your phone"
 msgstr "Zet TalentTrack op je telefoon"
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:61
+#: src/Shared/Frontend/FrontendInstallBanner.php:68
 msgid ""
 "Install the app to see new tasks, evaluations, and goal updates the moment "
 "they happen."
 msgstr ""
 "Installeer de app om nieuwe taken, evaluaties en doelupdates direct te zien."
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:65
+#: src/Shared/Frontend/FrontendInstallBanner.php:72
 msgid "Enable notifications"
 msgstr "Notificaties inschakelen"
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:68
+#: src/Shared/Frontend/FrontendInstallBanner.php:76
 msgid "Install instructions"
 msgstr "Installatie-instructies"
 
-#: src/Shared/Frontend/FrontendInstallBanner.php:71
+#: src/Shared/Frontend/FrontendInstallBanner.php:80
 msgid "Not now"
 msgstr "Niet nu"
 
