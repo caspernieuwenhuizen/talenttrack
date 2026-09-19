@@ -816,7 +816,7 @@ class PlayersRestController {
             'guardian_email'      => $pl->guardian_email ?: null,
             'guardian_phone'      => $pl->guardian_phone ?: null,
             // #3590 — NULL is "no account" since #1772; 0 read as an id.
-            'wp_user_id'          => (int) $pl->wp_user_id > 0 ? (int) $pl->wp_user_id : null,
+            'wp_user_id'          => ( (int) $pl->wp_user_id ) ?: null,
             'status'              => (string) $pl->status,
             'custom_fields'       => (object) $custom,
         ];
