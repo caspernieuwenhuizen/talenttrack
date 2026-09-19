@@ -41,6 +41,8 @@ Nothing is written until you finish the last step. Backing out halfway leaves no
 
 The player's status flips to **Trial** automatically when the case opens.
 
+A player has **one open trial at a time**. If they already have a case that is open or extended, a new one is refused, and the message names the case that is open, with a link to it. To make a trial longer, extend the open case. Once it's decided or archived, a new case can be opened.
+
 If your academy has the guided flows switched off, *Add case* opens the older single-page form instead. It asks for the same things and behaves identically — same checks, same journey entries.
 
 Opening the case writes **Trial started** to the player's journey, so the trial shows on their timeline from day one. If you created the player inline on this form — first name, last name and date of birth — that also writes **Joined the academy**, the same as adding them from the Players screen. The trial is where a trial player came from, and the timeline should say so without anyone having to add a note.

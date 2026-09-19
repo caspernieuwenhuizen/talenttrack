@@ -62732,6 +62732,16 @@ msgstr "Typ minstens twee tekens van de naam of het e-mailadres."
 #~ msgid "Create a parent account"
 #~ msgstr "Maak een ouderaccount aan"
 
+#. translators: 1: player name, 2: the open trial case's number
+#: src/Modules/Trials/Services/TrialCaseOpener.php
+#, php-format
+msgid "%1$s already has an open trial case (#%2$d). Extend or decide that case instead of opening a second one."
+msgstr "%1$s heeft al een open stagedossier (#%2$d). Verleng dat dossier of neem een besluit in plaats van een tweede te openen."
+
+#: src/Shared/Frontend/FrontendTrialsManageView.php
+msgid "Open that trial case"
+msgstr "Open dat stagedossier"
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 
