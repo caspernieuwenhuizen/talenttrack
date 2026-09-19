@@ -81,7 +81,9 @@ final class ParentAccountService {
      * WP users eligible to be linked to a player as a parent: every user,
      * minus those already bound as a PLAYER or a staff PERSON in this club
      * (those identities must not double-bind). A user already guarding
-     * another player stays eligible — parents are many-to-many.
+     * another player stays eligible — parents are many-to-many. A people
+     * row of type `parent` is a guardian's record, not a staff seat, and
+     * does not exclude (#3572) — the same rule `linkToPlayer()` applies.
      *
      * @return array<int,object> WP_User-lite rows (ID, display_name, user_email).
      */
@@ -94,7 +96,8 @@ final class ParentAccountService {
               WHERE wp_user_id IS NOT NULL AND wp_user_id > 0 AND club_id = %d
              UNION
              SELECT wp_user_id FROM {$wpdb->prefix}tt_people
-              WHERE wp_user_id IS NOT NULL AND wp_user_id > 0 AND club_id = %d",
+              WHERE wp_user_id IS NOT NULL AND wp_user_id > 0 AND club_id = %d
+                AND ( role_type IS NULL OR role_type <> 'parent' )",
             $club, $club
         ) );
 
@@ -139,8 +142,15 @@ final class ParentAccountService {
         if ( $is_player > 0 ) {
             return $this->err( 'already_player', __( 'That account is a player account and can\'t also be a parent.', 'talenttrack' ) );
         }
+        // #3572 — a people row of type `parent` is a guardian's record, not a
+        // staff seat, so it does not block. Refusing it put this path at
+        // odds with `PlayersRestController::maybeLinkParent()`, which only
+        // accepted such accounts; both now come through here.
         $is_person = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+            "SELECT id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id = %d AND club_id = %d
+                AND ( role_type IS NULL OR role_type <> 'parent' )
+              LIMIT 1",
             $parent_user_id, $club
         ) );
         if ( $is_person > 0 ) {

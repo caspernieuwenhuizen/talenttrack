@@ -59,6 +59,16 @@ de lijst.
  niet ook aan een andere speler of aan een staf-/ouderrecord is gekoppeld
  — zo verliest een coach die ooit speelde zijn coachtoegang niet.
 
+## De ouders van een speler
+
+Een ouder koppel je aan een speler door het account van de ouder aan die speler te verbinden in de weergave **Ouderaccounts**. Die koppeling is de enige plek waar staat wie de ouders van een speler zijn. Ze bepaalt wat een ouder kan zien, en de spelerslijst toont haar in de ouderkolom: de primaire ouder, plus een aantal als er meer zijn ("Anna de Vries +1").
+
+Een account dat een speler of een stafmedewerker is, kun je niet ook als ouder koppelen. Een account dat onder Mensen alleen een *ouder*-record heeft, wel.
+
+Een verzorger zonder account zet je in plaats daarvan in de contactvelden voor de verzorger bij de speler (naam, e-mail en telefoon). Berichten aan een gezin vallen op die velden terug.
+
+Het spelersformulier in wp-admin had een eigen ouderkiezer, die naar een record onder Mensen wees in plaats van naar een account. Die is verdwenen. Bij de update wordt elke koppeling daaruit naar een persoon *met* een account automatisch overgezet naar de koppeling in Ouderaccounts. Een koppeling naar een persoon zonder account kan niet worden overgezet. Elk daarvan staat in het **Foutenlog**, zodat je die verzorger opnieuw kunt invoeren in de contactvelden van de speler.
+
 ## Waarom één account, één speler
 
 Een login is aan **maximaal één** speler gekoppeld. Het systeem dwingt dit

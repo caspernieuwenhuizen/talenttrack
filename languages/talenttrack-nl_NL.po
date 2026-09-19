@@ -62712,6 +62712,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Players/Admin/PlayersPage.php
+msgid "None linked"
+msgstr "Geen gekoppeld"
+
+#: src/Modules/Players/Admin/PlayersPage.php
+msgid "Link or unlink parent accounts"
+msgstr "Ouderaccounts koppelen of ontkoppelen"
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 
