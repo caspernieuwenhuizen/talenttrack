@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
-use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
 
 /**
@@ -251,36 +251,16 @@ class MatchPrepRestController {
      * and leaves status/notes/record_type unchanged on existing rows.
      */
     private static function projectAttendance( int $activity_id, int $prep_id, MatchPrepRepository $repo ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         $prep = $repo->findByActivity( $activity_id );
         if ( ! $prep ) return;
 
-        // Formation shape → slot → label map.
-        $shape = '';
-        $formation_id = (int) ( $prep->formation_template_id ?? 0 );
-        if ( $formation_id > 0 ) {
-            $shape = (string) $wpdb->get_var( $wpdb->prepare(
-                "SELECT formation_shape FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
-                $formation_id
-            ) );
-        }
-        // #2099 — prefer the bound template's own slot labels (slots_json) so
-        // a diamond's positions project correctly; fall back to the shape map.
-        $slot_position = [];
-        $layout = FrontendMatchPrepView::templateSlotLayout( $formation_id );
-        if ( $layout === null && $shape !== '' ) {
-            $layouts = FrontendMatchPrepView::defaultSlotLayouts();
-            $layout  = $layouts[ $shape ] ?? null;
-        }
-        if ( is_array( $layout ) ) {
-            foreach ( $layout as $entry ) {
-                if ( isset( $entry['num'], $entry['label'] ) ) {
-                    $slot_position[ (int) $entry['num'] ] = (string) $entry['label'];
-                }
-            }
-        }
+        // Slot → position label, from the layout every line-up surface
+        // resolves (#3574): the template's own slots (#2099), its shape, the
+        // team's football form, then 4-3-3.
+        $slot_position = FormationLayoutResolver::labelsFor(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
+        );
 
         // Half-1 lineup → slot per player.
         $starting_slot = [];

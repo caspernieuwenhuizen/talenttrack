@@ -154,19 +154,11 @@ class PersonDeletionCascade {
                 $total_affected += $invite_null;
             }
 
-            // tt_players.parent_person_id — set-null; surface the player names
-            $players = $wpdb->get_results( $wpdb->prepare(
-                "SELECT first_name, last_name FROM {$p}tt_players WHERE parent_person_id = %d AND club_id = %d",
-                $pid, $club
-            ) );
-            foreach ( (array) $players as $pl ) {
-                $name = trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) );
-                $nulls[] = [
-                    'kind'   => 'player_parent_link',
-                    'player' => $name !== '' ? $name : __( '(unnamed player)', 'talenttrack' ),
-                ];
-                $total_affected++;
-            }
+            // #3572 — `tt_players.parent_person_id` is retired and read by
+            // nothing, so it is no longer listed as a consequence here: a
+            // player's parent is the `tt_player_parents` link, which a
+            // person deletion does not touch. The set-null below stays, so
+            // the column holds no dangling id until it is dropped.
 
             $out[] = [
                 'id'             => $pid,

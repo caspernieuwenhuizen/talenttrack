@@ -105,10 +105,17 @@ roster still default everyone to Present.
 ## Formation
 
 The **Formation** dropdown lists every entry from
-`tt_formation_templates`. The default is **4-2-3-1** — the pilot's
-most common shape. Changing the formation reshapes the slot positions
-on the pitches; player assignments transfer to the slots that survive
-the rename, the rest fall back to the bench.
+`tt_formation_templates`. Until you pick one, the pitch follows the team's
+football form: an 8-a-side team lines up **3-3-1**, a 6-a-side team
+**3-2-1**, and an 11-a-side team **4-3-3**. Changing the formation reshapes
+the slot positions on the pitches; player assignments transfer to the slots
+that survive the rename, the rest fall back to the bench.
+
+Small-sided formations draw their own slots: **3-3-1** and **3-2-2** have
+eight, with the keeper in slot 1, and **3-2-1** and **2-3-1** have six, with
+no keeper, because 6-a-side is played without one. The prep screen, the
+printed prep, the team sheet and the live match sheet always draw the same
+shape for the same match.
 
 The descriptive name reads in your language (the shape numbers stay the
 same in every language) — e.g. **Neutraal 4-3-3**, **Balbezit 4-3-3**.

@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Util\PlayerShortName;
@@ -34,156 +35,34 @@ use TT\Shared\Util\PlayerShortName;
 class FrontendMatchPrepView extends FrontendViewBase {
 
     /**
-     * Slot positions per formation shape. Coordinates are percentage
-     * offsets from the pitch container (0 = top/left, 100 =
-     * bottom/right). The 4-3-3 default mirrors the mockup; the rest
-     * are sensible starting layouts. v2 can read from
-     * tt_formation_templates.slots_json instead — keeping this in PHP
-     * keeps the v1 shipping surface narrow.
+     * Slot layouts per formation shape. #3574 — the data and the
+     * resolution rules live in `FormationLayoutResolver`, which every
+     * surface that draws a line-up asks; this stays as a delegate for the
+     * callers that already use it.
      *
      * @return array<string, list<array{num:int,label:string,x:float,y:float}>>
      */
     public static function defaultSlotLayouts(): array {
-        return [
-            '4-3-3' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 50, 'y' => 12 ],
-                [ 'num' => 11, 'label' => 'LW',  'x' => 18, 'y' => 28 ],
-                [ 'num' => 10, 'label' => 'AM',  'x' => 50, 'y' => 28 ],
-                [ 'num' =>  7, 'label' => 'RW',  'x' => 82, 'y' => 28 ],
-                [ 'num' =>  8, 'label' => 'LCM', 'x' => 36, 'y' => 45 ],
-                [ 'num' =>  6, 'label' => 'RCM', 'x' => 64, 'y' => 45 ],
-                [ 'num' =>  5, 'label' => 'LB',  'x' => 16, 'y' => 64 ],
-                [ 'num' =>  4, 'label' => 'LCB', 'x' => 38, 'y' => 64 ],
-                [ 'num' =>  3, 'label' => 'RCB', 'x' => 62, 'y' => 64 ],
-                [ 'num' =>  2, 'label' => 'RB',  'x' => 84, 'y' => 64 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-            '4-2-3-1' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 50, 'y' => 14 ],
-                [ 'num' => 11, 'label' => 'LAM', 'x' => 20, 'y' => 30 ],
-                [ 'num' => 10, 'label' => 'AM',  'x' => 50, 'y' => 30 ],
-                [ 'num' =>  7, 'label' => 'RAM', 'x' => 80, 'y' => 30 ],
-                [ 'num' =>  8, 'label' => 'LDM', 'x' => 36, 'y' => 50 ],
-                [ 'num' =>  6, 'label' => 'RDM', 'x' => 64, 'y' => 50 ],
-                [ 'num' =>  5, 'label' => 'LB',  'x' => 16, 'y' => 68 ],
-                [ 'num' =>  4, 'label' => 'LCB', 'x' => 38, 'y' => 68 ],
-                [ 'num' =>  3, 'label' => 'RCB', 'x' => 62, 'y' => 68 ],
-                [ 'num' =>  2, 'label' => 'RB',  'x' => 84, 'y' => 68 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-            '4-4-2' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 38, 'y' => 14 ],
-                [ 'num' => 10, 'label' => 'ST',  'x' => 62, 'y' => 14 ],
-                [ 'num' => 11, 'label' => 'LM',  'x' => 14, 'y' => 38 ],
-                [ 'num' =>  8, 'label' => 'LCM', 'x' => 38, 'y' => 38 ],
-                [ 'num' =>  6, 'label' => 'RCM', 'x' => 62, 'y' => 38 ],
-                [ 'num' =>  7, 'label' => 'RM',  'x' => 86, 'y' => 38 ],
-                [ 'num' =>  5, 'label' => 'LB',  'x' => 16, 'y' => 64 ],
-                [ 'num' =>  4, 'label' => 'LCB', 'x' => 38, 'y' => 64 ],
-                [ 'num' =>  3, 'label' => 'RCB', 'x' => 62, 'y' => 64 ],
-                [ 'num' =>  2, 'label' => 'RB',  'x' => 84, 'y' => 64 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-            '3-5-2' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 38, 'y' => 14 ],
-                [ 'num' => 10, 'label' => 'ST',  'x' => 62, 'y' => 14 ],
-                [ 'num' =>  7, 'label' => 'RWB', 'x' => 88, 'y' => 38 ],
-                [ 'num' =>  8, 'label' => 'CM',  'x' => 36, 'y' => 40 ],
-                [ 'num' =>  6, 'label' => 'CM',  'x' => 50, 'y' => 46 ],
-                [ 'num' =>  4, 'label' => 'CM',  'x' => 64, 'y' => 40 ],
-                [ 'num' => 11, 'label' => 'LWB', 'x' => 12, 'y' => 38 ],
-                [ 'num' =>  5, 'label' => 'LCB', 'x' => 26, 'y' => 66 ],
-                [ 'num' =>  3, 'label' => 'CB',  'x' => 50, 'y' => 68 ],
-                [ 'num' =>  2, 'label' => 'RCB', 'x' => 74, 'y' => 66 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-            '3-4-3' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 50, 'y' => 14 ],
-                [ 'num' => 11, 'label' => 'LW',  'x' => 20, 'y' => 22 ],
-                [ 'num' =>  7, 'label' => 'RW',  'x' => 80, 'y' => 22 ],
-                [ 'num' => 10, 'label' => 'LM',  'x' => 26, 'y' => 44 ],
-                [ 'num' =>  8, 'label' => 'LCM', 'x' => 42, 'y' => 46 ],
-                [ 'num' =>  6, 'label' => 'RCM', 'x' => 58, 'y' => 46 ],
-                [ 'num' =>  4, 'label' => 'RM',  'x' => 74, 'y' => 44 ],
-                [ 'num' =>  5, 'label' => 'LCB', 'x' => 26, 'y' => 68 ],
-                [ 'num' =>  3, 'label' => 'CB',  'x' => 50, 'y' => 68 ],
-                [ 'num' =>  2, 'label' => 'RCB', 'x' => 74, 'y' => 68 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-            '4-1-4-1' => [
-                [ 'num' =>  9, 'label' => 'ST',  'x' => 50, 'y' => 14 ],
-                [ 'num' => 11, 'label' => 'LM',  'x' => 14, 'y' => 34 ],
-                [ 'num' => 10, 'label' => 'LCM', 'x' => 38, 'y' => 34 ],
-                [ 'num' =>  8, 'label' => 'RCM', 'x' => 62, 'y' => 34 ],
-                [ 'num' =>  7, 'label' => 'RM',  'x' => 86, 'y' => 34 ],
-                [ 'num' =>  6, 'label' => 'CDM', 'x' => 50, 'y' => 50 ],
-                [ 'num' =>  5, 'label' => 'LB',  'x' => 16, 'y' => 66 ],
-                [ 'num' =>  4, 'label' => 'LCB', 'x' => 38, 'y' => 66 ],
-                [ 'num' =>  3, 'label' => 'RCB', 'x' => 62, 'y' => 66 ],
-                [ 'num' =>  2, 'label' => 'RB',  'x' => 84, 'y' => 66 ],
-                [ 'num' =>  1, 'label' => 'GK',  'x' => 50, 'y' => 88 ],
-            ],
-        ];
+        return FormationLayoutResolver::defaults();
     }
 
     /**
-     * Per-template slot layout read from a formation template's
-     * `slots_json`, when that JSON carries explicit slot numbers (#2099).
-     *
-     * Returns a num-keyed list shaped exactly like a
-     * `defaultSlotLayouts()` entry (x/y in 0..100, left→right / top→bottom),
-     * or `null` when the template has no num-bearing `slots_json` — callers
-     * then fall back to the shape-keyed default. This makes a template's own
-     * geometry authoritative (e.g. the 3-4-3 diamond) instead of collapsing
-     * every template that shares a shape string onto one flat layout.
-     *
-     * The templates table is install-global (no club_id column), so no
-     * tenancy filter applies here.
+     * A formation template's own numbered slot layout (#2099), or `null`.
      *
      * @return list<array{num:int,label:string,x:float,y:float}>|null
      */
     public static function templateSlotLayout( int $template_id ): ?array {
-        if ( $template_id <= 0 ) return null;
-        global $wpdb;
-        $table = $wpdb->prefix . 'tt_formation_templates';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return null;
-        }
-        $json = (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT slots_json FROM {$table} WHERE id = %d LIMIT 1",
-            $template_id
-        ) );
-        return self::parseSlotsJson( $json );
+        return FormationLayoutResolver::templateLayout( $template_id );
     }
 
     /**
-     * Parse a template `slots_json` string into a num-keyed slot layout.
-     * Returns `null` unless every slot carries a numeric `num` — a layout
-     * without slot numbers can't be aligned to the lineup, so callers fall
-     * back to the shape default. `pos.x` / `pos.y` are 0..1 in the stored
-     * JSON and scaled to the 0..100 percentage the pitch templates use.
+     * Parse a template `slots_json` into a numbered layout, or `null` when
+     * any slot lacks a `num`.
      *
      * @return list<array{num:int,label:string,x:float,y:float}>|null
      */
     public static function parseSlotsJson( string $json ): ?array {
-        if ( $json === '' ) return null;
-        $data = json_decode( $json, true );
-        if ( ! is_array( $data ) || $data === [] ) return null;
-
-        $out = [];
-        foreach ( $data as $slot ) {
-            if ( ! is_array( $slot ) || ! isset( $slot['num'] ) || ! is_numeric( $slot['num'] ) ) {
-                return null;
-            }
-            $pos = is_array( $slot['pos'] ?? null ) ? $slot['pos'] : [];
-            $out[] = [
-                'num'   => (int) $slot['num'],
-                'label' => (string) ( $slot['label'] ?? '' ),
-                'x'     => (float) ( $pos['x'] ?? 0.5 ) * 100,
-                'y'     => (float) ( $pos['y'] ?? 0.5 ) * 100,
-            ];
-        }
-        return $out;
+        return FormationLayoutResolver::parseSlotsJson( $json );
     }
 
     /**
@@ -331,7 +210,13 @@ class FrontendMatchPrepView extends FrontendViewBase {
         }
 
         $formations  = self::listFormationTemplates();
-        $formation_shape = self::resolveFormationShape( (int) ( $prep->formation_template_id ?? 0 ), $formations );
+        // #3574 — the same shape the print, the team sheet and the live
+        // match sheet resolve for this prep, including the team's football
+        // form when nothing is bound.
+        $formation_shape = FormationLayoutResolver::shapeFor(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            (int) ( $activity->team_id ?? 0 )
+        );
 
         $title = sprintf(
             /* translators: 1: activity title, 2: session date */
@@ -1158,26 +1043,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
               ORDER BY is_seeded DESC, formation_shape ASC, name ASC"
         );
         return is_array( $rows ) ? $rows : [];
-    }
-
-    /**
-     * Resolve the formation shape string for the JS layer.
-     *
-     * Picks the template's shape if a template is bound; otherwise
-     * falls back to the spreadsheet default `4-2-3-1`.
-     *
-     * @param list<object> $formations
-     */
-    private static function resolveFormationShape( int $template_id, array $formations ): string {
-        if ( $template_id > 0 ) {
-            foreach ( $formations as $f ) {
-                if ( (int) ( $f->id ?? 0 ) === $template_id ) {
-                    $shape = (string) ( $f->formation_shape ?? '' );
-                    if ( $shape !== '' ) return $shape;
-                }
-            }
-        }
-        return '4-2-3-1';
     }
 
     /**

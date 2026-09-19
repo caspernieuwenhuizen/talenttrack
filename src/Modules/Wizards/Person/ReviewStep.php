@@ -68,12 +68,14 @@ final class ReviewStep implements WizardStepInterface {
         }
 
         // Honour `?return_to=...&return_field=...` if the wizard was
-        // launched from a picker round-trip (e.g. the parent picker
-        // on the player edit form).
+        // launched from a picker round-trip. #3572 — the default used to be
+        // `parent_person_id`, for the wp-admin parent picker; that picker
+        // and the column it wrote are retired, so the default is the
+        // neutral `person_id`.
         $return_to    = isset( $_GET['return_to'] )    ? esc_url_raw( (string) $_GET['return_to'] )       : '';
         $return_field = isset( $_GET['return_field'] ) ? sanitize_key( (string) $_GET['return_field'] )   : '';
         if ( $return_to !== '' ) {
-            $field = $return_field !== '' ? $return_field : 'parent_person_id';
+            $field = $return_field !== '' ? $return_field : 'person_id';
             $url   = add_query_arg( $field, (int) $id, $return_to );
             return [ 'redirect_url' => $url ];
         }

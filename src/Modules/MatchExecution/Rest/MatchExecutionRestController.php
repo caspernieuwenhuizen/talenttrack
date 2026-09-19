@@ -260,7 +260,8 @@ class MatchExecutionRestController {
         $slots = ( new PitchLayoutService() )->positionedXi(
             (int) ( $prep->formation_template_id ?? 0 ),
             $slot_to_player,
-            $player_meta
+            $player_meta,
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
         );
 
         // Rebuild — tracked development-action map for the live surface:

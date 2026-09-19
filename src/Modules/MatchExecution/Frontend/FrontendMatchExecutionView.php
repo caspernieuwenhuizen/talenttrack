@@ -346,7 +346,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         $pitch_slots = ( new PitchLayoutService() )->positionedXi(
             (int) ( $prep->formation_template_id ?? 0 ),
             PitchLayoutService::applySubstitutions( $slot_to_player_h1, $substitutions ),
-            $pitch_meta
+            $pitch_meta,
+            (int) ( $activity->team_id ?? 0 )
         );
         $event_feed = ( new MatchEventFeedService() )->feedForActivity( $activity_id );
         // #2224 Part A — link the parent activity through the breadcrumb
