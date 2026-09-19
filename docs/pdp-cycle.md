@@ -47,6 +47,8 @@ The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pd
 
 From the **PDP** tile, click *Create PDP* on a player's row (or *Open new PDP file*), pick a player and click *Open new PDP file*. The file is created with one row per conversation in the cycle (2, 3, or 4 — configurable per club, overridable per team) with each `scheduled_at` distributed evenly across the season's start and end dates.
 
+Those first dates are a starting point, not a booking: each talk is placed on a whole day at **18:00**, and the coach moves it to the day and time the talk actually happens. When the academy has configured cycle blocks for the season, the talk is placed on the middle day of its block instead, at the same time, and its planning window is the block.
+
 A native calendar entry is written for every conversation.
 
 ### 2. Run the conversations
