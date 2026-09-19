@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:04:33+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:08:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -3943,7 +3943,7 @@ msgstr ""
 #: src/Modules/Wizards/Activity/ReviewStep.php:62
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:276
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
 #: src/Shared/Frontend/CoachForms.php:580
@@ -4737,7 +4737,7 @@ msgstr[1] ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:871
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:920
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:182
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:268
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:69
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:133
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:113
@@ -6826,8 +6826,8 @@ msgstr[1] ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:76
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:167
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:52
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:245
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:279
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:283
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/DashboardShortcode.php:287
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:195
@@ -7511,7 +7511,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:368
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:270
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:584
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:284
 #: src/Modules/Workflow/TaskStatus.php:65
 #: src/Shared/Frontend/FrontendExportsView.php:122
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:383
@@ -7933,7 +7933,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1713
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:252
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:270
 #: src/Shared/Frontend/Components/FrontendListTable.php:428
 #: src/Shared/Frontend/Components/FrontendListTable.php:580
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2332
@@ -8465,7 +8465,7 @@ msgstr "— Aucun —"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:269
 #: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:289
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:302
 #: src/Shared/Admin/BulkActionsHelper.php:176
 #: src/Shared/Frontend/Components/FilterBar.php:587
 #: src/Shared/Frontend/Components/FilterBar.php:851
@@ -20659,7 +20659,7 @@ msgid "Player or notes"
 msgstr ""
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:162
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:292
 #: src/Shared/Frontend/FrontendTrialsManageView.php:300
 msgid "Any"
 msgstr ""
@@ -23974,7 +23974,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:334
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:178
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:285
 #: src/Modules/Workflow/TaskStatus.php:67
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2636
 msgid "Overdue"
@@ -36619,12 +36619,12 @@ msgid "Show all (%d open)"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:160
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:465
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:469
 msgid "overdue"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:163
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:462
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:466
 #, php-format
 msgid "in %d hour"
 msgid_plural "in %d hours"
@@ -41468,28 +41468,34 @@ msgstr ""
 msgid "Notes — %s"
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:139
-#: src/Modules/Threads/Rest/ThreadsRestController.php:174
+#. translators: 1: the thread type the caller sent, 2: comma-separated list of valid thread types
+#: src/Modules/Threads/Rest/ThreadsRestController.php:138
+#, php-format
+msgid "Unknown thread type \"%1$s\". Valid types: %2$s."
+msgstr ""
+
+#: src/Modules/Threads/Rest/ThreadsRestController.php:194
+#: src/Modules/Threads/Rest/ThreadsRestController.php:229
 msgid "Message body required."
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:159
+#: src/Modules/Threads/Rest/ThreadsRestController.php:214
 msgid "Could not post message."
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:181
+#: src/Modules/Threads/Rest/ThreadsRestController.php:236
 msgid "Edit window has expired or you are not the author."
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:197
+#: src/Modules/Threads/Rest/ThreadsRestController.php:252
 msgid "Message not found."
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:202
+#: src/Modules/Threads/Rest/ThreadsRestController.php:257
 msgid "You cannot delete this message."
 msgstr ""
 
-#: src/Modules/Threads/Rest/ThreadsRestController.php:207
+#: src/Modules/Threads/Rest/ThreadsRestController.php:262
 msgid "Could not delete message."
 msgstr ""
 
@@ -46520,82 +46526,88 @@ msgstr ""
 msgid "Open tasks"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
+#. translators: %s: task title, usually the player name.
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:227
+#, php-format
+msgid "Select task: %s"
+msgstr ""
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:253
 msgid "Snooze for 1 day"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:253
 msgid "1d"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:250
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:254
 msgid "Snooze for 7 days"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:250
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:254
 msgid "7d"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:278
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:282
 msgid "All actionable"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:282
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:286
 msgid "Completed (read-only)"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:286
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:290
 msgid "Due within"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:289
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:293
 msgid "24 hours"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:290
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:294
 msgid "3 days"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:291
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:295
 msgid "7 days"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:296
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:300
 msgid "Show snoozed"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:344
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:348
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:65
 msgid "Security check failed. Please refresh and try again."
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:360
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:364
 msgid "Task snoozed."
 msgstr ""
 
 #. translators: %d task count
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:388
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:392
 #, php-format
 msgid "%d task skipped."
 msgid_plural "%d tasks skipped."
 msgstr[0] "%d taak overgeslagen."
 msgstr[1] "%d taken overgeslagen."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:395
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:399
 #, php-format
 msgid "%d task snoozed for 1 day."
 msgid_plural "%d tasks snoozed for 1 day."
 msgstr[0] "%d taak voor 1 dag gesnoozed."
 msgstr[1] "%d taken voor 1 dag gesnoozed."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:402
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:406
 #, php-format
 msgid "%d task snoozed for 7 days."
 msgid_plural "%d tasks snoozed for 7 days."
 msgstr[0] "%d taak voor 7 dagen gesnoozed."
 msgstr[1] "%d taken voor 7 dagen gesnoozed."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:431
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:435
 #, php-format
 msgid "activity #%d"
 msgstr ""
