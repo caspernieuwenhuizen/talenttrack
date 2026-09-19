@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Activities\Services\ActivityTimeWindow;
 use TT\Modules\Authorization\AllTeamsScope;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -30,7 +31,11 @@ use WP_REST_Response;
  *    same authorization the detail view uses. A capability check on the
  *    route alone would let a user peek a record they cannot open.
  * 3. **Small, fixed payloads.** A summary, not a serialised record. The
- *    panel shows enough to decide whether to open the thing properly.
+ *    panel shows enough to decide whether to open the thing properly. For
+ *    an activity that is "when and where" (#3679): a parent deciding
+ *    whether to open Tuesday's training is asking what time to be there
+ *    and which pitch, so those facts are the summary rather than a
+ *    shortcut past it.
  *
  * These are the endpoints CLAUDE.md §4 says should exist anyway: the
  * feature is reachable through REST, so a non-WordPress front end gets the
@@ -187,6 +192,15 @@ final class PeekRestController extends BaseController {
 
         $team = ! empty( $row->team_id ) ? QueryHelpers::get_team( (int) $row->team_id ) : null;
 
+        // #3679 — "when and where". The row already carries these (the
+        // repository selects `s.*`), the detail hero already shows them,
+        // and without them a parent peeking Tuesday's training learned only
+        // that it is a training on a date.
+        $start    = (string) ( $row->start_time ?? '' );
+        $end      = (string) ( $row->end_time ?? '' );
+        $presence = (string) ( $row->time_of_presence ?? '' );
+        $location = (string) ( $row->location ?? '' );
+
         return self::envelope(
             'activity',
             $id,
@@ -197,6 +211,18 @@ final class PeekRestController extends BaseController {
                 [
                     'label' => __( 'Date', 'talenttrack' ),
                     'value' => ! empty( $row->session_date ) ? \TT\Shared\Dates\TTDate::date( (string) $row->session_date ) : '',
+                ],
+                [
+                    'label' => __( 'Time', 'talenttrack' ),
+                    'value' => ActivityTimeWindow::format( $start, $end ),
+                ],
+                [
+                    'label' => __( 'Presence time', 'talenttrack' ),
+                    'value' => ActivityTimeWindow::clock( $presence ),
+                ],
+                [
+                    'label' => __( 'Location', 'talenttrack' ),
+                    'value' => $location,
                 ],
                 [
                     'label' => __( 'Type', 'talenttrack' ),

@@ -53929,6 +53929,11 @@ msgstr "Filter verwijderen: %s"
 msgid "Presence time (optional)"
 msgstr "Aanwezigheidstijd (optioneel)"
 
+#: src/Infrastructure/REST/PeekRestController.php:200
+msgid "Presence time"
+msgstr "Aanwezigheidstijd"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3711
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3729
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
