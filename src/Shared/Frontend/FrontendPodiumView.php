@@ -47,10 +47,16 @@ class FrontendPodiumView extends FrontendViewBase {
         // summary strip and the lead-team accent can be derived without
         // a second pass. Plain iteration over already-authorized data —
         // no business logic, no extra queries.
+        // #3702 — one batched ranking pass for every team in scope. The
+        // per-team call costs three queries each; getTopPlayersForTeams()
+        // answers the whole set in three, with identical ranking logic.
+        $team_ids = array_map( static fn( $t ) => (int) $t->id, $teams );
+        $tops     = $team_svc->getTopPlayersForTeams( $team_ids, 3, 5 );
+
         $podiums       = [];
         $ranked_player_count = 0;
-        foreach ( $teams as $team ) {
-            $top = $team_svc->getTopPlayersForTeam( (int) $team->id, 3, 5 );
+        foreach ( $teams as $i => $team ) {
+            $top = $tops[ $team_ids[ $i ] ] ?? [];
             if ( empty( $top ) ) continue;
             $podiums[]            = [ 'team' => $team, 'top' => $top ];
             $ranked_player_count += count( $top );
