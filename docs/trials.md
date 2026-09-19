@@ -118,6 +118,9 @@ Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `De
 - Moves the player's status, per the table below.
 - Writes the matching entry on the player's journey — *Trial ended*, plus *Signed* on an admit or *Released* on a final decline.
 - Stamps `decision_made_at` + `decision_made_by` for the audit trail.
+- Keeps the justification note itself, readable afterwards by anyone who may read the case's staff inputs — the head of development and the coaches assigned to it. It does **not** go to the family: the letter and the parent-meeting view carry none of it.
+
+The 30-character floor is counted in characters, so a short motivation written with accents or other non-Latin letters is measured the same way as one written without them.
 
 | Decision | The player becomes | Archived? |
 | --- | --- | --- |

@@ -44,6 +44,15 @@ class TrialsRestController {
 
     private const NS = 'talenttrack/v1';
 
+    /**
+     * Shortest motivation the decision route accepts, in characters.
+     *
+     * Admitting or releasing a child is the hand-off point of a trial and
+     * the one entry a family may ask to see a season later, so a one-word
+     * "Yes" is refused on purpose.
+     */
+    private const DECISION_NOTES_MIN = 30;
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -106,6 +115,9 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'record_decision' ],
             'permission_callback' => [ __CLASS__, 'can_manage' ],
+            // #3654 — the motivation is read from `notes`, and a caller who
+            // guessed `justification` was told their text was too short.
+            'args'                => self::decisionArgs(),
         ] );
 
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/staff', [
@@ -285,7 +297,7 @@ class TrialsRestController {
         // #3130 — `tt_trial_started` moved into `TrialCasesRepository::create()`.
         // Four callers reached that method and only three fired the hook, so
         // the journey entry depended on which screen opened the trial.
-        return RestResponse::success( [ 'case' => self::format( $case ) ] );
+        return RestResponse::success( [ 'case' => self::format( $case, [], true ) ] );
     }
 
     public static function get_case( \WP_REST_Request $r ): \WP_REST_Response {
@@ -295,7 +307,8 @@ class TrialsRestController {
         if ( ! TrialCaseAccessPolicy::canViewSynthesis( get_current_user_id(), $id ) ) {
             return RestResponse::error( 'forbidden', __( 'No access to this case.', 'talenttrack' ), 403 );
         }
-        return RestResponse::success( [ 'case' => self::format( $case ) ] );
+        // Past `canViewSynthesis()`, so the motivation rides along (#3654).
+        return RestResponse::success( [ 'case' => self::format( $case, [], true ) ] );
     }
 
     /**
@@ -381,7 +394,8 @@ class TrialsRestController {
         if ( $patch !== [] ) $ok = $repo->update( $id, $patch );
         if ( $archive )      $ok = $repo->archive( $id, get_current_user_id() ) || $ok;
 
-        return $ok ? RestResponse::success( [ 'updated' => true, 'case' => self::format( $repo->find( $id ) ) ] )
+        // Manager-gated, so the same shape `get_case()` answers with (#3654).
+        return $ok ? RestResponse::success( [ 'updated' => true, 'case' => self::format( $repo->find( $id ), [], true ) ] )
                    : RestResponse::error( 'bad_request', __( 'No fields to update.', 'talenttrack' ), 400 );
     }
 
@@ -408,13 +422,72 @@ class TrialsRestController {
         return RestResponse::success( [ 'extended' => true ] );
     }
 
+    /**
+     * The fields the decision route takes (#3654).
+     *
+     * The motivation is `notes`. Before this was declared, the route
+     * advertised nothing, so a caller sending `justification` — a perfectly
+     * reasonable guess — had it silently dropped and was then told the
+     * motivation it had written was too short. `checkBody()` now refuses
+     * the unknown key by name and lists what the route does accept.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function decisionArgs(): array {
+        return [
+            'decision' => [
+                'type'        => 'string',
+                'required'    => true,
+                'enum'        => [
+                    TrialCaseDecision::ADMIT,
+                    TrialCaseDecision::DENY_FINAL,
+                    TrialCaseDecision::DENY_ENCOURAGEMENT,
+                ],
+                'description' => 'The outcome of the trial: admit, deny_final or deny_encouragement.',
+            ],
+            'notes' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'Motivation for the decision, at least ' . self::DECISION_NOTES_MIN . ' characters.',
+            ],
+            'strengths_summary' => [
+                'type'        => 'string',
+                'description' => 'What the player is good at, for the letter home. Left alone when not sent.',
+            ],
+            'growth_areas' => [
+                'type'        => 'string',
+                'description' => 'What the player should work on, for the letter home. Left alone when not sent.',
+            ],
+        ];
+    }
+
     public static function record_decision( \WP_REST_Request $r ): \WP_REST_Response {
         $id      = absint( $r['id'] );
         $payload = (array) $r->get_json_params();
+
+        // Refuses a key the route does not take, and a declared-required key
+        // sent empty. A misnamed motivation is now answered as a misnamed
+        // motivation rather than as a short one.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::decisionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $decision = sanitize_key( (string) ( $payload['decision'] ?? '' ) );
         $notes    = sanitize_textarea_field( (string) ( $payload['notes'] ?? '' ) );
-        if ( strlen( $notes ) < 30 ) {
-            return RestResponse::error( 'bad_request', __( 'Justification must be at least 30 characters.', 'talenttrack' ), 400 );
+        // Counted in characters, not bytes: the message promises characters,
+        // and a Dutch motivation carrying a few accents used to clear a
+        // byte-counted floor several characters early.
+        $length   = mb_strlen( $notes );
+        if ( $length < self::DECISION_NOTES_MIN ) {
+            return RestResponse::error(
+                'bad_request',
+                sprintf(
+                    /* translators: %d: minimum number of characters. */
+                    __( 'The motivation in "notes" must be at least %d characters.', 'talenttrack' ),
+                    self::DECISION_NOTES_MIN
+                ),
+                400,
+                [ 'field' => 'notes', 'min_length' => self::DECISION_NOTES_MIN, 'length' => $length ]
+            );
         }
         // #3138 — `recordDecision()` accepts all six decisions now, because
         // the workflow forms write the other three and had gone around it.
@@ -702,26 +775,53 @@ class TrialsRestController {
     }
 
     /**
-     * @param array<int,string> $names player id => display name (#3577).
+     * #3654 — when a decision was recorded and by whom, plus the motivation
+     * behind it.
+     *
+     * `recordDecision()` has always written all three and no read returned
+     * any of them, so there was no way to check what had been stored.
+     *
+     * The split is deliberate. The two stamps ride on every case, because a
+     * list that shows `decision` and cannot say when it was taken is half an
+     * answer. `decision_notes` does not: it is free text about whether an
+     * academy wants a child, and `list_cases` is gated on the capability
+     * alone, where `get_case` runs `canViewSynthesis()` per case. Sending
+     * the motivation to a coach who is not on the case would widen who reads
+     * it without anyone deciding to.
+     *
+     * @param array<int,string> $names     player id => display name (#3577).
+     * @param bool              $with_notes Include `decision_notes`. Only true
+     *                                      on a read the caller has per-case
+     *                                      synthesis access to.
      * @return array<string,mixed>
      */
-    private static function format( ?object $row, array $names = [] ): array {
+    private static function format( ?object $row, array $names = [], bool $with_notes = false ): array {
         if ( ! $row ) return [];
-        $player_id = (int) ( ( (array) $row )['player_id'] ?? 0 );
+        $r         = (array) $row;
+        $player_id = (int) ( $r['player_id'] ?? 0 );
         if ( $names === [] ) $names = self::playerNames( [ $player_id ] );
-        return [
-            'id'              => (int) $row->id,
-            'player_id'       => (int) $row->player_id,
+        $made_at = (string) ( $r['decision_made_at'] ?? '' );
+        $made_by = (int) ( $r['decision_made_by'] ?? 0 );
+        $out = [
+            'id'               => (int) $row->id,
+            'player_id'        => (int) $row->player_id,
             // #3577 — who is on trial, without a lookup per row.
-            'player_name'     => $names[ $player_id ] ?? '',
-            'track_id'        => (int) $row->track_id,
-            'start_date'      => (string) $row->start_date,
-            'end_date'        => (string) $row->end_date,
-            'status'          => (string) $row->status,
-            'extension_count' => (int) $row->extension_count,
-            'decision'        => $row->decision ? (string) $row->decision : null,
-            'created_at'      => (string) $row->created_at,
+            'player_name'      => $names[ $player_id ] ?? '',
+            'track_id'         => (int) $row->track_id,
+            'start_date'       => (string) $row->start_date,
+            'end_date'         => (string) $row->end_date,
+            'status'           => (string) $row->status,
+            'extension_count'  => (int) $row->extension_count,
+            'decision'         => $row->decision ? (string) $row->decision : null,
+            'decision_made_at' => $made_at !== '' ? $made_at : null,
+            'decision_made_by' => $made_by > 0 ? $made_by : null,
+            'created_at'       => (string) $row->created_at,
             // #2023 — archived_at + trashed_at via the shared lifecycle helper.
         ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
+        if ( $with_notes ) {
+            $notes = (string) ( $r['decision_notes'] ?? '' );
+            $out['decision_notes'] = $notes !== '' ? $notes : null;
+        }
+        return $out;
     }
 }

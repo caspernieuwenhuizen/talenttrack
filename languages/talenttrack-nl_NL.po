@@ -47286,9 +47286,10 @@ msgstr "Nieuwe einddatum en motivering zijn verplicht."
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
+#. translators: %d: minimum number of characters.
 #: src/Modules/Trials/Rest/TrialsRestController.php:417
-msgid "Justification must be at least 30 characters."
-msgstr "Motivering moet minstens 30 tekens bevatten."
+msgid "The motivation in \"notes\" must be at least %d characters."
+msgstr "De motivatie in \"notes\" moet minstens %d tekens bevatten."
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:431
 #: src/Modules/Trials/Rest/TrialsRestController.php:444
