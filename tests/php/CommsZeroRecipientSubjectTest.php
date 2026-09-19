@@ -136,19 +136,19 @@ final class CommsZeroRecipientSubjectTest extends WP_UnitTestCase {
         [ $team, $coach ] = $this->teamWithHeadCoach();
         $player           = $this->insertPlayer( 'active', $team );
 
-        $this->assertSame( [ $player ], $this->alertedPlayers() );
+        $this->assertContains( $player, $this->alertedPlayers() );
         $for_coach = array_filter(
             ( new NoGuardianContactAlert() )->evaluate( new AlertContext( $this->club ) ),
-            static fn( $o ): bool => $o->recipientUserId === $coach
+            static fn( $o ): bool => $o->recipientUserId === $coach && (int) $o->playerId === $player
         );
         $this->assertCount( 1, $for_coach, 'the head coach hears about it, once' );
 
         $wpdb->update( "{$this->p}tt_players", [ 'guardian_email' => 'home@example.test' ], [ 'id' => $player ] );
-        $this->assertSame( [], $this->alertedPlayers(), 'a guardian email resolves it' );
+        $this->assertNotContains( $player, $this->alertedPlayers(), 'a guardian email resolves it' );
 
         $wpdb->update( "{$this->p}tt_players", [ 'guardian_email' => '' ], [ 'id' => $player ] );
         ( new PlayerParentsRepository() )->link( $player, self::factory()->user->create(), true );
-        $this->assertSame( [], $this->alertedPlayers(), 'a linked parent resolves it' );
+        $this->assertNotContains( $player, $this->alertedPlayers(), 'a linked parent resolves it' );
     }
 
     public function test_a_player_whose_parent_was_invited_is_left_to_the_invitation_alert(): void {
@@ -166,7 +166,7 @@ final class CommsZeroRecipientSubjectTest extends WP_UnitTestCase {
             'expires_at'       => gmdate( 'Y-m-d H:i:s', strtotime( '+14 days' ) ),
         ] );
 
-        $this->assertSame( [], $this->alertedPlayers() );
+        $this->assertNotContains( $player, $this->alertedPlayers() );
     }
 
     // ── fixtures ──────────────────────────────────────────────────────

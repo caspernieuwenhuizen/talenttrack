@@ -145,7 +145,8 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $sql );
-        if ( ! is_array( $rows ) || $rows === [] ) return [];
+        $rows = is_array( $rows ) ? array_values( array_filter( $rows, 'is_object' ) ) : [];
+        if ( $rows === [] ) return [];
 
         $this->managers = $this->parentAccountManagers();
         return $rows;
