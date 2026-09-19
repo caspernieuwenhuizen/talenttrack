@@ -443,6 +443,13 @@ class FrontendPlayersManageView extends FrontendViewBase {
             <div class="tt-field">
                 <label class="tt-field-label"><?php esc_html_e( 'Preferred positions', 'talenttrack' ); ?></label>
                 <div class="tt-multitag-picker">
+                    <?php
+                    // #3569 — an update only writes the keys it is sent, and a
+                    // form with every chip off sends no `preferred_positions[]`
+                    // at all. This empty marker is what still says "clear them";
+                    // a checked chip turns the key into an array and wins.
+                    ?>
+                    <input type="hidden" name="preferred_positions" value="" />
                     <?php foreach ( $positions as $pos ) :
                         $pos_key = (string) $pos;
                         $is_sel  = in_array( $pos_key, (array) $current_positions, true );
@@ -482,6 +489,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $consent_by = (int) ( $player->media_consent_by ?? 0 );
             ?>
             <div class="tt-field tt-player-consent">
+                <?php // #3569 — an unticked box sends nothing; this is what withdraws consent. ?>
+                <input type="hidden" name="media_consent" value="0" />
                 <label class="tt-checkbox-label">
                     <input type="checkbox" name="media_consent" value="1" <?php checked( ! empty( $player->media_consent ) ); ?> />
                     <?php esc_html_e( 'Consent on record for photos and video', 'talenttrack' ); ?>
