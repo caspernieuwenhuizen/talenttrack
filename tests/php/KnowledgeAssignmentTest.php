@@ -3,6 +3,9 @@ namespace TT\Tests\Php;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Alerts\Domain\AlertContext;
+use TT\Modules\Knowledge\Alerts\SubmissionsAwaitingReviewAlert;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgeModule;
 use TT\Modules\Knowledge\KnowledgePerson;
@@ -16,6 +19,7 @@ use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\MediaAttachmentPolicy;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * #2648 — practical assignments and the review that closes them.
@@ -496,6 +500,53 @@ final class KnowledgeAssignmentTest extends WP_UnitTestCase {
 
         $this->assertSame( 200, $response->get_status() );
         $this->assertCount( 1, $response->get_data()['data']['submissions'] );
+    }
+
+    /* ===== the waiting-for-review alert ===== */
+
+    /**
+     * #3564 — the sweep runs under wp-cron with no global post. The link
+     * used to be appended to `get_permalink()`, which is false there, so
+     * `add_query_arg()` fell back to REQUEST_URI and every reviewer got a
+     * link to wp-cron.php.
+     */
+    public function test_the_alert_links_to_the_dashboard_when_evaluated_from_cron(): void {
+        global $post;
+
+        $page = self::factory()->post->create( [
+            'post_type'    => 'page',
+            'post_title'   => 'Dashboard',
+            'post_status'  => 'publish',
+            'post_content' => '[talenttrack_dashboard]',
+        ] );
+        QueryHelpers::set_config( 'dashboard_page_id', (string) $page );
+
+        $this->makeMentorship( $this->mentor_person, $this->author_person );
+        ( new SubmissionService() )->submit( $this->enrolment, self::COURSE, $this->lesson, 'Antwoord.' );
+
+        $saved_uri              = $_SERVER['REQUEST_URI'] ?? null;
+        $saved_post             = $post;
+        $_SERVER['REQUEST_URI'] = '/wp-cron.php?doing_wp_cron=1';
+        $post                   = null;
+
+        try {
+            $occurrences = ( new SubmissionsAwaitingReviewAlert() )->evaluate( new AlertContext( 1 ) );
+        } finally {
+            $post = $saved_post;
+            if ( $saved_uri === null ) {
+                unset( $_SERVER['REQUEST_URI'] );
+            } else {
+                $_SERVER['REQUEST_URI'] = $saved_uri;
+            }
+        }
+
+        $this->assertCount( 1, $occurrences );
+        $url = (string) ( $occurrences[0]->payload['url'] ?? '' );
+
+        $this->assertStringStartsWith( RecordLink::dashboardUrl(), $url );
+        $this->assertStringContainsString( 'tt_view=submission-review', $url );
+        $this->assertStringNotContainsString( 'wp-cron.php', $url );
+        $this->assertStringNotContainsString( 'doing_wp_cron', $url );
     }
 
     /* ===== helpers ===== */
