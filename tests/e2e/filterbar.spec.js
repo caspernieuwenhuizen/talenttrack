@@ -87,10 +87,12 @@ async function gotoPlayersList( page ) {
 
 /** Count the currently-rendered data rows in the hydrated list body. */
 function dataRows( page ) {
-    // `.tt-list-table-empty` is the empty-state row; exclude it so an
-    // empty result reads as zero real rows, not one.
+    // `.tt-list-table-empty` is the empty-state row, `.tt-list-table-loading`
+    // the placeholder before the first fetch lands and `.tt-list-table-error`
+    // the row a failed fetch leaves; exclude all three so they read as zero
+    // real rows, not one.
     return page.locator(
-        '[data-tt-list-body="1"] tr:not(.tt-list-table-empty)'
+        '[data-tt-list-body="1"] tr:not(.tt-list-table-empty):not(.tt-list-table-loading):not(.tt-list-table-error)'
     );
 }
 

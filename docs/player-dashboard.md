@@ -60,6 +60,8 @@ Below it, your **history**: the trainings, games and other activities you have a
 
 Widening the date range yourself shows activities beyond today again; they simply carry no attendance until one is recorded.
 
+While your history loads, the list shows **Loading…**. The "nothing recorded yet" message only appears once loading has worked and there really is nothing. If loading fails, for example on a bad connection, you see an error with a **Retry** button; tap it to try again. The same goes for every list in TalentTrack, not just this one. The list needs JavaScript.
+
 ### My goals
 The development goals your coaches have set for you, grouped by status. Tap a goal to open it: read the full description, see priority + due date, and join the conversation thread (you can post comments and your coach + parents will see them).
 

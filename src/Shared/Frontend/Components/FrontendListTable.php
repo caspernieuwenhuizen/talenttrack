@@ -14,14 +14,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * here being clean.
  *
  * Architecture:
- *   - Server renders the shell (filter form, table head, an initial
- *     row payload as JSON in a `<script type="application/json">`
- *     tag, pagination scaffolding) for the requested filter / page.
- *     No-JS users get the initial page and a working filter form
- *     that posts back as a full page reload.
- *   - `assets/js/components/frontend-list-table.js` hydrates: takes
- *     over filter changes, sort, pagination + per-page selector, and
- *     keeps the URL querystring in sync via `history.replaceState`.
+ *   - Server renders the shell only: the filter form, the table head
+ *     (or card grid), pagination scaffolding, and the config + filter
+ *     state as JSON in `<script type="application/json">` tags. No rows
+ *     are rendered server-side. The body starts as a neutral loading
+ *     row, never as the empty state, so a slow or failed fetch cannot
+ *     read as "nothing recorded yet".
+ *   - `assets/js/components/frontend-list-table.js` hydrates: fetches
+ *     the rows over REST, takes over filter changes, sort, pagination +
+ *     per-page selector, and keeps the URL querystring in sync via
+ *     `history.replaceState`. The empty state (guided card or plain
+ *     text) is only shown once a fetch has succeeded with zero rows; a
+ *     failed fetch replaces the body with an error row and a Retry
+ *     button. The list needs JavaScript; without it the loading row
+ *     carries a `<noscript>` line saying so.
  *
  * Usage:
  *
@@ -132,22 +138,14 @@ class FrontendListTable {
         // A seeded default is NOT a user-chosen query, so it must not flip
         // the "guided empty state vs. no-match message" decision — otherwise
         // a fresh, goal-less install would never show the onboarding card.
-        // Build the default map + the user-chosen filter subset (state minus
-        // any value that merely equals its default) for the no-query test,
-        // shared with the JS hydrator via `default_filters`.
+        // The default map is shared with the JS hydrator via
+        // `default_filters`; the hydrator makes that decision once a fetch
+        // has returned zero rows.
         $default_filters = [];
         foreach ( $filters as $fkey => $fcfg ) {
             if ( isset( $fcfg['default'] ) ) {
                 $default_filters[ (string) $fkey ] = (string) $fcfg['default'];
             }
-        }
-        $state_filter = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
-        $user_filter  = [];
-        foreach ( $state_filter as $fk => $fv ) {
-            if ( isset( $default_filters[ (string) $fk ] ) && (string) $fv === $default_filters[ (string) $fk ] ) {
-                continue; // seeded default, not a user query
-            }
-            $user_filter[ (string) $fk ] = $fv;
         }
 
         // Declarative config that the JS hydrator will consume — keeps
@@ -213,16 +211,17 @@ class FrontendListTable {
 
             <div class="tt-list-table-status" data-tt-list-status="1" aria-live="polite"></div>
 
+            <?php
+            // #3669 — the body starts as a neutral loading placeholder. The
+            // empty state (guided card or plain text) lives only in the JS
+            // config and is shown once a fetch succeeds with zero rows, so a
+            // slow or failed fetch never tells a player "nothing recorded yet".
+            $loading_inner = '<span class="tt-list-table-loading-text">' . esc_html__( 'Loading…', 'talenttrack' ) . '</span>'
+                . '<noscript><span class="tt-list-table-noscript">' . esc_html__( 'This list needs JavaScript to load.', 'talenttrack' ) . '</span></noscript>';
+            ?>
             <?php if ( $layout === 'cards' ) : ?>
                 <div class="tt-card-grid" data-tt-list-body="1" data-tt-list-cardgrid="1">
-                    <div class="tt-list-table-empty" data-tt-list-empty="1"><?php
-                        $no_query = $state['search'] === '' && empty( $user_filter );
-                        if ( $empty_card_html !== '' && $no_query ) {
-                            echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
-                        } else {
-                            echo esc_html( $empty_state );
-                        }
-                    ?></div>
+                    <div class="tt-list-table-loading" data-tt-list-loading="1"><?php echo $loading_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_html__() above. ?></div>
                 </div>
             <?php else : ?>
             <div class="tt-list-table-wrap">
@@ -231,17 +230,7 @@ class FrontendListTable {
                         <?php if ( $row_actions ) : ?><th class="tt-list-table-actions-col"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th><?php endif; ?>
                     </tr></thead>
                     <tbody data-tt-list-body="1">
-                        <tr class="tt-list-table-empty" data-tt-list-empty="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php
-                            // #1362 — no-JS shell mirrors the hydrator's choice:
-                            // guided card only when no query is active. #2202 —
-                            // a seeded filter default doesn't count as a query.
-                            $no_query = $state['search'] === '' && empty( $user_filter );
-                            if ( $empty_card_html !== '' && $no_query ) {
-                                echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
-                            } else {
-                                echo esc_html( $empty_state );
-                            }
-                        ?></td></tr>
+                        <tr class="tt-list-table-loading" data-tt-list-loading="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php echo $loading_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_html__() above. ?></td></tr>
                     </tbody>
                 </table>
             </div>

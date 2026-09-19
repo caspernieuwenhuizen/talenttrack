@@ -32850,6 +32850,10 @@ msgstr ""
 msgid "Loading…"
 msgstr "Bezig met laden…"
 
+#: src/Shared/Frontend/Components/FrontendListTable.php
+msgid "This list needs JavaScript to load."
+msgstr "Deze lijst heeft JavaScript nodig om te laden."
+
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:130
 msgid "The academy's own words"
 msgstr "De eigen woorden van de academie"

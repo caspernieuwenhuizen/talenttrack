@@ -60,6 +60,8 @@ Daaronder je **geschiedenis**: de trainingen, wedstrijden en andere activiteiten
 
 Verbreed je zelf het datumbereik, dan zie je weer activiteiten voorbij vandaag; daar staat simpelweg geen aanwezigheid bij totdat die is vastgelegd.
 
+Terwijl je geschiedenis laadt, staat er **Bezig met laden…** in de lijst. De melding dat er nog niets is vastgelegd verschijnt pas als het laden gelukt is en er echt niets is. Lukt het laden niet, bijvoorbeeld door een slechte verbinding, dan zie je een foutmelding met een knop **Opnieuw**; tik erop om het nog eens te proberen. Dat geldt voor elke lijst in TalentTrack, niet alleen voor deze. De lijst heeft JavaScript nodig.
+
 ### Mijn doelen
 De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status. Tik een doel aan om het te openen: lees de volledige omschrijving, zie prioriteit + streefdatum, en doe mee aan het gesprek (je kan reacties plaatsen die je coach + ouders kunnen zien).
 
