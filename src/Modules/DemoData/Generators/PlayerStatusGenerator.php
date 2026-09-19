@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoRatingScale;
 use TT\Modules\Players\PlayerStatusModule;
 
 /**
@@ -121,6 +122,8 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
 
     private string $language;
 
+    private DemoRatingScale $scale;
+
     public static function category(): string {
         return 'player_status';
     }
@@ -133,12 +136,13 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
      * @param object[]          $players
      * @param array<string,int> $users
      */
-    public function __construct( DemoBatchRegistry $registry, array $players, array $users, int $weeks, string $language = '' ) {
+    public function __construct( DemoBatchRegistry $registry, array $players, array $users, int $weeks, string $language = '', ?DemoRatingScale $scale = null ) {
         $this->registry = $registry;
         $this->players  = $players;
         $this->users    = $users;
         $this->weeks    = max( 1, $weeks );
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $this->scale    = $scale ?? DemoRatingScale::fromConfig();
     }
 
     public function generate(): int {
@@ -305,12 +309,19 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
         $written = 0;
 
         // Each player sits around their own centre so the squad spreads out
-        // rather than every rating landing on the middle of the scale.
-        $centre = mt_rand( 25, 42 ) / 10;   // 2.5 – 4.2
+        // rather than every rating landing on the middle of the scale. The
+        // centre is a share of the install's own scale (#3573): most players
+        // at or above the midpoint, which is where the behaviour floor sits,
+        // and a minority below it so the floor rule still has a true case.
+        // A fixed 1–5 curve put every rated player under a 5–9 install's
+        // floor of 7 and capped the whole squad at amber.
+        $scale  = $this->scale;
+        $centre = $scale->min() + $scale->span() * ( mt_rand( 35, 90 ) / 100 );
 
         for ( $i = 0; $i < $count; $i++ ) {
-            $rating = $centre + ( mt_rand( -8, 8 ) / 10 );
-            $rating = max( 1.0, min( 5.0, round( $rating, 1 ) ) );
+            // About a step of noise, snapped to a value the capture screen
+            // could have produced.
+            $rating = $scale->quantise( $centre + ( mt_rand( -10, 10 ) / 10 ) * $scale->step() );
 
             $days_ago = (int) round( $i * $window_days / max( 1, $count ) ) + mt_rand( 0, 3 );
             $rated_at = gmdate( 'Y-m-d H:i:s', time() - ( $days_ago * DAY_IN_SECONDS ) );

@@ -5,6 +5,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoCoverage;
+use TT\Modules\DemoData\DemoRatingScale;
 use TT\Modules\DemoData\Generators\PlayerStatusGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\Players\PlayerStatusModule;
@@ -229,6 +230,92 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
 
         $this->assertGreaterThan( 0, $covered, 'Most eligible players have one.' );
         $this->assertLessThan( count( $players ), $covered, 'And some deliberately do not.' );
+    }
+
+    /**
+     * #3573 — behaviour is captured on the install's own scale, and the
+     * floor that caps a player at amber is that scale's midpoint. Ratings
+     * drawn on a fixed 1–5 curve sat under a 5–9 install's floor of 7 for
+     * every rated player, so the whole demo squad was amber.
+     *
+     * @dataProvider scales
+     */
+    public function test_behaviour_ratings_sit_on_the_configured_scale( float $min, float $max, float $step ): void {
+        $ratings = $this->behaviourRatingsFor( $this->squadAged( 12, 20 ), new DemoRatingScale( $min, $max, $step ) );
+
+        $this->assertNotEmpty( $ratings );
+        foreach ( $ratings as $rating ) {
+            $this->assertGreaterThanOrEqual( $min, $rating );
+            $this->assertLessThanOrEqual( $max, $rating );
+            $steps = ( $rating - $min ) / $step;
+            $this->assertEqualsWithDelta( round( $steps ), $steps, 0.001, "{$rating} is not a value a {$min}–{$max} step-{$step} scale can express" );
+        }
+    }
+
+    /** @return array<string, array{0:float,1:float,2:float}> */
+    public function scales(): array {
+        return [
+            '5–9 step 1'    => [ 5.0, 9.0, 1.0 ],
+            '5–10 step 0.5' => [ 5.0, 10.0, 0.5 ],
+        ];
+    }
+
+    /**
+     * The traffic light has to be able to show both sides of the floor: a
+     * rated player who clears it and one who does not.
+     */
+    public function test_the_squad_falls_on_both_sides_of_the_behaviour_floor(): void {
+        $scale    = new DemoRatingScale( 5.0, 9.0, 1.0 );
+        $floor    = ( $scale->min() + $scale->max() ) / 2;
+        $averages = $this->behaviourAveragesFor( $this->squadAged( 12, 40 ), $scale );
+
+        $above = array_filter( $averages, static fn( float $avg ): bool => $avg >= $floor );
+        $below = array_filter( $averages, static fn( float $avg ): bool => $avg < $floor );
+
+        $this->assertNotEmpty( $above, 'Some rated players clear the floor, so green is reachable with a behaviour rating.' );
+        $this->assertNotEmpty( $below, 'And some do not, so the floor rule still has a case to illustrate.' );
+        $this->assertGreaterThan( count( $below ), count( $above ), 'Most of the squad sits at or above the midpoint.' );
+    }
+
+    /**
+     * @param object[] $players
+     * @return list<float>
+     */
+    private function behaviourRatingsFor( array $players, DemoRatingScale $scale ): array {
+        global $wpdb;
+        $this->generateWithScale( $players, $scale );
+
+        $ids = implode( ',', array_map( static fn( $p ): int => (int) $p->id, $players ) );
+        return array_map( 'floatval', (array) $wpdb->get_col(
+            "SELECT rating FROM {$this->p}tt_player_behaviour_ratings WHERE player_id IN ({$ids})"
+        ) );
+    }
+
+    /**
+     * @param object[] $players
+     * @return list<float>
+     */
+    private function behaviourAveragesFor( array $players, DemoRatingScale $scale ): array {
+        global $wpdb;
+        $this->generateWithScale( $players, $scale );
+
+        $ids = implode( ',', array_map( static fn( $p ): int => (int) $p->id, $players ) );
+        return array_map( 'floatval', (array) $wpdb->get_col(
+            "SELECT AVG(rating) FROM {$this->p}tt_player_behaviour_ratings WHERE player_id IN ({$ids}) GROUP BY player_id"
+        ) );
+    }
+
+    /** @param object[] $players */
+    private function generateWithScale( array $players, DemoRatingScale $scale ): void {
+        $actor = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        ( new PlayerStatusGenerator(
+            new DemoBatchRegistry( 'test-batch-3573' ),
+            $players,
+            [ 'hod' => $actor ],
+            8,
+            'en_US',
+            $scale
+        ) )->generate();
     }
 
     // ── the manifest ───────────────────────────────────────────────────
