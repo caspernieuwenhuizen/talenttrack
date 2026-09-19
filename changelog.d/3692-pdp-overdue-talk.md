@@ -1,0 +1,3 @@
+# A development talk that was never held now reads "Overdue" on My PDP (#3692)
+
+On My PDP a development conversation that had not been held read "Planned" however long its date had passed, so a player and their parent saw a date weeks in the past under the word "Planned" and could not tell whether the talk had happened, been moved or been forgotten. A talk whose planned date has gone by with nothing recorded against it now carries a red "Overdue" chip instead, on the screen and in `GET /players/{id}/pdp`. A talk planned for later today still reads "Planned", and the chip clears the moment the talk is conducted or signed off. It remains the next talk in the cycle — only what it says about itself has changed.

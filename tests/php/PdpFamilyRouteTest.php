@@ -35,6 +35,13 @@ final class PdpFamilyRouteTest extends WP_UnitTestCase {
     private int $conv      = 0;
     private int $parent    = 0;
 
+    /**
+     * The seeded talk's planned date. Relative to "now" rather than a
+     * literal, so the state assertions below keep meaning what they say
+     * once the overdue chip (#3692) started reading the date.
+     */
+    private string $scheduled = '';
+
     public function set_up(): void {
         parent::set_up();
 
@@ -71,7 +78,7 @@ final class PdpFamilyRouteTest extends WP_UnitTestCase {
         $conversations = $data['data']['conversations'];
         $this->assertCount( 1, $conversations );
         $this->assertSame( $this->conv, $conversations[0]['id'] );
-        $this->assertSame( '2026-10-01 10:00:00', $conversations[0]['scheduled_at'] );
+        $this->assertSame( $this->scheduled, $conversations[0]['scheduled_at'] );
         $this->assertArrayHasKey( 'parent_ack_at', $conversations[0] );
         $this->assertNull( $conversations[0]['parent_ack_at'] );
         $this->assertSame( 'next', $conversations[0]['state'] );
@@ -202,12 +209,14 @@ final class PdpFamilyRouteTest extends WP_UnitTestCase {
         ] );
         $this->file = (int) $wpdb->insert_id;
 
+        $this->scheduled = gmdate( 'Y-m-d H:i:s', time() + 20 * DAY_IN_SECONDS );
+
         $wpdb->insert( "{$this->p}tt_pdp_conversations", [
             'club_id'        => $this->club,
             'pdp_file_id'    => $this->file,
             'sequence'       => 1,
             'template_key'   => 'start',
-            'scheduled_at'   => '2026-10-01 10:00:00',
+            'scheduled_at'   => $this->scheduled,
             'notes'          => 'What was said.',
             'agreed_actions' => 'Two touches before turning.',
         ] );

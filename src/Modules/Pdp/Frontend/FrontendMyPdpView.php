@@ -12,7 +12,7 @@ use TT\Shared\Dates\TTDate;
  *
  * The season is the spine: the development conversations
  * (ontwikkelgesprekken) sit on a horizontal rail as markers — done /
- * next / future. Tapping a marker expands that conversation's detail
+ * overdue / next / future. Tapping a marker expands that conversation's detail
  * inline (no long scroll). Below the rail: the player's active focus
  * goals, then a single self-reflection input for the one next-planned
  * conversation (when its 2-week window is open), with any saved
@@ -110,7 +110,13 @@ class FrontendMyPdpView extends FrontendViewBase {
             }
         }
 
-        self::renderSeasonTimeline( $season['name'], $plan['conversations'], $is_self, $is_parent );
+        self::renderSeasonTimeline(
+            $season['name'],
+            $plan['conversations'],
+            (int) $plan['next_conversation_id'],
+            $is_self,
+            $is_parent
+        );
         self::renderActiveGoals( $player, $voice, $plan['goals'] );
         self::renderSelfReflection( $next_planned, $is_self, $voice );
 
@@ -122,14 +128,18 @@ class FrontendMyPdpView extends FrontendViewBase {
 
     /**
      * Season timeline — the spine. A horizontal rail of conversation
-     * markers (done / next / future) with a progress fill up to the
-     * latest completed talk. Each marker is a real <button>; tapping it
+     * markers (done / overdue / next / future) with a progress fill up to
+     * the latest completed talk. Each marker is a real <button>; tapping it
      * expands that conversation's detail panel inline below the rail
      * (no long scroll). Keyboard-operable; Escape closes via my-pdp.js.
      *
+     * `aria-current="step"` marks the next talk in the cycle, which stays
+     * the next talk whether or not its date has slipped (#3692) — so it is
+     * keyed to the reader's `next_conversation_id`, not to the chip state.
+     *
      * @param list<array<string,mixed>> $convs
      */
-    private static function renderSeasonTimeline( string $season_name, array $convs, bool $is_self, bool $is_parent ): void {
+    private static function renderSeasonTimeline( string $season_name, array $convs, int $next_id, bool $is_self, bool $is_parent ): void {
         $done = 0;
         foreach ( $convs as $c ) {
             if ( $c['state'] === 'done' ) $done++;
@@ -172,7 +182,7 @@ class FrontendMyPdpView extends FrontendViewBase {
 
             echo '<button type="button" class="tt-pdp-marker ' . esc_attr( $state ) . '"'
                 . ' aria-expanded="false" aria-controls="' . esc_attr( $panel ) . '"'
-                . ( $state === 'next' ? ' aria-current="step"' : '' ) . '>';
+                . ( $next_id > 0 && $cid === $next_id ? ' aria-current="step"' : '' ) . '>';
             echo '<span class="tt-pdp-dot">' . self::markerGlyph( $c, $state ) . '</span>';
             echo '<span class="tt-pdp-mlabel">' . esc_html( $label ) . '</span>';
             if ( $date !== '' ) {
@@ -549,6 +559,10 @@ class FrontendMyPdpView extends FrontendViewBase {
         switch ( $state ) {
             case 'done': return __( 'Completed', 'talenttrack' );
             case 'next': return __( 'Planned', 'talenttrack' );
+            // #3692 — a one-word chip, so it carries a context: on its own
+            // "Overdue" translates as easily to a late payment as to a talk
+            // that never happened.
+            case 'overdue': return _x( 'Overdue', 'pdp talk state', 'talenttrack' );
         }
         return __( 'Later', 'talenttrack' );
     }

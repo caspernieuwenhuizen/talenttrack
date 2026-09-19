@@ -153,6 +153,35 @@ class PdpCycleState {
     }
 
     /**
+     * #3692 — has $conv's planned date passed without the talk being held?
+     *
+     * True when the conversation has neither been conducted nor signed off,
+     * carries a `scheduled_at`, and that date is before today. Dates are
+     * compared date-only, so a talk planned for later today is not overdue
+     * — the state flips at midnight, not at the hour the talk was pencilled
+     * in for. "Today" is read off the same UTC clock `derive()` uses, so the
+     * two never disagree about which day it is.
+     *
+     * An overdue talk is the one thing on the family's plan that needs
+     * action, so the domain says so rather than each surface guessing from
+     * the date.
+     *
+     * @param int|null $now_ts Unix timestamp for "now" (UTC). Injectable
+     *        for tests; defaults to current_time('timestamp', true).
+     */
+    public static function isOverdue( object $conv, ?int $now_ts = null ): bool {
+        $row = (array) $conv;
+        if ( ! empty( $row['conducted_at'] ) ) return false;
+        if ( ! empty( $row['coach_signoff_at'] ) ) return false;
+
+        $scheduled = self::dateOf( $row['scheduled_at'] ?? null );
+        if ( $scheduled === null ) return false;
+
+        $now = $now_ts !== null ? $now_ts : (int) current_time( 'timestamp', true );
+        return $scheduled < gmdate( 'Y-m-d', $now );
+    }
+
+    /**
      * Is the next talk's planning window open as of $today?
      *
      * Primary signal is the seeded `planning_window_start` (migration

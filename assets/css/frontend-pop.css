@@ -627,6 +627,14 @@
     color: var(--tt-primary, #0b3d2e);
     box-shadow: 0 0 0 4px rgba(var(--tt-secondary-rgb, 216, 178, 74), 0.25);
 }
+/* #3692 — a talk whose planned date passed without it being held. Red
+   rather than the gold of "next": it is the one marker on the rail that
+   needs somebody to act. */
+.tt-dashboard .tt-pdp-marker.overdue .tt-pdp-dot {
+    background: #fff;
+    border-color: var(--tt-danger, #d8453b);
+    color: var(--tt-danger-ink, #a32b22);
+}
 .tt-dashboard .tt-pdp-marker.future .tt-pdp-dot {
     background: #fff;
     border-color: var(--tt-line, #e3e6e1);
@@ -658,6 +666,10 @@
 .tt-dashboard .tt-pdp-chip.next {
     background: var(--tt-warning-subtle, #fdf3d8);
     color: #8a5a12;
+}
+.tt-dashboard .tt-pdp-chip.overdue {
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
 }
 .tt-dashboard .tt-pdp-chip.future {
     background: var(--tt-line-soft, #eef0ec);
