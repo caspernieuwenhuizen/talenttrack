@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T22:37:15+00:00\n"
+"POT-Creation-Date: 2026-09-19T22:46:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -3118,7 +3118,7 @@ msgstr ""
 #: src/Infrastructure/REST/MeasurementsRestController.php:204
 #: src/Infrastructure/REST/MeasurementsRestController.php:264
 #: src/Infrastructure/REST/MeasurementsRestController.php:404
-#: src/Infrastructure/REST/MinutesRestController.php:71
+#: src/Infrastructure/REST/MinutesRestController.php:103
 #: src/Infrastructure/REST/TeamsRestController.php:392
 #: src/Infrastructure/REST/TeamsRestController.php:417
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
@@ -3520,11 +3520,13 @@ msgid "The assignment could not be removed."
 msgstr ""
 
 #: src/Infrastructure/REST/GoalContributionsRestController.php:51
+#: src/Infrastructure/REST/MinutesRestController.php:128
 msgid "Invalid player."
 msgstr ""
 
 #: src/Infrastructure/REST/GoalsRestController.php:281
 #: src/Infrastructure/REST/GoalsRestController.php:383
+#: src/Infrastructure/REST/MinutesRestController.php:138
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:178
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:217
 #: src/Modules/MatchAnalysis/Frontend/PlayerMatchAnalysisTab.php:46
@@ -3684,6 +3686,7 @@ msgid "This report has been switched off for your academy."
 msgstr ""
 
 #: src/Infrastructure/REST/MeasurementsRestController.php:194
+#: src/Infrastructure/REST/MinutesRestController.php:134
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:174
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:213
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:229
@@ -3823,7 +3826,7 @@ msgstr ""
 msgid "Expected a list under `stats`."
 msgstr ""
 
-#: src/Infrastructure/REST/MinutesRestController.php:61
+#: src/Infrastructure/REST/MinutesRestController.php:93
 msgid "Invalid team or player."
 msgstr ""
 
@@ -15941,7 +15944,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:436
 #: src/Modules/Onboarding/OnboardingState.php:61
 #: src/Shared/CoreSurfaceRegistration.php:1944
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:129
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:139
 #: src/Shared/Frontend/FrontendTileGrid.php:815
 msgid "Welcome"
 msgstr ""
@@ -17731,13 +17734,13 @@ msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:119
-#: src/Shared/Frontend/FrontendMySettingsView.php:581
-#: src/Shared/Frontend/FrontendMySettingsView.php:598
-#: src/Shared/Frontend/FrontendMySettingsView.php:623
-#: src/Shared/Frontend/FrontendMySettingsView.php:636
-#: src/Shared/Frontend/FrontendMySettingsView.php:668
-#: src/Shared/Frontend/FrontendMySettingsView.php:709
-#: src/Shared/Frontend/FrontendMySettingsView.php:731
+#: src/Shared/Frontend/FrontendMySettingsView.php:583
+#: src/Shared/Frontend/FrontendMySettingsView.php:600
+#: src/Shared/Frontend/FrontendMySettingsView.php:625
+#: src/Shared/Frontend/FrontendMySettingsView.php:638
+#: src/Shared/Frontend/FrontendMySettingsView.php:670
+#: src/Shared/Frontend/FrontendMySettingsView.php:711
+#: src/Shared/Frontend/FrontendMySettingsView.php:733
 msgid "Security check failed. Reload and try again."
 msgstr ""
 
@@ -27361,6 +27364,7 @@ msgid "Squad timeline"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:875
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:399
 msgid "minutes played"
 msgstr ""
 
@@ -32762,7 +32766,7 @@ msgid "The secret expired. Go back one step and scan the QR code again."
 msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingBanner.php:43
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:131
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:141
 msgid "Welcome to TalentTrack"
 msgstr ""
 
@@ -33616,13 +33620,13 @@ msgid "What %s is working on now"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:331
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:266
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:284
 msgid "No active goals yet. Your coach will set some during your next talk."
 msgstr ""
 
 #. translators: %s = the player's first name.
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:333
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:268
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:286
 #, php-format
 msgid ""
 "No active goals yet. A coach will set some at the next development talk with "
@@ -35765,7 +35769,7 @@ msgstr ""
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:411
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3184
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3188
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:192
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:202
 msgid "Today"
 msgstr "Hoy"
 
@@ -47632,7 +47636,7 @@ msgid "%1$d block templates · %2$d age bands"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:490
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:65
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:67
 msgid "My development"
 msgstr ""
 
@@ -53051,7 +53055,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:202
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:350
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:434
 msgid "Coming up"
 msgstr ""
 
@@ -53084,126 +53088,136 @@ msgid "Notes from your coach"
 msgstr ""
 
 #. translators: %s = the player's name, to a parent or a coach.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:68
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:70
 #, php-format
 msgid "%s's development"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:116
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:126
 msgid ""
 "Welcome to TalentTrack! This is your development home: your talks, goals, "
 "form and journey, all in one place."
 msgstr ""
 
 #. translators: %1$s and %2$s are both the child's name (parent viewing their child).
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:125
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:135
 #, php-format
 msgid ""
 "Welcome to TalentTrack! This is %1$s's development home. %2$s chooses what "
 "to share with you."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:137
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:147
 msgid "Got it"
 msgstr ""
 
 #. translators: %s = date of the upcoming development talk
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:197
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:207
 #, php-format
 msgid "Prepare for your talk on %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:200
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:210
 msgid "Prepare for your upcoming development talk"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:202
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:212
 msgid "Start your self-review"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:203
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:221
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:213
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:231
 msgid "Open the development plan"
 msgstr ""
 
 #. translators: %s = date of the most recent development talk
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:208
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:218
 #, php-format
 msgid "Your talk on %s is ready to review"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:211
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:221
 msgid "Your last talk is ready to review"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:212
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:222
 msgid "Review and acknowledge"
 msgstr ""
 
 #. translators: %s = date of the next development talk
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:217
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:227
 #, php-format
 msgid "Next development talk: %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:220
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:230
 msgid "Your next development talk will be planned soon."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:238
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:248
 msgid "Your focus"
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:240
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:250
 #, php-format
 msgid "%s's focus"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:246
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:256
 msgid "How you're doing"
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:248
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:258
 #, php-format
 msgid "How %s is doing"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:254
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:264
+msgid "Your playing time"
+msgstr ""
+
+#. translators: %s = the player's first name.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:266
+#, php-format
+msgid "%s's playing time"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:272
 msgid "Your journey"
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:256
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:274
 #, php-format
 msgid "%s's journey"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:263
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:281
 msgid "See all goals"
 msgstr ""
 
 #. translators: %s = goal due date
 #. translators: %s: due date in YYYY-MM-DD
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:279
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:297
 #: src/Shared/Frontend/FrontendMyProfileView.php:216
 #, php-format
 msgid "Due %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:299
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:317
 msgid "See all evaluations"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:302
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:320
 msgid ""
 "No evaluations yet. Your first rating will appear here once your coach "
 "completes one."
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:304
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:322
 #, php-format
 msgid ""
 "No evaluations yet. The first rating appears here once a coach completes one "
@@ -53211,63 +53225,91 @@ msgid ""
 msgstr ""
 
 #. translators: %s = signed rating delta, e.g. +0.4
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:322
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:340
 #, php-format
 msgid "Up %s on your average"
 msgstr ""
 
 #. translators: %s = signed rating delta, e.g. +0.4
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:324
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:342
 #, php-format
 msgid "Up %s on the season average"
 msgstr ""
 
 #. translators: %s = signed rating delta, e.g. -0.3
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:330
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:348
 #, php-format
 msgid "Down %s on your average"
 msgstr ""
 
 #. translators: %s = signed rating delta, e.g. -0.3
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:332
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:350
 #, php-format
 msgid "Down %s on the season average"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:336
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:354
 msgid "Steady with your average"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:337
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:355
 msgid "Steady with the season average"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:350
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:389
+msgid ""
+"No minutes recorded yet. They appear here once your coach records a match "
+"you played in."
+msgstr ""
+
+#. translators: %s = the player's first name.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:391
+#, php-format
+msgid ""
+"No minutes recorded yet. They appear here once a coach records a match %s "
+"played in."
+msgstr ""
+
+#. translators: %s = number of matches played in the last twelve months.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:405
+#, php-format
+msgid "In %s match over the past 12 months."
+msgid_plural "In %s matches over the past 12 months."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: match date, 2: minutes played in that match.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:420
+#, php-format
+msgid "%1$s · %2$s min"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:434
 #: src/Shared/Frontend/FrontendMyProfileView.php:285
 msgid "See all activities"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:352
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:436
 #: src/Shared/Frontend/FrontendMyProfileView.php:262
 msgid "Nothing on the calendar in the next few weeks."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:376
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:460
 msgid "See your journey"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:377
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:461
 msgid "See the full journey"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:382
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:466
 msgid ""
 "Your academy story starts here. Milestones will appear as your season "
 "unfolds."
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:384
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:468
 #, php-format
 msgid ""
 "%s's academy story starts here. Milestones will appear as the season unfolds."
@@ -53748,67 +53790,72 @@ msgstr ""
 msgid "Save visibility"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:554
+#: src/Shared/Frontend/FrontendMySettingsView.php:555
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:329
+msgid "Playing time"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:556
 msgid "Development plan (PDP)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:557
+#: src/Shared/Frontend/FrontendMySettingsView.php:559
 msgid "Training history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:588
+#: src/Shared/Frontend/FrontendMySettingsView.php:590
 msgid "Layout updated. Reload to see the change everywhere."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:607
+#: src/Shared/Frontend/FrontendMySettingsView.php:609
 msgid "That setting is not available to you."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:614
+#: src/Shared/Frontend/FrontendMySettingsView.php:616
 msgid "Live match layout updated. Open a match to see the change."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:630
+#: src/Shared/Frontend/FrontendMySettingsView.php:632
 msgid "Theme updated. Reload to see the change everywhere."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:654
+#: src/Shared/Frontend/FrontendMySettingsView.php:656
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:662
+#: src/Shared/Frontend/FrontendMySettingsView.php:664
 msgid "Profile saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:675
+#: src/Shared/Frontend/FrontendMySettingsView.php:677
 msgid "Please fill in both your current and new password."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:679
+#: src/Shared/Frontend/FrontendMySettingsView.php:681
 msgid "New password must be at least 8 characters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:683
+#: src/Shared/Frontend/FrontendMySettingsView.php:685
 msgid "New password and confirmation do not match."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:688
+#: src/Shared/Frontend/FrontendMySettingsView.php:690
 msgid "Current password is incorrect."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:698
+#: src/Shared/Frontend/FrontendMySettingsView.php:700
 msgid "Password changed. Other devices have been logged out."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:725
+#: src/Shared/Frontend/FrontendMySettingsView.php:727
 msgid "Message preferences saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:736
+#: src/Shared/Frontend/FrontendMySettingsView.php:738
 msgid "Only players can set parent visibility."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:746
+#: src/Shared/Frontend/FrontendMySettingsView.php:748
 msgid "Saved what your parent can see."
 msgstr ""
 
@@ -55363,10 +55410,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:328
 msgid "Development & performance"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:329
-msgid "Playing time"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:331
