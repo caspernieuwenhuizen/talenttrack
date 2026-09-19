@@ -62708,6 +62708,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Dates must be written as YYYY-MM-DD."
+msgstr "Datums moeten worden geschreven als JJJJ-MM-DD."
+
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
 

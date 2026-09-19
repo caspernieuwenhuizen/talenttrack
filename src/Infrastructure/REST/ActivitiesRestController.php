@@ -77,6 +77,7 @@ class ActivitiesRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_sessions' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => self::listArgs(),
             ],
             [
                 'methods'             => 'POST',
@@ -854,7 +855,18 @@ class ActivitiesRestController {
         // Filters — pulled early because the coach-scope guard below has
         // to know whether the request is a player-scoped my-activities
         // call before deciding to early-return on "no head-coach teams".
-        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $filter = self::foldListAliases( $r, is_array( $r['filter'] ?? null ) ? $r['filter'] : [] );
+        foreach ( [ 'date_from', 'date_to' ] as $date_key ) {
+            $value = (string) ( $filter[ $date_key ] ?? '' );
+            if ( $value !== '' && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ) {
+                return RestResponse::error(
+                    'bad_date',
+                    __( 'Dates must be written as YYYY-MM-DD.', 'talenttrack' ),
+                    400,
+                    [ 'param' => $date_key ]
+                );
+            }
+        }
 
         // #2150 — fail-closed scoping for the player / parent
         // "my-activities" surface. A caller without the staff activities
@@ -939,6 +951,67 @@ class ActivitiesRestController {
     }
 
     /** Per-page values the client may request. Defaults to 25. */
+    /**
+     * #3584 — the plain filter names, folded into `filter[...]`.
+     *
+     * The list only read the nested form, so `?team_id=52&from=…&to=…` — the
+     * vocabulary the attendance and minutes grids and the training-plans
+     * list all accept — answered 200 with every team and every date, and a
+     * register was entered on the wrong training. `date_from` / `date_to`
+     * and `from` / `to` are both accepted, like `list_plans()` does. The
+     * nested form wins when both are sent. None of this can widen what a
+     * caller sees: the coach-scope restriction and the player / parent
+     * force-scope are applied after it.
+     *
+     * @param array<string,mixed> $filter
+     * @return array<string,mixed>
+     */
+    private static function foldListAliases( \WP_REST_Request $r, array $filter ): array {
+        $aliases = [
+            'team_id'   => [ 'team_id' ],
+            'date_from' => [ 'date_from', 'from' ],
+            'date_to'   => [ 'date_to', 'to' ],
+        ];
+        foreach ( $aliases as $key => $names ) {
+            if ( isset( $filter[ $key ] ) && $filter[ $key ] !== '' ) continue;
+            foreach ( $names as $name ) {
+                $value = $r->get_param( $name );
+                if ( is_scalar( $value ) && (string) $value !== '' ) {
+                    $filter[ $key ] = sanitize_text_field( (string) $value );
+                    break;
+                }
+            }
+        }
+        return $filter;
+    }
+
+    /**
+     * #3584 — declared so the route index says what the list accepts. The
+     * types are the loosest honest ones: `team_id` takes a CSV, and values
+     * the handler already clamps (`per_page`, `order`) are described rather
+     * than enforced, so a caller that relied on the clamp is not now refused.
+     * The descriptions are API documentation for integrators, not UI copy,
+     * so they are not translated.
+     *
+     * @return array<string, array<string,mixed>>
+     */
+    private static function listArgs(): array {
+        $date = 'A date as YYYY-MM-DD; anything else is refused with 400 bad_date.';
+        return [
+            'team_id'   => [ 'type' => 'string', 'description' => 'One team id, or several separated by commas. Same as filter[team_id].' ],
+            'date_from' => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_from].' ],
+            'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
+            'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
+            'to'        => [ 'type' => 'string', 'description' => 'Alias of date_to.' ],
+            'filter'    => [ 'description' => 'Nested filters: team_id, date_from, date_to, player_id, archived. A nested value wins over the plain parameter of the same name.' ],
+            'search'    => [ 'type' => 'string', 'description' => 'Free-text search on the title.' ],
+            'orderby'   => [ 'type' => 'string', 'description' => 'Column to sort by.' ],
+            'order'     => [ 'type' => 'string', 'description' => 'asc or desc.' ],
+            'page'      => [ 'description' => 'Page number, from 1.' ],
+            'per_page'  => [ 'description' => 'One of 10, 25, 50 or 100; any other value is treated as 25.' ],
+        ];
+    }
+
     private static function clamp_per_page( $value ): int {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
