@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:32:44+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:36:30+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4134,7 +4134,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:846
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:887
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:939
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:216
 #: src/Modules/People/Admin/PeoplePage.php:188
 #: src/Modules/People/Admin/PeoplePage.php:362
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -5305,7 +5305,7 @@ msgstr "Filteren"
 #: src/Modules/Methodology/VocabularyCatalog.php:219
 #: src/Modules/Methodology/VocabularyCatalog.php:238
 #: src/Modules/Methodology/VocabularyCatalog.php:255
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:212
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
@@ -5370,7 +5370,7 @@ msgstr "Bron"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:347
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:65
 #: src/Modules/Teams/Admin/TeamsPage.php:72
-#: src/Shared/Frontend/Components/FrontendListTable.php:231
+#: src/Shared/Frontend/Components/FrontendListTable.php:230
 #: src/Shared/Frontend/FrontendBackupsView.php:274
 #: src/Shared/Frontend/FrontendBackupsView.php:294
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:802
@@ -6045,7 +6045,7 @@ msgstr "Raster"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:954
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:272
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:635
-#: src/Shared/Frontend/Components/FrontendListTable.php:183
+#: src/Shared/Frontend/Components/FrontendListTable.php:181
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1523
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1545
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:331
@@ -7196,7 +7196,7 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:341
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:832
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:296
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:298
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
@@ -7757,7 +7757,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:182
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:213
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:22
 #: src/Shared/Frontend/CoachForms.php:635
@@ -7891,7 +7891,7 @@ msgstr "Prospects per scout vastgelegd"
 #: src/Modules/Analytics/CohortBoardService.php:112
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:321
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:323
 #: src/Shared/Frontend/FrontendExportsView.php:121
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
@@ -8357,8 +8357,8 @@ msgstr "Aantal"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1727
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:252
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
-#: src/Shared/Frontend/Components/FrontendListTable.php:439
-#: src/Shared/Frontend/Components/FrontendListTable.php:591
+#: src/Shared/Frontend/Components/FrontendListTable.php:428
+#: src/Shared/Frontend/Components/FrontendListTable.php:580
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2332
 #: src/Shared/Frontend/FrontendExportsView.php:96
 #: src/Shared/Frontend/FrontendExportsView.php:125
@@ -9739,7 +9739,7 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:202
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:264
 #: src/Shared/Admin/BulkActionsHelper.php:170
-#: src/Shared/Frontend/Components/FrontendListTable.php:572
+#: src/Shared/Frontend/Components/FrontendListTable.php:561
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:615
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2457
 #: src/Shared/Frontend/FrontendEvaluationsView.php:211
@@ -10668,7 +10668,7 @@ msgstr "Van %1$s tot en met %2$s"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:282
 #: src/Shared/Frontend/Components/FilterBar.php:1103
 #: src/Shared/Frontend/Components/FilterBar.php:1235
-#: src/Shared/Frontend/Components/FrontendListTable.php:453
+#: src/Shared/Frontend/Components/FrontendListTable.php:442
 #: src/Shared/Frontend/FrontendAuditLogView.php:221
 #: src/Shared/Frontend/FrontendAuditLogView.php:512
 #: src/Shared/Frontend/FrontendConfigurationView.php:2842
@@ -10692,7 +10692,7 @@ msgstr "Vanaf"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
 #: src/Shared/Frontend/Components/FilterBar.php:1104
 #: src/Shared/Frontend/Components/FilterBar.php:1236
-#: src/Shared/Frontend/Components/FrontendListTable.php:454
+#: src/Shared/Frontend/Components/FrontendListTable.php:443
 #: src/Shared/Frontend/FrontendAuditLogView.php:513
 #: src/Shared/Frontend/FrontendConfigurationView.php:2843
 #: src/Shared/Frontend/FrontendEvaluationsView.php:204
@@ -15035,7 +15035,7 @@ msgstr "Nieuwer"
 #. translators: 1: current page number, 2: total page count
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:363
 #: src/Modules/Comms/Frontend/FrontendMyMessagesView.php:170
-#: src/Shared/Frontend/Components/FrontendListTable.php:180
+#: src/Shared/Frontend/Components/FrontendListTable.php:178
 #: src/Shared/Frontend/FrontendAuditLogView.php:628
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
 #, php-format
@@ -22312,7 +22312,7 @@ msgstr "Je hebt geen toegang tot deze evaluatie."
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:156
 #: src/Modules/Methodology/Admin/MethodologyPage.php:158
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:151
-#: src/Shared/Frontend/Components/FrontendListTable.php:366
+#: src/Shared/Frontend/Components/FrontendListTable.php:355
 msgid "Search"
 msgstr "Zoeken"
 
@@ -23929,7 +23929,7 @@ msgid "No squad recorded for this match."
 msgstr "Geen selectie geregistreerd voor deze wedstrijd."
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:285
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:262
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
 msgid "Coach signature"
 msgstr "Handtekening coach"
 
@@ -24429,7 +24429,7 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:76
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:792
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:171
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:173
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:204
@@ -24449,7 +24449,7 @@ msgstr "Printen"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:203
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:93
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:190
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:192
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:756
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
@@ -26734,7 +26734,7 @@ msgid "Progress"
 msgstr "Voortgang"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:96
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:215
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:217
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachForms.php:654
@@ -32839,7 +32839,8 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:177
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:191
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
-#: src/Shared/Frontend/Components/FrontendListTable.php:177
+#: src/Shared/Frontend/Components/FrontendListTable.php:175
+#: src/Shared/Frontend/Components/FrontendListTable.php:219
 #: src/Shared/Frontend/Components/MediaGallery.php:401
 #: src/Shared/Frontend/DashboardShortcode.php:252
 #: src/Shared/Frontend/DashboardShortcode.php:286
@@ -32849,10 +32850,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
 msgstr "Bezig met laden…"
-
-#: src/Shared/Frontend/Components/FrontendListTable.php
-msgid "This list needs JavaScript to load."
-msgstr "Deze lijst heeft JavaScript nodig om te laden."
 
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:130
 msgid "The academy's own words"
@@ -36081,7 +36078,7 @@ msgstr "Gevoerd %s"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:241
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1257
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:232
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:234
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
 
@@ -36212,13 +36209,13 @@ msgstr "Nog geen reflectie opgeslagen."
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:510
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1033
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:253
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:255
 msgid "End-of-season verdict"
 msgstr "Eindeseizoens­oordeel"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:511
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1035
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:254
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:256
 msgid "Decision:"
 msgstr "Beslissing:"
 
@@ -36629,7 +36626,7 @@ msgstr "Voorbereiding"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1138
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1844
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:269
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:271
 msgid "Evidence"
 msgstr "Bewijs"
 
@@ -36892,7 +36889,7 @@ msgstr ""
 "speler voor dat team × blok."
 
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:90
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:202
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
 msgid "Season:"
 msgstr "Seizoen:"
 
@@ -37112,58 +37109,58 @@ msgid "Log in to print this PDP file."
 msgstr "Log in om dit POP-dossier te printen."
 
 #. translators: %s = player name
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:132
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:134
 #, php-format
 msgid "PDP — %s"
 msgstr "POP — %s"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:173
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:175
 msgid "Re-render with evidence page"
 msgstr "Opnieuw renderen met bewijspagina"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:175
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:177
 msgid "Single A4 only"
 msgstr "Alleen één A4"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:203
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:205
 msgid "Status:"
 msgstr "Status:"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:204
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:206
 msgid "Cycle size:"
 msgstr "Cyclus­grootte:"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:208
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:210
 msgid "Current goals"
 msgstr "Huidige doelen"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:229
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:231
 msgid "No active goals."
 msgstr "Geen actieve doelen."
 
 #. translators: %d = sequence
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:240
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:242
 #, php-format
 msgid "Conversation %d"
 msgstr "Gesprek %d"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:247
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:249
 msgid "No agreed actions recorded yet."
 msgstr "Nog geen afgesproken acties vastgelegd."
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:263
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:265
 msgid "Player signature"
 msgstr "Handtekening speler"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:264
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:266
 msgid "Parent signature"
 msgstr "Handtekening ouder"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:299
 msgid "Closed"
 msgstr "Gesloten"
 
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:320
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:322
 msgctxt "a PDP verdict decision on a historical row"
 msgid "Review"
 msgstr "Te beoordelen"
@@ -43720,7 +43717,7 @@ msgid "Pick a player for tier %d"
 msgstr "Kies een speler voor tier %d"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1362
-#: src/Shared/Frontend/Components/FrontendListTable.php:362
+#: src/Shared/Frontend/Components/FrontendListTable.php:351
 msgid "Search…"
 msgstr "Zoeken…"
 
@@ -50490,7 +50487,7 @@ msgstr[1] "%d taken aangemaakt"
 
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:332
 #: src/Shared/Frontend/Components/FormSaveButton.php:55
-#: src/Shared/Frontend/Components/FrontendListTable.php:179
+#: src/Shared/Frontend/Components/FrontendListTable.php:177
 msgid "Retry"
 msgstr "Opnieuw"
 
@@ -52336,25 +52333,29 @@ msgstr "Navigatie inklappen"
 msgid "Open navigation"
 msgstr "Navigatie openen"
 
-#: src/Shared/Frontend/Components/FrontendListTable.php:74
+#: src/Shared/Frontend/Components/FrontendListTable.php:80
 msgid "No results."
 msgstr "Geen resultaten."
 
-#: src/Shared/Frontend/Components/FrontendListTable.php:178
+#: src/Shared/Frontend/Components/FrontendListTable.php:176
 msgid "Could not load — retry?"
 msgstr "Laden mislukt — opnieuw proberen?"
 
-#: src/Shared/Frontend/Components/FrontendListTable.php:181
+#: src/Shared/Frontend/Components/FrontendListTable.php:179
 #, php-format
 msgid "Showing %1$d–%2$d of %3$d"
 msgstr "%1$d–%2$d van %3$d weergegeven"
 
-#: src/Shared/Frontend/Components/FrontendListTable.php:182
-#: src/Shared/Frontend/Components/FrontendListTable.php:253
+#: src/Shared/Frontend/Components/FrontendListTable.php:180
+#: src/Shared/Frontend/Components/FrontendListTable.php:242
 msgid "Per page"
 msgstr "Per pagina"
 
-#: src/Shared/Frontend/Components/FrontendListTable.php:635
+#: src/Shared/Frontend/Components/FrontendListTable.php:220
+msgid "This list needs JavaScript to load."
+msgstr "Deze lijst heeft JavaScript nodig om te laden."
+
+#: src/Shared/Frontend/Components/FrontendListTable.php:624
 msgid "Sort by"
 msgstr "Sorteren op"
 
