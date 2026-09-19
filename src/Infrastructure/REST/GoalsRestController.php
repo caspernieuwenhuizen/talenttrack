@@ -29,12 +29,51 @@ class GoalsRestController {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
 
+    /** @var list<string> filters the list also takes as plain params (#3607) */
+    private const FILTER_ALIASES = [ 'team_id', 'player_id', 'status', 'priority', 'due_from', 'due_to', 'date_from', 'date_to' ];
+
+    /**
+     * #3607 — the list's parameters, so route discovery shows them. Every
+     * filter can be sent plainly (`player_id=`) or nested
+     * (`filter[player_id]=`); the nested form wins when both are sent.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function listArgs(): array {
+        $descriptions = [
+            'team_id'   => 'Only goals of players on this team.',
+            'player_id' => 'Only this player\'s goals.',
+            'status'    => 'active, achieved or missed, or a raw status code.',
+            'priority'  => 'Only goals with this priority.',
+            'due_from'  => 'Due on or after this date (YYYY-MM-DD).',
+            'due_to'    => 'Due on or before this date (YYYY-MM-DD).',
+            'date_from' => 'Created on or after this date (YYYY-MM-DD).',
+            'date_to'   => 'Created on or before this date (YYYY-MM-DD).',
+        ];
+        $args = [];
+        foreach ( self::FILTER_ALIASES as $key ) {
+            $args[ $key ] = [
+                'type'        => in_array( $key, [ 'team_id', 'player_id' ], true ) ? [ 'integer', 'string' ] : 'string',
+                'description' => $descriptions[ $key ],
+            ];
+        }
+        return $args + [
+            'filter'   => [ 'type' => 'object', 'description' => 'The same filters, nested: filter[player_id]=…' ],
+            'search'   => [ 'type' => 'string', 'description' => 'Matches the title, description or player name.' ],
+            'orderby'  => [ 'type' => 'string', 'description' => 'Column to sort on.' ],
+            'order'    => [ 'type' => 'string', 'description' => 'asc or desc.' ],
+            'page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Rows per page.' ],
+        ];
+    }
+
     public static function register(): void {
         register_rest_route( self::NS, '/goals', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_goals' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => self::listArgs(),
             ],
             [
                 'methods'             => 'POST',
@@ -184,6 +223,17 @@ class GoalsRestController {
         }
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        // #3607 — `?player_id=` was ignored with no warning and answered
+        // with the caller's whole scope, which a client reads as one
+        // player's goals. The plain names fold into `filter[...]`, with the
+        // nested form winning, so they run through the same branches below,
+        // including the parent privacy check (#1867). Same as #3584 did for
+        // the activities list.
+        foreach ( self::FILTER_ALIASES as $key ) {
+            if ( ! isset( $filter[ $key ] ) && $r->get_param( $key ) !== null && $r->get_param( $key ) !== '' ) {
+                $filter[ $key ] = $r->get_param( $key );
+            }
+        }
 
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 'pl.team_id = %d';
