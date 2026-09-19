@@ -4,6 +4,7 @@ namespace TT\Modules\Prospects;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
 
 /**
@@ -53,6 +54,41 @@ final class ScoutingVisitsAccess {
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return true;
 
         return MatrixGate::canAnyScope( $user_id, self::ENTITY, 'read' );
+    }
+
+    /**
+     * May this user read this visit?
+     *
+     * A visit is the scout's own planning record: they see theirs, the head
+     * of development (`tt_manage_prospects`) sees everybody's. #3604 moved
+     * the rule here because the two views each carried their own copy and
+     * REST carried none at all — a read route written against either copy
+     * would have been a third answer to one question.
+     *
+     * @param object $visit a `tt_scouting_plan_visits` row.
+     * @param bool   $is_admin the caller's own administrator determination,
+     *                         kept as the bypass every matrix consumer applies.
+     */
+    public static function canReadVisit( int $user_id, object $visit, bool $is_admin = false ): bool {
+        if ( $is_admin ) return true;
+        if ( $user_id <= 0 ) return false;
+
+        $row = (array) $visit;
+        if ( (int) ( $row['scout_user_id'] ?? 0 ) === $user_id ) return true;
+
+        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' );
+    }
+
+    /**
+     * The scout a listing must be narrowed to, or null when the caller may
+     * see every scout's visits. A caller-supplied `scout_user_id` is
+     * overruled by the returned id, never the other way round.
+     */
+    public static function forcedScoutFilter( int $user_id, bool $is_admin = false ): ?int {
+        if ( $is_admin ) return null;
+        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return null;
+
+        return $user_id;
     }
 
     private static function matrixActive(): bool {

@@ -180,13 +180,20 @@ class ScoutingVisitsRepository {
     public function prospectsForVisit( int $visit_id ): array {
         if ( $visit_id <= 0 ) return [];
         $prospects = $this->wpdb->prefix . 'tt_prospects';
+        $lookups   = $this->wpdb->prefix . 'tt_lookups';
+        // #3604 — the columns are `date_of_birth` and a position LOOKUP id;
+        // the original query asked for `dob` and `position`, which
+        // tt_prospects has never had. MySQL refused it, so every visit
+        // listed nobody.
         $sql = $this->wpdb->prepare(
-            "SELECT id, first_name, last_name, current_club, position, dob, archived_at,
-                    promoted_to_player_id, promoted_to_trial_case_id, discovered_at
-              FROM {$prospects}
-             WHERE club_id = %d
-               AND scouting_visit_id = %d
-             ORDER BY archived_at IS NULL DESC, discovered_at DESC, id DESC",
+            "SELECT p.id, p.first_name, p.last_name, p.current_club,
+                    p.date_of_birth, l.name AS position, p.archived_at,
+                    p.promoted_to_player_id, p.promoted_to_trial_case_id, p.discovered_at
+              FROM {$prospects} p
+              LEFT JOIN {$lookups} l ON l.id = p.preferred_position_lookup_id
+             WHERE p.club_id = %d
+               AND p.scouting_visit_id = %d
+             ORDER BY p.archived_at IS NULL DESC, p.discovered_at DESC, p.id DESC",
             CurrentClub::id(), $visit_id
         );
         $rows = $this->wpdb->get_results( $sql );

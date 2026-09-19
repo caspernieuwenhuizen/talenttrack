@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Frontend\Components\BackLink;
@@ -63,10 +64,10 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             return;
         }
 
-        // Scope: a scout sees only their own; everyone else with cap sees all.
-        $is_owner = (int) $visit->scout_user_id === $user_id;
-        $is_scope_admin = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) || $is_admin;
-        if ( ! $is_owner && ! $is_scope_admin ) {
+        // Scope: a scout sees only their own; everyone else with cap sees
+        // all. The rule lives in ScoutingVisitsAccess (#3604) so this view,
+        // the list and the REST read routes give one answer.
+        if ( ! ScoutingVisitsAccess::canReadVisit( $user_id, $visit, $is_admin ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Scouting visit', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You can only view your own scouting visits.', 'talenttrack' ) . '</p>';
@@ -83,17 +84,18 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
-        if ( $is_owner || $is_scope_admin ) {
-            $edit_url = add_query_arg(
-                [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => (int) $visit->id ],
-                $base_url
-            );
-            $page_actions[] = [
-                'label' => __( 'Edit visit', 'talenttrack' ),
-                'href'  => BackLink::appendTo( $edit_url ),
-                'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
-            ];
-        }
+        // Editing and archiving a visit ask the same question as reading it
+        // (owner, or the head of development), and the refusal above has
+        // already answered it — one rule, one answer, asked once.
+        $edit_url = add_query_arg(
+            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => (int) $visit->id ],
+            $base_url
+        );
+        $page_actions[] = [
+            'label' => __( 'Edit visit', 'talenttrack' ),
+            'href'  => BackLink::appendTo( $edit_url ),
+            'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
+        ];
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
@@ -113,36 +115,34 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         // its own capability + row-ownership check; this button is gated
         // the same way the Edit action above is (owner or scope admin),
         // and the JS layer fires the REST call with a nonce + confirm.
-        if ( $is_owner || $is_scope_admin ) {
-            $page_actions[] = [
-                'label'      => __( 'Archive visit', 'talenttrack' ),
-                'variant'    => 'danger',
-                'data_attrs' => [ 'tt-archive-visit' => (int) $visit->id ],
-            ];
+        $page_actions[] = [
+            'label'      => __( 'Archive visit', 'talenttrack' ),
+            'variant'    => 'danger',
+            'data_attrs' => [ 'tt-archive-visit' => (int) $visit->id ],
+        ];
 
-            wp_enqueue_script(
-                'tt-scouting-visit-archive',
-                TT_PLUGIN_URL . 'assets/js/components/scouting-visit-archive.js',
-                [],
-                TT_VERSION,
-                true
-            );
-            wp_localize_script( 'tt-scouting-visit-archive', 'TT_SCOUTING_VISIT_ARCHIVE', [
-                'rest_url'     => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' ) ),
-                'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
-                // Soft-delete redirects back to the list, which excludes
-                // archived rows; `tt_archived=1` triggers the success notice.
-                'redirect_url' => esc_url_raw( add_query_arg(
-                    [ 'tt_view' => 'scouting-visits', 'tt_archived' => 1 ],
-                    $base_url
-                ) ),
-                'i18n' => [
-                    'confirm'       => __( 'Archive this scouting visit? It will be removed from the list.', 'talenttrack' ),
-                    'error_generic' => __( 'Could not archive the visit. Please try again.', 'talenttrack' ),
-                    'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
-                ],
-            ] );
-        }
+        wp_enqueue_script(
+            'tt-scouting-visit-archive',
+            TT_PLUGIN_URL . 'assets/js/components/scouting-visit-archive.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-scouting-visit-archive', 'TT_SCOUTING_VISIT_ARCHIVE', [
+            'rest_url'     => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' ) ),
+            'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
+            // Soft-delete redirects back to the list, which excludes
+            // archived rows; `tt_archived=1` triggers the success notice.
+            'redirect_url' => esc_url_raw( add_query_arg(
+                [ 'tt_view' => 'scouting-visits', 'tt_archived' => 1 ],
+                $base_url
+            ) ),
+            'i18n' => [
+                'confirm'       => __( 'Archive this scouting visit? It will be removed from the list.', 'talenttrack' ),
+                'error_generic' => __( 'Could not archive the visit. Please try again.', 'talenttrack' ),
+                'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
+            ],
+        ] );
 
         self::renderHeader( $title, self::pageActionsHtml( $page_actions ) );
 
@@ -251,7 +251,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                     <?php foreach ( $rows as $p ) :
                         $name = trim( (string) $p->first_name . ' ' . (string) $p->last_name );
                         $birth_year = '';
-                        $dob = (string) ( $p->dob ?? '' );
+                        $dob = (string) ( $p->date_of_birth ?? '' );
                         if ( $dob !== '' && preg_match( '/^(\d{4})/', $dob, $m ) ) {
                             $birth_year = $m[1];
                         }
@@ -260,11 +260,8 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             remove_query_arg( [ 'action', 'id', 'tt_back' ] )
                         );
                         $kanban_url = BackLink::appendTo( $kanban_url );
-                        $status = '';
-                        if ( ! empty( $p->archived_at ) )                  $status = __( 'Archived', 'talenttrack' );
-                        elseif ( ! empty( $p->promoted_to_player_id ) )    $status = __( 'Joined', 'talenttrack' );
-                        elseif ( ! empty( $p->promoted_to_trial_case_id ) ) $status = __( 'In trial', 'talenttrack' );
-                        else                                               $status = __( 'Active', 'talenttrack' );
+                        // #3604 — the same derivation the REST read uses.
+                        $status = ProspectOutcome::label( ProspectOutcome::forRow( (array) $p ) );
                         ?>
                         <tr>
                             <td data-sort="<?php echo esc_attr( $p->last_name . ' ' . $p->first_name ); ?>">
