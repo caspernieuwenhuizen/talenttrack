@@ -1,0 +1,3 @@
+# Audit-log API names the actor (#3712)
+
+The audit-log API now returns the actor's name alongside their id. `GET /audit-log` used to hand back a bare numeric `user_id`, while the audit-log screen showed the person's name for the same rows — and nothing else in the API could turn that id into a person. An administrator reading the log over the API could see that someone exported twelve thousand evaluation rows, and not who. Every entry now carries `user_name` as well, resolved exactly as the screen resolves it. It is empty for an entry written by the system itself or by an account that has since been deleted; the id stays either way, so attribution is never lost.

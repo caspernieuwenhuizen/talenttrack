@@ -532,9 +532,36 @@ paths:
         Cap required: `tt_view_audit_log`. New in #0052 PR-B.
         Supports filters `entity_type`, `entity_id`, `user_id`, `action`,
         `date_from`, `date_to`, `page`, `per_page`.
+
+        Each entry carries both `user_id` and `user_name` (#3712). `user_name`
+        is the actor's WordPress display name, or `null` when there is no
+        account behind the entry — a system-written row (`user_id` 0) or an
+        account since deleted. `user_id` is never cleared, so attribution
+        survives the account.
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  errors:  { type: array, items: { type: object } }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:          { type: integer }
+                        user_id:     { type: integer }
+                        user_name:   { type: string, nullable: true }
+                        action:      { type: string }
+                        entity_type: { type: string }
+                        entity_id:   { type: integer }
+                        payload:     { description: Decoded JSON context, or the raw string when it is not JSON. }
+                        ip_address:  { type: string }
+                        created_at:  { type: string }
           headers:
             X-WP-Total:
               schema: { type: integer }
