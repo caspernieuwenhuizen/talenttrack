@@ -102,7 +102,10 @@ final class MediaConsentTest extends WP_UnitTestCase {
 
         $player = $this->makePlayer();
         $this->save( $player, [ 'media_consent' => '1' ] );
-        $this->save( $player, [] ); // unchecked box sends nothing
+        // #3569 — an update only writes the keys it is sent, so an absent
+        // key leaves consent alone. Unticking the box on the form sends the
+        // hidden `media_consent=0` in front of it, and that is what withdraws.
+        $this->save( $player, [ 'media_consent' => '0' ] );
 
         $row = $this->row( $player );
 

@@ -540,35 +540,38 @@ class PlayersRestController {
         }
 
         global $wpdb;
-        $data = self::extract( $r );
-        $data = self::stampConsent( $data, $existing );
 
-        // #2866 — `extract()` maps a missing `team_id` to 0, which is right
-        // on create (no team chosen) and destructive on update: a partial
-        // payload would silently unassign the player from their squad.
-        //
-        // A `team_id` that is *present* is honoured whatever its value,
-        // including 0 — deliberately choosing the empty option is how a
-        // player is taken off a team, and that has to keep working. Only an
-        // absent key falls back to what is already stored.
-        if ( ! array_key_exists( 'team_id', $r->get_params() ) ) {
-            $data['team_id'] = (int) ( $existing->team_id ?? 0 );
+        // #3569 — absent from the payload means leave it alone. `extract()`
+        // defaults every missing key to empty, which is right on create and
+        // destructive here: a PUT carrying only a guardian name used to
+        // blank the name, date of birth, positions and account link. Every
+        // `extract()` key is named after its request param, so keeping the
+        // sent keys is the whole rule. A key that *is* sent is honoured
+        // whatever its value — an explicit empty is how a field is cleared
+        // (and `team_id: 0` how a player comes off a team, #2866).
+        $data = array_intersect_key( self::extract( $r ), $r->get_params() );
+        if ( array_key_exists( 'media_consent', $data ) ) {
+            $data = self::stampConsent( $data, $existing );
         }
 
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
-            return RestResponse::errors( [
-                [ 'code' => 'db_error', 'message' => __( 'The player could not be updated.', 'talenttrack' ), 'details' => [ 'db_error' => (string) $wpdb->last_error ] ],
-            ], 500 );
+        if ( $data !== [] ) {
+            $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            if ( $ok === false ) {
+                Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
+                return RestResponse::errors( [
+                    [ 'code' => 'db_error', 'message' => __( 'The player could not be updated.', 'talenttrack' ), 'details' => [ 'db_error' => (string) $wpdb->last_error ] ],
+                ], 500 );
+            }
         }
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
         self::maybeLinkParent( $id, $r );
         do_action( 'tt_after_player_save', $id, $data );
         // #0053 — diff hook so the journey subscriber can detect status /
-        // team / position transitions.
-        do_action( 'tt_player_save_diff', $id, $previous, $data );
+        // team / position transitions. It gets the whole row after the
+        // save: a field this request did not send is unchanged, not blank,
+        // and must not read as a transition to nothing.
+        do_action( 'tt_player_save_diff', $id, $previous, array_merge( $previous, $data ) );
 
         $pl = QueryHelpers::get_player( $id );
         return RestResponse::success( self::fmt( $pl ) );
@@ -728,8 +731,9 @@ class PlayersRestController {
             'date_joined'         => sanitize_text_field( (string) ( $r['date_joined'] ?? '' ) ),
             'photo_url'           => esc_url_raw( (string) ( $r['photo_url'] ?? '' ) ),
             // #2744 — a record of what the family agreed to, not a gate.
-            // An unchecked box sends nothing, so absence means "no", which
-            // is the honest reading for a consent record.
+            // On create an absent key means "no", which is the honest
+            // reading for a consent record. On update an absent key leaves
+            // it alone (#3569); the form sends a hidden 0 to withdraw.
             'media_consent'       => ! empty( $r['media_consent'] ) ? 1 : 0,
             'guardian_name'       => sanitize_text_field( (string) ( $r['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $r['guardian_email'] ?? '' ) ),
