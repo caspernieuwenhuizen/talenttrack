@@ -65,6 +65,8 @@ The system also sends gentle reminders to staff who haven't submitted as the tri
 
 **At the decision, not at submit.** While the case is **Open** or **Extended** an assigned coach can keep correcting their own input — including after they have submitted it. Re-reading your own wording an hour later and fixing a sentence is normal practice and should not need a manager.
 
+On the **Staff inputs** tab, an input you have already submitted keeps its form. Above it a line says when you handed it in and that you can still edit it until the trial is decided, and the form carries a single **Save changes** button instead of **Save draft** / **Submit input**. Saving does not un-submit the input: the submission time stays as it was, the head of development's "N of M assigned staff have submitted" count does not move, and neither does the **Release submitted inputs** button.
+
 Once the case is **Decided** or **Archived**, inputs are frozen. Nothing can change them, on any screen or through the API, and an attempt to do so is refused with a message saying why rather than quietly doing nothing.
 
 That line is where it is because a staff input is the evidence behind a decision about a child — whether the academy wanted them, and why. It is also the part of the trial record most likely to be read a season later, when the player comes back or the family asks. A record that can be rewritten after the fact, with no earlier version kept, cannot serve either purpose.

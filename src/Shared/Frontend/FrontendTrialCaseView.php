@@ -648,14 +648,35 @@ class FrontendTrialCaseView extends FrontendViewBase {
         self::cardClose();
     }
 
+    /**
+     * The author's own input form.
+     *
+     * Only ever reached while `statusAcceptsInput()` holds — see the caller
+     * in `renderInputsTab()` — so the case is `open` or `extended` and the
+     * policy still allows a write. #3649: this method used to lock the card
+     * the moment `submitted_at` was set, print "ask the head of
+     * development", and return. That contradicted
+     * `TrialCaseAccessPolicy` ("the decision, not the submission, is the
+     * line"), which the REST route has always followed, and it pointed at a
+     * reopen action the Trials module has never had — including when the
+     * reader *was* the head of development.
+     *
+     * A submitted input therefore renders the same form, prefilled, with a
+     * single **Save changes** button that posts `submit_action=draft`.
+     * `upsertDraft()` leaves `submitted_at` alone, so an edit does not
+     * un-submit the input: the "N of M submitted" count and the release
+     * button are unaffected, and the original submission time survives.
+     */
     private static function renderOwnInputForm( int $case_id, ?object $existing ): void {
-        $is_submitted = $existing && $existing->submitted_at;
+        $submitted_at = $existing ? (string) ( $existing->submitted_at ?? '' ) : '';
+        $is_submitted = $submitted_at !== '';
         self::cardOpen( __( 'Your input', 'talenttrack' ) );
         if ( $is_submitted ) {
-            echo '<p>' . esc_html__( 'You submitted on:', 'talenttrack' ) . ' ' . esc_html( (string) $existing->submitted_at ) . '</p>';
-            echo '<p><em>' . esc_html__( 'To edit after submit, ask the head of development.', 'talenttrack' ) . '</em></p>';
-            self::cardClose();
-            return;
+            echo '<p class="tt-trial-input-submitted">' . esc_html( sprintf(
+                /* translators: %s: date and time the input was submitted. */
+                __( 'Submitted on %s. You can still edit this until the trial is decided.', 'talenttrack' ),
+                $submitted_at
+            ) ) . '</p>';
         }
 
         echo '<form method="post" class="tt-trial-input-form">';
@@ -676,8 +697,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<label>' . esc_html( $tt_label ) . ' <input type="number" step="0.1" min="' . esc_attr( (string) $tt_rmin ) . '" max="' . esc_attr( (string) $tt_rmax ) . '" inputmode="decimal" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
         echo '<label>' . esc_html__( 'Notes', 'talenttrack' ) . ' <textarea name="free_text_notes" rows="4">' . esc_textarea( $existing ? (string) $existing->free_text_notes : '' ) . '</textarea></label>';
         echo '<div class="tt-form-actions">';
-        echo '<button type="submit" name="submit_action" value="draft" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';
-        echo '<button type="submit" name="submit_action" value="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Submit input', 'talenttrack' ) . '</button>';
+        if ( $is_submitted ) {
+            // One button, and it saves a draft: re-running `submit()` would
+            // move `submitted_at` to now and lose when the input was
+            // actually handed in.
+            echo '<button type="submit" name="submit_action" value="draft" class="tt-btn tt-btn-primary">' . esc_html__( 'Save changes', 'talenttrack' ) . '</button>';
+        } else {
+            echo '<button type="submit" name="submit_action" value="draft" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';
+            echo '<button type="submit" name="submit_action" value="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Submit input', 'talenttrack' ) . '</button>';
+        }
         echo '</div>';
         echo '</form>';
         self::cardClose();
