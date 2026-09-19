@@ -16,7 +16,7 @@ Een **POP-dossier** is een seizoens­gebonden ontwikkelplan voor één speler. H
 ## Wie ziet wat
 
 - **Coaches** — volledige bewerking van POP-dossiers voor spelers in hun eigen teams. Tegel: **Performance → POP**.
-- **Hoofd academie** — globale bewerking van alle dossiers plus exclusieve schrijftoegang tot het eindeseizoens­oordeel.
+- **Hoofd academie** — globale bewerking van alle dossiers plus exclusieve schrijftoegang tot het eindeseizoens­oordeel. Dat geldt ook voor de gesprekken in het dossier, voor spelers van elk team: een geplande datum verzetten, het verslag schrijven, aftekenen en het dossier printen.
 - **Spelers** — alleen-lezen op het eigen dossier, gepresenteerd als een seizoenstijdlijn, plus een bewerkbare zelfreflectie voor het ene eerstvolgende geplande gesprek. Tegel: **Mijn → Mijn POP**.
 - **Ouders / verzorgers** — alleen-lezen op het dossier van hun kind (na ondertekening) plus een per-gesprek bevestigings­knop.
 - **Read-only observer** — alleen-lezen op alle dossiers; geen bewerking, geen bevestiging.

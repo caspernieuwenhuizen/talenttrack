@@ -84,23 +84,25 @@ class PdpPrintRouter {
     }
 
     public static function canAccess( object $file ): bool {
-        if ( current_user_can( 'tt_edit_settings' ) ) return true;
-        $user_id = get_current_user_id();
-        if ( current_user_can( 'tt_view_pdp' )
-            && QueryHelpers::coach_owns_player( $user_id, (int) $file->player_id ) ) {
-            return true;
-        }
+        $user_id   = get_current_user_id();
+        $player_id = (int) $file->player_id;
+
+        // #3663 — staff go through the same decision as the PDP file itself,
+        // so a head of development who can open the file can also print it.
+        // This was a coach-or-admin check of its own, which left them out.
+        if ( \TT\Modules\Pdp\PdpAccess::canSeeFile( $user_id, $player_id ) ) return true;
+
         // Linked player or parent.
         global $wpdb; $p = $wpdb->prefix;
         $self_player = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
             $user_id
         ) );
-        if ( $self_player === (int) $file->player_id ) return true;
+        if ( $self_player === $player_id ) return true;
 
         // #3476 — one club-scoped, status-filtered implementation of
         // "is this user a guardian of this player", in ParentChildResolver.
-        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, (int) $file->player_id );
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $player_id );
     }
 
     private static function emit( object $file, bool $include_evidence ): void {

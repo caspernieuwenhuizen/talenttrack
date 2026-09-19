@@ -4,8 +4,8 @@ namespace TT\Modules\Pdp\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Pdp\PdpAccess;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 
@@ -211,12 +211,15 @@ class PdpConversationsRestController {
      * @return list<string>
      */
     private static function allowedFieldsFor( object $file ): array {
-        $uid = get_current_user_id();
-        $is_admin = current_user_can( 'tt_edit_settings' );
-        $is_coach_for_player = QueryHelpers::coach_owns_player( $uid, (int) $file->player_id );
+        $uid       = get_current_user_id();
+        $player_id = (int) $file->player_id;
 
-        // Coach (or admin): full conversation edit + sign-off.
-        if ( $is_admin || ( current_user_can( 'tt_edit_pdp' ) && $is_coach_for_player ) ) {
+        // Whoever may edit the PDP file may edit its conversations: the
+        // coach of the player's team, and a global PDP editor (head of
+        // development, academy admin, the legacy tt_edit_settings holder).
+        // #3663 — this used to be its own coach-or-admin check, which left
+        // out the head of development although the file itself let them in.
+        if ( PdpAccess::canEditFile( $uid, $player_id ) ) {
             // #3306 — `agenda` retired; preparation is its own resource at
             // `/pdp-conversations/{id}/prep`, gated to coach + head of
             // academy rather than to whoever may edit the conversation.
@@ -228,12 +231,12 @@ class PdpConversationsRestController {
         }
 
         // Player linked to the PDP: own reflection + own ack only.
-        if ( self::isLinkedPlayer( $uid, (int) $file->player_id ) ) {
+        if ( self::isLinkedPlayer( $uid, $player_id ) ) {
             return [ 'player_reflection', 'player_ack_at' ];
         }
 
         // Parent of the linked player: parent_ack_at only.
-        if ( self::isParentOfPlayer( $uid, (int) $file->player_id ) ) {
+        if ( self::isParentOfPlayer( $uid, $player_id ) ) {
             return [ 'parent_ack_at' ];
         }
 
