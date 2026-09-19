@@ -137,6 +137,16 @@ abstract class FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #3661 — the letter's own rules. They used to travel inside the
+        // letter's stored HTML as a `<style>` element, which kses rendered
+        // as CSS text on the page. Same sheet for the Letter tab, the
+        // template editor's preview and the print document.
+        wp_enqueue_style(
+            'tt-trial-letter',
+            TT_PLUGIN_URL . 'assets/css/trial-letter.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         // Reports + Scout body surfaces 2026 restyle (#1695): report
         // wizard, scout access, scout history, scout my-players. Depends
         // on the app-chrome sheet for the brand tokens + .tt-kpi styling.

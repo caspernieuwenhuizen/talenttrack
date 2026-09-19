@@ -41,6 +41,11 @@ class TrialsModule implements ModuleInterface {
         // journey entry records the transition, this one performs it.
         TrialDecisionPlayerStatusSubscriber::init();
 
+        // #3661 — the letter on paper, outside the dashboard shell. The
+        // "Print view" link used to reopen the case page with all its
+        // chrome, which is not something you hand to a family.
+        Print\TrialLetterPrintRouter::init();
+
         // #3221 — §3 wizard-first: opening a trial case is a top-level
         // record creation and was the clearest such flow without a
         // wizard. The flat form on `?tt_view=trials&action=new` stays as

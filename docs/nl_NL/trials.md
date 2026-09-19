@@ -83,7 +83,7 @@ Het beslissingsformulier vereist een interne motivatie van minimaal 30 tekens.
 
 ### 5. Brief genereren
 
-Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het tabblad **Brief** toont de brief in de pagina en biedt een afdrukweergave aan. Drie sjablonen worden meegeleverd:
+Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het tabblad **Brief** toont de brief in de pagina en biedt een afdrukweergave aan. **Afdrukweergave openen** toont de brief los van de rest — geen navigatie, geen tabbladen, geen briefgeschiedenis, alleen de brief en een knop Printen — zodat je precies uitprint wat je aan het gezin meegeeft. Alleen hoofd opleiding en clubbeheer kunnen die weergave openen; wie geen toegang tot het dossier heeft, krijgt een melding. Drie sjablonen worden meegeleverd:
 
 - **Aanbod** — warm welkom, vervolgstappen, eventueel een acceptatiestrook op pagina 2 als de club die functie aan heeft staan.
 - **Afwijzen (definitief)** — respectvol en duidelijk.

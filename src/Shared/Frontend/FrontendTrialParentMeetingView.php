@@ -70,9 +70,10 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
         $letter   = $svc->findActiveForCase( $case_id );
         $letter_url = '';
         if ( $letter ) {
-            $letter_url = add_query_arg( [
-                'tt_view' => 'trial-case', 'id' => $case_id, 'tab' => 'letter', 'print' => 1,
-            ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+            // #3661 — the standalone print document. This used to reopen
+            // the case page with its tabs and letter history, in front of
+            // the family the meeting is with.
+            $letter_url = \TT\Modules\Trials\Print\TrialLetterPrintRouter::urlFor( $case_id );
         }
 
         $headline_class = 'tt-meeting-decision';

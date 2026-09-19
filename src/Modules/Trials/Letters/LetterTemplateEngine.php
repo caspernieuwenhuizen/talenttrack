@@ -186,22 +186,28 @@ final class LetterTemplateEngine {
     }
 
     /**
+     * The letter as it should be shown, from the HTML stored for it.
+     *
+     * Letters generated before #3661 were stored with their stylesheet
+     * prefixed as a `<style>` element. `wp_kses_post()` drops the tags but
+     * keeps their text, so on screen that stylesheet appeared as a block
+     * of CSS above the letter. The rules live in `assets/css/trial-letter.css`
+     * now; every surface that shows a stored letter reads it through here
+     * so the old rows display the same as the new ones.
+     */
+    public static function displayHtml( string $stored ): string {
+        $clean = preg_replace( '#<style\b[^>]*>.*?</style>#is', '', $stored );
+        return trim( is_string( $clean ) ? $clean : $stored );
+    }
+
+    /**
+     * No `<style>` element: the stored HTML is content, and the rules that
+     * dress it live in `assets/css/trial-letter.css` (#3661).
+     *
      * @param array<string,string> $context
      */
     private static function wrapDocument( string $body, array $context ): string {
-        $css = '<style>
-            .tt-letter { max-width: 720px; margin: 0 auto; padding: 32px; font-family: Georgia, "Times New Roman", serif; line-height: 1.55; color: #1a1a1a; }
-            .tt-letter h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
-            .tt-letter h2 { font-size: 1.2rem; margin: 1.5rem 0 .5rem; }
-            .tt-letter .tt-letter-club { font-size: .95rem; color: #4a4a4a; margin-bottom: 1.25rem; }
-            .tt-letter p { margin: 0 0 .75rem; }
-            .tt-letter-page { margin-top: 3rem; padding-top: 2rem; border-top: 1px dashed #999; page-break-before: always; }
-            .tt-letter-line { margin: 1.25rem 0 .25rem; font-size: .95rem; color: #333; }
-            .tt-letter-instructions { margin-top: 1.5rem; font-style: italic; color: #555; }
-            .tt-letter-signature { margin-top: 2rem; }
-            @media print { .tt-letter { padding: 0; } }
-        </style>';
-        return $css . sprintf(
+        return sprintf(
             '<article class="tt-letter">' .
             '<header><h1>%s</h1><div class="tt-letter-club">%s</div></header>%s</article>',
             esc_html( $context['club_name'] ),
