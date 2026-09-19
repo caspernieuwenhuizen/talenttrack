@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:09:23+00:00\n"
+"POT-Creation-Date: 2026-09-19T23:14:02+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2676,7 +2676,7 @@ msgstr "Gepubliceerd"
 #: src/Modules/Knowledge/Frontend/LearningReports.php:68
 #: src/Modules/Knowledge/Frontend/LearningReports.php:333
 #: src/Modules/Knowledge/Frontend/LearningReports.php:366
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:550
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:560
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1712
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:2019
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
@@ -3211,8 +3211,8 @@ msgstr "De oefening kon niet worden gekoppeld."
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:739
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:377
-#: src/Modules/Trials/Rest/TrialsRestController.php:385
+#: src/Modules/Trials/Rest/TrialsRestController.php:390
+#: src/Modules/Trials/Rest/TrialsRestController.php:399
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
@@ -5566,7 +5566,7 @@ msgstr "— Alle —"
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:98
 #: src/Modules/Methodology/Frontend/MethodologyView.php:787
 #: src/Modules/Methodology/VocabularyCatalog.php:113
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:244
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:254
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:724
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
@@ -5716,7 +5716,7 @@ msgstr "Bijwerken"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1349
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:440
 #: src/Modules/Methodology/Frontend/FrontendMethodologyVocabularyView.php:202
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:480
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:490
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:131
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:163
@@ -8036,7 +8036,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:158
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:665
 #: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:55
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:551
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:561
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:393
@@ -10723,7 +10723,7 @@ msgstr "In deze periode zijn er geen wedstrijden gespeeld."
 #. translators: %s: the season's name, e.g. "2025/26".
 #. translators: %s = season name
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:129
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:144
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:154
 #, php-format
 msgid "Season %s"
 msgstr "Seizoen %s"
@@ -36217,91 +36217,91 @@ msgid "No PDP file has been opened for this player this season yet."
 msgstr "Er is dit seizoen nog geen ontwikkelplan geopend voor deze speler."
 
 #. translators: %d = number of development conversations in the season
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:149
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:159
 #, php-format
 msgid "%d development conversation"
 msgid_plural "%d development conversations"
 msgstr[0] "%d ontwikkelgesprek"
 msgstr[1] "%d ontwikkelgesprekken"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:155
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:165
 msgid "No development conversations have been planned yet."
 msgstr "Er zijn nog geen ontwikkelgesprekken gepland."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:160
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:170
 msgid "Season timeline with development conversations"
 msgstr "Seizoenstijdlijn met ontwikkelgesprekken"
 
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:214
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:224
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1050
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr "Gesprek %1$d (%2$s)"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:226
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:236
 #, php-format
 msgid "Scheduled %s"
 msgstr "Gepland %s"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:243
 #, php-format
 msgid "Conducted %s"
 msgstr "Gevoerd %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:248
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:258
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1243
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:234
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:262
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:272
 msgid "Goals discussed"
 msgstr "Besproken doelen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:273
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:283
 msgid "Self-reflection"
 msgstr "Zelfreflectie"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:285
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:295
 msgid "I acknowledge this conversation"
 msgstr "Ik bevestig dit gesprek"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:290
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:300
 msgid "You acknowledged this conversation."
 msgstr "Je hebt dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:296
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:306
 msgid "Acknowledge as parent / guardian"
 msgstr "Bevestigen als ouder / verzorger"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:301
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:311
 msgid "A parent acknowledged this conversation."
 msgstr "Een ouder heeft dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:319
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:329
 msgid "Your active goals"
 msgstr "Jouw actieve doelen"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:321
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:331
 #, php-format
 msgid "%s's active goals"
 msgstr "Actieve doelen van %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:324
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:334
 msgid "What you are working on now"
 msgstr "Waar je nu aan werkt"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:326
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:336
 #, php-format
 msgid "What %s is working on now"
 msgstr "Waar %s nu aan werkt"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:331
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:341
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:284
 msgid "No active goals yet. Your coach will set some during your next talk."
 msgstr ""
@@ -36309,7 +36309,7 @@ msgstr ""
 "gesprek."
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:333
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:343
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:286
 #, php-format
 msgid ""
@@ -36320,43 +36320,38 @@ msgstr ""
 "ontwikkelgesprek met %s."
 
 #. translators: %s = goal due date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:379
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:389
 #, php-format
 msgid "Target date: %s"
 msgstr "Streefdatum: %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:565
-msgctxt "pdp talk state"
-msgid "Overdue"
-msgstr "Te laat"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:409
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:419
 msgid "Preparing for your talk"
 msgstr "Voorbereiding op je gesprek"
 
 #. translators: %s = the player's first name.
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:421
 #, php-format
 msgid "Preparing for %s's talk"
 msgstr "Voorbereiding op het gesprek van %s"
 
 #. translators: %1$s = conversation template label, %2$s = talk date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:416
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:426
 #, php-format
 msgid "Self-reflection · %1$s (%2$s)"
 msgstr "Zelfreflectie · %1$s (%2$s)"
 
 #. translators: %s = conversation template label
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:421
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:431
 #, php-format
 msgid "Self-reflection · %s"
 msgstr "Zelfreflectie · %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:431
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:441
 msgid "No self-reflection has been added for this talk yet."
 msgstr "Voor dit gesprek is nog geen zelfreflectie toegevoegd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:437
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:447
 msgid ""
 "Write your own reflection before the talk. Only the next planned talk can "
 "take a reflection — the other talks cannot. It is optional, never required."
@@ -36365,7 +36360,7 @@ msgstr ""
 "geplande gesprek kan een reflectie krijgen — de andere gesprekken niet. Het "
 "is optioneel, nooit verplicht."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:440
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:450
 msgid ""
 "The reflection window opens 2 weeks before the talk. Check back closer to "
 "the planned date."
@@ -36373,27 +36368,27 @@ msgstr ""
 "Het reflectievenster opent 2 weken vóór het gesprek. Kom dichter bij de "
 "geplande datum terug."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:474
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:484
 msgid "Add or update your self-reflection"
 msgstr "Voeg je zelfreflectie toe of werk hem bij"
 
 #. translators: %s = last-saved timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:493
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:503
 #, php-format
 msgid "Last saved · %s"
 msgstr "Laatst opgeslagen · %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:500
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:510
 msgid "No reflection saved yet."
 msgstr "Nog geen reflectie opgeslagen."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:510
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:520
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1019
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:255
 msgid "End-of-season verdict"
 msgstr "Eindeseizoens­oordeel"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:511
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:521
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1021
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:256
 msgid "Decision:"
@@ -36401,13 +36396,18 @@ msgstr "Beslissing:"
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:519
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:529
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1031
 #, php-format
 msgid "Signed off on %s"
 msgstr "Ondertekend op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:553
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:565
+msgctxt "pdp talk state"
+msgid "Overdue"
+msgstr "Te laat"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:567
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2646
 msgid "Later"
 msgstr "Later"
@@ -47244,67 +47244,68 @@ msgstr "Aangeboden plek afgewezen"
 msgid "Continue in trial group"
 msgstr "Doorgaan in stagegroep"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:294
-#: src/Modules/Trials/Rest/TrialsRestController.php:315
-#: src/Modules/Trials/Rest/TrialsRestController.php:345
-#: src/Modules/Trials/Rest/TrialsRestController.php:398
-#: src/Modules/Trials/Rest/TrialsRestController.php:598
-#: src/Modules/Trials/Rest/TrialsRestController.php:628
+#: src/Modules/Trials/Rest/TrialsRestController.php:306
+#: src/Modules/Trials/Rest/TrialsRestController.php:328
+#: src/Modules/Trials/Rest/TrialsRestController.php:358
+#: src/Modules/Trials/Rest/TrialsRestController.php:412
+#: src/Modules/Trials/Rest/TrialsRestController.php:671
+#: src/Modules/Trials/Rest/TrialsRestController.php:701
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:296
+#: src/Modules/Trials/Rest/TrialsRestController.php:308
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:309
+#: src/Modules/Trials/Rest/TrialsRestController.php:322
 msgid "Invalid trial case id."
 msgstr "Ongeldig proefdossier-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:326
+#: src/Modules/Trials/Rest/TrialsRestController.php:339
 msgid "Invalid trial track id."
 msgstr "Ongeldig proeftraject-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:328
-#: src/Modules/Trials/Rest/TrialsRestController.php:337
+#: src/Modules/Trials/Rest/TrialsRestController.php:341
+#: src/Modules/Trials/Rest/TrialsRestController.php:350
 msgid "Trial track not found."
 msgstr "Proeftraject niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:330
+#: src/Modules/Trials/Rest/TrialsRestController.php:343
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:358
+#: src/Modules/Trials/Rest/TrialsRestController.php:371
 msgid "Unknown trial case status."
 msgstr "Onbekende status voor een stagedossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:394
+#: src/Modules/Trials/Rest/TrialsRestController.php:408
 msgid "New end date and justification are required."
 msgstr "Nieuwe einddatum en motivering zijn verplicht."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:400
+#: src/Modules/Trials/Rest/TrialsRestController.php:414
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
 #. translators: %d: minimum number of characters.
-#: src/Modules/Trials/Rest/TrialsRestController.php:417
+#: src/Modules/Trials/Rest/TrialsRestController.php:485
+#, php-format
 msgid "The motivation in \"notes\" must be at least %d characters."
 msgstr "De motivatie in \"notes\" moet minstens %d tekens bevatten."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:431
-#: src/Modules/Trials/Rest/TrialsRestController.php:444
+#: src/Modules/Trials/Rest/TrialsRestController.php:504
+#: src/Modules/Trials/Rest/TrialsRestController.php:517
 msgid "Could not record decision."
 msgstr "Besluit kon niet worden geregistreerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:457
+#: src/Modules/Trials/Rest/TrialsRestController.php:530
 msgid "Invalid user id."
 msgstr "Ongeldig gebruiker-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:468
+#: src/Modules/Trials/Rest/TrialsRestController.php:541
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:483
+#: src/Modules/Trials/Rest/TrialsRestController.php:556
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
 "They are the record of what the decision was based on."
@@ -47312,29 +47313,29 @@ msgstr ""
 "Deze stage is beslist, dus de staf-input kan niet meer worden gewijzigd. Het "
 "is de vastlegging waarop de beslissing is gebaseerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:497
+#: src/Modules/Trials/Rest/TrialsRestController.php:570
 msgid "Send a rating, notes, or submit."
 msgstr "Stuur een beoordeling, notities of een indiening."
 
 #. translators: 1: rating min, 2: rating max
-#: src/Modules/Trials/Rest/TrialsRestController.php:515
+#: src/Modules/Trials/Rest/TrialsRestController.php:588
 #, php-format
 msgid "The overall rating must be a number from %1$s to %2$s."
 msgstr "De totaalbeoordeling moet een getal van %1$s tot %2$s zijn."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:537
+#: src/Modules/Trials/Rest/TrialsRestController.php:610
 msgid "Add a rating or notes before submitting."
 msgstr "Voeg een beoordeling of notities toe voordat je indient."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:637
+#: src/Modules/Trials/Rest/TrialsRestController.php:710
 msgid "A valid trial-letter audience is required."
 msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:659
+#: src/Modules/Trials/Rest/TrialsRestController.php:732
 msgid "The letter could not be generated."
 msgstr "De brief kon niet worden gegenereerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:695
+#: src/Modules/Trials/Rest/TrialsRestController.php:768
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 
