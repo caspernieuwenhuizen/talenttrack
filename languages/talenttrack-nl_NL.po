@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T08:22:11+00:00\n"
+"POT-Creation-Date: 2026-09-19T08:43:49+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -86,8 +86,8 @@ msgstr ""
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:517
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:385
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:285
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:306
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:361
 #: src/Modules/Players/Admin/PlayersPage.php:174
 #: src/Modules/Players/Admin/PlayersPage.php:463
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
@@ -109,7 +109,7 @@ msgstr "Team Manager"
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
 #: src/Infrastructure/Security/RolesService.php:508
 #: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:283
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:216
 #: src/Modules/Analytics/AnalyticsModule.php:118
@@ -176,8 +176,8 @@ msgstr "Team Manager"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:506
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:685
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:384
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:284
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:339
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:305
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:360
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
@@ -287,8 +287,8 @@ msgstr "Trainer"
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:513
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:289
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:344
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:310
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:365
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:119
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
@@ -636,8 +636,8 @@ msgstr ""
 "verbergen; geïmporteerde records blijven precies zoals ze zijn."
 
 #: src/Core/FeatureRegistry.php:312
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:110
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:223
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:112
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:225
 #: src/Modules/License/FeatureMap.php:414
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:556
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:707
@@ -2132,7 +2132,7 @@ msgstr "Verwijderd"
 
 #. translators: %s: player name
 #: src/Infrastructure/Query/LabelTranslator.php:74
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:238
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
 #: src/Modules/Analytics/AnalyticsModule.php:136
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:954
@@ -2143,7 +2143,7 @@ msgid "Present"
 msgstr "Aanwezig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:75
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
 #: src/Modules/Analytics/AnalyticsModule.php:137
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:151
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:223
@@ -2153,21 +2153,21 @@ msgid "Absent"
 msgstr "Afwezig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:76
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:222
 msgid "Late"
 msgstr "Laat"
 
 #: src/Infrastructure/Query/LabelTranslator.php:77
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:244
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:225
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:956
 msgid "Injured"
 msgstr "Geblesseerd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:78
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:243
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:224
 #: src/Shared/Frontend/Components/EvidencePanel.php:243
@@ -2178,8 +2178,8 @@ msgstr "Afgemeld"
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:511
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:386
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:286
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:307
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:362
 #: src/Modules/Teams/Admin/TeamsPage.php:68
 #: src/Modules/Wizards/Team/StaffStep.php:34
 #: src/Shared/Frontend/FrontendConfigurationView.php:2970
@@ -2191,8 +2191,8 @@ msgstr "Hoofdtrainer"
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
 #: src/Modules/People/Admin/PeoplePage.php:510
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:387
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:308
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:363
 #: src/Modules/Teams/Admin/TeamsPage.php:69
 #: src/Modules/Wizards/Team/StaffStep.php:35
 #: src/Shared/Frontend/FrontendConfigurationView.php:2971
@@ -2204,8 +2204,8 @@ msgstr "Assistent-trainer"
 #: src/Infrastructure/Query/LabelTranslator.php:98
 #: src/Modules/Mfa/Settings/MfaSettings.php:107
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:388
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:288
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:309
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:364
 #: src/Modules/Teams/Admin/TeamsPage.php:70
 #: src/Modules/Wizards/Team/StaffStep.php:36
 #: src/Shared/Frontend/FrontendConfigurationView.php:2972
@@ -2233,8 +2233,8 @@ msgstr "Fysio"
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
 #: src/Modules/People/Admin/PeoplePage.php:516
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:390
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:290
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:345
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:311
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:366
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:211
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
@@ -2361,7 +2361,7 @@ msgid "Mentor"
 msgstr "Mentor"
 
 #: src/Infrastructure/Query/LabelTranslator.php:233
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:287
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:289
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:62
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:78
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:70
@@ -2379,7 +2379,7 @@ msgid "Training"
 msgstr "Training"
 
 #: src/Infrastructure/Query/LabelTranslator.php:234
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:287
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:289
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:131
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:157
@@ -2712,7 +2712,7 @@ msgstr "Radarkaarten"
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:44
 #: src/Modules/Activities/Admin/ActivitiesPage.php:98
 #: src/Modules/Activities/Admin/ActivitiesPage.php:345
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:449
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:451
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:623
 #: src/Modules/Analytics/AnalyticsModule.php:119
 #: src/Modules/Analytics/AnalyticsModule.php:155
@@ -3013,20 +3013,20 @@ msgctxt "PDP file identity"
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:384
-#: src/Infrastructure/REST/ActivitiesRestController.php:519
-#: src/Infrastructure/REST/ActivitiesRestController.php:620
+#: src/Infrastructure/REST/ActivitiesRestController.php:388
+#: src/Infrastructure/REST/ActivitiesRestController.php:523
+#: src/Infrastructure/REST/ActivitiesRestController.php:624
 msgid "No changes supplied."
 msgstr "Geen wijzigingen ontvangen."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:390
-#: src/Infrastructure/REST/ActivitiesRestController.php:1309
-#: src/Infrastructure/REST/ActivitiesRestController.php:1489
-#: src/Infrastructure/REST/ActivitiesRestController.php:1506
-#: src/Infrastructure/REST/ActivitiesRestController.php:1536
-#: src/Infrastructure/REST/ActivitiesRestController.php:2003
-#: src/Infrastructure/REST/ActivitiesRestController.php:2186
-#: src/Infrastructure/REST/ActivitiesRestController.php:2224
+#: src/Infrastructure/REST/ActivitiesRestController.php:394
+#: src/Infrastructure/REST/ActivitiesRestController.php:1313
+#: src/Infrastructure/REST/ActivitiesRestController.php:1493
+#: src/Infrastructure/REST/ActivitiesRestController.php:1510
+#: src/Infrastructure/REST/ActivitiesRestController.php:1540
+#: src/Infrastructure/REST/ActivitiesRestController.php:2007
+#: src/Infrastructure/REST/ActivitiesRestController.php:2190
+#: src/Infrastructure/REST/ActivitiesRestController.php:2228
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -3035,26 +3035,26 @@ msgstr "Geen wijzigingen ontvangen."
 msgid "Activity not found."
 msgstr "Activiteit niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:396
+#: src/Infrastructure/REST/ActivitiesRestController.php:400
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #: src/Modules/Authorization/ActivityTeamScope.php:95
 msgid "You do not coach this activity's team."
 msgstr "Je bent geen trainer van het team van deze activiteit."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:496
-#: src/Infrastructure/REST/ActivitiesRestController.php:597
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:139
+#: src/Infrastructure/REST/ActivitiesRestController.php:500
+#: src/Infrastructure/REST/ActivitiesRestController.php:601
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:141
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:126
 msgid "That team is not in your scope."
 msgstr "Dat team valt buiten je bereik."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:691
-#: src/Infrastructure/REST/ActivitiesRestController.php:723
-#: src/Infrastructure/REST/ActivitiesRestController.php:769
+#: src/Infrastructure/REST/ActivitiesRestController.php:695
+#: src/Infrastructure/REST/ActivitiesRestController.php:727
+#: src/Infrastructure/REST/ActivitiesRestController.php:773
 msgid "Unknown match."
 msgstr "Onbekende wedstrijd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:728
+#: src/Infrastructure/REST/ActivitiesRestController.php:732
 msgid ""
 "This score follows the match sheet's goal log. Correct a goal in the post-"
 "match review and the score follows."
@@ -3062,20 +3062,20 @@ msgstr ""
 "Deze stand volgt het doelpuntenlog van het wedstrijdformulier. Pas een "
 "doelpunt aan in de nabespreking en de stand volgt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:736
-#: src/Infrastructure/REST/ActivitiesRestController.php:774
+#: src/Infrastructure/REST/ActivitiesRestController.php:740
+#: src/Infrastructure/REST/ActivitiesRestController.php:778
 msgid "Not your team."
 msgstr "Niet jouw team."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:750
+#: src/Infrastructure/REST/ActivitiesRestController.php:754
 msgid "No score supplied."
 msgstr "Geen uitslag meegegeven."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:763
+#: src/Infrastructure/REST/ActivitiesRestController.php:767
 msgid "No contributions supplied."
 msgstr "Geen bijdragen meegegeven."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:843
+#: src/Infrastructure/REST/ActivitiesRestController.php:847
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:271
 #: src/Infrastructure/REST/GoalsRestController.php:144
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -3084,35 +3084,35 @@ msgstr "Geen bijdragen meegegeven."
 msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:864
+#: src/Infrastructure/REST/ActivitiesRestController.php:868
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr "Datums moeten worden geschreven als JJJJ-MM-DD."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1227
+#: src/Infrastructure/REST/ActivitiesRestController.php:1231
 msgid "Title and date are required."
 msgstr "Titel en datum zijn verplicht."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1239
+#: src/Infrastructure/REST/ActivitiesRestController.php:1243
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden opgeslagen. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1267
+#: src/Infrastructure/REST/ActivitiesRestController.php:1271
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is opgeslagen, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1298
-#: src/Infrastructure/REST/ActivitiesRestController.php:1483
-#: src/Infrastructure/REST/ActivitiesRestController.php:1501
-#: src/Infrastructure/REST/ActivitiesRestController.php:1526
-#: src/Infrastructure/REST/ActivitiesRestController.php:1999
-#: src/Infrastructure/REST/ActivitiesRestController.php:2113
-#: src/Infrastructure/REST/ActivitiesRestController.php:2164
-#: src/Infrastructure/REST/ActivitiesRestController.php:2182
-#: src/Infrastructure/REST/ActivitiesRestController.php:2221
+#: src/Infrastructure/REST/ActivitiesRestController.php:1302
+#: src/Infrastructure/REST/ActivitiesRestController.php:1487
+#: src/Infrastructure/REST/ActivitiesRestController.php:1505
+#: src/Infrastructure/REST/ActivitiesRestController.php:1530
+#: src/Infrastructure/REST/ActivitiesRestController.php:2003
+#: src/Infrastructure/REST/ActivitiesRestController.php:2117
+#: src/Infrastructure/REST/ActivitiesRestController.php:2168
+#: src/Infrastructure/REST/ActivitiesRestController.php:2186
+#: src/Infrastructure/REST/ActivitiesRestController.php:2225
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:199
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:218
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1280
@@ -3122,45 +3122,45 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1321
+#: src/Infrastructure/REST/ActivitiesRestController.php:1325
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden bijgewerkt. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1371
+#: src/Infrastructure/REST/ActivitiesRestController.php:1375
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is bijgewerkt, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1717
+#: src/Infrastructure/REST/ActivitiesRestController.php:1721
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2025
+#: src/Infrastructure/REST/ActivitiesRestController.php:2029
 msgid "A guest is either linked OR anonymous, not both."
 msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2029
+#: src/Infrastructure/REST/ActivitiesRestController.php:2033
 msgid "Pick a player or enter a guest name."
 msgstr "Kies een speler of vul een gastnaam in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2032
+#: src/Infrastructure/REST/ActivitiesRestController.php:2036
 msgid "Linked player does not exist."
 msgstr "Gekoppelde speler bestaat niet."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2095
+#: src/Infrastructure/REST/ActivitiesRestController.php:2099
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2096
+#: src/Infrastructure/REST/ActivitiesRestController.php:2100
 msgid "The guest could not be added."
 msgstr "De gast kon niet worden toegevoegd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2134
+#: src/Infrastructure/REST/ActivitiesRestController.php:2138
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
@@ -3168,28 +3168,28 @@ msgstr ""
 "Hier zijn alleen Annuleren en Heropenen toegestaan. Een activiteit voltooien "
 "verloopt via de evaluatieflow."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2135
+#: src/Infrastructure/REST/ActivitiesRestController.php:2139
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr "Alleen Afronden, Annuleren en Heropenen zijn hier toegestaan."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2141
+#: src/Infrastructure/REST/ActivitiesRestController.php:2145
 msgid "Could not update the activity status."
 msgstr "Kon de activiteitsstatus niet bijwerken."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2167
+#: src/Infrastructure/REST/ActivitiesRestController.php:2171
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2244
-#: src/Infrastructure/REST/ActivitiesRestController.php:2301
+#: src/Infrastructure/REST/ActivitiesRestController.php:2248
+#: src/Infrastructure/REST/ActivitiesRestController.php:2305
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2247
+#: src/Infrastructure/REST/ActivitiesRestController.php:2251
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2267
+#: src/Infrastructure/REST/ActivitiesRestController.php:2271
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
@@ -3197,11 +3197,11 @@ msgstr ""
 "De minuten voor deze wedstrijd worden beheerd op het "
 "wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2288
+#: src/Infrastructure/REST/ActivitiesRestController.php:2292
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2304
+#: src/Infrastructure/REST/ActivitiesRestController.php:2308
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
@@ -4377,7 +4377,7 @@ msgstr "Datum"
 #: src/Infrastructure/REST/PeekRestController.php:178
 #: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Activities/Admin/ActivitiesPage.php:290
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:464
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:466
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:379
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:454
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:375
@@ -5156,7 +5156,7 @@ msgstr "Alle types"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:68
 #: src/Modules/Activities/Admin/ActivitiesPage.php:222
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:224
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:226
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:365
@@ -5575,8 +5575,8 @@ msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:379
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:206
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:272
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:208
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:274
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
 #: src/Modules/Analytics/AnalyticsModule.php:115
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:147
@@ -5650,7 +5650,7 @@ msgid "Update"
 msgstr "Bijwerken"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:434
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:370
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:372
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
@@ -5885,7 +5885,7 @@ msgid "Could not save — try again"
 msgstr "Opslaan mislukt — probeer opnieuw"
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:57
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:367
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:369
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:65
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:337
 msgid "No unsaved changes"
@@ -5948,15 +5948,15 @@ msgstr "Je hebt niet-opgeslagen wijzigingen. Weggaan zonder opslaan?"
 msgid "You have unsaved changes. Change the filter and lose them?"
 msgstr "Je hebt niet-opgeslagen wijzigingen. Filter wijzigen en ze kwijtraken?"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:85
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:87
 msgid "You do not have permission to record attendance."
 msgstr "Je hebt geen rechten om aanwezigheid vast te leggen."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:91
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:93
 msgid "The attendance grid has been switched off for your academy."
 msgstr "Het aanwezigheidsraster is voor jouw academie uitgeschakeld."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:104
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:106
 msgid ""
 "Attendance itself is not affected: you can still mark a squad present from "
 "the activity, one activity at a time. The grid is the faster desktop way to "
@@ -5966,7 +5966,7 @@ msgstr ""
 "aanwezig melden vanaf de activiteit, per activiteit. Het raster is de "
 "snellere manier op een laptop om een hele week in één keer te doen."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:111
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:113
 msgid ""
 "Record attendance for a whole period at once. Rows are players, columns are "
 "activities; pick a status per cell and Save. This is the desktop alternative "
@@ -5976,7 +5976,7 @@ msgstr ""
 "spelers, kolommen zijn activiteiten; kies per cel een status en sla op. Dit "
 "is het desktopalternatief voor de stap-voor-stap wizard."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:127
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:129
 msgid ""
 "You don't coach any teams yet, so there is no attendance to record. Ask an "
 "administrator to assign you to a team."
@@ -5984,17 +5984,17 @@ msgstr ""
 "Je traint nog geen teams, dus er is geen aanwezigheid om vast te leggen. "
 "Vraag een beheerder om je aan een team te koppelen."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:133
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:135
 msgid "No teams yet — add one to record attendance."
 msgstr "Nog geen teams — voeg er een toe om aanwezigheid vast te leggen."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:176
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:178
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:157
 msgid "No active players on this team yet. Add players to the roster first."
 msgstr ""
 "Nog geen actieve spelers in dit team. Voeg eerst spelers aan de selectie toe."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:181
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:183
 msgid ""
 "No activities for this team in the selected window. Widen the date range or "
 "change the type filter."
@@ -6002,7 +6002,7 @@ msgstr ""
 "Geen activiteiten voor dit team in de gekozen periode. Verruim het "
 "datumbereik of pas het typefilter aan."
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:209
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:211
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:446
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:208
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1294
@@ -6017,14 +6017,14 @@ msgstr ""
 msgid "Minutes"
 msgstr "Minuten"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:215
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:217
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:202
 msgctxt "segmented control label: which of the two data-entry grids"
 msgid "Grid"
 msgstr "Raster"
 
 #. translators: state label for a PDP meeting that's further out in the cycle and not yet actionable
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:237
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
 #: src/Modules/Authorization/Admin/RolesPage.php:254
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:148
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:913
@@ -6039,45 +6039,45 @@ msgstr "Raster"
 msgid "—"
 msgstr "—"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:237
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
 msgctxt "attendance status abbreviation: not set"
 msgid "·"
 msgstr "·"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:238
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
 msgctxt "attendance status abbreviation: present"
 msgid "P"
 msgstr "A"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:239
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
 msgctxt "attendance status abbreviation: late"
 msgid "L"
 msgstr "L"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:240
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
 msgctxt "attendance status abbreviation: absent"
 msgid "A"
 msgstr "Af"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:241
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:243
 msgctxt "attendance status abbreviation: excused"
 msgid "E"
 msgstr "G"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:242
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:244
 msgctxt "attendance status abbreviation: injured"
 msgid "I"
 msgstr "Bl"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:273
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:275
 msgid "pick a status per cell, then Save"
 msgstr "kies per cel een status en sla op"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:303
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:305
 msgid "all present"
 msgstr "allen aanwezig"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:306
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:308
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:236
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:221
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:57
@@ -6086,12 +6086,12 @@ msgid "Present %"
 msgstr "Aanwezig %"
 
 #. translators: 1: player name, 2: activity date.
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:335
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:337
 #, php-format
 msgid "Attendance for %1$s on %2$s"
 msgstr "Aanwezigheid voor %1$s op %2$s"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:369
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:371
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:339
 #: src/Modules/Activities/Services/EmptyRegisterConfirm.php:50
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:261
@@ -6157,16 +6157,16 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:392
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:467
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:394
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:469
 msgid "Training + matches"
 msgstr "Training + wedstrijden"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:393
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:395
 msgid "Training only"
 msgstr "Alleen training"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:394
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:396
 msgid "Matches only"
 msgstr "Alleen wedstrijden"
 
@@ -8313,7 +8313,7 @@ msgstr "Aantal"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1727
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:252
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
 #: src/Shared/Frontend/Components/FrontendListTable.php:439
 #: src/Shared/Frontend/Components/FrontendListTable.php:591
@@ -28115,7 +28115,7 @@ msgstr "Inzageverzoeken"
 
 #: src/Modules/License/FeatureMap.php:372
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:765
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:315
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
@@ -34878,8 +34878,8 @@ msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:102
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:391
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:291
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:346
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:312
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:367
 #: src/Shared/Frontend/FrontendConfigurationView.php:2968
 msgid "Academy admin"
 msgstr "Academiebeheerder"
@@ -34890,8 +34890,8 @@ msgstr "Hoofd opleiding"
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:110
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:392
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:292
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:347
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:313
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:368
 #: src/Shared/Frontend/FrontendConfigurationView.php:2976
 msgid "Read-only observer"
 msgstr "Read-only waarnemer"
@@ -37989,7 +37989,7 @@ msgstr "Mijn spelers"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:149
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:354
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:228
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:249
 #: src/Shared/CoreSurfaceRegistration.php:726
 msgid "My teams"
 msgstr "Mijn teams"
@@ -38078,13 +38078,13 @@ msgstr "Help & docs"
 msgid "You do not have permission to edit dashboard layouts."
 msgstr "Je hebt geen rechten om dashboard-lay-outs te bewerken."
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:115
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:116
 msgid "See which features are switched on"
 msgstr "Bekijk welke functies aanstaan"
 
 # ===== #1368 — Spond staleness banner =====
 #. translators: %d = number of teams whose last Spond sync errored
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:142
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:143
 #, php-format
 msgid "Spond sync failed for %d team — schedules may be out of date."
 msgid_plural "Spond sync failed for %d teams — schedules may be out of date."
@@ -38095,54 +38095,61 @@ msgstr[1] ""
 "verouderd."
 
 #. translators: %s = human-readable time since the last successful Spond sync
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:148
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:149
 #, php-format
 msgid "Spond sync last succeeded %s ago — schedules may be out of date."
 msgstr ""
 "Spond-synchronisatie is voor het laatst %s geleden gelukt — schema's zijn "
 "mogelijk verouderd."
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:152
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:153
 msgid "Spond sync has not completed yet — schedules may be out of date."
 msgstr ""
 "Spond-synchronisatie is nog niet voltooid — schema's zijn mogelijk verouderd."
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:158
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:159
 msgid "Check Spond status"
 msgstr "Spond-status controleren"
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:181
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:179
+msgid ""
+"You're not assigned to a team yet. Ask your academy admin to add you to one."
+msgstr ""
+"Je bent nog niet aan een team gekoppeld. Vraag je academiebeheerder om je "
+"aan een team toe te voegen."
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:202
 msgid "Could not load player breakdown."
 msgstr "Kon spelersuitsplitsing niet laden."
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:182
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:203
 msgid "No players in window."
 msgstr "Geen spelers in dit venster."
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:316
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:337
 #, php-format
 msgid "Good morning, %s"
 msgstr "Goedemorgen, %s"
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:319
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
 #, php-format
 msgid "Good afternoon, %s"
 msgstr "Goedemiddag, %s"
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:322
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
 #, php-format
 msgid "Good evening, %s"
 msgstr "Goedenavond, %s"
 
 # #0060 — Persona switcher labels
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:350
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:371
 msgid "Switch persona"
 msgstr "Persona wisselen"
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:351
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:372
 msgid "Viewing as"
 msgstr "Bekijken als"
 
@@ -62715,10 +62722,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
-
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
-msgid "You're not assigned to a team yet. Ask your academy admin to add you to one."
-msgstr "Je bent nog niet aan een team gekoppeld. Vraag je academiebeheerder om je aan een team toe te voegen."
 
 #~ msgid "Starting line-up on the pitch"
 #~ msgstr "Basisopstelling op het veld"
