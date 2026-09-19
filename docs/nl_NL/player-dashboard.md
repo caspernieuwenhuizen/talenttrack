@@ -57,7 +57,7 @@ Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/b
 Op al deze pagina's wordt een ouder als ouder aangesproken: koppen luiden "Doelen van Bas" en "Hoe Bas ervoor staat" in plaats van "Mijn doelen" en "Hoe je ervoor staat", en in de navigatie van de ouder valt het "Mijn" weg bij de onderdelen die over het kind gaan.
 
 ### Mijn evaluaties
-Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
+Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling. Het type staat in je eigen taal, met het label dat jouw academie eraan heeft gegeven. Bij een wedstrijdevaluatie staat ook de tegenstander, met de uitslag tussen haakjes als die is vastgelegd en zonder haakjes als dat niet zo is.
 
 ### Mijn activiteiten
 Twee helften: wat eraan komt, en waar je bij was.

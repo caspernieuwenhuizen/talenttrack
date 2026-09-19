@@ -210,7 +210,14 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                         <?php endif; ?>
                         <div class="tt-mye-meta">
                             <div class="tt-mye-date"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $ev->eval_date ?? '' ) ) ); ?></div>
-                            <?php $type_name = (string) ( $ev->type_name ?? '' ); ?>
+                            <?php
+                            // #806 — pre-localised by the reader, so the card
+                            // says "Wedstrijd" where the rest of the page does.
+                            // Falls back to the canonical value when the row
+                            // has no type lookup.
+                            $type_name = (string) ( $ev->type_name_localised ?? '' );
+                            if ( $type_name === '' ) $type_name = (string) ( $ev->type_name ?? '' );
+                            ?>
                             <div class="tt-mye-type"><?php echo esc_html( $type_name !== '' ? $type_name : '—' ); ?></div>
                             <?php $coach_name = (string) ( $ev->coach_name ?? '' ); ?>
                             <?php if ( $coach_name !== '' ) : ?>
@@ -232,12 +239,24 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                         if ( $opponent !== '' ) : ?>
                             <p class="tt-mye-match">
                                 <?php
-                                printf(
-                                    /* translators: 1: opponent name, 2: match result */
-                                    esc_html__( 'vs %1$s (%2$s)', 'talenttrack' ),
-                                    esc_html( $opponent ),
-                                    esc_html( $game_result !== '' ? $game_result : '—' )
-                                );
+                                // A match whose score was never recorded reads
+                                // "vs FC Groningen", not "vs FC Groningen (—)":
+                                // the brackets promised a result the record
+                                // does not have.
+                                if ( $game_result !== '' ) {
+                                    printf(
+                                        /* translators: 1: opponent name, 2: match result */
+                                        esc_html__( 'vs %1$s (%2$s)', 'talenttrack' ),
+                                        esc_html( $opponent ),
+                                        esc_html( $game_result )
+                                    );
+                                } else {
+                                    printf(
+                                        /* translators: %s is the opponent name */
+                                        esc_html__( 'vs %s', 'talenttrack' ),
+                                        esc_html( $opponent )
+                                    );
+                                }
                                 ?>
                             </p>
                         <?php endif; ?>
