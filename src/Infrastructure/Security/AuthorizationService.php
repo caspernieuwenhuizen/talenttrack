@@ -108,6 +108,29 @@ class AuthorizationService {
     }
 
     /**
+     * #3567 — may this user record attendance on some team?
+     *
+     * Either the activities write cap, or `attendance: change` in the
+     * matrix. The second is how a team manager gets here: the Manager
+     * functional role takes the register without editing the schedule,
+     * so it holds attendance change and not activities change. Every
+     * persona that holds attendance change also holds activities change,
+     * so the second clause adds that functional role and nobody else.
+     *
+     * "Some team" only: which team's rows may be written is the caller's
+     * per-row question (`get_teams_for_coach()` / global read).
+     */
+    public static function canRecordAttendance( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( self::userCanOrMatrix( $user_id, 'tt_edit_activities' ) ) return true;
+        return \TT\Modules\Authorization\MatrixGate::canAnyScope(
+            $user_id,
+            'attendance',
+            \TT\Modules\Authorization\MatrixGate::CHANGE
+        );
+    }
+
+    /**
      * #0095 VCT — per-team scope check for the VCT module's REST
      * permission_callbacks. `userCanOrMatrix()` is the cap helper; it
      * does NOT narrow to a team. This wrapper does:

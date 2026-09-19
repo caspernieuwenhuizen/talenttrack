@@ -151,6 +151,36 @@ return [
             'people'     => [ 'r', $mod_people ],
             'activities' => [ 'r', $mod_activities ],
         ],
+
+        // ─── MANAGER ────────────────────────────────────────────────
+        //
+        // #3567. The role an academy picks for its team manager, seeded
+        // as "handles logistics, roster, activities", and until this
+        // entry it granted nothing: a Staff account assigned as Manager
+        // read the roster (through the persona) and was refused the
+        // schedule, while the kit manager beside them read it.
+        //
+        // What the job needs, per the 2026-09-19 decision: to read the
+        // schedule, to take the register, and to know who is available.
+        // So `activities [r]` — reading the schedule, not writing it;
+        // creating and editing activities stays with the coaches —
+        // `attendance [rc]` and `player_status [r]`.
+        //
+        // Deliberately NOT here: injuries. A manager who also does first
+        // aid is given Physio as a second functional role on the team,
+        // which is what #3257 decided medical data about minors follows.
+        // Moving team managers onto the `team_manager` persona instead
+        // was considered and declined: that persona reads PDP files,
+        // evaluations, media and behaviour ratings, far past a logistics
+        // seat.
+        'manager' => [
+            'team'          => [ 'r',  $mod_teams ],
+            'players'       => [ 'r',  $mod_players ],
+            'people'        => [ 'r',  $mod_people ],
+            'activities'    => [ 'r',  $mod_activities ],
+            'attendance'    => [ 'rc', $mod_activities ],
+            'player_status' => [ 'r',  $mod_players ],
+        ],
     ],
 
     /**

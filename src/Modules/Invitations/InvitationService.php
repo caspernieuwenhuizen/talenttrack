@@ -542,6 +542,13 @@ class InvitationService {
             $map = (array) apply_filters( 'tt_invitation_staff_role_map', [
                 'head_coach'      => 'tt_coach',
                 'assistant_coach' => 'tt_coach',
+                // The functional role's key is `manager`, not `team_manager`,
+                // so a Manager invite falls through to the `tt_staff` default
+                // below. Deliberately left that way (#3567): the Manager role
+                // carries its own grants in `config/functional_role_grants.php`,
+                // and `tt_staff` is the account it is meant to land on. Mapping
+                // it to `tt_team_manager` would hand a logistics seat the
+                // team_manager persona's PDP, evaluation and media reads.
                 'team_manager'    => 'tt_staff',
                 'physio'          => 'tt_staff',
                 'scout'           => 'tt_scout',

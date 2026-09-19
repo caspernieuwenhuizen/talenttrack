@@ -91,16 +91,23 @@ class PlayersPage {
         $demo_scope_mode = isset( $_GET['demo_scope'] ) && $_GET['demo_scope'] === 'all' ? 'all' : 'filtered';
         $scope = $demo_scope_mode === 'all' ? '' : QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $where = "WHERE pl.status='active' AND {$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
-        // #0070 — also resolve the parent name + id so the list can show
-        // it as a clickable column. Left join keeps the row when no
-        // parent is set or the parent record was removed.
+        // #3572 — the parent column reads `tt_player_parents`, the one
+        // parent model: the primary link (then the oldest) and how many
+        // there are. Left join keeps the row when no parent is linked.
+        $users   = $wpdb->users;
         $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name,
-                                                par.id AS parent_id,
-                                                par.first_name AS parent_first_name,
-                                                par.last_name AS parent_last_name
+                                                pu.ID AS parent_id,
+                                                pu.display_name AS parent_display_name,
+                                                ( SELECT COUNT(*) FROM {$p}tt_player_parents ppc
+                                                   WHERE ppc.player_id = pl.id AND ppc.club_id = pl.club_id ) AS parent_count
                                          FROM {$p}tt_players pl
                                          LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id AND t.club_id=pl.club_id
-                                         LEFT JOIN {$p}tt_people par ON par.id = pl.parent_person_id AND par.club_id = pl.club_id
+                                         LEFT JOIN {$users} pu ON pu.ID = (
+                                             SELECT pp.parent_user_id FROM {$p}tt_player_parents pp
+                                              WHERE pp.player_id = pl.id AND pp.club_id = pl.club_id
+                                              ORDER BY pp.is_primary DESC, pp.created_at ASC, pp.parent_user_id ASC
+                                              LIMIT 1
+                                         )
                                          $where ORDER BY pl.last_name, pl.first_name ASC" );
 
         // #3158 — authorise per row, the way `GET /players` does
@@ -208,13 +215,15 @@ class PlayersPage {
                         }
                     ?></td>
                     <td><?php
-                        // #0070 — parent column links to person detail.
-                        $parent_id   = (int) ( $pl->parent_id ?? 0 );
-                        $parent_name = trim( ( (string) ( $pl->parent_first_name ?? '' ) ) . ' ' . ( (string) ( $pl->parent_last_name ?? '' ) ) );
+                        // #3572 — primary parent plus a count, linking to the
+                        // Parent accounts screen where links are managed.
+                        $parent_id    = (int) ( $pl->parent_id ?? 0 );
+                        $parent_name  = trim( (string) ( $pl->parent_display_name ?? '' ) );
+                        $parent_count = max( 1, (int) ( $pl->parent_count ?? 1 ) );
                         if ( $parent_id > 0 && $parent_name !== '' ) {
                             echo \TT\Shared\Frontend\Components\RecordLink::inline(
-                                $parent_name,
-                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $parent_id )
+                                $parent_count > 1 ? $parent_name . ' +' . ( $parent_count - 1 ) : $parent_name,
+                                add_query_arg( [ 'tt_view' => 'parent-accounts' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
                             );
                         } else {
                             echo '<span style="color:#999;">—</span>';
@@ -443,34 +452,33 @@ class PlayersPage {
                     <tr><th><?php esc_html_e( 'Photo', 'talenttrack' ); ?></th><td><input type="text" name="photo_url" id="tt_photo_url" value="<?php echo esc_url( $player->photo_url ?? '' ); ?>" class="regular-text" /> <button type="button" class="button" id="tt-upload-photo"><?php esc_html_e( 'Upload', 'talenttrack' ); ?></button></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'photo_url' ); ?>
                     <?php
-                    // #0063 — ParentSearchPicker swap. Selecting a parent
-                    // record links via the new `tt_players.parent_person_id`
-                    // column (migration 0050). The legacy guardian_*
-                    // text fields are kept below for installs that haven't
-                    // migrated their guardian data into tt_people yet —
-                    // they render greyed-out when a parent is picked so it's
-                    // clear the picker is the source of truth going forward.
-                    $current_parent_id = (int) ( $player->parent_person_id ?? 0 );
-                    $return_to = is_object( $player ) && ! empty( $player->id )
-                        ? admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $player->id )
-                        : admin_url( 'admin.php?page=tt-players' );
+                    // #3572 — parents are linked on the Parent accounts
+                    // screen, through `tt_player_parents`: the one parent
+                    // model every access check reads. The people-record
+                    // picker that wrote `parent_person_id` from here is
+                    // retired. The guardian_* fields below stay: they are
+                    // how a guardian without a login is recorded.
+                    $linked_parent_names = [];
+                    if ( is_object( $player ) && ! empty( $player->id ) ) {
+                        foreach ( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $player->id ) as $parent_uid ) {
+                            $parent_user = get_userdata( (int) $parent_uid );
+                            if ( $parent_user ) $linked_parent_names[] = (string) $parent_user->display_name;
+                        }
+                    }
+                    $parent_accounts_url = add_query_arg( [ 'tt_view' => 'parent-accounts' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                     ?>
                     <tr>
-                        <th><?php esc_html_e( 'Connect a parent account', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Parent accounts', 'talenttrack' ); ?></th>
                         <td>
-                            <?php echo \TT\Shared\Frontend\Components\ParentSearchPickerComponent::render( [
-                                'name'      => 'parent_person_id',
-                                'label'     => __( 'Parent', 'talenttrack' ),
-                                'selected'  => $current_parent_id,
-                                'return_to' => $return_to,
-                            ] ); ?>
+                            <?php echo esc_html( $linked_parent_names ? implode( ', ', $linked_parent_names ) : __( 'None linked', 'talenttrack' ) ); ?>
+                            <p class="description"><a href="<?php echo esc_url( $parent_accounts_url ); ?>"><?php esc_html_e( 'Link or unlink parent accounts', 'talenttrack' ); ?></a></p>
                         </td>
                     </tr>
-                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_name' ); ?>
-                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_email' ); ?>
-                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_phone' ); ?>
                     <tr><th><?php esc_html_e( 'Linked WP User', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'wp_user_id', 'selected' => $player->wp_user_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
@@ -601,11 +609,6 @@ class PlayersPage {
             'guardian_name' => isset( $_POST['guardian_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['guardian_name'] ) ) : '',
             'guardian_email' => isset( $_POST['guardian_email'] ) ? sanitize_email( wp_unslash( (string) $_POST['guardian_email'] ) ) : '',
             'guardian_phone' => isset( $_POST['guardian_phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['guardian_phone'] ) ) : '',
-            // #0063 — ParentSearchPicker writes to the new
-            // tt_players.parent_person_id column (migration 0050).
-            'parent_person_id' => isset( $_POST['parent_person_id'] ) && (int) $_POST['parent_person_id'] > 0
-                ? (int) $_POST['parent_person_id']
-                : null,
             // #1772 — "no account" is stored as NULL, not 0, so the
             // UNIQUE (club_id, wp_user_id) index doesn't treat multiple
             // unlinked players as colliding 0s.
