@@ -7,6 +7,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoMode;
 use TT\Modules\DemoData\Generators\TrialCaseGenerator;
 
 /**
@@ -119,9 +120,19 @@ final class DemoTrialistsTest extends WP_UnitTestCase {
         ) );
     }
 
-    /** @return array{0:array<string,mixed>,1:int} */
+    /**
+     * The generated rows are demo-tagged, and reads are demo-scoped: with
+     * demo mode off, tagged rows are exactly what they hide.
+     *
+     * @return array{0:array<string,mixed>,1:int}
+     */
     private function get( string $route ): array {
-        $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/' . $route ) );
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/' . $route ) );
+        } finally {
+            DemoMode::clearOverride();
+        }
         $data     = json_decode( (string) wp_json_encode( $response->get_data() ), true );
         return [ is_array( $data ) ? $data : [], (int) $response->get_status() ];
     }
