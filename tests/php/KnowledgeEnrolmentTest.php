@@ -444,6 +444,98 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
     }
 
     /**
+     * #3707 — assigning a course to somebody not yet on it creates the
+     * enrolment with the deadline the assignment carried.
+     */
+    public function test_rest_assigning_a_new_person_is_201_and_stores_the_deadline(): void {
+        wp_set_current_user( $this->user_id );
+
+        $other = $this->createPerson();
+
+        $response = rest_get_server()->dispatch( $this->assignRequest( $other, '2026-12-18' ) );
+        $data     = $response->get_data()['data'];
+
+        $this->assertSame( 201, $response->get_status() );
+        $this->assertFalse( $data['already_enrolled'] );
+        $this->assertFalse( $data['due_at_ignored'] );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-12-18' ), $data['due_at'] );
+
+        $this->deletePerson( $other );
+    }
+
+    /**
+     * #3707 — re-assigning somebody already on the course answers `200
+     * already_enrolled`, not `201 Created`. Nothing was created, and the
+     * status code has to say so: an admin reading `201` believes the
+     * assignment landed.
+     */
+    public function test_rest_reassigning_is_200_and_says_already_enrolled(): void {
+        wp_set_current_user( $this->user_id );
+
+        $other = $this->createPerson();
+
+        $first  = rest_get_server()->dispatch( $this->assignRequest( $other, '2026-12-18' ) );
+        $second = rest_get_server()->dispatch( $this->assignRequest( $other, '2026-12-18' ) );
+
+        $data = $second->get_data()['data'];
+
+        $this->assertSame( 200, $second->get_status() );
+        $this->assertTrue( $data['already_enrolled'] );
+        $this->assertFalse( $data['due_at_ignored'], 'The same deadline was not ignored — it is already the stored one.' );
+        $this->assertSame( $first->get_data()['data']['id'], $data['id'], 'Re-assigning must return the same enrolment.' );
+        $this->assertSame( EnrolmentRepository::STATUS_NOT_STARTED, $data['status'] );
+
+        $this->deletePerson( $other );
+    }
+
+    /**
+     * #3707 — the bug as reported: a second assignment carrying a *new*
+     * deadline. The repository keeps the stored one on purpose, so the
+     * response has to admit the new one was not applied rather than hand
+     * back `201` and the old date.
+     */
+    public function test_rest_reassigning_with_a_new_deadline_says_it_was_not_applied(): void {
+        wp_set_current_user( $this->user_id );
+
+        $other = $this->createPerson();
+        $repo  = new EnrolmentRepository();
+
+        rest_get_server()->dispatch( $this->assignRequest( $other, '2026-09-07' ) );
+
+        $response = rest_get_server()->dispatch( $this->assignRequest( $other, '2026-12-18' ) );
+        $data     = $response->get_data()['data'];
+
+        $this->assertSame( 200, $response->get_status() );
+        $this->assertTrue( $data['already_enrolled'] );
+        $this->assertTrue( $data['due_at_ignored'] );
+        $this->assertNotEmpty( $data['message'] );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-09-07' ), $data['due_at'], 'The stored deadline must not move.' );
+
+        $stored = $repo->findFor( $other, self::COURSE );
+        $this->assertNotNull( $stored );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-09-07' ), $stored->due_at );
+
+        $this->deletePerson( $other );
+    }
+
+    /**
+     * #3707 — the self-enrol path the "start" button uses still works when
+     * somebody taps it twice. Second tap: same enrolment, 200, no drama.
+     */
+    public function test_rest_self_enrolling_twice_still_works(): void {
+        wp_set_current_user( $this->user_id );
+
+        $first  = rest_get_server()->dispatch( new WP_REST_Request( 'POST', '/talenttrack/v1/courses/' . self::COURSE . '/enrolments' ) );
+        $second = rest_get_server()->dispatch( new WP_REST_Request( 'POST', '/talenttrack/v1/courses/' . self::COURSE . '/enrolments' ) );
+
+        $this->assertSame( 201, $first->get_status() );
+        $this->assertSame( 200, $second->get_status() );
+        $this->assertTrue( $second->get_data()['data']['already_enrolled'] );
+        $this->assertFalse( $second->get_data()['data']['due_at_ignored'], 'No deadline was asked for, so none was ignored.' );
+        $this->assertSame( $first->get_data()['data']['id'], $second->get_data()['data']['id'] );
+    }
+
+    /**
      * Someone else's learning record needs the statistics capability, not
      * the view capability. Getting this wrong exposes every coach's
      * completion rate to every coach.
@@ -483,6 +575,32 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
     }
 
     // ── helpers ────────────────────────────────────────────────────────
+
+    /** A second staff record, so assignment can be tested rather than self-enrol. */
+    private function createPerson(): int {
+        global $wpdb;
+
+        $wpdb->insert( $wpdb->prefix . 'tt_people', [
+            'club_id'    => 1,
+            'first_name' => 'Other',
+            'last_name'  => 'Coach',
+        ] );
+
+        return (int) $wpdb->insert_id;
+    }
+
+    private function deletePerson( int $person_id ): void {
+        global $wpdb;
+        $wpdb->delete( $wpdb->prefix . 'tt_people', [ 'id' => $person_id ] );
+    }
+
+    private function assignRequest( int $person_id, string $due_at ): WP_REST_Request {
+        $request = new WP_REST_Request( 'POST', '/talenttrack/v1/courses/' . self::COURSE . '/enrolments' );
+        $request->set_param( 'person_id', $person_id );
+        $request->set_param( 'due_at', $due_at );
+
+        return $request;
+    }
 
     /** Mark every requirement met for the given lessons. */
     private function completeLessons( int $enrolment_id, array $lessons ): void {
