@@ -30,9 +30,17 @@ The **My check-ins** tile is where your weekly self-evaluation and any other tas
 ## Your tiles
 
 ### My development
-Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view, and inside the focus, coming-up and journey blocks each listed goal, activity and milestone is itself tappable — open it directly and a **← Back to My development** pill brings you straight back. (Evaluations open via their **see all** link only.) The seven deep-view tiles below (My profile, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement. The first time you open it, a short **welcome** card greets you (a parent sees a version for their child); tap **Got it** to dismiss it for good.
+Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Your playing time** (below), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view, and inside the focus, coming-up and journey blocks each listed goal, activity and milestone is itself tappable — open it directly and a **← Back to My development** pill brings you straight back. (Evaluations open via their **see all** link only.) The seven deep-view tiles below (My profile, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement. The first time you open it, a short **welcome** card greets you (a parent sees a version for their child); tap **Got it** to dismiss it for good.
 
 Parents who open their child's dashboard land on **&lt;Child&gt;'s development** — the same home, read-only and scoped to their own child.
+
+#### Your playing time
+
+How many minutes you have actually played over the past twelve months, the number of matches they came from, and your three most recent matches with the minutes you got in each. Tap a match to open it.
+
+The figures are the ones your coach sees — they come from the same recorded minutes the academy's minutes report reads, so your total and your coach's always agree. They are **your minutes only**: no percentage of the team's playing time, and never a team-mate's figure. Minutes appear once a coach has recorded the match; a match nobody has recorded yet counts as nothing rather than as a guess.
+
+If you are not currently in a team, the block says you have no minutes recorded rather than showing an error.
 
 ### My profile
 **My profile** now opens your **player profile** — the same unified, tabbed profile your coach sees, framed for you — and lands on the **Player card** tab. That tab shows your FIFA-style player card, your skills radar, and your rating KPIs (latest, last 5 with its trend, all-time, evaluations). A **Print report** action on the card gives a clean printable version.
@@ -83,7 +91,7 @@ Application passwords, admin colour palettes and other WordPress-internal toggle
 
 ### What your parent can see
 
-If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Development plan**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
+If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Playing time**, **Development plan**, **Training history**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
 
 ## Reports
 

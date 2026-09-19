@@ -555,4 +555,54 @@ final class MinutesQuery {
         }
         return $out;
     }
+
+    /**
+     * #3666 — one player's playing time over a window: the per-match rows
+     * and the total they sum to, in one answer.
+     *
+     * The summing used to sit in `MinutesRestController::breakdown()`,
+     * which meant every new reader of a player's minutes did its own. The
+     * staff route, the player-facing `GET players/{id}/minutes` route and
+     * the development home all call this, so a player and their coach can
+     * never be shown two different totals for the same window.
+     *
+     * @return array{
+     *     team_id:int, player_id:int, from:string, to:string, total_minutes:int,
+     *     matches:list<array{
+     *         activity_id:int, session_date:string, title:string,
+     *         type_key:string, minutes:int, record_type:string
+     *     }>
+     * }
+     */
+    public function playingTimeForPlayer( int $team_id, int $player_id, string $from, string $to ): array {
+        $rows  = $this->matchBreakdownForPlayer( $team_id, $player_id, $from, $to );
+        $total = 0;
+        foreach ( $rows as $row ) {
+            $total += (int) $row['minutes'];
+        }
+
+        return [
+            'team_id'       => $team_id,
+            'player_id'     => $player_id,
+            'from'          => $from,
+            'to'            => $to,
+            'total_minutes' => $total,
+            'matches'       => $rows,
+        ];
+    }
+
+    /**
+     * The window a minutes reader falls back to when the caller names
+     * none: the last twelve months, ending today. Shared so the route's
+     * default and the screen's cannot drift apart.
+     *
+     * @return array{from:string,to:string}
+     */
+    public static function defaultWindow(): array {
+        $from = strtotime( '-12 months' );
+        return [
+            'from' => gmdate( 'Y-m-d', $from === false ? time() : $from ),
+            'to'   => gmdate( 'Y-m-d' ),
+        ];
+    }
 }

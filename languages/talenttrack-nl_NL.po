@@ -57487,6 +57487,48 @@ msgid "How %s is doing"
 msgstr "Hoe %s ervoor staat"
 
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:254
+msgid "Your playing time"
+msgstr "Jouw speeltijd"
+
+#. translators: %s = the player's first name.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:256
+#, php-format
+msgid "%s's playing time"
+msgstr "Speeltijd van %s"
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:383
+msgid ""
+"No minutes recorded yet. They appear here once your coach records a match "
+"you played in."
+msgstr ""
+"Nog geen minuten vastgelegd. Ze verschijnen hier zodra je coach een "
+"wedstrijd vastlegt waarin je hebt gespeeld."
+
+#. translators: %s = the player's first name.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:385
+#, php-format
+msgid ""
+"No minutes recorded yet. They appear here once a coach records a match %s "
+"played in."
+msgstr ""
+"Nog geen minuten vastgelegd. Ze verschijnen hier zodra een coach een "
+"wedstrijd vastlegt waarin %s heeft gespeeld."
+
+#. translators: %s = number of matches played in the last twelve months.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:399
+#, php-format
+msgid "In %s match over the past 12 months."
+msgid_plural "In %s matches over the past 12 months."
+msgstr[0] "In %s wedstrijd in de afgelopen 12 maanden."
+msgstr[1] "In %s wedstrijden in de afgelopen 12 maanden."
+
+#. translators: 1: match date, 2: minutes played in that match.
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:414
+#, php-format
+msgid "%1$s · %2$s min"
+msgstr "%1$s · %2$s min"
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:262
 msgid "Your journey"
 msgstr "Jouw reis"
 

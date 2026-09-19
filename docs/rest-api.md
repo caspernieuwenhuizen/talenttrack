@@ -492,6 +492,44 @@ Both gate on a `reports` read: global scope sees any team, a team-scoped grant
 only its own, and anything else is a 403 rather than an empty list — an empty
 list would read as "this team played nothing".
 
+### `GET /players/{id}/minutes` (#3666)
+
+A player's own playing time, as the player and their family read it. The two
+routes above are staff surfaces — one wants `tt_view_reports` plus a coached
+team, the other is the squad's share table — so until this route a player
+asking how much they had played was refused their own record.
+
+```json
+{
+  "team_id": 12, "player_id": 41,
+  "from": "2025-09-20", "to": "2026-09-20",
+  "total_minutes": 115,
+  "matches": [
+    { "activity_id": 880, "session_date": "2026-03-07", "title": "Ajax away", "type_key": "league", "minutes": 45, "record_type": "actual" },
+    { "activity_id": 884, "session_date": "2026-03-14", "title": "PSV home",  "type_key": "league", "minutes": 70, "record_type": "actual" }
+  ]
+}
+```
+
+There is **no team parameter**: the subject is the player, and the figures are
+for their current team. `from` / `to` (`YYYY-MM-DD`) narrow the window and both
+default to the rolling twelve months, anything unparseable falling back to that
+default rather than 400'ing — the same window helper the staff route uses, so
+the two cannot drift. Both routes read
+`MinutesQuery::playingTimeForPlayer()`, so a player's total and their coach's
+reconcile to the minute.
+
+**Absolute minutes only.** No share of the available minutes, no target, and no
+row for anybody else — a young player reading their own playing time is not
+handed a league table of the changing room. A player with no current team gets
+`total_minutes: 0` and an empty `matches`, not an error.
+
+Gated per player rather than by capability: `canViewPlayer()` (own record,
+linked guardian, team or global staff) **and** the #1867 preference, under
+which a player may keep `minutes` from a parent. A hidden section answers
+`403 section_private`; anyone else without access gets `403 forbidden`. The
+team routes are unchanged and stay staff-only.
+
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json
