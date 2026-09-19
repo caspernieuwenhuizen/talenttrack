@@ -308,6 +308,11 @@ final class ReportsRestController extends BaseController {
         return RestResponse::success( [
             'players'   => $players,
             'threshold' => AttendanceFlagService::threshold(),
+            // #3717 — the window the rows were read over. Without it an
+            // empty list cannot be read in context, and a caller that let
+            // the default resolve cannot label the period it got.
+            'from'      => $from,
+            'to'        => $to,
         ] );
     }
 
@@ -322,6 +327,9 @@ final class ReportsRestController extends BaseController {
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
+        // #3717 — `top` / `bottom` / `total` plus the window they describe.
+        $board['from'] = $from;
+        $board['to']   = $to;
         return RestResponse::success( $board );
     }
 
@@ -336,19 +344,33 @@ final class ReportsRestController extends BaseController {
         return RestResponse::success( [
             'players'   => $players,
             'threshold' => AttendanceFlagService::threshold(),
+            // #3717 — "nobody is at risk" is only an answer once the reader
+            // knows over which period nobody was.
+            'from'      => $from,
+            'to'        => $to,
         ] );
     }
 
     /**
-     * Resolve + validate the `from`/`to` window (default last 90 days).
+     * Resolve + validate the `from`/`to` window.
+     *
+     * #3717 — the default is the season window
+     * (`ReportFilters::seasonDefaultWindow()`), the same helper the three
+     * attendance screens and the sibling minutes-audit route already seed
+     * from. It used to be a rolling 90 days, so the same report answered
+     * with a different set of players over REST than on screen — a player
+     * read as at risk for an unlabelled period nobody had picked. The
+     * helper keeps the 90-day rolling window as its own fallback when no
+     * current season is configured.
      *
      * @return array{0:string,1:string}
      */
     private static function attendanceWindow( WP_REST_Request $req ): array {
-        $from = (string) $req->get_param( 'from' );
-        $to   = (string) $req->get_param( 'to' );
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = gmdate( 'Y-m-d' );
+        $from    = (string) $req->get_param( 'from' );
+        $to      = (string) $req->get_param( 'to' );
+        $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
         return [ $from, $to ];
     }
 

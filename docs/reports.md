@@ -443,11 +443,15 @@ On a phone the two tables stack into one column with no horizontal scroll; from 
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total }`.
-- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold`.
-- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold` and the window: `{ players, threshold, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold, from, to }`.
 
 The optional `activity_type_key` on every attendance endpoint narrows to one activity type, matching the report UI's Type filter.
+
+**The window, and what happens when you leave it out.** Send `from` and `to` as `YYYY-MM-DD` and they are used as sent, and echoed back unchanged. Leave either out — or send something that is not a date — and that side falls back to the **current season's start through today**, the same window the three attendance screens open on, so an integration and the screen list the same players. On an install with no current season configured, the fallback is a rolling 90 days.
+
+Every one of the three responses carries the `from` and `to` it actually read over, whether you supplied them or not. Label your period from those two fields rather than from what you sent: an empty `players` list only means something once you know which weeks it covers.
 
 ## Dimension explorer — row cap and filter validation
 
