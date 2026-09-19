@@ -33,6 +33,9 @@ final class DemoMatchEvaluationTest extends WP_UnitTestCase {
 
     private int $match_type_id = 0;
 
+    /** The team row, with the head coach the demo run hangs on the object. */
+    private ?object $team = null;
+
     public function set_up(): void {
         parent::set_up();
         mt_srand( 3658 );
@@ -69,9 +72,13 @@ final class DemoMatchEvaluationTest extends WP_UnitTestCase {
         }
         $this->future_fixture = $this->fixture( $registry, gmdate( 'Y-m-d', strtotime( '+7 days' ) ), 'home' );
 
+        // `head_coach_user_id` is not a column on tt_teams — the demo run
+        // hangs it on the team object, the way `DemoGenerator::loadTeams()`
+        // does, and both evaluation writers read it from there.
         $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $wpdb->update( "{$p}tt_teams", [ 'head_coach_user_id' => $admin ], [ 'id' => $this->team_id ] );
-        $team = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_teams WHERE id = %d", $this->team_id ) );
+        $team  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_teams WHERE id = %d", $this->team_id ) );
+        $team->head_coach_user_id = $admin;
+        $this->team = $team;
 
         ( new MatchDayGenerator( $registry, $this->players, [ $team ], [ 'hjo' => $admin ], 'en_US' ) )->generate();
     }
@@ -189,14 +196,12 @@ final class DemoMatchEvaluationTest extends WP_UnitTestCase {
             $this->match_type_id
         ) );
 
-        $teams = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_teams WHERE id = %d",
-            $this->team_id
-        ) );
-        ( new EvaluationGenerator(
+        $rounds_before = $this->countOtherEvaluations();
+
+        $written = ( new EvaluationGenerator(
             new DemoBatchRegistry( 'test-batch-3658-rounds' ),
             $this->players,
-            $teams,
+            [ $this->team ],
             8
         ) )->generate();
 
@@ -206,14 +211,24 @@ final class DemoMatchEvaluationTest extends WP_UnitTestCase {
         ) );
 
         $this->assertSame( $before, $after, 'round evaluations only' );
-        $this->assertGreaterThan(
-            0,
-            (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE eval_type_id <> %d",
-                $this->match_type_id
-            ) ),
-            'it still writes the round evaluations'
+
+        // Everything it wrote is a round evaluation. How many rounds have
+        // come round depends on where in the season the suite runs, so the
+        // count is read off the generator rather than assumed.
+        $this->assertSame(
+            $rounds_before + $written,
+            $this->countOtherEvaluations(),
+            'every row it wrote is a round evaluation'
         );
+    }
+
+    private function countOtherEvaluations(): int {
+        global $wpdb;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE eval_type_id != %d",
+            $this->match_type_id
+        ) );
     }
 
     /** @return list<array<string,mixed>> the generated match evaluations */
