@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:49:13+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:51:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -814,7 +814,7 @@ msgid ""
 "stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:552 src/Modules/DemoData/DemoCoverage.php:1365
+#: src/Core/FeatureRegistry.php:552 src/Modules/DemoData/DemoCoverage.php:1366
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -2457,7 +2457,7 @@ msgid "Mixed"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:464
-#: src/Modules/DemoData/DemoCoverage.php:1358
+#: src/Modules/DemoData/DemoCoverage.php:1359
 #: src/Modules/Documentation/HelpTopics.php:186
 #: src/Shared/Frontend/FrontendConfigurationView.php:1945
 msgid "Match day"
@@ -4021,7 +4021,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1344
+#: src/Modules/DemoData/DemoCoverage.php:1345
 #: src/Modules/DemoData/DemoRunPlan.php:109
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:82
 #: src/Modules/License/Admin/AccountPage.php:561
@@ -4918,7 +4918,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1345
+#: src/Modules/DemoData/DemoCoverage.php:1346
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:244
 #: src/Modules/License/FeatureMap.php:380
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:671
@@ -7018,7 +7018,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1346
+#: src/Modules/DemoData/DemoCoverage.php:1347
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/License/Admin/AccountPage.php:566
@@ -7070,7 +7070,7 @@ msgstr "Évaluations"
 #: src/Modules/Backup/MigrationExporter.php:40
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1347
+#: src/Modules/DemoData/DemoCoverage.php:1348
 #: src/Modules/Goals/Admin/GoalsPage.php:44
 #: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/License/FeatureMap.php:378
@@ -7113,7 +7113,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
-#: src/Modules/DemoData/DemoCoverage.php:1343
+#: src/Modules/DemoData/DemoCoverage.php:1344
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:151
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -7210,7 +7210,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:369
-#: src/Modules/DemoData/DemoCoverage.php:1355
+#: src/Modules/DemoData/DemoCoverage.php:1356
 #: src/Shared/Frontend/DashboardShortcode.php:934
 #: src/Shared/Frontend/FrontendMySettingsView.php:553
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:223
@@ -7405,7 +7405,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:250
-#: src/Modules/DemoData/DemoCoverage.php:1348
+#: src/Modules/DemoData/DemoCoverage.php:1349
 msgid "Journey events"
 msgstr ""
 
@@ -7469,16 +7469,16 @@ msgstr ""
 msgid "Pending"
 msgstr "En attente"
 
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:154
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:157
 msgid "Not sent: none of the recipients has an email address."
 msgstr ""
 
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:175
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:184
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:178
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:187
 msgid "Not sent: the PDF could not be prepared for sending."
 msgstr ""
 
-#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:208
+#: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:211
 msgid ""
 "Not sent: no recipient could be emailed. Check their addresses and email "
 "preferences."
@@ -7721,7 +7721,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:571
-#: src/Modules/DemoData/DemoCoverage.php:1342
+#: src/Modules/DemoData/DemoCoverage.php:1343
 #: src/Modules/DemoData/DemoGenerator.php:523
 #: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
@@ -11273,7 +11273,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1349
+#: src/Modules/DemoData/DemoCoverage.php:1350
 #: src/Modules/License/FeatureMap.php:387
 #: src/Shared/CoreSurfaceRegistration.php:1035
 #: src/Shared/Frontend/FrontendTrialCaseView.php:87
@@ -11295,7 +11295,7 @@ msgstr ""
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1363
+#: src/Modules/DemoData/DemoCoverage.php:1364
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr ""
@@ -11412,7 +11412,7 @@ msgid "Impersonation"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1359
+#: src/Modules/DemoData/DemoCoverage.php:1360
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
@@ -13968,7 +13968,7 @@ msgid "Held — sending limit reached"
 msgstr ""
 
 #: src/Modules/Comms/Domain/CommsStatusLabels.php:56
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:141
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:150
 msgctxt "message send outcome"
 msgid "Nobody to send to"
 msgstr ""
@@ -13979,7 +13979,7 @@ msgid "Template switched off"
 msgstr ""
 
 #: src/Modules/Comms/Domain/CommsStatusLabels.php:58
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:146
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:155
 msgctxt "message send outcome"
 msgid "Error while sending"
 msgstr ""
@@ -13993,56 +13993,80 @@ msgstr ""
 msgid "Nobody on the player record had an address this channel could reach."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:73
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:75
+msgid ""
+"It was held for quiet hours but not sent within 24 hours. The hourly "
+"background task may not be running."
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:78
+msgid ""
+"It fell inside the quiet-hours window and could not be held for later. Send "
+"it again after the window ends."
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:82
 msgid "The recipient asked not to receive this kind of message."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:75
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:84
 msgid "It fell inside the quiet-hours window and was not urgent."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:77
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:86
 msgid "This kind of message is switched off for the academy."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:79
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:88
 msgid "One sender passed the hourly limit."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:83
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:92
 msgid "The message could not be delivered. Check the address on the record."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:109
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:118
 msgid "Whether the recipient could be reached was never established."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:112
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:121
 msgid "The recipient has contact details on file."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:113
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:122
 msgid "The recipient has no contact details on file."
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:140
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:149
 msgid "No email address on file"
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:142
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:151
 msgid "No usable channel"
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:143
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:152
 msgid "Channel not configured"
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:144
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:153
 msgid "Recipient has no account"
 msgstr ""
 
-#: src/Modules/Comms/Domain/CommsStatusLabels.php:145
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:154
 msgid "In-app inbox unavailable"
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:156
+msgid "Not sent after quiet hours"
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:157
+msgid "Has an attachment, so not held until morning"
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php:158
+msgid "Could not be held until morning"
 msgstr ""
 
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:78
@@ -18622,7 +18646,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1351
+#: src/Modules/DemoData/DemoCoverage.php:1352
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:33
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:273
@@ -19532,43 +19556,43 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1350
+#: src/Modules/DemoData/DemoCoverage.php:1351
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1352
+#: src/Modules/DemoData/DemoCoverage.php:1353
 #: src/Shared/Frontend/FrontendTrialCaseView.php:268
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1353
+#: src/Modules/DemoData/DemoCoverage.php:1354
 msgid "Player reports"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1354
+#: src/Modules/DemoData/DemoCoverage.php:1355
 msgid "Meeting snapshots"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1356
+#: src/Modules/DemoData/DemoCoverage.php:1357
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:257
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1357
+#: src/Modules/DemoData/DemoCoverage.php:1358
 msgid "Training content"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1360
+#: src/Modules/DemoData/DemoCoverage.php:1361
 #: src/Shared/Frontend/FrontendTeamsManageView.php:576
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1361
+#: src/Modules/DemoData/DemoCoverage.php:1362
 msgid "Scouting pipeline"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1362
+#: src/Modules/DemoData/DemoCoverage.php:1363
 #: src/Modules/License/FeatureMap.php:402
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
@@ -19578,147 +19602,147 @@ msgstr ""
 msgid "Tournaments"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1364
+#: src/Modules/DemoData/DemoCoverage.php:1365
 msgid "Messages and operator records"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1366
+#: src/Modules/DemoData/DemoCoverage.php:1367
 msgid "Behaviour and potential"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1374
+#: src/Modules/DemoData/DemoCoverage.php:1375
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1375
+#: src/Modules/DemoData/DemoCoverage.php:1376
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1376
+#: src/Modules/DemoData/DemoCoverage.php:1377
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1377
+#: src/Modules/DemoData/DemoCoverage.php:1378
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1378
+#: src/Modules/DemoData/DemoCoverage.php:1379
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1379
+#: src/Modules/DemoData/DemoCoverage.php:1380
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1380
+#: src/Modules/DemoData/DemoCoverage.php:1381
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1381
+#: src/Modules/DemoData/DemoCoverage.php:1382
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1382
+#: src/Modules/DemoData/DemoCoverage.php:1383
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1383
+#: src/Modules/DemoData/DemoCoverage.php:1384
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1384
+#: src/Modules/DemoData/DemoCoverage.php:1385
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1385
+#: src/Modules/DemoData/DemoCoverage.php:1386
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1386
+#: src/Modules/DemoData/DemoCoverage.php:1387
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1387
+#: src/Modules/DemoData/DemoCoverage.php:1388
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1388
+#: src/Modules/DemoData/DemoCoverage.php:1389
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1389
+#: src/Modules/DemoData/DemoCoverage.php:1390
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1390
+#: src/Modules/DemoData/DemoCoverage.php:1391
 msgid ""
 "One monthly report frozen for a staff meeting, with the notes the meeting "
 "wrote on it."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1391
+#: src/Modules/DemoData/DemoCoverage.php:1392
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1392
+#: src/Modules/DemoData/DemoCoverage.php:1393
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1393
+#: src/Modules/DemoData/DemoCoverage.php:1394
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1394
+#: src/Modules/DemoData/DemoCoverage.php:1395
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1395
+#: src/Modules/DemoData/DemoCoverage.php:1396
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1396
+#: src/Modules/DemoData/DemoCoverage.php:1397
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1397
+#: src/Modules/DemoData/DemoCoverage.php:1398
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
 "themselves ship with the plugin and are never generated."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1398
+#: src/Modules/DemoData/DemoCoverage.php:1399
 msgid ""
 "Two of the four traffic-light inputs: behaviour ratings spread across the "
 "window, and dated potential histories for squads old enough to be asked. "
