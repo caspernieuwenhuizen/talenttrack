@@ -546,16 +546,33 @@ Two constraints that are load-bearing rather than cosmetic:
 
 ### `GET /players/{id}/summary`, `/teams/{id}/summary`, `/activities/{id}/summary`
 
-Read-only summaries behind the peek panel. Permission is the same per-record
-check the detail view uses — `canViewPlayer()` for players,
-`AllTeamsScope::canReadTeam()` for teams — so a record you cannot open is a
-record you cannot peek.
+Read-only summaries behind the peek panel. Permission is a per-record check, so
+a record you cannot open is a record you cannot peek:
 
-The team peek was the exception until #3152: it gated on `tt_view_teams` alone,
-which is club-wide on `tt_coach`, so it returned name, age group, season and
-roster count for any team id. It now asks the same question `GET /teams/{id}`
-and `GET /teams` ask. **The activity peek still gates on `tt_view_activities`
-alone** and is the remaining route where the sentence above is aspirational.
+| Peek | Rule |
+| --- | --- |
+| Player | `AuthorizationService::canViewPlayer()`, the check the detail view uses |
+| Team | `AllTeamsScope::canReadTeam()`, the question `GET /teams/{id}` and `GET /teams` ask (#3152) |
+| Activity | `ActivityAccess::canRead()`, the single-record form of the rule `GET /activities` applies to its rows (#3688) |
+
+The activity rule, in order:
+
+- global `activities` read (head of development, academy admin, scout) reads
+  every activity;
+- other staff holding `tt_view_activities` or `tt_edit_activities` read the
+  activities of the teams they coach;
+- a player, or a verified parent of a player, reads the activities of that
+  player's team, plus any activity the player is on the register of (a guest
+  appearance included).
+
+A known activity outside that rule is `403`. An id with no activity behind it is
+`404` for a caller who may read activities at all, and `403` for anyone else.
+`GET /activities` asks the same building blocks, so the list and the peek
+cannot disagree about a row.
+
+The team peek gated on `tt_view_teams` alone until #3152, and the activity peek
+on `tt_view_activities` alone until #3688. Both capabilities are club-wide, so
+each returned a summary for any id in the club.
 
 ```json
 { "type": "player", "id": 42, "title": "Sem de Vries", "subtitle": "JO15-1",
