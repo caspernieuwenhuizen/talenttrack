@@ -141,10 +141,14 @@ class SubmissionRepository {
      * Oldest first because a queue that shows the newest first quietly
      * starves whoever submitted on a busy week.
      *
-     * `$reviewer_person_id` narrows to one reviewer's own queue; zero
-     * returns everything awaiting anyone. An unrouted submission has no
-     * reviewer, and is deliberately visible to every holder of the
-     * capability rather than invisible to all of them.
+     * `$reviewer_person_id` narrows to one reviewer's own queue: exactly the
+     * work routed to them, which is exactly what `ReviewerResolver` lets
+     * them decide. Zero returns everything awaiting anyone, for holders of
+     * `tt_manage_knowledge`. An unrouted submission has no reviewer and is
+     * visible to every capability holder rather than invisible to all of
+     * them, but not to mentors: a coach's coursework is reflection on their
+     * own team and players, and a mentor of somebody else is not one of the
+     * people responsible for it (#3596).
      *
      * @return object[]
      */
@@ -155,7 +159,7 @@ class SubmissionRepository {
             return $this->wpdb->get_results( $this->wpdb->prepare(
                 "SELECT * FROM {$this->table}
                   WHERE club_id = %d AND outcome = %s AND submitted_at IS NOT NULL
-                    AND ( reviewer_person_id = %d OR reviewer_person_id IS NULL )
+                    AND reviewer_person_id = %d
                   ORDER BY submitted_at ASC",
                 $club,
                 self::OUTCOME_PENDING,

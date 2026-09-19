@@ -19,7 +19,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * `forSubmitter()` returns 0 when there is no mentor, and that zero is
  * stored as a null `reviewer_person_id`. `SubmissionRepository::listPending()`
  * shows a null-reviewer row to every capability holder, so an unrouted
- * submission is visible to all of them rather than invisible to each. The
+ * submission is visible to all of them rather than invisible to each, and
+ * to nobody else: a mentor sees their mentees' work and no one else's,
+ * which is exactly what `canReview()` lets them decide (#3596). The
  * alternative — picking an arbitrary capability holder at submit time —
  * would look tidier in the column and would silently make one person
  * responsible for a queue nobody told them about.
