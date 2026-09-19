@@ -102,6 +102,28 @@ final class ProspectVisitLinkTest extends WP_UnitTestCase {
         $this->assertSame( $visit, (int) ( (array) ( new ProspectsRepository() )->find( $id ) )['scouting_visit_id'] );
     }
 
+    /**
+     * #3677 — the contract the onboarding-pipeline focus panel reads. The
+     * panel shows the scouting notes and the linked visit, so both fields
+     * have to survive the read; a `GET` that dropped either would empty the
+     * panel silently rather than fail.
+     */
+    public function test_the_read_returns_the_scouting_notes_and_the_visit(): void {
+        $visit    = $this->visit( 'Districtstoernooi O13' );
+        $prospect = ( new ProspectsRepository() )->create( [
+            'first_name'            => 'Boaz',
+            'last_name'             => 'Van der Veen',
+            'discovered_by_user_id' => $this->scout,
+            'scouting_notes'        => "Comfortabel aan de bal.\nGoede aanname.",
+            'scouting_visit_id'     => $visit,
+        ] );
+
+        [ $got, $status ] = $this->send( 'GET', 'prospects/' . $prospect );
+        $this->assertSame( 200, $status );
+        $this->assertSame( "Comfortabel aan de bal.\nGoede aanname.", (string) $got['data']['prospect']['scouting_notes'] );
+        $this->assertSame( $visit, (int) $got['data']['prospect']['scouting_visit_id'] );
+    }
+
     public function test_a_prospect_outside_the_callers_scope_cannot_be_patched(): void {
         $other_scout = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
         $prospect    = $this->prospect( $other_scout );

@@ -50,6 +50,15 @@ The [onboarding pipeline](onboarding-pipeline.md) is the kanban view of the
 funnel: who is where, and what is waiting. It is scoped to you, so what you see
 is your own intake rather than the whole academy's.
 
+Clicking a card opens the prospect panel above the board. Besides the name,
+stage and next action it shows the scouting notes you wrote when you logged the
+find, and — when the prospect was linked to a scouting visit — a **Found at**
+line with the visit's date, event and scout, which opens the visit itself. So
+"where did this player come from" is answerable without leaving the board. Both
+are read-only here; the notes are set when the find is logged. A colleague who
+reads the funnel but not the scouting planner, such as a head coach watching
+their own age group, sees the notes and no visit line.
+
 ### Review your portfolio
 
 The **Prospects overview** (`?tt_view=prospects-overview`) lists your prospects
