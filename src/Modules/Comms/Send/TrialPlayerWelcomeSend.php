@@ -33,7 +33,7 @@ use TT\Shared\Dates\TTDate;
  *
  * ## The demo generator
  *
- * `PipelineGenerator` fires `tt_trial_started` too, which is correct for
+ * `TrialCaseGenerator` fires `tt_trial_started` too, which is correct for
  * the journey timeline and would be wrong here — a demo install must not
  * mail anybody. That is handled where it belongs: the whole channel is a
  * no-op without real recipients, and per-template sending is the Gate B
