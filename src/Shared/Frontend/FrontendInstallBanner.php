@@ -21,6 +21,10 @@ use TT\Modules\Push\PushSubscriptionsRepository;
  * The banner links to the user-agent-matched KB article — iOS Safari
  * lands on `install-on-iphone`, Android Chrome on `install-on-android`,
  * everything else on the generic `notifications-setup` walkthrough.
+ * The URL comes from `DocLinkResolver::topic()`, which resolves the
+ * dashboard page hosting the shortcode (and the wp-admin viewer when the
+ * banner is rendered there). Building it on `home_url('/')` only worked
+ * on installs that happen to put the dashboard on the front page.
  *
  * "Enable notifications" wires through to `window.TT.push.subscribe()`
  * exposed by tt-push-client.js. If the SW can subscribe right away
@@ -28,6 +32,14 @@ use TT\Modules\Push\PushSubscriptionsRepository;
  * success. Otherwise it falls through to the install article.
  */
 final class FrontendInstallBanner {
+
+    /**
+     * FQCN of the module that owns the docs surface. Referenced as a
+     * string (not `::class`) so a disabled — and therefore possibly not
+     * autoloaded — module never triggers a fatal here. Mirrors
+     * `HelpDrawer::DOCS_MODULE_CLASS` (#2186).
+     */
+    private const DOCS_MODULE_CLASS = 'TT\\Modules\\Documentation\\DocumentationModule';
 
     public static function render(): void {
         $user_id = get_current_user_id();
@@ -45,12 +57,7 @@ final class FrontendInstallBanner {
         }
         if ( self::hasActiveSubscription( $user_id ) ) return;
 
-        $base_url    = home_url( '/' );
-        $docs_slug   = self::pickArticleForUserAgent();
-        $article_url = add_query_arg(
-            [ 'tt_view' => 'docs', 'topic' => $docs_slug ],
-            $base_url
-        );
+        $article_url = self::articleUrl();
         ?>
         <div class="tt-install-banner-wrap" data-tt-install-key="tt_install_dismissed">
             <div class="tt-notice tt-install-banner" role="status">
@@ -64,9 +71,11 @@ final class FrontendInstallBanner {
                     <button type="button" class="tt-btn tt-btn-primary" data-tt-install-action="enable">
                         <?php esc_html_e( 'Enable notifications', 'talenttrack' ); ?>
                     </button>
+                    <?php if ( $article_url !== null ) : ?>
                     <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $article_url ); ?>">
                         <?php esc_html_e( 'Install instructions', 'talenttrack' ); ?>
                     </a>
+                    <?php endif; ?>
                     <button type="button" class="tt-btn tt-btn-link" data-tt-install-action="dismiss">
                         <?php esc_html_e( 'Not now', 'talenttrack' ); ?>
                     </button>
@@ -127,6 +136,24 @@ final class FrontendInstallBanner {
     private static function hasActiveSubscription( int $user_id ): bool {
         if ( ! class_exists( PushSubscriptionsRepository::class ) ) return false;
         return ! empty( ( new PushSubscriptionsRepository() )->activeForUser( $user_id ) );
+    }
+
+    /**
+     * The in-product URL of the install walkthrough, or null when the
+     * Documentation module is off — then the banner keeps its
+     * "Enable notifications" and "Not now" controls and simply drops the
+     * link, rather than leaving a dangling entry point into a surface
+     * that no longer exists.
+     */
+    private static function articleUrl(): ?string {
+        if ( class_exists( '\\TT\\Core\\ModuleRegistry' )
+            && ! \TT\Core\ModuleRegistry::isEnabled( self::DOCS_MODULE_CLASS ) ) {
+            return null;
+        }
+        if ( ! class_exists( '\\TT\\Modules\\Documentation\\DocLinkResolver' ) ) {
+            return null;
+        }
+        return \TT\Modules\Documentation\DocLinkResolver::topic( self::pickArticleForUserAgent() );
     }
 
     /**

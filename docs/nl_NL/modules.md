@@ -143,6 +143,13 @@ functie noemt blijft zichtbaar in plaats van te verdwijnen — een document dat
 op andermans installatie stilletjes wegvalt is het lastigere probleem. De
 docs-lint vangt de typefout af vóór het meegaat in een release.
 
+**Zet je Documentatie zélf uit, dan verdwijnen ook de deuren erheen.** Elke
+verwijzing naar Help & documentatie elders in het product valt weg: de
+Help-knop op een scherm, en de link "Installatie-instructies" op de
+installatiebanner die spelers en ouders na het inloggen zien. De banner
+houdt zijn knoppen "Notificaties inschakelen" en "Niet nu" — alleen de link
+naar een lezer die er niet meer is, vervalt.
+
 ## Altijd-aan modules
 
 Drie modules kunnen niet worden uitgeschakeld. Hun toggle is inert met een tooltip:
