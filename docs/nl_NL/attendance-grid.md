@@ -50,6 +50,25 @@ Het raster legt dezelfde aanwezigheid vast als de rapporten en de wizard,
 zodat de rapporten Aanwezigheid en Minuten blijven kloppen met wat je hier
 invoert.
 
+## Activiteiten die nog niet geweest zijn
+
+**Aanwezig** en **Laat** kun je pas vastleggen op of na de dag van de
+activiteit. Een speler kan niet bij een training zijn geweest die nog niet
+heeft plaatsgevonden, dus het raster weigert die cellen op een activiteit in
+de toekomst. Al het andere wordt opgeslagen, de geweigerde cellen krijgen een
+rode rand en de opslagbalk zegt hoeveel er niet zijn opgeslagen en waarom.
+
+Een **afwezigheid** kun je wél vooraf vastleggen: **Afwezig**, **Geoorloofd**
+of **Blessure** voor een speler van wie je al weet dat die volgende week niet
+komt. Het raster toont komende activiteiten alleen als er al zo'n markering
+op staat, zodat je die kunt zien en wissen. Een komende training waarop nog
+niets is vastgelegd verschijnt nog niet. Wie er komt plan je in de geplande
+selectie op de activiteit zelf.
+
+Dezelfde regel geldt als je aanwezigheid vastlegt op het formulier van de
+activiteit zelf. "Vandaag" is de datum van de academie, niet die van de
+server.
+
 ## Als de begeleide wizard uit staat
 
 Een academie die liever met overzichten werkt, kan de begeleide aanwezigheids-

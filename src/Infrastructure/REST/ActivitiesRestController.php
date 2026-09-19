@@ -12,6 +12,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Modules\Activities\Services\AttendanceDateRule;
 
 /**
  * ActivitiesRestController — /wp-json/talenttrack/v1/activities
@@ -509,9 +510,11 @@ class ActivitiesRestController {
             return RestResponse::error( 'forbidden', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
         }
 
+        // #3586 — the window ends today in site time, not the UTC date the
+        // shared report default carries.
         $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
-        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : $defaults['to'];
+        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : AttendanceDateRule::today();
         $type = (string) ( $r['type'] ?? 'all' );
         if ( ! in_array( $type, [ 'all', 'training', 'match' ], true ) ) $type = 'all';
 
@@ -532,13 +535,16 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed = self::gridAllowedTeamIds();
-        $repo    = self::repo();
-        $saved   = 0;
-        $skipped = 0;
-        $failed  = 0;
+        $allowed  = self::gridAllowedTeamIds();
+        $repo     = self::repo();
+        $saved    = 0;
+        $skipped  = 0;
+        $failed   = 0;
+        $rejected = [];
         /** @var array<int,bool> $touched activity ids that took a write */
         $touched = [];
+        /** @var array<int,array{team:int,date:string}> $anchors */
+        $anchors = [];
 
         foreach ( $changes as $c ) {
             if ( ! is_array( $c ) ) { $skipped++; continue; }
@@ -554,7 +560,8 @@ class ActivitiesRestController {
 
             // The grid only writes team activities; a team-less (club-wide)
             // activity has no roster to scope against, so it is out of scope.
-            $team = $repo->activityTeamId( $aid );
+            $anchors[ $aid ] = $anchors[ $aid ] ?? $repo->gridAnchor( $aid );
+            $team = $anchors[ $aid ]['team'];
             if ( $team <= 0 ) { $skipped++; continue; }
             if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) { $skipped++; continue; }
 
@@ -562,6 +569,14 @@ class ActivitiesRestController {
             // activity's roster. The grid only offers the team's own players
             // as rows, so this only rejects a tampered payload.
             if ( $repo->playerTeamId( $pid ) !== $team ) { $skipped++; continue; }
+
+            // #3586 — present / late on an activity that has not happened is
+            // a refusal, not a skip: the coach has to see which cells did not
+            // save and why (the #2431 split between skipped and rejected).
+            if ( AttendanceDateRule::refuses( $status, $anchors[ $aid ]['date'] ) ) {
+                $rejected[] = [ 'activity_id' => $aid, 'player_id' => $pid, 'reason' => AttendanceDateRule::ERROR_CODE ];
+                continue;
+            }
 
             if ( $repo->upsertActualAttendanceStatus( $aid, $pid, $status ) ) {
                 $saved++;
@@ -582,10 +597,13 @@ class ActivitiesRestController {
         }
 
         return RestResponse::success( [
-            'saved'     => $saved,
-            'skipped'   => $skipped,
-            'failed'    => $failed,
-            'completed' => $completed,
+            'saved'          => $saved,
+            'skipped'        => $skipped,
+            'failed'         => $failed,
+            'completed'      => $completed,
+            'rejected'       => $rejected,
+            'rejected_count' => count( $rejected ),
+            'message'        => $rejected === [] ? '' : AttendanceDateRule::message(),
         ] );
     }
 
@@ -1240,6 +1258,9 @@ class ActivitiesRestController {
             return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
         }
 
+        $future = self::futureAttendanceRefusal( self::attendance_from_request( $r ), (string) $data['session_date'] );
+        if ( $future !== null ) return $future;
+
         // #1712 — shared write path with the wp-admin page (ActivitiesPage).
         // create() re-stamps club_id and the created_by audit column.
         $repo        = self::repo();
@@ -1326,6 +1347,14 @@ class ActivitiesRestController {
         // Preserve original coach on update.
         unset( $data['coach_id'] );
 
+        // #3586 — checked before anything is written, against the date the
+        // activity will have after this save, so a refused register leaves
+        // the activity untouched too.
+        if ( self::request_has_attendance( $r ) ) {
+            $future = self::futureAttendanceRefusal( self::attendance_from_request( $r ), (string) ( $data['session_date'] ?? '' ) );
+            if ( $future !== null ) return $future;
+        }
+
         if ( ! $repo->update( $activity_id, $data ) ) {
             $err = $repo->lastError();
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
@@ -1390,8 +1419,13 @@ class ActivitiesRestController {
             // in_progress → completed once attendance is logged.
             // The planner depends on this transition to surface
             // "what happened this week" vs. "what's coming up".
+            //
+            // #3586 — not for an upcoming activity: the only register it can
+            // carry is a pre-recorded absence, which is no claim that it has
+            // been held.
             $current_state = $repo->planState( $activity_id );
-            if ( in_array( $current_state, [ 'scheduled', 'in_progress' ], true ) ) {
+            if ( in_array( $current_state, [ 'scheduled', 'in_progress' ], true )
+                && ! AttendanceDateRule::isUpcoming( (string) ( $data['session_date'] ?? '' ) ) ) {
                 $repo->setPlanState( $activity_id, 'completed' );
             }
         }
@@ -1765,6 +1799,29 @@ class ActivitiesRestController {
             $out[ $pid ] = $row;
         }
         return $out;
+    }
+
+    /**
+     * #3586 — a 400 naming the players an attendance matrix marks present or
+     * late on an activity dated after today, or null when it may be written.
+     *
+     * @param array<int, array<string, mixed>> $rows player id => fields
+     */
+    private static function futureAttendanceRefusal( array $rows, string $session_date ): ?\WP_REST_Response {
+        $players = [];
+        foreach ( $rows as $pid => $fields ) {
+            if ( AttendanceDateRule::refuses( (string) ( $fields['status'] ?? '' ), $session_date ) ) {
+                $players[] = (int) $pid;
+            }
+        }
+        if ( $players === [] ) return null;
+
+        return RestResponse::error(
+            AttendanceDateRule::ERROR_CODE,
+            AttendanceDateRule::message(),
+            400,
+            [ 'session_date' => $session_date, 'player_ids' => $players ]
+        );
     }
 
     /**
@@ -2262,6 +2319,21 @@ class ActivitiesRestController {
         $update = [];
         if ( isset( $r['status'] ) )         $update['status']         = sanitize_text_field( (string) $r['status'] );
         if ( isset( $r['notes'] ) )          $update['notes']          = sanitize_text_field( (string) $r['notes'] );
+
+        // #3586 — the same rule the grid and the activity form apply. Only a
+        // recorded row: a planned-squad row is a forecast, dated ahead by
+        // definition.
+        if ( isset( $update['status'] ) && (string) ( $row->record_type ?? 'actual' ) === 'actual' ) {
+            $date = $repo->gridAnchor( (int) ( $row->activity_id ?? 0 ) )['date'];
+            if ( AttendanceDateRule::refuses( $update['status'], $date ) ) {
+                return RestResponse::error(
+                    AttendanceDateRule::ERROR_CODE,
+                    AttendanceDateRule::message(),
+                    400,
+                    [ 'session_date' => $date ]
+                );
+            }
+        }
         // Minutes-authority arbiter (match-execution rebuild): when an
         // execution row owns this activity, match-execution owns its
         // minutes. Manual minutes edits must go through the execution

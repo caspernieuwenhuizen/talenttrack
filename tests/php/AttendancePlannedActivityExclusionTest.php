@@ -212,11 +212,19 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
      */
     public function test_grid_matrix_flags_the_columns_a_save_would_complete(): void {
         $team_id = $this->insertTeam( 'U14 grid flags' );
-        $this->insertPlayer( $team_id, 'Gr', 'Id' );
+        $player_id = (int) $this->insertPlayer( $team_id, 'Gr', 'Id' );
 
         $past_planned = $this->insertActivity( $team_id, '2020-09-01', 'planned', null );
         $past_done    = $this->insertActivity( $team_id, '2020-09-08', 'completed' );
         $future       = $this->insertActivity( $team_id, gmdate( 'Y-m-d', strtotime( '+30 days' ) ), 'planned', null );
+
+        // #3586 — an upcoming activity is a grid column only once it carries
+        // a recorded mark, so give it a pre-recorded absence.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+            'club_id' => (int) \TT\Infrastructure\Tenancy\CurrentClub::id(), 'activity_id' => $future,
+            'player_id' => $player_id, 'is_guest' => 0, 'status' => 'Absent', 'record_type' => 'actual',
+        ] );
 
         $matrix = ( new \TT\Modules\Activities\Reports\AttendanceGridQuery() )
             ->matrix( $team_id, '2020-01-01', gmdate( 'Y-m-d', strtotime( '+60 days' ) ) );
