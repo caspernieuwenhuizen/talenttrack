@@ -278,7 +278,7 @@ class MatchDayGenerator implements DependentGeneratorInterface {
                 $outside = array_slice( $starting, 1 );
                 $free    = array_values( array_diff( $nums, [ $gk_slot ] ) );
             }
-            foreach ( array_values( $outside ) as $i => $player_id ) {
+            foreach ( $outside as $i => $player_id ) {
                 if ( ! isset( $free[ $i ] ) ) break;
                 $slots[ $free[ $i ] ] = (int) $player_id;
             }
