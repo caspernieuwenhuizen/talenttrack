@@ -4,6 +4,7 @@ namespace TT\Modules\Stats;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Stats\Admin\PlayerCardView;
 use TT\Modules\Stats\Admin\PlayerReportView;
@@ -46,7 +47,7 @@ class PrintRouter {
 
         // Admin-side permission: tt_view_reports at minimum.
         if ( ! current_user_can( 'tt_view_reports' ) ) {
-            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
 
         self::emit( $player_id );
@@ -59,12 +60,15 @@ class PrintRouter {
         $player_id = absint( $_GET['player_id'] ?? $_GET['tt_print'] ?? 0 );
         if ( $player_id <= 0 ) return;
 
+        // #3594 — a refusal is a 401 / 403. `wp_die()` answers 500 unless
+        // told otherwise, which made every legitimate denial look like a
+        // server error.
         if ( ! is_user_logged_in() ) {
-            wp_die( esc_html__( 'Log in to view the report.', 'talenttrack' ) );
+            wp_die( esc_html__( 'Log in to view the report.', 'talenttrack' ), '', [ 'response' => 401 ] );
         }
 
-        if ( ! self::frontendCanAccess( $player_id ) ) {
-            wp_die( esc_html__( 'You do not have access to this player report.', 'talenttrack' ) );
+        if ( ! self::canPrint( get_current_user_id(), $player_id ) ) {
+            wp_die( esc_html__( 'You do not have access to this player report.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
 
         self::emit( $player_id );
@@ -80,23 +84,22 @@ class PrintRouter {
         return false;
     }
 
-    private static function frontendCanAccess( int $target_id ): bool {
-        $user_id = get_current_user_id();
-        if ( current_user_can( 'tt_view_settings' ) ) return true;
+    /**
+     * #3594 — may this user open the printable report for this player?
+     *
+     * The product's own read gate, not a hand-written one: the hand-written
+     * one knew admins, the player's coaches and the player, so a linked
+     * parent (whom every other screen lets see their child) got an error
+     * page. The report is built from evaluation ratings, so a parent the
+     * child has hidden evaluations from is refused, as the profile does.
+     * The views that render the print link ask the same question.
+     */
+    public static function canPrint( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        if ( user_can( $user_id, 'tt_view_settings' ) ) return true;
 
-        if ( current_user_can( 'tt_view_evaluations' ) ) {
-            $target = QueryHelpers::get_player( $target_id );
-            if ( $target && ! empty( $target->team_id ) ) {
-                $coached = QueryHelpers::get_teams_for_coach( $user_id );
-                foreach ( $coached as $t ) {
-                    if ( (int) $t->id === (int) $target->team_id ) return true;
-                }
-            }
-            return false;
-        }
-
-        $own = QueryHelpers::get_player_for_user( $user_id );
-        return $own && (int) $own->id === $target_id;
+        return AuthorizationService::canViewPlayer( $user_id, $player_id )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'evaluations' );
     }
 
     // Emit

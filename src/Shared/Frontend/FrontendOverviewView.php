@@ -74,7 +74,10 @@ class FrontendOverviewView extends FrontendViewBase {
                     // change is required for the polish ship).
                     $print_url   = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) );
                     $print_label = __( 'Print', 'talenttrack' );
+                    // #3594 — only a link the viewer can follow.
+                    $can_print = \TT\Modules\Stats\PrintRouter::canPrint( get_current_user_id(), (int) $player->id );
                     ?>
+                    <?php if ( $can_print ) : ?>
                     <a class="tt-print-icon-btn"
                        href="<?php echo esc_url( $print_url ); ?>"
                        target="_blank" rel="noopener"
@@ -89,6 +92,7 @@ class FrontendOverviewView extends FrontendViewBase {
                             <rect x="6" y="14" width="12" height="8"></rect>
                         </svg>
                     </a>
+                    <?php endif; ?>
                     <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
                 </div>
             </div>

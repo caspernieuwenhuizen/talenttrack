@@ -1336,6 +1336,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         <div class="tt-player-card tt-player-cardtab">
             <div class="tt-player-card__head">
                 <h3 class="tt-player-card__title"><?php esc_html_e( 'Player card', 'talenttrack' ); ?></h3>
+                <?php if ( \TT\Modules\Stats\PrintRouter::canPrint( get_current_user_id(), $player_id ) ) : // #3594 ?>
                 <a class="tt-player-card__cta tt-player-cardtab__print"
                    href="<?php echo esc_url( $print_url ); ?>"
                    target="_blank" rel="noopener"
@@ -1347,6 +1348,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     </svg>
                     <?php esc_html_e( 'Print', 'talenttrack' ); ?>
                 </a>
+                <?php endif; ?>
             </div>
             <div class="tt-player-card__body">
                 <div class="tt-player-cardtab__showcase">
