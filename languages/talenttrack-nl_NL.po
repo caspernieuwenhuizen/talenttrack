@@ -47038,6 +47038,26 @@ msgstr "Ongeldig gebruiker-id."
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
+#. translators: %s: comma-separated field names
+#: src/Modules/Trials/Rest/TrialsRestController.php
+#, php-format
+msgid "A trial input does not accept: %s."
+msgstr "Een stagebeoordeling accepteert niet: %s."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "Send a rating, notes, or submit."
+msgstr "Stuur een beoordeling, notities of een indiening."
+
+#. translators: 1: rating min, 2: rating max
+#: src/Modules/Trials/Rest/TrialsRestController.php
+#, php-format
+msgid "The overall rating must be a number from %1$s to %2$s."
+msgstr "De totaalbeoordeling moet een getal van %1$s tot %2$s zijn."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "Add a rating or notes before submitting."
+msgstr "Voeg een beoordeling of notities toe voordat je indient."
+
 #: src/Modules/Trials/Rest/TrialsRestController.php:428
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
