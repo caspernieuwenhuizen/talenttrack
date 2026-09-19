@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T21:54:26+00:00\n"
+"POT-Creation-Date: 2026-09-19T21:56:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -6521,11 +6521,11 @@ msgid_plural "%1$s is in %2$d days and has no coach assigned."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:70
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:76
 msgid "Player with no guardian contact"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:74
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:80
 msgid ""
 "Nobody at home can be reached about this player: no parent account is linked "
 "and there is no guardian email or phone. Messages about them reach no one "
@@ -6533,7 +6533,7 @@ msgid ""
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:88
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:94
 #, php-format
 msgid "Nobody at home can be reached about %s."
 msgstr ""
