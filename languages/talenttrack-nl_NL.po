@@ -4421,6 +4421,8 @@ msgid "Time"
 msgstr "Tijd"
 
 #: src/Infrastructure/REST/PeekRestController.php:220
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1261
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1286
 msgid "Presence time"
 msgstr "Aanwezigheidstijd"
 
@@ -27298,6 +27300,14 @@ msgstr ""
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:536
 msgid "Could not enrol on that course."
 msgstr "Inschrijven op die cursus is niet gelukt."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:585
+msgid ""
+"Already enrolled, so the new deadline was not applied. The existing "
+"enrolment is unchanged."
+msgstr ""
+"Al ingeschreven, dus de nieuwe deadline is niet toegepast. De bestaande "
+"inschrijving is ongewijzigd."
 
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:595
 msgid "Could not record progress."
@@ -53618,11 +53628,6 @@ msgstr "Aftrap %s"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3677
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1261
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1286
-msgid "Presence time"
-msgstr "Aanwezigheidstijd"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 msgid "Kick-off"
