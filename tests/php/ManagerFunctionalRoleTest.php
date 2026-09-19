@@ -130,6 +130,64 @@ final class ManagerFunctionalRoleTest extends WP_UnitTestCase {
         $this->assertFalse( ActivitiesRestController::can_edit(), 'POST / PUT activities stay with the coaches' );
     }
 
+    // ── the academy holiday calendar (#3686) ───────────────────────────
+    //
+    // A manager reading the schedule without the calendar cannot tell a
+    // planned break from trainings nobody entered. Read is granted on
+    // the `manager` and `kit_manager` functional roles; every mutation
+    // and the Holidays management tile stay where they were.
+
+    public function test_a_manager_reads_the_academy_holiday_calendar(): void {
+        $holiday = $this->holiday();
+
+        wp_set_current_user( $this->manager );
+
+        $this->assertSame( 200, $this->get( '/talenttrack/v1/holidays' )->get_status() );
+        $this->assertSame( 200, $this->get( '/talenttrack/v1/holidays/' . $holiday )->get_status() );
+    }
+
+    public function test_a_kit_manager_reads_the_academy_holiday_calendar(): void {
+        $holiday = $this->holiday();
+        $kit     = $this->makeStaffUser();
+        $this->assign( $kit, $this->team, 'kit_manager' );
+
+        wp_set_current_user( $kit );
+
+        $this->assertSame( 200, $this->get( '/talenttrack/v1/holidays' )->get_status() );
+        $this->assertSame( 200, $this->get( '/talenttrack/v1/holidays/' . $holiday )->get_status() );
+    }
+
+    public function test_a_manager_does_not_write_the_academy_holiday_calendar(): void {
+        $holiday = $this->holiday();
+
+        wp_set_current_user( $this->manager );
+
+        $this->assertSame( 403, $this->send( 'POST', '/talenttrack/v1/holidays', [
+            'name'       => 'Christmas break',
+            'start_date' => '2026-12-21',
+            'end_date'   => '2027-01-04',
+        ] )->get_status(), 'POST holidays' );
+        $this->assertSame( 403, $this->send( 'PUT', '/talenttrack/v1/holidays/' . $holiday, [ 'name' => 'Renamed' ] )->get_status(), 'PUT holidays/{id}' );
+        $this->assertSame( 403, $this->send( 'DELETE', '/talenttrack/v1/holidays/' . $holiday )->get_status(), 'DELETE holidays/{id}' );
+        $this->assertSame( 403, $this->send( 'POST', '/talenttrack/v1/holidays/' . $holiday . '/trash' )->get_status(), 'trash' );
+        $this->assertSame( 403, $this->send( 'POST', '/talenttrack/v1/holidays/' . $holiday . '/restore' )->get_status(), 'restore' );
+    }
+
+    public function test_the_holidays_management_tile_is_not_granted(): void {
+        $this->assertFalse(
+            MatrixGate::canAnyScope( $this->manager, 'holidays_panel', MatrixGate::READ ),
+            'reading the calendar is not maintaining it'
+        );
+    }
+
+    public function test_a_staff_account_with_no_functional_role_gets_no_calendar(): void {
+        $this->holiday();
+
+        wp_set_current_user( $this->makeStaffUser() );
+
+        $this->assertSame( 403, $this->get( '/talenttrack/v1/holidays' )->get_status() );
+    }
+
     // ── the unassigned staff account ───────────────────────────────────
 
     public function test_an_unassigned_staff_account_is_told_why_it_sees_nothing(): void {
@@ -223,10 +281,30 @@ final class ManagerFunctionalRoleTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
+    /** #3686 — one academy-wide holiday to read, and to be refused writes on. */
+    private function holiday(): int {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_holidays", [
+            'uuid'       => wp_generate_uuid4(),
+            'club_id'    => 1,
+            'name'       => 'Autumn break',
+            'start_date' => '2026-10-12',
+            'end_date'   => '2026-10-18',
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
     /** @param array<string,mixed> $query */
     private function get( string $route, array $query = [] ): \WP_REST_Response {
         $req = new WP_REST_Request( 'GET', $route );
         $req->set_query_params( $query );
+        return rest_do_request( $req );
+    }
+
+    /** @param array<string,mixed> $body */
+    private function send( string $method, string $route, array $body = [] ): \WP_REST_Response {
+        $req = new WP_REST_Request( $method, $route );
+        if ( $body !== [] ) $req->set_body_params( $body );
         return rest_do_request( $req );
     }
 
