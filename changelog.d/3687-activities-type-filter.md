@@ -1,0 +1,3 @@
+# The activities list can be narrowed to one activity type (#3687)
+
+The activities list could not be asked for matches on their own: the type filter the on-screen list has always had was missing from the API behind it, and a request that named a type was answered with the whole schedule instead. Asking "which matches are this weekend" meant fetching every training as well and sorting them out afterwards. The list now takes an activity type — one, or several separated by commas, so games and tournaments can be asked for together — and a type it does not recognise is refused with a message naming the ones it does, instead of quietly returning everything. Who may see which activities is unchanged: the filter only ever narrows a list, never widens it.

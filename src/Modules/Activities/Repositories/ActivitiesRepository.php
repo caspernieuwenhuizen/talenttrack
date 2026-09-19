@@ -1856,7 +1856,8 @@ final class ActivitiesRepository {
      *     (global-read persona or player-scoped request); a list = limit
      *     to those team ids (coach scope)
      *   - filter (array) — team_id (int|CSV), player_id, date_from,
-     *     date_to, plan_state (CSV), attendance ('complete'|'partial'|'none')
+     *     date_to, activity_type_key (CSV or a list of keys), plan_state
+     *     (CSV), attendance ('complete'|'partial'|'none')
      *   - search (string)
      *   - your_status_pid (int) — when > 0, adds the per-row
      *     `your_attendance_status` subquery
@@ -1925,6 +1926,25 @@ final class ActivitiesRepository {
             $params[] = $pid;
             $params[] = $pid;
         }
+        // #3687 — the activity-type filter, so "which matches are this
+        // weekend" is one request rather than every activity plus a
+        // client-side sieve. The controller validated the keys against
+        // the `activity_type` lookup; a CSV string is accepted too, for
+        // callers that hand the filter straight through.
+        if ( ! empty( $filter['activity_type_key'] ) ) {
+            $raw   = $filter['activity_type_key'];
+            $types = [];
+            foreach ( is_array( $raw ) ? $raw : explode( ',', (string) $raw ) as $piece ) {
+                $key = sanitize_text_field( trim( (string) $piece ) );
+                if ( $key !== '' && ! in_array( $key, $types, true ) ) $types[] = $key;
+            }
+            if ( $types !== [] ) {
+                $placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+                $where[]      = "s.activity_type_key IN ($placeholders)";
+                foreach ( $types as $type_key ) $params[] = $type_key;
+            }
+        }
+
         if ( ! empty( $filter['date_from'] ) ) {
             $where[]  = 's.session_date >= %s';
             $params[] = sanitize_text_field( (string) $filter['date_from'] );
