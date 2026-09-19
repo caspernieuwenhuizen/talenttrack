@@ -159,7 +159,7 @@ class EnrolmentRepository {
             'status'      => self::STATUS_NOT_STARTED,
             'assigned_by' => $assigned_by > 0 ? $assigned_by : null,
             'assigned_at' => $assigned_by > 0 ? current_time( 'mysql' ) : null,
-            'due_at'      => $this->normaliseDate( $data['due_at'] ?? null ),
+            'due_at'      => self::normaliseDate( $data['due_at'] ?? null ),
         ] );
 
         return (int) $this->wpdb->insert_id;
@@ -250,7 +250,7 @@ class EnrolmentRepository {
 
         $this->wpdb->update(
             $this->table,
-            [ 'due_at' => $this->normaliseDate( $due_at ) ],
+            [ 'due_at' => self::normaliseDate( $due_at ) ],
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
     }
@@ -308,8 +308,13 @@ class EnrolmentRepository {
     /**
      * Accept a date in either the API's ISO shape or MySQL's, and reject
      * anything else rather than storing a zero date.
+     *
+     * Public because the REST surface has to ask the same question before
+     * it writes: a caller re-posting a deadline for somebody already
+     * enrolled needs telling that theirs was kept, and "is this the same
+     * deadline?" can only be answered in the shape the column stores.
      */
-    private function normaliseDate( ?string $value ): ?string {
+    public static function normaliseDate( ?string $value ): ?string {
         if ( $value === null || trim( $value ) === '' ) {
             return null;
         }
