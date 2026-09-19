@@ -9,6 +9,7 @@ use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchPrepShareLink;
+use TT\Modules\MatchPrep\Services\MatchPrepState;
 
 /**
  * MatchPrepRestController — REST surface for the match-prep form.
@@ -53,11 +54,19 @@ class MatchPrepRestController {
     }
 
     public static function register(): void {
+        // #3587 — GET reads a prep back; PUT declares every field it
+        // accepts, so route discovery shows how to set the squad.
         register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => self::gate( [ __CLASS__, 'get' ] ),
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
             [
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'put' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::putArgs(),
             ],
         ] );
 
@@ -128,10 +137,79 @@ class MatchPrepRestController {
         );
     }
 
+    /**
+     * #3587 — the fields `PUT match-prep/{activity_id}` accepts. Anything
+     * else in the body is refused with `400 unknown_field` rather than
+     * dropped behind a success. Each block present in the body replaces
+     * that block; an absent one is left alone.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function putArgs(): array {
+        $args = [
+            'formation_template_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'Formation template id; null or 0 unbinds it.',
+            ],
+            'half_length_minutes' => [
+                'type'        => 'integer',
+                'description' => 'Minutes per half (at most 120). Zero or less resets to the age-group default.',
+            ],
+            'lineup' => [
+                'type'        => 'object',
+                'description' => 'Per half ("1", "2"): an object of slot number (1-11) to player id. A half sent replaces that half.',
+            ],
+            'availability' => [
+                'type'        => 'object',
+                'description' => 'The squad: player id to { status, reason }. Status "Present" puts the player in the squad; any other status leaves them out and clears their roles. Replaces the whole set.',
+            ],
+            'player_goals' => [
+                'type'        => 'object',
+                'description' => 'Player id to { attention_text, is_specific_goal, analyst_appointed }. Replaces the whole set.',
+            ],
+        ];
+        foreach ( MatchPrepState::GOAL_FIELDS as $field ) {
+            $args[ $field ] = [ 'type' => 'string', 'description' => 'Team goal text.' ];
+        }
+        return $args;
+    }
+
+    /**
+     * #3587 — GET /match-prep/{activity_id}: the saved prep, the same data
+     * the prep screen is built from. 404 when no prep has been started.
+     */
+    public static function get( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        $state       = MatchPrepState::forActivity( $activity_id );
+        if ( $state === null ) {
+            return RestResponse::notFound( 'match_prep_not_found', __( 'No match preparation has been started for this match yet.', 'talenttrack' ) );
+        }
+        return RestResponse::success( $state );
+    }
+
     public static function put( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+
+        $body = $r->get_json_params();
+        if ( ! is_array( $body ) ) $body = $r->get_body_params();
+
+        // #3587 — refuse before anything is written, so a typo'd field can
+        // not look like a save.
+        $unknown = array_values( array_diff( array_map( 'strval', array_keys( $body ) ), array_keys( self::putArgs() ) ) );
+        if ( $unknown !== [] ) {
+            return RestResponse::error(
+                'unknown_field',
+                sprintf(
+                    /* translators: %s: comma-separated field names */
+                    __( 'Match preparation does not accept: %s.', 'talenttrack' ),
+                    implode( ', ', $unknown )
+                ),
+                400,
+                [ 'fields' => $unknown ]
+            );
         }
 
         $repo = new MatchPrepRepository();
@@ -139,9 +217,6 @@ class MatchPrepRestController {
         if ( $prep_id <= 0 ) {
             return RestResponse::error( 'db_error', __( 'Match prep could not be created.', 'talenttrack' ), 500 );
         }
-
-        $body = $r->get_json_params();
-        if ( ! is_array( $body ) ) $body = [];
 
         // Header fields (formation, half length, goals).
         $patch = [];
@@ -157,7 +232,7 @@ class MatchPrepRestController {
                 ? min( 120, $hl )
                 : ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )->halfMinutesForActivity( $activity_id );
         }
-        foreach ( [ 'goals_general', 'goals_attack', 'goals_defend', 'goals_attack_setpiece', 'goals_defend_setpiece' ] as $col ) {
+        foreach ( MatchPrepState::GOAL_FIELDS as $col ) {
             if ( array_key_exists( $col, $body ) ) {
                 $patch[ $col ] = sanitize_textarea_field( (string) $body[ $col ] );
             }
@@ -229,7 +304,9 @@ class MatchPrepRestController {
 
         Logger::info( 'match_prep.save', [ 'activity_id' => $activity_id, 'prep_id' => $prep_id ] );
 
-        return RestResponse::success( [ 'prep_id' => $prep_id, 'activity_id' => $activity_id ] );
+        // #3587 — answer with what was saved, the GET payload, so a client
+        // can see the result rather than only the ids.
+        return RestResponse::success( MatchPrepState::forActivity( $activity_id ) ?? [ 'prep_id' => $prep_id, 'activity_id' => $activity_id ] );
     }
 
     /**
