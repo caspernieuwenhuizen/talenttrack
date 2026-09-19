@@ -78,6 +78,12 @@ alerts all have something to show. Future activities carry no **result**: no
 register, no minutes, no ratings and no match execution. Match prep is written
 for them, which is what a coach's screen looks like mid-week.
 
+Every team keeps the same **weekly rhythm**, whichever day you generate on:
+trainings on **Tuesday and Thursday** from 18:30 to 20:00, and every third week
+the Thursday training gives way to a **match on Saturday**, kicking off at 10:00
+with players reporting at 09:15. So a Saturday in a match week always has a
+fixture to hang minutes, the register and match evaluations on.
+
 They do carry a **planned squad**, though, and so does every past activity.
 Attendance is two different things — the squad a coach planned and the register
 they took afterwards — and a generated academy used to contain only the second.

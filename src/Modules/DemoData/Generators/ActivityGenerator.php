@@ -159,6 +159,14 @@ class ActivityGenerator implements DependentGeneratorInterface {
                     'club_id'             => CurrentClub::id(),
                     'title'               => $title,
                     'session_date'        => $when,
+                    // #3676 — times come with the slot, so the week
+                    // planner, the activity detail and the parent views
+                    // have something to show. `kickoff_time` mirrors the
+                    // start on a game, as the REST save does (#2282).
+                    'start_time'          => $slot['start_time'],
+                    'end_time'            => $slot['end_time'],
+                    'time_of_presence'    => $slot['time_of_presence'],
+                    'kickoff_time'        => $is_game ? $slot['start_time'] : null,
                     'location'            => $strings['default_location'],
                     'team_id'             => $team_id,
                     'coach_id'            => $coach_id,
