@@ -283,7 +283,6 @@ class PlayersRestController {
         // Ordered ids over the same WHERE + joins the ORDER BY may reference.
         $id_sql = "SELECT p.id FROM {$p}tt_players p
                    LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
-                   LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
                    WHERE {$where_sql}
                    ORDER BY {$orderby} {$order}";
         $all_ids = $params
@@ -304,20 +303,31 @@ class PlayersRestController {
         $total = count( $auth_ids );
 
         // Page the authorized ids, then hydrate full rows for just this page.
-        // #0070 — join parent person so the list can render a clickable
-        // parent name (null when unset / removed). SQL `IN` does not
-        // preserve order, so reorder in PHP to match the authorized page.
+        // #3572 — the parent comes from `tt_player_parents`, the one parent
+        // model every access check already reads: the primary link (then
+        // the oldest) and a count of all links. It used to come from
+        // `parent_person_id`, which only the retired wp-admin picker wrote,
+        // so a parent linked the supported way read as "no parent" here.
+        // SQL `IN` does not preserve order, so reorder in PHP to match the
+        // authorized page.
         $page_ids = array_slice( $auth_ids, $offset, $per_page );
         $rows = [];
         if ( $page_ids ) {
+            $users    = $wpdb->users;
             $in       = implode( ',', array_fill( 0, count( $page_ids ), '%d' ) );
             $rows_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group,
-                                par.id AS parent_id,
-                                par.first_name AS parent_first_name,
-                                par.last_name AS parent_last_name
+                                pu.ID AS parent_id,
+                                pu.display_name AS parent_display_name,
+                                ( SELECT COUNT(*) FROM {$p}tt_player_parents ppc
+                                   WHERE ppc.player_id = p.id AND ppc.club_id = p.club_id ) AS parent_count
                          FROM {$p}tt_players p
                          LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
-                         LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
+                         LEFT JOIN {$users} pu ON pu.ID = (
+                             SELECT pp.parent_user_id FROM {$p}tt_player_parents pp
+                              WHERE pp.player_id = p.id AND pp.club_id = p.club_id
+                              ORDER BY pp.is_primary DESC, pp.created_at ASC, pp.parent_user_id ASC
+                              LIMIT 1
+                         )
                          WHERE p.id IN ($in)";
             $fetched = $wpdb->get_results( $wpdb->prepare( $rows_sql, ...$page_ids ) ) ?: [];
             $by_id   = [];
@@ -432,14 +442,21 @@ class PlayersRestController {
             );
         }
 
-        $parent_id   = (int) ( $pl->parent_id ?? 0 );
-        $parent_name = trim( ( (string) ( $pl->parent_first_name ?? '' ) ) . ' ' . ( (string) ( $pl->parent_last_name ?? '' ) ) );
+        // #3572 — primary parent plus a count ("Anna de Vries +1"). The
+        // name links to the Parent accounts view for whoever may open it,
+        // and is plain text for everyone else.
+        $parent_id    = (int) ( $pl->parent_id ?? 0 );
+        $parent_name  = $parent_id > 0 ? trim( (string) ( $pl->parent_display_name ?? '' ) ) : '';
+        $parent_count = $parent_id > 0 ? max( 1, (int) ( $pl->parent_count ?? 1 ) ) : 0;
         $parent_link_html = '';
-        if ( $parent_id > 0 && $parent_name !== '' ) {
-            $parent_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
-                $parent_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $parent_id )
-            );
+        if ( $parent_name !== '' ) {
+            $label = $parent_count > 1 ? $parent_name . ' +' . ( $parent_count - 1 ) : $parent_name;
+            $parent_link_html = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_parent_accounts' )
+                ? \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $label,
+                    add_query_arg( [ 'tt_view' => 'parent-accounts' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
+                )
+                : esc_html( $label );
         }
 
         return [
@@ -454,6 +471,7 @@ class PlayersRestController {
             'team_age_group'   => (string) ( $pl->team_age_group ?? '' ),
             'parent_id'        => $parent_id,
             'parent_name'      => $parent_name,
+            'parent_count'     => $parent_count,
             'parent_link_html' => $parent_link_html,
             'jersey_number'    => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
             'preferred_foot'   => (string) ( $pl->preferred_foot ?? '' ),
@@ -578,36 +596,28 @@ class PlayersRestController {
     }
 
     /**
-     * If the request carries a non-empty `link_parent_user_id`, attach
-     * the chosen parent WP user to this player via PlayerParentsRepository.
-     * Idempotent — link() handles re-linking gracefully. Validates that
-     * the user is a TT person tagged as parent before linking, so the
-     * dropdown UX (parents-only) can't be bypassed by a hand-crafted
-     * payload.
+     * If the request carries a non-empty `link_parent_user_id`, attach the
+     * chosen parent WP user to this player.
+     *
+     * #3572 — through `ParentAccountService::linkToPlayer()`, the one link
+     * rule. This used to run its own check that REQUIRED a `tt_people` row
+     * of type `parent`, while the Parent accounts path REFUSED any account
+     * with a people row, so the two write paths into the same pivot
+     * accepted opposite sets of accounts. Idempotent: an existing link is
+     * a no-op.
      */
     private static function maybeLinkParent( int $player_id, \WP_REST_Request $r ): void {
         $parent_user_id = absint( $r['link_parent_user_id'] ?? 0 );
         if ( $player_id <= 0 || $parent_user_id <= 0 ) return;
 
-        global $wpdb; $p = $wpdb->prefix;
-        $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT 1 FROM {$p}tt_people
-              WHERE wp_user_id = %d
-                AND role_type = 'parent'
-                AND archived_at IS NULL
-                AND club_id = %d
-              LIMIT 1",
-            $parent_user_id, CurrentClub::id()
-        ) );
-        if ( $is_parent !== 1 ) {
-            Logger::error( 'rest.player.link_parent.not_parent', [
+        $result = ( new \TT\Infrastructure\Players\ParentAccountService() )->linkToPlayer( $player_id, $parent_user_id );
+        if ( empty( $result['ok'] ) ) {
+            Logger::error( 'rest.player.link_parent.refused', [
                 'player_id'      => $player_id,
                 'parent_user_id' => $parent_user_id,
+                'code'           => $result['code'],
             ] );
-            return;
         }
-
-        ( new \TT\Modules\Invitations\PlayerParentsRepository() )->link( $player_id, $parent_user_id );
     }
 
     public static function delete_player( \WP_REST_Request $r ) {
