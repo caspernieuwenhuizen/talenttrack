@@ -41,7 +41,13 @@ Some exceptions are deliberate. **Safeguarding messages, account-recovery email 
 
 ## Quiet hours
 
-By default nothing non-urgent goes out between **21:00 and 07:00**. A message caught by the window is recorded as deferred rather than sent. The window is configurable per academy.
+By default nothing non-urgent goes out between **21:00 and 07:00**. The window is configurable per academy, and it is read in the site's time zone (**Settings → General → Timezone** in WordPress), so set that to where the academy is.
+
+A message caught by the window is **held, not dropped**. The send log shows it as *Held until morning*. In the first hour after the window ends it is sent, and the same row changes to the final outcome and shows as a second attempt. Everything that can stop a message is checked again at that moment: a family that opted out overnight, or a kind of message the academy switched off, is not written to.
+
+If a held message has not gone out within **24 hours**, it is not sent at all. Its row changes to failed with *Not sent after quiet hours*. That only happens when the hourly background task has stopped running, and the row is there so you notice.
+
+**Scheduled reports ignore quiet hours.** They go to staff, at the time the schedule says, because a report carries a file and a held message never keeps one overnight. For the same reason, any other message with a file attached that falls inside the window is not held: it is logged as failed straight away, so you can send it again in the morning.
 
 ## Opting out
 
@@ -98,6 +104,8 @@ Rows written before this arrived say the reachability was **never established**,
 If a scheduled detector has been failing, a warning sits above the table naming it and when it last ran. That is the only place that difference shows: a detector with nothing to send and a detector crashing every night both leave no rows behind.
 
 **The message body is never stored.** The log keeps a fingerprint of it so the record cannot be quietly altered, and nothing more. This is a deliberate limit: it means the log can tell you that a message about a child was sent, to whom, and whether it arrived — and cannot be used to read what a coach wrote about them.
+
+There is one short-lived exception. A message held by quiet hours waits in a separate queue until it is sent. The queue keeps what is needed to write the message and the address it goes to, never an attachment, and each entry is deleted as soon as the message is sent or after 24 hours, whichever comes first.
 
 Log rows are kept for **18 months** by default. After that a daily job blanks the recipient address and subject line while keeping the row itself, so the fact of the message survives as safeguarding evidence without the personal detail attached.
 

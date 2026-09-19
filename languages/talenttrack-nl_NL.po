@@ -14915,6 +14915,14 @@ msgstr "De ontvanger heeft aangegeven dit soort bericht niet te willen."
 msgid "It fell inside the quiet-hours window and was not urgent."
 msgstr "Het viel binnen de stiltetijden en was niet urgent."
 
+#: src/Modules/Comms/Domain/CommsStatusLabels.php
+msgid "It was held for quiet hours but not sent within 24 hours. The hourly background task may not be running."
+msgstr "Het werd vastgehouden voor de stiltetijden, maar niet binnen 24 uur verstuurd. De achtergrondtaak die elk uur draait, loopt mogelijk niet."
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php
+msgid "It fell inside the quiet-hours window and could not be held for later. Send it again after the window ends."
+msgstr "Het viel binnen de stiltetijden en kon niet worden bewaard voor later. Verstuur het opnieuw na afloop van de stiltetijden."
+
 #: src/Modules/Comms/Domain/CommsStatusLabels.php:77
 msgid "This kind of message is switched off for the academy."
 msgstr "Dit soort bericht staat uit voor de academie."
@@ -14959,6 +14967,18 @@ msgstr "Ontvanger heeft geen account"
 #: src/Modules/Comms/Domain/CommsStatusLabels.php:145
 msgid "In-app inbox unavailable"
 msgstr "Inbox in de app niet beschikbaar"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php
+msgid "Not sent after quiet hours"
+msgstr "Niet verstuurd na de stiltetijden"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php
+msgid "Has an attachment, so not held until morning"
+msgstr "Heeft een bijlage, dus niet vastgehouden tot de ochtend"
+
+#: src/Modules/Comms/Domain/CommsStatusLabels.php
+msgid "Could not be held until morning"
+msgstr "Kon niet worden vastgehouden tot de ochtend"
 
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:78
 #: src/Shared/CoreSurfaceRegistration.php:1550

@@ -41,7 +41,13 @@ Sommige uitzonderingen zijn bewust gemaakt. **Berichten over veiligheid en welzi
 
 ## Stiltetijden
 
-Standaard gaat er tussen **21:00 en 07:00** niets uit dat niet urgent is. Een bericht dat in dat venster valt wordt vastgelegd als uitgesteld in plaats van verstuurd. Het venster is per academie in te stellen.
+Standaard gaat er tussen **21:00 en 07:00** niets uit dat niet urgent is. Het venster is per academie in te stellen, en het geldt in de tijdzone van de site (**Instellingen → Algemeen → Tijdzone** in WordPress). Zet die dus op de plek waar de academie zit.
+
+Een bericht dat in het venster valt wordt **vastgehouden, niet weggegooid**. In het verzendlogboek staat het als *Wacht tot de ochtend*. In het eerste uur na afloop van het venster wordt het verstuurd, en dezelfde regel krijgt dan de uiteindelijke uitkomst en telt als tweede poging. Alles wat een bericht kan tegenhouden wordt op dat moment opnieuw gecontroleerd: een gezin dat zich 's nachts heeft afgemeld, of een soort bericht dat de academie heeft uitgezet, krijgt niets.
+
+Is een vastgehouden bericht na **24 uur** nog niet verstuurd, dan gaat het helemaal niet meer uit. De regel verandert dan in mislukt, met *Niet verstuurd na de stiltetijden*. Dat gebeurt alleen als de achtergrondtaak die elk uur draait is gestopt, en de regel staat er zodat je dat merkt.
+
+**Geplande rapporten negeren de stiltetijden.** Ze gaan naar de staf, op het tijdstip dat het schema aangeeft, omdat een rapport een bestand meestuurt en een vastgehouden bericht 's nachts nooit een bestand bewaart. Om dezelfde reden wordt elk ander bericht met een bijlage dat in het venster valt niet vastgehouden: het wordt meteen als mislukt vastgelegd, zodat je het 's ochtends opnieuw kunt versturen.
 
 ## Afmelden
 
@@ -98,6 +104,8 @@ Regels die vóór deze wijziging zijn geschreven, melden dat de bereikbaarheid *
 Als een geplande detectie blijft mislukken, staat er een waarschuwing boven de tabel met welke het is en wanneer die voor het laatst liep. Dat is de enige plek waar dat verschil zichtbaar wordt: een detectie zonder iets te versturen en een detectie die elke nacht crasht laten allebei geen regels achter.
 
 **De inhoud van het bericht wordt nooit opgeslagen.** Het logboek bewaart er een vingerafdruk van, zodat de regel niet ongemerkt kan worden aangepast, en verder niets. Dat is een bewuste grens: het logboek kan je vertellen dát er een bericht over een kind is verstuurd, aan wie, en of het is aangekomen — en kan niet worden gebruikt om te lezen wat een trainer over dat kind heeft geschreven.
+
+Er is één kortstondige uitzondering. Een bericht dat door de stiltetijden wordt vastgehouden wacht in een aparte wachtrij tot het wordt verstuurd. De wachtrij bewaart wat nodig is om het bericht op te stellen en het adres waar het heen gaat, nooit een bijlage, en elk item wordt verwijderd zodra het bericht is verstuurd of na 24 uur, wat het eerst komt.
 
 Regels blijven standaard **18 maanden** staan. Daarna maakt een dagelijkse taak het ontvangeradres en de onderwerpregel leeg, terwijl de regel zelf blijft — zo blijft het feit van het bericht bewaard als bewijs zonder de persoonlijke details eraan.
 

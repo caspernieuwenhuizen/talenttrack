@@ -110,7 +110,10 @@ final class ScheduledReportsRunner {
                 // #2604 — through Comms rather than a direct `wp_mail()`, so
                 // the send is audited and an operator who muted scheduled
                 // reports stops receiving them. The rendered CSV rides along
-                // on the request's attachment paths.
+                // on the request's attachment paths. #3646 — the type
+                // bypasses quiet hours, because a held message waits in a
+                // queue that never keeps a file and this one is deleted
+                // below as soon as the send returns.
                 $results = CommsDispatcher::dispatchSync(
                     ScheduledReportTemplate::KEY,
                     [

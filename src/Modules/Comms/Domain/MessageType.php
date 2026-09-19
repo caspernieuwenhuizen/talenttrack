@@ -258,6 +258,25 @@ final class MessageType {
         // #3382 — `TRAINING_CANCELLED` used to be named again here. It is
         // now operational (see OPERATIONAL_BY_POLICY), so the first branch
         // already covers it.
-        return self::isOperational( $messageType );
+        return self::isOperational( $messageType )
+            || in_array( $messageType, self::QUIET_HOURS_EXEMPT, true );
     }
+
+    /**
+     * Non-operational types that are never held for quiet hours.
+     *
+     * #3646 — a held message waits in `tt_comms_deferred` until the window
+     * ends, and that queue never holds a file. A scheduled report carries
+     * its CSV or PDF as an attachment its runner deletes as soon as the send
+     * returns, so deferring it would lose the file; keeping a copy on disk
+     * overnight would leave a report about minors lying around. Scheduled
+     * reports go to staff, who set the schedule themselves, so they send
+     * when the schedule says. Still opt-outable: this list is about timing,
+     * not about whether the recipient can refuse it.
+     *
+     * @var list<string>
+     */
+    private const QUIET_HOURS_EXEMPT = [
+        self::SCHEDULED_REPORT,
+    ];
 }

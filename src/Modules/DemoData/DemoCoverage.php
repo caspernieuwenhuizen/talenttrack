@@ -640,6 +640,7 @@ class DemoCoverage {
         'tt_impersonation_log' => [ 'exempt' => 'Authentication audit: who signed in as whom, and when. Same reason as tt_audit_log — a fabricated entry corrupts the record a real investigation reads, and this one is about accounts rather than content.' ],
         'tt_comms_log'   => [ 'exempt' => 'One row per real send attempt, and what the operator-facing "did the parents actually get it?" query reads. Seeding it would answer that question with sends that never happened.' ],
         'tt_comms_inbox' => [ 'planned' => '#2600' ],
+        'tt_comms_deferred' => [ 'exempt' => 'A real message held by quiet hours until the window ends (#3646), deleted once it is sent. Seeding it would make the next heartbeat send fictional messages to whoever the rows name.' ],
         // #3357 (epic #3354) — the per-team VCT cycle and its manual week
         // overrides. A demo academy should ship with a cycle configured, or
         // the cycle week never appears on a demo training and the feature
