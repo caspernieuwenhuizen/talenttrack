@@ -17,6 +17,8 @@ Pages with a print icon in the top right:
 - **Player rate cards** — the full card, radar and trend.
 - **Evaluation detail** — one evaluation with all categories and notes.
 
+The print icon only appears when you can open the report. That means the player themselves, their parents and the staff who can see the player. A parent doesn't see it if the player has hidden their evaluations from parents, because the report is built from them.
+
 ## How to print
 
 Click the print icon. A clean version of the page opens in a new window with no menus or sidebars, and the browser's print dialog pops up.
